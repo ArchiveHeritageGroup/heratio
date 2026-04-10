@@ -46,7 +46,8 @@ class MediaProcessingController extends Controller
     }
 
     /**
-     * Admin dashboard showing derivative statistics and recent activity.
+     * Admin dashboard showing derivative statistics, media processing settings,
+     * system tools, and recent activity.
      */
     public function index()
     {
@@ -60,11 +61,47 @@ class MediaProcessingController extends Controller
             DerivativeService::USAGE_REFERENCE => 'Reference',
         ];
 
+        // System tools availability
+        $tools = [
+            'ffmpeg'    => $this->checkTool('/usr/bin/ffmpeg'),
+            'ffprobe'   => $this->checkTool('/usr/bin/ffprobe'),
+            'mediainfo' => $this->checkTool('/usr/bin/mediainfo'),
+            'exiftool'  => $this->checkTool('/usr/bin/exiftool'),
+            'whisper'   => $this->checkTool('/usr/local/bin/whisper') || $this->checkTool('/usr/bin/whisper'),
+            'convert'   => $this->checkTool('/usr/bin/convert'),
+            'pdfinfo'   => $this->checkTool('/usr/bin/pdfinfo'),
+        ];
+
+        // Media processing settings grouped
+        $settings = $this->loadMediaProcessorSettings();
+        $grouped = $this->groupSettings($settings);
+
+        // Digital object derivative settings from setting table
+        $derivativeSettings = $this->loadDerivativeSettings();
+
+        // Queue stats
+        $queueStats = $this->loadQueueStats();
+
+        // Group labels for display
+        $groupLabels = [
+            'thumbnail'     => 'Thumbnail Generation',
+            'preview'       => 'Preview Clips',
+            'waveform'      => 'Audio Waveform',
+            'poster'        => 'Video Posters',
+            'audio'         => 'Audio Processing',
+            'transcription' => 'Speech Transcription',
+        ];
+
         return view('ahg-media-processing::index', compact(
             'stats',
             'recentDerivatives',
             'missingDerivatives',
-            'usageLabels'
+            'usageLabels',
+            'tools',
+            'grouped',
+            'groupLabels',
+            'derivativeSettings',
+            'queueStats'
         ));
     }
 
@@ -160,6 +197,225 @@ class MediaProcessingController extends Controller
             'customWatermarks',
             'positions'
         ));
+    }
+
+    /**
+     * Save media processing settings (POST from index form).
+     */
+    public function saveSettings(Request $request)
+    {
+        $settings = $request->input('settings', []);
+
+        // Boolean keys that need explicit zero when unchecked
+        $booleanKeys = [
+            'thumbnail_enabled', 'preview_enabled', 'waveform_enabled',
+            'poster_enabled', 'audio_preview_enabled', 'transcription_enabled',
+            'auto_detect_language',
+        ];
+
+        foreach ($settings as $key => $value) {
+            $row = DB::table('media_processor_settings')
+                ->where('setting_key', $key)
+                ->first(['setting_type']);
+
+            $type = $row ? $row->setting_type : 'string';
+
+            if ($type === 'boolean') {
+                $value = $value ? '1' : '0';
+            } elseif ($type === 'json' && is_array($value)) {
+                $value = json_encode($value);
+            }
+
+            DB::table('media_processor_settings')->updateOrInsert(
+                ['setting_key' => $key],
+                ['setting_value' => $value, 'updated_at' => now()]
+            );
+        }
+
+        // Handle unchecked checkboxes
+        foreach ($booleanKeys as $key) {
+            if (!isset($settings[$key])) {
+                DB::table('media_processor_settings')
+                    ->where('setting_key', $key)
+                    ->update(['setting_value' => '0', 'updated_at' => now()]);
+            }
+        }
+
+        return redirect()->route('media-processing.index')
+            ->with('success', 'Media processing settings saved successfully.');
+    }
+
+    /**
+     * Save digital object derivative settings (POST from index form).
+     */
+    public function saveDerivativeSettings(Request $request)
+    {
+        $request->validate([
+            'pdf_page_number' => 'nullable|integer|min:1',
+            'reference_image_maxwidth' => 'nullable|integer|min:100|max:2000',
+        ]);
+
+        $pdfPage = $request->input('pdf_page_number');
+        $maxWidth = $request->input('reference_image_maxwidth');
+
+        if ($pdfPage !== null) {
+            DB::table('setting_i18n')->updateOrInsert(
+                ['id' => 158, 'culture' => 'en'],
+                ['value' => (string) $pdfPage]
+            );
+        }
+
+        if ($maxWidth !== null) {
+            DB::table('setting_i18n')->updateOrInsert(
+                ['id' => 5, 'culture' => 'en'],
+                ['value' => (string) $maxWidth]
+            );
+        }
+
+        return redirect()->route('media-processing.index')
+            ->with('success', 'Digital object derivative settings saved.');
+    }
+
+    /**
+     * Queue management page.
+     */
+    public function queue()
+    {
+        $stats = DB::table('media_processing_queue')
+            ->select('status', DB::raw('COUNT(*) as count'))
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        $items = DB::table('media_processing_queue as q')
+            ->leftJoin('digital_object as d', 'q.digital_object_id', '=', 'd.id')
+            ->select('q.*', 'd.name as filename')
+            ->orderBy('q.created_at', 'desc')
+            ->limit(50)
+            ->get();
+
+        return view('ahg-media-processing::queue', compact('stats', 'items'));
+    }
+
+    /**
+     * Clear completed/failed queue items.
+     */
+    public function clearQueue()
+    {
+        DB::table('media_processing_queue')
+            ->whereIn('status', ['completed', 'failed'])
+            ->delete();
+
+        return redirect()->route('media-processing.queue')
+            ->with('success', 'Queue cleared.');
+    }
+
+    /**
+     * Check if a system tool is available.
+     */
+    private function checkTool(string $path): bool
+    {
+        return file_exists($path) && is_executable($path);
+    }
+
+    /**
+     * Load media processor settings from database.
+     */
+    private function loadMediaProcessorSettings(): array
+    {
+        $settings = [];
+
+        try {
+            $rows = DB::table('media_processor_settings')
+                ->orderBy('setting_group')
+                ->orderBy('setting_key')
+                ->get();
+
+            foreach ($rows as $row) {
+                $value = $row->setting_value;
+
+                switch ($row->setting_type) {
+                    case 'boolean':
+                        $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+                        break;
+                    case 'integer':
+                        $value = (int) $value;
+                        break;
+                    case 'float':
+                        $value = (float) $value;
+                        break;
+                    case 'json':
+                        $value = json_decode($value, true);
+                        break;
+                }
+
+                $settings[$row->setting_key] = [
+                    'value'       => $value,
+                    'type'        => $row->setting_type,
+                    'group'       => $row->setting_group,
+                    'description' => $row->description,
+                ];
+            }
+        } catch (\Exception $e) {
+            // Table might not exist
+        }
+
+        return $settings;
+    }
+
+    /**
+     * Group settings by group name.
+     */
+    private function groupSettings(array $settings): array
+    {
+        $grouped = [];
+
+        foreach ($settings as $key => $setting) {
+            $group = $setting['group'] ?? 'general';
+            $grouped[$group][$key] = $setting;
+        }
+
+        return $grouped;
+    }
+
+    /**
+     * Load derivative settings from the setting/setting_i18n tables.
+     */
+    private function loadDerivativeSettings(): array
+    {
+        $pdfPage = DB::table('setting')
+            ->join('setting_i18n', 'setting.id', '=', 'setting_i18n.id')
+            ->where('setting.name', 'digital_object_derivatives_pdf_page_number')
+            ->where('setting_i18n.culture', 'en')
+            ->value('setting_i18n.value');
+
+        $maxWidth = DB::table('setting')
+            ->join('setting_i18n', 'setting.id', '=', 'setting_i18n.id')
+            ->where('setting.name', 'reference_image_maxwidth')
+            ->where('setting_i18n.culture', 'en')
+            ->value('setting_i18n.value');
+
+        return [
+            'pdf_page_number'        => $pdfPage ?: '1',
+            'reference_image_maxwidth' => $maxWidth ?: '480',
+            'pdfinfo_available'      => $this->checkTool('/usr/bin/pdfinfo'),
+        ];
+    }
+
+    /**
+     * Load queue statistics.
+     */
+    private function loadQueueStats(): array
+    {
+        try {
+            return DB::table('media_processing_queue')
+                ->select('status', DB::raw('COUNT(*) as count'))
+                ->groupBy('status')
+                ->pluck('count', 'status')
+                ->toArray();
+        } catch (\Exception $e) {
+            return [];
+        }
     }
 
     /**

@@ -694,14 +694,67 @@ class AclController extends Controller
 
     public function watermarkSettings()
     {
-        $watermarkTypes = collect();
-        $settings = (object) ['default_watermark_type_id' => null, 'default_position' => 'center', 'default_opacity' => 0.4, 'auto_watermark' => false];
-        return view('ahg-acl::security.watermark-settings', compact('watermarkTypes', 'settings'));
+        $wmService = app(\AhgMediaProcessing\Services\WatermarkService::class);
+
+        $watermarkTypes     = $wmService->getWatermarkTypes();
+        $customWatermarks   = $wmService->getCustomWatermarks();
+        $defaultEnabled     = $wmService->getSetting('default_watermark_enabled', '1');
+        $defaultType        = $wmService->getSetting('default_watermark_type', 'COPYRIGHT');
+        $defaultCustomWatermarkId = $wmService->getSetting('default_custom_watermark_id', '');
+        $applyOnView        = $wmService->getSetting('apply_watermark_on_view', '1');
+        $applyOnDownload    = $wmService->getSetting('apply_watermark_on_download', '1');
+        $securityOverride   = $wmService->getSetting('security_watermark_override', '1');
+        $minSize            = $wmService->getSetting('watermark_min_size', '200');
+
+        return view('ahg-acl::security.watermark-settings', compact(
+            'watermarkTypes', 'customWatermarks',
+            'defaultEnabled', 'defaultType', 'defaultCustomWatermarkId',
+            'applyOnView', 'applyOnDownload', 'securityOverride', 'minSize'
+        ));
     }
 
     public function watermarkSettingsStore(Request $request)
     {
-        return redirect()->route('acl.watermark-settings')->with('success', 'Watermark settings saved.');
+        $wmService = app(\AhgMediaProcessing\Services\WatermarkService::class);
+
+        // Handle custom watermark upload
+        if ($request->hasFile('custom_watermark_file') && $request->file('custom_watermark_file')->isValid()) {
+            $wmService->uploadCustomWatermark(
+                $request->file('custom_watermark_file'),
+                $request->input('custom_watermark_name', 'Custom Watermark'),
+                $request->input('custom_watermark_position', 'center'),
+                (float) $request->input('custom_watermark_opacity', 0.40),
+                auth()->id()
+            );
+
+            return redirect()->route('acl.watermark-settings')
+                ->with('success', 'Custom watermark uploaded successfully.');
+        }
+
+        // Handle delete custom watermark
+        if ($request->filled('delete_custom_watermark')) {
+            $wmService->deleteCustomWatermark((int) $request->input('delete_custom_watermark'));
+
+            return redirect()->route('acl.watermark-settings')
+                ->with('success', 'Custom watermark deleted.');
+        }
+
+        // Save settings
+        $wmService->saveSettings([
+            'default_watermark_enabled'  => $request->input('default_watermark_enabled', '0'),
+            'default_watermark_type'     => $request->input('default_watermark_type', 'COPYRIGHT'),
+            'default_custom_watermark_id' => $request->input('default_custom_watermark_id', ''),
+            'apply_watermark_on_view'    => $request->input('apply_watermark_on_view', '0'),
+            'apply_watermark_on_download' => $request->input('apply_watermark_on_download', '0'),
+            'security_watermark_override' => $request->input('security_watermark_override', '0'),
+            'watermark_min_size'         => $request->input('watermark_min_size', '200'),
+        ]);
+
+        // Update Cantaloupe cache
+        $wmService->updateCantaloupeCache();
+
+        return redirect()->route('acl.watermark-settings')
+            ->with('success', 'Watermark settings saved successfully.');
     }
 
     public function traceWatermark()

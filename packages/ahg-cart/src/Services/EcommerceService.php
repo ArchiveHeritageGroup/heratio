@@ -47,22 +47,54 @@ class EcommerceService
         return DB::table('ahg_ecommerce_settings')->first();
     }
 
-    public function getProductTypes(): \Illuminate\Support\Collection
+    public function getProductTypes(bool $activeOnly = true): \Illuminate\Support\Collection
     {
-        return DB::table('ahg_product_type')
-            ->where('is_active', 1)
-            ->orderBy('sort_order')
-            ->get();
+        $query = DB::table('ahg_product_type');
+        if ($activeOnly) {
+            $query->where('is_active', 1);
+        }
+        return $query->orderBy('sort_order')->get();
     }
 
-    public function getProductPricing(?int $repositoryId = null): \Illuminate\Support\Collection
+    public function getProductPricing(?int $repositoryId = null, bool $activeOnly = true): \Illuminate\Support\Collection
     {
-        return DB::table('ahg_product_pricing')
-            ->where('is_active', 1)
+        $query = DB::table('ahg_product_pricing');
+        if ($activeOnly) {
+            $query->where('is_active', 1);
+        }
+        return $query
             ->when($repositoryId, fn ($q) => $q->where('repository_id', $repositoryId))
             ->when(!$repositoryId, fn ($q) => $q->whereNull('repository_id'))
             ->orderBy('product_type_id')
             ->get();
+    }
+
+    public function savePricing(array $data): void
+    {
+        $existing = DB::table('ahg_product_pricing')
+            ->whereNull('repository_id')
+            ->where('product_type_id', $data['product_type_id'])
+            ->first();
+
+        if ($existing) {
+            DB::table('ahg_product_pricing')
+                ->where('id', $existing->id)
+                ->update([
+                    'price' => $data['price'],
+                    'is_active' => $data['is_active'],
+                    'updated_at' => now(),
+                ]);
+        } else {
+            DB::table('ahg_product_pricing')->insert([
+                'repository_id' => null,
+                'product_type_id' => $data['product_type_id'],
+                'name' => $data['name'] ?? '',
+                'price' => $data['price'],
+                'is_active' => $data['is_active'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     }
 
     public function calculateCartTotals(\Illuminate\Support\Collection $cartItems, ?int $repositoryId = null): array
@@ -224,6 +256,7 @@ class EcommerceService
             'paid' => DB::table('ahg_order')->where('status', 'paid')->count(),
             'completed' => DB::table('ahg_order')->where('status', 'completed')->count(),
             'cancelled' => DB::table('ahg_order')->where('status', 'cancelled')->count(),
+            'revenue' => DB::table('ahg_order')->whereIn('status', ['paid', 'completed'])->sum('total'),
         ];
     }
 }

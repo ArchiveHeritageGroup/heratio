@@ -205,6 +205,14 @@ class CartController extends Controller
     public function adminSettings(Request $request)
     {
         if ($request->isMethod('post')) {
+            $actionType = $request->input('action_type', 'save_settings');
+
+            if ($actionType === 'save_pricing') {
+                $this->savePricing($request);
+                return redirect()->route('cart.admin.settings', ['tab' => 'pricing'])->with('success', 'Product pricing updated.');
+            }
+
+            // save_settings (General + Payment tabs)
             $settings = $this->ecommerceService->getSettings();
             if ($settings) {
                 DB::table('ahg_ecommerce_settings')
@@ -227,9 +235,27 @@ class CartController extends Controller
         }
 
         $settings = $this->ecommerceService->getSettings();
-        $productTypes = $this->ecommerceService->getProductTypes();
-        $pricing = $this->ecommerceService->getProductPricing();
-        return view('ahg-cart::admin.settings', compact('settings', 'productTypes', 'pricing'));
+        $productTypes = $this->ecommerceService->getProductTypes(false);
+        $pricing = $this->ecommerceService->getProductPricing(null, false);
+        $activeTab = $request->get('tab', 'general');
+        return view('ahg-cart::admin.settings', compact('settings', 'productTypes', 'pricing', 'activeTab'));
+    }
+
+    private function savePricing(Request $request): void
+    {
+        $prices = $request->input('price', []);
+        $active = $request->input('price_active', []);
+        $productTypes = $this->ecommerceService->getProductTypes(false);
+
+        foreach ($prices as $typeId => $price) {
+            $pt = $productTypes->firstWhere('id', $typeId);
+            $this->ecommerceService->savePricing([
+                'product_type_id' => $typeId,
+                'name' => $pt->name ?? 'Product ' . $typeId,
+                'price' => floatval($price),
+                'is_active' => isset($active[$typeId]) ? 1 : 0,
+            ]);
+        }
     }
 
     public function payment(int $id) { return view('ahg-cart::payment'); }

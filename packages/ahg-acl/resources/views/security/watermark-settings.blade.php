@@ -1,11 +1,36 @@
 {{-- Watermark Settings - Migrated from AtoM: ahgSecurityClearancePlugin/modules/securityClearance/templates/watermarkSettingsSuccess.php --}}
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 
 @section('title', 'Watermark Settings')
+
+@section('sidebar')
+  <div class="card mb-3">
+    <div class="card-header">
+      <h4 class="mb-0">Watermark Settings</h4>
+    </div>
+    <div class="card-body">
+      <p>Configure default watermark behavior for all digital objects.</p>
+    </div>
+  </div>
+@endsection
 
 @section('content')
 
 <h1>Watermark Settings</h1>
+
+@if(session('success'))
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+@endif
+
+@if(session('error'))
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ session('error') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+@endif
 
 <form method="post" action="{{ route('acl.watermark-settings-store') }}" enctype="multipart/form-data">
   @csrf

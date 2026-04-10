@@ -1700,49 +1700,91 @@ class SettingsController extends Controller
     // ─── Levels ────────────────────────────────────────────────────────
     public function levels(Request $request)
     {
-        $culture = app()->getLocale();
         $menu = $this->buildMenu('levels');
 
-        $allLevels = DB::table('term')
+        // Available sectors (matching AtoM: archive always present + any with data)
+        $availableSectors = ['archive', 'museum', 'library', 'gallery', 'dam'];
+
+        $currentSector = $request->input('sector', 'archive');
+        if (!in_array($currentSector, $availableSectors)) {
+            $currentSector = 'archive';
+        }
+
+        // Counts per sector for badges
+        $sectorCounts = [];
+        $countRows = DB::table('level_of_description_sector')
+            ->selectRaw('sector, COUNT(*) as cnt')
+            ->groupBy('sector')
+            ->pluck('cnt', 'sector')
+            ->toArray();
+        foreach ($availableSectors as $s) {
+            $sectorCounts[$s] = $countRows[$s] ?? 0;
+        }
+
+        // All levels from taxonomy 34 (for the checkbox grid)
+        $sectorAvailableLevels = DB::table('term')
             ->join('term_i18n', function ($j) {
                 $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', 'en');
             })
+            ->leftJoin('slug', 'slug.object_id', '=', 'term.id')
             ->where('term.taxonomy_id', 34)
             ->orderBy('term_i18n.name')
-            ->select('term.id', 'term_i18n.name')
+            ->select('term.id', 'term_i18n.name', 'slug.slug')
             ->get();
 
-        // Get sectors from ahg_settings if available
-        $sectors = [];
-        $sectorLevels = [];
-        if (Schema::hasTable('ahg_settings')) {
-            $sectorRows = DB::table('ahg_settings')
-                ->where('setting_key', 'like', 'sector_%_levels')
-                ->get();
-            foreach ($sectorRows as $row) {
-                preg_match('/sector_(\w+)_levels/', $row->setting_key, $m);
-                if (isset($m[1])) {
-                    $sectors[$m[1]] = ucfirst($m[1]);
-                    $sectorLevels[$m[1]] = json_decode($row->setting_value, true) ?: [];
-                }
-            }
-        }
-        if (empty($sectors)) {
-            $sectors = ['archive' => 'Archive', 'museum' => 'Museum', 'library' => 'Library', 'gallery' => 'Gallery'];
-        }
+        // Levels currently assigned to this sector (ordered)
+        $sectorLevels = DB::table('level_of_description_sector as lds')
+            ->join('term_i18n', function ($j) {
+                $j->on('lds.term_id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', 'en');
+            })
+            ->leftJoin('slug', 'slug.object_id', '=', 'lds.term_id')
+            ->where('lds.sector', $currentSector)
+            ->orderBy('lds.display_order')
+            ->select('lds.term_id as id', 'term_i18n.name', 'slug.slug', 'lds.display_order')
+            ->get();
 
+        $sectorLevelIds = $sectorLevels->pluck('id')->toArray();
+
+        // Handle POST
         if ($request->isMethod('post')) {
-            foreach ($request->input('levels', []) as $sectorCode => $levelIds) {
-                $key = 'sector_' . $sectorCode . '_levels';
-                DB::table('ahg_settings')->updateOrInsert(
-                    ['setting_key' => $key, 'setting_group' => 'levels'],
-                    ['setting_value' => json_encode($levelIds)]
-                );
+            $actionType = $request->input('action_type');
+
+            if ($actionType === 'update_sector') {
+                $levelIds = $request->input('levels', []);
+                DB::table('level_of_description_sector')
+                    ->where('sector', $currentSector)
+                    ->delete();
+
+                $order = 10;
+                foreach ($levelIds as $levelId) {
+                    DB::table('level_of_description_sector')->insert([
+                        'term_id'       => (int) $levelId,
+                        'sector'        => $currentSector,
+                        'display_order' => $order,
+                    ]);
+                    $order += 10;
+                }
+                return redirect()->route('settings.levels', ['sector' => $currentSector])
+                    ->with('success', 'Sector levels updated successfully.');
             }
-            return redirect()->route('settings.levels')->with('success', 'Level assignments saved.');
+
+            if ($actionType === 'update_order') {
+                $orders = $request->input('order', []);
+                foreach ($orders as $levelId => $order) {
+                    DB::table('level_of_description_sector')
+                        ->where('term_id', (int) $levelId)
+                        ->where('sector', $currentSector)
+                        ->update(['display_order' => (int) $order]);
+                }
+                return redirect()->route('settings.levels', ['sector' => $currentSector])
+                    ->with('success', 'Display order updated.');
+            }
         }
 
-        return view('ahg-settings::levels', compact('menu', 'allLevels', 'sectors', 'sectorLevels'));
+        return view('ahg-settings::levels', compact(
+            'menu', 'availableSectors', 'currentSector', 'sectorCounts',
+            'sectorAvailableLevels', 'sectorLevels', 'sectorLevelIds'
+        ));
     }
 
     // ─── Paths ─────────────────────────────────────────────────────────

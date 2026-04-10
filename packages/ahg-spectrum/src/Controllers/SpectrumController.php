@@ -2000,39 +2000,124 @@ class SpectrumController extends Controller
 
     public function privacyCompliance(Request $request)
     {
-        $complianceScore = 75;
-        $ropaCount = 0;
-        $dsarStats = ['total' => 0, 'pending' => 0, 'overdue' => 0, 'completed' => 0];
-        $breachStats = ['total' => 0, 'open' => 0, 'notified' => 0, 'closed' => 0];
+        $currentJurisdiction = $request->get('jurisdiction', 'all');
 
-        if (Schema::hasTable('privacy_processing_activity')) {
-            $ropaCount = DB::table('privacy_processing_activity')->count();
+        // Jurisdiction definitions
+        $jurisdictions = [
+            'popia'     => [
+                'name' => 'POPIA', 'country' => 'South Africa', 'icon' => 'za',
+                'full_name' => 'Protection of Personal Information Act', 'dsar_days' => 30,
+                'breach_hours' => 72, 'effective_date' => '2021-07-01',
+                'regulator' => 'Information Regulator', 'regulator_url' => 'https://inforegulator.org.za',
+            ],
+            'ndpa'      => [
+                'name' => 'NDPA', 'country' => 'Nigeria', 'icon' => 'ng',
+                'full_name' => 'Nigeria Data Protection Act', 'dsar_days' => 30,
+                'breach_hours' => 72, 'effective_date' => '2023-06-14',
+                'regulator' => 'NDPC', 'regulator_url' => 'https://ndpc.gov.ng',
+            ],
+            'kenya_dpa' => [
+                'name' => 'Kenya DPA', 'country' => 'Kenya', 'icon' => 'ke',
+                'full_name' => 'Data Protection Act 2019', 'dsar_days' => 30,
+                'breach_hours' => 72, 'effective_date' => '2019-11-25',
+                'regulator' => 'ODPC', 'regulator_url' => 'https://www.odpc.go.ke',
+            ],
+            'gdpr'      => [
+                'name' => 'GDPR', 'country' => 'EU', 'icon' => 'eu',
+                'full_name' => 'General Data Protection Regulation', 'dsar_days' => 30,
+                'breach_hours' => 72, 'effective_date' => '2018-05-25',
+                'regulator' => 'EDPB', 'regulator_url' => 'https://edpb.europa.eu',
+            ],
+            'pipeda'    => [
+                'name' => 'PIPEDA', 'country' => 'Canada', 'icon' => 'ca',
+                'full_name' => 'Personal Information Protection and Electronic Documents Act', 'dsar_days' => 30,
+                'breach_hours' => null, 'effective_date' => '2000-04-13',
+                'regulator' => 'OPC', 'regulator_url' => 'https://www.priv.gc.ca',
+            ],
+            'ccpa'      => [
+                'name' => 'CCPA', 'country' => 'California', 'icon' => 'us',
+                'full_name' => 'California Consumer Privacy Act', 'dsar_days' => 45,
+                'breach_hours' => null, 'effective_date' => '2020-01-01',
+                'regulator' => 'CPPA', 'regulator_url' => 'https://cppa.ca.gov',
+            ],
+        ];
+
+        // African jurisdictions subset for default "all" view
+        $africanJurisdictions = array_intersect_key($jurisdictions, array_flip(['popia', 'ndpa', 'kenya_dpa']));
+
+        // Active jurisdiction from DB
+        $activeJurisdiction = null;
+        if (Schema::hasTable('privacy_jurisdiction')) {
+            $activeJurisdiction = DB::table('privacy_jurisdiction')
+                ->where('is_active', 1)
+                ->first();
         }
+
+        // DSAR stats
+        $dsarStats = ['pending' => 0, 'overdue' => 0];
         if (Schema::hasTable('privacy_dsar_request')) {
             $dsarStats = [
-                'total'     => DB::table('privacy_dsar_request')->count(),
                 'pending'   => DB::table('privacy_dsar_request')->where('status', 'pending')->count(),
                 'overdue'   => DB::table('privacy_dsar_request')
                     ->where('status', '!=', 'completed')
                     ->where('deadline_date', '<', date('Y-m-d'))->count(),
-                'completed' => DB::table('privacy_dsar_request')->where('status', 'completed')->count(),
-            ];
-        }
-        if (Schema::hasTable('privacy_breach_incident')) {
-            $breachStats = [
-                'total'    => DB::table('privacy_breach_incident')->count(),
-                'open'     => DB::table('privacy_breach_incident')->where('status', 'open')->count(),
-                'notified' => DB::table('privacy_breach_incident')->where('regulator_notified', 1)->count(),
-                'closed'   => DB::table('privacy_breach_incident')->where('status', 'closed')->count(),
             ];
         }
 
+        // Breach stats
+        $breachStats = ['open' => 0, 'critical' => 0];
+        if (Schema::hasTable('privacy_breach_incident')) {
+            $breachStats = [
+                'open'     => DB::table('privacy_breach_incident')->where('status', 'open')->count(),
+                'critical' => DB::table('privacy_breach_incident')->where('severity', 'critical')->count(),
+            ];
+        }
+
+        // ROPA stats
+        $ropaStats = ['total' => 0, 'approved' => 0, 'requiring_dpia' => 0];
+        if (Schema::hasTable('privacy_processing_activity')) {
+            $ropaStats = [
+                'total'          => DB::table('privacy_processing_activity')->count(),
+                'approved'       => DB::table('privacy_processing_activity')->where('status', 'approved')->count(),
+                'requiring_dpia' => DB::table('privacy_processing_activity')->where('requires_dpia', 1)->count(),
+            ];
+        }
+
+        // Consent stats
+        $consentStats = ['active' => 0];
+        if (Schema::hasTable('privacy_consent_record')) {
+            $consentStats = [
+                'active' => DB::table('privacy_consent_record')->where('status', 'active')->count(),
+            ];
+        }
+
+        // Notification count
+        $notificationCount = 0;
+        if (Schema::hasTable('privacy_notification')) {
+            $notificationCount = DB::table('privacy_notification')
+                ->where('is_read', 0)->count();
+        }
+
+        // Compliance score (simple calculation based on ROPA approval rate)
+        $complianceScore = $ropaStats['total'] > 0
+            ? round(($ropaStats['approved'] / $ropaStats['total']) * 100)
+            : 0;
+
+        $stats = [
+            'compliance_score' => $complianceScore,
+            'dsar'    => $dsarStats,
+            'breach'  => $breachStats,
+            'ropa'    => $ropaStats,
+            'consent' => $consentStats,
+        ];
+
         return view('spectrum::privacy-compliance', [
-            'complianceScore' => $complianceScore,
-            'ropaCount'       => $ropaCount,
-            'dsarStats'       => $dsarStats,
-            'breachStats'     => $breachStats,
-            'recentActivity'  => [],
+            'stats'                 => $stats,
+            'currentJurisdiction'   => $currentJurisdiction,
+            'jurisdictions'         => $jurisdictions,
+            'africanJurisdictions'  => $africanJurisdictions,
+            'activeJurisdiction'    => $activeJurisdiction,
+            'notificationCount'     => $notificationCount,
         ]);
     }
 
