@@ -9,62 +9,49 @@
   </div>
   <p class="text-muted mb-4">Configure theme, plugin, and system settings</p>
 
+  @php
+    // ── Build a single sorted array of ALL tiles ──────────────────────────
+    $allTiles = [];
 
-  <div class="row">
-    {{-- Theme tile --}}
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('settings.themes') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-palette fa-3x text-primary"></i></div>
-            <h5 class="card-title text-dark">Theme Configuration</h5>
-            <p class="card-text text-muted small">Customize appearance, colours, logo, branding, and custom CSS</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-white"><i class="fas fa-cog"></i> Configure</span>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    {{-- Heratio setting scopes --}}
-    @foreach($scopeCards as $card)
-    <div class="col-lg-4 col-md-6 mb-4">
-      @php
-        $dedicatedRoutes = [
-          '_global' => 'settings.global',
-          'default_template' => 'settings.default-template',
-          'element_visibility' => 'settings.visible-elements',
-          'i18n_languages' => 'settings.languages',
-          'ui_label' => 'settings.interface-labels',
-          'oai' => 'settings.oai',
+    // Helper to add a tile only when its route exists
+    $addTile = function (string $label, string $icon, string $desc, string $routeName, string $color = 'primary', string $btnText = 'Configure', string $btnIcon = 'fa-cog', ?string $routeParam = null) use (&$allTiles) {
+        if (!\Route::has($routeName)) return;
+        $allTiles[$label] = [
+            'label' => $label,
+            'icon'  => $icon,
+            'desc'  => $desc,
+            'url'   => $routeParam ? route($routeName, $routeParam) : route($routeName),
+            'color' => $color,
+            'btn'   => $btnText,
+            'btn_icon' => $btnIcon,
         ];
-        $cardRoute = isset($dedicatedRoutes[$card->key]) ? route($dedicatedRoutes[$card->key]) : route('settings.section', $card->key);
-      @endphp
-      <a href="{{ $cardRoute }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas {{ $card->icon }} fa-3x text-primary"></i></div>
-            <h5 class="card-title text-dark">{{ $card->label }}</h5>
-            <p class="card-text text-muted small">{{ $card->description }}</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-white"><i class="fas fa-cog"></i> Configure</span>
-          </div>
-        </div>
-      </a>
-    </div>
-    @endforeach
+    };
 
-    {{-- AHG setting groups — ordered to match AtoM --}}
-    @php
-      $ahgOrder = [
-        'general', 'email', 'metadata', 'media', 'jobs', 'spectrum', 'photos',
-        'data_protection', 'iiif', 'faces', 'fuseki', 'ingest', 'accession',
-        'encryption', 'voice_ai', 'integrity', 'multi_tenant', 'portable_export',
-        'security', 'features', 'compliance', 'ftp', 'ai_condition',
-      ];
-      $ahgLabels = [
+    // ── 1. Scope cards from controller ($scopeCards) ──
+    $dedicatedRoutes = [
+        '_global' => 'settings.global',
+        'default_template' => 'settings.default-template',
+        'element_visibility' => 'settings.visible-elements',
+        'i18n_languages' => 'settings.languages',
+        'ui_label' => 'settings.interface-labels',
+        'oai' => 'settings.oai',
+    ];
+    foreach ($scopeCards ?? [] as $card) {
+        $rn = $dedicatedRoutes[$card->key] ?? null;
+        $url = $rn ? route($rn) : route('settings.section', $card->key);
+        $allTiles[$card->label] = [
+            'label' => $card->label,
+            'icon'  => $card->icon ?? 'fa-cogs',
+            'desc'  => $card->description ?? '',
+            'url'   => $url,
+            'color' => 'primary',
+            'btn'   => 'Configure',
+            'btn_icon' => 'fa-cog',
+        ];
+    }
+
+    // ── 2. AHG setting groups ($ahgGroups) ──
+    $ahgLabels = [
         'general' => 'Theme Configuration', 'email' => 'Email', 'metadata' => 'Metadata Extraction',
         'media' => 'Media Player', 'jobs' => 'Background Jobs', 'spectrum' => 'Spectrum / Collections',
         'photos' => 'Condition Photos', 'data_protection' => 'Data Protection', 'iiif' => 'IIIF Viewer',
@@ -73,8 +60,8 @@
         'integrity' => 'Integrity', 'multi_tenant' => 'Multi-Tenancy', 'portable_export' => 'Portable Export',
         'security' => 'Security', 'features' => 'Features', 'compliance' => 'Compliance',
         'ftp' => 'FTP / SFTP', 'ai_condition' => 'AI Condition',
-      ];
-      $ahgDescriptions = [
+    ];
+    $ahgDescriptions = [
         'general' => 'Customize appearance, colours, logo, branding, and custom CSS',
         'email' => 'Email notifications and SMTP configuration',
         'metadata' => 'Automatic metadata extraction from uploaded files',
@@ -98,8 +85,8 @@
         'compliance' => 'Regulatory compliance settings',
         'ftp' => 'FTP / SFTP connection settings',
         'ai_condition' => 'AI-powered condition assessment',
-      ];
-      $icons = [
+    ];
+    $ahgIcons = [
         'accession' => 'fa-inbox', 'ai_condition' => 'fa-robot', 'compliance' => 'fa-clipboard-check',
         'data_protection' => 'fa-user-shield', 'email' => 'fa-envelope', 'encryption' => 'fa-lock',
         'faces' => 'fa-user-circle', 'features' => 'fa-star', 'fuseki' => 'fa-project-diagram',
@@ -108,352 +95,74 @@
         'metadata' => 'fa-tags', 'multi_tenant' => 'fa-building', 'photos' => 'fa-camera',
         'portable_export' => 'fa-compact-disc', 'security' => 'fa-shield-alt',
         'spectrum' => 'fa-archive', 'voice_ai' => 'fa-microphone', 'ftp' => 'fa-server',
-      ];
-      $colors = [
+    ];
+    $ahgColors = [
         'security' => 'danger', 'encryption' => 'danger', 'data_protection' => 'warning',
         'ai_condition' => 'info', 'iiif' => 'info', 'media' => 'info',
         'compliance' => 'warning', 'integrity' => 'success',
-      ];
-      // Index ahgGroups by key for count lookup
-      $ahgGroupsByKey = $ahgGroups->keyBy('key');
-      // Sort: show groups in defined order, then any extra groups from DB
-      $orderedKeys = collect($ahgOrder)->filter(fn ($k) => $ahgGroupsByKey->has($k));
-      $extraKeys = $ahgGroups->pluck('key')->diff($ahgOrder);
-      $sortedKeys = $orderedKeys->merge($extraKeys);
-    @endphp
+    ];
+    $ahgGroupsByKey = ($ahgGroups ?? collect())->keyBy('key');
+    foreach ($ahgGroupsByKey as $gKey => $gData) {
+        $label = $ahgLabels[$gKey] ?? $gData->label;
+        // Skip 'general' — we have a dedicated Theme Configuration tile
+        if ($gKey === 'general') continue;
+        $allTiles[$label] = [
+            'label' => $label,
+            'icon'  => $ahgIcons[$gKey] ?? 'fa-puzzle-piece',
+            'desc'  => $ahgDescriptions[$gKey] ?? ucfirst(str_replace('_', ' ', $gKey)) . ' settings',
+            'url'   => route('settings.ahg', $gKey),
+            'color' => $ahgColors[$gKey] ?? 'primary',
+            'btn'   => 'Configure',
+            'btn_icon' => 'fa-cog',
+        ];
+    }
 
-    @foreach($sortedKeys as $gKey)
-    @php
-      $gData = $ahgGroupsByKey[$gKey];
-      $icon = $icons[$gKey] ?? 'fa-puzzle-piece';
-      $color = $colors[$gKey] ?? 'primary';
-      $label = $ahgLabels[$gKey] ?? $gData->label;
-      $desc = $ahgDescriptions[$gKey] ?? ucfirst(str_replace('_', ' ', $gKey)) . ' settings';
-    @endphp
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('settings.ahg', $gKey) }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile {{ $color !== 'primary' ? 'border-' . $color : '' }}">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas {{ $icon }} fa-3x text-{{ $color }}"></i></div>
-            <h5 class="card-title text-dark">{{ $label }}</h5>
-            <p class="card-text text-muted small">{{ $desc }}</p>
+    // ── 3. Static / standalone tiles ──
+    $addTile('Theme Configuration',   'fa-palette',            'Customize appearance, colours, logo, branding, and custom CSS', 'settings.themes');
+    $addTile('Reading Room',          'fa-book-reader',        'Researcher registration and reading room settings', 'research.dashboard', 'success');
+    $addTile('Default page elements', 'fa-th-large',           'Toggle logo, title, description, language menu, digital object carousel and map, copyright and material filters', 'settings.page-elements');
+    $addTile('Cron Jobs',             'fa-clock',              'Manage scheduled tasks — enable/disable, edit schedules, run now', 'settings.cron-jobs', 'secondary', 'Manage Jobs', 'fa-clock');
+    $addTile('Error Log',             'fa-exclamation-triangle','View and manage application error logs', 'settings.error-log', 'danger', 'View Logs', 'fa-bug');
+    $addTile('Plugins',               'fa-puzzle-piece',       'Manage installed packages and plugins', 'settings.plugins', 'info', 'View Plugins', 'fa-plug');
+
+    // AtoM-parity tiles
+    $addTile('Heritage Platform',     'fa-landmark',           'Access control, analytics, branding, custodian tools, and community features', 'heritage.admin', 'warning', 'Admin', 'fa-tools');
+    $addTile('Integrity Assurance',   'fa-shield-alt',         'Fixity verification, retention policies, legal holds, disposition review, and alerting', 'integrity.index', 'danger', 'Dashboard', 'fa-tachometer-alt');
+    $addTile('Media Processing',      'fa-cogs',               'Transcription, thumbnails, waveforms & media derivatives', 'media-processing.index');
+    $addTile('Watermark Settings',    'fa-stamp',              'Configure default watermarks for images and downloads', 'acl.watermark-settings', 'warning');
+    $addTile('Library Settings',      'fa-book',               'Loan rules, circulation, fines, patron defaults, OPAC, ISBN providers', 'settings.library');
+    $addTile('Levels of Description', 'fa-layer-group',        'Assign levels to sectors (Archive, Museum, Library, Gallery, DAM)', 'settings.levels');
+    $addTile('Carousel Settings',     'fa-images',             'Homepage carousel and slideshow configuration', 'settings.carousel', 'info');
+    $addTile('Privacy Compliance',    'fa-user-shield',        'POPIA, NDPA, GDPR compliance - DSARs, Breaches, ROPA, PAIA', 'ahgspectrum.privacy-compliance', 'warning');
+    $addTile('Authority Records',     'fa-id-card',            'External linking, completeness, NER pipeline, merge/dedup, occupations, functions', 'settings.authority');
+    $addTile('Semantic Search',       'fa-brain',              'Thesaurus, synonyms, query expansion and search enhancement settings', 'ric.semantic-search', 'info');
+    $addTile('E-Commerce',            'fa-store',              'Shopping cart, product pricing, payment gateway and order management', 'cart.admin.settings', 'success');
+    $addTile('Order Management',      'fa-shopping-bag',       'View and manage customer orders', 'cart.admin.orders', 'success', 'Manage');
+    $addTile('Preservation & Backup', 'fa-cloud-upload-alt',   'Configure backup replication targets, verify integrity, and manage preservation', 'settings.section', 'success', 'Configure', 'fa-cog', 'preservation');
+
+    // Sort alphabetically by label (matching AtoM ksort)
+    ksort($allTiles, SORT_NATURAL | SORT_FLAG_CASE);
+  @endphp
+
+  <div class="row">
+    @foreach($allTiles as $tile)
+      <div class="col-lg-4 col-md-6 mb-4">
+        <a href="{{ $tile['url'] }}" class="text-decoration-none">
+          <div class="card h-100 shadow-sm settings-tile {{ $tile['color'] !== 'primary' ? 'border-' . $tile['color'] : '' }}">
+            <div class="card-body text-center py-4">
+              <div class="mb-3"><i class="fas {{ $tile['icon'] }} fa-3x text-{{ $tile['color'] }}"></i></div>
+              <h5 class="card-title text-dark">{{ $tile['label'] }}</h5>
+              <p class="card-text text-muted small">{{ $tile['desc'] }}</p>
+            </div>
+            <div class="card-footer bg-white border-0 text-center pb-4">
+              <span class="btn atom-btn-{{ $tile['color'] === 'primary' ? 'white' : ($tile['color'] === 'secondary' ? 'white' : $tile['color']) }}">
+                <i class="fas {{ $tile['btn_icon'] }}"></i> {{ $tile['btn'] }}
+              </span>
+            </div>
           </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-{{ $color }}"><i class="fas fa-cog"></i> Configure</span>
-          </div>
-        </div>
-      </a>
-    </div>
+        </a>
+      </div>
     @endforeach
-
-    {{-- Research / Reading Room (matches AtoM ahgSettingsPlugin) --}}
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ url('/research/dashboard') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-book-reader fa-3x text-success"></i></div>
-            <h5 class="card-title text-dark">Reading Room</h5>
-            <p class="card-text text-muted small">Researcher registration and reading room settings</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-outline-success"><i class="fas fa-cog"></i> Configure</span>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    {{-- Standalone settings pages --}}
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('settings.page-elements') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-th-large fa-3x text-primary"></i></div>
-            <h5 class="card-title text-dark">Default page elements</h5>
-            <p class="card-text text-muted small">Toggle logo, title, description, language menu, digital object carousel and map, copyright and material filters</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-white"><i class="fas fa-cog"></i> Configure</span>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('settings.cron-jobs') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-clock fa-3x text-secondary"></i></div>
-            <h5 class="card-title text-dark">Cron Jobs</h5>
-            <p class="card-text text-muted small">Manage scheduled tasks — enable/disable, edit schedules, run now</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-white"><i class="fas fa-clock"></i> Manage Jobs</span>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('settings.error-log') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-exclamation-triangle fa-3x text-danger"></i></div>
-            <h5 class="card-title text-dark">Error Log</h5>
-            <p class="card-text text-muted small">View and manage application error logs</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-outline-danger"><i class="fas fa-bug"></i> View Logs</span>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    {{-- Heritage Platform (matches AtoM) --}}
-    @if(\Route::has('heritage.admin'))
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('heritage.admin') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile border-warning">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-landmark fa-3x text-warning"></i></div>
-            <h5 class="card-title text-dark">Heritage Platform</h5>
-            <p class="card-text text-muted small">Access control, analytics, branding, custodian tools, and community features</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-warning"><i class="fas fa-tools"></i> Admin</span>
-          </div>
-        </div>
-      </a>
-    </div>
-    @endif
-
-    {{-- Integrity Assurance (matches AtoM dedicated card) --}}
-    @if(\Route::has('integrity.index'))
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('integrity.index') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile border-danger">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-shield-alt fa-3x text-danger"></i></div>
-            <h5 class="card-title text-dark">Integrity Assurance</h5>
-            <p class="card-text text-muted small">Fixity verification, retention policies, legal holds, disposition review, and alerting</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-danger"><i class="fas fa-tachometer-alt"></i> Dashboard</span>
-          </div>
-        </div>
-      </a>
-    </div>
-    @endif
-
-    {{-- Preservation & Backup (matches AtoM) --}}
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('settings.section', 'preservation') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile border-success">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-cloud-upload-alt fa-3x text-success"></i></div>
-            <h5 class="card-title text-dark">Preservation &amp; Backup</h5>
-            <p class="card-text text-muted small">Configure backup replication targets, verify integrity, and manage preservation</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-outline-success"><i class="fas fa-cog"></i> Configure</span>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    {{-- Media Processing --}}
-    @if(\Route::has('media-processing.index'))
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('media-processing.index') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-cogs fa-3x text-primary"></i></div>
-            <h5 class="card-title text-dark">Media Processing</h5>
-            <p class="card-text text-muted small">Transcription, thumbnails, waveforms &amp; media derivatives</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-white"><i class="fas fa-cog"></i> Configure</span>
-          </div>
-        </div>
-      </a>
-    </div>
-    @endif
-
-    {{-- Watermark Settings --}}
-    @if(\Route::has('acl.watermark-settings'))
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('acl.watermark-settings') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile border-warning">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-stamp fa-3x text-warning"></i></div>
-            <h5 class="card-title text-dark">Watermark Settings</h5>
-            <p class="card-text text-muted small">Configure default watermarks for images and downloads</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-warning"><i class="fas fa-cog"></i> Configure</span>
-          </div>
-        </div>
-      </a>
-    </div>
-    @endif
-
-    {{-- Library Settings --}}
-    @if(\Route::has('settings.library'))
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('settings.library') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-book fa-3x text-primary"></i></div>
-            <h5 class="card-title text-dark">Library Settings</h5>
-            <p class="card-text text-muted small">Loan rules, circulation, fines, patron defaults, OPAC, ISBN providers</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-white"><i class="fas fa-cog"></i> Configure</span>
-          </div>
-        </div>
-      </a>
-    </div>
-    @endif
-
-    {{-- Levels of Description --}}
-    @if(\Route::has('settings.levels'))
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('settings.levels') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-layer-group fa-3x text-primary"></i></div>
-            <h5 class="card-title text-dark">Levels of Description</h5>
-            <p class="card-text text-muted small">Assign levels to sectors (Archive, Museum, Library, Gallery, DAM)</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-white"><i class="fas fa-cog"></i> Configure</span>
-          </div>
-        </div>
-      </a>
-    </div>
-    @endif
-
-    {{-- Carousel Settings --}}
-    @if(\Route::has('settings.carousel'))
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('settings.carousel') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile border-info">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-images fa-3x text-info"></i></div>
-            <h5 class="card-title text-dark">Carousel Settings</h5>
-            <p class="card-text text-muted small">Homepage carousel and slideshow configuration</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-info"><i class="fas fa-cog"></i> Configure</span>
-          </div>
-        </div>
-      </a>
-    </div>
-    @endif
-
-    {{-- Privacy Compliance --}}
-    @if(\Route::has('ahgspectrum.privacy-compliance'))
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('ahgspectrum.privacy-compliance') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile border-warning">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-user-shield fa-3x text-warning"></i></div>
-            <h5 class="card-title text-dark">Privacy Compliance</h5>
-            <p class="card-text text-muted small">POPIA, NDPA, GDPR compliance - DSARs, Breaches, ROPA, PAIA</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-warning"><i class="fas fa-cog"></i> Configure</span>
-          </div>
-        </div>
-      </a>
-    </div>
-    @endif
-
-    {{-- Authority Records --}}
-    @if(\Route::has('settings.authority'))
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('settings.authority') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-id-card fa-3x text-primary"></i></div>
-            <h5 class="card-title text-dark">Authority Records</h5>
-            <p class="card-text text-muted small">External linking, completeness, NER pipeline, merge/dedup, occupations, functions</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-white"><i class="fas fa-cog"></i> Configure</span>
-          </div>
-        </div>
-      </a>
-    </div>
-    @endif
-
-    {{-- Semantic Search --}}
-    @if(\Route::has('ric.semantic-search'))
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('ric.semantic-search') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile border-info">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-brain fa-3x text-info"></i></div>
-            <h5 class="card-title text-dark">Semantic Search</h5>
-            <p class="card-text text-muted small">Thesaurus, synonyms, query expansion and search enhancement settings</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-info"><i class="fas fa-cog"></i> Configure</span>
-          </div>
-        </div>
-      </a>
-    </div>
-    @endif
-
-    {{-- E-Commerce --}}
-    @if(\Route::has('cart.admin.settings'))
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('cart.admin.settings') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile border-success">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-store fa-3x text-success"></i></div>
-            <h5 class="card-title text-dark">E-Commerce</h5>
-            <p class="card-text text-muted small">Shopping cart, product pricing, payment gateway and order management</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-outline-success"><i class="fas fa-cog"></i> Configure</span>
-          </div>
-        </div>
-      </a>
-    </div>
-    @endif
-
-    {{-- Order Management --}}
-    @if(\Route::has('cart.admin.orders'))
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('cart.admin.orders') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile border-success">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-shopping-bag fa-3x text-success"></i></div>
-            <h5 class="card-title text-dark">Order Management</h5>
-            <p class="card-text text-muted small">View and manage customer orders</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-outline-success"><i class="fas fa-cog"></i> Manage</span>
-          </div>
-        </div>
-      </a>
-    </div>
-    @endif
-
-    <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('settings.plugins') }}" class="text-decoration-none">
-        <div class="card h-100 shadow-sm settings-tile">
-          <div class="card-body text-center py-4">
-            <div class="mb-3"><i class="fas fa-puzzle-piece fa-3x text-info"></i></div>
-            <h5 class="card-title text-dark">Plugins</h5>
-            <p class="card-text text-muted small">Manage installed packages and plugins</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-white"><i class="fas fa-plug"></i> View Plugins</span>
-          </div>
-        </div>
-      </a>
-    </div>
   </div>
 
   {{-- Quick Access: TIFF to PDF Merge (matches AtoM dam-enabled section) --}}
