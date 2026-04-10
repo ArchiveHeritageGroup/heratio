@@ -2219,4 +2219,31 @@ class SettingsController extends Controller
 
         return view('ahg-settings::ahgDropdown.edit', compact('menu', 'dropdown', 'values'));
     }
+
+    /**
+     * Library settings stub.
+     */
+    public function library(Request $request)
+    {
+        $menu = $this->buildMenu('library');
+        return view('ahg-settings::library', compact('menu'));
+    }
+
+    /**
+     * Carousel settings stub.
+     */
+    public function carousel(Request $request)
+    {
+        $menu = $this->buildMenu('carousel');
+        return view('ahg-settings::carousel', compact('menu'));
+    }
+
+    /**
+     * Authority records settings stub.
+     */
+    public function authority(Request $request)
+    {
+        $menu = $this->buildMenu('authority');
+        return view('ahg-settings::authority', compact('menu'));
+    }
 }

@@ -260,6 +260,186 @@
       </a>
     </div>
 
+    {{-- Media Processing --}}
+    @if(\Route::has('media-processing.index'))
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('media-processing.index') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-cogs fa-3x text-primary"></i></div>
+            <h5 class="card-title text-dark">Media Processing</h5>
+            <p class="card-text text-muted small">Transcription, thumbnails, waveforms &amp; media derivatives</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn atom-btn-white"><i class="fas fa-cog"></i> Configure</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    @endif
+
+    {{-- Watermark Settings --}}
+    @if(\Route::has('acl.watermark-settings'))
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('acl.watermark-settings') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile border-warning">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-stamp fa-3x text-warning"></i></div>
+            <h5 class="card-title text-dark">Watermark Settings</h5>
+            <p class="card-text text-muted small">Configure default watermarks for images and downloads</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn atom-btn-warning"><i class="fas fa-cog"></i> Configure</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    @endif
+
+    {{-- Library Settings --}}
+    @if(\Route::has('settings.library'))
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('settings.library') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-book fa-3x text-primary"></i></div>
+            <h5 class="card-title text-dark">Library Settings</h5>
+            <p class="card-text text-muted small">Loan rules, circulation, fines, patron defaults, OPAC, ISBN providers</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn atom-btn-white"><i class="fas fa-cog"></i> Configure</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    @endif
+
+    {{-- Levels of Description --}}
+    @if(\Route::has('settings.levels'))
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('settings.levels') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-layer-group fa-3x text-primary"></i></div>
+            <h5 class="card-title text-dark">Levels of Description</h5>
+            <p class="card-text text-muted small">Assign levels to sectors (Archive, Museum, Library, Gallery, DAM)</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn atom-btn-white"><i class="fas fa-cog"></i> Configure</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    @endif
+
+    {{-- Carousel Settings --}}
+    @if(\Route::has('settings.carousel'))
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('settings.carousel') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile border-info">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-images fa-3x text-info"></i></div>
+            <h5 class="card-title text-dark">Carousel Settings</h5>
+            <p class="card-text text-muted small">Homepage carousel and slideshow configuration</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn atom-btn-info"><i class="fas fa-cog"></i> Configure</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    @endif
+
+    {{-- Privacy Compliance --}}
+    @if(\Route::has('ahgspectrum.privacy-compliance'))
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('ahgspectrum.privacy-compliance') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile border-warning">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-user-shield fa-3x text-warning"></i></div>
+            <h5 class="card-title text-dark">Privacy Compliance</h5>
+            <p class="card-text text-muted small">POPIA, NDPA, GDPR compliance - DSARs, Breaches, ROPA, PAIA</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn atom-btn-warning"><i class="fas fa-cog"></i> Configure</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    @endif
+
+    {{-- Authority Records --}}
+    @if(\Route::has('settings.authority'))
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('settings.authority') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-id-card fa-3x text-primary"></i></div>
+            <h5 class="card-title text-dark">Authority Records</h5>
+            <p class="card-text text-muted small">External linking, completeness, NER pipeline, merge/dedup, occupations, functions</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn atom-btn-white"><i class="fas fa-cog"></i> Configure</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    @endif
+
+    {{-- Semantic Search --}}
+    @if(\Route::has('ric.semantic-search'))
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('ric.semantic-search') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile border-info">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-brain fa-3x text-info"></i></div>
+            <h5 class="card-title text-dark">Semantic Search</h5>
+            <p class="card-text text-muted small">Thesaurus, synonyms, query expansion and search enhancement settings</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn atom-btn-info"><i class="fas fa-cog"></i> Configure</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    @endif
+
+    {{-- E-Commerce --}}
+    @if(\Route::has('cart.admin.settings'))
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('cart.admin.settings') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile border-success">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-store fa-3x text-success"></i></div>
+            <h5 class="card-title text-dark">E-Commerce</h5>
+            <p class="card-text text-muted small">Shopping cart, product pricing, payment gateway and order management</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn atom-btn-outline-success"><i class="fas fa-cog"></i> Configure</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    @endif
+
+    {{-- Order Management --}}
+    @if(\Route::has('cart.admin.orders'))
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('cart.admin.orders') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile border-success">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-shopping-bag fa-3x text-success"></i></div>
+            <h5 class="card-title text-dark">Order Management</h5>
+            <p class="card-text text-muted small">View and manage customer orders</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn atom-btn-outline-success"><i class="fas fa-cog"></i> Manage</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    @endif
+
     <div class="col-lg-4 col-md-6 mb-4">
       <a href="{{ route('settings.plugins') }}" class="text-decoration-none">
         <div class="card h-100 shadow-sm settings-tile">
