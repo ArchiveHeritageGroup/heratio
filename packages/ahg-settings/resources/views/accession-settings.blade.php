@@ -10,9 +10,7 @@
 @section('body-class', 'admin settings')
 
 @section('sidebar')
-<div class="sidebar-content">
-    @include('ahg-settings::partials.settings-menu', ['menu' => $menu])
-</div>
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
 @endsection
 
 @section('title-block')
