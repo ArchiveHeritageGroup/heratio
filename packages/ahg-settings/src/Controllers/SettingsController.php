@@ -1535,6 +1535,44 @@ class SettingsController extends Controller
         return view('ahg-settings::accession-settings', compact('menu', 'settings'));
     }
 
+    /**
+     * Audit Trail Settings — structured card view cloned from AtoM settingsSuccess.php.
+     */
+    public function auditSettings(Request $request)
+    {
+        $menu = $this->buildMenu('audit');
+
+        $settings = [];
+        if (Schema::hasTable('ahg_settings')) {
+            $rows = DB::table('ahg_settings')
+                ->where('setting_group', 'audit')
+                ->get();
+            foreach ($rows as $row) {
+                $settings[$row->setting_key] = $row->setting_value;
+            }
+        }
+
+        if ($request->isMethod('post')) {
+            $allKeys = [
+                'audit_enabled', 'audit_views', 'audit_searches', 'audit_downloads',
+                'audit_api_requests', 'audit_authentication', 'audit_sensitive_access',
+                'audit_mask_sensitive', 'audit_ip_anonymize',
+            ];
+            $posted = $request->input('settings', []);
+            foreach ($allKeys as $key) {
+                $value = isset($posted[$key]) ? '1' : '0';
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key, 'setting_group' => 'audit'],
+                    ['setting_value' => $value]
+                );
+            }
+            return redirect()->route('settings.ahg.audit')
+                ->with('success', 'Audit Trail settings saved.');
+        }
+
+        return view('ahg-settings::audit-settings', compact('menu', 'settings'));
+    }
+
     // ─── 14. Storage Service ────────────────────────────────────────────
     public function storageService(Request $request)
     {
