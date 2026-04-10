@@ -143,7 +143,7 @@
     // 9 tiles missing from AtoM parity (all have existing routes — were sidebar-only)
     $addTile('Accession Management',   'fa-inbox',              'Intake workflow, numbering, appraisal, container and rights settings', 'settings.ahg.accession');
     $addTile('AI Condition Assessment','fa-robot',               'AI-powered damage detection and condition scoring for archival materials', 'settings.ahg.ai-condition', 'info');
-    $addTile('Audit Trail',           'fa-history',             'View change history, user activity logs, and configure audit logging', 'settings.ahg.audit');
+    $addTile('Audit Trail',           'fa-history',             'View change history and user activity logs', 'acl.audit-log');
     $addTile('AHG Central',           'fa-cloud',              'Connect to AHG Central cloud services for shared NER training and AI features', 'settings.ahg-integration');
     $addTile('AI Services',           'fa-brain',              'NER, Summarization, Spell Check — processing mode and field mappings', 'settings.ai-services');
     $addTile('ICIP Settings',         'fa-shield-alt',         'Indigenous Cultural and Intellectual Property management settings', 'settings.icip-settings', 'warning');
