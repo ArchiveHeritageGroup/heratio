@@ -19,7 +19,7 @@
 @section('content')
   {{-- Available Labels --}}
   <div class="card mb-4">
-    <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+    <div class="card-header">
       <h5 class="mb-0">Available TK Labels</h5>
     </div>
     <div class="card-body">
@@ -64,7 +64,7 @@
 
   {{-- Current Assignments --}}
   <div class="card">
-    <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+    <div class="card-header">
       <h5 class="mb-0">Label Assignments</h5>
     </div>
     <div class="card-body p-0">

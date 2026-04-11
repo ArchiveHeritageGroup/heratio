@@ -222,25 +222,25 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 #### Block 14: Rights & Licensing (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Rights Dashboard | `/admin/rights` | NO |
-| 2 | Batch Rights | `/admin/rights/batch` | NO |
-| 3 | Browse Rights | `/admin/rights/browse` | NO |
-| 4 | Export Rights | `/admin/rights/export` | NO |
+| 1 | Rights Dashboard | `/ext-rights-admin` | YES — fixed 3 inline card-header styles |
+| 2 | Batch Rights | `/ext-rights-admin/batch` | YES — already clean |
+| 3 | Browse Rights | `/ext-rights-admin/browse` | YES — already clean |
+| 4 | Export Rights | `/ext-rights-admin/export` | YES — already clean |
 
 #### Block 15: Embargo Management (3 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Active Embargoes | `/admin/rights/embargo` | NO |
-| 2 | Apply Embargo | `/admin/rights/batch?type=embargo` | NO |
-| 3 | Expiring Soon | `/admin/rights/expiring` | NO |
+| 1 | Active Embargoes | `/ext-rights-admin/embargoes` | YES — already clean |
+| 2 | Apply Embargo | `/ext-rights-admin/embargoes/new` | YES — (same page, tab) |
+| 3 | Expiring Soon | `/ext-rights-admin/expiring-embargoes` | YES — already clean |
 
 #### Block 16: Rights Vocabularies (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Rights Statements | `/admin/rights/statements` | NO |
-| 2 | Creative Commons | `/admin/rights/creative-commons` | NO |
-| 3 | TK Labels | `/admin/rights/tk-labels` | NO |
-| 4 | Rights Holders | `/rightsholder/browse` | NO |
+| 1 | Rights Statements | `/ext-rights-admin/statements` | YES — fixed 3 inline styles |
+| 2 | Creative Commons | `/ext-rights-admin/statements#cc` | YES — (same page, section) |
+| 3 | TK Labels | `/ext-rights-admin/tk-labels` | YES — fixed 2 inline styles |
+| 4 | Rights Holders | `/rightsholder/browse` | YES — fixed 3 atom-btn styles |
 
 #### Block 17: Vendor Management (5 pages)
 | # | Page | URL | Cloned? |

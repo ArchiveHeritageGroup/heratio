@@ -16,7 +16,7 @@
       {{-- Sort by --}}
       @php $activeSort = request('sort', 'alphabetic'); @endphp
       <div class="dropdown d-inline-block">
-        <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sort-button" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle text-wrap" type="button" id="sort-button" data-bs-toggle="dropdown" aria-expanded="false">
           Sort by: {{ $sortOptions[$activeSort] ?? 'Name' }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sort-button">
@@ -32,7 +32,7 @@
         $dirQuery = request()->except(['sortDir', 'page']);
       @endphp
       <div class="dropdown d-inline-block">
-        <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
           Direction: {{ $currentDir === 'desc' ? 'Descending' : 'Ascending' }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
@@ -74,7 +74,7 @@
 
   @auth
     <section class="actions mb-3">
-      <a class="btn atom-btn-outline-light" href="{{ route('rightsholder.create') }}" title="Add new">Add new</a>
+      <a class="btn btn-outline-secondary" href="{{ route('rightsholder.create') }}" title="Add new">Add new</a>
     </section>
   @endauth
 @endsection

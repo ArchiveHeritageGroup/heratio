@@ -14,7 +14,7 @@
 @section('content')
   {{-- Rights Statements --}}
   <div class="card mb-4">
-    <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+    <div class="card-header">
       <h5 class="mb-0">
         <img src="https://rightsstatements.org/files/icons/rightss.logo.svg" alt="Rights Statements" height="24" class="me-2">
         Rights Statements
@@ -65,7 +65,7 @@
 
   {{-- Creative Commons --}}
   <div class="card mb-4">
-    <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+    <div class="card-header">
       <h5 class="mb-0">
         <img src="https://mirrors.creativecommons.org/presskit/logos/cc.logo.svg" alt="Creative Commons" height="24" class="me-2">
         Creative Commons Licenses
@@ -124,7 +124,7 @@
 
   {{-- Usage Guide --}}
   <div class="card">
-    <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+    <div class="card-header">
       <h5 class="mb-0">Usage Guide</h5>
     </div>
     <div class="card-body">
