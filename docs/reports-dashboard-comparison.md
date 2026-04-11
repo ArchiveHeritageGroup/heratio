@@ -39,22 +39,22 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 | 19 | Marketplace | `#7c3aed` | `#7c3aed` | YES — sellers merged in, 5 links | YES |
 | 20 | Sales & Payouts | `#059669` | `#059669` | YES — added Revenue Reports | YES |
 | 21 | E-Commerce | `#059669` | `#059669` | YES (2 links) | YES |
-| 22 | Form Templates | `#198754` | `#198754` | YES (superset) | NO |
-| 23 | DOI Management | `#0dcaf0` | `#0dcaf0` | YES (superset) | NO |
-| 24 | Records in Contexts (RiC) | `#6f42c1` | `#6f42c1` | YES | NO |
-| 25 | Data Migration | `#fd7e14` | `#fd7e14` | YES | NO |
-| 26 | Data Ingest | `#0dcaf0` | `#0dcaf0` | YES | NO |
-| 27 | Backup & Maintenance | `bg-dark` | `bg-dark` | YES | NO |
-| 28 | Heritage Management | `#6c757d` | `#6c757d` | YES | NO |
-| 29 | Duplicate Detection | `#dc3545` | `#dc3545` | YES | NO |
-| — | TIFF to PDF Merge | — | `#20c997` | Heratio extra | — |
-| 30 | Digital Preservation | `#17a2b8` | `#17a2b8` | YES | NO |
-| 31 | Format Registry | `#6610f2` | `#6610f2` | YES | NO |
-| 32 | Checksums & Integrity | `#28a745` | `#28a745` | Partial (missing Failed) | NO |
-| 33 | CDPA Data Protection | `#198754` | `#198754` | YES (superset) | NO |
-| 34 | NAZ Archives | `#0d6efd` | `#0d6efd` | YES (superset) | NO |
-| 35 | IPSAS Heritage Assets | `#ffc107` | `#ffc107` | YES (superset) | NO |
-| 36 | NMMZ Monuments | `#6c757d` | `#6c757d` | YES (superset) | NO |
+| 22 | Form Templates | `#198754` | `#198754` | YES (4 links) | YES |
+| 23 | DOI Management | `#0dcaf0` | `#0dcaf0` | YES (4 links) | YES |
+| 24 | Records in Contexts (RiC) | `#6f42c1` | `#6f42c1` | YES (3 links) | YES |
+| 25 | Data Migration | `#fd7e14` | `#fd7e14` | YES (4 links) | YES |
+| 26 | Data Ingest | `#0dcaf0` | `#0dcaf0` | YES (3 links) | YES |
+| 27 | Backup & Maintenance | `bg-dark` | `bg-dark` | YES (3 links) | YES |
+| 28 | Heritage Management | `#6c757d` | `#6c757d` | YES (3 links) | YES |
+| 29 | Duplicate Detection | `#dc3545` | `#dc3545` | YES (4 links) | YES |
+| — | TIFF to PDF Merge | — | `#20c997` | Heratio extra (kept) | — |
+| 30 | Digital Preservation | `#17a2b8` | `#17a2b8` | YES (4 links) | YES |
+| 31 | Format Registry | `#6610f2` | `#6610f2` | YES (3 links) | YES |
+| 32 | Checksums & Integrity | `#28a745` | `#28a745` | YES (3 links + Failed) | YES |
+| 33 | CDPA Data Protection | `#198754` | `#198754` | YES (4 links) | YES |
+| 34 | NAZ Archives | `#0d6efd` | `#0d6efd` | YES (4 links) | YES |
+| 35 | IPSAS Heritage Assets | `#ffc107` | `#ffc107` | YES (4 links) | YES |
+| 36 | NMMZ Monuments | `#6c757d` | `#6c757d` | YES (5 links) | YES |
 
 ## Page-by-Page Clone Status (destination pages behind each link)
 
@@ -155,4 +155,4 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 | 8 | Research Admin | Links exist, pages not audited |
 | 9–36 | Remaining blocks | Links exist, destination pages not audited |
 
-## Last Cloned: Block 1 complete including Spectrum (53 pages). Next: Block 6+ destination pages.
+## Status: ALL 36 dashboard blocks cloned. 53 destination pages cloned. Dashboard is a full AtoM clone.

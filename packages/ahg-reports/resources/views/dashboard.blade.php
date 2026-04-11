@@ -516,6 +516,11 @@
   </div>
   @endif
 
+  {{-- ═══ DATA QUALITY & CONFIGURATION ═══ --}}
+  @if(($hasForms || $hasDoi || $hasRic) && $canManage)
+  <h5 class="mt-4 mb-3 text-muted border-bottom pb-2"><i class="fas fa-tools me-2"></i>{{ __('Data Quality & Configuration') }}</h5>
+  @endif
+
   {{-- Row 10: Form Templates / DOI Management / Records in Contexts (cards 22-24) --}}
   @if($hasForms || $hasDoi || $hasRic)
   <div class="row mb-4">
@@ -559,6 +564,11 @@
     </div>
     @endif
   </div>
+  @endif
+
+  {{-- ═══ DATA OPERATIONS ═══ --}}
+  @if(($hasDataMigration || $hasDataIngest || $hasBackup) && $canManage)
+  <h5 class="mt-4 mb-3 text-muted border-bottom pb-2"><i class="fas fa-database me-2"></i>{{ __('Data Operations') }}</h5>
   @endif
 
   {{-- Row 11: Data Migration / Data Ingest / Backup & Maintenance (cards 25-27) --}}
@@ -647,6 +657,11 @@
   </div>
   @endif
 
+  {{-- ═══ DATA INTEGRITY & PRESERVATION ═══ --}}
+  @if(($hasPreservation || $hasDedupe) && $canManage)
+  <h5 class="mt-4 mb-3 text-muted border-bottom pb-2"><i class="fas fa-fingerprint me-2"></i>{{ __('Data Integrity & Preservation') }}</h5>
+  @endif
+
   {{-- Row 13: Digital Preservation / Format Registry / Checksums & Integrity (cards 31-33) --}}
   @if($hasPreservation)
   <div class="row mb-4">
@@ -682,6 +697,11 @@
       </div>
     </div>
   </div>
+  @endif
+
+  {{-- ═══ JURISDICTION COMPLIANCE ═══ --}}
+  @if(($hasCDPA || $hasNAZ || $hasIPSAS || $hasNMMZ) && $isAdmin)
+  <h5 class="mt-4 mb-3 text-muted border-bottom pb-2"><i class="fas fa-globe-africa me-2"></i>{{ __('Jurisdiction Compliance') }}</h5>
   @endif
 
   {{-- Row 14: CDPA Data Protection / NAZ Archives / IPSAS Heritage Assets (cards 34-36) --}}
