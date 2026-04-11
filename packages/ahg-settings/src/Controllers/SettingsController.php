@@ -1472,7 +1472,7 @@ class SettingsController extends Controller
                 $settings[$key] = $value;
             }
 
-            return redirect()->route('settings.ahg.ai-condition')
+            return redirect()->route('settings.ai-condition')
                 ->with('notice', 'AI Condition settings saved.');
         }
 

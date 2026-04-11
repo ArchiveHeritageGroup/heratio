@@ -79,7 +79,7 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/sfPluginAdminPlugin/plugins', [SettingsController::class, 'plugins'])->name('settings.plugins');
 
     // ── Canonical /admin/ahgSettings/ routes (standardised URLs) ──
-    Route::match(['get', 'post'], '/admin/ahgSettings/aiCondition', [SettingsController::class, 'aiCondition'])->name('settings.ahg.ai-condition');
+    Route::match(['get', 'post'], '/admin/ahgSettings/aiCondition', [SettingsController::class, 'aiCondition'])->name('settings.ai-condition');
     Route::match(['get', 'post'], '/admin/ahgSettings/accession', [SettingsController::class, 'accessionSettings'])->name('settings.ahg.accession');
     Route::match(['get', 'post'], '/admin/ahgSettings/ahgIntegration', [SettingsController::class, 'ahgIntegration'])->name('settings.ahg-integration');
     Route::match(['get', 'post'], '/admin/ahgSettings/aiServices', [SettingsController::class, 'aiServices'])->name('settings.ai-services');

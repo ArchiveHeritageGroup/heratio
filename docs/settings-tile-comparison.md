@@ -88,7 +88,7 @@ Generated: 2026-04-11
 | Page | Route | Cards | Settings | Wired |
 |---|---|---|---|---|
 | Accession Management | `settings.ahg.accession` | 2 (Intake Queue + Containers & Rights) | 7 | 7/7 ✓ |
-| AI Condition Assessment | `settings.ahg.ai-condition` | 3 (Service + Defaults + API Clients) | 6 | 6/6 ✓ |
+| AI Condition Assessment | `settings.ai-condition` | 3 (Service + Defaults + API Clients) | 6 | 6/6 ✓ |
 | Audit Trail | `settings.ahg.audit` | 3 (General + What to Log + Privacy) | 9 | 9/9 ✓ |
 | Authority Records | `settings.authority` | 5 (External Sources + Completeness + NER + Merge + ISDF) | 13 | 13/13 ✓ |
 | Background Jobs | `settings.ahg.jobs` | 2 (Job Settings + Queue Status) | 7 | 7/7 ✓ |

@@ -147,7 +147,7 @@
     $addTile('Face Detection',         'fa-user-circle',        'Face detection and recognition settings', 'settings.ahg.faces');
     $addTile('FTP / SFTP Upload',      'fa-server',             'FTP / SFTP connection settings', 'settings.ahg.ftp');
     $addTile('Fuseki / RIC Triplestore','fa-project-diagram',   'Apache Fuseki RDF triplestore synchronisation', 'settings.ahg.fuseki');
-    $addTile('AI Condition Assessment','fa-robot',               'AI-powered damage detection and condition scoring for archival materials', 'settings.ahg.ai-condition', 'info');
+    $addTile('AI Condition Assessment','fa-robot',               'AI-powered damage detection and condition scoring for archival materials', 'settings.ai-condition', 'info');
     $addTile('Audit Trail',           'fa-history',             'View change history and user activity logs', 'acl.audit-log');
     $addTile('Background Jobs',       'fa-tasks',              'Job queue, concurrent limits, timeout, retry, cleanup, and failure notifications', 'settings.ahg.jobs');
     $addTile('AHG Central',           'fa-cloud',              'Connect to AHG Central cloud services for shared NER training and AI features', 'settings.ahg-integration');
