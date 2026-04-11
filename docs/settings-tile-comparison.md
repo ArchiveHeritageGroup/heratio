@@ -88,17 +88,60 @@ Generated: 2026-04-11
 | Page | Route | Cards | Settings | Wired |
 |---|---|---|---|---|
 | Accession Management | `settings.ahg.accession` | 2 (Intake Queue + Containers & Rights) | 7 | 7/7 ✓ |
-| AI Condition Assessment | `settings.ahg.ai-condition` | 3 (Service + Defaults + API Clients) | 6 | 1/6 (5 TODO — API not built) |
+| AI Condition Assessment | `settings.ahg.ai-condition` | 3 (Service + Defaults + API Clients) | 6 | 6/6 ✓ |
 | Audit Trail | `settings.ahg.audit` | 3 (General + What to Log + Privacy) | 9 | 9/9 ✓ |
 | Authority Records | `settings.authority` | 5 (External Sources + Completeness + NER + Merge + ISDF) | 13 | 13/13 ✓ |
 | Background Jobs | `settings.ahg.jobs` | 2 (Job Settings + Queue Status) | 7 | 7/7 ✓ |
 | Carousel Settings | `iiif.settings` | 5 (Homepage + Viewer + Carousel + Appearance + Display) | 19 | 16/18 (2 need carousel viewer mode) |
 
+## Control-by-Control Comparison (AtoM psis vs Heratio)
+
+### Row 1: Accession Management
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `accession_numbering_mask` | text | `ACC-{YYYY}-{####}` | `ACC-{YYYY}-{####}` | Yes | ✓ Match |
+| 2 | `accession_default_priority` | select | `low/normal/high/urgent` | `low/normal/high/urgent` | Yes | ✓ Fixed (was Title Case) |
+| 3 | `accession_auto_assign_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 4 | `accession_require_donor_agreement` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 5 | `accession_require_appraisal` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 6 | `accession_allow_container_barcodes` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 7 | `accession_rights_inheritance_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/accession` (was `/admin/settings/ahg/accession`) ✓ Standardised
+
+### Row 2: AHG Central
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `ahg_central_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 2 | `ahg_central_api_url` | url | Yes | Yes | Yes | ✓ Match |
+| 3 | `ahg_central_api_key` | password | Yes | Yes | Yes | ✓ Match |
+| 4 | `ahg_central_site_id` | text | Yes | Yes | Yes | ✓ Added (was missing) |
+| 5 | Env vars legacy card | display | Yes | Yes | n/a | ✓ Added (was missing) |
+
+**URL:** `/admin/ahgSettings/ahgIntegration` (was `/admin/settings/ahg-integration`) ✓ Standardised
+
+### Row 3: AI Condition Assessment
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `ai_condition_service_url` | url | Yes | Yes | Yes | ✓ Match |
+| 2 | `ai_condition_api_key` | text | Yes | Yes | Yes | ✓ Match |
+| 3 | `ai_condition_min_confidence` | number | Yes | Yes | Yes | ✓ Match |
+| 4 | `ai_condition_overlay_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 5 | `ai_condition_auto_scan` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 6 | `ai_condition_notify_grade` | select | Yes | Yes | Yes | ✓ Match |
+| 7 | API Clients CRUD | table+modal | Yes | Yes | Yes | ✓ Match |
+| 8 | Training Data Approval | table+modal | Yes | Yes | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/aiCondition` (was `/admin/settings/ahg/ai_condition`) ✓ Standardised
+
 ## TODO
 
 - [x] Fix duplicate "Authority" tile — DONE (added to skip list)
 - [x] Rename tiles to match AtoM exactly — DONE (Email Settings, FTP / SFTP Upload, Fuseki / RIC Triplestore, Plugin Management, Heritage Accounting)
-- [ ] Wire remaining 5 AI Condition settings when the condition API is built (ai_condition_service_url, ai_condition_api_key, ai_condition_min_confidence, ai_condition_overlay_enabled, ai_condition_notify_grade)
+- [x] Wire all 6 AI Condition settings — DONE (all 6 controls wired + API Clients + Training Approval)
 - [ ] Wire `carousel_show_thumbnails` and `carousel_show_controls` when Bootstrap carousel viewer mode is added to record pages
 - [x] Build dedicated structured pages for all 18 AHG groups — DONE
   - Batch 1 (agent): data_protection, encryption, faces, ftp, fuseki

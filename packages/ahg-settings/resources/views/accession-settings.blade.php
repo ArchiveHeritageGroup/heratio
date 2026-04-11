@@ -54,9 +54,9 @@
           <div class="col-md-6">
             <label for="accession_default_priority" class="form-label fw-bold">Default Priority</label>
             <select class="form-select" id="accession_default_priority" name="accession_default_priority">
-              @php $currentPriority = $settings['accession_default_priority'] ?? 'Normal'; @endphp
-              @foreach(['Low', 'Normal', 'High', 'Urgent'] as $opt)
-                <option value="{{ $opt }}" {{ $currentPriority === $opt ? 'selected' : '' }}>{{ $opt }}</option>
+              @php $currentPriority = $settings['accession_default_priority'] ?? 'normal'; @endphp
+              @foreach(['low' => 'Low', 'normal' => 'Normal', 'high' => 'High', 'urgent' => 'Urgent'] as $val => $label)
+                <option value="{{ $val }}" {{ $currentPriority === $val ? 'selected' : '' }}>{{ $label }}</option>
               @endforeach
             </select>
             <div class="form-text">Default priority assigned to new accession records.</div>

@@ -31,7 +31,7 @@
       </div>
     </div>
 
-    <form method="post" action="{{ route('settings.ahg-integration') }}">
+    <form method="post" action="{{ route('settings.ahg-integration') }}" id="integrationForm">
       @csrf
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-cog me-2"></i>Connection Settings</h5></div>
@@ -53,6 +53,45 @@
               <button class="btn atom-btn-white" type="button" onclick="var i=document.getElementById('ahg_api_key');i.type=i.type==='password'?'text':'password';"><i class="fas fa-eye"></i></button>
             </div>
           </div>
+          <div class="mb-3">
+            <label class="form-label">Site ID <span class="badge bg-secondary ms-1">Optional</span></label>
+            <input type="text" name="settings[ahg_central_site_id]" class="form-control" value="{{ $settings['ahg_central_site_id'] ?? '' }}">
+            <div class="form-text">Unique identifier for this Heratio instance when communicating with AHG Central.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-terminal me-2"></i>Environment Variables (Legacy)</h5></div>
+        <div class="card-body">
+          <p class="text-muted mb-3">Previously, AHG Central was configured via environment variables. Database settings (above) take precedence over environment variables.</p>
+          <table class="table table-sm">
+            <thead>
+              <tr><th>Variable</th><th>Current Value</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              @php
+                $envVars = [
+                  'NER_TRAINING_API_URL' => env('NER_TRAINING_API_URL'),
+                  'NER_API_KEY' => env('NER_API_KEY') ? '********' : '',
+                  'NER_SITE_ID' => env('NER_SITE_ID'),
+                ];
+              @endphp
+              @foreach($envVars as $name => $value)
+              <tr>
+                <td><code>{{ $name }}</code></td>
+                <td>{!! $value ?: '<em class="text-muted">Not set</em>' !!}</td>
+                <td>
+                  @if($value)
+                    <span class="badge bg-warning">Will be overridden by database settings</span>
+                  @else
+                    <span class="badge bg-secondary">Not set</span>
+                  @endif
+                </td>
+              </tr>
+              @endforeach
+            </tbody>
+          </table>
         </div>
       </div>
 

@@ -42,7 +42,7 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/visible-elements', [SettingsController::class, 'visibleElements'])->name('settings.visible-elements');
     Route::match(['get', 'post'], '/admin/settings/web-analytics', [SettingsController::class, 'webAnalytics'])->name('settings.web-analytics');
     Route::match(['get', 'post'], '/admin/settings/analytics', [SettingsController::class, 'webAnalytics'])->name('settings.analytics'); // AtoM alias
-    Route::get('/admin/settings/ai-condition', [SettingsController::class, 'aiCondition'])->name('settings.ai-condition');
+    Route::get('/admin/settings/ai-condition', fn () => redirect('/admin/ahgSettings/aiCondition')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ldap', [SettingsController::class, 'ldap'])->name('settings.ldap');
     Route::match(['get', 'post'], '/admin/settings/levels', [SettingsController::class, 'levels'])->name('settings.levels');
     Route::match(['get', 'post'], '/admin/settings/paths', [SettingsController::class, 'paths'])->name('settings.paths');
@@ -56,7 +56,7 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/dam-tools', [SettingsController::class, 'damTools'])->name('settings.dam-tools');
     Route::match(['get', 'post'], '/admin/settings/ai-services', [SettingsController::class, 'aiServices'])->name('settings.ai-services');
     Route::match(['get', 'post'], '/admin/settings/ahg-import', [SettingsController::class, 'ahgImportSettings'])->name('settings.ahg-import');
-    Route::match(['get', 'post'], '/admin/settings/ahg-integration', [SettingsController::class, 'ahgIntegration'])->name('settings.ahg-integration');
+    Route::get('/admin/settings/ahg-integration', fn () => redirect('/admin/ahgSettings/ahgIntegration')); // legacy redirect
     Route::get('/admin/settings/library', [SettingsController::class, 'library'])->name('settings.library');
     Route::get('/admin/settings/carousel', [SettingsController::class, 'carousel'])->name('settings.carousel');
     Route::match(['get', 'post'], '/admin/settings/authority', [SettingsController::class, 'authority'])->name('settings.authority');
@@ -78,9 +78,14 @@ Route::middleware('admin')->group(function () {
     Route::get('/settings/visibleElements', [SettingsController::class, 'visibleElements']);
     Route::match(['get', 'post'], '/sfPluginAdminPlugin/plugins', [SettingsController::class, 'plugins'])->name('settings.plugins');
 
-    // Dedicated AHG pages that have their own controller methods (must come BEFORE the catch-all)
-    Route::match(['get', 'post'], '/admin/settings/ahg/ai_condition', [SettingsController::class, 'aiCondition'])->name('settings.ahg.ai-condition');
-    Route::match(['get', 'post'], '/admin/settings/ahg/accession', [SettingsController::class, 'accessionSettings'])->name('settings.ahg.accession');
+    // ── Canonical /admin/ahgSettings/ routes (standardised URLs) ──
+    Route::match(['get', 'post'], '/admin/ahgSettings/aiCondition', [SettingsController::class, 'aiCondition'])->name('settings.ahg.ai-condition');
+    Route::match(['get', 'post'], '/admin/ahgSettings/accession', [SettingsController::class, 'accessionSettings'])->name('settings.ahg.accession');
+    Route::match(['get', 'post'], '/admin/ahgSettings/ahgIntegration', [SettingsController::class, 'ahgIntegration'])->name('settings.ahg-integration');
+
+    // Legacy redirects for old /admin/settings/ahg/ paths
+    Route::get('/admin/settings/ahg/ai_condition', fn () => redirect('/admin/ahgSettings/aiCondition'));
+    Route::get('/admin/settings/ahg/accession', fn () => redirect('/admin/ahgSettings/accession'));
     Route::match(['get', 'post'], '/admin/settings/ahg/audit', [SettingsController::class, 'auditSettings'])->name('settings.ahg.audit');
     Route::match(['get', 'post'], '/admin/settings/ahg/data_protection', [SettingsController::class, 'dataProtectionSettings'])->name('settings.ahg.data_protection');
     Route::match(['get', 'post'], '/admin/settings/ahg/encryption', [SettingsController::class, 'encryptionSettings'])->name('settings.ahg.encryption');

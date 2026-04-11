@@ -1472,7 +1472,7 @@ class SettingsController extends Controller
                 $settings[$key] = $value;
             }
 
-            return redirect()->route('settings.ai-condition')
+            return redirect()->route('settings.ahg.ai-condition')
                 ->with('notice', 'AI Condition settings saved.');
         }
 
@@ -2592,7 +2592,7 @@ class SettingsController extends Controller
         $menu = $this->buildMenu('ahg-integration');
         $testResult = null;
 
-        $settingNames = ['ahg_central_enabled', 'ahg_central_api_url', 'ahg_central_api_key'];
+        $settingNames = ['ahg_central_enabled', 'ahg_central_api_url', 'ahg_central_api_key', 'ahg_central_site_id'];
 
         if ($request->isMethod('post')) {
             foreach ($settingNames as $name) {
@@ -2617,7 +2617,7 @@ class SettingsController extends Controller
                     }
                 }
             } else {
-                return redirect()->route('settings.ahg-integration')->with('success', 'AHG Central integration settings saved.');
+                return redirect()->route('settings.ahg-integration')->with('notice', 'AHG Central integration settings saved.');
             }
         }
 
@@ -2626,6 +2626,7 @@ class SettingsController extends Controller
             $settings[$name] = $this->service->getSetting($name, null, $culture) ?? '';
         }
         $settings['ahg_central_api_url'] = $settings['ahg_central_api_url'] ?: 'https://central.theahg.co.za/api/v1';
+        $settings['ahg_central_site_id'] = $settings['ahg_central_site_id'] ?? '';
 
         return view('ahg-settings::ahg-integration', compact('menu', 'settings', 'testResult'));
     }
