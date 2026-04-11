@@ -1,67 +1,100 @@
+{{--
+  Multi-Tenancy — repository-based multi-tenancy settings
+  Cloned from AtoM ahgSettingsPlugin section.blade.php @case('multi_tenant')
+
+  @copyright  Johan Pieterse / Plain Sailing
+  @license    AGPL-3.0-or-later
+--}}
 @extends('theme::layouts.2col')
 @section('title', 'Multi-Tenancy')
 @section('body-class', 'admin settings')
+
 @section('sidebar')
   @include('ahg-settings::_menu', ['menu' => $menu ?? []])
 @endsection
+
 @section('title-block')
-  <h1><i class="fas fa-building me-2"></i>Multi-Tenancy</h1>
-  <p class="text-muted small mb-0">Multi-tenancy isolation and branding</p>
+<h1><i class="fas fa-building me-2"></i>Multi-Tenancy</h1>
+<p class="text-muted">Repository-based multi-tenancy with user hierarchy</p>
 @endsection
+
 @section('content')
   @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ session('success') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
   @endif
-  <form method="post" action="{{ route('settings.ahg.multi_tenant') }}">
+
+  <form method="POST" action="{{ route('settings.ahg.multi_tenant') }}">
     @csrf
-    @php
-      $checkboxPrefixes = ['enabled','auto','require','notify','show','enforce','allow','loop','extract','create','generate','include','overwrite','save','batch','preserve','strip','rotate','orient','watermark','cascade','sync','blur','store','hover','audit','force','expiry'];
-      $passwordKeys = ['password','api_key','secret','salt'];
-      $selectKeys = [];
-    @endphp
+
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-building me-2"></i>Multi-Tenancy</h5></div>
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-building me-2"></i>Multi-Tenancy Configuration</h5>
+      </div>
       <div class="card-body">
-        @forelse($settings as $key => $val)
-          @php
-            $isCheckbox = false;
-            foreach ($checkboxPrefixes as $pfx) { if (str_contains($key, $pfx)) { $isCheckbox = true; break; } }
-            $isPassword = false;
-            foreach ($passwordKeys as $pk) { if (str_contains($key, $pk)) { $isPassword = true; break; } }
-            $label = ucfirst(str_replace('_', ' ', preg_replace('/^[a-z]+_/', '', $key)));
-          @endphp
-          @if($isCheckbox && in_array($val, ['true','false','1','0']))
-            <div class="form-check form-switch mb-3">
-              <input class="form-check-input" type="checkbox" id="{{ $key }}" name="settings[{{ $key }}]" value="true" {{ in_array($val, ['true','1']) ? 'checked' : '' }}>
-              <label class="form-check-label" for="{{ $key }}"><strong>{{ $label }}</strong></label>
-            </div>
-          @elseif($isPassword)
+        <p class="text-muted mb-4">Configure repository-based multi-tenancy. Each repository acts as a tenant with isolated user access and custom branding.</p>
+
+        <div class="row">
+          <div class="col-md-6">
             <div class="mb-3">
-              <label for="{{ $key }}" class="form-label"><strong>{{ $label }}</strong></label>
-              <div class="input-group" style="max-width:500px">
-                <input type="password" class="form-control" id="{{ $key }}" name="settings[{{ $key }}]" value="{{ e($val) }}" autocomplete="off">
-                <button class="btn atom-btn-white" type="button" onclick="var i=document.getElementById('{{ $key }}');i.type=i.type==='password'?'text':'password'"><i class="fas fa-eye"></i></button>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="tenant_enabled"
+                       name="settings[tenant_enabled]" value="true"
+                       {{ ($settings['tenant_enabled'] ?? '') === 'true' ? 'checked' : '' }}>
+                <label class="form-check-label" for="tenant_enabled"><strong>Enable Multi-Tenancy</strong></label>
               </div>
+              <div class="form-text">Enable repository-based access control and filtering.</div>
             </div>
-          @elseif(is_numeric($val) && $val !== '' && !str_contains($key, 'id'))
+          </div>
+
+          <div class="col-md-6">
             <div class="mb-3">
-              <label for="{{ $key }}" class="form-label"><strong>{{ $label }}</strong></label>
-              <input type="number" class="form-control" id="{{ $key }}" name="settings[{{ $key }}]" value="{{ e($val) }}" style="max-width:300px">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="tenant_enforce_filter"
+                       name="settings[tenant_enforce_filter]" value="true"
+                       {{ ($settings['tenant_enforce_filter'] ?? '') === 'true' ? 'checked' : '' }}>
+                <label class="form-check-label" for="tenant_enforce_filter"><strong>Enforce Repository Filtering</strong></label>
+              </div>
+              <div class="form-text">Automatically filter browse/search results by current tenant.</div>
             </div>
-          @else
+          </div>
+
+          <div class="col-md-6">
             <div class="mb-3">
-              <label for="{{ $key }}" class="form-label"><strong>{{ $label }}</strong></label>
-              <input type="text" class="form-control" id="{{ $key }}" name="settings[{{ $key }}]" value="{{ e($val) }}">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="tenant_show_switcher"
+                       name="settings[tenant_show_switcher]" value="true"
+                       {{ ($settings['tenant_show_switcher'] ?? 'true') === 'true' ? 'checked' : '' }}>
+                <label class="form-check-label" for="tenant_show_switcher"><strong>Show Tenant Switcher</strong></label>
+              </div>
+              <div class="form-text">Display the repository switcher dropdown in the navigation bar.</div>
             </div>
-          @endif
-        @empty
-          <div class="alert alert-info mb-0"><i class="fas fa-info-circle me-1"></i>No settings configured yet. Save to create default entries.</div>
-        @endforelse
+          </div>
+
+          <div class="col-md-6">
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="tenant_allow_branding"
+                       name="settings[tenant_allow_branding]" value="true"
+                       {{ ($settings['tenant_allow_branding'] ?? 'true') === 'true' ? 'checked' : '' }}>
+                <label class="form-check-label" for="tenant_allow_branding"><strong>Allow Per-Tenant Branding</strong></label>
+              </div>
+              <div class="form-text">Allow super users to customize colors and logos for their repositories.</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="d-flex justify-content-between">
-      <a href="{{ route('settings.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back</a>
-      <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Settings</button>
+
+    <div class="d-flex justify-content-between align-items-center">
+      <a href="{{ route('settings.index') }}" class="btn btn-link text-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Back to Settings
+      </a>
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save me-1"></i>Save
+      </button>
     </div>
   </form>
 @endsection

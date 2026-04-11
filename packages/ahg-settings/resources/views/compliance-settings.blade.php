@@ -1,67 +1,86 @@
+{{--
+  Compliance — regulatory compliance settings (Heratio extra)
+
+  @copyright  Johan Pieterse / Plain Sailing
+  @license    AGPL-3.0-or-later
+--}}
 @extends('theme::layouts.2col')
 @section('title', 'Compliance')
 @section('body-class', 'admin settings')
+
 @section('sidebar')
   @include('ahg-settings::_menu', ['menu' => $menu ?? []])
 @endsection
+
 @section('title-block')
-  <h1><i class="fas fa-clipboard-check me-2"></i>Compliance</h1>
-  <p class="text-muted small mb-0">Regulatory compliance settings</p>
+<h1><i class="fas fa-clipboard-check me-2"></i>Compliance</h1>
+<p class="text-muted">Regulatory compliance settings</p>
 @endsection
+
 @section('content')
   @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ session('success') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
   @endif
-  <form method="post" action="{{ route('settings.ahg.compliance') }}">
+
+  <form method="POST" action="{{ route('settings.ahg.compliance') }}">
     @csrf
-    @php
-      $checkboxPrefixes = ['enabled','auto','require','notify','show','enforce','allow','loop','extract','create','generate','include','overwrite','save','batch','preserve','strip','rotate','orient','watermark','cascade','sync','blur','store','hover','audit','force','expiry'];
-      $passwordKeys = ['password','api_key','secret','salt'];
-      $selectKeys = [];
-    @endphp
+
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Compliance</h5></div>
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Regulatory Compliance</h5>
+      </div>
       <div class="card-body">
+        <p class="text-muted mb-3">Configure regulatory compliance features. For detailed compliance management (DSARs, breaches, ROPA), see the Privacy Compliance module.</p>
+
         @forelse($settings as $key => $val)
           @php
-            $isCheckbox = false;
-            foreach ($checkboxPrefixes as $pfx) { if (str_contains($key, $pfx)) { $isCheckbox = true; break; } }
-            $isPassword = false;
-            foreach ($passwordKeys as $pk) { if (str_contains($key, $pk)) { $isPassword = true; break; } }
-            $label = ucfirst(str_replace('_', ' ', preg_replace('/^[a-z]+_/', '', $key)));
+            $label = ucfirst(str_replace('_', ' ', preg_replace('/^compliance_/', '', $key)));
+            $isCheckbox = in_array($val, ['true','false','1','0']);
           @endphp
-          @if($isCheckbox && in_array($val, ['true','false','1','0']))
+          @if($isCheckbox)
             <div class="form-check form-switch mb-3">
-              <input class="form-check-input" type="checkbox" id="{{ $key }}" name="settings[{{ $key }}]" value="true" {{ in_array($val, ['true','1']) ? 'checked' : '' }}>
+              <input class="form-check-input" type="checkbox" id="{{ $key }}"
+                     name="settings[{{ $key }}]" value="true"
+                     {{ in_array($val, ['true','1']) ? 'checked' : '' }}>
               <label class="form-check-label" for="{{ $key }}"><strong>{{ $label }}</strong></label>
             </div>
-          @elseif($isPassword)
+          @elseif(is_numeric($val) && $val !== '')
             <div class="mb-3">
               <label for="{{ $key }}" class="form-label"><strong>{{ $label }}</strong></label>
-              <div class="input-group" style="max-width:500px">
-                <input type="password" class="form-control" id="{{ $key }}" name="settings[{{ $key }}]" value="{{ e($val) }}" autocomplete="off">
-                <button class="btn atom-btn-white" type="button" onclick="var i=document.getElementById('{{ $key }}');i.type=i.type==='password'?'text':'password'"><i class="fas fa-eye"></i></button>
-              </div>
-            </div>
-          @elseif(is_numeric($val) && $val !== '' && !str_contains($key, 'id'))
-            <div class="mb-3">
-              <label for="{{ $key }}" class="form-label"><strong>{{ $label }}</strong></label>
-              <input type="number" class="form-control" id="{{ $key }}" name="settings[{{ $key }}]" value="{{ e($val) }}" style="max-width:300px">
+              <input type="number" class="form-control" id="{{ $key }}"
+                     name="settings[{{ $key }}]" value="{{ e($val) }}" style="max-width:300px">
             </div>
           @else
             <div class="mb-3">
               <label for="{{ $key }}" class="form-label"><strong>{{ $label }}</strong></label>
-              <input type="text" class="form-control" id="{{ $key }}" name="settings[{{ $key }}]" value="{{ e($val) }}">
+              <input type="text" class="form-control" id="{{ $key }}"
+                     name="settings[{{ $key }}]" value="{{ e($val) }}">
             </div>
           @endif
         @empty
-          <div class="alert alert-info mb-0"><i class="fas fa-info-circle me-1"></i>No settings configured yet. Save to create default entries.</div>
+          <div class="alert alert-info mb-0">
+            <i class="fas fa-info-circle me-1"></i>No compliance settings configured yet. Settings will appear here once they are added to the <code>ahg_settings</code> table with group <code>compliance</code>.
+          </div>
         @endforelse
       </div>
     </div>
-    <div class="d-flex justify-content-between">
-      <a href="{{ route('settings.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back</a>
-      <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Settings</button>
+
+    @if(!empty($settings))
+    <div class="d-flex justify-content-between align-items-center">
+      <a href="{{ route('settings.index') }}" class="btn btn-link text-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Back to Settings
+      </a>
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save me-1"></i>Save
+      </button>
     </div>
+    @else
+    <a href="{{ route('settings.index') }}" class="btn btn-link text-secondary">
+      <i class="fas fa-arrow-left me-1"></i>Back to Settings
+    </a>
+    @endif
   </form>
 @endsection

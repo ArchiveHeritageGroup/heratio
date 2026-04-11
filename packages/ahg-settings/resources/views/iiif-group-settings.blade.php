@@ -1,67 +1,144 @@
+{{--
+  IIIF Viewer — image viewer and annotation settings
+  Cloned from AtoM ahgSettingsPlugin section.blade.php @case('iiif')
+
+  @copyright  Johan Pieterse / Plain Sailing
+  @license    AGPL-3.0-or-later
+--}}
 @extends('theme::layouts.2col')
 @section('title', 'IIIF Viewer')
 @section('body-class', 'admin settings')
+
 @section('sidebar')
   @include('ahg-settings::_menu', ['menu' => $menu ?? []])
 @endsection
+
 @section('title-block')
-  <h1><i class="fas fa-images me-2"></i>IIIF Viewer</h1>
-  <p class="text-muted small mb-0">IIIF image viewer and annotation settings</p>
+<h1><i class="fas fa-images me-2"></i>IIIF Viewer</h1>
+<p class="text-muted">IIIF image viewer and annotation settings</p>
 @endsection
+
 @section('content')
   @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ session('success') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
   @endif
-  <form method="post" action="{{ route('settings.ahg.iiif') }}">
+
+  <form method="POST" action="{{ route('settings.ahg.iiif') }}">
     @csrf
-    @php
-      $checkboxPrefixes = ['enabled','auto','require','notify','show','enforce','allow','loop','extract','create','generate','include','overwrite','save','batch','preserve','strip','rotate','orient','watermark','cascade','sync','blur','store','hover','audit','force','expiry'];
-      $passwordKeys = ['password','api_key','secret','salt'];
-      $selectKeys = [];
-    @endphp
+
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-images me-2"></i>IIIF Viewer</h5></div>
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-images me-2"></i>IIIF Image Viewer</h5>
+      </div>
       <div class="card-body">
-        @forelse($settings as $key => $val)
-          @php
-            $isCheckbox = false;
-            foreach ($checkboxPrefixes as $pfx) { if (str_contains($key, $pfx)) { $isCheckbox = true; break; } }
-            $isPassword = false;
-            foreach ($passwordKeys as $pk) { if (str_contains($key, $pk)) { $isPassword = true; break; } }
-            $label = ucfirst(str_replace('_', ' ', preg_replace('/^[a-z]+_/', '', $key)));
-          @endphp
-          @if($isCheckbox && in_array($val, ['true','false','1','0']))
-            <div class="form-check form-switch mb-3">
-              <input class="form-check-input" type="checkbox" id="{{ $key }}" name="settings[{{ $key }}]" value="true" {{ in_array($val, ['true','1']) ? 'checked' : '' }}>
-              <label class="form-check-label" for="{{ $key }}"><strong>{{ $label }}</strong></label>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Enable IIIF</label>
+          <div class="col-sm-9">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="iiif_enabled"
+                     name="settings[iiif_enabled]" value="true"
+                     {{ ($settings['iiif_enabled'] ?? 'true') === 'true' ? 'checked' : '' }}>
+              <label class="form-check-label" for="iiif_enabled">Enable IIIF viewer</label>
             </div>
-          @elseif($isPassword)
-            <div class="mb-3">
-              <label for="{{ $key }}" class="form-label"><strong>{{ $label }}</strong></label>
-              <div class="input-group" style="max-width:500px">
-                <input type="password" class="form-control" id="{{ $key }}" name="settings[{{ $key }}]" value="{{ e($val) }}" autocomplete="off">
-                <button class="btn atom-btn-white" type="button" onclick="var i=document.getElementById('{{ $key }}');i.type=i.type==='password'?'text':'password'"><i class="fas fa-eye"></i></button>
-              </div>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="iiif_viewer">Viewer Library</label>
+          <div class="col-sm-9">
+            <select class="form-select" id="iiif_viewer" name="settings[iiif_viewer]">
+              <option value="openseadragon" {{ ($settings['iiif_viewer'] ?? 'openseadragon') === 'openseadragon' ? 'selected' : '' }}>OpenSeadragon</option>
+              <option value="mirador" {{ ($settings['iiif_viewer'] ?? 'openseadragon') === 'mirador' ? 'selected' : '' }}>Mirador</option>
+              <option value="leaflet" {{ ($settings['iiif_viewer'] ?? 'openseadragon') === 'leaflet' ? 'selected' : '' }}>Leaflet-IIIF</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="iiif_server_url">IIIF Server URL</label>
+          <div class="col-sm-9">
+            <input type="url" class="form-control" id="iiif_server_url" name="settings[iiif_server_url]"
+                   value="{{ e($settings['iiif_server_url'] ?? '') }}" placeholder="https://iiif.example.com">
+            <div class="form-text">External IIIF server URL (leave blank to use built-in)</div>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Show Navigator</label>
+          <div class="col-sm-9">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="iiif_show_navigator"
+                     name="settings[iiif_show_navigator]" value="true"
+                     {{ ($settings['iiif_show_navigator'] ?? 'true') === 'true' ? 'checked' : '' }}>
+              <label class="form-check-label" for="iiif_show_navigator">Show mini-map navigator</label>
             </div>
-          @elseif(is_numeric($val) && $val !== '' && !str_contains($key, 'id'))
-            <div class="mb-3">
-              <label for="{{ $key }}" class="form-label"><strong>{{ $label }}</strong></label>
-              <input type="number" class="form-control" id="{{ $key }}" name="settings[{{ $key }}]" value="{{ e($val) }}" style="max-width:300px">
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Enable Rotation</label>
+          <div class="col-sm-9">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="iiif_show_rotation"
+                     name="settings[iiif_show_rotation]" value="true"
+                     {{ ($settings['iiif_show_rotation'] ?? 'true') === 'true' ? 'checked' : '' }}>
+              <label class="form-check-label" for="iiif_show_rotation">Allow image rotation</label>
             </div>
-          @else
-            <div class="mb-3">
-              <label for="{{ $key }}" class="form-label"><strong>{{ $label }}</strong></label>
-              <input type="text" class="form-control" id="{{ $key }}" name="settings[{{ $key }}]" value="{{ e($val) }}">
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Enable Fullscreen</label>
+          <div class="col-sm-9">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="iiif_show_fullscreen"
+                     name="settings[iiif_show_fullscreen]" value="true"
+                     {{ ($settings['iiif_show_fullscreen'] ?? 'true') === 'true' ? 'checked' : '' }}>
+              <label class="form-check-label" for="iiif_show_fullscreen">Allow fullscreen mode</label>
             </div>
-          @endif
-        @empty
-          <div class="alert alert-info mb-0"><i class="fas fa-info-circle me-1"></i>No settings configured yet. Save to create default entries.</div>
-        @endforelse
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="iiif_max_zoom">Max Zoom Level</label>
+          <div class="col-sm-9">
+            <input type="number" class="form-control" id="iiif_max_zoom" name="settings[iiif_max_zoom]"
+                   value="{{ $settings['iiif_max_zoom'] ?? 10 }}" min="1" max="20" style="max-width:200px">
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="iiif_default_zoom">Default Zoom</label>
+          <div class="col-sm-9">
+            <input type="number" class="form-control" id="iiif_default_zoom" name="settings[iiif_default_zoom]"
+                   value="{{ $settings['iiif_default_zoom'] ?? 1 }}" min="0" max="10" style="max-width:200px">
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Enable Annotations</label>
+          <div class="col-sm-9">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="iiif_enable_annotations"
+                     name="settings[iiif_enable_annotations]" value="true"
+                     {{ ($settings['iiif_enable_annotations'] ?? 'false') === 'true' ? 'checked' : '' }}>
+              <label class="form-check-label" for="iiif_enable_annotations">Enable IIIF annotations (W3C model)</label>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="d-flex justify-content-between">
-      <a href="{{ route('settings.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back</a>
-      <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Settings</button>
+
+    <div class="d-flex justify-content-between align-items-center">
+      <a href="{{ route('settings.index') }}" class="btn btn-link text-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Back to Settings
+      </a>
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save me-1"></i>Save
+      </button>
     </div>
   </form>
 @endsection
