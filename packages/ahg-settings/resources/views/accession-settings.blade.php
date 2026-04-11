@@ -25,101 +25,102 @@
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   @endif
-  @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-      {{ session('error') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  @endif
 
   <form method="POST" action="{{ route('settings.ahg.accession') }}">
     @csrf
 
-    {{-- ── Card 1: Intake Queue ── --}}
+    {{-- Intake Queue --}}
     <div class="card mb-4">
       <div class="card-header">
         <h5 class="mb-0"><i class="fas fa-inbox me-2"></i>Intake Queue</h5>
       </div>
       <div class="card-body">
-        {{-- Row 1: Numbering Mask + Default Priority --}}
-        <div class="row mb-3">
+        <div class="row g-3">
           <div class="col-md-6">
-            <label for="accession_numbering_mask" class="form-label fw-bold">Numbering Mask</label>
+            <label class="form-label" for="accession_numbering_mask">Numbering Mask</label>
             <input type="text" class="form-control" id="accession_numbering_mask"
                    name="accession_numbering_mask"
-                   value="{{ $settings['accession_numbering_mask'] ?? '' }}"
+                   value="{{ e($settings['accession_numbering_mask'] ?? 'ACC-{YYYY}-{####}') }}"
                    placeholder="ACC-{YYYY}-{####}">
-            <div class="form-text">Pattern for auto-generated accession numbers. Use <code>{YYYY}</code> for year, <code>{####}</code> for sequence.</div>
+            <div class="form-text">Pattern for auto-generated accession numbers. Use {YYYY} for year and {####} for sequence.</div>
           </div>
           <div class="col-md-6">
-            <label for="accession_default_priority" class="form-label fw-bold">Default Priority</label>
+            <label class="form-label" for="accession_default_priority">Default Priority</label>
             <select class="form-select" id="accession_default_priority" name="accession_default_priority">
-              @php $currentPriority = $settings['accession_default_priority'] ?? 'normal'; @endphp
-              @foreach(['low' => 'Low', 'normal' => 'Normal', 'high' => 'High', 'urgent' => 'Urgent'] as $val => $label)
-                <option value="{{ $val }}" {{ $currentPriority === $val ? 'selected' : '' }}>{{ $label }}</option>
-              @endforeach
+              <option value="low" {{ ($settings['accession_default_priority'] ?? 'normal') === 'low' ? 'selected' : '' }}>Low</option>
+              <option value="normal" {{ ($settings['accession_default_priority'] ?? 'normal') === 'normal' ? 'selected' : '' }}>Normal</option>
+              <option value="high" {{ ($settings['accession_default_priority'] ?? 'normal') === 'high' ? 'selected' : '' }}>High</option>
+              <option value="urgent" {{ ($settings['accession_default_priority'] ?? 'normal') === 'urgent' ? 'selected' : '' }}>Urgent</option>
             </select>
-            <div class="form-text">Default priority assigned to new accession records.</div>
+            <div class="form-text">Default priority assigned to new accessions in the intake queue.</div>
           </div>
         </div>
-
-        {{-- Row 2: Three toggles --}}
-        <div class="row">
+        <div class="row g-3 mt-2">
           <div class="col-md-4">
-            <div class="form-check form-switch mb-2">
+            <div class="form-check form-switch mb-3">
               <input class="form-check-input" type="checkbox" id="accession_auto_assign_enabled"
-                     name="accession_auto_assign_enabled" value="1"
-                     {{ ($settings['accession_auto_assign_enabled'] ?? '0') === '1' ? 'checked' : '' }}>
-              <label class="form-check-label fw-bold" for="accession_auto_assign_enabled">Auto-Assign to Archivist</label>
+                     name="accession_auto_assign_enabled" value="true"
+                     {{ ($settings['accession_auto_assign_enabled'] ?? 'false') === 'true' || ($settings['accession_auto_assign_enabled'] ?? '0') === '1' ? 'checked' : '' }}>
+              <label class="form-check-label" for="accession_auto_assign_enabled">
+                <strong>Auto-Assign to Archivist</strong>
+              </label>
             </div>
-            <div class="form-text">Automatically assign new accessions to the default archivist.</div>
+            <div class="form-text">Automatically assign new accessions to the creating archivist.</div>
           </div>
           <div class="col-md-4">
-            <div class="form-check form-switch mb-2">
+            <div class="form-check form-switch mb-3">
               <input class="form-check-input" type="checkbox" id="accession_require_donor_agreement"
-                     name="accession_require_donor_agreement" value="1"
-                     {{ ($settings['accession_require_donor_agreement'] ?? '0') === '1' ? 'checked' : '' }}>
-              <label class="form-check-label fw-bold" for="accession_require_donor_agreement">Require Donor Agreement</label>
+                     name="accession_require_donor_agreement" value="true"
+                     {{ ($settings['accession_require_donor_agreement'] ?? 'false') === 'true' || ($settings['accession_require_donor_agreement'] ?? '0') === '1' ? 'checked' : '' }}>
+              <label class="form-check-label" for="accession_require_donor_agreement">
+                <strong>Require Donor Agreement</strong>
+              </label>
             </div>
-            <div class="form-text">Require a signed donor agreement before finalising an accession.</div>
+            <div class="form-text">Donor agreement must be attached before an accession can be finalised.</div>
           </div>
           <div class="col-md-4">
-            <div class="form-check form-switch mb-2">
+            <div class="form-check form-switch mb-3">
               <input class="form-check-input" type="checkbox" id="accession_require_appraisal"
-                     name="accession_require_appraisal" value="1"
-                     {{ ($settings['accession_require_appraisal'] ?? '0') === '1' ? 'checked' : '' }}>
-              <label class="form-check-label fw-bold" for="accession_require_appraisal">Require Appraisal</label>
+                     name="accession_require_appraisal" value="true"
+                     {{ ($settings['accession_require_appraisal'] ?? 'false') === 'true' || ($settings['accession_require_appraisal'] ?? '0') === '1' ? 'checked' : '' }}>
+              <label class="form-check-label" for="accession_require_appraisal">
+                <strong>Require Appraisal</strong>
+              </label>
             </div>
-            <div class="form-text">Require an appraisal step before an accession can be completed.</div>
+            <div class="form-text">Appraisal must be completed before an accession can be finalised.</div>
           </div>
         </div>
       </div>
     </div>
 
-    {{-- ── Card 2: Containers & Rights ── --}}
+    {{-- Containers & Rights --}}
     <div class="card mb-4">
       <div class="card-header">
         <h5 class="mb-0"><i class="fas fa-box me-2"></i>Containers &amp; Rights</h5>
       </div>
       <div class="card-body">
-        <div class="row">
+        <div class="row g-3">
           <div class="col-md-6">
-            <div class="form-check form-switch mb-2">
+            <div class="form-check form-switch mb-3">
               <input class="form-check-input" type="checkbox" id="accession_allow_container_barcodes"
-                     name="accession_allow_container_barcodes" value="1"
-                     {{ ($settings['accession_allow_container_barcodes'] ?? '0') === '1' ? 'checked' : '' }}>
-              <label class="form-check-label fw-bold" for="accession_allow_container_barcodes">Allow Container Barcodes</label>
+                     name="accession_allow_container_barcodes" value="true"
+                     {{ ($settings['accession_allow_container_barcodes'] ?? 'false') === 'true' || ($settings['accession_allow_container_barcodes'] ?? '0') === '1' ? 'checked' : '' }}>
+              <label class="form-check-label" for="accession_allow_container_barcodes">
+                <strong>Allow Container Barcodes</strong>
+              </label>
             </div>
-            <div class="form-text">Enable barcode scanning for physical containers during accessioning.</div>
+            <div class="form-text">Enable barcode scanning for linking containers to accessions.</div>
           </div>
           <div class="col-md-6">
-            <div class="form-check form-switch mb-2">
+            <div class="form-check form-switch mb-3">
               <input class="form-check-input" type="checkbox" id="accession_rights_inheritance_enabled"
-                     name="accession_rights_inheritance_enabled" value="1"
-                     {{ ($settings['accession_rights_inheritance_enabled'] ?? '0') === '1' ? 'checked' : '' }}>
-              <label class="form-check-label fw-bold" for="accession_rights_inheritance_enabled">Rights Inheritance</label>
+                     name="accession_rights_inheritance_enabled" value="true"
+                     {{ ($settings['accession_rights_inheritance_enabled'] ?? 'false') === 'true' || ($settings['accession_rights_inheritance_enabled'] ?? '0') === '1' ? 'checked' : '' }}>
+              <label class="form-check-label" for="accession_rights_inheritance_enabled">
+                <strong>Rights Inheritance</strong>
+              </label>
             </div>
-            <div class="form-text">Automatically inherit rights statements from the parent fonds or collection.</div>
+            <div class="form-text">Automatically inherit rights from the donor agreement to created information objects.</div>
           </div>
         </div>
       </div>
