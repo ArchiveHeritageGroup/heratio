@@ -191,23 +191,13 @@
       <div class="card h-100">
         <div class="card-header bg-info text-white"><h5 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>{{ __('Sector Dashboards') }}</h5></div>
         <ul class="list-group list-group-flush">
-          @if($hasSpectrum)<li class="list-group-item"><a href="{{ url('/spectrum/dashboard') }}"><i class="fas fa-layer-group me-2 text-muted"></i>{{ __('Spectrum Workflow') }}</a></li>@endif
-          @if($hasWorkflow)
-            <li class="list-group-item"><a href="{{ url('/workflow') }}"><i class="fas fa-tasks me-2 text-muted"></i>{{ __('Approval Workflow') }}</a></li>
-            <li class="list-group-item"><a href="{{ url('/workflow/my-tasks') }}"><i class="fas fa-clipboard-check me-2 text-muted"></i>{{ __('My Workflow Tasks') }}</a></li>
-            <li class="list-group-item"><a href="{{ url('/workflow/pool') }}"><i class="fas fa-inbox me-2 text-muted"></i>{{ __('Task Pool') }}</a></li>
-          @endif
-          @if($hasGrap)<li class="list-group-item"><a href="{{ route('heritage.grap.dashboard') }}"><i class="fas fa-balance-scale me-2 text-muted"></i>{{ __('GRAP 103 Dashboard') }}</a></li>@endif
-          @if($hasHeritage)<li class="list-group-item"><a href="{{ route('heritage.accounting.dashboard') }}"><i class="fas fa-landmark me-2 text-muted"></i>{{ __('Heritage Asset Accounting') }}</a></li>@endif
-          @if($hasCondition)<li class="list-group-item"><a href="{{ url('/admin/condition') }}"><i class="fas fa-heartbeat me-2 text-muted"></i>{{ __('Condition Management') }}</a></li>@endif
-          @if($hasOais)<li class="list-group-item"><a href="{{ Route::has('preservation.index') ? route('preservation.index') : url('/preservation') }}"><i class="fas fa-archive me-2 text-muted"></i>{{ __('Digital Preservation (OAIS)') }}</a></li>@endif
-          @if($hasResearch)<li class="list-group-item"><a href="{{ url('/research/admin') }}"><i class="fas fa-graduation-cap me-2 text-muted"></i>{{ __('Research Services') }}</a></li>@endif
+          @if($hasGrap)<li class="list-group-item"><a href="{{ route('heritage.grap.dashboard') }}"><i class="fas fa-balance-scale me-2 text-muted"></i>{{ __('GRAP 103 / Heritage Accounting') }}</a></li>@endif
           @if($hasDonor)<li class="list-group-item"><a href="{{ url('/donor/browse') }}"><i class="fas fa-handshake me-2 text-muted"></i>{{ __('Donor Management') }}</a></li>@endif
-          @if($hasGallery)<li class="list-group-item"><a href="{{ url('/gallery/dashboard') }}"><i class="fas fa-palette me-2 text-muted"></i>{{ __('Gallery Management') }}</a></li>@endif
-          @if($hasLibrary)<li class="list-group-item"><a href="{{ url('/library/browse') }}"><i class="fas fa-book me-2 text-muted"></i>{{ __('Library Management') }}</a></li>@endif
+          @if($hasGallery)<li class="list-group-item"><a href="{{ url('/gallery/dashboard') }}"><i class="fas fa-palette me-2 text-muted"></i>{{ __('Gallery') }}</a></li>@endif
+          @if($hasLibrary)<li class="list-group-item"><a href="{{ url('/library/browse') }}"><i class="fas fa-book me-2 text-muted"></i>{{ __('Library') }}</a></li>@endif
           @if($hasDam)<li class="list-group-item"><a href="{{ url('/dam/dashboard') }}"><i class="fas fa-images me-2 text-muted"></i>{{ __('Digital Asset Management') }}</a></li>@endif
           @if($hasMuseum)
-            <li class="list-group-item"><a href="{{ url('/museum/dashboard') }}"><i class="fas fa-landmark me-2 text-muted"></i>{{ __('Museum Dashboard') }}</a></li>
+            <li class="list-group-item"><a href="{{ url('/museum/dashboard') }}"><i class="fas fa-landmark me-2 text-muted"></i>{{ __('Museum') }}</a></li>
             <li class="list-group-item"><a href="{{ url('/museum/exhibitions') }}"><i class="fas fa-theater-masks me-2 text-muted"></i>{{ __('Exhibitions') }}</a></li>
           @endif
         </ul>
@@ -250,6 +240,8 @@
           <li class="list-group-item"><a href="{{ url('/workflow/pool') }}"><i class="fas fa-inbox me-2 text-muted"></i>{{ __('Task Pool') }}</a></li>
           <li class="list-group-item"><a href="{{ url('/workflow/history') }}"><i class="fas fa-history me-2 text-muted"></i>{{ __('Workflow History') }}</a></li>
           <li class="list-group-item"><a href="{{ url('/workflow/admin') }}"><i class="fas fa-cog me-2 text-muted"></i>{{ __('Configure Workflows') }}</a></li>
+          <li class="list-group-item border-top mt-2 pt-2"><small class="text-muted fw-bold">{{ __('Publish Gates') }}</small></li>
+          <li class="list-group-item"><a href="{{ url('/workflow/admin/gates') }}"><i class="fas fa-check-double me-2 text-muted"></i>{{ __('Gate Rules') }}</a></li>
         </ul>
       </div>
     </div>

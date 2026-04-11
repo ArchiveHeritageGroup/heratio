@@ -18,14 +18,14 @@ Generated: 2026-04-11
 | # | AtoM Block | AtoM Links | Heratio Block | Heratio Links | Match |
 |---|-----------|------------|--------------|---------------|-------|
 | 1 | **Reports** | Archival Descriptions, Authority Records, Repositories | **Reports** | Archival Descriptions, Authority Records, Repositories, Accessions, Donor Agreements | Heratio superset |
-| 2 | **Sector Dashboards** | GRAP 103 / Heritage Accounting, Donor Management | **Sector Dashboards** | Spectrum Workflow, Approval Workflow, My Workflow Tasks, Task Pool | Different links |
+| 2 | **Sector Dashboards** | GRAP, Donor, Gallery, Library, DAM, Museum, Exhibitions (7) | **Sector Dashboards** | Same 7 links reordered to match AtoM (removed workflow/admin extras) | Fixed |
 | 3 | **Export** | GRAP 103 National Treasury, Spectrum History | **Export** | GRAP 103 National Treasury, Spectrum History, CSV Export, EAD 2002 | Heratio superset |
 
 ### Row 2: Workflow
 
 | # | AtoM Block | AtoM Links | Heratio Block | Heratio Links | Match |
 |---|-----------|------------|--------------|---------------|-------|
-| 4 | **Approval Workflow** | Workflow Dashboard, My Tasks, Task Pool, History | **Approval Workflow** | Same + Configure Workflows | Heratio superset |
+| 4 | **Approval Workflow** | Dashboard, My Tasks, Pool, History, Configure, Publish Gates, Gate Rules | **Approval Workflow** | Same — added missing Publish Gates section | Fixed |
 | 5 | **Spectrum Workflow** | Spectrum Dashboard, My Tasks, Configurations | **Spectrum Workflow** | Same + Notifications | Heratio superset |
 
 ### Row 3: Research
