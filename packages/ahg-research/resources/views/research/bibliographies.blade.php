@@ -1,8 +1,14 @@
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar')@endsection
-@section('title-block')<h1><i class="fas fa-book me-2"></i>Bibliographies</h1>@endsection
+@section('title-block')<h1 class="h2"><i class="fas fa-book text-primary me-2"></i>My Bibliographies</h1>@endsection
 @section('content')
-<div class="d-flex justify-content-between mb-3"><span></span><button class="btn atom-btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#createModal"><i class="fas fa-plus me-1"></i>New Bibliography</button></div>
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+    <li class="breadcrumb-item active">Bibliographies</li>
+  </ol>
+</nav>
+<div class="d-flex justify-content-between mb-3"><span></span><button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createModal"><i class="fas fa-plus me-1"></i>New Bibliography</button></div>
 <div class="row">
 @forelse($bibliographies as $b)
 <div class="col-md-4 mb-3"><div class="card h-100"><div class="card-body">
@@ -22,6 +28,6 @@
     <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="description" rows="2"></textarea></div>
     <div class="mb-3"><label class="form-label">Citation Style <span class="badge bg-secondary ms-1">Optional</span></label><select name="citation_style" class="form-select"><option value="chicago">Chicago</option><option value="mla">MLA</option><option value="apa">APA</option><option value="harvard">Harvard</option><option value="turabian">Turabian</option></select></div>
 </div>
-<div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Create</button></div>
+<div class="modal-footer"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Create</button></div>
 </form></div></div></div>
 @endsection

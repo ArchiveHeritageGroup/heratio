@@ -1,12 +1,33 @@
 @extends('theme::layouts.2col')
-@section('sidebar')@include('research::research._sidebar')@endsection
-@section('title-block')<h1><i class="fas fa-journal-whills me-2"></i>Research Journal</h1>@endsection
-@section('content')
-<div class="card mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">Journal Entries</h5>
-        <button class="btn atom-btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#newEntryModal"><i class="fas fa-plus me-1"></i>New Entry</button>
+@section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'journal'])@endsection
+@section('title-block')
+<div class="d-flex justify-content-between align-items-center">
+  <h1><i class="fas fa-book text-primary me-2"></i>Research Journal</h1>
+  <div class="d-flex gap-2">
+    <div class="dropdown">
+      <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <i class="fas fa-file-export me-1"></i>Export Journal
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{{ url('/research/export-journal?format=pdf') }}"><i class="fas fa-file-pdf me-2 text-danger"></i>PDF</a></li>
+        <li><a class="dropdown-item" href="{{ url('/research/export-journal?format=docx') }}"><i class="fas fa-file-word me-2 text-primary"></i>DOCX</a></li>
+      </ul>
     </div>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newEntryModal">
+      <i class="fas fa-plus me-1"></i>New Entry
+    </button>
+  </div>
+</div>
+@endsection
+@section('content')
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+    <li class="breadcrumb-item active">Journal</li>
+  </ol>
+</nav>
+<div class="card mb-3">
+    <div class="card-body">
     <div class="card-body">
         <form method="GET" class="row g-2 mb-3">
             <div class="col-md-3"><input type="text" class="form-control form-control-sm" name="q" value="{{ $filters['search'] ?? '' }}" placeholder="Search..."></div>
@@ -18,7 +39,7 @@
             </div>
             <div class="col-md-2"><input type="date" class="form-control form-control-sm" name="date_from" value="{{ $filters['date_from'] ?? '' }}"></div>
             <div class="col-md-2"><input type="date" class="form-control form-control-sm" name="date_to" value="{{ $filters['date_to'] ?? '' }}"></div>
-            <div class="col-md-1"><button type="submit" class="btn atom-btn-white btn-sm w-100"><i class="fas fa-filter"></i></button></div>
+            <div class="col-md-1"><button type="submit" class="btn btn-outline-secondary btn-sm w-100"><i class="fas fa-filter"></i></button></div>
         </form>
     </div>
 </div>
@@ -60,7 +81,7 @@
         </div>
         <div class="mb-3"><label class="form-label">Tags <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="tags" placeholder="Comma-separated"></div>
     </div>
-    <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Create Entry</button></div>
+    <div class="modal-footer"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Create Entry</button></div>
     </form>
 </div></div></div>
 @endsection

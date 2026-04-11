@@ -154,14 +154,14 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 | 1 | Research Dashboard | `/research/dashboard` | YES — fixed 8 inline styles, added bg-warning |
 | 2 | Projects | `/research/projects` | YES — already migrated |
 | 3 | Evidence Sets | `/research/collections` | YES — already migrated |
-| 4 | Research Journal | `/research/journal` | NO |
-| 5 | Research Reports | `/research/reports` | NO |
-| 6 | Bibliographies | `/research/bibliographies` | NO |
+| 4 | Research Journal | `/research/journal` | YES — added breadcrumb, Export dropdown, fixed buttons |
+| 5 | Research Reports | `/research/reports` | YES — already migrated |
+| 6 | Bibliographies | `/research/bibliographies` | YES — added breadcrumb, fixed title/buttons |
 
 #### Block 7: Knowledge Platform (6 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Annotation Studio | `/research/annotations` | NO |
+| 1 | Annotation Studio | `/research/annotations` | YES — already migrated |
 | 2 | Saved Searches | `/research/saved-searches` | NO |
 | 3 | Validation Queue | `/research/validation-queue` | NO |
 | 4 | Entity Resolution | `/research/entity-resolution` | NO |
