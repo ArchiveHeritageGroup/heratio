@@ -44,8 +44,8 @@ class SettingsController extends Controller
         'element_visibility' => 'Visible elements',
         'i18n_languages' => 'Languages',
         'oai' => 'OAI repository',
-        'federation' => 'Federation',
         'access_statement' => 'Access statement',
+        // 'federation' removed — controlled by ahgFederationPlugin enable/disable in Plugin Management
     ];
 
     private array $scopeIcons = [
@@ -55,7 +55,6 @@ class SettingsController extends Controller
         'element_visibility' => 'fa-eye',
         'i18n_languages' => 'fa-language',
         'oai' => 'fa-cloud',
-        'federation' => 'fa-network-wired',
         'access_statement' => 'fa-lock',
     ];
 
@@ -66,7 +65,6 @@ class SettingsController extends Controller
         'element_visibility' => 'Control which descriptive-standard fields are shown or hidden in ISAD, RAD, MODS, etc.',
         'i18n_languages' => 'Enabled languages for internationalization.',
         'oai' => 'OAI-PMH repository settings for metadata harvesting.',
-        'federation' => 'Federated search and repository federation settings.',
         'access_statement' => 'Access statement configuration.',
     ];
 
@@ -184,6 +182,7 @@ class SettingsController extends Controller
             'i18n_languages' => 'settings.languages',
             'ui_label' => 'settings.interface-labels',
             'oai' => 'settings.oai',
+            'federation' => 'settings.plugins', // federation is plugin-gated — manage via Plugin Management
         ];
         if (isset($redirectMap[$section])) {
             return redirect()->route($redirectMap[$section]);
