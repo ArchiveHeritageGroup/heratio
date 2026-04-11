@@ -175,11 +175,11 @@
           <li class="list-group-item"><a href="{{ route('reports.spatial') }}"><i class="fas fa-map-marker-alt me-2 text-muted"></i>{{ __('Spatial Analysis Export') }}</a></li>
           @if($hasGallery || $hasLibrary || $hasDam || $hasMuseum || $has3D || $hasSpectrum)
             <li class="list-group-item border-top mt-2 pt-2"><small class="text-muted fw-bold">{{ __('Sector Reports') }}</small></li>
-            @if($hasGallery)<li class="list-group-item"><a href="{{ url('/gallery/reports') }}"><i class="fas fa-palette me-2 text-muted"></i>{{ __('Gallery Reports') }}</a></li>@endif
-            @if($hasLibrary)<li class="list-group-item"><a href="{{ url('/library/reports') }}"><i class="fas fa-book me-2 text-muted"></i>{{ __('Library Reports') }}</a></li>@endif
-            @if($hasDam)<li class="list-group-item"><a href="{{ url('/dam/reports') }}"><i class="fas fa-images me-2 text-muted"></i>{{ __('DAM Reports') }}</a></li>@endif
-            @if($hasMuseum)<li class="list-group-item"><a href="{{ url('/museum/reports') }}"><i class="fas fa-landmark me-2 text-muted"></i>{{ __('Museum Reports') }}</a></li>@endif
-            @if($has3D)<li class="list-group-item"><a href="{{ url('/3d/reports') }}"><i class="fas fa-cube me-2 text-muted"></i>{{ __('3D Object Reports') }}</a></li>@endif
+            @if($hasGallery)<li class="list-group-item"><a href="{{ route('gallery-reports.index') }}"><i class="fas fa-palette me-2 text-muted"></i>{{ __('Gallery Reports') }}</a></li>@endif
+            @if($hasLibrary)<li class="list-group-item"><a href="{{ route('library.reports') }}"><i class="fas fa-book me-2 text-muted"></i>{{ __('Library Reports') }}</a></li>@endif
+            @if($hasDam)<li class="list-group-item"><a href="{{ route('dam.reports') }}"><i class="fas fa-images me-2 text-muted"></i>{{ __('DAM Reports') }}</a></li>@endif
+            @if($hasMuseum)<li class="list-group-item"><a href="{{ route('museum.reports') }}"><i class="fas fa-landmark me-2 text-muted"></i>{{ __('Museum Reports') }}</a></li>@endif
+            @if($has3D)<li class="list-group-item"><a href="{{ route('iiif.three-d-reports.index') }}"><i class="fas fa-cube me-2 text-muted"></i>{{ __('3D Object Reports') }}</a></li>@endif
             @if($hasSpectrum)<li class="list-group-item"><a href="{{ url('/spectrum/reports') }}"><i class="fas fa-clipboard-list me-2 text-muted"></i>{{ __('Spectrum Reports') }}</a></li>@endif
           @endif
         </ul>

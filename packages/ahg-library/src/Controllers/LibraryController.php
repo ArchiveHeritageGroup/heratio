@@ -542,10 +542,90 @@ class LibraryController extends Controller
 
     // ── Reports ────────────────────────────────────────────────────
 
-    public function libraryReports() { return view('ahg-library::reports.index'); }
-    public function reportCatalogue() { return view('ahg-library::reports.catalogue', ['items' => collect()]); }
-    public function reportCreators() { return view('ahg-library::reports.creators', ['creators' => collect()]); }
-    public function reportPublishers() { return view('ahg-library::reports.publishers', ['publishers' => collect()]); }
-    public function reportSubjects() { return view('ahg-library::reports.subjects', ['subjects' => collect()]); }
-    public function reportCallNumbers() { return view('ahg-library::reports.call-numbers', ['items' => collect()]); }
+    public function libraryReports()
+    {
+        $stats = [
+            'items' => ['total' => 0, 'available' => 0, 'onLoan' => 0, 'reference' => 0],
+            'byType' => collect(),
+            'creators' => 0, 'subjects' => 0, 'recentlyAdded' => 0,
+        ];
+        try {
+            if (\Schema::hasTable('library_item')) {
+                $stats['items']['total'] = \DB::table('library_item')->count();
+                $stats['items']['available'] = \DB::table('library_item')->where('status', 'available')->count();
+                $stats['items']['onLoan'] = \DB::table('library_item')->where('status', 'on_loan')->count();
+                $stats['items']['reference'] = \DB::table('library_item')->where('is_reference', 1)->count();
+                $stats['byType'] = \DB::table('library_item')->select('material_type', \DB::raw('COUNT(*) as count'))
+                    ->whereNotNull('material_type')->groupBy('material_type')->orderByDesc('count')->get();
+                $stats['recentlyAdded'] = \DB::table('library_item')->where('created_at', '>=', now()->subDays(30))->count();
+            }
+            if (\Schema::hasTable('library_creator')) { $stats['creators'] = \DB::table('library_creator')->distinct('name')->count('name'); }
+            if (\Schema::hasTable('library_subject')) { $stats['subjects'] = \DB::table('library_subject')->distinct('name')->count('name'); }
+        } catch (\Throwable $e) {}
+        return view('ahg-library::reports.index', compact('stats'));
+    }
+
+    public function reportCatalogue()
+    {
+        $items = collect();
+        try {
+            if (\Schema::hasTable('library_item')) {
+                $items = \DB::table('library_item')->orderBy('title')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('ahg-library::reports.catalogue', compact('items'));
+    }
+
+    public function reportCreators()
+    {
+        $creators = collect();
+        try {
+            if (\Schema::hasTable('library_creator')) {
+                $creators = \DB::table('library_creator')
+                    ->select('name', \DB::raw('COUNT(*) as work_count'))
+                    ->groupBy('name')->orderByDesc('work_count')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('ahg-library::reports.creators', compact('creators'));
+    }
+
+    public function reportPublishers()
+    {
+        $publishers = collect();
+        try {
+            if (\Schema::hasTable('library_item')) {
+                $publishers = \DB::table('library_item')
+                    ->select('publisher', 'publication_place', \DB::raw('COUNT(*) as title_count'))
+                    ->whereNotNull('publisher')->groupBy('publisher', 'publication_place')
+                    ->orderByDesc('title_count')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('ahg-library::reports.publishers', compact('publishers'));
+    }
+
+    public function reportSubjects()
+    {
+        $subjects = collect();
+        try {
+            if (\Schema::hasTable('library_subject')) {
+                $subjects = \DB::table('library_subject')
+                    ->select('name', \DB::raw('COUNT(*) as item_count'))
+                    ->groupBy('name')->orderByDesc('item_count')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('ahg-library::reports.subjects', compact('subjects'));
+    }
+
+    public function reportCallNumbers()
+    {
+        $items = collect();
+        try {
+            if (\Schema::hasTable('library_item')) {
+                $items = \DB::table('library_item')
+                    ->whereNotNull('call_number')->where('call_number', '!=', '')
+                    ->orderBy('call_number')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('ahg-library::reports.call-numbers', compact('items'));
+    }
 }

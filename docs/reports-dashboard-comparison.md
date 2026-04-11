@@ -137,7 +137,12 @@ Generated: 2026-04-11
 | 8c | Gallery: Valuations | 7 columns (Object/Type/Value/Date/Valid Until/Appraiser/Current) | Rebuilt: 7 columns with R currency, current badge | YES |
 | 8d | Gallery: Facility Reports | 8 columns (Institution/Loan/Type/Fire/Climate/Security/Handlers/Approved) | Rebuilt: 8 columns with check/cross icons, approved badge | YES |
 | 8e | Gallery: Spaces | 7 columns (Space/Venue/Area/Wall/Height/Climate/Max Weight) | Rebuilt: 7 columns with numeric alignment, climate icon | YES |
-| 9 | Library Reports | Separate plugin (ahgLibraryPlugin → ahg-library) | Separate package — exists at `/library-manage/reports` | Separate audit |
+| 9 | Library Reports Index | 2col + sidebar, 4 stat cards + By Type + Quick Stats | Rebuilt: 2col + sidebar, stats, material type list | YES |
+| 9a | Library: Catalogue | 7 columns (Title/Author/Type/Call#/ISBN/Publisher/Status) | Rebuilt: 7 columns, 2col + sidebar, table-dark | YES |
+| 9b | Library: Creators | Name + Items count | Rebuilt: 2col + sidebar, table-dark, badge count | YES |
+| 9c | Library: Subjects | Subject + Items count | Rebuilt: 2col + sidebar, table-dark, badge count | YES |
+| 9d | Library: Publishers | Publisher + Place + Titles count | Rebuilt: 2col + sidebar, table-dark, badge count | YES |
+| 9e | Library: Call Numbers | 4 columns (Call#/Title/Type/Shelf) | Rebuilt: 4 columns, 2col + sidebar, table-dark | YES |
 | 10 | DAM Reports | Separate plugin (ahgDAMPlugin → ahg-dam) | Separate package — exists at `/dam/reports` | Separate audit |
 | 11 | Museum Reports | Separate plugin (ahgMuseumPlugin → ahg-museum) | Separate package — exists at `/museum/reports` | Separate audit |
 | 12 | 3D Object Reports | Separate plugin (ahgIiifPlugin → ahg-iiif-collection) | Separate package — exists at `/admin/iiif-3d-reports` | Separate audit |

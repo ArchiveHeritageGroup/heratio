@@ -21,6 +21,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/gallery/facility-report/{id}', [GalleryController::class, 'facilityReport'])->name('gallery.facility-report')->where('id', '[0-9]+');
 
     // Gallery Reports
+    Route::get('/gallery/reports', fn () => redirect('/gallery-reports')); // legacy redirect
     Route::get('/gallery-reports', [GalleryController::class, 'reportsIndex'])->name('gallery-reports.index');
     Route::get('/gallery-reports/exhibitions', [GalleryController::class, 'reportsExhibitions'])->name('gallery-reports.exhibitions');
     Route::get('/gallery-reports/facility-reports', [GalleryController::class, 'reportsFacilityReports'])->name('gallery-reports.facility-reports');

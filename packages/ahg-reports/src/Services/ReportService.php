@@ -131,10 +131,9 @@ class ReportService
                     ->where('level_term.culture', '=', $culture);
             })
             ->where('io.id', '!=', 1)
-            ->leftJoin('repository as repo', 'io.repository_id', '=', 'repo.id')
-            ->leftJoin('repository_i18n as repo_i18n', function ($join) use ($culture) {
-                $join->on('repo.id', '=', 'repo_i18n.id')
-                    ->where('repo_i18n.culture', '=', $culture);
+            ->leftJoin('actor_i18n as repo_actor_i18n', function ($join) use ($culture) {
+                $join->on('io.repository_id', '=', 'repo_actor_i18n.id')
+                    ->where('repo_actor_i18n.culture', '=', $culture);
             })
             ->select(
                 'io.id', 'io.identifier', 'io.level_of_description_id',
@@ -151,7 +150,7 @@ class ReportService
                 'io_i18n.culture',
                 'level_term.name as level_name',
                 'status.status_id as publication_status_id',
-                'repo_i18n.authorized_form_of_name as repository_name',
+                'repo_actor_i18n.authorized_form_of_name as repository_name',
                 'object.created_at', 'object.updated_at'
             );
 
