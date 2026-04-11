@@ -16,15 +16,15 @@
   <div class="mb-4">
     <div class="btn-group" role="group" aria-label="Time period">
       <a href="{{ route('audit.statistics', ['days' => 7]) }}"
-         class="btn btn-sm {{ $days === 7 ? 'btn-primary' : 'atom-btn-white' }}">
+         class="btn btn-sm {{ $days === 7 ? 'btn-primary' : 'btn-outline-secondary' }}">
         7 days
       </a>
       <a href="{{ route('audit.statistics', ['days' => 30]) }}"
-         class="btn btn-sm {{ $days === 30 ? 'btn-primary' : 'atom-btn-white' }}">
+         class="btn btn-sm {{ $days === 30 ? 'btn-primary' : 'btn-outline-secondary' }}">
         30 days
       </a>
       <a href="{{ route('audit.statistics', ['days' => 90]) }}"
-         class="btn btn-sm {{ $days === 90 ? 'btn-primary' : 'atom-btn-white' }}">
+         class="btn btn-sm {{ $days === 90 ? 'btn-primary' : 'btn-outline-secondary' }}">
         90 days
       </a>
     </div>
@@ -68,7 +68,7 @@
 
   {{-- Most Active Users --}}
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+    <div class="card-header">
       <h5 class="mb-0"><i class="fas fa-users me-2"></i>Most Active Users</h5>
     </div>
     <div class="card-body p-0">
@@ -105,7 +105,7 @@
 
   {{-- Recent Failed Actions --}}
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+    <div class="card-header">
       <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Recent Failed Actions</h5>
     </div>
     <div class="card-body p-0">
@@ -148,7 +148,7 @@
     </div>
   </div>
 
-  <a href="{{ route('audit.browse') }}" class="btn atom-btn-white">
+  <a href="{{ route('audit.browse') }}" class="btn btn-outline-secondary">
     <i class="fas fa-arrow-left me-1"></i> Back to Audit Trail
   </a>
 @endsection

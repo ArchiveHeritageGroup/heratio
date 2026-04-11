@@ -56,7 +56,7 @@
                  value="{{ $filters['to'] }}">
         </div>
         <div class="col-md-2">
-          <button type="submit" class="btn atom-btn-outline-light btn-sm w-100">
+          <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
             <i class="fas fa-filter me-1"></i> Filter
           </button>
         </div>

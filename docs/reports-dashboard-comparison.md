@@ -186,21 +186,21 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 #### Block 10: Security & Compliance (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Security Dashboard | `/admin/security/compliance` | NO |
-| 2 | Audit Statistics | `/audit/statistics` | NO |
-| 3 | Audit Log | `/audit/browse` | NO |
-| 4 | Export Audit Log | `/audit/export` | NO |
+| 1 | Security Dashboard | `/admin/acl/clearances` | YES — fixed 4 atom-btn styles |
+| 2 | Audit Statistics | `/admin/audit/statistics` | YES — fixed 6 issues (inline styles + atom-btn) |
+| 3 | Audit Log | `/admin/audit` | YES — fixed 1 atom-btn |
+| 4 | Export Audit Log | `/admin/audit/export` | YES — fixed 2 atom-btn |
 
 #### Block 11: Privacy & Data Protection (7 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Privacy Dashboard | `/privacyAdmin` | NO |
-| 2 | ROPA | `/privacyAdmin/ropaList` | NO |
-| 3 | DSAR Requests | `/privacyAdmin/dsarList` | NO |
-| 4 | Breach Register | `/privacyAdmin/breachList` | NO |
-| 5 | PAIA Requests | `/privacyAdmin/paiaList` | NO |
-| 6 | Privacy Officers | `/privacyAdmin/officerList` | NO |
-| 7 | Template Library | `/privacyAdmin/config` | NO |
+| 1 | Privacy Dashboard | `/admin/privacy/dashboard` | YES — already clean |
+| 2 | ROPA | `/admin/privacy/ropa-list` | YES — already clean |
+| 3 | DSAR Requests | `/admin/privacy/dsar-list` | YES — fixed 2 atom-btn |
+| 4 | Breach Register | `/admin/privacy/breach-list` | YES — already clean |
+| 5 | PAIA Requests | `/admin/privacy/paia-list` | YES — already clean |
+| 6 | Privacy Officers | `/admin/privacy/officer-list` | YES — fixed 1 inline style |
+| 7 | Template Library | `/admin/privacy/config` | YES — fixed 2 atom-btn |
 
 #### Block 12: Condition (3 pages)
 | # | Page | URL | Cloned? |

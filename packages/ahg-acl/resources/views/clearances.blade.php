@@ -10,10 +10,10 @@
     <p class="text-muted">Manage security clearances for all users.</p>
   </div>
   <div class="col-md-4 text-end">
-    <a href="{{ route('acl.groups') }}" class="btn atom-btn-white me-1">
+    <a href="{{ route('acl.groups') }}" class="btn btn-outline-secondary me-1">
       <i class="fas fa-arrow-left me-1"></i>Back to ACL
     </a>
-    <button class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#grantModal">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#grantModal">
       <i class="fas fa-plus me-1"></i>Grant New Clearance
     </button>
   </div>
@@ -318,8 +318,8 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn atom-btn-outline-success">Grant Clearance</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Grant Clearance</button>
         </div>
       </div>
     </form>
