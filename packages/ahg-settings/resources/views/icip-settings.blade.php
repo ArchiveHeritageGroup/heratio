@@ -55,7 +55,7 @@
 
       <div class="accordion mb-3">
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#consent-collapse">Consent & Consultation Settings</button></h2>
+          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#consent-collapse">Consent & Consultation</button></h2>
           <div id="consent-collapse" class="accordion-collapse collapse">
             <div class="accordion-body">
               <div class="form-check form-switch mb-3">

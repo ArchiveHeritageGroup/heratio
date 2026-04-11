@@ -197,8 +197,8 @@
             <li class="list-group-item"><a href="{{ url('/workflow/my-tasks') }}"><i class="fas fa-clipboard-check me-2 text-muted"></i>{{ __('My Workflow Tasks') }}</a></li>
             <li class="list-group-item"><a href="{{ url('/workflow/pool') }}"><i class="fas fa-inbox me-2 text-muted"></i>{{ __('Task Pool') }}</a></li>
           @endif
-          @if($hasGrap)<li class="list-group-item"><a href="{{ url('/grap/dashboard') }}"><i class="fas fa-balance-scale me-2 text-muted"></i>{{ __('GRAP 103 Dashboard') }}</a></li>@endif
-          @if($hasHeritage)<li class="list-group-item"><a href="{{ url('/heritage-accounting/dashboard') }}"><i class="fas fa-landmark me-2 text-muted"></i>{{ __('Heritage Asset Accounting') }}</a></li>@endif
+          @if($hasGrap)<li class="list-group-item"><a href="{{ route('heritage.grap.dashboard') }}"><i class="fas fa-balance-scale me-2 text-muted"></i>{{ __('GRAP 103 Dashboard') }}</a></li>@endif
+          @if($hasHeritage)<li class="list-group-item"><a href="{{ route('heritage.accounting.dashboard') }}"><i class="fas fa-landmark me-2 text-muted"></i>{{ __('Heritage Asset Accounting') }}</a></li>@endif
           @if($hasCondition)<li class="list-group-item"><a href="{{ url('/admin/condition') }}"><i class="fas fa-heartbeat me-2 text-muted"></i>{{ __('Condition Management') }}</a></li>@endif
           @if($hasOais)<li class="list-group-item"><a href="{{ Route::has('preservation.index') ? route('preservation.index') : url('/preservation') }}"><i class="fas fa-archive me-2 text-muted"></i>{{ __('Digital Preservation (OAIS)') }}</a></li>@endif
           @if($hasResearch)<li class="list-group-item"><a href="{{ url('/research/admin') }}"><i class="fas fa-graduation-cap me-2 text-muted"></i>{{ __('Research Services') }}</a></li>@endif
