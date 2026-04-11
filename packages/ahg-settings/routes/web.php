@@ -76,7 +76,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/sfPluginAdminPlugin/themes', [SettingsController::class, 'themes']);
     Route::get('/settings/siteInformation', [SettingsController::class, 'siteInformation']);
     Route::get('/settings/visibleElements', [SettingsController::class, 'visibleElements']);
-    Route::match(['get', 'post'], '/sfPluginAdminPlugin/plugins', [SettingsController::class, 'plugins'])->name('settings.plugins');
+    Route::get('/sfPluginAdminPlugin/plugins', fn () => redirect('/admin/ahgSettings/plugins')); // legacy redirect
 
     // ── Canonical /admin/ahgSettings/ routes (standardised URLs) ──
     Route::match(['get', 'post'], '/admin/ahgSettings/aiCondition', [SettingsController::class, 'aiCondition'])->name('settings.ai-condition');
@@ -100,6 +100,7 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/ahgSettings/media', [SettingsController::class, 'mediaSettings'])->name('settings.ahg.media');
     Route::match(['get', 'post'], '/admin/ahgSettings/metadata', [SettingsController::class, 'metadataSettings'])->name('settings.ahg.metadata');
     Route::match(['get', 'post'], '/admin/ahgSettings/multiTenant', [SettingsController::class, 'multiTenantSettings'])->name('settings.ahg.multi_tenant');
+    Route::match(['get', 'post'], '/admin/ahgSettings/plugins', [SettingsController::class, 'plugins'])->name('settings.plugins');
 
     // Legacy redirects for old /admin/settings/ahg/ paths
     Route::get('/admin/settings/ahg/ai_condition', fn () => redirect('/admin/ahgSettings/aiCondition'));

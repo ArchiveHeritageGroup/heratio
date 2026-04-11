@@ -516,6 +516,30 @@ Order Management is a browse/manage page for customer orders, not a settings for
 **AtoM URL:** `cart/adminOrders` | **Heratio URL:** `/admin/orders` (route `cart.admin.orders`)
 **Status:** ✓ Both are standalone admin pages. Not under `/admin/ahgSettings/`.
 
+### Row 28: Plugin Management
+
+Both systems list installed plugins with enable/disable toggles. AtoM has category and status filters; Heratio has a simpler table.
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | Plugin enable/disable | checkbox per plugin | Yes | Yes | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/plugins` (was `/sfPluginAdminPlugin/plugins`) ✓ Standardised
+
+### Row 29: Privacy Compliance
+
+Privacy Compliance is a standalone admin module (POPIA/GDPR/PAIA) — not a key-value settings form. Both systems link to a privacy admin dashboard.
+
+**AtoM URL:** `privacyAdmin` | **Heratio URL:** `/admin/privacy/dashboard` (route `ahgprivacy.dashboard`)
+**Status:** ✓ Both are standalone admin dashboards. Not under `/admin/ahgSettings/`.
+
+### Row 30: Reading Room
+
+Reading Room is a standalone admin page for managing reading rooms and researcher settings.
+
+**AtoM URL:** `research/rooms` | **Heratio URL:** `/research/rooms` (route `research.rooms`)
+**Status:** ✓ Both are standalone pages. Not under `/admin/ahgSettings/`.
+
 ## TODO
 
 - [x] Fix duplicate "Authority" tile — DONE (added to skip list)
