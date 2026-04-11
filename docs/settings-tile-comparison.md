@@ -137,6 +137,77 @@ Generated: 2026-04-11
 
 **URL:** `/admin/ahgSettings/aiCondition` (was `/admin/settings/ahg/ai_condition`) ✓ Standardised
 
+### Row 4: AI Services
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `processing_mode` | radio | hybrid/job | hybrid/job | Yes | ✓ Match |
+| 2 | `api_url` | text | Yes | Yes | Yes | ✓ Match |
+| 3 | `api_key` | password | Yes | Yes | Yes | ✓ Match |
+| 4 | `api_timeout` | number | Yes | Yes | Yes | ✓ Match |
+| 5 | `ner_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 6 | `auto_extract_on_upload` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 7 | Entity types (4 checkboxes) | checkboxes | Yes | Yes | Yes | ✓ Match |
+| 8 | `summarizer_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 9 | `summary_field` | select | Yes | Yes | Yes | ✓ Match |
+| 10 | `summarizer_min_length` | number | Yes | Yes | Yes | ✓ Match |
+| 11 | `summarizer_max_length` | number | Yes | Yes | Yes | ✓ Match |
+| 12 | `spellcheck_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 13 | `spellcheck_language` | select | Yes | Yes | Yes | ✓ Match |
+| 14 | Spellcheck fields | checkboxes | Yes | Yes | Yes | ✓ Match |
+| 15 | `translation_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 16 | `mt_endpoint` | text | Yes | Yes | Yes | ✓ Match |
+| 17 | `translation_source_lang` | select | Yes | Yes | Yes | ✓ Match |
+| 18 | `translation_target_lang` | select | Yes | Yes | Yes | ✓ Match |
+| 19 | `translation_save_culture` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 20 | `translation_sector` | select | Yes | Yes | Yes | ✓ Match |
+| 21 | Fields to translate | checkbox+select table | Yes | Yes | Yes | ✓ Match |
+| 22 | `translation_mode` | radio | review/auto | review/auto | Yes | ✓ Match |
+| 23 | `translation_overwrite` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 24 | `mt_timeout` | number | Yes | Yes | Yes | ✓ Match |
+| 25 | `qdrant_url` | text | Yes | Yes | Yes | ✓ Match |
+| 26 | `qdrant_collection` | text | Yes | Yes | Yes | ✓ Match |
+| 27 | `qdrant_model` | select | Yes | Yes | Yes | ✓ Match |
+| 28 | `qdrant_min_score` | number | Yes | Yes | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/aiServices` (was `/admin/settings/ai-services`) ✓ Standardised
+
+### Row 5: Audit Trail
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `audit_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 2 | `audit_views` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 3 | `audit_searches` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 4 | `audit_downloads` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 5 | `audit_api_requests` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 6 | `audit_authentication` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 7 | `audit_sensitive_access` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 8 | `audit_mask_sensitive` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 9 | `audit_ip_anonymize` | checkbox | Yes | Yes | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/audit` (was `/admin/settings/ahg/audit`) ✓ Standardised
+
+### Row 6: Authority Records
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `authority_wikidata_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 2 | `authority_viaf_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 3 | `authority_ulan_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 4 | `authority_lcnaf_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 5 | `authority_isni_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 6 | `authority_auto_verify_wikidata` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 7 | `authority_completeness_auto_recalc` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 8 | `authority_hide_stubs_from_public` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 9 | `authority_ner_auto_stub_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 10 | `authority_ner_auto_stub_threshold` | number | Yes | Yes | Yes | ✓ Match |
+| 11 | `authority_merge_require_approval` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 12 | `authority_dedup_threshold` | number | Yes | Yes | Yes | ✓ Match |
+| 13 | `authority_function_linking_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/authority` (was `/admin/settings/authority`) ✓ Standardised
+
 ## TODO
 
 - [x] Fix duplicate "Authority" tile — DONE (added to skip list)

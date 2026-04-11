@@ -54,12 +54,12 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/numbering-schemes', [SettingsController::class, 'numberingSchemes'])->name('settings.numbering-schemes');
     Route::match(['get', 'post'], '/admin/settings/numbering-scheme-edit/{id?}', [SettingsController::class, 'numberingSchemeEdit'])->name('settings.numbering-scheme-edit');
     Route::match(['get', 'post'], '/admin/settings/dam-tools', [SettingsController::class, 'damTools'])->name('settings.dam-tools');
-    Route::match(['get', 'post'], '/admin/settings/ai-services', [SettingsController::class, 'aiServices'])->name('settings.ai-services');
+    Route::get('/admin/settings/ai-services', fn () => redirect('/admin/ahgSettings/aiServices')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg-import', [SettingsController::class, 'ahgImportSettings'])->name('settings.ahg-import');
     Route::get('/admin/settings/ahg-integration', fn () => redirect('/admin/ahgSettings/ahgIntegration')); // legacy redirect
     Route::get('/admin/settings/library', [SettingsController::class, 'library'])->name('settings.library');
     Route::get('/admin/settings/carousel', [SettingsController::class, 'carousel'])->name('settings.carousel');
-    Route::match(['get', 'post'], '/admin/settings/authority', [SettingsController::class, 'authority'])->name('settings.authority');
+    Route::get('/admin/settings/authority', fn () => redirect('/admin/ahgSettings/authority')); // legacy redirect
     Route::match(['get', 'post'], '/settings/pageElements', [SettingsController::class, 'pageElements'])->name('settings.page-elements');
     Route::match(['get', 'post'], '/admin/settings/page-elements', [SettingsController::class, 'pageElements']); // legacy alias
     // Dropdown manager
@@ -82,11 +82,14 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/ahgSettings/aiCondition', [SettingsController::class, 'aiCondition'])->name('settings.ahg.ai-condition');
     Route::match(['get', 'post'], '/admin/ahgSettings/accession', [SettingsController::class, 'accessionSettings'])->name('settings.ahg.accession');
     Route::match(['get', 'post'], '/admin/ahgSettings/ahgIntegration', [SettingsController::class, 'ahgIntegration'])->name('settings.ahg-integration');
+    Route::match(['get', 'post'], '/admin/ahgSettings/aiServices', [SettingsController::class, 'aiServices'])->name('settings.ai-services');
+    Route::match(['get', 'post'], '/admin/ahgSettings/audit', [SettingsController::class, 'auditSettings'])->name('settings.ahg.audit');
+    Route::match(['get', 'post'], '/admin/ahgSettings/authority', [SettingsController::class, 'authority'])->name('settings.authority');
 
     // Legacy redirects for old /admin/settings/ahg/ paths
     Route::get('/admin/settings/ahg/ai_condition', fn () => redirect('/admin/ahgSettings/aiCondition'));
     Route::get('/admin/settings/ahg/accession', fn () => redirect('/admin/ahgSettings/accession'));
-    Route::match(['get', 'post'], '/admin/settings/ahg/audit', [SettingsController::class, 'auditSettings'])->name('settings.ahg.audit');
+    Route::get('/admin/settings/ahg/audit', fn () => redirect('/admin/ahgSettings/audit')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/data_protection', [SettingsController::class, 'dataProtectionSettings'])->name('settings.ahg.data_protection');
     Route::match(['get', 'post'], '/admin/settings/ahg/encryption', [SettingsController::class, 'encryptionSettings'])->name('settings.ahg.encryption');
     Route::match(['get', 'post'], '/admin/settings/ahg/faces', [SettingsController::class, 'facesSettings'])->name('settings.ahg.faces');
