@@ -151,9 +151,9 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 #### Block 6: Research Services (6 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Research Dashboard | `/research/dashboard` | NO |
-| 2 | Projects | `/research/projects` | NO |
-| 3 | Evidence Sets | `/research/collections` | NO |
+| 1 | Research Dashboard | `/research/dashboard` | YES — fixed 8 inline styles, added bg-warning |
+| 2 | Projects | `/research/projects` | YES — already migrated |
+| 3 | Evidence Sets | `/research/collections` | YES — already migrated |
 | 4 | Research Journal | `/research/journal` | NO |
 | 5 | Research Reports | `/research/reports` | NO |
 | 6 | Bibliographies | `/research/bibliographies` | NO |

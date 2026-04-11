@@ -108,7 +108,7 @@
 
       {{-- Knowledge Platform --}}
       <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+        <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="fas fa-brain me-2"></i>Knowledge Platform</span>
         </div>
         <div class="card-body">
@@ -191,7 +191,7 @@
     @if(count($pendingApprovals ?? $pendingResearchers ?? []) > 0)
       @php $pending = $pendingApprovals ?? $pendingResearchers ?? collect(); @endphp
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+        <div class="card-header bg-warning">
           <i class="fas fa-user-clock me-2"></i>Pending Approvals
           <span class="badge bg-dark float-end">{{ count($pending) }}</span>
         </div>
@@ -217,7 +217,7 @@
 
   {{-- Today's Schedule --}}
   <div class="card mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+    <div class="card-header d-flex justify-content-between align-items-center">
       <span><i class="fas fa-calendar-day me-2"></i>Today's Schedule</span>
       @auth
         <a href="{{ route('research.bookings') }}" class="btn btn-sm atom-btn-white">View All</a>
@@ -257,7 +257,7 @@
   @auth
     @if(count($recentActivity ?? []) > 0)
       <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+        <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="fas fa-stream me-2"></i>Recent Activity</span>
         </div>
         <ul class="list-group list-group-flush">
@@ -282,7 +282,7 @@
     @php $recentNotes = $enhancedData['recent_notes'] ?? []; @endphp
     @if(!empty($recentNotes))
       <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+        <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="fas fa-sticky-note me-2 text-warning"></i>Recent Notes</span>
           <a href="{{ route('research.annotations') }}" class="btn btn-sm atom-btn-white">All Notes</a>
         </div>
@@ -305,7 +305,7 @@
     @php $searchAlerts = $enhancedData['search_alerts'] ?? []; @endphp
     @if(!empty($searchAlerts))
       <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+        <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="fas fa-search me-2 text-info"></i>Saved Search Alerts</span>
           <a href="{{ route('research.savedSearches') }}" class="btn btn-sm atom-btn-white">View All</a>
         </div>
@@ -326,7 +326,7 @@
     @php $pendingInvites = $enhancedData['pending_invitations'] ?? []; @endphp
     @if(!empty($pendingInvites))
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+        <div class="card-header">
           <i class="fas fa-envelope me-2"></i>Pending Invitations
           <span class="badge bg-white text-info float-end">{{ count($pendingInvites) }}</span>
         </div>
@@ -346,7 +346,7 @@
   @auth
     @if(isset($researcher) && ($researcher->status ?? '') === 'approved')
       <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+        <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="fas fa-journal-whills me-2"></i>Recent Journal Entries</span>
           <a href="{{ route('research.journal') }}" class="btn btn-sm atom-btn-white">View All</a>
         </div>
