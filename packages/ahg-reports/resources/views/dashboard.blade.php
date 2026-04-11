@@ -74,11 +74,11 @@
     @if ($hasMarketplace && $canManage)
     <h4 class="mt-4">{{ __('Marketplace') }}</h4>
     <ul class="list-unstyled">
-        <li><a href="{{ url('/marketplace/admin') }}"><i class="fas fa-store-alt me-2"></i>{{ __('Admin Dashboard') }}</a></li>
-        <li><a href="{{ url('/marketplace/admin/listings') }}"><i class="fas fa-list me-2"></i>{{ __('Listings') }}</a></li>
-        <li><a href="{{ url('/marketplace/admin/sellers') }}"><i class="fas fa-users me-2"></i>{{ __('Sellers') }}</a></li>
-        <li><a href="{{ url('/marketplace/admin/transactions') }}"><i class="fas fa-exchange-alt me-2"></i>{{ __('Transactions') }}</a></li>
-        <li><a href="{{ url('/marketplace/admin/payouts') }}"><i class="fas fa-money-bill-wave me-2"></i>{{ __('Payouts') }}</a></li>
+        <li><a href="{{ route('ahgmarketplace.admin-dashboard') }}"><i class="fas fa-store-alt me-2"></i>{{ __('Admin Dashboard') }}</a></li>
+        <li><a href="{{ route('ahgmarketplace.admin-listings') }}"><i class="fas fa-list me-2"></i>{{ __('Listings') }}</a></li>
+        <li><a href="{{ route('ahgmarketplace.admin-sellers') }}"><i class="fas fa-users me-2"></i>{{ __('Sellers') }}</a></li>
+        <li><a href="{{ route('ahgmarketplace.admin-transactions') }}"><i class="fas fa-exchange-alt me-2"></i>{{ __('Transactions') }}</a></li>
+        <li><a href="{{ route('ahgmarketplace.admin-payouts') }}"><i class="fas fa-money-bill-wave me-2"></i>{{ __('Payouts') }}</a></li>
     </ul>
     @endif
 
@@ -547,11 +547,11 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#7c3aed!important"><h5 class="mb-0"><i class="fas fa-store-alt me-2"></i>{{ __('Marketplace') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ url('/marketplace/admin') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Admin Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/marketplace/admin/listings') }}"><i class="fas fa-list me-2 text-muted"></i>{{ __('All Listings') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/marketplace') }}"><i class="fas fa-search me-2 text-muted"></i>{{ __('Browse Marketplace') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/marketplace/auctions') }}"><i class="fas fa-gavel me-2 text-muted"></i>{{ __('Active Auctions') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/marketplace/admin/reports') }}"><i class="fas fa-chart-bar me-2 text-muted"></i>{{ __('Revenue Reports') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgmarketplace.admin-dashboard') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Admin Dashboard') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgmarketplace.admin-listings') }}"><i class="fas fa-list me-2 text-muted"></i>{{ __('All Listings') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgmarketplace.browse') }}"><i class="fas fa-search me-2 text-muted"></i>{{ __('Browse Marketplace') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgmarketplace.auction-browse') }}"><i class="fas fa-gavel me-2 text-muted"></i>{{ __('Active Auctions') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgmarketplace.admin-reports') }}"><i class="fas fa-chart-bar me-2 text-muted"></i>{{ __('Revenue Reports') }}</a></li>
         </ul>
       </div>
     </div>
@@ -560,11 +560,11 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#2563eb!important"><h5 class="mb-0"><i class="fas fa-users me-2"></i>{{ __('Sellers & Stores') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ url('/marketplace/admin/sellers') }}"><i class="fas fa-id-badge me-2 text-muted"></i>{{ __('Manage Sellers') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/marketplace/admin/reviews') }}"><i class="fas fa-star me-2 text-muted"></i>{{ __('Moderate Reviews') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/marketplace/admin/categories') }}"><i class="fas fa-tags me-2 text-muted"></i>{{ __('Categories') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/marketplace/admin/currencies') }}"><i class="fas fa-coins me-2 text-muted"></i>{{ __('Currencies') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/marketplace/admin/settings') }}"><i class="fas fa-cog me-2 text-muted"></i>{{ __('Marketplace Settings') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgmarketplace.admin-sellers') }}"><i class="fas fa-id-badge me-2 text-muted"></i>{{ __('Manage Sellers') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgmarketplace.admin-reviews') }}"><i class="fas fa-star me-2 text-muted"></i>{{ __('Moderate Reviews') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgmarketplace.admin-categories') }}"><i class="fas fa-tags me-2 text-muted"></i>{{ __('Categories') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgmarketplace.admin-currencies') }}"><i class="fas fa-coins me-2 text-muted"></i>{{ __('Currencies') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgmarketplace.admin-settings') }}"><i class="fas fa-cog me-2 text-muted"></i>{{ __('Marketplace Settings') }}</a></li>
         </ul>
       </div>
     </div>
@@ -573,9 +573,9 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#059669!important"><h5 class="mb-0"><i class="fas fa-cash-register me-2"></i>{{ __('Sales & Payouts') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ url('/marketplace/admin/transactions') }}"><i class="fas fa-exchange-alt me-2 text-muted"></i>{{ __('All Transactions') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/marketplace/admin/payouts') }}"><i class="fas fa-money-bill-wave me-2 text-muted"></i>{{ __('Pending Payouts') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/marketplace/admin/payouts/batch') }}"><i class="fas fa-layer-group me-2 text-muted"></i>{{ __('Batch Payouts') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgmarketplace.admin-transactions') }}"><i class="fas fa-exchange-alt me-2 text-muted"></i>{{ __('All Transactions') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgmarketplace.admin-payouts') }}"><i class="fas fa-money-bill-wave me-2 text-muted"></i>{{ __('Pending Payouts') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgmarketplace.admin-payouts') }}"><i class="fas fa-layer-group me-2 text-muted"></i>{{ __('Batch Payouts') }}</a></li>
           @if($hasCart)<li class="list-group-item"><a href="{{ url('/cart/admin/orders') }}"><i class="fas fa-shopping-bag me-2 text-muted"></i>{{ __('Shop Orders') }}</a></li>@endif
         </ul>
       </div>
