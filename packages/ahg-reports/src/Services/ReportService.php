@@ -77,9 +77,12 @@ class ReportService
                     ->where('accession_i18n.culture', '=', $culture);
             })
             ->select(
-                'accession.id', 'accession.identifier',
+                'accession.id', 'accession.identifier', 'accession.date as accession_date',
+                'accession.acquisition_type_id', 'accession.resource_type_id',
+                'accession.processing_status_id',
                 'accession_i18n.title', 'accession_i18n.scope_and_content',
                 'accession_i18n.appraisal', 'accession_i18n.processing_notes',
+                'accession_i18n.culture',
                 'object.created_at', 'object.updated_at'
             );
 
@@ -337,7 +340,8 @@ class ReportService
             })
             ->select(
                 'physical_object.id', 'physical_object.type_id',
-                'physical_object_i18n.name', 'physical_object_i18n.location', 'physical_object_i18n.description',
+                'physical_object_i18n.name', 'physical_object_i18n.location',
+                'physical_object_i18n.description', 'physical_object_i18n.culture',
                 'type_term.name as type_name',
                 'object.created_at', 'object.updated_at'
             );

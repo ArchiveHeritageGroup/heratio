@@ -127,6 +127,9 @@ Generated: 2026-04-11
 | 1 | Archival Descriptions | 24 columns (all ISAD), column toggles, 6 sidebar filters, client CSV export | Rebuilt: 24 columns, toggles, 6 filters, client CSV, back button | YES |
 | 2 | Authority Records | 5 columns, 6 sidebar filters, statistics widget, linked names, client CSV | Rebuilt: 5 columns, 5 filters, linked names, client CSV, back button | YES |
 | 3 | Repositories | 21 columns (all ISDIAH), column toggles, 4 sidebar filters, client CSV | Rebuilt: 21 columns, toggles, 4 filters, client CSV, back button | YES |
+| 4 | Accessions | 8 columns, column toggles, 5 sidebar filters, client CSV | Rebuilt: 8 columns, toggles, 5 filters, client CSV, back button | YES |
+| 5 | Donor Agreements | 4 columns (Name, Email, Tel, Created), 4 sidebar filters, CSV | Rebuilt: 6 columns, 3 filters, client CSV, table-dark header | YES |
+| 6 | Physical Storage | 5+ columns, column toggles, 7 sidebar filters, linked IO option, CSV | Rebuilt: 5 columns, toggles, 4 filters, client CSV, back button | YES |
 
 ## Colour Fixes Applied
 
