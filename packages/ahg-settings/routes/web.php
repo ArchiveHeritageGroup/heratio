@@ -18,7 +18,7 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/diacritics', [SettingsController::class, 'diacritics'])->name('settings.diacritics');
     Route::match(['get', 'post'], '/admin/settings/digital-objects', [SettingsController::class, 'digitalObjects'])->name('settings.digital-objects');
     Route::match(['get', 'post'], '/admin/settings/dip-upload', [SettingsController::class, 'dipUpload'])->name('settings.dip-upload');
-    Route::match(['get', 'post'], '/admin/settings/email', [SettingsController::class, 'email'])->name('settings.email');
+    Route::get('/admin/settings/email', fn () => redirect('/admin/ahgSettings/email')); // legacy redirect
     Route::match(['get', 'post'], '/settings/findingAid', [SettingsController::class, 'findingAid'])->name('settings.finding-aid');
     Route::match(['get', 'post'], '/admin/settings/finding-aid', [SettingsController::class, 'findingAid']); // legacy alias
     Route::match(['get', 'post'], '/admin/settings/global', [SettingsController::class, 'global'])->name('settings.global');
@@ -89,15 +89,18 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/ahgSettings/photos', [SettingsController::class, 'photosSettings'])->name('settings.ahg.photos');
     Route::get('/admin/ahgSettings/cronJobs', [SettingsController::class, 'cronJobs'])->name('settings.cron-jobs');
     Route::match(['get', 'post'], '/admin/ahgSettings/ingest', [SettingsController::class, 'ingestSettings'])->name('settings.ahg.ingest');
+    Route::match(['get', 'post'], '/admin/ahgSettings/email', [SettingsController::class, 'email'])->name('settings.email');
+    Route::match(['get', 'post'], '/admin/ahgSettings/encryption', [SettingsController::class, 'encryptionSettings'])->name('settings.ahg.encryption');
+    Route::match(['get', 'post'], '/admin/ahgSettings/ftp', [SettingsController::class, 'ftpSettings'])->name('settings.ahg.ftp');
 
     // Legacy redirects for old /admin/settings/ahg/ paths
     Route::get('/admin/settings/ahg/ai_condition', fn () => redirect('/admin/ahgSettings/aiCondition'));
     Route::get('/admin/settings/ahg/accession', fn () => redirect('/admin/ahgSettings/accession'));
     Route::get('/admin/settings/ahg/audit', fn () => redirect('/admin/ahgSettings/audit')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/data_protection', [SettingsController::class, 'dataProtectionSettings'])->name('settings.ahg.data_protection');
-    Route::match(['get', 'post'], '/admin/settings/ahg/encryption', [SettingsController::class, 'encryptionSettings'])->name('settings.ahg.encryption');
+    Route::get('/admin/settings/ahg/encryption', fn () => redirect('/admin/ahgSettings/encryption')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/faces', [SettingsController::class, 'facesSettings'])->name('settings.ahg.faces');
-    Route::match(['get', 'post'], '/admin/settings/ahg/ftp', [SettingsController::class, 'ftpSettings'])->name('settings.ahg.ftp');
+    Route::get('/admin/settings/ahg/ftp', fn () => redirect('/admin/ahgSettings/ftp')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/fuseki', [SettingsController::class, 'fusekiSettings'])->name('settings.ahg.fuseki');
     Route::get('/admin/settings/ahg/jobs', fn () => redirect('/admin/ahgSettings/jobs')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/spectrum', [SettingsController::class, 'spectrumSettings'])->name('settings.ahg.spectrum');

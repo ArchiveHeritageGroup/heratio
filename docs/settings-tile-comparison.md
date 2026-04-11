@@ -326,6 +326,56 @@ AtoM page is a static reference listing CLI commands. Heratio has a fully intera
 
 **URL:** `/admin/ahgSettings/ecommerce` (was `/admin/ecommerce-settings`) ✓ Standardised
 
+### Row 13: Email Settings
+
+Both AtoM and Heratio use dynamic DB-driven settings for SMTP, notifications, and templates.
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | SMTP settings (dynamic) | text/password/select/number | Yes | Yes | Yes | ✓ Match |
+| 2 | Test Email | button + email | Yes | Yes | Yes | ✓ Match |
+| 3 | Notification Recipients (dynamic) | email fields | Yes | Yes | Yes | ✓ Match |
+| 4 | `error_alert_enabled` | select | Yes | Yes | Yes | ✓ Match |
+| 5 | `error_alert_throttle_ttl` | number | Yes | Yes | Yes | ✓ Match |
+| 6 | `error_alert_daily_cap` | number | Yes | Yes | Yes | ✓ Match |
+| 7 | `error_alert_env_gate` | select | Yes | Yes | Yes | ✓ Match |
+| 8 | Email templates (accordion) | subject + body per template | Yes | Yes | Yes | ✓ Match |
+| 9 | Notification toggles (3) | checkboxes | Yes | Yes | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/email` (was `/admin/settings/email`) ✓ Standardised
+
+### Row 14: Encryption
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | Key status | display | Yes | Yes | n/a | ✓ Match |
+| 2 | `encryption_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 3 | `encryption_encrypt_derivatives` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 4 | `encryption_field_contact_details` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 5 | `encryption_field_financial_data` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 6 | `encryption_field_donor_information` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 7 | `encryption_field_personal_notes` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 8 | `encryption_field_access_restrictions` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 9 | Compliance card | display | — | Yes | n/a | ✓ Heratio extra |
+
+**URL:** `/admin/ahgSettings/encryption` (was `/admin/settings/ahg/encryption`) ✓ Standardised
+
+### Row 15: FTP / SFTP Upload
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `ftp_protocol` | select | sftp/ftp | sftp/ftp | Yes | ✓ Match |
+| 2 | `ftp_host` | text | Yes | Yes | Yes | ✓ Match |
+| 3 | `ftp_port` | number | Yes | Yes | Yes | ✓ Match |
+| 4 | `ftp_username` | text | Yes | Yes | Yes | ✓ Match |
+| 5 | `ftp_password` | password | Yes | Yes | Yes | ✓ Match |
+| 6 | Test Connection | button | Yes | Yes | Yes | ✓ Match |
+| 7 | `ftp_remote_path` | text | Yes | Yes | Yes | ✓ Match |
+| 8 | `ftp_disk_path` | text | Yes | Yes | Yes | ✓ Match |
+| 9 | `ftp_passive_mode` | checkbox | Yes | Yes | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/ftp` (was `/admin/settings/ahg/ftp`) ✓ Standardised
+
 ## TODO
 
 - [x] Fix duplicate "Authority" tile — DONE (added to skip list)
