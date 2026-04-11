@@ -259,7 +259,7 @@
 </div>
 
 <div class="mt-4">
-  <a href="{{ route('admin.index') }}" class="btn btn-outline-secondary">
+  <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">
     <i class="fas fa-arrow-left me-2"></i>Back to Admin
   </a>
   <a href="{{ route('cart.admin.orders') }}" class="btn btn-outline-primary ms-2">
