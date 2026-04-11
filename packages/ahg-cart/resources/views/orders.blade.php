@@ -25,7 +25,7 @@
               <span class="badge {{ $badge }}">{{ ucfirst($order->status) }}</span>
             </td>
             <td>{{ $order->currency }} {{ number_format($order->total, 2) }}</td>
-            <td><a href="{{ route('cart.order-confirmation', $order->id) }}" class="btn btn-sm atom-btn-white">View</a></td>
+            <td><a href="{{ route('cart.order-confirmation', $order->id) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
           </tr>
         @endforeach
       </tbody>

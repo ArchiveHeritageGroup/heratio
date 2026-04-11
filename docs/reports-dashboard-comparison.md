@@ -245,40 +245,40 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 #### Block 17: Vendor Management (5 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Vendor Dashboard | `/admin/vendor` | NO |
-| 2 | Browse Vendors | `/admin/vendor/list` | NO |
-| 3 | Add Vendor | `/admin/vendor/add` | NO |
-| 4 | Transactions | `/admin/vendor/transactions/browse` | NO |
-| 5 | Service Types | `/admin/vendor/service-types` | NO |
+| 1 | Vendor Dashboard | `/admin/vendor` | YES — already clean |
+| 2 | Browse Vendors | `/admin/vendor/list` | YES — fixed 2 atom-btn styles |
+| 3 | Add Vendor | `/admin/vendor/add` | YES — fixed 2 atom-btn styles |
+| 4 | Transactions | `/admin/vendor/transactions/browse` | YES — fixed 2 atom-btn styles |
+| 5 | Service Types | `/admin/vendor/service-types` | YES — fixed 2 atom-btn styles |
 
 #### Block 18: Donor Management (2 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Donor Dashboard | `/donor/browse` | NO |
-| 2 | Donor Agreements | `/donor/agreements` | NO |
+| 1 | Donor Dashboard | `/donor/browse` | YES — fixed 2 atom-btn styles |
+| 2 | Donor Agreements | `/donor/agreements` | YES — already clean |
 
 #### Block 19: Marketplace (5 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Admin Dashboard | `/admin/marketplace/dashboard` | NO |
-| 2 | All Listings | `/admin/marketplace/listings` | NO |
-| 3 | Browse Marketplace | `/marketplace/browse` | NO |
-| 4 | Manage Sellers | `/admin/marketplace/sellers` | NO |
-| 5 | Active Auctions | `/marketplace/auction-browse` | NO |
+| 1 | Admin Dashboard | `/admin/marketplace/dashboard` | YES — already clean |
+| 2 | All Listings | `/admin/marketplace/listings` | YES — fixed 2 atom-btn styles |
+| 3 | Browse Marketplace | `/marketplace/browse` | YES — fixed 2 atom-btn styles |
+| 4 | Manage Sellers | `/admin/marketplace/sellers` | YES — already clean |
+| 5 | Active Auctions | `/marketplace/auction-browse` | YES — fixed inline var(--ahg-primary) style |
 
 #### Block 20: Sales & Payouts (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | All Transactions | `/admin/marketplace/transactions` | NO |
-| 2 | Pending Payouts | `/admin/marketplace/payouts` | NO |
-| 3 | Revenue Reports | `/admin/marketplace/reports` | NO |
-| 4 | Shop Orders | `/admin/orders` | NO |
+| 1 | All Transactions | `/admin/marketplace/transactions` | YES — fixed 2 atom-btn styles |
+| 2 | Pending Payouts | `/admin/marketplace/payouts` | YES — fixed 2 atom-btn styles |
+| 3 | Revenue Reports | `/admin/marketplace/reports` | YES — already clean |
+| 4 | Shop Orders | `/admin/orders` | YES — already clean |
 
 #### Block 21: E-Commerce (2 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Shop Settings | `/admin/ahgSettings/ecommerce` | NO |
-| 2 | Orders | `/admin/orders` | NO |
+| 1 | Shop Settings | `/admin/ahgSettings/ecommerce` | YES — already cloned |
+| 2 | Orders | `/cart/orders` | YES — fixed 1 atom-btn style |
 
 #### Block 22: Form Templates (4 pages)
 | # | Page | URL | Cloned? |
@@ -398,5 +398,7 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 
 - Dashboard structure: **36/36 blocks cloned** (links, colours, section headers match AtoM)
 - Block 1 destination pages: **53/53 cloned** (reports, gallery, library, DAM, museum, 3D, spectrum)
-- Blocks 6–36 destination pages: **0/122 cloned** (pages exist but not audited against AtoM)
-- **Total: 53/175 destination pages cloned (30%)**
+- Blocks 6–16 destination pages: **50/50 cloned** (research, security, privacy, condition, AI, rights, embargo, vocabularies)
+- Blocks 17–21 destination pages: **18/18 cloned** (vendor, donor, marketplace, sales, e-commerce)
+- Blocks 22–36 destination pages: **0/54 cloned** (not yet audited)
+- **Total: 121/175 destination pages cloned (69%)**
