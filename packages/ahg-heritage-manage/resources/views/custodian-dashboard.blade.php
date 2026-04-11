@@ -16,7 +16,7 @@
 
       {{-- Batch Jobs stats card in sidebar --}}
       <div class="card shadow-sm mt-3">
-        <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
+        <div class="card-header bg-white" >
           <h6 class="mb-0"><i class="fas fa-tasks"></i> Batch Jobs</h6>
         </div>
         <div class="card-body p-0">
@@ -48,7 +48,7 @@
               <div class="mb-3"><i class="fas fa-layer-group fa-2x text-primary"></i></div>
               <h6 class="card-title">Batch Operations</h6>
               <p class="card-text text-muted small">Run bulk updates, imports, and exports across collections</p>
-              <a href="{{ route('heritage.custodian-batch') }}" class="btn btn-sm atom-btn-white">
+              <a href="{{ route('heritage.custodian-batch') }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-play me-1"></i> Launch
               </a>
             </div>
@@ -60,7 +60,7 @@
               <div class="mb-3"><i class="fas fa-history fa-2x text-info"></i></div>
               <h6 class="card-title">Audit Trail</h6>
               <p class="card-text text-muted small">Review detailed change logs and user actions</p>
-              <a href="{{ route('audit.browse') }}" class="btn btn-sm atom-btn-white">
+              <a href="{{ route('audit.browse') }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-search me-1"></i> View
               </a>
             </div>
@@ -72,7 +72,7 @@
               <div class="mb-3"><i class="fas fa-key fa-2x text-warning"></i></div>
               <h6 class="card-title">Access Requests</h6>
               <p class="card-text text-muted small">Manage pending access and permission requests</p>
-              <a href="{{ route('acl.access-requests') }}" class="btn btn-sm atom-btn-white">
+              <a href="{{ route('acl.access-requests') }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-clipboard-list me-1"></i> Review
               </a>
             </div>
@@ -82,7 +82,7 @@
 
       {{-- Activity by Category --}}
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
+        <div class="card-header bg-white" >
           <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Activity by Category (30 days)</h5>
         </div>
         <div class="card-body">
@@ -126,7 +126,7 @@
 
       {{-- Top Contributors --}}
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
+        <div class="card-header bg-white" >
           <h5 class="mb-0"><i class="fas fa-trophy"></i> Top Contributors (30 days)</h5>
         </div>
         <div class="card-body p-0">
@@ -174,7 +174,7 @@
 
       {{-- Recent Activity --}}
       <div class="card shadow-sm">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center" >
           <h5 class="mb-0"><i class="fas fa-stream"></i> Recent Activity</h5>
           <a href="{{ route('heritage.custodian-history') }}" class="btn btn-sm btn-outline-primary">View All</a>
         </div>

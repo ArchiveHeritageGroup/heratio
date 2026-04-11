@@ -11,10 +11,10 @@
       <span class="small text-muted">Duplicate Detection</span>
     </div>
     <div class="ms-auto d-flex gap-2">
-      <a href="{{ route('dedupe.rule.create') }}" class="btn atom-btn-outline-success">
+      <a href="{{ route('dedupe.rule.create') }}" class="btn btn-primary">
         <i class="fas fa-plus me-1"></i> Add Rule
       </a>
-      <a href="{{ route('dedupe.index') }}" class="btn atom-btn-white">
+      <a href="{{ route('dedupe.index') }}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-1"></i> Dashboard
       </a>
     </div>
@@ -27,7 +27,7 @@
         <div class="p-4 text-center text-muted">
           <i class="fas fa-cog fa-3x mb-3"></i>
           <p>No detection rules configured.</p>
-          <a href="{{ route('dedupe.rule.create') }}" class="btn atom-btn-outline-success">
+          <a href="{{ route('dedupe.rule.create') }}" class="btn btn-primary">
             Create Your First Rule
           </a>
         </div>
@@ -76,7 +76,7 @@
                   </td>
                   <td class="text-center">
                     <div class="btn-group btn-group-sm">
-                      <a href="{{ route('dedupe.rule.edit', $rule->id) }}" class="btn atom-btn-white" title="Edit">
+                      <a href="{{ route('dedupe.rule.edit', $rule->id) }}" class="btn btn-outline-secondary" title="Edit">
                         <i class="fas fa-edit"></i>
                       </a>
                       <a href="{{ route('dedupe.rule.delete', $rule->id) }}" class="btn atom-btn-outline-danger"

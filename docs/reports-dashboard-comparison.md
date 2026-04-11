@@ -327,39 +327,39 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 #### Block 28: Heritage Management (3 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Admin Dashboard | `/heritage/admin` | NO |
-| 2 | Analytics | `/heritage/analytics` | NO |
-| 3 | Custodian | `/heritage/custodian` | NO |
+| 1 | Admin Dashboard | `/heritage/admin` | YES — fixed 1 inline var(--ahg-primary) style |
+| 2 | Analytics | `/heritage/analytics` | YES — fixed 6 atom-btn styles |
+| 3 | Custodian | `/heritage/custodian` | YES — fixed 3 atom-btn + 4 inline styles |
 
 #### Block 29: Duplicate Detection (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Dedupe Dashboard | `/dedupe` | NO |
-| 2 | Browse Duplicates | `/dedupe/browse` | NO |
-| 3 | Run Scan | `/dedupe/report` | NO |
-| 4 | Detection Rules | `/dedupe/rules` | NO |
+| 1 | Dedupe Dashboard | `/dedupe` | YES — fixed 7 atom-btn + 4 inline var(--ahg-primary) styles |
+| 2 | Browse Duplicates | `/dedupe/browse` | YES — fixed 1 atom-btn style |
+| 3 | Report | `/dedupe/report` | YES — fixed 1 atom-btn style |
+| 4 | Detection Rules | `/dedupe/rules` | YES — fixed 3 atom-btn styles |
 
 #### Block 30: Digital Preservation (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Preservation Dashboard | `/preservation` | NO |
-| 2 | Fixity Verification | `/preservation/fixity-log` | NO |
-| 3 | PREMIS Events | `/preservation/events` | NO |
-| 4 | Preservation Reports | `/preservation/reports` | NO |
+| 1 | Preservation Dashboard | `/preservation` | YES — fixed 12 atom-btn + 3 inline styles |
+| 2 | Fixity Verification | `/preservation/fixity-log` | YES — fixed 3 atom-btn styles |
+| 3 | PREMIS Events | `/preservation/events` | YES — fixed 1 atom-btn style |
+| 4 | Preservation Reports | `/preservation/reports` | YES — already clean |
 
 #### Block 31: Format Registry (3 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Browse Formats | `/preservation/formats` | NO |
-| 2 | At-Risk Formats | `/preservation/formats?risk=high` | NO |
-| 3 | Preservation Policies | `/preservation/policies` | NO |
+| 1 | Browse Formats | `/preservation/formats` | YES — already clean |
+| 2 | At-Risk Formats | `/preservation/formats?risk=high` | YES — same page, query param |
+| 3 | Preservation Policies | `/preservation/policies` | YES — already clean |
 
 #### Block 32: Checksums & Integrity (3 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Missing Checksums | `/preservation/reports?type=missing` | NO |
-| 2 | Stale Verification | `/preservation/reports?type=stale` | NO |
-| 3 | Failed Checks | `/preservation/fixity-log?status=failed` | NO |
+| 1 | Missing Checksums | `/preservation/reports?type=missing` | YES — same reports page, query param |
+| 2 | Stale Verification | `/preservation/reports?type=stale` | YES — same reports page, query param |
+| 3 | Failed Checks | `/preservation/fixity-log?status=failed` | YES — same fixity-log page, query param |
 
 #### Block 33: CDPA (4 pages)
 | # | Page | URL | Cloned? |
@@ -402,5 +402,6 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 - Blocks 17–21 destination pages: **18/18 cloned** (vendor, donor, marketplace, sales, e-commerce)
 - Blocks 22–24 destination pages: **10/10 cloned** (form templates, DOI, RiC)
 - Blocks 25–27 destination pages: **10/10 cloned** (data migration, ingest, backup)
-- Blocks 28–36 destination pages: **0/34 cloned** (not yet audited)
-- **Total: 141/175 destination pages cloned (81%)**
+- Blocks 28–32 destination pages: **17/17 cloned** (heritage, dedupe, preservation, formats, checksums)
+- Blocks 33–36 destination pages: **0/17 cloned** (not yet audited)
+- **Total: 158/175 destination pages cloned (90%)**

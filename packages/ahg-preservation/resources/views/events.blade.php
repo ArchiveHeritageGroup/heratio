@@ -17,7 +17,7 @@
         @if($digitalObjectId)
             <div class="alert alert-info">
                 <i class="fas fa-filter"></i> Filtered to digital object #{{ $digitalObjectId }}
-                <a href="{{ route('preservation.events') }}" class="btn btn-sm atom-btn-white ms-2">Clear Filter</a>
+                <a href="{{ route('preservation.events') }}" class="btn btn-sm btn-outline-secondary ms-2">Clear Filter</a>
             </div>
         @endif
 

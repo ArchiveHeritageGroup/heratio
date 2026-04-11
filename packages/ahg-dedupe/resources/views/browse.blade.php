@@ -17,7 +17,7 @@
       <span class="small text-muted">Duplicate Detection</span>
     </div>
     <div class="ms-auto">
-      <a href="{{ route('dedupe.index') }}" class="btn atom-btn-white">
+      <a href="{{ route('dedupe.index') }}" class="btn btn-outline-secondary">
         <i class="fas fa-tachometer-alt me-1"></i> Dashboard
       </a>
     </div>
@@ -56,7 +56,7 @@
       <button type="submit" class="btn atom-btn-outline-light btn-sm">
         <i class="fas fa-filter me-1"></i> Filter
       </button>
-      <a href="{{ route('dedupe.browse') }}" class="btn btn-sm atom-btn-white">Reset</a>
+      <a href="{{ route('dedupe.browse') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
     </div>
   </form>
 
@@ -136,14 +136,14 @@
                   <td><small class="text-muted">{{ $dup['detected_at'] ? \Carbon\Carbon::parse($dup['detected_at'])->format('M j, Y') : '-' }}</small></td>
                   <td>
                     <div class="btn-group btn-group-sm">
-                      <a href="{{ route('dedupe.compare', $dup['id']) }}" class="btn atom-btn-white" title="Compare Side-by-Side">
+                      <a href="{{ route('dedupe.compare', $dup['id']) }}" class="btn btn-outline-secondary" title="Compare Side-by-Side">
                         <i class="fas fa-columns"></i>
                       </a>
                       @if($dup['status'] !== 'merged')
-                        <a href="{{ route('dedupe.merge', $dup['id']) }}" class="btn atom-btn-white" title="Merge Records">
+                        <a href="{{ route('dedupe.merge', $dup['id']) }}" class="btn btn-outline-secondary" title="Merge Records">
                           <i class="fas fa-compress-arrows-alt"></i>
                         </a>
-                        <button type="button" class="btn atom-btn-white btn-dismiss" data-id="{{ $dup['id'] }}" title="Dismiss">
+                        <button type="button" class="btn btn-outline-secondary btn-dismiss" data-id="{{ $dup['id'] }}" title="Dismiss">
                           <i class="fas fa-times"></i>
                         </button>
                       @endif

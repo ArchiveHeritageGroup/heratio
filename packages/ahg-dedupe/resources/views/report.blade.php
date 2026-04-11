@@ -11,7 +11,7 @@
       <span class="small text-muted">Statistics and breakdown</span>
     </div>
     <div class="ms-auto">
-      <a href="{{ route('dedupe.index') }}" class="btn atom-btn-white">
+      <a href="{{ route('dedupe.index') }}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-1"></i> Dashboard
       </a>
     </div>

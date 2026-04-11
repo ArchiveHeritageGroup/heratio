@@ -20,15 +20,15 @@
       {{-- Time period selector --}}
       <div class="btn-group mb-4" role="group" aria-label="Time period">
         <a href="{{ route('heritage.analytics', ['days' => 7]) }}"
-           class="btn {{ $days === 7 ? 'atom-btn-outline-success' : 'atom-btn-white' }}">
+           class="btn {{ $days === 7 ? 'btn-primary' : 'btn-outline-secondary' }}">
           7 Days
         </a>
         <a href="{{ route('heritage.analytics', ['days' => 30]) }}"
-           class="btn {{ $days === 30 ? 'atom-btn-outline-success' : 'atom-btn-white' }}">
+           class="btn {{ $days === 30 ? 'btn-primary' : 'btn-outline-secondary' }}">
           30 Days
         </a>
         <a href="{{ route('heritage.analytics', ['days' => 90]) }}"
-           class="btn {{ $days === 90 ? 'atom-btn-outline-success' : 'atom-btn-white' }}">
+           class="btn {{ $days === 90 ? 'btn-primary' : 'btn-outline-secondary' }}">
           90 Days
         </a>
       </div>

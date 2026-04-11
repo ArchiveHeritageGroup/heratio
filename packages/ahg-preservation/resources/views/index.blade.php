@@ -84,33 +84,33 @@
         {{-- Quick Actions --}}
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <div class="d-flex flex-wrap gap-1">
-                <a href="{{ route('preservation.identification') }}" class="btn btn-sm atom-btn-white">
+                <a href="{{ route('preservation.identification') }}" class="btn btn-sm btn-outline-secondary">
                     <i class="fas fa-fingerprint me-1"></i>Format ID
                 </a>
-                <a href="{{ route('preservation.fixity-log') }}" class="btn btn-sm atom-btn-white">
+                <a href="{{ route('preservation.fixity-log') }}" class="btn btn-sm btn-outline-secondary">
                     <i class="fas fa-check-double me-1"></i>Fixity Log
                 </a>
-                <a href="{{ route('preservation.events') }}" class="btn btn-sm atom-btn-white">
+                <a href="{{ route('preservation.events') }}" class="btn btn-sm btn-outline-secondary">
                     <i class="fas fa-history me-1"></i>Events
                 </a>
-                <a href="{{ route('preservation.formats') }}" class="btn btn-sm atom-btn-white">
+                <a href="{{ route('preservation.formats') }}" class="btn btn-sm btn-outline-secondary">
                     <i class="fas fa-file-code me-1"></i>Format Registry
                 </a>
-                <a href="{{ route('preservation.scheduler') }}" class="btn btn-sm atom-btn-white">
+                <a href="{{ route('preservation.scheduler') }}" class="btn btn-sm btn-outline-secondary">
                     <i class="fas fa-clock me-1"></i>Scheduler
                 </a>
             </div>
             <div class="d-flex flex-wrap gap-1">
-                <a href="{{ route('preservation.packages') }}" class="btn btn-sm atom-btn-white">
+                <a href="{{ route('preservation.packages') }}" class="btn btn-sm btn-outline-secondary">
                     <i class="fas fa-box me-1"></i>OAIS Packages
                 </a>
-                <a href="{{ route('preservation.virus-scan') }}" class="btn btn-sm atom-btn-white">
+                <a href="{{ route('preservation.virus-scan') }}" class="btn btn-sm btn-outline-secondary">
                     <i class="fas fa-shield-virus me-1"></i>Virus Scan
                 </a>
-                <a href="{{ route('preservation.conversion') }}" class="btn btn-sm atom-btn-white">
+                <a href="{{ route('preservation.conversion') }}" class="btn btn-sm btn-outline-secondary">
                     <i class="fas fa-sync-alt me-1"></i>Conversion
                 </a>
-                <a href="{{ route('preservation.backup') }}" class="btn btn-sm atom-btn-white">
+                <a href="{{ route('preservation.backup') }}" class="btn btn-sm btn-outline-secondary">
                     <i class="fas fa-database me-1"></i>Backup
                 </a>
             </div>
@@ -120,9 +120,9 @@
             {{-- Recent Fixity Checks --}}
             <div class="col-md-6">
                 <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+                    <div class="card-header d-flex justify-content-between align-items-center" >
                         <span><i class="fas fa-fingerprint me-2"></i>Recent Fixity Checks</span>
-                        <a href="{{ route('preservation.fixity-log') }}" class="btn btn-sm atom-btn-white">View All</a>
+                        <a href="{{ route('preservation.fixity-log') }}" class="btn btn-sm btn-outline-secondary">View All</a>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -170,9 +170,9 @@
             {{-- Recent PREMIS Events --}}
             <div class="col-md-6">
                 <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+                    <div class="card-header d-flex justify-content-between align-items-center" >
                         <span><i class="fas fa-history me-2"></i>Recent PREMIS Events</span>
-                        <a href="{{ route('preservation.events') }}" class="btn btn-sm atom-btn-white">View All</a>
+                        <a href="{{ route('preservation.events') }}" class="btn btn-sm btn-outline-secondary">View All</a>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -216,9 +216,9 @@
 
         {{-- At-Risk Formats --}}
         <div class="card mb-4">
-            <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+            <div class="card-header" >
                 <i class="fas fa-exclamation-triangle text-warning me-2"></i>At-Risk Formats
-                <a href="{{ route('preservation.formats') }}" class="btn btn-sm atom-btn-white float-end">View All Formats</a>
+                <a href="{{ route('preservation.formats') }}" class="btn btn-sm btn-outline-secondary float-end">View All Formats</a>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">

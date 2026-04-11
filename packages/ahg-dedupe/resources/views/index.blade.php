@@ -11,13 +11,13 @@
       <span class="small text-muted">Dashboard</span>
     </div>
     <div class="ms-auto d-flex gap-2">
-      <a href="{{ route('dedupe.scan') }}" class="btn atom-btn-outline-success">
+      <a href="{{ route('dedupe.scan') }}" class="btn btn-primary">
         <i class="fas fa-search me-1"></i> New Scan
       </a>
-      <a href="{{ route('dedupe.rules') }}" class="btn atom-btn-white">
+      <a href="{{ route('dedupe.rules') }}" class="btn btn-outline-secondary">
         <i class="fas fa-cog me-1"></i> Rules
       </a>
-      <a href="{{ route('dedupe.browse') }}" class="btn atom-btn-white">
+      <a href="{{ route('dedupe.browse') }}" class="btn btn-outline-secondary">
         <i class="fas fa-list me-1"></i> Browse All
       </a>
     </div>
@@ -79,7 +79,7 @@
     {{-- Main content: Pending Review --}}
     <div class="col-lg-8">
       <div class="card mb-4">
-        <div class="card-header d-flex align-items-center" style="background:var(--ahg-primary);color:#fff">
+        <div class="card-header d-flex align-items-center" >
           <strong>Pending Review</strong>
           <span class="badge bg-warning text-dark ms-2">{{ number_format($stats['pending']) }}</span>
           <a href="{{ route('dedupe.browse', ['status' => 'pending']) }}" class="ms-auto small">View all</a>
@@ -122,13 +122,13 @@
                       <td><span class="badge bg-light text-dark">{{ $dup->detection_method }}</span></td>
                       <td>
                         <div class="btn-group btn-group-sm">
-                          <a href="{{ route('dedupe.compare', $dup->id) }}" class="btn atom-btn-white" title="Compare">
+                          <a href="{{ route('dedupe.compare', $dup->id) }}" class="btn btn-outline-secondary" title="Compare">
                             <i class="fas fa-columns"></i>
                           </a>
-                          <a href="{{ route('dedupe.merge', $dup->id) }}" class="btn atom-btn-white" title="Merge">
+                          <a href="{{ route('dedupe.merge', $dup->id) }}" class="btn btn-outline-secondary" title="Merge">
                             <i class="fas fa-compress-arrows-alt"></i>
                           </a>
-                          <button type="button" class="btn atom-btn-white btn-dismiss" data-id="{{ $dup->id }}" title="Dismiss">
+                          <button type="button" class="btn btn-outline-secondary btn-dismiss" data-id="{{ $dup->id }}" title="Dismiss">
                             <i class="fas fa-times"></i>
                           </button>
                         </div>
@@ -147,7 +147,7 @@
     <div class="col-lg-4">
       {{-- Detection Methods --}}
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>Detection Methods</strong></div>
+        <div class="card-header" ><strong>Detection Methods</strong></div>
         <ul class="list-group list-group-flush">
           @forelse($methodCounts as $mc)
             <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -162,7 +162,7 @@
 
       {{-- Recent Scans --}}
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>Recent Scans</strong></div>
+        <div class="card-header" ><strong>Recent Scans</strong></div>
         <ul class="list-group list-group-flush">
           @forelse($recentScans as $scan)
             <li class="list-group-item">
@@ -189,7 +189,7 @@
           @empty
             <li class="list-group-item text-muted">
               No scans yet.
-              <a href="{{ route('dedupe.scan') }}" class="btn btn-sm atom-btn-outline-success mt-2 d-block">Run First Scan</a>
+              <a href="{{ route('dedupe.scan') }}" class="btn btn-sm btn-primary mt-2 d-block">Run First Scan</a>
             </li>
           @endforelse
         </ul>
@@ -197,7 +197,7 @@
 
       {{-- Quick Links --}}
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>Quick Links</strong></div>
+        <div class="card-header" ><strong>Quick Links</strong></div>
         <div class="list-group list-group-flush">
           <a href="{{ route('dedupe.browse') }}" class="list-group-item list-group-item-action">
             <i class="fas fa-list me-2"></i> Browse All Duplicates

@@ -12,7 +12,7 @@
     <p class="text-muted">Heritage asset administration panel.</p>
 
     <div class="card">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-cog me-2"></i>Heritage Administration</div>
+      <div class="card-header" ><i class="fas fa-cog me-2"></i>Heritage Administration</div>
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">
