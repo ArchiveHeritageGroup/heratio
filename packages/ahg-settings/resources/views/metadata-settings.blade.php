@@ -37,24 +37,26 @@
       <div class="card-body">
         <div class="alert alert-info"><i class="fas fa-info-circle me-1"></i> Configure automatic metadata extraction.</div>
 
-        <div class="row g-3">
-          <div class="col-md-6">
-            <div class="form-check form-switch mb-3">
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Extract on Upload</label>
+          <div class="col-sm-9">
+            <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="meta_extract_on_upload"
                      name="settings[meta_extract_on_upload]" value="true"
                      {{ ($settings['meta_extract_on_upload'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label fw-bold" for="meta_extract_on_upload">Extract on Upload</label>
+              <label class="form-check-label" for="meta_extract_on_upload">Auto-extract metadata</label>
             </div>
-            <div class="form-text">Auto-extract metadata</div>
           </div>
-          <div class="col-md-6">
-            <div class="form-check form-switch mb-3">
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Auto-Populate</label>
+          <div class="col-sm-9">
+            <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="meta_auto_populate"
                      name="settings[meta_auto_populate]" value="true"
                      {{ ($settings['meta_auto_populate'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label fw-bold" for="meta_auto_populate">Auto-Populate</label>
+              <label class="form-check-label" for="meta_auto_populate">Populate description fields</label>
             </div>
-            <div class="form-text">Populate description fields</div>
           </div>
         </div>
       </div>
