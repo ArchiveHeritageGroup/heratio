@@ -1,172 +1,159 @@
 # Reports Dashboard Comparison: AtoM (psis) vs Heratio
 
-Generated: 2026-04-11
+Generated: 2026-04-11 | Updated: 2026-04-11
 
-## Summary
+## Dashboard Structure
 
-| Metric | AtoM | Heratio |
-|--------|------|---------|
-| Card blocks | 36 | 40 (+ 2 empty) |
-| Matching blocks | 36 | 36 |
-| Heratio extras | — | 4 (Assessment Stats, Grade Distribution, Sellers & Stores, TIFF to PDF Merge) |
-| Colour mismatches fixed | — | 4 (Dashboards title, Knowledge Platform, Donor, Data Ingest) |
+| Element | AtoM | Heratio | Cloned? |
+|---------|------|---------|---------|
+| Title | "Central Dashboard" | "Central Dashboard" | YES |
+| Layout | 2col (sidebar + content) | 2col (sidebar + content) | YES |
+| Sidebar | Quick Links (Report Builder) + Settings (AHG Settings, Levels) | Same — trimmed to match | YES |
+| Top stats | 4 cards (Descriptions, Authorities, Digital Objects, Updated 7d) | Same 4 cards | YES |
+| Login gate | Alert for unauthenticated | Auth middleware on route | YES |
 
-## Block-by-Block Comparison
+## Dashboard Blocks — Links & Colours
 
-### Row 1: Core Reports
+| # | Block | AtoM Colour | Heratio Colour | Links Match? | Cloned? |
+|---|-------|------------|---------------|-------------|---------|
+| 1 | Reports | `bg-primary` | `bg-primary` | YES (superset) | YES |
+| 2 | Sector Dashboards | `bg-info` | `bg-info` | YES — reordered to match | YES |
+| 3 | Export | `bg-success` | `bg-success` | YES (superset) | YES |
+| 4 | Approval Workflow | `#6610f2` | `#6610f2` | YES — added Publish Gates | YES |
+| 5 | Spectrum Workflow | `#0d6efd` | `#0d6efd` | YES (superset) | YES |
+| 6 | Research Services | `#0d6efd` | `#0d6efd` | Different links | NO |
+| 7 | Knowledge Platform | `#6610f2` | `#6610f2` | Different links | NO |
+| 8 | Research Admin | `#198754` | `#198754` | Different links | NO |
+| 9 | Access Requests | `#0d6efd` | `#0d6efd` | YES (superset) | NO |
+| 10 | Security & Compliance | `bg-danger` | `bg-danger` | YES (superset) | NO |
+| 11 | Privacy & Data Protection | `bg-warning` | `bg-warning` | YES | NO |
+| 12 | Condition (Spectrum 5.1) | `bg-secondary` | `bg-secondary` | YES | NO |
+| 13 | AI Condition Assessment | `bg-success` | `bg-success` | Heratio superset | NO |
+| — | Assessment Statistics | — | `bg-success` | Heratio extra | — |
+| — | Grade Distribution | — | `bg-success` | Heratio extra | — |
+| 14 | Rights & Licensing | `#6f42c1` | `#6f42c1` | YES (superset) | NO |
+| 15 | Embargo Management | `#e83e8c` | `#e83e8c` | YES (superset) | NO |
+| 16 | Rights Vocabularies | `#20c997` | `#20c997` | YES (superset) | NO |
+| 17 | Vendor Management | `#fd7e14` | `#fd7e14` | YES (superset) | NO |
+| 18 | Donor Management | `#198754` | `#198754` | YES (superset) | NO |
+| 19 | Marketplace | `#7c3aed` | `#7c3aed` | Partial | NO |
+| — | Sellers & Stores | — | `#2563eb` | Heratio extra | — |
+| 20 | Sales & Payouts | `#059669` | `#059669` | Partial | NO |
+| 21 | E-Commerce | `#059669` | `#059669` | YES | NO |
+| 22 | Form Templates | `#198754` | `#198754` | YES (superset) | NO |
+| 23 | DOI Management | `#0dcaf0` | `#0dcaf0` | YES (superset) | NO |
+| 24 | Records in Contexts (RiC) | `#6f42c1` | `#6f42c1` | YES | NO |
+| 25 | Data Migration | `#fd7e14` | `#fd7e14` | YES | NO |
+| 26 | Data Ingest | `#0dcaf0` | `#0dcaf0` | YES | NO |
+| 27 | Backup & Maintenance | `bg-dark` | `bg-dark` | YES | NO |
+| 28 | Heritage Management | `#6c757d` | `#6c757d` | YES | NO |
+| 29 | Duplicate Detection | `#dc3545` | `#dc3545` | YES | NO |
+| — | TIFF to PDF Merge | — | `#20c997` | Heratio extra | — |
+| 30 | Digital Preservation | `#17a2b8` | `#17a2b8` | YES | NO |
+| 31 | Format Registry | `#6610f2` | `#6610f2` | YES | NO |
+| 32 | Checksums & Integrity | `#28a745` | `#28a745` | Partial (missing Failed) | NO |
+| 33 | CDPA Data Protection | `#198754` | `#198754` | YES (superset) | NO |
+| 34 | NAZ Archives | `#0d6efd` | `#0d6efd` | YES (superset) | NO |
+| 35 | IPSAS Heritage Assets | `#ffc107` | `#ffc107` | YES (superset) | NO |
+| 36 | NMMZ Monuments | `#6c757d` | `#6c757d` | YES (superset) | NO |
 
-| # | AtoM Block | AtoM Links | Heratio Block | Heratio Links | Match |
-|---|-----------|------------|--------------|---------------|-------|
-| 1 | **Reports** | Archival Descriptions, Authority Records, Repositories | **Reports** | Archival Descriptions, Authority Records, Repositories, Accessions, Donor Agreements | Heratio superset |
-| 2 | **Sector Dashboards** | GRAP, Donor, Gallery, Library, DAM, Museum, Exhibitions (7) | **Sector Dashboards** | Same 7 links reordered to match AtoM (removed workflow/admin extras) | Fixed |
-| 3 | **Export** | GRAP 103 National Treasury, Spectrum History | **Export** | GRAP 103 National Treasury, Spectrum History, CSV Export, EAD 2002 | Heratio superset |
+## Page-by-Page Clone Status (destination pages behind each link)
 
-### Row 2: Workflow
+### Block 1: Reports — Sector Report Pages
 
-| # | AtoM Block | AtoM Links | Heratio Block | Heratio Links | Match |
-|---|-----------|------------|--------------|---------------|-------|
-| 4 | **Approval Workflow** | Dashboard, My Tasks, Pool, History, Configure, Publish Gates, Gate Rules | **Approval Workflow** | Same — added missing Publish Gates section | Fixed |
-| 5 | **Spectrum Workflow** | Spectrum Dashboard, My Tasks, Configurations | **Spectrum Workflow** | Same + Notifications | Heratio superset |
+| # | Page | AtoM | Heratio | Cloned? |
+|---|------|------|---------|---------|
+| 1 | Archival Descriptions | 24 ISAD columns, toggles, 6 filters, client CSV | 24 columns, toggles, 6 filters, client CSV | YES |
+| 2 | Authority Records | 5 columns, 5 filters, linked names, client CSV | 5 columns, 5 filters, linked names, client CSV | YES |
+| 3 | Repositories | 21 ISDIAH columns, toggles, 4 filters, client CSV | 21 columns, toggles, 4 filters, client CSV | YES |
+| 4 | Accessions | 8 columns, toggles, 5 filters, client CSV | 8 columns, toggles, 5 filters, client CSV | YES |
+| 5 | Donors | 4 columns, 4 filters, client CSV | 6 columns, 3 filters, client CSV | YES |
+| 6 | Physical Storage | 5 columns, toggles, 7 filters, client CSV | 5 columns, toggles, 4 filters, client CSV | YES |
+| 7 | Spatial Analysis | Complex form, preview, CSV/JSON export | Same structure, fixed headers | YES |
 
-### Row 3: Research
+### Block 1: Gallery Reports
 
-| # | AtoM Block | AtoM Links | Heratio Block | Heratio Links | Match |
-|---|-----------|------------|--------------|---------------|-------|
-| 6 | **Research Services** | Dashboard, Projects, Evidence Sets | **Research Services** | Dashboard, Bookings, Enquiries, Reproductions | Different links |
-| 7 | **Knowledge Platform** | Annotation Studio, Saved Searches, Validation Queue | **Knowledge Platform** | Knowledge Dashboard, Articles, Categories, Search | Different links |
-| 8 | **Research Admin** | Manage Researchers, Bookings, Reading Rooms | **Research Admin** | Admin Dashboard, Researcher Accounts, Settings, Usage Reports | Different links |
+| # | Page | AtoM | Heratio | Cloned? |
+|---|------|------|---------|---------|
+| 8 | Gallery Index | 2col, sidebar, 3 stat rows (Exhibitions/Artists+Loans/Valuations) | Same — sidebar, stats, colour-matched | YES |
+| 8a | Exhibitions | 7 columns, sidebar filters, status badges | 7 columns, sidebar, badges | YES |
+| 8b | Loans | 8 columns with insurance/days | 8 columns with formatting | YES |
+| 8c | Valuations | 7 columns with currency | 7 columns with R currency | YES |
+| 8d | Facility Reports | 8 columns with check icons | 8 columns with icons | YES |
+| 8e | Spaces | 7 columns with dimensions | 7 columns with dimensions | YES |
 
-### Row 4: Security & Compliance
+### Block 1: Library Reports
 
-| # | AtoM Block | AtoM Links | Heratio Block | Heratio Links | Match |
-|---|-----------|------------|--------------|---------------|-------|
-| 9 | **Access Requests** | Pending Requests, Approvers | **Access Requests** | Pending Requests, Approvers, Request History | Heratio superset |
-| 10 | **Security & Compliance** | Security Dashboard, Clearance Report | **Security & Compliance** | Security Dashboard, Clearance Report, Audit Log | Heratio superset |
-| 11 | **Privacy & Data Protection** | Privacy Dashboard, ROPA, DSAR, Breach Register | **Privacy & Data Protection** | Same | Match |
+| # | Page | AtoM | Heratio | Cloned? |
+|---|------|------|---------|---------|
+| 9 | Library Index | 2col, sidebar, 4 stat cards + By Type + Quick Stats | Same — sidebar, stats, type list | YES |
+| 9a | Catalogue | 7 columns (Title/Author/Type/Call#/ISBN/Publisher/Status) | 7 columns, sidebar, table-dark | YES |
+| 9b | Creators | Name + Items count | Same, sidebar, badge | YES |
+| 9c | Subjects | Subject + Items count | Same, sidebar, badge | YES |
+| 9d | Publishers | Publisher + Place + Titles | Same, sidebar, badge | YES |
+| 9e | Call Numbers | 4 columns (Call#/Title/Type/Shelf) | 4 columns, sidebar | YES |
 
-### Row 5: Condition & AI
+### Block 1: DAM Reports
 
-| # | AtoM Block | AtoM Links | Heratio Block | Heratio Links | Match |
-|---|-----------|------------|--------------|---------------|-------|
-| 12 | **Condition (Spectrum 5.1)** | Dashboard, Risk Assessment, Templates | **Condition (Spectrum 5.1)** | Same | Match |
-| 13 | **AI Condition Assessment** | Dashboard, New AI Assessment | **AI Condition Assessment** | New AI, Manual, Bulk, Browse, Training | Heratio superset |
-| — | — | — | **Assessment Statistics** | Total, Confirmed, Pending | Heratio extra |
-| — | — | — | **Grade Distribution** | (chart display) | Heratio extra |
+| # | Page | AtoM | Heratio | Cloned? |
+|---|------|------|---------|---------|
+| 10 | DAM Index | 2col, sidebar, 4 stats + By Type + Metadata Coverage | Same — sidebar, stats | YES |
+| 10a | Assets | 4 columns (Filename/Record/Type/Size) | 4 columns, sidebar | YES |
+| 10b | Metadata | 4 columns (File/Type/Size/Created) | 4 columns, sidebar | YES |
+| 10c | IPTC Data | 3 columns (File/Property/Value) | 3 columns, sidebar | YES |
+| 10d | Storage | Sidebar summary + by-type table | Same | YES |
 
-### Row 6: Rights
+### Block 1: Museum Reports
 
-| # | AtoM Block | AtoM Links | Heratio Block | Heratio Links | Match |
-|---|-----------|------------|--------------|---------------|-------|
-| 14 | **Rights & Licensing** | Dashboard, Batch Assignment | **Rights & Licensing** | Dashboard, Batch, Browse, Export Report | Heratio superset |
-| 15 | **Embargo Management** | Active Embargoes, Apply | **Embargo Management** | Active, Apply, Expiring Soon | Heratio superset |
-| 16 | **Rights Vocabularies** | Statements, Creative Commons | **Rights Vocabularies** | Statements, CC, TK Labels, Rights Holders | Heratio superset |
+| # | Page | AtoM | Heratio | Cloned? |
+|---|------|------|---------|---------|
+| 11 | Museum Index | 2col, sidebar, 3 stats + Work Type + Condition lists | Same — sidebar, stats, lists | YES |
+| 11a | Objects | 5 columns with condition badge | 5 columns, badge | YES |
+| 11b | Creators | 5 columns with badge count | 5 columns, badge | YES |
+| 11c | Condition | 5 columns with badge | 5 columns, badge | YES |
+| 11d | Provenance | 4 columns | 4 columns | YES |
+| 11e | Style & Period | 2 side-by-side list-groups | 2 list-groups | YES |
+| 11f | Materials | 4 columns | 4 columns | YES |
 
-### Row 7: Vendors & Donors
+### Block 1: 3D Reports
 
-| # | AtoM Block | AtoM Links | Heratio Block | Heratio Links | Match |
-|---|-----------|------------|--------------|---------------|-------|
-| 17 | **Vendor Management** | Dashboard, Browse Vendors | **Vendor Management** | Dashboard, Browse, Add, Transactions | Heratio superset |
-| 18 | **Donor Management** | Dashboard, Agreements | **Donor Management** | Dashboard, Browse, Agreements, Reports | Heratio superset |
+| # | Page | AtoM | Heratio | Cloned? |
+|---|------|------|---------|---------|
+| 12 | 3D Index | 2col, sidebar, 4 stats + By Format | New dashboard (was redirect) | YES |
+| 12a | Models | 7 columns with check icons | 7 columns, icons | YES |
+| 12b | Hotspots | 6 columns with 3D position | 6 columns, position | YES |
+| 12c | Digital Objects | 4 columns | 4 columns | YES |
+| 12d | Thumbnails | Card grid | Card grid | YES |
 
-### Row 8: Marketplace & Commerce
+### Block 1: Spectrum Reports
 
-| # | AtoM Block | AtoM Links | Heratio Block | Heratio Links | Match |
-|---|-----------|------------|--------------|---------------|-------|
-| 19 | **Marketplace** | Dashboard, Listings, Browse, Manage Sellers | **Marketplace** | Dashboard, Listings, Browse, Auctions | Partial (sellers split out) |
-| — | — | — | **Sellers & Stores** | Sellers, Reviews, Categories, Currencies | Heratio extra |
-| 20 | **Sales & Payouts** | Transactions, Payouts, Batch, Revenue | **Sales & Payouts** | Transactions, Payouts, Batch, Orders | Partial match |
-| 21 | **E-Commerce** | Shop Settings, Orders | **E-Commerce** | Shop Settings, Orders | Match |
+| # | Page | AtoM | Heratio | Cloned? |
+|---|------|------|---------|---------|
+| 13 | Spectrum Index | 8 sub-pages | Links to spectrum dashboard | NO — link fixed only |
+| 13a | Object Entry | Dedicated page | Not cloned | NO |
+| 13b | Acquisitions | Dedicated page | Not cloned | NO |
+| 13c | Loans | Dedicated page | Not cloned | NO |
+| 13d | Movements | Dedicated page | Not cloned | NO |
+| 13e | Conditions | Dedicated page | Not cloned | NO |
+| 13f | Conservation | Dedicated page | Not cloned | NO |
+| 13g | Valuations | Dedicated page | Not cloned | NO |
 
-### Row 9: Administration
+### Blocks 2–5: Navigation blocks (link to existing pages)
 
-| # | AtoM Block | AtoM Links | Heratio Block | Heratio Links | Match |
-|---|-----------|------------|--------------|---------------|-------|
-| 22 | **Form Templates** | Dashboard, Browse, Create | **Form Templates** | Dashboard, Browse, Create, Assignments | Heratio superset |
-| 23 | **DOI Management** | Dashboard, Browse, Minting Queue | **DOI Management** | Dashboard, Browse, Minting, Batch Mint | Heratio superset |
-| 24 | **Records in Contexts (RiC)** | Dashboard, Explorer, Sync Status | **Records in Contexts (RiC)** | Same | Match |
+| # | Block | Destination pages exist? | Cloned? |
+|---|-------|-------------------------|---------|
+| 2 | Sector Dashboards | All sector dashboard routes verified | Links only |
+| 3 | Export | Export routes exist | Links only |
+| 4 | Approval Workflow | All workflow routes verified | Links only |
+| 5 | Spectrum Workflow | All spectrum routes verified | Links only |
 
-### Row 10: Data & Migration
+### Blocks 6–36: Destination pages NOT YET audited
 
-| # | AtoM Block | AtoM Links | Heratio Block | Heratio Links | Match |
-|---|-----------|------------|--------------|---------------|-------|
-| 25 | **Data Migration** | Dashboard, Import, Export | **Data Migration** | Same | Match |
-| 26 | **Data Ingest** | Dashboard, New Ingest, CSV Template | **Data Ingest** | Same | Match |
-| 27 | **Backup & Maintenance** | Dashboard, Restore, Background Jobs | **Backup & Maintenance** | Same | Match |
+| # | Block | Status |
+|---|-------|--------|
+| 6 | Research Services | Links exist, pages not audited |
+| 7 | Knowledge Platform | Links exist, pages not audited |
+| 8 | Research Admin | Links exist, pages not audited |
+| 9–36 | Remaining blocks | Links exist, destination pages not audited |
 
-### Row 11: Heritage & Compliance
-
-| # | AtoM Block | AtoM Links | Heratio Block | Heratio Links | Match |
-|---|-----------|------------|--------------|---------------|-------|
-| 28 | **Heritage Management** | Dashboard, Analytics, Custodian | **Heritage Management** | Dashboard, Analytics, Custodian | Match |
-| 29 | **Duplicate Detection** | Dashboard, Browse, Run Scan | **Duplicate Detection** | Same | Match |
-| — | — | — | **TIFF to PDF Merge** | New Job, Browse Jobs | Heratio extra |
-
-### Row 12: Digital Preservation
-
-| # | AtoM Block | AtoM Links | Heratio Block | Heratio Links | Match |
-|---|-----------|------------|--------------|---------------|-------|
-| 30 | **Digital Preservation** | Dashboard, Fixity, PREMIS Events | **Digital Preservation** | Same | Match |
-| 31 | **Format Registry** | Formats, At-Risk, Policies | **Format Registry** | Same | Match |
-| 32 | **Checksums & Integrity** | Missing, Stale, Failed | **Checksums & Integrity** | Missing, Stale | Partial (missing Failed) |
-
-### Row 13: Regional Compliance
-
-| # | AtoM Block | AtoM Links | Heratio Block | Heratio Links | Match |
-|---|-----------|------------|--------------|---------------|-------|
-| 33 | **CDPA Data Protection** | Dashboard, POTRAZ | **CDPA Data Protection** | Dashboard, POTRAZ, DSARs, Breach Register | Heratio superset |
-| 34 | **NAZ Archives** | Dashboard, Closure Periods | **NAZ Archives** | Dashboard, Closures, Permits, Transfers | Heratio superset |
-| 35 | **IPSAS Heritage Assets** | Dashboard, Asset Register | **IPSAS Heritage Assets** | Dashboard, Register, Valuations, Insurance | Heratio superset |
-| 36 | **NMMZ Monuments** | Dashboard, National Monuments | **NMMZ Monuments** | Dashboard, Monuments, Antiquities, Exports, Archaeological | Heratio superset |
-
-## Page-by-Page Clone Status
-
-### Block 1: Reports — Link Pages
-
-| # | Link | AtoM Page | Heratio Status | Cloned? |
-|---|------|----------|----------------|---------|
-| 1 | Archival Descriptions | 24 columns (all ISAD), column toggles, 6 sidebar filters, client CSV export | Rebuilt: 24 columns, toggles, 6 filters, client CSV, back button | YES |
-| 2 | Authority Records | 5 columns, 6 sidebar filters, statistics widget, linked names, client CSV | Rebuilt: 5 columns, 5 filters, linked names, client CSV, back button | YES |
-| 3 | Repositories | 21 columns (all ISDIAH), column toggles, 4 sidebar filters, client CSV | Rebuilt: 21 columns, toggles, 4 filters, client CSV, back button | YES |
-| 4 | Accessions | 8 columns, column toggles, 5 sidebar filters, client CSV | Rebuilt: 8 columns, toggles, 5 filters, client CSV, back button | YES |
-| 5 | Donor Agreements | 4 columns (Name, Email, Tel, Created), 4 sidebar filters, CSV | Rebuilt: 6 columns, 3 filters, client CSV, table-dark header | YES |
-| 6 | Physical Storage | 5+ columns, column toggles, 7 sidebar filters, linked IO option, CSV | Rebuilt: 5 columns, toggles, 4 filters, client CSV, back button | YES |
-| 7 | Spatial Analysis | Complex form: coord source, place/level/subject filters, tradition classification, preview, export CSV/JSON, help | Same cards — fixed inline styles to plain headers | YES |
-| 8 | Gallery Reports Index | 2col + sidebar, 3 stat cards (Exhibitions/Artists+Loans/Valuations), 4+3+4+4 stats | Rebuilt: 2col + sidebar, 3 stat cards with all stats, Artists card added, colour-matched buttons | YES |
-| 8a | Gallery: Exhibitions | 2col + sidebar filters (status/type/year), 7 columns, status badges, CSV export | Rebuilt: 2col + sidebar filter, 7 columns, status badges, table-dark header | YES |
-| 8b | Gallery: Loans | 8 columns (Loan#/Type/Institution/Status/Dates/Objects/Insurance/Days) | Rebuilt: 8 columns with status badges, insurance formatting, day calc | YES |
-| 8c | Gallery: Valuations | 7 columns (Object/Type/Value/Date/Valid Until/Appraiser/Current) | Rebuilt: 7 columns with R currency, current badge | YES |
-| 8d | Gallery: Facility Reports | 8 columns (Institution/Loan/Type/Fire/Climate/Security/Handlers/Approved) | Rebuilt: 8 columns with check/cross icons, approved badge | YES |
-| 8e | Gallery: Spaces | 7 columns (Space/Venue/Area/Wall/Height/Climate/Max Weight) | Rebuilt: 7 columns with numeric alignment, climate icon | YES |
-| 9 | Library Reports Index | 2col + sidebar, 4 stat cards + By Type + Quick Stats | Rebuilt: 2col + sidebar, stats, material type list | YES |
-| 9a | Library: Catalogue | 7 columns (Title/Author/Type/Call#/ISBN/Publisher/Status) | Rebuilt: 7 columns, 2col + sidebar, table-dark | YES |
-| 9b | Library: Creators | Name + Items count | Rebuilt: 2col + sidebar, table-dark, badge count | YES |
-| 9c | Library: Subjects | Subject + Items count | Rebuilt: 2col + sidebar, table-dark, badge count | YES |
-| 9d | Library: Publishers | Publisher + Place + Titles count | Rebuilt: 2col + sidebar, table-dark, badge count | YES |
-| 9e | Library: Call Numbers | 4 columns (Call#/Title/Type/Shelf) | Rebuilt: 4 columns, 2col + sidebar, table-dark | YES |
-| 10 | DAM Reports Index | 2col + sidebar, 4 stat cards + By Type + Metadata Coverage | Rebuilt: 2col + sidebar, stat cards, file type list, metadata coverage | YES |
-| 10a | DAM: Assets | 4 columns (Filename/Record/Type/Size) | Rebuilt: 4 columns, 2col + sidebar, table-dark | YES |
-| 10b | DAM: Metadata | 4 columns (File/Type/Size/Created) | Rebuilt: 4 columns, 2col + sidebar, table-dark | YES |
-| 10c | DAM: IPTC Data | 3 columns (File/Property/Value) | Rebuilt: 3 columns, 2col + sidebar, table-dark | YES |
-| 10d | DAM: Storage | Sidebar summary + by-type table | Rebuilt: sidebar with total + orphaned alert, type breakdown table | YES |
-| 11 | Museum Reports Index | 2col + sidebar, 3 stat cards + By Work Type + By Condition | Rebuilt: 2col + sidebar, stat cards, work type/condition lists | YES |
-| 11a | Museum: Objects | 5 columns (Title/Work Type/Classification/Materials/Condition) | Rebuilt: 5 columns with condition badge | YES |
-| 11b | Museum: Creators | 5 columns (Creator/Role/Attribution/School/Objects) | Rebuilt: 5 columns with badge count | YES |
-| 11c | Museum: Condition | 5 columns (Object/Condition/Date/Treatment/Notes) | Rebuilt: 5 columns with condition badge | YES |
-| 11d | Museum: Provenance | 4 columns (Object/Provenance/Legal Status/Rights Holder) | Rebuilt: 4 columns | YES |
-| 11e | Museum: Style & Period | 2 side-by-side list-groups (By Style + By Period) | Rebuilt: 2 list-group cards | YES |
-| 11f | Museum: Materials | 4 columns (Object/Materials/Techniques/Dimensions) | Rebuilt: 4 columns | YES |
-| 12 | 3D Reports Index | 2col + sidebar, 4 stat cards + By Format | Rebuilt: new index dashboard (was redirect) | YES |
-| 12a | 3D: Models | 7 columns (Model/Object/Format/Size/Thumb/AR/Public) | Rebuilt: 7 columns with check icons | YES |
-| 12b | 3D: Hotspots | 6 columns (Title/Type/Model/Object/Position/Visible) | Rebuilt: 6 columns with 3D position | YES |
-| 12c | 3D: Digital Objects | 4 columns (File/Object/MIME/Size) | Rebuilt: 4 columns | YES |
-| 12d | 3D: Thumbnails | Grid of thumbnail cards | Rebuilt: card grid with images | YES |
-| 13 | Spectrum Reports | 8 sub-pages in AtoM | Links to spectrum dashboard (sub-pages in existing admin) | Link fixed |
-
-## Colour Fixes Applied
-
-| Block | AtoM Colour | Was (Heratio) | Fixed to |
-|-------|------------|---------------|----------|
-| Dashboards title | "Sector Dashboards" | "Dashboards" | "Sector Dashboards" |
-| Knowledge Platform | `#6610f2` (indigo) | `#6f42c1` (purple) | `#6610f2` |
-| Donor Management | `#198754` (green) | `#17a2b8` (teal) | `#198754` |
-| Data Ingest | `#0dcaf0` (cyan) | `#20c997` (teal) | `#0dcaf0` |
+## Last Cloned: Block 1 complete (45 pages). Next: Block 13 Spectrum sub-pages, then Block 6+ destination pages.
