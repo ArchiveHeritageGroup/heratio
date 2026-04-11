@@ -155,8 +155,12 @@ Generated: 2026-04-11
 | 11d | Museum: Provenance | 4 columns (Object/Provenance/Legal Status/Rights Holder) | Rebuilt: 4 columns | YES |
 | 11e | Museum: Style & Period | 2 side-by-side list-groups (By Style + By Period) | Rebuilt: 2 list-group cards | YES |
 | 11f | Museum: Materials | 4 columns (Object/Materials/Techniques/Dimensions) | Rebuilt: 4 columns | YES |
-| 12 | 3D Object Reports | Separate plugin (ahgIiifPlugin → ahg-iiif-collection) | Separate package — exists at `/admin/iiif-3d-reports` | Separate audit |
-| 13 | Spectrum Reports | Separate plugin (ahgSpectrumPlugin → ahg-spectrum) | Separate package — to be verified | Separate audit |
+| 12 | 3D Reports Index | 2col + sidebar, 4 stat cards + By Format | Rebuilt: new index dashboard (was redirect) | YES |
+| 12a | 3D: Models | 7 columns (Model/Object/Format/Size/Thumb/AR/Public) | Rebuilt: 7 columns with check icons | YES |
+| 12b | 3D: Hotspots | 6 columns (Title/Type/Model/Object/Position/Visible) | Rebuilt: 6 columns with 3D position | YES |
+| 12c | 3D: Digital Objects | 4 columns (File/Object/MIME/Size) | Rebuilt: 4 columns | YES |
+| 12d | 3D: Thumbnails | Grid of thumbnail cards | Rebuilt: card grid with images | YES |
+| 13 | Spectrum Reports | 8 sub-pages in AtoM | Links to spectrum dashboard (sub-pages in existing admin) | Link fixed |
 
 ## Colour Fixes Applied
 
