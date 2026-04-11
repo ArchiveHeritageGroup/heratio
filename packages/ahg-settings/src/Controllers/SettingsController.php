@@ -1765,16 +1765,50 @@ class SettingsController extends Controller
     public function plugins(Request $request)
     {
         if ($request->isMethod('post')) {
-            $enabled = $request->input('enabled', []);
-            DB::table('atom_plugin')->update(['is_enabled' => 0]);
-            if (!empty($enabled)) {
-                DB::table('atom_plugin')->whereIn('name', $enabled)->update(['is_enabled' => 1]);
+            $action = $request->input('plugin_action');
+            $pluginName = $request->input('plugin_name');
+
+            if ($action && $pluginName) {
+                $plugin = DB::table('atom_plugin')->where('name', $pluginName)->first();
+
+                if ($plugin && $action === 'enable') {
+                    DB::table('atom_plugin')->where('name', $pluginName)
+                        ->update(['is_enabled' => 1, 'enabled_at' => now(), 'updated_at' => now()]);
+                    return redirect()->route('settings.plugins')->with('success', "Plugin '{$pluginName}' enabled.");
+                }
+
+                if ($plugin && $action === 'disable') {
+                    if ($plugin->is_core || $plugin->is_locked) {
+                        return redirect()->route('settings.plugins')
+                            ->with('error', "Cannot disable '{$pluginName}': " . ($plugin->is_core ? 'core plugin' : 'plugin is locked'));
+                    }
+                    DB::table('atom_plugin')->where('name', $pluginName)
+                        ->update(['is_enabled' => 0, 'disabled_at' => now(), 'updated_at' => now()]);
+                    return redirect()->route('settings.plugins')->with('success', "Plugin '{$pluginName}' disabled.");
+                }
             }
-            return redirect()->back()->with('success', 'Plugin settings saved.');
+
+            return redirect()->route('settings.plugins');
         }
 
-        $plugins = DB::table('atom_plugin')->orderBy('name')->get();
-        return view('ahg-settings::plugins', compact('plugins'));
+        $plugins = DB::table('atom_plugin')->orderBy('name')->get()->map(function ($p) {
+            $p->category = $p->category ?? 'other';
+            if (str_starts_with($p->name, 'ahg') && !in_array($p->category, ['core', 'theme'])) {
+                $p->category = 'ahg';
+            }
+            return $p;
+        });
+
+        $categories = [
+            'core' => ['label' => 'Core Plugins', 'icon' => 'fa-cube', 'class' => 'primary'],
+            'admin' => ['label' => 'Admin & Settings', 'icon' => 'fa-cogs', 'class' => 'dark'],
+            'theme' => ['label' => 'Themes', 'icon' => 'fa-palette', 'class' => 'info'],
+            'ahg' => ['label' => 'AHG Extensions', 'icon' => 'fa-puzzle-piece', 'class' => 'success'],
+            'integration' => ['label' => 'Integrations', 'icon' => 'fa-plug', 'class' => 'warning'],
+            'other' => ['label' => 'Other', 'icon' => 'fa-ellipsis-h', 'class' => 'secondary'],
+        ];
+
+        return view('ahg-settings::plugins', compact('plugins', 'categories'));
     }
 
     private function buildMenu(string $active): array
