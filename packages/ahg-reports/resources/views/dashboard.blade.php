@@ -44,8 +44,8 @@
   $hasDataIngest = $has('ahgIngestPlugin') || class_exists(\AhgIngest\Controllers\IngestController::class);
   $hasKnowledge = $has('ahgResearchPlugin');
 
-  $isAdmin = auth()->check() && auth()->user()->isAdmin();
-  $canManage = $isAdmin || (auth()->check() && auth()->user()->hasRole('editor'));
+  $isAdmin = auth()->check() && auth()->user()->isAdministrator();
+  $canManage = $isAdmin || (auth()->check() && auth()->user()->isEditor());
 @endphp
 
 @section('sidebar')
