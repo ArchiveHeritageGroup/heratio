@@ -28,18 +28,17 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 | 10 | Security & Compliance | `bg-danger` | `bg-danger` | YES — added Audit Statistics | YES |
 | 11 | Privacy & Data Protection | `bg-warning` | `bg-warning` | YES (7 links) | YES |
 | 12 | Condition (Spectrum 5.1) | `bg-secondary` | `bg-secondary` | YES (3 links) | YES |
-| 13 | AI Condition Assessment | `bg-success` | `bg-success` | Heratio superset | NO |
-| — | Assessment Statistics | — | `bg-success` | Heratio extra | — |
-| — | Grade Distribution | — | `bg-success` | Heratio extra | — |
-| 14 | Rights & Licensing | `#6f42c1` | `#6f42c1` | YES (superset) | NO |
-| 15 | Embargo Management | `#e83e8c` | `#e83e8c` | YES (superset) | NO |
-| 16 | Rights Vocabularies | `#20c997` | `#20c997` | YES (superset) | NO |
-| 17 | Vendor Management | `#fd7e14` | `#fd7e14` | YES (superset) | NO |
-| 18 | Donor Management | `#198754` | `#198754` | YES (superset) | NO |
-| 19 | Marketplace | `#7c3aed` | `#7c3aed` | Partial | NO |
-| — | Sellers & Stores | — | `#2563eb` | Heratio extra | — |
-| 20 | Sales & Payouts | `#059669` | `#059669` | Partial | NO |
-| 21 | E-Commerce | `#059669` | `#059669` | YES | NO |
+| 13 | AI Condition Assessment | `bg-success` | `bg-success` | YES — 7 links matching AtoM | YES |
+| — | Assessment Statistics | — | `bg-success` | Heratio extra (kept) | — |
+| — | Grade Distribution | — | `bg-success` | Heratio extra (kept) | — |
+| 14 | Rights & Licensing | `#6f42c1` | `#6f42c1` | YES (4 links) | YES |
+| 15 | Embargo Management | `#e83e8c` | `#e83e8c` | YES (3 links) | YES |
+| 16 | Rights Vocabularies | `#20c997` | `#20c997` | YES (4 links) | YES |
+| 17 | Vendor Management | `#fd7e14` | `#fd7e14` | YES — matched 5 AtoM links | YES |
+| 18 | Donor Management | `#198754` | `#198754` | YES — matched 2 AtoM links | YES |
+| 19 | Marketplace | `#7c3aed` | `#7c3aed` | YES — sellers merged in, 5 links | YES |
+| 20 | Sales & Payouts | `#059669` | `#059669` | YES — added Revenue Reports | YES |
+| 21 | E-Commerce | `#059669` | `#059669` | YES (2 links) | YES |
 | 22 | Form Templates | `#198754` | `#198754` | YES (superset) | NO |
 | 23 | DOI Management | `#0dcaf0` | `#0dcaf0` | YES (superset) | NO |
 | 24 | Records in Contexts (RiC) | `#6f42c1` | `#6f42c1` | YES | NO |
