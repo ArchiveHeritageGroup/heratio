@@ -364,35 +364,35 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 #### Block 33: CDPA (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | CDPA Dashboard | `/cdpa` | NO |
-| 2 | POTRAZ License | `/cdpa/license` | NO |
-| 3 | Data Subject Requests | `/cdpa/requests` | NO |
-| 4 | Breach Register | `/cdpa/breaches` | NO |
+| 1 | CDPA Dashboard | `/cdpa` | YES — already clean |
+| 2 | POTRAZ License | `/cdpa/license` | YES — fixed 1 inline var(--ahg-primary) style |
+| 3 | Data Subject Requests | `/cdpa/requests` | YES — already clean |
+| 4 | Breach Register | `/cdpa/breaches` | YES — already clean |
 
 #### Block 34: NAZ (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | NAZ Dashboard | `/naz` | NO |
-| 2 | Closure Periods | `/naz/closures` | NO |
-| 3 | Research Permits | `/naz/permits` | NO |
-| 4 | Records Transfers | `/naz/transfers` | NO |
+| 1 | NAZ Dashboard | `/naz` | YES — fixed 1 inline var(--ahg-primary) style |
+| 2 | Closure Periods | `/naz/closures` | YES — already clean |
+| 3 | Research Permits | `/naz/permits` | YES — already clean |
+| 4 | Records Transfers | `/naz/transfers` | YES — already clean |
 
 #### Block 35: IPSAS (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | IPSAS Dashboard | `/ipsas` | NO |
-| 2 | Asset Register | `/ipsas/assets` | NO |
-| 3 | Valuations | `/ipsas/valuations` | NO |
-| 4 | Insurance | `/ipsas/insurance` | NO |
+| 1 | IPSAS Dashboard | `/ipsas` | YES — fixed 1 inline var(--ahg-primary) style |
+| 2 | Asset Register | `/ipsas/assets` | YES — fixed 2 atom-btn styles |
+| 3 | Valuations | `/ipsas/valuations` | YES — fixed 2 atom-btn styles |
+| 4 | Insurance | `/ipsas/insurance` | YES — fixed 2 atom-btn styles |
 
 #### Block 36: NMMZ (5 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | NMMZ Dashboard | `/nmmz` | NO |
-| 2 | National Monuments | `/nmmz/monuments` | NO |
-| 3 | Antiquities Register | `/nmmz/antiquities` | NO |
-| 4 | Export Permits | `/nmmz/permits` | NO |
-| 5 | Archaeological Sites | `/nmmz/sites` | NO |
+| 1 | NMMZ Dashboard | `/nmmz` | YES — fixed 1 inline var(--ahg-primary) style |
+| 2 | National Monuments | `/nmmz/monuments` | YES — fixed 2 atom-btn styles |
+| 3 | Antiquities Register | `/nmmz/antiquities` | YES — fixed 2 atom-btn styles |
+| 4 | Export Permits | `/nmmz/permits` | YES — fixed 2 atom-btn styles |
+| 5 | Archaeological Sites | `/nmmz/sites` | YES — fixed 2 atom-btn styles |
 
 ## Status
 
@@ -403,5 +403,5 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 - Blocks 22–24 destination pages: **10/10 cloned** (form templates, DOI, RiC)
 - Blocks 25–27 destination pages: **10/10 cloned** (data migration, ingest, backup)
 - Blocks 28–32 destination pages: **17/17 cloned** (heritage, dedupe, preservation, formats, checksums)
-- Blocks 33–36 destination pages: **0/17 cloned** (not yet audited)
-- **Total: 158/175 destination pages cloned (90%)**
+- Blocks 33–36 destination pages: **17/17 cloned** (CDPA, NAZ, IPSAS, NMMZ)
+- **Total: 175/175 destination pages cloned (100%)**
