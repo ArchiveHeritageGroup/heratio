@@ -146,13 +146,257 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 | 4 | Approval Workflow | All workflow routes verified | Links only |
 | 5 | Spectrum Workflow | All spectrum routes verified | Links only |
 
-### Blocks 6–36: Destination pages NOT YET audited
+### Blocks 6–36: Destination Page Audit (122 pages)
 
-| # | Block | Status |
-|---|-------|--------|
-| 6 | Research Services | Links exist, pages not audited |
-| 7 | Knowledge Platform | Links exist, pages not audited |
-| 8 | Research Admin | Links exist, pages not audited |
-| 9–36 | Remaining blocks | Links exist, destination pages not audited |
+#### Block 6: Research Services (6 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Research Dashboard | `/research/dashboard` | NO |
+| 2 | Projects | `/research/projects` | NO |
+| 3 | Evidence Sets | `/research/collections` | NO |
+| 4 | Research Journal | `/research/journal` | NO |
+| 5 | Research Reports | `/research/reports` | NO |
+| 6 | Bibliographies | `/research/bibliographies` | NO |
 
-## Status: ALL 36 dashboard blocks cloned. 53 destination pages cloned. Dashboard is a full AtoM clone.
+#### Block 7: Knowledge Platform (6 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Annotation Studio | `/research/annotations` | NO |
+| 2 | Saved Searches | `/research/saved-searches` | NO |
+| 3 | Validation Queue | `/research/validation-queue` | NO |
+| 4 | Entity Resolution | `/research/entity-resolution` | NO |
+| 5 | ODRL Policies | `/research/odrl-policies` | NO |
+| 6 | Document Templates | `/research/document-templates` | NO |
+
+#### Block 8: Research Admin (5 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Manage Researchers | `/research/admin/researchers` | NO |
+| 2 | Manage Bookings | `/research/admin/bookings` | NO |
+| 3 | Reading Rooms | `/research/rooms` | NO |
+| 4 | Reproduction Requests | `/research/reproductions` | NO |
+| 5 | Statistics | `/research/admin/statistics` | NO |
+
+#### Block 9: Access Requests (2 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Pending Requests | `/admin/access-requests` | NO |
+| 2 | Approvers | `/admin/approvers` | NO |
+
+#### Block 10: Security & Compliance (4 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Security Dashboard | `/admin/security/compliance` | NO |
+| 2 | Audit Statistics | `/audit/statistics` | NO |
+| 3 | Audit Log | `/audit/browse` | NO |
+| 4 | Export Audit Log | `/audit/export` | NO |
+
+#### Block 11: Privacy & Data Protection (7 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Privacy Dashboard | `/privacyAdmin` | NO |
+| 2 | ROPA | `/privacyAdmin/ropaList` | NO |
+| 3 | DSAR Requests | `/privacyAdmin/dsarList` | NO |
+| 4 | Breach Register | `/privacyAdmin/breachList` | NO |
+| 5 | PAIA Requests | `/privacyAdmin/paiaList` | NO |
+| 6 | Privacy Officers | `/privacyAdmin/officerList` | NO |
+| 7 | Template Library | `/privacyAdmin/config` | NO |
+
+#### Block 12: Condition (3 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Condition Dashboard | `/admin/condition` | NO |
+| 2 | Risk Assessment | `/admin/condition/risk` | NO |
+| 3 | Condition Templates | `/condition/templates` | NO |
+
+#### Block 13: AI Condition (6 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Dashboard | `/ai-condition/dashboard` | NO |
+| 2 | New AI Assessment | `/ai-condition/assess` | NO |
+| 3 | Manual Assessment | `/ai-condition/manual` | NO |
+| 4 | Bulk Scan | `/ai-condition/bulk` | NO |
+| 5 | Browse Assessments | `/ai-condition/browse` | NO |
+| 6 | Model Training | `/ai-condition/training` | NO |
+
+#### Block 14: Rights & Licensing (4 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Rights Dashboard | `/admin/rights` | NO |
+| 2 | Batch Rights | `/admin/rights/batch` | NO |
+| 3 | Browse Rights | `/admin/rights/browse` | NO |
+| 4 | Export Rights | `/admin/rights/export` | NO |
+
+#### Block 15: Embargo Management (3 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Active Embargoes | `/admin/rights/embargo` | NO |
+| 2 | Apply Embargo | `/admin/rights/batch?type=embargo` | NO |
+| 3 | Expiring Soon | `/admin/rights/expiring` | NO |
+
+#### Block 16: Rights Vocabularies (4 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Rights Statements | `/admin/rights/statements` | NO |
+| 2 | Creative Commons | `/admin/rights/creative-commons` | NO |
+| 3 | TK Labels | `/admin/rights/tk-labels` | NO |
+| 4 | Rights Holders | `/rightsholder/browse` | NO |
+
+#### Block 17: Vendor Management (5 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Vendor Dashboard | `/admin/vendor` | NO |
+| 2 | Browse Vendors | `/admin/vendor/list` | NO |
+| 3 | Add Vendor | `/admin/vendor/add` | NO |
+| 4 | Transactions | `/admin/vendor/transactions/browse` | NO |
+| 5 | Service Types | `/admin/vendor/service-types` | NO |
+
+#### Block 18: Donor Management (2 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Donor Dashboard | `/donor/browse` | NO |
+| 2 | Donor Agreements | `/donor/agreements` | NO |
+
+#### Block 19: Marketplace (5 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Admin Dashboard | `/admin/marketplace/dashboard` | NO |
+| 2 | All Listings | `/admin/marketplace/listings` | NO |
+| 3 | Browse Marketplace | `/marketplace/browse` | NO |
+| 4 | Manage Sellers | `/admin/marketplace/sellers` | NO |
+| 5 | Active Auctions | `/marketplace/auction-browse` | NO |
+
+#### Block 20: Sales & Payouts (4 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | All Transactions | `/admin/marketplace/transactions` | NO |
+| 2 | Pending Payouts | `/admin/marketplace/payouts` | NO |
+| 3 | Revenue Reports | `/admin/marketplace/reports` | NO |
+| 4 | Shop Orders | `/admin/orders` | NO |
+
+#### Block 21: E-Commerce (2 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Shop Settings | `/admin/ahgSettings/ecommerce` | NO |
+| 2 | Orders | `/admin/orders` | NO |
+
+#### Block 22: Form Templates (4 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Forms Dashboard | `/admin/formTemplates` | NO |
+| 2 | Browse Templates | `/admin/formTemplates/browse` | NO |
+| 3 | Create Template | `/admin/formTemplates/create` | NO |
+| 4 | Assignments | `/admin/formTemplates/assignments` | NO |
+
+#### Block 23: DOI Management (4 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | DOI Dashboard | `/doi` | NO |
+| 2 | Browse DOIs | `/doi/browse` | NO |
+| 3 | Minting Queue | `/doi/queue` | NO |
+| 4 | Batch Mint | `/doi/config` | NO |
+
+#### Block 24: RiC (2 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | RiC Dashboard | `/ric` | NO |
+| 2 | Sync Status | `/ric/sync-status` | NO |
+
+#### Block 25: Data Migration (4 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Migration Dashboard | `/data-migration` | NO |
+| 2 | Import Data | `/data-migration/upload` | NO |
+| 3 | Export Data | `/data-migration/batch-export` | NO |
+| 4 | Migration History | `/data-migration/jobs` | NO |
+
+#### Block 26: Data Ingest (3 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Ingest Dashboard | `/ingest` | NO |
+| 2 | New Ingest | `/ingest/configure` | NO |
+| 3 | CSV Template | `/ingest/template/archive` | NO |
+
+#### Block 27: Backup & Maintenance (3 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Backup Dashboard | `/backup` | NO |
+| 2 | Restore | `/backup/restore` | NO |
+| 3 | Background Jobs | `/jobs` | NO |
+
+#### Block 28: Heritage Management (3 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Admin Dashboard | `/heritage/admin` | NO |
+| 2 | Analytics | `/heritage/analytics` | NO |
+| 3 | Custodian | `/heritage/custodian` | NO |
+
+#### Block 29: Duplicate Detection (4 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Dedupe Dashboard | `/dedupe` | NO |
+| 2 | Browse Duplicates | `/dedupe/browse` | NO |
+| 3 | Run Scan | `/dedupe/report` | NO |
+| 4 | Detection Rules | `/dedupe/rules` | NO |
+
+#### Block 30: Digital Preservation (4 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Preservation Dashboard | `/preservation` | NO |
+| 2 | Fixity Verification | `/preservation/fixity-log` | NO |
+| 3 | PREMIS Events | `/preservation/events` | NO |
+| 4 | Preservation Reports | `/preservation/reports` | NO |
+
+#### Block 31: Format Registry (3 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Browse Formats | `/preservation/formats` | NO |
+| 2 | At-Risk Formats | `/preservation/formats?risk=high` | NO |
+| 3 | Preservation Policies | `/preservation/policies` | NO |
+
+#### Block 32: Checksums & Integrity (3 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | Missing Checksums | `/preservation/reports?type=missing` | NO |
+| 2 | Stale Verification | `/preservation/reports?type=stale` | NO |
+| 3 | Failed Checks | `/preservation/fixity-log?status=failed` | NO |
+
+#### Block 33: CDPA (4 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | CDPA Dashboard | `/cdpa` | NO |
+| 2 | POTRAZ License | `/cdpa/license` | NO |
+| 3 | Data Subject Requests | `/cdpa/requests` | NO |
+| 4 | Breach Register | `/cdpa/breaches` | NO |
+
+#### Block 34: NAZ (4 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | NAZ Dashboard | `/naz` | NO |
+| 2 | Closure Periods | `/naz/closures` | NO |
+| 3 | Research Permits | `/naz/permits` | NO |
+| 4 | Records Transfers | `/naz/transfers` | NO |
+
+#### Block 35: IPSAS (4 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | IPSAS Dashboard | `/ipsas` | NO |
+| 2 | Asset Register | `/ipsas/assets` | NO |
+| 3 | Valuations | `/ipsas/valuations` | NO |
+| 4 | Insurance | `/ipsas/insurance` | NO |
+
+#### Block 36: NMMZ (5 pages)
+| # | Page | URL | Cloned? |
+|---|------|-----|---------|
+| 1 | NMMZ Dashboard | `/nmmz` | NO |
+| 2 | National Monuments | `/nmmz/monuments` | NO |
+| 3 | Antiquities Register | `/nmmz/antiquities` | NO |
+| 4 | Export Permits | `/nmmz/permits` | NO |
+| 5 | Archaeological Sites | `/nmmz/sites` | NO |
+
+## Status
+
+- Dashboard structure: **36/36 blocks cloned** (links, colours, section headers match AtoM)
+- Block 1 destination pages: **53/53 cloned** (reports, gallery, library, DAM, museum, 3D, spectrum)
+- Blocks 6–36 destination pages: **0/122 cloned** (pages exist but not audited against AtoM)
+- **Total: 53/175 destination pages cloned (30%)**
