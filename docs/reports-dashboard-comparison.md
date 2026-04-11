@@ -130,6 +130,13 @@ Generated: 2026-04-11
 | 4 | Accessions | 8 columns, column toggles, 5 sidebar filters, client CSV | Rebuilt: 8 columns, toggles, 5 filters, client CSV, back button | YES |
 | 5 | Donor Agreements | 4 columns (Name, Email, Tel, Created), 4 sidebar filters, CSV | Rebuilt: 6 columns, 3 filters, client CSV, table-dark header | YES |
 | 6 | Physical Storage | 5+ columns, column toggles, 7 sidebar filters, linked IO option, CSV | Rebuilt: 5 columns, toggles, 4 filters, client CSV, back button | YES |
+| 7 | Spatial Analysis | Complex form: coord source, place/level/subject filters, tradition classification, preview, export CSV/JSON, help | Same cards — fixed inline styles to plain headers | YES |
+| 8 | Gallery Reports Index | 2col + sidebar, 3 stat cards (Exhibitions/Artists+Loans/Valuations), 4+3+4+4 stats | Rebuilt: 2col + sidebar, 3 stat cards with all stats, Artists card added, colour-matched buttons | YES |
+| 9 | Library Reports | Separate plugin (ahgLibraryPlugin → ahg-library) | Separate package — exists at `/library-manage/reports` | Separate audit |
+| 10 | DAM Reports | Separate plugin (ahgDAMPlugin → ahg-dam) | Separate package — exists at `/dam/reports` | Separate audit |
+| 11 | Museum Reports | Separate plugin (ahgMuseumPlugin → ahg-museum) | Separate package — exists at `/museum/reports` | Separate audit |
+| 12 | 3D Object Reports | Separate plugin (ahgIiifPlugin → ahg-iiif-collection) | Separate package — exists at `/admin/iiif-3d-reports` | Separate audit |
+| 13 | Spectrum Reports | Separate plugin (ahgSpectrumPlugin → ahg-spectrum) | Separate package — to be verified | Separate audit |
 
 ## Colour Fixes Applied
 

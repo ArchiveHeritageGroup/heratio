@@ -17,7 +17,7 @@
 
           {{-- Coordinate Source --}}
           <div class="card mb-3">
-            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-crosshairs me-2"></i>Coordinate Source</div>
+            <div class="card-header" ><i class="fas fa-crosshairs me-2"></i>Coordinate Source</div>
             <div class="card-body">
               <div class="mb-3">
                 <label class="form-label">Source <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -31,7 +31,7 @@
 
           {{-- Record Filters --}}
           <div class="card mb-3">
-            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-filter me-2"></i>Record Filters</div>
+            <div class="card-header" ><i class="fas fa-filter me-2"></i>Record Filters</div>
             <div class="card-body">
               <div class="mb-3">
                 <label class="form-label">Place (Taxonomy 42) <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -73,7 +73,7 @@
 
           {{-- Tradition Classification --}}
           <div class="card mb-3">
-            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-layer-group me-2"></i>Tradition Classification</div>
+            <div class="card-header" ><i class="fas fa-layer-group me-2"></i>Tradition Classification</div>
             <div class="card-body">
               <div class="mb-3">
                 <label class="form-label">Include traditions <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -99,7 +99,7 @@
         {{-- Preview Results --}}
         @if(isset($preview) && $preview->count() > 0)
         <div class="card mb-3">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-table me-2"></i>Preview ({{ $preview->count() }} of {{ number_format($totalCount) }} records)</div>
+          <div class="card-header" ><i class="fas fa-table me-2"></i>Preview ({{ $preview->count() }} of {{ number_format($totalCount) }} records)</div>
           <div class="table-responsive">
             <table class="table table-bordered table-sm table-striped mb-0">
               <thead>
@@ -138,7 +138,7 @@
       <div class="col-md-4">
         {{-- Export Buttons --}}
         <div class="card mb-3">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-download me-2"></i>Export</div>
+          <div class="card-header" ><i class="fas fa-download me-2"></i>Export</div>
           <div class="card-body">
             <p class="small text-muted">Use the form on the left to filter records, then choose an export format.</p>
             <ul class="list-unstyled small">
@@ -151,7 +151,7 @@
 
         {{-- Output Columns --}}
         <div class="card mb-3">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-columns me-2"></i>Output Columns</div>
+          <div class="card-header" ><i class="fas fa-columns me-2"></i>Output Columns</div>
           <ul class="list-group list-group-flush small">
             <li class="list-group-item py-1">ID</li>
             <li class="list-group-item py-1">Identifier</li>
@@ -166,7 +166,7 @@
 
         {{-- Help --}}
         <div class="card mb-3">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-question-circle me-2"></i>Help</div>
+          <div class="card-header" ><i class="fas fa-question-circle me-2"></i>Help</div>
           <div class="card-body small">
             <p>The Spatial Analysis Export tool allows you to extract geographic data from archival descriptions for use in GIS applications.</p>
             <p><strong>Coordinates</strong> are stored in the <code>property</code> table associated with each information object record.</p>

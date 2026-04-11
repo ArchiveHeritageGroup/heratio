@@ -575,18 +575,42 @@ class GalleryController extends Controller
     {
         $stats = [
             'exhibitions' => ['total' => 0, 'open' => 0, 'planning' => 0, 'upcoming' => 0],
-            'loans' => ['total' => 0, 'overdue' => 0],
-            'valuations' => ['total' => 0, 'total_value' => 0],
+            'artists' => ['total' => 0, 'represented' => 0, 'active' => 0],
+            'loans' => ['total' => 0, 'active' => 0, 'incoming' => 0, 'outgoing' => 0, 'pending' => 0],
+            'valuations' => ['total' => 0, 'current' => 0, 'totalValue' => 0, 'expiringSoon' => 0],
         ];
-        if (Schema::hasTable('gallery_exhibition')) {
-            $stats['exhibitions']['total'] = DB::table('gallery_exhibition')->count();
-        }
-        if (Schema::hasTable('gallery_loan')) {
-            $stats['loans']['total'] = DB::table('gallery_loan')->count();
-        }
-        if (Schema::hasTable('gallery_valuation')) {
-            $stats['valuations']['total'] = DB::table('gallery_valuation')->count();
-            $stats['valuations']['total_value'] = DB::table('gallery_valuation')->sum('value');
+        try {
+            if (Schema::hasTable('gallery_exhibition')) {
+                $stats['exhibitions']['total'] = DB::table('gallery_exhibition')->count();
+                $stats['exhibitions']['open'] = DB::table('gallery_exhibition')->where('status', 'open')->count();
+                $stats['exhibitions']['planning'] = DB::table('gallery_exhibition')->where('status', 'planning')->count();
+                $stats['exhibitions']['upcoming'] = DB::table('gallery_exhibition')
+                    ->where('start_date', '>', now())->count();
+            }
+            if (Schema::hasTable('gallery_artist')) {
+                $stats['artists']['total'] = DB::table('gallery_artist')->count();
+                $stats['artists']['represented'] = DB::table('gallery_artist')->where('is_represented', 1)->count();
+                $stats['artists']['active'] = DB::table('gallery_artist')->where('is_active', 1)->count();
+            }
+            if (Schema::hasTable('gallery_loan')) {
+                $stats['loans']['total'] = DB::table('gallery_loan')->count();
+                $stats['loans']['active'] = DB::table('gallery_loan')->where('status', 'active')->count();
+                $stats['loans']['incoming'] = DB::table('gallery_loan')->where('direction', 'incoming')->count();
+                $stats['loans']['outgoing'] = DB::table('gallery_loan')->where('direction', 'outgoing')->count();
+                $stats['loans']['pending'] = DB::table('gallery_loan')->where('status', 'pending')->count();
+            }
+            if (Schema::hasTable('gallery_valuation')) {
+                $stats['valuations']['total'] = DB::table('gallery_valuation')->count();
+                $stats['valuations']['current'] = DB::table('gallery_valuation')->where('is_current', 1)->count();
+                $stats['valuations']['totalValue'] = (float) DB::table('gallery_valuation')->where('is_current', 1)->sum('value');
+                $stats['valuations']['expiringSoon'] = DB::table('gallery_valuation')
+                    ->where('is_current', 1)
+                    ->where('expiry_date', '<=', now()->addDays(90))
+                    ->where('expiry_date', '>', now())
+                    ->count();
+            }
+        } catch (\Throwable $e) {
+            // Tables may have different column names — keep defaults
         }
         return view('ahg-gallery::galleryReports.index', compact('stats'));
     }
