@@ -189,7 +189,7 @@
     {{-- 2. Dashboards (teal) --}}
     <div class="col-md-4">
       <div class="card h-100">
-        <div class="card-header bg-info text-white"><h5 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>{{ __('Dashboards') }}</h5></div>
+        <div class="card-header bg-info text-white"><h5 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>{{ __('Sector Dashboards') }}</h5></div>
         <ul class="list-group list-group-flush">
           @if($hasSpectrum)<li class="list-group-item"><a href="{{ url('/spectrum/dashboard') }}"><i class="fas fa-layer-group me-2 text-muted"></i>{{ __('Spectrum Workflow') }}</a></li>@endif
           @if($hasWorkflow)
@@ -291,7 +291,7 @@
     @if($hasKnowledge)
     <div class="col-md-4">
       <div class="card h-100">
-        <div class="card-header text-white" style="background-color:#6f42c1!important"><h5 class="mb-0"><i class="fas fa-brain me-2"></i>{{ __('Knowledge Platform') }}</h5></div>
+        <div class="card-header text-white" style="background-color:#6610f2!important"><h5 class="mb-0"><i class="fas fa-brain me-2"></i>{{ __('Knowledge Platform') }}</h5></div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item"><a href="{{ url('/knowledge') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Knowledge Dashboard') }}</a></li>
           <li class="list-group-item"><a href="{{ url('/knowledge/articles') }}"><i class="fas fa-file-alt me-2 text-muted"></i>{{ __('Articles') }}</a></li>
@@ -525,7 +525,7 @@
     @if($hasDonor)
     <div class="col-md-4">
       <div class="card h-100">
-        <div class="card-header text-white" style="background-color:#17a2b8!important"><h5 class="mb-0"><i class="fas fa-handshake me-2"></i>{{ __('Donor Management') }}</h5></div>
+        <div class="card-header text-white" style="background-color:#198754!important"><h5 class="mb-0"><i class="fas fa-handshake me-2"></i>{{ __('Donor Management') }}</h5></div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item"><a href="{{ url('/donor/browse') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Donor Dashboard') }}</a></li>
           <li class="list-group-item"><a href="{{ url('/donor/browse') }}"><i class="fas fa-list me-2 text-muted"></i>{{ __('Browse Donors') }}</a></li>
@@ -658,7 +658,7 @@
     @if($hasDataIngest)
     <div class="col-md-4">
       <div class="card h-100">
-        <div class="card-header text-white" style="background-color:#20c997!important"><h5 class="mb-0"><i class="fas fa-file-import me-2"></i>{{ __('Data Ingest') }}</h5></div>
+        <div class="card-header text-white" style="background-color:#0dcaf0!important"><h5 class="mb-0"><i class="fas fa-file-import me-2"></i>{{ __('Data Ingest') }}</h5></div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item"><a href="{{ Route::has('ingest.index') ? route('ingest.index') : url('/ingest') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Ingest Dashboard') }}</a></li>
           <li class="list-group-item"><a href="{{ Route::has('ingest.configure') ? route('ingest.configure') : url('/ingest/configure') }}"><i class="fas fa-plus-circle me-2 text-muted"></i>{{ __('New Ingest') }}</a></li>
