@@ -96,9 +96,12 @@ Generated: 2026-04-11
 
 ## TODO
 
-- [ ] Fix duplicate "Authority" tile (add `'authority'` to skip list in AHG group loop — it's already in the dedicated tiles)
-- [ ] Rename "Email" → "Email Settings", "FTP / SFTP" → "FTP / SFTP Upload", "Fuseki / RIC" → "Fuseki / RIC Triplestore", "Plugins" → "Plugin Management" to match AtoM exactly
-- [ ] Rename "Heritage Platform" → "Heritage Accounting" to match AtoM
-- [ ] Wire remaining 5 AI Condition settings when the condition API is built
-- [ ] Wire `carousel_show_thumbnails` and `carousel_show_controls` when Bootstrap carousel viewer mode is added
-- [ ] Build dedicated structured pages for remaining generic AHG groups (currently 12 still use the flat key-value form): Compliance, Condition Photos, Data Protection, Encryption, Face Detection, Features, FTP/SFTP, Fuseki/RIC, Ingest, Media Player, Metadata, Voice & AI
+- [x] Fix duplicate "Authority" tile — DONE (added to skip list)
+- [x] Rename tiles to match AtoM exactly — DONE (Email Settings, FTP / SFTP Upload, Fuseki / RIC Triplestore, Plugin Management, Heritage Accounting)
+- [ ] Wire remaining 5 AI Condition settings when the condition API is built (ai_condition_service_url, ai_condition_api_key, ai_condition_min_confidence, ai_condition_overlay_enabled, ai_condition_notify_grade)
+- [ ] Wire `carousel_show_thumbnails` and `carousel_show_controls` when Bootstrap carousel viewer mode is added to record pages
+- [x] Build dedicated structured pages for all 18 AHG groups — DONE
+  - Batch 1 (agent): data_protection, encryption, faces, ftp, fuseki
+  - Batch A (agent): spectrum, photos, media, metadata, ingest, integrity, voice_ai
+  - Manual: iiif, security, library, multi_tenant, portable_export, compliance
+  - Skipped: general (uses existing themes page)

@@ -2852,4 +2852,386 @@ class SettingsController extends Controller
 
         return view('ahg-settings::authority', compact('menu', 'settings'));
     }
+
+    /**
+     * Data Protection Settings — POPIA/GDPR compliance and data handling.
+     * Cloned from AtoM ahgSettingsPlugin section.blade.php @case('data_protection').
+     */
+    public function dataProtectionSettings(Request $request)
+    {
+        $menu = $this->buildMenu('data_protection');
+
+        $settings = [];
+        if (Schema::hasTable('ahg_settings')) {
+            $rows = DB::table('ahg_settings')
+                ->where('setting_group', 'data_protection')
+                ->get();
+            foreach ($rows as $row) {
+                $settings[$row->setting_key] = $row->setting_value;
+            }
+        }
+
+        if ($request->isMethod('post')) {
+            $keys = [
+                'dp_enabled',
+                'dp_default_regulation',
+                'dp_notify_overdue',
+                'dp_notify_email',
+                'dp_popia_fee',
+                'dp_popia_fee_special',
+                'dp_popia_response_days',
+            ];
+            $checkboxes = ['dp_enabled', 'dp_notify_overdue'];
+
+            foreach ($keys as $key) {
+                $value = in_array($key, $checkboxes)
+                    ? ($request->has($key) ? '1' : '0')
+                    : ($request->input($key, '') ?? '');
+
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key, 'setting_group' => 'data_protection'],
+                    ['setting_value' => $value, 'updated_at' => now()]
+                );
+                $settings[$key] = $value;
+            }
+
+            return redirect()->route('settings.ahg.data_protection')
+                ->with('notice', 'Data protection settings saved.');
+        }
+
+        return view('ahg-settings::data-protection-settings', compact('menu', 'settings'));
+    }
+
+    /**
+     * Encryption Settings — XChaCha20 encryption configuration.
+     * Cloned from AtoM ahgSettingsPlugin section.blade.php @case('encryption').
+     */
+    public function encryptionSettings(Request $request)
+    {
+        $menu = $this->buildMenu('encryption');
+
+        $settings = [];
+        if (Schema::hasTable('ahg_settings')) {
+            $rows = DB::table('ahg_settings')
+                ->where('setting_group', 'encryption')
+                ->get();
+            foreach ($rows as $row) {
+                $settings[$row->setting_key] = $row->setting_value;
+            }
+        }
+
+        if ($request->isMethod('post')) {
+            $keys = [
+                'encryption_enabled',
+                'encryption_encrypt_derivatives',
+                'encryption_field_contact_details',
+                'encryption_field_financial_data',
+                'encryption_field_donor_information',
+                'encryption_field_personal_notes',
+                'encryption_field_access_restrictions',
+            ];
+            $checkboxes = $keys; // all are checkboxes
+
+            foreach ($keys as $key) {
+                $value = in_array($key, $checkboxes)
+                    ? ($request->has($key) ? '1' : '0')
+                    : ($request->input($key, '') ?? '');
+
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key, 'setting_group' => 'encryption'],
+                    ['setting_value' => $value, 'updated_at' => now()]
+                );
+                $settings[$key] = $value;
+            }
+
+            return redirect()->route('settings.ahg.encryption')
+                ->with('notice', 'Encryption settings saved.');
+        }
+
+        return view('ahg-settings::encryption-settings', compact('menu', 'settings'));
+    }
+
+    /**
+     * Faces Settings — face detection and recognition.
+     * Cloned from AtoM ahgSettingsPlugin section.blade.php @case('faces').
+     */
+    public function facesSettings(Request $request)
+    {
+        $menu = $this->buildMenu('faces');
+
+        $settings = [];
+        if (Schema::hasTable('ahg_settings')) {
+            $rows = DB::table('ahg_settings')
+                ->where('setting_group', 'faces')
+                ->get();
+            foreach ($rows as $row) {
+                $settings[$row->setting_key] = $row->setting_value;
+            }
+        }
+
+        if ($request->isMethod('post')) {
+            $keys = ['face_enabled', 'face_backend'];
+            $checkboxes = ['face_enabled'];
+
+            foreach ($keys as $key) {
+                $value = in_array($key, $checkboxes)
+                    ? ($request->has($key) ? '1' : '0')
+                    : ($request->input($key, '') ?? '');
+
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key, 'setting_group' => 'faces'],
+                    ['setting_value' => $value, 'updated_at' => now()]
+                );
+                $settings[$key] = $value;
+            }
+
+            return redirect()->route('settings.ahg.faces')
+                ->with('notice', 'Face detection settings saved.');
+        }
+
+        return view('ahg-settings::faces-settings', compact('menu', 'settings'));
+    }
+
+    /**
+     * FTP Settings — FTP/SFTP upload connection settings.
+     * Cloned from AtoM ahgSettingsPlugin section.blade.php @case('ftp').
+     */
+    public function ftpSettings(Request $request)
+    {
+        $menu = $this->buildMenu('ftp');
+
+        $settings = [];
+        if (Schema::hasTable('ahg_settings')) {
+            $rows = DB::table('ahg_settings')
+                ->where('setting_group', 'ftp')
+                ->get();
+            foreach ($rows as $row) {
+                $settings[$row->setting_key] = $row->setting_value;
+            }
+        }
+
+        if ($request->isMethod('post')) {
+            $keys = [
+                'ftp_protocol',
+                'ftp_host',
+                'ftp_port',
+                'ftp_username',
+                'ftp_password',
+                'ftp_remote_path',
+                'ftp_disk_path',
+                'ftp_passive_mode',
+            ];
+            $checkboxes = ['ftp_passive_mode'];
+
+            foreach ($keys as $key) {
+                // Skip blank password to keep current value
+                if ($key === 'ftp_password' && $request->input($key, '') === '') {
+                    continue;
+                }
+
+                $value = in_array($key, $checkboxes)
+                    ? ($request->has($key) ? '1' : '0')
+                    : ($request->input($key, '') ?? '');
+
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key, 'setting_group' => 'ftp'],
+                    ['setting_value' => $value, 'updated_at' => now()]
+                );
+                $settings[$key] = $value;
+            }
+
+            return redirect()->route('settings.ahg.ftp')
+                ->with('notice', 'FTP/SFTP settings saved.');
+        }
+
+        return view('ahg-settings::ftp-settings', compact('menu', 'settings'));
+    }
+
+    /**
+     * Fuseki Settings — Fuseki/RIC triplestore connection and sync.
+     * Cloned from AtoM ahgSettingsPlugin section.blade.php @case('fuseki').
+     */
+    public function fusekiSettings(Request $request)
+    {
+        $menu = $this->buildMenu('fuseki');
+
+        $settings = [];
+        if (Schema::hasTable('ahg_settings')) {
+            $rows = DB::table('ahg_settings')
+                ->where('setting_group', 'fuseki')
+                ->get();
+            foreach ($rows as $row) {
+                $settings[$row->setting_key] = $row->setting_value;
+            }
+        }
+
+        if ($request->isMethod('post')) {
+            $keys = [
+                'fuseki_endpoint',
+                'fuseki_username',
+                'fuseki_password',
+                'fuseki_sync_enabled',
+                'fuseki_queue_enabled',
+                'fuseki_sync_on_save',
+                'fuseki_sync_on_delete',
+                'fuseki_cascade_delete',
+                'fuseki_batch_size',
+                'fuseki_integrity_schedule',
+                'fuseki_orphan_retention_days',
+            ];
+            $checkboxes = [
+                'fuseki_sync_enabled',
+                'fuseki_queue_enabled',
+                'fuseki_sync_on_save',
+                'fuseki_sync_on_delete',
+                'fuseki_cascade_delete',
+            ];
+
+            foreach ($keys as $key) {
+                // Skip blank password to keep current value
+                if ($key === 'fuseki_password' && $request->input($key, '') === '') {
+                    continue;
+                }
+
+                $value = in_array($key, $checkboxes)
+                    ? ($request->has($key) ? '1' : '0')
+                    : ($request->input($key, '') ?? '');
+
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key, 'setting_group' => 'fuseki'],
+                    ['setting_value' => $value, 'updated_at' => now()]
+                );
+                $settings[$key] = $value;
+            }
+
+            return redirect()->route('settings.ahg.fuseki')
+                ->with('notice', 'Fuseki settings saved.');
+        }
+
+        return view('ahg-settings::fuseki-settings', compact('menu', 'settings'));
+    }
+
+    // ─── Auto-generated dedicated settings methods ─────────────────
+
+    private function buildGroupSettings(Request $request, string $group, string $viewName, string $title, array $checkboxKeys = []): mixed
+    {
+        $menu = $this->buildMenu($group);
+        $settings = [];
+        if (Schema::hasTable('ahg_settings')) {
+            foreach (DB::table('ahg_settings')->where('setting_group', $group)->get() as $row) {
+                $settings[$row->setting_key] = $row->setting_value;
+            }
+        }
+        if ($request->isMethod('post') && Schema::hasTable('ahg_settings')) {
+            $posted = $request->input('settings', []);
+            $allKeys = array_keys($settings);
+            // Include any posted keys not yet in DB
+            foreach (array_keys($posted) as $pk) { if (!in_array($pk, $allKeys)) $allKeys[] = $pk; }
+            foreach ($allKeys as $key) {
+                $value = in_array($key, $checkboxKeys)
+                    ? (isset($posted[$key]) ? 'true' : 'false')
+                    : ($posted[$key] ?? '');
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key, 'setting_group' => $group],
+                    ['setting_value' => $value]
+                );
+            }
+            return redirect()->route("settings.ahg.{$group}")->with('success', "{$title} settings saved.");
+        }
+        return view("ahg-settings::{$viewName}", compact('menu', 'settings'));
+    }
+
+    public function spectrumSettings(Request $request) {
+        return $this->buildGroupSettings($request, 'spectrum', 'spectrum-settings', 'Spectrum / Collections', [
+            'spectrum_enabled','spectrum_auto_create_movement','spectrum_require_photos',
+            'spectrum_email_notifications','spectrum_enable_barcodes','spectrum_auto_numbering',
+            'spectrum_require_insurance','spectrum_require_valuation',
+        ]);
+    }
+
+    public function photosSettings(Request $request) {
+        return $this->buildGroupSettings($request, 'photos', 'photos-settings', 'Condition Photos', [
+            'photo_create_thumbnails','photo_extract_exif','photo_auto_rotate',
+            'photo_auto_orient','photo_exif_strip','photo_watermark_enabled',
+        ]);
+    }
+
+    public function mediaSettings(Request $request) {
+        return $this->buildGroupSettings($request, 'media', 'media-settings', 'Media Player', [
+            'media_autoplay','media_show_controls','media_loop','media_show_waveform',
+            'media_transcription_enabled','media_show_download',
+        ]);
+    }
+
+    public function metadataSettings(Request $request) {
+        return $this->buildGroupSettings($request, 'metadata', 'metadata-settings', 'Metadata Extraction', [
+            'meta_extract_on_upload','meta_auto_populate','meta_images','meta_pdf','meta_office',
+            'meta_video','meta_audio','meta_extract_gps','meta_extract_technical',
+            'meta_extract_xmp','meta_extract_iptc','meta_overwrite_existing',
+            'meta_create_access_points','meta_field_mappings',
+            'meta_dam_batch_mode','meta_dam_preserve_filename','meta_dam_extract_color',
+            'meta_dam_extract_faces','meta_dam_auto_tag','meta_dam_generate_thumbnail',
+            'meta_dam_thumb_small','meta_dam_thumb_medium','meta_dam_thumb_large','meta_dam_thumb_preview',
+            'map_title_dam','map_creator_dam','map_keywords_dam','map_description_dam',
+            'map_date_dam','map_copyright_dam','map_technical_dam','map_gps_dam',
+            'meta_replace_placeholders','meta_extract_images','meta_extract_pdf',
+            'meta_extract_office','meta_extract_video','meta_extract_audio',
+        ]);
+    }
+
+    public function ingestSettings(Request $request) {
+        return $this->buildGroupSettings($request, 'ingest', 'ingest-settings', 'Data Ingest', [
+            'ingest_ner','ingest_ocr','ingest_virus_scan','ingest_summarize',
+            'ingest_spellcheck','ingest_translate','ingest_format_id','ingest_face_detect',
+            'ingest_create_records','ingest_generate_sip','ingest_generate_aip','ingest_generate_dip',
+            'ingest_thumbnails','ingest_reference',
+        ]);
+    }
+
+    public function integritySettings(Request $request) {
+        return $this->buildGroupSettings($request, 'integrity', 'integrity-settings', 'Integrity', [
+            'integrity_enabled','integrity_auto_baseline','integrity_notify_on_failure','integrity_notify_on_mismatch',
+        ]);
+    }
+
+    public function voiceAiSettings(Request $request) {
+        return $this->buildGroupSettings($request, 'voice_ai', 'voice-ai-settings', 'Voice & AI', [
+            'voice_enabled','voice_continuous_listening','voice_show_floating_btn',
+            'voice_hover_read_enabled','voice_audit_ai_calls',
+        ]);
+    }
+
+    public function iiifGroupSettings(Request $request) {
+        return $this->buildGroupSettings($request, 'iiif', 'iiif-group-settings', 'IIIF Viewer', [
+            'iiif_enabled','iiif_show_navigator','iiif_show_rotation','iiif_show_fullscreen','iiif_enable_annotations',
+        ]);
+    }
+
+    public function securitySettings(Request $request) {
+        return $this->buildGroupSettings($request, 'security', 'security-settings', 'Security', [
+            'security_lockout_enabled','security_force_password_change','security_password_expiry_notify',
+        ]);
+    }
+
+    public function librarySettings(Request $request) {
+        return $this->buildGroupSettings($request, 'library', 'library-group-settings', 'Library Settings', []);
+    }
+
+    public function multiTenantSettings(Request $request) {
+        return $this->buildGroupSettings($request, 'multi_tenant', 'multi-tenant-settings', 'Multi-Tenancy', [
+            'tenant_enabled','tenant_enforce_filter','tenant_show_switcher','tenant_allow_branding',
+        ]);
+    }
+
+    public function portableExportSettings(Request $request) {
+        return $this->buildGroupSettings($request, 'portable_export', 'portable-export-settings', 'Portable Export', [
+            'portable_export_enabled','portable_export_include_objects',
+            'portable_export_include_thumbnails','portable_export_include_references',
+            'portable_export_include_masters','portable_export_description_button','portable_export_clipboard_button',
+        ]);
+    }
+
+    public function complianceSettings(Request $request) {
+        return $this->buildGroupSettings($request, 'compliance', 'compliance-settings', 'Compliance', []);
+    }
 }

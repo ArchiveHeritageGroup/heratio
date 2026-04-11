@@ -82,7 +82,25 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/ahg/ai_condition', [SettingsController::class, 'aiCondition'])->name('settings.ahg.ai-condition');
     Route::match(['get', 'post'], '/admin/settings/ahg/accession', [SettingsController::class, 'accessionSettings'])->name('settings.ahg.accession');
     Route::match(['get', 'post'], '/admin/settings/ahg/audit', [SettingsController::class, 'auditSettings'])->name('settings.ahg.audit');
+    Route::match(['get', 'post'], '/admin/settings/ahg/data_protection', [SettingsController::class, 'dataProtectionSettings'])->name('settings.ahg.data_protection');
+    Route::match(['get', 'post'], '/admin/settings/ahg/encryption', [SettingsController::class, 'encryptionSettings'])->name('settings.ahg.encryption');
+    Route::match(['get', 'post'], '/admin/settings/ahg/faces', [SettingsController::class, 'facesSettings'])->name('settings.ahg.faces');
+    Route::match(['get', 'post'], '/admin/settings/ahg/ftp', [SettingsController::class, 'ftpSettings'])->name('settings.ahg.ftp');
+    Route::match(['get', 'post'], '/admin/settings/ahg/fuseki', [SettingsController::class, 'fusekiSettings'])->name('settings.ahg.fuseki');
     Route::match(['get', 'post'], '/admin/settings/ahg/jobs', [SettingsController::class, 'jobsSettings'])->name('settings.ahg.jobs');
+    Route::match(['get', 'post'], '/admin/settings/ahg/spectrum', [SettingsController::class, 'spectrumSettings'])->name('settings.ahg.spectrum');
+    Route::match(['get', 'post'], '/admin/settings/ahg/photos', [SettingsController::class, 'photosSettings'])->name('settings.ahg.photos');
+    Route::match(['get', 'post'], '/admin/settings/ahg/media', [SettingsController::class, 'mediaSettings'])->name('settings.ahg.media');
+    Route::match(['get', 'post'], '/admin/settings/ahg/metadata', [SettingsController::class, 'metadataSettings'])->name('settings.ahg.metadata');
+    Route::match(['get', 'post'], '/admin/settings/ahg/ingest', [SettingsController::class, 'ingestSettings'])->name('settings.ahg.ingest');
+    Route::match(['get', 'post'], '/admin/settings/ahg/integrity', [SettingsController::class, 'integritySettings'])->name('settings.ahg.integrity');
+    Route::match(['get', 'post'], '/admin/settings/ahg/voice_ai', [SettingsController::class, 'voiceAiSettings'])->name('settings.ahg.voice_ai');
+    Route::match(['get', 'post'], '/admin/settings/ahg/iiif', [SettingsController::class, 'iiifGroupSettings'])->name('settings.ahg.iiif');
+    Route::match(['get', 'post'], '/admin/settings/ahg/security', [SettingsController::class, 'securitySettings'])->name('settings.ahg.security');
+    Route::match(['get', 'post'], '/admin/settings/ahg/library', [SettingsController::class, 'librarySettings'])->name('settings.ahg.library');
+    Route::match(['get', 'post'], '/admin/settings/ahg/multi_tenant', [SettingsController::class, 'multiTenantSettings'])->name('settings.ahg.multi_tenant');
+    Route::match(['get', 'post'], '/admin/settings/ahg/portable_export', [SettingsController::class, 'portableExportSettings'])->name('settings.ahg.portable_export');
+    Route::match(['get', 'post'], '/admin/settings/ahg/compliance', [SettingsController::class, 'complianceSettings'])->name('settings.ahg.compliance');
 
     // AHG group route — catch-all for generic key-value settings
     Route::match(['get', 'post'], '/admin/settings/ahg/{group}', [SettingsController::class, 'ahgSection'])->name('settings.ahg');

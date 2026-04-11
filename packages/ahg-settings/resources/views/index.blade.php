@@ -52,14 +52,14 @@
 
     // ── 2. AHG setting groups ($ahgGroups) ──
     $ahgLabels = [
-        'general' => 'Theme Configuration', 'email' => 'Email', 'metadata' => 'Metadata Extraction',
+        'general' => 'Theme Configuration', 'email' => 'Email Settings', 'metadata' => 'Metadata Extraction',
         'media' => 'Media Player', 'jobs' => 'Background Jobs', 'spectrum' => 'Spectrum / Collections',
         'photos' => 'Condition Photos', 'data_protection' => 'Data Protection', 'iiif' => 'IIIF Viewer',
-        'faces' => 'Face Detection', 'fuseki' => 'Fuseki / RIC', 'ingest' => 'Data Ingest',
+        'faces' => 'Face Detection', 'fuseki' => 'Fuseki / RIC Triplestore', 'ingest' => 'Data Ingest',
         'accession' => 'Accession Management', 'encryption' => 'Encryption', 'voice_ai' => 'Voice & AI',
         'integrity' => 'Integrity', 'multi_tenant' => 'Multi-Tenancy', 'portable_export' => 'Portable Export',
         'security' => 'Security', 'features' => 'Features', 'compliance' => 'Compliance',
-        'ftp' => 'FTP / SFTP', 'ai_condition' => 'AI Condition Assessment',
+        'ftp' => 'FTP / SFTP Upload', 'ai_condition' => 'AI Condition Assessment',
     ];
     $ahgDescriptions = [
         'general' => 'Customize appearance, colours, logo, branding, and custom CSS',
@@ -105,7 +105,7 @@
     foreach ($ahgGroupsByKey as $gKey => $gData) {
         $label = $ahgLabels[$gKey] ?? $gData->label;
         // Skip groups that have dedicated tile entries with custom routes
-        if (in_array($gKey, ['general', 'ai_condition', 'accession', 'audit', 'jobs', 'authority'])) continue;
+        if (in_array($gKey, ['general', 'ai_condition', 'accession', 'audit', 'authority', 'compliance', 'data_protection', 'encryption', 'faces', 'ftp', 'fuseki', 'iiif', 'ingest', 'integrity', 'jobs', 'library', 'media', 'metadata', 'multi_tenant', 'photos', 'portable_export', 'security', 'spectrum', 'voice_ai'])) continue;
         $allTiles[$label] = [
             'label' => $label,
             'icon'  => $ahgIcons[$gKey] ?? 'fa-puzzle-piece',
@@ -123,10 +123,10 @@
     $addTile('Default page elements', 'fa-th-large',           'Toggle logo, title, description, language menu, digital object carousel and map, copyright and material filters', 'settings.page-elements');
     $addTile('Cron Jobs',             'fa-clock',              'Manage scheduled tasks — enable/disable, edit schedules, run now', 'settings.cron-jobs', 'secondary', 'Manage Jobs', 'fa-clock');
     $addTile('Error Log',             'fa-exclamation-triangle','View and manage application error logs', 'settings.error-log', 'danger', 'View Logs', 'fa-bug');
-    $addTile('Plugins',               'fa-puzzle-piece',       'Manage installed packages and plugins', 'settings.plugins', 'info', 'View Plugins', 'fa-plug');
+    $addTile('Plugin Management',     'fa-puzzle-piece',       'Manage installed packages and plugins', 'settings.plugins', 'info', 'View Plugins', 'fa-plug');
 
     // AtoM-parity tiles
-    $addTile('Heritage Platform',     'fa-landmark',           'Access control, analytics, branding, custodian tools, and community features', 'heritage.admin', 'warning', 'Admin', 'fa-tools');
+    $addTile('Heritage Accounting',   'fa-landmark',           'Multi-standard heritage asset accounting settings (GRAP, FRS, GASB, PSAS)', 'heritage.admin', 'warning', 'Admin', 'fa-tools');
     $addTile('Integrity Assurance',   'fa-shield-alt',         'Fixity verification, retention policies, legal holds, disposition review, and alerting', 'integrity.index', 'danger', 'Dashboard', 'fa-tachometer-alt');
     $addTile('Media Processing',      'fa-cogs',               'Transcription, thumbnails, waveforms & media derivatives', 'media-processing.index');
     $addTile('Watermark Settings',    'fa-stamp',              'Configure default watermarks for images and downloads', 'acl.watermark-settings', 'warning');
@@ -142,6 +142,11 @@
 
     // 9 tiles missing from AtoM parity (all have existing routes — were sidebar-only)
     $addTile('Accession Management',   'fa-inbox',              'Intake workflow, numbering, appraisal, container and rights settings', 'settings.ahg.accession');
+    $addTile('Data Protection',        'fa-user-shield',        'POPIA / GDPR compliance and data handling', 'settings.ahg.data_protection', 'warning');
+    $addTile('Encryption',             'fa-lock',               'Field-level encryption and key management', 'settings.ahg.encryption', 'danger');
+    $addTile('Face Detection',         'fa-user-circle',        'Face detection and recognition settings', 'settings.ahg.faces');
+    $addTile('FTP / SFTP Upload',      'fa-server',             'FTP / SFTP connection settings', 'settings.ahg.ftp');
+    $addTile('Fuseki / RIC Triplestore','fa-project-diagram',   'Apache Fuseki RDF triplestore synchronisation', 'settings.ahg.fuseki');
     $addTile('AI Condition Assessment','fa-robot',               'AI-powered damage detection and condition scoring for archival materials', 'settings.ahg.ai-condition', 'info');
     $addTile('Audit Trail',           'fa-history',             'View change history and user activity logs', 'acl.audit-log');
     $addTile('Background Jobs',       'fa-tasks',              'Job queue, concurrent limits, timeout, retry, cleanup, and failure notifications', 'settings.ahg.jobs');
@@ -154,6 +159,21 @@
     $addTile('System Information',    'fa-server',             'Installed software versions, PHP extensions, disk usage, and system health', 'settings.system-info');
     $addTile('Text-to-Speech',        'fa-volume-up',          'Configure read-aloud accessibility feature for record pages', 'settings.tts');
     $addTile('Webhooks',              'fa-broadcast-tower',    'Configure event-based webhooks for external system integration', 'settings.webhooks');
+
+    // Remaining dedicated AHG group tiles
+    $addTile('Compliance',            'fa-clipboard-check',    'Regulatory compliance settings', 'settings.ahg.compliance', 'warning');
+    $addTile('Condition Photos',      'fa-camera',             'Condition photo thumbnails and EXIF settings', 'settings.ahg.photos');
+    $addTile('Data Ingest',           'fa-file-import',        'Data ingest pipeline and processing options', 'settings.ahg.ingest');
+    $addTile('IIIF Viewer',           'fa-images',             'IIIF image viewer and annotation settings', 'settings.ahg.iiif', 'info');
+    $addTile('Integrity',             'fa-check-double',       'Fixity checking and integrity monitoring', 'settings.ahg.integrity', 'success');
+    $addTile('Library Settings',      'fa-book',               'Loan rules, circulation, fines, patron defaults, OPAC, ISBN providers', 'settings.ahg.library');
+    $addTile('Media Player',          'fa-play-circle',        'Media player behaviour and display options', 'settings.ahg.media', 'info');
+    $addTile('Metadata Extraction',   'fa-tags',               'Automatic metadata extraction from uploaded files', 'settings.ahg.metadata');
+    $addTile('Multi-Tenancy',         'fa-building',           'Multi-tenancy isolation and branding', 'settings.ahg.multi_tenant');
+    $addTile('Portable Export',       'fa-compact-disc',       'Portable offline export configuration', 'settings.ahg.portable_export');
+    $addTile('Security',              'fa-shield-alt',         'Security lockout and password policies', 'settings.ahg.security', 'danger');
+    $addTile('Spectrum / Collections','fa-archive',            'Spectrum collections management procedures', 'settings.ahg.spectrum');
+    $addTile('Voice & AI',            'fa-microphone',         'Voice interface and AI assistant settings', 'settings.ahg.voice_ai');
 
     // Sort alphabetically by label (matching AtoM ksort)
     ksort($allTiles, SORT_NATURAL | SORT_FLAG_CASE);
