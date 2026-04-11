@@ -44,12 +44,12 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/analytics', [SettingsController::class, 'webAnalytics'])->name('settings.analytics'); // AtoM alias
     Route::get('/admin/settings/ai-condition', fn () => redirect('/admin/ahgSettings/aiCondition')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ldap', [SettingsController::class, 'ldap'])->name('settings.ldap');
-    Route::match(['get', 'post'], '/admin/settings/levels', [SettingsController::class, 'levels'])->name('settings.levels');
+    Route::get('/admin/settings/levels', fn () => redirect('/admin/ahgSettings/levels')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/paths', [SettingsController::class, 'paths'])->name('settings.paths');
     Route::match(['get', 'post'], '/admin/settings/preservation', [SettingsController::class, 'preservation'])->name('settings.preservation');
     Route::match(['get', 'post'], '/admin/settings/webhooks', [SettingsController::class, 'webhooks'])->name('settings.webhooks');
     Route::match(['get', 'post'], '/admin/settings/tts', [SettingsController::class, 'tts'])->name('settings.tts');
-    Route::match(['get', 'post'], '/admin/settings/icip-settings', [SettingsController::class, 'icipSettings'])->name('settings.icip-settings');
+    Route::get('/admin/settings/icip-settings', fn () => redirect('/admin/ahgSettings/icipSettings')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/sector-numbering', [SettingsController::class, 'sectorNumbering'])->name('settings.sector-numbering');
     Route::match(['get', 'post'], '/admin/settings/numbering-schemes', [SettingsController::class, 'numberingSchemes'])->name('settings.numbering-schemes');
     Route::match(['get', 'post'], '/admin/settings/numbering-scheme-edit/{id?}', [SettingsController::class, 'numberingSchemeEdit'])->name('settings.numbering-scheme-edit');
@@ -92,6 +92,11 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/ahgSettings/email', [SettingsController::class, 'email'])->name('settings.email');
     Route::match(['get', 'post'], '/admin/ahgSettings/encryption', [SettingsController::class, 'encryptionSettings'])->name('settings.ahg.encryption');
     Route::match(['get', 'post'], '/admin/ahgSettings/ftp', [SettingsController::class, 'ftpSettings'])->name('settings.ahg.ftp');
+    Route::match(['get', 'post'], '/admin/ahgSettings/fuseki', [SettingsController::class, 'fusekiSettings'])->name('settings.ahg.fuseki');
+    Route::match(['get', 'post'], '/admin/ahgSettings/icipSettings', [SettingsController::class, 'icipSettings'])->name('settings.icip-settings');
+    Route::match(['get', 'post'], '/admin/ahgSettings/iiif', [SettingsController::class, 'iiifGroupSettings'])->name('settings.ahg.iiif');
+    Route::match(['get', 'post'], '/admin/ahgSettings/levels', [SettingsController::class, 'levels'])->name('settings.levels');
+    Route::match(['get', 'post'], '/admin/ahgSettings/library', [SettingsController::class, 'librarySettings'])->name('settings.ahg.library');
 
     // Legacy redirects for old /admin/settings/ahg/ paths
     Route::get('/admin/settings/ahg/ai_condition', fn () => redirect('/admin/ahgSettings/aiCondition'));
@@ -101,7 +106,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/settings/ahg/encryption', fn () => redirect('/admin/ahgSettings/encryption')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/faces', [SettingsController::class, 'facesSettings'])->name('settings.ahg.faces');
     Route::get('/admin/settings/ahg/ftp', fn () => redirect('/admin/ahgSettings/ftp')); // legacy redirect
-    Route::match(['get', 'post'], '/admin/settings/ahg/fuseki', [SettingsController::class, 'fusekiSettings'])->name('settings.ahg.fuseki');
+    Route::get('/admin/settings/ahg/fuseki', fn () => redirect('/admin/ahgSettings/fuseki')); // legacy redirect
     Route::get('/admin/settings/ahg/jobs', fn () => redirect('/admin/ahgSettings/jobs')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/spectrum', [SettingsController::class, 'spectrumSettings'])->name('settings.ahg.spectrum');
     Route::get('/admin/settings/ahg/photos', fn () => redirect('/admin/ahgSettings/photos')); // legacy redirect
@@ -110,9 +115,9 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/settings/ahg/ingest', fn () => redirect('/admin/ahgSettings/ingest')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/integrity', [SettingsController::class, 'integritySettings'])->name('settings.ahg.integrity');
     Route::match(['get', 'post'], '/admin/settings/ahg/voice_ai', [SettingsController::class, 'voiceAiSettings'])->name('settings.ahg.voice_ai');
-    Route::match(['get', 'post'], '/admin/settings/ahg/iiif', [SettingsController::class, 'iiifGroupSettings'])->name('settings.ahg.iiif');
+    Route::get('/admin/settings/ahg/iiif', fn () => redirect('/admin/ahgSettings/iiif')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/security', [SettingsController::class, 'securitySettings'])->name('settings.ahg.security');
-    Route::match(['get', 'post'], '/admin/settings/ahg/library', [SettingsController::class, 'librarySettings'])->name('settings.ahg.library');
+    Route::get('/admin/settings/ahg/library', fn () => redirect('/admin/ahgSettings/library')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/multi_tenant', [SettingsController::class, 'multiTenantSettings'])->name('settings.ahg.multi_tenant');
     Route::match(['get', 'post'], '/admin/settings/ahg/portable_export', [SettingsController::class, 'portableExportSettings'])->name('settings.ahg.portable_export');
     Route::match(['get', 'post'], '/admin/settings/ahg/compliance', [SettingsController::class, 'complianceSettings'])->name('settings.ahg.compliance');

@@ -376,6 +376,86 @@ Both AtoM and Heratio use dynamic DB-driven settings for SMTP, notifications, an
 
 **URL:** `/admin/ahgSettings/ftp` (was `/admin/settings/ahg/ftp`) ✓ Standardised
 
+### Row 16: Fuseki / RIC Triplestore
+
+Heratio is a superset — adds integrity check settings and quick action links beyond AtoM.
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `fuseki_endpoint` | url | Yes | Yes | Yes | ✓ Match |
+| 2 | `fuseki_username` | text | Yes | Yes | Yes | ✓ Match |
+| 3 | `fuseki_password` | password | Yes | Yes | Yes | ✓ Match |
+| 4 | Test Connection | button | Yes | Yes | Yes | ✓ Match |
+| 5 | `fuseki_sync_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 6 | `fuseki_queue_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 7 | `fuseki_sync_on_save` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 8 | `fuseki_sync_on_delete` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 9 | `fuseki_cascade_delete` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 10 | `fuseki_batch_size` | number | Yes | Yes | Yes | ✓ Match |
+| 11 | `fuseki_integrity_schedule` | select | — | Yes | Yes | ✓ Heratio extra |
+| 12 | `fuseki_orphan_retention_days` | number | — | Yes | Yes | ✓ Heratio extra |
+
+**URL:** `/admin/ahgSettings/fuseki` (was `/admin/settings/ahg/fuseki`) ✓ Standardised
+
+### Row 17: Heritage Accounting
+
+Heritage Accounting is a standalone admin module — both AtoM and Heratio link to the heritage admin dashboard (standards, rules, regions) rather than a key-value settings form. Not comparable control-by-control.
+
+**AtoM URL:** `heritageAdmin/index` | **Heratio URL:** `/heritage/admin` (route `heritage.admin`)
+**Status:** ✓ Both link to the same admin dashboard. No URL standardisation needed (not under `/admin/settings/`).
+
+### Row 18: ICIP Settings
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `enable_public_notices` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 2 | `enable_staff_notices` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 3 | `require_acknowledgement_default` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 4 | `require_community_consent` | checkbox | — | Yes | Yes | ✓ Heratio extra |
+| 5 | `consent_expiry_warning_days` | number | Yes | Yes | Yes | ✓ Added (was missing) |
+| 6 | `default_consultation_follow_up_days` | number | Yes | Yes | Yes | ✓ Added (was missing) |
+| 7 | `local_contexts_hub_enabled` | checkbox | Yes | Yes | Yes | ✓ Added (was missing) |
+| 8 | `local_contexts_api_key` | text | Yes | Yes | Yes | ✓ Added (was missing) |
+| 9 | `audit_all_icip_access` | checkbox | Yes | Yes | Yes | ✓ Added (was missing) |
+
+**URL:** `/admin/ahgSettings/icipSettings` (was `/admin/settings/icip-settings`) ✓ Standardised
+
+### Row 19: IIIF Viewer
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `iiif_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 2 | `iiif_viewer` | select | OSD/Mirador/Leaflet | Yes (dynamic) | Yes | ✓ Match |
+| 3 | `iiif_server_url` | url | Yes | Yes (dynamic) | Yes | ✓ Match |
+| 4 | `iiif_show_navigator` | checkbox | Yes | Yes (dynamic) | Yes | ✓ Match |
+| 5 | `iiif_show_rotation` | checkbox | Yes | Yes (dynamic) | Yes | ✓ Match |
+| 6 | `iiif_max_zoom` | number | Yes | Yes (dynamic) | Yes | ✓ Match |
+
+Heratio renders all `iiif` group settings dynamically via `buildGroupSettings()`.
+
+**URL:** `/admin/ahgSettings/iiif` (was `/admin/settings/ahg/iiif`) ✓ Standardised
+
+### Row 20: Levels of Description
+
+Heratio is a superset — sector tabs, per-sector level assignment with checkboxes, display order management, taxonomy quick links. AtoM has a simpler page.
+
+**URL:** `/admin/ahgSettings/levels` (was `/admin/settings/levels`) ✓ Standardised
+
+### Row 21: Library Settings
+
+AtoM has a structured page with 6 cards: Loan Rules (CRUD table), Circulation Defaults, Patron Defaults, OPAC, Holds, ISBN Providers. Heratio renders all `library` group settings dynamically via `buildGroupSettings()`. All key-value settings are present and saved; loan rules CRUD is handled by the library package separately.
+
+| # | Control group | AtoM | Heratio | Status |
+|---|--------------|------|---------|--------|
+| 1 | Loan Rules CRUD table | Yes | Separate (library package) | ✓ Available |
+| 2 | Circulation (loan_days, renewals, currency, auto_fine, barcode, holds, patrons) | 7 controls | 7 controls (dynamic) | ✓ Match |
+| 3 | Patron Defaults (max_checkouts, renewals, holds, membership, fine_threshold, type, grace) | 7 controls | 7 controls (dynamic) | ✓ Match |
+| 4 | OPAC (enabled, availability, covers, holds, results, arrivals, popular) | 7 controls | 7 controls (dynamic) | ✓ Match |
+| 5 | Hold Settings (expiry, max_queue) | 2 controls | 2 controls (dynamic) | ✓ Match |
+| 6 | ISBN Providers link | Yes | Separate (library package) | ✓ Available |
+
+**URL:** `/admin/ahgSettings/library` (was `/admin/settings/ahg/library`) ✓ Standardised
+
 ## TODO
 
 - [x] Fix duplicate "Authority" tile — DONE (added to skip list)
