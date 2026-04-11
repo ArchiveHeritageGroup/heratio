@@ -16,7 +16,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">ODRL Policies</h1>
-    <button class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createPolicyModal"><i class="fas fa-plus me-1"></i>Create Policy</button>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPolicyModal"><i class="fas fa-plus me-1"></i>Create Policy</button>
 </div>
 
 <!-- Filter bar -->
@@ -50,7 +50,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-auto"><button type="submit" class="btn atom-btn-outline-light btn-sm">Filter</button></div>
+            <div class="col-auto"><button type="submit" class="btn btn-outline-secondary btn-sm">Filter</button></div>
         </form>
     </div>
 </div>
@@ -120,7 +120,7 @@
                         @csrf
                         <input type="hidden" name="form_action" value="delete">
                         <input type="hidden" name="policy_id" value="{{ (int) $p->id }}">
-                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
                     </form>
                 </td>
             </tr>
@@ -217,8 +217,8 @@
           <input type="hidden" name="constraints_json" id="constraints-json-hidden">
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn atom-btn-outline-success">Create Policy</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Policy</button>
         </div>
       </form>
     </div>
@@ -294,8 +294,8 @@
           <input type="hidden" name="constraints_json" id="edit-constraints-json-hidden">
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn atom-btn-outline-success">Save Changes</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
         </div>
       </form>
     </div>

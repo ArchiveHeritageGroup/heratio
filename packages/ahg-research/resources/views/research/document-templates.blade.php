@@ -16,7 +16,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">Document Templates</h1>
-    <button class="btn atom-btn-white" data-bs-toggle="modal" data-bs-target="#newTemplateModal"><i class="fas fa-plus me-1"></i> New Template</button>
+    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#newTemplateModal"><i class="fas fa-plus me-1"></i> New Template</button>
 </div>
 
 @if(empty($templates))
@@ -32,7 +32,7 @@
                 <p class="text-muted small mt-2">{{ e($t->description ?? '') }}</p>
             </div>
             <div class="card-footer">
-                <button class="btn btn-sm atom-btn-white edit-template-btn"
+                <button class="btn btn-sm btn-outline-secondary edit-template-btn"
                     data-id="{{ (int) $t->id }}"
                     data-name="{{ e($t->name) }}"
                     data-type="{{ e($t->document_type) }}"
@@ -81,8 +81,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn atom-btn-outline-success">Create</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
                 </div>
             </form>
         </div>
@@ -126,8 +126,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn atom-btn-outline-success">Update</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update</button>
                 </div>
             </form>
         </div>

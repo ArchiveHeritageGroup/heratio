@@ -91,7 +91,7 @@
 
 {{-- Save New Search --}}
 <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-plus me-2"></i>Save a New Search</div>
+    <div class="card-header"><i class="fas fa-plus me-2"></i>Save a New Search</div>
     <div class="card-body">
         <form action="{{ route('research.savedSearches.store') }}" method="POST">
             @csrf
@@ -109,7 +109,7 @@
                     <input type="text" name="description" class="form-control form-control-sm" placeholder="Optional">
                 </div>
                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-sm atom-btn-outline-success w-100"><i class="fas fa-save me-1"></i>Save</button>
+                    <button type="submit" class="btn btn-sm btn-primary w-100"><i class="fas fa-save me-1"></i>Save</button>
                 </div>
             </div>
         </form>

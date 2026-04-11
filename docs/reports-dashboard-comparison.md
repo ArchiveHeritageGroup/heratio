@@ -162,11 +162,11 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
 | 1 | Annotation Studio | `/research/annotations` | YES — already migrated |
-| 2 | Saved Searches | `/research/saved-searches` | NO |
-| 3 | Validation Queue | `/research/validation-queue` | NO |
-| 4 | Entity Resolution | `/research/entity-resolution` | NO |
-| 5 | ODRL Policies | `/research/odrl-policies` | NO |
-| 6 | Document Templates | `/research/document-templates` | NO |
+| 2 | Saved Searches | `/research/saved-searches` | YES — fixed 2 atom-btn styles |
+| 3 | Validation Queue | `/research/validation-queue` | YES — fixed 9 atom-btn styles |
+| 4 | Entity Resolution | `/research/entity-resolution` | YES — fixed 8 atom-btn styles |
+| 5 | ODRL Policies | `/research/odrl-policies` | YES — fixed 7 atom-btn styles |
+| 6 | Document Templates | `/research/document-templates` | YES — fixed 6 atom-btn styles |
 
 #### Block 8: Research Admin (5 pages)
 | # | Page | URL | Cloned? |

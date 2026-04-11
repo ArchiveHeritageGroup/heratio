@@ -16,7 +16,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">Entity Resolution</h1>
-    <button class="btn atom-btn-white" data-bs-toggle="modal" data-bs-target="#proposeMatchModal"><i class="fas fa-plus me-1"></i>Propose Match</button>
+    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#proposeMatchModal"><i class="fas fa-plus me-1"></i>Propose Match</button>
 </div>
 
 <!-- Filter bar -->
@@ -51,7 +51,7 @@
                     <option value="memberOf" {{ request('relationship_type') === 'memberOf' ? 'selected' : '' }}>memberOf</option>
                 </select>
             </div>
-            <div class="col-auto"><button type="submit" class="btn atom-btn-outline-light btn-sm">Filter</button></div>
+            <div class="col-auto"><button type="submit" class="btn btn-outline-secondary btn-sm">Filter</button></div>
         </form>
     </div>
 </div>
@@ -102,7 +102,7 @@
                 <td><small class="text-muted">{{ $p->match_method ?? '-' }}</small></td>
                 <td>
                     @if(!empty($p->evidence))
-                        <button class="btn btn-sm atom-btn-white evidence-btn" data-evidence="{{ e(json_encode($p->evidence)) }}" title="View evidence"><i class="fas fa-file-alt"></i> {{ count($p->evidence) }}</button>
+                        <button class="btn btn-sm btn-outline-secondary evidence-btn" data-evidence="{{ e(json_encode($p->evidence)) }}" title="View evidence"><i class="fas fa-file-alt"></i> {{ count($p->evidence) }}</button>
                     @else
                         <small class="text-muted">-</small>
                     @endif
@@ -118,9 +118,9 @@
                 <td>
                     <div class="btn-group btn-group-sm">
                         @if($p->status === 'proposed')
-                        <button class="btn atom-btn-white check-conflicts-btn" data-id="{{ (int) $p->id }}" title="Check conflicts"><i class="fas fa-exclamation-triangle"></i></button>
-                        <button class="btn atom-btn-outline-success resolve-btn" data-id="{{ (int) $p->id }}" data-status="accepted" title="Accept"><i class="fas fa-check"></i></button>
-                        <button class="btn atom-btn-outline-danger resolve-btn" data-id="{{ (int) $p->id }}" data-status="rejected" title="Reject"><i class="fas fa-times"></i></button>
+                        <button class="btn btn-outline-secondary check-conflicts-btn" data-id="{{ (int) $p->id }}" title="Check conflicts"><i class="fas fa-exclamation-triangle"></i></button>
+                        <button class="btn btn-success resolve-btn" data-id="{{ (int) $p->id }}" data-status="accepted" title="Accept"><i class="fas fa-check"></i></button>
+                        <button class="btn btn-outline-danger resolve-btn" data-id="{{ (int) $p->id }}" data-status="rejected" title="Reject"><i class="fas fa-times"></i></button>
                         @endif
                     </div>
                 </td>
@@ -203,8 +203,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" form="proposeForm" class="btn atom-btn-outline-success">Propose Match</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="proposeForm" class="btn btn-success">Propose Match</button>
             </div>
         </div>
     </div>
