@@ -55,89 +55,14 @@
         @if ($canManage && $hasReportBuilder)
         <li><a href="{{ url('/admin/report-builder') }}"><i class="fas fa-tools me-2"></i>{{ __('Report Builder') }}</a></li>
         @endif
-        @if ($canManage)
-        <li><a href="{{ url('/export') }}"><i class="fas fa-download me-2"></i>{{ __('Export Data') }}</a></li>
-        @endif
-        @if ($hasPreservation && $canManage)
-        <li><a href="{{ Route::has('preservation.index') ? route('preservation.index') : url('/preservation') }}"><i class="fas fa-shield-alt me-2"></i>{{ __('Preservation') }}</a></li>
-        @endif
     </ul>
-
-    @if ($hasVendor && $canManage)
-    <h4 class="mt-4">{{ __('Vendors') }}</h4>
-    <ul class="list-unstyled">
-        <li><a href="{{ route('ahgvendor.index') }}"><i class="fas fa-building me-2"></i>{{ __('Vendor Dashboard') }}</a></li>
-        <li><a href="{{ route('ahgvendor.transactions') }}"><i class="fas fa-exchange-alt me-2"></i>{{ __('Transactions') }}</a></li>
-    </ul>
-    @endif
-
-    @if ($hasMarketplace && $canManage)
-    <h4 class="mt-4">{{ __('Marketplace') }}</h4>
-    <ul class="list-unstyled">
-        <li><a href="{{ route('ahgmarketplace.admin-dashboard') }}"><i class="fas fa-store-alt me-2"></i>{{ __('Admin Dashboard') }}</a></li>
-        <li><a href="{{ route('ahgmarketplace.admin-listings') }}"><i class="fas fa-list me-2"></i>{{ __('Listings') }}</a></li>
-        <li><a href="{{ route('ahgmarketplace.admin-sellers') }}"><i class="fas fa-users me-2"></i>{{ __('Sellers') }}</a></li>
-        <li><a href="{{ route('ahgmarketplace.admin-transactions') }}"><i class="fas fa-exchange-alt me-2"></i>{{ __('Transactions') }}</a></li>
-        <li><a href="{{ route('ahgmarketplace.admin-payouts') }}"><i class="fas fa-money-bill-wave me-2"></i>{{ __('Payouts') }}</a></li>
-    </ul>
-    @endif
-
-    @if ($hasResearch && $canManage)
-    <h4 class="mt-4">{{ __('Research') }}</h4>
-    <ul class="list-unstyled">
-        <li><a href="{{ url('/research/dashboard') }}"><i class="fas fa-graduation-cap me-2"></i>{{ __('Research Dashboard') }}</a></li>
-        <li><a href="{{ url('/research/bookings') }}"><i class="fas fa-calendar-alt me-2"></i>{{ __('Bookings') }}</a></li>
-    </ul>
-    @endif
-
-    @if ($hasAudit && $canManage)
-    <h4 class="mt-4">{{ __('Audit') }}</h4>
-    <ul class="list-unstyled">
-        <li><a href="{{ Route::has('audit.statistics') ? route('audit.statistics') : url('/audit/statistics') }}"><i class="fas fa-chart-line me-2"></i>{{ __('Statistics') }}</a></li>
-        <li><a href="{{ Route::has('audit.browse') ? route('audit.browse') : url('/audit/browse') }}"><i class="fas fa-clipboard-list me-2"></i>{{ __('Logs') }}</a></li>
-    </ul>
-    @endif
 
     @if ($isAdmin)
     <h4 class="mt-4">{{ __('Settings') }}</h4>
     <ul class="list-unstyled">
-        <li><a href="{{ url('/admin/settings') }}"><i class="fas fa-cogs me-2"></i>{{ __('AHG Settings') }}</a></li>
+        <li><a href="{{ route('settings.index') }}"><i class="fas fa-cogs me-2"></i>{{ __('AHG Settings') }}</a></li>
         @if (Route::has('settings.levels'))
         <li><a href="{{ route('settings.levels') }}"><i class="fas fa-layer-group me-2"></i>{{ __('Levels of Description') }}</a></li>
-        @endif
-    </ul>
-
-    <h4 class="mt-4">{{ __('Compliance') }}</h4>
-    <ul class="list-unstyled">
-        @if ($hasSecurity)
-        <li><a href="{{ url('/admin/security/compliance') }}"><i class="fas fa-shield-alt me-2"></i>{{ __('Security') }}</a></li>
-        @endif
-        @if ($hasPrivacy)
-        <li><a href="{{ url('/privacyAdmin') }}"><i class="fas fa-user-shield me-2"></i>{{ __('Privacy & Compliance') }}</a></li>
-        @endif
-        @if ($hasCondition)
-        <li><a href="{{ url('/admin/condition') }}"><i class="fas fa-heartbeat me-2"></i>{{ __('Condition') }}</a></li>
-        @endif
-        @if ($hasRights)
-        <li><a href="{{ url('/admin/rights') }}"><i class="fas fa-gavel me-2"></i>{{ __('Rights') }}</a></li>
-        @endif
-    </ul>
-    @endif
-
-    @if (($hasCDPA || $hasNAZ || $hasIPSAS || $hasNMMZ) && $isAdmin)
-    <h4 class="mt-4">{{ __('Zimbabwe Compliance') }}</h4>
-    <ul class="list-unstyled">
-        @if ($hasCDPA)
-        <li><a href="{{ url('/cdpa') }}"><i class="fas fa-shield-alt me-2"></i>{{ __('CDPA (Data Protection)') }}</a></li>
-        @endif
-        @if ($hasNAZ)
-        <li><a href="{{ url('/naz') }}"><i class="fas fa-landmark me-2"></i>{{ __('NAZ (Archives)') }}</a></li>
-        @endif
-        @if ($hasIPSAS)
-        <li><a href="{{ url('/ipsas') }}"><i class="fas fa-coins me-2"></i>{{ __('IPSAS (Assets)') }}</a></li>
-        @endif
-        @if ($hasNMMZ)
-        <li><a href="{{ url('/nmmz') }}"><i class="fas fa-monument me-2"></i>{{ __('NMMZ (Monuments)') }}</a></li>
         @endif
     </ul>
     @endif
