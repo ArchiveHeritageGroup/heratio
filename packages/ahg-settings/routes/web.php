@@ -85,6 +85,8 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/ahgSettings/aiServices', [SettingsController::class, 'aiServices'])->name('settings.ai-services');
     Route::match(['get', 'post'], '/admin/ahgSettings/audit', [SettingsController::class, 'auditSettings'])->name('settings.ahg.audit');
     Route::match(['get', 'post'], '/admin/ahgSettings/authority', [SettingsController::class, 'authority'])->name('settings.authority');
+    Route::match(['get', 'post'], '/admin/ahgSettings/jobs', [SettingsController::class, 'jobsSettings'])->name('settings.ahg.jobs');
+    Route::match(['get', 'post'], '/admin/ahgSettings/photos', [SettingsController::class, 'photosSettings'])->name('settings.ahg.photos');
 
     // Legacy redirects for old /admin/settings/ahg/ paths
     Route::get('/admin/settings/ahg/ai_condition', fn () => redirect('/admin/ahgSettings/aiCondition'));
@@ -95,9 +97,9 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/ahg/faces', [SettingsController::class, 'facesSettings'])->name('settings.ahg.faces');
     Route::match(['get', 'post'], '/admin/settings/ahg/ftp', [SettingsController::class, 'ftpSettings'])->name('settings.ahg.ftp');
     Route::match(['get', 'post'], '/admin/settings/ahg/fuseki', [SettingsController::class, 'fusekiSettings'])->name('settings.ahg.fuseki');
-    Route::match(['get', 'post'], '/admin/settings/ahg/jobs', [SettingsController::class, 'jobsSettings'])->name('settings.ahg.jobs');
+    Route::get('/admin/settings/ahg/jobs', fn () => redirect('/admin/ahgSettings/jobs')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/spectrum', [SettingsController::class, 'spectrumSettings'])->name('settings.ahg.spectrum');
-    Route::match(['get', 'post'], '/admin/settings/ahg/photos', [SettingsController::class, 'photosSettings'])->name('settings.ahg.photos');
+    Route::get('/admin/settings/ahg/photos', fn () => redirect('/admin/ahgSettings/photos')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/media', [SettingsController::class, 'mediaSettings'])->name('settings.ahg.media');
     Route::match(['get', 'post'], '/admin/settings/ahg/metadata', [SettingsController::class, 'metadataSettings'])->name('settings.ahg.metadata');
     Route::match(['get', 'post'], '/admin/settings/ahg/ingest', [SettingsController::class, 'ingestSettings'])->name('settings.ahg.ingest');

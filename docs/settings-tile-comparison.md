@@ -208,12 +208,67 @@ Generated: 2026-04-11
 
 **URL:** `/admin/ahgSettings/authority` (was `/admin/settings/authority`) ✓ Standardised
 
+### Row 7: Background Jobs
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `jobs_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 2 | `jobs_max_concurrent` | number | Yes | Yes | Yes | ✓ Match |
+| 3 | `jobs_timeout` | number | Yes | Yes | Yes | ✓ Match |
+| 4 | `jobs_retry_attempts` | number | Yes | Yes | Yes | ✓ Match |
+| 5 | `jobs_cleanup_days` | number | Yes | Yes | Yes | ✓ Match |
+| 6 | `jobs_notify_on_failure` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 7 | `jobs_notify_email` | email | Yes | Yes | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/jobs` (was `/admin/settings/ahg/jobs`) ✓ Standardised
+
+### Row 8: Carousel Settings
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `homepage_collection_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 2 | `homepage_collection_id` | select | Yes | Yes | Yes | ✓ Match |
+| 3 | `homepage_carousel_height` | select | Yes | Yes | Yes | ✓ Match |
+| 4 | `homepage_max_items` | number | Yes | Yes | Yes | ✓ Match |
+| 5 | `homepage_carousel_autoplay` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 6 | `homepage_show_captions` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 7 | `homepage_carousel_interval` | number | Yes | Yes | Yes | ✓ Match |
+| 8 | `viewer_type` | select | Yes | Yes | Yes | ✓ Match |
+| 9 | `viewer_height` | select | Yes | Yes | Yes | ✓ Match |
+| 10 | `carousel_autoplay` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 11 | `carousel_interval` | number | Yes | Yes | Yes | ✓ Match |
+| 12 | `carousel_show_thumbnails` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 13 | `carousel_show_controls` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 14 | `background_color` | color | Yes | Yes | Yes | ✓ Match |
+| 15 | `enable_fullscreen` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 16 | `show_zoom_controls` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 17 | `show_on_view` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 18 | `show_on_browse` | checkbox | Yes | Yes | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/carousel` (was `/admin/iiif-settings`) ✓ Standardised
+
+### Row 9: Condition Photos
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `photo_upload_path` | text | Yes | Yes | Yes | ✓ Match |
+| 2 | `photo_max_upload_size` | select | Yes | Yes | Yes | ✓ Match |
+| 3 | `photo_create_thumbnails` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 4 | `photo_thumbnail_small` | number | Yes | Yes | Yes | ✓ Match |
+| 5 | `photo_thumbnail_medium` | number | Yes | Yes | Yes | ✓ Match |
+| 6 | `photo_thumbnail_large` | number | Yes | Yes | Yes | ✓ Match |
+| 7 | `photo_jpeg_quality` | range | Yes | Yes | Yes | ✓ Match |
+| 8 | `photo_extract_exif` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 9 | `photo_auto_rotate` | checkbox | Yes | Yes | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/photos` (was `/admin/settings/ahg/photos`) ✓ Standardised
+
 ## TODO
 
 - [x] Fix duplicate "Authority" tile — DONE (added to skip list)
 - [x] Rename tiles to match AtoM exactly — DONE (Email Settings, FTP / SFTP Upload, Fuseki / RIC Triplestore, Plugin Management, Heritage Accounting)
 - [x] Wire all 6 AI Condition settings — DONE (all 6 controls wired + API Clients + Training Approval)
-- [ ] Wire `carousel_show_thumbnails` and `carousel_show_controls` when Bootstrap carousel viewer mode is added to record pages
+- [x] Carousel settings — all 18 controls at full parity (carousel_show_thumbnails and carousel_show_controls present)
 - [x] Build dedicated structured pages for all 18 AHG groups — DONE
   - Batch 1 (agent): data_protection, encryption, faces, ftp, fuseki
   - Batch A (agent): spectrum, photos, media, metadata, ingest, integrity, voice_ai

@@ -33,9 +33,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/manifest-collection/reorder', [IiifCollectionController::class, 'reorder'])->name('iiif-collection.reorder')->middleware('acl:update');
     Route::get('/manifest-collections/autocomplete', [IiifCollectionController::class, 'autocomplete'])->name('iiif-collection.autocomplete');
 
-    // IIIF Settings — under /admin/ to avoid nginx /iiif/ proxy
-    Route::get('/admin/iiif-settings', [IiifCollectionController::class, 'settings'])->name('iiif.settings');
-    Route::post('/admin/iiif-settings', [IiifCollectionController::class, 'settingsUpdate'])->name('iiif.settings.update')->middleware('acl:update');
+    // IIIF Settings — canonical URL under /admin/ahgSettings/
+    Route::get('/admin/ahgSettings/carousel', [IiifCollectionController::class, 'settings'])->name('iiif.settings');
+    Route::post('/admin/ahgSettings/carousel', [IiifCollectionController::class, 'settingsUpdate'])->name('iiif.settings.update')->middleware('acl:update');
+    Route::get('/admin/iiif-settings', fn () => redirect('/admin/ahgSettings/carousel')); // legacy redirect
 
     // IIIF Validation
     Route::get('/admin/iiif-validation', [IiifCollectionController::class, 'validationDashboard'])->name('iiif.validation-dashboard');
