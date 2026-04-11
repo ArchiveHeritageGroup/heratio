@@ -39,6 +39,16 @@ Route::prefix('admin/spectrum')->middleware(['web', 'auth'])->group(function () 
     Route::get('/object-entry', [\AhgSpectrum\Controllers\SpectrumController::class, 'objectEntry'])->name('ahgspectrum.object-entry');
     Route::get('/valuations', [\AhgSpectrum\Controllers\SpectrumController::class, 'valuations'])->name('ahgspectrum.valuations');
 
+    // Spectrum Reports (cloned from AtoM spectrumReports module)
+    Route::get('/reports', [\AhgSpectrum\Controllers\SpectrumController::class, 'reportIndex'])->name('ahgspectrum.reports');
+    Route::get('/reports/object-entry', [\AhgSpectrum\Controllers\SpectrumController::class, 'reportObjectEntry'])->name('ahgspectrum.report-object-entry');
+    Route::get('/reports/acquisitions', [\AhgSpectrum\Controllers\SpectrumController::class, 'reportAcquisitions'])->name('ahgspectrum.report-acquisitions');
+    Route::get('/reports/loans', [\AhgSpectrum\Controllers\SpectrumController::class, 'reportLoans'])->name('ahgspectrum.report-loans');
+    Route::get('/reports/movements', [\AhgSpectrum\Controllers\SpectrumController::class, 'reportMovements'])->name('ahgspectrum.report-movements');
+    Route::get('/reports/conditions', [\AhgSpectrum\Controllers\SpectrumController::class, 'reportConditions'])->name('ahgspectrum.report-conditions');
+    Route::get('/reports/conservation', [\AhgSpectrum\Controllers\SpectrumController::class, 'reportConservation'])->name('ahgspectrum.report-conservation');
+    Route::get('/reports/valuations', [\AhgSpectrum\Controllers\SpectrumController::class, 'reportValuations'])->name('ahgspectrum.report-valuations');
+
     // Condition photo annotations
     Route::post('/save-annotations', [\AhgSpectrum\Controllers\SpectrumController::class, 'saveAnnotations'])->name('spectrum.saveAnnotations');
     Route::get('/get-annotations', [\AhgSpectrum\Controllers\SpectrumController::class, 'getAnnotations'])->name('spectrum.getAnnotations');

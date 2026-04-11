@@ -2449,4 +2449,126 @@ class SpectrumController extends Controller
             'Content-Disposition' => 'inline; filename="annotated-' . $photo->original_filename . '"',
         ]);
     }
+
+    // ── Spectrum Reports (cloned from AtoM spectrumReports module) ──
+
+    public function reportIndex()
+    {
+        $stats = ['conditionCheck' => 0, 'loanIn' => 0, 'loanOut' => 0, 'valuation' => 0, 'acquisition' => 0, 'objectEntry' => 0, 'objectExit' => 0, 'movement' => 0, 'conservation' => 0, 'deaccession' => 0];
+        $recentActivity = collect();
+        try {
+            if (Schema::hasTable('spectrum_condition_check')) { $stats['conditionCheck'] = DB::table('spectrum_condition_check')->count(); }
+            if (Schema::hasTable('spectrum_loan')) {
+                $stats['loanIn'] = DB::table('spectrum_loan')->where('direction', 'in')->count();
+                $stats['loanOut'] = DB::table('spectrum_loan')->where('direction', 'out')->count();
+            }
+            if (Schema::hasTable('spectrum_valuation')) { $stats['valuation'] = DB::table('spectrum_valuation')->count(); }
+            if (Schema::hasTable('spectrum_acquisition')) { $stats['acquisition'] = DB::table('spectrum_acquisition')->count(); }
+            if (Schema::hasTable('spectrum_object_entry')) { $stats['objectEntry'] = DB::table('spectrum_object_entry')->count(); }
+            if (Schema::hasTable('spectrum_object_exit')) { $stats['objectExit'] = DB::table('spectrum_object_exit')->count(); }
+            if (Schema::hasTable('spectrum_movement')) { $stats['movement'] = DB::table('spectrum_movement')->count(); }
+            if (Schema::hasTable('spectrum_conservation')) { $stats['conservation'] = DB::table('spectrum_conservation')->count(); }
+            if (Schema::hasTable('spectrum_deaccession')) { $stats['deaccession'] = DB::table('spectrum_deaccession')->count(); }
+        } catch (\Throwable $e) {}
+        return view('spectrum::reports.index', compact('stats', 'recentActivity'));
+    }
+
+    public function reportObjectEntry()
+    {
+        $items = collect();
+        try {
+            if (Schema::hasTable('spectrum_object_entry')) {
+                $items = DB::table('spectrum_object_entry as e')
+                    ->leftJoin('information_object_i18n as io', function ($j) { $j->on('e.object_id', '=', 'io.id')->where('io.culture', '=', 'en'); })
+                    ->select('e.*', 'io.title as object_title')
+                    ->orderByDesc('e.entry_date')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('spectrum::reports.object-entry', compact('items'));
+    }
+
+    public function reportAcquisitions()
+    {
+        $items = collect();
+        try {
+            if (Schema::hasTable('spectrum_acquisition')) {
+                $items = DB::table('spectrum_acquisition as a')
+                    ->leftJoin('information_object_i18n as io', function ($j) { $j->on('a.object_id', '=', 'io.id')->where('io.culture', '=', 'en'); })
+                    ->select('a.*', 'io.title as object_title')
+                    ->orderByDesc('a.acquisition_date')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('spectrum::reports.acquisitions', compact('items'));
+    }
+
+    public function reportLoans()
+    {
+        $loansIn = collect(); $loansOut = collect();
+        try {
+            if (Schema::hasTable('spectrum_loan')) {
+                $base = DB::table('spectrum_loan as l')
+                    ->leftJoin('information_object_i18n as io', function ($j) { $j->on('l.object_id', '=', 'io.id')->where('io.culture', '=', 'en'); })
+                    ->select('l.*', 'io.title as object_title');
+                $loansIn = (clone $base)->where('l.direction', 'in')->orderByDesc('l.start_date')->limit(500)->get();
+                $loansOut = (clone $base)->where('l.direction', 'out')->orderByDesc('l.start_date')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('spectrum::reports.loans', compact('loansIn', 'loansOut'));
+    }
+
+    public function reportMovements()
+    {
+        $items = collect();
+        try {
+            if (Schema::hasTable('spectrum_movement')) {
+                $items = DB::table('spectrum_movement as m')
+                    ->leftJoin('information_object_i18n as io', function ($j) { $j->on('m.object_id', '=', 'io.id')->where('io.culture', '=', 'en'); })
+                    ->select('m.*', 'io.title as object_title')
+                    ->orderByDesc('m.movement_date')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('spectrum::reports.movements', compact('items'));
+    }
+
+    public function reportConditions()
+    {
+        $items = collect();
+        try {
+            if (Schema::hasTable('spectrum_condition_check')) {
+                $items = DB::table('spectrum_condition_check as c')
+                    ->leftJoin('information_object_i18n as io', function ($j) { $j->on('c.object_id', '=', 'io.id')->where('io.culture', '=', 'en'); })
+                    ->select('c.*', 'io.title as object_title')
+                    ->orderByDesc('c.check_date')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('spectrum::reports.conditions', compact('items'));
+    }
+
+    public function reportConservation()
+    {
+        $items = collect();
+        try {
+            if (Schema::hasTable('spectrum_conservation')) {
+                $items = DB::table('spectrum_conservation as c')
+                    ->leftJoin('information_object_i18n as io', function ($j) { $j->on('c.object_id', '=', 'io.id')->where('io.culture', '=', 'en'); })
+                    ->select('c.*', 'io.title as object_title')
+                    ->orderByDesc('c.treatment_date')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('spectrum::reports.conservation', compact('items'));
+    }
+
+    public function reportValuations()
+    {
+        $items = collect();
+        try {
+            if (Schema::hasTable('spectrum_valuation')) {
+                $items = DB::table('spectrum_valuation as v')
+                    ->leftJoin('information_object_i18n as io', function ($j) { $j->on('v.object_id', '=', 'io.id')->where('io.culture', '=', 'en'); })
+                    ->select('v.*', 'io.title as object_title')
+                    ->orderByDesc('v.valuation_date')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('spectrum::reports.valuations', compact('items'));
+    }
 }

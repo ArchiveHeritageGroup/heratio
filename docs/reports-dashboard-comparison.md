@@ -129,14 +129,14 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 
 | # | Page | AtoM | Heratio | Cloned? |
 |---|------|------|---------|---------|
-| 13 | Spectrum Index | 8 sub-pages | Links to spectrum dashboard | NO — link fixed only |
-| 13a | Object Entry | Dedicated page | Not cloned | NO |
-| 13b | Acquisitions | Dedicated page | Not cloned | NO |
-| 13c | Loans | Dedicated page | Not cloned | NO |
-| 13d | Movements | Dedicated page | Not cloned | NO |
-| 13e | Conditions | Dedicated page | Not cloned | NO |
-| 13f | Conservation | Dedicated page | Not cloned | NO |
-| 13g | Valuations | Dedicated page | Not cloned | NO |
+| 13 | Spectrum Index | 2col, sidebar, 4 stats + Procedure Summary + Recent Activity | Same — dashboard with stats, summary, activity | YES |
+| 13a | Object Entry | 5 columns (Object/Entry Date/Entry Number/Depositor/Reason) | 5 columns, 2col, table-dark | YES |
+| 13b | Acquisitions | 4 columns (Object/Date/Method/Source) | 4 columns, 2col, table-dark | YES |
+| 13c | Loans | 2 tables (Loans In + Loans Out), 5 columns each | 2 tables, 5 columns each, status badges | YES |
+| 13d | Movements | 5 columns (Object/Date/From/To/Reason) | 5 columns, 2col, table-dark | YES |
+| 13e | Conditions | 5 columns (Object/Date/Condition/Checked By/Notes) | 5 columns, condition badges | YES |
+| 13f | Conservation | 5 columns (Object/Date/Treatment/Conservator/Status) | 5 columns, status badges | YES |
+| 13g | Valuations | 5 columns (Object/Date/Value/Type/Valuator) | 5 columns, R currency | YES |
 
 ### Blocks 2–5: Navigation blocks (link to existing pages)
 
@@ -156,4 +156,4 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 | 8 | Research Admin | Links exist, pages not audited |
 | 9–36 | Remaining blocks | Links exist, destination pages not audited |
 
-## Last Cloned: Block 1 complete (45 pages). Next: Block 13 Spectrum sub-pages, then Block 6+ destination pages.
+## Last Cloned: Block 1 complete including Spectrum (53 pages). Next: Block 6+ destination pages.

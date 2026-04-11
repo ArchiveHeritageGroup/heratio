@@ -105,7 +105,7 @@
             @if($hasDam)<li class="list-group-item"><a href="{{ route('dam.reports') }}"><i class="fas fa-images me-2 text-muted"></i>{{ __('DAM Reports') }}</a></li>@endif
             @if($hasMuseum)<li class="list-group-item"><a href="{{ route('museum.reports') }}"><i class="fas fa-landmark me-2 text-muted"></i>{{ __('Museum Reports') }}</a></li>@endif
             @if($has3D)<li class="list-group-item"><a href="{{ route('iiif.three-d-reports.index') }}"><i class="fas fa-cube me-2 text-muted"></i>{{ __('3D Object Reports') }}</a></li>@endif
-            @if($hasSpectrum)<li class="list-group-item"><a href="{{ route('ahgspectrum.dashboard') }}"><i class="fas fa-clipboard-list me-2 text-muted"></i>{{ __('Spectrum Reports') }}</a></li>@endif
+            @if($hasSpectrum)<li class="list-group-item"><a href="{{ route('ahgspectrum.reports') }}"><i class="fas fa-clipboard-list me-2 text-muted"></i>{{ __('Spectrum Reports') }}</a></li>@endif
           @endif
         </ul>
       </div>
