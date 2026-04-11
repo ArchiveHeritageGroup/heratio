@@ -456,6 +456,33 @@ AtoM has a structured page with 6 cards: Loan Rules (CRUD table), Circulation De
 
 **URL:** `/admin/ahgSettings/library` (was `/admin/settings/ahg/library`) ✓ Standardised
 
+### Row 22: Marketplace
+
+AtoM has a dynamic DB-driven settings page that renders all marketplace settings grouped by `setting_group`, handling boolean/number/json/text types. Heratio marketplace settings page is a skeleton with an empty accordion body.
+
+**AtoM URL:** `marketplace/adminSettings` | **Heratio URL:** `/admin/marketplace/settings` (route `ahgmarketplace.admin-settings`)
+**Status:** Heratio view is a skeleton — settings controls not yet built. Standalone package, not under `/admin/ahgSettings/`.
+
+### Row 23: Media Player
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `media_player_type` | select | basic/enhanced | basic/enhanced | Yes | ✓ Match |
+| 2 | `media_autoplay` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 3 | `media_show_controls` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 4 | `media_loop` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 5 | `media_default_volume` | range | Yes | Yes | Yes | ✓ Match |
+| 6 | `media_show_download` | checkbox | Yes | Yes | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/media` (was `/admin/settings/ahg/media`) ✓ Standardised
+
+### Row 24: Media Processing
+
+AtoM and Heratio both have standalone media processing dashboards (not key-value settings forms). Heratio has stats cards, per-item regeneration, batch regeneration, watermark settings, and queue management.
+
+**AtoM URL:** `mediaSettings/index` | **Heratio URL:** `/admin/media-processing` (route `media-processing.index`)
+**Status:** ✓ Both are standalone admin dashboards. Not under `/admin/ahgSettings/`.
+
 ## TODO
 
 - [x] Fix duplicate "Authority" tile — DONE (added to skip list)
