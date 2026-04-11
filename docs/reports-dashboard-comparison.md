@@ -132,6 +132,11 @@ Generated: 2026-04-11
 | 6 | Physical Storage | 5+ columns, column toggles, 7 sidebar filters, linked IO option, CSV | Rebuilt: 5 columns, toggles, 4 filters, client CSV, back button | YES |
 | 7 | Spatial Analysis | Complex form: coord source, place/level/subject filters, tradition classification, preview, export CSV/JSON, help | Same cards — fixed inline styles to plain headers | YES |
 | 8 | Gallery Reports Index | 2col + sidebar, 3 stat cards (Exhibitions/Artists+Loans/Valuations), 4+3+4+4 stats | Rebuilt: 2col + sidebar, 3 stat cards with all stats, Artists card added, colour-matched buttons | YES |
+| 8a | Gallery: Exhibitions | 2col + sidebar filters (status/type/year), 7 columns, status badges, CSV export | Rebuilt: 2col + sidebar filter, 7 columns, status badges, table-dark header | YES |
+| 8b | Gallery: Loans | 8 columns (Loan#/Type/Institution/Status/Dates/Objects/Insurance/Days) | Rebuilt: 8 columns with status badges, insurance formatting, day calc | YES |
+| 8c | Gallery: Valuations | 7 columns (Object/Type/Value/Date/Valid Until/Appraiser/Current) | Rebuilt: 7 columns with R currency, current badge | YES |
+| 8d | Gallery: Facility Reports | 8 columns (Institution/Loan/Type/Fire/Climate/Security/Handlers/Approved) | Rebuilt: 8 columns with check/cross icons, approved badge | YES |
+| 8e | Gallery: Spaces | 7 columns (Space/Venue/Area/Wall/Height/Climate/Max Weight) | Rebuilt: 7 columns with numeric alignment, climate icon | YES |
 | 9 | Library Reports | Separate plugin (ahgLibraryPlugin → ahg-library) | Separate package — exists at `/library-manage/reports` | Separate audit |
 | 10 | DAM Reports | Separate plugin (ahgDAMPlugin → ahg-dam) | Separate package — exists at `/dam/reports` | Separate audit |
 | 11 | Museum Reports | Separate plugin (ahgMuseumPlugin → ahg-museum) | Separate package — exists at `/museum/reports` | Separate audit |

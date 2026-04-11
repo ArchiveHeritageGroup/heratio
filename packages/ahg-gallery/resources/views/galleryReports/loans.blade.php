@@ -1,26 +1,55 @@
-@extends('theme::layouts.1col')
+{{--
+  Loans Report — cloned from AtoM galleryReports/loansSuccess.php
+  @copyright  Johan Pieterse / Plain Sailing
+  @license    AGPL-3.0-or-later
+--}}
+@extends('theme::layouts.2col')
 @section('title', 'Loans Report')
 @section('body-class', 'gallery-reports loans')
-@section('title-block')<h1 class="mb-0">Loans Report</h1>@endsection
-@section('content')
-<div class="card">
-  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h5 class="mb-0">Loans</h5>
-  </div>
-  <div class="card-body p-0">
-    @if(isset($items) && count($items) > 0)
-      <table class="table table-striped table-hover mb-0">
-        <thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><th>Name</th><th>Type</th><th>Date</th><th>Status</th></tr></thead>
-        <tbody>
-          @foreach($items as $item)
-            <tr><td>{{ $item->name ?? $item->title ?? '' }}</td><td>{{ $item->type ?? '-' }}</td><td>{{ $item->date ?? '-' }}</td><td>{{ ucfirst($item->status ?? '') }}</td></tr>
-          @endforeach
-        </tbody>
-      </table>
-    @else
-      <div class="text-center py-4 text-muted">No records found.</div>
-    @endif
-  </div>
+
+@section('sidebar')
+<div class="sidebar-content">
+  <a href="{{ route('gallery-reports.index') }}" class="btn btn-outline-primary btn-sm w-100 mb-3"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a>
 </div>
-<div class="mt-3"><a href="{{ route('gallery-reports.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Reports Dashboard</a></div>
+@endsection
+
+@section('title-block')
+<h1><i class="fas fa-exchange-alt me-2"></i>Loans Report</h1>
+@endsection
+
+@section('content')
+<div class="alert alert-info"><strong>{{ count($items) }}</strong> loans found</div>
+
+<div class="table-responsive">
+  <table class="table table-striped table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Loan #</th>
+        <th>Type</th>
+        <th>Institution</th>
+        <th>Status</th>
+        <th>Dates</th>
+        <th>Objects</th>
+        <th>Insurance</th>
+        <th>Days</th>
+      </tr>
+    </thead>
+    <tbody>
+      @forelse($items as $l)
+      <tr>
+        <td><strong>{{ $l->loan_number ?? $l->id }}</strong></td>
+        <td>{{ ucfirst($l->loan_type ?? $l->direction ?? '-') }}</td>
+        <td>{{ e($l->institution_name ?? $l->borrower ?? $l->lender ?? '-') }}</td>
+        <td><span class="badge bg-{{ ($l->status ?? '') === 'active' ? 'success' : (($l->status ?? '') === 'overdue' ? 'danger' : 'secondary') }}">{{ ucfirst($l->status ?? '-') }}</span></td>
+        <td>{{ $l->start_date ? date('d M Y', strtotime($l->start_date)) : '-' }}@if(!empty($l->end_date)) - {{ date('d M Y', strtotime($l->end_date)) }}@endif</td>
+        <td class="text-center">{{ $l->object_count ?? 0 }}</td>
+        <td class="text-end">{{ $l->insurance_value ? 'R ' . number_format($l->insurance_value, 2) : '-' }}</td>
+        <td class="text-center">{{ $l->start_date && $l->end_date ? \Carbon\Carbon::parse($l->start_date)->diffInDays($l->end_date) : '-' }}</td>
+      </tr>
+      @empty
+      <tr><td colspan="8" class="text-center text-muted py-4">No loans found.</td></tr>
+      @endforelse
+    </tbody>
+  </table>
+</div>
 @endsection
