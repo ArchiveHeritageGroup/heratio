@@ -483,6 +483,39 @@ AtoM and Heratio both have standalone media processing dashboards (not key-value
 **AtoM URL:** `mediaSettings/index` | **Heratio URL:** `/admin/media-processing` (route `media-processing.index`)
 **Status:** ✓ Both are standalone admin dashboards. Not under `/admin/ahgSettings/`.
 
+### Row 25: Metadata Extraction
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `meta_extract_on_upload` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 2 | `meta_auto_populate` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 3 | `meta_images` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 4 | `meta_pdf` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 5 | `meta_office` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 6 | `meta_video` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 7 | `meta_audio` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 8 | Field mapping table (8 rows × 3 sectors) | 24 selects | Yes | Yes | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/metadata` (was `/admin/settings/ahg/metadata`) ✓ Standardised
+
+### Row 26: Multi-Tenancy
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `tenant_enabled` | checkbox | Yes | Yes (dynamic) | Yes | ✓ Match |
+| 2 | `tenant_enforce_filter` | checkbox | Yes | Yes (dynamic) | Yes | ✓ Match |
+| 3 | `tenant_show_switcher` | checkbox | Yes | Yes (dynamic) | Yes | ✓ Match |
+| 4 | `tenant_allow_branding` | checkbox | Yes | Yes (dynamic) | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/multiTenant` (was `/admin/settings/ahg/multi_tenant`) ✓ Standardised
+
+### Row 27: Order Management
+
+Order Management is a browse/manage page for customer orders, not a settings form. Both systems link to order browse pages.
+
+**AtoM URL:** `cart/adminOrders` | **Heratio URL:** `/admin/orders` (route `cart.admin.orders`)
+**Status:** ✓ Both are standalone admin pages. Not under `/admin/ahgSettings/`.
+
 ## TODO
 
 - [x] Fix duplicate "Authority" tile — DONE (added to skip list)

@@ -98,6 +98,8 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/ahgSettings/levels', [SettingsController::class, 'levels'])->name('settings.levels');
     Route::match(['get', 'post'], '/admin/ahgSettings/library', [SettingsController::class, 'librarySettings'])->name('settings.ahg.library');
     Route::match(['get', 'post'], '/admin/ahgSettings/media', [SettingsController::class, 'mediaSettings'])->name('settings.ahg.media');
+    Route::match(['get', 'post'], '/admin/ahgSettings/metadata', [SettingsController::class, 'metadataSettings'])->name('settings.ahg.metadata');
+    Route::match(['get', 'post'], '/admin/ahgSettings/multiTenant', [SettingsController::class, 'multiTenantSettings'])->name('settings.ahg.multi_tenant');
 
     // Legacy redirects for old /admin/settings/ahg/ paths
     Route::get('/admin/settings/ahg/ai_condition', fn () => redirect('/admin/ahgSettings/aiCondition'));
@@ -112,14 +114,14 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/ahg/spectrum', [SettingsController::class, 'spectrumSettings'])->name('settings.ahg.spectrum');
     Route::get('/admin/settings/ahg/photos', fn () => redirect('/admin/ahgSettings/photos')); // legacy redirect
     Route::get('/admin/settings/ahg/media', fn () => redirect('/admin/ahgSettings/media')); // legacy redirect
-    Route::match(['get', 'post'], '/admin/settings/ahg/metadata', [SettingsController::class, 'metadataSettings'])->name('settings.ahg.metadata');
+    Route::get('/admin/settings/ahg/metadata', fn () => redirect('/admin/ahgSettings/metadata')); // legacy redirect
     Route::get('/admin/settings/ahg/ingest', fn () => redirect('/admin/ahgSettings/ingest')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/integrity', [SettingsController::class, 'integritySettings'])->name('settings.ahg.integrity');
     Route::match(['get', 'post'], '/admin/settings/ahg/voice_ai', [SettingsController::class, 'voiceAiSettings'])->name('settings.ahg.voice_ai');
     Route::get('/admin/settings/ahg/iiif', fn () => redirect('/admin/ahgSettings/iiif')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/security', [SettingsController::class, 'securitySettings'])->name('settings.ahg.security');
     Route::get('/admin/settings/ahg/library', fn () => redirect('/admin/ahgSettings/library')); // legacy redirect
-    Route::match(['get', 'post'], '/admin/settings/ahg/multi_tenant', [SettingsController::class, 'multiTenantSettings'])->name('settings.ahg.multi_tenant');
+    Route::get('/admin/settings/ahg/multi_tenant', fn () => redirect('/admin/ahgSettings/multiTenant')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/portable_export', [SettingsController::class, 'portableExportSettings'])->name('settings.ahg.portable_export');
     Route::match(['get', 'post'], '/admin/settings/ahg/compliance', [SettingsController::class, 'complianceSettings'])->name('settings.ahg.compliance');
 
