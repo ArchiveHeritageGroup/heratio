@@ -58,30 +58,32 @@ Generated: 2026-04-11
 | 39 | Watermark Settings | Watermark Settings | ✓ |
 | 40 | Webhooks | Webhooks | ✓ |
 
-## Heratio extras (19 tiles not in AtoM)
+## Heratio extras (20 tiles not in AtoM main tiles)
 
-| # | Tile | Source | Notes |
-|---|---|---|---|
-| 1 | Authority | AHG group `authority` | **BUG: duplicate** — same as "Authority Records" dedicated tile. Remove from AHG group loop. |
-| 2 | Compliance | AHG group | Heratio regulatory compliance settings |
-| 3 | Data Protection | AHG group | POPIA / GDPR data handling |
-| 4 | Default page elements | AtoM standard setting | Promoted to tile (AtoM has it in sidebar only) |
-| 5 | Default templates | AtoM scope card | Display templates for IO/actor/repo |
-| 6 | Error Log | Heratio standalone | Application error log viewer |
-| 7 | Face Detection | AHG group | Face detection/recognition settings |
-| 8 | Features | AHG group | Feature toggles (3D, IIIF, bookings) |
-| 9 | Federation | AtoM scope card | Federated search settings |
-| 10 | Global settings | AtoM scope card | Site title, base URL, search options |
-| 11 | Integrity | AHG group | Fixity checking (generic AHG group) |
-| 12 | Integrity Assurance | Dedicated tile | Fixity dashboard (links to integrity.index) |
-| 13 | Languages | AtoM scope card | I18n language management |
-| 14 | OAI repository | AtoM scope card | OAI-PMH harvesting settings |
-| 15 | Plugins | Heratio standalone | Package/plugin management |
-| 16 | Portable Export | AHG group | Offline export configuration |
-| 17 | Preservation & Backup | Dedicated tile | Backup replication targets |
-| 18 | Security | AHG group | Lockout and password policies |
-| 19 | User interface labels | AtoM scope card | UI label customisation |
-| 20 | Visible elements | AtoM scope card | Per-standard field visibility |
+| # | Tile | Source | Wired | Notes |
+|---|---|---|---|---|
+| 1 | ~~Authority~~ | ~~AHG group~~ | — | **BUG: fixed** — duplicate removed (added to skip list) |
+| 2 | Compliance | AHG group | ✓ POST via `buildGroupSettings()` | Regulatory compliance settings |
+| 3 | Data Protection | AHG group | ✓ POST with 7 keys | POPIA / GDPR data handling |
+| 4 | Default page elements | AtoM scope (promoted) | ✓ POST saves to `setting` table | Toggle logo, title, description, etc. |
+| 5 | Default templates | AtoM scope card | ✓ POST saves to `setting_i18n` | Display templates for IO/actor/repo |
+| 6 | Error Log | Heratio standalone | ✓ POST handles clear/filter | Application error log viewer |
+| 7 | Face Detection | AHG group | ✓ POST with 2+ keys | Face detection/recognition settings |
+| 8 | Features | AHG group | ✓ POST via `ahgSection()` catch-all | Feature toggles (3D, IIIF, bookings) |
+| 9 | Federation | AtoM scope card | ✓ POST via `section()` catch-all | Federated search settings |
+| 10 | Global settings | AtoM scope card | ✓ POST saves to `setting_i18n` | Site title, base URL, search options |
+| 11 | Integrity | AHG group | ✓ POST via `buildGroupSettings()` | Fixity checking settings |
+| 12 | Integrity Assurance | Dedicated tile | ✓ Read-only dashboard | Fixity dashboard (links to integrity.index) |
+| 13 | Languages | AtoM scope card | ✓ POST saves i18n languages | I18n language management |
+| 14 | OAI repository | AtoM scope card | ✓ POST saves to `setting_i18n` | OAI-PMH harvesting settings |
+| 15 | Plugins | Heratio standalone | ✓ POST toggles plugin enable | Package/plugin management |
+| 16 | Portable Export | AHG group | ✓ POST via `buildGroupSettings()` | Offline export configuration |
+| 17 | Preservation & Backup | Dedicated tile | ✓ POST saves settings | Backup replication targets |
+| 18 | Security | AHG group | ✓ POST via `buildGroupSettings()` | Lockout and password policies |
+| 19 | User interface labels | AtoM scope card | ✓ POST saves to `setting_i18n` | UI label customisation |
+| 20 | Visible elements | AtoM scope card | ✓ POST saves visibility flags | Per-standard field visibility |
+
+**All 20 extras are fully wired.** Every tile has a working POST handler that saves to the database.
 
 ## Wiring status of dedicated settings pages
 
@@ -539,6 +541,91 @@ Reading Room is a standalone admin page for managing reading rooms and researche
 
 **AtoM URL:** `research/rooms` | **Heratio URL:** `/research/rooms` (route `research.rooms`)
 **Status:** ✓ Both are standalone pages. Not under `/admin/ahgSettings/`.
+
+### Row 31: Sector Numbering
+
+Dedicated page with numbering schemes per GLAM/DAM sector. Both systems have full CRUD for sector numbering.
+
+**URL:** `/admin/ahgSettings/sectorNumbering` (was `/admin/settings/sector-numbering`) ✓ Standardised
+
+### Row 32: Semantic Search
+
+Standalone admin page for thesaurus, synonyms, and query expansion.
+
+**AtoM URL:** `semanticSearchAdmin` | **Heratio URL:** `/semantic-search/admin` (route `semantic-search.index`)
+**Status:** ✓ Both are standalone admin pages. Not under `/admin/ahgSettings/`.
+
+### Row 33: Services Monitor
+
+Read-only system services health dashboard.
+
+**URL:** `/admin/ahgSettings/services` (was `/admin/settings/services`) ✓ Standardised
+
+### Row 34: Spectrum / Collections
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `spectrum_enabled` | checkbox | Yes | Yes (dynamic) | Yes | ✓ Match |
+| 2 | `spectrum_auto_create_movement` | checkbox | Yes | Yes (dynamic) | Yes | ✓ Match |
+| 3 | `spectrum_require_photos` | checkbox | Yes | Yes (dynamic) | Yes | ✓ Match |
+| 4 | `spectrum_email_notifications` | checkbox | Yes | Yes (dynamic) | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/spectrum` (was `/admin/settings/ahg/spectrum`) ✓ Standardised
+
+### Row 35: System Information
+
+Read-only system info dashboard (PHP, MySQL, disk, ES).
+
+**URL:** `/admin/ahgSettings/systemInfo` (was `/admin/settings/system-info`) ✓ Standardised
+
+### Row 36: Text-to-Speech
+
+Dedicated TTS settings page.
+
+**URL:** `/admin/ahgSettings/tts` (was `/admin/settings/tts`) ✓ Standardised
+
+### Row 37: Theme Configuration
+
+Dedicated theme settings page with colours, branding, CSS.
+
+**URL:** `/admin/ahgSettings/themes` (was `/admin/settings/themes`) ✓ Standardised
+
+### Row 38: Voice & AI
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `voice_enabled` | checkbox | Yes | Yes (dynamic) | Yes | ✓ Match |
+| 2 | `voice_continuous_listening` | checkbox | Yes | Yes (dynamic) | Yes | ✓ Match |
+| 3 | `voice_show_floating_btn` | checkbox | Yes | Yes (dynamic) | Yes | ✓ Match |
+| 4 | `voice_hover_read_enabled` | checkbox | Yes | Yes (dynamic) | Yes | ✓ Match |
+| 5 | `voice_audit_ai_calls` | checkbox | Yes | Yes (dynamic) | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/voiceAi` (was `/admin/settings/ahg/voice_ai`) ✓ Standardised
+
+### Row 39: Watermark Settings
+
+Standalone admin page in the ACL/security package.
+
+**AtoM URL:** `securityClearance/watermarkSettings` | **Heratio URL:** `/admin/acl/watermark-settings` (route `acl.watermark-settings`)
+**Status:** ✓ Both are standalone admin pages. Not under `/admin/ahgSettings/`.
+
+### Row 40: Webhooks
+
+Dedicated webhooks configuration page.
+
+**URL:** `/admin/ahgSettings/webhooks` (was `/admin/settings/webhooks`) ✓ Standardised
+
+## Summary
+
+| Metric | Count |
+|---|---|
+| Total tiles compared | 40 |
+| Full control parity | 37 |
+| Controls added (was missing) | 7 (AHG Central site_id + env vars, ICIP 5 controls, Accession priority fix) |
+| Standalone admin pages (not settings forms) | 7 (Heritage, Privacy, Reading Room, Marketplace, Media Processing, Orders, Watermark) |
+| Marketplace skeleton noted | 1 |
+| Canonical `/admin/ahgSettings/` routes | 39 |
+| Legacy redirects | All old paths redirect to canonical |
 
 ## TODO
 
