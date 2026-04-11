@@ -105,7 +105,7 @@
     foreach ($ahgGroupsByKey as $gKey => $gData) {
         $label = $ahgLabels[$gKey] ?? $gData->label;
         // Skip groups that have dedicated tile entries with custom routes
-        if (in_array($gKey, ['general', 'ai_condition', 'accession', 'audit', 'jobs'])) continue;
+        if (in_array($gKey, ['general', 'ai_condition', 'accession', 'audit', 'jobs', 'authority'])) continue;
         $allTiles[$label] = [
             'label' => $label,
             'icon'  => $ahgIcons[$gKey] ?? 'fa-puzzle-piece',
