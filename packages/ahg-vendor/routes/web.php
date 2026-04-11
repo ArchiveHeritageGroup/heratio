@@ -2,6 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 
+// Legacy/short URL redirects
+Route::get('/vendor', fn () => redirect('/admin/vendor'));
+Route::get('/vendor/transactions', fn () => redirect('/admin/vendor/transactions/browse'));
+
 Route::prefix('admin/vendor')->middleware(['web', 'auth'])->group(function () {
 
     // Dashboard

@@ -66,8 +66,8 @@
     @if ($hasVendor && $canManage)
     <h4 class="mt-4">{{ __('Vendors') }}</h4>
     <ul class="list-unstyled">
-        <li><a href="{{ url('/vendor') }}"><i class="fas fa-building me-2"></i>{{ __('Vendor Dashboard') }}</a></li>
-        <li><a href="{{ url('/vendor/transactions') }}"><i class="fas fa-exchange-alt me-2"></i>{{ __('Transactions') }}</a></li>
+        <li><a href="{{ route('ahgvendor.index') }}"><i class="fas fa-building me-2"></i>{{ __('Vendor Dashboard') }}</a></li>
+        <li><a href="{{ route('ahgvendor.transactions') }}"><i class="fas fa-exchange-alt me-2"></i>{{ __('Transactions') }}</a></li>
     </ul>
     @endif
 
@@ -511,12 +511,12 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#fd7e14!important"><h5 class="mb-0"><i class="fas fa-building me-2"></i>{{ __('Vendor Management') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ url('/vendor') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Vendor Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/vendor/list') }}"><i class="fas fa-list me-2 text-muted"></i>{{ __('Browse Vendors') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/vendor/add') }}"><i class="fas fa-plus-circle me-2 text-muted"></i>{{ __('Add Vendor') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/vendor/transactions') }}"><i class="fas fa-exchange-alt me-2 text-muted"></i>{{ __('Transactions') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/vendor/add-transaction') }}"><i class="fas fa-file-invoice me-2 text-muted"></i>{{ __('New Transaction') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/vendor/service-types') }}"><i class="fas fa-tools me-2 text-muted"></i>{{ __('Service Types') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgvendor.index') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Vendor Dashboard') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgvendor.list') }}"><i class="fas fa-list me-2 text-muted"></i>{{ __('Browse Vendors') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgvendor.add') }}"><i class="fas fa-plus-circle me-2 text-muted"></i>{{ __('Add Vendor') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgvendor.transactions') }}"><i class="fas fa-exchange-alt me-2 text-muted"></i>{{ __('Transactions') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgvendor.add-transaction') }}"><i class="fas fa-file-invoice me-2 text-muted"></i>{{ __('New Transaction') }}</a></li>
+          <li class="list-group-item"><a href="{{ route('ahgvendor.service-types') }}"><i class="fas fa-tools me-2 text-muted"></i>{{ __('Service Types') }}</a></li>
         </ul>
       </div>
     </div>
