@@ -21,8 +21,8 @@
   </div>
 
   <ul class="actions mb-3 nav gap-2">
-    <li><a href="{{ url()->previous() }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
-    <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+    <li><a href="{{ url()->previous() }}" class="btn btn-outline-secondary" role="button">Cancel</a></li>
+    <li><input class="btn btn-primary" type="submit" value="Save"></li>
   </ul>
 </form>
 @endsection

@@ -283,24 +283,24 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 #### Block 22: Form Templates (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Forms Dashboard | `/admin/formTemplates` | NO |
-| 2 | Browse Templates | `/admin/formTemplates/browse` | NO |
-| 3 | Create Template | `/admin/formTemplates/create` | NO |
-| 4 | Assignments | `/admin/formTemplates/assignments` | NO |
+| 1 | Forms Dashboard | `/admin/formTemplates` | YES — already clean (BS5 native) |
+| 2 | Browse Templates | `/admin/formTemplates/browse` | YES — fixed 2 atom-btn styles |
+| 3 | Create Template | `/admin/formTemplates/create` | YES — fixed 2 atom-btn styles |
+| 4 | Assignments | `/admin/formTemplates/assignments` | YES — already clean |
 
 #### Block 23: DOI Management (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | DOI Dashboard | `/doi` | NO |
-| 2 | Browse DOIs | `/doi/browse` | NO |
-| 3 | Minting Queue | `/doi/queue` | NO |
-| 4 | Batch Mint | `/doi/config` | NO |
+| 1 | DOI Dashboard | `/doi` | YES — fixed 7 atom-btn styles |
+| 2 | Browse DOIs | `/doi/browse` | YES — fixed 10 atom-btn styles |
+| 3 | Minting Queue | `/doi/queue` | YES — fixed 8 atom-btn styles |
+| 4 | DOI Configuration | `/doi/config` | YES — fixed 2 atom-btn + 4 inline var(--ahg-primary) styles |
 
 #### Block 24: RiC (2 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | RiC Dashboard | `/ric` | NO |
-| 2 | Sync Status | `/ric/sync-status` | NO |
+| 1 | RiC Dashboard | `/ric` | YES — fixed 7 inline var(--ahg-primary) card-header styles |
+| 2 | Sync Status | `/ric/sync-status` | YES — fixed 2 atom-btn styles |
 
 #### Block 25: Data Migration (4 pages)
 | # | Page | URL | Cloned? |
@@ -400,5 +400,6 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 - Block 1 destination pages: **53/53 cloned** (reports, gallery, library, DAM, museum, 3D, spectrum)
 - Blocks 6–16 destination pages: **50/50 cloned** (research, security, privacy, condition, AI, rights, embargo, vocabularies)
 - Blocks 17–21 destination pages: **18/18 cloned** (vendor, donor, marketplace, sales, e-commerce)
-- Blocks 22–36 destination pages: **0/54 cloned** (not yet audited)
-- **Total: 121/175 destination pages cloned (69%)**
+- Blocks 22–24 destination pages: **10/10 cloned** (form templates, DOI, RiC)
+- Blocks 25–36 destination pages: **0/44 cloned** (not yet audited)
+- **Total: 131/175 destination pages cloned (75%)**

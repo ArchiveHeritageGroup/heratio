@@ -112,7 +112,7 @@
   <div class="row g-3 mb-4">
     <div class="col-md-8">
       <div class="card h-100">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Record Activity (7 Days)</h5></div>
+        <div class="card-header" ><h5 class="mb-0">Record Activity (7 Days)</h5></div>
         <div class="card-body position-relative" style="min-height: 200px;">
           <div id="chart-loading-1" class="text-center py-5">
             <div class="spinner-border text-primary"></div>
@@ -124,7 +124,7 @@
     </div>
     <div class="col-md-4">
       <div class="card h-100">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Operations by Type</h5></div>
+        <div class="card-header" ><h5 class="mb-0">Operations by Type</h5></div>
         <div class="card-body position-relative" style="min-height: 200px;">
           <div id="chart-loading-2" class="text-center py-5">
             <div class="spinner-border text-primary"></div>
@@ -140,7 +140,7 @@
   <div class="row g-3 mb-4">
     <div class="col-md-8">
       <div class="card">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Entity Sync Status</h5></div>
+        <div class="card-header" ><h5 class="mb-0">Entity Sync Status</h5></div>
         <div class="card-body" id="entity-status-body">
           <div class="text-center py-4">
             <div class="spinner-border text-primary"></div>
@@ -152,7 +152,7 @@
 
     <div class="col-md-4">
       <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+        <div class="card-header d-flex justify-content-between align-items-center" >
           <h5 class="mb-0">Quick Actions</h5>
         </div>
         <div class="card-body">
@@ -185,13 +185,13 @@
 
       {{-- Integrity Results --}}
       <div class="card mt-3" id="integrity-results" style="display: none;">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Integrity Check Results</h5></div>
+        <div class="card-header" ><h5 class="mb-0">Integrity Check Results</h5></div>
         <div class="card-body" id="integrity-content"></div>
       </div>
 
       {{-- SHACL Validation Results --}}
       <div class="card mt-3" id="shacl-results" style="display: none;">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>SHACL Validation Results</h5></div>
+        <div class="card-header" ><h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>SHACL Validation Results</h5></div>
         <div class="card-body" id="shacl-content"></div>
       </div>
     </div>
@@ -199,7 +199,7 @@
 
   {{-- Recent Operations --}}
   <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+    <div class="card-header d-flex justify-content-between align-items-center" >
       <h5 class="mb-0">Recent Operations</h5>
       <small class="text-white-50" id="last-updated"></small>
     </div>

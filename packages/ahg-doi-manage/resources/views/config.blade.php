@@ -11,7 +11,7 @@
       <span class="small text-muted">DataCite Integration Settings</span>
     </div>
     <div class="ms-auto">
-      <a href="{{ route('doi.index') }}" class="btn btn-sm atom-btn-white">
+      <a href="{{ route('doi.index') }}" class="btn btn-sm btn-outline-secondary">
         <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
       </a>
     </div>
@@ -48,7 +48,7 @@
       <div class="col-lg-8">
         {{-- DataCite API Credentials --}}
         <div class="card mb-4">
-          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">DataCite API Credentials</div>
+          <div class="card-header fw-bold" >DataCite API Credentials</div>
           <div class="card-body">
             <div class="row mb-3">
               <label for="datacite_repository_id" class="col-sm-3 col-form-label">Repository ID <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -110,7 +110,7 @@
 
             <div class="row">
               <div class="col-sm-9 offset-sm-3">
-                <button type="button" id="test-connection" class="btn atom-btn-white">
+                <button type="button" id="test-connection" class="btn btn-outline-secondary">
                   <i class="fas fa-plug me-1"></i> Test Connection
                 </button>
                 <span id="connection-result" class="ms-2"></span>
@@ -121,7 +121,7 @@
 
         {{-- Minting Settings --}}
         <div class="card mb-4">
-          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Minting Settings</div>
+          <div class="card-header fw-bold" >Minting Settings</div>
           <div class="card-body">
             <div class="row mb-3">
               <label for="auto_mint" class="col-sm-3 col-form-label">Auto-mint DOIs <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -173,7 +173,7 @@
 
         {{-- Metadata Defaults --}}
         <div class="card mb-4">
-          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Metadata Defaults</div>
+          <div class="card-header fw-bold" >Metadata Defaults</div>
           <div class="card-body">
             <div class="row mb-3">
               <label for="default_publisher" class="col-sm-3 col-form-label">Default Publisher <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -227,7 +227,7 @@
       <div class="col-lg-4">
         {{-- Help --}}
         <div class="card mb-4">
-          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Help</div>
+          <div class="card-header fw-bold" >Help</div>
           <div class="card-body">
             <h6>Getting Started</h6>
             <ol class="small">
@@ -250,7 +250,7 @@
         <div class="card">
           <div class="card-body">
             <div class="d-grid">
-              <button type="submit" class="btn atom-btn-outline-success">
+              <button type="submit" class="btn btn-primary">
                 <i class="fas fa-save me-1"></i> Save Configuration
               </button>
             </div>

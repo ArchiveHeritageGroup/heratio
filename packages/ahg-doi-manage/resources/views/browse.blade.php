@@ -23,10 +23,10 @@
         <span class="small text-muted">DOIs</span>
       </div>
       <div class="d-flex gap-2">
-        <a href="{{ route('doi.index') }}" class="btn btn-sm atom-btn-white">
+        <a href="{{ route('doi.index') }}" class="btn btn-sm btn-outline-secondary">
           <i class="fas fa-arrow-left me-1"></i> Dashboard
         </a>
-        <a href="{{ route('doi.report') }}?format=csv&status={{ $currentStatus }}" class="btn btn-sm atom-btn-white">
+        <a href="{{ route('doi.report') }}?format=csv&status={{ $currentStatus }}" class="btn btn-sm btn-outline-secondary">
           <i class="fas fa-download me-1"></i> Export CSV
         </a>
       </div>
@@ -35,23 +35,23 @@
     {{-- Status filter buttons --}}
     <div class="d-flex flex-wrap gap-2 mb-3">
       <a href="{{ route('doi.browse') }}"
-         class="btn btn-sm {{ $currentStatus === '' ? 'atom-btn-white' : 'atom-btn-white' }}">
+         class="btn btn-sm {{ $currentStatus === '' ? 'btn-outline-secondary' : 'btn-outline-secondary' }}">
         All
       </a>
       <a href="{{ route('doi.browse', ['status' => 'findable']) }}"
-         class="btn btn-sm {{ $currentStatus === 'findable' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}">
+         class="btn btn-sm {{ $currentStatus === 'findable' ? 'btn-success' : 'btn-success' }}">
         Findable
       </a>
       <a href="{{ route('doi.browse', ['status' => 'registered']) }}"
-         class="btn btn-sm {{ $currentStatus === 'registered' ? 'atom-btn-white' : 'atom-btn-white' }}">
+         class="btn btn-sm {{ $currentStatus === 'registered' ? 'btn-outline-secondary' : 'btn-outline-secondary' }}">
         Registered
       </a>
       <a href="{{ route('doi.browse', ['status' => 'draft']) }}"
-         class="btn btn-sm {{ $currentStatus === 'draft' ? 'atom-btn-white' : 'atom-btn-white' }}">
+         class="btn btn-sm {{ $currentStatus === 'draft' ? 'btn-outline-secondary' : 'btn-outline-secondary' }}">
         Draft
       </a>
       <a href="{{ route('doi.browse', ['status' => 'deleted']) }}"
-         class="btn btn-sm {{ $currentStatus === 'deleted' ? 'atom-btn-outline-danger' : 'atom-btn-outline-danger' }}">
+         class="btn btn-sm {{ $currentStatus === 'deleted' ? 'btn-danger' : 'btn-danger' }}">
         Deleted
       </a>
     </div>
@@ -102,10 +102,10 @@
                 <td>{{ !empty($doi['last_sync_at']) ? \Carbon\Carbon::parse($doi['last_sync_at'])->format('Y-m-d') : '-' }}</td>
                 <td class="text-end">
                   <div class="btn-group btn-group-sm">
-                    <a href="{{ route('doi.view', $doi['id']) }}" class="btn atom-btn-white" title="View">
+                    <a href="{{ route('doi.view', $doi['id']) }}" class="btn btn-outline-secondary" title="View">
                       <i class="fas fa-eye"></i>
                     </a>
-                    <a href="{{ route('doi.view', $doi['id']) }}?sync=1" class="btn atom-btn-white" title="Sync">
+                    <a href="{{ route('doi.view', $doi['id']) }}?sync=1" class="btn btn-outline-secondary" title="Sync">
                       <i class="fas fa-sync"></i>
                     </a>
                   </div>
@@ -121,7 +121,7 @@
       <div class="text-center text-muted py-4">
         <i class="fas fa-link fa-3x mb-3"></i>
         <p>No DOIs found matching the criteria.</p>
-        <a href="{{ route('doi.queue') }}" class="btn atom-btn-white">Mint DOIs</a>
+        <a href="{{ route('doi.queue') }}" class="btn btn-outline-secondary">Mint DOIs</a>
       </div>
     @endif
   @endif

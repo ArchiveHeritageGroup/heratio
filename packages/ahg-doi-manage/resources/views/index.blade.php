@@ -20,10 +20,10 @@
       </div>
       <div class="d-flex gap-2">
         <div class="btn-group">
-          <a href="{{ route('doi.report') }}?format=csv" class="btn atom-btn-white btn-sm" title="Export CSV">
+          <a href="{{ route('doi.report') }}?format=csv" class="btn btn-outline-secondary btn-sm" title="Export CSV">
             <i class="fas fa-file-csv me-1"></i> Export
           </a>
-          <button type="button" class="btn atom-btn-white btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+          <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
             <span class="visually-hidden">Toggle Dropdown</span>
           </button>
           <ul class="dropdown-menu">
@@ -31,13 +31,13 @@
             <li><a class="dropdown-item" href="{{ route('doi.report') }}?format=json"><i class="fas fa-file-code me-2"></i>Export as JSON</a></li>
           </ul>
         </div>
-        <a href="{{ route('doi.browse') }}?sync=bulk" class="btn atom-btn-white btn-sm">
+        <a href="{{ route('doi.browse') }}?sync=bulk" class="btn btn-outline-secondary btn-sm">
           <i class="fas fa-sync me-1"></i> Bulk Sync
         </a>
-        <a href="{{ route('doi.queue') }}?batch=1" class="btn atom-btn-white btn-sm">
+        <a href="{{ route('doi.queue') }}?batch=1" class="btn btn-outline-secondary btn-sm">
           <i class="fas fa-plus me-1"></i> Batch Mint
         </a>
-        <a href="{{ route('doi.config') }}" class="btn atom-btn-white btn-sm">
+        <a href="{{ route('doi.config') }}" class="btn btn-outline-secondary btn-sm">
           <i class="fas fa-cog me-1"></i> Configuration
         </a>
       </div>
@@ -178,7 +178,7 @@
                 </td>
                 <td>{{ $doi['minted_at'] ? \Carbon\Carbon::parse($doi['minted_at'])->format('Y-m-d H:i') : '-' }}</td>
                 <td class="text-end">
-                  <a href="{{ route('doi.view', $doi['id']) }}" class="btn btn-sm atom-btn-white">
+                  <a href="{{ route('doi.view', $doi['id']) }}" class="btn btn-sm btn-outline-secondary">
                     <i class="fas fa-eye"></i> View
                   </a>
                 </td>
@@ -188,13 +188,13 @@
         </table>
       </div>
       <div class="text-end">
-        <a href="{{ route('doi.browse') }}" class="btn btn-sm atom-btn-white">View All</a>
+        <a href="{{ route('doi.browse') }}" class="btn btn-sm btn-outline-secondary">View All</a>
       </div>
     @else
       <div class="text-center text-muted py-4">
         <i class="fas fa-link fa-3x mb-3"></i>
         <p>No DOIs minted yet.</p>
-        <a href="{{ route('doi.queue') }}?batch=1" class="btn atom-btn-white">Mint Your First DOI</a>
+        <a href="{{ route('doi.queue') }}?batch=1" class="btn btn-outline-secondary">Mint Your First DOI</a>
       </div>
     @endif
   @endif

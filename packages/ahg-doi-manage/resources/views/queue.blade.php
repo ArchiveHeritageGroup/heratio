@@ -23,7 +23,7 @@
         <span class="small text-muted">DOI Queue</span>
       </div>
       <div class="ms-auto">
-        <a href="{{ route('doi.index') }}" class="btn btn-sm atom-btn-white">
+        <a href="{{ route('doi.index') }}" class="btn btn-sm btn-outline-secondary">
           <i class="fas fa-arrow-left me-1"></i> Dashboard
         </a>
       </div>
@@ -82,23 +82,23 @@
     {{-- Status filter tabs --}}
     <div class="d-flex flex-wrap gap-2 mb-3">
       <a href="{{ route('doi.queue') }}"
-         class="btn btn-sm {{ $currentStatus === '' ? 'atom-btn-white' : 'atom-btn-white' }}">
+         class="btn btn-sm {{ $currentStatus === '' ? 'btn-outline-secondary' : 'btn-outline-secondary' }}">
         All
       </a>
       <a href="{{ route('doi.queue', ['status' => 'pending']) }}"
-         class="btn btn-sm {{ $currentStatus === 'pending' ? 'atom-btn-white' : 'atom-btn-white' }}">
+         class="btn btn-sm {{ $currentStatus === 'pending' ? 'btn-outline-secondary' : 'btn-outline-secondary' }}">
         Pending
       </a>
       <a href="{{ route('doi.queue', ['status' => 'processing']) }}"
-         class="btn btn-sm {{ $currentStatus === 'processing' ? 'atom-btn-white' : 'atom-btn-white' }}">
+         class="btn btn-sm {{ $currentStatus === 'processing' ? 'btn-outline-secondary' : 'btn-outline-secondary' }}">
         Processing
       </a>
       <a href="{{ route('doi.queue', ['status' => 'failed']) }}"
-         class="btn btn-sm {{ $currentStatus === 'failed' ? 'atom-btn-outline-danger' : 'atom-btn-outline-danger' }}">
+         class="btn btn-sm {{ $currentStatus === 'failed' ? 'btn-danger' : 'btn-danger' }}">
         Failed
       </a>
       <a href="{{ route('doi.queue', ['status' => 'completed']) }}"
-         class="btn btn-sm {{ $currentStatus === 'completed' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}">
+         class="btn btn-sm {{ $currentStatus === 'completed' ? 'btn-success' : 'btn-success' }}">
         Completed
       </a>
     </div>
@@ -164,7 +164,7 @@
                 </td>
                 <td class="text-end">
                   @if($item['status'] === 'failed')
-                    <a href="{{ route('doi.queue', ['retry' => $item['id']]) }}" class="btn btn-sm atom-btn-white" title="Retry">
+                    <a href="{{ route('doi.queue', ['retry' => $item['id']]) }}" class="btn btn-sm btn-outline-secondary" title="Retry">
                       <i class="fas fa-redo"></i>
                     </a>
                   @endif
@@ -180,7 +180,7 @@
       <div class="text-center text-muted py-4">
         <i class="fas fa-tasks fa-3x mb-3"></i>
         <p>The queue is empty.</p>
-        <a href="{{ route('doi.queue') }}?batch=1" class="btn atom-btn-white">Queue Records for Minting</a>
+        <a href="{{ route('doi.queue') }}?batch=1" class="btn btn-outline-secondary">Queue Records for Minting</a>
       </div>
     @endif
   @endif
