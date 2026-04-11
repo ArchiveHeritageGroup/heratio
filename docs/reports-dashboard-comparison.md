@@ -148,7 +148,13 @@ Generated: 2026-04-11
 | 10b | DAM: Metadata | 4 columns (File/Type/Size/Created) | Rebuilt: 4 columns, 2col + sidebar, table-dark | YES |
 | 10c | DAM: IPTC Data | 3 columns (File/Property/Value) | Rebuilt: 3 columns, 2col + sidebar, table-dark | YES |
 | 10d | DAM: Storage | Sidebar summary + by-type table | Rebuilt: sidebar with total + orphaned alert, type breakdown table | YES |
-| 11 | Museum Reports | Separate plugin (ahgMuseumPlugin → ahg-museum) | Separate package — exists at `/museum/reports` | Separate audit |
+| 11 | Museum Reports Index | 2col + sidebar, 3 stat cards + By Work Type + By Condition | Rebuilt: 2col + sidebar, stat cards, work type/condition lists | YES |
+| 11a | Museum: Objects | 5 columns (Title/Work Type/Classification/Materials/Condition) | Rebuilt: 5 columns with condition badge | YES |
+| 11b | Museum: Creators | 5 columns (Creator/Role/Attribution/School/Objects) | Rebuilt: 5 columns with badge count | YES |
+| 11c | Museum: Condition | 5 columns (Object/Condition/Date/Treatment/Notes) | Rebuilt: 5 columns with condition badge | YES |
+| 11d | Museum: Provenance | 4 columns (Object/Provenance/Legal Status/Rights Holder) | Rebuilt: 4 columns | YES |
+| 11e | Museum: Style & Period | 2 side-by-side list-groups (By Style + By Period) | Rebuilt: 2 list-group cards | YES |
+| 11f | Museum: Materials | 4 columns (Object/Materials/Techniques/Dimensions) | Rebuilt: 4 columns | YES |
 | 12 | 3D Object Reports | Separate plugin (ahgIiifPlugin → ahg-iiif-collection) | Separate package — exists at `/admin/iiif-3d-reports` | Separate audit |
 | 13 | Spectrum Reports | Separate plugin (ahgSpectrumPlugin → ahg-spectrum) | Separate package — to be verified | Separate audit |
 

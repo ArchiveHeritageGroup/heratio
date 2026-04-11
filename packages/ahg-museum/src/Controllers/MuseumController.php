@@ -302,19 +302,109 @@ class MuseumController extends Controller
     public function reports()
     {
         $stats = [
-            'totalObjects' => DB::table('museum_metadata')->count(),
-            'withProvenance' => DB::table('museum_metadata')->whereNotNull('provenance_text')->where('provenance_text', '!=', '')->count(),
-            'byCondition' => DB::table('museum_metadata')->whereNotNull('condition_term')->select('condition_term', DB::raw('COUNT(*) as cnt'))->groupBy('condition_term')->get(),
+            'totalObjects' => 0, 'withProvenance' => 0,
+            'byCondition' => collect(), 'byWorkType' => collect(),
         ];
+        try {
+            if (\Schema::hasTable('museum_metadata')) {
+                $stats['totalObjects'] = DB::table('museum_metadata')->count();
+                $stats['withProvenance'] = DB::table('museum_metadata')->whereNotNull('provenance_text')->where('provenance_text', '!=', '')->count();
+                $stats['byCondition'] = DB::table('museum_metadata')->whereNotNull('condition_term')
+                    ->select('condition_term', DB::raw('COUNT(*) as count'))->groupBy('condition_term')->orderByDesc('count')->get();
+                $stats['byWorkType'] = DB::table('museum_metadata')->whereNotNull('work_type')
+                    ->select('work_type', DB::raw('COUNT(*) as count'))->groupBy('work_type')->orderByDesc('count')->limit(10)->get();
+            }
+        } catch (\Throwable $e) {}
         return view('ahg-museum::reports.index', compact('stats'));
     }
 
-    public function reportObjects() { return view('ahg-museum::reports.objects', ['objects' => collect()]); }
-    public function reportCreators() { return view('ahg-museum::reports.creators', ['creators' => collect()]); }
-    public function reportCondition() { return view('ahg-museum::reports.condition', ['records' => collect()]); }
-    public function reportProvenance() { return view('ahg-museum::reports.provenance', ['records' => collect()]); }
-    public function reportStylePeriod() { return view('ahg-museum::reports.style-period', ['byStyle' => collect(), 'byPeriod' => collect()]); }
-    public function reportMaterials() { return view('ahg-museum::reports.materials', ['records' => collect()]); }
+    public function reportObjects()
+    {
+        $objects = collect();
+        try {
+            if (\Schema::hasTable('museum_metadata')) {
+                $objects = DB::table('museum_metadata as mm')
+                    ->leftJoin('information_object_i18n as io_i18n', function ($j) { $j->on('mm.information_object_id', '=', 'io_i18n.id')->where('io_i18n.culture', '=', 'en'); })
+                    ->select('mm.*', 'io_i18n.title')
+                    ->orderByDesc('mm.created_at')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('ahg-museum::reports.objects', compact('objects'));
+    }
+
+    public function reportCreators()
+    {
+        $creators = collect();
+        try {
+            if (\Schema::hasTable('museum_metadata')) {
+                $creators = DB::table('museum_metadata')
+                    ->whereNotNull('creator_name')->where('creator_name', '!=', '')
+                    ->select('creator_name', 'creator_role', 'attribution', 'school', DB::raw('COUNT(*) as object_count'))
+                    ->groupBy('creator_name', 'creator_role', 'attribution', 'school')
+                    ->orderByDesc('object_count')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('ahg-museum::reports.creators', compact('creators'));
+    }
+
+    public function reportCondition()
+    {
+        $records = collect();
+        try {
+            if (\Schema::hasTable('museum_metadata')) {
+                $records = DB::table('museum_metadata as mm')
+                    ->leftJoin('information_object_i18n as io_i18n', function ($j) { $j->on('mm.information_object_id', '=', 'io_i18n.id')->where('io_i18n.culture', '=', 'en'); })
+                    ->whereNotNull('mm.condition_term')
+                    ->select('mm.*', 'io_i18n.title')
+                    ->orderByDesc('mm.condition_date')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('ahg-museum::reports.condition', compact('records'));
+    }
+
+    public function reportProvenance()
+    {
+        $records = collect();
+        try {
+            if (\Schema::hasTable('museum_metadata')) {
+                $records = DB::table('museum_metadata as mm')
+                    ->leftJoin('information_object_i18n as io_i18n', function ($j) { $j->on('mm.information_object_id', '=', 'io_i18n.id')->where('io_i18n.culture', '=', 'en'); })
+                    ->whereNotNull('mm.provenance_text')->where('mm.provenance_text', '!=', '')
+                    ->select('mm.*', 'io_i18n.title')
+                    ->orderBy('io_i18n.title')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('ahg-museum::reports.provenance', compact('records'));
+    }
+
+    public function reportStylePeriod()
+    {
+        $byStyle = collect(); $byPeriod = collect();
+        try {
+            if (\Schema::hasTable('museum_metadata')) {
+                $byStyle = DB::table('museum_metadata')->whereNotNull('style')->where('style', '!=', '')
+                    ->select('style', DB::raw('COUNT(*) as count'))->groupBy('style')->orderByDesc('count')->get();
+                $byPeriod = DB::table('museum_metadata')->whereNotNull('period')->where('period', '!=', '')
+                    ->select('period', DB::raw('COUNT(*) as count'))->groupBy('period')->orderByDesc('count')->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('ahg-museum::reports.style-period', compact('byStyle', 'byPeriod'));
+    }
+
+    public function reportMaterials()
+    {
+        $records = collect();
+        try {
+            if (\Schema::hasTable('museum_metadata')) {
+                $records = DB::table('museum_metadata as mm')
+                    ->leftJoin('information_object_i18n as io_i18n', function ($j) { $j->on('mm.information_object_id', '=', 'io_i18n.id')->where('io_i18n.culture', '=', 'en'); })
+                    ->where(function ($q) { $q->whereNotNull('mm.materials')->orWhereNotNull('mm.techniques'); })
+                    ->select('mm.*', 'io_i18n.title')
+                    ->orderBy('io_i18n.title')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('ahg-museum::reports.materials', compact('records'));
+    }
 
     public function conditionReport(string $slug)
     {
