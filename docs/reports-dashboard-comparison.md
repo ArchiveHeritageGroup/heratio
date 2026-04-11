@@ -205,19 +205,19 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 #### Block 12: Condition (3 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Condition Dashboard | `/admin/condition` | NO |
-| 2 | Risk Assessment | `/admin/condition/risk` | NO |
-| 3 | Condition Templates | `/condition/templates` | NO |
+| 1 | Condition Dashboard | `/admin/spectrum/dashboard` | YES — already clean |
+| 2 | Risk Assessment | `/admin/spectrum/condition-risk` | YES — already clean |
+| 3 | Condition Templates | `/condition/templates` | YES — fixed 1 inline style |
 
 #### Block 13: AI Condition (6 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Dashboard | `/ai-condition/dashboard` | NO |
-| 2 | New AI Assessment | `/ai-condition/assess` | NO |
-| 3 | Manual Assessment | `/ai-condition/manual` | NO |
-| 4 | Bulk Scan | `/ai-condition/bulk` | NO |
-| 5 | Browse Assessments | `/ai-condition/browse` | NO |
-| 6 | Model Training | `/ai-condition/training` | NO |
+| 1 | Dashboard | `/ai-condition/dashboard` | YES — fixed atom-btn |
+| 2 | New AI Assessment | `/ai-condition/assess` | YES — fixed atom-btn |
+| 3 | Manual Assessment | `/ai-condition/manual` | YES — fixed atom-btn |
+| 4 | Bulk Scan | `/ai-condition/bulk` | YES — fixed atom-btn |
+| 5 | Browse Assessments | `/ai-condition/browse` | YES — fixed atom-btn |
+| 6 | Model Training | `/ai-condition/training` | YES — fixed atom-btn |
 
 #### Block 14: Rights & Licensing (4 pages)
 | # | Page | URL | Cloned? |
