@@ -187,47 +187,54 @@
   </div>
   @endif
 
-  {{-- Row 3: Research Services / Knowledge Platform / Research Admin (cards 6-8) --}}
-  @if($hasResearch || $hasKnowledge)
+  {{-- ═══ RESEARCH & ACCESS ═══ --}}
+  @if($hasResearch || $hasAccessRequest)
+  <h5 class="mt-4 mb-3 text-muted border-bottom pb-2"><i class="fas fa-graduation-cap me-2"></i>{{ __('Research & Access') }}</h5>
+  @endif
+
+  @if($hasResearch)
   <div class="row mb-4">
     {{-- 6. Research Services --}}
-    @if($hasResearch)
     <div class="col-md-4">
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#0d6efd!important"><h5 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>{{ __('Research Services') }}</h5></div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item"><a href="{{ url('/research/dashboard') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Research Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/research/bookings') }}"><i class="fas fa-calendar-alt me-2 text-muted"></i>{{ __('Bookings') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/research/enquiries') }}"><i class="fas fa-envelope me-2 text-muted"></i>{{ __('Research Enquiries') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/research/reproductions') }}"><i class="fas fa-copy me-2 text-muted"></i>{{ __('Reproductions') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/projects') }}"><i class="fas fa-project-diagram me-2 text-muted"></i>{{ __('Projects') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/collections') }}"><i class="fas fa-layer-group me-2 text-muted"></i>{{ __('Evidence Sets') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/journal') }}"><i class="fas fa-journal-whills me-2 text-muted"></i>{{ __('Research Journal') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/reports') }}"><i class="fas fa-file-alt me-2 text-muted"></i>{{ __('Research Reports') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/bibliographies') }}"><i class="fas fa-book me-2 text-muted"></i>{{ __('Bibliographies') }}</a></li>
         </ul>
       </div>
     </div>
-    @endif
+
     {{-- 7. Knowledge Platform --}}
-    @if($hasKnowledge)
     <div class="col-md-4">
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#6610f2!important"><h5 class="mb-0"><i class="fas fa-brain me-2"></i>{{ __('Knowledge Platform') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ url('/knowledge') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Knowledge Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/knowledge/articles') }}"><i class="fas fa-file-alt me-2 text-muted"></i>{{ __('Articles') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/knowledge/categories') }}"><i class="fas fa-folder me-2 text-muted"></i>{{ __('Categories') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/knowledge/search') }}"><i class="fas fa-search me-2 text-muted"></i>{{ __('Search Knowledge Base') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/annotations') }}"><i class="fas fa-highlighter me-2 text-muted"></i>{{ __('Annotation Studio') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/saved-searches') }}"><i class="fas fa-search me-2 text-muted"></i>{{ __('Saved Searches') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/validation-queue') }}"><i class="fas fa-check-double me-2 text-muted"></i>{{ __('Validation Queue') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/entity-resolution') }}"><i class="fas fa-object-group me-2 text-muted"></i>{{ __('Entity Resolution') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/odrl-policies') }}"><i class="fas fa-balance-scale me-2 text-muted"></i>{{ __('ODRL Policies') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/document-templates') }}"><i class="fas fa-file-alt me-2 text-muted"></i>{{ __('Document Templates') }}</a></li>
         </ul>
       </div>
     </div>
-    @endif
+
     {{-- 8. Research Admin --}}
-    @if($hasResearch)
+    @if($isAdmin)
     <div class="col-md-4">
       <div class="card h-100">
-        <div class="card-header text-white" style="background-color:#198754!important"><h5 class="mb-0"><i class="fas fa-user-cog me-2"></i>{{ __('Research Admin') }}</h5></div>
+        <div class="card-header text-white" style="background-color:#198754!important"><h5 class="mb-0"><i class="fas fa-user-check me-2"></i>{{ __('Research Admin') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ url('/research/admin') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Admin Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/research/admin/users') }}"><i class="fas fa-users me-2 text-muted"></i>{{ __('Researcher Accounts') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/research/admin/settings') }}"><i class="fas fa-cog me-2 text-muted"></i>{{ __('Research Settings') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/research/admin/reports') }}"><i class="fas fa-chart-bar me-2 text-muted"></i>{{ __('Usage Reports') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/admin/researchers') }}"><i class="fas fa-users me-2 text-muted"></i>{{ __('Manage Researchers') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/admin/bookings') }}"><i class="fas fa-calendar-alt me-2 text-muted"></i>{{ __('Manage Bookings') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/rooms') }}"><i class="fas fa-door-open me-2 text-muted"></i>{{ __('Reading Rooms') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/reproductions') }}"><i class="fas fa-copy me-2 text-muted"></i>{{ __('Reproduction Requests') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/admin/statistics') }}"><i class="fas fa-chart-bar me-2 text-muted"></i>{{ __('Statistics') }}</a></li>
         </ul>
       </div>
     </div>
@@ -251,7 +258,11 @@
   </div>
   @endif
 
-  {{-- Row 5: Security & Compliance / Privacy & Data Protection / Condition (cards 10-12) --}}
+  {{-- ═══ SECURITY, COMPLIANCE & RIGHTS ═══ --}}
+  @if($isAdmin)
+  <h5 class="mt-4 mb-3 text-muted border-bottom pb-2"><i class="fas fa-shield-alt me-2"></i>{{ __('Security, Compliance & Rights') }}</h5>
+  @endif
+
   @if($hasSecurity || $hasAudit || $hasPrivacy || $hasCondition)
   <div class="row mb-4">
     {{-- 10. Security & Compliance --}}
@@ -265,8 +276,9 @@
           <li class="list-group-item"><a href="{{ Route::has('acl.clearances') ? route('acl.clearances') : url('/admin/security/compliance') }}"><i class="fas fa-user-shield me-2 text-muted"></i>{{ __('Clearance Report') }}</a></li>
           @endif
           @if($hasAudit)
+          <li class="list-group-item"><a href="{{ Route::has('audit.statistics') ? route('audit.statistics') : url('/audit/statistics') }}"><i class="fas fa-chart-line me-2 text-muted"></i>{{ __('Audit Statistics') }}</a></li>
           <li class="list-group-item"><a href="{{ Route::has('audit.browse') ? route('audit.browse') : url('/audit/browse') }}"><i class="fas fa-clipboard-list me-2 text-muted"></i>{{ __('Audit Log') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('audit.statistics') ? route('audit.statistics') : url('/audit/export') }}"><i class="fas fa-download me-2 text-muted"></i>{{ __('Export Audit Log') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/audit/export') }}"><i class="fas fa-download me-2 text-muted"></i>{{ __('Export Audit Log') }}</a></li>
           @endif
         </ul>
       </div>

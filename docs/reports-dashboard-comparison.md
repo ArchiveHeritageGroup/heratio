@@ -21,13 +21,13 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 | 3 | Export | `bg-success` | `bg-success` | YES (superset) | YES |
 | 4 | Approval Workflow | `#6610f2` | `#6610f2` | YES — added Publish Gates | YES |
 | 5 | Spectrum Workflow | `#0d6efd` | `#0d6efd` | YES (superset) | YES |
-| 6 | Research Services | `#0d6efd` | `#0d6efd` | Different links | NO |
-| 7 | Knowledge Platform | `#6610f2` | `#6610f2` | Different links | NO |
-| 8 | Research Admin | `#198754` | `#198754` | Different links | NO |
-| 9 | Access Requests | `#0d6efd` | `#0d6efd` | YES (superset) | NO |
-| 10 | Security & Compliance | `bg-danger` | `bg-danger` | YES (superset) | NO |
-| 11 | Privacy & Data Protection | `bg-warning` | `bg-warning` | YES | NO |
-| 12 | Condition (Spectrum 5.1) | `bg-secondary` | `bg-secondary` | YES | NO |
+| 6 | Research Services | `#0d6efd` | `#0d6efd` | YES — cloned 6 AtoM links | YES |
+| 7 | Knowledge Platform | `#6610f2` | `#6610f2` | YES — cloned 6 AtoM links | YES |
+| 8 | Research Admin | `#198754` | `#198754` | YES — cloned 5 AtoM links | YES |
+| 9 | Access Requests | `#0d6efd` | `#0d6efd` | YES (3 links) | YES |
+| 10 | Security & Compliance | `bg-danger` | `bg-danger` | YES — added Audit Statistics | YES |
+| 11 | Privacy & Data Protection | `bg-warning` | `bg-warning` | YES (7 links) | YES |
+| 12 | Condition (Spectrum 5.1) | `bg-secondary` | `bg-secondary` | YES (3 links) | YES |
 | 13 | AI Condition Assessment | `bg-success` | `bg-success` | Heratio superset | NO |
 | — | Assessment Statistics | — | `bg-success` | Heratio extra | — |
 | — | Grade Distribution | — | `bg-success` | Heratio extra | — |
