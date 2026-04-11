@@ -16,7 +16,7 @@
       <div class="row">
         <div class="col-md-6">
           <div class="card mb-4">
-            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-server me-2"></i>SMTP Configuration</div>
+            <div class="card-header bg-primary text-white"><i class="fas fa-server me-2"></i>SMTP Configuration</div>
             <div class="card-body">
               @foreach ($smtpSettings as $setting)
                 <div class="mb-3">
@@ -41,7 +41,7 @@
 
           {{-- Test Email --}}
           <div class="card mb-4">
-            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-paper-plane me-2"></i>Test Email</div>
+            <div class="card-header"><i class="fas fa-paper-plane me-2"></i>Test Email</div>
             <div class="card-body">
               <p class="small text-muted">Save settings first, then send a test email to verify configuration.</p>
               <div class="input-group">
@@ -54,7 +54,7 @@
           </div>
 
           <div class="card mb-4">
-            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bell me-2"></i>Notification Recipients</div>
+            <div class="card-header bg-info text-white"><i class="fas fa-bell me-2"></i>Notification Recipients</div>
             <div class="card-body">
               @foreach ($notificationSettings as $setting)
                 <div class="mb-3">
@@ -69,7 +69,7 @@
 
         <div class="col-md-6">
           <div class="card mb-4">
-            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-alt me-2"></i>Email Templates</div>
+            <div class="card-header bg-success text-white"><i class="fas fa-file-alt me-2"></i>Email Templates</div>
             <div class="card-body">
               <div class="alert alert-info small">
                 <strong>Available placeholders:</strong><br>
@@ -115,7 +115,7 @@
 
       {{-- Error Alert Configuration --}}
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-exclamation-triangle me-2"></i>Error Alert Configuration</div>
+        <div class="card-header bg-warning text-dark"><i class="fas fa-exclamation-triangle me-2"></i>Error Alert Configuration</div>
         <div class="card-body">
           <div class="mb-3">
             <label class="form-label">Enable Error Alerts <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -149,20 +149,60 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bell me-2"></i>Notification Toggles</div>
-        <div class="card-body">
-          @foreach (['research_email_notifications' => 'Research notifications', 'access_request_email_notifications' => 'Access request notifications', 'workflow_email_notifications' => 'Workflow notifications'] as $key => $label)
-            <div class="form-check form-switch mb-2">
-              <input type="hidden" name="notif_toggles[{{ $key }}]" value="0">
-              <input class="form-check-input" type="checkbox" name="notif_toggles[{{ $key }}]" value="1" id="{{ $key }}" {{ ($notifToggles[$key] ?? '1') == '1' ? 'checked' : '' }}>
-              <label class="form-check-label" for="{{ $key }}">{{ $label }} <span class="badge bg-secondary ms-1">Optional</span></label>
+        <div class="card-header bg-dark text-white"><i class="fas fa-bell me-2"></i>Notification Settings</div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <i class="fas fa-layer-group me-2 text-muted"></i>Spectrum Email Notifications
+              <br><small class="text-muted">Task assignments and state transitions</small>
             </div>
-          @endforeach
-        </div>
+            <a href="{{ route('settings.ahg.spectrum') }}" class="btn btn-sm btn-outline-primary">Configure</a>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <i class="fas fa-book-reader me-2 text-muted"></i>Research Notifications
+              <br><small class="text-muted">Researcher registration, approval, booking emails</small>
+            </div>
+            <div class="form-check form-switch">
+              <input type="hidden" name="notif_toggles[research_email_notifications]" value="0">
+              <input class="form-check-input" type="checkbox" name="notif_toggles[research_email_notifications]" value="1" id="research_email_notifications" {{ ($notifToggles['research_email_notifications'] ?? '1') == '1' ? 'checked' : '' }}>
+              <label class="form-check-label" for="research_email_notifications">Enabled</label>
+            </div>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <i class="fas fa-shield-alt me-2 text-muted"></i>Access Request Notifications
+              <br><small class="text-muted">Approver notifications, request status emails</small>
+            </div>
+            <div class="form-check form-switch">
+              <input type="hidden" name="notif_toggles[access_request_email_notifications]" value="0">
+              <input class="form-check-input" type="checkbox" name="notif_toggles[access_request_email_notifications]" value="1" id="access_request_email_notifications" {{ ($notifToggles['access_request_email_notifications'] ?? '1') == '1' ? 'checked' : '' }}>
+              <label class="form-check-label" for="access_request_email_notifications">Enabled</label>
+            </div>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <i class="fas fa-project-diagram me-2 text-muted"></i>Workflow Notifications
+              <br><small class="text-muted">Task assignment, approval, rejection emails</small>
+            </div>
+            <div class="form-check form-switch">
+              <input type="hidden" name="notif_toggles[workflow_email_notifications]" value="0">
+              <input class="form-check-input" type="checkbox" name="notif_toggles[workflow_email_notifications]" value="1" id="workflow_email_notifications" {{ ($notifToggles['workflow_email_notifications'] ?? '1') == '1' ? 'checked' : '' }}>
+              <label class="form-check-label" for="workflow_email_notifications">Enabled</label>
+            </div>
+          </li>
+        </ul>
       </div>
 
-      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
-      <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
+      <hr>
+      <div class="d-flex justify-content-between">
+        <a href="{{ route('settings.index') }}" class="btn btn-secondary">
+          <i class="fas fa-arrow-left me-1"></i>Back to Settings
+        </a>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save me-1"></i>Save Settings
+        </button>
+      </div>
     </form>
 
 @push('js')
