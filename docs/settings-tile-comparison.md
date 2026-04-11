@@ -263,6 +263,69 @@ Generated: 2026-04-11
 
 **URL:** `/admin/ahgSettings/photos` (was `/admin/settings/ahg/photos`) ✓ Standardised
 
+### Row 10: Cron Jobs
+
+AtoM page is a static reference listing CLI commands. Heratio has a fully interactive DB-driven scheduler with toggle, edit, run-now, output view — a complete superset.
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | Job toggle (per job) | checkbox | — | Yes | Yes | ✓ Heratio superset |
+| 2 | Cron expression (per job) | text | — | Yes | Yes | ✓ Heratio superset |
+| 3 | Timeout (per job) | number | — | Yes | Yes | ✓ Heratio superset |
+| 4 | Notify on failure (per job) | checkbox | — | Yes | Yes | ✓ Heratio superset |
+| 5 | Notify email (per job) | email | — | Yes | Yes | ✓ Heratio superset |
+| 6 | Run now (per job) | button | — | Yes | Yes | ✓ Heratio superset |
+| 7 | Seed defaults | button | — | Yes | Yes | ✓ Heratio superset |
+
+**URL:** `/admin/ahgSettings/cronJobs` (was `/admin/settings/cron-jobs`) ✓ Standardised
+
+### Row 11: Data Ingest
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `ingest_virus_scan` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 2 | `ingest_ocr` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 3 | `ingest_ner` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 4 | `ingest_summarize` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 5 | `ingest_spellcheck` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 6 | `ingest_format_id` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 7 | `ingest_face_detect` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 8 | `ingest_translate` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 9 | `ingest_translate_from` | select | Yes | Yes | Yes | ✓ Match |
+| 10 | `ingest_translate_to` | select | Yes | Yes | Yes | ✓ Match |
+| 11 | `ingest_spellcheck_lang` | select | Yes | Yes | Yes | ✓ Match |
+| 12 | `ingest_create_records` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 13 | `ingest_generate_sip` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 14 | `ingest_generate_aip` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 15 | `ingest_generate_dip` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 16 | `ingest_thumbnails` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 17 | `ingest_reference` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 18 | `ingest_sip_path` | text | Yes | Yes | Yes | ✓ Match |
+| 19 | `ingest_aip_path` | text | Yes | Yes | Yes | ✓ Match |
+| 20 | `ingest_dip_path` | text | Yes | Yes | Yes | ✓ Match |
+| 21 | `ingest_default_sector` | select | Yes | Yes | Yes | ✓ Match |
+| 22 | `ingest_default_standard` | select | Yes | Yes | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/ingest` (was `/admin/settings/ahg/ingest`) ✓ Standardised
+
+### Row 12: E-Commerce
+
+| # | Control | Type | AtoM | Heratio | Wired | Status |
+|---|---------|------|------|---------|-------|--------|
+| 1 | `is_enabled` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 2 | `currency` | select | ZAR/USD/EUR/GBP | ZAR/USD/EUR/GBP | Yes | ✓ Match |
+| 3 | `vat_rate` | number | Yes | Yes | Yes | ✓ Match |
+| 4 | `vat_number` | text | Yes | Yes | Yes | ✓ Match |
+| 5 | `admin_notification_email` | email | Yes | Yes | Yes | ✓ Match |
+| 6 | `terms_conditions` | textarea | Yes | Yes | Yes | ✓ Match |
+| 7 | `payfast_merchant_id` | text | Yes | Yes | Yes | ✓ Match |
+| 8 | `payfast_merchant_key` | text | Yes | Yes | Yes | ✓ Match |
+| 9 | `payfast_passphrase` | password | Yes | Yes | Yes | ✓ Match |
+| 10 | `payfast_sandbox` | checkbox | Yes | Yes | Yes | ✓ Match |
+| 11 | Product pricing table | dynamic | Yes | Yes | Yes | ✓ Match |
+
+**URL:** `/admin/ahgSettings/ecommerce` (was `/admin/ecommerce-settings`) ✓ Standardised
+
 ## TODO
 
 - [x] Fix duplicate "Authority" tile — DONE (added to skip list)

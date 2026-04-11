@@ -26,6 +26,7 @@ Route::post('/cart/payment/notify', [CartController::class, 'paymentNotify'])->n
 // Admin routes
 Route::middleware('admin')->group(function () {
     Route::get('/admin/orders', [CartController::class, 'adminOrders'])->name('cart.admin.orders');
-    Route::match(['get', 'post'], '/admin/ecommerce-settings', [CartController::class, 'adminSettings'])->name('cart.admin.settings');
+    Route::match(['get', 'post'], '/admin/ahgSettings/ecommerce', [CartController::class, 'adminSettings'])->name('cart.admin.settings');
+    Route::get('/admin/ecommerce-settings', fn () => redirect('/admin/ahgSettings/ecommerce')); // legacy redirect
     Route::get('/cart/payment/{id}', [CartController::class, 'payment'])->name('cart.payment')->whereNumber('id');
 });

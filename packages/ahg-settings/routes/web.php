@@ -66,7 +66,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/settings/dropdown', [SettingsController::class, 'dropdownIndex'])->name('settings.dropdown.index');
     Route::match(['get', 'post'], '/admin/settings/dropdown/edit/{id?}', [SettingsController::class, 'dropdownEdit'])->name('settings.dropdown.store');
     Route::match(['get', 'post'], '/admin/errorLog', [SettingsController::class, 'errorLog'])->name('settings.error-log');
-    Route::get('/admin/settings/cron-jobs', [SettingsController::class, 'cronJobs'])->name('settings.cron-jobs');
+    Route::get('/admin/settings/cron-jobs', fn () => redirect('/admin/ahgSettings/cronJobs')); // legacy redirect
     Route::post('/admin/settings/cron-jobs/toggle/{id}', [SettingsController::class, 'cronJobToggle'])->name('settings.cron-toggle');
     Route::post('/admin/settings/cron-jobs/update/{id}', [SettingsController::class, 'cronJobUpdate'])->name('settings.cron-update');
     Route::post('/admin/settings/cron-jobs/run/{id}', [SettingsController::class, 'cronJobRunNow'])->name('settings.cron-run');
@@ -87,6 +87,8 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/ahgSettings/authority', [SettingsController::class, 'authority'])->name('settings.authority');
     Route::match(['get', 'post'], '/admin/ahgSettings/jobs', [SettingsController::class, 'jobsSettings'])->name('settings.ahg.jobs');
     Route::match(['get', 'post'], '/admin/ahgSettings/photos', [SettingsController::class, 'photosSettings'])->name('settings.ahg.photos');
+    Route::get('/admin/ahgSettings/cronJobs', [SettingsController::class, 'cronJobs'])->name('settings.cron-jobs');
+    Route::match(['get', 'post'], '/admin/ahgSettings/ingest', [SettingsController::class, 'ingestSettings'])->name('settings.ahg.ingest');
 
     // Legacy redirects for old /admin/settings/ahg/ paths
     Route::get('/admin/settings/ahg/ai_condition', fn () => redirect('/admin/ahgSettings/aiCondition'));
@@ -102,7 +104,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/settings/ahg/photos', fn () => redirect('/admin/ahgSettings/photos')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/media', [SettingsController::class, 'mediaSettings'])->name('settings.ahg.media');
     Route::match(['get', 'post'], '/admin/settings/ahg/metadata', [SettingsController::class, 'metadataSettings'])->name('settings.ahg.metadata');
-    Route::match(['get', 'post'], '/admin/settings/ahg/ingest', [SettingsController::class, 'ingestSettings'])->name('settings.ahg.ingest');
+    Route::get('/admin/settings/ahg/ingest', fn () => redirect('/admin/ahgSettings/ingest')); // legacy redirect
     Route::match(['get', 'post'], '/admin/settings/ahg/integrity', [SettingsController::class, 'integritySettings'])->name('settings.ahg.integrity');
     Route::match(['get', 'post'], '/admin/settings/ahg/voice_ai', [SettingsController::class, 'voiceAiSettings'])->name('settings.ahg.voice_ai');
     Route::match(['get', 'post'], '/admin/settings/ahg/iiif', [SettingsController::class, 'iiifGroupSettings'])->name('settings.ahg.iiif');
