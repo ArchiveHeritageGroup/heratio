@@ -362,13 +362,77 @@ class DamController extends Controller
 
     public function damIndex(Request $request) { return view('ahg-dam::dam-index', ['rows' => collect()]); }
 
-    public function reportIndex() { return view('ahg-dam::report-index', ['totalAssets'=>0,'storageUsed'=>0,'iptcTagged'=>0,'missingMeta'=>0]); }
+    public function reportIndex()
+    {
+        $stats = ['total' => 0, 'totalSize' => 0, 'withMetadata' => 0, 'withIptc' => 0, 'withGps' => 0, 'recentUploads' => 0, 'byMimeType' => collect()];
+        try {
+            if (\Schema::hasTable('digital_object')) {
+                $stats['total'] = \DB::table('digital_object')->count();
+                $stats['totalSize'] = (int) \DB::table('digital_object')->sum('byte_size');
+                $stats['recentUploads'] = \DB::table('digital_object')->where('created_at', '>=', now()->subDays(30))->count();
+                $stats['byMimeType'] = \DB::table('digital_object')
+                    ->select('mime_type', \DB::raw('COUNT(*) as count'), \DB::raw('SUM(byte_size) as size'))
+                    ->whereNotNull('mime_type')->groupBy('mime_type')->orderByDesc('count')->limit(10)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('ahg-dam::report-index', compact('stats'));
+    }
 
-    public function reportAssets() { return view('ahg-dam::report-assets', ['rows' => collect()]); }
+    public function reportAssets()
+    {
+        $rows = collect();
+        try {
+            if (\Schema::hasTable('digital_object')) {
+                $rows = \DB::table('digital_object as do')
+                    ->leftJoin('information_object as io', 'do.information_object_id', '=', 'io.id')
+                    ->leftJoin('information_object_i18n as io_i18n', function ($j) { $j->on('io.id', '=', 'io_i18n.id')->where('io_i18n.culture', '=', 'en'); })
+                    ->select('do.id', 'do.name', 'do.mime_type', 'do.byte_size', 'io_i18n.title as record_title', 'io.identifier as record_identifier')
+                    ->orderByDesc('do.created_at')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('ahg-dam::report-assets', compact('rows'));
+    }
 
-    public function reportIptc() { return view('ahg-dam::report-iptc', ['rows' => collect()]); }
+    public function reportIptc()
+    {
+        $rows = collect();
+        try {
+            if (\Schema::hasTable('digital_object') && \Schema::hasTable('property')) {
+                $rows = \DB::table('digital_object as do')
+                    ->leftJoin('property as p', function ($j) { $j->on('do.id', '=', 'p.object_id'); })
+                    ->leftJoin('property_i18n as pi', function ($j) { $j->on('p.id', '=', 'pi.id')->where('pi.culture', '=', 'en'); })
+                    ->select('do.id', 'do.name', 'p.name as property_name', 'pi.value as property_value')
+                    ->whereIn('p.name', ['iptc_headline', 'iptc_creator', 'iptc_city', 'iptc_copyright', 'iptc_source'])
+                    ->orderBy('do.name')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('ahg-dam::report-iptc', compact('rows'));
+    }
 
-    public function reportMetadata() { return view('ahg-dam::report-metadata', ['rows' => collect()]); }
+    public function reportMetadata()
+    {
+        $rows = collect();
+        try {
+            if (\Schema::hasTable('digital_object')) {
+                $rows = \DB::table('digital_object as do')
+                    ->select('do.id', 'do.name', 'do.mime_type', 'do.byte_size', 'do.created_at')
+                    ->orderByDesc('do.created_at')->limit(500)->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('ahg-dam::report-metadata', compact('rows'));
+    }
 
-    public function reportStorage() { return view('ahg-dam::report-storage', ['rows' => collect()]); }
+    public function reportStorage()
+    {
+        $storage = ['total' => 0, 'orphaned' => 0, 'byType' => collect()];
+        try {
+            if (\Schema::hasTable('digital_object')) {
+                $storage['total'] = (int) \DB::table('digital_object')->sum('byte_size');
+                $storage['byType'] = \DB::table('digital_object')
+                    ->select('mime_type', \DB::raw('COUNT(*) as count'), \DB::raw('SUM(byte_size) as size'))
+                    ->whereNotNull('mime_type')->groupBy('mime_type')->orderByDesc('size')->get();
+            }
+        } catch (\Throwable $e) {}
+        return view('ahg-dam::report-storage', compact('storage'));
+    }
 }

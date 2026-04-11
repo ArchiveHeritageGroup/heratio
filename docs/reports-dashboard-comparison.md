@@ -143,7 +143,11 @@ Generated: 2026-04-11
 | 9c | Library: Subjects | Subject + Items count | Rebuilt: 2col + sidebar, table-dark, badge count | YES |
 | 9d | Library: Publishers | Publisher + Place + Titles count | Rebuilt: 2col + sidebar, table-dark, badge count | YES |
 | 9e | Library: Call Numbers | 4 columns (Call#/Title/Type/Shelf) | Rebuilt: 4 columns, 2col + sidebar, table-dark | YES |
-| 10 | DAM Reports | Separate plugin (ahgDAMPlugin → ahg-dam) | Separate package — exists at `/dam/reports` | Separate audit |
+| 10 | DAM Reports Index | 2col + sidebar, 4 stat cards + By Type + Metadata Coverage | Rebuilt: 2col + sidebar, stat cards, file type list, metadata coverage | YES |
+| 10a | DAM: Assets | 4 columns (Filename/Record/Type/Size) | Rebuilt: 4 columns, 2col + sidebar, table-dark | YES |
+| 10b | DAM: Metadata | 4 columns (File/Type/Size/Created) | Rebuilt: 4 columns, 2col + sidebar, table-dark | YES |
+| 10c | DAM: IPTC Data | 3 columns (File/Property/Value) | Rebuilt: 3 columns, 2col + sidebar, table-dark | YES |
+| 10d | DAM: Storage | Sidebar summary + by-type table | Rebuilt: sidebar with total + orphaned alert, type breakdown table | YES |
 | 11 | Museum Reports | Separate plugin (ahgMuseumPlugin → ahg-museum) | Separate package — exists at `/museum/reports` | Separate audit |
 | 12 | 3D Object Reports | Separate plugin (ahgIiifPlugin → ahg-iiif-collection) | Separate package — exists at `/admin/iiif-3d-reports` | Separate audit |
 | 13 | Spectrum Reports | Separate plugin (ahgSpectrumPlugin → ahg-spectrum) | Separate package — to be verified | Separate audit |
