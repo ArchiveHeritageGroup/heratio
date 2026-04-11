@@ -171,17 +171,17 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 #### Block 8: Research Admin (5 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Manage Researchers | `/research/admin/researchers` | NO |
-| 2 | Manage Bookings | `/research/admin/bookings` | NO |
-| 3 | Reading Rooms | `/research/rooms` | NO |
-| 4 | Reproduction Requests | `/research/reproductions` | NO |
-| 5 | Statistics | `/research/admin/statistics` | NO |
+| 1 | Manage Researchers | `/research/admin/researchers` | YES — already migrated, 0 issues |
+| 2 | Manage Bookings | `/research/admin/bookings` | YES — already migrated, 0 issues |
+| 3 | Reading Rooms | `/research/rooms` | YES — already migrated, 0 issues |
+| 4 | Reproduction Requests | `/research/reproductions` | YES — already migrated, 0 issues |
+| 5 | Statistics | `/research/admin/statistics` | YES — already migrated, 0 issues |
 
 #### Block 9: Access Requests (2 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Pending Requests | `/admin/access-requests` | NO |
-| 2 | Approvers | `/admin/approvers` | NO |
+| 1 | Pending Requests | `/access-request/pending` | YES — fixed 2 atom-btn styles |
+| 2 | Approvers | `/access-request/approvers` | YES — fixed inline style + atom-btn |
 
 #### Block 10: Security & Compliance (4 pages)
 | # | Page | URL | Cloned? |

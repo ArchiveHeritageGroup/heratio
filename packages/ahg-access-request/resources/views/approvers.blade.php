@@ -31,7 +31,7 @@
             <div class="row">
                 <div class="col-lg-8">
                     <div class="card mb-4">
-                        <div class="card-header" style="background-color: var(--ahg-primary); color: #fff;">
+                        <div class="card-header">
                             <h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>Current Approvers</h5>
                         </div>
                         <div class="card-body p-0">
@@ -87,7 +87,7 @@
                                         <option value="">-- Select user --</option>
                                     </select>
                                 </div>
-                                <button type="submit" class="atom-btn-white w-100">
+                                <button type="submit" class="btn btn-outline-secondary w-100">
                                     <i class="fas fa-plus me-1"></i>Add Approver
                                 </button>
                             </form>
