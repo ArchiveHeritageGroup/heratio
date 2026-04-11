@@ -46,7 +46,7 @@
       <input type="hidden" name="action_type" value="save_settings">
 
       <div class="card shadow-sm">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+        <div class="card-header bg-primary text-white">
           <i class="fas fa-sliders-h me-2"></i>General Settings
         </div>
         <div class="card-body">
