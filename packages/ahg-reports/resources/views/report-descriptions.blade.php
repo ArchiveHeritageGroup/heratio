@@ -1,70 +1,194 @@
-@extends('theme::layouts.1col')
-@section('title', 'Description Report')
+{{--
+  Archival Description Report — full ISAD(G) field dump with column toggles
+  Cloned from AtoM ahgReportsPlugin reportInformationObjectSuccess.blade.php
+
+  @copyright  Johan Pieterse / Plain Sailing
+  @license    AGPL-3.0-or-later
+--}}
+@extends('theme::layouts.2col')
+@section('title', 'Browse Archival Description')
 @section('body-class', 'admin reports')
 
-@section('content')
-<div class="row">
-  <div class="col-md-3">
-    @include('ahg-reports::_menu')
-    @include('ahg-reports::_filters', [
-      'action' => route('reports.descriptions'),
-      'extraFilters' => '
-        <div class="mb-3">
-          <label class="form-label">Level of description <span class="badge bg-secondary ms-1">Optional</span></label>
-          <select name="level" class="form-select form-select-sm">
-            <option value="">All levels</option>' .
-            $levels->map(fn($l) => '<option value="' . $l->id . '"' . (($params['level'] ?? '') == $l->id ? ' selected' : '') . '>' . e($l->name) . '</option>')->implode('') .
-          '</select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Publication status <span class="badge bg-secondary ms-1">Optional</span></label>
-          <select name="publicationStatus" class="form-select form-select-sm">
-            <option value="">All</option>
-            <option value="159"' . (($params['publicationStatus'] ?? '') == '159' ? ' selected' : '') . '>Draft</option>
-            <option value="160"' . (($params['publicationStatus'] ?? '') == '160' ? ' selected' : '') . '>Published</option>
-          </select>
-        </div>',
-    ])
-  </div>
-  <div class="col-md-9">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-file-alt me-2"></i>Description Report</h1>
-      <div>
-        <span class="badge bg-primary fs-6">{{ number_format($total) }} results</span>
-        <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn btn-sm atom-btn-outline-success ms-2"><i class="fas fa-file-csv me-1"></i>CSV</a>
+@section('sidebar')
+<section class="card mb-3">
+  <div class="card-header"><h6 class="mb-0">Filter options</h6></div>
+  <div class="card-body">
+    <form method="get" action="{{ route('reports.descriptions') }}">
+      <div class="mb-3">
+        <label class="form-label">Level of description</label>
+        <select name="level" class="form-select form-select-sm">
+          <option value="">All levels</option>
+          @foreach($levels as $l)
+            <option value="{{ $l->id }}" {{ ($params['level'] ?? '') == $l->id ? 'selected' : '' }}>{{ e($l->name) }}</option>
+          @endforeach
+        </select>
       </div>
-    </div>
-    <div class="table-responsive">
-      <table class="table table-bordered table-striped table-sm">
-        <thead>
-          <tr>
-            <th>#</th><th>Identifier</th><th>Title</th><th>Level</th><th>Status</th><th>Created</th><th>Updated</th>
-          </tr>
-        </thead>
-        <tbody>
-          @forelse($results as $row)
-            <tr>
-              <td>{{ $row->id }}</td>
-              <td><code>{{ $row->identifier }}</code></td>
-              <td>{{ Str::limit($row->title ?? '', 60) }}</td>
-              <td>{{ $row->level_name ?? '' }}</td>
-              <td>
-                @if(($row->publication_status_id ?? null) == 160)
-                  <span class="badge bg-success">Published</span>
-                @else
-                  <span class="badge bg-warning">Draft</span>
-                @endif
-              </td>
-              <td>{{ $row->created_at ? \Carbon\Carbon::parse($row->created_at)->format('Y-m-d') : '' }}</td>
-              <td>{{ $row->updated_at ? \Carbon\Carbon::parse($row->updated_at)->format('Y-m-d') : '' }}</td>
-            </tr>
-          @empty
-            <tr><td colspan="7" class="text-muted text-center">No results</td></tr>
-          @endforelse
-        </tbody>
-      </table>
-    </div>
-    @include('ahg-reports::_pagination')
+      <div class="mb-3">
+        <label class="form-label">Publication status</label>
+        <select name="publicationStatus" class="form-select form-select-sm">
+          <option value="">All</option>
+          <option value="159" {{ ($params['publicationStatus'] ?? '') == '159' ? 'selected' : '' }}>Draft</option>
+          <option value="160" {{ ($params['publicationStatus'] ?? '') == '160' ? 'selected' : '' }}>Published</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Date start</label>
+        <input type="date" name="dateStart" class="form-control form-control-sm" value="{{ $params['dateStart'] ?? '' }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Date end</label>
+        <input type="date" name="dateEnd" class="form-control form-control-sm" value="{{ $params['dateEnd'] ?? '' }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Date of</label>
+        <select name="dateOf" class="form-select form-select-sm">
+          <option value="created_at" {{ ($params['dateOf'] ?? 'created_at') === 'created_at' ? 'selected' : '' }}>Creation date</option>
+          <option value="updated_at" {{ ($params['dateOf'] ?? '') === 'updated_at' ? 'selected' : '' }}>Modification date</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Results per page</label>
+        <select name="limit" class="form-select form-select-sm">
+          @foreach([10, 20, 50, 100] as $lim)
+            <option value="{{ $lim }}" {{ ($params['limit'] ?? 20) == $lim ? 'selected' : '' }}>{{ $lim }}</option>
+          @endforeach
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm w-100 mb-2">Search</button>
+      <button type="button" onclick="exportTableToCSV()" class="btn btn-outline-secondary btn-sm w-100">Export to CSV</button>
+    </form>
   </div>
+</section>
+@endsection
+
+@section('title-block')
+<h1>Browse Archival Description</h1>
+<div class="mb-3">
+  <a href="{{ route('reports.dashboard') }}" class="btn btn-outline-secondary btn-sm">
+    <i class="fas fa-arrow-left me-1"></i>Back to Reports
+  </a>
 </div>
+@endsection
+
+@section('content')
+@if(isset($results) && count($results) > 0)
+  <div class="alert alert-info">
+    Found {{ number_format($total) }} results
+  </div>
+
+  <div class="mb-3" style="font-size:0.85rem">
+    <strong>Show/Hide Columns:</strong><br>
+    @php
+    $columns = ['Identifier','Title','Alt Title','Extent','Archival History','Acquisition','Scope','Appraisal','Accruals','Arrangement','Access','Reproduction','Physical','Finding Aids','Originals','Copies','Related','Institution','Rules','Sources','Revision','Culture','Repository','Created'];
+    @endphp
+    @foreach($columns as $i => $col)
+      <label><input type="checkbox" onclick="toggleColumn({{ $i }})" checked> {{ $col }}</label>
+    @endforeach
+  </div>
+
+  <div class="table-responsive" style="max-height:600px;overflow:auto">
+    <table id="reportTable" class="table table-bordered table-striped table-sm">
+      <thead>
+        <tr>
+          <th>Identifier</th>
+          <th>Title</th>
+          <th>Alternate Title</th>
+          <th>Extent And Medium</th>
+          <th>Archival History</th>
+          <th>Acquisition</th>
+          <th>Scope And Content</th>
+          <th>Appraisal</th>
+          <th>Accruals</th>
+          <th>Arrangement</th>
+          <th>Access Conditions</th>
+          <th>Reproduction Conditions</th>
+          <th>Physical Characteristics</th>
+          <th>Finding Aids</th>
+          <th>Location Of Originals</th>
+          <th>Location Of Copies</th>
+          <th>Related Units</th>
+          <th>Institution Responsible</th>
+          <th>Rules</th>
+          <th>Sources</th>
+          <th>Revision History</th>
+          <th>Culture</th>
+          <th>Repository</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($results as $item)
+        <tr>
+          <td>@if($item->identifier)<a href="{{ url('/' . ($item->identifier ?? $item->id)) }}">{{ $item->identifier }}</a>@else - @endif</td>
+          <td>{!! $item->title ?? '-' !!}</td>
+          <td>{!! $item->alternate_title ?? '-' !!}</td>
+          <td>{!! $item->extent_and_medium ?? '-' !!}</td>
+          <td>{!! $item->archival_history ?? '-' !!}</td>
+          <td>{!! $item->acquisition ?? '-' !!}</td>
+          <td>{!! $item->scope_and_content ?? '-' !!}</td>
+          <td>{!! $item->appraisal ?? '-' !!}</td>
+          <td>{!! $item->accruals ?? '-' !!}</td>
+          <td>{!! $item->arrangement ?? '-' !!}</td>
+          <td>{!! $item->access_conditions ?? '-' !!}</td>
+          <td>{!! $item->reproduction_conditions ?? '-' !!}</td>
+          <td>{!! $item->physical_characteristics ?? '-' !!}</td>
+          <td>{!! $item->finding_aids ?? '-' !!}</td>
+          <td>{!! $item->location_of_originals ?? '-' !!}</td>
+          <td>{!! $item->location_of_copies ?? '-' !!}</td>
+          <td>{!! $item->related_units_of_description ?? '-' !!}</td>
+          <td>{!! $item->institution_responsible_identifier ?? '-' !!}</td>
+          <td>{!! $item->rules ?? '-' !!}</td>
+          <td>{!! $item->sources ?? '-' !!}</td>
+          <td>{!! $item->revision_history ?? '-' !!}</td>
+          <td>{!! $item->culture ?? '-' !!}</td>
+          <td>{{ $item->repository_name ?? '-' }}</td>
+          <td>{{ $item->created_at ?? '-' }}</td>
+        </tr>
+        @endforeach
+      </tbody>
+    </table>
+  </div>
+
+  @include('ahg-reports::_pagination')
+@else
+  <div class="alert alert-warning">No results found.</div>
+@endif
+
+<script>
+function toggleColumn(colNum) {
+  var table = document.getElementById('reportTable');
+  var rows = table.getElementsByTagName('tr');
+  for (var i = 0; i < rows.length; i++) {
+    var cell = rows[i].cells[colNum];
+    if (cell) {
+      cell.style.display = cell.style.display === 'none' ? '' : 'none';
+    }
+  }
+}
+
+function exportTableToCSV() {
+  var table = document.getElementById('reportTable');
+  var csv = [];
+  var rows = table.querySelectorAll('tr');
+  for (var i = 0; i < rows.length; i++) {
+    var row = [];
+    var cols = rows[i].querySelectorAll('td, th');
+    for (var j = 0; j < cols.length; j++) {
+      if (cols[j].style.display !== 'none') {
+        var text = cols[j].innerText.replace(/"/g, '""');
+        row.push('"' + text + '"');
+      }
+    }
+    csv.push(row.join(','));
+  }
+  var csvFile = new Blob([csv.join('\n')], {type: 'text/csv'});
+  var downloadLink = document.createElement('a');
+  downloadLink.download = 'report_' + new Date().getTime() + '.csv';
+  downloadLink.href = window.URL.createObjectURL(csvFile);
+  downloadLink.style.display = 'none';
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+}
+</script>
 @endsection

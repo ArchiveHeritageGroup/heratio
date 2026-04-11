@@ -111,7 +111,13 @@ class ReportController extends Controller
         if ($request->query('export') === 'csv') {
             return $this->service->exportCsv(
                 $data['results']->toArray(),
-                ['ID', 'Identifier', 'Title', 'Level', 'Status', 'Created', 'Updated'],
+                ['Identifier', 'Title', 'Alternate Title', 'Extent And Medium',
+                 'Archival History', 'Acquisition', 'Scope And Content',
+                 'Appraisal', 'Accruals', 'Arrangement', 'Access Conditions',
+                 'Reproduction Conditions', 'Physical Characteristics', 'Finding Aids',
+                 'Location Of Originals', 'Location Of Copies', 'Related Units',
+                 'Institution Responsible', 'Rules', 'Sources', 'Revision History',
+                 'Culture', 'Repository', 'Created'],
                 'description-report.csv'
             );
         }

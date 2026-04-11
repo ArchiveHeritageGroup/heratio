@@ -118,6 +118,16 @@ Generated: 2026-04-11
 | 35 | **IPSAS Heritage Assets** | Dashboard, Asset Register | **IPSAS Heritage Assets** | Dashboard, Register, Valuations, Insurance | Heratio superset |
 | 36 | **NMMZ Monuments** | Dashboard, National Monuments | **NMMZ Monuments** | Dashboard, Monuments, Antiquities, Exports, Archaeological | Heratio superset |
 
+## Page-by-Page Clone Status
+
+### Block 1: Reports — Link Pages
+
+| # | Link | AtoM Page | Heratio Status | Cloned? |
+|---|------|----------|----------------|---------|
+| 1 | Archival Descriptions | 24 columns (all ISAD), column toggles, 6 sidebar filters, client CSV export | Rebuilt: 24 columns, toggles, 6 filters, client CSV, back button | YES |
+| 2 | Authority Records | 5 columns, 6 sidebar filters, statistics widget, linked names, client CSV | Rebuilt: 5 columns, 5 filters, linked names, client CSV, back button | YES |
+| 3 | Repositories | 21 columns (all ISDIAH), column toggles, 4 sidebar filters, client CSV | Rebuilt: 21 columns, toggles, 4 filters, client CSV, back button | YES |
+
 ## Colour Fixes Applied
 
 | Block | AtoM Colour | Was (Heratio) | Fixed to |

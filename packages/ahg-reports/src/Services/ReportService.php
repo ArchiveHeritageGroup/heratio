@@ -128,11 +128,27 @@ class ReportService
                     ->where('level_term.culture', '=', $culture);
             })
             ->where('io.id', '!=', 1)
+            ->leftJoin('repository as repo', 'io.repository_id', '=', 'repo.id')
+            ->leftJoin('repository_i18n as repo_i18n', function ($join) use ($culture) {
+                $join->on('repo.id', '=', 'repo_i18n.id')
+                    ->where('repo_i18n.culture', '=', $culture);
+            })
             ->select(
                 'io.id', 'io.identifier', 'io.level_of_description_id',
-                'io_i18n.title', 'io_i18n.scope_and_content',
+                'io_i18n.title', 'io_i18n.alternate_title',
+                'io_i18n.extent_and_medium', 'io_i18n.archival_history',
+                'io_i18n.acquisition', 'io_i18n.scope_and_content',
+                'io_i18n.appraisal', 'io_i18n.accruals', 'io_i18n.arrangement',
+                'io_i18n.access_conditions', 'io_i18n.reproduction_conditions',
+                'io_i18n.physical_characteristics', 'io_i18n.finding_aids',
+                'io_i18n.location_of_originals', 'io_i18n.location_of_copies',
+                'io_i18n.related_units_of_description',
+                'io_i18n.institution_responsible_identifier',
+                'io_i18n.rules', 'io_i18n.sources', 'io_i18n.revision_history',
+                'io_i18n.culture',
                 'level_term.name as level_name',
                 'status.status_id as publication_status_id',
+                'repo_i18n.authorized_form_of_name as repository_name',
                 'object.created_at', 'object.updated_at'
             );
 
@@ -177,12 +193,16 @@ class ReportService
                 $join->on('actor.entity_type_id', '=', 'type_term.id')
                     ->where('type_term.culture', '=', $culture);
             })
+            ->leftJoin('slug', function ($join) {
+                $join->on('actor.id', '=', 'slug.object_id');
+            })
             ->where('object.class_name', 'QubitActor')
             ->select(
                 'actor.id', 'actor.entity_type_id', 'actor.description_identifier',
                 'actor_i18n.authorized_form_of_name', 'actor_i18n.dates_of_existence',
                 'actor_i18n.history',
                 'type_term.name as entity_type_name',
+                'slug.slug',
                 'object.created_at', 'object.updated_at'
             );
 
@@ -268,10 +288,19 @@ class ReportService
             })
             ->select(
                 'repository.id', 'repository.identifier',
+                'repository.desc_status_id', 'repository.desc_detail_id',
+                'repository.desc_identifier',
                 'actor_i18n.authorized_form_of_name',
                 'repository_i18n.geocultural_context', 'repository_i18n.collecting_policies',
-                'object.created_at', 'object.updated_at',
-                DB::raw('(SELECT COUNT(*) FROM information_object WHERE repository_id = repository.id) as holdings_count')
+                'repository_i18n.buildings', 'repository_i18n.holdings',
+                'repository_i18n.finding_aids', 'repository_i18n.opening_times',
+                'repository_i18n.access_conditions', 'repository_i18n.disabled_access',
+                'repository_i18n.research_services', 'repository_i18n.reproduction_services',
+                'repository_i18n.public_facilities',
+                'repository_i18n.desc_institution_identifier',
+                'repository_i18n.desc_rules', 'repository_i18n.desc_sources',
+                'repository_i18n.desc_revision_history',
+                'object.created_at', 'object.updated_at'
             );
 
         $dateCol = $dateOf === 'updated_at' ? 'object.updated_at' : 'object.created_at';
