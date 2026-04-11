@@ -20,7 +20,7 @@
 </nav>
 
 <div class="mb-3">
-  <a href="{{ route('backup.index') }}" class="btn btn-sm atom-btn-white">
+  <a href="{{ route('backup.index') }}" class="btn btn-sm btn-outline-secondary">
     <i class="fas fa-arrow-left me-1"></i> Back to Backups
   </a>
 </div>
@@ -32,7 +32,7 @@
 
 @if(count($backups) > 0)
 <div class="card mb-4">
-  <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-archive me-1"></i> Select Backup</div>
+  <div class="card-header" ><i class="fas fa-file-archive me-1"></i> Select Backup</div>
   <div class="card-body">
     <div class="mb-3">
       <label for="backup-select" class="form-label">Available Backups <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -119,7 +119,7 @@
       {{-- Result --}}
       <div id="restore-result" class="d-none mb-3"></div>
 
-      <button type="button" class="btn atom-btn-outline-danger" id="btn-start-restore" onclick="confirmRestore()" disabled>
+      <button type="button" class="btn btn-outline-danger" id="btn-start-restore" onclick="confirmRestore()" disabled>
         <i class="fas fa-undo me-1"></i> Restore Selected Components
       </button>
     </div>
@@ -130,7 +130,7 @@
     <div class="card-body text-center py-5 text-muted">
       <i class="fas fa-3x fa-box-open mb-3 d-block"></i>
       <p class="mb-2">No backups available for restore.</p>
-      <a href="{{ route('backup.index') }}" class="btn atom-btn-outline-success">
+      <a href="{{ route('backup.index') }}" class="btn btn-primary">
         <i class="fas fa-plus me-1"></i> Create a Backup First
       </a>
     </div>

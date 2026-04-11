@@ -305,24 +305,24 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 #### Block 25: Data Migration (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Migration Dashboard | `/data-migration` | NO |
-| 2 | Import Data | `/data-migration/upload` | NO |
-| 3 | Export Data | `/data-migration/batch-export` | NO |
-| 4 | Migration History | `/data-migration/jobs` | NO |
+| 1 | Migration Dashboard | `/data-migration` | YES — fixed 9 atom-btn + 2 inline var(--ahg-primary) styles |
+| 2 | Import Data | `/data-migration/upload` | YES — fixed 2 atom-btn + 1 inline style |
+| 3 | Export Data | `/data-migration/batch-export` | YES — fixed 1 atom-btn + 2 inline styles |
+| 4 | Migration History | `/data-migration/jobs` | YES — fixed 2 atom-btn styles |
 
 #### Block 26: Data Ingest (3 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Ingest Dashboard | `/ingest` | NO |
-| 2 | New Ingest | `/ingest/configure` | NO |
-| 3 | CSV Template | `/ingest/template/archive` | NO |
+| 1 | Ingest Dashboard | `/ingest` | YES — fixed 2 atom-btn styles |
+| 2 | New Ingest | `/ingest/configure` | YES — already clean (BS5 native) |
+| 3 | CSV Template | `/ingest/template/archive` | YES — download endpoint, no view |
 
 #### Block 27: Backup & Maintenance (3 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Backup Dashboard | `/backup` | NO |
-| 2 | Restore | `/backup/restore` | NO |
-| 3 | Background Jobs | `/jobs` | NO |
+| 1 | Backup Dashboard | `/backup` | YES — fixed 6 inline var(--ahg-primary) card-header styles |
+| 2 | Restore | `/backup/restore` | YES — fixed 2 atom-btn + 1 inline style |
+| 3 | Background Jobs | `/jobs` | YES — already clean (BS5 native) |
 
 #### Block 28: Heritage Management (3 pages)
 | # | Page | URL | Cloned? |
@@ -401,5 +401,6 @@ Generated: 2026-04-11 | Updated: 2026-04-11
 - Blocks 6–16 destination pages: **50/50 cloned** (research, security, privacy, condition, AI, rights, embargo, vocabularies)
 - Blocks 17–21 destination pages: **18/18 cloned** (vendor, donor, marketplace, sales, e-commerce)
 - Blocks 22–24 destination pages: **10/10 cloned** (form templates, DOI, RiC)
-- Blocks 25–36 destination pages: **0/44 cloned** (not yet audited)
-- **Total: 131/175 destination pages cloned (75%)**
+- Blocks 25–27 destination pages: **10/10 cloned** (data migration, ingest, backup)
+- Blocks 28–36 destination pages: **0/34 cloned** (not yet audited)
+- **Total: 141/175 destination pages cloned (81%)**

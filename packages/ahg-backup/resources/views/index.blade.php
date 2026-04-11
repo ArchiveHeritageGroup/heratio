@@ -30,7 +30,7 @@
   <div class="col-md-4">
     {{-- Database Info --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+      <div class="card-header" >
         <h5 class="mb-0"><i class="fas fa-database me-2"></i>Database Info</h5>
       </div>
       <div class="card-body">
@@ -56,7 +56,7 @@
 
     {{-- Storage Info --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+      <div class="card-header" >
         <h5 class="mb-0"><i class="fas fa-folder me-2"></i>Storage</h5>
       </div>
       <div class="card-body">
@@ -72,7 +72,7 @@
 
     {{-- Quick Actions --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+      <div class="card-header" >
         <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
       </div>
       <div class="card-body">
@@ -92,7 +92,7 @@
 
     {{-- Scheduled Backups --}}
     <div class="card mb-4">
-      <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+      <div class="card-header d-flex justify-content-between align-items-center" >
         <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Schedules</h5>
         <button type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#createScheduleModal">
           <i class="fas fa-plus"></i>
@@ -140,7 +140,7 @@
   {{-- Right Column: Backups List --}}
   <div class="col-md-8">
     <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+      <div class="card-header d-flex justify-content-between align-items-center" >
         <h5 class="mb-0"><i class="fas fa-history me-2"></i>Backups</h5>
         <span class="badge bg-secondary">{{ $backupCount }}</span>
       </div>

@@ -25,27 +25,27 @@
     </div>
   @endif
 
-  {{-- Action buttons — atom-btn-white matching AtoM --}}
+  {{-- Action buttons — btn btn-outline-secondary matching AtoM --}}
   <div class="d-flex flex-wrap gap-2 mb-4">
-    <a href="{{ route('data-migration.upload') }}" class="atom-btn-white">
+    <a href="{{ route('data-migration.upload') }}" class="btn btn-outline-secondary">
       <i class="fas fa-upload"></i> New Import
     </a>
-    <a href="{{ route('data-migration.batch-export') }}" class="atom-btn-white">
+    <a href="{{ route('data-migration.batch-export') }}" class="btn btn-outline-secondary">
       <i class="fas fa-download"></i> Batch Export
     </a>
-    <a href="{{ route('data-migration.jobs') }}" class="atom-btn-white">
+    <a href="{{ route('data-migration.jobs') }}" class="btn btn-outline-secondary">
       <i class="fas fa-tasks"></i> All Jobs
     </a>
-    <a href="{{ route('data-migration.export') }}" class="atom-btn-white">
+    <a href="{{ route('data-migration.export') }}" class="btn btn-outline-secondary">
       <i class="fas fa-file-export"></i> Export Records
     </a>
-    <a href="{{ route('data-migration.preservica-import') }}" class="atom-btn-white">
+    <a href="{{ route('data-migration.preservica-import') }}" class="btn btn-outline-secondary">
       <i class="fas fa-cloud-upload-alt"></i> Preservica Import
     </a>
-    <a href="{{ route('data-migration.preservica-export') }}" class="atom-btn-white">
+    <a href="{{ route('data-migration.preservica-export') }}" class="btn btn-outline-secondary">
       <i class="fas fa-cloud-download-alt"></i> Preservica Export
     </a>
-    <a href="{{ route('data-migration.import-results') }}" class="atom-btn-white">
+    <a href="{{ route('data-migration.import-results') }}" class="btn btn-outline-secondary">
       <i class="fas fa-list-alt"></i> Import Results
     </a>
   </div>
@@ -55,7 +55,7 @@
     <div class="col-lg-6 mb-4">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center"
-             style="background:var(--ahg-primary);color:#fff">
+             >
           <h5 class="mb-0"><i class="fas fa-map-signs"></i> Saved Mappings</h5>
           <span class="badge bg-light text-dark">{{ count($mappings) }}</span>
         </div>
@@ -81,7 +81,7 @@
                       <td>{{ $mapping['updated_at'] ? \Carbon\Carbon::parse($mapping['updated_at'])->format('Y-m-d H:i') : '' }}</td>
                       <td>
                         <a href="{{ route('data-migration.export-mapping', $mapping['id']) }}"
-                           class="atom-btn-outline-light btn-sm me-1" title="Export mapping">
+                           class="btn btn-outline-secondary btn-sm me-1" title="Export mapping">
                           <i class="fas fa-file-export"></i>
                         </a>
                         <form method="POST"
@@ -89,7 +89,7 @@
                               class="d-inline"
                               onsubmit="return confirm('Delete this mapping?')">
                           @csrf
-                          <button type="submit" class="atom-btn-outline-light btn-sm" title="Delete">
+                          <button type="submit" class="btn btn-outline-secondary btn-sm" title="Delete">
                             <i class="fas fa-trash"></i>
                           </button>
                         </form>
@@ -107,7 +107,7 @@
         </div>
         @if(count($mappings) > 0)
           <div class="card-footer text-end">
-            <label for="importMappingFile" class="atom-btn-white mb-0" style="cursor:pointer">
+            <label for="importMappingFile" class="btn btn-outline-secondary mb-0" style="cursor:pointer">
               <i class="fas fa-file-import"></i> Import Mapping File <span class="badge bg-secondary ms-1">Optional</span>
             </label>
             <form method="POST" action="{{ route('data-migration.import-mapping') }}"
@@ -126,7 +126,7 @@
     <div class="col-lg-6 mb-4">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center"
-             style="background:var(--ahg-primary);color:#fff">
+             >
           <h5 class="mb-0"><i class="fas fa-history"></i> Recent Jobs</h5>
           <a href="{{ route('data-migration.jobs') }}" class="badge bg-light text-dark text-decoration-none">
             View all

@@ -20,7 +20,7 @@
   </nav>
 
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+    <div class="card-header" >
       <h5 class="mb-0"><i class="fas fa-filter"></i> Export Options</h5>
     </div>
     <div class="card-body">
@@ -49,7 +49,7 @@
             <input type="date" class="form-control" id="date_to" name="date_to">
           </div>
           <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn atom-btn-outline-success w-100">
+            <button type="submit" class="btn btn-primary w-100">
               <i class="fas fa-file-csv"></i> Export CSV
             </button>
           </div>
@@ -64,7 +64,7 @@
 
   {{-- Record counts summary --}}
   <div class="card">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+    <div class="card-header" >
       <h5 class="mb-0"><i class="fas fa-database"></i> Record Counts</h5>
     </div>
     <div class="card-body">
@@ -122,7 +122,7 @@
   </div>
 
   <div class="mt-3">
-    <a href="{{ route('data-migration.index') }}" class="btn atom-btn-white">
+    <a href="{{ route('data-migration.index') }}" class="btn btn btn-outline-secondary">
       <i class="fas fa-arrow-left"></i> Back to Dashboard
     </a>
   </div>

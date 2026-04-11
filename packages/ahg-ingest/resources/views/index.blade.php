@@ -29,7 +29,7 @@
                 <i class="fas fa-download me-1"></i>CSV Template
             </a>
         </div>
-        <a href="{{ route('ingest.configure') }}" class="btn atom-btn-white">
+        <a href="{{ route('ingest.configure') }}" class="btn btn btn-outline-secondary">
             <i class="fas fa-plus me-1"></i>New Ingest
         </a>
     </div>
@@ -41,7 +41,7 @@
             <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
             <h5 class="text-muted">No ingest sessions yet</h5>
             <p class="text-muted">Start a new ingest to batch-import records and digital objects</p>
-            <a href="{{ route('ingest.configure') }}" class="btn atom-btn-white">
+            <a href="{{ route('ingest.configure') }}" class="btn btn btn-outline-secondary">
                 <i class="fas fa-plus me-1"></i>New Ingest
             </a>
         </div>

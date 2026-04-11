@@ -20,10 +20,10 @@
   </nav>
 
   <div class="d-flex gap-2 mb-3">
-    <a href="{{ route('data-migration.upload') }}" class="btn atom-btn-outline-success">
+    <a href="{{ route('data-migration.upload') }}" class="btn btn-primary">
       <i class="fas fa-upload"></i> New Import
     </a>
-    <a href="{{ route('data-migration.index') }}" class="btn atom-btn-white">
+    <a href="{{ route('data-migration.index') }}" class="btn btn btn-outline-secondary">
       <i class="fas fa-arrow-left"></i> Dashboard
     </a>
   </div>

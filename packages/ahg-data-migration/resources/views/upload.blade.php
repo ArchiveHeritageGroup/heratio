@@ -44,7 +44,7 @@
 
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center"
-         style="background:var(--ahg-primary);color:#fff">
+         >
       <h5 class="mb-0"><i class="fas fa-cloud-upload-alt"></i> Data Migration Tool</h5>
       <div>
         <a href="{{ route('data-migration.batch-export') }}" class="btn btn-sm btn-outline-light me-2">
@@ -283,8 +283,8 @@
 
         {{-- Submit --}}
         <div class="d-flex justify-content-between">
-          <a href="{{ route('data-migration.index') }}" class="btn atom-btn-white">Cancel</a>
-          <button type="submit" class="btn atom-btn-outline-success btn-lg" id="submitBtn" disabled>
+          <a href="{{ route('data-migration.index') }}" class="btn btn btn-outline-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
             <i class="fas fa-arrow-right me-1"></i>Continue to Field Mapping
           </button>
         </div>
