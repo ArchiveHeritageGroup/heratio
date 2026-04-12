@@ -121,6 +121,12 @@ class NmmzService
         return DB::table('nmmz_monument')->insertGetId($data);
     }
 
+    public function deleteMonument(int $id): bool
+    {
+        DB::table('nmmz_monument_inspection')->where('monument_id', $id)->delete();
+        return DB::table('nmmz_monument')->where('id', $id)->delete() > 0;
+    }
+
     public function getMonumentInspections(int $monumentId): \Illuminate\Support\Collection
     {
         return DB::table('nmmz_monument_inspection')
@@ -167,6 +173,11 @@ class NmmzService
         $data['status'] = 'registered';
 
         return DB::table('nmmz_antiquity')->insertGetId($data);
+    }
+
+    public function deleteAntiquity(int $id): bool
+    {
+        return DB::table('nmmz_antiquity')->where('id', $id)->delete() > 0;
     }
 
     // Export Permits
@@ -250,6 +261,11 @@ class NmmzService
         $data['updated_at'] = now();
 
         return DB::table('nmmz_archaeological_site')->insertGetId($data);
+    }
+
+    public function deleteSite(int $id): bool
+    {
+        return DB::table('nmmz_archaeological_site')->where('id', $id)->delete() > 0;
     }
 
     // Heritage Impact Assessments

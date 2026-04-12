@@ -209,4 +209,54 @@ class StatisticsService
     {
         DB::table('ahg_bot_list')->where('id', $id)->delete();
     }
+
+    /**
+     * Aggregate raw events from `ahg_usage_event` into `ahg_statistics_daily`.
+     * Groups by (event_date, event_type, object_type, repository_id, country_code)
+     * and upserts one row per combination with total/unique/auth/bot counts.
+     * Heratio-specific — PSIS stats plugin has a different pipeline.
+     *
+     * @return array{rows: int, dates: int}
+     */
+    public function aggregateStats(): array
+    {
+        $buckets = DB::table('ahg_usage_event')
+            ->selectRaw('
+                event_date,
+                event_type,
+                object_type,
+                repository_id,
+                country_code,
+                COUNT(*) as total_count,
+                COUNT(DISTINCT COALESCE(ip_hash, ip_address)) as unique_visitors,
+                SUM(CASE WHEN user_id IS NOT NULL THEN 1 ELSE 0 END) as authenticated_count,
+                SUM(CASE WHEN is_bot = 1 THEN 1 ELSE 0 END) as bot_count
+            ')
+            ->whereNotNull('event_date')
+            ->groupBy('event_date', 'event_type', 'object_type', 'repository_id', 'country_code')
+            ->get();
+
+        $dates = [];
+        foreach ($buckets as $b) {
+            DB::table('ahg_statistics_daily')->updateOrInsert(
+                [
+                    'stat_date'     => $b->event_date,
+                    'event_type'    => $b->event_type,
+                    'object_type'   => $b->object_type,
+                    'repository_id' => $b->repository_id,
+                    'country_code'  => $b->country_code,
+                ],
+                [
+                    'total_count'         => (int) $b->total_count,
+                    'unique_visitors'     => (int) $b->unique_visitors,
+                    'authenticated_count' => (int) $b->authenticated_count,
+                    'bot_count'           => (int) $b->bot_count,
+                    'updated_at'          => now(),
+                ]
+            );
+            $dates[$b->event_date] = true;
+        }
+
+        return ['rows' => $buckets->count(), 'dates' => count($dates)];
+    }
 }

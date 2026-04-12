@@ -41,6 +41,33 @@ class TenantService
         return DB::table('ahg_tenant')->where('id', $id)->first();
     }
 
+    /**
+     * Resolve the current tenant from the session (or return the default if
+     * the user hasn't switched). Heratio-specific — no PSIS equivalent.
+     *
+     * Returns null if the `ahg_tenant` table hasn't been provisioned yet
+     * (deferred to X.7 DB table verification).
+     */
+    public function getCurrentTenant(): ?object
+    {
+        try {
+            $currentId = (int) session('current_tenant_id', 0);
+            if ($currentId > 0) {
+                $tenant = $this->getTenant($currentId);
+                if ($tenant) {
+                    return $tenant;
+                }
+            }
+            return DB::table('ahg_tenant')
+                ->where('is_default', 1)
+                ->orderBy('id')
+                ->first()
+                ?? DB::table('ahg_tenant')->orderBy('id')->first();
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
     public function createTenant(array $data): int
     {
         if (empty($data['code'])) {

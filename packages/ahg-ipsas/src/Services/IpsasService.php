@@ -142,6 +142,14 @@ class IpsasService
         DB::table('ipsas_heritage_asset')->where('id', $id)->update($data);
     }
 
+    public function deleteAsset(int $id): bool
+    {
+        DB::table('ipsas_valuation')->where('asset_id', $id)->delete();
+        DB::table('ipsas_impairment')->where('asset_id', $id)->delete();
+        DB::table('ipsas_insurance')->where('asset_id', $id)->delete();
+        return DB::table('ipsas_heritage_asset')->where('id', $id)->delete() > 0;
+    }
+
     public function getCategories(): \Illuminate\Support\Collection
     {
         return DB::table('ipsas_asset_category')->orderBy('name')->get();

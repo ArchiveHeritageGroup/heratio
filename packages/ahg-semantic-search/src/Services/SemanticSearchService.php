@@ -107,6 +107,78 @@ class SemanticSearchService
         DB::table('ahg_semantic_term')->where('id', $id)->update($data);
     }
 
+    public function deleteTerm(int $id): bool
+    {
+        DB::table('ahg_thesaurus_synonym')->where('term_id', $id)->delete();
+        return DB::table('ahg_semantic_term')->where('id', $id)->delete() > 0;
+    }
+
+    /**
+     * Sync terms from AtoM's term table into `ahg_semantic_term` and log the run.
+     * Heratio-specific: PSIS has no semantic-search plugin.
+     *
+     * @return array{success: bool, synced: int, skipped: int, duration_ms: int}
+     */
+    public function syncTerms(): array
+    {
+        $start = microtime(true);
+        $synced = 0;
+        $skipped = 0;
+
+        DB::table('term as t')
+            ->leftJoin('term_i18n as i', function ($j) {
+                $j->on('i.id', '=', 't.id')->where('i.culture', '=', app()->getLocale());
+            })
+            ->select(['t.id', 't.taxonomy_id', 'i.name'])
+            ->whereNotNull('i.name')
+            ->orderBy('t.id')
+            ->chunk(500, function ($rows) use (&$synced, &$skipped) {
+                foreach ($rows as $row) {
+                    $exists = DB::table('ahg_semantic_term')
+                        ->where('source_term_id', $row->id)
+                        ->exists();
+                    if ($exists) {
+                        $skipped++;
+                        continue;
+                    }
+                    DB::table('ahg_semantic_term')->insert([
+                        'source_term_id' => $row->id,
+                        'taxonomy_id'    => $row->taxonomy_id,
+                        'name'           => (string) $row->name,
+                        'created_at'     => now(),
+                        'updated_at'     => now(),
+                    ]);
+                    $synced++;
+                }
+            });
+
+        $durationMs = (int) round((microtime(true) - $start) * 1000);
+
+        DB::table('ahg_semantic_sync_log')->insert([
+            'synced_count'  => $synced,
+            'skipped_count' => $skipped,
+            'duration_ms'   => $durationMs,
+            'status'        => 'success',
+            'created_at'    => now(),
+        ]);
+
+        return [
+            'success'     => true,
+            'synced'      => $synced,
+            'skipped'     => $skipped,
+            'duration_ms' => $durationMs,
+        ];
+    }
+
+    public function clearSearchHistory(?int $userId = null): int
+    {
+        $query = DB::table('ahg_search_log');
+        if ($userId !== null) {
+            $query->where('user_id', $userId);
+        }
+        return $query->delete();
+    }
+
     // Search Logs
     public function getSearchLogs(array $filters = []): \Illuminate\Support\Collection
     {

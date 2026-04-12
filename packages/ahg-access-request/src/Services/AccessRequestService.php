@@ -170,6 +170,18 @@ class AccessRequestService
             ]) > 0;
     }
 
+    public function cancelRequest(int $id, int $userId): bool
+    {
+        return DB::table('access_request')
+            ->where('id', $id)
+            ->where('user_id', $userId)
+            ->whereIn('status', ['pending', 'approved'])
+            ->update([
+                'status'     => 'cancelled',
+                'updated_at' => now(),
+            ]) > 0;
+    }
+
     /**
      * Deny an access request.
      */

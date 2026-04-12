@@ -115,11 +115,17 @@ Each package = N batches of 5 pages each. Tick off batches as they ship.
   All 4 methods live-tested against DB with bad id (gatherContext failure path), trivial template (buildPrompt substitution), and bad id (generateSuggestion short-circuit).
   - Called from `AiController`, target service class TBD at batch start
 
-- [ ] **X.5** Small-package service-method gaps (10 methods across 8 packages, 2 batches)
-  - [ ] Batch A (5): ahg-semantic-search (3) + ahg-custom-fields (2)
-  - [ ] Batch B (5): ahg-custom-fields (1 remaining) + ahg-nmmz (3) + ahg-access-request (1)
-  - [ ] Batch C (4): ahg-statistics + ahg-ingest + ahg-multi-tenant + ahg-ipsas (1 each)
-  - *Exact method names in `/tmp/all_service_gaps.json`; copy into the final doc at batch start*
+- [x] **X.5** DONE 2026-04-12 — Small-package service-method gaps. **Audit was under-count: actual total was 14 methods across 8 packages, not 10.** None have PSIS equivalents (searched `ahgMarketplacePlugin`, `ahgPrivacyPlugin`, etc); all are Heratio-specific CRUD or getters. All 14 live-tested against DB:
+  - `ahg-semantic-search` (3): `deleteTerm` (cascades `ahg_thesaurus_synonym`), `syncTerms` (chunked 500-row import from `term` + `term_i18n` into `ahg_semantic_term`, logs into `ahg_semantic_sync_log` with duration_ms, returns `['success','synced','skipped','duration_ms']`), `clearSearchHistory(?userId)`.
+  - `ahg-custom-fields` (3): `createDefinition`, `updateDefinition`, `deleteDefinition` (cascades `custom_field_value`). Each whitelists 16 valid columns via `array_intersect_key` and coerces 6 boolean flags to 0/1.
+  - `ahg-nmmz` (3): `deleteMonument` (cascades `nmmz_monument_inspection`), `deleteAntiquity`, `deleteSite`.
+  - `ahg-access-request` (1): `cancelRequest(id, userId)` — only own `pending`/`approved` requests.
+  - `ahg-statistics` (1): `aggregateStats()` — groups `ahg_usage_event` by `(event_date, event_type, object_type, repository_id, country_code)`, computes total/unique (via `COUNT DISTINCT ip_hash`)/authenticated/bot counts, `updateOrInsert` into `ahg_statistics_daily`, returns `['rows','dates']`.
+  - `ahg-ingest` (1): `deleteSession` cascades 5 child tables then the session. **Caught live-test bug:** first draft used wrong table names `ingest_validation_error` + `ingest_column_mapping`; fixed to actual schema `ingest_validation` + `ingest_mapping`.
+  - `ahg-multi-tenant` (1): `getCurrentTenant()` — session-based lookup, `is_default=1` fallback, then first row. **Wrapped in try/catch** because `ahg_tenant` table doesn't yet exist (deferred to X.7); returns null safely.
+  - `ahg-ipsas` (1): `deleteAsset` cascades `ipsas_valuation` + `ipsas_impairment` + `ipsas_insurance`.
+
+  Final recount across all 8 packages: **0 missing service methods.**
 
 - [ ] **X.6** Typo / broken-ref fixes (4 items, 1 batch)
   - [ ] `route('ingest.')` — find the blade with this empty route name, repoint to a real route (probably `ingest.index` or `ingest.configure`)

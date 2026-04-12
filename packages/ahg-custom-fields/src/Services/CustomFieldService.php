@@ -50,6 +50,47 @@ class CustomFieldService
         return DB::table('custom_field_definition')->where('id', $id)->first();
     }
 
+    public function createDefinition(array $data): int
+    {
+        $row = array_intersect_key($data, array_flip([
+            'field_key', 'field_label', 'field_type', 'entity_type', 'field_group',
+            'dropdown_taxonomy', 'is_required', 'is_searchable', 'is_visible_public',
+            'is_visible_edit', 'is_repeatable', 'default_value', 'help_text',
+            'validation_rule', 'sort_order', 'is_active',
+        ]));
+        foreach (['is_required', 'is_searchable', 'is_visible_public', 'is_visible_edit', 'is_repeatable', 'is_active'] as $bool) {
+            if (array_key_exists($bool, $row)) {
+                $row[$bool] = (int) (bool) $row[$bool];
+            }
+        }
+        $row['created_at'] = now();
+        $row['updated_at'] = now();
+        return (int) DB::table('custom_field_definition')->insertGetId($row);
+    }
+
+    public function updateDefinition(int $id, array $data): bool
+    {
+        $row = array_intersect_key($data, array_flip([
+            'field_key', 'field_label', 'field_type', 'entity_type', 'field_group',
+            'dropdown_taxonomy', 'is_required', 'is_searchable', 'is_visible_public',
+            'is_visible_edit', 'is_repeatable', 'default_value', 'help_text',
+            'validation_rule', 'sort_order', 'is_active',
+        ]));
+        foreach (['is_required', 'is_searchable', 'is_visible_public', 'is_visible_edit', 'is_repeatable', 'is_active'] as $bool) {
+            if (array_key_exists($bool, $row)) {
+                $row[$bool] = (int) (bool) $row[$bool];
+            }
+        }
+        $row['updated_at'] = now();
+        return DB::table('custom_field_definition')->where('id', $id)->update($row) >= 0;
+    }
+
+    public function deleteDefinition(int $id): bool
+    {
+        DB::table('custom_field_value')->where('definition_id', $id)->delete();
+        return DB::table('custom_field_definition')->where('id', $id)->delete() > 0;
+    }
+
     /**
      * Get entity types for the dropdown.
      */

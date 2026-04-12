@@ -89,6 +89,20 @@ class IngestService
         ]);
     }
 
+    /**
+     * Delete an ingest session and all its dependent rows (files, mappings,
+     * rows, validation errors, jobs). Heratio-specific — no PSIS equivalent.
+     */
+    public function deleteSession(int $id): bool
+    {
+        DB::table('ingest_validation')->where('session_id', $id)->delete();
+        DB::table('ingest_row')->where('session_id', $id)->delete();
+        DB::table('ingest_mapping')->where('session_id', $id)->delete();
+        DB::table('ingest_file')->where('session_id', $id)->delete();
+        DB::table('ingest_job')->where('session_id', $id)->delete();
+        return DB::table('ingest_session')->where('id', $id)->delete() > 0;
+    }
+
     public function getFiles(int $sessionId): \Illuminate\Support\Collection
     {
         return DB::table('ingest_file')
