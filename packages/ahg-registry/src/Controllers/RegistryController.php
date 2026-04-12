@@ -788,14 +788,26 @@ class RegistryController extends Controller
         return view('ahg-registry::admin.newsletter-form', compact('id'));
     }
 
-    public function adminSubscribers()
+    public function adminSubscribers(Request $request)
     {
-        return view('ahg-registry::admin.subscribers');
+        $q = $request->input('q');
+        $page = max(1, (int) $request->input('page', 1));
+        $result = $this->service->adminBrowseSubscribers($q, $page);
+        return view('ahg-registry::admin.subscribers', compact('result', 'q'));
     }
 
     public function adminEmail()
     {
-        return view('ahg-registry::admin.email');
+        $settings = [
+            'smtp_host'      => $this->service->getSetting('smtp_host'),
+            'smtp_port'      => $this->service->getSetting('smtp_port'),
+            'smtp_username'  => $this->service->getSetting('smtp_username'),
+            'smtp_encryption' => $this->service->getSetting('smtp_encryption'),
+            'from_email'     => $this->service->getSetting('from_email'),
+            'from_name'      => $this->service->getSetting('from_name'),
+            'reply_to'       => $this->service->getSetting('reply_to'),
+        ];
+        return view('ahg-registry::admin.email', compact('settings'));
     }
 
     public function adminImport()
@@ -805,36 +817,55 @@ class RegistryController extends Controller
 
     public function adminSync()
     {
-        return view('ahg-registry::admin.sync');
+        $logs = $this->service->getSyncLogs();
+        return view('ahg-registry::admin.sync', compact('logs'));
     }
 
     public function adminSettings()
     {
-        return view('ahg-registry::admin.settings');
+        $settings = $this->service->getAllSettings();
+        return view('ahg-registry::admin.settings', compact('settings'));
     }
 
     public function adminFooter()
     {
-        return view('ahg-registry::admin.footer');
+        $settings = [
+            'footer_copyright' => $this->service->getSetting('footer_copyright'),
+            'footer_links'     => $this->service->getSetting('footer_links'),
+            'footer_social'    => $this->service->getSetting('footer_social'),
+            'footer_address'   => $this->service->getSetting('footer_address'),
+        ];
+        return view('ahg-registry::admin.footer', compact('settings'));
     }
 
     public function adminSetupGuides()
     {
-        return view('ahg-registry::admin.setup-guides');
+        $guides = $this->service->adminBrowseSetupGuides();
+        return view('ahg-registry::admin.setup-guides', compact('guides'));
     }
 
-    public function adminErd()
+    public function adminErd(Request $request)
     {
-        return view('ahg-registry::admin.erd');
+        $q = $request->input('q');
+        $items = $this->service->adminBrowseErd($q);
+        return view('ahg-registry::admin.erd', compact('items', 'q'));
     }
 
     public function adminErdEdit(int $id)
     {
-        return view('ahg-registry::admin.erd-edit', compact('id'));
+        $erd = $this->service->getErd($id);
+        if (!$erd) {
+            abort(404);
+        }
+        return view('ahg-registry::admin.erd-edit', compact('id', 'erd'));
     }
 
     public function adminExtensionEdit(int $id)
     {
-        return view('ahg-registry::admin.extension-edit', compact('id'));
+        $erd = $this->service->getErd($id);
+        if (!$erd) {
+            abort(404);
+        }
+        return view('ahg-registry::admin.extension-edit', compact('id', 'erd'));
     }
 }

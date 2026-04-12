@@ -432,6 +432,79 @@ class RegistryService
         return ['items' => $items, 'total' => $total, 'page' => $page];
     }
 
+    /* ------------------------------------------------------------------ */
+    /*  Extra admin helpers for batches 4+5                               */
+    /* ------------------------------------------------------------------ */
+
+    public function adminBrowseErd(?string $q = null): \Illuminate\Support\Collection
+    {
+        if (!\Schema::hasTable('registry_erd')) return collect();
+        $query = DB::table('registry_erd');
+        if ($q) {
+            $query->where(function ($w) use ($q) {
+                $w->where('display_name', 'like', "%{$q}%")
+                  ->orWhere('plugin_name', 'like', "%{$q}%")
+                  ->orWhere('category', 'like', "%{$q}%");
+            });
+        }
+        return $query->orderBy('sort_order')->orderBy('display_name')->get();
+    }
+
+    public function getErd(int $id): ?object
+    {
+        return \Schema::hasTable('registry_erd')
+            ? DB::table('registry_erd')->where('id', $id)->first()
+            : null;
+    }
+
+    public function adminBrowseSetupGuides(): \Illuminate\Support\Collection
+    {
+        if (!\Schema::hasTable('registry_setup_guide')) return collect();
+        return DB::table('registry_setup_guide')->orderBy('title')->get();
+    }
+
+    public function adminBrowseSubscribers(?string $q = null, int $page = 1, int $limit = 100): array
+    {
+        if (!\Schema::hasTable('registry_newsletter_subscriber')) {
+            return ['items' => collect(), 'total' => 0, 'page' => $page];
+        }
+        $query = DB::table('registry_newsletter_subscriber');
+        if ($q) {
+            $query->where(function ($w) use ($q) {
+                $w->where('email', 'like', "%{$q}%")
+                  ->orWhere('name', 'like', "%{$q}%");
+            });
+        }
+        $total = (int) (clone $query)->count();
+        $items = $query->orderByDesc('created_at')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+        return ['items' => $items, 'total' => $total, 'page' => $page];
+    }
+
+    public function getSetting(string $key, $default = null)
+    {
+        if (!\Schema::hasTable('registry_settings')) return $default;
+        $row = DB::table('registry_settings')->where('setting_key', $key)->first();
+        return $row ? $row->setting_value : $default;
+    }
+
+    public function getAllSettings(): \Illuminate\Support\Collection
+    {
+        // Real schema has no setting_group column — sort by key only.
+        return \Schema::hasTable('registry_settings')
+            ? DB::table('registry_settings')->orderBy('setting_key')->get()
+            : collect();
+    }
+
+    public function getSyncLogs(int $limit = 100): \Illuminate\Support\Collection
+    {
+        return \Schema::hasTable('registry_sync_log')
+            ? DB::table('registry_sync_log')->orderByDesc('created_at')->limit($limit)->get()
+            : collect();
+    }
+
     public function getPendingUsers(int $limit = 100): \Illuminate\Support\Collection
     {
         if (!\Schema::hasTable('user')) {
