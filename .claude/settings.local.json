@@ -285,7 +285,8 @@
       "Read(//usr/local/**)",
       "Bash(sed -i 's/ style=\"background:var\\(--ahg-primary\\);color:#fff\"//g' /usr/share/nginx/heratio/packages/ahg-research/resources/views/research/saved-searches.blade.php)",
       "Bash(sed -i 's/btn atom-btn-outline-success/btn btn-primary/g' /usr/share/nginx/heratio/packages/ahg-research/resources/views/research/saved-searches.blade.php)",
-      "Bash(sed -i 's/btn atom-btn-white/btn btn-outline-secondary/g' /usr/share/nginx/heratio/packages/ahg-research/resources/views/research/saved-searches.blade.php)"
+      "Bash(sed -i 's/btn atom-btn-white/btn btn-outline-secondary/g' /usr/share/nginx/heratio/packages/ahg-research/resources/views/research/saved-searches.blade.php)",
+      "Bash(bash /tmp/bulk_port.sh)"
     ]
   }
 }
