@@ -642,7 +642,8 @@ class RegistryController extends Controller
 
     public function adminDashboard()
     {
-        return view('ahg-registry::admin.dashboard');
+        $stats = $this->service->getAdminStats();
+        return view('ahg-registry::admin.dashboard', compact('stats'));
     }
 
     public function adminUsers()
@@ -660,9 +661,12 @@ class RegistryController extends Controller
         return view('ahg-registry::admin.user-manage', compact('id'));
     }
 
-    public function adminGroups()
+    public function adminGroups(Request $request)
     {
-        return view('ahg-registry::admin.groups');
+        $q = $request->input('q');
+        $page = max(1, (int) $request->input('page', 1));
+        $result = $this->service->adminBrowseGroups($q, $page);
+        return view('ahg-registry::admin.groups', compact('result', 'q'));
     }
 
     public function adminGroupEdit(int $id)
@@ -675,9 +679,12 @@ class RegistryController extends Controller
         return view('ahg-registry::admin.group-members', compact('id'));
     }
 
-    public function adminInstitutions()
+    public function adminInstitutions(Request $request)
     {
-        return view('ahg-registry::admin.institutions');
+        $q = $request->input('q');
+        $page = max(1, (int) $request->input('page', 1));
+        $result = $this->service->adminBrowseInstitutions($q, $page);
+        return view('ahg-registry::admin.institutions', compact('result', 'q'));
     }
 
     public function adminInstitutionUsers(int $id)
@@ -685,19 +692,28 @@ class RegistryController extends Controller
         return view('ahg-registry::admin.institution-users', compact('id'));
     }
 
-    public function adminVendors()
+    public function adminVendors(Request $request)
     {
-        return view('ahg-registry::admin.vendors');
+        $q = $request->input('q');
+        $page = max(1, (int) $request->input('page', 1));
+        $result = $this->service->adminBrowseVendors($q, $page);
+        return view('ahg-registry::admin.vendors', compact('result', 'q'));
     }
 
-    public function adminSoftware()
+    public function adminSoftware(Request $request)
     {
-        return view('ahg-registry::admin.software');
+        $q = $request->input('q');
+        $page = max(1, (int) $request->input('page', 1));
+        $result = $this->service->adminBrowseSoftware($q, $page);
+        return view('ahg-registry::admin.software', compact('result', 'q'));
     }
 
-    public function adminStandards()
+    public function adminStandards(Request $request)
     {
-        return view('ahg-registry::admin.standards');
+        $q = $request->input('q');
+        $page = max(1, (int) $request->input('page', 1));
+        $result = $this->service->adminBrowseStandards($q, $page);
+        return view('ahg-registry::admin.standards', compact('result', 'q'));
     }
 
     public function adminStandardEdit(int $id)
@@ -705,9 +721,12 @@ class RegistryController extends Controller
         return view('ahg-registry::admin.standard-edit', compact('id'));
     }
 
-    public function adminDropdowns()
+    public function adminDropdowns(Request $request)
     {
-        return view('ahg-registry::admin.dropdowns');
+        $q = $request->input('q');
+        $page = max(1, (int) $request->input('page', 1));
+        $result = $this->service->adminBrowseDropdowns($q, $page);
+        return view('ahg-registry::admin.dropdowns', compact('result', 'q'));
     }
 
     public function adminDropdownEdit(int $id)
@@ -715,14 +734,21 @@ class RegistryController extends Controller
         return view('ahg-registry::admin.dropdown-edit', compact('id'));
     }
 
-    public function adminBlog()
+    public function adminBlog(Request $request)
     {
-        return view('ahg-registry::admin.blog');
+        $q = $request->input('q');
+        $status = $request->input('status');
+        $page = max(1, (int) $request->input('page', 1));
+        $result = $this->service->adminBrowseBlog($q, $status, $page);
+        return view('ahg-registry::admin.blog', compact('result', 'q', 'status'));
     }
 
-    public function adminDiscussions()
+    public function adminDiscussions(Request $request)
     {
-        return view('ahg-registry::admin.discussions');
+        $q = $request->input('q');
+        $page = max(1, (int) $request->input('page', 1));
+        $result = $this->service->adminBrowseDiscussions($q, $page);
+        return view('ahg-registry::admin.discussions', compact('result', 'q'));
     }
 
     public function adminReviews()
@@ -730,9 +756,12 @@ class RegistryController extends Controller
         return view('ahg-registry::admin.reviews');
     }
 
-    public function adminNewsletters()
+    public function adminNewsletters(Request $request)
     {
-        return view('ahg-registry::admin.newsletters');
+        $q = $request->input('q');
+        $page = max(1, (int) $request->input('page', 1));
+        $result = $this->service->adminBrowseNewsletters($q, $page);
+        return view('ahg-registry::admin.newsletters', compact('result', 'q'));
     }
 
     public function adminNewsletterForm(int $id = null)

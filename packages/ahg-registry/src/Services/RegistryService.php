@@ -259,4 +259,260 @@ class RegistryService
             ->limit($limit)
             ->get();
     }
+
+    /* ------------------------------------------------------------------ */
+    /*  Admin browse helpers                                              */
+    /* ------------------------------------------------------------------ */
+
+    public function adminBrowseInstitutions(?string $q = null, int $page = 1, int $limit = 50): array
+    {
+        if (!\Schema::hasTable('registry_institution')) {
+            return ['items' => collect(), 'total' => 0, 'page' => $page];
+        }
+        $query = DB::table('registry_institution');
+        if ($q) {
+            $query->where(function ($w) use ($q) {
+                $w->where('name', 'like', "%{$q}%")
+                  ->orWhere('country', 'like', "%{$q}%")
+                  ->orWhere('slug', 'like', "%{$q}%");
+            });
+        }
+        $total = (int) (clone $query)->count();
+        $items = $query->orderByDesc('created_at')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+        return ['items' => $items, 'total' => $total, 'page' => $page];
+    }
+
+    public function adminBrowseVendors(?string $q = null, int $page = 1, int $limit = 50): array
+    {
+        if (!\Schema::hasTable('registry_vendor')) {
+            return ['items' => collect(), 'total' => 0, 'page' => $page];
+        }
+        $query = DB::table('registry_vendor');
+        if ($q) {
+            $query->where(function ($w) use ($q) {
+                $w->where('name', 'like', "%{$q}%")
+                  ->orWhere('slug', 'like', "%{$q}%");
+            });
+        }
+        $total = (int) (clone $query)->count();
+        $items = $query->orderByDesc('created_at')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+        return ['items' => $items, 'total' => $total, 'page' => $page];
+    }
+
+    public function adminBrowseSoftware(?string $q = null, int $page = 1, int $limit = 50): array
+    {
+        if (!\Schema::hasTable('registry_software')) {
+            return ['items' => collect(), 'total' => 0, 'page' => $page];
+        }
+        $query = DB::table('registry_software as s')
+            ->leftJoin('registry_vendor as v', 's.vendor_id', '=', 'v.id')
+            ->select('s.*', 'v.name as vendor_name');
+        if ($q) {
+            $query->where(function ($w) use ($q) {
+                $w->where('s.name', 'like', "%{$q}%")
+                  ->orWhere('s.slug', 'like', "%{$q}%");
+            });
+        }
+        $total = (int) (clone $query)->count();
+        $items = $query->orderByDesc('s.created_at')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+        return ['items' => $items, 'total' => $total, 'page' => $page];
+    }
+
+    public function adminBrowseStandards(?string $q = null, int $page = 1, int $limit = 50): array
+    {
+        if (!\Schema::hasTable('registry_standard')) {
+            return ['items' => collect(), 'total' => 0, 'page' => $page];
+        }
+        $query = DB::table('registry_standard');
+        if ($q) {
+            $query->where(function ($w) use ($q) {
+                $w->where('name', 'like', "%{$q}%")
+                  ->orWhere('code', 'like', "%{$q}%");
+            });
+        }
+        $total = (int) (clone $query)->count();
+        $items = $query->orderBy('name')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+        return ['items' => $items, 'total' => $total, 'page' => $page];
+    }
+
+    public function adminBrowseGroups(?string $q = null, int $page = 1, int $limit = 50): array
+    {
+        if (!\Schema::hasTable('registry_user_group')) {
+            return ['items' => collect(), 'total' => 0, 'page' => $page];
+        }
+        $query = DB::table('registry_user_group as g')
+            ->leftJoin(DB::raw('(SELECT group_id, COUNT(*) as mc FROM registry_user_group_member GROUP BY group_id) as m'), 'm.group_id', '=', 'g.id')
+            ->select('g.*', DB::raw('COALESCE(m.mc, 0) as member_count'));
+        if ($q) {
+            $query->where(function ($w) use ($q) {
+                $w->where('g.name', 'like', "%{$q}%")
+                  ->orWhere('g.slug', 'like', "%{$q}%");
+            });
+        }
+        $total = (int) (clone $query)->count();
+        $items = $query->orderByDesc('g.created_at')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+        return ['items' => $items, 'total' => $total, 'page' => $page];
+    }
+
+    public function adminBrowseBlog(?string $q = null, ?string $status = null, int $page = 1, int $limit = 50): array
+    {
+        if (!\Schema::hasTable('registry_blog_post')) {
+            return ['items' => collect(), 'total' => 0, 'page' => $page];
+        }
+        $query = DB::table('registry_blog_post as b')
+            ->leftJoin('user as u', 'b.author_id', '=', 'u.id')
+            ->select('b.*', 'u.username as author_name');
+        if ($q) {
+            $query->where('b.title', 'like', "%{$q}%");
+        }
+        if ($status) {
+            $query->where('b.status', $status);
+        }
+        $total = (int) (clone $query)->count();
+        $items = $query->orderByDesc('b.created_at')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+        return ['items' => $items, 'total' => $total, 'page' => $page];
+    }
+
+    public function adminBrowseDiscussions(?string $q = null, int $page = 1, int $limit = 50): array
+    {
+        if (!\Schema::hasTable('registry_discussion')) {
+            return ['items' => collect(), 'total' => 0, 'page' => $page];
+        }
+        // Real schema has author_user_id + author_name on the discussion row itself.
+        $query = DB::table('registry_discussion');
+        if ($q) {
+            $query->where('title', 'like', "%{$q}%");
+        }
+        $total = (int) (clone $query)->count();
+        $items = $query->orderByDesc('created_at')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+        return ['items' => $items, 'total' => $total, 'page' => $page];
+    }
+
+    public function adminBrowseDropdowns(?string $q = null, int $page = 1, int $limit = 100): array
+    {
+        if (!\Schema::hasTable('registry_dropdown')) {
+            return ['items' => collect(), 'total' => 0, 'page' => $page];
+        }
+        // Real schema uses dropdown_group + value (not taxonomy + code).
+        $query = DB::table('registry_dropdown');
+        if ($q) {
+            $query->where(function ($w) use ($q) {
+                $w->where('dropdown_group', 'like', "%{$q}%")
+                  ->orWhere('label', 'like', "%{$q}%")
+                  ->orWhere('value', 'like', "%{$q}%");
+            });
+        }
+        $total = (int) (clone $query)->count();
+        $items = $query->orderBy('dropdown_group')
+            ->orderBy('sort_order')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+        return ['items' => $items, 'total' => $total, 'page' => $page];
+    }
+
+    public function adminBrowseNewsletters(?string $q = null, int $page = 1, int $limit = 50): array
+    {
+        if (!\Schema::hasTable('registry_newsletter')) {
+            return ['items' => collect(), 'total' => 0, 'page' => $page];
+        }
+        $query = DB::table('registry_newsletter');
+        if ($q) {
+            $query->where('subject', 'like', "%{$q}%");
+        }
+        $total = (int) (clone $query)->count();
+        $items = $query->orderByDesc('created_at')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+        return ['items' => $items, 'total' => $total, 'page' => $page];
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  Admin stats                                                       */
+    /* ------------------------------------------------------------------ */
+
+    /**
+     * Aggregate counts for the admin dashboard cards.
+     * Cloned from PSIS adminDashboardSuccess.php — returns the same keys
+     * used by the view.
+     */
+    public function getAdminStats(): array
+    {
+        $stats = [
+            'institutions'         => 0,
+            'institutions_pending' => 0,
+            'vendors'              => 0,
+            'vendors_pending'      => 0,
+            'software'             => 0,
+            'instances'            => 0,
+            'instances_online'     => 0,
+            'groups'               => 0,
+            'discussions'          => 0,
+            'blog_posts'           => 0,
+            'blog_pending'         => 0,
+            'reviews'              => 0,
+            'users_pending'        => 0,
+        ];
+
+        try {
+            if (\Schema::hasTable('registry_institution')) {
+                $stats['institutions'] = (int) DB::table('registry_institution')->count();
+                $stats['institutions_pending'] = (int) DB::table('registry_institution')
+                    ->where('is_verified', 0)->count();
+            }
+            if (\Schema::hasTable('registry_vendor')) {
+                $stats['vendors'] = (int) DB::table('registry_vendor')->count();
+                $stats['vendors_pending'] = (int) DB::table('registry_vendor')
+                    ->where('is_verified', 0)->count();
+            }
+            if (\Schema::hasTable('registry_software')) {
+                $stats['software'] = (int) DB::table('registry_software')->count();
+            }
+            if (\Schema::hasTable('registry_instance')) {
+                $stats['instances'] = (int) DB::table('registry_instance')->count();
+                $stats['instances_online'] = (int) DB::table('registry_instance')
+                    ->where('status', 'online')->count();
+            }
+            if (\Schema::hasTable('registry_user_group')) {
+                $stats['groups'] = (int) DB::table('registry_user_group')->count();
+            }
+            if (\Schema::hasTable('registry_discussion')) {
+                $stats['discussions'] = (int) DB::table('registry_discussion')->count();
+            }
+            if (\Schema::hasTable('registry_blog_post')) {
+                $stats['blog_posts'] = (int) DB::table('registry_blog_post')->count();
+                $stats['blog_pending'] = (int) DB::table('registry_blog_post')
+                    ->where('status', 'pending')->count();
+            }
+            if (\Schema::hasTable('registry_review')) {
+                $stats['reviews'] = (int) DB::table('registry_review')->count();
+            }
+        } catch (\Throwable $e) {
+            // Tables may not exist yet — return zeros.
+        }
+
+        return $stats;
+    }
 }
