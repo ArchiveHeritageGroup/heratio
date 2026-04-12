@@ -22,8 +22,8 @@
       <h5 class="mb-0"><i class="fas fa-link me-2"></i>Quick Links</h5>
     </div>
     <div class="list-group list-group-flush">
-      @if(\Route::has('iiif.collections'))
-      <a href="{{ route('iiif.collections') }}" class="list-group-item list-group-item-action">
+      @if(\Route::has('iiif-collection.index'))
+      <a href="{{ route('iiif-collection.index') }}" class="list-group-item list-group-item-action">
         <i class="fas fa-layer-group me-2"></i>Manage Collections
       </a>
       @endif

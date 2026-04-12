@@ -127,11 +127,13 @@ Each package = N batches of 5 pages each. Tick off batches as they ship.
 
   Final recount across all 8 packages: **0 missing service methods.**
 
-- [ ] **X.6** Typo / broken-ref fixes (4 items, 1 batch)
-  - [ ] `route('ingest.')` — find the blade with this empty route name, repoint to a real route (probably `ingest.index` or `ingest.configure`)
-  - [ ] `tiffpdfmerge.index` — register route OR update dashboard sidebar to `admin/preservation/tiffpdfmerge`
-  - [ ] `ric.dashboard` — register route OR update sidebar to `ric.index`
-  - [ ] `iiif.collections` — register route OR update sidebar reference
+- [x] **X.6** DONE 2026-04-12 — Typo / broken-ref fixes (4 items). All 4 were view-level refs pointing at names that didn't match the registered route names; fixed by repointing the view.
+  - `ingest.` empty name at `packages/ahg-ingest/resources/views/index.blade.php:89` — false positive from the audit scanner. The blade actually builds `route('ingest.' . $statusLabel, ...)` dynamically and is already guarded by `in_array($statusLabel, ['configure','upload','map','validate','preview'])`. All 5 targets exist. **Hardened with an extra `Route::has(...)` guard** inside the same `@if` so a future change to the whitelist can't introduce a 500.
+  - `tiffpdfmerge.index` at `packages/ahg-settings/resources/views/index.blade.php:227` — real route is `preservation.tiffpdfmerge.index`. Repointed; wrapped in `Route::has()` guard.
+  - `ric.dashboard` at `packages/ahg-settings/resources/views/fuseki-settings.blade.php:173` — real route is `ric.index`. Repointed; existing `Route::has()` guard updated.
+  - `iiif.collections` at `packages/ahg-iiif-collection/resources/views/iiif/settings.blade.php:26` — real route is `iiif-collection.index` (`manifest-collections` URL). Repointed; existing `Route::has()` guard updated.
+
+  All 4 target routes verified via `Route::has()` at runtime. No controllers or routes changed — view-only fix.
 
 - [ ] **X.7** DB table verification pass (1 batch — audit-only, no code changes)
   - [ ] Run `SHOW TABLES` against heratio DB

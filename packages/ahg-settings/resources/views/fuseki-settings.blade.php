@@ -169,8 +169,8 @@
       </div>
       <div class="card-body">
         <div class="d-flex flex-wrap gap-2">
-          @if(\Route::has('ric.dashboard'))
-            <a href="{{ route('ric.dashboard') }}" class="btn btn-outline-primary">
+          @if(\Route::has('ric.index'))
+            <a href="{{ route('ric.index') }}" class="btn btn-outline-primary">
               <i class="fas fa-tachometer-alt me-1"></i>RIC Dashboard
             </a>
           @endif

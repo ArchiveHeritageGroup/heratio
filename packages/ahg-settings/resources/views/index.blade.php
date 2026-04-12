@@ -224,9 +224,11 @@
           </p>
         </div>
         <div class="col-md-4 text-end">
-          <a href="{{ route('tiffpdfmerge.index') }}" class="btn btn-primary btn-lg">
-            <i class="fas fa-file-pdf me-1"></i> Create PDF
-          </a>
+          @if(\Route::has('preservation.tiffpdfmerge.index'))
+            <a href="{{ route('preservation.tiffpdfmerge.index') }}" class="btn btn-primary btn-lg">
+              <i class="fas fa-file-pdf me-1"></i> Create PDF
+            </a>
+          @endif
         </div>
       </div>
     </div>

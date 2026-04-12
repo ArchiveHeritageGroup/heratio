@@ -85,7 +85,7 @@
                     @endif
                     <td>{{ isset($s->updated_at) ? date('Y-m-d H:i', strtotime($s->updated_at)) : '' }}</td>
                     <td>
-                        @if(in_array($statusLabel, ['configure', 'upload', 'map', 'validate', 'preview']))
+                        @if(in_array($statusLabel, ['configure', 'upload', 'map', 'validate', 'preview']) && Route::has('ingest.' . $statusLabel))
                             <a href="{{ route('ingest.' . $statusLabel, $s->id) }}" class="btn btn-sm btn-outline-primary" title="Resume">
                                 <i class="fas fa-play"></i>
                             </a>
