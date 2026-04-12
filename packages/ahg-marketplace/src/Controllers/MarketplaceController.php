@@ -741,7 +741,11 @@ class MarketplaceController extends Controller
         $sector = $request->input('sector');
         $validSectors = ['gallery', 'museum', 'archive', 'library', 'dam'];
 
-        if (empty($sector) || !in_array($sector, $validSectors, true)) {
+        // No sector selected → redirect to the browse page which has sector filters.
+        if (empty($sector)) {
+            return redirect()->route('ahgmarketplace.browse');
+        }
+        if (!in_array($sector, $validSectors, true)) {
             abort(404);
         }
 

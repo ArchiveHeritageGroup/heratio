@@ -11,11 +11,15 @@ Route::middleware('admin')->group(function () {
     Route::get('/user/add', [UserController::class, 'create'])->name('user.add');
     Route::post('/user/add', [UserController::class, 'store'])->name('user.store')->middleware('acl:create');
 
-    Route::get('/user/{slug}/edit', [UserController::class, 'edit'])->name('user.edit');
-    Route::post('/user/{slug}/edit', [UserController::class, 'update'])->name('user.update')->middleware('acl:update');
+    Route::get('/user/{slug}/edit', [UserController::class, 'edit'])->name('user.edit')
+        ->where('slug', '(?!profile|password|passwordEdit|passwordReset|register|clipboard|registration|view|verify|add|list|browse)[a-zA-Z0-9][a-zA-Z0-9._-]*');
+    Route::post('/user/{slug}/edit', [UserController::class, 'update'])->name('user.update')->middleware('acl:update')
+        ->where('slug', '(?!profile|password|passwordEdit|passwordReset|register|clipboard|registration|view|verify|add|list|browse)[a-zA-Z0-9][a-zA-Z0-9._-]*');
 
-    Route::get('/user/{slug}/delete', [UserController::class, 'confirmDelete'])->name('user.confirmDelete');
-    Route::delete('/user/{slug}/delete', [UserController::class, 'destroy'])->name('user.destroy')->middleware('acl:delete');
+    Route::get('/user/{slug}/delete', [UserController::class, 'confirmDelete'])->name('user.confirmDelete')
+        ->where('slug', '(?!profile|password|register|clipboard|registration|view|verify|add|list|browse)[a-zA-Z0-9][a-zA-Z0-9._-]*');
+    Route::delete('/user/{slug}/delete', [UserController::class, 'destroy'])->name('user.destroy')->middleware('acl:delete')
+        ->where('slug', '(?!profile|password|register|clipboard|registration|view|verify|add|list|browse)[a-zA-Z0-9][a-zA-Z0-9._-]*');
 
     // ACL permission pages
     Route::get('/user/{slug}/indexActorAcl', [UserController::class, 'indexActorAcl'])->name('user.indexActorAcl');
@@ -34,7 +38,7 @@ Route::middleware('admin')->group(function () {
 
     Route::get('/user/{slug}', [UserController::class, 'show'])
         ->name('user.show')
-        ->where('slug', '^(?!register|profile|password|password-reset|add).*$');
+        ->where('slug', '(?!register|profile|password|passwordEdit|passwordReset|add|list|browse|clipboard|registration|view|verify)[a-zA-Z0-9][a-zA-Z0-9._-]*');
 });
 Route::match(['get','post'], '/user/register', [UserController::class, 'register'])->name('user.register');
 Route::get('/user/verify/{token}', [UserController::class, 'verify'])->name('user.verify');

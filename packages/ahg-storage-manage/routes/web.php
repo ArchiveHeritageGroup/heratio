@@ -25,8 +25,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/physicalobject/unlink/{relationId}', [StorageController::class, 'unlink'])->name('physicalobject.unlink');
 });
 
-Route::get('/physicalobject/{slug}', [StorageController::class, 'show'])->name('physicalobject.show');
+// Specific routes MUST come before /{slug} or they get swallowed.
 Route::get('/physicalobject/autocomplete', [StorageController::class, 'autocomplete'])->name('physicalobject.autocomplete');
-
-// Legacy alias
 Route::get('/physicalobject/boxList', fn () => redirect('/physicalobject/box-list', 301));
+
+Route::get('/physicalobject/{slug}', [StorageController::class, 'show'])
+    ->name('physicalobject.show')
+    ->where('slug', '(?!browse|add|autocomplete|box-list|boxList|holdingsReportExport|link-to|unlink)[a-z0-9][a-z0-9-]*');
