@@ -38,7 +38,7 @@ class ExtendedRightsController extends Controller
     {
         $rightsStatements = Schema::hasTable('rights_statement') ? DB::table('rights_statement')->orderBy('sort_order')->get() : collect();
         $ccLicenses = Schema::hasTable('creative_commons_license') ? DB::table('creative_commons_license')->orderBy('sort_order')->get() : collect();
-        $tkLabels = Schema::hasTable('tk_label') ? DB::table('tk_label')->orderBy('sort_order')->get() : collect();
+        $tkLabels = Schema::hasTable('rights_tk_label') ? DB::table('rights_tk_label')->orderBy('sort_order')->get() : collect();
         $stats = $this->getStats();
 
         return view('ahg-rights-holder-manage::extendedRights.index', compact('rightsStatements', 'ccLicenses', 'tkLabels', 'stats'));
@@ -86,7 +86,7 @@ class ExtendedRightsController extends Controller
 
         $rightsStatements = Schema::hasTable('rights_statement') ? DB::table('rights_statement')->orderBy('sort_order')->get() : collect();
         $ccLicenses = Schema::hasTable('creative_commons_license') ? DB::table('creative_commons_license')->orderBy('sort_order')->get() : collect();
-        $tkLabels = Schema::hasTable('tk_label') ? DB::table('tk_label')->orderBy('sort_order')->get() : collect();
+        $tkLabels = Schema::hasTable('rights_tk_label') ? DB::table('rights_tk_label')->orderBy('sort_order')->get() : collect();
         $donors = DB::table('donor')
             ->join('actor_i18n', 'donor.id', '=', 'actor_i18n.id')
             ->where('actor_i18n.culture', $culture)

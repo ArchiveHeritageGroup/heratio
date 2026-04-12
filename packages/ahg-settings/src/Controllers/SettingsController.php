@@ -2071,9 +2071,9 @@ class SettingsController extends Controller
         $menu = $this->buildMenu('webhooks');
 
         $webhooks = collect();
-        if (Schema::hasTable('ahg_webhooks')) {
+        if (Schema::hasTable('ahg_webhook')) {
             if ($request->isMethod('post')) {
-                DB::table('ahg_webhooks')->insert([
+                DB::table('ahg_webhook')->insert([
                     'name' => $request->input('name', ''),
                     'url' => $request->input('url', ''),
                     'events' => json_encode($request->input('events', [])),
@@ -2083,7 +2083,7 @@ class SettingsController extends Controller
                 ]);
                 return redirect()->route('settings.webhooks')->with('success', 'Webhook created.');
             }
-            $webhooks = DB::table('ahg_webhooks')->orderBy('name')->get()->map(function ($w) {
+            $webhooks = DB::table('ahg_webhook')->orderBy('name')->get()->map(function ($w) {
                 $w->events = json_decode($w->events, true) ?: [];
                 return $w;
             });
@@ -2185,8 +2185,8 @@ class SettingsController extends Controller
         $sectors = ['archive' => 'Archive', 'museum' => 'Museum', 'library' => 'Library', 'gallery' => 'Gallery', 'dam' => 'DAM'];
 
         $schemes = collect();
-        if (Schema::hasTable('ahg_numbering_schemes')) {
-            $query = DB::table('ahg_numbering_schemes')->orderBy('name');
+        if (Schema::hasTable('numbering_scheme')) {
+            $query = DB::table('numbering_scheme')->orderBy('name');
             if ($sectorFilter) {
                 $query->where('sector', $sectorFilter);
             }
@@ -2205,11 +2205,11 @@ class SettingsController extends Controller
         $previews = [];
         $schemeId = $id;
 
-        if (!$isNew && Schema::hasTable('ahg_numbering_schemes')) {
-            $scheme = DB::table('ahg_numbering_schemes')->find($id);
+        if (!$isNew && Schema::hasTable('numbering_scheme')) {
+            $scheme = DB::table('numbering_scheme')->find($id);
         }
 
-        if ($request->isMethod('post') && Schema::hasTable('ahg_numbering_schemes')) {
+        if ($request->isMethod('post') && Schema::hasTable('numbering_scheme')) {
             $data = [
                 'name' => $request->input('name', ''),
                 'sector' => $request->input('sector', 'archive'),
@@ -2223,9 +2223,9 @@ class SettingsController extends Controller
             ];
             if ($isNew) {
                 $data['created_at'] = now();
-                $schemeId = DB::table('ahg_numbering_schemes')->insertGetId($data);
+                $schemeId = DB::table('numbering_scheme')->insertGetId($data);
             } else {
-                DB::table('ahg_numbering_schemes')->where('id', $id)->update($data);
+                DB::table('numbering_scheme')->where('id', $id)->update($data);
             }
             return redirect()->route('settings.numbering-schemes')->with('success', 'Numbering scheme saved.');
         }
@@ -2761,58 +2761,77 @@ class SettingsController extends Controller
     }
 
     // ─── Dropdown Manager ──────────────────────────────────────────────
+    //
+    // Canonical schema: `ahg_dropdown` is a SINGLE table (per CLAUDE.md).
+    // Each row is one value belonging to a taxonomy group identified by
+    // `taxonomy` (key) + `taxonomy_label` (human label). Prior code assumed
+    // a two-table header/values split which doesn't exist.
     public function dropdownIndex()
     {
         $menu = $this->buildMenu('dropdown');
         $dropdowns = collect();
-        if (Schema::hasTable('ahg_dropdowns')) {
-            $dropdowns = DB::table('ahg_dropdowns')->orderBy('name')->get();
+        if (Schema::hasTable('ahg_dropdown')) {
+            $dropdowns = DB::table('ahg_dropdown')
+                ->selectRaw('taxonomy as slug, MAX(taxonomy_label) as name, MAX(taxonomy_section) as description, COUNT(*) as value_count')
+                ->groupBy('taxonomy')
+                ->orderBy('taxonomy')
+                ->get();
         }
 
         return view('ahg-settings::ahgDropdown.index', compact('menu', 'dropdowns'));
     }
 
-    public function dropdownEdit(Request $request, ?int $id = null)
+    public function dropdownEdit(Request $request, ?string $id = null)
     {
         $menu = $this->buildMenu('dropdown');
+        // `$id` here is the taxonomy key (string), not an integer row id.
+        $taxonomy = $id;
         $dropdown = null;
         $values = collect();
 
-        if ($id && Schema::hasTable('ahg_dropdowns')) {
-            $dropdown = DB::table('ahg_dropdowns')->find($id);
-            if (Schema::hasTable('ahg_dropdown_values')) {
-                $values = DB::table('ahg_dropdown_values')->where('dropdown_id', $id)->orderBy('sort_order')->pluck('value');
+        if ($taxonomy && Schema::hasTable('ahg_dropdown')) {
+            $firstRow = DB::table('ahg_dropdown')->where('taxonomy', $taxonomy)->first();
+            if ($firstRow) {
+                $dropdown = (object) [
+                    'id'          => $taxonomy,
+                    'name'        => $firstRow->taxonomy_label,
+                    'slug'        => $firstRow->taxonomy,
+                    'description' => $firstRow->taxonomy_section,
+                ];
+                $values = DB::table('ahg_dropdown')
+                    ->where('taxonomy', $taxonomy)
+                    ->orderBy('sort_order')
+                    ->pluck('label');
             }
         }
         if (!$dropdown) {
             $dropdown = (object) ['id' => null, 'name' => '', 'slug' => '', 'description' => ''];
         }
 
-        if ($request->isMethod('post') && Schema::hasTable('ahg_dropdowns')) {
-            $data = [
-                'name' => $request->input('name', ''),
-                'slug' => $request->input('slug', '') ?: \Illuminate\Support\Str::slug($request->input('name', '')),
-                'description' => $request->input('description', ''),
-                'updated_at' => now(),
-            ];
-            if ($id) {
-                DB::table('ahg_dropdowns')->where('id', $id)->update($data);
-            } else {
-                $data['created_at'] = now();
-                $id = DB::table('ahg_dropdowns')->insertGetId($data);
+        if ($request->isMethod('post') && Schema::hasTable('ahg_dropdown')) {
+            $newTaxonomy = $request->input('slug', '') ?: \Illuminate\Support\Str::slug((string) $request->input('name', ''));
+            $label       = (string) $request->input('name', '');
+            $section     = (string) $request->input('description', '');
+
+            // Replace the full set of values for this taxonomy.
+            if ($taxonomy) {
+                DB::table('ahg_dropdown')->where('taxonomy', $taxonomy)->delete();
             }
-            // Save values
-            if (Schema::hasTable('ahg_dropdown_values')) {
-                DB::table('ahg_dropdown_values')->where('dropdown_id', $id)->delete();
-                foreach ($request->input('values', []) as $i => $val) {
-                    if (trim($val) !== '') {
-                        DB::table('ahg_dropdown_values')->insert([
-                            'dropdown_id' => $id,
-                            'value' => trim($val),
-                            'sort_order' => $i,
-                        ]);
-                    }
+            foreach ($request->input('values', []) as $i => $val) {
+                $val = trim((string) $val);
+                if ($val === '') {
+                    continue;
                 }
+                DB::table('ahg_dropdown')->insert([
+                    'taxonomy'         => $newTaxonomy,
+                    'taxonomy_label'   => $label,
+                    'taxonomy_section' => $section ?: null,
+                    'code'             => \Illuminate\Support\Str::slug($val, '_'),
+                    'label'            => $val,
+                    'sort_order'       => $i,
+                    'is_active'        => 1,
+                    'created_at'       => now(),
+                ]);
             }
             return redirect()->route('settings.dropdown.index')->with('success', 'Dropdown saved.');
         }

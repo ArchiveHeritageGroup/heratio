@@ -305,7 +305,7 @@ class CartController extends Controller
 
         // Update order status if we have a valid order
         if (!empty($data['m_payment_id']) && ($data['payment_status'] ?? '') === 'COMPLETE') {
-            DB::table('ahg_orders')
+            DB::table('ahg_order')
                 ->where('id', $data['m_payment_id'])
                 ->update([
                     'status' => 'paid',

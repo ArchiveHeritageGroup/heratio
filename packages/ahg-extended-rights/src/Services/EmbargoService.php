@@ -267,9 +267,9 @@ class EmbargoService
 
             // Group exception: check if user belongs to the group
             if ($exc->exception_type === 'group' && $userId !== null) {
-                $inGroup = DB::table('aclUserGroup')
-                    ->where('userId', $userId)
-                    ->where('groupId', (int) $exc->exception_id)
+                $inGroup = DB::table('acl_user_group')
+                    ->where('user_id', $userId)
+                    ->where('group_id', (int) $exc->exception_id)
                     ->exists();
 
                 if ($inGroup) {
@@ -811,13 +811,14 @@ class EmbargoService
                 }
             }
 
+            // `embargo_audit` stores old_values/new_values as JSON; the changed
+            // field names are derivable from the diff, so no separate column.
             DB::table('embargo_audit')->insert([
                 'embargo_id' => $embargoId,
                 'action' => $action,
                 'user_id' => $userId,
                 'old_values' => !empty($oldValues) ? json_encode($oldValues) : null,
                 'new_values' => !empty($newValues) ? json_encode($newValues) : null,
-                'changed_fields' => !empty($changedFields) ? json_encode($changedFields) : null,
                 'created_at' => date('Y-m-d H:i:s'),
             ]);
         } catch (\Exception $e) {
@@ -862,12 +863,13 @@ class EmbargoService
             return self::$accessCache[$cacheKey];
         }
 
-        // Check if user is an administrator (group_id 100 = admin in AtoM)
+        // Check if user is an administrator (group_id 100 = admin in AtoM).
+        // Canonical snake_case tables: acl_user_group, acl_group.
         $isAdmin = DB::table('user')
-            ->join('aclUserGroup', 'user.id', '=', 'aclUserGroup.userId')
-            ->join('aclGroup', 'aclUserGroup.groupId', '=', 'aclGroup.id')
+            ->join('acl_user_group', 'user.id', '=', 'acl_user_group.user_id')
+            ->join('acl_group', 'acl_user_group.group_id', '=', 'acl_group.id')
             ->where('user.id', $userId)
-            ->where('aclGroup.id', 100)
+            ->where('acl_group.id', 100)
             ->exists();
 
         if ($isAdmin) {
@@ -877,9 +879,9 @@ class EmbargoService
 
         // Check if user has editor-level permissions (group_id 101 = editor)
         $isEditor = DB::table('user')
-            ->join('aclUserGroup', 'user.id', '=', 'aclUserGroup.userId')
+            ->join('acl_user_group', 'user.id', '=', 'acl_user_group.user_id')
             ->where('user.id', $userId)
-            ->where('aclUserGroup.groupId', 101)
+            ->where('acl_user_group.group_id', 101)
             ->exists();
 
         self::$accessCache[$cacheKey] = $isEditor;

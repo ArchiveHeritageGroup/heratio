@@ -39,7 +39,7 @@ class RightsAdminController extends Controller
         $stats = [
             'total_rights' => DB::table('rights')->count(),
             'active_embargoes' => Schema::hasTable('embargo') ? DB::table('embargo')->where('is_active', true)->count() : 0,
-            'orphan_works' => Schema::hasTable('orphan_work') ? DB::table('orphan_work')->count() : 0,
+            'orphan_works' => Schema::hasTable('rights_orphan_work') ? DB::table('rights_orphan_work')->count() : 0,
         ];
         return view('ahg-rights-holder-manage::rightsAdmin.index', compact('stats'));
     }
@@ -86,25 +86,27 @@ class RightsAdminController extends Controller
 
     public function orphanWorks()
     {
-        $orphanWorks = Schema::hasTable('orphan_work') ? DB::table('orphan_work')->orderBy('created_at', 'desc')->get() : collect();
+        $orphanWorks = Schema::hasTable('rights_orphan_work') ? DB::table('rights_orphan_work')->orderBy('created_at', 'desc')->get() : collect();
         return view('ahg-rights-holder-manage::rightsAdmin.orphan-works', compact('orphanWorks'));
     }
 
     public function orphanWorkEdit(int $id)
     {
-        $orphanWork = Schema::hasTable('orphan_work') ? DB::table('orphan_work')->where('id', $id)->first() : null;
+        $orphanWork = Schema::hasTable('rights_orphan_work') ? DB::table('rights_orphan_work')->where('id', $id)->first() : null;
         if (!$orphanWork) abort(404);
         return view('ahg-rights-holder-manage::rightsAdmin.orphan-work-edit', compact('orphanWork'));
     }
 
     public function orphanWorkUpdate(Request $request, int $id)
     {
-        if (Schema::hasTable('orphan_work')) {
-            DB::table('orphan_work')->where('id', $id)->update([
-                'designation_date' => $request->input('designation_date'),
-                'search_status' => $request->input('search_status'),
-                'search_notes' => $request->input('search_notes'),
-                'updated_at' => now(),
+        // Canonical `rights_orphan_work` columns: status (lifecycle),
+        // search_started_date / search_completed_date, contact_response (free text).
+        if (Schema::hasTable('rights_orphan_work')) {
+            DB::table('rights_orphan_work')->where('id', $id)->update([
+                'search_started_date' => $request->input('designation_date'),
+                'status'              => $request->input('search_status'),
+                'contact_response'    => $request->input('search_notes'),
+                'updated_at'          => now(),
             ]);
         }
         return redirect()->route('rights-admin.orphan-works')->with('success', 'Orphan work updated.');
@@ -152,7 +154,7 @@ class RightsAdminController extends Controller
 
     public function tkLabels()
     {
-        $tkLabels = Schema::hasTable('tk_label') ? DB::table('tk_label')->orderBy('sort_order')->get() : collect();
+        $tkLabels = Schema::hasTable('rights_tk_label') ? DB::table('rights_tk_label')->orderBy('sort_order')->get() : collect();
         return view('ahg-rights-holder-manage::rightsAdmin.tk-labels', compact('tkLabels'));
     }
 }

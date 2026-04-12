@@ -1555,7 +1555,7 @@ class AiController extends Controller
 
                 case 'retry':
                     $count = DB::table('ahg_ai_job')->where('batch_id', $id)->where('status', 'failed')
-                        ->update(['status' => 'pending', 'error_message' => null, 'attempts' => 0]);
+                        ->update(['status' => 'pending', 'error_message' => null, 'attempt_count' => 0]);
                     if ($count > 0) {
                         DB::table('ahg_ai_batch')->where('id', $id)->update(['status' => 'running']);
                     }

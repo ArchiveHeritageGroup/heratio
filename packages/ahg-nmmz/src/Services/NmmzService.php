@@ -39,7 +39,7 @@ class NmmzService
             'permits' => DB::table('nmmz_export_permit')->count(),
             'permits_pending' => DB::table('nmmz_export_permit')->where('status', 'pending')->count(),
             'sites' => DB::table('nmmz_archaeological_site')->count(),
-            'hias' => DB::table('nmmz_hia')->count(),
+            'hias' => DB::table('nmmz_heritage_impact_assessment')->count(),
         ];
     }
 
@@ -217,7 +217,7 @@ class NmmzService
         DB::table('nmmz_export_permit')->where('id', $id)->update([
             'status' => 'approved',
             'permit_number' => $permitNumber,
-            'conditions' => $conditions,
+            'approval_conditions' => $conditions,
             'reviewed_by' => $userId,
             'review_date' => now()->toDateString(),
             'updated_at' => now(),
@@ -271,7 +271,7 @@ class NmmzService
     // Heritage Impact Assessments
     public function getHIAs(array $filters = []): \Illuminate\Support\Collection
     {
-        $query = DB::table('nmmz_hia');
+        $query = DB::table('nmmz_heritage_impact_assessment');
 
         if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);
@@ -289,6 +289,6 @@ class NmmzService
         $data['created_at'] = now();
         $data['updated_at'] = now();
 
-        return DB::table('nmmz_hia')->insertGetId($data);
+        return DB::table('nmmz_heritage_impact_assessment')->insertGetId($data);
     }
 }

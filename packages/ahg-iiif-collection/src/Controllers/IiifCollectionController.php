@@ -392,15 +392,17 @@ class IiifCollectionController extends Controller
     /** 3D Reports. */
     public function threeDIndex()
     {
+        // Canonical 3D model table is `object_3d_model` (not `three_d_model`).
+        // Columns: object_id, filename, file_size, format, thumbnail.
+        // `three_d_hotspot` has no Heratio table — hotspot stats omitted.
         $stats = ['totalModels' => 0, 'digitalObjects3D' => 0, 'totalHotspots' => 0, 'totalSize' => 0, 'byFormat' => collect()];
         try {
-            if (\Schema::hasTable('three_d_model')) {
-                $stats['totalModels'] = \DB::table('three_d_model')->count();
-                $stats['totalSize'] = (int) \DB::table('three_d_model')->sum('file_size');
-                $stats['byFormat'] = \DB::table('three_d_model')->select('format', \DB::raw('COUNT(*) as count'))
+            if (\Schema::hasTable('object_3d_model')) {
+                $stats['totalModels'] = \DB::table('object_3d_model')->count();
+                $stats['totalSize'] = (int) \DB::table('object_3d_model')->sum('file_size');
+                $stats['byFormat'] = \DB::table('object_3d_model')->select('format', \DB::raw('COUNT(*) as count'))
                     ->whereNotNull('format')->groupBy('format')->orderByDesc('count')->get();
             }
-            if (\Schema::hasTable('three_d_hotspot')) { $stats['totalHotspots'] = \DB::table('three_d_hotspot')->count(); }
             if (\Schema::hasTable('digital_object')) {
                 $stats['digitalObjects3D'] = \DB::table('digital_object')
                     ->whereIn('mime_type', ['model/gltf-binary', 'model/gltf+json', 'model/obj', 'model/stl'])->count();
@@ -413,9 +415,9 @@ class IiifCollectionController extends Controller
     {
         $items = collect();
         try {
-            if (\Schema::hasTable('three_d_model')) {
-                $items = \DB::table('three_d_model as m')
-                    ->leftJoin('information_object_i18n as io', function ($j) { $j->on('m.information_object_id', '=', 'io.id')->where('io.culture', '=', 'en'); })
+            if (\Schema::hasTable('object_3d_model')) {
+                $items = \DB::table('object_3d_model as m')
+                    ->leftJoin('information_object_i18n as io', function ($j) { $j->on('m.object_id', '=', 'io.id')->where('io.culture', '=', 'en'); })
                     ->select('m.*', 'io.title as object_title')->orderByDesc('m.created_at')->limit(500)->get();
             }
         } catch (\Throwable $e) {}
@@ -424,16 +426,9 @@ class IiifCollectionController extends Controller
 
     public function threeDHotspots()
     {
-        $items = collect();
-        try {
-            if (\Schema::hasTable('three_d_hotspot')) {
-                $items = \DB::table('three_d_hotspot as h')
-                    ->leftJoin('three_d_model as m', 'h.model_id', '=', 'm.id')
-                    ->leftJoin('information_object_i18n as io', function ($j) { $j->on('m.information_object_id', '=', 'io.id')->where('io.culture', '=', 'en'); })
-                    ->select('h.*', 'm.name as model_name', 'io.title as object_title')->orderBy('h.title')->limit(500)->get();
-            }
-        } catch (\Throwable $e) {}
-        return view('ahg-iiif-collection::threeDReports.hotspots', compact('items'));
+        // `three_d_hotspot` is not part of the AtoM-derived schema; this page
+        // returns an empty set until the feature is ported.
+        return view('ahg-iiif-collection::threeDReports.hotspots', ['items' => collect()]);
     }
 
     public function threeDDigitalObjects()
@@ -454,8 +449,8 @@ class IiifCollectionController extends Controller
     {
         $items = collect();
         try {
-            if (\Schema::hasTable('three_d_model')) {
-                $items = \DB::table('three_d_model')->whereNotNull('thumbnail_path')->orderByDesc('created_at')->limit(500)->get();
+            if (\Schema::hasTable('object_3d_model')) {
+                $items = \DB::table('object_3d_model')->whereNotNull('thumbnail')->orderByDesc('created_at')->limit(500)->get();
             }
         } catch (\Throwable $e) {}
         return view('ahg-iiif-collection::threeDReports.thumbnails', compact('items'));

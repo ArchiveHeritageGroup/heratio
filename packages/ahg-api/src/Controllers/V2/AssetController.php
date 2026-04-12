@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Schema;
 
 class AssetController extends BaseApiController
 {
-    protected string $table = 'ahg_heritage_asset';
-    protected string $valTable = 'ahg_valuation';
+    protected string $table = 'heritage_asset';
+    protected string $valTable = 'heritage_valuation_history';
 
     /**
      * GET /api/v2/assets

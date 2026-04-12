@@ -33,8 +33,8 @@ class LandingPageService
 {
     public function getAllPages(): \Illuminate\Support\Collection
     {
-        return DB::table('ahg_landing_page as p')
-            ->leftJoin(DB::raw('(SELECT page_id, COUNT(*) as block_count FROM ahg_landing_block GROUP BY page_id) as bc'), 'p.id', '=', 'bc.page_id')
+        return DB::table('atom_landing_page as p')
+            ->leftJoin(DB::raw('(SELECT page_id, COUNT(*) as block_count FROM atom_landing_page_block GROUP BY page_id) as bc'), 'p.id', '=', 'bc.page_id')
             ->select('p.*', DB::raw('COALESCE(bc.block_count, 0) as block_count'))
             ->orderBy('p.name')
             ->get();
@@ -42,19 +42,19 @@ class LandingPageService
 
     public function getPage(int $id): ?object
     {
-        return DB::table('ahg_landing_page')->where('id', $id)->first();
+        return DB::table('atom_landing_page')->where('id', $id)->first();
     }
 
     public function getPageBySlug(?string $slug): ?object
     {
         if ($slug) {
-            return DB::table('ahg_landing_page')
+            return DB::table('atom_landing_page')
                 ->where('slug', $slug)
                 ->where('is_active', 1)
                 ->first();
         }
 
-        return DB::table('ahg_landing_page')
+        return DB::table('atom_landing_page')
             ->where('is_default', 1)
             ->where('is_active', 1)
             ->first();
@@ -62,8 +62,8 @@ class LandingPageService
 
     public function getPageBlocks(int $pageId, bool $visibleOnly = true): \Illuminate\Support\Collection
     {
-        $query = DB::table('ahg_landing_block as b')
-            ->leftJoin('ahg_landing_block_type as bt', 'b.block_type_id', '=', 'bt.id')
+        $query = DB::table('atom_landing_page_block as b')
+            ->leftJoin('atom_landing_page_block_type as bt', 'b.block_type_id', '=', 'bt.id')
             ->where('b.page_id', $pageId)
             ->whereNull('b.parent_block_id')
             ->select('b.*', 'bt.label as type_label', 'bt.icon as type_icon', 'bt.machine_name',
@@ -78,7 +78,7 @@ class LandingPageService
 
     public function getBlockTypes(): \Illuminate\Support\Collection
     {
-        return DB::table('ahg_landing_block_type')->orderBy('label')->get();
+        return DB::table('atom_landing_page_block_type')->orderBy('label')->get();
     }
 
     public function createPage(array $data, int $userId): array
@@ -87,16 +87,17 @@ class LandingPageService
             $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
         }
 
-        $exists = DB::table('ahg_landing_page')->where('slug', $data['slug'])->exists();
+        $exists = DB::table('atom_landing_page')->where('slug', $data['slug'])->exists();
         if ($exists) {
             return ['success' => false, 'error' => 'Slug already exists'];
         }
 
-        $data['created_by'] = $userId;
+        // AtoM `atom_landing_page` uses `user_id` as the owner column.
+        $data['user_id']    = $userId;
         $data['created_at'] = now();
         $data['updated_at'] = now();
 
-        $id = DB::table('ahg_landing_page')->insertGetId($data);
+        $id = DB::table('atom_landing_page')->insertGetId($data);
 
         return ['success' => true, 'page_id' => $id];
     }
@@ -104,22 +105,22 @@ class LandingPageService
     public function updatePage(int $id, array $data, int $userId): array
     {
         $data['updated_at'] = now();
-        DB::table('ahg_landing_page')->where('id', $id)->update($data);
+        DB::table('atom_landing_page')->where('id', $id)->update($data);
 
         return ['success' => true];
     }
 
     public function deletePage(int $id, int $userId): array
     {
-        DB::table('ahg_landing_block')->where('page_id', $id)->delete();
-        DB::table('ahg_landing_page')->where('id', $id)->delete();
+        DB::table('atom_landing_page_block')->where('page_id', $id)->delete();
+        DB::table('atom_landing_page')->where('id', $id)->delete();
 
         return ['success' => true];
     }
 
     public function addBlock(int $pageId, int $blockTypeId, array $config, int $userId, array $options = []): array
     {
-        $maxPos = DB::table('ahg_landing_block')
+        $maxPos = DB::table('atom_landing_page_block')
             ->where('page_id', $pageId)
             ->max('position') ?? 0;
 
@@ -138,7 +139,7 @@ class LandingPageService
             $data['column_slot'] = $options['column_slot'] ?? null;
         }
 
-        $id = DB::table('ahg_landing_block')->insertGetId($data);
+        $id = DB::table('atom_landing_page_block')->insertGetId($data);
 
         return ['success' => true, 'block_id' => $id];
     }
@@ -150,15 +151,15 @@ class LandingPageService
         }
 
         $data['updated_at'] = now();
-        DB::table('ahg_landing_block')->where('id', $blockId)->update($data);
+        DB::table('atom_landing_page_block')->where('id', $blockId)->update($data);
 
         return ['success' => true];
     }
 
     public function deleteBlock(int $blockId, int $userId): array
     {
-        DB::table('ahg_landing_block')->where('parent_block_id', $blockId)->delete();
-        DB::table('ahg_landing_block')->where('id', $blockId)->delete();
+        DB::table('atom_landing_page_block')->where('parent_block_id', $blockId)->delete();
+        DB::table('atom_landing_page_block')->where('id', $blockId)->delete();
 
         return ['success' => true];
     }
@@ -166,7 +167,7 @@ class LandingPageService
     public function reorderBlocks(int $pageId, array $order, int $userId): array
     {
         foreach ($order as $item) {
-            DB::table('ahg_landing_block')
+            DB::table('atom_landing_page_block')
                 ->where('id', $item['id'])
                 ->where('page_id', $pageId)
                 ->update(['position' => $item['position']]);
@@ -177,13 +178,13 @@ class LandingPageService
 
     public function duplicateBlock(int $blockId, int $userId): array
     {
-        $block = DB::table('ahg_landing_block')->where('id', $blockId)->first();
+        $block = DB::table('atom_landing_page_block')->where('id', $blockId)->first();
 
         if (!$block) {
             return ['success' => false, 'error' => 'Block not found'];
         }
 
-        $newId = DB::table('ahg_landing_block')->insertGetId([
+        $newId = DB::table('atom_landing_page_block')->insertGetId([
             'page_id' => $block->page_id,
             'block_type_id' => $block->block_type_id,
             'config' => $block->config,
@@ -199,13 +200,13 @@ class LandingPageService
 
     public function toggleBlockVisibility(int $blockId, int $userId): array
     {
-        $block = DB::table('ahg_landing_block')->where('id', $blockId)->first();
+        $block = DB::table('atom_landing_page_block')->where('id', $blockId)->first();
 
         if (!$block) {
             return ['success' => false, 'error' => 'Block not found'];
         }
 
-        DB::table('ahg_landing_block')->where('id', $blockId)->update([
+        DB::table('atom_landing_page_block')->where('id', $blockId)->update([
             'is_visible' => $block->is_visible ? 0 : 1,
             'updated_at' => now(),
         ]);
@@ -215,7 +216,7 @@ class LandingPageService
 
     public function getPageVersions(int $pageId): \Illuminate\Support\Collection
     {
-        return DB::table('ahg_landing_page_version')
+        return DB::table('atom_landing_page_version')
             ->where('page_id', $pageId)
             ->orderByDesc('created_at')
             ->limit(20)
@@ -224,9 +225,11 @@ class LandingPageService
 
     public function getUserDashboards(int $userId): \Illuminate\Support\Collection
     {
-        return DB::table('ahg_landing_page')
-            ->where('created_by', $userId)
-            ->where('page_type', 'dashboard')
+        // AtoM has no `page_type` column; dashboards are modeled as pages
+        // whose `layout` field is set to 'dashboard'.
+        return DB::table('atom_landing_page')
+            ->where('user_id', $userId)
+            ->where('layout', 'dashboard')
             ->orderBy('name')
             ->get();
     }

@@ -564,9 +564,12 @@ class UserController extends Controller
     public function clipboard()
     {
         $userId = auth()->id();
-        $items = \Illuminate\Support\Facades\DB::table('clipboard')
-            ->where('user_id', $userId)
-            ->orderByDesc('created_at')
+        // AtoM schema: clipboard_save (header) + clipboard_save_item (items)
+        $items = \Illuminate\Support\Facades\DB::table('clipboard_save as s')
+            ->join('clipboard_save_item as i', 'i.save_id', '=', 's.id')
+            ->where('s.user_id', $userId)
+            ->orderByDesc('s.created_at')
+            ->select('i.id', 'i.slug', 'i.item_class_name', 's.created_at', 's.id as save_id')
             ->get();
 
         return view('ahg-user-manage::clipboard', compact('items'));

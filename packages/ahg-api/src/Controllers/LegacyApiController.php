@@ -380,7 +380,7 @@ class LegacyApiController extends Controller
         // Pending workflow approvals
         $pendingApprovals = 0;
         try {
-            $pendingApprovals = (int) DB::table('workflow_state')
+            $pendingApprovals = (int) DB::table('spectrum_workflow_state')
                 ->whereIn('current_state', ['pending_approval', 'under_review', 'submitted'])
                 ->count();
         } catch (\Throwable $e) {

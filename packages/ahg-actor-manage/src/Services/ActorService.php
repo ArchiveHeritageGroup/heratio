@@ -350,16 +350,16 @@ class ActorService
         return DB::table('relation')
             ->join('function_object', 'relation.object_id', '=', 'function_object.id')
             ->join('object', 'function_object.id', '=', 'object.id')
-            ->leftJoin('function_i18n', function ($j) {
-                $j->on('function_object.id', '=', 'function_i18n.id')
-                    ->where('function_i18n.culture', '=', $this->culture);
+            ->leftJoin('function_object_i18n', function ($j) {
+                $j->on('function_object.id', '=', 'function_object_i18n.id')
+                    ->where('function_object_i18n.culture', '=', $this->culture);
             })
             ->leftJoin('slug', 'function_object.id', '=', 'slug.object_id')
             ->where('relation.subject_id', $actorId)
             ->where('object.class_name', 'QubitFunction')
             ->select(
                 'function_object.id',
-                'function_i18n.authorized_form_of_name as name',
+                'function_object_i18n.authorized_form_of_name as name',
                 'slug.slug'
             )
             ->get();

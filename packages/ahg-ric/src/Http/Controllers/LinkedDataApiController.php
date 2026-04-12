@@ -214,8 +214,8 @@ class LinkedDataApiController extends Controller
         $page = $request->get('page', 1);
         $limit = min($request->get('limit', 50), 200);
 
-        $functions = \DB::table('function as f')
-            ->leftJoin('function_i18n as fi', 'f.id', '=', 'fi.id')
+        $functions = \DB::table('function_object as f')
+            ->leftJoin('function_object_i18n as fi', 'f.id', '=', 'fi.id')
             ->select(['f.id', 'fi.authorized_form_of_name as name', 'fi.description'])
             ->offset(($page - 1) * $limit)
             ->limit($limit)

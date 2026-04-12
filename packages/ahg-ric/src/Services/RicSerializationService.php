@@ -306,7 +306,7 @@ class RicSerializationService
     public function serializeFunction(int $functionId, array $options = []): array
     {
         $function = DB::table('function_object as f')
-            ->leftJoin('function_i18n as i18n', 'f.id', '=', 'i18n.id')
+            ->leftJoin('function_object_i18n as i18n', 'f.id', '=', 'i18n.id')
             ->where('f.id', $functionId)
             ->first();
 

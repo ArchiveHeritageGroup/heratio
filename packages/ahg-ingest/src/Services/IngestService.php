@@ -113,7 +113,7 @@ class IngestService
 
     public function getMappings(int $sessionId): \Illuminate\Support\Collection
     {
-        return DB::table('ingest_column_mapping')
+        return DB::table('ingest_mapping')
             ->where('session_id', $sessionId)
             ->orderBy('source_column')
             ->get();
@@ -121,7 +121,7 @@ class IngestService
 
     public function getValidationErrors(int $sessionId): \Illuminate\Support\Collection
     {
-        return DB::table('ingest_validation_error')
+        return DB::table('ingest_validation')
             ->where('session_id', $sessionId)
             ->orderBy('row_number')
             ->get();
@@ -139,7 +139,7 @@ class IngestService
     {
         $total = DB::table('ingest_row')->where('session_id', $sessionId)->count();
         $excluded = DB::table('ingest_row')->where('session_id', $sessionId)->where('is_excluded', 1)->count();
-        $errors = DB::table('ingest_validation_error')->where('session_id', $sessionId)->count();
+        $errors = DB::table('ingest_validation')->where('session_id', $sessionId)->count();
 
         return [
             'total' => $total,

@@ -8,9 +8,9 @@
   if (!$objectId) return;
   $isFav = false;
   try {
-      $isFav = \Illuminate\Support\Facades\DB::table('favorites_item')
+      $isFav = \Illuminate\Support\Facades\DB::table('favorites')
           ->where('user_id', Auth::id())
-          ->where('object_id', $objectId)
+          ->where('archival_description_id', $objectId)
           ->where('object_type', $objectType)
           ->exists();
   } catch (\Exception $e) {}

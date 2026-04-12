@@ -443,11 +443,11 @@ class InformationObjectController extends Controller
         try {
             $functionRelations = DB::table('relation')
                 ->join('function_object', 'relation.subject_id', '=', 'function_object.id')
-                ->join('function_i18n', 'function_object.id', '=', 'function_i18n.id')
+                ->join('function_object_i18n', 'function_object.id', '=', 'function_object_i18n.id')
                 ->join('slug', 'function_object.id', '=', 'slug.object_id')
                 ->where('relation.object_id', $io->id)
-                ->where('function_i18n.culture', $culture)
-                ->select('function_object.id', 'function_i18n.authorized_form_of_name as name', 'slug.slug')
+                ->where('function_object_i18n.culture', $culture)
+                ->select('function_object.id', 'function_object_i18n.authorized_form_of_name as name', 'slug.slug')
                 ->get();
         } catch (\Exception $e) {
             // function_object table may not exist
@@ -1239,10 +1239,10 @@ class InformationObjectController extends Controller
         try {
             $functionRelations = DB::table('relation')
                 ->join('function_object', 'relation.subject_id', '=', 'function_object.id')
-                ->join('function_i18n', 'function_object.id', '=', 'function_i18n.id')
+                ->join('function_object_i18n', 'function_object.id', '=', 'function_object_i18n.id')
                 ->join('slug', 'function_object.id', '=', 'slug.object_id')
-                ->where('relation.object_id', $io->id)->where('function_i18n.culture', $culture)
-                ->select('function_object.id', 'function_i18n.authorized_form_of_name as name', 'slug.slug')->get();
+                ->where('relation.object_id', $io->id)->where('function_object_i18n.culture', $culture)
+                ->select('function_object.id', 'function_object_i18n.authorized_form_of_name as name', 'slug.slug')->get();
         } catch (\Exception $e) {}
 
         $alternativeIdentifiers = DB::table('property')->join('property_i18n', 'property.id', '=', 'property_i18n.id')

@@ -34,10 +34,10 @@ class SemanticSearchService
     public function getDashboardStats(): array
     {
         return [
-            'total_terms' => DB::table('ahg_semantic_term')->count(),
-            'active_terms' => DB::table('ahg_semantic_term')->where('is_active', 1)->count(),
-            'search_logs' => DB::table('ahg_search_log')->count(),
-            'sync_logs' => DB::table('ahg_semantic_sync_log')->count(),
+            'total_terms' => DB::table('ahg_thesaurus_term')->count(),
+            'active_terms' => DB::table('ahg_thesaurus_term')->where('is_active', 1)->count(),
+            'search_logs' => DB::table('saved_search_log')->count(),
+            'sync_logs' => DB::table('ahg_thesaurus_sync_log')->count(),
         ];
     }
 
@@ -74,9 +74,11 @@ class SemanticSearchService
     }
 
     // Terms
+    // Canonical AtoM table `ahg_thesaurus_term` — columns: term, normalized_term,
+    // language, source, source_id, is_active, etc.
     public function getTerms(array $filters = []): \Illuminate\Support\Collection
     {
-        $query = DB::table('ahg_semantic_term');
+        $query = DB::table('ahg_thesaurus_term');
 
         if (!empty($filters['search'])) {
             $query->where('term', 'LIKE', '%' . $filters['search'] . '%');
@@ -90,7 +92,7 @@ class SemanticSearchService
 
     public function getTerm(int $id): ?object
     {
-        return DB::table('ahg_semantic_term')->where('id', $id)->first();
+        return DB::table('ahg_thesaurus_term')->where('id', $id)->first();
     }
 
     public function createTerm(array $data): int
@@ -98,30 +100,31 @@ class SemanticSearchService
         $data['created_at'] = now();
         $data['updated_at'] = now();
 
-        return DB::table('ahg_semantic_term')->insertGetId($data);
+        return DB::table('ahg_thesaurus_term')->insertGetId($data);
     }
 
     public function updateTerm(int $id, array $data): void
     {
         $data['updated_at'] = now();
-        DB::table('ahg_semantic_term')->where('id', $id)->update($data);
+        DB::table('ahg_thesaurus_term')->where('id', $id)->update($data);
     }
 
     public function deleteTerm(int $id): bool
     {
         DB::table('ahg_thesaurus_synonym')->where('term_id', $id)->delete();
-        return DB::table('ahg_semantic_term')->where('id', $id)->delete() > 0;
+        return DB::table('ahg_thesaurus_term')->where('id', $id)->delete() > 0;
     }
 
     /**
-     * Sync terms from AtoM's term table into `ahg_semantic_term` and log the run.
-     * Heratio-specific: PSIS has no semantic-search plugin.
+     * Sync terms from AtoM's `term` + `term_i18n` into `ahg_thesaurus_term`
+     * and log the run into `ahg_thesaurus_sync_log`.
      *
      * @return array{success: bool, synced: int, skipped: int, duration_ms: int}
      */
     public function syncTerms(): array
     {
         $start = microtime(true);
+        $startedAt = now();
         $synced = 0;
         $skipped = 0;
 
@@ -134,19 +137,24 @@ class SemanticSearchService
             ->orderBy('t.id')
             ->chunk(500, function ($rows) use (&$synced, &$skipped) {
                 foreach ($rows as $row) {
-                    $exists = DB::table('ahg_semantic_term')
-                        ->where('source_term_id', $row->id)
+                    $exists = DB::table('ahg_thesaurus_term')
+                        ->where('source', 'atom')
+                        ->where('source_id', (string) $row->id)
                         ->exists();
                     if ($exists) {
                         $skipped++;
                         continue;
                     }
-                    DB::table('ahg_semantic_term')->insert([
-                        'source_term_id' => $row->id,
-                        'taxonomy_id'    => $row->taxonomy_id,
-                        'name'           => (string) $row->name,
-                        'created_at'     => now(),
-                        'updated_at'     => now(),
+                    DB::table('ahg_thesaurus_term')->insert([
+                        'term'            => (string) $row->name,
+                        'normalized_term' => mb_strtolower((string) $row->name),
+                        'language'        => app()->getLocale(),
+                        'source'          => 'atom',
+                        'source_id'       => (string) $row->id,
+                        'domain'          => $row->taxonomy_id ? ('taxonomy_' . $row->taxonomy_id) : null,
+                        'is_active'       => 1,
+                        'created_at'      => now(),
+                        'updated_at'      => now(),
                     ]);
                     $synced++;
                 }
@@ -154,12 +162,18 @@ class SemanticSearchService
 
         $durationMs = (int) round((microtime(true) - $start) * 1000);
 
-        DB::table('ahg_semantic_sync_log')->insert([
-            'synced_count'  => $synced,
-            'skipped_count' => $skipped,
-            'duration_ms'   => $durationMs,
-            'status'        => 'success',
-            'created_at'    => now(),
+        // Canonical `ahg_thesaurus_sync_log` schema: source, sync_type, status,
+        // terms_processed, terms_added, terms_updated, started_at, completed_at.
+        DB::table('ahg_thesaurus_sync_log')->insert([
+            'source'          => 'atom',
+            'sync_type'       => 'term_import',
+            'status'          => 'success',
+            'terms_processed' => $synced + $skipped,
+            'terms_added'     => $synced,
+            'terms_updated'   => 0,
+            'started_at'      => $startedAt,
+            'completed_at'    => now(),
+            'created_at'      => now(),
         ]);
 
         return [
@@ -172,32 +186,32 @@ class SemanticSearchService
 
     public function clearSearchHistory(?int $userId = null): int
     {
-        $query = DB::table('ahg_search_log');
+        $query = DB::table('saved_search_log');
         if ($userId !== null) {
             $query->where('user_id', $userId);
         }
         return $query->delete();
     }
 
-    // Search Logs
+    // Search Logs (canonical AtoM table `saved_search_log`, uses `executed_at` not `created_at`)
     public function getSearchLogs(array $filters = []): \Illuminate\Support\Collection
     {
-        $query = DB::table('ahg_search_log');
+        $query = DB::table('saved_search_log');
 
         if (!empty($filters['start_date'])) {
-            $query->where('created_at', '>=', $filters['start_date']);
+            $query->where('executed_at', '>=', $filters['start_date']);
         }
         if (!empty($filters['end_date'])) {
-            $query->where('created_at', '<=', $filters['end_date'] . ' 23:59:59');
+            $query->where('executed_at', '<=', $filters['end_date'] . ' 23:59:59');
         }
 
-        return $query->orderByDesc('created_at')->limit(500)->get();
+        return $query->orderByDesc('executed_at')->limit(500)->get();
     }
 
     // Sync Logs
     public function getSyncLogs(): \Illuminate\Support\Collection
     {
-        return DB::table('ahg_semantic_sync_log')
+        return DB::table('ahg_thesaurus_sync_log')
             ->orderByDesc('created_at')
             ->limit(100)
             ->get();
@@ -233,10 +247,10 @@ class SemanticSearchService
         DB::table('ahg_search_template')->where('id', $id)->delete();
     }
 
-    // Saved Searches
+    // Saved Searches (canonical AtoM table `saved_search`)
     public function getSavedSearches(?int $userId = null): \Illuminate\Support\Collection
     {
-        $query = DB::table('ahg_saved_search');
+        $query = DB::table('saved_search');
 
         if ($userId) {
             $query->where('user_id', $userId);
@@ -363,12 +377,12 @@ class SemanticSearchService
     // History
     public function getSearchHistory(?int $userId = null): \Illuminate\Support\Collection
     {
-        $query = DB::table('ahg_search_log');
+        $query = DB::table('saved_search_log');
 
         if ($userId) {
             $query->where('user_id', $userId);
         }
 
-        return $query->orderByDesc('created_at')->limit(100)->get();
+        return $query->orderByDesc('executed_at')->limit(100)->get();
     }
 }

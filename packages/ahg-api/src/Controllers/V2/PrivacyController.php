@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Schema;
 
 class PrivacyController extends BaseApiController
 {
-    protected string $dsarTable = 'ahg_privacy_dsar';
-    protected string $breachTable = 'ahg_privacy_breach';
+    protected string $dsarTable = 'privacy_dsar';
+    protected string $breachTable = 'privacy_breach';
 
     /**
      * GET /api/v2/privacy/dsars
