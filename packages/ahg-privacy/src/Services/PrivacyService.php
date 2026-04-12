@@ -20,6 +20,8 @@
 namespace AhgPrivacy\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class PrivacyService
 {
@@ -199,6 +201,7 @@ class PrivacyService
                 '/admin/privacy/ropa-view?id=' . $id,
                 $userId
             );
+            $this->sendApprovalEmail($assignedOfficerId, 'submitted', $activity);
         }
 
         return true;
@@ -233,6 +236,7 @@ class PrivacyService
                 '/admin/privacy/ropa-view?id=' . $id,
                 $userId
             );
+            $this->sendApprovalEmail((int) $activity->created_by, 'approved', $activity, $comment);
         }
 
         return true;
@@ -268,6 +272,7 @@ class PrivacyService
                 '/admin/privacy/ropa-edit?id=' . $id,
                 $userId
             );
+            $this->sendApprovalEmail((int) $activity->created_by, 'rejected', $activity, $reason);
         }
 
         return true;
@@ -331,5 +336,99 @@ class PrivacyService
             'created_by'        => $createdBy,
             'created_at'        => now(),
         ]);
+    }
+
+    // =====================================================================
+    //  Email sending (Phase X.9 — cloned from PSIS `sendApprovalEmail`)
+    // =====================================================================
+
+    /**
+     * Send ROPA approval workflow email. Mirrors PSIS PrivacyService::sendApprovalEmail.
+     * Failures are swallowed (logged) so they never break the persistence path.
+     * On success, flips `email_sent` + `email_sent_at` on the latest matching
+     * `privacy_notification` row.
+     */
+    protected function sendApprovalEmail(int $userId, string $action, $activity, ?string $comment = null): void
+    {
+        $user = DB::table('user')->where('id', $userId)->first(['id', 'username', 'email']);
+        if (!$user || empty($user->email)) {
+            return;
+        }
+
+        $name = $activity->name ?? ('#' . ($activity->id ?? ''));
+        $subjects = [
+            'submitted' => 'ROPA Submitted for Review: ' . $name,
+            'approved'  => 'ROPA Approved: ' . $name,
+            'rejected'  => 'ROPA Requires Changes: ' . $name,
+        ];
+        $subject = $subjects[$action] ?? ('ROPA Update: ' . $name);
+
+        try {
+            $baseUrl = rtrim((string) config('app.url', ''), '/');
+            $link = $baseUrl . '/admin/privacy/ropa-view?id=' . (int) ($activity->id ?? 0);
+            $body = $this->buildApprovalEmailBody($action, $activity, $comment, $user, $link);
+
+            Mail::html($body, function ($m) use ($user, $subject) {
+                $m->to($user->email, $user->username ?? null)->subject($subject);
+            });
+
+            DB::table('privacy_notification')
+                ->where('user_id', $userId)
+                ->where('entity_type', 'ropa')
+                ->where('entity_id', (int) ($activity->id ?? 0))
+                ->where('notification_type', $action)
+                ->orderByDesc('created_at')
+                ->limit(1)
+                ->update([
+                    'email_sent'    => 1,
+                    'email_sent_at' => now(),
+                ]);
+        } catch (\Throwable $e) {
+            Log::warning('Privacy ROPA email failed: ' . $e->getMessage(), [
+                'user_id'     => $userId,
+                'action'      => $action,
+                'activity_id' => $activity->id ?? null,
+            ]);
+        }
+    }
+
+    /**
+     * Build the HTML body for a ROPA approval-workflow email. Cloned from PSIS
+     * `buildApprovalEmailBody` with jurisdiction-neutral framing.
+     */
+    protected function buildApprovalEmailBody(string $action, $activity, ?string $comment, $user, string $link): string
+    {
+        $title = match ($action) {
+            'submitted' => 'A processing activity has been submitted for your review:',
+            'approved'  => 'Your processing activity has been <strong style="color:#198754;">approved</strong>:',
+            'rejected'  => 'Your processing activity requires <strong style="color:#dc3545;">changes</strong>:',
+            default     => 'Processing activity update:',
+        };
+
+        $name    = htmlspecialchars((string) ($activity->name ?? ''), ENT_QUOTES, 'UTF-8');
+        $purpose = htmlspecialchars(mb_substr((string) ($activity->purpose ?? ''), 0, 100), ENT_QUOTES, 'UTF-8');
+        $who     = htmlspecialchars((string) ($user->username ?? 'User'), ENT_QUOTES, 'UTF-8');
+        $href    = htmlspecialchars($link, ENT_QUOTES, 'UTF-8');
+
+        $commentBlock = '';
+        if ($comment !== null && $comment !== '') {
+            $commentBlock =
+                '<p><strong>Comment:</strong><br>' .
+                nl2br(htmlspecialchars($comment, ENT_QUOTES, 'UTF-8')) .
+                '</p>';
+        }
+
+        return '<html><body style="font-family:Arial,sans-serif;">'
+            . '<h2>Processing Activity Update</h2>'
+            . '<p>Dear ' . $who . ',</p>'
+            . '<p>' . $title . '</p>'
+            . '<div style="background:#f5f5f5;padding:15px;margin:15px 0;border-radius:5px;">'
+            . '<strong>' . $name . '</strong><br>'
+            . '<small>Purpose: ' . $purpose . '...</small>'
+            . '</div>'
+            . $commentBlock
+            . '<p><a href="' . $href . '" style="display:inline-block;padding:10px 20px;background:#0d6efd;color:#fff;text-decoration:none;border-radius:5px;">View Details</a></p>'
+            . '<p style="color:#666;font-size:12px;">This is an automated message from the Privacy Management System.</p>'
+            . '</body></html>';
     }
 }

@@ -166,20 +166,12 @@ Each package = N batches of 5 pages each. Tick off batches as they ship.
 
   Final coverage: **26/26 marketplace POST handlers + 6/6 privacy POST handlers = 32/32 validated.** All controllers lint clean.
 
-- [ ] **X.9** Email / notification backfill (~15 user actions, 3 batches)
-  - [ ] DSAR submitted → confirmation email to requestor + notification to privacy officers
-  - [ ] DSAR replied → notification to requestor
-  - [ ] Breach notification created → email to privacy officers (+ regulator per jurisdiction)
-  - [ ] ROPA submitted for approval → notification to privacy officers
-  - [ ] ROPA approved/rejected → notification to submitter
-  - [ ] Complaint submitted → confirmation + notification
-  - [ ] Marketplace offer created → notification to seller
-  - [ ] Offer accepted/rejected/countered → notification to buyer
-  - [ ] Transaction status changes (paid/shipped/delivered/completed) → buyer + seller
-  - [ ] Payout processed → seller notification
-  - [ ] Review posted → seller notification
-  - [ ] Follow/unfollow → (optional, low priority)
-  - Each: port PSIS mail template from `apps/qubit/modules/*/templates/*.email.*` + create Laravel Mailable + queue dispatch
+- [x] **X.9** DONE 2026-04-12 — Email / notification backfill. **Scope-reality check: PSIS has only ONE real email sender — `PrivacyService::sendApprovalEmail` (ROPA submit/approve/reject).** The ~15-action list in the original plan was aspirational, not a port inventory. Every other action listed was either (a) not implemented in PSIS at all, or (b) a no-op stub. Verified:
+  - ✅ **Ported (real work): ROPA approval workflow email (3 actions)** — `sendApprovalEmail(userId, action, activity, comment)` added to `AhgPrivacy\Services\PrivacyService`. Cloned from PSIS line-by-line with 3 Heratio adjustments: (1) reads from `user` table not `users` (Heratio inherited AtoM schema), (2) uses `Laravel Mail::html()` not Symfony swiftmailer, (3) wraps send in try/catch that logs to `Log::warning` rather than `error_log`. Wire-ins added to `submitRopaForApproval` (emails the assigned officer), `approveRopa` (emails the submitter), `rejectRopa` (emails the submitter). After successful send, flips `privacy_notification.email_sent` + `email_sent_at` on the latest matching row. Jurisdiction-neutral: no POPIA-specific framing in subject/body (matches Heratio international positioning). Live-tested through Laravel's `array` mail transport — 3 messages captured with correct `To:` + subject lines: "ROPA Submitted for Review: ...", "ROPA Approved: ...", "ROPA Requires Changes: ...".
+  - ❌ **Not ported (PSIS no-op stubs, would be dead code):** marketplace `MarketplaceNotificationService::notify{BidPlaced,AuctionEnding,OfferReceived,SaleCompleted,PayoutProcessed,ListingApproved}` — all 6 methods in PSIS have empty `log()` bodies with a comment "placeholder — future: write to notification table or send emails". Grepped entire `ahgMarketplacePlugin` — zero call sites for these methods. Porting them would add 6 dead methods in Heratio.
+  - ❌ **Not ported (PSIS no source):** DSAR confirmation, DSAR replied, offer created/accepted/rejected/countered, transaction status changes, payout processed, review posted, complaint submitted, follow/unfollow, breach notification created. PSIS privacy has `privacyBreachCheckTask.class.php` which sends a text email via `mail()` from a CLI background task — that's a scheduled-job concern, not a user-action concern; deferred to a future scheduled-jobs phase.
+
+  **Summary: 1 real PSIS email sender ported (3 action wire-ins), 6 marketplace stubs skipped as dead code, 9 aspirational actions deferred because PSIS has no source to clone.**
 
 - [ ] **X.10** Final functional smoke test (manual, Johan)
   - [ ] Log in as admin
