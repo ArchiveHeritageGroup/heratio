@@ -1223,6 +1223,176 @@ class MarketplaceController extends Controller
         ]);
     }
 
+    // ─────────────────────────────────────────────────────────────────
+    //  Phase X.3 — POST handlers cloned from PSIS marketplace actions
+    // ─────────────────────────────────────────────────────────────────
+
+    /**
+     * Cloned from PSIS marketplaceBuyAction::execute.
+     * Initiates purchase for a fixed-price or auction buy-now listing.
+     */
+    public function buy(Request $request)
+    {
+        $userId = $this->requireAuth($request);
+        $slug = (string) $request->input('slug', '');
+        if ($slug === '') {
+            return redirect()->route('ahgmarketplace.browse');
+        }
+
+        $listing = $this->service->getListingBySlug($slug);
+        if (!$listing) {
+            abort(404);
+        }
+        if (($listing->status ?? '') !== 'active') {
+            session()->flash('error', 'This listing is no longer available.');
+            return redirect()->route('ahgmarketplace.listing', ['slug' => $slug]);
+        }
+        if (($listing->listing_type ?? '') === 'offer_only') {
+            session()->flash('error', 'This listing only accepts offers.');
+            return redirect()->route('ahgmarketplace.offer-form', ['slug' => $slug]);
+        }
+
+        if (($listing->listing_type ?? '') === 'auction') {
+            $auction = $this->service->getAuctionForListing((int) $listing->id);
+            if (!$auction || empty($auction->buy_now_price)) {
+                session()->flash('error', 'Buy Now is not available for this auction.');
+                return redirect()->route('ahgmarketplace.listing', ['slug' => $slug]);
+            }
+            $buyResult = $this->service->buyNow((int) $auction->id, $userId);
+            if (empty($buyResult['success'])) {
+                session()->flash('error', $buyResult['error'] ?? 'Unable to complete Buy Now.');
+                return redirect()->route('ahgmarketplace.listing', ['slug' => $slug]);
+            }
+            $result = $this->service->createTransaction([
+                'source'     => 'auction',
+                'auction_id' => (int) $auction->id,
+                'buyer_id'   => $userId,
+            ]);
+        } else {
+            $result = $this->service->createTransaction([
+                'source'     => 'fixed_price',
+                'listing_id' => (int) $listing->id,
+                'buyer_id'   => $userId,
+            ]);
+        }
+
+        if (empty($result['success'])) {
+            session()->flash('error', $result['error'] ?? 'Unable to complete purchase.');
+            return redirect()->route('ahgmarketplace.listing', ['slug' => $slug]);
+        }
+
+        $txnNumber = $result['transaction']->transaction_number
+            ?? ($result['transaction_id'] ?? '');
+        session()->flash('notice', 'Purchase initiated. Transaction #' . $txnNumber . ' created.');
+        return redirect()->route('ahgmarketplace.my-purchases');
+    }
+
+    /**
+     * Cloned from PSIS marketplaceFollowAction::execute.
+     * Toggles the authenticated user's follow state for a seller.
+     * Returns JSON for XHR, redirects otherwise.
+     */
+    public function follow(Request $request)
+    {
+        $userId = $this->requireAuth($request);
+        $sellerSlug = (string) $request->input('seller', '');
+        $seller = $sellerSlug !== '' ? $this->service->getSellerBySlug($sellerSlug) : null;
+
+        if (!$seller) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['error' => 'Seller not found'], 404);
+            }
+            session()->flash('error', 'Seller not found.');
+            return redirect()->route('ahgmarketplace.browse');
+        }
+
+        $followed = $this->service->toggleFollow($userId, (int) $seller->id);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success'  => true,
+                'followed' => $followed,
+            ]);
+        }
+
+        session()->flash(
+            'notice',
+            $followed ? 'You are now following this seller.' : 'You have unfollowed this seller.'
+        );
+        return redirect()->route('ahgmarketplace.seller', ['slug' => $sellerSlug]);
+    }
+
+    /**
+     * Cloned from PSIS marketplaceSellerListingPublishAction::execute.
+     */
+    public function sellerListingPublish(Request $request)
+    {
+        $userId = $this->requireAuth($request);
+        $seller = $this->service->getSellerByUserId($userId);
+        if (!$seller) {
+            return redirect()->route('ahgmarketplace.seller-register');
+        }
+
+        $listingId = (int) $request->input('id');
+        if ($listingId <= 0) {
+            return redirect()->route('ahgmarketplace.seller-listings');
+        }
+
+        $listing = $this->service->getListingById($listingId);
+        if (!$listing) {
+            abort(404);
+        }
+        if ((int) $listing->seller_id !== (int) $seller->id) {
+            session()->flash('error', 'You do not have permission to publish this listing.');
+            return redirect()->route('ahgmarketplace.seller-listings');
+        }
+
+        $result = $this->service->publishListing($listingId);
+        if (!empty($result['success'])) {
+            $msg = (($result['status'] ?? '') === 'pending_review')
+                ? 'Listing submitted for review. It will be active once approved.'
+                : 'Listing is now active.';
+            session()->flash('notice', $msg);
+        } else {
+            session()->flash('error', $result['error'] ?? 'Unable to publish listing.');
+        }
+        return redirect()->route('ahgmarketplace.seller-listings');
+    }
+
+    /**
+     * Cloned from PSIS marketplaceSellerListingWithdrawAction::execute.
+     */
+    public function sellerListingWithdraw(Request $request)
+    {
+        $userId = $this->requireAuth($request);
+        $seller = $this->service->getSellerByUserId($userId);
+        if (!$seller) {
+            return redirect()->route('ahgmarketplace.seller-register');
+        }
+
+        $listingId = (int) $request->input('id');
+        if ($listingId <= 0) {
+            return redirect()->route('ahgmarketplace.seller-listings');
+        }
+
+        $listing = $this->service->getListingById($listingId);
+        if (!$listing) {
+            abort(404);
+        }
+        if ((int) $listing->seller_id !== (int) $seller->id) {
+            session()->flash('error', 'You do not have permission to withdraw this listing.');
+            return redirect()->route('ahgmarketplace.seller-listings');
+        }
+
+        $result = $this->service->withdrawListing($listingId);
+        if (!empty($result['success'])) {
+            session()->flash('notice', 'Listing has been withdrawn.');
+        } else {
+            session()->flash('error', $result['error'] ?? 'Unable to withdraw listing.');
+        }
+        return redirect()->route('ahgmarketplace.seller-listings');
+    }
+
     public function myOffers(Request $request)
     {
         $userId = $this->requireAuth($request);

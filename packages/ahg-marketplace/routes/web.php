@@ -47,6 +47,10 @@ Route::prefix('marketplace')->middleware(['web', 'auth'])->group(function () use
 
     Route::get('/my-purchases', [$controller, 'myPurchases'])->name('ahgmarketplace.my-purchases');
     Route::post('/my-purchases', [$controller, 'myPurchasesPost'])->name('ahgmarketplace.my-purchases.post')->middleware('acl:update');
+
+    // Phase X.3 — cloned from PSIS marketplace actions
+    Route::match(['get', 'post'], '/buy', [$controller, 'buy'])->name('ahgmarketplace.buy')->middleware('acl:create');
+    Route::post('/follow', [$controller, 'follow'])->name('ahgmarketplace.follow')->middleware('acl:update');
 });
 
 // ─── Seller routes (authenticated) ───────────────────────────────
@@ -98,6 +102,10 @@ Route::prefix('marketplace/seller')->middleware(['web', 'auth'])->group(function
     Route::get('/analytics', [$controller, 'sellerAnalytics'])->name('ahgmarketplace.seller-analytics');
     Route::get('/payouts', [$controller, 'sellerPayouts'])->name('ahgmarketplace.seller-payouts');
     Route::get('/reviews', [$controller, 'sellerReviews'])->name('ahgmarketplace.seller-reviews');
+
+    // Phase X.3 — cloned from PSIS seller-listing-publish/withdraw actions
+    Route::post('/listing-publish', [$controller, 'sellerListingPublish'])->name('ahgmarketplace.seller-listing-publish')->middleware('acl:update');
+    Route::post('/listing-withdraw', [$controller, 'sellerListingWithdraw'])->name('ahgmarketplace.seller-listing-withdraw')->middleware('acl:update');
 });
 
 // ─── Admin routes ─────────────────────────────────────────────────
@@ -123,7 +131,7 @@ Route::prefix('admin/marketplace')->middleware(['web', 'auth'])->group(function 
     Route::get('/transactions', [$controller, 'adminTransactions'])->name('ahgmarketplace.admin-transactions');
 
     Route::get('/payouts', [$controller, 'adminPayouts'])->name('ahgmarketplace.admin-payouts');
-    Route::post('/payouts-batch', [$controller, 'adminPayoutsBatchPost'])->name('ahgmarketplace.admin-payouts-batch.post')->middleware('acl:update');
+    Route::post('/payouts-batch', [$controller, 'adminPayoutsBatchPost'])->name('ahgmarketplace.admin-payouts-batch')->middleware('acl:update');
 
     Route::get('/reports', [$controller, 'adminReports'])->name('ahgmarketplace.admin-reports');
 

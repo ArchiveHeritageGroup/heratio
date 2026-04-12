@@ -1208,7 +1208,7 @@ class AiController extends Controller
         }
 
         $prompts = $this->llmService->buildPrompt($template, $context['data']);
-        $result  = $this->llmService->complete($prompts['system'], $prompts['user'], $llmConfigId);
+        $result  = $this->llmService->completeFull($prompts['system'], $prompts['user'], $llmConfigId);
 
         if (!($result['success'] ?? false)) {
             return response()->json($result);

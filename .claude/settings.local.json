@@ -288,7 +288,8 @@
       "Bash(sed -i 's/btn atom-btn-white/btn btn-outline-secondary/g' /usr/share/nginx/heratio/packages/ahg-research/resources/views/research/saved-searches.blade.php)",
       "Bash(bash /tmp/bulk_port.sh)",
       "Bash(bash /tmp/bulk_port2.sh)",
-      "Bash(sort -u wc -l /tmp/touched_48h.txt echo \"---\")"
+      "Bash(sort -u wc -l /tmp/touched_48h.txt echo \"---\")",
+      "Bash(stat -c '%Y %n' /usr/share/nginx/registry/wp-content/themes/envo-royal/*.php /usr/share/nginx/registry/wp-content/themes/envo-royal/extra/*.php)"
     ]
   }
 }

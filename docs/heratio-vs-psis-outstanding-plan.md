@@ -95,12 +95,24 @@ Each package = N batches of 5 pages each. Tick off batches as they ship.
 
   All 6 service methods + controller instantiation live-tested. Route registration confirmed via `artisan route:list --name=ahgprivacy`.
 
-- [ ] **X.3** ahg-marketplace POST handlers + routes (5 routes, 1 batch)
-  - [ ] `admin-payouts-batch`, `buy`, `follow`, `seller-listing-publish`, `seller-listing-withdraw`
-  - Each: add route + controller method; remove `Route::has()` guards from views once wired
+- [x] **X.3** DONE 2026-04-12 — ahg-marketplace POST handlers + routes (5 routes). **100% PSIS clones from `ahgMarketplacePlugin/modules/marketplace/actions/`:**
+  - `buy` ← `marketplaceBuyAction::execute` — active-listing check, offer_only rejection, auction buy-now branch via `buyNow()` + `createTransaction(source=auction)`, fixed-price branch via `createTransaction(source=fixed_price)`, success flash with transaction_number, redirect to my-purchases. (Cart integration path from PSIS is NOT ported — deferred; Heratio view links to my-purchases directly.)
+  - `follow` ← `marketplaceFollowAction::execute` — seller-by-slug lookup, `toggleFollow()`, JSON response for XHR with `['success','followed']`, redirect otherwise with notice flash.
+  - `sellerListingPublish` ← `marketplaceSellerListingPublishAction::execute` — owner check (`listing.seller_id === seller.id`), delegates to `publishListing()`, distinct `pending_review` vs active flash.
+  - `sellerListingWithdraw` ← `marketplaceSellerListingWithdrawAction::execute` — owner check, delegates to `withdrawListing()`.
+  - `admin-payouts-batch` — existing `.post` suffix route renamed to bare `ahgmarketplace.admin-payouts-batch` name (view in `admin-payouts.blade.php` already references bare name). Handler `adminPayoutsBatchPost` unchanged — already cloned from PSIS `adminPayoutsBatchAction`.
 
-- [ ] **X.4** ahg-ai-services missing service methods (4 methods, 1 batch)
-  - [ ] `buildPrompt`, `gatherContext`, `generateSuggestion`, `getTemplateForObject`
+  All 4 new controller methods added to `MarketplaceController`. Routes registered: `marketplace/buy` (GET|POST), `marketplace/follow` (POST), `marketplace/seller/listing-publish` (POST), `marketplace/seller/listing-withdraw` (POST), `admin/marketplace/payouts-batch` (POST, renamed). All 5 routes confirmed via `route:list`.
+
+- [x] **X.4** DONE 2026-04-12 — ahg-ai-services LLM suggestion pipeline (4 methods). **NOT PSIS clones — Heratio-specific (PSIS has OCR-only AI, no LLM suggestion feature).** Added to `LlmService`:
+  - `gatherContext(objectId)` — joins `information_object` + `information_object_i18n` + `term_i18n` (level_of_description label), aggregates OCR text from `ahg_ai_pending_extraction` (top 3 rows), returns `['success','data']` with all editor fields.
+  - `getTemplateForObject(objectId, templateId?)` — explicit ID wins; otherwise 4-tier fallback: same repo+level → same repo → same level → any default. All filtered `is_active=1`, ordered `is_default DESC, id DESC`.
+  - `buildPrompt(template, data)` — placeholder substitution for `{{title}}`, `{{identifier}}`, `{{level_of_description}}`, `{{scope_and_content}}`, `{{archival_history}}`, `{{extent_and_medium}}`, `{{arrangement}}`, `{{physical_characteristics}}`, `{{acquisition}}`, `{{ocr_text}}`. Honours `template.include_ocr` and `template.max_ocr_chars` (via `mb_substr`). Returns `['system','user']`.
+  - `generateSuggestion(objectId, templateId?, configId?, userId?)` — end-to-end pipeline: gatherContext → getTemplateForObject → buildPrompt → `completeFull()` → persists into `ahg_ai_suggestion` with `field_name='scope_and_content'`, `status='pending'`. Returns `['success','suggestion_id','text','existing_text','tokens_used','model','generation_time_ms','template_name']`.
+
+  **Pre-existing bug fixed:** `AiController::suggestPreview` called `complete($system, $user, $configId)` with 3 positional args against a 2-arg signature `complete(string, array)` — runtime type error. Changed call to `completeFull(...)` which has the correct 3-arg shape. Single-line fix bundled because the method was otherwise dead-on-arrival.
+
+  All 4 methods live-tested against DB with bad id (gatherContext failure path), trivial template (buildPrompt substitution), and bad id (generateSuggestion short-circuit).
   - Called from `AiController`, target service class TBD at batch start
 
 - [ ] **X.5** Small-package service-method gaps (10 methods across 8 packages, 2 batches)

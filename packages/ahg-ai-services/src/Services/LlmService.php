@@ -210,6 +210,225 @@ class LlmService
         return $result['success'] ? $result['text'] : null;
     }
 
+    // =====================================================================
+    //  LLM suggestion pipeline (Phase X.4 — Heratio-specific, no PSIS source)
+    //
+    //  These four methods back the "AI Suggest Description" feature in the
+    //  information-object editor. PSIS has no equivalent — its AI flow is
+    //  OCR-only. The suggestion pipeline is:
+    //    1. gatherContext(id)      → assemble IO fields + OCR text
+    //    2. getTemplateForObject(id, templateId?) → pick matching prompt template
+    //    3. buildPrompt(template, data) → render template with context
+    //    4. completeFull(system, user, configId) → call the LLM
+    //    5. (optional) save result into ahg_ai_suggestion
+    // =====================================================================
+
+    /**
+     * Gather all context needed to generate a suggestion for an information
+     * object: title, identifier, level, scope_and_content, OCR text, etc.
+     *
+     * @return array{success: bool, data?: array<string, mixed>, error?: string}
+     */
+    public function gatherContext(int $objectId): array
+    {
+        $row = DB::table('information_object as io')
+            ->leftJoin('information_object_i18n as i18n', function ($j) {
+                $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', '=', app()->getLocale());
+            })
+            ->leftJoin('term_i18n as lod', function ($j) {
+                $j->on('lod.id', '=', 'io.level_of_description_id')
+                  ->where('lod.culture', '=', app()->getLocale());
+            })
+            ->where('io.id', $objectId)
+            ->select([
+                'io.id',
+                'io.identifier',
+                'io.parent_id',
+                'io.repository_id',
+                'io.level_of_description_id',
+                'i18n.title',
+                'i18n.scope_and_content',
+                'i18n.archival_history',
+                'i18n.extent_and_medium',
+                'i18n.arrangement',
+                'i18n.physical_characteristics',
+                'i18n.acquisition',
+                'lod.name as level_of_description',
+            ])
+            ->first();
+
+        if (!$row) {
+            return ['success' => false, 'error' => 'Object not found'];
+        }
+
+        // Aggregate OCR text from digital objects attached to this IO.
+        $ocrText = DB::table('ahg_ai_pending_extraction')
+            ->where('information_object_id', $objectId)
+            ->whereNotNull('extracted_text')
+            ->orderByDesc('created_at')
+            ->limit(3)
+            ->pluck('extracted_text')
+            ->filter()
+            ->implode("\n\n");
+
+        $data = [
+            'id'                      => (int) $row->id,
+            'identifier'              => $row->identifier,
+            'title'                   => $row->title,
+            'scope_and_content'       => $row->scope_and_content,
+            'archival_history'        => $row->archival_history,
+            'extent_and_medium'       => $row->extent_and_medium,
+            'arrangement'             => $row->arrangement,
+            'physical_characteristics'=> $row->physical_characteristics,
+            'acquisition'             => $row->acquisition,
+            'level_of_description'    => $row->level_of_description,
+            'level_of_description_id' => $row->level_of_description_id,
+            'repository_id'           => $row->repository_id,
+            'parent_id'                => $row->parent_id,
+            'ocr_text'                => $ocrText ?: null,
+        ];
+
+        return ['success' => true, 'data' => $data];
+    }
+
+    /**
+     * Pick the best prompt template for an object. Explicit `$templateId`
+     * wins; otherwise the default template matching the object's repository
+     * and level_of_description is preferred, then any default template.
+     */
+    public function getTemplateForObject(int $objectId, ?int $templateId = null): ?object
+    {
+        if ($templateId) {
+            return DB::table('ahg_prompt_template')
+                ->where('id', $templateId)
+                ->where('is_active', 1)
+                ->first();
+        }
+
+        $object = DB::table('information_object')->where('id', $objectId)->first(['repository_id', 'level_of_description_id']);
+        if (!$object) {
+            return DB::table('ahg_prompt_template')
+                ->where('is_active', 1)
+                ->where('is_default', 1)
+                ->first();
+        }
+
+        $lodName = null;
+        if (!empty($object->level_of_description_id)) {
+            $lodName = DB::table('term_i18n')
+                ->where('id', $object->level_of_description_id)
+                ->where('culture', app()->getLocale())
+                ->value('name');
+        }
+
+        // Prefer: same repository + same level → same repository → same level → default.
+        $candidates = [
+            ['repository_id' => $object->repository_id, 'level_of_description' => $lodName],
+            ['repository_id' => $object->repository_id],
+            ['level_of_description' => $lodName],
+            [],
+        ];
+
+        foreach ($candidates as $filters) {
+            $q = DB::table('ahg_prompt_template')->where('is_active', 1);
+            foreach ($filters as $col => $val) {
+                if ($val !== null) {
+                    $q->where($col, $val);
+                }
+            }
+            $q->orderByDesc('is_default')->orderByDesc('id');
+            if ($template = $q->first()) {
+                return $template;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Render a prompt template against gathered context data.
+     *
+     * @param object $template Row from `ahg_prompt_template`.
+     * @param array<string, mixed> $data Output of `gatherContext()->data`.
+     * @return array{system: string, user: string}
+     */
+    public function buildPrompt(object $template, array $data): array
+    {
+        $includeOcr  = !empty($template->include_ocr);
+        $maxOcrChars = (int) ($template->max_ocr_chars ?? 8000);
+
+        $ocr = '';
+        if ($includeOcr && !empty($data['ocr_text'])) {
+            $ocr = mb_substr((string) $data['ocr_text'], 0, $maxOcrChars);
+        }
+
+        $replacements = [
+            '{{title}}'                => (string) ($data['title']                    ?? ''),
+            '{{identifier}}'           => (string) ($data['identifier']               ?? ''),
+            '{{level_of_description}}' => (string) ($data['level_of_description']     ?? ''),
+            '{{scope_and_content}}'    => (string) ($data['scope_and_content']        ?? ''),
+            '{{archival_history}}'     => (string) ($data['archival_history']         ?? ''),
+            '{{extent_and_medium}}'    => (string) ($data['extent_and_medium']        ?? ''),
+            '{{arrangement}}'          => (string) ($data['arrangement']              ?? ''),
+            '{{physical_characteristics}}' => (string) ($data['physical_characteristics'] ?? ''),
+            '{{acquisition}}'          => (string) ($data['acquisition']              ?? ''),
+            '{{ocr_text}}'             => $ocr,
+        ];
+
+        return [
+            'system' => (string) ($template->system_prompt ?? ''),
+            'user'   => strtr((string) ($template->user_prompt_template ?? ''), $replacements),
+        ];
+    }
+
+    /**
+     * End-to-end: gather context, pick template, build prompt, call LLM,
+     * persist result into `ahg_ai_suggestion`.
+     *
+     * @return array{success: bool, suggestion_id?: int, text?: string, tokens_used?: int, model?: string, error?: string}
+     */
+    public function generateSuggestion(int $objectId, ?int $templateId = null, ?int $configId = null, ?int $userId = null): array
+    {
+        $context = $this->gatherContext($objectId);
+        if (!($context['success'] ?? false)) {
+            return $context;
+        }
+
+        $template = $this->getTemplateForObject($objectId, $templateId);
+        if (!$template) {
+            return ['success' => false, 'error' => 'No prompt template available'];
+        }
+
+        $prompts = $this->buildPrompt($template, $context['data']);
+        $result  = $this->completeFull($prompts['system'], $prompts['user'], $configId);
+
+        if (empty($result['success'])) {
+            return $result;
+        }
+
+        $suggestionId = DB::table('ahg_ai_suggestion')->insertGetId([
+            'object_id'      => $objectId,
+            'field_name'     => 'scope_and_content',
+            'original_value' => $context['data']['scope_and_content'] ?? null,
+            'suggested_value'=> $result['text'] ?? null,
+            'status'         => 'pending',
+            'model'          => $result['model'] ?? null,
+            'created_at'     => now(),
+            'updated_at'     => now(),
+        ]);
+
+        return [
+            'success'           => true,
+            'suggestion_id'     => (int) $suggestionId,
+            'text'              => $result['text'] ?? null,
+            'existing_text'     => $context['data']['scope_and_content'] ?? null,
+            'tokens_used'       => $result['tokens_used'] ?? 0,
+            'model'             => $result['model'] ?? null,
+            'generation_time_ms'=> $result['generation_time_ms'] ?? 0,
+            'template_name'     => $template->name ?? '',
+        ];
+    }
+
     /**
      * Full completion returning the entire result array (for detailed responses).
      */
