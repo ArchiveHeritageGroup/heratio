@@ -259,7 +259,7 @@
         <div class="col-md-8">
           @for($star = 5; $star >= 1; $star--)
             @php
-              $count = isset($ratingStats[$star]) ? (int) $ratingStats[$star] : 0;
+              $count = isset($ratingStats['distribution'][$star]) ? (int) $ratingStats['distribution'][$star] : 0;
               $pct = ($seller->rating_count ?? 0) > 0 ? round(($count / $seller->rating_count) * 100) : 0;
             @endphp
             <div class="d-flex align-items-center mb-1">

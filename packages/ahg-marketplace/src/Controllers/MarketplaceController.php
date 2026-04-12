@@ -824,7 +824,7 @@ class MarketplaceController extends Controller
         $limit = 24;
 
         $listingsResult = $this->service->getListings(['seller_id' => $seller->id, 'sort' => 'newest'], $page, $limit);
-        $reviews = $this->service->getSellerReviews($seller->id, 10, 0);
+        $reviewsResult = $this->service->getSellerReviews($seller->id, 10, 0);
         $ratingStats = $this->service->getRatingStats($seller->id);
         $collections = $this->service->getSellerPublicCollections($seller->id);
         $followerCount = $this->service->getFollowerCount($seller->id);
@@ -839,7 +839,8 @@ class MarketplaceController extends Controller
             'listings' => $listingsResult['items'],
             'total' => $listingsResult['total'],
             'page' => $page,
-            'reviews' => $reviews,
+            'reviews' => $reviewsResult['items'],
+            'reviewCount' => $reviewsResult['total'],
             'ratingStats' => $ratingStats,
             'collections' => $collections,
             'followerCount' => $followerCount,
@@ -2045,12 +2046,14 @@ class MarketplaceController extends Controller
         $limit = 20;
         $offset = ($page - 1) * $limit;
 
-        $reviews = $this->service->getSellerReviews($seller->id, $limit, $offset);
+        $reviewsResult = $this->service->getSellerReviews($seller->id, $limit, $offset);
         $ratingStats = $this->service->getRatingStats($seller->id);
 
         return view('marketplace::seller-reviews', [
             'seller' => $seller,
-            'reviews' => $reviews,
+            'reviews' => $reviewsResult['items'],
+            'reviewTotal' => $reviewsResult['total'],
+            'page' => $page,
             'ratingStats' => $ratingStats,
         ]);
     }

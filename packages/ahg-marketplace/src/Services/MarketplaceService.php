@@ -52,6 +52,7 @@ class MarketplaceService
     protected string $settingsTable      = 'marketplace_settings';
     protected string $currencyTable      = 'marketplace_currency';
     protected string $categoryTable      = 'marketplace_category';
+    protected string $favouriteTable     = 'marketplace_favourite';
 
     // =========================================================================
     // Table Availability Check
@@ -3451,11 +3452,12 @@ class MarketplaceService
      *
      * @return \Illuminate\Support\Collection
      */
-    public function getBidHistory(int $auctionId, int $limit = 20): \Illuminate\Support\Collection
+    public function getBidHistory(int $auctionId, int $limit = 50): \Illuminate\Support\Collection
     {
+        // Matches PSIS AuctionRepository::getBids — highest bid first, default limit 50.
         return DB::table($this->bidTable)
             ->where('auction_id', $auctionId)
-            ->orderByDesc('created_at')
+            ->orderByDesc('bid_amount')
             ->limit($limit)
             ->get();
     }
@@ -3513,18 +3515,25 @@ class MarketplaceService
             return collect();
         }
 
+        // Matches PSIS marketplaceListingAction — applies sector AND category_id
+        // simultaneously, fetches slightly more than needed, excludes current
+        // listing, slices to $limit. PSIS fetches 6 and slices to 4.
         $query = DB::table($this->listingTable)
             ->where('status', 'active')
             ->where('id', '!=', $listing->id);
 
-        // Prefer same category, then same sector
-        if (!empty($listing->category_id)) {
-            $query->where('category_id', $listing->category_id);
-        } elseif (!empty($listing->sector)) {
+        if (!empty($listing->sector)) {
             $query->where('sector', $listing->sector);
         }
+        if (!empty($listing->category_id)) {
+            $query->where('category_id', $listing->category_id);
+        }
 
-        return $query->orderByDesc('listed_at')->limit($limit)->get();
+        return $query->orderByDesc('listed_at')
+            ->limit($limit + 2)
+            ->get()
+            ->take($limit)
+            ->values();
     }
 
     /**
@@ -3587,12 +3596,14 @@ class MarketplaceService
         return DB::table($this->sellerTable)->where('id', $id)->first();
     }
 
-    public function getSellerPayouts(int $sellerId, int $page = 1, int $limit = 20): array
+    public function getSellerPayouts(int $sellerId, int $limit = 50, int $offset = 0): array
     {
+        // Matches PSIS TransactionRepository::getSellerPayouts signature.
         $query = DB::table($this->payoutTable)->where('seller_id', $sellerId);
         $total = (clone $query)->count();
         $items = $query->orderByDesc('created_at')
-            ->forPage($page, $limit)
+            ->limit($limit)
+            ->offset($offset)
             ->get();
         return ['items' => $items, 'total' => (int) $total];
     }
@@ -3607,45 +3618,47 @@ class MarketplaceService
             ->get(['t.*', 'l.title as listing_title', 'l.slug as listing_slug']);
     }
 
-    public function getSellerReviews(int $sellerId, int $limit = 10, int $offset = 0): \Illuminate\Support\Collection
+    public function getSellerReviews(int $sellerId, int $limit = 20, int $offset = 0): array
     {
-        return DB::table($this->reviewTable)
+        // Matches PSIS ReviewRepository::getSellerReviews — filters to buyer_to_seller only.
+        $query = DB::table($this->reviewTable)
             ->where('reviewed_seller_id', $sellerId)
-            ->where('is_visible', 1)
-            ->orderByDesc('created_at')
+            ->where('review_type', 'buyer_to_seller')
+            ->where('is_visible', 1);
+        $total = (clone $query)->count();
+        $items = $query->orderByDesc('created_at')
             ->offset($offset)
             ->limit($limit)
             ->get();
+        return ['items' => $items, 'total' => (int) $total];
     }
 
     public function getRatingStats(int $sellerId): array
     {
-        $rows = DB::table($this->reviewTable)
+        // Matches PSIS ReviewRepository::getSellerRatingStats — filters to buyer_to_seller only.
+        $base = DB::table($this->reviewTable)
             ->where('reviewed_seller_id', $sellerId)
             ->where('is_visible', 1)
-            ->selectRaw('rating, COUNT(*) as n')
-            ->groupBy('rating')
-            ->get();
-        $dist = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0];
-        $total = 0;
-        $sum = 0;
-        foreach ($rows as $r) {
-            $rating = (int) $r->rating;
-            $count = (int) $r->n;
-            if (isset($dist[$rating])) $dist[$rating] = $count;
-            $total += $count;
-            $sum += $rating * $count;
+            ->where('review_type', 'buyer_to_seller');
+
+        $distribution = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $distribution[$i] = (int) (clone $base)->where('rating', $i)->count();
         }
-        $average = $total > 0 ? round($sum / $total, 2) : 0.0;
-        return ['average' => $average, 'total' => $total, 'distribution' => $dist];
+
+        return [
+            'average' => (float) ((clone $base)->avg('rating') ?? 0),
+            'count' => (int) (clone $base)->count(),
+            'distribution' => $distribution,
+        ];
     }
 
     public function getSellerCollections(int $sellerId): \Illuminate\Support\Collection
     {
+        // Matches PSIS CollectionRepository::getSellerCollections — sort_order ASC only.
         return DB::table($this->collectionTable)
             ->where('seller_id', $sellerId)
-            ->orderBy('sort_order')
-            ->orderByDesc('created_at')
+            ->orderBy('sort_order', 'ASC')
             ->get();
     }
 
@@ -3659,11 +3672,13 @@ class MarketplaceService
             ->get();
     }
 
-    public function getFollowedSellers(int $userId, int $limit = 20, int $offset = 0): array
+    public function getFollowedSellers(int $userId, int $limit = 50, int $offset = 0): array
     {
+        // Matches PSIS SettingsRepository::getFollowedSellers — filters to active sellers only.
         $query = DB::table($this->followTable . ' as f')
             ->join($this->sellerTable . ' as s', 'f.seller_id', '=', 's.id')
-            ->where('f.user_id', $userId);
+            ->where('f.user_id', $userId)
+            ->where('s.is_active', 1);
         $total = (clone $query)->count();
         $items = $query->orderByDesc('f.created_at')
             ->offset($offset)
@@ -3712,35 +3727,62 @@ class MarketplaceService
         if (!$listing) {
             return ['success' => false, 'error' => 'Listing not found'];
         }
-        if ($amount <= 0) {
-            return ['success' => false, 'error' => 'Offer amount must be greater than zero'];
+        if (($listing->status ?? '') !== 'active') {
+            return ['success' => false, 'error' => 'Listing is not available'];
         }
+        if (($listing->listing_type ?? '') === 'auction') {
+            return ['success' => false, 'error' => 'Cannot make offer on auction listing'];
+        }
+        if (!empty($listing->minimum_offer) && $amount < (float) $listing->minimum_offer) {
+            return ['success' => false, 'error' => 'Offer must be at least ' . number_format((float) $listing->minimum_offer, 2)];
+        }
+        if ($this->hasPendingOffer($listingId, $buyerId)) {
+            return ['success' => false, 'error' => 'You already have a pending offer on this listing'];
+        }
+
+        $expiryDays = (int) $this->getSetting('offer_expiry_days', 7);
+
         $id = DB::table($this->offerTable)->insertGetId([
             'listing_id' => $listingId,
             'buyer_id' => $buyerId,
+            'status' => 'pending',
             'offer_amount' => $amount,
             'currency' => $listing->currency ?? config('heratio.base_currency', 'ZAR'),
             'message' => $message,
-            'status' => 'pending',
-            'expires_at' => now()->addDays(7),
+            'expires_at' => now()->addDays($expiryDays),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        return ['success' => true, 'offer_id' => (int) $id];
+
+        DB::table($this->listingTable)
+            ->where('id', $listingId)
+            ->update([
+                'enquiry_count' => (int) ($listing->enquiry_count ?? 0) + 1,
+                'updated_at' => now(),
+            ]);
+
+        return ['success' => true, 'id' => (int) $id];
+    }
+
+    protected function hasPendingOffer(int $listingId, int $buyerId): bool
+    {
+        return DB::table($this->offerTable)
+            ->where('listing_id', $listingId)
+            ->where('buyer_id', $buyerId)
+            ->whereIn('status', ['pending', 'countered'])
+            ->exists();
     }
 
     public function acceptCounterOffer(int $offerId, int $buyerId): array
     {
         $offer = DB::table($this->offerTable)->where('id', $offerId)->first();
-        if (!$offer || (int) $offer->buyer_id !== $buyerId) {
-            return ['success' => false, 'error' => 'Offer not found'];
-        }
-        if ($offer->status !== 'countered') {
-            return ['success' => false, 'error' => 'Offer is not in a counterable state'];
+        if (!$offer || (int) $offer->buyer_id !== $buyerId || $offer->status !== 'countered') {
+            return ['success' => false, 'error' => 'Counter-offer cannot be accepted'];
         }
         if (empty($offer->counter_amount)) {
             return ['success' => false, 'error' => 'No counter amount on offer'];
         }
+
         DB::table($this->offerTable)
             ->where('id', $offerId)
             ->update([
@@ -3749,7 +3791,13 @@ class MarketplaceService
                 'responded_at' => now(),
                 'updated_at' => now(),
             ]);
-        return ['success' => true, 'offer_id' => $offerId, 'amount' => (float) $offer->counter_amount];
+
+        // Reserve the listing (matches PSIS OfferService::acceptCounter)
+        DB::table($this->listingTable)
+            ->where('id', $offer->listing_id)
+            ->update(['status' => 'reserved', 'updated_at' => now()]);
+
+        return ['success' => true, 'price' => (float) $offer->counter_amount];
     }
 
     public function createEnquiry(array $data): int
@@ -3785,35 +3833,41 @@ class MarketplaceService
         return ['success' => true, 'enquiry_id' => $enquiryId];
     }
 
-    public function createReview(int $transactionId, int $reviewerId, int $rating, ?string $title, ?string $comment, string $reviewType = 'buyer_to_seller'): array
+    public function createReview(int $transactionId, int $reviewerId, int $rating, ?string $title, ?string $comment = null, string $reviewType = 'buyer_to_seller'): array
     {
         $txn = DB::table($this->transactionTable)->where('id', $transactionId)->first();
         if (!$txn) {
             return ['success' => false, 'error' => 'Transaction not found'];
         }
-        if ((int) $txn->buyer_id !== $reviewerId) {
-            return ['success' => false, 'error' => 'Only the buyer can review this transaction'];
-        }
-        if ($rating < 1 || $rating > 5) {
-            return ['success' => false, 'error' => 'Rating must be between 1 and 5'];
+        if (($txn->status ?? '') !== 'completed') {
+            return ['success' => false, 'error' => 'Transaction must be completed before leaving a review'];
         }
         if ($this->hasReviewed($transactionId, $reviewerId)) {
             return ['success' => false, 'error' => 'You have already reviewed this transaction'];
         }
+        if ($rating < 1 || $rating > 5) {
+            return ['success' => false, 'error' => 'Rating must be between 1 and 5'];
+        }
+
+        $reviewedSellerId = $reviewType === 'buyer_to_seller' ? (int) $txn->seller_id : null;
+
         $id = DB::table($this->reviewTable)->insertGetId([
             'transaction_id' => $transactionId,
             'reviewer_id' => $reviewerId,
-            'reviewed_seller_id' => $txn->seller_id,
+            'reviewed_seller_id' => $reviewedSellerId,
             'review_type' => $reviewType,
             'rating' => $rating,
             'title' => $title,
             'comment' => $comment,
             'is_visible' => 1,
+            'flagged' => 0,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        $this->recalculateSellerRating((int) $txn->seller_id);
-        return ['success' => true, 'review_id' => (int) $id];
+        if ($reviewedSellerId) {
+            $this->recalculateSellerRating($reviewedSellerId);
+        }
+        return ['success' => true, 'id' => (int) $id];
     }
 
     public function hasReviewed(int $transactionId, int $reviewerId): bool
@@ -3885,8 +3939,45 @@ class MarketplaceService
 
     public function isFavourited(int $userId, int $listingId): bool
     {
-        // Favourites table not yet ported to Heratio — safe default.
-        return false;
+        return DB::table($this->favouriteTable)
+            ->where('user_id', $userId)
+            ->where('listing_id', $listingId)
+            ->exists();
+    }
+
+    public function toggleFavourite(int $userId, int $listingId): array
+    {
+        $listing = DB::table($this->listingTable)->where('id', $listingId)->first();
+        if (!$listing) {
+            return ['success' => false, 'error' => 'Listing not found'];
+        }
+        $exists = DB::table($this->favouriteTable)
+            ->where('user_id', $userId)
+            ->where('listing_id', $listingId)
+            ->exists();
+        if ($exists) {
+            DB::table($this->favouriteTable)
+                ->where('user_id', $userId)
+                ->where('listing_id', $listingId)
+                ->delete();
+            DB::table($this->listingTable)
+                ->where('id', $listingId)
+                ->where('favourite_count', '>', 0)
+                ->decrement('favourite_count');
+            $favourited = false;
+        } else {
+            DB::table($this->favouriteTable)->insert([
+                'user_id' => $userId,
+                'listing_id' => $listingId,
+                'created_at' => now(),
+            ]);
+            DB::table($this->listingTable)
+                ->where('id', $listingId)
+                ->increment('favourite_count');
+            $favourited = true;
+        }
+        $count = (int) (DB::table($this->listingTable)->where('id', $listingId)->value('favourite_count') ?? 0);
+        return ['success' => true, 'favourited' => $favourited, 'count' => $count];
     }
 
     // =========================================================================

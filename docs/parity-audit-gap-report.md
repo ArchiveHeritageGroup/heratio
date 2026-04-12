@@ -2,6 +2,7 @@
 
 Generated: 2026-04-12
 Scope: All files touched in the last 48 hours (278 files)
+Last updated: 2026-04-12 (X.1.R audit added)
 
 ## TL;DR
 
@@ -11,6 +12,31 @@ The view layer is at PSIS parity. **The data layer is not.**
 - **10 unregistered routes** referenced in views without `Route::has()` guard (will throw `RouteNotFoundException` when rendered)
 - **11 form POST actions** pointing at unregistered routes (will 404 on submit)
 - **0 AJAX endpoint gaps** — all 15 endpoints referenced from ported JS blocks resolve
+
+## ⚠️ X.1.R Second-layer gap (added 2026-04-12)
+
+Phases X.1.1–X.1.5 added 41 service methods to MarketplaceService. Live-invoke tests pass and the controller no longer throws "method not found". **But the business logic is minimum-viable, not a clone of PSIS.** When the user asked "were they all 100% complete?" the honest answer was no. Specific gaps found by diffing against `archive/plugins/ahgMarketplacePlugin/lib/Services/`:
+
+### OfferService gaps
+- `createOffer` is missing 6 PSIS guards/side-effects:
+  1. `listing.status === 'active'` check
+  2. `listing.listing_type !== 'auction'` check
+  3. `listing.minimum_offer` floor check
+  4. `hasPendingOffer` dedup (prevents duplicate pending offers from same buyer)
+  5. `settings.offer_expiry_days` lookup (Heratio hardcodes 7)
+  6. `listing.enquiry_count` increment
+- `acceptCounterOffer` is missing: `listing.status='reserved'` side-effect. Return key is `amount`; PSIS returns `price`.
+
+### ReviewService gaps
+- `createReview` is missing `$txn->status === 'completed'` gate. Has an **incorrect** `buyer_id` check that PSIS does NOT have. Return key is `review_id`; PSIS returns `id`.
+
+### Un-audited (X.1.1–X.1.4)
+- All 30 methods added in X.1.1 (admin browse), X.1.2 (admin dashboard), X.1.3 (listing/auction), X.1.4 (seller helpers) were written to satisfy the controller call signature without side-by-side PSIS diffs. They run live but have not been proven to match PSIS SellerService / PayoutService / AuctionService / CollectionService / TransactionService / ListingRepository logic.
+
+### Favourites feature
+- `isFavourited` is a silent `return false` stub. PSIS has a real favourites feature (table + service methods) that was never ported to Heratio. Needs full feature port, not just a method.
+
+**See X.1.R sub-phases in `heratio-vs-psis-outstanding-plan.md` for the close-the-gap plan.**
 
 Everything below is a punch-list to bring the last 48 hours of work to genuine 100% functional parity with PSIS. Nothing below is about *new* code or *new* features — it's closing gaps in existing/touched files only.
 
