@@ -207,7 +207,7 @@ class IntegrityController extends Controller
 
     public function alerts() { $alerts = Schema::hasTable('integrity_alert') ? DB::table('integrity_alert')->orderBy('created_at', 'desc')->limit(100)->get() : collect(); return view('ahg-integrity::integrity.alerts', compact('alerts')); }
     public function deadLetter() { $deadLetters = Schema::hasTable('integrity_dead_letter') ? DB::table('integrity_dead_letter')->orderBy('created_at', 'desc')->limit(100)->get() : collect(); return view('ahg-integrity::integrity.dead-letter', compact('deadLetters')); }
-    public function disposition() { $dispositions = Schema::hasTable('integrity_disposition') ? DB::table('integrity_disposition')->orderBy('created_at', 'desc')->get() : collect(); return view('ahg-integrity::integrity.disposition', compact('dispositions')); }
+    public function disposition() { $dispositions = Schema::hasTable('integrity_disposition_queue') ? DB::table('integrity_disposition_queue')->orderBy('created_at', 'desc')->get() : collect(); return view('ahg-integrity::integrity.disposition', compact('dispositions')); }
     public function export() { return view('ahg-integrity::integrity.export'); }
     public function holds(Request $request)
     {

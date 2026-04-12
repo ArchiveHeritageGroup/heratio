@@ -35,14 +35,24 @@ CREATE TABLE IF NOT EXISTS `ahg_ai_prompt_template` (
 **Add to:** `atom-ahg-plugins/ahgAiConditionPlugin/database/install.sql`
 
 ```sql
--- ahg_ai_condition_client
+-- ahg_ai_condition_client — API clients permitted to call the AI condition service.
+-- Columns derived from `ai-condition.blade.php`:
+--   name, organization, tier, api_key, monthly_limit, scans_used, is_active, can_contribute_training
 CREATE TABLE IF NOT EXISTS `ahg_ai_condition_client` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  -- ⚠ No columns detected by scanner. Add manually based on feature requirements.
-  `placeholder` VARCHAR(255) NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `organization` VARCHAR(255) NULL,
+  `tier` VARCHAR(50) NOT NULL DEFAULT 'basic',
+  `api_key` VARCHAR(255) NOT NULL,
+  `monthly_limit` INT UNSIGNED NOT NULL DEFAULT 1000,
+  `scans_used` INT UNSIGNED NOT NULL DEFAULT 0,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `can_contribute_training` TINYINT(1) NOT NULL DEFAULT 0,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_api_key` (`api_key`),
+  KEY `idx_is_active` (`is_active`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ahg_ai_condition_training
@@ -533,33 +543,47 @@ CREATE TABLE IF NOT EXISTS `heritage_standard` (
 **Add to:** `atom-ahg-plugins/ahgIntegrityPlugin/database/install.sql`
 
 ```sql
--- integrity_alert
+-- integrity_alert — integrity-check alerts (critical / warning / info)
+-- Columns derived from `integrity/alerts.blade.php`:
+--   severity, created_at, message, object_id, status
 CREATE TABLE IF NOT EXISTS `integrity_alert` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  -- ⚠ No columns detected by scanner. Add manually based on feature requirements.
-  `placeholder` VARCHAR(255) NULL,
+  `object_id` INT UNSIGNED NULL,
+  `severity` VARCHAR(20) NOT NULL DEFAULT 'info',
+  `message` TEXT NOT NULL,
+  `status` VARCHAR(20) NOT NULL DEFAULT 'open',
+  `details` JSON NULL,
+  `triggered_by` VARCHAR(100) NULL,
+  `resolved_at` DATETIME NULL,
+  `resolved_by` INT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_severity` (`severity`),
+  KEY `idx_status` (`status`),
+  KEY `idx_object_id` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- integrity_disposition
-CREATE TABLE IF NOT EXISTS `integrity_disposition` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  -- ⚠ No columns detected by scanner. Add manually based on feature requirements.
-  `placeholder` VARCHAR(255) NULL,
-  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- integrity_disposition: REMOVED — was a typo in IntegrityController, now
+-- repointed to the canonical `integrity_disposition_queue` which already
+-- exists. No new table needed.
 
--- integrity_policy
+-- integrity_policy — configurable integrity check policies (daily/weekly/monthly)
+-- Columns derived from `integrity/policy-edit.blade.php` form:
+--   name, description, frequency, is_active
 CREATE TABLE IF NOT EXISTS `integrity_policy` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `description` TEXT NULL,
+  `frequency` VARCHAR(20) NOT NULL DEFAULT 'weekly',
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `last_run_at` DATETIME NULL,
+  `next_run_at` DATETIME NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_is_active` (`is_active`),
+  KEY `idx_next_run_at` (`next_run_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 ```
@@ -657,14 +681,23 @@ CREATE TABLE IF NOT EXISTS `museum_object` (
 **Add to:** `atom-ahg-plugins/ahgPortableExportPlugin/database/install.sql`
 
 ```sql
--- portable_export_share_token
+-- portable_export_share_token — time-limited share tokens for portable exports
+-- Columns derived from `PortableExportController.php:251` insert:
+--   export_id, token, expires_at, max_downloads, download_count
 CREATE TABLE IF NOT EXISTS `portable_export_share_token` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  -- ⚠ No columns detected by scanner. Add manually based on feature requirements.
-  `placeholder` VARCHAR(255) NULL,
+  `export_id` INT UNSIGNED NOT NULL,
+  `token` VARCHAR(64) NOT NULL,
+  `expires_at` DATETIME NULL,
+  `max_downloads` INT UNSIGNED NULL,
+  `download_count` INT UNSIGNED NOT NULL DEFAULT 0,
+  `revoked_at` DATETIME NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_token` (`token`),
+  KEY `idx_export_id` (`export_id`),
+  KEY `idx_expires_at` (`expires_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 ```
@@ -838,14 +871,22 @@ CREATE TABLE IF NOT EXISTS `ahg_report_snapshot` (
   KEY `idx_report_id` (`report_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ahg_report_template
+-- ahg_report_template — saved report templates (report-builder feature)
+-- Columns derived from `ReportBuilderController::apiTemplateSave` insert:
+--   name, description, template_data (JSON), category, created_by
 CREATE TABLE IF NOT EXISTS `ahg_report_template` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  -- ⚠ No columns detected by scanner. Add manually based on feature requirements.
-  `placeholder` VARCHAR(255) NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `description` TEXT NULL,
+  `template_data` JSON NULL,
+  `category` VARCHAR(100) NOT NULL DEFAULT 'General',
+  `is_public` TINYINT(1) NOT NULL DEFAULT 0,
+  `created_by` INT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_category` (`category`),
+  KEY `idx_created_by` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ahg_report_version
