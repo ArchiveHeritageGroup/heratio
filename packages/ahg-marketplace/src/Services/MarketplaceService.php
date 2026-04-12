@@ -2323,6 +2323,57 @@ class MarketplaceService
             ->first();
     }
 
+    // ---- Category CRUD (Phase X.1.6 — matches PSIS SettingsRepository) ----
+
+    public function createCategory(array $data): int
+    {
+        if (!isset($data['is_active'])) {
+            $data['is_active'] = 1;
+        }
+        if (!isset($data['sort_order'])) {
+            $data['sort_order'] = 0;
+        }
+        if (!isset($data['created_at'])) {
+            $data['created_at'] = now();
+        }
+        return (int) DB::table($this->categoryTable)->insertGetId($data);
+    }
+
+    public function updateCategory(int $id, array $data): bool
+    {
+        $data['updated_at'] = now();
+        return DB::table($this->categoryTable)->where('id', $id)->update($data) >= 0;
+    }
+
+    public function deleteCategory(int $id): bool
+    {
+        return DB::table($this->categoryTable)->where('id', $id)->delete() > 0;
+    }
+
+    // ---- Currency CRUD (Phase X.1.6 — matches PSIS SettingsRepository) ----
+
+    public function addCurrency(array $data): int
+    {
+        if (isset($data['code'])) {
+            $data['code'] = strtoupper($data['code']);
+        }
+        if (!isset($data['is_active'])) {
+            $data['is_active'] = 1;
+        }
+        if (!isset($data['created_at'])) {
+            $data['created_at'] = now();
+        }
+        return (int) DB::table($this->currencyTable)->insertGetId($data);
+    }
+
+    public function updateCurrency(string $code, array $data): bool
+    {
+        $data['updated_at'] = now();
+        return DB::table($this->currencyTable)
+            ->where('code', strtoupper($code))
+            ->update($data) >= 0;
+    }
+
     /**
      * Get all active currencies.
      */
@@ -2539,6 +2590,18 @@ class MarketplaceService
     /**
      * Update or create a setting.
      */
+    // ---- Settings aliases matching PSIS names (Phase X.1.6) ----
+
+    public function getAllSettings(?string $group = null): array
+    {
+        return $this->getSettings($group);
+    }
+
+    public function setSetting(string $key, $value, string $type = 'text', string $group = 'general', ?string $description = null): void
+    {
+        $this->updateSetting($key, $value, $type, $group, $description);
+    }
+
     public function updateSetting(string $name, $value, string $type = 'text', string $group = 'general', ?string $description = null): array
     {
         if (is_array($value)) {
