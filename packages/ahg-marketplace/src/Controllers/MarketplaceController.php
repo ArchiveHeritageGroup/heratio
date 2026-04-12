@@ -143,11 +143,12 @@ class MarketplaceController extends Controller
     {
         $this->requireAdmin();
 
-        $listingId = (int) $request->input('id');
-        if (!$listingId) {
-            return redirect()->route('ahgmarketplace.admin-listings');
-        }
+        $request->validate([
+            'id'          => 'required|integer|min:1',
+            'form_action' => 'required|string|in:approve,reject,suspend',
+        ]);
 
+        $listingId = (int) $request->input('id');
         $formAction = $request->input('form_action');
 
         if ($formAction === 'approve') {
@@ -341,11 +342,12 @@ class MarketplaceController extends Controller
     {
         $this->requireAdmin();
 
-        $sellerId = (int) $request->input('id');
-        if (!$sellerId) {
-            return redirect()->route('ahgmarketplace.admin-sellers');
-        }
+        $request->validate([
+            'id'          => 'required|integer|min:1',
+            'form_action' => 'required|string|in:verify,suspend',
+        ]);
 
+        $sellerId = (int) $request->input('id');
         $formAction = $request->input('form_action');
 
         if ($formAction === 'verify') {
@@ -417,13 +419,12 @@ class MarketplaceController extends Controller
     {
         $this->requireAdmin();
 
+        $request->validate([
+            'payout_ids'   => 'required|array|min:1',
+            'payout_ids.*' => 'integer|min:1',
+        ]);
+
         $selectedIds = $request->input('payout_ids', []);
-        if (!is_array($selectedIds) || empty($selectedIds)) {
-            session()->flash('error', 'No payouts selected.');
-
-            return redirect()->route('ahgmarketplace.admin-payouts');
-        }
-
         $ids = array_filter(array_map('intval', $selectedIds), fn ($id) => $id > 0);
         if (empty($ids)) {
             session()->flash('error', 'No valid payouts selected.');
@@ -505,6 +506,12 @@ class MarketplaceController extends Controller
     {
         $this->requireAdmin();
 
+        $request->validate([
+            'form_action' => 'required|string|in:moderate',
+            'review_id'   => 'required|integer|min:1',
+            'is_visible'  => 'nullable|boolean',
+        ]);
+
         $formAction = $request->input('form_action');
 
         if ($formAction === 'moderate') {
@@ -536,6 +543,9 @@ class MarketplaceController extends Controller
     {
         $this->requireAdmin();
 
+        // No validate() call: the input keys are dynamic (`setting_<key>`) and
+        // types depend on each row's `setting_type`. Coercion happens inside
+        // the loop below. Admin-gated + CSRF-protected at the middleware layer.
         $settings = $this->service->getAllSettings();
 
         foreach ($settings as $setting) {
@@ -1295,6 +1305,11 @@ class MarketplaceController extends Controller
     public function follow(Request $request)
     {
         $userId = $this->requireAuth($request);
+
+        $request->validate([
+            'seller' => 'required|string|max:255',
+        ]);
+
         $sellerSlug = (string) $request->input('seller', '');
         $seller = $sellerSlug !== '' ? $this->service->getSellerBySlug($sellerSlug) : null;
 
@@ -1328,6 +1343,11 @@ class MarketplaceController extends Controller
     public function sellerListingPublish(Request $request)
     {
         $userId = $this->requireAuth($request);
+
+        $request->validate([
+            'id' => 'required|integer|min:1',
+        ]);
+
         $seller = $this->service->getSellerByUserId($userId);
         if (!$seller) {
             return redirect()->route('ahgmarketplace.seller-register');
@@ -1365,6 +1385,11 @@ class MarketplaceController extends Controller
     public function sellerListingWithdraw(Request $request)
     {
         $userId = $this->requireAuth($request);
+
+        $request->validate([
+            'id' => 'required|integer|min:1',
+        ]);
+
         $seller = $this->service->getSellerByUserId($userId);
         if (!$seller) {
             return redirect()->route('ahgmarketplace.seller-register');
@@ -1415,6 +1440,11 @@ class MarketplaceController extends Controller
     {
         $userId = $this->requireAuth($request);
 
+        $request->validate([
+            'form_action' => 'required|string|in:accept_counter,withdraw',
+            'offer_id'    => 'required|integer|min:1',
+        ]);
+
         $formAction = $request->input('form_action');
         $offerId = (int) $request->input('offer_id');
 
@@ -1458,6 +1488,11 @@ class MarketplaceController extends Controller
     public function myPurchasesPost(Request $request)
     {
         $userId = $this->requireAuth($request);
+
+        $request->validate([
+            'form_action'    => 'required|string|in:confirm_receipt',
+            'transaction_id' => 'required|integer|min:1',
+        ]);
 
         if ($request->input('form_action') === 'confirm_receipt') {
             $txnId = (int) $request->input('transaction_id');
@@ -1549,6 +1584,24 @@ class MarketplaceController extends Controller
     {
         $userId = $this->requireAuth($request);
         $seller = $this->requireSeller($userId);
+
+        $request->validate([
+            'display_name'    => 'required|string|max:255',
+            'seller_type'     => 'nullable|string|max:53',
+            'bio'             => 'nullable|string|max:5000',
+            'country'         => 'nullable|string|max:100',
+            'city'            => 'nullable|string|max:100',
+            'website'         => 'nullable|url|max:255',
+            'instagram'       => 'nullable|string|max:255',
+            'email'           => 'nullable|email|max:255',
+            'phone'           => 'nullable|string|max:50',
+            'payout_method'   => 'nullable|string|max:45',
+            'payout_currency' => 'nullable|string|size:3',
+            'sectors'         => 'nullable|array',
+            'sectors.*'       => 'string|max:50',
+            'avatar'          => 'nullable|image|max:5120',
+            'banner'          => 'nullable|image|max:10240',
+        ]);
 
         $data = [
             'display_name' => trim($request->input('display_name', '')),
@@ -1821,11 +1874,15 @@ class MarketplaceController extends Controller
         $userId = $this->requireAuth($request);
         $seller = $this->requireSeller($userId);
 
-        $listingId = (int) $request->input('id');
-        if (!$listingId) {
-            return redirect()->route('ahgmarketplace.seller-listings');
-        }
+        $request->validate([
+            'id'            => 'required|integer|min:1',
+            'form_action'   => 'required|string|in:upload,set_primary,delete',
+            'image_id'      => 'nullable|integer|min:1',
+            'image_caption' => 'nullable|string|max:500',
+            'listing_image' => 'nullable|image|mimes:jpeg,png,gif,webp|max:10240',
+        ]);
 
+        $listingId = (int) $request->input('id');
         $listing = $this->service->getListingById($listingId);
         if (!$listing || (int) $listing->seller_id !== (int) $seller->id) {
             session()->flash('error', 'You do not have permission to manage this listing.');
@@ -1893,6 +1950,11 @@ class MarketplaceController extends Controller
     {
         $userId = $this->requireAuth($request);
         $seller = $this->requireSeller($userId);
+
+        $request->validate([
+            'form_action'   => 'required|string|in:delete',
+            'collection_id' => 'required|integer|min:1',
+        ]);
 
         $formAction = $request->input('form_action', '');
 
@@ -2002,6 +2064,13 @@ class MarketplaceController extends Controller
         $userId = $this->requireAuth($request);
         $seller = $this->requireSeller($userId);
 
+        $request->validate([
+            'id'              => 'required|integer|min:1',
+            'form_action'     => 'required|string|in:accept,reject,counter',
+            'seller_response' => 'nullable|string|max:2000',
+            'counter_amount'  => 'nullable|numeric|min:0.01|max:99999999.99',
+        ]);
+
         $offerId = (int) $request->input('id');
         if (!$offerId) {
             return redirect()->route('ahgmarketplace.seller-offers');
@@ -2095,6 +2164,13 @@ class MarketplaceController extends Controller
         $userId = $this->requireAuth($request);
         $seller = $this->requireSeller($userId);
 
+        $request->validate([
+            'id'              => 'required|integer|min:1',
+            'tracking_number' => 'nullable|string|max:255',
+            'courier'         => 'nullable|string|max:255',
+            'shipping_status' => 'nullable|string|in:pending,preparing,shipped,in_transit,delivered,returned',
+        ]);
+
         $txnId = (int) $request->input('id');
         if (!$txnId) {
             return redirect()->route('ahgmarketplace.seller-transactions');
@@ -2150,6 +2226,12 @@ class MarketplaceController extends Controller
     {
         $userId = $this->requireAuth($request);
         $seller = $this->requireSeller($userId);
+
+        $request->validate([
+            'form_action'   => 'required|string|in:reply',
+            'enquiry_id'    => 'required|integer|min:1',
+            'reply_message' => 'required|string|min:1|max:5000',
+        ]);
 
         $formAction = $request->input('form_action', '');
 

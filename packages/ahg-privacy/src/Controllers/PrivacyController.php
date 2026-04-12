@@ -135,10 +135,21 @@ class PrivacyController extends Controller
 
     public function dsarUpdate(Request $request)
     {
+        $request->validate([
+            'id'               => 'required|integer|min:1',
+            'status'           => 'nullable|string|max:50',
+            'priority'         => 'nullable|string|max:20',
+            'assigned_to'      => 'nullable|integer',
+            'outcome'          => 'nullable|string|max:50',
+            'refusal_reason'   => 'nullable|string|max:2000',
+            'is_verified'      => 'nullable|boolean',
+            'fee_required'     => 'nullable|boolean',
+            'fee_paid'         => 'nullable|boolean',
+            'notes'            => 'nullable|string|max:10000',
+            'response_summary' => 'nullable|string|max:10000',
+        ]);
+
         $id = (int) $request->input('id');
-        if ($id <= 0) {
-            abort(404);
-        }
         $this->service->updateDsar($id, $request->all(), (int) Auth::id());
         session()->flash('success', 'DSAR updated successfully');
         return redirect()->route('ahgprivacy.dsar-view', ['id' => $id]);
@@ -146,10 +157,32 @@ class PrivacyController extends Controller
 
     public function breachUpdate(Request $request)
     {
+        $request->validate([
+            'id'                       => 'required|integer|min:1',
+            'breach_type'              => 'nullable|string|max:50',
+            'severity'                 => 'nullable|string|in:low,medium,high,critical',
+            'status'                   => 'nullable|string|max:50',
+            'risk_to_rights'           => 'nullable|string|max:5000',
+            'data_subjects_affected'   => 'nullable|integer|min:0',
+            'data_categories_affected' => 'nullable|string|max:2000',
+            'assigned_to'              => 'nullable|integer',
+            'notification_required'    => 'nullable|boolean',
+            'regulator_notified'       => 'nullable|boolean',
+            'subjects_notified'        => 'nullable|boolean',
+            'occurred_date'            => 'nullable|date',
+            'contained_date'           => 'nullable|date',
+            'resolved_date'            => 'nullable|date',
+            'regulator_notified_date'  => 'nullable|date',
+            'subjects_notified_date'   => 'nullable|date',
+            'title'                    => 'nullable|string|max:255',
+            'description'              => 'nullable|string|max:10000',
+            'cause'                    => 'nullable|string|max:5000',
+            'impact_assessment'        => 'nullable|string|max:10000',
+            'remedial_actions'         => 'nullable|string|max:10000',
+            'lessons_learned'          => 'nullable|string|max:10000',
+        ]);
+
         $id = (int) $request->input('id');
-        if ($id <= 0) {
-            abort(404);
-        }
         $this->service->updateBreach($id, $request->all(), (int) Auth::id());
         session()->flash('success', 'Breach updated successfully');
         return redirect()->route('ahgprivacy.breach-view', ['id' => $id]);
@@ -157,10 +190,12 @@ class PrivacyController extends Controller
 
     public function consentWithdraw(Request $request)
     {
+        $request->validate([
+            'id'     => 'required|integer|min:1',
+            'reason' => 'nullable|string|max:2000',
+        ]);
+
         $id = (int) $request->input('id');
-        if ($id <= 0) {
-            abort(404);
-        }
         $this->service->withdrawConsent($id, $request->input('reason'), (int) Auth::id());
         session()->flash('success', 'Consent withdrawn successfully');
         return redirect()->route('ahgprivacy.consent-list');
@@ -168,10 +203,12 @@ class PrivacyController extends Controller
 
     public function ropaSubmit(Request $request)
     {
+        $request->validate([
+            'id'         => 'required|integer|min:1',
+            'officer_id' => 'nullable|integer|min:1',
+        ]);
+
         $id = (int) $request->input('id');
-        if ($id <= 0) {
-            abort(404);
-        }
         $officerId = $request->input('officer_id');
         $officerId = $officerId !== null && $officerId !== '' ? (int) $officerId : null;
 
@@ -185,10 +222,12 @@ class PrivacyController extends Controller
 
     public function ropaApprove(Request $request)
     {
+        $request->validate([
+            'id'      => 'required|integer|min:1',
+            'comment' => 'nullable|string|max:2000',
+        ]);
+
         $id = (int) $request->input('id');
-        if ($id <= 0) {
-            abort(404);
-        }
         $user = Auth::user();
         $userId = (int) Auth::id();
 
@@ -207,10 +246,12 @@ class PrivacyController extends Controller
 
     public function ropaReject(Request $request)
     {
+        $request->validate([
+            'id'     => 'required|integer|min:1',
+            'reason' => 'required|string|min:1|max:2000',
+        ]);
+
         $id = (int) $request->input('id');
-        if ($id <= 0) {
-            abort(404);
-        }
         $user = Auth::user();
         $userId = (int) Auth::id();
 
