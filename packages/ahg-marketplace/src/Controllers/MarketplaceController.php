@@ -620,16 +620,23 @@ class MarketplaceController extends Controller
 
         $page = max(1, (int) $request->input('page', 1));
         $limit = 24;
-        $offset = ($page - 1) * $limit;
 
-        $results = $this->service->search($query, $filters, $limit, $offset);
+        // Use getListings() with the query folded into filters; the service does not expose a
+        // dedicated full-text search method yet, so free-text matching is done via the `q` filter
+        // inside buildSearchFilters() / applyListingFilters().
+        if (!empty($query)) {
+            $filters['q'] = $query;
+        }
+
+        $results = $this->service->getListings($filters, $page, $limit);
+        $facets = $this->service->getFacetCounts($filters);
 
         return view('marketplace::search', [
             'results' => $results['items'],
             'total' => $results['total'],
-            'query' => $results['query'],
+            'query' => $query,
             'filters' => $filters,
-            'facets' => $results['facets'],
+            'facets' => $facets,
             'page' => $page,
         ]);
     }
