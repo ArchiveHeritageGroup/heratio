@@ -3703,6 +3703,193 @@ class MarketplaceService
     }
 
     // =========================================================================
+    //  BUYER ACTIONS (Phase X.1.5)
+    // =========================================================================
+
+    public function createOffer(int $listingId, int $buyerId, float $amount, ?string $message = null): array
+    {
+        $listing = DB::table($this->listingTable)->where('id', $listingId)->first();
+        if (!$listing) {
+            return ['success' => false, 'error' => 'Listing not found'];
+        }
+        if ($amount <= 0) {
+            return ['success' => false, 'error' => 'Offer amount must be greater than zero'];
+        }
+        $id = DB::table($this->offerTable)->insertGetId([
+            'listing_id' => $listingId,
+            'buyer_id' => $buyerId,
+            'offer_amount' => $amount,
+            'currency' => $listing->currency ?? config('heratio.base_currency', 'ZAR'),
+            'message' => $message,
+            'status' => 'pending',
+            'expires_at' => now()->addDays(7),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        return ['success' => true, 'offer_id' => (int) $id];
+    }
+
+    public function acceptCounterOffer(int $offerId, int $buyerId): array
+    {
+        $offer = DB::table($this->offerTable)->where('id', $offerId)->first();
+        if (!$offer || (int) $offer->buyer_id !== $buyerId) {
+            return ['success' => false, 'error' => 'Offer not found'];
+        }
+        if ($offer->status !== 'countered') {
+            return ['success' => false, 'error' => 'Offer is not in a counterable state'];
+        }
+        if (empty($offer->counter_amount)) {
+            return ['success' => false, 'error' => 'No counter amount on offer'];
+        }
+        DB::table($this->offerTable)
+            ->where('id', $offerId)
+            ->update([
+                'status' => 'accepted',
+                'offer_amount' => $offer->counter_amount,
+                'responded_at' => now(),
+                'updated_at' => now(),
+            ]);
+        return ['success' => true, 'offer_id' => $offerId, 'amount' => (float) $offer->counter_amount];
+    }
+
+    public function createEnquiry(array $data): int
+    {
+        $row = [
+            'listing_id' => $data['listing_id'] ?? 0,
+            'user_id' => $data['user_id'] ?? null,
+            'name' => $data['name'] ?? null,
+            'email' => $data['email'] ?? '',
+            'phone' => $data['phone'] ?? null,
+            'subject' => $data['subject'] ?? null,
+            'message' => $data['message'] ?? '',
+            'status' => 'new',
+            'created_at' => now(),
+        ];
+        return (int) DB::table($this->enquiryTable)->insertGetId($row);
+    }
+
+    public function replyToEnquiry(int $enquiryId, string $reply): array
+    {
+        $enquiry = DB::table($this->enquiryTable)->where('id', $enquiryId)->first();
+        if (!$enquiry) {
+            return ['success' => false, 'error' => 'Enquiry not found'];
+        }
+        DB::table($this->enquiryTable)
+            ->where('id', $enquiryId)
+            ->update([
+                'reply' => $reply,
+                'replied_by' => Auth::id(),
+                'replied_at' => now(),
+                'status' => 'replied',
+            ]);
+        return ['success' => true, 'enquiry_id' => $enquiryId];
+    }
+
+    public function createReview(int $transactionId, int $reviewerId, int $rating, ?string $title, ?string $comment, string $reviewType = 'buyer_to_seller'): array
+    {
+        $txn = DB::table($this->transactionTable)->where('id', $transactionId)->first();
+        if (!$txn) {
+            return ['success' => false, 'error' => 'Transaction not found'];
+        }
+        if ((int) $txn->buyer_id !== $reviewerId) {
+            return ['success' => false, 'error' => 'Only the buyer can review this transaction'];
+        }
+        if ($rating < 1 || $rating > 5) {
+            return ['success' => false, 'error' => 'Rating must be between 1 and 5'];
+        }
+        if ($this->hasReviewed($transactionId, $reviewerId)) {
+            return ['success' => false, 'error' => 'You have already reviewed this transaction'];
+        }
+        $id = DB::table($this->reviewTable)->insertGetId([
+            'transaction_id' => $transactionId,
+            'reviewer_id' => $reviewerId,
+            'reviewed_seller_id' => $txn->seller_id,
+            'review_type' => $reviewType,
+            'rating' => $rating,
+            'title' => $title,
+            'comment' => $comment,
+            'is_visible' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $this->recalculateSellerRating((int) $txn->seller_id);
+        return ['success' => true, 'review_id' => (int) $id];
+    }
+
+    public function hasReviewed(int $transactionId, int $reviewerId): bool
+    {
+        return DB::table($this->reviewTable)
+            ->where('transaction_id', $transactionId)
+            ->where('reviewer_id', $reviewerId)
+            ->exists();
+    }
+
+    public function getReviewedMap($transactions, int $reviewerId): array
+    {
+        $ids = [];
+        foreach ($transactions as $t) {
+            if (!empty($t->id)) $ids[] = (int) $t->id;
+        }
+        if (empty($ids)) return [];
+        $rows = DB::table($this->reviewTable)
+            ->whereIn('transaction_id', $ids)
+            ->where('reviewer_id', $reviewerId)
+            ->pluck('transaction_id');
+        $map = [];
+        foreach ($rows as $txnId) $map[(int) $txnId] = true;
+        return $map;
+    }
+
+    public function getBuyerOffers(int $buyerId, int $limit = 20, int $offset = 0): array
+    {
+        $query = DB::table($this->offerTable . ' as o')
+            ->leftJoin($this->listingTable . ' as l', 'o.listing_id', '=', 'l.id')
+            ->where('o.buyer_id', $buyerId);
+        $total = (clone $query)->count();
+        $items = $query->orderByDesc('o.created_at')
+            ->offset($offset)
+            ->limit($limit)
+            ->get(['o.*', 'l.title as listing_title', 'l.slug as listing_slug', 'l.featured_image_path as listing_image']);
+        return ['items' => $items, 'total' => (int) $total];
+    }
+
+    public function getBuyerTransactions(int $buyerId, int $limit = 20, int $offset = 0): array
+    {
+        $query = DB::table($this->transactionTable . ' as t')
+            ->leftJoin($this->listingTable . ' as l', 't.listing_id', '=', 'l.id')
+            ->leftJoin($this->sellerTable . ' as s', 't.seller_id', '=', 's.id')
+            ->where('t.buyer_id', $buyerId);
+        $total = (clone $query)->count();
+        $items = $query->orderByDesc('t.created_at')
+            ->offset($offset)
+            ->limit($limit)
+            ->get([
+                't.*',
+                'l.title as listing_title',
+                'l.slug as listing_slug',
+                'l.featured_image_path as listing_image',
+                's.display_name as seller_name',
+                's.slug as seller_slug',
+            ]);
+        return ['items' => $items, 'total' => (int) $total];
+    }
+
+    public function getPendingOfferCount(int $sellerId): int
+    {
+        return (int) DB::table($this->offerTable . ' as o')
+            ->join($this->listingTable . ' as l', 'o.listing_id', '=', 'l.id')
+            ->where('l.seller_id', $sellerId)
+            ->where('o.status', 'pending')
+            ->count();
+    }
+
+    public function isFavourited(int $userId, int $listingId): bool
+    {
+        // Favourites table not yet ported to Heratio — safe default.
+        return false;
+    }
+
+    // =========================================================================
     //  ADMIN BROWSE HELPERS (Phase X.1.1)
     //
     //  These methods back the marketplace admin list pages. Each returns an array
