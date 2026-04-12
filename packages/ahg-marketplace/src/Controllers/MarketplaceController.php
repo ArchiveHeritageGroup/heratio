@@ -641,7 +641,7 @@ class MarketplaceController extends Controller
             return redirect()->route('ahgmarketplace.browse');
         }
 
-        $listing = $this->service->getListing($slug);
+        $listing = $this->service->getListingBySlug($slug);
         if (!$listing) {
             abort(404);
         }

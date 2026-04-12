@@ -2312,6 +2312,17 @@ class MarketplaceService
     }
 
     /**
+     * Get a category by sector + slug.
+     */
+    public function getCategoryBySlug(string $sector, string $slug): ?object
+    {
+        return DB::table($this->categoryTable)
+            ->where('sector', $sector)
+            ->where('slug', $slug)
+            ->first();
+    }
+
+    /**
      * Get all active currencies.
      */
     public function getCurrencies(bool $activeOnly = true): array
