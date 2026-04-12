@@ -57,6 +57,99 @@
         @endif
     </ul>
 
+    {{-- All dashboards (alphabetical) — gated on the same plugin checks the cards below use --}}
+    <h4 class="mt-4">{{ __('Dashboards') }}</h4>
+    <ul class="list-unstyled small">
+        @if($hasAiCondition)
+        <li><a href="{{ url('/admin/ai/condition/dashboard') }}"><i class="fas fa-robot me-2"></i>{{ __('AI Condition') }}</a></li>
+        @endif
+        @if($hasWorkflow)
+        <li><a href="{{ url('/workflow') }}"><i class="fas fa-project-diagram me-2"></i>{{ __('Approval Workflow') }}</a></li>
+        @endif
+        @if($hasAudit)
+        <li><a href="{{ Route::has('audit.statistics') ? route('audit.statistics') : url('/admin/audit/statistics') }}"><i class="fas fa-chart-line me-2"></i>{{ __('Audit') }}</a></li>
+        @endif
+        @if($hasBackup)
+        <li><a href="{{ Route::has('backup.index') ? route('backup.index') : url('/admin/backup') }}"><i class="fas fa-database me-2"></i>{{ __('Backup') }}</a></li>
+        @endif
+        @if($hasCDPA)
+        <li><a href="{{ url('/admin/cdpa') }}"><i class="fas fa-shield-alt me-2"></i>{{ __('CDPA Data Protection') }}</a></li>
+        @endif
+        @if($hasCondition)
+        <li><a href="{{ url('/admin/condition') }}"><i class="fas fa-clipboard-check me-2"></i>{{ __('Condition') }}</a></li>
+        @endif
+        @if($hasDam)
+        <li><a href="{{ url('/dam/dashboard') }}"><i class="fas fa-images me-2"></i>{{ __('DAM') }}</a></li>
+        @endif
+        @if($hasDataMigration)
+        <li><a href="{{ Route::has('data-migration.index') ? route('data-migration.index') : url('/admin/data-migration') }}"><i class="fas fa-exchange-alt me-2"></i>{{ __('Data Migration') }}</a></li>
+        @endif
+        @if($hasDedupe)
+        <li><a href="{{ Route::has('dedupe.index') ? route('dedupe.index') : url('/admin/dedupe') }}"><i class="fas fa-clone me-2"></i>{{ __('Dedupe') }}</a></li>
+        @endif
+        @if($hasDoi)
+        <li><a href="{{ Route::has('doi.index') ? route('doi.index') : url('/admin/doi') }}"><i class="fas fa-link me-2"></i>{{ __('DOI Management') }}</a></li>
+        @endif
+        @if($hasDonor)
+        <li><a href="{{ url('/donor/browse') }}"><i class="fas fa-handshake me-2"></i>{{ __('Donor Management') }}</a></li>
+        @endif
+        @if($hasForms)
+        <li><a href="{{ url('/admin/formTemplates') }}"><i class="fas fa-edit me-2"></i>{{ __('Form Templates') }}</a></li>
+        @endif
+        @if($hasGallery)
+        <li><a href="{{ url('/gallery/dashboard') }}"><i class="fas fa-palette me-2"></i>{{ __('Gallery') }}</a></li>
+        @endif
+        @if($hasGrap)
+        <li><a href="{{ route('heritage.grap.dashboard') }}"><i class="fas fa-balance-scale me-2"></i>{{ __('Heritage Accounting') }}</a></li>
+        @endif
+        @if($hasHeritage2)
+        <li><a href="{{ Route::has('heritage.admin') ? route('heritage.admin') : url('/heritage/admin') }}"><i class="fas fa-landmark me-2"></i>{{ __('Heritage Management') }}</a></li>
+        @endif
+        @if($hasIPSAS)
+        <li><a href="{{ url('/ipsas') }}"><i class="fas fa-coins me-2"></i>{{ __('IPSAS Heritage Assets') }}</a></li>
+        @endif
+        @if($hasLibrary)
+        <li><a href="{{ url('/library/browse') }}"><i class="fas fa-book me-2"></i>{{ __('Library') }}</a></li>
+        @endif
+        @if($hasMarketplace)
+        <li><a href="{{ route('ahgmarketplace.admin-dashboard') }}"><i class="fas fa-store-alt me-2"></i>{{ __('Marketplace') }}</a></li>
+        @endif
+        @if($hasMuseum)
+        <li><a href="{{ url('/museum/dashboard') }}"><i class="fas fa-landmark me-2"></i>{{ __('Museum') }}</a></li>
+        @endif
+        @if($hasNAZ)
+        <li><a href="{{ url('/admin/naz') }}"><i class="fas fa-archive me-2"></i>{{ __('NAZ Archives') }}</a></li>
+        @endif
+        @if($hasNMMZ)
+        <li><a href="{{ url('/nmmz') }}"><i class="fas fa-monument me-2"></i>{{ __('NMMZ Monuments') }}</a></li>
+        @endif
+        @if($hasPreservation)
+        <li><a href="{{ Route::has('preservation.index') ? route('preservation.index') : url('/admin/preservation') }}"><i class="fas fa-shield-alt me-2"></i>{{ __('Preservation') }}</a></li>
+        @endif
+        @if($hasPrivacy)
+        <li><a href="{{ url('/admin/privacy/dashboard') }}"><i class="fas fa-user-shield me-2"></i>{{ __('Privacy & Data Protection') }}</a></li>
+        @endif
+        <li><a href="{{ route('reports.dashboard') }}" class="fw-bold"><i class="fas fa-chart-bar me-2"></i>{{ __('Reports') }}</a></li>
+        @if($hasResearch)
+        <li><a href="{{ url('/research/dashboard') }}"><i class="fas fa-graduation-cap me-2"></i>{{ __('Research') }}</a></li>
+        @endif
+        @if($hasRic)
+        <li><a href="{{ Route::has('ric.index') ? route('ric.index') : url('/admin/ric') }}"><i class="fas fa-project-diagram me-2"></i>{{ __('RiC Explorer') }}</a></li>
+        @endif
+        @if($hasRights)
+        <li><a href="{{ url('/admin/rights') }}"><i class="fas fa-gavel me-2"></i>{{ __('Rights & Licensing') }}</a></li>
+        @endif
+        @if($hasSecurity)
+        <li><a href="{{ Route::has('acl.clearances') ? route('acl.clearances') : url('/admin/security/compliance') }}"><i class="fas fa-lock me-2"></i>{{ __('Security & Compliance') }}</a></li>
+        @endif
+        @if($hasSpectrum)
+        <li><a href="{{ url('/admin/spectrum/dashboard') }}"><i class="fas fa-layer-group me-2"></i>{{ __('Spectrum Workflow') }}</a></li>
+        @endif
+        @if($hasVendor)
+        <li><a href="{{ route('ahgvendor.index') }}"><i class="fas fa-building me-2"></i>{{ __('Vendor Management') }}</a></li>
+        @endif
+    </ul>
+
     @if ($isAdmin)
     <h4 class="mt-4">{{ __('Settings') }}</h4>
     <ul class="list-unstyled">
@@ -189,7 +282,15 @@
 
   {{-- ═══ RESEARCH & ACCESS ═══ --}}
   @if($hasResearch || $hasAccessRequest)
-  <h5 class="mt-4 mb-3 text-muted border-bottom pb-2"><i class="fas fa-graduation-cap me-2"></i>{{ __('Research & Access') }}</h5>
+  <div class="accordion mb-4" id="acc-research">
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-research" aria-expanded="true">
+          <i class="fas fa-graduation-cap me-2"></i>{{ __('Research & Access') }}
+        </button>
+      </h2>
+      <div id="collapse-research" class="accordion-collapse collapse show">
+        <div class="accordion-body">
   @endif
 
   @if($hasResearch)
@@ -258,9 +359,24 @@
   </div>
   @endif
 
+  @if($hasResearch || $hasAccessRequest)
+        </div>{{-- /accordion-body research --}}
+      </div>{{-- /collapse research --}}
+    </div>{{-- /accordion-item research --}}
+  </div>{{-- /accordion research --}}
+  @endif
+
   {{-- ═══ SECURITY, COMPLIANCE & RIGHTS ═══ --}}
   @if($isAdmin)
-  <h5 class="mt-4 mb-3 text-muted border-bottom pb-2"><i class="fas fa-shield-alt me-2"></i>{{ __('Security, Compliance & Rights') }}</h5>
+  <div class="accordion mb-4" id="acc-security">
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-security" aria-expanded="true">
+          <i class="fas fa-shield-alt me-2"></i>{{ __('Security, Compliance & Rights') }}
+        </button>
+      </h2>
+      <div id="collapse-security" class="accordion-collapse collapse show">
+        <div class="accordion-body">
   @endif
 
   @if($hasSecurity || $hasAudit || $hasPrivacy || $hasCondition)
@@ -432,9 +548,24 @@
   </div>
   @endif
 
+  @if($isAdmin)
+        </div>{{-- /accordion-body security --}}
+      </div>{{-- /collapse security --}}
+    </div>{{-- /accordion-item security --}}
+  </div>{{-- /accordion security --}}
+  @endif
+
   {{-- ═══ COMMERCE & VENDORS ═══ --}}
   @if(($hasMarketplace || $hasCart || $hasVendor || $hasDonor) && $canManage)
-  <h5 class="mt-4 mb-3 text-muted border-bottom pb-2"><i class="fas fa-store me-2"></i>{{ __('Commerce & Vendors') }}</h5>
+  <div class="accordion mb-4" id="acc-commerce">
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-commerce" aria-expanded="true">
+          <i class="fas fa-store me-2"></i>{{ __('Commerce & Vendors') }}
+        </button>
+      </h2>
+      <div id="collapse-commerce" class="accordion-collapse collapse show">
+        <div class="accordion-body">
   @endif
 
   {{-- Row 8: Vendor Management / Donor Management (cards 17-18) --}}
@@ -516,9 +647,24 @@
   </div>
   @endif
 
+  @if(($hasMarketplace || $hasCart || $hasVendor || $hasDonor) && $canManage)
+        </div>{{-- /accordion-body commerce --}}
+      </div>{{-- /collapse commerce --}}
+    </div>{{-- /accordion-item commerce --}}
+  </div>{{-- /accordion commerce --}}
+  @endif
+
   {{-- ═══ DATA QUALITY & CONFIGURATION ═══ --}}
   @if(($hasForms || $hasDoi || $hasRic) && $canManage)
-  <h5 class="mt-4 mb-3 text-muted border-bottom pb-2"><i class="fas fa-tools me-2"></i>{{ __('Data Quality & Configuration') }}</h5>
+  <div class="accordion mb-4" id="acc-dataquality">
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-dataquality" aria-expanded="true">
+          <i class="fas fa-tools me-2"></i>{{ __('Data Quality & Configuration') }}
+        </button>
+      </h2>
+      <div id="collapse-dataquality" class="accordion-collapse collapse show">
+        <div class="accordion-body">
   @endif
 
   {{-- Row 10: Form Templates / DOI Management / Records in Contexts (cards 22-24) --}}
@@ -566,9 +712,24 @@
   </div>
   @endif
 
+  @if(($hasForms || $hasDoi || $hasRic) && $canManage)
+        </div>{{-- /accordion-body dataquality --}}
+      </div>{{-- /collapse dataquality --}}
+    </div>{{-- /accordion-item dataquality --}}
+  </div>{{-- /accordion dataquality --}}
+  @endif
+
   {{-- ═══ DATA OPERATIONS ═══ --}}
   @if(($hasDataMigration || $hasDataIngest || $hasBackup) && $canManage)
-  <h5 class="mt-4 mb-3 text-muted border-bottom pb-2"><i class="fas fa-database me-2"></i>{{ __('Data Operations') }}</h5>
+  <div class="accordion mb-4" id="acc-dataops">
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-dataops" aria-expanded="true">
+          <i class="fas fa-database me-2"></i>{{ __('Data Operations') }}
+        </button>
+      </h2>
+      <div id="collapse-dataops" class="accordion-collapse collapse show">
+        <div class="accordion-body">
   @endif
 
   {{-- Row 11: Data Migration / Data Ingest / Backup & Maintenance (cards 25-27) --}}
@@ -657,9 +818,24 @@
   </div>
   @endif
 
+  @if(($hasDataMigration || $hasDataIngest || $hasBackup) && $canManage)
+        </div>{{-- /accordion-body dataops --}}
+      </div>{{-- /collapse dataops --}}
+    </div>{{-- /accordion-item dataops --}}
+  </div>{{-- /accordion dataops --}}
+  @endif
+
   {{-- ═══ DATA INTEGRITY & PRESERVATION ═══ --}}
   @if(($hasPreservation || $hasDedupe) && $canManage)
-  <h5 class="mt-4 mb-3 text-muted border-bottom pb-2"><i class="fas fa-fingerprint me-2"></i>{{ __('Data Integrity & Preservation') }}</h5>
+  <div class="accordion mb-4" id="acc-integrity">
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-integrity" aria-expanded="true">
+          <i class="fas fa-fingerprint me-2"></i>{{ __('Data Integrity & Preservation') }}
+        </button>
+      </h2>
+      <div id="collapse-integrity" class="accordion-collapse collapse show">
+        <div class="accordion-body">
   @endif
 
   {{-- Row 13: Digital Preservation / Format Registry / Checksums & Integrity (cards 31-33) --}}
@@ -699,9 +875,24 @@
   </div>
   @endif
 
+  @if(($hasPreservation || $hasDedupe) && $canManage)
+        </div>{{-- /accordion-body integrity --}}
+      </div>{{-- /collapse integrity --}}
+    </div>{{-- /accordion-item integrity --}}
+  </div>{{-- /accordion integrity --}}
+  @endif
+
   {{-- ═══ JURISDICTION COMPLIANCE ═══ --}}
   @if(($hasCDPA || $hasNAZ || $hasIPSAS || $hasNMMZ) && $isAdmin)
-  <h5 class="mt-4 mb-3 text-muted border-bottom pb-2"><i class="fas fa-globe-africa me-2"></i>{{ __('Jurisdiction Compliance') }}</h5>
+  <div class="accordion mb-4" id="acc-jurisdiction">
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-jurisdiction" aria-expanded="true">
+          <i class="fas fa-globe-africa me-2"></i>{{ __('Jurisdiction Compliance') }}
+        </button>
+      </h2>
+      <div id="collapse-jurisdiction" class="accordion-collapse collapse show">
+        <div class="accordion-body">
   @endif
 
   {{-- Row 14: CDPA Data Protection / NAZ Archives / IPSAS Heritage Assets (cards 34-36) --}}
@@ -765,6 +956,13 @@
     </div>
   </div>
   @endif
+  @endif
+
+  @if(($hasCDPA || $hasNAZ || $hasIPSAS || $hasNMMZ) && $isAdmin)
+        </div>{{-- /accordion-body jurisdiction --}}
+      </div>{{-- /collapse jurisdiction --}}
+    </div>{{-- /accordion-item jurisdiction --}}
+  </div>{{-- /accordion jurisdiction --}}
   @endif
 
 </div>
