@@ -3534,6 +3534,170 @@ class MarketplaceService
         return ['items' => $items, 'total' => $total];
     }
 
+    // =========================================================================
+    //  ADMIN DASHBOARD AGGREGATORS (Phase X.1.2)
+    // =========================================================================
+
+    /**
+     * Top-level counts + alert badges for the marketplace admin dashboard.
+     *
+     * @return array<string,int|float>
+     */
+    public function getAdminDashboardStats(): array
+    {
+        return [
+            'totalSellers'        => (int) DB::table($this->sellerTable)->count(),
+            'totalListings'       => (int) DB::table($this->listingTable)->count(),
+            'totalTransactions'   => (int) DB::table($this->transactionTable)->count(),
+            'totalRevenue'        => (float) DB::table($this->transactionTable)
+                                        ->where('status', 'completed')
+                                        ->sum('grand_total'),
+            'pendingListings'     => (int) DB::table($this->listingTable)
+                                        ->where('status', 'pending_review')->count(),
+            'unverifiedSellers'   => (int) DB::table($this->sellerTable)
+                                        ->where('verification_status', 'unverified')->count(),
+            'pendingPayoutsCount' => (int) DB::table($this->payoutTable)
+                                        ->where('status', 'pending')->count(),
+            'totalCommission'     => (float) DB::table($this->transactionTable)
+                                        ->where('status', 'completed')
+                                        ->sum('platform_commission_amount'),
+        ];
+    }
+
+    /**
+     * Most recent N completed-or-pending transactions with listing + seller joined.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getAdminRecentTransactions(int $limit = 5): \Illuminate\Support\Collection
+    {
+        return DB::table($this->transactionTable . ' as t')
+            ->leftJoin($this->listingTable . ' as l', 't.listing_id', '=', 'l.id')
+            ->leftJoin($this->sellerTable . ' as s', 't.seller_id', '=', 's.id')
+            ->leftJoin('user as b', 't.buyer_id', '=', 'b.id')
+            ->select(
+                't.*',
+                'l.title',
+                'l.slug as listing_slug',
+                's.display_name as seller_name',
+                DB::raw('COALESCE(b.username, CONCAT("Buyer #", t.buyer_id)) as buyer_name')
+            )
+            ->orderByDesc('t.created_at')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Count of sold listings grouped by sector — for the seller dashboard's sector pie.
+     *
+     * @return \Illuminate\Support\Collection each row has: sector, total
+     */
+    public function getSectorBreakdown(?int $sellerId = null): \Illuminate\Support\Collection
+    {
+        $q = DB::table($this->listingTable . ' as l')
+            ->join($this->transactionTable . ' as t', 't.listing_id', '=', 'l.id')
+            ->where('t.status', 'completed')
+            ->select('l.sector', DB::raw('COUNT(*) as total'))
+            ->groupBy('l.sector')
+            ->orderByDesc('total');
+
+        if ($sellerId !== null) {
+            $q->where('l.seller_id', $sellerId);
+        }
+
+        return $q->get();
+    }
+
+    /**
+     * Top items by completed-sale count (global or scoped to a seller).
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getTopItemsBySales(int $limit = 10): \Illuminate\Support\Collection
+    {
+        return DB::table($this->transactionTable . ' as t')
+            ->join($this->listingTable . ' as l', 't.listing_id', '=', 'l.id')
+            ->where('t.status', 'completed')
+            ->select(
+                'l.id',
+                'l.title',
+                'l.slug',
+                'l.featured_image_path',
+                DB::raw('COUNT(*) as sales_count'),
+                DB::raw('SUM(t.grand_total) as total_revenue'),
+                't.currency'
+            )
+            ->groupBy('l.id', 'l.title', 'l.slug', 'l.featured_image_path', 't.currency')
+            ->orderByDesc('sales_count')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Top listings by view_count for a specific seller.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getTopListingsByViews(int $sellerId, int $limit = 10): \Illuminate\Support\Collection
+    {
+        return DB::table($this->listingTable)
+            ->where('seller_id', $sellerId)
+            ->orderByDesc('view_count')
+            ->limit($limit)
+            ->get(['id', 'title', 'slug', 'view_count', 'featured_image_path']);
+    }
+
+    /**
+     * Top sellers by completed-sale revenue.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getTopSellersByRevenue(int $limit = 10): \Illuminate\Support\Collection
+    {
+        return DB::table($this->transactionTable . ' as t')
+            ->join($this->sellerTable . ' as s', 't.seller_id', '=', 's.id')
+            ->where('t.status', 'completed')
+            ->select(
+                's.id',
+                's.display_name',
+                's.slug',
+                's.avatar_path',
+                DB::raw('COUNT(*) as sales_count'),
+                DB::raw('SUM(t.grand_total) as total_revenue'),
+                't.currency'
+            )
+            ->groupBy('s.id', 's.display_name', 's.slug', 's.avatar_path', 't.currency')
+            ->orderByDesc('total_revenue')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Top listings by completed-sale count for a specific seller.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getTopSellingListings(int $sellerId, int $limit = 10): \Illuminate\Support\Collection
+    {
+        return DB::table($this->transactionTable . ' as t')
+            ->join($this->listingTable . ' as l', 't.listing_id', '=', 'l.id')
+            ->where('l.seller_id', $sellerId)
+            ->where('t.status', 'completed')
+            ->select(
+                'l.id',
+                'l.title',
+                'l.slug',
+                'l.featured_image_path',
+                DB::raw('COUNT(*) as sales_count'),
+                DB::raw('SUM(t.seller_amount) as total_earned'),
+                't.currency'
+            )
+            ->groupBy('l.id', 'l.title', 'l.slug', 'l.featured_image_path', 't.currency')
+            ->orderByDesc('sales_count')
+            ->limit($limit)
+            ->get();
+    }
+
     /**
      * Admin reviews moderation list.
      *
