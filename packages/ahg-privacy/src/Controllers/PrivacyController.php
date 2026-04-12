@@ -27,10 +27,20 @@
 
 namespace AhgPrivacy\Controllers;
 
+use AhgPrivacy\Services\PrivacyService;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PrivacyController extends Controller
 {
+    protected PrivacyService $service;
+
+    public function __construct()
+    {
+        $this->service = new PrivacyService();
+    }
+
     public function complaintConfirmation() { return view('privacy::complaint-confirmation'); }
 
     public function complaint() { return view('privacy::complaint'); }
@@ -119,4 +129,107 @@ class PrivacyController extends Controller
 
     public function visualRedactionEditor() { return view('privacy::visual-redaction-editor'); }
 
+    // =====================================================================
+    //  POST handlers (Phase X.2 — cloned from PSIS privacyAdmin actions)
+    // =====================================================================
+
+    public function dsarUpdate(Request $request)
+    {
+        $id = (int) $request->input('id');
+        if ($id <= 0) {
+            abort(404);
+        }
+        $this->service->updateDsar($id, $request->all(), (int) Auth::id());
+        session()->flash('success', 'DSAR updated successfully');
+        return redirect()->route('ahgprivacy.dsar-view', ['id' => $id]);
+    }
+
+    public function breachUpdate(Request $request)
+    {
+        $id = (int) $request->input('id');
+        if ($id <= 0) {
+            abort(404);
+        }
+        $this->service->updateBreach($id, $request->all(), (int) Auth::id());
+        session()->flash('success', 'Breach updated successfully');
+        return redirect()->route('ahgprivacy.breach-view', ['id' => $id]);
+    }
+
+    public function consentWithdraw(Request $request)
+    {
+        $id = (int) $request->input('id');
+        if ($id <= 0) {
+            abort(404);
+        }
+        $this->service->withdrawConsent($id, $request->input('reason'), (int) Auth::id());
+        session()->flash('success', 'Consent withdrawn successfully');
+        return redirect()->route('ahgprivacy.consent-list');
+    }
+
+    public function ropaSubmit(Request $request)
+    {
+        $id = (int) $request->input('id');
+        if ($id <= 0) {
+            abort(404);
+        }
+        $officerId = $request->input('officer_id');
+        $officerId = $officerId !== null && $officerId !== '' ? (int) $officerId : null;
+
+        if ($this->service->submitRopaForApproval($id, (int) Auth::id(), $officerId)) {
+            session()->flash('success', 'Processing activity submitted for review');
+        } else {
+            session()->flash('error', 'Unable to submit for review. Only draft items can be submitted.');
+        }
+        return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
+    }
+
+    public function ropaApprove(Request $request)
+    {
+        $id = (int) $request->input('id');
+        if ($id <= 0) {
+            abort(404);
+        }
+        $user = Auth::user();
+        $userId = (int) Auth::id();
+
+        if (!$this->service->isPrivacyOfficer($userId) && !($user && ($user->is_admin ?? false))) {
+            session()->flash('error', 'Only Privacy Officers can approve records');
+            return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
+        }
+
+        if ($this->service->approveRopa($id, $userId, $request->input('comment'))) {
+            session()->flash('success', 'Processing activity approved');
+        } else {
+            session()->flash('error', 'Unable to approve. Only pending review items can be approved.');
+        }
+        return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
+    }
+
+    public function ropaReject(Request $request)
+    {
+        $id = (int) $request->input('id');
+        if ($id <= 0) {
+            abort(404);
+        }
+        $user = Auth::user();
+        $userId = (int) Auth::id();
+
+        if (!$this->service->isPrivacyOfficer($userId) && !($user && ($user->is_admin ?? false))) {
+            session()->flash('error', 'Only Privacy Officers can reject records');
+            return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
+        }
+
+        $reason = trim((string) $request->input('reason'));
+        if ($reason === '') {
+            session()->flash('error', 'Please provide a reason for rejection');
+            return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
+        }
+
+        if ($this->service->rejectRopa($id, $userId, $reason)) {
+            session()->flash('success', 'Processing activity returned for changes');
+        } else {
+            session()->flash('error', 'Unable to reject. Only pending review items can be rejected.');
+        }
+        return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
+    }
 }

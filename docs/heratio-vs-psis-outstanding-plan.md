@@ -80,10 +80,20 @@ Each package = N batches of 5 pages each. Tick off batches as they ship.
 
 ### ✅ X.1 COMPLETE — all 55 marketplace service methods now defined (was 55 missing, now 0)
 
-- [ ] **X.2** ahg-privacy POST handlers + controller methods (6 routes, 2 batches)
-  - [ ] `breach-update`, `consent-withdraw`, `dsar-update`
-  - [ ] `ropa-approve`, `ropa-reject`, `ropa-submit`
-  - Each: add POST route to `routes/web.php` + controller method + PSIS-equivalent business logic
+- [x] **X.2** DONE 2026-04-12 — ahg-privacy POST handlers + controller methods (6 routes). **100% PSIS clones from `ahgPrivacyPlugin/lib/Service/PrivacyService.php` + `privacyAdmin/actions/actions.class.php`.** New `AhgPrivacy\Services\PrivacyService` with 6 public methods + 4 helpers (`getRopa`, `logDsarActivity`, `logApprovalAction`, `createNotification`):
+  - `updateDsar(id, data, userId)` — filtered updates with `completed_date` on status=completed, `verified_at`/`verified_by` on is_verified=true, writes i18n `notes`/`response_summary` via `updateOrInsert`, logs activity
+  - `updateBreach(id, data, userId)` — filtered updates, checkbox 0/1 coercion for notification flags, nullable date handling, writes i18n `title`/`description`/`cause`/`impact_assessment`/`remedial_actions`/`lessons_learned`
+  - `withdrawConsent(id, reason, userId)` — sets status=withdrawn + withdrawn_date + withdrawal_reason
+  - `submitRopaForApproval(id, userId, officerId)` — draft→pending_review gate, auto-picks primary officer if none, logs + notifies
+  - `approveRopa(id, userId, comment)` — pending_review→approved gate, logs + notifies creator
+  - `rejectRopa(id, userId, reason)` — pending_review→draft gate, logs + notifies creator
+  - `isPrivacyOfficer(userId)` — active-officer existence check
+
+  Controller gets 6 POST handlers mirroring PSIS privacyAdmin actions: `dsarUpdate`, `breachUpdate`, `consentWithdraw`, `ropaSubmit`, `ropaApprove`, `ropaReject`. Each validates `$id > 0`, delegates to service, flashes success/error, redirects to matching view route. ROPA approve/reject gates on `isPrivacyOfficer() || user.is_admin` (matches PSIS administrator fallback). 6 POST routes added to `packages/ahg-privacy/routes/web.php` under the `admin/privacy` prefix + `web`+`auth` middleware.
+
+  **DB schema backfill:** Heratio `privacy_consent_record` was missing `withdrawal_reason` + `updated_at` columns (caught by live-test). Both added via ALTER TABLE.
+
+  All 6 service methods + controller instantiation live-tested. Route registration confirmed via `artisan route:list --name=ahgprivacy`.
 
 - [ ] **X.3** ahg-marketplace POST handlers + routes (5 routes, 1 batch)
   - [ ] `admin-payouts-batch`, `buy`, `follow`, `seller-listing-publish`, `seller-listing-withdraw`
