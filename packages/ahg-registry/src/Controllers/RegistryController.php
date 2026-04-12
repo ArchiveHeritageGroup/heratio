@@ -681,12 +681,21 @@ class RegistryController extends Controller
 
     public function adminGroupEdit(int $id)
     {
-        return view('ahg-registry::admin.group-edit', compact('id'));
+        $group = $this->service->getGroup($id);
+        if (!$group) {
+            abort(404);
+        }
+        return view('ahg-registry::admin.group-edit', compact('id', 'group'));
     }
 
     public function adminGroupMembers(int $id)
     {
-        return view('ahg-registry::admin.group-members', compact('id'));
+        $group = $this->service->getGroup($id);
+        if (!$group) {
+            abort(404);
+        }
+        $members = $this->service->getGroupMembers($id);
+        return view('ahg-registry::admin.group-members', compact('id', 'group', 'members'));
     }
 
     public function adminInstitutions(Request $request)
@@ -733,7 +742,11 @@ class RegistryController extends Controller
 
     public function adminStandardEdit(int $id)
     {
-        return view('ahg-registry::admin.standard-edit', compact('id'));
+        $standard = $this->service->getStandard($id);
+        if (!$standard) {
+            abort(404);
+        }
+        return view('ahg-registry::admin.standard-edit', compact('id', 'standard'));
     }
 
     public function adminDropdowns(Request $request)
@@ -746,7 +759,11 @@ class RegistryController extends Controller
 
     public function adminDropdownEdit(int $id)
     {
-        return view('ahg-registry::admin.dropdown-edit', compact('id'));
+        $dropdown = $this->service->getDropdown($id);
+        if (!$dropdown) {
+            abort(404);
+        }
+        return view('ahg-registry::admin.dropdown-edit', compact('id', 'dropdown'));
     }
 
     public function adminBlog(Request $request)
@@ -785,7 +802,8 @@ class RegistryController extends Controller
 
     public function adminNewsletterForm(int $id = null)
     {
-        return view('ahg-registry::admin.newsletter-form', compact('id'));
+        $newsletter = $this->service->getNewsletter($id);
+        return view('ahg-registry::admin.newsletter-form', compact('id', 'newsletter'));
     }
 
     public function adminSubscribers(Request $request)

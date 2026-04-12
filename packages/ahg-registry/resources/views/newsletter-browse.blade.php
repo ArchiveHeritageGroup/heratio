@@ -1,58 +1,97 @@
+{{--
+  Registry — Newsletters
+  Cloned from PSIS newsletterBrowseSuccess.php.
+  Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
+  This file is part of Heratio. AGPL-3.0-or-later.
+--}}
 @extends('theme::layouts.1col')
 
-@section('title', 'Newsletters')
+@section('title', __('Newsletters'))
+@section('body-class', 'registry registry-newsletter-browse')
+
+@php
+  $newsletters = $result ?? $newsletters ?? ['items' => collect(), 'total' => 0, 'page' => 1];
+  $items = $newsletters['items'] ?? collect();
+  $total = (int) ($newsletters['total'] ?? 0);
+  $page  = (int) ($newsletters['page'] ?? 1);
+  $limit = 12;
+@endphp
 
 @section('content')
-
 <nav aria-label="breadcrumb" class="mb-3">
   <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('registry.index') }}">{{ __('Registry') }}</a></li>
     <li class="breadcrumb-item active">{{ __('Newsletters') }}</li>
   </ol>
 </nav>
 
-<div class="row mb-4 align-items-center">
-  <div class="col">
-    <h1 class="h3 mb-1"><i class="fas fa-newspaper me-2"></i>{{ __('Newsletters') }}</h1>
-    <p class="text-muted mb-0">{{ __(':count items', ['count' => number_format($result['total'] ?? 0)]) }}</p>
-  </div>
-  @auth
-  <div class="col-auto">
-    <a href="{{ route('registry.newsletterBrowse') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-plus me-1"></i>{{ __('Add') }}</a>
-  </div>
-  @endauth
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0">{{ __('Newsletters') }}</h1>
+  @if(Route::has('registry.newsletterSubscribe'))
+    <a href="{{ route('registry.newsletterSubscribe') }}" class="btn btn-primary btn-sm">
+      <i class="fas fa-envelope me-1"></i> {{ __('Subscribe') }}
+    </a>
+  @endif
 </div>
 
-<div class="mb-4">
-  <form method="get">
-    <div class="input-group">
-      <input type="text" class="form-control" name="q" value="{{ request('q') }}" placeholder="{{ __('Search...') }}">
-      <button type="submit" class="btn atom-btn-white"><i class="fas fa-search"></i></button>
-    </div>
-  </form>
-</div>
-
-@if(!empty($result['items']) && count($result['items']))
-<div class="table-responsive">
-  <table class="table table-striped table-bordered">
-    <thead>
-      <tr>
-        <th>{{ __('Name') }}</th>
-        <th>{{ __('Updated') }}</th>
-      </tr>
-    </thead>
-    <tbody>
-      @foreach($result['items'] as $item)
-      <tr>
-        <td>{{ e($item->name ?? '') }}</td>
-        <td>{{ $item->updated_at ?? '' }}</td>
-      </tr>
-      @endforeach
-    </tbody>
-  </table>
-</div>
+@if(empty($items) || count($items) === 0)
+  <div class="text-center py-5">
+    <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
+    <p class="text-muted">{{ __('No newsletters have been published yet.') }}</p>
+    @if(Route::has('registry.newsletterSubscribe'))
+      <a href="{{ route('registry.newsletterSubscribe') }}" class="btn btn-outline-primary mt-2">
+        <i class="fas fa-envelope me-1"></i> {{ __('Subscribe to be notified') }}
+      </a>
+    @endif
+  </div>
 @else
-<div class="alert alert-info">{{ __('No results found.') }}</div>
-@endif
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @foreach($items as $nl)
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge bg-success"><i class="fas fa-check me-1"></i>{{ __('Sent') }}</span>
+              <small class="text-muted">{{ date('j M Y', strtotime($nl->sent_at ?? $nl->created_at ?? 'now')) }}</small>
+            </div>
+            <h5 class="card-title mb-2">
+              @if(Route::has('registry.newsletterView'))
+                <a href="{{ route('registry.newsletterView', ['id' => (int) $nl->id]) }}" class="text-decoration-none text-dark">{{ $nl->subject ?? '' }}</a>
+              @else
+                {{ $nl->subject ?? '' }}
+              @endif
+            </h5>
+            @if(!empty($nl->excerpt))
+              <p class="card-text text-muted small">{{ $nl->excerpt }}</p>
+            @else
+              <p class="card-text text-muted small">{{ \Illuminate\Support\Str::limit(strip_tags($nl->content ?? ''), 150) }}</p>
+            @endif
+          </div>
+          <div class="card-footer bg-transparent border-top-0">
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted"><i class="fas fa-users me-1"></i>{{ number_format((int) ($nl->recipient_count ?? 0)) }} {{ __('recipients') }}</small>
+              @if(Route::has('registry.newsletterView'))
+                <a href="{{ route('registry.newsletterView', ['id' => (int) $nl->id]) }}" class="btn btn-sm btn-outline-primary">{{ __('Read') }} <i class="fas fa-arrow-right ms-1"></i></a>
+              @endif
+            </div>
+          </div>
+        </div>
+      </div>
+    @endforeach
+  </div>
 
+  @if($total > $limit)
+    @php $totalPages = (int) ceil($total / $limit); @endphp
+    <nav class="mt-4">
+      <ul class="pagination justify-content-center">
+        @for($p = 1; $p <= $totalPages; $p++)
+          <li class="page-item {{ $p === $page ? 'active' : '' }}">
+            <a class="page-link" href="{{ route('registry.newsletterBrowse', ['page' => $p]) }}">{{ $p }}</a>
+          </li>
+        @endfor
+      </ul>
+    </nav>
+  @endif
+@endif
 @endsection

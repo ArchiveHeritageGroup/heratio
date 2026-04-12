@@ -433,6 +433,48 @@ class RegistryService
     }
 
     /* ------------------------------------------------------------------ */
+    /*  Edit-form helpers for batch 6                                     */
+    /* ------------------------------------------------------------------ */
+
+    public function getGroup(int $id): ?object
+    {
+        return \Schema::hasTable('registry_user_group')
+            ? DB::table('registry_user_group')->where('id', $id)->first()
+            : null;
+    }
+
+    public function getGroupMembers(int $id): \Illuminate\Support\Collection
+    {
+        if (!\Schema::hasTable('registry_user_group_member')) return collect();
+        return DB::table('registry_user_group_member as m')
+            ->leftJoin('user as u', 'm.user_id', '=', 'u.id')
+            ->where('m.group_id', $id)
+            ->select('u.id', 'u.username', 'u.email', 'm.role', 'm.created_at')
+            ->orderBy('u.username')
+            ->get();
+    }
+
+    public function getStandard(int $id): ?object
+    {
+        return \Schema::hasTable('registry_standard')
+            ? DB::table('registry_standard')->where('id', $id)->first()
+            : null;
+    }
+
+    public function getDropdown(int $id): ?object
+    {
+        return \Schema::hasTable('registry_dropdown')
+            ? DB::table('registry_dropdown')->where('id', $id)->first()
+            : null;
+    }
+
+    public function getNewsletter(?int $id): ?object
+    {
+        if (!$id || !\Schema::hasTable('registry_newsletter')) return null;
+        return DB::table('registry_newsletter')->where('id', $id)->first();
+    }
+
+    /* ------------------------------------------------------------------ */
     /*  Extra admin helpers for batches 4+5                               */
     /* ------------------------------------------------------------------ */
 

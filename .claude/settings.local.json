@@ -300,7 +300,8 @@
       "Bash(sort -u comm -23 /tmp/x7/all_refs.txt /tmp/tables_existing.txt echo \"All missing tables after X.7.A+X.7.E:\" cat /tmp/x7/all_missing.txt echo --- echo \"Count: $\\(wc -l < /tmp/x7/all_missing.txt\\)\")",
       "Bash(sort comm:*)",
       "Bash(sort -u wc -l /tmp/x10/gets.txt head -30 /tmp/x10/gets.txt)",
-      "Bash(sort wc:*)"
+      "Bash(sort wc:*)",
+      "Bash(sort echo:*)"
     ]
   }
 }
