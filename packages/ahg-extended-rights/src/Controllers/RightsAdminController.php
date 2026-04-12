@@ -306,7 +306,23 @@ class RightsAdminController extends Controller
         $repositories = DB::table('repository')->orderBy('id')->limit(500)->get();
         $recentBatches = collect();
 
-        return view('ahg-extended-rights::admin.batch', compact('statements', 'ccLicenses', 'tkLabels', 'repositories', 'recentBatches'));
+        // Donors for the Rights Holder picker (cloned from PSIS batchAction donors list)
+        $donors = collect();
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('actor') && \Illuminate\Support\Facades\Schema::hasColumn('actor', 'entity_type_id')) {
+                $donors = DB::table('actor as a')
+                    ->leftJoin('actor_i18n as ai', function ($j) {
+                        $j->on('ai.id', '=', 'a.id')->where('ai.culture', '=', app()->getLocale());
+                    })
+                    ->where('a.entity_type_id', 173) // donor entity type
+                    ->select('a.id', DB::raw('ai.authorized_form_of_name as name'))
+                    ->orderBy('name')
+                    ->limit(1000)
+                    ->get();
+            }
+        } catch (\Exception $e) {}
+
+        return view('ahg-extended-rights::admin.batch', compact('statements', 'ccLicenses', 'tkLabels', 'repositories', 'recentBatches', 'donors'));
     }
 
     public function batchStore(Request $request)
@@ -413,13 +429,34 @@ class RightsAdminController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('ahg-extended-rights::admin.export', compact('stats', 'repositories'));
+        // Top-level records for the single-object export picker (cloned from PSIS exportAction)
+        $topLevelRecords = collect();
+        try {
+            $topLevelRecords = DB::table('information_object as o')
+                ->leftJoin('information_object_i18n as ioi', function ($j) {
+                    $j->on('ioi.id', '=', 'o.id')->where('ioi.culture', '=', app()->getLocale());
+                })
+                ->whereNull('o.parent_id')
+                ->orWhere('o.parent_id', 1)
+                ->select('o.id', 'ioi.title', 'o.identifier')
+                ->orderBy('ioi.title')
+                ->limit(1000)
+                ->get();
+        } catch (\Exception $e) {}
+
+        return view('ahg-extended-rights::admin.export', compact('stats', 'repositories', 'topLevelRecords'));
     }
 
     public function exportCsv(Request $request)
     {
+        // Single-object export form sends format=json-ld here when JSON-LD is selected — delegate.
+        if ($request->input('format') === 'json-ld') {
+            return $this->exportJsonld($request);
+        }
+
         $repositoryId = $request->input('repository');
         $type = $request->input('type');
+        $objectId = (int) $request->input('object_id');
 
         $query = DB::table('rights_record as r')
             ->leftJoin('information_object as o', 'r.object_id', '=', 'o.id')
@@ -428,6 +465,9 @@ class RightsAdminController extends Controller
             })
             ->select('r.id', 'r.object_id', 'oi.title', 'r.rights_type', 'r.rights_value', 'r.rights_date');
 
+        if ($objectId) {
+            $query->where('r.object_id', $objectId);
+        }
         if ($repositoryId) {
             $query->where('o.repository_id', $repositoryId);
         }

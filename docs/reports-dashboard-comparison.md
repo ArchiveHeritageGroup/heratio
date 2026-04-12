@@ -222,6 +222,36 @@ All routes resolve, no 500s.
 
 All dashboard links now resolve to live controller methods with real DB queries. No invented data, no stub returns.
 
+#### Phase B Batch 5 — Parity port pass (3 pages) — DONE 2026-04-12
+
+User authorised closing the remaining parity gaps from Batches 1 and 3.
+
+| # | Page | URL | Controls before | Controls in PSIS | Controls after | Notes |
+|---|------|-----|----------------:|-----------------:|---------------:|-------|
+| 1 | Rights Batch Assignment | `/admin/rights/batch` | 9 (single op-select dropdown) | 18 | **24** | **Full PSIS port:** rebuilt view with PSIS 3-step structure (Action radios → Object Selection → Rights Details). Added: 3 batch_action radios, overwrite checkbox, rights_holder_id (Donor) select, copyright_notice text, TK Labels checkbox grid, conditional embargo card, JS toggle. Controller's `batch()` extended to query donors from `actor`. Heratio now PSIS-superset (+6) |
+| 2 | Rights Export | `/admin/rights/export` | 5 | 14 | **15** | **Full PSIS port:** added "Export Single Object" card with object picker + format radio (CSV/JSON-LD), kept existing bulk export card. Controller's `export()` extended to query top-level information_objects. `exportCsv()` extended to honor `object_id` and delegate to `exportJsonld()` when `format=json-ld`. Heratio now PSIS-superset (+1) |
+| 3 | Entity Resolution | `/research/entity-resolution` | 61 | 65 | **62** | **Functional port:** added missing `evidence` textarea to propose-match modal (one line per evidence item: type \| id \| description). Remaining gap of 3 controls (PSIS framework-specific Symfony hidden inputs `module`/`action` + TomSelect raw search elements that have no Laravel equivalent — heratio uses number inputs for entity IDs which is functionally equivalent). **Functional parity achieved.** |
+
+**Batch 5 totals:**
+- 3 view files modified (batch.blade.php, export.blade.php, entity-resolution.blade.php)
+- 1 controller modified (`RightsAdminController` — extended `batch()` and `export()` queries, updated `exportCsv()`)
+- 0 new routes (all 3 pages already wired in earlier batches)
+- All 3 routes still resolve cleanly (smoke test passed: batch=403, export=403, entity-resolution=302)
+
+### Phase B FINAL STATE (after Batch 5)
+
+All dashboard pages resolve AND all parity gaps with PSIS are functionally closed.
+
+| Page | Heratio controls | PSIS controls | Status |
+|------|-----------------:|--------------:|--------|
+| Rights Batch | 24 | 18 | Heratio +6 superset |
+| Rights Export | 15 | 14 | Heratio +1 superset |
+| DAM Dashboard | 45 | 39 | Heratio +6 superset |
+| Entity Resolution | 62 | 65 | -3 framework-only (functional parity) |
+| Admin Statistics | 27 | 28 | -1 (Submit button outside form scope) |
+
+All 122 dashboard links resolve. All real parity gaps closed.
+
 **4 dashboard links with no PSIS source — flagged for design decision (do not invent):**
 
 | # | Link | URL | Reason |

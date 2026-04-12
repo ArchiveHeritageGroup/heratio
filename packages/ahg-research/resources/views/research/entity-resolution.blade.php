@@ -200,6 +200,12 @@
                         <label class="form-label form-label-sm">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
                         <textarea name="notes" class="form-control form-control-sm" rows="2"></textarea>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label form-label-sm">{{ __('Evidence') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <textarea name="evidence" class="form-control form-control-sm font-monospace" rows="3"
+                                  placeholder="authority_record | 123 | VIAF match confirmed&#10;document | 456 | Cross-reference in finding aid"></textarea>
+                        <small class="text-muted">{{ __('One line per evidence item: type | id | description') }}</small>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
