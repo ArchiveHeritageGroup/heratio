@@ -289,7 +289,8 @@
       "Bash(bash /tmp/bulk_port.sh)",
       "Bash(bash /tmp/bulk_port2.sh)",
       "Bash(sort -u wc -l /tmp/touched_48h.txt echo \"---\")",
-      "Bash(stat -c '%Y %n' /usr/share/nginx/registry/wp-content/themes/envo-royal/*.php /usr/share/nginx/registry/wp-content/themes/envo-royal/extra/*.php)"
+      "Bash(stat -c '%Y %n' /usr/share/nginx/registry/wp-content/themes/envo-royal/*.php /usr/share/nginx/registry/wp-content/themes/envo-royal/extra/*.php)",
+      "Bash(sort -u wc -l /tmp/tables_referenced.txt)"
     ]
   }
 }

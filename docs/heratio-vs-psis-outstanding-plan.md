@@ -135,7 +135,15 @@ Each package = N batches of 5 pages each. Tick off batches as they ship.
 
   All 4 target routes verified via `Route::has()` at runtime. No controllers or routes changed — view-only fix.
 
-- [ ] **X.7** DB table verification pass — **SKIPPED 2026-04-12** at user's request. User is adding missing tables to PSIS directly; will return to this phase later to pull the authoritative schema back into Heratio. Known-missing tables already flagged: `ahg_tenant` (X.5 guarded in `getCurrentTenant`), ingest tables name-divergence fixed inline during X.5.
+- [x] **X.7** DONE 2026-04-12 — DB table verification pass (audit-only). Full report in `docs/db-tables-required.md`.
+  - Scanned 562 unique `DB::table('…')` references across all packages.
+  - Compared against live heratio DB (919 tables).
+  - **77 tables referenced but not present**, classified:
+    - **A. Table-name typos (20)** — fix the code, real table exists under a different name. Top offenders: `ahg_dropdowns`/`ahg_dropdown_values` → `ahg_dropdown` (mandated by CLAUDE.md), `ahg_landing_*` → `atom_landing_*`, `ingest_column_mapping` → `ingest_mapping`, `nmmz_hia` → `nmmz_heritage_impact_assessment`, `orphan_work` → `rights_orphan_work`, `tk_label` → `rights_tk_label`, `workflow_state` → `spectrum_workflow_state`, `clipboard` → `clipboard_save`, `favorites_item` → `favorites`, `ahg_webhooks` → `ahg_webhook`, `ahg_orders` → `ahg_order`.
+    - **B. Pre-existing feature gaps (44)** — real features whose install.sql was never run. Biggest groups: reports (11 tables, entire `ahg_report*` family), heritage-accounting subsidiaries (9 tables — only parent `heritage_asset` + `heritage_asset_class` exist), gallery/museum/library entity tables (7), AI training + prompt tables (3), preservation (2), integrity (3).
+    - **C. Already deferred (5)** — `ahg_tenant*` family (X.5 try/catch guard), `ingest_column_mapping`/`ingest_validation_error` (partially fixed mid-X.5 inside `IngestService::deleteSession` but other callers still use wrong names).
+    - **D. Stale/dead-code references (8)** — legacy plugin names for schema that was renamed; candidates for deletion not provisioning.
+  - **Impact:** ~30 pages at risk of HTTP 500 for a schema reason (3 marketplace / 12 admin / 15 dormant-feature). User handling schema provisioning externally; Heratio-side followups are the 20 typos in Category A, which can be fixed in code without any DB change.
 
 - [x] **X.8** DONE 2026-04-12 — Validation rule backfill. **Audit over-count: actual was 32 POST handlers, not ~62.** The ~62 figure double-counted dual GET/POST methods. Scoped to the real set: **26 marketplace + 6 privacy = 32 handlers**. Of those, 9 marketplace handlers already had inline `$request->validate()` before X.8; the remaining **21 handlers** (15 marketplace + 6 privacy) were bare. All 21 now covered with inline rules — no FormRequest classes needed for this pass (rules are short enough that inline is clearer than per-method PSR-4 classes; can refactor later if rule sets grow).
 
