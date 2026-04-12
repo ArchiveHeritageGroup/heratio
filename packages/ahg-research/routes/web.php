@@ -62,6 +62,7 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
 
     // Entity Resolution
     Route::match(['get', 'post'], '/entityResolution', [ResearchController::class, 'entityResolution'])->name('entityResolution');
+    Route::match(['get', 'post'], '/entity-resolution', [ResearchController::class, 'entityResolution'])->name('entity-resolution');
     Route::post('/entity-resolution/{id}/resolve', [ResearchController::class, 'resolveEntityResolution'])->name('resolveEntityResolution')->where('id', '[0-9]+');
     Route::get('/entity-resolution/{id}/conflicts', [ResearchController::class, 'entityResolutionConflicts'])->name('entityResolutionConflicts')->where('id', '[0-9]+');
 
@@ -177,6 +178,11 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
 
 // Admin research management routes
 Route::prefix('research')->name('research.')->middleware('admin')->group(function () {
+    // Dashboard URL aliases under /research/admin/* (matches reports dashboard links)
+    Route::match(['get', 'post'], '/admin/researchers', [ResearchController::class, 'researchers'])->name('admin.researchers');
+    Route::match(['get', 'post'], '/admin/bookings', [ResearchController::class, 'bookings'])->name('admin.bookings');
+    Route::match(['get', 'post'], '/admin/statistics', [ResearchController::class, 'adminStatistics'])->name('admin.statistics');
+
     Route::match(['get', 'post'], '/researchers', [ResearchController::class, 'researchers'])->name('researchers');
     Route::match(['get', 'post'], '/viewResearcher/{id}', [ResearchController::class, 'viewResearcher'])->name('viewResearcher')->where('id', '[0-9]+');
     Route::post('/approveResearcher/{id}', [ResearchController::class, 'approveResearcher'])->name('approveResearcher')->where('id', '[0-9]+');

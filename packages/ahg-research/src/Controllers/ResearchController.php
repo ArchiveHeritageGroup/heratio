@@ -2390,21 +2390,56 @@ class ResearchController extends Controller
                 ->groupBy('rm.name')->orderByDesc('count')->get()->toArray();
         } catch (\Exception $e) {}
 
-        // Most active researchers
+        // Most active researchers (cloned from PSIS adminStatistics — includes view_count + citation_count)
         $activeResearchers = [];
         try {
             $activeResearchers = DB::table('research_researcher as r')
                 ->select('r.id', 'r.first_name', 'r.last_name', 'r.institution',
                     DB::raw('(SELECT COUNT(*) FROM research_booking WHERE researcher_id = r.id) as booking_count'),
-                    DB::raw('(SELECT COUNT(*) FROM research_collection WHERE researcher_id = r.id) as collection_count'))
+                    DB::raw('(SELECT COUNT(*) FROM research_collection WHERE researcher_id = r.id) as collection_count'),
+                    DB::raw('(SELECT COUNT(*) FROM research_activity_log WHERE user_id = r.user_id AND activity_type = "view") as view_count'),
+                    DB::raw('(SELECT COUNT(*) FROM research_citation_log WHERE researcher_id = r.id) as citation_count'))
                 ->where('r.status', 'approved')
                 ->orderByDesc(DB::raw('(SELECT COUNT(*) FROM research_booking WHERE researcher_id = r.id)'))
                 ->limit(10)->get()->toArray();
         } catch (\Exception $e) {}
 
+        // Most viewed items (cloned from PSIS adminStatistics)
+        $mostViewed = [];
+        try {
+            $mostViewed = DB::table('research_activity_log as a')
+                ->leftJoin('information_object_i18n as ioi', function ($j) {
+                    $j->on('ioi.id', '=', 'a.object_id')
+                        ->where('ioi.culture', '=', app()->getLocale());
+                })
+                ->where('a.activity_type', 'view')
+                ->whereBetween('a.created_at', [$dateFrom, $dateTo . ' 23:59:59'])
+                ->select('ioi.title', DB::raw('COUNT(*) as view_count'))
+                ->groupBy('a.object_id', 'ioi.title')
+                ->orderByDesc('view_count')
+                ->limit(10)
+                ->get()->toArray();
+        } catch (\Exception $e) {}
+
+        // Most cited items (cloned from PSIS adminStatistics)
+        $mostCited = [];
+        try {
+            $mostCited = DB::table('research_citation_log as c')
+                ->leftJoin('information_object_i18n as ioi', function ($j) {
+                    $j->on('ioi.id', '=', 'c.object_id')
+                        ->where('ioi.culture', '=', app()->getLocale());
+                })
+                ->whereBetween('c.created_at', [$dateFrom, $dateTo . ' 23:59:59'])
+                ->select('ioi.title', DB::raw('COUNT(*) as citation_count'))
+                ->groupBy('c.object_id', 'ioi.title')
+                ->orderByDesc('citation_count')
+                ->limit(10)
+                ->get()->toArray();
+        } catch (\Exception $e) {}
+
         return view('research::research.admin-statistics', array_merge(
             $this->getSidebarData('adminStatistics'),
-            compact('stats', 'dateFrom', 'dateTo', 'regData', 'roomData', 'activeResearchers')
+            compact('stats', 'dateFrom', 'dateTo', 'regData', 'roomData', 'activeResearchers', 'mostViewed', 'mostCited')
         ));
     }
 

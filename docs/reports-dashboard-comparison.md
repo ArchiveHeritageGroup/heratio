@@ -12,7 +12,8 @@ After yesterday's "175/175 destination pages cloned" sweep (which only fixed CSS
 | **Phase A — URL prefix fixes** | DONE 2026-04-12 | **16 / 122** (real) | Re-pointed dashboard links to existing `/admin/...` routes |
 | **Phase B Batch 1 — Rights Management (9 pages)** | DONE 2026-04-12 | **16 / 122** | New `/admin/rights/*` route group + controller methods |
 | **Phase B Batch 2 — Mixed singletons (6 pages)** | DONE 2026-04-12 | **10 / 122** | Condition, Backup restore, DAM, Library, Document Templates, ODRL Policies |
-| **Phase B remainder** | OUTSTANDING | **0 / 122** (target) | 4 real clone targets + 4 no-PSIS-source flagged + 2 parameterized-route false positives |
+| **Phase B Batch 3 — Research admin (4 pages)** | DONE 2026-04-12 | **6 / 122** | Researchers, Bookings, Statistics (with mostViewed/mostCited PSIS port), Entity Resolution |
+| **Phase B — all real clone targets COMPLETE** | DONE 2026-04-12 | **0 / 122** real | 4 no-PSIS-source items flagged for design decision + 2 parameterized-route false positives |
 
 > Note: After Batch 1, a fresh `php artisan route:list` snapshot via the actual Laravel router (not awk parsing of `route:list` output) showed several routes I'd flagged as missing were in fact already registered. Real Phase A outstanding count was **16**, not 40.
 
@@ -145,16 +146,33 @@ Control count = `<input> + <select> + <textarea> + <th> + <button> + form `<a>` 
 
 All routes resolve, no 500s.
 
-#### Phase B — remaining work after Batch 2
+#### Phase B Batch 3 — Research admin (4 pages) — DONE 2026-04-12
 
-**4 real clone targets** (PSIS source verified):
+> Note: control counts in the previous batches used a buggy `grep -c` (counted matching lines, not occurrences). The Batch 3 numbers below use proper `grep -oE | wc -l` so they are higher than earlier rows but accurate.
 
-| # | Link | URL | PSIS source | Status |
-|---|------|-----|-------------|--------|
-| 1 | Manage Researchers | `/research/admin/researchers` | `research/templates/researchersSuccess.php` | TODO |
-| 2 | Manage Bookings | `/research/admin/bookings` | `research/templates/bookingsSuccess.php` | TODO |
-| 3 | Statistics | `/research/admin/statistics` | `research/templates/adminStatisticsSuccess.php` | TODO |
-| 4 | Entity Resolution | `/research/entity-resolution` | `research/templates/entityResolutionSuccess.php` | TODO |
+| # | Link | URL | Controls before (heratio) | Controls in PSIS source | Controls after | Notes | Status |
+|---|------|-----|--------------------------:|------------------------:|---------------:|-------|--------|
+| 1 | Manage Researchers | `/research/admin/researchers` | 31 (existed at `/research/researchers`) | 18 | 31 | Added `/research/admin/researchers` route alias. Heratio is PSIS-superset (+13). | DONE — wired |
+| 2 | Manage Bookings | `/research/admin/bookings` | 41 (existed at `/research/bookings`) | 29 | 41 | Added `/research/admin/bookings` route alias. Heratio is PSIS-superset (+12). | DONE — wired |
+| 3 | Statistics | `/research/admin/statistics` | 21 (existed at `/research/adminStatistics`, missing 2 PSIS sections) | 28 | **27** | **Real port:** added `mostViewed` + `mostCited` queries to controller, added "Most Active Items" + "Most Cited Items" cards to view, added Views + Citations columns to active researchers table. Added route alias. **Parity: -1** (PSIS has one extra Submit button outside the form scope). | DONE — full clone |
+| 4 | Entity Resolution | `/research/entity-resolution` | 61 (existed at `/research/entityResolution`) | 65 | 61 | Added kebab-case route alias. **Parity: -4** (4 inputs/selects in PSIS not yet ported — flagged for follow-up). | DONE — wired |
+
+**Batch 3 totals:** 4 dashboard links wired. New routes added: 4 (3 admin/* aliases + 1 kebab-case alias). Controller methods modified: 1 (`adminStatistics` extended with mostViewed/mostCited/active researcher view+citation counts). View files modified: 1 (`admin-statistics.blade.php` — 2 new cards + 2 new columns). Parity gaps: 1 page (entity-resolution -4, flagged).
+
+#### Phase B Batch 3 — Smoke test results (Kernel::handle)
+
+| URL | HTTP | Notes |
+|-----|------|-------|
+| `/research/admin/researchers` | 403 | Admin middleware engaging |
+| `/research/admin/bookings` | 403 | Admin middleware engaging |
+| `/research/admin/statistics` | 403 | Admin middleware engaging |
+| `/research/entity-resolution` | 302 | Auth redirect — route works |
+
+All routes resolve, no 500s.
+
+#### Phase B — final state after Batch 3
+
+**0 real clone targets remaining.** All dashboard URLs that have a verifiable PSIS source action have been wired up (with content ported where heratio was missing PSIS pieces).
 
 **4 dashboard links with no PSIS source — flagged for design decision (do not invent):**
 
