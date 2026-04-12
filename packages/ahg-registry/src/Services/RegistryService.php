@@ -432,6 +432,78 @@ class RegistryService
         return ['items' => $items, 'total' => $total, 'page' => $page];
     }
 
+    public function getPendingUsers(int $limit = 100): \Illuminate\Support\Collection
+    {
+        if (!\Schema::hasTable('user')) {
+            return collect();
+        }
+        // AtoM `user` has no timestamps — they live on `object` (CTI parent).
+        return DB::table('user as u')
+            ->leftJoin('object as o', 'o.id', '=', 'u.id')
+            ->where('u.active', 0)
+            ->orderByDesc('o.created_at')
+            ->limit($limit)
+            ->select('u.id', 'u.username', 'u.email', 'o.created_at')
+            ->get();
+    }
+
+    public function getActiveUsers(int $limit = 100): \Illuminate\Support\Collection
+    {
+        if (!\Schema::hasTable('user')) {
+            return collect();
+        }
+        return DB::table('user as u')
+            ->leftJoin('object as o', 'o.id', '=', 'u.id')
+            ->where('u.active', 1)
+            ->orderByDesc('o.updated_at')
+            ->limit($limit)
+            ->select('u.id', 'u.username', 'u.email', 'o.updated_at as last_login_at')
+            ->get();
+    }
+
+    public function getRegistryUser(int $id): ?object
+    {
+        return \Schema::hasTable('user')
+            ? DB::table('user')->where('id', $id)->first()
+            : null;
+    }
+
+    public function getInstitutionUsers(int $institutionId): \Illuminate\Support\Collection
+    {
+        if (!\Schema::hasTable('registry_user_institution')) {
+            return collect();
+        }
+        return DB::table('registry_user_institution as ui')
+            ->join('user as u', 'ui.user_id', '=', 'u.id')
+            ->where('ui.institution_id', $institutionId)
+            ->select('u.id', 'u.username', 'u.email', 'ui.role', 'ui.created_at')
+            ->orderBy('u.username')
+            ->get();
+    }
+
+    public function adminBrowseReviews(?string $q = null, ?string $status = null, int $page = 1, int $limit = 50): array
+    {
+        if (!\Schema::hasTable('registry_review')) {
+            return ['items' => collect(), 'total' => 0, 'page' => $page];
+        }
+        $query = DB::table('registry_review');
+        if ($q) {
+            $query->where(function ($w) use ($q) {
+                $w->where('title', 'like', "%{$q}%")
+                  ->orWhere('comment', 'like', "%{$q}%");
+            });
+        }
+        if ($status) {
+            $query->where('status', $status);
+        }
+        $total = (int) (clone $query)->count();
+        $items = $query->orderByDesc('created_at')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+        return ['items' => $items, 'total' => $total, 'page' => $page];
+    }
+
     public function adminBrowseNewsletters(?string $q = null, int $page = 1, int $limit = 50): array
     {
         if (!\Schema::hasTable('registry_newsletter')) {

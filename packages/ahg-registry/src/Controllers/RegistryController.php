@@ -648,17 +648,27 @@ class RegistryController extends Controller
 
     public function adminUsers()
     {
-        return view('ahg-registry::admin.users');
+        $pendingUsers = $this->service->getPendingUsers();
+        $activeUsers  = $this->service->getActiveUsers();
+        return view('ahg-registry::admin.users', compact('pendingUsers', 'activeUsers'));
     }
 
     public function adminUserEdit(int $id)
     {
-        return view('ahg-registry::admin.user-edit', compact('id'));
+        $user = $this->service->getRegistryUser($id);
+        if (!$user) {
+            abort(404);
+        }
+        return view('ahg-registry::admin.user-edit', compact('id', 'user'));
     }
 
     public function adminUserManage(int $id)
     {
-        return view('ahg-registry::admin.user-manage', compact('id'));
+        $user = $this->service->getRegistryUser($id);
+        if (!$user) {
+            abort(404);
+        }
+        return view('ahg-registry::admin.user-manage', compact('id', 'user'));
     }
 
     public function adminGroups(Request $request)
@@ -689,7 +699,12 @@ class RegistryController extends Controller
 
     public function adminInstitutionUsers(int $id)
     {
-        return view('ahg-registry::admin.institution-users', compact('id'));
+        $institution = $this->service->getInstitution($id);
+        if (!$institution) {
+            abort(404);
+        }
+        $users = $this->service->getInstitutionUsers($id);
+        return view('ahg-registry::admin.institution-users', compact('id', 'institution', 'users'));
     }
 
     public function adminVendors(Request $request)
@@ -751,9 +766,13 @@ class RegistryController extends Controller
         return view('ahg-registry::admin.discussions', compact('result', 'q'));
     }
 
-    public function adminReviews()
+    public function adminReviews(Request $request)
     {
-        return view('ahg-registry::admin.reviews');
+        $q = $request->input('q');
+        $status = $request->input('status');
+        $page = max(1, (int) $request->input('page', 1));
+        $result = $this->service->adminBrowseReviews($q, $status, $page);
+        return view('ahg-registry::admin.reviews', compact('result', 'q', 'status'));
     }
 
     public function adminNewsletters(Request $request)
