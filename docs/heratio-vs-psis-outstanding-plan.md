@@ -49,8 +49,89 @@ Each package = N batches of 5 pages each. Tick off batches as they ship.
   - [x] batch 5/7 DONE 2026-04-12: bid-form (24/24), offer-form (16/16), enquiry-form (19/19), review-form (17/17), seller-register (23/23). **Exact parity on all 5 pages** (five identical control counts — the sharpest batch yet). bid-form has full auction countdown JS and proxy-bid field; review-form has the 5-star hover-to-highlight UI; seller-register adds Stripe + Wise to payout methods list and defaults currency to `config('heratio.base_currency')`. Smoke test: 4× HTTP 302 + 1× HTTP 404, no 500s.
   - [x] batch 6/7 DONE 2026-04-12: search (31/28 +3), seller-enquiries (30/30), seller-collections (23/23), seller-collection-create (18/17 +1), my-following (25/25). **3 exact parity + 2 supersets.** **Fixed 1 more pre-existing bug:** `MarketplaceController::search()` called non-existent `$service->search()` — now uses `getListings()` with `q` filter and separately fetches facet counts. Smoke test: `/marketplace/search` now returns HTTP 200 (full render, 63 KB), others 4× HTTP 302 auth.
   - [x] batch 7/7 DONE 2026-04-12 — **FINAL BATCH**: seller-offer-respond (25/26 -1), seller-transaction-detail (16/17 -1). Both near-exact parity. `seller-offer-respond` wires 3 separate forms (accept / reject / counter-offer) against the same `id`. `seller-transaction-detail` renders a 5-step status pipeline timeline, financial breakdown, and shipping update form. **International framing:** PSIS "VAT" row is now labelled generically as "Tax" (other markets use GST/Sales Tax); courier placeholder dropped SA-specific examples (DHL/PostNet/Courier Guy) in favour of generic (DHL/FedEx/UPS/local). Smoke test: 2× HTTP 302 auth. **C-1 ahg-marketplace is 32/32 — COMPLETE.**
-- [~] **C-2** ahg-privacy (29 stubs → 6 batches: 5+5+5+5+5+4) — **15/29 DONE (52%)** 2026-04-12
-  - [x] batches 1–3/6 (silent run, 15 pages): dsar-list, dsar-add, dsar-edit, dsar-view, ropa-add, ropa-edit, ropa-view, breach-add, breach-edit, breach-view, consent-add, consent-edit, consent-view, complaint-add, complaint-list. **15/15 at EXACT parity** with PSIS control counts (28, 24, 33, 15, 30, 30, 19, 20, 34, 15, 19, 19, 11, 18, 19). Used a Python converter script to bulk-translate PSIS blade helpers: `url_for(['module'=>'X','action'=>'Y'])` → `route('ahgprivacy.y-kebab')`, `$sf_user->hasFlash/getFlash` → `session()`, `$sf_request->getParameter` → `request()`, `@extends('layouts.page')` → `@extends('theme::layouts.1col')`. Manually patched `ropa-view.blade.php` which instantiated a non-existent `\ahgPrivacyPlugin\Service\PrivacyService` — now falls back to `auth()` helpers and empty collections. Smoke test: 15× HTTP 302 auth redirect, zero 500s.
+- [x] **C-2** ahg-privacy (29 stubs → 6 batches: 5+5+5+5+5+4) — **29/29 DONE (100%)** 2026-04-12
+  - [x] batches 1–3/6 (silent run, 15 pages): dsar-list, dsar-add, dsar-edit, dsar-view, ropa-add, ropa-edit, ropa-view, breach-add, breach-edit, breach-view, consent-add, consent-edit, consent-view, complaint-add, complaint-list. **15/15 at EXACT parity** (28, 24, 33, 15, 30, 30, 19, 20, 34, 15, 19, 19, 11, 18, 19). Python converter script translates PSIS blade helpers: `url_for(['module'=>'X','action'=>'Y'])` → `route('ahgprivacy.y-kebab')`, `$sf_user->hasFlash/getFlash` → `session()`, `$sf_request->getParameter` → `request()`, `@extends('layouts.page')` → `@extends('theme::layouts.1col')`. Manually patched `ropa-view.blade.php` which instantiated a non-existent `\ahgPrivacyPlugin\Service\PrivacyService` — now falls back to `auth()` helpers and empty collections.
+  - [x] batches 4–6/6 (silent run, 14 pages): config, pii-review, complaint-edit, complaint-view, jurisdiction-add, jurisdiction-edit, paia-add, officer-edit, officer-add, pii-scan-object, pii-scan, dsar-status, dsar-request, complaint. **14/14 at EXACT parity** (23, 29, 20, 13, 24, 24, 21, 19, 19, 29, 26, 6, 14, 18). Extended converter to handle both `privacyAdmin` and `privacy` PSIS modules (the latter is the public-facing DSAR submission / complaint intake pages). 2 manual patches on `pii-scan*` views where PSIS linked to info-object pages via `url_for` — replaced with `url('/' . $slug)` and a `DB::table('slug')` lookup. Smoke test: 14× HTTP 302, zero 500s. **C-2 ahg-privacy 29/29 COMPLETE.**
+### ✴ Phase X — Backfill previous work to 100% functional parity (BLOCKS Phase C resumption)
+
+**Rationale:** The parity audit (`docs/parity-audit-gap-report.md`) found that the 48 hours of Phase A + B + C-1 + C-2 work achieves **render-layer parity only**. The data layer has 69 missing service methods, 10 unregistered routes, 11 broken form submissions, and unaudited DB tables / validation rules / email hooks. Phase X closes every one of those gaps in **already-touched files** — no new features, no new stubs. It must complete before resuming Phase C at C-3 otherwise every new batch compounds the debt.
+
+- [ ] **X.1** ahg-marketplace service-method backfill (55 methods → 11 batches of 5)
+  - [x] X.1.1 DONE 2026-04-12 — Admin browse helpers (5): `adminBrowseListings`, `adminBrowseSellers`, `adminBrowseTransactions`, `adminBrowsePayouts`, `adminBrowseReviews`. Each returns `['items' => Collection, 'total' => int]`, joins seller/listing tables, honours status/sector/search filters. All 5 invoked live against the DB with `items=0 total=0` on empty tables (no query errors). Marketplace missing-method count: 54 → 49.
+  - [ ] X.1.2 Admin dashboard stats/aggregates (7): `getAdminDashboardStats`, `getAdminRecentTransactions`, `getSectorBreakdown`, `getTopItemsBySales`, `getTopListingsByViews`, `getTopSellersByRevenue`, `getTopSellingListings`
+  - [ ] X.1.3 Listing + auction (9): `getListingById`, `getAuctionForListing`, `getAuctionForListingBySlug`, `getBidHistory`, `getPrimaryImage`, `getRelatedListings`, `updateListingStatus`, `uploadListingImage` (+1)
+  - [ ] X.1.4 Seller helpers (11): `getSellerById`, `getSellerPayouts`, `getSellerPendingPayoutAmount`, `getSellerRecentTransactions`, `getSellerReviews`, `getSellerCollections`, `getSellerPublicCollections`, `getFollowedSellers`, `getRatingStats`, `uploadAvatar`, `uploadBanner`
+  - [ ] X.1.5 Buyer actions (11): `createOffer`, `acceptCounterOffer`, `createEnquiry`, `replyToEnquiry`, `createReview`, `hasReviewed`, `getReviewedMap`, `getBuyerOffers`, `getBuyerTransactions`, `getPendingOfferCount`, `isFavourited`
+  - [ ] X.1.6 Categories / currencies / settings (7): `createCategory`, `updateCategory`, `deleteCategory`, `addCurrency`, `updateCurrency`, `getAllSettings`, `setSetting`
+  - [ ] X.1.7 Payouts + shipping (2): `batchProcessPayouts`, `updateShipping`
+  - [ ] X.1.8 Collections, prefill, misc (3): `uploadCollectionCover`, `getIOPrefillData`, `getUserPrefillData`, `autoProvisionAdminSeller`
+
+- [ ] **X.2** ahg-privacy POST handlers + controller methods (6 routes, 2 batches)
+  - [ ] `breach-update`, `consent-withdraw`, `dsar-update`
+  - [ ] `ropa-approve`, `ropa-reject`, `ropa-submit`
+  - Each: add POST route to `routes/web.php` + controller method + PSIS-equivalent business logic
+
+- [ ] **X.3** ahg-marketplace POST handlers + routes (5 routes, 1 batch)
+  - [ ] `admin-payouts-batch`, `buy`, `follow`, `seller-listing-publish`, `seller-listing-withdraw`
+  - Each: add route + controller method; remove `Route::has()` guards from views once wired
+
+- [ ] **X.4** ahg-ai-services missing service methods (4 methods, 1 batch)
+  - [ ] `buildPrompt`, `gatherContext`, `generateSuggestion`, `getTemplateForObject`
+  - Called from `AiController`, target service class TBD at batch start
+
+- [ ] **X.5** Small-package service-method gaps (10 methods across 8 packages, 2 batches)
+  - [ ] Batch A (5): ahg-semantic-search (3) + ahg-custom-fields (2)
+  - [ ] Batch B (5): ahg-custom-fields (1 remaining) + ahg-nmmz (3) + ahg-access-request (1)
+  - [ ] Batch C (4): ahg-statistics + ahg-ingest + ahg-multi-tenant + ahg-ipsas (1 each)
+  - *Exact method names in `/tmp/all_service_gaps.json`; copy into the final doc at batch start*
+
+- [ ] **X.6** Typo / broken-ref fixes (4 items, 1 batch)
+  - [ ] `route('ingest.')` — find the blade with this empty route name, repoint to a real route (probably `ingest.index` or `ingest.configure`)
+  - [ ] `tiffpdfmerge.index` — register route OR update dashboard sidebar to `admin/preservation/tiffpdfmerge`
+  - [ ] `ric.dashboard` — register route OR update sidebar to `ric.index`
+  - [ ] `iiif.collections` — register route OR update sidebar reference
+
+- [ ] **X.7** DB table verification pass (1 batch — audit-only, no code changes)
+  - [ ] Run `SHOW TABLES` against heratio DB
+  - [ ] Compile required-tables list by grepping `DB::table\('(\w+)'` in all touched controllers + services
+  - [ ] For each missing table: locate the package's `database/install.sql` and run it; document in a new `docs/db-tables-required.md`
+  - Output: gap-free table list, or a per-missing-table action item
+
+- [ ] **X.8** Validation rule backfill (~62 forms across marketplace + privacy, ~13 batches)
+  - [ ] Per ported form: find the PSIS `actions.class.php` that was the source
+  - [ ] Extract the PSIS server-side validation (usually in `executePost($request)`)
+  - [ ] Create a Laravel FormRequest class (e.g. `StoreDsarRequest`)
+  - [ ] Wire the FormRequest into the heratio POST controller method
+  - [ ] Write one smoke test per FormRequest asserting required fields raise 422
+  - Batches grouped by package: 7 marketplace batches, 6 privacy batches
+
+- [ ] **X.9** Email / notification backfill (~15 user actions, 3 batches)
+  - [ ] DSAR submitted → confirmation email to requestor + notification to privacy officers
+  - [ ] DSAR replied → notification to requestor
+  - [ ] Breach notification created → email to privacy officers (+ regulator per jurisdiction)
+  - [ ] ROPA submitted for approval → notification to privacy officers
+  - [ ] ROPA approved/rejected → notification to submitter
+  - [ ] Complaint submitted → confirmation + notification
+  - [ ] Marketplace offer created → notification to seller
+  - [ ] Offer accepted/rejected/countered → notification to buyer
+  - [ ] Transaction status changes (paid/shipped/delivered/completed) → buyer + seller
+  - [ ] Payout processed → seller notification
+  - [ ] Review posted → seller notification
+  - [ ] Follow/unfollow → (optional, low priority)
+  - Each: port PSIS mail template from `apps/qubit/modules/*/templates/*.email.*` + create Laravel Mailable + queue dispatch
+
+- [ ] **X.10** Final functional smoke test (manual, Johan)
+  - [ ] Log in as admin
+  - [ ] Click every button on every ported page (62 pages from marketplace + privacy + all Phase A/B pages)
+  - [ ] File a bug per non-working interaction in a `docs/x10-smoke-findings.md`
+  - [ ] Close all bugs before marking Phase X complete
+
+**Phase X total: ~200 discrete items in ~35 batches. Estimated at 5 items/batch, this is ~7 days of work at the current cadence.**
+
+**Phase X must be COMPLETE (all boxes ticked) before Phase C resumes at C-3.**
+
+### Phase C resumes here after Phase X
+
 - [ ] **C-3** ahg-registry (28 stubs → 6 batches: 5+5+5+5+5+3)
 - [ ] **C-4** ahg-nmmz (12 stubs → 3 batches: 5+5+2)
 - [ ] **C-5** ahg-icip (11 stubs → 3 batches: 5+5+1)

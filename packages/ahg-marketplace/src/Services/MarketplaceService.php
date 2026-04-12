@@ -3387,4 +3387,181 @@ class MarketplaceService
 
         return max(0, $earned - $paidOut);
     }
+
+    // =========================================================================
+    //  ADMIN BROWSE HELPERS (Phase X.1.1)
+    //
+    //  These methods back the marketplace admin list pages. Each returns an array
+    //  with shape `['items' => Collection, 'total' => int]`. They honour the same
+    //  filter conventions as `getListings()` but expose draft/suspended/all statuses
+    //  since admins need to see every row regardless of lifecycle.
+    // =========================================================================
+
+    /**
+     * Admin listings list — shows all statuses including drafts/suspended/withdrawn.
+     *
+     * @param array{status?:string, sector?:string, search?:string} $filters
+     * @return array{items: \Illuminate\Support\Collection, total: int}
+     */
+    public function adminBrowseListings(array $filters = [], int $limit = 30, int $offset = 0): array
+    {
+        $q = DB::table($this->listingTable . ' as l')
+            ->leftJoin($this->sellerTable . ' as s', 'l.seller_id', '=', 's.id')
+            ->select(
+                'l.*',
+                's.display_name as seller_name',
+                's.slug as seller_slug'
+            );
+
+        if (!empty($filters['status'])) {
+            $q->where('l.status', $filters['status']);
+        }
+        if (!empty($filters['sector'])) {
+            $q->where('l.sector', $filters['sector']);
+        }
+        if (!empty($filters['search'])) {
+            $term = '%' . $filters['search'] . '%';
+            $q->where(function ($w) use ($term) {
+                $w->where('l.title', 'like', $term)
+                  ->orWhere('l.listing_number', 'like', $term)
+                  ->orWhere('s.display_name', 'like', $term);
+            });
+        }
+
+        $total = (clone $q)->count();
+        $items = $q->orderByDesc('l.created_at')->limit($limit)->offset($offset)->get();
+
+        return ['items' => $items, 'total' => $total];
+    }
+
+    /**
+     * Admin sellers list.
+     *
+     * @param array{verification_status?:string, search?:string} $filters
+     * @return array{items: \Illuminate\Support\Collection, total: int}
+     */
+    public function adminBrowseSellers(array $filters = [], int $limit = 30, int $offset = 0): array
+    {
+        $q = DB::table($this->sellerTable . ' as s')
+            ->select(
+                's.*',
+                DB::raw('(SELECT COUNT(*) FROM ' . $this->transactionTable . ' t WHERE t.seller_id = s.id AND t.status = "completed") as total_sales'),
+                DB::raw('(SELECT COALESCE(SUM(seller_amount), 0) FROM ' . $this->transactionTable . ' t WHERE t.seller_id = s.id AND t.status = "completed") as total_revenue')
+            );
+
+        if (!empty($filters['verification_status'])) {
+            $q->where('s.verification_status', $filters['verification_status']);
+        }
+        if (!empty($filters['search'])) {
+            $term = '%' . $filters['search'] . '%';
+            $q->where(function ($w) use ($term) {
+                $w->where('s.display_name', 'like', $term)
+                  ->orWhere('s.email', 'like', $term)
+                  ->orWhere('s.slug', 'like', $term);
+            });
+        }
+
+        $total = (clone $q)->count();
+        $items = $q->orderByDesc('s.created_at')->limit($limit)->offset($offset)->get();
+
+        return ['items' => $items, 'total' => $total];
+    }
+
+    /**
+     * Admin transactions list.
+     *
+     * @param array{status?:string, payment_status?:string, search?:string} $filters
+     * @return array{items: \Illuminate\Support\Collection, total: int}
+     */
+    public function adminBrowseTransactions(array $filters = [], int $limit = 30, int $offset = 0): array
+    {
+        $q = DB::table($this->transactionTable . ' as t')
+            ->leftJoin($this->listingTable . ' as l', 't.listing_id', '=', 'l.id')
+            ->leftJoin($this->sellerTable . ' as s', 't.seller_id', '=', 's.id')
+            ->leftJoin('user as b', 't.buyer_id', '=', 'b.id')
+            ->select(
+                't.*',
+                'l.title',
+                'l.slug as listing_slug',
+                's.display_name as seller_name',
+                DB::raw('COALESCE(b.username, CONCAT("Buyer #", t.buyer_id)) as buyer_name')
+            );
+
+        if (!empty($filters['status'])) {
+            $q->where('t.status', $filters['status']);
+        }
+        if (!empty($filters['payment_status'])) {
+            $q->where('t.payment_status', $filters['payment_status']);
+        }
+        if (!empty($filters['search'])) {
+            $term = '%' . $filters['search'] . '%';
+            $q->where(function ($w) use ($term) {
+                $w->where('t.transaction_number', 'like', $term)
+                  ->orWhere('s.display_name', 'like', $term)
+                  ->orWhere('l.title', 'like', $term);
+            });
+        }
+
+        $total = (clone $q)->count();
+        $items = $q->orderByDesc('t.created_at')->limit($limit)->offset($offset)->get();
+
+        return ['items' => $items, 'total' => $total];
+    }
+
+    /**
+     * Admin payouts list.
+     *
+     * @param array{status?:string} $filters
+     * @return array{items: \Illuminate\Support\Collection, total: int}
+     */
+    public function adminBrowsePayouts(array $filters = [], int $limit = 30, int $offset = 0): array
+    {
+        $q = DB::table($this->payoutTable . ' as p')
+            ->leftJoin($this->sellerTable . ' as s', 'p.seller_id', '=', 's.id')
+            ->select(
+                'p.*',
+                's.display_name as seller_name',
+                's.slug as seller_slug'
+            );
+
+        if (!empty($filters['status'])) {
+            $q->where('p.status', $filters['status']);
+        }
+
+        $total = (clone $q)->count();
+        $items = $q->orderByDesc('p.created_at')->limit($limit)->offset($offset)->get();
+
+        return ['items' => $items, 'total' => $total];
+    }
+
+    /**
+     * Admin reviews moderation list.
+     *
+     * @param array{flagged?:int, is_visible?:int} $filters
+     * @return array{items: \Illuminate\Support\Collection, total: int}
+     */
+    public function adminBrowseReviews(array $filters = [], int $limit = 30, int $offset = 0): array
+    {
+        $q = DB::table($this->reviewTable . ' as r')
+            ->leftJoin($this->sellerTable . ' as s', 'r.reviewed_seller_id', '=', 's.id')
+            ->leftJoin('user as u', 'r.reviewer_id', '=', 'u.id')
+            ->select(
+                'r.*',
+                's.display_name as seller_name',
+                DB::raw('COALESCE(u.username, CONCAT("Reviewer #", r.reviewer_id)) as reviewer_name'),
+                'r.flagged as is_flagged'
+            );
+
+        if (!empty($filters['flagged'])) {
+            $q->where('r.flagged', 1);
+        }
+        if (isset($filters['is_visible']) && $filters['is_visible'] !== '') {
+            $q->where('r.is_visible', (int) $filters['is_visible']);
+        }
+
+        $total = (clone $q)->count();
+        $items = $q->orderByDesc('r.created_at')->limit($limit)->offset($offset)->get();
+
+        return ['items' => $items, 'total' => $total];
+    }
 }
