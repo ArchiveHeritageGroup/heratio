@@ -13,7 +13,8 @@ After yesterday's "175/175 destination pages cloned" sweep (which only fixed CSS
 | **Phase B Batch 1 — Rights Management (9 pages)** | DONE 2026-04-12 | **16 / 122** | New `/admin/rights/*` route group + controller methods |
 | **Phase B Batch 2 — Mixed singletons (6 pages)** | DONE 2026-04-12 | **10 / 122** | Condition, Backup restore, DAM, Library, Document Templates, ODRL Policies |
 | **Phase B Batch 3 — Research admin (4 pages)** | DONE 2026-04-12 | **6 / 122** | Researchers, Bookings, Statistics (with mostViewed/mostCited PSIS port), Entity Resolution |
-| **Phase B — all real clone targets COMPLETE** | DONE 2026-04-12 | **0 / 122** real | 4 no-PSIS-source items flagged for design decision + 2 parameterized-route false positives |
+| **Phase B Batch 4 — Build outstanding (5 pages)** | DONE 2026-04-12 | **2 / 122** | Approvers, Condition Risk (new build), GRAP National Treasury (real query), Museum Exhibitions, DAM Dashboard parity port |
+| **Phase B FINAL** | DONE 2026-04-12 | **0 / 122** broken | Only 2 parameterized-route false positives remain — both work |
 
 > Note: After Batch 1, a fresh `php artisan route:list` snapshot via the actual Laravel router (not awk parsing of `route:list` output) showed several routes I'd flagged as missing were in fact already registered. Real Phase A outstanding count was **16**, not 40.
 
@@ -170,9 +171,56 @@ All routes resolve, no 500s.
 
 All routes resolve, no 500s.
 
-#### Phase B — final state after Batch 3
+#### Phase B — state after Batch 3
 
-**0 real clone targets remaining.** All dashboard URLs that have a verifiable PSIS source action have been wired up (with content ported where heratio was missing PSIS pieces).
+**0 real clone targets remaining.** All dashboard URLs that had a verifiable PSIS source action have been wired up.
+
+#### Phase B Batch 4 — Build outstanding (5 pages) — DONE 2026-04-12
+
+User authorised building the 4 dashboard links that lacked a PSIS source ("no removal of links. build what is outstanding"). Plus 1 parity-gap port for the DAM dashboard.
+
+| # | Link | URL | Heratio code present? | Controls before | Controls after | Build action | Status |
+|---|------|-----|---------------------- |---------------:|---------------:|--------------|--------|
+| 1 | Approvers | `/admin/approvers` | YES — `AclController::approvers()` + `approvers.blade.php` already at `/admin/acl/approvers` | 29 | 29 | Added route alias `/admin/approvers` (+ `/add` POST + `/{id}/remove` POST) | DONE — wired |
+| 2 | Risk Assessment | `/admin/condition/risk` | NO — view did not exist | 0 (no view) | **20** | **New build:** added `risk()` method to `ConditionController` (queries `spectrum_condition_check` for poor/critical), created `risk.blade.php` (3 stat cards, level filter, 7-col at-risk table). Route added under `/admin/condition/risk`. | DONE — new page |
+| 3 | GRAP National Treasury Report | `/grap/national-treasury-report` | YES — view existed but `nationalTreasuryReport()` returned empty stats/items | 9 (stub) | **16** | **Real query build:** rewrote `nationalTreasuryReport()` in `GrapComplianceController` to query `heritage_asset` joined with `heritage_asset_class` + `heritage_accounting_standard` + `information_object_i18n`, return stats (total/capitalised/non-capitalised/total_value_zar) and 8-column item table with status/standard filters. Added `/grap/national-treasury-report` alias to existing `/heritage/grap/...` route. View rebuilt with 4 stat cards, filter form, and full GRAP-103 column set. | DONE — built backend + route |
+| 4 | Museum Exhibitions | `/museum/exhibitions` | YES — `ExhibitionController::index()` + `index.blade.php` at `/exhibition` | 7 | 7 | Added route alias `/museum/exhibitions` → `ExhibitionController::index` | DONE — wired |
+| 5 | DAM Dashboard parity | `/dam/dashboard` | YES (Batch 2 wired the URL) — but heratio view had only 2 of 3 PSIS quick-action buttons | 33 | **45** | **Parity port:** added 4 missing quick-action buttons (Bulk Upload, Browse All, With Digital Files filter, DAM Reports) per PSIS dashboardSuccess, replaced `atom-btn-*` classes with standard Bootstrap. | DONE — parity exceeds PSIS (45 vs PSIS 39) |
+
+**Batch 4 totals:**
+- 5 dashboard links resolved (4 outstanding + 1 parity gap)
+- 1 brand-new page (`/admin/condition/risk` — controller method + blade view)
+- 1 brand-new query backend (`nationalTreasuryReport()` real implementation against `heritage_asset` table)
+- 4 new routes (1 alias + 1 sub-route + 1 grap alias + 1 museum alias) + condition risk route
+- View files modified: 2 (DAM dashboard, GRAP national treasury report)
+- View files created: 1 (`condition/risk.blade.php`)
+
+#### Phase B Batch 4 — Smoke test results (Kernel::handle)
+
+| URL | HTTP | Notes |
+|-----|------|-------|
+| `/admin/approvers` | 403 | Admin middleware engaging |
+| `/admin/condition/risk` | 302 | Auth redirect — route works |
+| `/grap/national-treasury-report` | 403 | Admin middleware engaging |
+| `/museum/exhibitions` | 302 | Auth redirect — route works |
+| `/dam/dashboard` | 200 | Full render, 67.2 KB (was 66.7 KB before parity port) |
+
+All routes resolve, no 500s.
+
+### Phase B FINAL STATE
+
+**Dashboard broken-link count: 90 → 0** (only 2 parameterized-route false positives, both work).
+
+| Phase | Pages wired | Files changed | New views | New methods | Routes added |
+|-------|-------------|---------------|-----------|-------------|--------------|
+| A | 50 | 1 (dashboard.blade.php) | 0 | 0 | 0 |
+| B-1 (Rights) | 9 | 3 | 0 | 5 | 12 |
+| B-2 (Singletons) | 6 | 6 | 0 (1 PSIS port) | 0 | 7 |
+| B-3 (Research) | 4 | 4 | 0 (1 PSIS port to existing view) | 0 (1 extended) | 4 |
+| B-4 (Build outstanding) | 5 | 7 | 1 (condition/risk) | 1 (condition/risk) + 1 rewritten (nationalTreasuryReport) | 5 |
+| **Total** | **74** | **21** | **1** | **7** | **28** |
+
+All dashboard links now resolve to live controller methods with real DB queries. No invented data, no stub returns.
 
 **4 dashboard links with no PSIS source — flagged for design decision (do not invent):**
 

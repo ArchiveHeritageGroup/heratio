@@ -64,14 +64,29 @@
       <div class="row">
         @auth
           <div class="col-md-4 mb-2">
-            <a href="{{ route('dam.create') }}" class="btn atom-btn-outline-success btn-lg w-100">
+            <a href="{{ route('dam.create') }}" class="btn btn-success btn-lg w-100">
               <i class="fas fa-plus me-2"></i>New Asset
+            </a>
+          </div>
+          <div class="col-md-4 mb-2">
+            <a href="{{ route('dam.bulk-create') }}" class="btn btn-primary btn-lg w-100">
+              <i class="fas fa-upload me-2"></i>Bulk Upload
             </a>
           </div>
         @endauth
         <div class="col-md-4 mb-2">
-          <a href="{{ route('dam.browse') }}" class="btn atom-btn-white btn-lg w-100">
+          <a href="{{ route('dam.browse') }}" class="btn btn-info btn-lg w-100">
             <i class="fas fa-search me-2"></i>Browse All
+          </a>
+        </div>
+        <div class="col-md-4 mb-2">
+          <a href="{{ route('dam.browse') }}?hasDigital=1" class="btn btn-outline-info btn-lg w-100">
+            <i class="fas fa-file-image me-2"></i>With Digital Files
+          </a>
+        </div>
+        <div class="col-md-4 mb-2">
+          <a href="{{ route('dam.reports') }}" class="btn btn-outline-secondary btn-lg w-100">
+            <i class="fas fa-chart-bar me-2"></i>DAM Reports
           </a>
         </div>
       </div>

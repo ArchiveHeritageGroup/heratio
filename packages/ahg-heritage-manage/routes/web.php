@@ -133,6 +133,11 @@ Route::middleware('admin')->group(function () {
         Route::get('/national-treasury-report', [GrapComplianceController::class, 'nationalTreasuryReport'])->name('heritage.grap.national-treasury-report');
     });
 
+    // Dashboard URL alias under /grap/* (matches reports dashboard link)
+    Route::prefix('grap')->group(function () {
+        Route::get('/national-treasury-report', [GrapComplianceController::class, 'nationalTreasuryReport'])->name('grap.national-treasury-report');
+    });
+
     // Heritage Admin (accounting standards, rules, regions)
     Route::prefix('heritage/hadmin')->group(function () {
         Route::get('/', [HeritageAdminController::class, 'index'])->name('heritage.hadmin.index');

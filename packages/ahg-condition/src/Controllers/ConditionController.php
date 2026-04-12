@@ -49,6 +49,39 @@ class ConditionController extends Controller
         return view('ahg-condition::admin', compact('stats', 'recentChecks', 'byCondition'));
     }
 
+    /**
+     * Risk Assessment dashboard — at-risk condition checks (poor + critical).
+     * New page (no AtoM equivalent — built per project requirement to surface
+     * heritage objects requiring conservation attention).
+     */
+    public function risk(Request $request)
+    {
+        $level = $request->get('level', 'all');
+        $atRiskLevels = ['poor', 'critical'];
+        if (in_array($level, $atRiskLevels, true)) {
+            $atRiskLevels = [$level];
+        }
+
+        $rows = \Illuminate\Support\Facades\DB::table('spectrum_condition_check as cc')
+            ->leftJoin('information_object_i18n as ioi', function ($j) {
+                $j->on('ioi.id', '=', 'cc.object_id')
+                    ->where('ioi.culture', '=', app()->getLocale());
+            })
+            ->whereIn('cc.overall_condition', $atRiskLevels)
+            ->select('cc.*', 'ioi.title as object_title')
+            ->orderByDesc('cc.check_date')
+            ->limit(200)
+            ->get();
+
+        $counts = \Illuminate\Support\Facades\DB::table('spectrum_condition_check')
+            ->selectRaw('overall_condition, COUNT(*) as count')
+            ->whereIn('overall_condition', ['poor', 'critical'])
+            ->groupBy('overall_condition')
+            ->pluck('count', 'overall_condition');
+
+        return view('ahg-condition::risk', compact('rows', 'counts', 'level'));
+    }
+
     public function list(Request $request)
     {
         $conditions = $this->service->getConditionChecks([

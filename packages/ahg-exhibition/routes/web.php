@@ -6,6 +6,14 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth')->prefix('exhibition')->group(function () {
     Route::get('/', [ExhibitionController::class, 'index'])->name('exhibition.index');
     Route::get('/dashboard', [ExhibitionController::class, 'dashboard'])->name('exhibition.dashboard');
+});
+
+// Dashboard URL alias under /museum/exhibitions (matches reports dashboard link)
+Route::middleware('auth')->group(function () {
+    Route::get('/museum/exhibitions', [ExhibitionController::class, 'index'])->name('museum.exhibitions');
+});
+
+Route::middleware('auth')->prefix('exhibition')->group(function () {
     Route::match(['get', 'post'], '/add', [ExhibitionController::class, 'add'])->name('exhibition.add'); // ACL must be checked in controller (Route::match)
     Route::match(['get', 'post'], '/{id}/edit', [ExhibitionController::class, 'edit'])->name('exhibition.edit'); // ACL must be checked in controller (Route::match)
     Route::get('/{id}/objects', [ExhibitionController::class, 'objects'])->name('exhibition.objects');

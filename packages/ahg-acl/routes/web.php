@@ -18,6 +18,10 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/acl/approvers', [AclController::class, 'approvers'])->name('acl.approvers');
     Route::post('/admin/acl/approvers/add', [AclController::class, 'addApprover'])->name('acl.add-approver');
     Route::post('/admin/acl/approvers/{id}/remove', [AclController::class, 'removeApprover'])->name('acl.remove-approver')->where('id', '[0-9]+');
+    // Dashboard URL alias under /admin/approvers (matches reports dashboard link)
+    Route::get('/admin/approvers', [AclController::class, 'approvers'])->name('admin.approvers');
+    Route::post('/admin/approvers/add', [AclController::class, 'addApprover'])->name('admin.add-approver');
+    Route::post('/admin/approvers/{id}/remove', [AclController::class, 'removeApprover'])->name('admin.remove-approver')->where('id', '[0-9]+');
 
     // Alias: AtoM DB menu path → Heratio groups page
     Route::get('/aclGroup/browse', [AclController::class, 'groups']);
