@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "35af0c7b02ae038ecb9aaed29521272c",
+    "content-hash": "386c608c54e6c819f2379379d3378255",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -531,7 +531,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/ahg-data-migration",
-                "reference": "90f7d285862c7b6f0e85848fedaa196c4719d316"
+                "reference": "be62b3998f0b24f40bab27e0ca32136b7a816bb8"
             },
             "require": {
                 "ahg/core": "@dev"
@@ -546,7 +546,8 @@
             },
             "autoload": {
                 "psr-4": {
-                    "AhgDataMigration\\": "src/"
+                    "AhgDataMigration\\": "src/",
+                    "AtomExtensions\\Repositories\\": "src/Repositories/"
                 }
             },
             "description": "CSV/XML data import with field mapping, validation, preview, batch export, and job tracking for Heratio",
@@ -2023,6 +2024,37 @@
                 }
             },
             "description": "Heratio RadManage package (migrated from ahgRadManagePlugin)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/records-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-records-manage",
+                "reference": "a766b06ebca7432975e195fe258446a72436a49f"
+            },
+            "require": {
+                "ahg/core": "@dev",
+                "ahg/integrity": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgRecordsManage\\Providers\\AhgRecordsManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgRecordsManage\\": "src/"
+                }
+            },
+            "description": "Records Management module for Heratio — retention schedules, disposal workflows, file plan, compliance reporting. Disablable.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -11508,6 +11540,7 @@
         "ahg/privacy": 20,
         "ahg/provenance": 20,
         "ahg/rad-manage": 20,
+        "ahg/records-manage": 20,
         "ahg/registry": 20,
         "ahg/reports": 20,
         "ahg/repository-manage": 20,

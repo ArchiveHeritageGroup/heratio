@@ -221,7 +221,7 @@ class ExtendedRightsController extends Controller
 
         if (Schema::hasTable('extended_rights')) {
             $stats->with_rights_statement = DB::table('extended_rights')->whereNotNull('rights_statement_id')->distinct('object_id')->count('object_id');
-            $stats->with_creative_commons = DB::table('extended_rights')->whereNotNull('creative_commons_id')->distinct('object_id')->count('object_id');
+            $stats->with_creative_commons = DB::table('extended_rights')->whereNotNull('creative_commons_license_id')->distinct('object_id')->count('object_id');
         }
         if (Schema::hasTable('embargo')) {
             $stats->active_embargoes = DB::table('embargo')->where('is_active', true)->count();

@@ -189,7 +189,7 @@ class DoiController extends Controller
                 'ahg_doi_queue.status',
                 'ahg_doi_queue.attempts',
                 'ahg_doi_queue.scheduled_at',
-                'ahg_doi_queue.error_message',
+                'ahg_doi_queue.last_error as error_message',
                 'ahg_doi_queue.created_at',
                 'information_object_i18n.title as record_title',
             ])

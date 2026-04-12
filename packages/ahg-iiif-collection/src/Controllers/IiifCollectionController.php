@@ -230,8 +230,13 @@ class IiifCollectionController extends Controller
      */
     public function removeItem(Request $request)
     {
-        $itemId = $request->input('item_id');
-        $collectionId = $request->input('collection_id');
+        $itemId = (int) $request->input('item_id', 0);
+        $collectionId = (int) $request->input('collection_id', 0);
+
+        if ($itemId <= 0 || $collectionId <= 0) {
+            return redirect()->route('iiif-collection.index')
+                ->with('error', 'Item ID and collection ID are required.');
+        }
 
         $this->service->removeItem($itemId);
 
@@ -437,7 +442,7 @@ class IiifCollectionController extends Controller
         try {
             if (\Schema::hasTable('digital_object')) {
                 $items = \DB::table('digital_object as do')
-                    ->leftJoin('information_object_i18n as io', function ($j) { $j->on('do.information_object_id', '=', 'io.id')->where('io.culture', '=', 'en'); })
+                    ->leftJoin('information_object_i18n as io', function ($j) { $j->on('do.object_id', '=', 'io.id')->where('io.culture', '=', 'en'); })
                     ->whereIn('do.mime_type', ['model/gltf-binary', 'model/gltf+json', 'model/obj', 'model/stl'])
                     ->select('do.*', 'io.title as object_title')->orderByDesc('do.created_at')->limit(500)->get();
             }

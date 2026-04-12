@@ -195,7 +195,8 @@ class RegistryService
     {
         $q = DB::table('registry_erd');
         $total = $q->count();
-        $items = $q->orderBy('name')->offset(($page - 1) * $limit)->limit($limit)->get();
+        // Real column is `display_name`; prior code assumed `name`.
+        $items = $q->orderBy('display_name')->offset(($page - 1) * $limit)->limit($limit)->get();
         return ['items' => $items, 'total' => $total, 'page' => $page, 'limit' => $limit];
     }
 

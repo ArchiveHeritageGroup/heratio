@@ -390,7 +390,7 @@ class RightsAdminController extends Controller
             ->select('r.*', 'oi.title', 's.slug', 'o.repository_id');
 
         if ($type) {
-            $query->where('r.rights_type', $type);
+            $query->where('r.basis', $type);
         }
         if ($q) {
             $query->where(function ($w) use ($q) {
@@ -458,12 +458,22 @@ class RightsAdminController extends Controller
         $type = $request->input('type');
         $objectId = (int) $request->input('object_id');
 
+        // rights_record real columns: basis, copyright_status, copyright_holder,
+        // license_identifier, start_date, end_date. There is no `rights_type`/
+        // `rights_value`/`rights_date` — we derive them from the real fields.
         $query = DB::table('rights_record as r')
             ->leftJoin('information_object as o', 'r.object_id', '=', 'o.id')
             ->leftJoin('information_object_i18n as oi', function ($j) {
                 $j->on('o.id', '=', 'oi.id')->where('oi.culture', '=', 'en');
             })
-            ->select('r.id', 'r.object_id', 'oi.title', 'r.rights_type', 'r.rights_value', 'r.rights_date');
+            ->select(
+                'r.id',
+                'r.object_id',
+                'oi.title',
+                'r.basis as rights_type',
+                DB::raw("COALESCE(r.license_identifier, r.copyright_status, r.copyright_holder) as rights_value"),
+                'r.start_date as rights_date'
+            );
 
         if ($objectId) {
             $query->where('r.object_id', $objectId);
@@ -472,7 +482,7 @@ class RightsAdminController extends Controller
             $query->where('o.repository_id', $repositoryId);
         }
         if ($type) {
-            $query->where('r.rights_type', $type);
+            $query->where('r.basis', $type);
         }
 
         $rows = $query->orderBy('r.id')->get();

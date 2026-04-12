@@ -2439,6 +2439,46 @@ class InformationObjectController extends Controller
     }
 
     /**
+     * Generate a next available identifier (JSON response for the IO create/edit forms).
+     * Returns `{"identifier": "..."}` based on the active numbering_scheme for the
+     * repository and level_of_description_id the form supplies as query args.
+     */
+    public function generateIdentifier(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        $repositoryId = (int) $request->query('repository_id', 0);
+        $levelId      = (int) $request->query('level_of_description_id', 0);
+
+        $scheme = null;
+        if (\Schema::hasTable('numbering_scheme_repository') && $repositoryId > 0) {
+            $scheme = DB::table('numbering_scheme_repository as nsr')
+                ->join('numbering_scheme as ns', 'ns.id', '=', 'nsr.numbering_scheme_id')
+                ->where('nsr.repository_id', $repositoryId)
+                ->select('ns.*')
+                ->first();
+        }
+        if (!$scheme && \Schema::hasTable('numbering_scheme')) {
+            $scheme = DB::table('numbering_scheme')->where('is_active', 1)->first();
+        }
+
+        if (!$scheme) {
+            return response()->json(['identifier' => '']);
+        }
+
+        $pattern = $scheme->pattern ?? '{next}';
+        $nextNumber = ((int) DB::table('numbering_sequence_used')
+            ->where('scheme_id', $scheme->id)
+            ->max('sequence_number')) + 1;
+
+        $identifier = strtr($pattern, [
+            '{next}' => (string) $nextNumber,
+            '{year}' => date('Y'),
+            '{YY}'   => date('y'),
+        ]);
+
+        return response()->json(['identifier' => $identifier]);
+    }
+
+    /**
      * Generate a report (file list, item list, storage locations, box label).
      * Migrated from AtoM informationobject/itemOrFileList, storageLocations, boxLabel actions.
      */

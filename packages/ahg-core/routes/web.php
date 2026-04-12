@@ -42,7 +42,7 @@ Route::prefix('clipboard')->name('clipboard.')->group(function () {
 // Object import select & TIFF/PDF merge (auth required)
 Route::middleware('auth')->group(function () {
     Route::get('/object/{slug}/import-select', fn($slug) => view('ahg-core::object-import-select', ['slug' => $slug]))->name('object.importSelect');
-    Route::get('/tiffpdfmerge/create', fn() => view('ahg-core::tiffpdfmerge-create'))->name('tiffpdfmerge.create');
+    Route::get('/tiffpdfmerge/create', fn() => redirect()->route('preservation.tiffpdfmerge.index'))->name('tiffpdfmerge.create');
     Route::post('/tiffpdfmerge/upload', fn() => redirect()->back())->name('tiffpdfmerge.upload');
     Route::post('/tiffpdfmerge/process', fn() => redirect()->back())->name('tiffpdfmerge.process');
     Route::post('/tiffpdfmerge/reorder', fn() => redirect()->back())->name('tiffpdfmerge.reorder');

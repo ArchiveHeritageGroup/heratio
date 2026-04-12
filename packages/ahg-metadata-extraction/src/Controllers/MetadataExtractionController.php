@@ -74,7 +74,7 @@ class MetadataExtractionController extends Controller
 
         // Build digital objects query
         $query = DB::table('digital_object as do')
-            ->join('information_object as io', 'do.information_object_id', '=', 'io.id')
+            ->join('information_object as io', 'do.object_id', '=', 'io.id')
             ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
                 $join->on('io.id', '=', 'ioi.id')
                     ->where('ioi.culture', '=', $culture);
@@ -85,7 +85,7 @@ class MetadataExtractionController extends Controller
                 'do.path',
                 'do.mime_type',
                 'do.byte_size',
-                'do.information_object_id',
+                'do.object_id',
                 'ioi.title as record_title'
             )
             ->whereNotNull('do.path');
@@ -154,7 +154,7 @@ class MetadataExtractionController extends Controller
         $culture = app()->getLocale();
 
         $digitalObject = DB::table('digital_object as do')
-            ->join('information_object as io', 'do.information_object_id', '=', 'io.id')
+            ->join('information_object as io', 'do.object_id', '=', 'io.id')
             ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
                 $join->on('io.id', '=', 'ioi.id')
                     ->where('ioi.culture', '=', $culture);
@@ -166,7 +166,7 @@ class MetadataExtractionController extends Controller
                 'do.path',
                 'do.mime_type',
                 'do.byte_size',
-                'do.information_object_id',
+                'do.object_id',
                 'ioi.title as record_title',
                 'io.slug'
             )

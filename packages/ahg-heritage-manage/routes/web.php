@@ -58,8 +58,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/heritage/my/contributions', [HeritageController::class, 'myContributions'])->name('heritage.my-contributions');
     Route::get('/heritage/my/access-requests', [HeritageController::class, 'myAccessRequests'])->name('heritage.my-access-requests');
     Route::get('/heritage/request-access/{id?}', [HeritageController::class, 'requestAccess'])->name('heritage.request-access');
-    Route::get('/heritage/contributor/{id}', [HeritageController::class, 'contributorProfileById'])->name('heritage.contributor-profile-by-id');
     Route::get('/heritage/contributor/profile', [HeritageController::class, 'contributorProfile'])->name('heritage.contributor-profile');
+    Route::get('/heritage/contributor/{id}', [HeritageController::class, 'contributorProfileById'])->where('id', '[0-9]+')->name('heritage.contributor-profile-by-id');
 
     // API endpoints requiring auth
     Route::post('/heritage/api/contribution/submit', [HeritageController::class, 'apiSubmitContribution'])->name('heritage.api.contribution-submit')->middleware('acl:create');
@@ -114,15 +114,16 @@ Route::middleware('admin')->group(function () {
         Route::get('/browse', [HeritageAccountingController::class, 'browse'])->name('heritage.accounting.browse');
         Route::get('/add', [HeritageAccountingController::class, 'add'])->name('heritage.accounting.add');
         Route::post('/store', [HeritageAccountingController::class, 'store'])->name('heritage.accounting.store')->middleware('acl:create');
-        Route::get('/{id}/edit', [HeritageAccountingController::class, 'edit'])->name('heritage.accounting.edit');
-        Route::put('/{id}', [HeritageAccountingController::class, 'update'])->name('heritage.accounting.update')->middleware('acl:update');
-        Route::get('/{id}', [HeritageAccountingController::class, 'view'])->name('heritage.accounting.view');
+        // Specific routes must be declared BEFORE /{id} catch-all.
         Route::get('/by-object/{id}', [HeritageAccountingController::class, 'viewByObject'])->name('heritage.accounting.view-by-object');
         Route::get('/add-valuation/{id?}', [HeritageAccountingController::class, 'addValuation'])->name('heritage.accounting.add-valuation');
         Route::get('/add-impairment/{id?}', [HeritageAccountingController::class, 'addImpairment'])->name('heritage.accounting.add-impairment');
         Route::get('/add-journal/{id?}', [HeritageAccountingController::class, 'addJournal'])->name('heritage.accounting.add-journal');
         Route::get('/add-movement/{id?}', [HeritageAccountingController::class, 'addMovement'])->name('heritage.accounting.add-movement');
         Route::get('/settings', [HeritageAccountingController::class, 'settings'])->name('heritage.accounting.settings');
+        Route::get('/{id}/edit', [HeritageAccountingController::class, 'edit'])->where('id', '[0-9]+')->name('heritage.accounting.edit');
+        Route::put('/{id}', [HeritageAccountingController::class, 'update'])->where('id', '[0-9]+')->name('heritage.accounting.update')->middleware('acl:update');
+        Route::get('/{id}', [HeritageAccountingController::class, 'view'])->where('id', '[0-9]+')->name('heritage.accounting.view');
     });
 
     // GRAP Compliance

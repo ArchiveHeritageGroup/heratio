@@ -2079,7 +2079,7 @@ class SpectrumController extends Controller
             $ropaStats = [
                 'total'          => DB::table('privacy_processing_activity')->count(),
                 'approved'       => DB::table('privacy_processing_activity')->where('status', 'approved')->count(),
-                'requiring_dpia' => DB::table('privacy_processing_activity')->where('requires_dpia', 1)->count(),
+                'requiring_dpia' => DB::table('privacy_processing_activity')->where('dpia_required', 1)->count(),
             ];
         }
 

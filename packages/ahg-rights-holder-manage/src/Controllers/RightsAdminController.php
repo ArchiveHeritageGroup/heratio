@@ -114,9 +114,17 @@ class RightsAdminController extends Controller
 
     public function report()
     {
+        // In AtoM, rights are linked to objects via the `relation` table (no
+        // `object_id` column on `rights` itself). Count distinct IOs that
+        // have at least one rights-relation pointing at them.
+        $withRights = DB::table('relation')
+            ->join('rights', 'rights.id', '=', 'relation.subject_id')
+            ->distinct('relation.object_id')
+            ->count('relation.object_id');
+
         $stats = [
             'total_objects' => DB::table('information_object')->where('id', '!=', 1)->count(),
-            'with_rights' => DB::table('rights')->distinct('object_id')->count('object_id'),
+            'with_rights' => $withRights,
             'without_rights' => 0,
             'coverage_pct' => 0,
         ];

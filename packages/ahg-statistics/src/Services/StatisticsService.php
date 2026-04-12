@@ -77,11 +77,12 @@ class StatisticsService
 
     public function getGeographicStats(string $startDate, string $endDate): array
     {
+        // Real columns are `country_code` (ISO 2-letter) + `country_name`.
         return DB::table('ahg_usage_event')
             ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
-            ->whereNotNull('country')
-            ->select('country', DB::raw('COUNT(*) as count'))
-            ->groupBy('country')
+            ->whereNotNull('country_code')
+            ->select('country_code as country', 'country_name', DB::raw('COUNT(*) as count'))
+            ->groupBy('country_code', 'country_name')
             ->orderByDesc('count')
             ->get()
             ->toArray();

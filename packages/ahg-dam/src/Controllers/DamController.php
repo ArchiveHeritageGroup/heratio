@@ -384,7 +384,7 @@ class DamController extends Controller
         try {
             if (\Schema::hasTable('digital_object')) {
                 $rows = \DB::table('digital_object as do')
-                    ->leftJoin('information_object as io', 'do.information_object_id', '=', 'io.id')
+                    ->leftJoin('information_object as io', 'do.object_id', '=', 'io.id')
                     ->leftJoin('information_object_i18n as io_i18n', function ($j) { $j->on('io.id', '=', 'io_i18n.id')->where('io_i18n.culture', '=', 'en'); })
                     ->select('do.id', 'do.name', 'do.mime_type', 'do.byte_size', 'io_i18n.title as record_title', 'io.identifier as record_identifier')
                     ->orderByDesc('do.created_at')->limit(500)->get();

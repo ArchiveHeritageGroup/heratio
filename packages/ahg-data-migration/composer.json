@@ -7,7 +7,8 @@
     },
     "autoload": {
         "psr-4": {
-            "AhgDataMigration\\": "src/"
+            "AhgDataMigration\\": "src/",
+            "AtomExtensions\\Repositories\\": "src/Repositories/"
         }
     },
     "extra": {

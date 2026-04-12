@@ -322,12 +322,13 @@ class DedupeController extends Controller
 
         $culture = app()->getLocale();
 
+        // Repository name lives on actor_i18n (CTI: repository is-a actor).
         $rules = DB::table('ahg_duplicate_rule as r')
-            ->leftJoin('repository_i18n as ri', function ($join) use ($culture) {
-                $join->on('r.repository_id', '=', 'ri.id')
-                    ->where('ri.culture', '=', $culture);
+            ->leftJoin('actor_i18n as ai', function ($join) use ($culture) {
+                $join->on('r.repository_id', '=', 'ai.id')
+                    ->where('ai.culture', '=', $culture);
             })
-            ->select('r.*', 'ri.authorized_form_of_name as repository_name')
+            ->select('r.*', 'ai.authorized_form_of_name as repository_name')
             ->orderBy('r.priority')
             ->get();
 

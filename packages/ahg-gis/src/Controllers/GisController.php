@@ -43,25 +43,28 @@ class GisController extends Controller
         $east = $request->query('east', 180);
         $west = $request->query('west', -180);
 
-        $results = DB::table('information_object')
+        // AtoM `information_object` has no lat/lon columns; Heratio stores
+        // geocoordinates in the `ahg_io_geolocation` extension table.
+        $results = DB::table('ahg_io_geolocation as g')
+            ->join('information_object as io', 'io.id', '=', 'g.information_object_id')
             ->leftJoin('information_object_i18n', function ($join) {
-                $join->on('information_object.id', '=', 'information_object_i18n.id')
+                $join->on('io.id', '=', 'information_object_i18n.id')
                      ->where('information_object_i18n.culture', '=', 'en');
             })
             ->leftJoin('slug', function ($join) {
-                $join->on('information_object.id', '=', 'slug.object_id')
+                $join->on('io.id', '=', 'slug.object_id')
                      ->where('slug.slug', '!=', '');
             })
-            ->whereNotNull('information_object.latitude')
-            ->whereNotNull('information_object.longitude')
-            ->whereBetween('information_object.latitude', [$south, $north])
-            ->whereBetween('information_object.longitude', [$west, $east])
+            ->whereNotNull('g.latitude')
+            ->whereNotNull('g.longitude')
+            ->whereBetween('g.latitude', [$south, $north])
+            ->whereBetween('g.longitude', [$west, $east])
             ->select(
-                'information_object.id',
+                'io.id',
                 'information_object_i18n.title',
                 'slug.slug',
-                'information_object.latitude',
-                'information_object.longitude'
+                'g.latitude',
+                'g.longitude'
             )
             ->limit(500)
             ->get();
@@ -86,23 +89,24 @@ class GisController extends Controller
      */
     public function geojson(Request $request)
     {
-        $features = DB::table('information_object')
+        $features = DB::table('ahg_io_geolocation as g')
+            ->join('information_object as io', 'io.id', '=', 'g.information_object_id')
             ->leftJoin('information_object_i18n', function ($join) {
-                $join->on('information_object.id', '=', 'information_object_i18n.id')
+                $join->on('io.id', '=', 'information_object_i18n.id')
                      ->where('information_object_i18n.culture', '=', 'en');
             })
             ->leftJoin('slug', function ($join) {
-                $join->on('information_object.id', '=', 'slug.object_id')
+                $join->on('io.id', '=', 'slug.object_id')
                      ->where('slug.slug', '!=', '');
             })
-            ->whereNotNull('information_object.latitude')
-            ->whereNotNull('information_object.longitude')
+            ->whereNotNull('g.latitude')
+            ->whereNotNull('g.longitude')
             ->select(
-                'information_object.id',
+                'io.id',
                 'information_object_i18n.title',
                 'slug.slug',
-                'information_object.latitude',
-                'information_object.longitude'
+                'g.latitude',
+                'g.longitude'
             )
             ->limit(1000)
             ->get();

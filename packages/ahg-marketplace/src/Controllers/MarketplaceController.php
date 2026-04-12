@@ -775,7 +775,7 @@ class MarketplaceController extends Controller
         $limit = 24;
         $offset = ($page - 1) * $limit;
 
-        $results = $this->service->getActiveAuctions($limit, $offset);
+        $results = $this->service->getActiveAuctions([], $limit, $offset);
         $endingSoon = $this->service->getAuctionsEndingSoon(60);
 
         return view('marketplace::auction-browse', [

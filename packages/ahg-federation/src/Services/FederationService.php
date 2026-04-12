@@ -38,9 +38,10 @@ class FederationService
     {
         $peerCount = DB::table('federation_peer')->count();
         $harvestCount = DB::table('federation_harvest_log')->count();
+        // Real column is `harvest_date`; code previously used `started_at`.
         $lastHarvest = DB::table('federation_harvest_log')
-            ->orderByDesc('started_at')
-            ->value('started_at');
+            ->orderByDesc('harvest_date')
+            ->value('harvest_date');
 
         return [
             'peerCount' => $peerCount,
@@ -80,6 +81,6 @@ class FederationService
             $query->where('federation_harvest_log.peer_id', $peerId);
         }
 
-        return $query->orderByDesc('federation_harvest_log.started_at')->paginate($perPage);
+        return $query->orderByDesc('federation_harvest_log.harvest_date')->paginate($perPage);
     }
 }
