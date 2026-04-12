@@ -1450,6 +1450,15 @@ class MarketplaceService
     /**
      * Update shipping info on a transaction.
      */
+    /**
+     * PSIS-named alias for updateTransactionShipping (Phase X.1.7).
+     * Matches PSIS TransactionService::updateShipping signature exactly.
+     */
+    public function updateShipping(int $txnId, array $data): array
+    {
+        return $this->updateTransactionShipping($txnId, $data);
+    }
+
     public function updateTransactionShipping(int $txnId, array $data): array
     {
         $txn = DB::table($this->transactionTable)->where('id', $txnId)->first();
@@ -1667,6 +1676,17 @@ class MarketplaceService
         DB::table($this->payoutTable)->where('id', $payoutId)->update($updateData);
 
         return ['success' => true];
+    }
+
+    /**
+     * PSIS-named alias for processPayouts (Phase X.1.7).
+     * Matches PSIS PayoutService::batchProcess signature exactly.
+     *
+     * @param int[] $payoutIds
+     */
+    public function batchProcessPayouts(array $payoutIds, int $processedBy): array
+    {
+        return $this->processPayouts($payoutIds, $processedBy);
     }
 
     /**
@@ -4006,6 +4026,118 @@ class MarketplaceService
             ->where('user_id', $userId)
             ->where('listing_id', $listingId)
             ->exists();
+    }
+
+    // =========================================================================
+    //  HERATIO-SPECIFIC HELPERS (Phase X.1.8)
+    //
+    //  These methods have NO PSIS equivalent. They exist only in Heratio
+    //  because Heratio integrates with the GLAM information_object model
+    //  (not present in PSIS's AtoM-plugin flavour) and uses Laravel's users
+    //  table rather than AtoM's user table.
+    // =========================================================================
+
+    /**
+     * Upload a cover image for a marketplace collection. Heratio-specific:
+     * PSIS inlines cover uploads in the collection controller action instead
+     * of delegating to a service helper.
+     */
+    public function uploadCollectionCover(int $sellerId, $file): ?string
+    {
+        if (!$file || !method_exists($file, 'isValid') || !$file->isValid()) {
+            return null;
+        }
+        $uploadsBase = rtrim(config('heratio.uploads_path', storage_path('app/uploads')), '/');
+        $destDir = $uploadsBase . '/marketplace/collections/' . $sellerId;
+        if (!is_dir($destDir) && !@mkdir($destDir, 0755, true) && !is_dir($destDir)) {
+            return null;
+        }
+        $ext = $file->getClientOriginalExtension() ?: 'jpg';
+        $filename = 'cover_' . time() . '_' . bin2hex(random_bytes(3)) . '.' . $ext;
+        $file->move($destDir, $filename);
+        return '/uploads/marketplace/collections/' . $sellerId . '/' . $filename;
+    }
+
+    /**
+     * Pre-fill listing creation form from an archival information object.
+     * Heratio-specific: PSIS does not integrate marketplace listings with
+     * the GLAM information_object model — Heratio does.
+     *
+     * Returns an object with: information_object_id, title, description, slug.
+     */
+    public function getIOPrefillData(int $ioId): ?object
+    {
+        $row = DB::table('information_object as io')
+            ->leftJoin('information_object_i18n as i18n', function ($j) {
+                $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', '=', 'en');
+            })
+            ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
+            ->where('io.id', $ioId)
+            ->select([
+                'io.id as information_object_id',
+                'i18n.title',
+                'i18n.scope_and_content as description',
+                's.slug',
+            ])
+            ->first();
+        return $row ?: null;
+    }
+
+    /**
+     * Pre-fill enquiry/offer forms from the authenticated user's profile.
+     * Heratio-specific: PSIS uses AtoM's `user` table which has a different
+     * shape (authorized_form_of_name + email across joined tables).
+     *
+     * @return array{name: string, email: string}
+     */
+    public function getUserPrefillData(int $userId): array
+    {
+        $user = DB::table('users')->where('id', $userId)->first(['name', 'email']);
+        return [
+            'name'  => (string) ($user->name ?? ''),
+            'email' => (string) ($user->email ?? ''),
+        ];
+    }
+
+    /**
+     * Auto-provision a minimal seller profile for admin users who don't yet
+     * have one, so the /dashboard page doesn't bounce them to registration.
+     * Heratio-specific convenience: PSIS requires explicit seller registration.
+     */
+    public function autoProvisionAdminSeller(int $userId): ?object
+    {
+        $user = DB::table('users')->where('id', $userId)->first(['name', 'email']);
+        if (!$user) {
+            return null;
+        }
+        $displayName = (string) ($user->name ?: ('Admin #' . $userId));
+        $baseSlug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $displayName), '-'));
+        if ($baseSlug === '') {
+            $baseSlug = 'admin-' . $userId;
+        }
+        $slug = $baseSlug;
+        $counter = 1;
+        while (DB::table($this->sellerTable)->where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+        $id = DB::table($this->sellerTable)->insertGetId([
+            'seller_type'         => 'individual',
+            'display_name'        => $displayName,
+            'slug'                => $slug,
+            'email'               => (string) ($user->email ?? ''),
+            'commission_rate'     => 10.00,
+            'payout_method'       => 'bank_transfer',
+            'payout_currency'     => config('heratio.base_currency', 'ZAR'),
+            'verification_status' => 'verified',
+            'trust_level'         => 'trusted',
+            'is_active'           => 1,
+            'created_by'          => $userId,
+            'terms_accepted_at'   => now(),
+            'created_at'          => now(),
+            'updated_at'          => now(),
+        ]);
+        return DB::table($this->sellerTable)->where('id', $id)->first();
     }
 
     public function toggleFavourite(int $userId, int $listingId): array
