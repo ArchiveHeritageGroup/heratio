@@ -135,7 +135,7 @@
         <div class="card-header bg-success text-white"><h5 class="mb-0"><i class="fas fa-download me-2"></i>{{ __('Export') }}</h5></div>
         <ul class="list-group list-group-flush">
           @if($hasGrap)<li class="list-group-item"><a href="{{ url('/grap/national-treasury-report') }}"><i class="fas fa-balance-scale me-2 text-muted"></i>{{ __('GRAP 103 National Treasury Report') }}</a></li>@endif
-          @if($hasSpectrum)<li class="list-group-item"><a href="{{ url('/spectrum/export') }}"><i class="fas fa-history me-2 text-muted"></i>{{ __('Spectrum History Export') }}</a></li>@endif
+          @if($hasSpectrum)<li class="list-group-item"><a href="{{ url('/admin/spectrum/export') }}"><i class="fas fa-history me-2 text-muted"></i>{{ __('Spectrum History Export') }}</a></li>@endif
           <li class="list-group-item"><a href="{{ route('reports.descriptions', ['export' => 'csv']) }}"><i class="fas fa-file-csv me-2 text-muted"></i>{{ __('CSV Export') }}</a></li>
           <li class="list-group-item"><a href="{{ url('/export/ead') }}"><i class="fas fa-file-code me-2 text-muted"></i>{{ __('EAD 2002 Export') }}</a></li>
           @if(Route::has('ahgmetadataexport.index'))
@@ -176,10 +176,10 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#0d6efd!important"><h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('Spectrum Workflow') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ url('/spectrum/dashboard') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Spectrum Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/spectrum/my-tasks') }}"><i class="fas fa-clipboard-list me-2 text-muted"></i>{{ __('My Spectrum Tasks') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/spectrum/workflows') }}"><i class="fas fa-sitemap me-2 text-muted"></i>{{ __('Workflow Configurations') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/spectrum/notifications') }}"><i class="fas fa-bell me-2 text-muted"></i>{{ __('Notifications') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/spectrum/dashboard') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Spectrum Dashboard') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/spectrum/my-tasks') }}"><i class="fas fa-clipboard-list me-2 text-muted"></i>{{ __('My Spectrum Tasks') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/spectrum/workflow') }}"><i class="fas fa-sitemap me-2 text-muted"></i>{{ __('Workflow Configurations') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/spectrum/notifications') }}"><i class="fas fa-bell me-2 text-muted"></i>{{ __('Notifications') }}</a></li>
         </ul>
       </div>
     </div>
@@ -215,8 +215,8 @@
         <div class="card-header text-white" style="background-color:#6610f2!important"><h5 class="mb-0"><i class="fas fa-brain me-2"></i>{{ __('Knowledge Platform') }}</h5></div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item"><a href="{{ url('/research/annotations') }}"><i class="fas fa-highlighter me-2 text-muted"></i>{{ __('Annotation Studio') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/research/saved-searches') }}"><i class="fas fa-search me-2 text-muted"></i>{{ __('Saved Searches') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/research/validation-queue') }}"><i class="fas fa-check-double me-2 text-muted"></i>{{ __('Validation Queue') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/savedSearches') }}"><i class="fas fa-search me-2 text-muted"></i>{{ __('Saved Searches') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/research/validationQueue') }}"><i class="fas fa-check-double me-2 text-muted"></i>{{ __('Validation Queue') }}</a></li>
           <li class="list-group-item"><a href="{{ url('/research/entity-resolution') }}"><i class="fas fa-object-group me-2 text-muted"></i>{{ __('Entity Resolution') }}</a></li>
           <li class="list-group-item"><a href="{{ url('/research/odrl-policies') }}"><i class="fas fa-balance-scale me-2 text-muted"></i>{{ __('ODRL Policies') }}</a></li>
           <li class="list-group-item"><a href="{{ url('/research/document-templates') }}"><i class="fas fa-file-alt me-2 text-muted"></i>{{ __('Document Templates') }}</a></li>
@@ -249,9 +249,9 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#0d6efd!important"><h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>{{ __('Access Requests') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ Route::has('acl.access-requests') ? route('acl.access-requests') : url('/admin/access-requests') }}"><i class="fas fa-clock me-2 text-muted"></i>{{ __('Pending Requests') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('acl.access-requests') ? route('acl.access-requests') : url('/admin/accessRequests') }}"><i class="fas fa-clock me-2 text-muted"></i>{{ __('Pending Requests') }}</a></li>
           <li class="list-group-item"><a href="{{ Route::has('acl.approvers') ? route('acl.approvers') : url('/admin/approvers') }}"><i class="fas fa-user-check me-2 text-muted"></i>{{ __('Approvers') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('acl.access-requests') ? route('acl.access-requests', ['status' => 'all']) : url('/admin/access-requests?status=all') }}"><i class="fas fa-history me-2 text-muted"></i>{{ __('Request History') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('acl.access-requests') ? route('acl.access-requests', ['status' => 'all']) : url('/admin/accessRequests?status=all') }}"><i class="fas fa-history me-2 text-muted"></i>{{ __('Request History') }}</a></li>
         </ul>
       </div>
     </div>
@@ -276,9 +276,9 @@
           <li class="list-group-item"><a href="{{ Route::has('acl.clearances') ? route('acl.clearances') : url('/admin/security/compliance') }}"><i class="fas fa-user-shield me-2 text-muted"></i>{{ __('Clearance Report') }}</a></li>
           @endif
           @if($hasAudit)
-          <li class="list-group-item"><a href="{{ Route::has('audit.statistics') ? route('audit.statistics') : url('/audit/statistics') }}"><i class="fas fa-chart-line me-2 text-muted"></i>{{ __('Audit Statistics') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('audit.browse') ? route('audit.browse') : url('/audit/browse') }}"><i class="fas fa-clipboard-list me-2 text-muted"></i>{{ __('Audit Log') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/audit/export') }}"><i class="fas fa-download me-2 text-muted"></i>{{ __('Export Audit Log') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('audit.statistics') ? route('audit.statistics') : url('/admin/audit/statistics') }}"><i class="fas fa-chart-line me-2 text-muted"></i>{{ __('Audit Statistics') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('audit.browse') ? route('audit.browse') : url('/admin/audit') }}"><i class="fas fa-clipboard-list me-2 text-muted"></i>{{ __('Audit Log') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/audit/export') }}"><i class="fas fa-download me-2 text-muted"></i>{{ __('Export Audit Log') }}</a></li>
           @endif
         </ul>
       </div>
@@ -291,13 +291,13 @@
       <div class="card h-100">
         <div class="card-header bg-warning text-dark"><h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>{{ __('Privacy & Data Protection') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ url('/privacyAdmin') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Privacy Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/privacyAdmin/ropaList') }}"><i class="fas fa-clipboard-list me-2 text-muted"></i>{{ __('ROPA') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/privacyAdmin/dsarList') }}"><i class="fas fa-user-clock me-2 text-muted"></i>{{ __('DSAR Requests') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/privacyAdmin/breachList') }}"><i class="fas fa-exclamation-circle me-2 text-muted"></i>{{ __('Breach Register') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/privacyAdmin/paiaList') }}"><i class="fas fa-file-contract me-2 text-muted"></i>{{ __('PAIA Requests') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/privacyAdmin/officerList') }}"><i class="fas fa-user-tie me-2 text-muted"></i>{{ __('Privacy Officers') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/privacyAdmin/config') }}"><i class="fas fa-file-alt me-2 text-muted"></i>{{ __('Template Library') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/privacy/dashboard') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Privacy Dashboard') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/privacy/ropa-list') }}"><i class="fas fa-clipboard-list me-2 text-muted"></i>{{ __('ROPA') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/privacy/dsar-list') }}"><i class="fas fa-user-clock me-2 text-muted"></i>{{ __('DSAR Requests') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/privacy/breach-list') }}"><i class="fas fa-exclamation-circle me-2 text-muted"></i>{{ __('Breach Register') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/privacy/paia-list') }}"><i class="fas fa-file-contract me-2 text-muted"></i>{{ __('PAIA Requests') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/privacy/officer-list') }}"><i class="fas fa-user-tie me-2 text-muted"></i>{{ __('Privacy Officers') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/privacy/config') }}"><i class="fas fa-file-alt me-2 text-muted"></i>{{ __('Template Library') }}</a></li>
         </ul>
       </div>
     </div>
@@ -326,12 +326,12 @@
       <div class="card h-100">
         <div class="card-header bg-success text-white"><h5 class="mb-0"><i class="fas fa-robot me-2"></i>{{ __('AI Condition Assessment') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ url('/ai-condition/dashboard') }}"><i class="fas fa-tachometer-alt me-2 text-success"></i>{{ __('Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/ai-condition/assess') }}"><i class="fas fa-camera me-2 text-success"></i>{{ __('New AI Assessment') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/ai-condition/manual') }}"><i class="fas fa-clipboard-check me-2 text-primary"></i>{{ __('Manual Assessment') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/ai-condition/bulk') }}"><i class="fas fa-layer-group me-2 text-info"></i>{{ __('Bulk Scan') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/ai-condition/browse') }}"><i class="fas fa-list me-2 text-muted"></i>{{ __('Browse Assessments') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/ai-condition/training') }}"><i class="fas fa-brain me-2 text-warning"></i>{{ __('Model Training') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/ai/condition/dashboard') }}"><i class="fas fa-tachometer-alt me-2 text-success"></i>{{ __('Dashboard') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/ai/condition/assess') }}"><i class="fas fa-camera me-2 text-success"></i>{{ __('New AI Assessment') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/ai/condition/manual') }}"><i class="fas fa-clipboard-check me-2 text-primary"></i>{{ __('Manual Assessment') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/ai/condition/bulk') }}"><i class="fas fa-layer-group me-2 text-info"></i>{{ __('Bulk Scan') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/ai/condition/browse') }}"><i class="fas fa-list me-2 text-muted"></i>{{ __('Browse Assessments') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/ai/condition/training') }}"><i class="fas fa-brain me-2 text-warning"></i>{{ __('Model Training') }}</a></li>
           <li class="list-group-item"><a href="{{ route('settings.ai-condition') }}"><i class="fas fa-cog me-2 text-secondary"></i>{{ __('Settings & API Clients') }}</a></li>
         </ul>
       </div>
@@ -542,11 +542,11 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#0dcaf0!important"><h5 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('DOI Management') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ Route::has('doi.index') ? route('doi.index') : url('/doi') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('DOI Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('doi.browse') ? route('doi.browse') : url('/doi/browse') }}"><i class="fas fa-list me-2 text-muted"></i>{{ __('Browse DOIs') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('doi.queue') ? route('doi.queue') : url('/doi/queue') }}"><i class="fas fa-tasks me-2 text-muted"></i>{{ __('Minting Queue') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('doi.index') ? route('doi.index') : url('/doi') }}"><i class="fas fa-layer-group me-2 text-muted"></i>{{ __('Batch Mint') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('doi.config') ? route('doi.config') : url('/doi/config') }}"><i class="fas fa-cog me-2 text-muted"></i>{{ __('DataCite Config') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('doi.index') ? route('doi.index') : url('/admin/doi') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('DOI Dashboard') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('doi.browse') ? route('doi.browse') : url('/admin/doi/browse') }}"><i class="fas fa-list me-2 text-muted"></i>{{ __('Browse DOIs') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('doi.queue') ? route('doi.queue') : url('/admin/doi/queue') }}"><i class="fas fa-tasks me-2 text-muted"></i>{{ __('Minting Queue') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('doi.index') ? route('doi.index') : url('/admin/doi') }}"><i class="fas fa-layer-group me-2 text-muted"></i>{{ __('Batch Mint') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('doi.config') ? route('doi.config') : url('/admin/doi/config') }}"><i class="fas fa-cog me-2 text-muted"></i>{{ __('DataCite Config') }}</a></li>
         </ul>
       </div>
     </div>
@@ -556,9 +556,9 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#6f42c1!important"><h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>{{ __('Records in Contexts (RiC)') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ Route::has('ric.index') ? route('ric.index') : url('/ric') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('RiC Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('ric.sync-status') ? route('ric.sync-status') : url('/ric/sync-status') }}"><i class="fas fa-sitemap me-2 text-muted"></i>{{ __('RiC Explorer') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('ric.sync-status') ? route('ric.sync-status') : url('/ric/sync-status') }}"><i class="fas fa-sync me-2 text-muted"></i>{{ __('Sync Status') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('ric.index') ? route('ric.index') : url('/admin/ric') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('RiC Dashboard') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('ric.sync-status') ? route('ric.sync-status') : url('/admin/ric/sync-status') }}"><i class="fas fa-sitemap me-2 text-muted"></i>{{ __('RiC Explorer') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('ric.sync-status') ? route('ric.sync-status') : url('/admin/ric/sync-status') }}"><i class="fas fa-sync me-2 text-muted"></i>{{ __('Sync Status') }}</a></li>
         </ul>
       </div>
     </div>
@@ -579,10 +579,10 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#fd7e14!important"><h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>{{ __('Data Migration') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ Route::has('data-migration.index') ? route('data-migration.index') : url('/data-migration') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Migration Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('data-migration.upload') ? route('data-migration.upload') : url('/data-migration/upload') }}"><i class="fas fa-upload me-2 text-muted"></i>{{ __('Import Data') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('data-migration.batch-export') ? route('data-migration.batch-export') : url('/data-migration/export') }}"><i class="fas fa-download me-2 text-muted"></i>{{ __('Export Data') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('data-migration.jobs') ? route('data-migration.jobs') : url('/data-migration/jobs') }}"><i class="fas fa-history me-2 text-muted"></i>{{ __('Migration History') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('data-migration.index') ? route('data-migration.index') : url('/admin/data-migration') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Migration Dashboard') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('data-migration.upload') ? route('data-migration.upload') : url('/admin/data-migration/upload') }}"><i class="fas fa-upload me-2 text-muted"></i>{{ __('Import Data') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('data-migration.batch-export') ? route('data-migration.batch-export') : url('/admin/data-migration/batch-export') }}"><i class="fas fa-download me-2 text-muted"></i>{{ __('Export Data') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('data-migration.jobs') ? route('data-migration.jobs') : url('/admin/data-migration/jobs') }}"><i class="fas fa-history me-2 text-muted"></i>{{ __('Migration History') }}</a></li>
         </ul>
       </div>
     </div>
@@ -604,9 +604,9 @@
       <div class="card h-100">
         <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-database me-2"></i>{{ __('Backup & Maintenance') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ Route::has('backup.index') ? route('backup.index') : url('/backup') }}"><i class="fas fa-download me-2 text-muted"></i>{{ __('Backup Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('backup.restore') ? route('backup.restore') : url('/backup/restore') }}"><i class="fas fa-undo-alt me-2 text-muted"></i>{{ __('Restore') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('job.browse') ? route('job.browse') : url('/jobs') }}"><i class="fas fa-tasks me-2 text-muted"></i>{{ __('Background Jobs') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('backup.index') ? route('backup.index') : url('/admin/backup') }}"><i class="fas fa-download me-2 text-muted"></i>{{ __('Backup Dashboard') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('backup.restore') ? route('backup.restore') : url('/admin/backup/restore') }}"><i class="fas fa-undo-alt me-2 text-muted"></i>{{ __('Restore') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('job.browse') ? route('job.browse') : url('/admin/jobs') }}"><i class="fas fa-tasks me-2 text-muted"></i>{{ __('Background Jobs') }}</a></li>
         </ul>
       </div>
     </div>
@@ -634,11 +634,11 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#dc3545!important"><h5 class="mb-0"><i class="fas fa-clone me-2"></i>{{ __('Duplicate Detection') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ Route::has('dedupe.index') ? route('dedupe.index') : url('/dedupe') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Dedupe Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('dedupe.browse') ? route('dedupe.browse') : url('/dedupe/browse') }}"><i class="fas fa-list me-2 text-muted"></i>{{ __('Browse Duplicates') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('dedupe.index') ? route('dedupe.index') : url('/dedupe') }}"><i class="fas fa-search me-2 text-muted"></i>{{ __('Run Scan') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('dedupe.rules') ? route('dedupe.rules') : url('/dedupe/rules') }}"><i class="fas fa-cog me-2 text-muted"></i>{{ __('Detection Rules') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('dedupe.report') ? route('dedupe.report') : url('/dedupe/report') }}"><i class="fas fa-chart-bar me-2 text-muted"></i>{{ __('Reports') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('dedupe.index') ? route('dedupe.index') : url('/admin/dedupe') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Dedupe Dashboard') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('dedupe.browse') ? route('dedupe.browse') : url('/admin/dedupe/browse') }}"><i class="fas fa-list me-2 text-muted"></i>{{ __('Browse Duplicates') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('dedupe.index') ? route('dedupe.index') : url('/admin/dedupe/scan') }}"><i class="fas fa-search me-2 text-muted"></i>{{ __('Run Scan') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('dedupe.rules') ? route('dedupe.rules') : url('/admin/dedupe/rules') }}"><i class="fas fa-cog me-2 text-muted"></i>{{ __('Detection Rules') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('dedupe.report') ? route('dedupe.report') : url('/admin/dedupe/report') }}"><i class="fas fa-chart-bar me-2 text-muted"></i>{{ __('Reports') }}</a></li>
         </ul>
       </div>
     </div>
@@ -648,8 +648,8 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#20c997!important"><h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('TIFF to PDF Merge') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ url('/tiff-pdf-merge') }}"><i class="fas fa-plus-circle me-2 text-muted"></i>{{ __('New Merge Job') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/tiff-pdf-merge/browse') }}"><i class="fas fa-list me-2 text-muted"></i>{{ __('Browse Merge Jobs') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/preservation/tiffpdfmerge') }}"><i class="fas fa-plus-circle me-2 text-muted"></i>{{ __('New Merge Job') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/preservation/tiffpdfmerge/browse') }}"><i class="fas fa-list me-2 text-muted"></i>{{ __('Browse Merge Jobs') }}</a></li>
         </ul>
       </div>
     </div>
@@ -669,10 +669,10 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#17a2b8!important"><h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>{{ __('Digital Preservation') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ Route::has('preservation.index') ? route('preservation.index') : url('/preservation') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Preservation Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('preservation.fixity-log') ? route('preservation.fixity-log') : url('/preservation/fixity-log') }}"><i class="fas fa-check-double me-2 text-muted"></i>{{ __('Fixity Verification') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('preservation.events') ? route('preservation.events') : url('/preservation/events') }}"><i class="fas fa-history me-2 text-muted"></i>{{ __('PREMIS Events') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('preservation.reports') ? route('preservation.reports') : url('/preservation/reports') }}"><i class="fas fa-chart-bar me-2 text-muted"></i>{{ __('Preservation Reports') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('preservation.index') ? route('preservation.index') : url('/admin/preservation') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Preservation Dashboard') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('preservation.fixity-log') ? route('preservation.fixity-log') : url('/admin/preservation/fixity-log') }}"><i class="fas fa-check-double me-2 text-muted"></i>{{ __('Fixity Verification') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('preservation.events') ? route('preservation.events') : url('/admin/preservation/events') }}"><i class="fas fa-history me-2 text-muted"></i>{{ __('PREMIS Events') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('preservation.reports') ? route('preservation.reports') : url('/admin/preservation/reports') }}"><i class="fas fa-chart-bar me-2 text-muted"></i>{{ __('Preservation Reports') }}</a></li>
         </ul>
       </div>
     </div>
@@ -680,9 +680,9 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#6610f2!important"><h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>{{ __('Format Registry') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ Route::has('preservation.formats') ? route('preservation.formats') : url('/preservation/formats') }}"><i class="fas fa-list me-2 text-muted"></i>{{ __('Browse Formats') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('preservation.formats') ? route('preservation.formats') . '?risk=high' : url('/preservation/formats?risk=high') }}"><i class="fas fa-exclamation-triangle me-2 text-muted"></i>{{ __('At-Risk Formats') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('preservation.policies') ? route('preservation.policies') : url('/preservation/policies') }}"><i class="fas fa-cogs me-2 text-muted"></i>{{ __('Preservation Policies') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('preservation.formats') ? route('preservation.formats') : url('/admin/preservation/formats') }}"><i class="fas fa-list me-2 text-muted"></i>{{ __('Browse Formats') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('preservation.formats') ? route('preservation.formats') . '?risk=high' : url('/admin/preservation/formats?risk=high') }}"><i class="fas fa-exclamation-triangle me-2 text-muted"></i>{{ __('At-Risk Formats') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('preservation.policies') ? route('preservation.policies') : url('/admin/preservation/policies') }}"><i class="fas fa-cogs me-2 text-muted"></i>{{ __('Preservation Policies') }}</a></li>
         </ul>
       </div>
     </div>
@@ -690,9 +690,9 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#28a745!important"><h5 class="mb-0"><i class="fas fa-fingerprint me-2"></i>{{ __('Checksums & Integrity') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ Route::has('preservation.reports') ? route('preservation.reports') . '?type=missing' : url('/preservation/reports?type=missing') }}"><i class="fas fa-exclamation-circle me-2 text-muted"></i>{{ __('Missing Checksums') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('preservation.reports') ? route('preservation.reports') . '?type=stale' : url('/preservation/reports?type=stale') }}"><i class="fas fa-clock me-2 text-muted"></i>{{ __('Stale Verification') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('preservation.fixity-log') ? route('preservation.fixity-log') . '?status=failed' : url('/preservation/fixity-log?status=failed') }}"><i class="fas fa-times-circle me-2 text-muted"></i>{{ __('Failed Checks') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('preservation.reports') ? route('preservation.reports') . '?type=missing' : url('/admin/preservation/reports?type=missing') }}"><i class="fas fa-exclamation-circle me-2 text-muted"></i>{{ __('Missing Checksums') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('preservation.reports') ? route('preservation.reports') . '?type=stale' : url('/admin/preservation/reports?type=stale') }}"><i class="fas fa-clock me-2 text-muted"></i>{{ __('Stale Verification') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('preservation.fixity-log') ? route('preservation.fixity-log') . '?status=failed' : url('/admin/preservation/fixity-log?status=failed') }}"><i class="fas fa-times-circle me-2 text-muted"></i>{{ __('Failed Checks') }}</a></li>
         </ul>
       </div>
     </div>
@@ -712,10 +712,10 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#198754!important"><h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>{{ __('CDPA Data Protection') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ url('/cdpa') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('CDPA Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/cdpa/license') }}"><i class="fas fa-id-card me-2 text-muted"></i>{{ __('POTRAZ License') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/cdpa/requests') }}"><i class="fas fa-user-clock me-2 text-muted"></i>{{ __('Data Subject Requests') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/cdpa/breaches') }}"><i class="fas fa-exclamation-triangle me-2 text-muted"></i>{{ __('Breach Register') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/cdpa') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('CDPA Dashboard') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/cdpa/license') }}"><i class="fas fa-id-card me-2 text-muted"></i>{{ __('POTRAZ License') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/cdpa/requests') }}"><i class="fas fa-user-clock me-2 text-muted"></i>{{ __('Data Subject Requests') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/cdpa/breaches') }}"><i class="fas fa-exclamation-triangle me-2 text-muted"></i>{{ __('Breach Register') }}</a></li>
         </ul>
       </div>
     </div>
@@ -725,10 +725,10 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#0d6efd!important"><h5 class="mb-0"><i class="fas fa-landmark me-2"></i>{{ __('NAZ Archives') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ url('/naz') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('NAZ Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/naz/closures') }}"><i class="fas fa-lock me-2 text-muted"></i>{{ __('Closure Periods') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/naz/permits') }}"><i class="fas fa-id-card me-2 text-muted"></i>{{ __('Research Permits') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/naz/transfers') }}"><i class="fas fa-truck me-2 text-muted"></i>{{ __('Records Transfers') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/naz') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('NAZ Dashboard') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/naz/closures') }}"><i class="fas fa-lock me-2 text-muted"></i>{{ __('Closure Periods') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/naz/permits') }}"><i class="fas fa-id-card me-2 text-muted"></i>{{ __('Research Permits') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/naz/transfers') }}"><i class="fas fa-truck me-2 text-muted"></i>{{ __('Records Transfers') }}</a></li>
         </ul>
       </div>
     </div>

@@ -1,6 +1,171 @@
 # Reports Dashboard Comparison: AtoM (psis) vs Heratio
 
-Generated: 2026-04-11 | Updated: 2026-04-11
+Generated: 2026-04-11 | Updated: 2026-04-12
+
+## URL Audit Summary
+
+After yesterday's "175/175 destination pages cloned" sweep (which only fixed CSS classes, not content/routing), an actual click-through audit found that **most dashboard links rendered white pages** because the link URLs did not match the registered routes. They fell through to the slug catch-all and returned 404.
+
+| Phase | Status | Broken links remaining | Notes |
+|-------|--------|------------------------|-------|
+| **Before** (yesterday's "complete") | — | **90 / 122** broken | Wrong URL prefixes + missing routes |
+| **Phase A — URL prefix fixes** | DONE 2026-04-12 | **40 / 122** | Re-pointed dashboard links to existing `/admin/...` routes |
+| **Phase B — Clone missing pages from PSIS** | OUTSTANDING | **0 / 122** (target) | Each row in the Phase B table below needs full AtoM clone |
+
+### Phase A — URL prefix fixes (DONE)
+
+Single edit to `packages/ahg-reports/resources/views/dashboard.blade.php`. No new routes, no controllers — only the dashboard's `url('/...')` calls were corrected to point at the actual registered routes. 50 links restored.
+
+| Card / Section | Old (broken) | New (fixed) |
+|----------------|--------------|-------------|
+| Spectrum Workflow (5) | `/spectrum/dashboard`, `/my-tasks`, `/workflows`, `/notifications` | `/admin/spectrum/dashboard`, `/my-tasks`, `/workflow`, `/notifications` |
+| Spectrum Export (3) | `/spectrum/export` | `/admin/spectrum/export` |
+| Access Requests (9) | `/admin/access-requests` (kebab) | `/admin/accessRequests` (camelCase, actual route) |
+| Audit (10) | `/audit/statistics`, `/audit/browse`, `/audit/export` | `/admin/audit/statistics`, `/admin/audit`, `/admin/audit/export` |
+| Privacy & Data Protection (11) | `/privacyAdmin`, `/privacyAdmin/ropaList`, `/dsarList`, `/breachList`, `/paiaList`, `/officerList`, `/config` | `/admin/privacy/dashboard`, `/ropa-list`, `/dsar-list`, `/breach-list`, `/paia-list`, `/officer-list`, `/config` |
+| AI Condition (13) | `/ai-condition/dashboard`, `/assess`, `/manual`, `/bulk`, `/browse`, `/training` | `/admin/ai/condition/{dashboard,assess,manual,bulk,browse,training}` |
+| DOI (23) | `/doi`, `/doi/browse`, `/queue`, `/config` | `/admin/doi`, `/admin/doi/{browse,queue,config}` |
+| RiC (24) | `/ric`, `/ric/sync-status` | `/admin/ric`, `/admin/ric/sync-status` |
+| Data Migration (25) | `/data-migration`, `/upload`, `/export`, `/jobs` | `/admin/data-migration`, `/upload`, `/batch-export`, `/jobs` |
+| Backup (27) | `/backup`, `/backup/restore`, `/jobs` | `/admin/backup`, `/admin/backup/restore`, `/admin/jobs` |
+| Dedupe (29) | `/dedupe`, `/dedupe/{browse,rules,report}` | `/admin/dedupe`, `/admin/dedupe/{browse,scan,rules,report}` |
+| TIFF→PDF Merge | `/tiff-pdf-merge`, `/tiff-pdf-merge/browse` | `/admin/preservation/tiffpdfmerge`, `/browse` |
+| Digital Preservation (30) | `/preservation`, `/fixity-log`, `/events`, `/reports` | `/admin/preservation/{,fixity-log,events,reports}` |
+| Format Registry (31) | `/preservation/formats`, `/policies` | `/admin/preservation/formats`, `/policies` |
+| Checksums (32) | `/preservation/reports?type=...`, `/fixity-log?status=failed` | `/admin/preservation/...` |
+| CDPA (33) | `/cdpa`, `/cdpa/{license,requests,breaches}` | `/admin/cdpa`, `/admin/cdpa/{license,requests,breaches}` |
+| NAZ (34) | `/naz`, `/naz/{closures,permits,transfers}` | `/admin/naz`, `/admin/naz/{closures,permits,transfers}` |
+| Knowledge Platform (7) | `/research/saved-searches`, `/validation-queue` | `/research/savedSearches`, `/validationQueue` |
+
+### Phase B — Pages to clone from PSIS (OUTSTANDING)
+
+These are dashboard links that point at routes which **do not exist anywhere in the heratio routing table**. Per project rule "we clone from PSIS where it is missing" — each row needs an AtoM action+template ported into a new heratio controller method, view, and route registration.
+
+For each row below, "Controls before" = current count of form fields / table columns / action buttons in the heratio target view (zero if no view exists). "Controls after" = the count once the AtoM source is fully cloned. The After column will be filled in when the page is actually cloned in a batch.
+
+#### Block 7 — Knowledge Platform (research)
+
+| # | Link | URL | AtoM source | Controls before | Controls after | Status |
+|---|------|-----|-------------|----------------:|---------------:|--------|
+| 1 | Annotation Studio | `/research/annotations` | (already routed) | — | — | OK (matches existing route) |
+| 2 | Saved Searches | `/research/savedSearches` | (Phase A fix) | — | — | OK |
+| 3 | Validation Queue | `/research/validationQueue` | (Phase A fix) | — | — | OK |
+| 4 | Entity Resolution | `/research/entity-resolution` | psis: `entityResolution/index` | 0 | TBD | TODO |
+| 5 | ODRL Policies | `/research/odrl-policies` | psis: `odrlPolicy/index` | 0 | TBD | TODO |
+| 6 | Document Templates | `/research/document-templates` | psis: `documentTemplate/index` | 0 | TBD | TODO |
+
+#### Block 6 — Research Services (research)
+
+| # | Link | URL | AtoM source | Controls before | Controls after | Status |
+|---|------|-----|-------------|----------------:|---------------:|--------|
+| 1 | Research Dashboard | `/research/dashboard` | psis: `research/dashboard` | 0 | TBD | TODO |
+| 2 | Research Reports | `/research/reports` | psis: `research/reports` | 0 | TBD | TODO |
+| 3 | Bibliographies | `/research/bibliographies` | psis: `bibliography/index` | 0 | TBD | TODO |
+| 4 | Research Journal (list) | `/research/journal` | psis: `journal/index` | 0 | TBD | TODO |
+
+#### Block 8 — Research Admin (research)
+
+| # | Link | URL | AtoM source | Controls before | Controls after | Status |
+|---|------|-----|-------------|----------------:|---------------:|--------|
+| 1 | Manage Researchers | `/research/admin/researchers` | psis: `research/adminResearchers` | 0 | TBD | TODO |
+| 2 | Manage Bookings | `/research/admin/bookings` | psis: `research/adminBookings` | 0 | TBD | TODO |
+| 3 | Reproduction Requests | `/research/reproductions` | psis: `reproduction/index` | 0 | TBD | TODO |
+| 4 | Statistics | `/research/admin/statistics` | psis: `research/adminStatistics` | 0 | TBD | TODO |
+
+#### Block 9 — Access Requests (acl)
+
+| # | Link | URL | AtoM source | Controls before | Controls after | Status |
+|---|------|-----|-------------|----------------:|---------------:|--------|
+| 1 | Approvers | `/admin/approvers` | psis: `acl/approvers` | 0 | TBD | TODO |
+
+#### Block 12 — Condition (condition)
+
+| # | Link | URL | AtoM source | Controls before | Controls after | Status |
+|---|------|-----|-------------|----------------:|---------------:|--------|
+| 1 | Condition Dashboard | `/admin/condition` | psis: `condition/admin` | 0 | TBD | TODO |
+| 2 | Risk Assessment | `/admin/condition/risk` | psis: `condition/risk` | 0 | TBD | TODO |
+
+#### Block 13 — AI Condition (ai-services)
+
+| # | Link | URL | AtoM source | Controls before | Controls after | Status |
+|---|------|-----|-------------|----------------:|---------------:|--------|
+| 1 | Manual Assessment | `/admin/ai/condition/manual` | psis: `aiCondition/manual` | 0 | TBD | TODO |
+| 2 | Bulk Scan | `/admin/ai/condition/bulk` | psis: `aiCondition/bulk` | 0 | TBD | TODO |
+| 3 | Model Training | `/admin/ai/condition/training` | psis: `aiCondition/training` | 0 | TBD | TODO |
+
+#### Block 14–16 — Rights Management (extended-rights)
+
+| # | Link | URL | AtoM source | Controls before | Controls after | Status |
+|---|------|-----|-------------|----------------:|---------------:|--------|
+| 1 | Rights Dashboard | `/admin/rights` | psis: `rights/admin` | 0 | TBD | TODO |
+| 2 | Batch Rights Assignment | `/admin/rights/batch` | psis: `rights/batch` | 0 | TBD | TODO |
+| 3 | Browse Rights | `/admin/rights/browse` | psis: `rights/browse` | 0 | TBD | TODO |
+| 4 | Export Rights Report | `/admin/rights/export` | psis: `rights/export` | 0 | TBD | TODO |
+| 5 | Active Embargoes | `/admin/rights/embargo` | psis: `rights/embargo` | 0 | TBD | TODO |
+| 6 | Expiring Soon | `/admin/rights/expiring` | psis: `rights/expiring` | 0 | TBD | TODO |
+| 7 | Rights Statements | `/admin/rights/statements` | psis: `rights/statements` | 0 | TBD | TODO |
+| 8 | Creative Commons | `/admin/rights/creative-commons` | psis: `rights/creativeCommons` | 0 | TBD | TODO |
+| 9 | TK Labels | `/admin/rights/tk-labels` | psis: `rights/tkLabels` | 0 | TBD | TODO |
+
+#### Block 22 — Form Templates (forms)
+
+| # | Link | URL | AtoM source | Controls before | Controls after | Status |
+|---|------|-----|-------------|----------------:|---------------:|--------|
+| 1 | Create Template | `/admin/formTemplates/create` | psis: `formTemplate/create` | 0 | TBD | TODO |
+
+#### Block 25 — Data Migration (data-migration)
+
+| # | Link | URL | AtoM source | Controls before | Controls after | Status |
+|---|------|-----|-------------|----------------:|---------------:|--------|
+| 1 | Import Data (Upload) | `/admin/data-migration/upload` | psis: `dataMigration/upload` | 0 | TBD | TODO |
+
+#### Block 26 — Data Ingest (ingest)
+
+| # | Link | URL | AtoM source | Controls before | Controls after | Status |
+|---|------|-----|-------------|----------------:|---------------:|--------|
+| 1 | Ingest Dashboard | `/ingest` | psis: `ingest/index` | 0 | TBD | TODO |
+| 2 | New Ingest (Configure) | `/ingest/configure` | psis: `ingest/configure` | 0 | TBD | TODO |
+| 3 | CSV Template | `/ingest/template/archive` | matches `ingest/template/{sector?}` | OK (parameterized) | — | OK |
+
+#### Block 27 — Backup & Maintenance (backup)
+
+| # | Link | URL | AtoM source | Controls before | Controls after | Status |
+|---|------|-----|-------------|----------------:|---------------:|--------|
+| 1 | Restore | `/admin/backup/restore` | psis: `backup/restore` | 0 | TBD | TODO |
+
+#### Block 14 (audit) — Export
+
+| # | Link | URL | AtoM source | Controls before | Controls after | Status |
+|---|------|-----|-------------|----------------:|---------------:|--------|
+| 1 | Export Audit Log | `/admin/audit/export` | psis: `audit/export` | 0 | TBD | TODO |
+
+#### Sector dashboards (library, museum, dam, gallery, GRAP)
+
+| # | Link | URL | AtoM source | Controls before | Controls after | Status |
+|---|------|-----|-------------|----------------:|---------------:|--------|
+| 1 | Library Dashboard | `/library/browse` | psis: `library/browse` | 0 | TBD | TODO |
+| 2 | Museum Exhibitions | `/museum/exhibitions` | psis: `museum/exhibitions` | 0 | TBD | TODO |
+| 3 | DAM Dashboard | `/dam/dashboard` | psis: `dam/dashboard` | 0 | TBD | TODO |
+| 4 | GRAP National Treasury Report | `/grap/national-treasury-report` | psis: `heritage/grapNationalTreasury` | 0 | TBD | TODO |
+
+#### Approval Workflow
+
+| # | Link | URL | AtoM source | Controls before | Controls after | Status |
+|---|------|-----|-------------|----------------:|---------------:|--------|
+| 1 | Workflow Dashboard | `/workflow` | psis: `workflow/index` | 0 | TBD | TODO |
+
+#### Jurisdiction Compliance — root index pages
+
+| # | Link | URL | AtoM source | Controls before | Controls after | Status |
+|---|------|-----|-------------|----------------:|---------------:|--------|
+| 1 | IPSAS Dashboard | `/ipsas` | psis: `ipsas/index` | 0 | TBD | TODO |
+| 2 | NMMZ Dashboard | `/nmmz` | psis: `nmmz/index` | 0 | TBD | TODO |
+
+### Phase B totals
+
+- **40 missing pages** to clone from PSIS
+- **Cloned so far: 0 / 40**
+- Each clone batch will: open the AtoM source action+template under `/usr/share/nginx/archive`, port to a heratio controller method + Blade view, register the route in the package's `routes/web.php`, run an HTTP smoke test, then update this table with the real "Controls before" (almost always 0) and "Controls after" (count of fields/columns/buttons cloned from AtoM).
 
 ## Dashboard Structure
 
