@@ -1,11 +1,15 @@
 # AHG Plugins Menu — AtoM vs Heratio Comparison
 
 Generated: 2026-03-17
+**Resolved: 2026-04-12 — menu at `packages/ahg-theme-b5/resources/views/partials/menus/ahg-admin-menu.blade.php` is fully compliant. All 13 missing items added, all 14 extras removed, all 5 badge counts wired to real DB queries. All 23 route names + 5 URL paths verified via `php artisan route:list`. See `docs/heratio-vs-psis-outstanding-plan.md` Group 1 for checklist.**
 
-## Action Required
-- **ADD** all MISSING items to Heratio
-- **REMOVE** all EXTRA items from Heratio (move to correct locations or remove)
-- Badge counts on Research/DOI items need real DB queries
+## Action Required — HISTORICAL
+
+This section is preserved for audit trail. All items have been implemented.
+
+- **ADD** all MISSING items to Heratio → DONE
+- **REMOVE** all EXTRA items from Heratio → DONE
+- Badge counts on Research/DOI items need real DB queries → DONE (pendingResearchers, pendingBookings, pendingReview, pendingDuplicates, pendingDoi — all wired at top of menu partial)
 
 ---
 

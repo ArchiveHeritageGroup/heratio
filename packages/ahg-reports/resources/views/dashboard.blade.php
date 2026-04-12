@@ -285,11 +285,11 @@
   <div class="accordion mb-4" id="acc-research">
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-research" aria-expanded="true">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-research" aria-expanded="false">
           <i class="fas fa-graduation-cap me-2"></i>{{ __('Research & Access') }}
         </button>
       </h2>
-      <div id="collapse-research" class="accordion-collapse collapse show">
+      <div id="collapse-research" class="accordion-collapse collapse">
         <div class="accordion-body">
   @endif
 
@@ -371,11 +371,11 @@
   <div class="accordion mb-4" id="acc-security">
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-security" aria-expanded="true">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-security" aria-expanded="false">
           <i class="fas fa-shield-alt me-2"></i>{{ __('Security, Compliance & Rights') }}
         </button>
       </h2>
-      <div id="collapse-security" class="accordion-collapse collapse show">
+      <div id="collapse-security" class="accordion-collapse collapse">
         <div class="accordion-body">
   @endif
 
@@ -560,11 +560,11 @@
   <div class="accordion mb-4" id="acc-commerce">
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-commerce" aria-expanded="true">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-commerce" aria-expanded="false">
           <i class="fas fa-store me-2"></i>{{ __('Commerce & Vendors') }}
         </button>
       </h2>
-      <div id="collapse-commerce" class="accordion-collapse collapse show">
+      <div id="collapse-commerce" class="accordion-collapse collapse">
         <div class="accordion-body">
   @endif
 
@@ -659,11 +659,11 @@
   <div class="accordion mb-4" id="acc-dataquality">
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-dataquality" aria-expanded="true">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-dataquality" aria-expanded="false">
           <i class="fas fa-tools me-2"></i>{{ __('Data Quality & Configuration') }}
         </button>
       </h2>
-      <div id="collapse-dataquality" class="accordion-collapse collapse show">
+      <div id="collapse-dataquality" class="accordion-collapse collapse">
         <div class="accordion-body">
   @endif
 
@@ -724,11 +724,11 @@
   <div class="accordion mb-4" id="acc-dataops">
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-dataops" aria-expanded="true">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-dataops" aria-expanded="false">
           <i class="fas fa-database me-2"></i>{{ __('Data Operations') }}
         </button>
       </h2>
-      <div id="collapse-dataops" class="accordion-collapse collapse show">
+      <div id="collapse-dataops" class="accordion-collapse collapse">
         <div class="accordion-body">
   @endif
 
@@ -830,11 +830,11 @@
   <div class="accordion mb-4" id="acc-integrity">
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-integrity" aria-expanded="true">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-integrity" aria-expanded="false">
           <i class="fas fa-fingerprint me-2"></i>{{ __('Data Integrity & Preservation') }}
         </button>
       </h2>
-      <div id="collapse-integrity" class="accordion-collapse collapse show">
+      <div id="collapse-integrity" class="accordion-collapse collapse">
         <div class="accordion-body">
   @endif
 
@@ -887,11 +887,11 @@
   <div class="accordion mb-4" id="acc-jurisdiction">
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-jurisdiction" aria-expanded="true">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-jurisdiction" aria-expanded="false">
           <i class="fas fa-globe-africa me-2"></i>{{ __('Jurisdiction Compliance') }}
         </button>
       </h2>
-      <div id="collapse-jurisdiction" class="accordion-collapse collapse show">
+      <div id="collapse-jurisdiction" class="accordion-collapse collapse">
         <div class="accordion-body">
   @endif
 

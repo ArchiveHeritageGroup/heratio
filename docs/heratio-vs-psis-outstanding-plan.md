@@ -2,6 +2,7 @@
 
 Generated: 2026-04-12
 Owner: Johan Pieterse
+Environment: **dev** — full coverage, no deferral, no triage. Every item in this doc must be completed.
 
 This document plans the work that remains AFTER the reports-dashboard parity work
 (see `docs/reports-dashboard-comparison.md`). The reports dashboard is at 100%
@@ -9,17 +10,174 @@ functional parity for its 122 links. Everything below is **outside the dashboard
 scope** and was either flagged earlier in this session, surfaced by the
 auto-memory project notes, or never audited.
 
+## Status legend
+
+- `[ ]` = not started
+- `[~]` = in progress
+- `[x]` = done — code merged + smoke-tested
+- `[v]` = verified — Johan browser-tested as admin and confirmed working
+
+Mark items as you go. A batch is only DONE when every item in it is `[x]`. A batch is only VERIFIED when every item is `[v]`.
+
 ## Scope summary
 
 | Phase | What | Approx size | Verification path |
 |-------|------|-------------|-------------------|
+| **D2** | AHG menu parity — sidebar + admin nav | **13 missing menu items + 14 stale entries** (per `docs/AHG-MENU-COMPARISON.md`) | Visual audit, click every item |
 | **C** | Empty-accordion stub views — content port from PSIS | **191 views across 21 packages** | Browser load each page as admin |
 | **D1** | API parity — v1 + v2 REST endpoints | **94 missing endpoints** (per `docs/API-COMPARISON.md`) | curl + Postman collection |
-| **D2** | AHG menu parity — sidebar + admin nav | **13 missing menu items + 14 stale entries** (per `docs/AHG-MENU-COMPARISON.md`) | Visual audit, click every item |
-| **D3** | Media processing parity — 3D, AI, watermarks, encryption | **15 missing features** (per `docs/MEDIA-PROCESSING-COMPARISON.md`) | Upload+process flow tests |
-| **D4** | Plugin coverage matrix — 119 PSIS plugins ↔ 92 Heratio packages | **27 plugin gap rows** (estimate) | Side-by-side directory diff |
 | **D5** | AJAX endpoints, cron jobs, background services, JS layer | Unknown — never audited | Manual code walk per package |
 | **D6** | Form validation, POST handlers, business logic | Unknown — never audited | Per-page audit |
+| **D4** | Plugin coverage matrix — 119 PSIS plugins ↔ 92 Heratio packages | **27 plugin gap rows** (estimate) | Side-by-side directory diff |
+| **D3** | Media processing parity — 3D, AI, watermarks, encryption | **15 missing features** (per `docs/MEDIA-PROCESSING-COMPARISON.md`) | Upload+process flow tests |
+
+## Master execution order
+
+The order below is fixed. Do NOT skip ahead — earlier batches surface issues that change later ones.
+
+### Group 1 — Quick wins (closes obvious user-visible gaps)
+- [x] **D2** — AHG menu parity — verified 2026-04-12. The menu at `packages/ahg-theme-b5/resources/views/partials/menus/ahg-admin-menu.blade.php` already matches every row in `docs/AHG-MENU-COMPARISON.md`. All 13 missing items are present (Research/Researchers+Bookings with badges, Researcher Submissions section, Access/Requests+Approvers, Audit/Statistics+Logs+Settings+Error Log, RiC section, Dedupe, Form Templates, DOI section, Heritage section, Maintenance Backup+Restore). All 14 EXTRA items the comparison flagged are absent. All 23 route names and 5 URL paths resolve via `php artisan route:list`. Menu is included from `partials/header.blade.php`.
+
+### Group 2 — Stub view content port (191 pages, ordered by package size descending)
+Each package = N batches of 5 pages each. Tick off batches as they ship.
+
+- [~] **C-1** ahg-marketplace (32 stubs → 7 batches: 5+5+5+5+5+5+2) — **batch 1/7 DONE** 2026-04-12: admin-payouts, admin-transactions, admin-sellers, admin-listings, browse. Parity achieved on all 5 (27/26, 26/26, 35/35, 36/36, 39/37 heratio/PSIS control counts). Also fixed pre-existing controller bug: `MarketplaceController::browse()` called non-existent `$service->browse()` — now uses `getListings()`. Smoke test: 4×HTTP 302 auth + 1×HTTP 200 full render. 27 stubs remain.
+- [ ] **C-2** ahg-privacy (29 stubs → 6 batches: 5+5+5+5+5+4)
+- [ ] **C-3** ahg-registry (28 stubs → 6 batches: 5+5+5+5+5+3)
+- [ ] **C-4** ahg-nmmz (12 stubs → 3 batches: 5+5+2)
+- [ ] **C-5** ahg-icip (11 stubs → 3 batches: 5+5+1)
+- [ ] **C-6** ahg-vendor (10 stubs → 2 batches: 5+5)
+- [ ] **C-7** ahg-statistics (9 stubs → 2 batches: 5+4)
+- [ ] **C-8** ahg-naz (9 stubs → 2 batches: 5+4)
+- [ ] **C-9** ahg-exhibition (9 stubs → 2 batches: 5+4)
+- [ ] **C-10** ahg-cdpa (8 stubs → 2 batches: 5+3)
+- [ ] **C-11** ahg-ipsas (8 stubs → 2 batches: 5+3)
+- [ ] **C-12** ahg-forms (6 stubs → 2 batches: 5+1)
+- [ ] **C-13** ahg-ingest (5 stubs → 1 batch: 5)
+- [ ] **C-14** ahg-multi-tenant (4 stubs → 1 batch: 4)
+- [ ] **C-15** ahg-semantic-search (3 stubs → 1 batch: 3)
+- [ ] **C-16** **Bundled small packages** (8 stubs across 6 packages — ahg-metadata-export 2, ahg-condition 2, ahg-dacs-manage 1, ahg-dc-manage 1, ahg-mods-manage 1, ahg-rad-manage 1 → 2 batches: 5+3)
+
+**Group 2 total: ~42 batches @ 5 pages each = 191 stubs.**
+
+### Group 3 — API parity (94 endpoints, batched by resource)
+- [ ] **D1-1** information_object endpoints (~12)
+- [ ] **D1-2** actor / authority endpoints (~10)
+- [ ] **D1-3** repository endpoints (~8)
+- [ ] **D1-4** accession endpoints (~8)
+- [ ] **D1-5** taxonomy / term endpoints (~10)
+- [ ] **D1-6** digital_object endpoints (~8)
+- [ ] **D1-7** rights / extended_rights endpoints (~8)
+- [ ] **D1-8** condition / spectrum endpoints (~8)
+- [ ] **D1-9** research / annotations endpoints (~10)
+- [ ] **D1-10** auth / api_key endpoints (~6)
+- [ ] **D1-11** miscellaneous remaining endpoints (~6)
+
+> Note: exact counts must be reconciled against `docs/API-COMPARISON.md` at the start of each batch.
+
+### Group 4 — Runtime hidden surface (AJAX + cron + JS)
+Per-package walk. Each package = 1 batch.
+
+- [ ] **D5-1** ahg-information-object-manage
+- [ ] **D5-2** ahg-actor-manage
+- [ ] **D5-3** ahg-repository-manage
+- [ ] **D5-4** ahg-display
+- [ ] **D5-5** ahg-search
+- [ ] **D5-6** ahg-research
+- [ ] **D5-7** ahg-spectrum
+- [ ] **D5-8** ahg-condition
+- [ ] **D5-9** ahg-extended-rights
+- [ ] **D5-10** ahg-marketplace
+- [ ] **D5-11** ahg-cart
+- [ ] **D5-12** ahg-vendor
+- [ ] **D5-13** ahg-doi-manage
+- [ ] **D5-14** ahg-ric
+- [ ] **D5-15** ahg-data-migration
+- [ ] **D5-16** ahg-ingest
+- [ ] **D5-17** ahg-backup
+- [ ] **D5-18** ahg-preservation
+- [ ] **D5-19** ahg-dedupe
+- [ ] **D5-20** ahg-heritage-manage
+- [ ] **D5-21** ahg-privacy
+- [ ] **D5-22** ahg-cdpa
+- [ ] **D5-23** ahg-naz
+- [ ] **D5-24** ahg-nmmz
+- [ ] **D5-25** ahg-ipsas
+- [ ] **D5-26** ahg-icip
+- [ ] **D5-27** ahg-acl
+- [ ] **D5-28** ahg-audit
+- [ ] **D5-29** ahg-ai-services
+- [ ] **D5-30** ahg-statistics
+- [ ] **D5-31** ahg-workflow
+- [ ] **D5-32** ahg-iiif (if separate package)
+- [ ] **D5-33** ahg-3d
+- [ ] **D5-34** ahg-dam
+- [ ] **D5-35** ahg-museum
+- [ ] **D5-36** ahg-library
+- [ ] **D5-37** ahg-gallery
+- [ ] **D5-38** ahg-exhibition
+- [ ] **D5-39** ahg-forms
+- [ ] **D5-40** ahg-translation
+- [ ] **D5-41** ahg-help
+- [ ] **D5-42** ahg-static-page
+- [ ] **D5-43** ahg-multi-tenant
+- [ ] **D5-44** ahg-registry
+- [ ] **D5-45** ahg-reports
+- [ ] **D5-46** ahg-metadata-export
+- [ ] **D5-47** ahg-semantic-search
+- [ ] **D5-48** ahg-rights-holder-manage
+- [ ] **D5-49** ahg-loan
+- [ ] **D5-50** ahg-storage-manage
+- [ ] **D5-51** ahg-donor-manage
+- [ ] **D5-52** ahg-user-manage
+- [ ] **D5-53** ahg-menu-manage
+- [ ] **D5-54** ahg-term-taxonomy
+- [ ] **D5-55** ahg-rad-manage / ahg-mods-manage / ahg-dc-manage / ahg-dacs-manage / ahg-function-manage / ahg-accession-manage (bundled)
+- [ ] **D5-56** ahg-core (last — uncovers cross-package gotchas)
+
+> Per-package list above is the current package inventory. Reconcile against `ls packages/` at the start of D5.
+
+### Group 5 — POST handlers + form validation audit
+Same per-package walk as Group 4. Each package = 1 batch tied to its D5 batch.
+
+- [ ] **D6-1 → D6-56** — one batch per package, mirroring D5-1 through D5-56
+
+### Group 6 — Plugin coverage matrix (one-time inventory + new package builds)
+- [ ] **D4-1** Generate the PSIS-plugin → Heratio-package CSV mapping
+- [ ] **D4-2** Identify the ~27 plugin-gap rows
+- [ ] **D4-3** Build new heratio package #1 (TBD — depends on D4-1 output)
+- [ ] **D4-4** Build new heratio package #2
+- [ ] **D4-5..N** — one batch per missing plugin (count and IDs filled in after D4-1)
+
+### Group 7 — Media processing (largest, GPU-dependent — last)
+- [ ] **D3-1** 3D model viewer + storage
+- [ ] **D3-2** AI image analysis pipeline (LLaVA on server-78)
+- [ ] **D3-3** Video metadata extraction (ffprobe)
+- [ ] **D3-4** Watermarking pipeline
+- [ ] **D3-5** HLS / DASH adaptive streaming
+- [ ] **D3-6** Encryption-at-rest
+- [ ] **D3-7** IPTC / XMP round-trip
+- [ ] **D3-8** Face detection
+- [ ] **D3-9** OCR pipeline (HTR + printed text)
+- [ ] **D3-10** Format identification (PRONOM / Siegfried)
+- [ ] **D3-11** Preservation derivatives (FFV1, JPEG2000)
+- [ ] **D3-12..15** Remaining items from `docs/MEDIA-PROCESSING-COMPARISON.md`
+
+### Final acceptance gate
+- [ ] All Group 1–7 boxes ticked `[x]`
+- [ ] All boxes ticked `[v]` (Johan browser-verified)
+- [ ] Final cross-reference: `php artisan route:list` count matches PSIS route count (or documented diff)
+- [ ] Final cross-reference: per-package `find packages/{pkg} -name '*.blade.php' | wc -l` matches PSIS templates count (or documented diff)
+- [ ] `docs/heratio-vs-psis-outstanding-plan.md` updated with completion date and final summary
+
+## Working agreement
+
+- **Batch size:** 5 items per batch unless the items are tiny (route aliases) or huge (full page rebuilds with controllers).
+- **Cadence:** I do one batch, hand back the commit command + table of what changed, you commit + browser-test, I do the next batch.
+- **Tracking:** I update this doc's checkboxes after every batch ships. You can change `[x]` → `[v]` after browser testing.
+- **No invention:** the clone-only rule (`feedback_clone_only_no_invent.md`) still applies — if PSIS doesn't have a source, escalate.
+- **International framing:** the `feedback_international_positioning.md` rule applies to every new file/copy/example — never default to SA.
+- **Commits:** every batch produces one `./bin/release patch` commit message in the format we used for Phases A/B.
 
 ---
 

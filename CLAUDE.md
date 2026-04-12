@@ -4,6 +4,8 @@
 
 **Heratio** is a standalone Laravel 12 archival management system. It is a complete GLAM (Gallery, Library, Archive, Museum) platform with its own database, Elasticsearch indices, and storage. It is a monorepo with 88 packages in `packages/`.
 
+**Market positioning:** Heratio is built for the **international** GLAM market. The core platform is jurisdiction-neutral. Country-specific compliance regimes (GRAP 103, POPIA, PAIA, IPSAS, NAZ, CDPA, NMMZ, etc.) are implemented as **pluggable per-market modules** that sit alongside the core — they are NOT the core. South Africa, Zimbabwe, the rest of SADC, Europe, North America, Asia-Pacific are all target markets and must be treated equally. Never frame the product, examples, or defaults as SA-specific. When adding a new compliance feature, ask "what other markets need this?" before merging it into core.
+
 **Owner:** Johan Pieterse (johan@theahg.co.za)
 **Organization:** The Archive and Heritage Group (Pty) Ltd
 **GitHub:** https://github.com/ArchiveHeritageGroup/heratio
@@ -90,7 +92,7 @@ Deep-zoom viewer for TIFF/JP2 files via [Cantaloupe](https://cantaloupe-project.
 │   ├── ahg-repository-manage/    ← Repository browse/show (ISDIAH)
 │   ├── ahg-research/             ← Full research portal (83 tables, auto-seed)
 │   ├── ahg-spectrum/             ← Spectrum 5.1 procedures
-│   ├── ahg-heritage-manage/      ← Heritage accounting (GRAP 103)
+│   ├── ahg-heritage-manage/      ← Heritage accounting (jurisdiction-pluggable; ships with GRAP 103 module for SA market)
 │   ├── ahg-ric/                  ← RiC entity management
 │   ├── ahg-cart/                 ← Shopping cart & e-commerce
 │   ├── ahg-ai-services/         ← AI tools (HTR, NER, condition scan)
@@ -110,7 +112,7 @@ Deep-zoom viewer for TIFF/JP2 files via [Cantaloupe](https://cantaloupe-project.
 |---|---|
 | `ahg-research` | Full research portal: workspace, projects, reports, bibliographies, annotations, reproductions, bookings, workspaces, ODRL policies, API keys, notifications, walk-ins, equipment, seats |
 | `ahg-information-object-manage` | Archival description CRUD, condition reports, provenance, digital objects, 3D viewer |
-| `ahg-spectrum` | Spectrum 5.1 museum procedures, condition photos, privacy/POPIA |
+| `ahg-spectrum` | Spectrum 5.1 museum procedures, condition photos, privacy compliance hooks (POPIA module for SA, GDPR module for EU, etc.) |
 | `ahg-settings` | AHG Settings, Dropdown Manager (all enumerated values) |
 | `ahg-search` | Elasticsearch service, `ahg:es-reindex` command |
 | `ahg-display` | GLAM browse (card/grid/table/full views), advanced search, ancestor filter (lft/rgt) |

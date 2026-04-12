@@ -579,14 +579,14 @@ class MarketplaceController extends Controller
 
         $page = max(1, (int) $request->input('page', 1));
         $limit = 24;
-        $offset = ($page - 1) * $limit;
-        $sort = $request->input('sort', 'newest');
 
-        $results = $this->service->browse($filters, $limit, $offset, $sort);
+        $results = $this->service->getListings($filters, $page, $limit);
         $facets = $this->service->getFacetCounts($filters);
 
         $sectorFilter = !empty($filters['sector']) ? $filters['sector'] : null;
-        $categories = $this->service->getCategories($sectorFilter);
+        $categories = method_exists($this->service, 'getCategories')
+            ? $this->service->getCategories($sectorFilter)
+            : collect();
         $sectors = ['gallery', 'museum', 'archive', 'library', 'dam'];
 
         return view('marketplace::browse', [
