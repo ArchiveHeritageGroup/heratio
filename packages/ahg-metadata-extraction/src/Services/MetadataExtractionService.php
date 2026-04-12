@@ -974,15 +974,13 @@ class MetadataExtractionService
             'updated_at' => now(),
         ]);
 
-        // Create property entry
+        // AtoM `property` has no created_at/updated_at — timestamps live on `object`.
         DB::table('property')->insert([
             'id'             => $propertyObjectId,
             'object_id'      => $objectId,
             'name'           => $name,
             'scope'          => 'metadata_extraction',
             'source_culture' => $culture,
-            'created_at'     => now(),
-            'updated_at'     => now(),
         ]);
 
         // Create i18n entry

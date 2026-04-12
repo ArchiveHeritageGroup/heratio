@@ -172,17 +172,19 @@ class AuthorityNerPipelineService
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
+        // `description_identifier` lives on the `actor` table, not `actor_i18n`.
         DB::table('actor')->insert([
-            'id'             => $objectId,
-            'entity_type_id' => $this->getEntityTypeId($entity->entity_type),
+            'id'                     => $objectId,
+            'entity_type_id'         => $this->getEntityTypeId($entity->entity_type),
+            'description_identifier' => 'NER-STUB-' . $nerEntityId,
+            'source_culture'         => 'en',
         ]);
 
         DB::table('actor_i18n')->insert([
-            'id'                          => $objectId,
-            'culture'                     => 'en',
-            'authorized_form_of_name'     => $entity->entity_value,
-            'description_identifier'      => 'NER-STUB-' . $nerEntityId,
-            'sources'                     => 'Created from NER extraction',
+            'id'                       => $objectId,
+            'culture'                  => 'en',
+            'authorized_form_of_name'  => $entity->entity_value,
+            'sources'                  => 'Created from NER extraction',
         ]);
 
         $slug = $this->generateSlug($entity->entity_value);

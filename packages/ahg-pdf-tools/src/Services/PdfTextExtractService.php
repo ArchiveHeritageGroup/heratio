@@ -256,14 +256,13 @@ class PdfTextExtractService
         ]);
 
         // Create property
+        // AtoM `property` has no created_at/updated_at — timestamps live on `object`.
         DB::table('property')->insert([
             'id'             => $objectId,
             'object_id'      => $digitalObjectId,
             'name'           => 'extracted_text',
             'scope'          => 'pdf_text_extraction',
             'source_culture' => $culture,
-            'created_at'     => now(),
-            'updated_at'     => now(),
         ]);
 
         // Create i18n entry with the text

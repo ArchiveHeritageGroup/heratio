@@ -506,12 +506,15 @@ class SecurityClearanceController extends Controller
             'min_size'         => '200',
         ];
 
-        // Load from setting table if available
+        // AtoM stores setting values on `setting_i18n.value`, keyed to `setting.id`.
         if (Schema::hasTable('setting')) {
             foreach ($settings as $key => &$value) {
-                $dbVal = DB::table('setting')
-                    ->where('name', 'watermark_' . $key)
-                    ->value('value');
+                $dbVal = DB::table('setting as s')
+                    ->leftJoin('setting_i18n as si', function ($j) {
+                        $j->on('si.id', '=', 's.id')->where('si.culture', '=', app()->getLocale());
+                    })
+                    ->where('s.name', 'watermark_' . $key)
+                    ->value('si.value');
                 if ($dbVal !== null) {
                     $value = $dbVal;
                 }
@@ -548,16 +551,30 @@ class SecurityClearanceController extends Controller
             'apply_on_download', 'security_override', 'min_size',
         ];
 
+        // Value lives on `setting_i18n`, keyed by `setting.id` + `culture`.
         if (Schema::hasTable('setting')) {
+            $culture = app()->getLocale();
             foreach ($fields as $field) {
-                $name = 'watermark_' . $field;
+                $name  = 'watermark_' . $field;
                 $value = $request->input($field, '0');
 
                 $existing = DB::table('setting')->where('name', $name)->first();
                 if ($existing) {
-                    DB::table('setting')->where('name', $name)->update(['value' => $value]);
+                    DB::table('setting_i18n')->updateOrInsert(
+                        ['id' => $existing->id, 'culture' => $culture],
+                        ['value' => $value]
+                    );
                 } else {
-                    DB::table('setting')->insert(['name' => $name, 'value' => $value, 'scope' => 'global']);
+                    $id = DB::table('setting')->insertGetId([
+                        'name'           => $name,
+                        'scope'          => 'global',
+                        'source_culture' => $culture,
+                    ]);
+                    DB::table('setting_i18n')->insert([
+                        'id'      => $id,
+                        'culture' => $culture,
+                        'value'   => $value,
+                    ]);
                 }
             }
         }

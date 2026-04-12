@@ -369,13 +369,21 @@ class TranslationController extends Controller
      */
     public function languages()
     {
-        $cultures = DB::table('setting')
-            ->where('name', 'i18n_languages')
-            ->value('value');
+        // AtoM stores setting values on `setting_i18n`, keyed by setting.id + culture.
+        $culture = app()->getLocale();
+        $cultures = DB::table('setting as s')
+            ->leftJoin('setting_i18n as si', function ($j) use ($culture) {
+                $j->on('si.id', '=', 's.id')->where('si.culture', '=', $culture);
+            })
+            ->where('s.name', 'i18n_languages')
+            ->value('si.value');
 
-        $defaultCulture = DB::table('setting')
-            ->where('name', 'default_culture')
-            ->value('value') ?? 'en';
+        $defaultCulture = DB::table('setting as s')
+            ->leftJoin('setting_i18n as si', function ($j) use ($culture) {
+                $j->on('si.id', '=', 's.id')->where('si.culture', '=', $culture);
+            })
+            ->where('s.name', 'default_culture')
+            ->value('si.value') ?? 'en';
 
         $enabledCultures = $cultures ? json_decode($cultures, true) : ['en'];
 
@@ -410,21 +418,36 @@ class TranslationController extends Controller
 
         $code = trim($request->input('code'));
 
-        // Get current languages
-        $row = DB::table('setting')->where('name', 'i18n_languages')->first();
-        $cultures = $row ? json_decode($row->value, true) : ['en'];
+        // AtoM setting values live on `setting_i18n`, keyed by setting.id + culture.
+        $culture = app()->getLocale();
+        $row = DB::table('setting as s')
+            ->leftJoin('setting_i18n as si', function ($j) use ($culture) {
+                $j->on('si.id', '=', 's.id')->where('si.culture', '=', $culture);
+            })
+            ->where('s.name', 'i18n_languages')
+            ->select('s.id', 'si.value')
+            ->first();
+        $cultures = ($row && $row->value) ? json_decode($row->value, true) : ['en'];
 
         if (!in_array($code, $cultures)) {
             $cultures[] = $code;
+            $json = json_encode($cultures);
 
             if ($row) {
-                DB::table('setting')
-                    ->where('name', 'i18n_languages')
-                    ->update(['value' => json_encode($cultures)]);
+                DB::table('setting_i18n')->updateOrInsert(
+                    ['id' => $row->id, 'culture' => $culture],
+                    ['value' => $json]
+                );
             } else {
-                DB::table('setting')->insert([
-                    'name' => 'i18n_languages',
-                    'value' => json_encode($cultures),
+                $settingId = DB::table('setting')->insertGetId([
+                    'name'           => 'i18n_languages',
+                    'scope'          => 'global',
+                    'source_culture' => $culture,
+                ]);
+                DB::table('setting_i18n')->insert([
+                    'id'      => $settingId,
+                    'culture' => $culture,
+                    'value'   => $json,
                 ]);
             }
         }

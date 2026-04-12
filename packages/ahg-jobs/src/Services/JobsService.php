@@ -65,11 +65,19 @@ class JobsService
      */
     public function create(array $data): array
     {
+        // AtoM `job` only has: id, name, download_path, completed_at, user_id,
+        // object_id, status_id, output. `type`/`started_at`/`duration`/`error_message`/
+        // `stack_trace` are Heratio-specific and stored in `ahg_job_execution`.
         $jobId = DB::table('job')->insertGetId([
-            'name' => $data['name'],
+            'name'      => $data['name'],
             'status_id' => 183, // pending status
             'object_id' => $data['object_id'] ?? null,
-            'type' => $data['job_type'] ?? $data['type'] ?? self::TYPE_EXPORT,
+            'user_id'   => $data['user_id'] ?? auth()->id(),
+        ]);
+
+        DB::table('ahg_job_execution')->insert([
+            'job_id'     => $jobId,
+            'type'       => $data['job_type'] ?? $data['type'] ?? self::TYPE_EXPORT,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -82,7 +90,12 @@ class JobsService
      */
     public function find(int $id): ?array
     {
-        $job = DB::table('job')->where('id', $id)->first();
+        // Join AtoM `job` with Heratio extension for full row.
+        $job = DB::table('job')
+            ->leftJoin('ahg_job_execution as je', 'je.job_id', '=', 'job.id')
+            ->where('job.id', $id)
+            ->select('job.*', 'je.type', 'je.started_at', 'je.duration', 'je.error_message', 'je.stack_trace')
+            ->first();
         return $job ? (array) $job : null;
     }
 
@@ -93,7 +106,8 @@ class JobsService
     {
         $query = DB::table('job')
             ->join('object', 'job.id', '=', 'object.id')
-            ->select('job.*', 'object.created_at');
+            ->leftJoin('ahg_job_execution as je', 'je.job_id', '=', 'job.id')
+            ->select('job.*', 'object.created_at', 'je.type', 'je.started_at', 'je.duration');
 
         if (!empty($filters['status'])) {
             $statusId = $this->getStatusId($filters['status']);
@@ -101,7 +115,7 @@ class JobsService
         }
 
         if (!empty($filters['job_type'])) {
-            $query->where('job.type', $filters['job_type']);
+            $query->where('je.type', $filters['job_type']);
         }
 
         if (!empty($filters['created_by'])) {
@@ -144,13 +158,13 @@ class JobsService
             return null;
         }
 
-        DB::table('job')
-            ->where('id', $id)
-            ->update([
-                'status_id' => 182, // running status
-                'started_at' => now(),
-                'updated_at' => now(),
-            ]);
+        DB::table('job')->where('id', $id)->update([
+            'status_id' => 182, // running status
+        ]);
+        DB::table('ahg_job_execution')->updateOrInsert(
+            ['job_id' => $id],
+            ['started_at' => now(), 'updated_at' => now()]
+        );
 
         return $this->find($id);
     }
@@ -170,15 +184,15 @@ class JobsService
             $duration = Carbon::parse($job['started_at'])->diffInSeconds(now());
         }
 
-        DB::table('job')
-            ->where('id', $id)
-            ->update([
-                'status_id' => 184, // completed status
-                'completed_at' => now(),
-                'duration' => $duration,
-                'output' => json_encode($output),
-                'updated_at' => now(),
-            ]);
+        DB::table('job')->where('id', $id)->update([
+            'status_id'    => 184, // completed status
+            'completed_at' => now(),
+            'output'       => json_encode($output),
+        ]);
+        DB::table('ahg_job_execution')->updateOrInsert(
+            ['job_id' => $id],
+            ['completed_at' => now(), 'duration' => $duration, 'updated_at' => now()]
+        );
 
         return $this->find($id);
     }
@@ -198,16 +212,20 @@ class JobsService
             $duration = Carbon::parse($job['started_at'])->diffInSeconds(now());
         }
 
-        DB::table('job')
-            ->where('id', $id)
-            ->update([
-                'status_id' => 185, // failed status
-                'completed_at' => now(),
-                'duration' => $duration,
+        DB::table('job')->where('id', $id)->update([
+            'status_id'    => 185, // failed status
+            'completed_at' => now(),
+        ]);
+        DB::table('ahg_job_execution')->updateOrInsert(
+            ['job_id' => $id],
+            [
+                'completed_at'  => now(),
+                'duration'      => $duration,
                 'error_message' => $errorMessage,
-                'stack_trace' => $stackTrace,
-                'updated_at' => now(),
-            ]);
+                'stack_trace'   => $stackTrace,
+                'updated_at'    => now(),
+            ]
+        );
 
         return $this->find($id);
     }
@@ -222,13 +240,14 @@ class JobsService
             return null;
         }
 
-        DB::table('job')
-            ->where('id', $id)
-            ->update([
-                'status_id' => 186, // cancelled status
-                'completed_at' => now(),
-                'updated_at' => now(),
-            ]);
+        DB::table('job')->where('id', $id)->update([
+            'status_id'    => 186, // cancelled status
+            'completed_at' => now(),
+        ]);
+        DB::table('ahg_job_execution')->updateOrInsert(
+            ['job_id' => $id],
+            ['completed_at' => now(), 'updated_at' => now()]
+        );
 
         return $this->find($id);
     }
