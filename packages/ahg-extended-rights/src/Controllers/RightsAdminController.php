@@ -30,6 +30,7 @@ namespace AhgExtendedRights\Controllers;
 use AhgExtendedRights\Services\ExtendedRightsService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /**
  * RightsAdminController
@@ -291,5 +292,209 @@ class RightsAdminController extends Controller
         }
 
         return view('ahg-extended-rights::admin.report', compact('type', 'data'));
+    }
+
+    // =========================================================================
+    // BATCH RIGHTS ASSIGNMENT (cloned from AtoM extendedRights/batchAction)
+    // =========================================================================
+
+    public function batch()
+    {
+        $statements = $this->service->getRightsStatements();
+        $ccLicenses = $this->service->getCcLicenses();
+        $tkLabels = $this->service->getTkLabels();
+        $repositories = DB::table('repository')->orderBy('id')->limit(500)->get();
+        $recentBatches = collect();
+
+        return view('ahg-extended-rights::admin.batch', compact('statements', 'ccLicenses', 'tkLabels', 'repositories', 'recentBatches'));
+    }
+
+    public function batchStore(Request $request)
+    {
+        $action = $request->input('batch_action', 'assign');
+        $objectIds = array_filter(array_map('intval', (array) $request->input('object_ids', [])));
+
+        if (empty($objectIds)) {
+            return redirect()->route('ext-rights-admin.batch')->with('error', 'Please select at least one object.');
+        }
+
+        $count = 0;
+        foreach ($objectIds as $objectId) {
+            switch ($action) {
+                case 'assign':
+                    $rsId = (int) $request->input('rights_statement_id');
+                    $ccId = (int) $request->input('creative_commons_id');
+                    if ($rsId) {
+                        $this->service->saveRightsRecord([
+                            'object_id' => $objectId,
+                            'rights_type' => 'rights_statement',
+                            'rights_value' => (string) $rsId,
+                        ]);
+                    }
+                    if ($ccId) {
+                        $this->service->saveRightsRecord([
+                            'object_id' => $objectId,
+                            'rights_type' => 'cc_license',
+                            'rights_value' => (string) $ccId,
+                        ]);
+                    }
+                    $count++;
+                    break;
+                case 'embargo':
+                    $this->service->createEmbargo([
+                        'object_id' => $objectId,
+                        'embargo_type' => $request->input('embargo_type', 'full'),
+                        'start_date' => date('Y-m-d'),
+                        'end_date' => $request->input('embargo_end_date'),
+                    ]);
+                    $count++;
+                    break;
+            }
+        }
+
+        return redirect()->route('ext-rights-admin.batch')->with('success', "Processed {$count} object(s).");
+    }
+
+    // =========================================================================
+    // BROWSE RIGHTS (cloned from AtoM extendedRights/browseAction)
+    // =========================================================================
+
+    public function browse(Request $request)
+    {
+        $type = $request->input('type');
+        $q = $request->input('q');
+        $repositoryId = $request->input('repository');
+
+        $query = DB::table('rights_record as r')
+            ->leftJoin('information_object as o', 'r.object_id', '=', 'o.id')
+            ->leftJoin('information_object_i18n as oi', function ($j) {
+                $j->on('o.id', '=', 'oi.id')->where('oi.culture', '=', 'en');
+            })
+            ->leftJoin('slug as s', 'o.id', '=', 's.object_id')
+            ->select('r.*', 'oi.title', 's.slug', 'o.repository_id');
+
+        if ($type) {
+            $query->where('r.rights_type', $type);
+        }
+        if ($q) {
+            $query->where(function ($w) use ($q) {
+                $w->where('oi.title', 'like', "%{$q}%")
+                  ->orWhere('r.object_id', $q);
+            });
+        }
+        if ($repositoryId) {
+            $query->where('o.repository_id', $repositoryId);
+        }
+
+        $rights = $query->orderBy('r.created_at', 'desc')->limit(200)->get();
+        $repositories = DB::table('repository as r')
+            ->leftJoin('actor_i18n as ai', function ($j) {
+                $j->on('r.id', '=', 'ai.id')->where('ai.culture', '=', 'en');
+            })
+            ->select('r.id', 'ai.authorized_form_of_name as name')
+            ->orderBy('name')
+            ->get();
+
+        return view('ahg-extended-rights::admin.browse', compact('rights', 'repositories'));
+    }
+
+    // =========================================================================
+    // EXPORT RIGHTS (cloned from AtoM extendedRights/exportAction)
+    // =========================================================================
+
+    public function export()
+    {
+        $stats = $this->service->getStatistics();
+        $repositories = DB::table('repository as r')
+            ->leftJoin('actor_i18n as ai', function ($j) {
+                $j->on('r.id', '=', 'ai.id')->where('ai.culture', '=', 'en');
+            })
+            ->select('r.id', 'ai.authorized_form_of_name as name')
+            ->orderBy('name')
+            ->get();
+
+        return view('ahg-extended-rights::admin.export', compact('stats', 'repositories'));
+    }
+
+    public function exportCsv(Request $request)
+    {
+        $repositoryId = $request->input('repository');
+        $type = $request->input('type');
+
+        $query = DB::table('rights_record as r')
+            ->leftJoin('information_object as o', 'r.object_id', '=', 'o.id')
+            ->leftJoin('information_object_i18n as oi', function ($j) {
+                $j->on('o.id', '=', 'oi.id')->where('oi.culture', '=', 'en');
+            })
+            ->select('r.id', 'r.object_id', 'oi.title', 'r.rights_type', 'r.rights_value', 'r.rights_date');
+
+        if ($repositoryId) {
+            $query->where('o.repository_id', $repositoryId);
+        }
+        if ($type) {
+            $query->where('r.rights_type', $type);
+        }
+
+        $rows = $query->orderBy('r.id')->get();
+
+        $filename = 'rights_export_' . date('Y-m-d') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        return response()->stream(function () use ($rows) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Rights ID', 'Object ID', 'Title', 'Type', 'Value', 'Date']);
+            foreach ($rows as $row) {
+                fputcsv($out, [$row->id, $row->object_id, $row->title, $row->rights_type, $row->rights_value, $row->rights_date]);
+            }
+            fclose($out);
+        }, 200, $headers);
+    }
+
+    public function exportJsonld(Request $request)
+    {
+        $repositoryId = $request->input('repository');
+
+        $query = DB::table('rights_record as r')
+            ->leftJoin('information_object as o', 'r.object_id', '=', 'o.id')
+            ->select('r.*', 'o.repository_id');
+
+        if ($repositoryId) {
+            $query->where('o.repository_id', $repositoryId);
+        }
+
+        $rows = $query->limit(5000)->get();
+
+        $jsonld = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Dataset',
+            'name' => 'Heratio Rights Export',
+            'dateExported' => date('c'),
+            'hasPart' => $rows->map(fn($r) => [
+                '@type' => 'CreativeWork',
+                'identifier' => $r->object_id,
+                'license' => $r->rights_value,
+                'rightsType' => $r->rights_type,
+            ]),
+        ];
+
+        return response()->json($jsonld, 200, [
+            'Content-Disposition' => 'attachment; filename="rights_export_' . date('Y-m-d') . '.jsonld"',
+        ], JSON_PRETTY_PRINT);
+    }
+
+    // =========================================================================
+    // EXPIRING EMBARGOES (the dashboard's "Expiring Soon" page)
+    // =========================================================================
+
+    public function expiringEmbargoes(Request $request)
+    {
+        $days = (int) $request->input('days', 30);
+        $expiring = $this->service->getExpiringEmbargoes($days);
+        $formOptions = $this->service->getFormOptions();
+
+        return view('ahg-extended-rights::admin.expiring-embargoes', compact('expiring', 'days', 'formOptions'));
     }
 }

@@ -75,4 +75,37 @@ Route::middleware('admin')->prefix('ext-rights-admin')->group(function () {
 
     // Reports
     Route::get('/report', [RightsAdminController::class, 'report'])->name('ext-rights-admin.report');
+
+    // Batch Rights Assignment
+    Route::get('/batch', [RightsAdminController::class, 'batch'])->name('ext-rights-admin.batch');
+    Route::post('/batch', [RightsAdminController::class, 'batchStore'])->name('ext-rights-admin.batch-store')->middleware('acl:create');
+
+    // Browse Rights
+    Route::get('/browse', [RightsAdminController::class, 'browse'])->name('ext-rights-admin.browse');
+
+    // Export Rights
+    Route::get('/export', [RightsAdminController::class, 'export'])->name('ext-rights-admin.export');
+    Route::get('/export/csv', [RightsAdminController::class, 'exportCsv'])->name('ext-rights-admin.export-csv');
+    Route::get('/export/jsonld', [RightsAdminController::class, 'exportJsonld'])->name('ext-rights-admin.export-jsonld');
+
+    // Expiring Embargoes (dashboard "Expiring Soon")
+    Route::get('/expiring', [RightsAdminController::class, 'expiringEmbargoes'])->name('ext-rights-admin.expiring');
+});
+
+// =========================================================================
+// Dashboard URL aliases under /admin/rights/* (matches reports dashboard links)
+// =========================================================================
+Route::middleware('admin')->prefix('admin/rights')->group(function () {
+    Route::get('/', [RightsAdminController::class, 'index']);
+    Route::get('/batch', [RightsAdminController::class, 'batch']);
+    Route::post('/batch', [RightsAdminController::class, 'batchStore'])->middleware('acl:create');
+    Route::get('/browse', [RightsAdminController::class, 'browse']);
+    Route::get('/export', [RightsAdminController::class, 'export']);
+    Route::get('/export/csv', [RightsAdminController::class, 'exportCsv']);
+    Route::get('/export/jsonld', [RightsAdminController::class, 'exportJsonld']);
+    Route::get('/embargo', [RightsAdminController::class, 'embargoes']);
+    Route::get('/expiring', [RightsAdminController::class, 'expiringEmbargoes']);
+    Route::get('/statements', [RightsAdminController::class, 'statements']);
+    Route::get('/creative-commons', [RightsAdminController::class, 'statements']);
+    Route::get('/tk-labels', [RightsAdminController::class, 'tkLabels']);
 });

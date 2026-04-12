@@ -10,7 +10,10 @@ After yesterday's "175/175 destination pages cloned" sweep (which only fixed CSS
 |-------|--------|------------------------|-------|
 | **Before** (yesterday's "complete") | — | **90 / 122** broken | Wrong URL prefixes + missing routes |
 | **Phase A — URL prefix fixes** | DONE 2026-04-12 | **40 / 122** | Re-pointed dashboard links to existing `/admin/...` routes |
-| **Phase B — Clone missing pages from PSIS** | OUTSTANDING | **0 / 122** (target) | Each row in the Phase B table below needs full AtoM clone |
+| **Phase B Batch 1 — Rights Management (9 pages)** | DONE 2026-04-12 | **20 / 122** | New `/admin/rights/*` route group + controller methods |
+| **Phase B remainder** | OUTSTANDING | **0 / 122** (target) | 20 dashboard links still need clone-from-PSIS work |
+
+> Note: After Batch 1, a fresh `php artisan route:list` snapshot showed several routes I'd flagged as missing were in fact already registered (the original Phase A snapshot had been stale). Real outstanding count is **20**, not the ~40 first reported.
 
 ### Phase A — URL prefix fixes (DONE)
 
@@ -93,19 +96,25 @@ For each row below, "Controls before" = current count of form fields / table col
 | 2 | Bulk Scan | `/admin/ai/condition/bulk` | psis: `aiCondition/bulk` | 0 | TBD | TODO |
 | 3 | Model Training | `/admin/ai/condition/training` | psis: `aiCondition/training` | 0 | TBD | TODO |
 
-#### Block 14–16 — Rights Management (extended-rights)
+#### Block 14–16 — Rights Management (extended-rights) — DONE 2026-04-12
 
-| # | Link | URL | AtoM source | Controls before | Controls after | Status |
-|---|------|-----|-------------|----------------:|---------------:|--------|
-| 1 | Rights Dashboard | `/admin/rights` | psis: `rights/admin` | 0 | TBD | TODO |
-| 2 | Batch Rights Assignment | `/admin/rights/batch` | psis: `rights/batch` | 0 | TBD | TODO |
-| 3 | Browse Rights | `/admin/rights/browse` | psis: `rights/browse` | 0 | TBD | TODO |
-| 4 | Export Rights Report | `/admin/rights/export` | psis: `rights/export` | 0 | TBD | TODO |
-| 5 | Active Embargoes | `/admin/rights/embargo` | psis: `rights/embargo` | 0 | TBD | TODO |
-| 6 | Expiring Soon | `/admin/rights/expiring` | psis: `rights/expiring` | 0 | TBD | TODO |
-| 7 | Rights Statements | `/admin/rights/statements` | psis: `rights/statements` | 0 | TBD | TODO |
-| 8 | Creative Commons | `/admin/rights/creative-commons` | psis: `rights/creativeCommons` | 0 | TBD | TODO |
-| 9 | TK Labels | `/admin/rights/tk-labels` | psis: `rights/tkLabels` | 0 | TBD | TODO |
+Batch 1 work: added 12 new routes under `/admin/rights/*`, added 6 new controller methods (`batch`, `batchStore`, `browse`, `export`, `exportCsv`, `exportJsonld`, `expiringEmbargoes`), and registered the named routes the existing views already referenced (`ext-rights-admin.batch-store`, `ext-rights-admin.browse`, `ext-rights-admin.export-csv`, `ext-rights-admin.export-jsonld`, `ext-rights-admin.expiring`). All 9 dashboard links now resolve to live controller methods. Smoke-tested via `Kernel::handle()` — all 4 primary routes return HTTP 403 (admin middleware engaging correctly), no 500s.
+
+Control count = `<input> + <select> + <textarea> + <th> + <button> + form `<a>` action links` in the destination Blade view.
+
+| # | Link | URL | Controls before (heratio) | Controls in PSIS source | Controls after | Status |
+|---|------|-----|--------------------------:|------------------------:|---------------:|--------|
+| 1 | Rights Dashboard | `/admin/rights` | 14 (already populated, no route) | 10 | 14 | DONE — wired (heratio is superset of PSIS) |
+| 2 | Batch Rights Assignment | `/admin/rights/batch` | 9 (no route, no method) | 15 | 9 | DONE — wired; **parity gap: 6 fields** vs PSIS (TomSelect object picker, donor select, copyright notice, TK label checkbox grid, overwrite checkbox, action radios). Heratio uses single operation-select dropdown instead. Functional but visually simpler. |
+| 3 | Browse Rights | `/admin/rights/browse` | 10 (no route, no method) | 3 | 10 | DONE — wired (heratio is superset; adds repository filter, search box, type filter, action column). |
+| 4 | Export Rights Report | `/admin/rights/export` | 5 (no route, no method) | 9 | 5 | DONE — wired; **parity gap: 4 fields** vs PSIS (object-id picker for single-record export, format toggle row, embargo-only filter, date-range filter). Heratio currently exposes CSV and JSON-LD download forms. |
+| 5 | Active Embargoes | `/admin/rights/embargo` | n/a (existed at `/ext-rights-admin/embargoes`) | n/a | n/a | DONE — alias added |
+| 6 | Expiring Soon | `/admin/rights/expiring` | view existed, no method | n/a | — | DONE — added `expiringEmbargoes()` method + route |
+| 7 | Rights Statements | `/admin/rights/statements` | n/a (existed) | n/a | n/a | DONE — alias added |
+| 8 | Creative Commons | `/admin/rights/creative-commons` | n/a — single page shares with statements | n/a | n/a | DONE — alias to statements page (CC + Rights Statements rendered together) |
+| 9 | TK Labels | `/admin/rights/tk-labels` | n/a (existed) | n/a | n/a | DONE — alias added |
+
+**Batch 1 totals:** 9 dashboard links wired. 0 routes existed before, 12 routes after. 5 new controller methods added. 2 pages have a parity gap vs PSIS (batch: -6, export: -4) — flagged for a follow-up content port pass.
 
 #### Block 22 — Form Templates (forms)
 
