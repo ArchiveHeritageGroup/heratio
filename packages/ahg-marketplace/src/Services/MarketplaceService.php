@@ -3389,6 +3389,196 @@ class MarketplaceService
     }
 
     // =========================================================================
+    //  LISTING + AUCTION HELPERS (Phase X.1.3)
+    //
+    //  Alias and support methods the controllers call. `getListingById()` is
+    //  a non-view-incrementing counterpart to `getListing()` for admin flows
+    //  where we don't want the view count to tick up.
+    // =========================================================================
+
+    /**
+     * Fetch a listing by ID without incrementing the view count.
+     * Used from admin review pages and seller edit flows where a "view"
+     * would be misleading.
+     */
+    public function getListingById(int $id): ?object
+    {
+        return DB::table($this->listingTable)->where('id', $id)->first();
+    }
+
+    /**
+     * Change a listing's status. Returns true if a row was updated.
+     * Accepted values: draft, pending_review, active, reserved, sold, expired,
+     * withdrawn, suspended. The caller is responsible for state-machine validity
+     * (e.g. don't move a `completed` back to `draft`).
+     */
+    public function updateListingStatus(int $listingId, string $status): bool
+    {
+        return DB::table($this->listingTable)
+            ->where('id', $listingId)
+            ->update([
+                'status' => $status,
+                'updated_at' => now(),
+            ]) > 0;
+    }
+
+    /**
+     * Get the auction row tied to a listing (1:1). Returns null if the listing
+     * is not an auction type or has no auction row yet.
+     */
+    public function getAuctionForListing(int $listingId): ?object
+    {
+        return DB::table($this->auctionTable)->where('listing_id', $listingId)->first();
+    }
+
+    /**
+     * Same as getAuctionForListing() but takes a slug. Used by the public
+     * listing detail page which has the slug in the URL.
+     */
+    public function getAuctionForListingBySlug(string $slug): ?object
+    {
+        $listing = DB::table($this->listingTable)->where('slug', $slug)->first(['id']);
+        if (!$listing) {
+            return null;
+        }
+        return $this->getAuctionForListing((int) $listing->id);
+    }
+
+    /**
+     * Recent bid history for an auction, newest first. Joins to user for
+     * display name. Anonymised bidder labels are generated in the view layer
+     * (Bidder #abc123) so we just pass user_id through.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getBidHistory(int $auctionId, int $limit = 20): \Illuminate\Support\Collection
+    {
+        return DB::table($this->bidTable)
+            ->where('auction_id', $auctionId)
+            ->orderByDesc('created_at')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Return the primary image for a listing.
+     *
+     * Accepts either an array/Collection of already-fetched images (in which case
+     * we scan for `is_primary = 1` without another query) or an int listing_id
+     * (in which case we query directly). The controller uses the array form for
+     * the listing detail page where images were fetched separately.
+     *
+     * @param  array|\Illuminate\Support\Collection|int $imagesOrListingId
+     * @return object|null
+     */
+    public function getPrimaryImage($imagesOrListingId): ?object
+    {
+        if (is_int($imagesOrListingId)) {
+            return DB::table($this->imageTable)
+                ->where('listing_id', $imagesOrListingId)
+                ->orderByDesc('is_primary')
+                ->orderBy('sort_order')
+                ->first();
+        }
+
+        // Array / Collection path
+        $first = null;
+        foreach ($imagesOrListingId as $img) {
+            if (!empty($img->is_primary)) {
+                return $img;
+            }
+            if ($first === null) {
+                $first = $img;
+            }
+        }
+        return $first;
+    }
+
+    /**
+     * Related listings — same category or sector, excluding the current listing,
+     * limited to active status, ordered by recency. Accepts a listing object or
+     * a listing id.
+     *
+     * @param  object|int $listingOrId
+     * @return \Illuminate\Support\Collection
+     */
+    public function getRelatedListings($listingOrId, int $limit = 4): \Illuminate\Support\Collection
+    {
+        if (is_int($listingOrId)) {
+            $listing = $this->getListingById($listingOrId);
+        } else {
+            $listing = $listingOrId;
+        }
+        if (!$listing) {
+            return collect();
+        }
+
+        $query = DB::table($this->listingTable)
+            ->where('status', 'active')
+            ->where('id', '!=', $listing->id);
+
+        // Prefer same category, then same sector
+        if (!empty($listing->category_id)) {
+            $query->where('category_id', $listing->category_id);
+        } elseif (!empty($listing->sector)) {
+            $query->where('sector', $listing->sector);
+        }
+
+        return $query->orderByDesc('listed_at')->limit($limit)->get();
+    }
+
+    /**
+     * Upload and register a listing image. Stores the file under
+     * `{heratio.uploads_path}/marketplace/{listing_id}/` and inserts a row into
+     * `marketplace_listing_image`. First image uploaded auto-becomes primary.
+     *
+     * @param  int $listingId
+     * @param  \Illuminate\Http\UploadedFile $file
+     * @param  string|null $caption
+     * @param  int $sortOrder
+     * @return array{success:bool, image_id?:int, error?:string}
+     */
+    public function uploadListingImage(int $listingId, $file, ?string $caption = null, int $sortOrder = 0): array
+    {
+        if (!$file || !method_exists($file, 'isValid') || !$file->isValid()) {
+            return ['success' => false, 'error' => 'Invalid file upload'];
+        }
+
+        $uploadsBase = rtrim(config('heratio.uploads_path', storage_path('app/uploads')), '/');
+        $destDir = $uploadsBase . '/marketplace/' . $listingId;
+        if (!is_dir($destDir) && !@mkdir($destDir, 0755, true) && !is_dir($destDir)) {
+            return ['success' => false, 'error' => 'Could not create upload directory'];
+        }
+
+        $ext = $file->getClientOriginalExtension() ?: 'jpg';
+        $filename = 'listing_' . $listingId . '_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+        $file->move($destDir, $filename);
+
+        // Is this the first image? If so, mark primary.
+        $existingCount = DB::table($this->imageTable)->where('listing_id', $listingId)->count();
+        $isPrimary = $existingCount === 0 ? 1 : 0;
+
+        $id = $this->addListingImage($listingId, [
+            'file_path'   => '/uploads/marketplace/' . $listingId . '/' . $filename,
+            'file_name'   => $filename,
+            'mime_type'   => $file->getClientMimeType(),
+            'caption'     => $caption,
+            'is_primary'  => $isPrimary,
+            'sort_order'  => $sortOrder,
+            'created_at'  => now(),
+        ]);
+
+        // Cache first primary image path on the listing for faster card rendering.
+        if ($isPrimary) {
+            DB::table($this->listingTable)
+                ->where('id', $listingId)
+                ->update(['featured_image_path' => '/uploads/marketplace/' . $listingId . '/' . $filename]);
+        }
+
+        return ['success' => true, 'image_id' => $id];
+    }
+
+    // =========================================================================
     //  ADMIN BROWSE HELPERS (Phase X.1.1)
     //
     //  These methods back the marketplace admin list pages. Each returns an array
