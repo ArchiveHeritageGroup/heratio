@@ -3579,6 +3579,130 @@ class MarketplaceService
     }
 
     // =========================================================================
+    //  SELLER HELPERS (Phase X.1.4)
+    // =========================================================================
+
+    public function getSellerById(int $id): ?object
+    {
+        return DB::table($this->sellerTable)->where('id', $id)->first();
+    }
+
+    public function getSellerPayouts(int $sellerId, int $page = 1, int $limit = 20): array
+    {
+        $query = DB::table($this->payoutTable)->where('seller_id', $sellerId);
+        $total = (clone $query)->count();
+        $items = $query->orderByDesc('created_at')
+            ->forPage($page, $limit)
+            ->get();
+        return ['items' => $items, 'total' => (int) $total];
+    }
+
+    public function getSellerRecentTransactions(int $sellerId, int $limit = 5): \Illuminate\Support\Collection
+    {
+        return DB::table($this->transactionTable . ' as t')
+            ->leftJoin($this->listingTable . ' as l', 't.listing_id', '=', 'l.id')
+            ->where('t.seller_id', $sellerId)
+            ->orderByDesc('t.created_at')
+            ->limit($limit)
+            ->get(['t.*', 'l.title as listing_title', 'l.slug as listing_slug']);
+    }
+
+    public function getSellerReviews(int $sellerId, int $limit = 10, int $offset = 0): \Illuminate\Support\Collection
+    {
+        return DB::table($this->reviewTable)
+            ->where('reviewed_seller_id', $sellerId)
+            ->where('is_visible', 1)
+            ->orderByDesc('created_at')
+            ->offset($offset)
+            ->limit($limit)
+            ->get();
+    }
+
+    public function getRatingStats(int $sellerId): array
+    {
+        $rows = DB::table($this->reviewTable)
+            ->where('reviewed_seller_id', $sellerId)
+            ->where('is_visible', 1)
+            ->selectRaw('rating, COUNT(*) as n')
+            ->groupBy('rating')
+            ->get();
+        $dist = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0];
+        $total = 0;
+        $sum = 0;
+        foreach ($rows as $r) {
+            $rating = (int) $r->rating;
+            $count = (int) $r->n;
+            if (isset($dist[$rating])) $dist[$rating] = $count;
+            $total += $count;
+            $sum += $rating * $count;
+        }
+        $average = $total > 0 ? round($sum / $total, 2) : 0.0;
+        return ['average' => $average, 'total' => $total, 'distribution' => $dist];
+    }
+
+    public function getSellerCollections(int $sellerId): \Illuminate\Support\Collection
+    {
+        return DB::table($this->collectionTable)
+            ->where('seller_id', $sellerId)
+            ->orderBy('sort_order')
+            ->orderByDesc('created_at')
+            ->get();
+    }
+
+    public function getSellerPublicCollections(int $sellerId): \Illuminate\Support\Collection
+    {
+        return DB::table($this->collectionTable)
+            ->where('seller_id', $sellerId)
+            ->where('is_public', 1)
+            ->orderByDesc('is_featured')
+            ->orderBy('sort_order')
+            ->get();
+    }
+
+    public function getFollowedSellers(int $userId, int $limit = 20, int $offset = 0): array
+    {
+        $query = DB::table($this->followTable . ' as f')
+            ->join($this->sellerTable . ' as s', 'f.seller_id', '=', 's.id')
+            ->where('f.user_id', $userId);
+        $total = (clone $query)->count();
+        $items = $query->orderByDesc('f.created_at')
+            ->offset($offset)
+            ->limit($limit)
+            ->get(['s.*', 'f.created_at as followed_at']);
+        return ['items' => $items, 'total' => (int) $total];
+    }
+
+    public function uploadAvatar(int $sellerId, $file): ?string
+    {
+        return $this->uploadSellerAsset($sellerId, $file, 'avatar');
+    }
+
+    public function uploadBanner(int $sellerId, $file): ?string
+    {
+        return $this->uploadSellerAsset($sellerId, $file, 'banner');
+    }
+
+    protected function uploadSellerAsset(int $sellerId, $file, string $kind): ?string
+    {
+        if (!$file || !method_exists($file, 'isValid') || !$file->isValid()) {
+            return null;
+        }
+        $uploadsBase = rtrim(config('heratio.uploads_path', storage_path('app/uploads')), '/');
+        $destDir = $uploadsBase . '/marketplace/sellers/' . $sellerId;
+        if (!is_dir($destDir) && !@mkdir($destDir, 0755, true) && !is_dir($destDir)) {
+            return null;
+        }
+        $ext = $file->getClientOriginalExtension() ?: 'jpg';
+        $filename = $kind . '_' . time() . '_' . bin2hex(random_bytes(3)) . '.' . $ext;
+        $file->move($destDir, $filename);
+        $relPath = '/uploads/marketplace/sellers/' . $sellerId . '/' . $filename;
+        DB::table($this->sellerTable)
+            ->where('id', $sellerId)
+            ->update([$kind . '_path' => $relPath, 'updated_at' => now()]);
+        return $relPath;
+    }
+
+    // =========================================================================
     //  ADMIN BROWSE HELPERS (Phase X.1.1)
     //
     //  These methods back the marketplace admin list pages. Each returns an array
