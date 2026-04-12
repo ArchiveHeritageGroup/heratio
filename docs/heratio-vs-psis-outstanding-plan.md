@@ -41,9 +41,10 @@ The order below is fixed. Do NOT skip ahead — earlier batches surface issues t
 ### Group 2 — Stub view content port (191 pages, ordered by package size descending)
 Each package = N batches of 5 pages each. Tick off batches as they ship.
 
-- [~] **C-1** ahg-marketplace (32 stubs → 7 batches: 5+5+5+5+5+5+2) — **10/32 done (31%)**
+- [~] **C-1** ahg-marketplace (32 stubs → 7 batches: 5+5+5+5+5+5+2) — **15/32 done (47%)**
   - [x] batch 1/7 DONE 2026-04-12: admin-payouts (27/26), admin-transactions (26/26), admin-sellers (35/35), admin-listings (36/36), browse (39/37). Fixed pre-existing bug in `MarketplaceController::browse()` (was calling non-existent `$service->browse()`, now uses `getListings()`). 5×smoke passed.
-  - [x] batch 2/7 DONE 2026-04-12: admin-categories (47/47), admin-currencies (40/40), admin-reviews (37/37), admin-listing-review (38/35 +3), admin-seller-verify (33/31 +2). Parity or superset on all 5. Admin-currencies reframed PSIS "Exchange Rate to ZAR" as "Rate to {base currency}" driven by `config('heratio.base_currency')` — DB column name kept for schema compat. 5×HTTP 302 auth redirect, no 500s. 22 stubs remain.
+  - [x] batch 2/7 DONE 2026-04-12: admin-categories (47/47), admin-currencies (40/40), admin-reviews (37/37), admin-listing-review (38/35 +3), admin-seller-verify (33/31 +2). Parity or superset on all 5. Admin-currencies reframed PSIS "Exchange Rate to ZAR" as "Rate to {base currency}" driven by `config('heratio.base_currency')` — DB column name kept for schema compat. 5×HTTP 302 auth redirect, no 500s.
+  - [x] batch 3/7 DONE 2026-04-12: seller (20/17 +3), seller-listings (44/43 +1), seller-profile (31/31), my-purchases (39/39), my-offers (44/44). Parity or superset on all 5. Fixed 2 more pre-existing `$service->browse()` calls in category() and sector() controller methods (same bug as batch 1). Guarded 3 view references to non-existent routes (`seller-listing-publish`, `seller-listing-withdraw`, `follow`) with `Route::has()` so buttons hide cleanly until those controller methods exist. seller-profile adds Stripe + Wise to payout methods list (PSIS had only bank_transfer/paypal/payfast) and defaults payout currency to `config('heratio.base_currency')` instead of hardcoded ZAR. Smoke test: 4× HTTP 302 auth + 1× HTTP 404 (expected — no seller with test slug). 17 stubs remain.
 - [ ] **C-2** ahg-privacy (29 stubs → 6 batches: 5+5+5+5+5+4)
 - [ ] **C-3** ahg-registry (28 stubs → 6 batches: 5+5+5+5+5+3)
 - [ ] **C-4** ahg-nmmz (12 stubs → 3 batches: 5+5+2)

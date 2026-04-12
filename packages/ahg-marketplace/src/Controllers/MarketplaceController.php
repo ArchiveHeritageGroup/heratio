@@ -702,14 +702,12 @@ class MarketplaceController extends Controller
 
         $page = max(1, (int) $request->input('page', 1));
         $limit = 24;
-        $offset = ($page - 1) * $limit;
         $sort = $request->input('sort', 'newest');
 
-        $results = $this->service->browse(
-            ['sector' => $sector, 'category_id' => $category->id],
-            $limit,
-            $offset,
-            $sort
+        $results = $this->service->getListings(
+            ['sector' => $sector, 'category_id' => $category->id, 'sort' => $sort],
+            $page,
+            $limit
         );
 
         return view('marketplace::category', [
@@ -732,10 +730,9 @@ class MarketplaceController extends Controller
 
         $page = max(1, (int) $request->input('page', 1));
         $limit = 24;
-        $offset = ($page - 1) * $limit;
         $sort = $request->input('sort', 'newest');
 
-        $results = $this->service->browse(['sector' => $sector], $limit, $offset, $sort);
+        $results = $this->service->getListings(['sector' => $sector, 'sort' => $sort], $page, $limit);
         $categories = $this->service->getCategories($sector);
 
         return view('marketplace::sector', [
@@ -818,9 +815,8 @@ class MarketplaceController extends Controller
 
         $page = max(1, (int) $request->input('page', 1));
         $limit = 24;
-        $offset = ($page - 1) * $limit;
 
-        $listingsResult = $this->service->browse(['seller_id' => $seller->id], $limit, $offset, 'newest');
+        $listingsResult = $this->service->getListings(['seller_id' => $seller->id, 'sort' => 'newest'], $page, $limit);
         $reviews = $this->service->getSellerReviews($seller->id, 10, 0);
         $ratingStats = $this->service->getRatingStats($seller->id);
         $collections = $this->service->getSellerPublicCollections($seller->id);
