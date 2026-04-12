@@ -10,6 +10,9 @@ Route::middleware('admin')->group(function () {
     Route::post('/admin/backup/settings', [BackupController::class, 'saveSettings'])->name('backup.saveSettings');
     Route::get('/admin/restore', [BackupController::class, 'restore'])->name('backup.restore');
     Route::post('/admin/restore', [BackupController::class, 'doRestore'])->name('backup.doRestore');
+    // Dashboard URL alias under /admin/backup/restore (matches reports dashboard link)
+    Route::get('/admin/backup/restore', [BackupController::class, 'restore'])->name('backup.restore.alias');
+    Route::post('/admin/backup/restore', [BackupController::class, 'doRestore'])->name('backup.doRestore.alias');
     Route::get('/admin/backup/download/{id}', [BackupController::class, 'download'])->name('backup.download');
     Route::delete('/admin/backup/{id}', [BackupController::class, 'destroy'])->name('backup.destroy');
 });

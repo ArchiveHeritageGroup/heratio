@@ -4,6 +4,7 @@ use AhgDam\Controllers\DamController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/dam', [DamController::class, 'dashboard'])->name('dam.dashboard');
+Route::get('/dam/dashboard', [DamController::class, 'dashboard'])->name('dam.dashboard.alias');
 Route::get('/dam/browse', [DamController::class, 'browse'])->name('dam.browse');
 
 Route::middleware('auth')->group(function () {

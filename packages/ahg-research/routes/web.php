@@ -67,9 +67,11 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
 
     // ODRL Policies
     Route::match(['get', 'post'], '/odrlPolicies', [ResearchController::class, 'odrlPolicies'])->name('odrlPolicies');
+    Route::match(['get', 'post'], '/odrl-policies', [ResearchController::class, 'odrlPolicies'])->name('odrl-policies');
 
     // Document Templates
     Route::match(['get', 'post'], '/documentTemplates', [ResearchController::class, 'documentTemplates'])->name('documentTemplates');
+    Route::match(['get', 'post'], '/document-templates', [ResearchController::class, 'documentTemplates'])->name('document-templates');
 
     // Saved Searches
     Route::get('/savedSearches', [ResearchController::class, 'savedSearches'])->name('savedSearches');

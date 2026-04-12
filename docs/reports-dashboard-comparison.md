@@ -9,11 +9,12 @@ After yesterday's "175/175 destination pages cloned" sweep (which only fixed CSS
 | Phase | Status | Broken links remaining | Notes |
 |-------|--------|------------------------|-------|
 | **Before** (yesterday's "complete") | — | **90 / 122** broken | Wrong URL prefixes + missing routes |
-| **Phase A — URL prefix fixes** | DONE 2026-04-12 | **40 / 122** | Re-pointed dashboard links to existing `/admin/...` routes |
-| **Phase B Batch 1 — Rights Management (9 pages)** | DONE 2026-04-12 | **20 / 122** | New `/admin/rights/*` route group + controller methods |
-| **Phase B remainder** | OUTSTANDING | **0 / 122** (target) | 20 dashboard links still need clone-from-PSIS work |
+| **Phase A — URL prefix fixes** | DONE 2026-04-12 | **16 / 122** (real) | Re-pointed dashboard links to existing `/admin/...` routes |
+| **Phase B Batch 1 — Rights Management (9 pages)** | DONE 2026-04-12 | **16 / 122** | New `/admin/rights/*` route group + controller methods |
+| **Phase B Batch 2 — Mixed singletons (6 pages)** | DONE 2026-04-12 | **10 / 122** | Condition, Backup restore, DAM, Library, Document Templates, ODRL Policies |
+| **Phase B remainder** | OUTSTANDING | **0 / 122** (target) | 4 real clone targets + 4 no-PSIS-source flagged + 2 parameterized-route false positives |
 
-> Note: After Batch 1, a fresh `php artisan route:list` snapshot showed several routes I'd flagged as missing were in fact already registered (the original Phase A snapshot had been stale). Real outstanding count is **20**, not the ~40 first reported.
+> Note: After Batch 1, a fresh `php artisan route:list` snapshot via the actual Laravel router (not awk parsing of `route:list` output) showed several routes I'd flagged as missing were in fact already registered. Real Phase A outstanding count was **16**, not 40.
 
 ### Phase A — URL prefix fixes (DONE)
 
@@ -115,6 +116,65 @@ Control count = `<input> + <select> + <textarea> + <th> + <button> + form `<a>` 
 | 9 | TK Labels | `/admin/rights/tk-labels` | n/a (existed) | n/a | n/a | DONE — alias added |
 
 **Batch 1 totals:** 9 dashboard links wired. 0 routes existed before, 12 routes after. 5 new controller methods added. 2 pages have a parity gap vs PSIS (batch: -6, export: -4) — flagged for a follow-up content port pass.
+
+#### Phase B Batch 2 — Mixed singletons (6 pages) — DONE 2026-04-12
+
+| # | Link | URL | Controls before (heratio) | Controls in PSIS source | Controls after | Notes | Status |
+|---|------|-----|--------------------------:|------------------------:|---------------:|-------|--------|
+| 1 | Condition Dashboard | `/admin/condition` | 1 (heratio stub) | 8 | **12** | Ported PSIS `condition/templates/adminSuccess.php` to heratio `admin.blade.php` (3 stat cards, condition breakdown, recent-checks table with 6 cols, photo links). Added route alias. | DONE — full clone, heratio is now superset (+4) |
+| 2 | Backup Restore | `/admin/backup/restore` | 14 (existed at `/admin/restore`, no `/admin/backup/restore`) | 9 | 14 | Added route alias. View was already a superset of PSIS. | DONE — wired |
+| 3 | DAM Dashboard | `/dam/dashboard` | 20 (existed at `/dam`) | 25 | 20 | Added `/dam/dashboard` route alias. **Parity gap: −5** vs PSIS. | DONE — wired; parity gap noted |
+| 4 | Library Browse | `/library/browse` | 21 (existed at `/library`) | 15 | 21 | Added `/library/browse` route alias + tightened slug regex on catch-all. | DONE — wired (heratio superset) |
+| 5 | Document Templates | `/research/document-templates` | 20 (existed at `/research/documentTemplates`) | 5 | 20 | Added kebab-case route alias. | DONE — wired (heratio superset) |
+| 6 | ODRL Policies (bonus) | `/research/odrl-policies` | 47 (existed at `/research/odrlPolicies`) | 43 | 47 | Bonus — added kebab-case alias in same edit. | DONE — wired (heratio superset) |
+
+**Batch 2 totals:** 6 dashboard links wired (1 full content clone + 5 route aliases). New routes added: 7. New controller methods added: 0 (all targets already had methods). New views written: 1 (condition admin.blade.php — full PSIS port). Parity gaps: 1 page (DAM dashboard −5).
+
+**Skipped this batch (per clone-only rule):** `/admin/condition/risk` (no PSIS `riskAction`).
+
+#### Phase B Batch 2 — Smoke test results (Kernel::handle)
+
+| URL | HTTP | Notes |
+|-----|------|-------|
+| `/admin/condition` | 302 | Redirect to login (auth middleware) |
+| `/admin/backup/restore` | 403 | Admin middleware engaging — route works |
+| `/dam/dashboard` | 200 | Full render, 66.7 KB |
+| `/library/browse` | 200 | Full render, 74.3 KB |
+| `/research/document-templates` | 302 | Redirect to login |
+| `/research/odrl-policies` | 302 | Redirect to login |
+
+All routes resolve, no 500s.
+
+#### Phase B — remaining work after Batch 2
+
+**4 real clone targets** (PSIS source verified):
+
+| # | Link | URL | PSIS source | Status |
+|---|------|-----|-------------|--------|
+| 1 | Manage Researchers | `/research/admin/researchers` | `research/templates/researchersSuccess.php` | TODO |
+| 2 | Manage Bookings | `/research/admin/bookings` | `research/templates/bookingsSuccess.php` | TODO |
+| 3 | Statistics | `/research/admin/statistics` | `research/templates/adminStatisticsSuccess.php` | TODO |
+| 4 | Entity Resolution | `/research/entity-resolution` | `research/templates/entityResolutionSuccess.php` | TODO |
+
+**4 dashboard links with no PSIS source — flagged for design decision (do not invent):**
+
+| # | Link | URL | Reason |
+|---|------|-----|--------|
+| 1 | Approvers | `/admin/approvers` | qbAclPlugin only has `aclGroup` module — no approver action exists in PSIS |
+| 2 | Risk Assessment | `/admin/condition/risk` | No `riskAction` in `ahgConditionPlugin` |
+| 3 | GRAP National Treasury Report | `/grap/national-treasury-report` | No `nationalTreasuryReport` action in `ahgHeritageAccountingPlugin` (only `dashboardSuccess`, `assetRegisterSuccess`) |
+| 4 | Museum Exhibitions | `/museum/exhibitions` | No `exhibitions` action in `ahgMuseumPlugin/modules/museum` |
+
+> These four require a design call: either build a brand-new page (out of scope per clone-only rule), repoint the dashboard link to the nearest existing PSIS-equivalent page, or remove the link.
+
+**2 parameterized-route false positives:**
+
+| # | Link | URL | Resolves to |
+|---|------|-----|-------------|
+| 1 | New Ingest | `/ingest/configure` | `ingest/configure/{id?}` (works — optional id) |
+| 2 | CSV Template | `/ingest/template/archive` | `ingest/template/{sector?}` (works — `archive` is the sector param) |
+
+These are NOT broken — the previous detection script used literal grep that couldn't see parameterized matches.
 
 #### Block 22 — Form Templates (forms)
 

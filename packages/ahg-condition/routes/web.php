@@ -24,6 +24,11 @@ Route::middleware(['auth', 'admin'])->prefix('condition')->group(function () {
     Route::get('/list', [ConditionController::class, 'list'])->name('condition.list');
 });
 
+// Dashboard URL alias under /admin/condition (matches reports dashboard link)
+Route::middleware(['auth', 'admin'])->prefix('admin/condition')->group(function () {
+    Route::get('/', [ConditionController::class, 'admin'])->name('admin.condition');
+});
+
 // Legacy AtoM base-path aliases (AJAX JSON responses)
 Route::middleware('auth')->group(function () {
     // GET /condition/check — base path returns JSON listing of recent condition checks

@@ -4,6 +4,8 @@ use AhgLibrary\Controllers\LibraryController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/library', [LibraryController::class, 'browse'])->name('library.browse');
+// Dashboard URL alias under /library/browse (matches reports dashboard link)
+Route::get('/library/browse', [LibraryController::class, 'browse'])->name('library.browse.alias');
 
 Route::middleware('auth')->group(function () {
     Route::get('/library/add', [LibraryController::class, 'create'])->name('library.create');
@@ -13,7 +15,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/library/{slug}/delete', [LibraryController::class, 'destroy'])->name('library.destroy')->middleware('acl:delete');
 });
 
-Route::get('/library/{slug}', [LibraryController::class, 'show'])->name('library.show');
+Route::get('/library/{slug}', [LibraryController::class, 'show'])->name('library.show')
+    ->where('slug', '(?!browse|add|store)[a-z0-9\-]+');
 
 // Library management routes
 Route::middleware('auth')->group(function () {
