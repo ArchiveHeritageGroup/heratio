@@ -231,7 +231,13 @@ Each package = N batches of 5 pages each. Tick off batches as they ship.
 **Group 2 total: ~42 batches @ 5 pages each = 191 stubs.**
 
 ### Group 3 — API parity (94 endpoints, batched by resource)
-- [ ] **D1-1** information_object endpoints (~12)
+- [x] **D1-1** information_object endpoints (~12) — **DONE 2026-04-13** (already implemented in earlier work; verified). All 12 endpoints exist + routed + controller methods present + smoke-tested:
+  - **v1 IO CRUD**: `GET /api/v1/informationobjects` (200), `GET /api/v1/informationobjects/search` (200), `GET /api/v1/informationobjects/{slug}` (existing), `POST /api/v1/informationobjects` (401 unauth ✓), `PUT /api/v1/informationobjects/{slug}` (401 unauth ✓), `DELETE /api/v1/informationobjects/{slug}` (401 unauth ✓)
+  - **v1 IO ancillary**: `GET /api/v1/informationobjects/{slug}/digitalobject` (404 missing slug ✓), `GET /api/v1/informationobjects/tree/{slug}` (404 missing slug ✓)
+  - **v2 descriptions CRUD**: `GET /api/v2/descriptions` (401 unauth ✓), `POST /api/v2/descriptions` (401 ✓), `GET /api/v2/descriptions/{slug}` (401 ✓), `PUT/PATCH /api/v2/descriptions/{slug}` (401 ✓), `DELETE /api/v2/descriptions/{slug}` (401 ✓)
+  - **v2 publishing**: `GET /api/v2/publish/readiness/{slug}` (401 ✓), `POST /api/v2/publish/execute/{slug}` (401 ✓)
+  - Methods: `InformationObjectApiController::{index,search,show,store,update,destroy,digitalObject,tree,children}`, `V2\DescriptionController::{index,show,store,update,destroy}`, `V2\PublishController::{readiness,execute}`
+  - **API-COMPARISON.md is stale** (dated 2026-03-17 — predates this work). Mark stale and regenerate when D1-2..D1-11 are reconciled.
 - [ ] **D1-2** actor / authority endpoints (~10)
 - [ ] **D1-3** repository endpoints (~8)
 - [ ] **D1-4** accession endpoints (~8)
