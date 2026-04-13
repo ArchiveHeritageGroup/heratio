@@ -31,6 +31,8 @@ use AhgPrivacy\Services\PrivacyService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class PrivacyController extends Controller
 {
@@ -71,7 +73,60 @@ class PrivacyController extends Controller
 
     public function complaintView() { return view('privacy::complaint-view'); }
 
-    public function config() { return view('privacy::config'); }
+    public function config(Request $request)
+    {
+        $jurisdictions = [];
+        if (Schema::hasTable('privacy_jurisdiction')) {
+            foreach (DB::table('privacy_jurisdiction')->where('is_active', 1)->orderBy('sort_order')->get() as $j) {
+                $jurisdictions[$j->code] = [
+                    'name' => $j->name,
+                    'full_name' => $j->full_name,
+                    'country' => $j->country,
+                    'regulator' => $j->regulator,
+                    'dsar_days' => $j->dsar_days,
+                    'breach_hours' => $j->breach_hours,
+                ];
+            }
+        }
+        if (empty($jurisdictions)) {
+            $jurisdictions = [
+                'popia' => ['name' => 'POPIA', 'full_name' => 'Protection of Personal Information Act (South Africa)', 'country' => 'South Africa', 'regulator' => null, 'dsar_days' => 30, 'breach_hours' => 72],
+                'gdpr' => ['name' => 'GDPR', 'full_name' => 'General Data Protection Regulation (EU)', 'country' => 'European Union', 'regulator' => null, 'dsar_days' => 30, 'breach_hours' => 72],
+            ];
+        }
+
+        $currentJurisdiction = $request->input('jurisdiction', array_key_first($jurisdictions));
+        $jurisdictionInfo = $jurisdictions[$currentJurisdiction] ?? reset($jurisdictions);
+
+        $config = null;
+        if (Schema::hasTable('privacy_config')) {
+            $config = DB::table('privacy_config')->where('jurisdiction', $currentJurisdiction)->first();
+        }
+
+        if ($request->isMethod('post') && Schema::hasTable('privacy_config')) {
+            $data = [
+                'jurisdiction' => $currentJurisdiction,
+                'organization_name' => $request->input('organization_name'),
+                'registration_number' => $request->input('registration_number'),
+                'data_protection_email' => $request->input('data_protection_email'),
+                'dsar_response_days' => (int) $request->input('dsar_response_days', $jurisdictionInfo['dsar_days'] ?? 30),
+                'breach_notification_hours' => (int) $request->input('breach_notification_hours', $jurisdictionInfo['breach_hours'] ?? 72),
+                'retention_default_years' => (int) $request->input('retention_default_years', 5),
+                'is_active' => 1,
+                'updated_at' => now(),
+            ];
+            if ($config) {
+                DB::table('privacy_config')->where('id', $config->id)->update($data);
+            } else {
+                $data['created_at'] = now();
+                DB::table('privacy_config')->insert($data);
+            }
+            return redirect()->route('ahgprivacy.config', ['jurisdiction' => $currentJurisdiction])
+                ->with('success', __('Privacy settings saved.'));
+        }
+
+        return view('privacy::config', compact('jurisdictions', 'currentJurisdiction', 'jurisdictionInfo', 'config'));
+    }
 
     public function consentAdd() { return view('privacy::consent-add'); }
 
@@ -85,7 +140,22 @@ class PrivacyController extends Controller
 
     public function dsarEdit() { return view('privacy::dsar-edit'); }
 
-    public function dsarList() { return view('privacy::dsar-list'); }
+    public function dsarList(Request $request)
+    {
+        $dsars = collect();
+        if (Schema::hasTable('privacy_dsar')) {
+            $q = DB::table('privacy_dsar');
+            if ($status = $request->input('status')) {
+                $q->where('status', $status);
+            }
+            if ($request->input('overdue')) {
+                $q->whereDate('due_date', '<', now())
+                    ->whereNotIn('status', ['completed', 'rejected', 'withdrawn']);
+            }
+            $dsars = $q->orderByDesc('received_date')->limit(500)->get();
+        }
+        return view('privacy::dsar-list', compact('dsars'));
+    }
 
     public function dsarView() { return view('privacy::dsar-view'); }
 

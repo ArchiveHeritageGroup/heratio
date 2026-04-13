@@ -1480,6 +1480,100 @@ class SettingsController extends Controller
         ));
     }
 
+    /**
+     * POST /admin/ai/condition/client/save
+     * JSON endpoint — creates a new ahg_ai_condition_client row.
+     */
+    public function aiConditionClientSave(Request $request)
+    {
+        if (!Schema::hasTable('ahg_ai_condition_client')) {
+            return response()->json(['success' => false, 'error' => 'Client table not provisioned.'], 500);
+        }
+
+        $name = trim((string) $request->input('name'));
+        $email = trim((string) $request->input('email'));
+        if ($name === '' || $email === '') {
+            return response()->json(['success' => false, 'error' => 'Name and email are required.'], 422);
+        }
+
+        try {
+            $apiKey = 'ahgaic_' . bin2hex(random_bytes(24));
+            $id = DB::table('ahg_ai_condition_client')->insertGetId([
+                'name' => $name,
+                'organization' => $request->input('organization') ?: null,
+                'email' => $email,
+                'tier' => $request->input('tier', 'free'),
+                'api_key' => $apiKey,
+                'monthly_limit' => (int) $request->input('monthly_limit', 50),
+                'scans_used' => 0,
+                'is_active' => 1,
+                'can_contribute_training' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            return response()->json(['success' => true, 'id' => $id, 'api_key' => $apiKey]);
+        } catch (\Throwable $e) {
+            \Log::error('aiConditionClientSave failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * POST /admin/ai/condition/client/revoke
+     */
+    public function aiConditionClientRevoke(Request $request)
+    {
+        $id = (int) $request->input('id');
+        if (!$id || !Schema::hasTable('ahg_ai_condition_client')) {
+            return response()->json(['success' => false, 'error' => 'Invalid request.'], 422);
+        }
+        DB::table('ahg_ai_condition_client')->where('id', $id)->update(['is_active' => 0, 'updated_at' => now()]);
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * POST /admin/ai/condition/client/training-toggle
+     */
+    public function aiConditionClientTrainingToggle(Request $request)
+    {
+        $id = (int) $request->input('id');
+        $enabled = (int) $request->input('enabled') ? 1 : 0;
+        if (!$id || !Schema::hasTable('ahg_ai_condition_client')) {
+            return response()->json(['success' => false, 'error' => 'Invalid request.'], 422);
+        }
+        DB::table('ahg_ai_condition_client')->where('id', $id)->update([
+            'can_contribute_training' => $enabled,
+            'updated_at' => now(),
+        ]);
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * GET /admin/ai/condition/api-test
+     * Pings the configured AI condition service URL and returns its JSON response.
+     */
+    public function aiConditionApiTest()
+    {
+        $url = DB::table('ahg_settings')
+            ->where('setting_group', 'ai_condition')
+            ->where('setting_key', 'ai_condition_service_url')
+            ->value('setting_value');
+
+        if (empty($url)) {
+            return response()->json(['success' => false, 'error' => 'AI condition service URL not configured.']);
+        }
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(5)->get(rtrim($url, '/') . '/health');
+            if ($response->successful()) {
+                return response()->json(['success' => true, 'data' => $response->json()]);
+            }
+            return response()->json(['success' => false, 'error' => 'Service returned HTTP ' . $response->status()]);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
     // ─── Accession Management ──────────────────────────────────────────
     public function accessionSettings(Request $request)
     {

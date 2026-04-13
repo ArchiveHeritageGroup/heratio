@@ -80,6 +80,11 @@ Route::middleware('admin')->group(function () {
 
     // ── Canonical /admin/ahgSettings/ routes (standardised URLs) ──
     Route::match(['get', 'post'], '/admin/ahgSettings/aiCondition', [SettingsController::class, 'aiCondition'])->name('settings.ai-condition');
+    // AI Condition client management (JSON endpoints called from ai-condition.blade.php)
+    Route::post('/admin/ai/condition/client/save', [SettingsController::class, 'aiConditionClientSave'])->name('settings.ai-condition.client.save');
+    Route::post('/admin/ai/condition/client/revoke', [SettingsController::class, 'aiConditionClientRevoke'])->name('settings.ai-condition.client.revoke');
+    Route::post('/admin/ai/condition/client/training-toggle', [SettingsController::class, 'aiConditionClientTrainingToggle'])->name('settings.ai-condition.client.training-toggle');
+    Route::get('/admin/ai/condition/api-test', [SettingsController::class, 'aiConditionApiTest'])->name('settings.ai-condition.api-test');
     Route::match(['get', 'post'], '/admin/ahgSettings/accession', [SettingsController::class, 'accessionSettings'])->name('settings.ahg.accession');
     Route::match(['get', 'post'], '/admin/ahgSettings/ahgIntegration', [SettingsController::class, 'ahgIntegration'])->name('settings.ahg-integration');
     Route::match(['get', 'post'], '/admin/ahgSettings/aiServices', [SettingsController::class, 'aiServices'])->name('settings.ai-services');

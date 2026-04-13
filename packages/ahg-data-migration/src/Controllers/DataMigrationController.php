@@ -149,7 +149,31 @@ class DataMigrationController extends \App\Http\Controllers\Controller
     public function batchExport(Request $req)
     {
         $repositories = $this->repo->getRepositories();
-        return view('ahg-data-migration::batch-export', compact('repositories'));
+
+        $counts = [
+            'informationObject' => 0,
+            'actor' => 0,
+            'repository' => 0,
+            'accession' => 0,
+            'donor' => 0,
+            'physicalObject' => 0,
+        ];
+        try {
+            $counts['informationObject'] = \DB::table('information_object')->where('id', '!=', 1)->count();
+            $counts['actor'] = \DB::table('actor')->where('id', '!=', 1)->count();
+            $counts['repository'] = \DB::table('repository')->count();
+            $counts['accession'] = \DB::table('accession')->count();
+            if (\Schema::hasTable('donor')) {
+                $counts['donor'] = \DB::table('donor')->count();
+            }
+            if (\Schema::hasTable('physical_object')) {
+                $counts['physicalObject'] = \DB::table('physical_object')->count();
+            }
+        } catch (\Throwable $e) {
+            // graceful fallback; counts already zeroed
+        }
+
+        return view('ahg-data-migration::batch-export', compact('repositories', 'counts'));
     }
 
     // ── Existing: importResults ──────────────────────────────
