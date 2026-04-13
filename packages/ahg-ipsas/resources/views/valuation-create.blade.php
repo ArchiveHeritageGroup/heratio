@@ -1,28 +1,151 @@
+{{--
+  Copyright (C) 2026 Johan Pieterse
+  Plain Sailing Information Systems
+  Email: johan@plansailingisystems
+
+  This file is part of Heratio.
+
+  Heratio is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+--}}
 @extends('theme::layouts.1col')
 
-@section('title', 'Valuation Create')
+@section('title', 'Record Valuation')
 
 @section('content')
-<h1>Valuation Create</h1>
-
-<form method="POST">
-  @csrf
-
-  <div class="accordion mb-3">
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#main-collapse" aria-expanded="true">Valuation Create</button>
-      </h2>
-      <div id="main-collapse" class="accordion-collapse collapse show">
-        <div class="accordion-body">
+@php
+    $asset = $asset ?? null;
+@endphp
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('ipsas.valuations') }}">Valuations</a></li>
+                    <li class="breadcrumb-item active">New Valuation</li>
+                </ol>
+            </nav>
+            <h1><i class="fas fa-calculator me-2"></i>Record Valuation</h1>
         </div>
-      </div>
     </div>
-  </div>
 
-  <ul class="actions mb-3 nav gap-2">
-    <li><a href="{{ url()->previous() }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
-    <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
-  </ul>
-</form>
+    <form method="post" class="row g-4">
+        @csrf
+        <div class="col-lg-8">
+            @if($asset)
+            <input type="hidden" name="asset_id" value="{{ $asset->id }}">
+            <div class="alert alert-info">
+                <strong>Asset:</strong> {{ $asset->title ?? '' }}
+                ({{ $asset->asset_number ?? '' }})
+            </div>
+            @else
+            <div class="card mb-4">
+                <div class="card-header"><h5 class="mb-0">Select Asset</h5></div>
+                <div class="card-body">
+                    <label class="form-label">Asset <span class="text-danger">*</span></label>
+                    <input type="number" name="asset_id" class="form-control" required placeholder="Enter Asset ID">
+                </div>
+            </div>
+            @endif
+
+            <div class="card mb-4">
+                <div class="card-header"><h5 class="mb-0">Valuation Details</h5></div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Valuation Date <span class="text-danger">*</span></label>
+                            <input type="date" name="valuation_date" class="form-control" required value="{{ date('Y-m-d') }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Valuation Type</label>
+                            <select name="valuation_type" class="form-select">
+                                <option value="initial">Initial</option>
+                                <option value="revaluation">Revaluation</option>
+                                <option value="impairment">Impairment</option>
+                                <option value="reversal">Reversal</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Valuation Basis</label>
+                            <select name="valuation_basis" class="form-select">
+                                <option value="historical_cost">Historical Cost</option>
+                                <option value="fair_value">Fair Value</option>
+                                <option value="nominal">Nominal Value</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Valuation Method</label>
+                            <select name="valuation_method" class="form-select">
+                                <option value="market_comparison">Market Comparison</option>
+                                <option value="income_approach">Income Approach</option>
+                                <option value="cost_approach">Cost Approach</option>
+                                <option value="expert_opinion">Expert Opinion</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Previous Value</label>
+                            <input type="number" name="previous_value" class="form-control" step="0.01" min="0" value="{{ $asset->current_value ?? '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">New Value <span class="text-danger">*</span></label>
+                            <input type="number" name="new_value" class="form-control" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><h5 class="mb-0">Valuer Information</h5></div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Valuer Name</label>
+                            <input type="text" name="valuer_name" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Valuer Type</label>
+                            <select name="valuer_type" class="form-select">
+                                <option value="internal">Internal</option>
+                                <option value="external">External</option>
+                                <option value="government">Government</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Qualifications</label>
+                            <input type="text" name="valuer_qualification" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Market Evidence</label>
+                            <textarea name="market_evidence" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Documentation Reference</label>
+                            <input type="text" name="documentation_ref" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Notes</label>
+                            <textarea name="notes" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="alert alert-info">
+                <h6><i class="fas fa-info-circle"></i> IPSAS Valuation</h6>
+                <p class="small mb-0">Record valuation changes as required by IPSAS 17 and IPSAS 21 (Impairment of Non-Cash-Generating Assets). Ensure proper documentation and valuer credentials for audit compliance.</p>
+            </div>
+            <div class="card">
+                <div class="card-body d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>Record Valuation</button>
+                    <a href="{{ route('ipsas.valuations') }}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
 @endsection

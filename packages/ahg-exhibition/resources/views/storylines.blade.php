@@ -1,28 +1,201 @@
+{{--
+  Copyright (C) 2026 Johan Pieterse
+  Plain Sailing Information Systems
+  Email: johan@plansailingisystems
+
+  This file is part of Heratio.
+
+  Heratio is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+--}}
 @extends('theme::layouts.1col')
 
 @section('title', 'Storylines')
 
 @section('content')
-<h1>Storylines</h1>
+@php
+  $exhibition = $exhibition ?? (object) [];
+  $exId = $exhibition->id ?? 0;
+  $storylines = $exhibition->storylines ?? collect();
+@endphp
 
-<form method="POST">
-  @csrf
+<div class="row">
+  <div class="col-md-8">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">Exhibitions</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('exhibition.show', ['id' => $exId]) }}">{{ $exhibition->title ?? '' }}</a></li>
+        <li class="breadcrumb-item active">Storylines</li>
+      </ol>
+    </nav>
 
-  <div class="accordion mb-3">
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#main-collapse" aria-expanded="true">Storylines</button>
-      </h2>
-      <div id="main-collapse" class="accordion-collapse collapse show">
-        <div class="accordion-body">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1>Storylines &amp; Narratives</h1>
+      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addStorylineModal">
+        <i class="fas fa-plus"></i> Create Storyline
+      </button>
+    </div>
+
+    @if(empty($storylines) || (is_object($storylines) && method_exists($storylines, 'isEmpty') && $storylines->isEmpty()))
+      <div class="card">
+        <div class="card-body text-center py-5">
+          <i class="fas fa-book fa-3x text-muted mb-3"></i>
+          <h5>No storylines created yet</h5>
+          <p class="text-muted">Create narrative journeys through your exhibition with storylines.</p>
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStorylineModal">
+            <i class="fas fa-plus"></i> Create First Storyline
+          </button>
         </div>
+      </div>
+    @else
+      @foreach($storylines as $storyline)
+        @php $sl = (object) $storyline; @endphp
+        <div class="card mb-3">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="mb-0">{{ $sl->title ?? '' }}</h5>
+              @if(!empty($sl->type))
+                <small class="text-muted text-capitalize">{{ str_replace('_', ' ', $sl->type) }}</small>
+              @endif
+            </div>
+            <div class="btn-group btn-group-sm">
+              <a href="{{ route('exhibition.storyline', ['exhibitionId' => $exId, 'storylineId' => $sl->id ?? 0]) }}" class="btn btn-outline-primary">
+                <i class="fas fa-eye"></i> View
+              </a>
+              <button type="button" class="btn btn-outline-secondary"><i class="fas fa-edit"></i></button>
+              <button type="button" class="btn btn-outline-danger"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+          <div class="card-body">
+            @if(!empty($sl->description))
+              <p class="mb-3">{{ $sl->description }}</p>
+            @endif
+            <div class="row">
+              <div class="col-md-4">
+                <p class="small mb-1"><i class="fas fa-map-marker me-1"></i> <strong>{{ $sl->stop_count ?? 0 }}</strong> stops</p>
+              </div>
+              @if(!empty($sl->target_audience))
+                <div class="col-md-4">
+                  <p class="small mb-1"><i class="fas fa-users me-1"></i> Audience: <strong class="text-capitalize">{{ str_replace('_', ' ', $sl->target_audience) }}</strong></p>
+                </div>
+              @endif
+              @if(!empty($sl->duration_minutes))
+                <div class="col-md-4">
+                  <p class="small mb-1"><i class="fas fa-clock me-1"></i> Duration: <strong>{{ $sl->duration_minutes }} min</strong></p>
+                </div>
+              @endif
+            </div>
+          </div>
+        </div>
+      @endforeach
+    @endif
+  </div>
+
+  <div class="col-md-4">
+    <div class="card mb-3">
+      <div class="card-header">
+        <h5 class="mb-0">Exhibition Info</h5>
+      </div>
+      <div class="card-body">
+        <h6>{{ $exhibition->title ?? '' }}</h6>
+        <p class="small text-muted mb-2">
+          <span class="badge bg-secondary">{{ $exhibition->status ?? '' }}</span>
+        </p>
+        <p class="small mb-0">
+          <strong>{{ is_countable($storylines) ? count($storylines) : 0 }}</strong> storylines
+        </p>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-header">
+        <h5 class="mb-0">Storyline Types</h5>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled small mb-0">
+          <li class="mb-2"><strong>General</strong> - Default visitor tour</li>
+          <li class="mb-2"><strong>Guided Tour</strong> - For docent-led visits</li>
+          <li class="mb-2"><strong>Self-Guided</strong> - Independent visitor path</li>
+          <li class="mb-2"><strong>Educational</strong> - School groups and learning</li>
+          <li class="mb-2"><strong>Accessible</strong> - Accessibility-focused route</li>
+          <li class="mb-2"><strong>Highlights</strong> - Quick overview tour</li>
+          <li><strong>Thematic</strong> - Topic-specific journey</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Tips</h5>
+      </div>
+      <div class="card-body">
+        <p class="small text-muted mb-2"><strong>Storylines</strong> create narrative paths through your exhibition.</p>
+        <ul class="small text-muted mb-0">
+          <li>Add stops to guide visitors</li>
+          <li>Link stops to specific objects</li>
+          <li>Include interpretive content</li>
+          <li>Create multiple tours for different audiences</li>
+        </ul>
       </div>
     </div>
   </div>
+</div>
 
-  <ul class="actions mb-3 nav gap-2">
-    <li><a href="{{ url()->previous() }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
-    <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
-  </ul>
-</form>
+<div class="modal fade" id="addStorylineModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create Storyline</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="{{ route('exhibition.storylines', ['id' => $exId]) }}">
+        @csrf
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Title <span class="text-danger">*</span></label>
+            <input type="text" name="title" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Type</label>
+            <select name="type" class="form-select">
+              <option value="general">General</option>
+              <option value="guided_tour">Guided Tour</option>
+              <option value="self_guided">Self-Guided</option>
+              <option value="educational">Educational</option>
+              <option value="accessible">Accessible</option>
+              <option value="highlights">Highlights</option>
+              <option value="thematic">Thematic</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Target Audience</label>
+            <select name="target_audience" class="form-select">
+              <option value="">-- All visitors --</option>
+              <option value="general">General Public</option>
+              <option value="families">Families with Children</option>
+              <option value="schools">School Groups</option>
+              <option value="adults">Adults</option>
+              <option value="experts">Experts/Specialists</option>
+              <option value="accessible">Accessibility Needs</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Estimated Duration (minutes)</label>
+            <input type="number" name="duration_minutes" class="form-control" min="5" step="5">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Storyline</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 @endsection

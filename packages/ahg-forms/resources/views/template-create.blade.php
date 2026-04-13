@@ -1,28 +1,82 @@
+{{--
+  Copyright (C) 2026 Johan Pieterse
+  Plain Sailing Information Systems
+  Email: johan@plansailingisystems
+
+  This file is part of Heratio.
+
+  Heratio is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+--}}
 @extends('theme::layouts.1col')
 
-@section('title', 'Template Create')
+@section('title', 'Create Form Template')
 
 @section('content')
-<h1>Template Create</h1>
-
-<form method="POST">
-  @csrf
-
-  <div class="accordion mb-3">
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#main-collapse" aria-expanded="true">Template Create</button>
-      </h2>
-      <div id="main-collapse" class="accordion-collapse collapse show">
-        <div class="accordion-body">
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h1><i class="fas fa-plus me-2"></i>Create Form Template</h1>
+            <p class="text-muted">Create a new form template</p>
         </div>
-      </div>
+        <div class="col-auto">
+            <a href="{{ route('forms.templates') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Back
+            </a>
+        </div>
     </div>
-  </div>
 
-  <ul class="actions mb-3 nav gap-2">
-    <li><a href="{{ url()->previous() }}" class="btn btn-outline-secondary" role="button">Cancel</a></li>
-    <li><input class="btn btn-primary" type="submit" value="Save"></li>
-  </ul>
-</form>
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                @csrf
+                <div class="mb-3">
+                    <label class="form-label">Template Name *</label>
+                    <input type="text" name="name" class="form-control" required placeholder="e.g., ISAD-G Standard Form">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control" rows="3" placeholder="Describe the purpose of this form template..."></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Form Type *</label>
+                    <select name="form_type" class="form-select" required>
+                        <option value="">Select type...</option>
+                        <option value="information_object">Information Object (Archival Description)</option>
+                        <option value="actor">Authority Record (Actor)</option>
+                        <option value="repository">Repository</option>
+                        <option value="accession">Accession</option>
+                        <option value="deaccession">Deaccession</option>
+                        <option value="rights">Rights</option>
+                    </select>
+                    <small class="text-muted">The type of record this form will be used for</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Layout</label>
+                    <select name="layout" class="form-select">
+                        <option value="single">Single Column</option>
+                        <option value="two-column">Two Columns</option>
+                        <option value="tabs">Tabbed Sections</option>
+                    </select>
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ route('forms.templates') }}" class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i> Create Template
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
