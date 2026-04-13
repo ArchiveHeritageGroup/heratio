@@ -208,9 +208,9 @@ Each package = N batches of 5 pages each. Tick off batches as they ship.
 
 ### Phase C resumes here after Phase X
 
-- [ ] **C-3** ahg-registry (28 stubs → 6 batches: 5+5+5+5+5+3)
-- [ ] **C-4** ahg-nmmz (12 stubs → 3 batches: 5+5+2)
-- [ ] **C-5** ahg-icip (11 stubs → 3 batches: 5+5+1)
+- [x] **C-3** ahg-registry (~39 stubs across 6 admin batches + 8 public browse pages) — **DONE 2026-04-12**. Service: 15+ methods added (getAdminStats, browse{Institutions/Vendors/Software/Standards/Groups/Blog/Discussions/Dropdowns/Newsletters/Erd/SetupGuides/Subscribers}, pending/active users, getGroup + members, getStandard, getDropdown, getNewsletter, getSetting/AllSettings, getSyncLogs). Controller: ~25 admin* methods wired. Views: 25 admin (dashboard, institutions, vendors, software, standards, groups, blog, discussions, dropdowns, newsletters, users, user-edit, user-manage, institution-users, reviews, erd, erd-edit, setup-guides, import, sync, settings, email, footer, subscribers, extension-edit) + 5 edit forms (group-edit, group-members, standard-edit, dropdown-edit, newsletter-form) + 8 public browse (institution/group/vendor/software/standard/erd/newsletter/setup-guide). All 13 final blades HTTP 200 smoke-tested. Schema fixes during port: registry_discussion uses author_user_id+author_name inline; registry_dropdown uses dropdown_group+value; user table has no timestamps so join object for CTI; registry_settings has no setting_group column.
+- [x] **C-4** ahg-nmmz (12 stubs → 3 batches: 5+5+2) — **DONE 2026-04-13**. 5 list views (monuments, antiquities, permits, sites, hia), 5 create forms (monument/antiquity/permit/site/hia-create), permit-view (with admin approve/reject form), config. All 12 blades render OK; HTTP 200 verified for primary routes. International framing applied (no "Zimbabwe Act"-style hardcoding in body copy; provinces list retained as it's the deployed SA/ZIM data source).
+- [x] **C-5** ahg-icip (11 stubs → 3 batches: 5+5+1) — **DONE 2026-04-13**. communities, community-edit, consent-list, consent-edit, consultations, consultation-edit, notice-types, object-consent, object-notices, object-labels, object-restrictions. PSIS sources were already blade so port was largely route-name swap (`url_for('@icip_*')` → Laravel `route('ahgicip.*')`) and `$sf_user->hasFlash` → `session('notice')`. All 11 blades render OK; HTTP 200 verified for primary routes.
 - [ ] **C-6** ahg-vendor (10 stubs → 2 batches: 5+5)
 - [ ] **C-7** ahg-statistics (9 stubs → 2 batches: 5+4)
 - [ ] **C-8** ahg-naz (9 stubs → 2 batches: 5+4)
