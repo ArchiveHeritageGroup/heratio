@@ -14,14 +14,14 @@
 
             <div class="alert alert-info">
                 <i class="bi bi-info-circle me-2"></i>
-                Export archival descriptions in CSV format compatible with import.
+                Export archival descriptions in CSV format compatible with AtoM import.
             </div>
 
             <form action="{{ route('export.csv') }}" method="post">
                 @csrf
 
                 <div class="mb-3">
-                    <label class="form-label">Repository <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-label">Repository</label>
                     <select name="repository_id" class="form-select">
                         <option value="">All repositories</option>
                         @foreach($repositories as $repo)
@@ -31,7 +31,17 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Parent Record Slug (Optional) <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-label">Level of Description</label>
+                    <select name="level_ids[]" class="form-select" multiple size="5">
+                        @foreach($levels as $level)
+                            <option value="{{ $level->id }}">{{ e($level->name) }}</option>
+                        @endforeach
+                    </select>
+                    <small class="text-muted">Hold Ctrl/Cmd to select multiple. Leave empty for all levels.</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Parent Record Slug (Optional)</label>
                     <input type="text" name="parent_slug" class="form-control" placeholder="e.g. my-fonds-123">
                     <small class="text-muted">Export only descendants of this record.</small>
                 </div>
@@ -39,17 +49,17 @@
                 <div class="mb-3 form-check">
                     <input type="checkbox" name="include_descendants" value="1" class="form-check-input" id="includeDescendants">
                     <label class="form-check-label" for="includeDescendants">
-                        Include all descendants (not just direct children) <span class="badge bg-secondary ms-1">Optional</span>
+                        Include all descendants (not just direct children)
                     </label>
                 </div>
 
                 <hr>
 
                 <div class="d-flex justify-content-between">
-                    <a href="{{ route('export.index') }}" class="atom-btn-white">
+                    <a href="{{ route('export.index') }}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left me-1"></i>Back
                     </a>
-                    <button type="submit" class="atom-btn-white">
+                    <button type="submit" class="btn btn-primary">
                         <i class="bi bi-download me-1"></i>Export CSV
                     </button>
                 </div>

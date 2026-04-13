@@ -1,158 +1,169 @@
-@extends('theme::layouts.1col')
+{{--
+  Audit Trail — Browse (cloned from ahgAuditTrailPlugin/browseSuccess.php)
 
-@section('title', 'Audit trail')
-@section('body-class', 'browse audit')
+  Copyright (C) 2026 Johan Pieterse
+  Plain Sailing Information Systems
+  Licensed under the GNU AGPL v3 or later.
+--}}
+@extends('theme::layouts.2col')
+
+@section('title', 'Audit Trail')
+@section('body-class', 'browse audit-trail')
+
+@section('title-block')
+  <h1>Audit Trail</h1>
+@endsection
+
+@section('sidebar')
+  <section id="facets">
+    <div class="sidebar-lowering">
+      <h3>Filter Audit Logs</h3>
+      <form method="get" action="{{ route('audit.browse') }}">
+        <div class="mb-3">
+          <label class="form-label">Action Type</label>
+          <select name="filter_action" class="form-select form-select-sm">
+            <option value="">All Actions</option>
+            @foreach($actionTypes as $value => $label)
+              <option value="{{ $value }}" @selected(($currentFilters['action'] ?? '') === $value)>{{ $label }}</option>
+            @endforeach
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Entity Type</label>
+          <select name="entity_type" class="form-select form-select-sm">
+            <option value="">All Types</option>
+            @foreach($entityTypes as $value => $label)
+              <option value="{{ $value }}" @selected(($currentFilters['entity_type'] ?? '') === $value)>{{ $label }}</option>
+            @endforeach
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <select name="username" class="form-select form-select-sm">
+            <option value="">All Users</option>
+            @foreach($usernames as $username)
+              <option value="{{ $username }}" @selected(($currentFilters['username'] ?? '') === $username)>{{ $username }}</option>
+            @endforeach
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">From Date</label>
+          <input type="date" name="from_date" class="form-control form-control-sm" value="{{ $currentFilters['from_date'] ?? '' }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">To Date</label>
+          <input type="date" name="to_date" class="form-control form-control-sm" value="{{ $currentFilters['to_date'] ?? '' }}">
+        </div>
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-primary btn-sm">Apply Filters</button>
+          <a href="{{ route('audit.browse') }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+        </div>
+      </form>
+      <hr class="my-4">
+      <h4>Quick Links</h4>
+      <ul class="list-unstyled">
+        <li><a href="{{ route('audit.authentication') }}">Authentication Log</a></li>
+        <li><a href="{{ route('audit.security-access') }}">Security Access Log</a></li>
+        <li><a href="{{ route('audit.statistics') }}">Statistics Dashboard</a></li>
+        <li><a href="{{ route('audit.settings') }}">Settings</a></li>
+      </ul>
+    </div>
+  </section>
+@endsection
 
 @section('content')
-  <div class="multiline-header d-flex align-items-center mb-3">
-    <i class="fas fa-3x fa-clipboard-list me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column">
-      <h1 class="mb-0">
-        @if($total)
-          Showing {{ number_format($total) }} results
-        @else
-          No results found
-        @endif
-      </h1>
-      <span class="small text-muted">Audit trail</span>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted">
+      Showing {{ $pager['from'] }} to {{ $pager['to'] }} of {{ $pager['total'] }} results
+    </span>
+    <div class="btn-group btn-group-sm">
+      <a href="{{ route('audit.export', ['format' => 'csv']) }}" class="btn btn-outline-secondary">Export CSV</a>
+      <a href="{{ route('audit.export', ['format' => 'json']) }}" class="btn btn-outline-secondary">Export JSON</a>
     </div>
   </div>
 
-  {{-- Filter bar --}}
-  <form method="GET" action="{{ route('audit.browse') }}" class="card mb-4">
-    <div class="card-body">
-      <div class="row g-3 align-items-end">
-        <div class="col-md-2">
-          <label for="type" class="form-label small">Entity type <span class="badge bg-warning ms-1">Recommended</span></label>
-          <select name="type" id="type" class="form-select form-select-sm">
-            <option value="">All types</option>
-            @foreach($entityTypes as $et)
-              <option value="{{ $et }}" @selected($filters['type'] === $et)>{{ $et }}</option>
-            @endforeach
-          </select>
-        </div>
-        <div class="col-md-2">
-          <label for="action" class="form-label small">Action <span class="badge bg-secondary ms-1">Optional</span></label>
-          <select name="action" id="action" class="form-select form-select-sm">
-            <option value="">All actions</option>
-            @foreach($actions as $a)
-              <option value="{{ $a }}" @selected($filters['action'] === $a)>{{ $a }}</option>
-            @endforeach
-          </select>
-        </div>
-        <div class="col-md-2">
-          <label for="user" class="form-label small">User <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="text" name="user" id="user" class="form-control form-control-sm"
-                 value="{{ $filters['user'] }}" placeholder="Username or email">
-        </div>
-        <div class="col-md-2">
-          <label for="from" class="form-label small">From <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="date" name="from" id="from" class="form-control form-control-sm"
-                 value="{{ $filters['from'] }}">
-        </div>
-        <div class="col-md-2">
-          <label for="to" class="form-label small">To <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="date" name="to" id="to" class="form-control form-control-sm"
-                 value="{{ $filters['to'] }}">
-        </div>
-        <div class="col-md-2">
-          <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
-            <i class="fas fa-filter me-1"></i> Filter
-          </button>
-        </div>
-      </div>
-    </div>
-  </form>
-
-  @if(count($entries))
-    <div class="table-responsive mb-3">
-      <table class="table table-bordered table-striped mb-0">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>User</th>
-            <th>Action</th>
-            @if($table === 'ahg_audit_log')
-              <th>Entity type</th>
-              <th>Entity title</th>
-              <th>Status</th>
-            @else
-              <th>Table</th>
-              <th>Record ID</th>
-              <th>Field</th>
-            @endif
-          </tr>
-        </thead>
-        <tbody>
-          @foreach($entries as $entry)
-            <tr>
-              <td>
-                <a href="{{ route('audit.show', $entry['id']) }}">
-                  {{ $entry['created_at'] ? \Carbon\Carbon::parse($entry['created_at'])->format('Y-m-d H:i') : '' }}
+  <div class="table-responsive">
+    <table class="table table-striped table-hover table-sm">
+      <thead class="table-light">
+        <tr>
+          <th>Date/Time</th>
+          <th>User</th>
+          <th>Action</th>
+          <th>Entity</th>
+          <th>Title</th>
+          <th>IP</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($pager['data'] as $log)
+          @php
+            $status = $log['status'] ?? 'success';
+            $action = $log['action'] ?? '';
+            $actionLabel = $log['action_label'] ?? ucfirst($action);
+            $entityTypeLabel = $log['entity_type_label'] ?? ($log['entity_type'] ?? '');
+            $badgeClass = match($action) {
+              'create' => 'success',
+              'update' => 'primary',
+              'delete' => 'danger',
+              default  => 'secondary',
+            };
+            $title = $log['entity_title'] ?? $log['entity_slug'] ?? '-';
+            $titleDisplay = mb_substr((string) $title, 0, 40);
+            $createdAt = $log['created_at'] ?? null;
+            $createdDisplay = $createdAt ? \Carbon\Carbon::parse($createdAt)->format('Y-m-d H:i:s') : '';
+          @endphp
+          <tr class="{{ $status !== 'success' ? 'table-warning' : '' }}">
+            <td><small>{{ $createdDisplay }}</small></td>
+            <td>{{ $log['username'] ?? 'Anonymous' }}</td>
+            <td><span class="badge bg-{{ $badgeClass }}">{{ $actionLabel }}</span></td>
+            <td>{{ $entityTypeLabel }}</td>
+            <td>{{ $titleDisplay }}</td>
+            <td><small>{{ $log['ip_address'] ?? '-' }}</small></td>
+            <td class="text-end">
+              <div class="btn-group btn-group-sm">
+                @if(in_array($action, ['update', 'create']) && (!empty($log['old_values']) || !empty($log['new_values'])))
+                  <button type="button" class="btn btn-outline-warning btn-audit-compare" data-audit-id="{{ $log['id'] }}" title="Compare Changes">
+                    <i class="fas fa-exchange-alt"></i>
+                  </button>
+                @endif
+                <a href="{{ route('audit.show', $log['id']) }}" class="btn btn-outline-primary" title="View Details">
+                  <i class="fas fa-eye"></i>
                 </a>
-              </td>
-              <td>{{ $entry['username'] ?? '' }}</td>
-              <td>
-                @php
-                  $actionVal = $entry['action'] ?? '';
-                  $badgeClass = match($actionVal) {
-                    'create' => 'bg-success',
-                    'update' => 'bg-primary',
-                    'delete' => 'bg-danger',
-                    default => 'bg-secondary',
-                  };
-                @endphp
-                <span class="badge {{ $badgeClass }}">{{ $actionVal }}</span>
-              </td>
-              @if($table === 'ahg_audit_log')
-                <td>{{ $entry['entity_type'] ?? '' }}</td>
-                <td>{{ $entry['entity_title'] ?? '' }}</td>
-                <td>
-                  @if(!empty($entry['status']))
-                    @php
-                      $statusClass = match($entry['status']) {
-                        'success' => 'bg-success',
-                        'error', 'failed' => 'bg-danger',
-                        default => 'bg-secondary',
-                      };
-                    @endphp
-                    <span class="badge {{ $statusClass }}">{{ $entry['status'] }}</span>
-                  @endif
-                </td>
-              @else
-                <td>{{ $entry['table_name'] ?? '' }}</td>
-                <td>{{ $entry['record_id'] ?? '' }}</td>
-                <td>{{ $entry['field_name'] ?? '' }}</td>
-              @endif
-            </tr>
-          @endforeach
-        </tbody>
-      </table>
-    </div>
+              </div>
+            </td>
+          </tr>
+        @endforeach
+        @if($pager['total'] === 0)
+          <tr><td colspan="7" class="text-center text-muted py-4">No audit log entries found.</td></tr>
+        @endif
+      </tbody>
+    </table>
+  </div>
 
-    {{-- Simple pagination --}}
-    @if($totalPages > 1)
-      <nav aria-label="Audit pagination">
-        <ul class="pagination justify-content-center">
-          <li class="page-item @if($page <= 1) disabled @endif">
-            <a class="page-link" href="{{ route('audit.browse', array_merge($filters, ['page' => $page - 1])) }}">
-              Previous
-            </a>
+  @if($pager['last_page'] > 1)
+    <nav>
+      <ul class="pagination pagination-sm justify-content-center">
+        @if($pager['current_page'] > 1)
+          <li class="page-item">
+            <a class="page-link" href="{{ route('audit.browse', array_merge($currentFilters, ['page' => $pager['current_page'] - 1])) }}">&laquo;</a>
           </li>
-          @for($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++)
-            <li class="page-item @if($i === $page) active @endif">
-              <a class="page-link" href="{{ route('audit.browse', array_merge($filters, ['page' => $i])) }}">
-                {{ $i }}
-              </a>
-            </li>
-          @endfor
-          <li class="page-item @if($page >= $totalPages) disabled @endif">
-            <a class="page-link" href="{{ route('audit.browse', array_merge($filters, ['page' => $page + 1])) }}">
-              Next
-            </a>
+        @endif
+
+        @for($i = max(1, $pager['current_page'] - 3); $i <= min($pager['last_page'], $pager['current_page'] + 3); $i++)
+          <li class="page-item {{ $i === $pager['current_page'] ? 'active' : '' }}">
+            <a class="page-link" href="{{ route('audit.browse', array_merge($currentFilters, ['page' => $i])) }}">{{ $i }}</a>
           </li>
-        </ul>
-      </nav>
-    @endif
+        @endfor
+
+        @if($pager['current_page'] < $pager['last_page'])
+          <li class="page-item">
+            <a class="page-link" href="{{ route('audit.browse', array_merge($currentFilters, ['page' => $pager['current_page'] + 1])) }}">&raquo;</a>
+          </li>
+        @endif
+      </ul>
+    </nav>
   @endif
+
+  @include('ahg-audit-trail::_compare-modal')
 @endsection

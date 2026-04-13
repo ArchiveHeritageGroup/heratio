@@ -31,7 +31,7 @@
     <div class="card-body py-2">
         <form method="get" class="row g-2 align-items-end">
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Status <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label form-label-sm mb-0">Status</label>
                 <select name="status" class="form-select form-select-sm">
                     <option value="pending" {{ request('status', 'pending') === 'pending' ? 'selected' : '' }}>Pending</option>
                     <option value="accepted" {{ request('status') === 'accepted' ? 'selected' : '' }}>Accepted</option>
@@ -41,7 +41,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Result Type <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label form-label-sm mb-0">Result Type</label>
                 <select name="result_type" class="form-select form-select-sm">
                     <option value="">All</option>
                     @foreach(['entity','summary','translation','transcription','form_field','face'] as $rt)
@@ -50,7 +50,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Extraction Type <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label form-label-sm mb-0">Extraction Type</label>
                 <select name="extraction_type" class="form-select form-select-sm">
                     <option value="">All</option>
                     @foreach(['ocr','ner','summarize','translate','spellcheck','face_detection','form_extraction'] as $et)
@@ -59,10 +59,10 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Min Confidence <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label form-label-sm mb-0">Min Confidence</label>
                 <input type="number" name="min_confidence" class="form-control form-control-sm" style="width:100px" min="0" max="1" step="0.01" value="{{ request('min_confidence', '') }}" placeholder="0.00">
             </div>
-            <div class="col-auto"><button type="submit" class="btn btn-outline-secondary btn-sm">Filter</button></div>
+            <div class="col-auto"><button type="submit" class="btn btn-sm btn-primary">Filter</button></div>
         </form>
     </div>
 </div>
@@ -71,8 +71,8 @@
     <div class="alert alert-success">No items matching your filters.</div>
 @else
 <div class="table-responsive">
-    <table class="table table-bordered table-hover align-middle">
-        <thead>
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
             <tr>
                 <th><input type="checkbox" id="selectAll"></th>
                 <th>Object</th>
@@ -123,8 +123,8 @@
                         <button class="btn btn-outline-secondary preview-btn" data-id="{{ (int) $item->result_id }}" data-data="{{ e($item->data_json ?? '{}') }}" title="Preview"><i class="fas fa-eye"></i></button>
                         @if(($item->status ?? '') === 'pending')
                         <button class="btn btn-success validate-btn" data-id="{{ (int) $item->result_id }}" data-action="accept" title="Accept"><i class="fas fa-check"></i></button>
-                        <button class="btn btn-outline-secondary modify-btn" data-id="{{ (int) $item->result_id }}" data-data="{{ e($item->data_json ?? '{}') }}" title="Edit & Accept"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-outline-danger validate-btn" data-id="{{ (int) $item->result_id }}" data-action="reject" title="Reject"><i class="fas fa-times"></i></button>
+                        <button class="btn btn-warning modify-btn" data-id="{{ (int) $item->result_id }}" data-data="{{ e($item->data_json ?? '{}') }}" title="Edit & Accept"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger validate-btn" data-id="{{ (int) $item->result_id }}" data-action="reject" title="Reject"><i class="fas fa-times"></i></button>
                         @endif
                     </div>
                 </td>
@@ -136,7 +136,7 @@
 
 <div class="d-flex gap-2 mt-3">
     <button class="btn btn-success" id="bulkAccept"><i class="fas fa-check-double me-1"></i>Bulk Accept Selected</button>
-    <button class="btn btn-outline-danger" id="bulkReject"><i class="fas fa-times-circle me-1"></i>Bulk Reject Selected</button>
+    <button class="btn btn-danger" id="bulkReject"><i class="fas fa-times-circle me-1"></i>Bulk Reject Selected</button>
 </div>
 @endif
 
@@ -161,7 +161,7 @@
                 <input type="hidden" id="modifyResultId">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" id="modifyAcceptBtn" class="btn btn-success">Accept with Changes</button>
             </div>
         </div>

@@ -47,7 +47,150 @@ class PrivacyController extends Controller
 
     public function complaint() { return view('privacy::complaint'); }
 
-    public function dashboard() { return view('privacy::dashboard'); }
+    public function dashboard(Request $request)
+    {
+        $currentJurisdiction = $request->input('jurisdiction', 'all');
+
+        // Build jurisdictions map from DB
+        $jurisdictions = [];
+        $activeJurisdiction = null;
+        if (Schema::hasTable('privacy_jurisdiction')) {
+            $rows = DB::table('privacy_jurisdiction')
+                ->where('is_active', 1)
+                ->orderBy('sort_order')
+                ->get();
+            foreach ($rows as $j) {
+                $jurisdictions[$j->code] = [
+                    'name'            => $j->name,
+                    'full_name'       => $j->full_name,
+                    'country'         => $j->country,
+                    'region'          => $j->region,
+                    'icon'            => $j->icon ?: 'un',
+                    'dsar_days'       => (int) ($j->dsar_days ?? 30),
+                    'breach_hours'    => (int) ($j->breach_hours ?? 72),
+                    'effective_date'  => $j->effective_date,
+                    'regulator'       => $j->regulator,
+                    'regulator_url'   => $j->regulator_url,
+                ];
+            }
+            if ($currentJurisdiction !== 'all' && isset($rows)) {
+                foreach ($rows as $j) {
+                    if ($j->code === $currentJurisdiction) {
+                        $activeJurisdiction = $j;
+                        break;
+                    }
+                }
+            }
+            if (!$activeJurisdiction && $rows->count() > 0) {
+                $activeJurisdiction = $rows->first();
+            }
+        }
+
+        // Scope filter helper
+        $scope = function ($q) use ($currentJurisdiction) {
+            if ($currentJurisdiction !== 'all') {
+                $q->where('jurisdiction', $currentJurisdiction);
+            }
+            return $q;
+        };
+
+        // DSAR stats
+        $dsarPending = 0;
+        $dsarOverdue = 0;
+        $dsarTotal = 0;
+        $dsarCompleted = 0;
+        if (Schema::hasTable('privacy_dsar')) {
+            $dsarPending = $scope(DB::table('privacy_dsar')
+                ->whereNotIn('status', ['completed', 'rejected', 'withdrawn']))->count();
+            $dsarOverdue = $scope(DB::table('privacy_dsar')
+                ->whereDate('due_date', '<', now())
+                ->whereNotIn('status', ['completed', 'rejected', 'withdrawn']))->count();
+            $dsarTotal = $scope(DB::table('privacy_dsar'))->count();
+            $dsarCompleted = $scope(DB::table('privacy_dsar')->where('status', 'completed'))->count();
+        }
+
+        // Breach stats
+        $breachOpen = 0;
+        $breachCritical = 0;
+        $breachTotal = 0;
+        if (Schema::hasTable('privacy_breach')) {
+            $breachOpen = $scope(DB::table('privacy_breach')
+                ->whereNotIn('status', ['resolved', 'closed']))->count();
+            $breachCritical = $scope(DB::table('privacy_breach')->where('severity', 'critical'))->count();
+            $breachTotal = $scope(DB::table('privacy_breach'))->count();
+        }
+
+        // ROPA stats
+        $ropaApproved = 0;
+        $ropaTotal = 0;
+        $ropaDpia = 0;
+        if (Schema::hasTable('privacy_processing_activity')) {
+            $ropaApproved = $scope(DB::table('privacy_processing_activity')->where('status', 'approved'))->count();
+            $ropaTotal = $scope(DB::table('privacy_processing_activity'))->count();
+            $ropaDpia = $scope(DB::table('privacy_processing_activity')
+                ->where('dpia_required', 1)
+                ->where('dpia_completed', 0))->count();
+        }
+
+        // Consent stats (no jurisdiction column on this table)
+        $consentActive = 0;
+        if (Schema::hasTable('privacy_consent')) {
+            $consentActive = DB::table('privacy_consent')->where('is_active', 1)->count();
+        }
+
+        // Compliance score heuristic:
+        //  - start at 100
+        //  - -10 per overdue DSAR (cap -40)
+        //  - -15 per critical breach (cap -45)
+        //  - -5 per ROPA needing DPIA (cap -20)
+        //  - -20 if no active jurisdiction configured
+        $score = 100;
+        $score -= min(40, $dsarOverdue * 10);
+        $score -= min(45, $breachCritical * 15);
+        $score -= min(20, $ropaDpia * 5);
+        if (!$activeJurisdiction) {
+            $score -= 20;
+        }
+        $score = max(0, min(100, $score));
+
+        $stats = [
+            'compliance_score' => $score,
+            'dsar' => [
+                'pending'   => $dsarPending,
+                'overdue'   => $dsarOverdue,
+                'total'     => $dsarTotal,
+                'completed' => $dsarCompleted,
+            ],
+            'breach' => [
+                'open'     => $breachOpen,
+                'critical' => $breachCritical,
+                'total'    => $breachTotal,
+            ],
+            'ropa' => [
+                'approved'       => $ropaApproved,
+                'total'          => $ropaTotal,
+                'requiring_dpia' => $ropaDpia,
+            ],
+            'consent' => [
+                'active' => $consentActive,
+            ],
+        ];
+
+        $notificationCount = 0;
+        if (Schema::hasTable('privacy_notification')) {
+            $notificationCount = DB::table('privacy_notification')
+                ->where('is_read', 0)
+                ->count();
+        }
+
+        return view('privacy::dashboard', compact(
+            'stats',
+            'jurisdictions',
+            'currentJurisdiction',
+            'activeJurisdiction',
+            'notificationCount'
+        ));
+    }
 
     public function dsarConfirmation() { return view('privacy::dsar-confirmation'); }
 
@@ -144,17 +287,22 @@ class PrivacyController extends Controller
     {
         $dsars = collect();
         if (Schema::hasTable('privacy_dsar')) {
-            $q = DB::table('privacy_dsar');
-            if ($status = $request->input('status')) {
-                $q->where('status', $status);
-            }
-            if ($request->input('overdue')) {
-                $q->whereDate('due_date', '<', now())
-                    ->whereNotIn('status', ['completed', 'rejected', 'withdrawn']);
-            }
-            $dsars = $q->orderByDesc('received_date')->limit(500)->get();
+            $dsars = $this->service->getDsarList([
+                'status'       => $request->input('status'),
+                'jurisdiction' => $request->input('jurisdiction'),
+                'overdue'      => $request->input('overdue'),
+            ]);
         }
-        return view('privacy::dsar-list', compact('dsars'));
+
+        $jurisdiction = $request->input('jurisdiction', 'popia');
+        $requestTypes = PrivacyService::getRequestTypes($jurisdiction);
+
+        $users = collect();
+        if (Schema::hasTable('user')) {
+            $users = DB::table('user')->select('id', 'username', 'email')->orderBy('username')->get();
+        }
+
+        return view('privacy::dsar-list', compact('dsars', 'requestTypes', 'users'));
     }
 
     public function dsarView() { return view('privacy::dsar-view'); }
@@ -193,7 +341,58 @@ class PrivacyController extends Controller
 
     public function ropaEdit() { return view('privacy::ropa-edit'); }
 
-    public function ropaList() { return view('privacy::ropa-list'); }
+    public function ropaList(Request $request)
+    {
+        $query = DB::table('privacy_processing_activity');
+
+        if ($status = $request->input('status')) {
+            $query->where('status', $status);
+        }
+        if ($jurisdiction = $request->input('jurisdiction')) {
+            $query->where('jurisdiction', $jurisdiction);
+        }
+
+        $activities = $query->orderBy('name')->get();
+
+        // Lawful bases map used for label lookup on the list page. Jurisdiction-neutral:
+        // the default is whichever jurisdiction the filter selects, else popia.
+        $lawfulBases = $this->getLawfulBasesForJurisdiction(
+            $request->input('jurisdiction') ?? 'popia'
+        );
+
+        return view('privacy::ropa-list', compact('activities', 'lawfulBases'));
+    }
+
+    /**
+     * Jurisdiction-neutral lawful bases lookup. Mirrors PSIS
+     * PrivacyJurisdictionService::getLawfulBases without hardcoding any
+     * single regime as the default.
+     */
+    protected function getLawfulBasesForJurisdiction(string $jurisdiction): array
+    {
+        $popia = [
+            'consent'              => ['code' => 'POPIA S11(1)(a)', 'label' => 'Consent'],
+            'contract'             => ['code' => 'POPIA S11(1)(b)', 'label' => 'Contractual Necessity'],
+            'legal_obligation'     => ['code' => 'POPIA S11(1)(c)', 'label' => 'Legal Obligation'],
+            'vital_interests'      => ['code' => 'POPIA S11(1)(d)', 'label' => 'Vital Interests'],
+            'public_body'          => ['code' => 'POPIA S11(1)(e)', 'label' => 'Public Body Function'],
+            'legitimate_interests' => ['code' => 'POPIA S11(1)(f)', 'label' => 'Legitimate Interests'],
+        ];
+        $gdpr = [
+            'consent'              => ['code' => 'GDPR Art.6(1)(a)', 'label' => 'Consent'],
+            'contract'             => ['code' => 'GDPR Art.6(1)(b)', 'label' => 'Contract'],
+            'legal_obligation'     => ['code' => 'GDPR Art.6(1)(c)', 'label' => 'Legal Obligation'],
+            'vital_interests'      => ['code' => 'GDPR Art.6(1)(d)', 'label' => 'Vital Interests'],
+            'public_task'          => ['code' => 'GDPR Art.6(1)(e)', 'label' => 'Public Task'],
+            'legitimate_interests' => ['code' => 'GDPR Art.6(1)(f)', 'label' => 'Legitimate Interests'],
+        ];
+
+        return match ($jurisdiction) {
+            'gdpr'  => $gdpr,
+            'popia' => $popia,
+            default => $popia,
+        };
+    }
 
     public function ropaView() { return view('privacy::ropa-view'); }
 

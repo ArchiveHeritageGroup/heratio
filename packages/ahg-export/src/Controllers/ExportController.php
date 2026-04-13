@@ -54,9 +54,10 @@ class ExportController extends Controller
     public function csv(Request $request)
     {
         $repositories = $this->exportService->getRepositories();
+        $levels = $this->exportService->getLevelsOfDescription();
         $ioCount = $this->exportService->getInformationObjectCount();
 
-        return view('ahg-export::csv', compact('repositories', 'ioCount'));
+        return view('ahg-export::csv', compact('repositories', 'levels', 'ioCount'));
     }
 
     /**
@@ -65,8 +66,9 @@ class ExportController extends Controller
     public function ead(Request $request)
     {
         $repositories = $this->exportService->getRepositories();
+        $fonds = $this->exportService->getTopLevelFonds();
 
-        return view('ahg-export::ead', compact('repositories'));
+        return view('ahg-export::ead', compact('repositories', 'fonds'));
     }
 
     /**

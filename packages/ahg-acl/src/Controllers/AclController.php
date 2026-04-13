@@ -266,13 +266,78 @@ class AclController extends Controller
 
     /**
      * List pending security access requests.
+     *
+     * Heratio keeps its tab-based list of `security_access_request` rows and
+     * additively clones the PSIS "history" audit-log view (stats cards,
+     * status/action filters, paginated log table over `access_request_log`).
      */
     public function accessRequests(Request $request)
     {
         $status = $request->input('status', 'pending');
         $requests = $this->service->getAccessRequests($status ?: null);
 
-        return view('ahg-acl::access-requests', compact('requests', 'status'));
+        // ── PSIS history (audit log) additive clone ────────────────────
+        $statusFilter = (string) $request->input('status_filter', '');
+        $actionFilter = (string) $request->input('action_filter', '');
+        $page = max(1, (int) $request->input('page', 1));
+        $perPage = 50;
+
+        $logs = collect();
+        $total = 0;
+        $totalPages = 1;
+        $stats = [
+            'total_requests' => 0,
+            'pending' => 0,
+            'approved' => 0,
+            'denied' => 0,
+        ];
+
+        if (Schema::hasTable('access_request_log') && Schema::hasTable('access_request')) {
+            $query = DB::table('access_request_log as l')
+                ->leftJoin('access_request as r', 'l.request_id', '=', 'r.id')
+                ->leftJoin('user as u', 'l.actor_id', '=', 'u.id');
+
+            if ($actionFilter !== '') {
+                $query->where('l.action', $actionFilter);
+            }
+            if ($statusFilter !== '') {
+                $query->where('r.status', $statusFilter);
+            }
+
+            $total = (clone $query)->count();
+            $totalPages = max(1, (int) ceil($total / $perPage));
+
+            $logs = $query
+                ->select(
+                    'l.id',
+                    'l.request_id',
+                    'l.action',
+                    'l.actor_id',
+                    'l.details',
+                    'l.ip_address',
+                    'l.created_at',
+                    'r.status as request_status',
+                    'r.reason',
+                    'r.urgency',
+                    'u.username as actor_username'
+                )
+                ->orderByDesc('l.created_at')
+                ->offset(($page - 1) * $perPage)
+                ->limit($perPage)
+                ->get();
+
+            $stats = [
+                'total_requests' => DB::table('access_request')->count(),
+                'pending'        => DB::table('access_request')->where('status', 'pending')->count(),
+                'approved'       => DB::table('access_request')->where('status', 'approved')->count(),
+                'denied'         => DB::table('access_request')->where('status', 'denied')->count(),
+            ];
+        }
+
+        return view('ahg-acl::access-requests', compact(
+            'requests', 'status',
+            'logs', 'stats', 'total', 'totalPages', 'page', 'statusFilter', 'actionFilter'
+        ));
     }
 
     /**

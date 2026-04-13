@@ -29,6 +29,115 @@ class PrivacyService
     //  DSAR (Data Subject Access Requests)
     // =====================================================================
 
+    /**
+     * Return the filtered DSAR list for the admin browse view.
+     *
+     * Cloned from PSIS ahgPrivacyPlugin\Service\PrivacyService::getDsarList().
+     * Joins `user` so the template can display `assigned_username`.
+     *
+     * Supported filters: status, jurisdiction, request_type, overdue,
+     *                    assigned_to, limit.
+     */
+    public function getDsarList(array $filters = [])
+    {
+        $query = DB::table('privacy_dsar as d')
+            ->leftJoin('user as u', 'u.id', '=', 'd.assigned_to')
+            ->select([
+                'd.*',
+                'u.username as assigned_username',
+            ]);
+
+        if (!empty($filters['status'])) {
+            $query->where('d.status', $filters['status']);
+        }
+        if (!empty($filters['jurisdiction'])) {
+            $query->where('d.jurisdiction', $filters['jurisdiction']);
+        }
+        if (!empty($filters['request_type'])) {
+            $query->where('d.request_type', $filters['request_type']);
+        }
+        if (!empty($filters['overdue'])) {
+            $query->where('d.due_date', '<', date('Y-m-d'))
+                  ->whereNotIn('d.status', ['completed', 'rejected', 'withdrawn']);
+        }
+        if (!empty($filters['assigned_to'])) {
+            $query->where('d.assigned_to', $filters['assigned_to']);
+        }
+
+        $limit = (int) ($filters['limit'] ?? 500);
+        if ($limit > 0) {
+            $query->limit($limit);
+        }
+
+        return $query->orderByDesc('d.received_date')->orderByDesc('d.created_at')->get();
+    }
+
+    /**
+     * Jurisdiction-aware DSAR request type labels.
+     *
+     * Cloned verbatim from PSIS ahgPrivacyPlugin\Service\PrivacyJurisdictionService::getRequestTypes().
+     */
+    public static function getRequestTypes(string $jurisdiction = 'popia'): array
+    {
+        $common = [
+            'access'           => 'Right of Access',
+            'rectification'    => 'Right to Rectification',
+            'erasure'          => 'Right to Erasure/Deletion',
+            'restriction'      => 'Right to Restriction',
+            'objection'        => 'Right to Object',
+            'withdraw_consent' => 'Withdraw Consent',
+        ];
+
+        $jurisdiction_specific = [
+            'popia' => [
+                'access'        => 'Right of Access (POPIA S23 / PAIA S50)',
+                'rectification' => 'Right to Rectification (POPIA S24)',
+                'erasure'       => 'Right to Erasure (POPIA S24)',
+                'objection'     => 'Right to Object (POPIA S11(3))',
+                'paia_access'   => 'PAIA Access Request (PAIA S50)',
+            ],
+            'ndpa' => [
+                'access'        => 'Right of Access (NDPA S34)',
+                'rectification' => 'Right to Rectification (NDPA S35)',
+                'erasure'       => 'Right to Erasure (NDPA S36)',
+                'restriction'   => 'Right to Restriction (NDPA S37)',
+                'portability'   => 'Right to Data Portability (NDPA S38)',
+                'objection'     => 'Right to Object (NDPA S39)',
+                'automated'     => 'Automated Decision Rights (NDPA S40)',
+            ],
+            'kenya_dpa' => [
+                'access'        => 'Right of Access (Kenya DPA S26)',
+                'rectification' => 'Right to Rectification (Kenya DPA S27)',
+                'erasure'       => 'Right to Erasure (Kenya DPA S28)',
+                'portability'   => 'Right to Data Portability (Kenya DPA S29)',
+            ],
+            'gdpr' => [
+                'access'        => 'Right of Access (GDPR Art.15)',
+                'rectification' => 'Right to Rectification (GDPR Art.16)',
+                'erasure'       => 'Right to Erasure (GDPR Art.17)',
+                'restriction'   => 'Right to Restriction (GDPR Art.18)',
+                'portability'   => 'Right to Data Portability (GDPR Art.20)',
+                'objection'     => 'Right to Object (GDPR Art.21)',
+                'automated'     => 'Automated Decision Rights (GDPR Art.22)',
+            ],
+            'pipeda' => [
+                'access'           => 'Right of Access (PIPEDA Principle 4.9)',
+                'rectification'    => 'Right to Rectification (PIPEDA Principle 4.9.5)',
+                'withdraw_consent' => 'Withdraw Consent (PIPEDA Principle 4.3.8)',
+            ],
+            'ccpa' => [
+                'access'            => 'Right to Know (CCPA §1798.100)',
+                'erasure'           => 'Right to Delete (CCPA §1798.105)',
+                'opt_out'           => 'Right to Opt-Out of Sale (CCPA §1798.120)',
+                'non_discrimination' => 'Right to Non-Discrimination (CCPA §1798.125)',
+                'correct'           => 'Right to Correct (CPRA §1798.106)',
+                'limit_use'         => 'Right to Limit Use (CPRA §1798.121)',
+            ],
+        ];
+
+        return array_merge($common, $jurisdiction_specific[$jurisdiction] ?? []);
+    }
+
     public function updateDsar(int $id, array $data, ?int $userId = null): bool
     {
         $updates = array_filter([

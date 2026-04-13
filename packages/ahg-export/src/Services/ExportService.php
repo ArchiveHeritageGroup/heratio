@@ -48,6 +48,23 @@ class ExportService
     }
 
     /**
+     * Get all levels of description (taxonomy_id = 34) for export filter.
+     */
+    public function getLevelsOfDescription(): array
+    {
+        return DB::table('term')
+            ->join('term_i18n', function ($join) {
+                $join->on('term.id', '=', 'term_i18n.id')
+                     ->where('term_i18n.culture', '=', 'en');
+            })
+            ->where('term.taxonomy_id', 34)
+            ->select('term.id', 'term_i18n.name')
+            ->orderBy('term_i18n.name')
+            ->get()
+            ->toArray();
+    }
+
+    /**
      * Count accession records, optionally filtered by repository.
      */
     public function getAccessionCount(?int $repositoryId = null): int
@@ -87,6 +104,24 @@ class ExportService
     public function getRepositoryCount(): int
     {
         return DB::table('repository')->count();
+    }
+
+    /**
+     * Get top-level archival descriptions (fonds/collections) for EAD export.
+     */
+    public function getTopLevelFonds(): array
+    {
+        return DB::table('information_object as io')
+            ->leftJoin('information_object_i18n as i18n', function ($join) {
+                $join->on('io.id', '=', 'i18n.id')
+                     ->where('i18n.culture', '=', 'en');
+            })
+            ->where('io.parent_id', 1)
+            ->whereNotNull('i18n.title')
+            ->select('io.id', 'io.identifier', 'i18n.title')
+            ->orderBy('i18n.title')
+            ->get()
+            ->toArray();
     }
 
     /**

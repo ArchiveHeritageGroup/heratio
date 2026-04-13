@@ -1325,6 +1325,10 @@ class ResearchController extends Controller
             ->where('researcher_id', $researcher->id)
             ->orderBy('name')
             ->get()->toArray();
+        foreach ($bibliographies as $bib) {
+            $bib->entry_count = DB::table('research_bibliography_entry')
+                ->where('bibliography_id', $bib->id)->count();
+        }
 
         if ($request->isMethod('post') && $request->input('form_action') === 'create') {
             $bibliographyId = DB::table('research_bibliography')->insertGetId([

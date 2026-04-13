@@ -55,12 +55,12 @@ class AuditTrailController extends Controller
         $page = max(1, (int) $request->get('page', 1));
         $limit = max(1, (int) $request->get('limit', SettingHelper::hitsPerPage()));
 
-        // Filter parameters
-        $typeFilter = $request->get('type', '');
-        $actionFilter = $request->get('action', '');
-        $userFilter = $request->get('user', '');
-        $fromFilter = $request->get('from', '');
-        $toFilter = $request->get('to', '');
+        // Filter parameters (accept PSIS names first, fall back to prior Heratio names)
+        $typeFilter = $request->get('entity_type', $request->get('type', ''));
+        $actionFilter = $request->get('filter_action', $request->get('action', ''));
+        $userFilter = $request->get('username', $request->get('user', ''));
+        $fromFilter = $request->get('from_date', $request->get('from', ''));
+        $toFilter = $request->get('to_date', $request->get('to', ''));
 
         if ($table === 'ahg_audit_log') {
             $query = DB::table('ahg_audit_log');
@@ -202,16 +202,70 @@ class AuditTrailController extends Controller
                 ->toArray();
         }
 
-        $totalPages = $limit > 0 ? (int) ceil($total / $limit) : 1;
+        $totalPages = $limit > 0 ? (int) max(1, (int) ceil($total / $limit)) : 1;
+
+        // Distinct usernames for sidebar dropdown
+        $usernames = DB::table($table === 'ahg_audit_log' ? 'ahg_audit_log' : 'audit_log')
+            ->select('username')
+            ->distinct()
+            ->whereNotNull('username')
+            ->where('username', '<>', '')
+            ->orderBy('username')
+            ->pluck('username')
+            ->toArray();
+
+        // Build value => label maps for the PSIS-style sidebar dropdowns
+        $actionTypes = [];
+        foreach ($actions as $a) {
+            $actionTypes[$a] = ucfirst($a);
+        }
+        $entityTypeMap = [];
+        foreach ($entityTypes as $et) {
+            $entityTypeMap[$et] = $et;
+        }
+
+        // Decorate entries with label fields used by the PSIS template
+        foreach ($entries as &$row) {
+            $row['action_label'] = ucfirst($row['action'] ?? '');
+            $row['entity_type_label'] = $row['entity_type'] ?? ($row['table_name'] ?? '');
+        }
+        unset($row);
+
+        // PSIS-shaped pager
+        $from = $total === 0 ? 0 : (($page - 1) * $limit) + 1;
+        $to = min($total, $page * $limit);
+        $pager = [
+            'data' => $entries,
+            'total' => $total,
+            'from' => $from,
+            'to' => $to,
+            'current_page' => $page,
+            'last_page' => $totalPages,
+        ];
+
+        // PSIS-shaped current filters
+        $currentFilters = [
+            'action' => $actionFilter,
+            'entity_type' => $typeFilter,
+            'username' => $userFilter,
+            'from_date' => $fromFilter,
+            'to_date' => $toFilter,
+        ];
 
         return view('ahg-audit-trail::browse', [
+            // PSIS-compatible
+            'pager' => $pager,
+            'actionTypes' => $actionTypes,
+            'entityTypes' => $entityTypeMap,
+            'usernames' => $usernames,
+            'currentFilters' => $currentFilters,
+            // Legacy (kept for any callers still using them)
             'entries' => $entries,
             'total' => $total,
             'page' => $page,
             'limit' => $limit,
             'totalPages' => $totalPages,
             'table' => $table,
-            'entityTypes' => $entityTypes,
             'actions' => $actions,
             'filters' => [
                 'type' => $typeFilter,
@@ -439,7 +493,106 @@ class AuditTrailController extends Controller
         return view('ahg-audit-trail::entity-history', ['rows' => $rows]);
     }
 
-    public function export(Request $request) { return view('ahg-audit-trail::export'); }
+    /**
+     * Export audit trail as CSV or JSON stream download.
+     * Mirrors PSIS ahgAuditTrailPlugin::executeExport + exportSuccess template.
+     *
+     * Accepted parameters:
+     *   format      - 'csv' (default) or 'json'
+     *   from_date   - ISO date filter (created_at >=)
+     *   to_date     - ISO date filter (created_at <=)
+     *   filter_action / action - action name filter
+     *   entity_type - entity type filter
+     */
+    public function export(Request $request)
+    {
+        $table = $this->resolveTable();
+
+        $format = strtolower((string) $request->get('format', 'csv'));
+        if (!in_array($format, ['csv', 'json'], true)) {
+            $format = 'csv';
+        }
+
+        $fromDate = $request->get('from_date');
+        $toDate = $request->get('to_date');
+        $actionFilter = $request->get('filter_action', $request->get('action'));
+        $entityType = $request->get('entity_type');
+
+        $query = DB::table($table)->orderByDesc('created_at');
+
+        if ($fromDate) {
+            $query->where('created_at', '>=', $fromDate);
+        }
+        if ($toDate) {
+            $query->where('created_at', '<=', $toDate);
+        }
+        if ($actionFilter) {
+            $query->where('action', $actionFilter);
+        }
+        if ($entityType) {
+            if ($table === 'ahg_audit_log') {
+                $query->where('entity_type', $entityType);
+            } else {
+                $query->where('table_name', $entityType);
+            }
+        }
+
+        // PSIS export caps at 10,000 rows per getFiltered() call.
+        $logs = $query->limit(10000)->get();
+
+        $filename = 'audit_log_export_' . date('Y-m-d_His');
+
+        if ($format === 'json') {
+            $payload = $logs->map(fn ($row) => (array) $row)->toArray();
+            $body = json_encode($payload, JSON_PRETTY_PRINT);
+
+            return response($body, 200, [
+                'Content-Type' => 'application/json',
+                'Content-Disposition' => "attachment; filename=\"{$filename}.json\"",
+            ]);
+        }
+
+        // CSV stream — columns match PSIS exportSuccess.php header row.
+        $columns = [
+            'id', 'uuid', 'created_at', 'user_id', 'username', 'ip_address',
+            'action', 'entity_type', 'entity_id', 'entity_slug', 'entity_title', 'status',
+        ];
+
+        $csv = implode(',', $columns) . "\n";
+        foreach ($logs as $log) {
+            $log = (array) $log;
+            // Map legacy audit_log column names onto PSIS schema.
+            if ($table !== 'ahg_audit_log') {
+                $log['uuid'] = $log['uuid'] ?? '';
+                $log['entity_type'] = $log['table_name'] ?? '';
+                $log['entity_id'] = $log['record_id'] ?? '';
+                $log['entity_slug'] = $log['entity_slug'] ?? '';
+                $log['entity_title'] = $log['entity_title'] ?? '';
+                $log['status'] = $log['status'] ?? '';
+            }
+
+            $row = [
+                (string) ($log['id'] ?? ''),
+                '"' . ($log['uuid'] ?? '') . '"',
+                '"' . ($log['created_at'] ?? '') . '"',
+                (string) ($log['user_id'] ?? ''),
+                '"' . addslashes((string) ($log['username'] ?? '')) . '"',
+                '"' . ($log['ip_address'] ?? '') . '"',
+                '"' . ($log['action'] ?? '') . '"',
+                '"' . ($log['entity_type'] ?? '') . '"',
+                (string) ($log['entity_id'] ?? ''),
+                '"' . addslashes((string) ($log['entity_slug'] ?? '')) . '"',
+                '"' . addslashes((string) ($log['entity_title'] ?? '')) . '"',
+                '"' . ($log['status'] ?? '') . '"',
+            ];
+            $csv .= implode(',', $row) . "\n";
+        }
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}.csv\"",
+        ]);
+    }
 
     public function securityAccess(Request $request) { return view('ahg-audit-trail::security-access', ['rows' => collect()]); }
 
