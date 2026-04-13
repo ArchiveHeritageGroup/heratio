@@ -2277,9 +2277,78 @@ class AiController extends Controller
 
     public function conditionAssess(Request $request) { return view('ahg-ai-services::condition-assess', ['rows' => collect()]); }
 
-    public function conditionBrowse(Request $request) { return view('ahg-ai-services::condition-browse', ['rows' => collect()]); }
+    public function conditionBrowse(Request $request)
+    {
+        $filters = [
+            'search'          => trim((string) $request->get('q', '')),
+            'condition_grade' => (string) $request->get('grade', ''),
+            'is_confirmed'    => $request->get('confirmed', null),
+        ];
 
-    public function conditionBulk(Request $request) { return view('ahg-ai-services::condition-bulk'); }
+        $page    = max(1, (int) $request->get('page', 1));
+        $perPage = 25;
+
+        $q = DB::table('ahg_ai_condition_assessment as a')
+            ->leftJoin('information_object_i18n as io', function ($join) {
+                $join->on('a.information_object_id', '=', 'io.id')
+                     ->where('io.culture', '=', 'en');
+            })
+            ->select(
+                'a.id', 'a.information_object_id', 'a.overall_score',
+                'a.condition_grade', 'a.damage_count', 'a.source',
+                'a.is_confirmed', 'a.created_at', 'io.title as object_title'
+            );
+
+        if ($filters['search'] !== '') {
+            $q->where('io.title', 'like', '%' . $filters['search'] . '%');
+        }
+        if ($filters['condition_grade'] !== '') {
+            $q->where('a.condition_grade', $filters['condition_grade']);
+        }
+        if ($filters['is_confirmed'] === '1' || $filters['is_confirmed'] === '0') {
+            $q->where('a.is_confirmed', (int) $filters['is_confirmed']);
+        }
+
+        $total       = (clone $q)->count();
+        $assessments = $q->orderBy('a.created_at', 'desc')
+            ->offset(($page - 1) * $perPage)
+            ->limit($perPage)
+            ->get()
+            ->all();
+
+        $pages = max(1, (int) ceil($total / $perPage));
+
+        $stats = [
+            'total'     => (int) DB::table('ahg_ai_condition_assessment')->count(),
+            'confirmed' => (int) DB::table('ahg_ai_condition_assessment')->where('is_confirmed', 1)->count(),
+            'pending'   => (int) DB::table('ahg_ai_condition_assessment')->where('is_confirmed', 0)->count(),
+            'avg_score' => round((float) DB::table('ahg_ai_condition_assessment')->avg('overall_score'), 1),
+        ];
+
+        return view('ahg-ai-services::condition-browse', [
+            'assessments' => $assessments,
+            'filters'     => $filters,
+            'stats'       => $stats,
+            'page'        => $page,
+            'pages'       => $pages,
+            'total'       => $total,
+        ]);
+    }
+
+    public function conditionBulk(Request $request)
+    {
+        $repositories = DB::table('repository as r')
+            ->leftJoin('actor_i18n as ai', function ($j) {
+                $j->on('ai.id', '=', 'r.id')->where('ai.culture', '=', 'en');
+            })
+            ->select('r.id', DB::raw("COALESCE(NULLIF(ai.authorized_form_of_name, ''), CONCAT('Repository #', r.id)) as name"))
+            ->orderBy('name')
+            ->get();
+
+        return view('ahg-ai-services::condition-bulk', [
+            'repositories' => $repositories,
+        ]);
+    }
 
     public function conditionClients(Request $request) { return view('ahg-ai-services::condition-clients', ['rows' => collect()]); }
 

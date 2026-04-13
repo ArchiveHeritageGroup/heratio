@@ -23,7 +23,7 @@ Route::prefix('admin/privacy')->middleware(['web', 'auth'])->group(function () {
     Route::get('/complaint-edit', [PrivacyController::class, 'complaintEdit'])->name('ahgprivacy.complaint-edit');
     Route::get('/complaint-list', [PrivacyController::class, 'complaintList'])->name('ahgprivacy.complaint-list');
     Route::get('/complaint-view', [PrivacyController::class, 'complaintView'])->name('ahgprivacy.complaint-view');
-    Route::get('/config', [PrivacyController::class, 'config'])->name('ahgprivacy.config');
+    Route::match(['get', 'post'], '/config', [PrivacyController::class, 'config'])->name('ahgprivacy.config');
     Route::get('/consent-add', [PrivacyController::class, 'consentAdd'])->name('ahgprivacy.consent-add');
     Route::get('/consent-edit', [PrivacyController::class, 'consentEdit'])->name('ahgprivacy.consent-edit');
     Route::get('/consent-list', [PrivacyController::class, 'consentList'])->name('ahgprivacy.consent-list');

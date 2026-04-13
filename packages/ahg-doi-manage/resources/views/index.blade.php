@@ -31,10 +31,13 @@
             <li><a class="dropdown-item" href="{{ route('doi.report') }}?format=json"><i class="fas fa-file-code me-2"></i>Export as JSON</a></li>
           </ul>
         </div>
-        <a href="{{ route('doi.browse') }}?sync=bulk" class="btn btn-outline-secondary btn-sm">
-          <i class="fas fa-sync me-1"></i> Bulk Sync
-        </a>
-        <a href="{{ route('doi.queue') }}?batch=1" class="btn btn-outline-secondary btn-sm">
+        <form action="{{ route('doi.sync') }}" method="POST" class="d-inline">
+          @csrf
+          <button type="submit" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-sync me-1"></i> Bulk Sync
+          </button>
+        </form>
+        <a href="{{ route('doi.batch-mint') }}" class="btn btn-primary btn-sm">
           <i class="fas fa-plus me-1"></i> Batch Mint
         </a>
         <a href="{{ route('doi.config') }}" class="btn btn-outline-secondary btn-sm">

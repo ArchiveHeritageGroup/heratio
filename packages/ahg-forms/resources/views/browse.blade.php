@@ -127,6 +127,10 @@
                                            class="btn btn-outline-secondary" title="Edit">
                                             <i class="fas fa-edit me-1"></i> Edit
                                         </a>
+                                        <a href="{{ route('forms.template.export', ['id' => $template->id]) }}"
+                                           class="btn btn-outline-success" title="Export">
+                                            <i class="fas fa-download me-1"></i> Export
+                                        </a>
                                     </div>
                                 </div>
                             </div>

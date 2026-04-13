@@ -300,11 +300,28 @@ class RightsAdminController extends Controller
 
     public function batch()
     {
-        $statements = $this->service->getRightsStatements();
+        $rightsStatements = $this->service->getRightsStatements();
         $ccLicenses = $this->service->getCcLicenses();
         $tkLabels = $this->service->getTkLabels();
-        $repositories = DB::table('repository')->orderBy('id')->limit(500)->get();
-        $recentBatches = collect();
+
+        // Top level records for the object picker (cloned from PSIS getTopLevelRecords)
+        $topLevelRecords = collect();
+        try {
+            $topLevelRecords = DB::table('information_object as io')
+                ->leftJoin('information_object_i18n as ioi', function ($j) {
+                    $j->on('ioi.id', '=', 'io.id')->where('ioi.culture', '=', app()->getLocale());
+                })
+                ->leftJoin('term as t', 't.id', '=', 'io.level_of_description_id')
+                ->leftJoin('term_i18n as ti', function ($j) {
+                    $j->on('ti.id', '=', 't.id')->where('ti.culture', '=', app()->getLocale());
+                })
+                ->where('io.parent_id', 1)
+                ->whereNotNull('ioi.title')
+                ->select('io.id', 'ioi.title', 'io.identifier', DB::raw('ti.name as level'))
+                ->orderBy('ioi.title')
+                ->limit(1000)
+                ->get();
+        } catch (\Exception $e) {}
 
         // Donors for the Rights Holder picker (cloned from PSIS batchAction donors list)
         $donors = collect();
@@ -322,7 +339,7 @@ class RightsAdminController extends Controller
             }
         } catch (\Exception $e) {}
 
-        return view('ahg-extended-rights::admin.batch', compact('statements', 'ccLicenses', 'tkLabels', 'repositories', 'recentBatches', 'donors'));
+        return view('ahg-extended-rights::admin.batch', compact('rightsStatements', 'ccLicenses', 'tkLabels', 'topLevelRecords', 'donors'));
     }
 
     public function batchStore(Request $request)

@@ -31,6 +31,7 @@
     </ul>
 
     <form method="post" action="{{ route('ahgprivacy.config', ['jurisdiction' => $currentJurisdiction]) }}">
+        @csrf
         <input type="hidden" name="jurisdiction" value="{{ $currentJurisdiction }}">
         
         <div class="row">

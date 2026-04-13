@@ -204,7 +204,17 @@ class PrivacyController extends Controller
 
     public function breachEdit() { return view('privacy::breach-edit'); }
 
-    public function breachList() { return view('privacy::breach-list'); }
+    public function breachList()
+    {
+        $breaches = collect();
+        if (Schema::hasTable('privacy_breach')) {
+            $breaches = DB::table('privacy_breach')
+                ->orderBy('detected_date', 'desc')
+                ->orderBy('id', 'desc')
+                ->get();
+        }
+        return view('privacy::breach-list', compact('breaches'));
+    }
 
     public function breachView() { return view('privacy::breach-view'); }
 
@@ -222,23 +232,30 @@ class PrivacyController extends Controller
         if (Schema::hasTable('privacy_jurisdiction')) {
             foreach (DB::table('privacy_jurisdiction')->where('is_active', 1)->orderBy('sort_order')->get() as $j) {
                 $jurisdictions[$j->code] = [
-                    'name' => $j->name,
-                    'full_name' => $j->full_name,
-                    'country' => $j->country,
-                    'regulator' => $j->regulator,
-                    'dsar_days' => $j->dsar_days,
-                    'breach_hours' => $j->breach_hours,
+                    'name'           => $j->name,
+                    'full_name'      => $j->full_name,
+                    'country'        => $j->country,
+                    'region'         => $j->region,
+                    'regulator'      => $j->regulator,
+                    'regulator_url'  => $j->regulator_url,
+                    'dsar_days'      => (int) ($j->dsar_days ?? 30),
+                    'breach_hours'   => (int) ($j->breach_hours ?? 72),
+                    'effective_date' => $j->effective_date,
+                    'icon'           => $j->icon ?: 'un',
                 ];
             }
         }
         if (empty($jurisdictions)) {
             $jurisdictions = [
-                'popia' => ['name' => 'POPIA', 'full_name' => 'Protection of Personal Information Act (South Africa)', 'country' => 'South Africa', 'regulator' => null, 'dsar_days' => 30, 'breach_hours' => 72],
-                'gdpr' => ['name' => 'GDPR', 'full_name' => 'General Data Protection Regulation (EU)', 'country' => 'European Union', 'regulator' => null, 'dsar_days' => 30, 'breach_hours' => 72],
+                'popia' => ['name' => 'POPIA', 'full_name' => 'Protection of Personal Information Act', 'country' => 'South Africa', 'region' => 'Africa', 'regulator' => 'Information Regulator', 'regulator_url' => 'https://inforegulator.org.za', 'dsar_days' => 30, 'breach_hours' => 72, 'effective_date' => '2021-07-01', 'icon' => 'za'],
+                'gdpr'  => ['name' => 'GDPR', 'full_name' => 'General Data Protection Regulation', 'country' => 'European Union', 'region' => 'Europe', 'regulator' => 'European Data Protection Board', 'regulator_url' => 'https://edpb.europa.eu', 'dsar_days' => 30, 'breach_hours' => 72, 'effective_date' => '2018-05-25', 'icon' => 'eu'],
             ];
         }
 
         $currentJurisdiction = $request->input('jurisdiction', array_key_first($jurisdictions));
+        if (!isset($jurisdictions[$currentJurisdiction])) {
+            $currentJurisdiction = array_key_first($jurisdictions);
+        }
         $jurisdictionInfo = $jurisdictions[$currentJurisdiction] ?? reset($jurisdictions);
 
         $config = null;
@@ -247,16 +264,25 @@ class PrivacyController extends Controller
         }
 
         if ($request->isMethod('post') && Schema::hasTable('privacy_config')) {
+            $request->validate([
+                'organization_name'         => 'nullable|string|max:255',
+                'registration_number'       => 'nullable|string|max:100',
+                'data_protection_email'     => 'nullable|email|max:255',
+                'dsar_response_days'        => 'nullable|integer|min:1|max:90',
+                'breach_notification_hours' => 'nullable|integer|min:0|max:168',
+                'retention_default_years'   => 'nullable|integer|min:1|max:100',
+                'is_active'                 => 'nullable|boolean',
+            ]);
             $data = [
-                'jurisdiction' => $currentJurisdiction,
-                'organization_name' => $request->input('organization_name'),
-                'registration_number' => $request->input('registration_number'),
-                'data_protection_email' => $request->input('data_protection_email'),
-                'dsar_response_days' => (int) $request->input('dsar_response_days', $jurisdictionInfo['dsar_days'] ?? 30),
+                'jurisdiction'              => $currentJurisdiction,
+                'organization_name'         => $request->input('organization_name'),
+                'registration_number'       => $request->input('registration_number'),
+                'data_protection_email'     => $request->input('data_protection_email'),
+                'dsar_response_days'        => (int) $request->input('dsar_response_days', $jurisdictionInfo['dsar_days'] ?? 30),
                 'breach_notification_hours' => (int) $request->input('breach_notification_hours', $jurisdictionInfo['breach_hours'] ?? 72),
-                'retention_default_years' => (int) $request->input('retention_default_years', 5),
-                'is_active' => 1,
-                'updated_at' => now(),
+                'retention_default_years'   => (int) $request->input('retention_default_years', 5),
+                'is_active'                 => $request->boolean('is_active') ? 1 : 0,
+                'updated_at'                => now(),
             ];
             if ($config) {
                 DB::table('privacy_config')->where('id', $config->id)->update($data);
@@ -265,10 +291,33 @@ class PrivacyController extends Controller
                 DB::table('privacy_config')->insert($data);
             }
             return redirect()->route('ahgprivacy.config', ['jurisdiction' => $currentJurisdiction])
-                ->with('success', __('Privacy settings saved.'));
+                ->with('success', __('Configuration saved successfully'));
         }
 
-        return view('privacy::config', compact('jurisdictions', 'currentJurisdiction', 'jurisdictionInfo', 'config'));
+        // Officers assigned to this jurisdiction (or 'all')
+        $officers = collect();
+        if (Schema::hasTable('privacy_officer')) {
+            $officers = DB::table('privacy_officer')
+                ->where('is_active', 1)
+                ->whereIn('jurisdiction', [$currentJurisdiction, 'all'])
+                ->orderBy('name')
+                ->get();
+        }
+
+        // Users list (matches PSIS executeConfig)
+        $users = collect();
+        if (Schema::hasTable('user')) {
+            $users = DB::table('user')->select('id', 'username', 'email')->orderBy('username')->get();
+        }
+
+        return view('privacy::config', compact(
+            'jurisdictions',
+            'currentJurisdiction',
+            'jurisdictionInfo',
+            'config',
+            'officers',
+            'users'
+        ));
     }
 
     public function consentAdd() { return view('privacy::consent-add'); }
@@ -323,11 +372,55 @@ class PrivacyController extends Controller
 
     public function officerEdit() { return view('privacy::officer-edit'); }
 
-    public function officerList() { return view('privacy::officer-list'); }
+    public function officerList()
+    {
+        $officers = collect();
+        if (Schema::hasTable('privacy_officer')) {
+            $officers = DB::table('privacy_officer')
+                ->orderBy('is_active', 'desc')
+                ->orderBy('name')
+                ->get();
+        }
+
+        $jurisdictions = [];
+        if (Schema::hasTable('privacy_jurisdiction')) {
+            foreach (DB::table('privacy_jurisdiction')->where('is_active', 1)->orderBy('sort_order')->get() as $j) {
+                $jurisdictions[$j->code] = [
+                    'name'      => $j->name,
+                    'full_name' => $j->full_name,
+                    'country'   => $j->country,
+                    'icon'      => $j->icon ?: 'un',
+                ];
+            }
+        }
+
+        return view('privacy::officer-list', compact('officers', 'jurisdictions'));
+    }
 
     public function paiaAdd() { return view('privacy::paia-add'); }
 
-    public function paiaList() { return view('privacy::paia-list'); }
+    /**
+     * PAIA request list.
+     *
+     * Cloned from PSIS ahgPrivacyPlugin privacyAdmin::executePaiaList.
+     * PAIA is a South-Africa-specific regime so this view lives inside the
+     * jurisdiction-pluggable privacy module — it is never loaded into the
+     * international core.
+     */
+    public function paiaList(Request $request)
+    {
+        $requests = collect();
+        if (Schema::hasTable('privacy_paia_request')) {
+            $requests = $this->service->getPaiaRequests([
+                'status'  => $request->input('status'),
+                'section' => $request->input('section'),
+            ]);
+        }
+
+        $paiaTypes = PrivacyService::getPAIARequestTypes();
+
+        return view('privacy::paia-list', compact('requests', 'paiaTypes'));
+    }
 
     public function piiReview() { return view('privacy::pii-review'); }
 

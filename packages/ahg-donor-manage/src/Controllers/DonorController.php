@@ -168,29 +168,80 @@ class DonorController extends Controller
 
     // ── Agreement Actions ─────────────────────────────────────────
 
-    public function agreementDashboard()
+    public function agreementDashboard(Request $request)
     {
-        $activeCount = 0;
-        $expiringCount = 0;
-        $archivedCount = 0;
+        $filters = [
+            'search'   => trim((string) $request->get('q', '')),
+            'status'   => (string) $request->get('status', ''),
+            'type'     => (string) $request->get('type', ''),
+            'expiring' => (string) $request->get('expiring', ''),
+        ];
+
+        $agreements = [];
+        $total      = 0;
+        $types      = [];
+        $statuses   = [
+            'draft'            => 'Draft',
+            'pending_approval' => 'Pending Approval',
+            'active'           => 'Active',
+            'expired'          => 'Expired',
+            'terminated'       => 'Terminated',
+        ];
 
         try {
+            if (\Schema::hasTable('agreement_type')) {
+                $types = \DB::table('agreement_type')
+                    ->where('is_active', 1)
+                    ->orderBy('sort_order')
+                    ->orderBy('name')
+                    ->get(['id', 'name']);
+            }
+
             if (\Schema::hasTable('donor_agreement')) {
-                $activeCount = \DB::table('donor_agreement')->where('status', 'active')->count();
-                $expiringCount = \DB::table('donor_agreement')
-                    ->where('status', 'active')
-                    ->whereNotNull('expiry_date')
-                    ->where('expiry_date', '<=', now()->addDays(30))
-                    ->count();
-                $archivedCount = \DB::table('donor_agreement')
-                    ->whereIn('status', ['expired', 'terminated'])
-                    ->count();
+                $q = \DB::table('donor_agreement as da')
+                    ->leftJoin('agreement_type as at', 'at.id', '=', 'da.agreement_type_id')
+                    ->leftJoin('actor_slug as dslug', 'dslug.object_id', '=', 'da.donor_id')
+                    ->select(
+                        'da.id',
+                        'da.agreement_number',
+                        'da.title',
+                        'da.status',
+                        'da.agreement_date',
+                        'da.expiry_date',
+                        'da.donor_name',
+                        'dslug.slug as donor_slug',
+                        'at.name as type_name'
+                    );
+
+                if ($filters['search'] !== '') {
+                    $term = '%' . $filters['search'] . '%';
+                    $q->where(function ($w) use ($term) {
+                        $w->where('da.agreement_number', 'like', $term)
+                          ->orWhere('da.title', 'like', $term)
+                          ->orWhere('da.donor_name', 'like', $term);
+                    });
+                }
+                if ($filters['status'] !== '') {
+                    $q->where('da.status', $filters['status']);
+                }
+                if ($filters['type'] !== '') {
+                    $q->where('da.agreement_type_id', $filters['type']);
+                }
+                if (in_array($filters['expiring'], ['7', '30', '90'], true)) {
+                    $q->whereNotNull('da.expiry_date')
+                      ->whereBetween('da.expiry_date', [now()->toDateString(), now()->addDays((int) $filters['expiring'])->toDateString()]);
+                }
+
+                $total      = (clone $q)->count();
+                $agreements = $q->orderByDesc('da.agreement_date')->limit(100)->get();
             }
         } catch (\Exception $e) {
-            // Table may not exist
+            \Log::warning('agreementDashboard: ' . $e->getMessage());
         }
 
-        return view('ahg-donor-manage::agreement-dashboard', compact('activeCount', 'expiringCount', 'archivedCount'));
+        $result = ['total' => $total];
+
+        return view('ahg-donor-manage::agreement-dashboard', compact('agreements', 'filters', 'types', 'statuses', 'result'));
     }
 
     public function agreementAdd(Request $request)

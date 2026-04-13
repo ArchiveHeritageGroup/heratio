@@ -105,6 +105,27 @@ class FormsController extends Controller
         return view('ahg-forms::template-create');
     }
 
+    /**
+     * GET /forms/template/{id}/export — download the template as JSON.
+     */
+    public function templateExport(int $id)
+    {
+        $template = $this->service->getTemplate($id);
+        abort_unless($template, 404, 'Template not found');
+
+        $fields = $this->service->getFields($id);
+        $payload = [
+            'template' => (array) $template,
+            'fields'   => collect($fields)->map(fn ($f) => (array) $f)->values()->all(),
+            'exported_at' => now()->toIso8601String(),
+        ];
+
+        $filename = 'form_template_' . $id . '_' . now()->format('Y-m-d_His') . '.json';
+        return response()->json($payload, 200, [
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    }
+
     public function builder(int $id)
     {
         $template = $this->service->getTemplate($id);

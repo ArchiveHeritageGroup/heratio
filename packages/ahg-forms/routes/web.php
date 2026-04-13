@@ -9,6 +9,7 @@ Route::middleware(['auth', 'admin'])->prefix('forms')->group(function () {
     Route::get('/browse', [FormsController::class, 'browse'])->name('forms.browse');
     Route::get('/templates', [FormsController::class, 'templates'])->name('forms.templates');
     Route::match(['get', 'post'], '/template/create', [FormsController::class, 'templateCreate'])->name('forms.template.create');
+    Route::get('/template/{id}/export', [FormsController::class, 'templateExport'])->name('forms.template.export')->whereNumber('id');
     Route::get('/builder/{id}', [FormsController::class, 'builder'])->name('forms.builder');
     Route::get('/preview/{id}', [FormsController::class, 'preview'])->name('forms.preview');
     Route::get('/assignments', [FormsController::class, 'assignments'])->name('forms.assignments');
