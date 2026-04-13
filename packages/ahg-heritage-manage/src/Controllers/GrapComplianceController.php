@@ -37,15 +37,67 @@ class GrapComplianceController extends Controller
     public function dashboard()
     {
         $stats = ['total' => 0];
-        $items = collect();
+        $complianceSummary = [
+            'total_assets' => 0,
+            'compliant' => 0,
+            'partially_compliant' => 0,
+            'non_compliant' => 0,
+        ];
+        $recentAssets = [];
 
         try {
             if (Schema::hasTable('heritage_asset')) {
-                $stats['total'] = DB::table('heritage_asset')->count();
+                // GRAP 103 = South Africa heritage asset standard. Scope to it when standard table exists.
+                $grapStandardId = null;
+                if (Schema::hasTable('heritage_accounting_standard')) {
+                    $grapStandardId = DB::table('heritage_accounting_standard')
+                        ->where('code', 'GRAP103')
+                        ->orWhere('code', 'GRAP 103')
+                        ->value('id');
+                }
+
+                $base = DB::table('heritage_asset');
+                if ($grapStandardId) {
+                    $base->where('accounting_standard_id', $grapStandardId);
+                }
+
+                $stats['total'] = (clone $base)->count();
+
+                if (Schema::hasColumn('heritage_asset', 'compliance_status')) {
+                    $complianceSummary['compliant'] = (clone $base)->where('compliance_status', 'compliant')->count();
+                    $complianceSummary['partially_compliant'] = (clone $base)->where('compliance_status', 'partially_compliant')->count();
+                    $complianceSummary['non_compliant'] = (clone $base)->where('compliance_status', 'non_compliant')->count();
+                }
+                $complianceSummary['total_assets'] = $complianceSummary['compliant']
+                    + $complianceSummary['partially_compliant']
+                    + $complianceSummary['non_compliant'];
+
+                // Recent assets with related class/title
+                $recentQuery = DB::table('heritage_asset as a')
+                    ->leftJoin('heritage_asset_class as ac', 'a.asset_class_id', '=', 'ac.id')
+                    ->leftJoin('information_object_i18n as ioi', function ($j) {
+                        $j->on('ioi.id', '=', 'a.information_object_id')
+                            ->where('ioi.culture', '=', app()->getLocale());
+                    })
+                    ->leftJoin('information_object as io', 'io.id', '=', 'a.information_object_id')
+                    ->select(
+                        'a.id',
+                        'io.identifier as object_identifier',
+                        'ioi.title as object_title',
+                        'ac.name as class_name',
+                        'a.recognition_status',
+                        'a.current_carrying_amount'
+                    )
+                    ->orderByDesc('a.id')
+                    ->limit(10);
+                if ($grapStandardId) {
+                    $recentQuery->where('a.accounting_standard_id', $grapStandardId);
+                }
+                $recentAssets = $recentQuery->get()->all();
             }
         } catch (\Exception $e) {}
 
-        return view('ahg-heritage-manage::grap-compliance.dashboard', compact('stats', 'items'));
+        return view('ahg-heritage-manage::grap-compliance.dashboard', compact('stats', 'complianceSummary', 'recentAssets'));
     }
 
     public function batchCheck() { return view('ahg-heritage-manage::grap-compliance.batch-check', ['stats' => [], 'items' => collect()]); }

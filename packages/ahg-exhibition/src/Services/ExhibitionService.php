@@ -161,12 +161,180 @@ class ExhibitionService
 
     public function getStatistics(): array
     {
+        $today = now()->toDateString();
+
+        $totalExhibitions = DB::table('exhibition')->count();
+        $currentExhibitions = DB::table('exhibition')
+            ->where('opening_date', '<=', $today)
+            ->where(function ($q) use ($today) {
+                $q->whereNull('closing_date')->orWhere('closing_date', '>=', $today);
+            })
+            ->whereIn('status', ['open', 'active', 'on_display'])
+            ->count();
+        $upcomingExhibitions = DB::table('exhibition')
+            ->where('opening_date', '>', $today)
+            ->count();
+        $totalObjectsOnDisplay = DB::table('exhibition_object as eo')
+            ->join('exhibition as e', 'eo.exhibition_id', '=', 'e.id')
+            ->whereIn('e.status', ['open', 'active', 'on_display'])
+            ->count();
+
+        $byStatus = DB::table('exhibition')
+            ->select('status', DB::raw('COUNT(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+
         return [
-            'total' => DB::table('exhibition')->count(),
-            'active' => DB::table('exhibition')->where('status', 'active')->count(),
+            'total_exhibitions' => $totalExhibitions,
+            'current_exhibitions' => $currentExhibitions,
+            'upcoming_exhibitions' => $upcomingExhibitions,
+            'total_objects_on_display' => $totalObjectsOnDisplay,
+            'by_status' => $byStatus,
+            // Legacy keys for back-compat with older views
+            'total' => $totalExhibitions,
+            'active' => $currentExhibitions,
             'planning' => DB::table('exhibition')->where('status', 'planning')->count(),
             'completed' => DB::table('exhibition')->where('status', 'completed')->count(),
         ];
+    }
+
+    /**
+     * Exhibitions currently open (opening_date <= today <= closing_date).
+     */
+    public function getCurrentExhibitions(int $limit = 5): array
+    {
+        $today = now()->toDateString();
+
+        $rows = DB::table('exhibition as e')
+            ->leftJoin('exhibition_object as eo', 'eo.exhibition_id', '=', 'e.id')
+            ->where('e.opening_date', '<=', $today)
+            ->where(function ($q) use ($today) {
+                $q->whereNull('e.closing_date')->orWhere('e.closing_date', '>=', $today);
+            })
+            ->select('e.id', 'e.title', 'e.venue_name', 'e.closing_date', 'e.status', DB::raw('COUNT(eo.id) as object_count'))
+            ->groupBy('e.id', 'e.title', 'e.venue_name', 'e.closing_date', 'e.status')
+            ->orderBy('e.closing_date')
+            ->limit($limit)
+            ->get()
+            ->map(fn ($r) => (array) $r)
+            ->toArray();
+
+        return $rows;
+    }
+
+    /**
+     * Upcoming exhibitions (opening_date in the future).
+     */
+    public function getUpcomingExhibitions(int $limit = 5): array
+    {
+        $today = now()->toDateString();
+
+        return DB::table('exhibition')
+            ->where('opening_date', '>', $today)
+            ->select('id', 'title', 'venue_name', 'opening_date', 'status')
+            ->orderBy('opening_date')
+            ->limit($limit)
+            ->get()
+            ->map(fn ($r) => (array) $r)
+            ->toArray();
+    }
+
+    /**
+     * Pending checklist items across all exhibitions.
+     */
+    public function getPendingChecklists(int $limit = 10): array
+    {
+        if (!DB::getSchemaBuilder()->hasTable('exhibition_checklist')) {
+            return [];
+        }
+
+        return DB::table('exhibition_checklist as ec')
+            ->join('exhibition as e', 'ec.exhibition_id', '=', 'e.id')
+            ->where('ec.status', '!=', 'completed')
+            ->select(
+                'ec.name as task_name',
+                'ec.due_date',
+                'ec.status',
+                'e.title as exhibition_title',
+                'e.id as exhibition_id'
+            )
+            ->orderBy('ec.due_date')
+            ->limit($limit)
+            ->get()
+            ->map(fn ($r) => (array) $r)
+            ->toArray();
+    }
+
+    /**
+     * Recent status-transition activity across exhibitions.
+     */
+    public function getRecentActivity(int $limit = 10): array
+    {
+        if (!DB::getSchemaBuilder()->hasTable('exhibition_status_history')) {
+            return [];
+        }
+
+        return DB::table('exhibition_status_history as h')
+            ->join('exhibition as e', 'h.exhibition_id', '=', 'e.id')
+            ->select(
+                'e.title as exhibition_title',
+                'h.from_status',
+                'h.to_status',
+                'h.created_at',
+                DB::raw("CONCAT(COALESCE(h.from_status,'new'), ' to ', h.to_status) as transition")
+            )
+            ->orderByDesc('h.created_at')
+            ->limit($limit)
+            ->get()
+            ->map(fn ($r) => (array) $r)
+            ->toArray();
+    }
+
+    /**
+     * Calendar events in the next N days (exhibition events + openings/closings).
+     */
+    public function getCalendarEvents(int $days = 30, int $limit = 10): array
+    {
+        $today = now()->toDateString();
+        $horizon = now()->addDays($days)->toDateString();
+
+        $events = [];
+
+        if (DB::getSchemaBuilder()->hasTable('exhibition_event')) {
+            $rows = DB::table('exhibition_event')
+                ->whereBetween('event_date', [$today, $horizon])
+                ->select('title', 'event_date', 'event_type')
+                ->orderBy('event_date')
+                ->limit($limit)
+                ->get();
+
+            foreach ($rows as $r) {
+                $events[] = (array) $r;
+            }
+        }
+
+        // Fold in upcoming openings and closings
+        $openings = DB::table('exhibition')
+            ->whereBetween('opening_date', [$today, $horizon])
+            ->select(DB::raw("CONCAT('Opening: ', title) as title"), 'opening_date as event_date', DB::raw("'opening' as event_type"))
+            ->get();
+
+        $closings = DB::table('exhibition')
+            ->whereBetween('closing_date', [$today, $horizon])
+            ->select(DB::raw("CONCAT('Closing: ', title) as title"), 'closing_date as event_date', DB::raw("'closing' as event_type"))
+            ->get();
+
+        foreach ($openings as $r) {
+            $events[] = (array) $r;
+        }
+        foreach ($closings as $r) {
+            $events[] = (array) $r;
+        }
+
+        usort($events, fn ($a, $b) => strcmp($a['event_date'] ?? '', $b['event_date'] ?? ''));
+
+        return array_slice($events, 0, $limit);
     }
 
     public function getObjects(int $exhibitionId): \Illuminate\Support\Collection

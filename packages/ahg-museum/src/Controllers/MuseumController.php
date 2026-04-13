@@ -292,11 +292,77 @@ class MuseumController extends Controller
 
     public function dashboard()
     {
-        $totalItems = DB::table('museum_metadata')->count();
-        $itemsWithMedia = DB::table('museum_metadata as mm')->join('digital_object', 'mm.object_id', '=', 'digital_object.object_id')->distinct('mm.object_id')->count('mm.object_id');
-        $itemsWithCondition = DB::table('museum_metadata')->whereNotNull('condition_term')->count();
-        $recentCount = DB::table('museum_metadata as mm')->join('object', 'mm.object_id', '=', 'object.id')->where('object.created_at', '>=', now()->subDays(30))->count();
-        return view('ahg-museum::museum.dashboard', compact('totalItems', 'itemsWithMedia', 'itemsWithCondition', 'recentCount'));
+        $totalItems = 0;
+        $itemsWithMedia = 0;
+        $itemsWithCondition = 0;
+        $itemsWithProvenance = 0;
+        $workTypeStats = collect();
+        $recentItems = collect();
+
+        try {
+            if (\Schema::hasTable('museum_metadata')) {
+                $totalItems = DB::table('museum_metadata')->count();
+
+                $itemsWithMedia = DB::table('museum_metadata as mm')
+                    ->join('digital_object as do', 'mm.object_id', '=', 'do.object_id')
+                    ->distinct()->count('mm.object_id');
+
+                $itemsWithCondition = DB::table('museum_metadata')
+                    ->where(function ($q) {
+                        $q->whereNotNull('condition_term')->where('condition_term', '!=', '');
+                    })
+                    ->orWhere(function ($q) {
+                        $q->whereNotNull('condition_notes')->where('condition_notes', '!=', '');
+                    })
+                    ->count();
+
+                $itemsWithProvenance = DB::table('museum_metadata')
+                    ->where(function ($q) {
+                        $q->whereNotNull('provenance')->where('provenance', '!=', '')
+                          ->orWhere(function ($q2) {
+                              $q2->whereNotNull('provenance_text')->where('provenance_text', '!=', '');
+                          });
+                    })
+                    ->count();
+
+                $workTypeStats = DB::table('museum_metadata')
+                    ->whereNotNull('work_type')->where('work_type', '!=', '')
+                    ->select('work_type', DB::raw('COUNT(*) as count'))
+                    ->groupBy('work_type')
+                    ->orderByDesc('count')
+                    ->limit(5)
+                    ->get();
+
+                $recentItems = DB::table('museum_metadata as mm')
+                    ->join('information_object as io', 'mm.object_id', '=', 'io.id')
+                    ->leftJoin('information_object_i18n as i18n', function ($j) {
+                        $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
+                    })
+                    ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
+                    ->leftJoin('digital_object as do', 'io.id', '=', 'do.object_id')
+                    ->select(
+                        'io.id',
+                        'io.identifier',
+                        'i18n.title',
+                        'slug.slug',
+                        'do.id as digital_object_id'
+                    )
+                    ->orderByDesc('io.created_at')
+                    ->limit(10)
+                    ->get();
+            }
+        } catch (\Throwable $e) {
+            // graceful degrade
+        }
+
+        return view('ahg-museum::museum.dashboard', compact(
+            'totalItems',
+            'itemsWithMedia',
+            'itemsWithCondition',
+            'itemsWithProvenance',
+            'workTypeStats',
+            'recentItems'
+        ));
     }
 
     public function reports()

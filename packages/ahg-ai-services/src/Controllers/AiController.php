@@ -2283,7 +2283,76 @@ class AiController extends Controller
 
     public function conditionClients(Request $request) { return view('ahg-ai-services::condition-clients', ['rows' => collect()]); }
 
-    public function conditionDashboard() { return view('ahg-ai-services::condition-dashboard', ['completedCount'=>0,'pendingCount'=>0,'criticalCount'=>0]); }
+    public function conditionDashboard()
+    {
+        // Aggregate stats
+        $total = (int) DB::table('ahg_ai_condition_assessment')->count();
+        $confirmed = (int) DB::table('ahg_ai_condition_assessment')->where('is_confirmed', 1)->count();
+        $avgScore = (float) DB::table('ahg_ai_condition_assessment')->avg('overall_score');
+        $byGrade = DB::table('ahg_ai_condition_assessment')
+            ->select('condition_grade', DB::raw('COUNT(*) as count'))
+            ->groupBy('condition_grade')
+            ->pluck('count', 'condition_grade')
+            ->all();
+
+        $stats = [
+            'total'     => $total,
+            'confirmed' => $confirmed,
+            'pending'   => $total - $confirmed,
+            'avg_score' => round($avgScore ?? 0, 1),
+            'by_grade'  => $byGrade,
+        ];
+
+        // Recent assessments (last 10) with object title join
+        $recentAssessments = DB::table('ahg_ai_condition_assessment as a')
+            ->leftJoin('information_object_i18n as io', function ($join) {
+                $join->on('a.information_object_id', '=', 'io.id')
+                     ->where('io.culture', '=', 'en');
+            })
+            ->select(
+                'a.id', 'a.information_object_id', 'a.overall_score',
+                'a.condition_grade', 'a.damage_count', 'a.source',
+                'a.is_confirmed', 'a.created_at', 'io.title as object_title'
+            )
+            ->orderBy('a.created_at', 'desc')
+            ->limit(10)
+            ->get()
+            ->all();
+
+        // Monthly trend (last 12 months)
+        $monthlyTrend = DB::table('ahg_ai_condition_assessment')
+            ->select(
+                DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"),
+                DB::raw('COUNT(*) as total'),
+                DB::raw('AVG(overall_score) as avg_score')
+            )
+            ->where('created_at', '>=', date('Y-m-d', strtotime('-12 months')))
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->all();
+
+        // Top damage types
+        $topDamages = DB::table('ahg_ai_condition_damage')
+            ->select('damage_type', DB::raw('COUNT(*) as count'))
+            ->groupBy('damage_type')
+            ->orderByDesc('count')
+            ->limit(10)
+            ->get()
+            ->all();
+
+        // Source breakdown
+        $sourceBreakdown = DB::table('ahg_ai_condition_assessment')
+            ->select('source', DB::raw('COUNT(*) as count'))
+            ->groupBy('source')
+            ->orderByDesc('count')
+            ->get()
+            ->all();
+
+        return view('ahg-ai-services::condition-dashboard', compact(
+            'stats', 'recentAssessments', 'monthlyTrend', 'topDamages', 'sourceBreakdown'
+        ));
+    }
 
     public function conditionHistory(Request $request) { return view('ahg-ai-services::condition-history', ['rows' => collect()]); }
 

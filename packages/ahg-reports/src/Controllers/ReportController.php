@@ -387,12 +387,65 @@ class ReportController extends Controller
 
         $params = $request->only(['culture', 'place', 'level', 'subjects', 'topLevelOnly', 'requireCoordinates']);
 
+        // PSIS-compatible variables for the clone view
+        $coordinateSources = [
+            'property' => 'Property Table (custom fields)',
+            'nmmz_site' => 'NMMZ Archaeological Site Table',
+            'dam_metadata' => 'DAM IPTC Metadata (from images)',
+            'contact_info' => 'Repository Contact Information',
+        ];
+
+        $defaultPaintedTerms = "brush painted\nfinger painted\npainted\npaint\npigment\nochre\nSan painting\nrock painting";
+        $defaultEngravedTerms = "engraving\nengraved\npecking\npecked\nincising\nincised\nscratched\nabraded\nKhoekhoen\nKhoi\ngeometric";
+
+        // availablePlaces keyed by name => name (PSIS uses name as the option value)
+        $availablePlaces = $placeTerms->pluck('name', 'id')->toArray();
+        $availableLevels = $levels->pluck('name', 'id')->toArray();
+
+        // previewData (PSIS format) — only populated on explicit preview request
+        $previewData = null;
+        if ($request->input('preview')) {
+            $headers = [
+                'reference_code' => 'Reference Code',
+                'site_name' => 'Site Name',
+                'latitude' => 'Latitude',
+                'longitude' => 'Longitude',
+                'place_country' => 'Country',
+                'is_painted' => 'Painted',
+                'is_engraved' => 'Engraved',
+                'subjects_concatenated' => 'Subjects',
+            ];
+            $rows = $preview->map(function ($row) {
+                return [
+                    'reference_code' => $row->identifier,
+                    'site_name' => $row->title,
+                    'latitude' => $row->latitude,
+                    'longitude' => $row->longitude,
+                    'place_country' => '',
+                    'is_painted' => 'FALSE',
+                    'is_engraved' => 'FALSE',
+                    'subjects_concatenated' => '',
+                ];
+            })->all();
+            $previewData = [
+                'count' => count($rows),
+                'headers' => $headers,
+                'rows' => $rows,
+            ];
+        }
+
         return view('ahg-reports::report-spatial', [
             'preview' => $preview,
             'totalCount' => $totalCount,
             'params' => $params,
             'placeTerms' => $placeTerms,
             'levels' => $levels,
+            'coordinateSources' => $coordinateSources,
+            'availablePlaces' => $availablePlaces,
+            'availableLevels' => $availableLevels,
+            'defaultPaintedTerms' => $defaultPaintedTerms,
+            'defaultEngravedTerms' => $defaultEngravedTerms,
+            'previewData' => $previewData,
         ]);
     }
 

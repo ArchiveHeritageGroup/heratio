@@ -57,6 +57,13 @@ class ExhibitionController extends Controller
         $statuses = $this->service->getStatuses();
         $stats = $this->service->getStatistics();
 
+        // Dashboard widgets (PSIS parity: exhibition/dashboard)
+        $currentExhibitions = $this->service->getCurrentExhibitions(5);
+        $upcomingExhibitions = $this->service->getUpcomingExhibitions(5);
+        $pendingChecklists = $this->service->getPendingChecklists(10);
+        $recentActivity = $this->service->getRecentActivity(10);
+        $calendarEvents = $this->service->getCalendarEvents(30, 10);
+
         return view('ahg-exhibition::index', [
             'exhibitions' => $result['results'],
             'total' => $result['total'],
@@ -66,6 +73,11 @@ class ExhibitionController extends Controller
             'types' => $types,
             'statuses' => $statuses,
             'stats' => $stats,
+            'currentExhibitions' => $currentExhibitions,
+            'upcomingExhibitions' => $upcomingExhibitions,
+            'pendingChecklists' => $pendingChecklists,
+            'recentActivity' => $recentActivity,
+            'calendarEvents' => $calendarEvents,
         ]);
     }
 

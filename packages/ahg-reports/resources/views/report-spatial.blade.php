@@ -1,181 +1,293 @@
+{{--
+/**
+ * Spatial Analysis Export — clone of PSIS reportSpatialAnalysisSuccess template.
+ *
+ * @author    Johan Pieterse <johan@plainsailing.co.za>
+ * @copyright (c) Plain Sailing (Pty) Ltd
+ * @license   AGPL-3.0-or-later
+ */
+--}}
 @extends('theme::layouts.1col')
 @section('title', 'Spatial Analysis Export')
 @section('body-class', 'admin reports')
 
 @section('content')
 <div class="row">
-  <div class="col-md-3">@include('ahg-reports::_menu')</div>
+  <div class="col-md-3">
+    @include('ahg-reports::_menu')
+  </div>
   <div class="col-md-9">
-    <h1><i class="fas fa-map-marker-alt me-2"></i>Spatial Analysis Export</h1>
-    <p class="text-muted">Export archival descriptions with geographic coordinate data for GIS analysis.</p>
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ route('reports.index') }}">Reports</a></li>
+        <li class="breadcrumb-item active">Spatial Analysis Export</li>
+      </ol>
+    </nav>
 
-    <div class="row">
-      {{-- Form (left) --}}
-      <div class="col-md-8">
-        <form method="POST" action="{{ route('reports.spatial') }}">
-          @csrf
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h1 class="h3 mb-1"><i class="bi bi-geo-alt me-2"></i>Spatial Analysis Export</h1>
+        <p class="text-muted mb-0">Export site records with GPS coordinates for GIS/spatial analysis</p>
+      </div>
+    </div>
 
+    <form method="post" action="{{ route('reports.spatial') }}">
+      @csrf
+      <div class="row">
+        {{-- Main Configuration --}}
+        <div class="col-lg-8">
           {{-- Coordinate Source --}}
-          <div class="card mb-3">
-            <div class="card-header" ><i class="fas fa-crosshairs me-2"></i>Coordinate Source</div>
+          <div class="card mb-4">
+            <div class="card-header">
+              <h6 class="mb-0"><i class="bi bi-pin-map me-2"></i>Coordinate Source</h6>
+            </div>
             <div class="card-body">
               <div class="mb-3">
-                <label class="form-label">Source <span class="badge bg-secondary ms-1">Optional</span></label>
-                <select name="coordinateSource" class="form-select">
-                  <option value="property" selected>Property table (latitude/longitude)</option>
+                <label for="coordinate_source" class="form-label">Where are coordinates stored?</label>
+                <select class="form-select" id="coordinate_source" name="coordinate_source" onchange="togglePropertyFields()">
+                  @foreach ($coordinateSources as $value => $label)
+                    <option value="{{ $value }}">{{ $label }}</option>
+                  @endforeach
                 </select>
-                <div class="form-text">Coordinates are stored in the property table associated with each information object.</div>
+                <div class="form-text">Select the database location where GPS coordinates are stored for your site records.</div>
+              </div>
+
+              <div id="propertyFields" class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="latitude_property" class="form-label">Latitude Property Name</label>
+                    <input type="text" class="form-control" id="latitude_property" name="latitude_property" value="latitude">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="longitude_property" class="form-label">Longitude Property Name</label>
+                    <input type="text" class="form-control" id="longitude_property" name="longitude_property" value="longitude">
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           {{-- Record Filters --}}
-          <div class="card mb-3">
-            <div class="card-header" ><i class="fas fa-filter me-2"></i>Record Filters</div>
+          <div class="card mb-4">
+            <div class="card-header">
+              <h6 class="mb-0"><i class="bi bi-funnel me-2"></i>Record Filters</h6>
+            </div>
             <div class="card-body">
-              <div class="mb-3">
-                <label class="form-label">Place (Taxonomy 42) <span class="badge bg-secondary ms-1">Optional</span></label>
-                <select name="place[]" class="form-select" multiple size="5">
-                  @foreach($placeTerms as $term)
-                    <option value="{{ $term->id }}" {{ in_array($term->id, (array) ($params['place'] ?? [])) ? 'selected' : '' }}>{{ $term->name }}</option>
-                  @endforeach
-                </select>
-                <div class="form-text">Hold Ctrl/Cmd to select multiple places. Leave empty for all.</div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="places" class="form-label">Place Access Points (Countries)</label>
+                    <select class="form-select" id="places" name="places[]" multiple size="6">
+                      @foreach ($availablePlaces as $id => $name)
+                        <option value="{{ $name }}"
+                          {{ in_array($name, ['South Africa', 'Lesotho', 'Eswatini', 'Swaziland']) ? 'selected' : '' }}>
+                          {{ $name }}
+                        </option>
+                      @endforeach
+                    </select>
+                    <div class="form-text">Hold Ctrl/Cmd to select multiple. Leave empty for all places.</div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="level_of_description" class="form-label">Level of Description</label>
+                    <select class="form-select" id="level_of_description" name="level_of_description">
+                      <option value="">-- All Levels --</option>
+                      @foreach ($availableLevels as $id => $name)
+                        <option value="{{ $name }}">{{ $name }}</option>
+                      @endforeach
+                    </select>
+                    <div class="form-text">Filter by level (e.g., Site, Collection, Fonds)</div>
+                  </div>
+                </div>
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Level of Description <span class="badge bg-secondary ms-1">Optional</span></label>
-                <select name="level" class="form-select">
-                  <option value="">-- All levels --</option>
-                  @foreach($levels as $lev)
-                    <option value="{{ $lev->id }}" {{ ($params['level'] ?? '') == $lev->id ? 'selected' : '' }}>{{ $lev->name }}</option>
-                  @endforeach
-                </select>
+                <label for="subject_filter_terms" class="form-label">Subject Access Point Filter</label>
+                <textarea class="form-control" id="subject_filter_terms" name="subject_filter_terms" rows="4"
+                  placeholder="Enter subject terms to filter by (one per line)...">brush painted
+finger painted
+engraving
+pecking
+incising
+San
+Khoekhoen
+Khoi</textarea>
+                <div class="form-text">Records must have at least one of these subject terms. Leave empty for all subjects.</div>
               </div>
 
-              <div class="mb-3">
-                <label class="form-label">Subject filter <span class="badge bg-secondary ms-1">Optional</span></label>
-                <textarea name="subjects" class="form-control" rows="3" placeholder="Enter subject terms, comma-separated">{{ $params['subjects'] ?? '' }}</textarea>
-                <div class="form-text">Comma-separated list of subject terms to filter by.</div>
-              </div>
-
-              <div class="form-check mb-2">
-                <input type="checkbox" name="topLevelOnly" value="1" class="form-check-input" id="topLevelOnly" {{ ($params['topLevelOnly'] ?? false) ? 'checked' : '' }}>
-                <label class="form-check-label" for="topLevelOnly">Top-level records only <span class="badge bg-secondary ms-1">Optional</span></label>
-              </div>
-
-              <div class="form-check mb-2">
-                <input type="checkbox" name="requireCoordinates" value="1" class="form-check-input" id="requireCoordinates" {{ ($params['requireCoordinates'] ?? true) ? 'checked' : '' }}>
-                <label class="form-check-label" for="requireCoordinates">Require coordinates (exclude records without lat/lng) <span class="badge bg-secondary ms-1">Optional</span></label>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="top_level_only" name="top_level_only" value="1" checked>
+                    <label class="form-check-label" for="top_level_only">
+                      Top-level records only (exclude child records like panels/images)
+                    </label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="require_coordinates" name="require_coordinates" value="1" checked>
+                    <label class="form-check-label" for="require_coordinates">
+                      Require coordinates (exclude records without lat/long)
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           {{-- Tradition Classification --}}
-          <div class="card mb-3">
-            <div class="card-header" ><i class="fas fa-layer-group me-2"></i>Tradition Classification</div>
+          <div class="card mb-4">
+            <div class="card-header">
+              <h6 class="mb-0"><i class="bi bi-tags me-2"></i>Tradition Classification</h6>
+            </div>
             <div class="card-body">
-              <div class="mb-3">
-                <label class="form-label">Include traditions <span class="badge bg-secondary ms-1">Optional</span></label>
-                <textarea name="includeTraditions" class="form-control" rows="2" placeholder="Comma-separated tradition names to include"></textarea>
+              <p class="text-muted small">Configure which subject terms indicate painted vs engraved traditions. The export will include <code>is_painted</code> and <code>is_engraved</code> boolean columns based on these terms.</p>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="painted_terms" class="form-label">Painted Tradition Terms</label>
+                    <textarea class="form-control" id="painted_terms" name="painted_terms" rows="6">{{ $defaultPaintedTerms }}</textarea>
+                    <div class="form-text">One term per line. Records with these subjects = is_painted: TRUE</div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="engraved_terms" class="form-label">Engraved Tradition Terms</label>
+                    <textarea class="form-control" id="engraved_terms" name="engraved_terms" rows="6">{{ $defaultEngravedTerms }}</textarea>
+                    <div class="form-text">One term per line. Records with these subjects = is_engraved: TRUE</div>
+                  </div>
+                </div>
               </div>
-              <div class="mb-3">
-                <label class="form-label">Exclude traditions <span class="badge bg-secondary ms-1">Optional</span></label>
-                <textarea name="excludeTraditions" class="form-control" rows="2" placeholder="Comma-separated tradition names to exclude"></textarea>
+            </div>
+          </div>
+        </div>
+
+        {{-- Sidebar --}}
+        <div class="col-lg-4">
+          {{-- Export Actions --}}
+          <div class="card mb-4">
+            <div class="card-header">
+              <h6 class="mb-0"><i class="bi bi-download me-2"></i>Export</h6>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <button type="submit" name="preview" value="1" class="btn btn-outline-primary">
+                  <i class="bi bi-eye me-1"></i> Preview (10 records)
+                </button>
+                <button type="submit" name="export" value="1" class="btn btn-primary">
+                  <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export CSV
+                </button>
+                <button type="submit" name="export" value="1" formaction="{{ route('reports.spatial') }}?format=json" class="btn btn-outline-secondary">
+                  <i class="bi bi-filetype-json me-1"></i> Export JSON
+                </button>
               </div>
             </div>
           </div>
 
-          {{-- Hidden export field (set by JS) --}}
-          <input type="hidden" name="export" id="exportField" value="">
-
-          <div class="d-flex gap-2 mb-4">
-            <button type="submit" class="btn atom-btn-outline-success" onclick="document.getElementById('exportField').value=''"><i class="fas fa-eye me-1"></i>Preview</button>
-            <button type="submit" class="btn atom-btn-outline-success" onclick="document.getElementById('exportField').value='csv'"><i class="fas fa-file-csv me-1"></i>Export CSV</button>
-            <button type="submit" class="btn atom-btn-white text-white" onclick="document.getElementById('exportField').value='json'"><i class="fas fa-file-code me-1"></i>Export JSON</button>
+          {{-- Output Fields --}}
+          <div class="card mb-4">
+            <div class="card-header">
+              <h6 class="mb-0"><i class="bi bi-list-columns me-2"></i>Output Columns</h6>
+            </div>
+            <div class="card-body p-0">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item py-2"><code>reference_code</code> - Site identifier</li>
+                <li class="list-group-item py-2"><code>site_name</code> - Site title</li>
+                <li class="list-group-item py-2"><code>latitude</code> - GPS latitude</li>
+                <li class="list-group-item py-2"><code>longitude</code> - GPS longitude</li>
+                <li class="list-group-item py-2"><code>place_country</code> - Country from place terms</li>
+                <li class="list-group-item py-2"><code>is_painted</code> - TRUE/FALSE</li>
+                <li class="list-group-item py-2"><code>is_engraved</code> - TRUE/FALSE</li>
+                <li class="list-group-item py-2"><code>subjects</code> - All subject tags</li>
+              </ul>
+            </div>
           </div>
-        </form>
 
-        {{-- Preview Results --}}
-        @if(isset($preview) && $preview->count() > 0)
-        <div class="card mb-3">
-          <div class="card-header" ><i class="fas fa-table me-2"></i>Preview ({{ $preview->count() }} of {{ number_format($totalCount) }} records)</div>
-          <div class="table-responsive">
-            <table class="table table-bordered table-sm table-striped mb-0">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Identifier</th>
-                  <th>Title</th>
-                  <th>Latitude</th>
-                  <th>Longitude</th>
-                  <th>Level</th>
-                  <th>Repository</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach($preview as $row)
-                <tr>
-                  <td>{{ $row->id }}</td>
-                  <td>{{ $row->identifier }}</td>
-                  <td>{{ \Illuminate\Support\Str::limit($row->title, 40) }}</td>
-                  <td>{{ $row->latitude }}</td>
-                  <td>{{ $row->longitude }}</td>
-                  <td>{{ $row->level_of_description }}</td>
-                  <td>{{ $row->repository }}</td>
-                </tr>
-                @endforeach
-              </tbody>
-            </table>
+          {{-- Help --}}
+          <div class="card">
+            <div class="card-header">
+              <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>Help</h6>
+            </div>
+            <div class="card-body small">
+              <p><strong>Use Case:</strong> Overlay site locations onto geological maps to investigate relationships between surface geology and rock art traditions.</p>
+              <p><strong>Coordinate Sources:</strong></p>
+              <ul class="mb-2">
+                <li><strong>Property Table:</strong> Custom fields stored in the property table</li>
+                <li><strong>NMMZ Site:</strong> Archaeological site records with GPS</li>
+                <li><strong>DAM Metadata:</strong> GPS extracted from image EXIF</li>
+                <li><strong>Contact Info:</strong> Repository location coordinates</li>
+              </ul>
+              <p class="mb-0"><strong>Note:</strong> Records can be both painted AND engraved if they have subjects matching both term lists.</p>
+            </div>
           </div>
         </div>
-        @elseif(request()->isMethod('post'))
-        <div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>No records found matching the selected filters.</div>
+      </div>
+    </form>
+
+    @if (isset($previewData) && $previewData)
+    {{-- Preview Results --}}
+    <div class="card mt-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0"><i class="bi bi-table me-2"></i>Preview Results</h6>
+        <span class="badge bg-primary">{{ $previewData['count'] }} records (limited to 10)</span>
+      </div>
+      <div class="card-body p-0">
+        @if (!empty($previewData['rows']))
+        <div class="table-responsive">
+          <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                @foreach ($previewData['headers'] as $key => $label)
+                  <th>{{ $label }}</th>
+                @endforeach
+              </tr>
+            </thead>
+            <tbody>
+              @foreach ($previewData['rows'] as $row)
+                <tr>
+                  @foreach (array_keys($previewData['headers']) as $key)
+                    <td>
+                      @php
+                      $value = $row[$key] ?? '';
+                      if ($key === 'subjects_concatenated' && strlen($value) > 50) {
+                          echo '<span title="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars(substr($value, 0, 50), ENT_QUOTES, 'UTF-8') . '...</span>';
+                      } elseif ($key === 'is_painted' || $key === 'is_engraved') {
+                          $badgeClass = $value === 'TRUE' ? 'bg-success' : 'bg-secondary';
+                          echo '<span class="badge ' . $badgeClass . '">' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '</span>';
+                      } else {
+                          echo htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+                      }
+                      @endphp
+                    </td>
+                  @endforeach
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
+        @else
+        <div class="p-4 text-center text-muted">
+          <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+          <p class="mb-0">No records match the current filter criteria.</p>
+        </div>
         @endif
       </div>
-
-      {{-- Sidebar (right) --}}
-      <div class="col-md-4">
-        {{-- Export Buttons --}}
-        <div class="card mb-3">
-          <div class="card-header" ><i class="fas fa-download me-2"></i>Export</div>
-          <div class="card-body">
-            <p class="small text-muted">Use the form on the left to filter records, then choose an export format.</p>
-            <ul class="list-unstyled small">
-              <li><i class="fas fa-eye me-2 text-primary"></i><strong>Preview</strong> — Show first 10 results</li>
-              <li><i class="fas fa-file-csv me-2 text-success"></i><strong>CSV</strong> — Spreadsheet-compatible format</li>
-              <li><i class="fas fa-file-code me-2 text-info"></i><strong>JSON</strong> — GeoJSON FeatureCollection</li>
-            </ul>
-          </div>
-        </div>
-
-        {{-- Output Columns --}}
-        <div class="card mb-3">
-          <div class="card-header" ><i class="fas fa-columns me-2"></i>Output Columns</div>
-          <ul class="list-group list-group-flush small">
-            <li class="list-group-item py-1">ID</li>
-            <li class="list-group-item py-1">Identifier</li>
-            <li class="list-group-item py-1">Title</li>
-            <li class="list-group-item py-1">Latitude</li>
-            <li class="list-group-item py-1">Longitude</li>
-            <li class="list-group-item py-1">Level of Description</li>
-            <li class="list-group-item py-1">Repository</li>
-            <li class="list-group-item py-1">Place</li>
-          </ul>
-        </div>
-
-        {{-- Help --}}
-        <div class="card mb-3">
-          <div class="card-header" ><i class="fas fa-question-circle me-2"></i>Help</div>
-          <div class="card-body small">
-            <p>The Spatial Analysis Export tool allows you to extract geographic data from archival descriptions for use in GIS applications.</p>
-            <p><strong>Coordinates</strong> are stored in the <code>property</code> table associated with each information object record.</p>
-            <p><strong>CSV export</strong> can be imported directly into QGIS, ArcGIS, or Google Earth.</p>
-            <p><strong>JSON export</strong> produces GeoJSON FeatureCollection format, suitable for web mapping libraries like Leaflet or OpenLayers.</p>
-          </div>
-        </div>
-      </div>
     </div>
+    @endif
   </div>
 </div>
+
+<script>
+function togglePropertyFields() {
+  const source = document.getElementById('coordinate_source').value;
+  const propertyFields = document.getElementById('propertyFields');
+  propertyFields.style.display = source === 'property' ? 'flex' : 'none';
+}
+document.addEventListener('DOMContentLoaded', togglePropertyFields);
+</script>
 @endsection

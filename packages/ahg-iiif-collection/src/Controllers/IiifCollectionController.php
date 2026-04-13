@@ -397,16 +397,29 @@ class IiifCollectionController extends Controller
     /** 3D Reports. */
     public function threeDIndex()
     {
-        // Canonical 3D model table is `object_3d_model` (not `three_d_model`).
-        // Columns: object_id, filename, file_size, format, thumbnail.
-        // `three_d_hotspot` has no Heratio table — hotspot stats omitted.
-        $stats = ['totalModels' => 0, 'digitalObjects3D' => 0, 'totalHotspots' => 0, 'totalSize' => 0, 'byFormat' => collect()];
+        // Canonical 3D model table is `object_3d_model`. Hotspots live in `object_3d_hotspot`.
+        $stats = [
+            'totalModels' => 0,
+            'digitalObjects3D' => 0,
+            'totalHotspots' => 0,
+            'totalSize' => 0,
+            'byFormat' => collect(),
+            'withThumbnails' => 0,
+            'withPosters' => 0,
+            'arEnabled' => 0,
+        ];
         try {
             if (\Schema::hasTable('object_3d_model')) {
                 $stats['totalModels'] = \DB::table('object_3d_model')->count();
                 $stats['totalSize'] = (int) \DB::table('object_3d_model')->sum('file_size');
                 $stats['byFormat'] = \DB::table('object_3d_model')->select('format', \DB::raw('COUNT(*) as count'))
                     ->whereNotNull('format')->groupBy('format')->orderByDesc('count')->get();
+                $stats['withThumbnails'] = \DB::table('object_3d_model')->whereNotNull('thumbnail')->where('thumbnail', '!=', '')->count();
+                $stats['withPosters'] = \DB::table('object_3d_model')->whereNotNull('poster_image')->where('poster_image', '!=', '')->count();
+                $stats['arEnabled'] = \DB::table('object_3d_model')->where('ar_enabled', 1)->count();
+            }
+            if (\Schema::hasTable('object_3d_hotspot')) {
+                $stats['totalHotspots'] = \DB::table('object_3d_hotspot')->count();
             }
             if (\Schema::hasTable('digital_object')) {
                 $stats['digitalObjects3D'] = \DB::table('digital_object')
