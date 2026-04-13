@@ -129,12 +129,11 @@
         @if($hasPrivacy)
         <li><a href="{{ url('/admin/privacy/dashboard') }}"><i class="fas fa-user-shield me-2"></i>{{ __('Privacy & Data Protection') }}</a></li>
         @endif
-        <li><a href="{{ route('reports.dashboard') }}" class="fw-bold"><i class="fas fa-chart-bar me-2"></i>{{ __('Reports') }}</a></li>
         @if($hasResearch)
         <li><a href="{{ url('/research/dashboard') }}"><i class="fas fa-graduation-cap me-2"></i>{{ __('Research') }}</a></li>
         @endif
         @if($hasRic)
-        <li><a href="{{ Route::has('ric.index') ? route('ric.index') : url('/admin/ric') }}"><i class="fas fa-project-diagram me-2"></i>{{ __('RiC Explorer') }}</a></li>
+        <li><a href="{{ Route::has('ric.explorer') ? route('ric.explorer') : url('/admin/ric/explorer') }}"><i class="fas fa-project-diagram me-2"></i>{{ __('RiC Explorer') }}</a></li>
         @endif
         @if($hasRights)
         <li><a href="{{ url('/admin/rights') }}"><i class="fas fa-gavel me-2"></i>{{ __('Rights & Licensing') }}</a></li>
@@ -703,7 +702,7 @@
         <div class="card-header text-white" style="background-color:#6f42c1!important"><h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>{{ __('Records in Contexts (RiC)') }}</h5></div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item"><a href="{{ Route::has('ric.index') ? route('ric.index') : url('/admin/ric') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('RiC Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ Route::has('ric.sync-status') ? route('ric.sync-status') : url('/admin/ric/sync-status') }}"><i class="fas fa-sitemap me-2 text-muted"></i>{{ __('RiC Explorer') }}</a></li>
+          <li class="list-group-item"><a href="{{ Route::has('ric.explorer') ? route('ric.explorer') : url('/admin/ric/explorer') }}"><i class="fas fa-sitemap me-2 text-muted"></i>{{ __('RiC Explorer') }}</a></li>
           <li class="list-group-item"><a href="{{ Route::has('ric.sync-status') ? route('ric.sync-status') : url('/admin/ric/sync-status') }}"><i class="fas fa-sync me-2 text-muted"></i>{{ __('Sync Status') }}</a></li>
         </ul>
       </div>

@@ -81,6 +81,7 @@
             <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter me-1"></i>{{ __('Filter') }}</button>
             <a href="{{ url('/grap/national-treasury-report') }}" class="btn btn-sm btn-outline-secondary">{{ __('Clear') }}</a>
             <a href="{{ url('/grap/national-treasury-report?export=csv') }}" class="btn btn-sm btn-outline-success"><i class="fas fa-download me-1"></i>{{ __('Export CSV') }}</a>
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.print()"><i class="fas fa-print me-1"></i>{{ __('Print') }}</button>
           </div>
         </div>
       </div>

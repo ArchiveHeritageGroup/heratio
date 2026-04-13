@@ -364,10 +364,11 @@
     </div>
 </div>
 
-{{-- Add Client Modal --}}
+{{-- Add Client Modal — real POST form (no JS) --}}
 <div class="modal fade" id="addClientModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <form class="modal-content" method="POST" action="{{ url('/admin/ai/condition/client/save') }}">
+            @csrf
             <div class="modal-header">
                 <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Add API Client</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -375,19 +376,19 @@
             <div class="modal-body">
                 <div class="mb-3">
                     <label class="form-label">Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" id="clientName">
+                    <input type="text" class="form-control form-control-sm" name="name" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Organization</label>
-                    <input type="text" class="form-control form-control-sm" id="clientOrg">
+                    <input type="text" class="form-control form-control-sm" name="organization">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Email <span class="text-danger">*</span></label>
-                    <input type="email" class="form-control form-control-sm" id="clientEmail">
+                    <input type="email" class="form-control form-control-sm" name="email" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Tier</label>
-                    <select class="form-select form-select-sm" id="clientTier">
+                    <select class="form-select form-select-sm" name="tier">
                         <option value="free">Free (50/month)</option>
                         <option value="standard">Standard (500/month)</option>
                         <option value="pro">Professional (5000/month)</option>
@@ -396,14 +397,14 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Monthly Limit</label>
-                    <input type="number" class="form-control form-control-sm" id="clientLimit" value="50">
+                    <input type="number" class="form-control form-control-sm" name="monthly_limit" value="50">
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" onclick="saveClient()">Create</button>
+                <button type="submit" class="btn btn-success">Create</button>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 

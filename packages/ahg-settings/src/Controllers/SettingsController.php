@@ -1482,18 +1482,25 @@ class SettingsController extends Controller
 
     /**
      * POST /admin/ai/condition/client/save
-     * JSON endpoint — creates a new ahg_ai_condition_client row.
+     * Creates a new ahg_ai_condition_client row. Returns JSON for AJAX callers,
+     * or redirects back to the settings page for normal form posts.
      */
     public function aiConditionClientSave(Request $request)
     {
+        $wantsJson = $request->expectsJson() || $request->ajax();
+
         if (!Schema::hasTable('ahg_ai_condition_client')) {
-            return response()->json(['success' => false, 'error' => 'Client table not provisioned.'], 500);
+            return $wantsJson
+                ? response()->json(['success' => false, 'error' => 'Client table not provisioned.'], 500)
+                : back()->with('error', 'AI condition client table not provisioned.');
         }
 
         $name = trim((string) $request->input('name'));
         $email = trim((string) $request->input('email'));
         if ($name === '' || $email === '') {
-            return response()->json(['success' => false, 'error' => 'Name and email are required.'], 422);
+            return $wantsJson
+                ? response()->json(['success' => false, 'error' => 'Name and email are required.'], 422)
+                : back()->with('error', 'Name and email are required.');
         }
 
         try {
@@ -1511,10 +1518,16 @@ class SettingsController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-            return response()->json(['success' => true, 'id' => $id, 'api_key' => $apiKey]);
+            if ($wantsJson) {
+                return response()->json(['success' => true, 'id' => $id, 'api_key' => $apiKey]);
+            }
+            return redirect()->route('settings.ai-condition')
+                ->with('notice', 'API client created. Key: ' . $apiKey);
         } catch (\Throwable $e) {
             \Log::error('aiConditionClientSave failed: ' . $e->getMessage());
-            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+            return $wantsJson
+                ? response()->json(['success' => false, 'error' => $e->getMessage()], 500)
+                : back()->with('error', 'Failed to create client: ' . $e->getMessage());
         }
     }
 
