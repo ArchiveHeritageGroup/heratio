@@ -77,8 +77,8 @@
       Showing {{ $pager['from'] }} to {{ $pager['to'] }} of {{ $pager['total'] }} results
     </span>
     <div class="btn-group btn-group-sm">
-      <a href="{{ route('audit.export', ['format' => 'csv']) }}" class="btn btn-outline-secondary">Export CSV</a>
-      <a href="{{ route('audit.export', ['format' => 'json']) }}" class="btn btn-outline-secondary">Export JSON</a>
+      <a href="{{ route('audit.export', array_merge(request()->query(), ['format' => 'csv'])) }}" class="btn btn-outline-secondary"><i class="fas fa-file-csv me-1"></i>Export CSV</a>
+      <a href="{{ route('audit.export', array_merge(request()->query(), ['format' => 'json'])) }}" class="btn btn-outline-secondary"><i class="fas fa-file-code me-1"></i>Export JSON</a>
     </div>
   </div>
 
