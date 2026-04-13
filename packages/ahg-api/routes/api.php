@@ -53,9 +53,19 @@ Route::prefix('api/v1')->middleware(['throttle:60,1', 'api.cors'])->group(functi
     Route::delete('informationobjects/{slug}', [InformationObjectApiController::class, 'destroy'])
         ->middleware('api.auth:delete');
 
-    // Actors
+    // Actors — READ
+    Route::get('actors/search', [ActorApiController::class, 'search']);
     Route::get('actors', [ActorApiController::class, 'index']);
     Route::get('actors/{slug}', [ActorApiController::class, 'show']);
+
+    // Actors — CRUD (authenticated)
+    Route::middleware('api.auth:write')->group(function () {
+        Route::post('actors', [ActorApiController::class, 'store']);
+        Route::put('actors/{slug}', [ActorApiController::class, 'update']);
+        Route::patch('actors/{slug}', [ActorApiController::class, 'update']);
+    });
+    Route::delete('actors/{slug}', [ActorApiController::class, 'destroy'])
+        ->middleware('api.auth:delete');
 
     // Repositories
     Route::get('repositories', [RepositoryApiController::class, 'index']);
@@ -107,9 +117,12 @@ Route::prefix('api/v2')->middleware(['api.cors', 'api.auth:read', 'api.ratelimit
     Route::match(['put', 'patch'], 'descriptions/{slug}', [DescriptionController::class, 'update'])->middleware('api.auth:write');
     Route::delete('descriptions/{slug}', [DescriptionController::class, 'destroy'])->middleware('api.auth:delete');
 
-    // Authorities
+    // Authorities — full CRUD
     Route::get('authorities', [AuthorityController::class, 'index']);
     Route::get('authorities/{slug}', [AuthorityController::class, 'show']);
+    Route::post('authorities', [AuthorityController::class, 'store'])->middleware('api.auth:write');
+    Route::match(['put', 'patch'], 'authorities/{slug}', [AuthorityController::class, 'update'])->middleware('api.auth:write');
+    Route::delete('authorities/{slug}', [AuthorityController::class, 'destroy'])->middleware('api.auth:delete');
 
     // Repositories
     Route::get('repositories', [V2RepositoryController::class, 'index']);

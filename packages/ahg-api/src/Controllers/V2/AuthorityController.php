@@ -132,6 +132,156 @@ class AuthorityController extends BaseApiController
         ]);
     }
 
+    /**
+     * POST /api/v2/authorities
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'authorized_form_of_name' => 'required|string|max:500',
+            'entity_type_id' => 'nullable|integer',
+            'dates_of_existence' => 'nullable|string|max:255',
+            'history' => 'nullable|string',
+            'places' => 'nullable|string',
+            'legal_status' => 'nullable|string',
+            'functions' => 'nullable|string',
+            'mandates' => 'nullable|string',
+            'internal_structures' => 'nullable|string',
+            'general_context' => 'nullable|string',
+        ]);
+
+        if (!empty($validated['entity_type_id'])
+            && !DB::table('term')->where('id', $validated['entity_type_id'])->exists()) {
+            return $this->error('Invalid entity_type_id', "Entity type {$validated['entity_type_id']} does not exist.", 422);
+        }
+
+        try {
+            return DB::transaction(function () use ($validated) {
+                $objectId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitActor',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                DB::table('actor')->insert([
+                    'id' => $objectId,
+                    'entity_type_id' => $validated['entity_type_id'] ?? null,
+                    'source_culture' => $this->culture,
+                    'parent_id' => null,
+                    'description_status_id' => null,
+                    'description_detail_id' => null,
+                ]);
+
+                DB::table('actor_i18n')->insert([
+                    'id' => $objectId,
+                    'culture' => $this->culture,
+                    'authorized_form_of_name' => $validated['authorized_form_of_name'],
+                    'dates_of_existence' => $validated['dates_of_existence'] ?? null,
+                    'history' => $validated['history'] ?? null,
+                    'places' => $validated['places'] ?? null,
+                    'legal_status' => $validated['legal_status'] ?? null,
+                    'functions' => $validated['functions'] ?? null,
+                    'mandates' => $validated['mandates'] ?? null,
+                    'internal_structures' => $validated['internal_structures'] ?? null,
+                    'general_context' => $validated['general_context'] ?? null,
+                ]);
+
+                $slugBase = \Illuminate\Support\Str::slug($validated['authorized_form_of_name']);
+                $slug = $slugBase;
+                $counter = 1;
+                while (DB::table('slug')->where('slug', $slug)->exists()) {
+                    $slug = $slugBase . '-' . $counter++;
+                }
+                DB::table('slug')->insert(['slug' => $slug, 'object_id' => $objectId]);
+
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'id' => $objectId,
+                        'slug' => $slug,
+                        'authorized_form_of_name' => $validated['authorized_form_of_name'],
+                    ],
+                    'timestamp' => now()->toIso8601String(),
+                ], 201);
+            });
+        } catch (\Throwable $e) {
+            \Log::error('Authority create failed: ' . $e->getMessage());
+            return $this->error('Failed to create authority', config('app.debug') ? $e->getMessage() : 'Internal server error', 500);
+        }
+    }
+
+    /**
+     * PUT|PATCH /api/v2/authorities/{slug}
+     */
+    public function update(string $slug, Request $request): JsonResponse
+    {
+        $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
+        if (!$objectId || !DB::table('actor')->where('id', $objectId)->exists()) {
+            return $this->error('Not Found', "Authority '{$slug}' not found.", 404);
+        }
+
+        $validated = $request->validate([
+            'authorized_form_of_name' => 'sometimes|required|string|max:500',
+            'entity_type_id' => 'nullable|integer',
+            'dates_of_existence' => 'nullable|string|max:255',
+            'history' => 'nullable|string',
+            'places' => 'nullable|string',
+            'legal_status' => 'nullable|string',
+            'functions' => 'nullable|string',
+            'mandates' => 'nullable|string',
+            'internal_structures' => 'nullable|string',
+            'general_context' => 'nullable|string',
+        ]);
+
+        try {
+            $i18nFields = array_intersect_key($validated, array_flip([
+                'authorized_form_of_name', 'dates_of_existence', 'history', 'places',
+                'legal_status', 'functions', 'mandates', 'internal_structures', 'general_context',
+            ]));
+            if ($i18nFields) {
+                DB::table('actor_i18n')
+                    ->where('id', $objectId)
+                    ->where('culture', $this->culture)
+                    ->update($i18nFields);
+            }
+
+            if (array_key_exists('entity_type_id', $validated)) {
+                DB::table('actor')->where('id', $objectId)->update(['entity_type_id' => $validated['entity_type_id']]);
+            }
+
+            DB::table('object')->where('id', $objectId)->update(['updated_at' => now()]);
+
+            return $this->success(['id' => $objectId, 'slug' => $slug, 'message' => 'Authority updated.']);
+        } catch (\Throwable $e) {
+            return $this->error('Failed to update authority', $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * DELETE /api/v2/authorities/{slug}
+     */
+    public function destroy(string $slug): JsonResponse
+    {
+        $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
+        if (!$objectId || !DB::table('actor')->where('id', $objectId)->exists()) {
+            return $this->error('Not Found', "Authority '{$slug}' not found.", 404);
+        }
+
+        try {
+            DB::transaction(function () use ($objectId) {
+                DB::table('actor_i18n')->where('id', $objectId)->delete();
+                DB::table('other_name')->where('object_id', $objectId)->delete();
+                DB::table('contact_information')->where('actor_id', $objectId)->delete();
+                DB::table('slug')->where('object_id', $objectId)->delete();
+                DB::table('actor')->where('id', $objectId)->delete();
+                DB::table('object')->where('id', $objectId)->delete();
+            });
+            return response()->json(null, 204);
+        } catch (\Throwable $e) {
+            return $this->error('Failed to delete authority', $e->getMessage(), 500);
+        }
+    }
+
     protected function resolveTermNames($ids): array
     {
         $ids = $ids->filter()->unique()->values()->toArray();

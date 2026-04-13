@@ -238,7 +238,10 @@ Each package = N batches of 5 pages each. Tick off batches as they ship.
   - **v2 publishing**: `GET /api/v2/publish/readiness/{slug}` (401 ✓), `POST /api/v2/publish/execute/{slug}` (401 ✓)
   - Methods: `InformationObjectApiController::{index,search,show,store,update,destroy,digitalObject,tree,children}`, `V2\DescriptionController::{index,show,store,update,destroy}`, `V2\PublishController::{readiness,execute}`
   - **API-COMPARISON.md is stale** (dated 2026-03-17 — predates this work). Mark stale and regenerate when D1-2..D1-11 are reconciled.
-- [ ] **D1-2** actor / authority endpoints (~10)
+- [x] **D1-2** actor / authority endpoints (~10) — **DONE 2026-04-13**. Per the updated `feedback_clone_only_no_invent.md` (clone-only does NOT apply to APIs — add full CRUD everywhere regardless of PSIS coverage), added full CRUD on both v1 actors and v2 authorities. AtoM PSIS only ships `authoritiesBrowse`+`authoritiesRead`; heratio now has the complete CRUD surface.
+  - **v1 actors (6)**: `GET /api/v1/actors` (200), `GET /api/v1/actors/search` (200, route added — controller method existed), `GET /api/v1/actors/{slug}` (existing), `POST /api/v1/actors` (401 auth ✓, route added), `PUT|PATCH /api/v1/actors/{slug}` (401 ✓, routes added), `DELETE /api/v1/actors/{slug}` (401 ✓, route added). Controller methods `store/update/destroy` already existed (slug-or-id resolution).
+  - **v2 authorities (5)**: `GET /api/v2/authorities` (401 ✓), `GET /api/v2/authorities/{slug}` (401 ✓), `POST /api/v2/authorities` (401 ✓, **method+route added**), `PUT|PATCH /api/v2/authorities/{slug}` (401 ✓, **method+route added**), `DELETE /api/v2/authorities/{slug}` (401 ✓, **method+route added**). New methods: `V2\AuthorityController::{store,update,destroy}` follow same pattern as `V1\ActorApiController` (object/actor/actor_i18n/slug transactional create; i18n field filtering on update; cascade delete with related other_name/contact_information).
+  - Files modified: `packages/ahg-api/src/Controllers/V2/AuthorityController.php`, `packages/ahg-api/routes/api.php`. **11 endpoints total verified.**
 - [ ] **D1-3** repository endpoints (~8)
 - [ ] **D1-4** accession endpoints (~8)
 - [ ] **D1-5** taxonomy / term endpoints (~10)
