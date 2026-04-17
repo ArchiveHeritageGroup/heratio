@@ -504,6 +504,93 @@ class RicSerializationService
     }
 
     /**
+     * Serialize a RiC-native Rule (mandate, law, policy) to RIC-O JSON-LD.
+     */
+    public function serializeRule(int $ruleId, array $options = []): array
+    {
+        $culture = app()->getLocale() ?: 'en';
+
+        $rule = DB::table('ric_rule as r')
+            ->leftJoin('ric_rule_i18n as i18n', function ($j) use ($culture) {
+                $j->on('r.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->where('r.id', $ruleId)
+            ->select([
+                'r.*',
+                'i18n.title',
+                'i18n.description',
+                'i18n.legislation',
+                'i18n.sources',
+            ])
+            ->first();
+
+        if (!$rule) {
+            return ['error' => 'Rule not found'];
+        }
+
+        $ricRule = [
+            '@context' => [
+                'rico' => self::RICO_NS,
+                'rdf' => self::RDF_NS,
+                'rdfs' => self::RDFS_NS,
+                'xsd' => self::XSD_NS,
+                'owl' => 'http://www.w3.org/2002/07/owl#',
+            ],
+            '@id' => $this->baseUri . '/rule/' . $rule->id,
+            '@type' => 'rico:Rule',
+        ];
+
+        if (!empty($rule->title)) {
+            $ricRule['rico:title'] = $rule->title;
+            $ricRule['rico:name'] = $rule->title;
+        }
+
+        if (!empty($rule->description)) {
+            $ricRule['rico:description'] = $rule->description;
+        }
+
+        if (!empty($rule->type_id)) {
+            $ricRule['rico:ruleType'] = $rule->type_id;
+            $ricRule['openric:localType'] = $rule->type_id;
+        }
+
+        if (!empty($rule->jurisdiction)) {
+            $ricRule['openric:jurisdiction'] = $rule->jurisdiction;
+        }
+
+        if (!empty($rule->legislation)) {
+            $ricRule['rico:descriptiveNote'] = $rule->legislation;
+        }
+
+        if (!empty($rule->sources)) {
+            $ricRule['rico:hasSource'] = $rule->sources;
+        }
+
+        if (!empty($rule->authority_uri)) {
+            $ricRule['owl:sameAs'] = $rule->authority_uri;
+        }
+
+        if ($rule->start_date || $rule->end_date) {
+            $dateRange = ['@type' => 'rico:DateRange'];
+            if ($rule->start_date) {
+                $dateRange['rico:beginningDate'] = [
+                    '@value' => $rule->start_date,
+                    '@type' => 'xsd:date',
+                ];
+            }
+            if ($rule->end_date) {
+                $dateRange['rico:endDate'] = [
+                    '@value' => $rule->end_date,
+                    '@type' => 'xsd:date',
+                ];
+            }
+            $ricRule['rico:hasDateRangeSet'] = $dateRange;
+        }
+
+        return $ricRule;
+    }
+
+    /**
      * Serialize a RiC-native Activity to RIC-O JSON-LD.
      *
      * Activity.type_id is mapped per mapping spec §6.5:

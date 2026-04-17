@@ -392,6 +392,75 @@ class LinkedDataApiController extends Controller
     }
 
     /**
+     * GET /api/ric/v1/rules
+     * List RiC-native Rules (mandates, laws, policies) — paginated.
+     */
+    public function listRules(Request $request): JsonResponse
+    {
+        $page = max(1, (int) $request->get('page', 1));
+        $limit = min((int) $request->get('limit', 50), 200);
+        $type = $request->get('type');
+        $culture = app()->getLocale() ?: 'en';
+
+        $query = \DB::table('ric_rule as r')
+            ->leftJoin('ric_rule_i18n as i18n', function ($j) use ($culture) {
+                $j->on('r.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->select([
+                'r.id', 'r.type_id', 'r.jurisdiction',
+                'r.start_date', 'r.end_date', 'i18n.title',
+            ]);
+
+        if ($type) {
+            $query->where('r.type_id', $type);
+        }
+
+        $total = $query->count();
+        $items = $query
+            ->orderBy('r.id')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+
+        $rows = array_map(fn($r) => [
+            '@id' => url('/rule/' . $r->id),
+            '@type' => 'rico:Rule',
+            'rico:title' => $r->title,
+            'rico:ruleType' => $r->type_id,
+            'openric:jurisdiction' => $r->jurisdiction,
+        ], $items->toArray());
+
+        return response()->json([
+            '@context' => [
+                'rico' => 'https://www.ica.org/standards/RiC/ontology#',
+                'openric' => 'https://openric.org/ns/v1#',
+            ],
+            '@type' => 'rico:RuleList',
+            'openric:total' => $total,
+            'openric:page' => $page,
+            'openric:limit' => $limit,
+            'openric:items' => $rows,
+        ]);
+    }
+
+    /**
+     * GET /api/ric/v1/rules/{id}
+     * Get single RiC-native Rule as RIC-O JSON-LD.
+     */
+    public function showRule(int $id): JsonResponse
+    {
+        $ric = $this->serializer->serializeRule($id);
+
+        if (isset($ric['error'])) {
+            return response()->json($ric, 404);
+        }
+
+        return response()->json($ric, 200, [
+            'Content-Type' => 'application/ld+json',
+        ]);
+    }
+
+    /**
      * GET /api/ric/v1/activities
      * List RiC-native Activities (paginated). Emitted class is selected
      * per mapping spec §6.5 based on type_id.

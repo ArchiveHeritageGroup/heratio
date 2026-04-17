@@ -77,6 +77,10 @@ Route::prefix('api/ric/v1')->middleware(['throttle:60,1'])->group(function () {
     Route::get('/activities', [LinkedDataApiController::class, 'listActivities']);
     Route::get('/activities/{id}', [LinkedDataApiController::class, 'showActivity'])->where('id', '[0-9]+');
 
+    // RiC-native Rules (mandates, laws, policies)
+    Route::get('/rules', [LinkedDataApiController::class, 'listRules']);
+    Route::get('/rules/{id}', [LinkedDataApiController::class, 'showRule'])->where('id', '[0-9]+');
+
     // SPARQL & Graph
     Route::get('/sparql', [LinkedDataApiController::class, 'sparql']);
     Route::get('/graph', [LinkedDataApiController::class, 'graph']);
