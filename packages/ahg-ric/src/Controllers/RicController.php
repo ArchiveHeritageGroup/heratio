@@ -1541,7 +1541,7 @@ SPARQL;
     /**
      * Fallback: build graph from AtoM database tables.
      */
-    protected function buildGraphFromDatabase($recordId, string $baseUri, string $instanceId): array
+    public function buildGraphFromDatabase($recordId, string $baseUri, string $instanceId): array
     {
         $culture = app()->getLocale() === 'en' ? 'en' : app()->getLocale();
         $nodes = [];

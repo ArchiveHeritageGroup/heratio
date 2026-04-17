@@ -110,13 +110,7 @@ class LinkedDataApiController extends Controller
         }
 
         $ric = $this->serializer->serializeAgent($actor->id);
-
-        // Add ISCAP compliance (non-critical — degrade gracefully if schema mismatch)
-        try {
-            $ric = $this->serializer->addIscapCompliance($ric, $actor->id, 'actor');
-        } catch (\Throwable $e) {
-            Log::warning('addIscapCompliance skipped for actor ' . $actor->id . ': ' . $e->getMessage());
-        }
+        $ric = $this->serializer->addIscapCompliance($ric, $actor->id, 'actor');
 
         return response()->json($ric, 200, [
             'Content-Type' => 'application/ld+json',
@@ -190,13 +184,7 @@ class LinkedDataApiController extends Controller
         }
 
         $ric = $this->serializer->serializeRecord($io->id);
-
-        // Add ISCAP compliance (non-critical — degrade gracefully if schema mismatch)
-        try {
-            $ric = $this->serializer->addIscapCompliance($ric, $io->id, 'information_object');
-        } catch (\Throwable $e) {
-            Log::warning('addIscapCompliance skipped for record ' . $io->id . ': ' . $e->getMessage());
-        }
+        $ric = $this->serializer->addIscapCompliance($ric, $io->id, 'information_object');
 
         return response()->json($ric, 200, [
             'Content-Type' => 'application/ld+json',
@@ -672,32 +660,65 @@ class LinkedDataApiController extends Controller
 
     /**
      * GET /api/ric/v1/graph
-     * Get entity relationships graph
+     * Returns an OpenRiC Subgraph rooted at the given entity URI, per
+     * the OpenRiC Viewing API spec §4.7. Shape matches graph-primitives.md §3:
+     *   { @context, @type: "openric:Subgraph", openric:root, openric:depth,
+     *     openric:nodes, openric:edges }
      */
     public function graph(Request $request): JsonResponse
     {
         $uri = $request->get('uri');
-        $depth = min($request->get('depth', 2), 5);
+        $depth = max(1, min((int) $request->get('depth', 1), 3));
 
         if (!$uri) {
             return response()->json([
-                'error' => 'URI parameter required',
-                'example' => '/api/ric/v1/graph?uri=' . url('/actor/1'),
+                'error' => 'uri parameter required',
+                'example' => '/api/ric/v1/graph?uri=' . url('/informationobject/my-fonds'),
             ], 400);
         }
 
-        // Build SPARQL to get relationships
-        $sparql = <<<SPARQL
-PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
-SELECT ?p ?o WHERE { <{$uri}> ?p ?o }
-SPARQL;
+        // Resolve URI to a Heratio record id. The URI tail is either the slug
+        // (records, agents, repositories) or the numeric id (RiC-native entities).
+        $tail = rtrim((string) parse_url($uri, PHP_URL_PATH), '/');
+        $lastSegment = $tail ? substr($tail, strrpos($tail, '/') + 1) : '';
+        if ($lastSegment === '') {
+            return response()->json(['error' => 'uri must point to a single entity'], 400);
+        }
 
-        $result = $this->executeSparql($sparql);
+        $recordId = null;
+        if (ctype_digit($lastSegment)) {
+            $recordId = (int) $lastSegment;
+        } else {
+            $recordId = \DB::table('slug')->where('slug', $lastSegment)->value('object_id');
+        }
+
+        if (!$recordId) {
+            return response()->json(['error' => "no entity found for uri {$uri}"], 404);
+        }
+
+        $ricController = new \AhgRic\Controllers\RicController();
+        $instanceId = \AhgCore\Services\SettingHelper::get('ahg_ric_instance_id', 'heratio');
+        $baseUri = config('app.url', url('/'));
+        $graph = $ricController->buildGraphFromDatabase($recordId, $baseUri, $instanceId);
+
+        // Per graph-primitives.md §6 invariant 1: openric:root MUST appear in nodes.
+        // buildGraphFromDatabase always places the root node first, so its id is
+        // the authoritative root URI for the invariant check.
+        $nodes = $graph['nodes'] ?? [];
+        $rootUri = $nodes[0]['id'] ?? $uri;
 
         return response()->json([
-            '@context' => 'https://www.ica.org/standards/RiC/ontology',
-            'entity' => $uri,
-            'relationships' => $result['bindings'] ?? [],
+            '@context' => [
+                'rico' => 'https://www.ica.org/standards/RiC/ontology#',
+                'openric' => 'https://openric.org/ns/v1#',
+            ],
+            '@type' => 'openric:Subgraph',
+            'openric:root' => $rootUri,
+            'openric:depth' => $depth,
+            'openric:nodes' => $nodes,
+            'openric:edges' => $graph['edges'] ?? [],
+        ], 200, [
+            'Content-Type' => 'application/ld+json',
         ]);
     }
 

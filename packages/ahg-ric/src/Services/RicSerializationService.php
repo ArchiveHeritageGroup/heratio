@@ -1171,27 +1171,54 @@ class RicSerializationService
      */
     private function getAccessRestrictions(string $entityType, int $entityId): array
     {
-        $restrictions = DB::table('access_log')
-            ->where('entity_type', $entityType)
-            ->where('entity_id', $entityId)
-            ->where('restriction_type', '!=', null)
+        // ICIP access restrictions apply only to information objects; other
+        // entity types have no access-restriction table today.
+        if ($entityType !== 'information_object') {
+            return [];
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasTable('icip_access_restriction')) {
+            return [];
+        }
+
+        $rows = DB::table('icip_access_restriction')
+            ->where('information_object_id', $entityId)
             ->get();
 
-        return $restrictions->map(fn($r) => [
-            '@type' => self::RICO_NS . 'AccessRestriction',
-            'rico:restriction' => $r->restriction_type,
-            'rico:reason' => $r->reason ?? null,
-        ])->toArray();
+        $out = [];
+        foreach ($rows as $r) {
+            $entry = [
+                '@type' => 'rico:AccessRestriction',
+                'rico:restriction' => $r->restriction_type,
+            ];
+            if (!empty($r->custom_restriction_text)) {
+                $entry['openric:customText'] = $r->custom_restriction_text;
+            }
+            if (!empty($r->start_date)) {
+                $entry['openric:startDate'] = $r->start_date;
+            }
+            if (!empty($r->end_date)) {
+                $entry['openric:endDate'] = $r->end_date;
+            }
+            $entry['openric:appliesToDescendants'] = (bool) ($r->applies_to_descendants ?? false);
+            $out[] = $entry;
+        }
+        return $out;
     }
 
     /**
-     * Check if entity contains personal data
+     * Check if entity contains personal data.
+     *
+     * Source: personal_data_log is keyed by object.id and contains one row
+     * per detected-personal-data event. Entity is flagged if any such row
+     * exists. entityType is ignored (all entities share object.id via CTI).
      */
     private function checkPersonalData(string $entityType, int $entityId): bool
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('personal_data_log')) {
+            return false;
+        }
         return DB::table('personal_data_log')
-            ->where('entity_type', $entityType)
-            ->where('entity_id', $entityId)
+            ->where('object_id', $entityId)
             ->exists();
     }
 
