@@ -14,5 +14,11 @@ class AhgHelpServiceProvider extends ServiceProvider
             ->group(__DIR__ . '/../../routes/web.php');
 
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-help');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgHelp\Commands\IngestHelpArticleCommand::class,
+            ]);
+        }
     }
 }

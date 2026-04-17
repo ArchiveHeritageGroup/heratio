@@ -52,9 +52,10 @@ class LinkedDataApiController extends Controller
         $query = \DB::table('actor as a')
             ->leftJoin('actor_i18n as i18n', 'a.id', '=', 'i18n.id')
             ->leftJoin('term as at', 'a.actor_type_id', '=', 'at.id')
+            ->leftJoin('slug', 'a.id', '=', 'slug.object_id')
             ->select([
                 'a.id',
-                'a.slug',
+                'slug.slug',
                 'a.actor_type_id',
                 'i18n.authorized_form_of_name as name',
                 'at.name as type',
@@ -93,7 +94,9 @@ class LinkedDataApiController extends Controller
     public function showAgent(string $slug): JsonResponse
     {
         $actor = \DB::table('actor')
-            ->where('slug', $slug)
+            ->join('slug', 'actor.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)
+            ->select('actor.*')
             ->first();
 
         if (!$actor) {
@@ -102,8 +105,12 @@ class LinkedDataApiController extends Controller
 
         $ric = $this->serializer->serializeAgent($actor->id);
 
-        // Add ISCAP compliance
-        $ric = $this->serializer->addIscapCompliance($ric, $actor->id, 'actor');
+        // Add ISCAP compliance (non-critical — degrade gracefully if schema mismatch)
+        try {
+            $ric = $this->serializer->addIscapCompliance($ric, $actor->id, 'actor');
+        } catch (\Throwable $e) {
+            Log::warning('addIscapCompliance skipped for actor ' . $actor->id . ': ' . $e->getMessage());
+        }
 
         return response()->json($ric, 200, [
             'Content-Type' => 'application/ld+json',
@@ -125,9 +132,10 @@ class LinkedDataApiController extends Controller
             ->leftJoin('information_object_i18n as i18n', 'io.id', '=', 'i18n.id')
             ->leftJoin('term as level', 'io.level_of_description_id', '=', 'level.id')
             ->leftJoin('term_i18n as level_i18n', 'level.id', '=', 'level_i18n.id')
+            ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->select([
                 'io.id',
-                'io.slug',
+                'slug.slug',
                 'io.identifier',
                 'i18n.title',
                 'level_i18n.name as level',
@@ -166,7 +174,9 @@ class LinkedDataApiController extends Controller
     public function showRecord(string $slug): JsonResponse
     {
         $io = \DB::table('information_object')
-            ->where('slug', $slug)
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)
+            ->select('information_object.*')
             ->first();
 
         if (!$io) {
@@ -175,8 +185,12 @@ class LinkedDataApiController extends Controller
 
         $ric = $this->serializer->serializeRecord($io->id);
 
-        // Add ISCAP compliance
-        $ric = $this->serializer->addIscapCompliance($ric, $io->id, 'information_object');
+        // Add ISCAP compliance (non-critical — degrade gracefully if schema mismatch)
+        try {
+            $ric = $this->serializer->addIscapCompliance($ric, $io->id, 'information_object');
+        } catch (\Throwable $e) {
+            Log::warning('addIscapCompliance skipped for record ' . $io->id . ': ' . $e->getMessage());
+        }
 
         return response()->json($ric, 200, [
             'Content-Type' => 'application/ld+json',
@@ -190,7 +204,9 @@ class LinkedDataApiController extends Controller
     public function exportRecordSet(string $slug): JsonResponse
     {
         $io = \DB::table('information_object')
-            ->where('slug', $slug)
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)
+            ->select('information_object.*')
             ->first();
 
         if (!$io) {
@@ -262,7 +278,8 @@ class LinkedDataApiController extends Controller
 
         $repos = \DB::table('repository as r')
             ->leftJoin('actor_i18n as i18n', 'r.id', '=', 'i18n.id')
-            ->select(['r.id', 'r.slug', 'i18n.authorized_form_of_name as name'])
+            ->leftJoin('slug', 'r.id', '=', 'slug.object_id')
+            ->select(['r.id', 'slug.slug', 'i18n.authorized_form_of_name as name'])
             ->offset(($page - 1) * $limit)
             ->limit($limit)
             ->get();
@@ -287,7 +304,9 @@ class LinkedDataApiController extends Controller
     public function showRepository(string $slug): JsonResponse
     {
         $repo = \DB::table('repository')
-            ->where('slug', $slug)
+            ->join('slug', 'repository.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)
+            ->select('repository.*')
             ->first();
 
         if (!$repo) {

@@ -404,21 +404,22 @@ class RicSerializationService
      */
     public function addIscapCompliance(array $ricEntity, int $entityId, string $entityType): array
     {
-        // Security Classification
-        $security = DB::table('security_level as sl')
-            ->join('security_level_i18n as sl_i18n', 'sl.id', '=', 'sl_i18n.id')
-            ->where('sl.id', function ($query) use ($entityType, $entityId) {
-                $query->select('security_level_id')
-                    ->from($entityType)
-                    ->where('id', $entityId);
+        $culture = app()->getLocale() ?: 'en';
+
+        $security = DB::table('security_access_condition_link as sacl')
+            ->join('security_level as sl', 'sacl.classification_id', '=', 'sl.id')
+            ->leftJoin('security_level_i18n as sl_i18n', function ($j) use ($culture) {
+                $j->on('sl.id', '=', 'sl_i18n.id')->where('sl_i18n.culture', '=', $culture);
             })
+            ->where('sacl.object_id', $entityId)
+            ->select('sl_i18n.name', 'sl.classification', 'sl.level_value')
             ->first();
 
         if ($security) {
             $ricEntity['rico:hasSecurityClassification'] = [
                 '@type' => self::RICO_NS . 'SecurityClassification',
                 'rico:securityLevel' => $security->name,
-                'rico:securityLevelCode' => $security->code,
+                'rico:securityLevelCode' => $security->classification,
             ];
         }
 
