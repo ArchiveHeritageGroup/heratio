@@ -128,7 +128,7 @@ class RicSerializationService
 
         $record = [
             '@context' => [
-                self::RICO_NS => self::RICO_NS,
+                'rico' => self::RICO_NS,
                 'rdf' => self::RDF_NS,
                 'rdfs' => self::RDFS_NS,
                 'xsd' => self::XSD_NS,
