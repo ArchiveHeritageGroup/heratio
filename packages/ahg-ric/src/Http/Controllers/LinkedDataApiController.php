@@ -327,6 +327,71 @@ class LinkedDataApiController extends Controller
     }
 
     /**
+     * GET /api/ric/v1/places
+     * List RiC-native Places (paginated).
+     */
+    public function listPlaces(Request $request): JsonResponse
+    {
+        $page = max(1, (int) $request->get('page', 1));
+        $limit = min((int) $request->get('limit', 50), 200);
+        $type = $request->get('type');
+        $culture = app()->getLocale() ?: 'en';
+
+        $query = \DB::table('ric_place as p')
+            ->leftJoin('ric_place_i18n as i18n', function ($j) use ($culture) {
+                $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->select(['p.id', 'p.type_id', 'p.latitude', 'p.longitude', 'i18n.name']);
+
+        if ($type) {
+            $query->where('p.type_id', $type);
+        }
+
+        $total = $query->count();
+        $places = $query
+            ->orderBy('i18n.name')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+
+        $items = array_map(fn($p) => [
+            '@id' => url('/place/' . $p->id),
+            '@type' => 'rico:Place',
+            'rico:name' => $p->name,
+            'openric:localType' => $p->type_id,
+        ], $places->toArray());
+
+        return response()->json([
+            '@context' => [
+                'rico' => 'https://www.ica.org/standards/RiC/ontology#',
+                'openric' => 'https://openric.org/ns/v1#',
+            ],
+            '@type' => 'rico:PlaceList',
+            'openric:total' => $total,
+            'openric:page' => $page,
+            'openric:limit' => $limit,
+            'openric:items' => $items,
+        ]);
+    }
+
+    /**
+     * GET /api/ric/v1/places/{id}
+     * Get single RiC-native Place as RIC-O JSON-LD.
+     */
+    public function showPlace(int $id): JsonResponse
+    {
+        $ric = $this->serializer->serializePlace($id);
+
+        if (isset($ric['error'])) {
+            return response()->json($ric, 404);
+        }
+
+        return response()->json($ric, 200, [
+            'Content-Type' => 'application/ld+json',
+        ]);
+    }
+
+    /**
      * GET /api/ric/v1/sparql
      * Execute SPARQL query against triplestore
      */

@@ -423,6 +423,85 @@ class RicSerializationService
     }
 
     /**
+     * Serialize a RiC-native Place to RIC-O JSON-LD.
+     */
+    public function serializePlace(int $placeId, array $options = []): array
+    {
+        $culture = app()->getLocale() ?: 'en';
+
+        $place = DB::table('ric_place as p')
+            ->leftJoin('ric_place_i18n as i18n', function ($j) use ($culture) {
+                $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->leftJoin('ric_place as parent', 'p.parent_id', '=', 'parent.id')
+            ->leftJoin('ric_place_i18n as parent_i18n', function ($j) use ($culture) {
+                $j->on('parent.id', '=', 'parent_i18n.id')
+                  ->where('parent_i18n.culture', '=', $culture);
+            })
+            ->where('p.id', $placeId)
+            ->select([
+                'p.*',
+                'i18n.name',
+                'i18n.description',
+                'i18n.address',
+                'parent.id as parent_place_id',
+                'parent_i18n.name as parent_name',
+            ])
+            ->first();
+
+        if (!$place) {
+            return ['error' => 'Place not found'];
+        }
+
+        $ricPlace = [
+            '@context' => [
+                'rico' => self::RICO_NS,
+                'rdf' => self::RDF_NS,
+                'rdfs' => self::RDFS_NS,
+                'xsd' => self::XSD_NS,
+                'owl' => 'http://www.w3.org/2002/07/owl#',
+            ],
+            '@id' => $this->baseUri . '/place/' . $place->id,
+            '@type' => 'rico:Place',
+        ];
+
+        if (!empty($place->name)) {
+            $ricPlace['rico:name'] = $place->name;
+        }
+
+        if (!empty($place->description)) {
+            $ricPlace['rico:description'] = $place->description;
+        }
+
+        if (!empty($place->address)) {
+            $ricPlace['rico:streetAddress'] = $place->address;
+        }
+
+        if (!empty($place->type_id)) {
+            $ricPlace['openric:localType'] = $place->type_id;
+        }
+
+        if ($place->latitude !== null && $place->longitude !== null) {
+            $ricPlace['rico:latitude'] = (float) $place->latitude;
+            $ricPlace['rico:longitude'] = (float) $place->longitude;
+        }
+
+        if (!empty($place->authority_uri)) {
+            $ricPlace['owl:sameAs'] = $place->authority_uri;
+        }
+
+        if ($place->parent_place_id) {
+            $ricPlace['rico:isOrWasPartOf'] = [
+                '@id' => $this->baseUri . '/place/' . $place->parent_place_id,
+                '@type' => 'rico:Place',
+                'rico:name' => $place->parent_name,
+            ];
+        }
+
+        return $ricPlace;
+    }
+
+    /**
      * Serialize with ISCAP compliance (Security/Access)
      */
     public function addIscapCompliance(array $ricEntity, int $entityId, string $entityType): array

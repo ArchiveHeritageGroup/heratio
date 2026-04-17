@@ -64,7 +64,11 @@ Route::prefix('api/ric/v1')->middleware(['throttle:60,1'])->group(function () {
     // Repositories (ISDIAH)
     Route::get('/repositories', [LinkedDataApiController::class, 'listRepositories']);
     Route::get('/repositories/{slug}', [LinkedDataApiController::class, 'showRepository']);
-    
+
+    // RiC-native Places
+    Route::get('/places', [LinkedDataApiController::class, 'listPlaces']);
+    Route::get('/places/{id}', [LinkedDataApiController::class, 'showPlace'])->where('id', '[0-9]+');
+
     // SPARQL & Graph
     Route::get('/sparql', [LinkedDataApiController::class, 'sparql']);
     Route::get('/graph', [LinkedDataApiController::class, 'graph']);
