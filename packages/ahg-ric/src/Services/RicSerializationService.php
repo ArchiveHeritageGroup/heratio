@@ -222,24 +222,35 @@ class RicSerializationService
      */
     public function serializeAgent(int $actorId, array $options = []): array
     {
+        $culture = app()->getLocale() ?: 'en';
         $actor = DB::table('actor as a')
-            ->leftJoin('actor_i18n as i18n', 'a.id', '=', 'i18n.id')
+            ->leftJoin('actor_i18n as i18n', function ($j) use ($culture) {
+                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as et_i18n', function ($j) use ($culture) {
+                $j->on('a.entity_type_id', '=', 'et_i18n.id')->where('et_i18n.culture', '=', $culture);
+            })
+            ->leftJoin('slug', 'a.id', '=', 'slug.object_id')
             ->where('a.id', $actorId)
+            ->select('a.*', 'i18n.*', 'et_i18n.name as entity_type_name', 'slug.slug')
             ->first();
 
         if (!$actor) {
             return ['error' => 'Actor not found'];
         }
 
-        $ricType = $this->actorTypeToRic[$actor->actor_type_id] ?? 'Agent';
+        $typeKey = strtolower($actor->entity_type_name ?? '');
+        $ricType = $this->actorTypeToRic[$typeKey] ?? 'Agent';
 
         $agent = [
             '@context' => [
-                self::RICO_NS => self::RICO_NS,
-                ' rico' => self::RICO_NS,
+                'rico' => self::RICO_NS,
+                'rdf' => self::RDF_NS,
+                'rdfs' => self::RDFS_NS,
+                'xsd' => self::XSD_NS,
             ],
-            '@id' => $this->baseUri . '/actor/' . $actor->id,
-            '@type' => self::RICO_NS . $ricType,
+            '@id' => $this->baseUri . '/actor/' . ($actor->slug ?: $actor->id),
+            '@type' => 'rico:' . $ricType,
         ];
 
         // ISAAR mandatory: Authorized Form of Name

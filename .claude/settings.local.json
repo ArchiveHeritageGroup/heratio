@@ -323,7 +323,10 @@
       "Bash(sudo -u www-data php artisan tinker '--execute=try { $c = new AhgRic\\\\Http\\\\Controllers\\\\LinkedDataApiController\\(\\); $resp = $c->showRecord\\(\"kc4x-45tz-em84\"\\); echo \"OK status=\" . $resp->status\\(\\) . \"\\\\n\"; echo substr\\(json_encode\\($resp->getData\\(true\\), JSON_PRETTY_PRINT\\), 0, 800\\) . \"\\\\n\"; } catch \\(Throwable $e\\) { echo \"EXCEPTION: \" . get_class\\($e\\) . \"\\\\n\"; echo $e->getMessage\\(\\) . \"\\\\n\"; echo $e->getFile\\(\\) . \":\" . $e->getLine\\(\\) . \"\\\\n\"; }')",
       "Bash(.venv/bin/openric-validate --record \"https://heratio.theahg.co.za/api/ric/v1/records/kc4x-45tz-em84\")",
       "Bash(.venv/bin/pytest tests/ -q)",
-      "Bash(.venv/bin/openric-validate --record \"https://heratio.theahg.co.za/api/ric/v1/records/egyptian-boat\")"
+      "Bash(.venv/bin/openric-validate --record \"https://heratio.theahg.co.za/api/ric/v1/records/egyptian-boat\")",
+      "Bash(sudo -u www-data php artisan tinker '--execute=try { $c = new AhgRic\\\\Http\\\\Controllers\\\\LinkedDataApiController\\(\\); $req = new Illuminate\\\\Http\\\\Request\\(\\); $req->merge\\([\"limit\"=>3]\\); $resp = $c->listAgents\\($req\\); echo \"status=\" . $resp->status\\(\\) . \"\\\\n\"; echo substr\\(json_encode\\($resp->getData\\(true\\), JSON_PRETTY_PRINT\\), 0, 800\\) . \"\\\\n\"; } catch \\(Throwable $e\\) { echo \"EXCEPTION: \" . $e->getMessage\\(\\) . \"\\\\n\"; echo $e->getFile\\(\\) . \":\" . $e->getLine\\(\\) . \"\\\\n\"; }')",
+      "Bash(sudo -u www-data php artisan tinker '--execute=try { $c = new AhgRic\\\\Http\\\\Controllers\\\\LinkedDataApiController\\(\\); $req = new Illuminate\\\\Http\\\\Request\\(\\); $req->merge\\([\"limit\"=>3]\\); $resp = $c->listAgents\\($req\\); echo \"status=\" . $resp->status\\(\\) . \"\\\\n\"; $d = $resp->getData\\(true\\); echo \"items: \" . count\\($d[\"ric:items\"]\\) . \"\\\\n\"; echo \"first: \" . json_encode\\($d[\"ric:items\"][0] ?? null\\) . \"\\\\n\"; } catch \\(Throwable $e\\) { echo \"EXCEPTION: \" . $e->getMessage\\(\\) . \"\\\\n\"; }')",
+      "Bash(.venv/bin/openric-validate --record \"https://heratio.theahg.co.za/api/ric/v1/agents/d6mh-ktzy-h6qz\")"
     ]
   }
 }

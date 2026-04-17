@@ -49,20 +49,26 @@ class LinkedDataApiController extends Controller
         $limit = min($request->get('limit', 50), 200);
         $type = $request->get('type'); // person, corporate body, family
 
+        $culture = app()->getLocale() ?: 'en';
         $query = \DB::table('actor as a')
-            ->leftJoin('actor_i18n as i18n', 'a.id', '=', 'i18n.id')
-            ->leftJoin('term as at', 'a.actor_type_id', '=', 'at.id')
+            ->leftJoin('actor_i18n as i18n', function ($j) use ($culture) {
+                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->leftJoin('term as at', 'a.entity_type_id', '=', 'at.id')
+            ->leftJoin('term_i18n as at_i18n', function ($j) use ($culture) {
+                $j->on('at.id', '=', 'at_i18n.id')->where('at_i18n.culture', '=', $culture);
+            })
             ->leftJoin('slug', 'a.id', '=', 'slug.object_id')
             ->select([
                 'a.id',
                 'slug.slug',
-                'a.actor_type_id',
+                'a.entity_type_id',
                 'i18n.authorized_form_of_name as name',
-                'at.name as type',
+                'at_i18n.name as type',
             ]);
 
         if ($type) {
-            $query->where('at.name', $type);
+            $query->where('at_i18n.name', $type);
         }
 
         $total = $query->count();
