@@ -467,7 +467,13 @@ class RicController extends Controller
     public function ajaxSync()
     {
         $logFile = storage_path('logs/ric_sync_' . date('Ymd_His') . '.log');
-        $cmd = 'cd ' . base_path() . ' && php artisan ric:sync > ' . escapeshellarg($logFile) . ' 2>&1 & echo $!';
+        $script = base_path('packages/ahg-ric/bin/ric_sync.sh');
+
+        if (!is_file($script) || !is_executable($script)) {
+            return response()->json(['success' => false, 'error' => 'Sync script not found or not executable: ' . $script]);
+        }
+
+        $cmd = escapeshellcmd($script) . ' --cron > ' . escapeshellarg($logFile) . ' 2>&1 & echo $!';
         $pid = trim(shell_exec($cmd));
 
         if (!$pid || !is_numeric($pid)) {
@@ -496,7 +502,7 @@ class RicController extends Controller
         $running = false;
 
         // Check if the process is still running
-        $pids = shell_exec("pgrep -f 'ric:sync' 2>/dev/null");
+        $pids = shell_exec("pgrep -f 'ric_sync.sh' 2>/dev/null");
         if (trim($pids)) {
             $running = true;
         }
