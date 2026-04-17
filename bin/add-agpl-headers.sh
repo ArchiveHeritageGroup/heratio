@@ -26,7 +26,7 @@ for file in $(grep -rL "Copyright (C) 2026" packages/ahg-*/src/Services/*.php pa
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
- * Email: johan@plansailingisystems
+ * Email: johan@plansailingisystems.co.za
  *
  * This file is part of Heratio.
  *
