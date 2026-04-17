@@ -677,29 +677,82 @@ class LinkedDataApiController extends Controller
             ], 400);
         }
 
-        // Resolve URI to a Heratio record id. The URI tail is either the slug
-        // (records, agents, repositories) or the numeric id (RiC-native entities).
-        $tail = rtrim((string) parse_url($uri, PHP_URL_PATH), '/');
-        $lastSegment = $tail ? substr($tail, strrpos($tail, '/') + 1) : '';
-        if ($lastSegment === '') {
-            return response()->json(['error' => 'uri must point to a single entity'], 400);
+        // Parse URI → entity type + key. URL shape: <base>/<type>/<id-or-slug>.
+        $path = rtrim((string) parse_url($uri, PHP_URL_PATH), '/');
+        $parts = $path ? array_values(array_filter(explode('/', $path), 'strlen')) : [];
+        if (count($parts) < 2) {
+            return response()->json(['error' => 'uri must point to a single entity (shape: /<type>/<id-or-slug>)'], 400);
         }
-
-        $recordId = null;
-        if (ctype_digit($lastSegment)) {
-            $recordId = (int) $lastSegment;
-        } else {
-            $recordId = \DB::table('slug')->where('slug', $lastSegment)->value('object_id');
-        }
-
-        if (!$recordId) {
-            return response()->json(['error' => "no entity found for uri {$uri}"], 404);
-        }
+        $lastSegment = $parts[count($parts) - 1];
+        $entityType  = $parts[count($parts) - 2];
 
         $ricController = new \AhgRic\Controllers\RicController();
         $instanceId = \AhgCore\Services\SettingHelper::get('ahg_ric_instance_id', 'heratio');
         $baseUri = config('app.url', url('/'));
-        $graph = $ricController->buildGraphFromDatabase($recordId, $baseUri, $instanceId);
+
+        // Dispatch by entity type from the URI.
+        $graph = null;
+        switch ($entityType) {
+            case 'informationobject':
+            case 'record':
+            case 'recordset':
+                $recordId = ctype_digit($lastSegment)
+                    ? (int) $lastSegment
+                    : (int) \DB::table('slug')->where('slug', $lastSegment)->value('object_id');
+                if ($recordId) {
+                    $graph = $ricController->buildGraphFromDatabase($recordId, $baseUri, $instanceId);
+                }
+                break;
+
+            case 'actor':
+            case 'person':
+            case 'corporatebody':
+            case 'family':
+                $actorId = ctype_digit($lastSegment)
+                    ? (int) $lastSegment
+                    : (int) \DB::table('slug')->where('slug', $lastSegment)->value('object_id');
+                if ($actorId) {
+                    $graph = $this->buildAgentGraph($actorId, $baseUri, $instanceId);
+                }
+                break;
+
+            case 'repository':
+                $repoId = ctype_digit($lastSegment)
+                    ? (int) $lastSegment
+                    : (int) \DB::table('slug')->where('slug', $lastSegment)->value('object_id');
+                if ($repoId) {
+                    $graph = $this->buildRepositoryGraph($repoId, $baseUri, $instanceId);
+                }
+                break;
+
+            case 'place':
+                if (ctype_digit($lastSegment)) {
+                    $graph = $this->buildPlaceGraph((int) $lastSegment, $baseUri, $instanceId);
+                }
+                break;
+
+            case 'activity':
+                if (ctype_digit($lastSegment)) {
+                    $graph = $this->buildActivityGraph((int) $lastSegment, $baseUri, $instanceId);
+                }
+                break;
+
+            case 'rule':
+                if (ctype_digit($lastSegment)) {
+                    $graph = $this->buildRuleGraph((int) $lastSegment, $baseUri, $instanceId);
+                }
+                break;
+
+            case 'instantiation':
+                if (ctype_digit($lastSegment)) {
+                    $graph = $this->buildInstantiationGraph((int) $lastSegment, $baseUri, $instanceId);
+                }
+                break;
+        }
+
+        if (!$graph || empty($graph['nodes'])) {
+            return response()->json(['error' => "no entity found for uri {$uri}"], 404);
+        }
 
         // Per graph-primitives.md §6 invariant 1: openric:root MUST appear in nodes.
         // buildGraphFromDatabase always places the root node first, so its id is
@@ -782,5 +835,293 @@ class LinkedDataApiController extends Controller
         ];
 
         return response()->json($vocab);
+    }
+
+    // ========================================================================
+    // Subgraph builders for non-record root URIs. Each returns a minimal
+    // {nodes: [...], edges: [...]} dict; the root node is always first.
+    // ========================================================================
+
+    private function buildAgentGraph(int $actorId, string $baseUri, string $instanceId): array
+    {
+        $culture = app()->getLocale() ?: 'en';
+        $actor = \DB::table('actor as a')
+            ->leftJoin('actor_i18n as i18n', function ($j) use ($culture) {
+                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->where('a.id', $actorId)
+            ->select('a.id', 'i18n.authorized_form_of_name as name')
+            ->first();
+        if (!$actor) return ['nodes' => [], 'edges' => []];
+
+        $rootUri = $baseUri . '/' . $instanceId . '/person/' . $actorId;
+        $nodes = [['id' => $rootUri, 'label' => $actor->name ?: 'Agent ' . $actorId, 'type' => 'Person']];
+        $edges = [];
+        $seen = [$rootUri => true];
+
+        // Records linked via event (creator/accumulator).
+        $events = \DB::table('event as e')
+            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
+                $j->on('e.object_id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as ti', function ($j) use ($culture) {
+                $j->on('e.type_id', '=', 'ti.id')->where('ti.culture', '=', $culture);
+            })
+            ->where('e.actor_id', $actorId)
+            ->select('e.object_id', 'ioi.title', 'ti.name as event_type')
+            ->limit(25)
+            ->get();
+        foreach ($events as $ev) {
+            if (!$ev->object_id) continue;
+            $recUri = $baseUri . '/' . $instanceId . '/recordset/' . $ev->object_id;
+            if (!isset($seen[$recUri])) {
+                $seen[$recUri] = true;
+                $nodes[] = ['id' => $recUri, 'label' => $ev->title ?: 'Record ' . $ev->object_id, 'type' => 'RecordSet'];
+            }
+            $predicate = match (true) {
+                str_contains(strtolower($ev->event_type ?? ''), 'creat'),
+                str_contains(strtolower($ev->event_type ?? ''), 'product')
+                    => 'rico:hasCreator',
+                str_contains(strtolower($ev->event_type ?? ''), 'accumulat')
+                    => 'rico:hasAccumulator',
+                default => 'rico:isAssociatedWith',
+            };
+            $edges[] = [
+                'source' => $rootUri, 'target' => $recUri,
+                'predicate' => $predicate, 'label' => $ev->event_type ?: 'related',
+            ];
+        }
+
+        // Records linked via relation table (with ric_relation_meta predicates where available).
+        $rels = \DB::table('relation as r')
+            ->leftJoin('ric_relation_meta as rm', 'r.id', '=', 'rm.relation_id')
+            ->leftJoin('information_object_i18n as ioi_o', function ($j) use ($culture) {
+                $j->on('r.object_id', '=', 'ioi_o.id')->where('ioi_o.culture', '=', $culture);
+            })
+            ->leftJoin('object as o_o', 'r.object_id', '=', 'o_o.id')
+            ->where('r.subject_id', $actorId)
+            ->whereIn('o_o.class_name', ['QubitInformationObject'])
+            ->select('r.object_id', 'ioi_o.title', 'rm.rico_predicate')
+            ->limit(15)
+            ->get();
+        foreach ($rels as $rel) {
+            $recUri = $baseUri . '/' . $instanceId . '/recordset/' . $rel->object_id;
+            if (!isset($seen[$recUri])) {
+                $seen[$recUri] = true;
+                $nodes[] = ['id' => $recUri, 'label' => $rel->title ?: 'Record ' . $rel->object_id, 'type' => 'RecordSet'];
+            }
+            $edges[] = [
+                'source' => $rootUri, 'target' => $recUri,
+                'predicate' => $rel->rico_predicate ?: 'rico:isAssociatedWith',
+                'label' => 'associated with',
+            ];
+        }
+
+        return ['nodes' => $nodes, 'edges' => $edges];
+    }
+
+    private function buildRepositoryGraph(int $repoId, string $baseUri, string $instanceId): array
+    {
+        $culture = app()->getLocale() ?: 'en';
+        $repo = \DB::table('actor as a')
+            ->leftJoin('actor_i18n as i18n', function ($j) use ($culture) {
+                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->where('a.id', $repoId)
+            ->select('a.id', 'i18n.authorized_form_of_name as name')
+            ->first();
+        if (!$repo) return ['nodes' => [], 'edges' => []];
+
+        $rootUri = $baseUri . '/' . $instanceId . '/corporatebody/' . $repoId;
+        $nodes = [['id' => $rootUri, 'label' => $repo->name ?: 'Repository ' . $repoId, 'type' => 'CorporateBody']];
+        $edges = [];
+        $seen = [$rootUri => true];
+
+        $holdings = \DB::table('information_object as io')
+            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
+                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
+            })
+            ->where('io.repository_id', $repoId)
+            ->select('io.id', 'ioi.title')
+            ->limit(25)
+            ->get();
+        foreach ($holdings as $h) {
+            $recUri = $baseUri . '/' . $instanceId . '/recordset/' . $h->id;
+            if (!isset($seen[$recUri])) {
+                $seen[$recUri] = true;
+                $nodes[] = ['id' => $recUri, 'label' => $h->title ?: 'Record ' . $h->id, 'type' => 'RecordSet'];
+            }
+            $edges[] = [
+                'source' => $rootUri, 'target' => $recUri,
+                'predicate' => 'rico:hasHolding', 'label' => 'has holding',
+            ];
+        }
+
+        return ['nodes' => $nodes, 'edges' => $edges];
+    }
+
+    private function buildPlaceGraph(int $placeId, string $baseUri, string $instanceId): array
+    {
+        $culture = app()->getLocale() ?: 'en';
+        $place = \DB::table('ric_place as p')
+            ->leftJoin('ric_place_i18n as i18n', function ($j) use ($culture) {
+                $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->where('p.id', $placeId)
+            ->select('p.id', 'p.parent_id', 'i18n.name')
+            ->first();
+        if (!$place) return ['nodes' => [], 'edges' => []];
+
+        $rootUri = $baseUri . '/' . $instanceId . '/place/' . $placeId;
+        $nodes = [['id' => $rootUri, 'label' => $place->name ?: 'Place ' . $placeId, 'type' => 'Place']];
+        $edges = [];
+        $seen = [$rootUri => true];
+
+        // Parent place
+        if ($place->parent_id) {
+            $parent = \DB::table('ric_place as p')
+                ->leftJoin('ric_place_i18n as i18n', function ($j) use ($culture) {
+                    $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+                })
+                ->where('p.id', $place->parent_id)
+                ->select('p.id', 'i18n.name')->first();
+            if ($parent) {
+                $parentUri = $baseUri . '/' . $instanceId . '/place/' . $parent->id;
+                $nodes[] = ['id' => $parentUri, 'label' => $parent->name ?: 'Place ' . $parent->id, 'type' => 'Place'];
+                $seen[$parentUri] = true;
+                $edges[] = ['source' => $rootUri, 'target' => $parentUri, 'predicate' => 'rico:isOrWasPartOf', 'label' => 'part of'];
+            }
+        }
+
+        // Child places
+        $children = \DB::table('ric_place as p')
+            ->leftJoin('ric_place_i18n as i18n', function ($j) use ($culture) {
+                $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->where('p.parent_id', $placeId)
+            ->select('p.id', 'i18n.name')
+            ->limit(15)
+            ->get();
+        foreach ($children as $c) {
+            $cUri = $baseUri . '/' . $instanceId . '/place/' . $c->id;
+            if (isset($seen[$cUri])) continue;
+            $seen[$cUri] = true;
+            $nodes[] = ['id' => $cUri, 'label' => $c->name ?: 'Place ' . $c->id, 'type' => 'Place'];
+            $edges[] = ['source' => $cUri, 'target' => $rootUri, 'predicate' => 'rico:isOrWasPartOf', 'label' => 'part of'];
+        }
+
+        // Activities at this place
+        $activities = \DB::table('ric_activity as a')
+            ->leftJoin('ric_activity_i18n as i18n', function ($j) use ($culture) {
+                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->where('a.place_id', $placeId)
+            ->select('a.id', 'a.type_id', 'i18n.name')
+            ->limit(15)
+            ->get();
+        foreach ($activities as $a) {
+            $aUri = $baseUri . '/' . $instanceId . '/activity/' . $a->id;
+            if (isset($seen[$aUri])) continue;
+            $seen[$aUri] = true;
+            $nodes[] = ['id' => $aUri, 'label' => $a->name ?: ucfirst($a->type_id ?? 'Activity'), 'type' => 'Activity'];
+            $edges[] = ['source' => $aUri, 'target' => $rootUri, 'predicate' => 'rico:hasOrHadLocation', 'label' => 'at'];
+        }
+
+        return ['nodes' => $nodes, 'edges' => $edges];
+    }
+
+    private function buildActivityGraph(int $activityId, string $baseUri, string $instanceId): array
+    {
+        $culture = app()->getLocale() ?: 'en';
+        $act = \DB::table('ric_activity as a')
+            ->leftJoin('ric_activity_i18n as i18n', function ($j) use ($culture) {
+                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->where('a.id', $activityId)
+            ->select('a.id', 'a.type_id', 'a.place_id', 'i18n.name')->first();
+        if (!$act) return ['nodes' => [], 'edges' => []];
+
+        $shortType = match (strtolower($act->type_id ?? '')) {
+            'production', 'creation', 'contribution' => 'Production',
+            'accumulation', 'collection' => 'Accumulation',
+            default => 'Activity',
+        };
+        $rootUri = $baseUri . '/' . $instanceId . '/activity/' . $activityId;
+        $nodes = [['id' => $rootUri, 'label' => $act->name ?: ucfirst($act->type_id ?? 'Activity'), 'type' => $shortType]];
+        $edges = [];
+        $seen = [$rootUri => true];
+
+        // Linked Place
+        if ($act->place_id) {
+            $place = \DB::table('ric_place as p')
+                ->leftJoin('ric_place_i18n as i18n', function ($j) use ($culture) {
+                    $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+                })
+                ->where('p.id', $act->place_id)
+                ->select('p.id', 'i18n.name')->first();
+            if ($place) {
+                $pUri = $baseUri . '/' . $instanceId . '/place/' . $place->id;
+                $nodes[] = ['id' => $pUri, 'label' => $place->name ?: 'Place ' . $place->id, 'type' => 'Place'];
+                $seen[$pUri] = true;
+                $edges[] = ['source' => $rootUri, 'target' => $pUri, 'predicate' => 'rico:hasOrHadLocation', 'label' => 'at'];
+            }
+        }
+
+        return ['nodes' => $nodes, 'edges' => $edges];
+    }
+
+    private function buildRuleGraph(int $ruleId, string $baseUri, string $instanceId): array
+    {
+        $culture = app()->getLocale() ?: 'en';
+        $rule = \DB::table('ric_rule as r')
+            ->leftJoin('ric_rule_i18n as i18n', function ($j) use ($culture) {
+                $j->on('r.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->where('r.id', $ruleId)
+            ->select('r.id', 'i18n.title')->first();
+        if (!$rule) return ['nodes' => [], 'edges' => []];
+
+        $rootUri = $baseUri . '/' . $instanceId . '/rule/' . $ruleId;
+        return [
+            'nodes' => [['id' => $rootUri, 'label' => $rule->title ?: 'Rule ' . $ruleId, 'type' => 'Rule']],
+            'edges' => [],
+        ];
+    }
+
+    private function buildInstantiationGraph(int $instId, string $baseUri, string $instanceId): array
+    {
+        $culture = app()->getLocale() ?: 'en';
+        $inst = \DB::table('ric_instantiation as ri')
+            ->leftJoin('ric_instantiation_i18n as i18n', function ($j) use ($culture) {
+                $j->on('ri.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->leftJoin('information_object_i18n as io_i18n', function ($j) use ($culture) {
+                $j->on('ri.record_id', '=', 'io_i18n.id')->where('io_i18n.culture', '=', $culture);
+            })
+            ->where('ri.id', $instId)
+            ->select('ri.id', 'ri.record_id', 'ri.mime_type', 'i18n.title', 'io_i18n.title as record_title')
+            ->first();
+        if (!$inst) return ['nodes' => [], 'edges' => []];
+
+        $rootUri = $baseUri . '/' . $instanceId . '/instantiation/' . $instId;
+        $nodes = [[
+            'id' => $rootUri,
+            'label' => $inst->title ?: ($inst->mime_type ? 'Instantiation (' . $inst->mime_type . ')' : 'Instantiation ' . $instId),
+            'type' => 'Instantiation',
+        ]];
+        $edges = [];
+        if ($inst->record_id) {
+            $recUri = $baseUri . '/' . $instanceId . '/recordset/' . $inst->record_id;
+            $nodes[] = [
+                'id' => $recUri,
+                'label' => $inst->record_title ?: 'Record ' . $inst->record_id,
+                'type' => 'RecordSet',
+            ];
+            $edges[] = [
+                'source' => $recUri, 'target' => $rootUri,
+                'predicate' => 'rico:hasInstantiation', 'label' => 'has instantiation',
+            ];
+        }
+        return ['nodes' => $nodes, 'edges' => $edges];
     }
 }
