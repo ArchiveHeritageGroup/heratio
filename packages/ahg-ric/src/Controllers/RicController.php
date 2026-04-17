@@ -1216,6 +1216,17 @@ class RicController extends Controller
     }
 
     /**
+     * Derive a human-readable edge label from a canonical rico:* predicate.
+     * Example: "rico:hasOrHadSubject" → "has or had subject".
+     */
+    protected function humanisePredicate(string $predicate): string
+    {
+        $local = preg_replace('/^[a-z]+:/', '', $predicate);
+        $withSpaces = preg_replace('/([a-z])([A-Z])/', '$1 $2', $local);
+        return strtolower($withSpaces);
+    }
+
+    /**
      * Build overview graph from SPARQL.
      */
     protected function buildOverviewGraph(string $endpoint, string $username, string $password): array
@@ -1675,9 +1686,22 @@ SPARQL;
                         'type'  => 'Person',
                     ];
                 }
+                // Map AtoM event.type_id to canonical RiC creator predicate.
+                // Creation / production / contribution → hasCreator;
+                // accumulation / collection → hasAccumulator.
+                $evTypeLower = strtolower($event->event_type ?: '');
+                $evPredicate = match (true) {
+                    str_contains($evTypeLower, 'creat'), str_contains($evTypeLower, 'product'),
+                    str_contains($evTypeLower, 'contribut')
+                        => 'rico:hasCreator',
+                    str_contains($evTypeLower, 'accumulat'), str_contains($evTypeLower, 'collect')
+                        => 'rico:hasAccumulator',
+                    default => 'rico:isAssociatedWith',
+                };
                 $edges[] = [
                     'source' => $actorUri,
                     'target' => $recordUri,
+                    'predicate' => $evPredicate,
                     'label'  => $event->event_type ?: 'related',
                 ];
             }
@@ -1709,7 +1733,16 @@ SPARQL;
                     'type'  => $type,
                 ];
             }
-            $edges[] = ['source' => $recordUri, 'target' => $termUri, 'label' => 'about'];
+            // Subject access points — taxonomy 42 is Places, others are Subjects
+            $subjPredicate = ($subject->taxonomy_id == 42)
+                ? 'rico:hasOrHadLocation'
+                : 'rico:hasOrHadSubject';
+            $edges[] = [
+                'source' => $recordUri,
+                'target' => $termUri,
+                'predicate' => $subjPredicate,
+                'label' => 'about',
+            ];
         }
 
         // Parent/child relations
@@ -1732,7 +1765,12 @@ SPARQL;
                         'type'  => 'RecordSet',
                     ];
                 }
-                $edges[] = ['source' => $recordUri, 'target' => $parentUri, 'label' => 'part of'];
+                $edges[] = [
+                    'source' => $recordUri,
+                    'target' => $parentUri,
+                    'predicate' => 'rico:isOrWasPartOf',
+                    'label' => 'part of',
+                ];
             }
         }
 
@@ -1762,14 +1800,18 @@ SPARQL;
                     'type'  => 'Date',
                 ];
             }
-            // Creation events (type_id 111) => hasCreationDate; Accumulation (type_id 112) => hasAccumulationDate
-            $predicate = 'has Creation Date';
-            if ($de->type_id == 112) {
-                $predicate = 'has Accumulation Date';
-            } elseif ($de->event_type_name) {
-                $predicate = 'has ' . $de->event_type_name . ' Date';
-            }
-            $edges[] = ['source' => $recordUri, 'target' => $dateUri, 'label' => $predicate];
+            // Creation events => hasCreationDate; Accumulation => hasAccumulationDate; others => hasBeginningDate.
+            $datePredicate = match (true) {
+                $de->type_id == 112 => 'rico:hasAccumulationDate',
+                $de->type_id == 111 => 'rico:hasCreationDate',
+                default             => 'rico:hasBeginningDate',
+            };
+            $edges[] = [
+                'source' => $recordUri,
+                'target' => $dateUri,
+                'predicate' => $datePredicate,
+                'label' => $this->humanisePredicate($datePredicate),
+            ];
         }
 
         // RiC-O: hasOrHadHolder — map from repository_id
@@ -1792,15 +1834,23 @@ SPARQL;
                         'type'  => 'CorporateBody',
                     ];
                 }
-                $edges[] = ['source' => $recordUri, 'target' => $repoUri, 'label' => 'has Or Had Holder'];
+                $edges[] = [
+                    'source' => $recordUri,
+                    'target' => $repoUri,
+                    'predicate' => 'rico:hasOrHadHolder',
+                    'label' => 'has or had holder',
+                ];
             }
         }
 
-        // RiC-O: isAssociatedWith — from relation table (only actors and IOs, skip feedback/requests)
+        // RiC-O: relation-table links (only actors, IOs, repositories, terms).
+        // Canonical RiC-O predicate sourced from ric_relation_meta when present;
+        // falls back to a generic rico:isAssociatedWith when not.
         $relations = DB::table('relation as r')
             ->join('object as o_other', function ($j) use ($recordId) {
                 $j->on(DB::raw("CASE WHEN r.subject_id = {$recordId} THEN r.object_id ELSE r.subject_id END"), '=', 'o_other.id');
             })
+            ->leftJoin('ric_relation_meta as rm', 'r.id', '=', 'rm.relation_id')
             ->leftJoin('actor_i18n as ai_s', function ($j) use ($culture) {
                 $j->on('r.subject_id', '=', 'ai_s.id')->where('ai_s.culture', '=', $culture);
             })
@@ -1822,7 +1872,8 @@ SPARQL;
             })
             ->whereIn('o_other.class_name', ['QubitActor', 'QubitInformationObject', 'QubitRepository', 'QubitTerm'])
             ->select(
-                'r.subject_id', 'r.object_id', 'r.type_id',
+                'r.id as relation_id', 'r.subject_id', 'r.object_id', 'r.type_id',
+                'rm.rico_predicate', 'rm.inverse_predicate',
                 'o_other.class_name as other_class',
                 'ai_s.authorized_form_of_name as subject_name',
                 'ai_o.authorized_form_of_name as object_name',
@@ -1834,8 +1885,9 @@ SPARQL;
             ->get();
 
         foreach ($relations as $rel) {
-            $otherId = ($rel->subject_id == $recordId) ? $rel->object_id : $rel->subject_id;
-            $otherName = ($rel->subject_id == $recordId)
+            $isSubject = ($rel->subject_id == $recordId);
+            $otherId = $isSubject ? $rel->object_id : $rel->subject_id;
+            $otherName = $isSubject
                 ? ($rel->object_name ?: $rel->object_title ?: null)
                 : ($rel->subject_name ?: $rel->subject_title ?: null);
             if (!$otherName) continue; // Skip unresolvable entities
@@ -1850,10 +1902,18 @@ SPARQL;
                     'type'  => 'Person',
                 ];
             }
+
+            // Direction: from the record's perspective, if we are the subject of
+            // the relation the predicate applies as-is; otherwise use the inverse.
+            $predicate = $isSubject
+                ? ($rel->rico_predicate ?: 'rico:isAssociatedWith')
+                : ($rel->inverse_predicate ?: $rel->rico_predicate ?: 'rico:isAssociatedWith');
+
             $edges[] = [
                 'source' => $recordUri,
                 'target' => $otherUri,
-                'label'  => $rel->relation_type ?: 'is Associated With',
+                'predicate' => $predicate,
+                'label'  => $rel->relation_type ?: $this->humanisePredicate($predicate),
             ];
         }
 
@@ -1872,7 +1932,12 @@ SPARQL;
                     'type'  => 'Activity',
                 ];
             }
-            $edges[] = ['source' => $actUri, 'target' => $recordUri, 'label' => 'results In'];
+            $edges[] = [
+                'source' => $actUri,
+                'target' => $recordUri,
+                'predicate' => 'rico:resultsOrResultedIn',
+                'label' => 'results in',
+            ];
         }
 
         // Places
@@ -1886,7 +1951,12 @@ SPARQL;
                     'type'  => 'Place',
                 ];
             }
-            $edges[] = ['source' => $recordUri, 'target' => $placeUri, 'label' => 'has Or Had Location'];
+            $edges[] = [
+                'source' => $recordUri,
+                'target' => $placeUri,
+                'predicate' => 'rico:hasOrHadLocation',
+                'label' => 'has or had location',
+            ];
         }
 
         // Rules
@@ -1900,7 +1970,12 @@ SPARQL;
                     'type'  => 'Rule',
                 ];
             }
-            $edges[] = ['source' => $recordUri, 'target' => $ruleUri, 'label' => 'is Regulated By'];
+            $edges[] = [
+                'source' => $recordUri,
+                'target' => $ruleUri,
+                'predicate' => 'rico:isOrWasRegulatedBy',
+                'label' => 'is or was regulated by',
+            ];
         }
 
         // Instantiations
@@ -1914,7 +1989,12 @@ SPARQL;
                     'type'  => 'Instantiation',
                 ];
             }
-            $edges[] = ['source' => $recordUri, 'target' => $instUri, 'label' => 'has Instantiation'];
+            $edges[] = [
+                'source' => $recordUri,
+                'target' => $instUri,
+                'predicate' => 'rico:hasInstantiation',
+                'label' => 'has instantiation',
+            ];
         }
 
         // RiC-native relations (with ric_relation_meta) that link to non-RiC entities
@@ -1947,12 +2027,22 @@ SPARQL;
                 $nodeIndex[$otherUri] = true;
                 $nodes[] = ['id' => $otherUri, 'label' => $otherName, 'type' => $otherType];
             }
-            $predLabel = str_replace('rico:', '', $rr->rico_predicate ?? 'isAssociatedWith');
-            $predLabel = preg_replace('/([a-z])([A-Z])/', '$1 $2', $predLabel); // camelCase to spaces
+            $predicate = $rr->rico_predicate ?: 'rico:isAssociatedWith';
+            $label = $this->humanisePredicate($predicate);
             if ($rr->subject_id == $recordId) {
-                $edges[] = ['source' => $recordUri, 'target' => $otherUri, 'label' => $predLabel];
+                $edges[] = [
+                    'source' => $recordUri,
+                    'target' => $otherUri,
+                    'predicate' => $predicate,
+                    'label' => $label,
+                ];
             } else {
-                $edges[] = ['source' => $otherUri, 'target' => $recordUri, 'label' => $predLabel];
+                $edges[] = [
+                    'source' => $otherUri,
+                    'target' => $recordUri,
+                    'predicate' => $predicate,
+                    'label' => $label,
+                ];
             }
         }
 
