@@ -83,13 +83,15 @@ class RicSerializationService
         'equipment' => 'Thing',
     ];
 
-    // Event type to RIC mapping
+    // Event type to RIC mapping (per OpenRiC mapping spec §6.5)
     private array $eventTypeToRic = [
         'creation' => 'Production',
-        'accumulation' => 'Accumulation',
+        'production' => 'Production',
         'contribution' => 'Production',
+        'accumulation' => 'Accumulation',
         'collection' => 'Accumulation',
         'custody' => 'Activity',
+        'mandate' => 'Activity',
         'publication' => 'Activity',
         'reproduction' => 'Activity',
     ];
@@ -499,6 +501,98 @@ class RicSerializationService
         }
 
         return $ricPlace;
+    }
+
+    /**
+     * Serialize a RiC-native Activity to RIC-O JSON-LD.
+     *
+     * Activity.type_id is mapped per mapping spec §6.5:
+     *   production / creation / contribution → rico:Production
+     *   accumulation / collection            → rico:Accumulation
+     *   anything else                        → rico:Activity
+     */
+    public function serializeActivity(int $activityId, array $options = []): array
+    {
+        $culture = app()->getLocale() ?: 'en';
+
+        $act = DB::table('ric_activity as a')
+            ->leftJoin('ric_activity_i18n as i18n', function ($j) use ($culture) {
+                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->leftJoin('ric_place as p', 'a.place_id', '=', 'p.id')
+            ->leftJoin('ric_place_i18n as p_i18n', function ($j) use ($culture) {
+                $j->on('p.id', '=', 'p_i18n.id')->where('p_i18n.culture', '=', $culture);
+            })
+            ->where('a.id', $activityId)
+            ->select([
+                'a.*',
+                'i18n.name',
+                'i18n.description',
+                'i18n.date_display',
+                'p.id as place_ric_id',
+                'p_i18n.name as place_name',
+            ])
+            ->first();
+
+        if (!$act) {
+            return ['error' => 'Activity not found'];
+        }
+
+        $typeKey = strtolower($act->type_id ?? '');
+        $ricType = $this->eventTypeToRic[$typeKey] ?? 'Activity';
+
+        $ricAct = [
+            '@context' => [
+                'rico' => self::RICO_NS,
+                'rdf' => self::RDF_NS,
+                'rdfs' => self::RDFS_NS,
+                'xsd' => self::XSD_NS,
+            ],
+            '@id' => $this->baseUri . '/activity/' . $act->id,
+            '@type' => 'rico:' . $ricType,
+        ];
+
+        if (!empty($act->name)) {
+            $ricAct['rico:name'] = $act->name;
+        }
+
+        if (!empty($act->description)) {
+            $ricAct['rico:description'] = $act->description;
+        }
+
+        if (!empty($act->type_id)) {
+            $ricAct['openric:localType'] = $act->type_id;
+        }
+
+        if ($act->start_date || $act->end_date || !empty($act->date_display)) {
+            $dateRange = ['@type' => 'rico:DateRange'];
+            if ($act->start_date) {
+                $dateRange['rico:beginningDate'] = [
+                    '@value' => $act->start_date,
+                    '@type' => 'xsd:date',
+                ];
+            }
+            if ($act->end_date) {
+                $dateRange['rico:endDate'] = [
+                    '@value' => $act->end_date,
+                    '@type' => 'xsd:date',
+                ];
+            }
+            if (!empty($act->date_display)) {
+                $dateRange['rico:expressedDate'] = $act->date_display;
+            }
+            $ricAct['rico:isOrWasAssociatedWithDate'] = $dateRange;
+        }
+
+        if ($act->place_ric_id) {
+            $ricAct['rico:hasOrHadLocation'] = [
+                '@id' => $this->baseUri . '/place/' . $act->place_ric_id,
+                '@type' => 'rico:Place',
+                'rico:name' => $act->place_name,
+            ];
+        }
+
+        return $ricAct;
     }
 
     /**

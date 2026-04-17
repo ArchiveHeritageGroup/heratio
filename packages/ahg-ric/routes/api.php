@@ -73,6 +73,10 @@ Route::prefix('api/ric/v1')->middleware(['throttle:60,1'])->group(function () {
     Route::get('/instantiations', [LinkedDataApiController::class, 'listInstantiations']);
     Route::get('/instantiations/{id}', [LinkedDataApiController::class, 'showInstantiation'])->where('id', '[0-9]+');
 
+    // RiC-native Activities (Production/Accumulation/Activity)
+    Route::get('/activities', [LinkedDataApiController::class, 'listActivities']);
+    Route::get('/activities/{id}', [LinkedDataApiController::class, 'showActivity'])->where('id', '[0-9]+');
+
     // SPARQL & Graph
     Route::get('/sparql', [LinkedDataApiController::class, 'sparql']);
     Route::get('/graph', [LinkedDataApiController::class, 'graph']);

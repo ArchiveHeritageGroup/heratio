@@ -392,6 +392,78 @@ class LinkedDataApiController extends Controller
     }
 
     /**
+     * GET /api/ric/v1/activities
+     * List RiC-native Activities (paginated). Emitted class is selected
+     * per mapping spec §6.5 based on type_id.
+     */
+    public function listActivities(Request $request): JsonResponse
+    {
+        $page = max(1, (int) $request->get('page', 1));
+        $limit = min((int) $request->get('limit', 50), 200);
+        $type = $request->get('type');
+        $culture = app()->getLocale() ?: 'en';
+
+        $eventTypeToRic = [
+            'creation' => 'Production', 'production' => 'Production',
+            'contribution' => 'Production', 'accumulation' => 'Accumulation',
+            'collection' => 'Accumulation',
+        ];
+
+        $query = \DB::table('ric_activity as a')
+            ->leftJoin('ric_activity_i18n as i18n', function ($j) use ($culture) {
+                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->select(['a.id', 'a.type_id', 'a.start_date', 'a.end_date', 'i18n.name']);
+
+        if ($type) {
+            $query->where('a.type_id', $type);
+        }
+
+        $total = $query->count();
+        $items = $query
+            ->orderBy('a.id')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+
+        $rows = array_map(fn($a) => [
+            '@id' => url('/activity/' . $a->id),
+            '@type' => 'rico:' . ($eventTypeToRic[strtolower($a->type_id ?? '')] ?? 'Activity'),
+            'rico:name' => $a->name,
+            'openric:localType' => $a->type_id,
+        ], $items->toArray());
+
+        return response()->json([
+            '@context' => [
+                'rico' => 'https://www.ica.org/standards/RiC/ontology#',
+                'openric' => 'https://openric.org/ns/v1#',
+            ],
+            '@type' => 'rico:ActivityList',
+            'openric:total' => $total,
+            'openric:page' => $page,
+            'openric:limit' => $limit,
+            'openric:items' => $rows,
+        ]);
+    }
+
+    /**
+     * GET /api/ric/v1/activities/{id}
+     * Get single RiC-native Activity as RIC-O JSON-LD.
+     */
+    public function showActivity(int $id): JsonResponse
+    {
+        $ric = $this->serializer->serializeActivity($id);
+
+        if (isset($ric['error'])) {
+            return response()->json($ric, 404);
+        }
+
+        return response()->json($ric, 200, [
+            'Content-Type' => 'application/ld+json',
+        ]);
+    }
+
+    /**
      * GET /api/ric/v1/instantiations
      * List RiC-native Instantiations (paginated).
      */
