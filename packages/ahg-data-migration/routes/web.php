@@ -41,7 +41,7 @@ Route::middleware('admin')->group(function () {
         [DataMigrationController::class, 'jobStatus'])->name('data-migration.job')
         ->whereNumber('id');
 
-    Route::get('/admin/data-migration/batch-export',
+    Route::match(['get', 'post'], '/admin/data-migration/batch-export',
         [DataMigrationController::class, 'batchExport'])->name('data-migration.batch-export');
 
     Route::get('/admin/data-migration/import-results',

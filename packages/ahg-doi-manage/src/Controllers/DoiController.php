@@ -376,7 +376,54 @@ class DoiController extends Controller
         ]);
     }
 
-    public function batchMint(Request $request) { return view('ahg-doi-manage::batch-mint'); }
+    public function batchMint(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $ids = $request->input('object_ids', []);
+            if (is_string($ids)) {
+                $ids = preg_split('/\s+/', trim($ids));
+            }
+            $ids = array_values(array_filter(array_map('intval', (array) $ids)));
+            $state = $request->input('state', 'findable');
+            if (!in_array($state, ['findable', 'registered', 'draft'], true)) {
+                $state = 'findable';
+            }
+
+            $queued = 0;
+            if (\Illuminate\Support\Facades\Schema::hasTable('ahg_doi_queue')) {
+                foreach ($ids as $objectId) {
+                    \Illuminate\Support\Facades\DB::table('ahg_doi_queue')->insert([
+                        'object_id'  => $objectId,
+                        'state'      => $state,
+                        'status'     => 'pending',
+                        'created_at' => now(),
+                    ]);
+                    $queued++;
+                }
+            }
+            return redirect()->route('doi.batch-mint')
+                ->with('success', "{$queued} record(s) queued for DOI minting ({$state}).");
+        }
+
+        $records = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('information_object')) {
+            $records = \Illuminate\Support\Facades\DB::table('information_object as io')
+                ->leftJoin('information_object_i18n as ioi', function ($j) {
+                    $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', app()->getLocale());
+                })
+                ->leftJoin('ahg_doi as d', 'io.id', '=', 'd.object_id')
+                ->whereNull('d.id')
+                ->select('io.id', 'ioi.title')
+                ->orderByDesc('io.id')
+                ->limit(100)
+                ->get();
+        }
+
+        return view('ahg-doi-manage::batch-mint', [
+            'records'    => $records,
+            'formAction' => route('doi.batch-mint'),
+        ]);
+    }
 
     public function deactivate(int $id) { return view('ahg-doi-manage::deactivate', ['record' => (object)['id'=>$id]]); }
 

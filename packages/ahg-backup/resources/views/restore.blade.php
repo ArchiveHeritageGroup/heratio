@@ -19,11 +19,102 @@
   </ol>
 </nav>
 
-<div class="mb-3">
-  <a href="{{ route('backup.index') }}" class="btn btn-sm btn-outline-secondary">
-    <i class="fas fa-arrow-left me-1"></i> Back to Backups
-  </a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <a href="{{ route('backup.index') }}" class="btn atom-btn-outline-secondary">
+      <i class="fas fa-arrow-left me-1"></i> Back to Backups
+    </a>
+    <a href="{{ route('backup.settings') }}" class="btn atom-btn-outline-secondary ms-2">
+      <i class="fas fa-cog me-1"></i> Settings
+    </a>
+    <a href="{{ route('backup.index') }}#upload" class="btn atom-btn-outline-primary ms-2">
+      <i class="fas fa-upload me-1"></i> Upload Backup
+    </a>
+  </div>
+  <div>
+    <a href="{{ route('backup.index') }}" class="btn btn-primary">
+      <i class="fas fa-plus me-1"></i> Create Backup
+    </a>
+  </div>
 </div>
+
+@isset($dbConfig)
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card mb-4">
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-database me-2"></i>Database Info</h5></div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          <li><strong>Host:</strong> {{ $dbConfig['host'] ?? 'localhost' }}</li>
+          <li><strong>Database:</strong> {{ $dbConfig['database'] ?? '' }}</li>
+          <li><strong>User:</strong> {{ $dbConfig['username'] ?? '' }}</li>
+          <li><strong>Port:</strong> {{ $dbConfig['port'] ?? 3306 }}</li>
+        </ul>
+        <hr>
+        <span class="badge bg-{{ ($dbConnected ?? false) ? 'success' : 'danger' }}">
+          <i class="fas fa-{{ ($dbConnected ?? false) ? 'check' : 'times' }}"></i>
+          {{ ($dbConnected ?? false) ? 'Connected' : 'Not connected' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-folder me-2"></i>Storage</h5></div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          <li><strong>Path:</strong> <code class="small">{{ $backupPath ?? '' }}</code></li>
+          <li><strong>Backups:</strong> {{ $backupCount ?? count($backups) }}</li>
+          <li><strong>Total Size:</strong> {{ $totalSize ?? '' }}</li>
+          <li><strong>Max Backups:</strong> {{ $maxBackups ?? '' }}</li>
+          <li><strong>Retention:</strong> {{ $retentionDays ?? '' }} days</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5></div>
+      <div class="card-body">
+        <div class="d-grid gap-2">
+          <a href="{{ route('backup.index') }}?quick=database" class="btn atom-btn-outline-primary btn-sm">
+            <i class="fas fa-database me-1"></i> Database Only
+          </a>
+          <a href="{{ route('backup.index') }}?quick=full" class="btn atom-btn-outline-secondary btn-sm">
+            <i class="fas fa-archive me-1"></i> Full Backup
+          </a>
+          <a href="{{ route('backup.index') }}?quick=incremental" class="btn atom-btn-outline-info btn-sm">
+            <i class="fas fa-layer-group me-1"></i> Incremental Backup
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Schedules</h5>
+        <a href="{{ route('backup.settings') }}" class="btn btn-sm atom-btn-outline-secondary"><i class="fas fa-plus"></i></a>
+      </div>
+      <div class="card-body p-0">
+        @if (empty($schedules))
+          <p class="text-muted text-center py-3 mb-0">No schedules configured</p>
+        @else
+          <ul class="list-group list-group-flush">
+            @foreach ($schedules as $sched)
+              <li class="list-group-item py-2">
+                <strong>{{ $sched->name ?? 'Schedule' }}</strong>
+                <br><small class="text-muted">
+                  {{ ucfirst($sched->frequency ?? 'daily') }} @ {{ substr($sched->time ?? '02:00', 0, 5) }}
+                  · {{ (int) ($sched->retention_days ?? 30) }}d retention
+                </small>
+              </li>
+            @endforeach
+          </ul>
+        @endif
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+@endisset
 
 <div class="alert alert-warning">
   <i class="fas fa-exclamation-triangle me-1"></i>
@@ -136,6 +227,11 @@
     </div>
   </div>
 @endif
+
+@isset($dbConfig)
+  </div>
+</div>
+@endisset
 
 @endsection
 

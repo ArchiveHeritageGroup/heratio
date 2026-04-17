@@ -68,46 +68,99 @@ class NazController extends Controller
 
     public function index()
     {
-        $closuresActive    = DB::table('naz_closure_period')->where('status', 'active')->count();
-        $closuresExpiring  = DB::table('naz_closure_period')
-            ->where('status', 'active')
-            ->whereNotNull('end_date')
-            ->where('end_date', '<=', now()->addDays(90))
-            ->count();
+        $stats = [
+            'closures' => [
+                'active'         => DB::table('naz_closure_period')->where('status', 'active')->count(),
+                'expiring_soon'  => DB::table('naz_closure_period')
+                    ->where('status', 'active')
+                    ->whereNotNull('end_date')
+                    ->where('end_date', '<=', now()->addYear())
+                    ->count(),
+            ],
+            'permits' => [
+                'active'  => DB::table('naz_research_permit')->whereIn('status', ['approved', 'active'])->count(),
+                'pending' => DB::table('naz_research_permit')->where('status', 'pending')->count(),
+            ],
+            'researchers' => [
+                'total'   => DB::table('naz_researcher')->where('status', 'active')->count(),
+                'local'   => DB::table('naz_researcher')->where('status', 'active')->where('researcher_type', 'local')->count(),
+                'foreign' => DB::table('naz_researcher')->where('status', 'active')->where('researcher_type', 'foreign')->count(),
+            ],
+            'transfers' => [
+                'pending'   => DB::table('naz_transfer')->whereIn('status', ['proposed', 'scheduled', 'in_transit'])->count(),
+                'this_year' => DB::table('naz_transfer')->where('status', 'accessioned')->whereYear('actual_date', now()->year)->count(),
+            ],
+            'schedules' => DB::table('naz_records_schedule')->where('status', 'active')->count(),
+            'protected' => DB::table('naz_protected_record')->where('status', 'active')->count(),
+        ];
 
-        $protectedActive   = DB::table('naz_protected_record')->where('status', 'active')->count();
-        $schedulesActive   = DB::table('naz_records_schedule')->where('status', 'active')->count();
-        $schedulesDraft    = DB::table('naz_records_schedule')->where('status', 'draft')->count();
-
-        $permitsPending    = DB::table('naz_research_permit')->where('status', 'pending')->count();
-        $permitsActive     = DB::table('naz_research_permit')->where('status', 'approved')->count();
-        $permitsExpiring   = DB::table('naz_research_permit')
-            ->where('status', 'approved')
-            ->where('end_date', '<=', now()->addDays(30))
-            ->count();
-
-        $researchersActive = DB::table('naz_researcher')->where('status', 'active')->count();
-
-        $transfersProposed = DB::table('naz_transfer')->where('status', 'proposed')->count();
-        $transfersInTransit = DB::table('naz_transfer')->where('status', 'in_transit')->count();
-        $transfersReceived = DB::table('naz_transfer')->where('status', 'received')->count();
-
-        $visitsToday       = DB::table('naz_research_visit')->where('visit_date', today())->count();
-
-        $recentAudit = DB::table('naz_audit_log')
-            ->orderByDesc('created_at')
-            ->limit(10)
+        $pendingPermits = DB::table('naz_research_permit as p')
+            ->leftJoin('naz_researcher as r', 'p.researcher_id', '=', 'r.id')
+            ->where('p.status', 'pending')
+            ->orderByDesc('p.created_at')
+            ->limit(5)
+            ->select('p.*', 'r.first_name', 'r.last_name', 'r.researcher_type')
             ->get();
 
-        return view('naz::index', compact(
-            'closuresActive', 'closuresExpiring',
-            'protectedActive',
-            'schedulesActive', 'schedulesDraft',
-            'permitsPending', 'permitsActive', 'permitsExpiring',
-            'researchersActive',
-            'transfersProposed', 'transfersInTransit', 'transfersReceived',
-            'visitsToday', 'recentAudit',
-        ));
+        $expiringClosures = DB::table('naz_closure_period as cp')
+            ->leftJoin('information_object_i18n as ioi', function ($j) {
+                $j->on('cp.information_object_id', '=', 'ioi.id')
+                  ->where('ioi.culture', '=', app()->getLocale());
+            })
+            ->where('cp.status', 'active')
+            ->whereNotNull('cp.end_date')
+            ->where('cp.end_date', '<=', now()->addYear())
+            ->orderBy('cp.end_date')
+            ->limit(5)
+            ->select('cp.*', 'ioi.title as record_title')
+            ->get();
+
+        $compliance = [
+            'status'   => 'compliant',
+            'issues'   => [],
+            'warnings' => [],
+        ];
+
+        $overdueClosures = DB::table('naz_closure_period')
+            ->where('status', 'active')
+            ->whereNotNull('end_date')
+            ->where('end_date', '<', now())
+            ->count();
+        if ($overdueClosures > 0) {
+            $compliance['issues'][] = "{$overdueClosures} active closure period(s) past end date — review for release.";
+        }
+
+        $overduePermits = DB::table('naz_research_permit')
+            ->where('status', 'active')
+            ->where('end_date', '<', now())
+            ->count();
+        if ($overduePermits > 0) {
+            $compliance['warnings'][] = "{$overduePermits} active research permit(s) past expiry date.";
+        }
+
+        $overdueTransfers = DB::table('naz_transfer')
+            ->whereIn('status', ['proposed', 'scheduled'])
+            ->whereNotNull('proposed_date')
+            ->where('proposed_date', '<', now())
+            ->count();
+        if ($overdueTransfers > 0) {
+            $compliance['warnings'][] = "{$overdueTransfers} transfer(s) past proposed date.";
+        }
+
+        if (!empty($compliance['issues'])) {
+            $compliance['status'] = 'non_compliant';
+        } elseif (!empty($compliance['warnings'])) {
+            $compliance['status'] = 'warning';
+        }
+
+        $configRows = DB::table('naz_config')->pluck('config_value', 'config_key')->toArray();
+        $config = [
+            'closure_period_years'   => $configRows['closure_period_years']   ?? 25,
+            'foreign_permit_fee_usd' => $configRows['foreign_permit_fee_usd'] ?? 200,
+            'permit_validity_months' => $configRows['permit_validity_months'] ?? 12,
+        ];
+
+        return view('naz::index', compact('stats', 'pendingPermits', 'expiringClosures', 'compliance', 'config'));
     }
 
     // ─── Config (Settings) ──────────────────────────────────────────
@@ -187,9 +240,12 @@ class NazController extends Controller
         $page  = max(1, (int) $request->get('page', 1));
         $limit = max(1, min(100, (int) $request->get('limit', 25)));
         $total = $query->count();
-        $rows  = $query->offset(($page - 1) * $limit)->limit($limit)->get();
+        $closures = $query->offset(($page - 1) * $limit)->limit($limit)->get();
 
-        return view('naz::closures', compact('rows', 'total', 'page', 'limit'));
+        $currentStatus = $request->get('status');
+        $currentType   = $request->get('closure_type', $request->get('type'));
+
+        return view('naz::closures', compact('closures', 'total', 'page', 'limit', 'currentStatus', 'currentType'));
     }
 
     public function closureCreate()
@@ -460,9 +516,12 @@ class NazController extends Controller
         $page  = max(1, (int) $request->get('page', 1));
         $limit = max(1, min(100, (int) $request->get('limit', 25)));
         $total = $query->count();
-        $rows  = $query->offset(($page - 1) * $limit)->limit($limit)->get();
+        $permits = $query->offset(($page - 1) * $limit)->limit($limit)->get();
 
-        return view('naz::permits', compact('rows', 'total', 'page', 'limit'));
+        $currentStatus = $request->get('status');
+        $currentType   = $request->get('permit_type');
+
+        return view('naz::permits', compact('permits', 'total', 'page', 'limit', 'currentStatus', 'currentType'));
     }
 
     public function permitCreate()
@@ -736,9 +795,12 @@ class NazController extends Controller
         $page  = max(1, (int) $request->get('page', 1));
         $limit = max(1, min(100, (int) $request->get('limit', 25)));
         $total = $query->count();
-        $rows  = $query->offset(($page - 1) * $limit)->limit($limit)->get();
+        $transfers = $query->offset(($page - 1) * $limit)->limit($limit)->get();
 
-        return view('naz::transfers', compact('rows', 'total', 'page', 'limit'));
+        $currentStatus = $request->get('status');
+        $currentType   = $request->get('transfer_type');
+
+        return view('naz::transfers', compact('transfers', 'total', 'page', 'limit', 'currentStatus', 'currentType'));
     }
 
     public function transferCreate()

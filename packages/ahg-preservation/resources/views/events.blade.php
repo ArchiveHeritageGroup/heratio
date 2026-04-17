@@ -11,8 +11,26 @@
     <div class="col-md-9">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h1 class="mb-0"><i class="fas fa-history"></i> PREMIS Events</h1>
+            <a href="{{ route('preservation.index') }}" class="btn atom-btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Dashboard
+            </a>
         </div>
         <p class="text-muted mb-3">Preservation metadata events (PREMIS standard)</p>
+
+        @isset($eventTypes)
+        <div class="mb-3">
+            <div class="btn-group flex-wrap" role="group" aria-label="Event-type filter">
+                <a href="{{ route('preservation.events') }}"
+                   class="btn btn-sm btn-{{ !($currentType ?? null) ? 'primary' : 'outline-primary' }}">All</a>
+                @foreach ($eventTypes as $type)
+                    <a href="{{ route('preservation.events', ['type' => $type->event_type]) }}"
+                       class="btn btn-sm btn-{{ ($currentType ?? null) === $type->event_type ? 'primary' : 'outline-primary' }}">
+                        {{ ucfirst(str_replace('_', ' ', $type->event_type)) }} ({{ $type->count }})
+                    </a>
+                @endforeach
+            </div>
+        </div>
+        @endisset
 
         @if($digitalObjectId)
             <div class="alert alert-info">

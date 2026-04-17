@@ -863,8 +863,15 @@
     </div>
     <div class="col-md-4">
       <div class="card h-100">
-        <div class="card-header text-white" style="background-color:#28a745!important"><h5 class="mb-0"><i class="fas fa-fingerprint me-2"></i>{{ __('Checksums & Integrity') }}</h5></div>
+        <div class="card-header text-white" style="background-color:#28a745!important">
+          <h5 class="mb-0">
+            <a href="{{ Route::has('reports.checksums-integrity') ? route('reports.checksums-integrity') : url('/reports/checksums-integrity') }}" class="text-white text-decoration-none">
+              <i class="fas fa-fingerprint me-2"></i>{{ __('Checksums & Integrity') }}
+            </a>
+          </h5>
+        </div>
         <ul class="list-group list-group-flush">
+          <li class="list-group-item"><a href="{{ Route::has('reports.checksums-integrity') ? route('reports.checksums-integrity') : url('/reports/checksums-integrity') }}"><i class="fas fa-layer-group me-2 text-muted"></i>{{ __('PDF Merge Jobs') }}</a></li>
           <li class="list-group-item"><a href="{{ Route::has('preservation.reports') ? route('preservation.reports') . '?type=missing' : url('/admin/preservation/reports?type=missing') }}"><i class="fas fa-exclamation-circle me-2 text-muted"></i>{{ __('Missing Checksums') }}</a></li>
           <li class="list-group-item"><a href="{{ Route::has('preservation.reports') ? route('preservation.reports') . '?type=stale' : url('/admin/preservation/reports?type=stale') }}"><i class="fas fa-clock me-2 text-muted"></i>{{ __('Stale Verification') }}</a></li>
           <li class="list-group-item"><a href="{{ Route::has('preservation.fixity-log') ? route('preservation.fixity-log') . '?status=failed' : url('/admin/preservation/fixity-log?status=failed') }}"><i class="fas fa-times-circle me-2 text-muted"></i>{{ __('Failed Checks') }}</a></li>

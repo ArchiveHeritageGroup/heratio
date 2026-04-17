@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth')->group(function () {
     Route::get('/reports', [ReportController::class, 'dashboard'])->name('reports.dashboard');
     Route::get('/reports/index', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/checksums-integrity', [ReportController::class, 'checksumsIntegrity'])->name('reports.checksums-integrity');
     Route::get('/admin/reports', [ReportController::class, 'dashboard']); // legacy alias
 });
 

@@ -434,10 +434,46 @@ class BackupController extends Controller
      */
     public function restore()
     {
-        $backups = $this->listBackups();
+        $dbConfig   = config('database.connections.mysql');
+        $backupPath = $this->getBackupPath();
+        $backups    = $this->listBackups();
+        $totalSize  = array_sum(array_column($backups, 'size'));
+
+        $maxBackups        = AhgSettingsService::getInt('backup_max_backups', 10);
+        $retentionDays     = AhgSettingsService::getInt('backup_retention_days', 30);
+        $notificationEmail = AhgSettingsService::get('backup_notification_email', '');
+
+        $schedules = [];
+        $scheduleData = AhgSettingsService::getGroup('backup_schedule');
+        if (!empty($scheduleData)) {
+            foreach ($scheduleData as $key => $value) {
+                if (str_starts_with($key, 'backup_schedule_')) {
+                    $decoded = json_decode($value, true);
+                    if ($decoded) {
+                        $schedules[] = (object) $decoded;
+                    }
+                }
+            }
+        }
+
+        $dbConnected = false;
+        try {
+            DB::connection()->getPdo();
+            $dbConnected = true;
+        } catch (\Exception $e) {
+        }
 
         return view('ahg-backup::restore', [
-            'backups' => $backups,
+            'dbConfig'          => $dbConfig,
+            'dbConnected'       => $dbConnected,
+            'backupPath'        => $backupPath,
+            'backups'           => $backups,
+            'backupCount'       => count($backups),
+            'totalSize'         => $this->humanFileSize($totalSize),
+            'maxBackups'        => $maxBackups,
+            'retentionDays'     => $retentionDays,
+            'notificationEmail' => $notificationEmail,
+            'schedules'         => $schedules,
         ]);
     }
 

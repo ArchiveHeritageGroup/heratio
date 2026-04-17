@@ -826,4 +826,42 @@ class ReportController extends Controller
             return collect();
         }
     }
+
+    public function checksumsIntegrity()
+    {
+        $hasJobTable = \Illuminate\Support\Facades\Schema::hasTable('tiff_pdf_merge_job');
+
+        $stats = [
+            'total_jobs'  => 0, 'pending' => 0, 'queued' => 0,
+            'processing'  => 0, 'completed' => 0, 'failed' => 0, 'total_files' => 0,
+        ];
+        $recentJobs = collect();
+        $hasProcessing = false;
+
+        if ($hasJobTable) {
+            $stats['total_jobs']  = \Illuminate\Support\Facades\DB::table('tiff_pdf_merge_job')->count();
+            $stats['pending']     = \Illuminate\Support\Facades\DB::table('tiff_pdf_merge_job')->where('status', 'pending')->count();
+            $stats['queued']      = \Illuminate\Support\Facades\DB::table('tiff_pdf_merge_job')->where('status', 'queued')->count();
+            $stats['processing']  = \Illuminate\Support\Facades\DB::table('tiff_pdf_merge_job')->where('status', 'processing')->count();
+            $stats['completed']   = \Illuminate\Support\Facades\DB::table('tiff_pdf_merge_job')->where('status', 'completed')->count();
+            $stats['failed']      = \Illuminate\Support\Facades\DB::table('tiff_pdf_merge_job')->where('status', 'failed')->count();
+
+            if (\Illuminate\Support\Facades\Schema::hasTable('tiff_pdf_merge_file')) {
+                $stats['total_files'] = \Illuminate\Support\Facades\DB::table('tiff_pdf_merge_file')->count();
+            }
+
+            $recentJobs = \Illuminate\Support\Facades\DB::table('tiff_pdf_merge_job as j')
+                ->leftJoin('user as u', 'j.user_id', '=', 'u.id')
+                ->select('j.*', 'u.username',
+                    \Illuminate\Support\Facades\DB::raw('(SELECT COUNT(*) FROM tiff_pdf_merge_file WHERE merge_job_id = j.id) as total_files'))
+                ->orderByDesc('j.created_at')
+                ->limit(10)
+                ->get();
+
+            $hasProcessing = \Illuminate\Support\Facades\DB::table('tiff_pdf_merge_job')
+                ->whereIn('status', ['queued', 'processing'])->exists();
+        }
+
+        return view('ahg-reports::checksums-integrity', compact('stats', 'recentJobs', 'hasProcessing', 'hasJobTable'));
+    }
 }

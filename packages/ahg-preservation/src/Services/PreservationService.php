@@ -223,7 +223,7 @@ class PreservationService
     /**
      * PREMIS events from preservation_event.
      */
-    public function getEvents(int $limit = 50, ?int $digitalObjectId = null): \Illuminate\Support\Collection
+    public function getEvents(int $limit = 50, ?int $digitalObjectId = null, ?string $eventType = null): \Illuminate\Support\Collection
     {
         $query = DB::table('preservation_event as pe')
             ->leftJoin('digital_object as do', 'do.id', '=', 'pe.digital_object_id')
@@ -235,6 +235,9 @@ class PreservationService
 
         if ($digitalObjectId) {
             $query->where('pe.digital_object_id', $digitalObjectId);
+        }
+        if ($eventType) {
+            $query->where('pe.event_type', $eventType);
         }
 
         return $query->orderByDesc('pe.event_datetime')->limit($limit)->get();

@@ -173,7 +173,31 @@ class DataMigrationController extends \App\Http\Controllers\Controller
             // graceful fallback; counts already zeroed
         }
 
-        return view('ahg-data-migration::batch-export', compact('repositories', 'counts'));
+        $sectors = [
+            'archive' => 'Archives (ISAD-G)',
+            'museum'  => 'Museum (Spectrum)',
+            'library' => 'Library (MARC/RDA)',
+            'gallery' => 'Gallery (CCO/VRA)',
+            'dam'     => 'Digital Assets (Dublin Core)',
+        ];
+
+        $levels = collect();
+        try {
+            if (\Schema::hasTable('term')) {
+                $levels = \DB::table('term as t')
+                    ->leftJoin('term_i18n as ti', function ($j) {
+                        $j->on('t.id', '=', 'ti.id')->where('ti.culture', '=', app()->getLocale());
+                    })
+                    ->where('t.taxonomy_id', 34)
+                    ->orderBy('ti.name')
+                    ->select('t.id', 'ti.name')
+                    ->get();
+            }
+        } catch (\Throwable $e) {
+            $levels = collect();
+        }
+
+        return view('ahg-data-migration::batch-export', compact('repositories', 'counts', 'sectors', 'levels'));
     }
 
     // ── Existing: importResults ──────────────────────────────

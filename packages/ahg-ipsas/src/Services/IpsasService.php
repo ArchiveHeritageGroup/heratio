@@ -33,6 +33,26 @@ class IpsasService
 {
     public function getDashboardStats(): array
     {
+        $valuationBasis = DB::table('ipsas_heritage_asset')
+            ->selectRaw('valuation_basis, COUNT(*) as cnt')
+            ->whereNotNull('valuation_basis')
+            ->groupBy('valuation_basis')
+            ->pluck('cnt', 'valuation_basis')
+            ->toArray();
+
+        $categories = DB::table('ipsas_heritage_asset as a')
+            ->leftJoin('ipsas_asset_category as c', 'a.category_id', '=', 'c.id')
+            ->selectRaw('c.name as name, COUNT(*) as count, COALESCE(SUM(a.current_value), 0) as value')
+            ->whereNotNull('a.category_id')
+            ->groupBy('c.name')
+            ->orderByDesc('count')
+            ->limit(10)
+            ->get();
+
+        $recentValuations = DB::table('ipsas_valuation')
+            ->whereYear('valuation_date', (int) date('Y'))
+            ->count();
+
         return [
             'assets' => [
                 'total' => DB::table('ipsas_heritage_asset')->count(),
@@ -42,6 +62,16 @@ class IpsasService
                 'total' => DB::table('ipsas_heritage_asset')->sum('current_value') ?? 0,
                 'insured' => DB::table('ipsas_insurance')->where('status', 'active')->sum('sum_insured') ?? 0,
             ],
+            'insurance' => [
+                'active' => DB::table('ipsas_insurance')->where('status', 'active')->count(),
+                'expiring_soon' => DB::table('ipsas_insurance')
+                    ->where('status', 'active')
+                    ->whereRaw('coverage_end <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)')
+                    ->count(),
+            ],
+            'valuation_basis' => $valuationBasis,
+            'categories' => $categories,
+            'recent_valuations' => $recentValuations,
         ];
     }
 

@@ -34,12 +34,39 @@ class NmmzService
     public function getDashboardStats(): array
     {
         return [
-            'monuments' => DB::table('nmmz_monument')->count(),
-            'antiquities' => DB::table('nmmz_antiquity')->count(),
-            'permits' => DB::table('nmmz_export_permit')->count(),
-            'permits_pending' => DB::table('nmmz_export_permit')->where('status', 'pending')->count(),
-            'sites' => DB::table('nmmz_archaeological_site')->count(),
-            'hias' => DB::table('nmmz_heritage_impact_assessment')->count(),
+            'monuments' => [
+                'total' => DB::table('nmmz_monument')->count(),
+                'gazetted' => DB::table('nmmz_monument')->where('legal_status', 'gazetted')->count(),
+                'at_risk' => DB::table('nmmz_monument')->whereIn('conservation_priority', ['high', 'critical'])->count(),
+                'world_heritage' => DB::table('nmmz_monument')
+                    ->where('world_heritage_status', '!=', 'none')
+                    ->whereNotNull('world_heritage_status')
+                    ->count(),
+            ],
+            'antiquities' => [
+                'total' => DB::table('nmmz_antiquity')->count(),
+                'in_collection' => DB::table('nmmz_antiquity')->where('status', 'in_collection')->count(),
+            ],
+            'permits' => [
+                'total' => DB::table('nmmz_export_permit')->count(),
+                'pending' => DB::table('nmmz_export_permit')->where('status', 'pending')->count(),
+                'this_year' => DB::table('nmmz_export_permit')
+                    ->whereYear('created_at', (int) date('Y'))
+                    ->count(),
+            ],
+            'sites' => [
+                'total' => DB::table('nmmz_archaeological_site')->count(),
+                'at_risk' => DB::table('nmmz_archaeological_site')
+                    ->whereNotNull('threats')
+                    ->where('threats', '!=', '')
+                    ->count(),
+            ],
+            'hia' => [
+                'total' => DB::table('nmmz_heritage_impact_assessment')->count(),
+                'pending' => DB::table('nmmz_heritage_impact_assessment')
+                    ->whereIn('status', ['submitted', 'under_review'])
+                    ->count(),
+            ],
         ];
     }
 

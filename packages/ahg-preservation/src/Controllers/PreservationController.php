@@ -67,9 +67,21 @@ class PreservationController extends Controller
     public function events(Request $request)
     {
         $digitalObjectId = $request->input('digital_object_id') ? (int) $request->input('digital_object_id') : null;
-        $events = $this->service->getEvents(50, $digitalObjectId);
+        $currentType     = $request->input('type');
+        $events          = $this->service->getEvents(50, $digitalObjectId, $currentType);
 
-        return view('ahg-preservation::events', compact('events', 'digitalObjectId'));
+        $eventTypes = [];
+        try {
+            $eventTypes = \Illuminate\Support\Facades\DB::table('preservation_event')
+                ->select('event_type', \Illuminate\Support\Facades\DB::raw('COUNT(*) as count'))
+                ->groupBy('event_type')
+                ->orderBy('event_type')
+                ->get();
+        } catch (\Throwable $e) {
+            $eventTypes = collect();
+        }
+
+        return view('ahg-preservation::events', compact('events', 'digitalObjectId', 'eventTypes', 'currentType'));
     }
 
     /**

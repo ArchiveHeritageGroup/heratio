@@ -4,6 +4,13 @@
 @section('body-class', 'admin dedupe rules')
 
 @section('content')
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ route('dedupe.index') }}">Duplicate Detection</a></li>
+      <li class="breadcrumb-item active">Detection Rules</li>
+    </ol>
+  </nav>
+
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-cog me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
@@ -91,6 +98,36 @@
           </table>
         </div>
       @endif
+    </div>
+  </div>
+
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>About Detection Rules</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <h6>Rule Types</h6>
+          <ul class="list-unstyled">
+            <li><strong>Title Similarity:</strong> Compares titles using Levenshtein distance</li>
+            <li><strong>Identifier Exact:</strong> Matches identical identifiers</li>
+            <li><strong>Identifier Fuzzy:</strong> Matches similar identifiers (Jaro-Winkler)</li>
+            <li><strong>Date + Creator:</strong> Matches records with same date range and creator</li>
+            <li><strong>Checksum:</strong> Matches identical files by hash</li>
+            <li><strong>Combined:</strong> Weighted combination of multiple factors</li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <h6>Settings</h6>
+          <ul class="list-unstyled">
+            <li><strong>Priority:</strong> Higher priority rules run first</li>
+            <li><strong>Threshold:</strong> Minimum similarity score to flag as duplicate</li>
+            <li><strong>Blocking:</strong> If enabled, prevents saving when duplicate found</li>
+            <li><strong>Repository:</strong> Apply rule only to specific repository, or globally</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 @endsection
