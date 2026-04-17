@@ -369,10 +369,17 @@ class RicSerializationService
      */
     public function serializeRepository(int $repositoryId, array $options = []): array
     {
+        $culture = app()->getLocale() ?: 'en';
         $repo = DB::table('actor as a')
-            ->leftJoin('actor_i18n as i18n', 'a.id', '=', 'i18n.id')
-            ->leftJoin('repository_i18n as repo_i18n', 'a.id', '=', 'repo_i18n.id')
+            ->leftJoin('actor_i18n as i18n', function ($j) use ($culture) {
+                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->leftJoin('repository_i18n as repo_i18n', function ($j) use ($culture) {
+                $j->on('a.id', '=', 'repo_i18n.id')->where('repo_i18n.culture', '=', $culture);
+            })
+            ->leftJoin('slug', 'a.id', '=', 'slug.object_id')
             ->where('a.id', $repositoryId)
+            ->select('a.*', 'i18n.*', 'repo_i18n.*', 'slug.slug')
             ->first();
 
         if (!$repo) {
@@ -380,9 +387,14 @@ class RicSerializationService
         }
 
         $ricRepo = [
-            '@context' => [self::RICO_NS => self::RICO_NS],
-            '@id' => $this->baseUri . '/repository/' . $repo->id,
-            '@type' => self::RICO_NS . 'CorporateBody',
+            '@context' => [
+                'rico' => self::RICO_NS,
+                'rdf' => self::RDF_NS,
+                'rdfs' => self::RDFS_NS,
+                'xsd' => self::XSD_NS,
+            ],
+            '@id' => $this->baseUri . '/repository/' . ($repo->slug ?: $repo->id),
+            '@type' => 'rico:CorporateBody',
         ];
 
         // ISDIAH: Authorized Form
