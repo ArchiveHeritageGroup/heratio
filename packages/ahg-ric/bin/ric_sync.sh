@@ -26,21 +26,36 @@ AUTHORITY_LINKER="${SCRIPT_DIR}/../tools/ric_authority_linker.py"
 SHACL_VALIDATOR="${SCRIPT_DIR}/../tools/ric_shacl_validator.py"
 SHACL_SHAPES="${SCRIPT_DIR}/../tools/ric_shacl_shapes.ttl"
 
-FUSEKI_URL="http://192.168.0.112:3030"
-FUSEKI_DATASET="${FUSEKI_DATASET:-ric}"
-FUSEKI_USER="${FUSEKI_USER:-admin}"
-FUSEKI_PASS="${FUSEKI_PASS:-admin123}"
+# Fuseki connection — prefer RIC_FUSEKI_* (new), fall back to FUSEKI_* (legacy).
+FUSEKI_URL="${RIC_FUSEKI_URL:-${FUSEKI_URL:-http://localhost:3030}}"
+FUSEKI_DATASET="${RIC_FUSEKI_DATASET:-${FUSEKI_DATASET:-ric}}"
+FUSEKI_USER="${RIC_FUSEKI_USER:-${FUSEKI_USER:-admin}}"
+FUSEKI_PASS="${RIC_FUSEKI_PASS:-${FUSEKI_PASS:-}}"
 
 BACKUP_DIR="${BACKUP_DIR:-/var/backups/fuseki}"
 EXTRACT_DIR="${EXTRACT_DIR:-/tmp/ric_extract}"
 LOG_FILE="${LOG_FILE:-/var/log/ric_sync.log}"
 
-export ATOM_DB_HOST="${ATOM_DB_HOST:-localhost}"
-export ATOM_DB_USER="${ATOM_DB_USER:-root}"
-export ATOM_DB_PASSWORD="${ATOM_DB_PASSWORD:-Merlot@123}"
-export ATOM_DB_NAME="${ATOM_DB_NAME:-archive}"
-export RIC_BASE_URI="${RIC_BASE_URI:-https://archives.theahg.co.za/ric}"
-export ATOM_INSTANCE_ID="${ATOM_INSTANCE_ID:-atom-psis}"
+# Source DB — prefer RIC_SOURCE_DB_* (jurisdiction-neutral), fall back to
+# ATOM_DB_* (legacy hybrid-install names). The Python extractor still reads
+# the ATOM_DB_* names, so we export both sets pointing at the same values.
+SOURCE_DB_HOST="${RIC_SOURCE_DB_HOST:-${ATOM_DB_HOST:-localhost}}"
+SOURCE_DB_USER="${RIC_SOURCE_DB_USER:-${ATOM_DB_USER:-root}}"
+SOURCE_DB_PASSWORD="${RIC_SOURCE_DB_PASSWORD:-${ATOM_DB_PASSWORD:-}}"
+SOURCE_DB_NAME="${RIC_SOURCE_DB_NAME:-${ATOM_DB_NAME:-heratio}}"
+
+export ATOM_DB_HOST="${SOURCE_DB_HOST}"
+export ATOM_DB_USER="${SOURCE_DB_USER}"
+export ATOM_DB_PASSWORD="${SOURCE_DB_PASSWORD}"
+export ATOM_DB_NAME="${SOURCE_DB_NAME}"
+export RIC_SOURCE_DB_HOST="${SOURCE_DB_HOST}"
+export RIC_SOURCE_DB_USER="${SOURCE_DB_USER}"
+export RIC_SOURCE_DB_PASSWORD="${SOURCE_DB_PASSWORD}"
+export RIC_SOURCE_DB_NAME="${SOURCE_DB_NAME}"
+
+export RIC_BASE_URI="${RIC_BASE_URI:-http://localhost/ric}"
+export RIC_INSTANCE_ID="${RIC_INSTANCE_ID:-${ATOM_INSTANCE_ID:-heratio}}"
+export ATOM_INSTANCE_ID="${RIC_INSTANCE_ID}"
 
 # Options
 CLEAR_FIRST=false

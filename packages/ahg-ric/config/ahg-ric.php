@@ -118,4 +118,50 @@ return [
         'owl' => 'http://www.w3.org/2002/07/owl#',
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Fuseki Triplestore (split form for sync runner)
+    |--------------------------------------------------------------------------
+    |
+    | The sync shell runner and controller preflight need the base URL and
+    | dataset separately. `fuseki_endpoint` above is the combined URL kept
+    | for backward compatibility with the SPARQL services.
+    |
+    */
+    'fuseki' => [
+        'url'      => env('RIC_FUSEKI_URL'),
+        'dataset'  => env('RIC_FUSEKI_DATASET', 'ric'),
+        'user'     => env('RIC_FUSEKI_USER'),
+        'pass'     => env('RIC_FUSEKI_PASS'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Source Database for RiC Extraction
+    |--------------------------------------------------------------------------
+    |
+    | RiC-O triples are generated from a source relational database. For a
+    | Heratio-only install, this is the primary Heratio DB. For hybrid
+    | installs (legacy AtoM + Heratio), it may point at the legacy DB.
+    | Falls back to the main DB connection when not explicitly set.
+    |
+    */
+    'source_db' => [
+        'host'     => env('RIC_SOURCE_DB_HOST'),
+        'user'     => env('RIC_SOURCE_DB_USER'),
+        'password' => env('RIC_SOURCE_DB_PASSWORD'),
+        'name'     => env('RIC_SOURCE_DB_NAME'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sync Script Path
+    |--------------------------------------------------------------------------
+    |
+    | Absolute path to the RiC sync shell runner. When null, the controller
+    | falls back to packages/ahg-ric/bin/ric_sync.sh relative to the app.
+    |
+    */
+    'sync_script' => env('RIC_SYNC_SCRIPT'),
+
 ];

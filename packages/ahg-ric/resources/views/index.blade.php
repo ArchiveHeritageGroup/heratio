@@ -156,9 +156,10 @@
           <h5 class="mb-0">Quick Actions</h5>
         </div>
         <div class="card-body">
-          <button type="button" class="btn btn-success w-100 mb-2" onclick="runManualSync()" id="sync-btn">
+          <button type="button" class="btn btn-success w-100 mb-2" onclick="runManualSync()" id="sync-btn" disabled title="Checking sync configuration...">
             <i class="fas fa-sync-alt"></i> Sync to Fuseki
           </button>
+          <div id="sync-readiness" class="small text-muted mb-2"><i class="fas fa-spinner fa-spin"></i> Checking configuration…</div>
           <div id="sync-status" class="mb-2" style="display:none;"></div>
           <hr>
           <button type="button" class="btn btn-outline-primary w-100 mb-2" onclick="runIntegrityCheck()">
@@ -339,6 +340,37 @@ function updateCharts(trendData, opsData) {
 
 // Auto-refresh every 30 seconds
 setInterval(loadDashboardData, 30000);
+
+// Sync readiness gate — queries /ajax-sync-readiness once on load and re-checks every 60s.
+function refreshSyncReadiness() {
+  var btn = document.getElementById('sync-btn');
+  var note = document.getElementById('sync-readiness');
+  if (!btn || !note) return;
+  fetch('{{ route("ric.ajax-sync-readiness") }}')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.ready) {
+        btn.disabled = false;
+        btn.title = '';
+        note.className = 'small text-success mb-2';
+        note.innerHTML = '<i class="fas fa-check-circle"></i> Sync ready.';
+      } else {
+        btn.disabled = true;
+        var reasons = (data.reasons || []).join(' ');
+        btn.title = 'Sync disabled: ' + reasons;
+        note.className = 'small text-warning mb-2';
+        note.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Sync not configured: ' + reasons;
+      }
+    })
+    .catch(function(err) {
+      btn.disabled = true;
+      btn.title = 'Could not verify sync configuration.';
+      note.className = 'small text-danger mb-2';
+      note.innerHTML = '<i class="fas fa-times-circle"></i> Readiness check failed: ' + err.message;
+    });
+}
+refreshSyncReadiness();
+setInterval(refreshSyncReadiness, 60000);
 
 // Manual Sync
 var syncLogFile = null;

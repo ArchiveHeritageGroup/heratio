@@ -462,19 +462,123 @@ class RicController extends Controller
     }
 
     /**
+     * Compute RiC sync readiness: tables, script, config keys, Fuseki ping.
+     * Returns [$ok, $reasons[], $resolved[]] where $resolved holds the
+     * concrete values that will be passed through to the shell runner.
+     */
+    private function ricSyncReadiness(): array
+    {
+        $reasons = [];
+
+        if (! $this->tablesExist()) {
+            $reasons[] = 'RiC tables not installed (run install.sql).';
+        }
+
+        $script = config('ahg-ric.sync_script') ?: base_path('packages/ahg-ric/bin/ric_sync.sh');
+        if (!is_file($script) || !is_executable($script)) {
+            $reasons[] = "Sync script missing or not executable: {$script}";
+        }
+
+        $fusekiUrl     = config('ahg-ric.fuseki.url');
+        $fusekiDataset = config('ahg-ric.fuseki.dataset');
+        $fusekiUser    = config('ahg-ric.fuseki.user');
+        $fusekiPass    = config('ahg-ric.fuseki.pass');
+
+        if (empty($fusekiUrl)) {
+            $reasons[] = 'RIC_FUSEKI_URL is not set in .env.';
+        }
+        if (empty($fusekiDataset)) {
+            $reasons[] = 'RIC_FUSEKI_DATASET is not set in .env.';
+        }
+
+        if (empty($reasons) && !empty($fusekiUrl)) {
+            if (!$this->fusekiReachable($fusekiUrl)) {
+                $reasons[] = "Fuseki not reachable at {$fusekiUrl}.";
+            }
+        }
+
+        return [
+            empty($reasons),
+            $reasons,
+            [
+                'script'         => $script,
+                'fuseki_url'     => $fusekiUrl,
+                'fuseki_dataset' => $fusekiDataset,
+                'fuseki_user'    => $fusekiUser,
+                'fuseki_pass'    => $fusekiPass,
+                'source_db_host' => config('ahg-ric.source_db.host') ?: config('database.connections.mysql.host'),
+                'source_db_user' => config('ahg-ric.source_db.user') ?: config('database.connections.mysql.username'),
+                'source_db_pass' => config('ahg-ric.source_db.password') ?: config('database.connections.mysql.password'),
+                'source_db_name' => config('ahg-ric.source_db.name') ?: config('database.connections.mysql.database'),
+                'base_uri'       => config('ahg-ric.base_uri') ?: config('app.url'),
+                'instance_id'    => config('ahg-ric.instance_id', 'heratio'),
+            ],
+        ];
+    }
+
+    /**
+     * Best-effort Fuseki ping — 1-second timeout, accept 200 or 401.
+     */
+    private function fusekiReachable(string $baseUrl): bool
+    {
+        $pingUrl = rtrim($baseUrl, '/') . '/$/ping';
+        $ch = curl_init($pingUrl);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_NOBODY         => true,
+            CURLOPT_CONNECTTIMEOUT => 1,
+            CURLOPT_TIMEOUT        => 1,
+        ]);
+        curl_exec($ch);
+        $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        return in_array($code, [200, 401], true);
+    }
+
+    /**
+     * AJAX: report whether the Sync button should be active.
+     */
+    public function ajaxSyncReadiness()
+    {
+        [$ok, $reasons] = $this->ricSyncReadiness();
+        return response()->json(['ready' => $ok, 'reasons' => $reasons]);
+    }
+
+    /**
      * AJAX: trigger manual sync.
      */
     public function ajaxSync()
     {
-        $logFile = storage_path('logs/ric_sync_' . date('Ymd_His') . '.log');
-        $script = base_path('packages/ahg-ric/bin/ric_sync.sh');
-
-        if (!is_file($script) || !is_executable($script)) {
-            return response()->json(['success' => false, 'error' => 'Sync script not found or not executable: ' . $script]);
+        [$ok, $reasons, $resolved] = $this->ricSyncReadiness();
+        if (!$ok) {
+            return response()->json([
+                'success' => false,
+                'error'   => 'RiC sync is not configured: ' . implode(' ', $reasons),
+            ], 503);
         }
 
-        $cmd = escapeshellcmd($script) . ' --cron > ' . escapeshellarg($logFile) . ' 2>&1 & echo $!';
-        $pid = trim(shell_exec($cmd));
+        $logFile = storage_path('logs/ric_sync_' . date('Ymd_His') . '.log');
+
+        $envPairs = [
+            'RIC_FUSEKI_URL'          => $resolved['fuseki_url'],
+            'RIC_FUSEKI_DATASET'      => $resolved['fuseki_dataset'],
+            'RIC_FUSEKI_USER'         => $resolved['fuseki_user'] ?? '',
+            'RIC_FUSEKI_PASS'         => $resolved['fuseki_pass'] ?? '',
+            'RIC_SOURCE_DB_HOST'      => $resolved['source_db_host'],
+            'RIC_SOURCE_DB_USER'      => $resolved['source_db_user'],
+            'RIC_SOURCE_DB_PASSWORD'  => $resolved['source_db_pass'] ?? '',
+            'RIC_SOURCE_DB_NAME'      => $resolved['source_db_name'],
+            'RIC_BASE_URI'            => $resolved['base_uri'],
+            'RIC_INSTANCE_ID'         => $resolved['instance_id'],
+        ];
+
+        $envPrefix = '';
+        foreach ($envPairs as $k => $v) {
+            $envPrefix .= $k . '=' . escapeshellarg((string) $v) . ' ';
+        }
+
+        $cmd = $envPrefix . escapeshellcmd($resolved['script']) . ' --cron > ' . escapeshellarg($logFile) . ' 2>&1 & echo $!';
+        $pid = trim((string) shell_exec($cmd));
 
         if (!$pid || !is_numeric($pid)) {
             return response()->json(['success' => false, 'error' => 'Failed to start sync process']);

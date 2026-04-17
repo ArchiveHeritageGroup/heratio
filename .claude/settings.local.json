@@ -302,7 +302,9 @@
       "Bash(sort -u wc -l /tmp/x10/gets.txt head -30 /tmp/x10/gets.txt)",
       "Bash(sort wc:*)",
       "Bash(sort echo:*)",
-      "Bash(xargs -I{} basename {})"
+      "Bash(xargs -I{} basename {})",
+      "Bash(bash -n /usr/share/nginx/heratio/packages/ahg-ric/bin/ric_sync.sh)",
+      "Bash(bash -n packages/ahg-ric/bin/ric_sync.sh)"
     ]
   }
 }

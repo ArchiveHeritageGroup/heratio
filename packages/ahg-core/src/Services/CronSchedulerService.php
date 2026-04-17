@@ -99,16 +99,23 @@ class CronSchedulerService
         $status = 'success';
         $output = '';
 
-        try {
-            $exitCode = Artisan::call($schedule->artisan_command);
-            $output = Artisan::output();
-
-            if ($exitCode !== 0) {
-                $status = 'failed';
-            }
-        } catch (\Throwable $e) {
+        // Pre-flight: confirm the artisan command is actually registered.
+        // Protects against orphan seeds whose backing commands were removed.
+        if (!$this->artisanCommandExists($schedule->artisan_command)) {
             $status = 'failed';
-            $output = $e->getMessage();
+            $output = "Command not registered: '{$schedule->artisan_command}'. Remove this schedule or implement the command.";
+        } else {
+            try {
+                $exitCode = Artisan::call($schedule->artisan_command);
+                $output = Artisan::output();
+
+                if ($exitCode !== 0) {
+                    $status = 'failed';
+                }
+            } catch (\Throwable $e) {
+                $status = 'failed';
+                $output = $e->getMessage();
+            }
         }
 
         $durationMs = (int) ((microtime(true) - $start) * 1000);
@@ -144,6 +151,24 @@ class CronSchedulerService
             'duration_ms' => $durationMs,
             'next_run' => $nextRun->toDateTimeString(),
         ];
+    }
+
+    /**
+     * Check whether the base command name in an artisan command string is registered.
+     * Extracts the first token (before any flag/arg) and matches against Artisan::all().
+     */
+    protected function artisanCommandExists(string $command): bool
+    {
+        $base = strtok(trim($command), " \t");
+        if ($base === false || $base === '') {
+            return false;
+        }
+        try {
+            return array_key_exists($base, Artisan::all());
+        } catch (\Throwable $e) {
+            // If the registry can't be read, fall through to the try/catch in runSingle.
+            return true;
+        }
     }
 
     /**
@@ -424,10 +449,6 @@ class CronSchedulerService
             'Queue Engine' => [
                 ['slug' => 'queue-flush', 'name' => 'Flush Failed Jobs', 'description' => 'Remove all failed jobs from the failed_jobs table.', 'artisan_command' => 'queue:flush', 'cron_expression' => '0 4 * * 0', 'duration_hint' => 'short', 'log_file' => 'logs/queue-cleanup.log'],
                 ['slug' => 'queue-retry', 'name' => 'Retry All Failed Jobs', 'description' => 'Push all failed jobs back onto the queue for re-processing.', 'artisan_command' => 'queue:retry --all', 'cron_expression' => '0 6 * * 1', 'duration_hint' => 'short', 'log_file' => 'logs/queue-retry.log'],
-            ],
-            'RiC Triplestore' => [
-                ['slug' => 'ric-queue', 'name' => 'RiC Queue Process', 'description' => 'Process RiC sync queue — push records to Fuseki triplestore. Enable when Fuseki is configured.', 'artisan_command' => 'ahg:ric-queue --limit=500', 'cron_expression' => '0 2 * * *', 'duration_hint' => 'medium', 'log_file' => 'logs/ric-queue.log', 'is_enabled' => false],
-                ['slug' => 'ric-integrity', 'name' => 'RiC Integrity Check', 'description' => 'Verify RiC triples integrity and auto-fix orphans. Enable when Fuseki is configured.', 'artisan_command' => 'ahg:ric-integrity --fix', 'cron_expression' => '0 5 * * 0', 'duration_hint' => 'long', 'log_file' => 'logs/ric-integrity.log', 'is_enabled' => false],
             ],
         ];
 
