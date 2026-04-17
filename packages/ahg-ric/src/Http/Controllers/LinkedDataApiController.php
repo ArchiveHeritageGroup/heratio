@@ -392,6 +392,79 @@ class LinkedDataApiController extends Controller
     }
 
     /**
+     * GET /api/ric/v1/instantiations
+     * List RiC-native Instantiations (paginated).
+     */
+    public function listInstantiations(Request $request): JsonResponse
+    {
+        $page = max(1, (int) $request->get('page', 1));
+        $limit = min((int) $request->get('limit', 50), 200);
+        $carrier = $request->get('carrier');
+        $mime = $request->get('mime');
+        $culture = app()->getLocale() ?: 'en';
+
+        $query = \DB::table('ric_instantiation as ri')
+            ->leftJoin('ric_instantiation_i18n as i18n', function ($j) use ($culture) {
+                $j->on('ri.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->select([
+                'ri.id', 'ri.record_id', 'ri.carrier_type', 'ri.mime_type',
+                'ri.extent_value', 'ri.extent_unit', 'i18n.title',
+            ]);
+
+        if ($carrier) {
+            $query->where('ri.carrier_type', $carrier);
+        }
+        if ($mime) {
+            $query->where('ri.mime_type', $mime);
+        }
+
+        $total = $query->count();
+        $items = $query
+            ->orderBy('ri.id')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+
+        $rows = array_map(fn($i) => [
+            '@id' => url('/instantiation/' . $i->id),
+            '@type' => 'rico:Instantiation',
+            'rico:identifier' => $i->title,
+            'rico:hasMimeType' => $i->mime_type,
+            'rico:hasCarrierType' => $i->carrier_type,
+        ], $items->toArray());
+
+        return response()->json([
+            '@context' => [
+                'rico' => 'https://www.ica.org/standards/RiC/ontology#',
+                'openric' => 'https://openric.org/ns/v1#',
+            ],
+            '@type' => 'rico:InstantiationList',
+            'openric:total' => $total,
+            'openric:page' => $page,
+            'openric:limit' => $limit,
+            'openric:items' => $rows,
+        ]);
+    }
+
+    /**
+     * GET /api/ric/v1/instantiations/{id}
+     * Get single RiC-native Instantiation as RIC-O JSON-LD.
+     */
+    public function showInstantiation(int $id): JsonResponse
+    {
+        $ric = $this->serializer->serializeInstantiation($id);
+
+        if (isset($ric['error'])) {
+            return response()->json($ric, 404);
+        }
+
+        return response()->json($ric, 200, [
+            'Content-Type' => 'application/ld+json',
+        ]);
+    }
+
+    /**
      * GET /api/ric/v1/sparql
      * Execute SPARQL query against triplestore
      */

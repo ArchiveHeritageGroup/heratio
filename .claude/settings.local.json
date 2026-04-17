@@ -331,7 +331,9 @@
       "Bash(.venv/bin/openric-validate --record \"https://heratio.theahg.co.za/api/ric/v1/repositories/d6mh-ktzy-h6qz\")",
       "Bash(xargs -a /tmp/typo-files.txt sed -i -E 's|johan@plansailingisystems[[:space:]]*$|johan@plansailingisystems.co.za|')",
       "Bash(sudo -u www-data php artisan tinker '--execute=try { $c = new AhgRic\\\\Http\\\\Controllers\\\\LinkedDataApiController\\(\\); $resp = $c->showPlace\\(912150\\); echo \"status=\" . $resp->status\\(\\) . chr\\(10\\); echo substr\\(json_encode\\($resp->getData\\(true\\), JSON_PRETTY_PRINT\\), 0, 1000\\) . chr\\(10\\); } catch \\(Throwable $e\\) { echo \"EXCEPTION: \" . $e->getMessage\\(\\) . chr\\(10\\); echo $e->getFile\\(\\) . \":\" . $e->getLine\\(\\) . chr\\(10\\); }')",
-      "Bash(.venv/bin/openric-validate --record \"https://heratio.theahg.co.za/api/ric/v1/places/912150\")"
+      "Bash(.venv/bin/openric-validate --record \"https://heratio.theahg.co.za/api/ric/v1/places/912150\")",
+      "Bash(sudo -u www-data php artisan tinker '--execute=try { $c = new AhgRic\\\\Http\\\\Controllers\\\\LinkedDataApiController\\(\\); $resp = $c->showInstantiation\\(910871\\); echo \"status=\" . $resp->status\\(\\) . chr\\(10\\); echo substr\\(json_encode\\($resp->getData\\(true\\), JSON_PRETTY_PRINT\\), 0, 1400\\) . chr\\(10\\); } catch \\(Throwable $e\\) { echo \"EXCEPTION: \" . $e->getMessage\\(\\) . chr\\(10\\); echo $e->getFile\\(\\) . \":\" . $e->getLine\\(\\) . chr\\(10\\); }')",
+      "Bash(.venv/bin/openric-validate --record \"https://heratio.theahg.co.za/api/ric/v1/instantiations/910871\")"
     ]
   }
 }

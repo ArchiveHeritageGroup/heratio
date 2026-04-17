@@ -502,6 +502,94 @@ class RicSerializationService
     }
 
     /**
+     * Serialize a RiC-native Instantiation (digital or physical manifestation) to RIC-O JSON-LD.
+     */
+    public function serializeInstantiation(int $instantiationId, array $options = []): array
+    {
+        $culture = app()->getLocale() ?: 'en';
+
+        $inst = DB::table('ric_instantiation as ri')
+            ->leftJoin('ric_instantiation_i18n as i18n', function ($j) use ($culture) {
+                $j->on('ri.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->leftJoin('information_object as io', 'ri.record_id', '=', 'io.id')
+            ->leftJoin('slug as io_slug', 'io.id', '=', 'io_slug.object_id')
+            ->leftJoin('information_object_i18n as io_i18n', function ($j) use ($culture) {
+                $j->on('io.id', '=', 'io_i18n.id')->where('io_i18n.culture', '=', $culture);
+            })
+            ->where('ri.id', $instantiationId)
+            ->select([
+                'ri.*',
+                'i18n.title',
+                'i18n.description',
+                'i18n.technical_characteristics',
+                'i18n.production_technical_characteristics',
+                'io_slug.slug as record_slug',
+                'io_i18n.title as record_title',
+            ])
+            ->first();
+
+        if (!$inst) {
+            return ['error' => 'Instantiation not found'];
+        }
+
+        $ricInst = [
+            '@context' => [
+                'rico' => self::RICO_NS,
+                'rdf' => self::RDF_NS,
+                'rdfs' => self::RDFS_NS,
+                'xsd' => self::XSD_NS,
+            ],
+            '@id' => $this->baseUri . '/instantiation/' . $inst->id,
+            '@type' => 'rico:Instantiation',
+        ];
+
+        if (!empty($inst->title)) {
+            $ricInst['rico:identifier'] = $inst->title;
+            $ricInst['rico:title'] = $inst->title;
+        }
+
+        if (!empty($inst->description)) {
+            $ricInst['rico:description'] = $inst->description;
+        }
+
+        if (!empty($inst->mime_type)) {
+            $ricInst['rico:hasMimeType'] = $inst->mime_type;
+        }
+
+        if (!empty($inst->carrier_type)) {
+            $ricInst['rico:hasCarrierType'] = $inst->carrier_type;
+        }
+
+        if ($inst->extent_value !== null) {
+            $ricInst['rico:hasExtent'] = [
+                '@type' => 'rico:Extent',
+                'rico:quantity' => (float) $inst->extent_value,
+                'rico:extentType' => $inst->extent_unit ?: 'bytes',
+            ];
+        }
+
+        if (!empty($inst->technical_characteristics)) {
+            $ricInst['rico:technicalCharacteristics'] = $inst->technical_characteristics;
+        }
+
+        if (!empty($inst->production_technical_characteristics)) {
+            $ricInst['rico:productionTechnicalCharacteristics'] =
+                $inst->production_technical_characteristics;
+        }
+
+        if ($inst->record_id && $inst->record_slug) {
+            $ricInst['rico:isInstantiationOf'] = [
+                '@id' => $this->baseUri . '/informationobject/' . $inst->record_slug,
+                '@type' => 'rico:Record',
+                'rico:title' => $inst->record_title,
+            ];
+        }
+
+        return $ricInst;
+    }
+
+    /**
      * Serialize with ISCAP compliance (Security/Access)
      */
     public function addIscapCompliance(array $ricEntity, int $entityId, string $entityType): array
