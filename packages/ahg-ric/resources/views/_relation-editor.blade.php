@@ -1,3 +1,6 @@
+@once
+@include('ahg-ric::_ric-api-base')
+@endonce
 {{-- RiC Relation Editor Widget --}}
 @php
     $recordId = $recordId ?? null;
@@ -103,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const q = this.value.trim();
         if (q.length < 2) { acList.style.display = 'none'; return; }
         debounce = setTimeout(() => {
-            fetch(`/api/ric/v1/autocomplete?q=${encodeURIComponent(q)}`, { credentials: 'same-origin' })
+            fetch(`${RIC_API_BASE}/autocomplete?q=${encodeURIComponent(q)}`, { credentials: 'same-origin' })
                 .then(r => r.json())
                 .then(items => {
                     if (!items.length) { acList.style.display = 'none'; return; }
@@ -174,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!recordId) return;
         // Public API returns grouped {outgoing, incoming}; flatten for the
         // existing table renderer which expects a flat array with `direction`.
-        fetch(`/api/ric/v1/relations-for/${recordId}`, { credentials: 'same-origin' })
+        fetch(`${RIC_API_BASE}/relations-for/${recordId}`, { credentials: 'same-origin' })
             .then(r => r.json())
             .then(payload => {
                 const flat = [
@@ -215,13 +218,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const payload = currentFormPayload();
         if (editingId === null) {
             if (!payload.object_id || !payload.relation_type) { alert('Select a target entity and relation type'); return; }
-            fetch('/api/ric/v1/relations', {
+            fetch(`${RIC_API_BASE}/relations`, {
                 method: 'POST', credentials: 'same-origin', headers: jsonHeaders(), body: JSON.stringify(payload)
             })
             .then(r => r.json().then(body => ({ ok: r.ok, body })))
             .then(({ ok, body }) => { if (ok) location.reload(); else alert(body.error || body.message || 'Create failed'); });
         } else {
-            fetch(`/api/ric/v1/relations/${editingId}`, {
+            fetch(`${RIC_API_BASE}/relations/${editingId}`, {
                 method: 'PATCH', credentials: 'same-origin', headers: jsonHeaders(), body: JSON.stringify(payload)
             })
             .then(r => r.json().then(body => ({ ok: r.ok, body })))
@@ -263,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.ricDeleteRelation = function(id) {
         if (!confirm('Remove this relation?')) return;
-        fetch(`/api/ric/v1/relations/${id}`, { method: 'DELETE', credentials: 'same-origin', headers: jsonHeaders() })
+        fetch(`${RIC_API_BASE}/relations/${id}`, { method: 'DELETE', credentials: 'same-origin', headers: jsonHeaders() })
             .then(() => location.reload());
     };
 

@@ -77,6 +77,21 @@ class AhgRicServiceProvider extends ServiceProvider
         // Load views
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-ric');
 
+        // Register artisan commands (only when running in console — cheap guard).
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgRic\Console\Commands\VerifySplit::class,
+            ]);
+        }
+
+        // Expose the RiC API base URL to every Blade view so embedded JS can
+        // resolve `/api/ric/v1` OR a post-split external service URL with
+        // zero template changes.
+        \Illuminate\Support\Facades\View::share(
+            'ricApiBase',
+            rtrim(config('ric.api_url') ?: url('/api/ric/v1'), '/')
+        );
+
         // Publish configuration
         $this->publishes([
             __DIR__ . '/../../config/ahg-ric.php' => config_path('ahg-ric.php'),

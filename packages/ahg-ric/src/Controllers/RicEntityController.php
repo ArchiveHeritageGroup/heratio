@@ -26,29 +26,72 @@ class RicEntityController extends Controller
     }
 
     /**
-     * API-3 helper: call a public `/api/ric/v1/*` endpoint in-process,
-     * forwarding the caller's session cookie so write endpoints (`api.auth:write`)
-     * accept the admin's session. Returns the JSON decoded body, or null on any
-     * non-2xx / transport failure (signal to fall back to direct service call).
+     * Call a `/api/ric/v1/*` endpoint. Two auth modes:
+     *
+     * - **In-process mode** (RIC_API_URL unset or matches app.url): the call
+     *   goes to the same host; the caller's admin session cookie is forwarded
+     *   so the inner request's `api.auth:write` middleware accepts it.
+     *
+     * - **External-service mode** (RIC_API_URL set, different host): the call
+     *   goes to the configured RiC service; the admin session cookie doesn't
+     *   cross origins, so we inject the `X-API-Key` header from
+     *   RIC_SERVICE_API_KEY instead.
+     *
+     * Returns decoded JSON on 2xx, or null on any non-2xx / transport failure
+     * (callers treat null as "fall back to direct service call").
      */
     protected function callRicApi(string $method, string $path, array $data = [], ?Request $origRequest = null): ?array
     {
         $origRequest ??= request();
-        $appUrl = rtrim(config('app.url'), '/');
-        $url = $appUrl . $path;
-        $host = parse_url($appUrl, PHP_URL_HOST) ?: 'localhost';
 
-        $cookies = [];
-        $sessionCookieName = config('session.cookie');
-        if ($sessionCookieName && $origRequest->cookies->has($sessionCookieName)) {
-            // Forward raw encrypted cookie value — the inner request's
-            // EncryptCookies middleware will decrypt it and restore the session.
-            $cookies[$sessionCookieName] = $origRequest->cookies->get($sessionCookieName);
+        $ricApiUrl = config('ric.api_url');
+        $appUrl = rtrim(config('app.url'), '/');
+        $appHost = parse_url($appUrl, PHP_URL_HOST);
+
+        // Pick base + auth mode.
+        $external = false;
+        if ($ricApiUrl) {
+            $ricHost = parse_url($ricApiUrl, PHP_URL_HOST);
+            $external = $ricHost && $ricHost !== $appHost;
+        }
+
+        if ($external) {
+            // Strip the /api/ric/v1 suffix if present in RIC_API_URL so we can
+            // join with $path which starts with /api/ric/v1/...
+            $base = rtrim($ricApiUrl, '/');
+            if (str_ends_with($base, '/api/ric/v1')) {
+                $base = substr($base, 0, -strlen('/api/ric/v1'));
+            }
+            $url = $base . $path;
+            $serviceKey = config('ric.service_key');
+            $timeout = (int) config('ric.http_timeout', 5);
+        } else {
+            $url = $appUrl . $path;
+            $serviceKey = null;
+            $timeout = 5;
         }
 
         try {
-            $client = \Illuminate\Support\Facades\Http::timeout(5);
-            if ($cookies) $client = $client->withCookies($cookies, $host);
+            $client = \Illuminate\Support\Facades\Http::timeout($timeout);
+            $client = $client->acceptJson()->asJson();
+
+            if ($external) {
+                if (!$serviceKey) {
+                    \Illuminate\Support\Facades\Log::error('[callRicApi] RIC_API_URL set but RIC_SERVICE_API_KEY missing — cannot authenticate external call.');
+                    return null;
+                }
+                $client = $client->withHeaders(['X-API-Key' => $serviceKey]);
+            } else {
+                // In-process: forward session cookie for admin auth.
+                $sessionCookieName = config('session.cookie');
+                if ($sessionCookieName && $origRequest->cookies->has($sessionCookieName)) {
+                    $client = $client->withCookies(
+                        [$sessionCookieName => $origRequest->cookies->get($sessionCookieName)],
+                        $appHost ?: 'localhost',
+                    );
+                }
+            }
+
             $response = match (strtolower($method)) {
                 'post' => $client->post($url, $data),
                 'put', 'patch' => $client->{strtolower($method)}($url, $data),
@@ -58,7 +101,7 @@ class RicEntityController extends Controller
             if ($response->successful()) {
                 return $response->json();
             }
-            \Illuminate\Support\Facades\Log::info("[callRicApi] {$method} {$path} returned {$response->status()}");
+            \Illuminate\Support\Facades\Log::info("[callRicApi] {$method} {$path} returned {$response->status()}" . ($external ? ' (external)' : ''));
             return null;
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning("[callRicApi] {$method} {$path} failed: " . $e->getMessage());

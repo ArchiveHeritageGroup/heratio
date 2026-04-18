@@ -355,7 +355,13 @@
       "Bash(xargs -I {} sh -c 'echo \"### {} ###\"; grep -n plainsailingisystems \"{}\"')",
       "Bash(xargs sed *)",
       "Bash(openssl s_client -connect viewer.openric.org:443 -servername viewer.openric.org)",
-      "Bash(npm test *)"
+      "Bash(npm test *)",
+      "Bash(composer --version)",
+      "Bash(COMPOSER_ALLOW_SUPERUSER=1 composer create-project laravel/laravel /usr/share/nginx/openric-service --quiet --no-interaction)",
+      "Bash(rm -rf vendor composer.lock)",
+      "Bash(sed -i 's|\"laravel/framework\": \"\\\\^13.0\"|\"laravel/framework\": \"^12.0\"|' composer.json)",
+      "Bash(COMPOSER_ALLOW_SUPERUSER=1 composer install --quiet --no-interaction)",
+      "Bash(COMPOSER_ALLOW_SUPERUSER=1 composer update ahg/core ahg/api ahg/ric --quiet --no-interaction)"
     ]
   }
 }

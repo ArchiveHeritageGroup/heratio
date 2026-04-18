@@ -1,3 +1,6 @@
+@once
+@include('ahg-ric::_ric-api-base')
+@endonce
 {{-- RiC Hierarchy Section (isPartOf / hasPart) --}}
 @php
     $hierarchy = $hierarchy ?? ['parent' => null, 'children' => collect(), 'siblings' => collect()];
@@ -138,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const q = this.value.trim();
         if (q.length < 2) { resultsList.style.display = 'none'; return; }
         debounce = setTimeout(() => {
-            fetch(`/api/ric/v1/autocomplete?q=${encodeURIComponent(q)}`, { credentials: 'same-origin' })
+            fetch(`${RIC_API_BASE}/autocomplete?q=${encodeURIComponent(q)}`, { credentials: 'same-origin' })
                 .then(r => r.json())
                 .then(items => {
                     if (!items.length) { resultsList.innerHTML = '<div class="list-group-item text-muted">No results</div>'; resultsList.style.display = ''; return; }
@@ -178,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
             objectId = targetId;
         }
 
-        fetch('/api/ric/v1/relations', {
+        fetch(`${RIC_API_BASE}/relations`, {
             method: 'POST',
             credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },

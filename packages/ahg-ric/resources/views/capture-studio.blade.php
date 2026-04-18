@@ -54,11 +54,14 @@
 @endpush
 
 @section('content')
+@once
+@include('ahg-ric::_ric-api-base')
+@endonce
 <section class="studio-hero">
     <h1><i class="fas fa-cube me-2"></i>OpenRiC Capture Studio</h1>
     <p>Focused workspace for creating Records-in-Contexts entities: Places, Rules, Activities, Instantiations, and the relations between them. Every entity you create here is immediately served through the OpenRiC API and visible to external clients.</p>
     <div class="hero-meta">
-        API base: <code>{{ url('/api/ric/v1') }}</code>
+        API base: <code>{{ $ricApiBase }}</code>
         &nbsp;·&nbsp; Spec: <a href="https://openric.org" target="_blank" rel="noopener" style="color:#fff; text-decoration: underline;">openric.org</a>
         &nbsp;·&nbsp; Live viewer: <a href="https://viewer.openric.org" target="_blank" rel="noopener" style="color:#fff; text-decoration: underline;">viewer.openric.org</a>
     </div>
@@ -150,7 +153,7 @@
         const q = this.value.trim();
         if (q.length < 2) { resultsEl.style.display = 'none'; return; }
         debounce = setTimeout(() => {
-            fetch(`/api/ric/v1/autocomplete?q=${encodeURIComponent(q)}&types=place,rule,activity,instantiation&limit=15`)
+            fetch(`${RIC_API_BASE}/autocomplete?q=${encodeURIComponent(q)}&types=place,rule,activity,instantiation&limit=15`)
                 .then(r => r.json())
                 .then(items => {
                     if (!Array.isArray(items) || !items.length) {

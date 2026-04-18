@@ -1,3 +1,6 @@
+@once
+@include('ahg-ric::_ric-api-base')
+@endonce
 {{-- RiC Entities Panel — included on IO/Actor show pages --}}
 {{-- Usage: @include('ahg-ric::_ric-entities-panel', ['record' => $io]) --}}
 @php
@@ -97,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const recordId = {{ $recordId }};
 
     // Load entities for this record
-    fetch(`/api/ric/v1/records/${recordId}/entities`, { credentials: 'same-origin' })
+    fetch(`${RIC_API_BASE}/records/${recordId}/entities`, { credentials: 'same-origin' })
         .then(r => r.json())
         .then(data => {
             renderActivities(data.activities || []);
@@ -113,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load relations — public API returns grouped {outgoing, incoming};
     // flatten back for the legacy table renderer.
-    fetch(`/api/ric/v1/relations-for/${recordId}`, { credentials: 'same-origin' })
+    fetch(`${RIC_API_BASE}/relations-for/${recordId}`, { credentials: 'same-origin' })
         .then(r => r.json())
         .then(payload => {
             const flat = [ ...(payload.outgoing || []), ...(payload.incoming || []) ];
@@ -170,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.ricDeleteEntity = function(id) {
         if (!confirm('Delete this RiC entity?')) return;
-        fetch(`/api/ric/v1/entities/${id}`, { method: 'DELETE', credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+        fetch(`${RIC_API_BASE}/entities/${id}`, { method: 'DELETE', credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
             .then(() => location.reload());
     };
 });

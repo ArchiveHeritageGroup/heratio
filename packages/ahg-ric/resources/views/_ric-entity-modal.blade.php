@@ -1,3 +1,6 @@
+@once
+@include('ahg-ric::_ric-api-base')
+@endonce
 {{-- RiC Entity Creation Modal --}}
 @php
     $ricDropdowns = [
@@ -211,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
         delete entityPayload.link_to_record_id;
         delete entityPayload.link_relation_type;
         const entityType = data.entity_type; // 'place' | 'rule' | 'activity' | 'instantiation'
-        const typeUrl = `/api/ric/v1/${entityType}s`;
+        const typeUrl = `${RIC_API_BASE}/${entityType}s`;
         fetch(typeUrl, {
             method: 'POST',
             credentials: 'same-origin',
@@ -223,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!ok) { alert('Error: ' + (body.error || body.message || 'Unknown')); return; }
             const createdId = body.id;
             if (data.link_to_record_id && data.link_relation_type && createdId) {
-                const relResp = await fetch('/api/ric/v1/relations', {
+                const relResp = await fetch(`${RIC_API_BASE}/relations`, {
                     method: 'POST',
                     credentials: 'same-origin',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
