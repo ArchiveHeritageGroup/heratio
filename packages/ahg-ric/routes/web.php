@@ -107,4 +107,7 @@ Route::middleware('web')->group(function () {
 
     // Global relations browse (G8)
     Route::get('/admin/ric/relations', [RicEntityController::class, 'browseRelations'])->name('ric.relations.browse');
+
+    // Capture Studio — slimmed-down capture landing, focused on RiC-native data entry.
+    Route::get('/ric-capture', [RicEntityController::class, 'captureStudio'])->name('ric.capture.studio');
 });
