@@ -1590,6 +1590,29 @@ class LinkedDataApiController extends Controller
     }
 
     /**
+     * DELETE /api/ric/v1/entities/{id}
+     * Generic delete-by-id: looks up class_name via the object table and
+     * dispatches to the appropriate deletePlace/deleteRule/... method.
+     * Useful for UIs that hold an id but not a type.
+     */
+    public function deleteEntityById(int $id): JsonResponse
+    {
+        $className = DB::table('object')->where('id', $id)->value('class_name');
+        if (!$className) {
+            return response()->json(['error' => 'Entity not found', 'id' => $id], 404);
+        }
+        $typeMap = [
+            'RicPlace' => 'places', 'RicRule' => 'rules',
+            'RicActivity' => 'activities', 'RicInstantiation' => 'instantiations',
+        ];
+        $type = $typeMap[$className] ?? null;
+        if (!$type) {
+            return response()->json(['error' => "Cannot delete entity of class {$className}"], 422);
+        }
+        return $this->deleteEntity($type, $id);
+    }
+
+    /**
      * DELETE /api/ric/v1/{type}/{id}
      */
     public function deleteEntity(string $type, int $id): JsonResponse

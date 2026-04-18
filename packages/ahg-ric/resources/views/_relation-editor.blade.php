@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const q = this.value.trim();
         if (q.length < 2) { acList.style.display = 'none'; return; }
         debounce = setTimeout(() => {
-            fetch(`/admin/ric/entity-api/autocomplete?q=${encodeURIComponent(q)}`)
+            fetch(`/api/ric/v1/autocomplete?q=${encodeURIComponent(q)}`, { credentials: 'same-origin' })
                 .then(r => r.json())
                 .then(items => {
                     if (!items.length) { acList.style.display = 'none'; return; }
@@ -172,9 +172,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // ------------------------------------------------------------
     function loadRelations() {
         if (!recordId) return;
-        fetch(`/admin/ric/entity-api/relations/${recordId}`)
+        // Public API returns grouped {outgoing, incoming}; flatten for the
+        // existing table renderer which expects a flat array with `direction`.
+        fetch(`/api/ric/v1/relations-for/${recordId}`, { credentials: 'same-origin' })
             .then(r => r.json())
-            .then(renderRelations)
+            .then(payload => {
+                const flat = [
+                    ...(payload.outgoing || []),
+                    ...(payload.incoming || []),
+                ];
+                renderRelations(flat);
+            })
             .catch(() => {});
     }
     // Defer slightly so external callers (e.g. _ric-entities-panel) can pre-render
@@ -199,25 +207,25 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    function csrfHeader() {
-        return { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' };
+    function jsonHeaders() {
+        return { 'Content-Type': 'application/json', 'Accept': 'application/json' };
     }
 
     window.ricSubmitRelation = function() {
         const payload = currentFormPayload();
         if (editingId === null) {
             if (!payload.object_id || !payload.relation_type) { alert('Select a target entity and relation type'); return; }
-            fetch('/admin/ric/entity-api/relation-store', {
-                method: 'POST', headers: csrfHeader(), body: JSON.stringify(payload)
+            fetch('/api/ric/v1/relations', {
+                method: 'POST', credentials: 'same-origin', headers: jsonHeaders(), body: JSON.stringify(payload)
             })
-            .then(r => r.json())
-            .then(result => { if (result.success) location.reload(); else alert(result.error); });
+            .then(r => r.json().then(body => ({ ok: r.ok, body })))
+            .then(({ ok, body }) => { if (ok) location.reload(); else alert(body.error || body.message || 'Create failed'); });
         } else {
-            fetch(`/admin/ric/entity-api/relation-update/${editingId}`, {
-                method: 'POST', headers: csrfHeader(), body: JSON.stringify(payload)
+            fetch(`/api/ric/v1/relations/${editingId}`, {
+                method: 'PATCH', credentials: 'same-origin', headers: jsonHeaders(), body: JSON.stringify(payload)
             })
-            .then(r => r.json())
-            .then(result => { if (result.success) location.reload(); else alert(result.error); });
+            .then(r => r.json().then(body => ({ ok: r.ok, body })))
+            .then(({ ok, body }) => { if (ok) location.reload(); else alert(body.error || body.message || 'Update failed'); });
         }
     };
 
@@ -255,8 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.ricDeleteRelation = function(id) {
         if (!confirm('Remove this relation?')) return;
-        fetch(`/admin/ric/entity-api/relation-delete/${id}`, { method: 'POST', headers: csrfHeader() })
-            .then(r => r.json())
+        fetch(`/api/ric/v1/relations/${id}`, { method: 'DELETE', credentials: 'same-origin', headers: jsonHeaders() })
             .then(() => location.reload());
     };
 

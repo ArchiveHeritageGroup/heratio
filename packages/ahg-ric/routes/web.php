@@ -72,21 +72,11 @@ Route::get('/ricExplorer/autocomplete', [RicController::class, 'autocomplete'])-
 // RiC Entity CRUD — Record-level AJAX + Standalone browse
 // ================================================================
 
-// Record-level AJAX endpoints (admin/ric/entity-api/ — registered in routing.yml for Symfony compatibility)
-Route::prefix('admin/ric/entity-api')->middleware('web')->group(function () {
-    Route::get('/for-record/{id}', [RicEntityController::class, 'entitiesForRecord'])->name('ric.entities.for-record');
-    Route::match(['get', 'post'], '/store', [RicEntityController::class, 'storeEntity'])->name('ric.entities.store');
-    Route::match(['get', 'post'], '/update/{id}', [RicEntityController::class, 'updateEntity'])->name('ric.entities.update');
-    Route::match(['get', 'post'], '/delete/{id}', [RicEntityController::class, 'destroyEntity'])->name('ric.entities.destroy');
-    Route::get('/autocomplete', [RicEntityController::class, 'autocompleteEntities'])->name('ric.entities.autocomplete');
-    Route::get('/info/{id}', [RicEntityController::class, 'getEntityInfo'])->name('ric.entities.info');
-    Route::get('/dropdown/{taxonomy}', [RicEntityController::class, 'dropdownChoices'])->name('ric.entities.dropdown');
-    Route::get('/relations/{id}', [RicEntityController::class, 'relationsForRecord'])->name('ric.relations.for-record');
-    Route::match(['get', 'post'], '/relation-store', [RicEntityController::class, 'storeRelation'])->name('ric.relations.store');
-    Route::match(['get', 'post', 'patch'], '/relation-update/{id}', [RicEntityController::class, 'updateRelationAjax'])->name('ric.relations.update');
-    Route::match(['get', 'post'], '/relation-delete/{id}', [RicEntityController::class, 'destroyRelation'])->name('ric.relations.destroy');
-    Route::get('/relation-types', [RicEntityController::class, 'getRelationTypes'])->name('ric.relations.types');
-});
+// NOTE: The admin/ric/entity-api/* AJAX route group was removed 2026-04-18.
+// All views/front-end JS now call /api/ric/v1/* directly (Phase 4.1 of the
+// Heratio/RiC split). The form-based create/update/destroy routes (below)
+// remain because they perform server-side redirects after submit and are
+// distinct from the pure-JSON API endpoints.
 
 // Standalone browse/show/edit pages
 Route::middleware('web')->group(function () {

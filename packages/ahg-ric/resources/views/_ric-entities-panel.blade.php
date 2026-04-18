@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const recordId = {{ $recordId }};
 
     // Load entities for this record
-    fetch(`/admin/ric/entity-api/for-record/${recordId}`)
+    fetch(`/api/ric/v1/records/${recordId}/entities`, { credentials: 'same-origin' })
         .then(r => r.json())
         .then(data => {
             renderActivities(data.activities || []);
@@ -111,12 +111,14 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(() => {});
 
-    // Load relations
-    fetch(`/admin/ric/entity-api/relations/${recordId}`)
+    // Load relations — public API returns grouped {outgoing, incoming};
+    // flatten back for the legacy table renderer.
+    fetch(`/api/ric/v1/relations-for/${recordId}`, { credentials: 'same-origin' })
         .then(r => r.json())
-        .then(data => {
-            document.querySelector('.ric-count-relations').textContent = data.length || 0;
-            if (typeof renderRelations === 'function') renderRelations(data);
+        .then(payload => {
+            const flat = [ ...(payload.outgoing || []), ...(payload.incoming || []) ];
+            document.querySelector('.ric-count-relations').textContent = flat.length;
+            if (typeof renderRelations === 'function') renderRelations(flat);
         })
         .catch(() => {});
 
@@ -168,8 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.ricDeleteEntity = function(id) {
         if (!confirm('Delete this RiC entity?')) return;
-        fetch(`/admin/ric/entity-api/delete/${id}`, { method: 'POST', headers: {'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content} })
-            .then(r => r.json())
+        fetch(`/api/ric/v1/entities/${id}`, { method: 'DELETE', credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
             .then(() => location.reload());
     };
 });

@@ -126,6 +126,10 @@ Route::prefix('api/ric/v1')->middleware(['throttle:60,1', 'api.cors'])->group(fu
         Route::match(['patch', 'put'], '/relations/{id}', [LinkedDataApiController::class, 'updateRelation'])->where('id', '[0-9]+');
         Route::delete('/relations/{id}', [LinkedDataApiController::class, 'deleteRelation'])->where('id', '[0-9]+');
 
+        // Generic delete-by-id (looks up class_name and dispatches) — useful
+        // for UIs that hold only an id, not a type.
+        Route::delete('/entities/{id}', [LinkedDataApiController::class, 'deleteEntityById'])->where('id', '[0-9]+');
+
         Route::post('/{type}', [LinkedDataApiController::class, 'createEntity'])->where('type', 'places|rules|activities|instantiations');
         Route::match(['patch', 'put'], '/{type}/{id}', [LinkedDataApiController::class, 'updateEntity'])
             ->where('type', 'places|rules|activities|instantiations')->where('id', '[0-9]+');

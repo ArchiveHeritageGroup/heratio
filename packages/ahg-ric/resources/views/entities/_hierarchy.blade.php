@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const q = this.value.trim();
         if (q.length < 2) { resultsList.style.display = 'none'; return; }
         debounce = setTimeout(() => {
-            fetch(`/admin/ric/entity-api/autocomplete?q=${encodeURIComponent(q)}`)
+            fetch(`/api/ric/v1/autocomplete?q=${encodeURIComponent(q)}`, { credentials: 'same-origin' })
                 .then(r => r.json())
                 .then(items => {
                     if (!items.length) { resultsList.innerHTML = '<div class="list-group-item text-muted">No results</div>'; resultsList.style.display = ''; return; }
@@ -178,19 +178,17 @@ document.addEventListener('DOMContentLoaded', function() {
             objectId = targetId;
         }
 
-        fetch('/admin/ric/entity-api/relation-store', {
+        fetch('/api/ric/v1/relations', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-            },
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({
                 subject_id: subjectId,
                 object_id: objectId,
                 relation_type: 'has_part'
             })
         })
-        .then(r => r.json())
+        .then(r => r.json().then(body => ({ ok: r.ok, ...body, success: r.ok })).catch(() => ({ ok: r.ok, success: r.ok })))
         .then(result => {
             if (result.success) {
                 location.reload();

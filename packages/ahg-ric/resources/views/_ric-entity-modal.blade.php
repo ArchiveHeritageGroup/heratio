@@ -203,22 +203,44 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!data.title) { alert('Title is required'); return; }
         }
 
-        fetch('/admin/ric/entity-api/store', {
+        // API-3: POST /api/ric/v1/{type}s for the entity, then if a link-to-record
+        // was specified, POST /api/ric/v1/relations for the relation. Two round-trips
+        // in place of the admin /store convenience endpoint.
+        const entityPayload = Object.assign({}, data);
+        delete entityPayload.entity_type;
+        delete entityPayload.link_to_record_id;
+        delete entityPayload.link_relation_type;
+        const entityType = data.entity_type; // 'place' | 'rule' | 'activity' | 'instantiation'
+        const typeUrl = `/api/ric/v1/${entityType}s`;
+        fetch(typeUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-            },
-            body: JSON.stringify(data)
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(entityPayload)
         })
-        .then(r => r.json())
-        .then(result => {
-            if (result.success) {
-                bootstrap.Modal.getInstance(document.getElementById('ricEntityModal')).hide();
-                location.reload();
-            } else {
-                alert('Error: ' + (result.error || 'Unknown error'));
+        .then(r => r.json().then(body => ({ ok: r.ok, body })))
+        .then(async ({ ok, body }) => {
+            if (!ok) { alert('Error: ' + (body.error || body.message || 'Unknown')); return; }
+            const createdId = body.id;
+            if (data.link_to_record_id && data.link_relation_type && createdId) {
+                const relResp = await fetch('/api/ric/v1/relations', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({
+                        subject_id: parseInt(data.link_to_record_id),
+                        object_id: createdId,
+                        relation_type: data.link_relation_type,
+                    })
+                });
+                if (!relResp.ok) {
+                    const msg = await relResp.text();
+                    alert('Entity created but relation failed: ' + msg);
+                    // Still close + reload so the new entity is visible.
+                }
             }
+            bootstrap.Modal.getInstance(document.getElementById('ricEntityModal')).hide();
+            location.reload();
         })
         .catch(err => alert('Error: ' + err.message));
     });
