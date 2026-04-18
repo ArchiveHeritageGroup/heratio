@@ -98,6 +98,9 @@ Route::middleware('web')->group(function () {
     // Global relations browse (G8)
     Route::get('/admin/ric/relations', [RicEntityController::class, 'browseRelations'])->name('ric.relations.browse');
 
-    // Capture Studio — slimmed-down capture landing, focused on RiC-native data entry.
-    Route::get('/ric-capture', [RicEntityController::class, 'captureStudio'])->name('ric.capture.studio');
+    // Capture workflow moved to https://capture.openric.org — the neutral
+    // browser-only client. Old URL preserved as a 302 for any bookmarks/links.
+    Route::get('/ric-capture', function () {
+        return redirect('https://capture.openric.org/', 302);
+    })->name('ric.capture.studio');
 });

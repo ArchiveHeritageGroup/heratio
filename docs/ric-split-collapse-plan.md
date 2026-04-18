@@ -1,6 +1,16 @@
 # Phase 4.4 — Collapse `ahg-ric` inside Heratio
 
-**Prerequisite:** Phase 4.3 cutover complete and stable (Heratio running with `RIC_API_URL` pointing at `ric.theahg.co.za` for ≥ 1 week, no regressions).
+> **Status:** ⚙ **PARTIAL — executed 2026-04-18**, skipping the "wait 1 week" recommendation at the user's direction. What landed:
+>
+> - ✅ **4.4.1** — `RicApiClient.php` thin HTTP facade in `packages/ahg-ric/src/Http/`.
+> - ✅ **4.4.3** — `AhgRicServiceProvider` conditionally skips loading `routes/api.php` when `RIC_API_URL` is set. Heratio stopped serving `/api/ric/v1/*`; `ric.theahg.co.za` serves it authoritatively. `openric-service` keeps loading the routes because it does not set `RIC_API_URL`.
+> - ✅ **4.4.5** — `/ric-capture` is a 302 redirect to `https://capture.openric.org/`. `captureStudio` controller method deleted; `capture-studio.blade.php` view orphaned (not yet deleted — harmless).
+> - ✅ **Landing consolidation** — `ric.theahg.co.za/` replaced the Flask community site with a static HTML landing pointing at the four public surfaces; Flask proxy routes retired with 301 redirects in place.
+> - ⚠ **4.4.2** (swap every embedded-view data fetch to `RicApiClient`) — *partial*. The write-side already routes through `callRicApi()` which is in turn a lightweight HTTP forwarder, and front-end JS fetches via `window.RIC_API_BASE`. The read-side of `RicEntityController` still calls `$this->service->*` for browse/show/edit pages — those go to in-process Laravel services. Not broken (shared DB), not fully "pure consumer" yet. Defer.
+> - ⚠ **4.4.4** (delete the service classes) — *deferred*. Because `openric-service` reuses the same `ahg-ric` package via composer path repo, deleting the service classes would break the RiC service itself. The proper lift (split `ahg-ric` into `ahg-ric-client` + `ahg-ric-server` packages) is bigger work and not urgent.
+> - ⏳ **4.4.6** (remove `ric_*` tables from Heratio's DB — Option B) — not scheduled; requires dedicated DB for `openric-service` first.
+
+**Prerequisite (originally):** Phase 4.3 cutover complete and stable (Heratio running with `RIC_API_URL` pointing at `ric.theahg.co.za` for ≥ 1 week, no regressions).
 
 **Goal:** Shrink the `packages/ahg-ric/` package inside Heratio so it contains only the thin slices that still need to live in the GLAM client — no duplicated business logic, no DB access to `ric_*` tables, no serialization code. Everything non-client moves to (or already lives in) `openric-service`.
 
@@ -170,3 +180,4 @@ REVOKE INSERT, UPDATE, DELETE ON heratio.ric_place FROM 'heratio_app'@'localhost
 | Date | Change |
 |---|---|
 | 2026-04-18 | Initial plan drafted. Waiting on Phase 4.3 cutover to execute. |
+| 2026-04-18 | Phase 4.3 cutover executed same day; Phase 4.4.1 + 4.4.3 + 4.4.5 + landing consolidation landed. 4.4.2 partial, 4.4.4 + 4.4.6 deferred to a future package-split refactor. Skipped the "wait 1 week" guidance at the user's direction. |

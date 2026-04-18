@@ -1,8 +1,17 @@
-# OpenRiC v0.1.0 announcement — draft
+# OpenRiC announcement — send when ready
 
-**Status:** Draft, not yet sent. Post after `viewer.openric.org` cert goes green.
-**Targets:** AtoM users list, Archivematica users list, any EGAD/RiC-O contacts, ICA-adjacent Twitter/Bluesky.
+**Status:** Ready to send. All four public surfaces live as of 2026-04-18.
+**Targets:** AtoM users list, Archivematica users list, any EGAD/RiC-O contacts, ICA-adjacent Mastodon/Bluesky/LinkedIn.
 **Author:** Johan Pieterse
+
+### Pre-flight — all green
+- [x] openric.org serves v0.1.0 spec + status table
+- [x] viewer.openric.org — TLS live, help panel + hover tooltip, Heratio + static-fixture backends both render
+- [x] capture.openric.org — TLS live, pure-browser client against any OpenRiC server
+- [x] ric.theahg.co.za/api/ric/v1 — reference API service, `ric:verify-split` 15/15
+- [x] heratio.theahg.co.za now consumes the API as an external client (split is real, not theatre)
+- [x] Three seed Discussions at github.com/openric/spec/discussions + a v0.1.1 progress-update thread
+- [ ] Pin Discussion #1 (trivial — one UI click)
 
 ---
 
@@ -20,34 +29,36 @@ Recommend **#1** — boring, accurate, gets the link-click.
 
 > Hi all,
 >
-> We've published **OpenRiC 0.1.0** at **[openric.org](https://openric.org)** — an open, implementation-neutral specification for serving ICA's *Records in Contexts* model (RiC-CM / RiC-O) over HTTP.
+> We've released **OpenRiC** — an open, implementation-neutral specification for serving ICA's *Records in Contexts* model (RiC-CM / RiC-O) over HTTP, plus the tools around it.
 >
-> The deliverable is four short documents, a machine-verifiable conformance pack, and a reference implementation:
+> ### What's in it
 >
-> - **Mapping spec** — how ISAD(G), ISAAR-CPF, and ISDIAH translate to RiC-O
-> - **Viewing API** — a small REST + JSON-LD contract (records, agents, places, rules, activities, instantiations, a subgraph endpoint)
-> - **Graph primitives** — node/edge/cluster/drill abstractions so UIs can render RiC from any conformant server
-> - **Conformance** — 12 JSON Schemas, SHACL shapes, a 20-case fixture pack, an `openric-validate` CLI
+> - **Spec** — [openric.org](https://openric.org) — four documents (mapping, viewing API, graph primitives, conformance), 12 JSON Schemas, SHACL shapes, a 20-case fixture pack, and an `openric-validate` CLI. Version 0.1.0 frozen, CC-BY 4.0.
+> - **Graph viewer** — [`@openric/viewer`](https://www.npmjs.com/package/@openric/viewer) on npm — a standalone 2D/3D graph client for any OpenRiC-conformant server. Demo at [viewer.openric.org](https://viewer.openric.org) driving two independent backends to prove the decoupling (a real Heratio server *and* an in-browser static fixture replay).
+> - **Capture client** — [capture.openric.org](https://capture.openric.org) — a pure-browser data-entry tool. Paste a server URL and an API key; create Places, Rules, Activities, Instantiations, and relations against any OpenRiC-conformant backend. No dependency on the reference implementation.
+> - **Reference API** — [ric.theahg.co.za/api/ric/v1/health](https://ric.theahg.co.za/api/ric/v1/health) — a live, public endpoint serving a real archival database, backed by [Heratio](https://github.com/ArchiveHeritageGroup/heratio) (open-source GLAM platform).
 >
-> The reference implementation is **[Heratio](https://github.com/ArchiveHeritageGroup/heratio)** — an open-source Laravel archival-management platform (GLAM-focused) that emits RiC-O for every record, agent, and repository. 8 endpoint types currently live-validate against the schemas.
+> ### Why this is noteworthy
 >
-> A **standalone 2D/3D graph viewer** (`@openric/viewer`) is published on npm and deployed at **[viewer.openric.org](https://viewer.openric.org)**. The same viewer is driven by two backends in the demo — the Heratio reference server AND an in-browser static fixture server — to prove the decoupling actually holds. Anyone building an OpenRiC-conformant server can drop the viewer in without bundling a UI of their own.
+> Heratio — the reference implementation — is itself now a *consumer* of the public API. Every mutating admin action in Heratio goes out to `ric.theahg.co.za/api/ric/v1/*` with a bearer key, same surface as any external client. Which means the API isn't a "nice-to-have alongside an internal model"; it **is** the model. There's no privileged shortcut.
 >
-> **What we'd love from you**
+> That matters for the spec's credibility: if the reference implementation is a pure consumer, a second implementation becomes a comparably-shaped client-of-the-same-contract, not a stranger trying to match a hidden internal shape.
 >
-> - **Review.** Spec-level feedback, mapping disagreements, "this doesn't work for our national archive" — all welcome. The spec is a v0.1 *draft*, explicitly open for revision.
-> - **A second implementation.** Heratio being the only one is what keeps this at "claim" rather than "proof". If you run AtoM, Archivematica, a national-archive platform, or anything custom, we've written up what it would take: there's a Discussion open at **[github.com/openric/spec/discussions/2](https://github.com/openric/spec/discussions/2)**.
-> - **Mapping sanity-check.** Where does ISAD(G) → RiC-O feel wrong? Discussion open at **[github.com/openric/spec/discussions/3](https://github.com/openric/spec/discussions/3)**.
+> ### What we'd love from here
 >
-> **Links**
+> - **Spec feedback.** It's v0.1 draft — open for revision. Issues + Discussions at [github.com/openric/spec](https://github.com/openric/spec).
+> - **A second implementation.** AtoM, Archivematica, a national-archive stack, a custom system — if you've thought about emitting RiC-O over HTTP, [Discussion #2](https://github.com/openric/spec/discussions/2) asks the detailed questions.
+> - **Mapping disagreements.** Where does ISAD(G) → RiC-O feel wrong? [Discussion #3](https://github.com/openric/spec/discussions/3).
 >
-> - Spec: **[openric.org](https://openric.org)**
-> - Repository: **[github.com/openric/spec](https://github.com/openric/spec)**
-> - Live demo: **[viewer.openric.org](https://viewer.openric.org)**
-> - Viewer on npm: **[@openric/viewer](https://www.npmjs.com/package/@openric/viewer)**
-> - Discussions: **[github.com/openric/spec/discussions](https://github.com/openric/spec/discussions)**
+> ### Links
 >
-> The spec is **CC-BY 4.0**, the reference implementation and viewer are **AGPL-3.0**. No product; just a contract anyone can implement.
+> - Spec: [openric.org](https://openric.org) · [github.com/openric/spec](https://github.com/openric/spec)
+> - Viewer: [viewer.openric.org](https://viewer.openric.org) · [npm](https://www.npmjs.com/package/@openric/viewer) · [github.com/openric/viewer](https://github.com/openric/viewer)
+> - Capture: [capture.openric.org](https://capture.openric.org) · [github.com/openric/capture](https://github.com/openric/capture)
+> - Reference implementation (operational GLAM platform): [heratio.theahg.co.za](https://heratio.theahg.co.za) · [github.com/ArchiveHeritageGroup/heratio](https://github.com/ArchiveHeritageGroup/heratio)
+> - Discussions: [github.com/openric/spec/discussions](https://github.com/openric/spec/discussions)
+>
+> Spec is **CC-BY 4.0**, the implementation code is **AGPL-3.0**. No product; a contract anyone can implement.
 >
 > Thanks,
 > Johan Pieterse
@@ -74,13 +85,17 @@ Recommend **#1** — boring, accurate, gets the link-click.
 
 ## Short version (Mastodon / Bluesky / LinkedIn)
 
-> **OpenRiC 0.1.0 is out** — an open spec for serving ICA's Records in Contexts over HTTP, plus a reference implementation (Heratio) and a standalone 2D/3D viewer (`@openric/viewer` on npm).
+> **OpenRiC is out** — open spec for serving ICA's Records in Contexts over HTTP, plus:
 >
-> Four short docs, 12 JSON Schemas, a 20-case conformance fixture pack, a validator CLI, and a live demo at [viewer.openric.org](https://viewer.openric.org). Spec is CC-BY; implementation AGPL. Looking for reviewers and a second implementation.
+> 🗺 viewer — [viewer.openric.org](https://viewer.openric.org) — 2D+3D graph for any OpenRiC server
+> ✍ capture — [capture.openric.org](https://capture.openric.org) — pure-browser RiC data entry
+> 🔌 reference API — [ric.theahg.co.za/api/ric/v1](https://ric.theahg.co.za/api/ric/v1/health) — live, real archival data
 >
-> 🔗 [openric.org](https://openric.org) · [github.com/openric/spec](https://github.com/openric/spec)
+> Spec CC-BY, code AGPL. The reference implementation (Heratio) consumes its own public API — no privileged shortcut.
 >
-> #archives #linkedopendata #RiC
+> 🔗 [openric.org](https://openric.org) · [github.com/openric/spec](https://github.com/openric/spec/discussions)
+>
+> #archives #linkedopendata #RiC #RDF
 
 ---
 

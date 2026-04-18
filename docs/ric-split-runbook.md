@@ -1,5 +1,7 @@
 # Phase 4.3 cutover runbook — Heratio → openric-service
 
+> **Status:** ✅ **EXECUTED 2026-04-18.** Heratio is live against `https://ric.theahg.co.za/api/ric/v1`, `ric:verify-split` 15/15 passing, admin pages smoke-tested green. This doc stays as the reference playbook; step-by-step annotations below mark what landed.
+
 Single-page sequence to take the freshly-scaffolded `openric-service` from "green on localhost:8100" to "Heratio uses it in production". Each step is copy-pasteable. Every step can be rolled back in one line.
 
 **You need root on 192.168.0.112 for steps 1–3, no root after that.**
@@ -157,3 +159,27 @@ Heratio reverts to in-process RiC. The `openric-service` on `ric.theahg.co.za` c
 ## Done
 
 When all 15 `ric:verify-split` tests pass, zero `[callRicApi]` warnings for 24 h, and no support issues raised — the split is live. Phase 4.4 (collapse) can begin whenever you're ready.
+
+---
+
+## Execution notes (2026-04-18)
+
+What actually happened, in the order it happened, for the record:
+
+- **DNS** — `ric.theahg.co.za` was already a CNAME to `theahg.ddns.net` from earlier infrastructure; no DNS work needed.
+- **nginx** — an existing `ric.theahg.co.za.conf` vhost was already provisioning a `/app` slot for a Laravel app (the previous OpenRiC monorepo had been consolidated into Heratio; the slot was left empty). Rather than a fresh vhost, the scaffolded service was slotted in under `/usr/share/nginx/OpenRiC/public` and the vhost was rewritten to drop the dead `/app` prefix. `ric.theahg.co.za/api/ric/v1/*` became the canonical URL.
+- **TLS** — reused the existing `/etc/letsencrypt/live/theahg.co.za/` certificate (already covers `ric.theahg.co.za` via SAN). No certbot run needed.
+- **Service key mint** — `php artisan ric:mint-service-key --owner=900148 --name="heratio → openric-service"` — key copied into `/usr/share/nginx/heratio/.env` as `RIC_SERVICE_API_KEY=…`.
+- **Config gotcha** — Heratio already had a `config/ric.php` file (Fuseki / Qdrant / Elasticsearch settings). The Phase 4.3 keys (`api_url`, `service_key`, `http_timeout`) were merged in rather than replacing. First `verify-split` reported `api_url=(null)` and mode `in-process` because the expected keys weren't yet in the config. Fixed by editing the existing file, not replacing.
+- **Smoke test** — `ric:verify-split` returned **15 of 15 PASS**, including the POST/PATCH/DELETE cycle against a throwaway Place.
+- **Browser smoke test** — `/ric-capture`, admin entity create/show/edit/browse pages, IO show-page RiC panels — all rendered and interacted correctly through the external service.
+
+Phase 4.4 (collapse) began immediately after: `routes/api.php` load gated on `RIC_API_URL`, Blade JS routed through `window.RIC_API_BASE`, `/ric-capture` 302 → `capture.openric.org`. See `ric-split-collapse-plan.md`.
+
+---
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 2026-04-18 | Phase 4.3 executed. Heratio live as a consumer of `ric.theahg.co.za/api/ric/v1`. All 15 verify-split checks green. |

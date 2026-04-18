@@ -39,6 +39,11 @@ class AhgRicServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Expose RicApiClient as a singleton so controllers can inject it.
+        $this->app->singleton(\AhgRic\Http\RicApiClient::class, function () {
+            return new \AhgRic\Http\RicApiClient();
+        });
+
         // Register RelationshipService
         $this->app->singleton(RelationshipService::class);
 
@@ -71,8 +76,14 @@ class AhgRicServiceProvider extends ServiceProvider
         // Load web routes
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
 
-        // Load API routes
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
+        // Load API routes ONLY when this process is itself serving the RiC API
+        // (i.e. RIC_API_URL is unset). When RIC_API_URL is set, this process is
+        // a client of an external RiC service (Heratio post-split), and
+        // loading the API routes would just duplicate a surface that's served
+        // authoritatively elsewhere.
+        if (empty(config('ric.api_url'))) {
+            $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
+        }
 
         // Load views
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-ric');
