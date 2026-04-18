@@ -8,7 +8,7 @@
 
 > **📍 Progress note (2026-04-17):** This document is a frozen strategic record. For live tracking of what's done vs outstanding, see [`ric-status-and-plan.md`](ric-status-and-plan.md).
 >
-> **Phase 0** (repository split) — done. `openric-spec` repo is live at [github.com/ArchiveHeritageGroup/openric-spec](https://github.com/ArchiveHeritageGroup/openric-spec); site live at [openric.org](https://openric.org).
+> **Phase 0** (repository split) — done. `openric-spec` repo is live at [github.com/openric/spec](https://github.com/openric/spec); site live at [openric.org](https://openric.org).
 > **Phase 1** (core spec artifacts) — **partial**. Four draft documents (mapping, viewing API, graph primitives, conformance) are published at openric.org. JSON Schemas, fixture pack, and `openric-validate` CLI are specified in the conformance doc but not yet built.
 > **Phases 2–4** — not started. Tracked in `ric-status-and-plan.md` §3.
 
@@ -27,7 +27,7 @@
 
 ## Phase 0 — Repository split (1 day)
 
-1. Create `github.com/openric/spec` (or `github.com/ArchiveHeritageGroup/openric-spec` if not yet ready to hand over the org).
+1. Create `github.com/openric/spec` (done 2026-04-18 — transferred out of `ArchiveHeritageGroup` to the neutral `openric` org).
 2. Move the *conceptual* content out of Heratio:
    - Mapping rules (AtoM/ISAD(G)/ISAAR(CPF)/ISDIAH → RiC-CM/RiC-O)
    - Graph abstractions (node/edge/cluster/drill-down)

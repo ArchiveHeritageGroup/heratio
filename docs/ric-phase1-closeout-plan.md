@@ -21,7 +21,7 @@ Until these land, Heratio cannot honestly claim "OpenRiC 0.1.0 L3 conformance" o
 
 ### 2.1 Everything lives in `openric-spec`
 
-All three artifacts live inside the existing `github.com/ArchiveHeritageGroup/openric-spec` repo, not in a separate `openric/validator` repo. Reason: v0.1 is too young for multi-repo coordination; a subfolder split is trivial later when the validator acquires its own release cadence.
+All three artifacts live inside the existing `github.com/openric/spec` repo, not in a separate `openric/validator` repo. Reason: v0.1 is too young for multi-repo coordination; a subfolder split is trivial later when the validator acquires its own release cadence.
 
 New tree:
 
