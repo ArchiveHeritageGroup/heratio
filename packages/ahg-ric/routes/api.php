@@ -46,7 +46,7 @@ use AhgRic\Http\Controllers\LinkedDataApiController;
 |
 */
 
-Route::prefix('api/ric/v1')->middleware(['throttle:60,1'])->group(function () {
+Route::prefix('api/ric/v1')->middleware(['throttle:60,1', 'api.cors'])->group(function () {
     
     // Agents (ISAAR-CPF)
     Route::get('/agents', [LinkedDataApiController::class, 'listAgents']);
