@@ -1683,4 +1683,65 @@ class LinkedDataApiController extends Controller
             return response()->json(['error' => $e->getMessage()], 422);
         }
     }
+
+    /**
+     * POST /api/ric/v1/upload
+     * Multipart file upload. Returns {id, url, mime, size, filename}.
+     * The url is publicly reachable — nginx serves /uploads/ directly.
+     */
+    public function uploadContent(Request $request): JsonResponse
+    {
+        if (!$request->hasFile('file')) {
+            return response()->json(['error' => 'no_file', 'message' => 'POST a multipart form with a "file" part.'], 400);
+        }
+        $file = $request->file('file');
+        if (!$file->isValid()) {
+            return response()->json(['error' => 'invalid_file', 'message' => $file->getErrorMessage()], 422);
+        }
+
+        $maxBytes = (int) env('OPENRIC_UPLOAD_MAX_BYTES', 100 * 1024 * 1024); // 100 MB default
+        if ($file->getSize() > $maxBytes) {
+            return response()->json(['error' => 'too_large', 'message' => "Max upload size is {$maxBytes} bytes."], 413);
+        }
+
+        // Destination: /usr/share/nginx/OpenRiC/storage/app/uploads/YYYY/MM/{uuid}.{ext}
+        $ext = strtolower($file->getClientOriginalExtension() ?: 'bin');
+        $uuid = (string) \Illuminate\Support\Str::uuid();
+        $relative = sprintf('%s/%s/%s.%s', date('Y'), date('m'), $uuid, $ext);
+        $absRoot = storage_path('app/uploads');
+        $absPath = $absRoot . '/' . $relative;
+        if (!is_dir(dirname($absPath))) {
+            mkdir(dirname($absPath), 0775, true);
+        }
+        $file->move(dirname($absPath), basename($absPath));
+
+        // Build public URL — nginx serves storage/app/uploads/* at /uploads/*.
+        $publicBase = rtrim(config('app.url'), '/');
+        $url = $publicBase . '/uploads/' . $relative;
+
+        // Record a row in digital_object so the file is discoverable alongside
+        // RiC entities. Wrapped in try — this is a secondary concern.
+        $digitalObjectId = null;
+        try {
+            $digitalObjectId = \Illuminate\Support\Facades\DB::table('digital_object')->insertGetId([
+                'name' => $file->getClientOriginalName(),
+                'path' => $relative,
+                'mime_type' => $file->getClientMimeType() ?: $file->getMimeType(),
+                'byte_size' => $file->getSize(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('[uploadContent] digital_object insert failed: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'id'       => $digitalObjectId ?: $uuid,
+            'url'      => $url,
+            'mime'     => $file->getClientMimeType() ?: $file->getMimeType() ?: 'application/octet-stream',
+            'size'     => $file->getSize(),
+            'filename' => $file->getClientOriginalName(),
+            'path'     => $relative,
+        ], 201);
+    }
 }

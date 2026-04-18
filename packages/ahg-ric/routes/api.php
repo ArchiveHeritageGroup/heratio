@@ -122,6 +122,11 @@ Route::prefix('api/ric/v1')->middleware(['throttle:60,1', 'api.cors'])->group(fu
     // API-2 write surface — gated by api.auth:write
     // ------------------------------------------------------------
     Route::middleware(['api.auth:write'])->group(function () {
+        // File / content upload (images, PDFs, audio, any binary)
+        // Returns {id, url, mime, size, filename}; the url is publicly reachable
+        // without the API key (for embedding in UIs, IIIF manifests, etc.).
+        Route::post('/upload', [LinkedDataApiController::class, 'uploadContent']);
+
         Route::post('/relations', [LinkedDataApiController::class, 'createRelation']);
         Route::match(['patch', 'put'], '/relations/{id}', [LinkedDataApiController::class, 'updateRelation'])->where('id', '[0-9]+');
         Route::delete('/relations/{id}', [LinkedDataApiController::class, 'deleteRelation'])->where('id', '[0-9]+');
