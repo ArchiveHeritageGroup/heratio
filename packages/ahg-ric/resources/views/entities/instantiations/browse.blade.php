@@ -4,7 +4,10 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-file-alt me-2"></i>RiC Instantiations</h1>
-    <a href="{{ route('ric.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> RiC Dashboard</a>
+    <div class="d-flex gap-2">
+        <a href="{{ route('ric.entities.create', ['instantiations']) }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Create Instantiation</a>
+        <a href="{{ route('ric.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> RiC Dashboard</a>
+    </div>
 </div>
 <form method="get" class="mb-3">
     <div class="input-group input-group-sm" style="max-width:400px">

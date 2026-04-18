@@ -321,11 +321,29 @@ class RicEntityController extends Controller
         ];
         $choices = $this->service->getDropdownChoices($taxonomyMap[$singularType] ?? '');
 
-        return view("ahg-ric::entities.{$type}.edit", [
+        $viewData = [
             'entity' => $entity,
             'typeChoices' => $choices,
             'entityType' => $singularType,
-        ]);
+        ];
+        if ($type === 'places') {
+            $viewData['parentChoices'] = $this->service->listPlacesForPicker($entity->id ?? null);
+        }
+        if ($type === 'activities') {
+            $viewData['placeChoices'] = $this->service->listPlacesForPicker();
+        }
+        if ($type === 'instantiations' && $entity) {
+            $viewData['currentRecordLabel'] = $entity->record_id
+                ? \Illuminate\Support\Facades\DB::table('information_object_i18n')
+                    ->where('id', $entity->record_id)->where('culture', 'en')->value('title')
+                : null;
+            $viewData['currentDigitalObjectLabel'] = $entity->digital_object_id
+                ? \Illuminate\Support\Facades\DB::table('digital_object')
+                    ->where('id', $entity->digital_object_id)->value('name')
+                : null;
+        }
+
+        return view("ahg-ric::entities.{$type}.edit", $viewData);
     }
 
     /**
@@ -357,6 +375,109 @@ class RicEntityController extends Controller
 
         return redirect()->route('ric.entities.show', [$type, $slug])
             ->with('success', ucfirst(rtrim($type, 's')) . ' updated successfully.');
+    }
+
+    /**
+     * Render an empty create form for a RiC entity type (non-AJAX).
+     */
+    public function createEntityForm(string $type)
+    {
+        if (!in_array($type, ['places', 'rules', 'activities', 'instantiations'])) {
+            abort(404);
+        }
+
+        $singularType = rtrim($type, 's');
+        $taxonomyMap = [
+            'place' => 'ric_place_type',
+            'rule' => 'ric_rule_type',
+            'activity' => 'ric_activity_type',
+            'instantiation' => 'ric_carrier_type',
+        ];
+        $choices = $this->service->getDropdownChoices($taxonomyMap[$singularType] ?? '');
+
+        $viewData = [
+            'entity' => null,
+            'typeChoices' => $choices,
+            'entityType' => $singularType,
+        ];
+        if ($type === 'places') {
+            $viewData['parentChoices'] = $this->service->listPlacesForPicker();
+        }
+        if ($type === 'activities') {
+            $viewData['placeChoices'] = $this->service->listPlacesForPicker();
+        }
+        if ($type === 'instantiations') {
+            $viewData['currentRecordLabel'] = null;
+            $viewData['currentDigitalObjectLabel'] = null;
+        }
+
+        return view("ahg-ric::entities.{$type}.edit", $viewData);
+    }
+
+    /**
+     * Persist a newly-created RiC entity from the create form.
+     */
+    public function storeEntityForm(Request $request, string $type)
+    {
+        $data = $request->all();
+        $data['entity_type'] = rtrim($type, 's');
+
+        try {
+            $id = match ($type) {
+                'places' => $this->service->createPlace($data),
+                'rules' => $this->service->createRule($data),
+                'activities' => $this->service->createActivity($data),
+                'instantiations' => $this->service->createInstantiation($data),
+                default => abort(404),
+            };
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->withErrors(['create' => $e->getMessage()]);
+        }
+
+        $slug = \Illuminate\Support\Facades\DB::table('slug')->where('object_id', $id)->value('slug');
+
+        return redirect()->route('ric.entities.show', [$type, $slug])
+            ->with('success', ucfirst(rtrim($type, 's')) . ' created successfully.');
+    }
+
+    /**
+     * Global browse of every relation (G8 — standalone relations page).
+     */
+    public function browseRelations(Request $request)
+    {
+        $q = trim((string) $request->input('q', ''));
+        $page = max(1, (int) $request->input('page', 1));
+        $perPage = 50;
+
+        $query = \Illuminate\Support\Facades\DB::table('relation as r')
+            ->join('ric_relation_meta as m', 'r.id', '=', 'm.relation_id')
+            ->leftJoin('object as subj_o', 'r.subject_id', '=', 'subj_o.id')
+            ->leftJoin('object as obj_o', 'r.object_id', '=', 'obj_o.id')
+            ->select([
+                'r.id', 'r.subject_id', 'r.object_id', 'r.start_date', 'r.end_date',
+                'm.rico_predicate', 'm.dropdown_code', 'm.certainty', 'm.evidence',
+                'subj_o.class_name as subject_class', 'obj_o.class_name as object_class',
+            ])
+            ->orderBy('r.id', 'desc');
+
+        if ($q !== '') {
+            $query->where(function ($w) use ($q) {
+                $w->where('m.rico_predicate', 'like', "%{$q}%")
+                    ->orWhere('m.evidence', 'like', "%{$q}%")
+                    ->orWhere('m.dropdown_code', 'like', "%{$q}%");
+            });
+        }
+
+        $total = (clone $query)->count();
+        $rows = $query->forPage($page, $perPage)->get();
+
+        return view('ahg-ric::relations.browse', [
+            'rows' => $rows,
+            'total' => $total,
+            'page' => $page,
+            'perPage' => $perPage,
+            'q' => $q,
+        ]);
     }
 
     /**

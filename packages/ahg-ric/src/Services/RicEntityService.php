@@ -117,6 +117,25 @@ class RicEntityService
         return $this->browseEntities('ric_place', 'ric_place_i18n', 'name', 'RicPlace', $params);
     }
 
+    /**
+     * Flat list of every place as {id, name} for use in parent-picker dropdowns.
+     * Pass $excludeId to hide a specific place (e.g. the one being edited, to
+     * prevent self-loop in hierarchy).
+     */
+    public function listPlacesForPicker(?int $excludeId = null): array
+    {
+        $query = DB::table('ric_place as p')
+            ->leftJoin('ric_place_i18n as i18n', function ($j) {
+                $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', $this->culture);
+            })
+            ->select('p.id', 'i18n.name')
+            ->orderBy('i18n.name');
+        if ($excludeId !== null) {
+            $query->where('p.id', '!=', $excludeId);
+        }
+        return $query->get()->all();
+    }
+
     // ================================================================
     // RULE
     // ================================================================
@@ -744,7 +763,7 @@ class RicEntityService
         $results = collect();
         $q = '%' . $query . '%';
 
-        $types = $typeFilter ? explode(',', $typeFilter) : ['place', 'rule', 'activity', 'instantiation', 'actor', 'io', 'repository'];
+        $types = $typeFilter ? explode(',', $typeFilter) : ['place', 'rule', 'activity', 'instantiation', 'actor', 'io', 'repository', 'digital_object'];
 
         if (in_array('place', $types)) {
             $results = $results->merge(
@@ -826,6 +845,17 @@ class RicEntityService
                     ->where('information_object_i18n.title', 'like', $q)
                     ->where('information_object.id', '!=', 1) // skip root
                     ->select(['information_object.id', 'information_object_i18n.title as label', DB::raw("'Record' as type")])
+                    ->limit($limit)
+                    ->get()
+            );
+        }
+
+        if (in_array('digital_object', $types)) {
+            $results = $results->merge(
+                DB::table('digital_object')
+                    ->where('digital_object.name', 'like', $q)
+                    ->whereNull('digital_object.parent_id') // master file, not derivatives
+                    ->select(['digital_object.id', 'digital_object.name as label', DB::raw("'DigitalObject' as type")])
                     ->limit($limit)
                     ->get()
             );

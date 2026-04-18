@@ -3,6 +3,8 @@
     $recordId = $recordId ?? null;
     $ricRelationTypes = \Illuminate\Support\Facades\DB::table('ahg_dropdown')
         ->where('taxonomy', 'ric_relation_type')->where('is_active', 1)->orderBy('sort_order')->get();
+    $ricCertaintyLevels = \Illuminate\Support\Facades\DB::table('ahg_dropdown')
+        ->where('taxonomy', 'certainty_level')->where('is_active', 1)->orderBy('sort_order')->get();
 @endphp
 
 <div id="ric-relation-editor">
@@ -41,6 +43,19 @@
                 <button type="button" class="btn btn-sm btn-primary w-100" onclick="ricCreateRelation()">
                     <i class="fas fa-link"></i>
                 </button>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label form-label-sm">Certainty</label>
+                <select id="ric-rel-certainty" class="form-select form-select-sm">
+                    <option value="">-- Unspecified --</option>
+                    @foreach($ricCertaintyLevels as $cl)
+                    <option value="{{ $cl->code }}">{{ $cl->label }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-9">
+                <label class="form-label form-label-sm">Evidence</label>
+                <input type="text" id="ric-rel-evidence" class="form-control form-control-sm" placeholder="Source citation, record identifier, or note supporting this relation">
             </div>
         </div>
     </div>
@@ -113,7 +128,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 object_id: parseInt(targetId),
                 relation_type: relType,
                 start_date: document.getElementById('ric-rel-start').value || null,
-                end_date: document.getElementById('ric-rel-end').value || null
+                end_date: document.getElementById('ric-rel-end').value || null,
+                certainty: document.getElementById('ric-rel-certainty').value || null,
+                evidence: document.getElementById('ric-rel-evidence').value || null
             })
         })
         .then(r => r.json())
