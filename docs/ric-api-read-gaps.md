@@ -1,8 +1,25 @@
 # RiC API Read-Side Coverage Audit
 
-**Audit Date:** April 2026  
-**Scope:** Heratio RiC package (`packages/ahg-ric/`) + dependent packages  
+**Audit Date:** April 2026
+**Last updated:** 2026-04-18 *(9 of 11 gaps closed — all P0 + all P1; only P2 remain)*
+**Scope:** Heratio RiC package (`packages/ahg-ric/`) + dependent packages
 **Focus:** READ-only operations missing from `/api/ric/v1/*` public HTTP API
+
+## Status
+
+- ✅ **API-R-1 List relations** — shipped 2026-04-18: `GET /api/ric/v1/relations?q=&page=&per_page=`
+- ✅ **API-R-2 Relations for entity** — shipped 2026-04-18: `GET /api/ric/v1/relations-for/{id}`
+- ✅ **API-R-3 Hierarchy** — shipped 2026-04-18: `GET /api/ric/v1/hierarchy/{id}?include=parent,children,siblings`
+- ✅ **API-R-4 Autocomplete** — shipped 2026-04-18: `GET /api/ric/v1/autocomplete?q=&types=&limit=`
+- ✅ **API-R-5 Vocabulary by taxonomy** — shipped 2026-04-18: `GET /api/ric/v1/vocabulary/{taxonomy}`
+- ✅ **API-R-6 Linked RiC entities for record** — shipped 2026-04-18: `GET /api/ric/v1/records/{id}/entities`
+- ✅ **API-R-7 Entity info card** — shipped 2026-04-18: `GET /api/ric/v1/entities/{id}/info`
+- ✅ **API-R-8 Relation types with domain/range filter** — shipped 2026-04-18: `GET /api/ric/v1/relation-types?domain=&range=`
+- ✅ **API-R-9 Places flat picker** — shipped 2026-04-18: `GET /api/ric/v1/places/flat?exclude_id=`
+- ⚠ **API-R-10 Full query params on browse endpoints** — deferred (P2)
+- ⚠ **API-R-11 Vocabulary discovery index** — deferred (P2)
+
+---
 
 ## Executive Summary
 

@@ -90,6 +90,48 @@ Route::prefix('api/ric/v1')->middleware(['throttle:60,1'])->group(function () {
     
     // Vocabulary
     Route::get('/vocabulary', [LinkedDataApiController::class, 'vocabulary']);
+    Route::get('/vocabulary/{taxonomy}', [LinkedDataApiController::class, 'vocabularyByTaxonomy']);
+
+    // ------------------------------------------------------------
+    // API-1 read gaps (docs/ric-api-read-gaps.md)
+    // ------------------------------------------------------------
+
+    // Relations (API-R-1, R-2)
+    Route::get('/relations', [LinkedDataApiController::class, 'listRelations']);
+    Route::get('/relations-for/{id}', [LinkedDataApiController::class, 'relationsFor'])->where('id', '[0-9]+');
+
+    // Hierarchy walk (API-R-3)
+    Route::get('/hierarchy/{id}', [LinkedDataApiController::class, 'hierarchy'])->where('id', '[0-9]+');
+
+    // Cross-entity autocomplete (API-R-4)
+    Route::get('/autocomplete', [LinkedDataApiController::class, 'autocomplete']);
+
+    // Aggregated linked-RiC for a record (API-R-6)
+    Route::get('/records/{id}/entities', [LinkedDataApiController::class, 'entitiesForRecord'])->where('id', '[0-9]+');
+
+    // Entity info card (API-R-7)
+    Route::get('/entities/{id}/info', [LinkedDataApiController::class, 'entityInfo'])->where('id', '[0-9]+');
+
+    // Relation types with domain/range filter (API-R-8)
+    Route::get('/relation-types', [LinkedDataApiController::class, 'relationTypes']);
+
+    // Flat places picker (API-R-9)
+    Route::get('/places/flat', [LinkedDataApiController::class, 'placesFlat']);
+
+    // ------------------------------------------------------------
+    // API-2 write surface — gated by api.auth:write
+    // ------------------------------------------------------------
+    Route::middleware(['api.auth:write'])->group(function () {
+        Route::post('/relations', [LinkedDataApiController::class, 'createRelation']);
+        Route::match(['patch', 'put'], '/relations/{id}', [LinkedDataApiController::class, 'updateRelation'])->where('id', '[0-9]+');
+        Route::delete('/relations/{id}', [LinkedDataApiController::class, 'deleteRelation'])->where('id', '[0-9]+');
+
+        Route::post('/{type}', [LinkedDataApiController::class, 'createEntity'])->where('type', 'places|rules|activities|instantiations');
+        Route::match(['patch', 'put'], '/{type}/{id}', [LinkedDataApiController::class, 'updateEntity'])
+            ->where('type', 'places|rules|activities|instantiations')->where('id', '[0-9]+');
+        Route::delete('/{type}/{id}', [LinkedDataApiController::class, 'deleteEntity'])
+            ->where('type', 'places|rules|activities|instantiations')->where('id', '[0-9]+');
+    });
     
     // Health check
     Route::get('/health', function () {

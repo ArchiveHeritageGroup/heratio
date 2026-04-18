@@ -14,8 +14,10 @@ namespace AhgRic\Http\Controllers;
 use App\Http\Controllers\Controller;
 use AhgRic\Services\RicSerializationService;
 use AhgRic\Services\ShaclValidationService;
+use AhgRic\Services\RicEntityService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -32,11 +34,13 @@ class LinkedDataApiController extends Controller
 {
     private RicSerializationService $serializer;
     private ShaclValidationService $validator;
+    private RicEntityService $entities;
 
     public function __construct()
     {
         $this->serializer = new RicSerializationService();
         $this->validator = new ShaclValidationService();
+        $this->entities = new RicEntityService();
     }
 
     /**
@@ -1123,5 +1127,453 @@ class LinkedDataApiController extends Controller
             ];
         }
         return ['nodes' => $nodes, 'edges' => $edges];
+    }
+
+    // ================================================================
+    // API-1 READ GAPS — endpoints added per docs/ric-api-read-gaps.md
+    // ================================================================
+
+    /**
+     * GET /api/ric/v1/relations?q=&page=&per_page=
+     * API-R-1: paginated list of every relation with optional search.
+     */
+    public function listRelations(Request $request): JsonResponse
+    {
+        $q = trim((string) $request->get('q', ''));
+        $page = max(1, (int) $request->get('page', 1));
+        $perPage = min(200, max(1, (int) $request->get('per_page', 50)));
+
+        $query = DB::table('relation as r')
+            ->join('ric_relation_meta as m', 'r.id', '=', 'm.relation_id')
+            ->leftJoin('object as subj_o', 'r.subject_id', '=', 'subj_o.id')
+            ->leftJoin('object as obj_o', 'r.object_id', '=', 'obj_o.id')
+            ->select([
+                'r.id', 'r.subject_id', 'r.object_id', 'r.start_date', 'r.end_date',
+                'm.rico_predicate', 'm.inverse_predicate', 'm.dropdown_code',
+                'm.certainty', 'm.evidence', 'm.domain_class', 'm.range_class',
+                'subj_o.class_name as subject_class', 'obj_o.class_name as object_class',
+            ])
+            ->orderBy('r.id', 'desc');
+
+        if ($q !== '') {
+            $query->where(function ($w) use ($q) {
+                $w->where('m.rico_predicate', 'like', "%{$q}%")
+                    ->orWhere('m.evidence', 'like', "%{$q}%")
+                    ->orWhere('m.dropdown_code', 'like', "%{$q}%");
+            });
+        }
+
+        $total = (clone $query)->count();
+        $items = $query->forPage($page, $perPage)->get();
+
+        return response()->json([
+            'data' => $items,
+            'pagination' => [
+                'page' => $page, 'per_page' => $perPage, 'total' => $total,
+                'last_page' => (int) ceil($total / $perPage),
+            ],
+        ]);
+    }
+
+    /**
+     * GET /api/ric/v1/relations-for/{id}
+     * API-R-2: incoming + outgoing relations for one entity, grouped.
+     */
+    public function relationsFor(int $id): JsonResponse
+    {
+        $relations = $this->entities->getRelationsForEntity($id);
+        $grouped = $relations->groupBy('direction');
+        return response()->json([
+            'entity_id' => $id,
+            'outgoing' => $grouped->get('outgoing', collect())->values(),
+            'incoming' => $grouped->get('incoming', collect())->values(),
+            'total' => $relations->count(),
+        ]);
+    }
+
+    /**
+     * GET /api/ric/v1/hierarchy/{id}?include=parent,children,siblings
+     * API-R-3: hierarchical walk. Currently supports ric_place parent/children/siblings.
+     */
+    public function hierarchy(int $id, Request $request): JsonResponse
+    {
+        $include = array_filter(explode(',', $request->get('include', 'parent,children,siblings')));
+
+        // Find entity class_name to route the query.
+        $className = DB::table('object')->where('id', $id)->value('class_name');
+
+        $result = ['entity_id' => $id, 'class' => $className];
+
+        if ($className === 'RicPlace') {
+            $place = DB::table('ric_place')->where('id', $id)->first();
+            if (!$place) return response()->json(['error' => 'Not found'], 404);
+
+            if (in_array('parent', $include) && $place->parent_id) {
+                $result['parent'] = $this->flatPlace($place->parent_id);
+            }
+            if (in_array('children', $include)) {
+                $result['children'] = DB::table('ric_place as p')
+                    ->leftJoin('ric_place_i18n as i18n', function ($j) {
+                        $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', 'en');
+                    })
+                    ->leftJoin('slug as s', 'p.id', '=', 's.object_id')
+                    ->where('p.parent_id', $id)
+                    ->select('p.id', 'i18n.name', 's.slug', 'p.type_id')
+                    ->orderBy('i18n.name')
+                    ->get();
+            }
+            if (in_array('siblings', $include) && $place->parent_id) {
+                $result['siblings'] = DB::table('ric_place as p')
+                    ->leftJoin('ric_place_i18n as i18n', function ($j) {
+                        $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', 'en');
+                    })
+                    ->leftJoin('slug as s', 'p.id', '=', 's.object_id')
+                    ->where('p.parent_id', $place->parent_id)
+                    ->where('p.id', '!=', $id)
+                    ->select('p.id', 'i18n.name', 's.slug', 'p.type_id')
+                    ->orderBy('i18n.name')
+                    ->get();
+            }
+            return response()->json($result);
+        }
+
+        // For non-RicPlace entities, fall back to relation-based hierarchy using
+        // ric_relation_meta dropdown_code IN (has_part, includes, is_superior_of).
+        $hierPredicates = ['has_part', 'includes', 'is_superior_of', 'is_part_of', 'is_included_in'];
+        if (in_array('children', $include)) {
+            $result['children'] = DB::table('relation as r')
+                ->join('ric_relation_meta as m', 'r.id', '=', 'm.relation_id')
+                ->leftJoin('object as o', 'r.object_id', '=', 'o.id')
+                ->where('r.subject_id', $id)
+                ->whereIn('m.dropdown_code', ['has_part', 'includes', 'is_superior_of'])
+                ->select('r.object_id as id', 'o.class_name as class', 'm.dropdown_code')
+                ->get();
+        }
+        if (in_array('parent', $include)) {
+            $result['parent'] = DB::table('relation as r')
+                ->join('ric_relation_meta as m', 'r.id', '=', 'm.relation_id')
+                ->leftJoin('object as o', 'r.object_id', '=', 'o.id')
+                ->where('r.subject_id', $id)
+                ->whereIn('m.dropdown_code', ['is_part_of', 'is_included_in'])
+                ->select('r.object_id as id', 'o.class_name as class', 'm.dropdown_code')
+                ->first();
+        }
+        return response()->json($result);
+    }
+
+    private function flatPlace(int $id): ?array
+    {
+        $p = DB::table('ric_place as p')
+            ->leftJoin('ric_place_i18n as i18n', function ($j) {
+                $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', 'en');
+            })
+            ->leftJoin('slug as s', 'p.id', '=', 's.object_id')
+            ->where('p.id', $id)
+            ->select('p.id', 'i18n.name', 's.slug', 'p.type_id')
+            ->first();
+        return $p ? (array) $p : null;
+    }
+
+    /**
+     * GET /api/ric/v1/autocomplete?q=&types=&limit=
+     * API-R-4: cross-entity autocomplete, public equivalent of admin search.
+     */
+    public function autocomplete(Request $request): JsonResponse
+    {
+        $q = trim((string) $request->get('q', ''));
+        $types = $request->get('types');
+        $limit = min(200, max(1, (int) $request->get('limit', 20)));
+
+        if (strlen($q) < 2) {
+            return response()->json([]);
+        }
+
+        $results = $this->entities->autocompleteEntities($q, $types, $limit);
+        return response()->json($results);
+    }
+
+    /**
+     * GET /api/ric/v1/vocabulary/{taxonomy}
+     * API-R-5: dropdown taxonomy by name.
+     */
+    public function vocabularyByTaxonomy(string $taxonomy): JsonResponse
+    {
+        $choices = $this->entities->getDropdownChoices($taxonomy);
+        if ($choices->isEmpty()) {
+            $exists = DB::table('ahg_dropdown')->where('taxonomy', $taxonomy)->exists();
+            if (!$exists) {
+                return response()->json(['error' => 'Taxonomy not found', 'taxonomy' => $taxonomy], 404);
+            }
+        }
+        return response()->json([
+            'taxonomy' => $taxonomy,
+            'items' => $choices,
+            'count' => $choices->count(),
+        ]);
+    }
+
+    /**
+     * GET /api/ric/v1/records/{id}/entities
+     * API-R-6: aggregated linked-RiC data for a record.
+     */
+    public function entitiesForRecord(int $id, Request $request): JsonResponse
+    {
+        $types = array_filter(explode(',', $request->get('types', 'place,rule,activity,instantiation')));
+
+        // Find outgoing relations whose object is one of the requested types.
+        $result = [];
+        if (in_array('place', $types)) {
+            $result['places'] = DB::table('relation as r')
+                ->join('object as o', 'r.object_id', '=', 'o.id')
+                ->where('r.subject_id', $id)
+                ->where('o.class_name', 'RicPlace')
+                ->leftJoin('ric_place_i18n as i18n', function ($j) {
+                    $j->on('r.object_id', '=', 'i18n.id')->where('i18n.culture', 'en');
+                })
+                ->leftJoin('slug as s', 'r.object_id', '=', 's.object_id')
+                ->select('r.object_id as id', 'i18n.name', 's.slug')
+                ->distinct()
+                ->get();
+        }
+        foreach (['rule' => 'RicRule', 'activity' => 'RicActivity', 'instantiation' => 'RicInstantiation'] as $type => $class) {
+            if (!in_array($type, $types)) continue;
+            $i18nTable = "ric_{$type}_i18n";
+            $labelCol = $type === 'rule' ? 'title' : ($type === 'instantiation' ? 'title' : 'name');
+            $result["{$type}s"] = DB::table('relation as r')
+                ->join('object as o', 'r.object_id', '=', 'o.id')
+                ->where('r.subject_id', $id)
+                ->where('o.class_name', $class)
+                ->leftJoin("{$i18nTable} as i18n", function ($j) {
+                    $j->on('r.object_id', '=', 'i18n.id')->where('i18n.culture', 'en');
+                })
+                ->leftJoin('slug as s', 'r.object_id', '=', 's.object_id')
+                ->select('r.object_id as id', "i18n.{$labelCol} as name", 's.slug')
+                ->distinct()
+                ->get();
+        }
+        return response()->json($result);
+    }
+
+    /**
+     * GET /api/ric/v1/entities/{id}/info
+     * API-R-7: minimal info card for any entity, for popovers and autocomplete details.
+     */
+    public function entityInfo(int $id): JsonResponse
+    {
+        $className = DB::table('object')->where('id', $id)->value('class_name');
+        if (!$className) {
+            return response()->json(['error' => 'Not found'], 404);
+        }
+
+        $info = ['id' => $id, 'class' => $className];
+        $slug = DB::table('slug')->where('object_id', $id)->value('slug');
+        if ($slug) $info['slug'] = $slug;
+
+        match ($className) {
+            'RicPlace' => $this->enrichPlaceInfo($info, $id),
+            'RicRule' => $this->enrichRuleInfo($info, $id),
+            'RicActivity' => $this->enrichActivityInfo($info, $id),
+            'RicInstantiation' => $this->enrichInstantiationInfo($info, $id),
+            default => $this->enrichGenericInfo($info, $id, $className),
+        };
+
+        return response()->json($info);
+    }
+
+    private function enrichPlaceInfo(array &$info, int $id): void
+    {
+        $row = DB::table('ric_place')->join('ric_place_i18n', function ($j) {
+            $j->on('ric_place.id', '=', 'ric_place_i18n.id')->where('ric_place_i18n.culture', 'en');
+        })->where('ric_place.id', $id)->select('ric_place.type_id', 'ric_place_i18n.name', 'ric_place_i18n.description')->first();
+        if ($row) { $info['name'] = $row->name; $info['type'] = $row->type_id; $info['description'] = $row->description; }
+    }
+    private function enrichRuleInfo(array &$info, int $id): void
+    {
+        $row = DB::table('ric_rule')->join('ric_rule_i18n', function ($j) {
+            $j->on('ric_rule.id', '=', 'ric_rule_i18n.id')->where('ric_rule_i18n.culture', 'en');
+        })->where('ric_rule.id', $id)->select('ric_rule.type_id', 'ric_rule_i18n.title', 'ric_rule_i18n.description')->first();
+        if ($row) { $info['name'] = $row->title; $info['type'] = $row->type_id; $info['description'] = $row->description; }
+    }
+    private function enrichActivityInfo(array &$info, int $id): void
+    {
+        $row = DB::table('ric_activity')->join('ric_activity_i18n', function ($j) {
+            $j->on('ric_activity.id', '=', 'ric_activity_i18n.id')->where('ric_activity_i18n.culture', 'en');
+        })->where('ric_activity.id', $id)->select('ric_activity.type_id', 'ric_activity_i18n.name', 'ric_activity_i18n.description')->first();
+        if ($row) { $info['name'] = $row->name; $info['type'] = $row->type_id; $info['description'] = $row->description; }
+    }
+    private function enrichInstantiationInfo(array &$info, int $id): void
+    {
+        $row = DB::table('ric_instantiation')->join('ric_instantiation_i18n', function ($j) {
+            $j->on('ric_instantiation.id', '=', 'ric_instantiation_i18n.id')->where('ric_instantiation_i18n.culture', 'en');
+        })->where('ric_instantiation.id', $id)->select('ric_instantiation.carrier_type', 'ric_instantiation_i18n.title', 'ric_instantiation_i18n.description')->first();
+        if ($row) { $info['name'] = $row->title; $info['type'] = $row->carrier_type; $info['description'] = $row->description; }
+    }
+    private function enrichGenericInfo(array &$info, int $id, string $className): void
+    {
+        // Best-effort for actor / information_object etc.
+        if ($className === 'QubitActor') {
+            $row = DB::table('actor_i18n')->where('id', $id)->where('culture', 'en')->value('authorized_form_of_name');
+            if ($row) $info['name'] = $row;
+        } elseif ($className === 'QubitInformationObject') {
+            $row = DB::table('information_object_i18n')->where('id', $id)->where('culture', 'en')->value('title');
+            if ($row) $info['name'] = $row;
+        }
+    }
+
+    /**
+     * GET /api/ric/v1/relation-types?domain=&range=
+     * API-R-8: filtered relation-type catalog.
+     */
+    public function relationTypes(Request $request): JsonResponse
+    {
+        $types = $this->entities->getRelationTypes($request->get('domain'), $request->get('range'));
+        return response()->json([
+            'items' => $types->values(),
+            'count' => $types->count(),
+        ]);
+    }
+
+    /**
+     * GET /api/ric/v1/places/flat?exclude_id=
+     * API-R-9: flat name+id list for parent-picker dropdowns.
+     */
+    public function placesFlat(Request $request): JsonResponse
+    {
+        $excludeId = $request->get('exclude_id') !== null ? (int) $request->get('exclude_id') : null;
+        $items = $this->entities->listPlacesForPicker($excludeId);
+        return response()->json(['items' => $items, 'count' => count($items)]);
+    }
+
+    // ================================================================
+    // API-2 WRITE SURFACE — gated by api.auth:write middleware on the route.
+    // ================================================================
+
+    private function assertEntityTypeAllowed(string $type): void
+    {
+        if (!in_array($type, ['places', 'rules', 'activities', 'instantiations'])) {
+            abort(404, 'Unknown entity type');
+        }
+    }
+
+    /**
+     * POST /api/ric/v1/{type}
+     * Create a Place, Rule, Activity, or Instantiation.
+     */
+    public function createEntity(Request $request, string $type): JsonResponse
+    {
+        $this->assertEntityTypeAllowed($type);
+        $data = $request->all();
+        try {
+            $id = match ($type) {
+                'places' => $this->entities->createPlace($data),
+                'rules' => $this->entities->createRule($data),
+                'activities' => $this->entities->createActivity($data),
+                'instantiations' => $this->entities->createInstantiation($data),
+            };
+            $slug = DB::table('slug')->where('object_id', $id)->value('slug');
+            return response()->json([
+                'id' => $id,
+                'slug' => $slug,
+                'type' => rtrim($type, 's'),
+                'href' => "/api/ric/v1/{$type}/" . ($slug ?: $id),
+            ], 201);
+        } catch (\Throwable $e) {
+            Log::error('[RiC API] createEntity failed', ['type' => $type, 'error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * PATCH /api/ric/v1/{type}/{id}
+     * Update a Place, Rule, Activity, or Instantiation by ID.
+     */
+    public function updateEntity(Request $request, string $type, int $id): JsonResponse
+    {
+        $this->assertEntityTypeAllowed($type);
+        $data = $request->all();
+        try {
+            match ($type) {
+                'places' => $this->entities->updatePlace($id, $data),
+                'rules' => $this->entities->updateRule($id, $data),
+                'activities' => $this->entities->updateActivity($id, $data),
+                'instantiations' => $this->entities->updateInstantiation($id, $data),
+            };
+            return response()->json(['success' => true, 'id' => $id]);
+        } catch (\Throwable $e) {
+            Log::error('[RiC API] updateEntity failed', ['type' => $type, 'id' => $id, 'error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * DELETE /api/ric/v1/{type}/{id}
+     */
+    public function deleteEntity(string $type, int $id): JsonResponse
+    {
+        $this->assertEntityTypeAllowed($type);
+        try {
+            match ($type) {
+                'places' => $this->entities->deletePlace($id),
+                'rules' => $this->entities->deleteRule($id),
+                'activities' => $this->entities->deleteActivity($id),
+                'instantiations' => $this->entities->deleteInstantiation($id),
+            };
+            return response()->json(['success' => true, 'id' => $id]);
+        } catch (\Throwable $e) {
+            Log::error('[RiC API] deleteEntity failed', ['type' => $type, 'id' => $id, 'error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * POST /api/ric/v1/relations
+     */
+    public function createRelation(Request $request): JsonResponse
+    {
+        $request->validate([
+            'subject_id' => 'required|integer',
+            'object_id' => 'required|integer',
+            'relation_type' => 'required|string',
+        ]);
+        try {
+            $id = $this->entities->createRelation(
+                (int) $request->input('subject_id'),
+                (int) $request->input('object_id'),
+                $request->input('relation_type'),
+                $request->only(['start_date', 'end_date', 'certainty', 'evidence'])
+            );
+            return response()->json(['id' => $id], 201);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * PATCH /api/ric/v1/relations/{id}
+     */
+    public function updateRelation(Request $request, int $id): JsonResponse
+    {
+        try {
+            $this->entities->updateRelation(
+                $id,
+                $request->only(['start_date', 'end_date', 'certainty', 'evidence', 'relation_type'])
+            );
+            return response()->json(['success' => true, 'id' => $id]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * DELETE /api/ric/v1/relations/{id}
+     */
+    public function deleteRelation(int $id): JsonResponse
+    {
+        try {
+            $this->entities->deleteRelation($id);
+            return response()->json(['success' => true, 'id' => $id]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
     }
 }
