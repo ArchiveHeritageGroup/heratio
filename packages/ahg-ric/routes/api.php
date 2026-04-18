@@ -172,19 +172,29 @@ Route::prefix('api/ric/v1')->middleware(['throttle:60,1', 'api.cors'])->group(fu
             'name' => 'RIC-O Linked Data API',
             'version' => '1.0',
             'description' => 'Linked Data publication endpoints for RIC-O compliant serialization',
+            'docs' => url('/api/ric/v1/docs'),
+            'openapi' => url('/api/ric/v1/openapi.json'),
         ]);
     });
-    
-    // OpenAPI spec placeholder
-    Route::get('/openapi.json', function () {
-        return response()->json([
-            'openapi' => '3.0.0',
-            'info' => [
-                'title' => 'RIC-O Linked Data API',
-                'version' => '1.0',
-            ],
-            'paths' => [],
-            'components' => [],
+
+    // OpenAPI 3.0 spec — single source of truth is AhgRic\Support\OpenApiSpec.
+    Route::get('/openapi.json', function (\Illuminate\Http\Request $r) {
+        $spec = \AhgRic\Support\OpenApiSpec::build(url('/api/ric/v1'));
+        return response()->json($spec, 200, [
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*',
         ]);
+    });
+
+    // Swagger UI explorer — loads the spec above and lets the developer
+    // "Try it out" on any endpoint with their own X-API-Key. Inlined (not
+    // Blade) so it works on minimal deployments without a writable view
+    // cache. Single source of truth for the HTML lives in AhgRic\Support\SwaggerUiHtml.
+    Route::get('/docs', function () {
+        $html = \AhgRic\Support\SwaggerUiHtml::render(
+            specUrl: url('/api/ric/v1/openapi.json'),
+            baseUrl: url('/api/ric/v1')
+        );
+        return response($html, 200, ['Content-Type' => 'text/html; charset=utf-8']);
     });
 });

@@ -365,7 +365,9 @@
       "Bash(openssl s_client -connect capture.openric.org:443 -servername capture.openric.org)",
       "Bash(sudo chown *)",
       "Bash(bash -n /usr/share/nginx/openric-spec/conformance/probe.sh)",
-      "Bash(bash /usr/share/nginx/openric-spec/conformance/probe.sh)"
+      "Bash(bash /usr/share/nginx/openric-spec/conformance/probe.sh)",
+      "Bash(sudo ls *)",
+      "Bash(sudo find *)"
     ]
   }
 }
