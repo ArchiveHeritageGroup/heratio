@@ -41,4 +41,17 @@ return [
     */
     'default_view' => 'heratio',
 
+    /*
+    |--------------------------------------------------------------------------
+    | External OpenRiC Service (Phase 4.3 split)
+    |--------------------------------------------------------------------------
+    | When api_url is null (or points at the same host as app.url), Heratio
+    | calls its own in-process RiC module and forwards the admin session
+    | cookie for auth. When api_url points at a different host (post-split),
+    | Heratio switches to X-API-Key auth using service_key.
+    */
+    'api_url'      => env('RIC_API_URL'),
+    'service_key'  => env('RIC_SERVICE_API_KEY'),
+    'http_timeout' => (int) env('RIC_HTTP_TIMEOUT', 5),
+
 ];
