@@ -1633,6 +1633,140 @@ class LinkedDataApiController extends Controller
     }
 
     /**
+     * POST /api/ric/v1/agents
+     * Create an agent (rico:Agent). Required: name. Optional: entity_type_id,
+     * description_identifier, history, mandates, etc.
+     */
+    public function createAgent(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:1024',
+            'entity_type_id' => 'nullable|integer',
+            'description_identifier' => 'nullable|string|max:1024',
+            'parent_id' => 'nullable|integer',
+        ]) + $request->except(['name', 'entity_type_id', 'description_identifier', 'parent_id']);
+
+        try {
+            $id = $this->entities->createAgent($data);
+            $slug = DB::table('slug')->where('object_id', $id)->value('slug');
+            return response()->json([
+                'id' => $id,
+                'slug' => $slug,
+                'type' => 'agent',
+                'href' => "/api/ric/v1/agents/" . ($slug ?: $id),
+            ], 201);
+        } catch (\Throwable $e) {
+            Log::error('[RiC API] createAgent failed', ['error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * PATCH /api/ric/v1/agents/{id}
+     */
+    public function updateAgent(Request $request, int $id): JsonResponse
+    {
+        $exists = DB::table('actor')->where('id', $id)->exists();
+        if (!$exists) {
+            return response()->json(['error' => 'Agent not found', 'id' => $id], 404);
+        }
+        try {
+            $this->entities->updateAgent($id, $request->all());
+            return response()->json(['success' => true, 'id' => $id]);
+        } catch (\Throwable $e) {
+            Log::error('[RiC API] updateAgent failed', ['id' => $id, 'error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * DELETE /api/ric/v1/agents/{id}
+     */
+    public function deleteAgent(int $id): JsonResponse
+    {
+        $exists = DB::table('actor')->where('id', $id)->exists();
+        if (!$exists) {
+            return response()->json(['error' => 'Agent not found', 'id' => $id], 404);
+        }
+        try {
+            $this->entities->deleteAgent($id);
+            return response()->json(['success' => true, 'id' => $id]);
+        } catch (\Throwable $e) {
+            Log::error('[RiC API] deleteAgent failed', ['id' => $id, 'error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * POST /api/ric/v1/records
+     * Create an information_object (rico:Record / rico:RecordSet). Required: title.
+     */
+    public function createRecord(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'title' => 'required|string|max:1024',
+            'identifier' => 'nullable|string|max:1024',
+            'level_of_description_id' => 'nullable|integer',
+            'repository_id' => 'nullable|integer',
+            'parent_id' => 'nullable|integer',
+        ]) + $request->except(['title', 'identifier', 'level_of_description_id', 'repository_id', 'parent_id']);
+
+        try {
+            $id = $this->entities->createRecord($data);
+            $slug = DB::table('slug')->where('object_id', $id)->value('slug');
+            return response()->json([
+                'id' => $id,
+                'slug' => $slug,
+                'type' => 'record',
+                'href' => "/api/ric/v1/records/" . ($slug ?: $id),
+            ], 201);
+        } catch (\Throwable $e) {
+            Log::error('[RiC API] createRecord failed', ['error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * PATCH /api/ric/v1/records/{id}
+     */
+    public function updateRecord(Request $request, int $id): JsonResponse
+    {
+        $exists = DB::table('information_object')->where('id', $id)->exists();
+        if (!$exists) {
+            return response()->json(['error' => 'Record not found', 'id' => $id], 404);
+        }
+        try {
+            $this->entities->updateRecord($id, $request->all());
+            return response()->json(['success' => true, 'id' => $id]);
+        } catch (\Throwable $e) {
+            Log::error('[RiC API] updateRecord failed', ['id' => $id, 'error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * DELETE /api/ric/v1/records/{id}
+     * Refuses if the record has descendants (see RicEntityService::deleteRecord).
+     */
+    public function deleteRecord(int $id): JsonResponse
+    {
+        $exists = DB::table('information_object')->where('id', $id)->exists();
+        if (!$exists) {
+            return response()->json(['error' => 'Record not found', 'id' => $id], 404);
+        }
+        try {
+            $this->entities->deleteRecord($id);
+            return response()->json(['success' => true, 'id' => $id]);
+        } catch (\RuntimeException $e) {
+            // e.g. "has descendants"
+            return response()->json(['error' => $e->getMessage()], 409);
+        } catch (\Throwable $e) {
+            Log::error('[RiC API] deleteRecord failed', ['id' => $id, 'error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
      * POST /api/ric/v1/relations
      */
     public function createRelation(Request $request): JsonResponse

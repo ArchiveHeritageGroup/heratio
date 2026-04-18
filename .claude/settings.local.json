@@ -363,7 +363,9 @@
       "Bash(COMPOSER_ALLOW_SUPERUSER=1 composer install --quiet --no-interaction)",
       "Bash(COMPOSER_ALLOW_SUPERUSER=1 composer update ahg/core ahg/api ahg/ric --quiet --no-interaction)",
       "Bash(openssl s_client -connect capture.openric.org:443 -servername capture.openric.org)",
-      "Bash(sudo chown *)"
+      "Bash(sudo chown *)",
+      "Bash(bash -n /usr/share/nginx/openric-spec/conformance/probe.sh)",
+      "Bash(bash /usr/share/nginx/openric-spec/conformance/probe.sh)"
     ]
   }
 }

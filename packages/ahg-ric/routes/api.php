@@ -25,6 +25,7 @@
 
 use Illuminate\Support\Facades\Route;
 use AhgRic\Http\Controllers\LinkedDataApiController;
+use AhgRic\Http\Controllers\OaiPmhController;
 
 /*
 |--------------------------------------------------------------------------
@@ -84,6 +85,10 @@ Route::prefix('api/ric/v1')->middleware(['throttle:60,1', 'api.cors'])->group(fu
     // SPARQL & Graph
     Route::get('/sparql', [LinkedDataApiController::class, 'sparql']);
     Route::get('/graph', [LinkedDataApiController::class, 'graph']);
+
+    // OAI-PMH v2.0 — standard archival harvest protocol.
+    // Accepts both GET and POST per the OAI-PMH spec.
+    Route::match(['get', 'post'], '/oai', [OaiPmhController::class, 'handle']);
     
     // Validation
     Route::post('/validate', [LinkedDataApiController::class, 'validate']);
@@ -130,6 +135,16 @@ Route::prefix('api/ric/v1')->middleware(['throttle:60,1', 'api.cors'])->group(fu
         Route::post('/relations', [LinkedDataApiController::class, 'createRelation']);
         Route::match(['patch', 'put'], '/relations/{id}', [LinkedDataApiController::class, 'updateRelation'])->where('id', '[0-9]+');
         Route::delete('/relations/{id}', [LinkedDataApiController::class, 'deleteRelation'])->where('id', '[0-9]+');
+
+        // Agents (rico:Agent / rico:Person / rico:CorporateBody / rico:Family)
+        Route::post('/agents', [LinkedDataApiController::class, 'createAgent']);
+        Route::match(['patch', 'put'], '/agents/{id}', [LinkedDataApiController::class, 'updateAgent'])->where('id', '[0-9]+');
+        Route::delete('/agents/{id}', [LinkedDataApiController::class, 'deleteAgent'])->where('id', '[0-9]+');
+
+        // Records (rico:Record / rico:RecordSet — information_object)
+        Route::post('/records', [LinkedDataApiController::class, 'createRecord']);
+        Route::match(['patch', 'put'], '/records/{id}', [LinkedDataApiController::class, 'updateRecord'])->where('id', '[0-9]+');
+        Route::delete('/records/{id}', [LinkedDataApiController::class, 'deleteRecord'])->where('id', '[0-9]+');
 
         // Generic delete-by-id (looks up class_name and dispatches) — useful
         // for UIs that hold only an id, not a type.

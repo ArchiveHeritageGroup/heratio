@@ -949,6 +949,219 @@ class RicEntityService
     }
 
     // ================================================================
+    // AGENT (actor) — rico:Agent / rico:Person / rico:CorporateBody / rico:Family
+    // ================================================================
+
+    /**
+     * Create an Agent. Expected $data keys:
+     *   name (required)            → actor_i18n.authorized_form_of_name
+     *   entity_type_id (optional)  → actor.entity_type_id (term id — Person/CB/Family)
+     *   description_identifier     → actor.description_identifier
+     *   source_standard            → actor.source_standard (default: "ISAAR-CPF")
+     *   corporate_body_identifiers
+     *   parent_id                  → actor.parent_id (for hierarchy)
+     *   dates_of_existence, history, places, legal_status, functions,
+     *   mandates, general_context, sources, revision_history   → actor_i18n.*
+     */
+    public function createAgent(array $data): int
+    {
+        if (empty($data['name'])) {
+            throw new \InvalidArgumentException('Agent requires a "name" field.');
+        }
+        return DB::transaction(function () use ($data) {
+            $id = $this->insertObjectRecord('QubitActor');
+            $this->insertSlug($id, $data['name']);
+
+            DB::table('actor')->insert([
+                'id' => $id,
+                'entity_type_id' => $data['entity_type_id'] ?? null,
+                'description_status_id' => $data['description_status_id'] ?? null,
+                'description_detail_id' => $data['description_detail_id'] ?? null,
+                'description_identifier' => $data['description_identifier'] ?? null,
+                'source_standard' => $data['source_standard'] ?? 'ISAAR-CPF',
+                'corporate_body_identifiers' => $data['corporate_body_identifiers'] ?? null,
+                'parent_id' => $data['parent_id'] ?? null,
+                'source_culture' => $this->culture,
+            ]);
+
+            DB::table('actor_i18n')->insert([
+                'id' => $id,
+                'culture' => $this->culture,
+                'authorized_form_of_name' => $data['name'],
+                'dates_of_existence' => $data['dates_of_existence'] ?? null,
+                'history' => $data['history'] ?? null,
+                'places' => $data['places'] ?? null,
+                'legal_status' => $data['legal_status'] ?? null,
+                'functions' => $data['functions'] ?? null,
+                'mandates' => $data['mandates'] ?? null,
+                'internal_structures' => $data['internal_structures'] ?? null,
+                'general_context' => $data['general_context'] ?? null,
+                'institution_responsible_identifier' => $data['institution_responsible_identifier'] ?? null,
+                'rules' => $data['rules'] ?? null,
+                'sources' => $data['sources'] ?? null,
+                'revision_history' => $data['revision_history'] ?? null,
+            ]);
+
+            return $id;
+        });
+    }
+
+    public function updateAgent(int $id, array $data): void
+    {
+        DB::transaction(function () use ($id, $data) {
+            $this->updateEntityFields('actor', $id, $data, [
+                'entity_type_id', 'description_status_id', 'description_detail_id',
+                'description_identifier', 'source_standard', 'corporate_body_identifiers',
+                'parent_id',
+            ]);
+
+            // i18n — remap "name" → authorized_form_of_name for caller convenience
+            $i18nData = $data;
+            if (isset($data['name']) && !isset($data['authorized_form_of_name'])) {
+                $i18nData['authorized_form_of_name'] = $data['name'];
+            }
+            $this->upsertI18n('actor_i18n', $id, $i18nData, [
+                'authorized_form_of_name', 'dates_of_existence', 'history', 'places',
+                'legal_status', 'functions', 'mandates', 'internal_structures',
+                'general_context', 'institution_responsible_identifier', 'rules',
+                'sources', 'revision_history',
+            ]);
+
+            $this->touchObject($id);
+        });
+    }
+
+    public function deleteAgent(int $id): void
+    {
+        DB::transaction(function () use ($id) {
+            DB::table('actor_i18n')->where('id', $id)->delete();
+            DB::table('actor')->where('id', $id)->delete();
+            DB::table('slug')->where('object_id', $id)->delete();
+            // Incoming relations referencing this agent — let the caller clean up
+            // or cascade via FK. The object row is the canonical "gone" marker.
+            DB::table('object')->where('id', $id)->delete();
+        });
+    }
+
+    // ================================================================
+    // RECORD (information_object) — rico:Record / rico:RecordSet
+    // ================================================================
+
+    /**
+     * Create an information_object (archival description). Expected $data:
+     *   title (required)           → information_object_i18n.title
+     *   identifier                 → information_object.identifier
+     *   level_of_description_id    → information_object.level_of_description_id (term id)
+     *   repository_id              → information_object.repository_id
+     *   parent_id                  → information_object.parent_id (hierarchy)
+     *   description_status_id, description_detail_id, source_standard (default "ISAD(G)")
+     *   scope_and_content, extent_and_medium, archival_history, acquisition,
+     *   arrangement, access_conditions, physical_characteristics, etc.
+     *                              → information_object_i18n.*
+     *
+     * MPTT note: lft/rgt are set to (max+1, max+2) as a safe append. A proper
+     * nested-set insert requires shifting the subtree; call `php artisan
+     * ahg:rebuild-nested-set` (or AtoM's equivalent) after bulk imports.
+     */
+    public function createRecord(array $data): int
+    {
+        if (empty($data['title'])) {
+            throw new \InvalidArgumentException('Record requires a "title" field.');
+        }
+        return DB::transaction(function () use ($data) {
+            $id = $this->insertObjectRecord('QubitInformationObject');
+            $this->insertSlug($id, $data['title']);
+
+            // Nested-set: naive append. Safe because lft/rgt are scoped within
+            // the whole tree; collision risk is zero for new leaves.
+            $maxRgt = (int) (DB::table('information_object')->max('rgt') ?? 0);
+
+            DB::table('information_object')->insert([
+                'id' => $id,
+                'identifier' => $data['identifier'] ?? null,
+                'level_of_description_id' => $data['level_of_description_id'] ?? null,
+                'collection_type_id' => $data['collection_type_id'] ?? null,
+                'repository_id' => $data['repository_id'] ?? null,
+                'parent_id' => $data['parent_id'] ?? null,
+                'description_status_id' => $data['description_status_id'] ?? null,
+                'description_detail_id' => $data['description_detail_id'] ?? null,
+                'description_identifier' => $data['description_identifier'] ?? null,
+                'source_standard' => $data['source_standard'] ?? 'ISAD(G)',
+                'display_standard_id' => $data['display_standard_id'] ?? null,
+                'lft' => $maxRgt + 1,
+                'rgt' => $maxRgt + 2,
+                'source_culture' => $this->culture,
+            ]);
+
+            DB::table('information_object_i18n')->insert([
+                'id' => $id,
+                'culture' => $this->culture,
+                'title' => $data['title'],
+                'alternate_title' => $data['alternate_title'] ?? null,
+                'edition' => $data['edition'] ?? null,
+                'extent_and_medium' => $data['extent_and_medium'] ?? null,
+                'archival_history' => $data['archival_history'] ?? null,
+                'acquisition' => $data['acquisition'] ?? null,
+                'scope_and_content' => $data['scope_and_content'] ?? null,
+                'appraisal' => $data['appraisal'] ?? null,
+                'accruals' => $data['accruals'] ?? null,
+                'arrangement' => $data['arrangement'] ?? null,
+                'access_conditions' => $data['access_conditions'] ?? null,
+                'reproduction_conditions' => $data['reproduction_conditions'] ?? null,
+                'physical_characteristics' => $data['physical_characteristics'] ?? null,
+                'finding_aids' => $data['finding_aids'] ?? null,
+                'location_of_originals' => $data['location_of_originals'] ?? null,
+                'location_of_copies' => $data['location_of_copies'] ?? null,
+                'related_units_of_description' => $data['related_units_of_description'] ?? null,
+                'institution_responsible_identifier' => $data['institution_responsible_identifier'] ?? null,
+                'rules' => $data['rules'] ?? null,
+                'sources' => $data['sources'] ?? null,
+                'revision_history' => $data['revision_history'] ?? null,
+            ]);
+
+            return $id;
+        });
+    }
+
+    public function updateRecord(int $id, array $data): void
+    {
+        DB::transaction(function () use ($id, $data) {
+            $this->updateEntityFields('information_object', $id, $data, [
+                'identifier', 'level_of_description_id', 'collection_type_id',
+                'repository_id', 'parent_id', 'description_status_id',
+                'description_detail_id', 'description_identifier', 'source_standard',
+                'display_standard_id',
+            ]);
+
+            $this->upsertI18n('information_object_i18n', $id, $data, [
+                'title', 'alternate_title', 'edition', 'extent_and_medium',
+                'archival_history', 'acquisition', 'scope_and_content', 'appraisal',
+                'accruals', 'arrangement', 'access_conditions', 'reproduction_conditions',
+                'physical_characteristics', 'finding_aids', 'location_of_originals',
+                'location_of_copies', 'related_units_of_description',
+                'institution_responsible_identifier', 'rules', 'sources', 'revision_history',
+            ]);
+
+            $this->touchObject($id);
+        });
+    }
+
+    public function deleteRecord(int $id): void
+    {
+        DB::transaction(function () use ($id) {
+            // Prevent orphaning descendants — refuse if this node has children.
+            $hasChildren = DB::table('information_object')->where('parent_id', $id)->exists();
+            if ($hasChildren) {
+                throw new \RuntimeException("Cannot delete record {$id}: it has descendants. Delete or re-parent them first.");
+            }
+            DB::table('information_object_i18n')->where('id', $id)->delete();
+            DB::table('information_object')->where('id', $id)->delete();
+            DB::table('slug')->where('object_id', $id)->delete();
+            DB::table('object')->where('id', $id)->delete();
+        });
+    }
+
+    // ================================================================
     // SHARED PRIVATE METHODS
     // ================================================================
 
