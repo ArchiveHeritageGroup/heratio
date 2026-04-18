@@ -1869,6 +1869,102 @@ class LinkedDataApiController extends Controller
     }
 
     /**
+     * POST /api/ric/v1/repositories
+     * Create a Repository (ISDIAH). Required: name.
+     */
+    public function createRepository(Request $request): JsonResponse
+    {
+        $data = $request->validate(['name' => 'required|string|max:1024'])
+            + $request->except(['name']);
+        try {
+            $id = $this->entities->createRepository($data);
+            $slug = DB::table('slug')->where('object_id', $id)->value('slug');
+            return response()->json([
+                'id' => $id, 'slug' => $slug, 'type' => 'repository',
+                'href' => "/api/ric/v1/repositories/" . ($slug ?: $id),
+            ], 201);
+        } catch (\Throwable $e) {
+            Log::error('[RiC API] createRepository failed', ['error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    public function updateRepository(Request $request, int $id): JsonResponse
+    {
+        if (!DB::table('repository')->where('id', $id)->exists()) {
+            return response()->json(['error' => 'Repository not found', 'id' => $id], 404);
+        }
+        try {
+            $this->entities->updateRepository($id, $request->all());
+            return response()->json(['success' => true, 'id' => $id]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    public function deleteRepository(int $id): JsonResponse
+    {
+        if (!DB::table('repository')->where('id', $id)->exists()) {
+            return response()->json(['error' => 'Repository not found', 'id' => $id], 404);
+        }
+        try {
+            $this->entities->deleteRepository($id);
+            return response()->json(['success' => true, 'id' => $id]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['error' => $e->getMessage()], 409);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * POST /api/ric/v1/functions
+     * Create a Function (ISDF). Required: name.
+     */
+    public function createFunction(Request $request): JsonResponse
+    {
+        $data = $request->validate(['name' => 'required|string|max:1024'])
+            + $request->except(['name']);
+        try {
+            $id = $this->entities->createFunction($data);
+            $slug = DB::table('slug')->where('object_id', $id)->value('slug');
+            return response()->json([
+                'id' => $id, 'slug' => $slug, 'type' => 'function',
+                'href' => "/api/ric/v1/functions/{$id}",
+            ], 201);
+        } catch (\Throwable $e) {
+            Log::error('[RiC API] createFunction failed', ['error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    public function updateFunction(Request $request, int $id): JsonResponse
+    {
+        if (!DB::table('function_object')->where('id', $id)->exists()) {
+            return response()->json(['error' => 'Function not found', 'id' => $id], 404);
+        }
+        try {
+            $this->entities->updateFunction($id, $request->all());
+            return response()->json(['success' => true, 'id' => $id]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    public function deleteFunctionEntity(int $id): JsonResponse
+    {
+        if (!DB::table('function_object')->where('id', $id)->exists()) {
+            return response()->json(['error' => 'Function not found', 'id' => $id], 404);
+        }
+        try {
+            $this->entities->deleteFunction($id);
+            return response()->json(['success' => true, 'id' => $id]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
      * POST /api/ric/v1/relations
      */
     public function createRelation(Request $request): JsonResponse

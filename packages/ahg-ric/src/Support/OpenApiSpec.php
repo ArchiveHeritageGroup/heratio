@@ -160,10 +160,35 @@ class OpenApiSpec
             [['name' => 'exclude_id', 'in' => 'query', 'schema' => ['type' => 'integer']]], $okJsonLd)];
 
         // -------- Repositories + Functions --------
-        $paths['/repositories']        = ['get' => self::op('Repositories', 'List repositories', $listParams, $okJsonLd)];
+        $paths['/repositories'] = [
+            'get'  => self::op('Repositories', 'List repositories', $listParams, $okJsonLd),
+            'post' => self::op('Repositories', 'Create a Repository', [],
+                ['201' => ['description' => 'Created',
+                    'content' => ['application/json' => ['schema' => ['$ref' => '#/components/schemas/CreateResponse']]]]],
+                'RepositoryCreate', true),
+        ];
         $paths['/repositories/{slug}'] = ['get' => self::op('Repositories', 'Get repository by slug', [$slugPath], $okJsonLd)];
-        $paths['/functions']           = ['get' => self::op('Functions', 'List functions', $listParams, $okJsonLd)];
-        $paths['/functions/{id}']      = ['get' => self::op('Functions', 'Get function by id', [$idPath], $okJsonLd)];
+        $paths['/repositories/{id}'] = [
+            'patch'  => self::op('Repositories', 'Update repository', [$idPath],
+                ['200' => self::successResp(), '404' => self::errorResp()], 'RepositoryUpdate', true),
+            'delete' => self::op('Repositories', 'Delete repository (refuses if owns records)', [$idPath],
+                ['200' => self::successResp(), '404' => self::errorResp(),
+                 '409' => ['description' => 'Repository owns information_objects — re-assign first.']], null, true),
+        ];
+        $paths['/functions'] = [
+            'get'  => self::op('Functions', 'List functions', $listParams, $okJsonLd),
+            'post' => self::op('Functions', 'Create a Function', [],
+                ['201' => ['description' => 'Created',
+                    'content' => ['application/json' => ['schema' => ['$ref' => '#/components/schemas/CreateResponse']]]]],
+                'FunctionCreate', true),
+        ];
+        $paths['/functions/{id}']      = [
+            'get'    => self::op('Functions', 'Get function by id', [$idPath], $okJsonLd),
+            'patch'  => self::op('Functions', 'Update function', [$idPath],
+                ['200' => self::successResp(), '404' => self::errorResp()], 'FunctionUpdate', true),
+            'delete' => self::op('Functions', 'Delete function', [$idPath],
+                ['200' => self::successResp(), '404' => self::errorResp()], null, true),
+        ];
 
         // -------- Relations --------
         $paths['/relations'] = [
@@ -204,8 +229,11 @@ class OpenApiSpec
              ['name' => 'depth', 'in' => 'query', 'schema' => ['type' => 'integer', 'default' => 1, 'maximum' => 3]]],
             ['200' => ['description' => 'openric:Subgraph',
                 'content' => ['application/ld+json' => ['schema' => ['$ref' => '#/components/schemas/Subgraph']]]]])];
-        $paths['/sparql'] = ['get' => self::op('Graph', 'SPARQL query (partial — read-only)',
-            [['name' => 'query', 'in' => 'query', 'required' => true, 'schema' => ['type' => 'string']]], $okJsonLd)];
+        $paths['/sparql'] = ['get' => array_merge(
+            self::op('Graph', '⚠ EXPERIMENTAL — SPARQL query endpoint',
+                [['name' => 'query', 'in' => 'query', 'required' => true, 'schema' => ['type' => 'string']]], $okJsonLd),
+            ['description' => 'Experimental and optional. The reference implementation currently returns a stub response. Not part of the conformance-required surface. May be removed or replaced with a proper triplestore-backed endpoint in a future release.',
+             'deprecated' => false])];
 
         // -------- Uploads --------
         $paths['/upload'] = ['post' => array_merge(
@@ -363,6 +391,26 @@ class OpenApiSpec
                 'description' => ['type' => 'string'],
                 'technical_characteristics' => ['type' => 'string']]],
             'InstantiationUpdate' => ['$ref' => '#/components/schemas/InstantiationCreate'],
+
+            'RepositoryCreate' => ['type' => 'object', 'required' => ['name'], 'properties' => [
+                'name' => ['type' => 'string', 'description' => 'Authorised form of name'],
+                'identifier' => ['type' => 'string'], 'upload_limit' => ['type' => 'number'],
+                'history' => ['type' => 'string'], 'geocultural_context' => ['type' => 'string'],
+                'collecting_policies' => ['type' => 'string'], 'buildings' => ['type' => 'string'],
+                'holdings' => ['type' => 'string'], 'finding_aids' => ['type' => 'string'],
+                'opening_times' => ['type' => 'string'], 'access_conditions' => ['type' => 'string'],
+                'disabled_access' => ['type' => 'string'], 'research_services' => ['type' => 'string'],
+                'reproduction_services' => ['type' => 'string'], 'public_facilities' => ['type' => 'string']]],
+            'RepositoryUpdate' => ['$ref' => '#/components/schemas/RepositoryCreate'],
+
+            'FunctionCreate' => ['type' => 'object', 'required' => ['name'], 'properties' => [
+                'name' => ['type' => 'string', 'description' => 'Authorised form of name'],
+                'type_id' => ['type' => 'integer'],
+                'classification' => ['type' => 'string'], 'dates' => ['type' => 'string'],
+                'description' => ['type' => 'string'], 'history' => ['type' => 'string'],
+                'legislation' => ['type' => 'string'], 'institution_identifier' => ['type' => 'string'],
+                'sources' => ['type' => 'string']]],
+            'FunctionUpdate' => ['$ref' => '#/components/schemas/FunctionCreate'],
 
             'RelationCreate' => ['type' => 'object', 'required' => ['subject_id', 'object_id', 'relation_type'],
                 'properties' => [

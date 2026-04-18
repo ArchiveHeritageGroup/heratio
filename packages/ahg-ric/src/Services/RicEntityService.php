@@ -1162,6 +1162,210 @@ class RicEntityService
     }
 
     // ================================================================
+    // REPOSITORY (ISDIAH) — rico:CorporateBody with repository extension
+    // ================================================================
+
+    /**
+     * Create a Repository. Shape mirrors Agent (Repository extends Actor in
+     * the class hierarchy) plus the repository-specific ISDIAH fields.
+     * Required: name.
+     */
+    public function createRepository(array $data): int
+    {
+        if (empty($data['name'])) {
+            throw new \InvalidArgumentException('Repository requires a "name" field.');
+        }
+        return DB::transaction(function () use ($data) {
+            $id = $this->insertObjectRecord('QubitRepository');
+            $this->insertSlug($id, $data['name']);
+
+            // Parent actor row (repository extends actor).
+            DB::table('actor')->insert([
+                'id' => $id,
+                'entity_type_id' => $data['entity_type_id'] ?? null,
+                'description_status_id' => $data['description_status_id'] ?? null,
+                'description_detail_id' => $data['description_detail_id'] ?? null,
+                'description_identifier' => $data['description_identifier'] ?? null,
+                'source_standard' => $data['source_standard'] ?? 'ISDIAH',
+                'corporate_body_identifiers' => $data['corporate_body_identifiers'] ?? null,
+                'parent_id' => $data['parent_id'] ?? null,
+                'source_culture' => $this->culture,
+            ]);
+
+            DB::table('actor_i18n')->insert([
+                'id' => $id,
+                'culture' => $this->culture,
+                'authorized_form_of_name' => $data['name'],
+                'dates_of_existence' => $data['dates_of_existence'] ?? null,
+                'history' => $data['history'] ?? null,
+                'places' => $data['places'] ?? null,
+                'legal_status' => $data['legal_status'] ?? null,
+                'functions' => $data['functions'] ?? null,
+                'mandates' => $data['mandates'] ?? null,
+                'general_context' => $data['general_context'] ?? null,
+                'institution_responsible_identifier' => $data['institution_responsible_identifier'] ?? null,
+                'sources' => $data['sources'] ?? null,
+            ]);
+
+            DB::table('repository')->insert([
+                'id' => $id,
+                'identifier' => $data['identifier'] ?? null,
+                'desc_status_id' => $data['desc_status_id'] ?? null,
+                'desc_detail_id' => $data['desc_detail_id'] ?? null,
+                'desc_identifier' => $data['desc_identifier'] ?? null,
+                'upload_limit' => $data['upload_limit'] ?? null,
+                'source_culture' => $this->culture,
+            ]);
+
+            DB::table('repository_i18n')->insert([
+                'id' => $id,
+                'culture' => $this->culture,
+                'geocultural_context' => $data['geocultural_context'] ?? null,
+                'collecting_policies' => $data['collecting_policies'] ?? null,
+                'buildings' => $data['buildings'] ?? null,
+                'holdings' => $data['holdings'] ?? null,
+                'finding_aids' => $data['finding_aids'] ?? null,
+                'opening_times' => $data['opening_times'] ?? null,
+                'access_conditions' => $data['access_conditions'] ?? null,
+                'disabled_access' => $data['disabled_access'] ?? null,
+                'research_services' => $data['research_services'] ?? null,
+                'reproduction_services' => $data['reproduction_services'] ?? null,
+                'public_facilities' => $data['public_facilities'] ?? null,
+                'desc_institution_identifier' => $data['desc_institution_identifier'] ?? null,
+                'desc_rules' => $data['desc_rules'] ?? null,
+                'desc_sources' => $data['desc_sources'] ?? null,
+                'desc_revision_history' => $data['desc_revision_history'] ?? null,
+            ]);
+
+            return $id;
+        });
+    }
+
+    public function updateRepository(int $id, array $data): void
+    {
+        DB::transaction(function () use ($id, $data) {
+            // Actor layer
+            $this->updateEntityFields('actor', $id, $data, [
+                'entity_type_id', 'description_status_id', 'description_detail_id',
+                'description_identifier', 'source_standard', 'corporate_body_identifiers', 'parent_id',
+            ]);
+            $i18nData = $data;
+            if (isset($data['name']) && !isset($data['authorized_form_of_name'])) {
+                $i18nData['authorized_form_of_name'] = $data['name'];
+            }
+            $this->upsertI18n('actor_i18n', $id, $i18nData, [
+                'authorized_form_of_name', 'dates_of_existence', 'history', 'places',
+                'legal_status', 'functions', 'mandates', 'general_context',
+                'institution_responsible_identifier', 'sources',
+            ]);
+
+            // Repository layer
+            $this->updateEntityFields('repository', $id, $data, [
+                'identifier', 'desc_status_id', 'desc_detail_id', 'desc_identifier', 'upload_limit',
+            ]);
+            $this->upsertI18n('repository_i18n', $id, $data, [
+                'geocultural_context', 'collecting_policies', 'buildings', 'holdings',
+                'finding_aids', 'opening_times', 'access_conditions', 'disabled_access',
+                'research_services', 'reproduction_services', 'public_facilities',
+                'desc_institution_identifier', 'desc_rules', 'desc_sources', 'desc_revision_history',
+            ]);
+
+            $this->touchObject($id);
+        });
+    }
+
+    public function deleteRepository(int $id): void
+    {
+        DB::transaction(function () use ($id) {
+            // Guard: can't delete a repository that owns information_objects.
+            $hasRecords = DB::table('information_object')->where('repository_id', $id)->exists();
+            if ($hasRecords) {
+                throw new \RuntimeException("Cannot delete repository {$id}: it still owns information objects. Re-assign them first.");
+            }
+            DB::table('repository_i18n')->where('id', $id)->delete();
+            DB::table('repository')->where('id', $id)->delete();
+            DB::table('actor_i18n')->where('id', $id)->delete();
+            DB::table('actor')->where('id', $id)->delete();
+            DB::table('slug')->where('object_id', $id)->delete();
+            DB::table('object')->where('id', $id)->delete();
+        });
+    }
+
+    // ================================================================
+    // FUNCTION (ISDF) — rico:Function
+    // ================================================================
+
+    public function createFunction(array $data): int
+    {
+        if (empty($data['name'])) {
+            throw new \InvalidArgumentException('Function requires a "name" field.');
+        }
+        return DB::transaction(function () use ($data) {
+            $id = $this->insertObjectRecord('QubitFunction');
+            $this->insertSlug($id, $data['name']);
+
+            DB::table('function_object')->insert([
+                'id' => $id,
+                'type_id' => $data['type_id'] ?? null,
+                'description_status_id' => $data['description_status_id'] ?? null,
+                'description_detail_id' => $data['description_detail_id'] ?? null,
+                'description_identifier' => $data['description_identifier'] ?? null,
+                'source_standard' => $data['source_standard'] ?? 'ISDF',
+                'source_culture' => $this->culture,
+            ]);
+
+            DB::table('function_object_i18n')->insert([
+                'id' => $id,
+                'culture' => $this->culture,
+                'authorized_form_of_name' => $data['name'],
+                'classification' => $data['classification'] ?? null,
+                'dates' => $data['dates'] ?? null,
+                'description' => $data['description'] ?? null,
+                'history' => $data['history'] ?? null,
+                'legislation' => $data['legislation'] ?? null,
+                'institution_identifier' => $data['institution_identifier'] ?? null,
+                'sources' => $data['sources'] ?? null,
+                'rules' => $data['rules'] ?? null,
+                'revision_history' => $data['revision_history'] ?? null,
+            ]);
+
+            return $id;
+        });
+    }
+
+    public function updateFunction(int $id, array $data): void
+    {
+        DB::transaction(function () use ($id, $data) {
+            $this->updateEntityFields('function_object', $id, $data, [
+                'type_id', 'description_status_id', 'description_detail_id',
+                'description_identifier', 'source_standard',
+            ]);
+
+            $i18nData = $data;
+            if (isset($data['name']) && !isset($data['authorized_form_of_name'])) {
+                $i18nData['authorized_form_of_name'] = $data['name'];
+            }
+            $this->upsertI18n('function_object_i18n', $id, $i18nData, [
+                'authorized_form_of_name', 'classification', 'dates', 'description',
+                'history', 'legislation', 'institution_identifier', 'sources',
+                'rules', 'revision_history',
+            ]);
+
+            $this->touchObject($id);
+        });
+    }
+
+    public function deleteFunction(int $id): void
+    {
+        DB::transaction(function () use ($id) {
+            DB::table('function_object_i18n')->where('id', $id)->delete();
+            DB::table('function_object')->where('id', $id)->delete();
+            DB::table('slug')->where('object_id', $id)->delete();
+            DB::table('object')->where('id', $id)->delete();
+        });
+    }
+
+    // ================================================================
     // SHARED PRIVATE METHODS
     // ================================================================
 

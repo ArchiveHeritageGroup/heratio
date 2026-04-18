@@ -375,7 +375,9 @@
       "Bash(sudo chgrp *)",
       "Bash(sudo chmod *)",
       "Bash(sudo -u www-data bash -c 'head -3 /etc/msmtprc')",
-      "Bash(sudo -u www-data bash -c 'echo -e \"Subject: direct msmtp test\\\\nFrom: pieterse.johan3@gmail.com\\\\nTo: johan@theahg.co.za\\\\n\\\\nDirect test from www-data.\" | /usr/sbin/sendmail -bs -i johan@theahg.co.za')"
+      "Bash(sudo -u www-data bash -c 'echo -e \"Subject: direct msmtp test\\\\nFrom: pieterse.johan3@gmail.com\\\\nTo: johan@theahg.co.za\\\\n\\\\nDirect test from www-data.\" | /usr/sbin/sendmail -bs -i johan@theahg.co.za')",
+      "Bash(sudo tee *)",
+      "Bash(sudo newaliases *)"
     ]
   }
 }

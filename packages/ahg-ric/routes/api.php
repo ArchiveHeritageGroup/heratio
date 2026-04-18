@@ -154,6 +154,16 @@ Route::prefix('api/ric/v1')->middleware(['throttle:60,1', 'api.cors'])->group(fu
         Route::match(['patch', 'put'], '/records/{id}', [LinkedDataApiController::class, 'updateRecord'])->where('id', '[0-9]+');
         Route::delete('/records/{id}', [LinkedDataApiController::class, 'deleteRecord'])->where('id', '[0-9]+');
 
+        // Repositories (ISDIAH — rico:CorporateBody with repository extension)
+        Route::post('/repositories', [LinkedDataApiController::class, 'createRepository']);
+        Route::match(['patch', 'put'], '/repositories/{id}', [LinkedDataApiController::class, 'updateRepository'])->where('id', '[0-9]+');
+        Route::delete('/repositories/{id}', [LinkedDataApiController::class, 'deleteRepository'])->where('id', '[0-9]+');
+
+        // Functions (ISDF — rico:Function)
+        Route::post('/functions', [LinkedDataApiController::class, 'createFunction']);
+        Route::match(['patch', 'put'], '/functions/{id}', [LinkedDataApiController::class, 'updateFunction'])->where('id', '[0-9]+');
+        Route::delete('/functions/{id}', [LinkedDataApiController::class, 'deleteFunctionEntity'])->where('id', '[0-9]+');
+
         // Generic delete-by-id (looks up class_name and dispatches) — useful
         // for UIs that hold only an id, not a type.
         Route::delete('/entities/{id}', [LinkedDataApiController::class, 'deleteEntityById'])->where('id', '[0-9]+');
