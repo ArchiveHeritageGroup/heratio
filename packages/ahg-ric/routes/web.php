@@ -83,6 +83,7 @@ Route::prefix('admin/ric/entity-api')->middleware('web')->group(function () {
     Route::get('/dropdown/{taxonomy}', [RicEntityController::class, 'dropdownChoices'])->name('ric.entities.dropdown');
     Route::get('/relations/{id}', [RicEntityController::class, 'relationsForRecord'])->name('ric.relations.for-record');
     Route::match(['get', 'post'], '/relation-store', [RicEntityController::class, 'storeRelation'])->name('ric.relations.store');
+    Route::match(['get', 'post', 'patch'], '/relation-update/{id}', [RicEntityController::class, 'updateRelationAjax'])->name('ric.relations.update');
     Route::match(['get', 'post'], '/relation-delete/{id}', [RicEntityController::class, 'destroyRelation'])->name('ric.relations.destroy');
     Route::get('/relation-types', [RicEntityController::class, 'getRelationTypes'])->name('ric.relations.types');
 });

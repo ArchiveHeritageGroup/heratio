@@ -495,6 +495,49 @@ class RicEntityService
     }
 
     /**
+     * Update an existing RiC relation. Supports editing the relation-type
+     * (which updates both the ric_relation_meta predicate + dropdown_code),
+     * date range, certainty, and evidence.
+     */
+    public function updateRelation(int $relationId, array $data): void
+    {
+        DB::transaction(function () use ($relationId, $data) {
+            // Relation row — subject/object stay fixed; only dates are mutable here.
+            $relationFields = array_intersect_key(
+                ['start_date' => $data['start_date'] ?? null, 'end_date' => $data['end_date'] ?? null],
+                array_flip(['start_date', 'end_date'])
+            );
+            if ($relationFields) {
+                DB::table('relation')->where('id', $relationId)->update($relationFields);
+            }
+
+            // Meta row — certainty + evidence always, plus predicate if relation_type changed.
+            $metaFields = [
+                'certainty' => $data['certainty'] ?? null,
+                'evidence' => $data['evidence'] ?? null,
+            ];
+            if (!empty($data['relation_type'])) {
+                $relType = DB::table('ahg_dropdown')
+                    ->where('taxonomy', 'ric_relation_type')
+                    ->where('code', $data['relation_type'])
+                    ->where('is_active', 1)
+                    ->first();
+                if ($relType) {
+                    $metadata = $relType->metadata ? json_decode($relType->metadata, true) : [];
+                    $metaFields['dropdown_code'] = $data['relation_type'];
+                    $metaFields['rico_predicate'] = $metadata['predicate'] ?? 'rico:isAssociatedWith';
+                    $metaFields['inverse_predicate'] = $metadata['inverse'] ?? $metaFields['rico_predicate'];
+                    $metaFields['domain_class'] = $metadata['domain'] ?? null;
+                    $metaFields['range_class'] = $metadata['range'] ?? null;
+                }
+            }
+            DB::table('ric_relation_meta')->where('relation_id', $relationId)->update($metaFields);
+
+            $this->touchObject($relationId);
+        });
+    }
+
+    /**
      * Get all RiC relations for an entity (both as subject and object).
      */
     public function getRelationsForEntity(int $entityId): Collection

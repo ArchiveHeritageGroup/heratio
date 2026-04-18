@@ -1,6 +1,6 @@
 # RiC Capture UI — Completeness Audit (Step 0)
 
-**Last updated:** 2026-04-18 *(G1–G8 closed; G9 deferred)*
+**Last updated:** 2026-04-18 *(all 9 gaps closed)*
 **Purpose:** Concrete gap list for the admin UI that captures RiC entities. Step 0 of the Heratio/RiC split plan: every RiC entity must be fully capturable through the GUI before the API is finalised (Step 1–3) and before the split (Step 4+).
 
 **Scope:** `packages/ahg-ric/resources/views/entities/` admin forms for the 4 RiC-native entity types plus generic Relations. Does NOT cover `/api/ric/v1/*` endpoints or the embedded `_ric-view-*.blade.php` partials — those are later phases.
@@ -48,7 +48,7 @@ This is a living document. Update it as each gap is closed.
 | **Relation** | browse (global) | ✓ | `relations/browse.blade.php` | Standalone `/admin/ric/relations` list view with filter + pagination (2026-04-18). |
 | Relation | show | ✗ | — | No per-relation page. |
 | Relation | create | ✓ | `_relation-editor.blade.php` + AJAX | Modal with autocomplete + type picker + date range. |
-| Relation | edit | ⚠ | — | Only delete+recreate; no in-place edit. |
+| Relation | edit | ✓ | `_relation-editor.blade.php` + `PATCH /relation-update/{id}` | In-place edit via "pencil" button per outgoing relation; modal re-used in update mode (2026-04-18). |
 | Relation | delete | ✓ | `_relation-editor.blade.php` | Delete button per row; AJAX. |
 | Relation | field coverage | 8/8 | — | Certainty + evidence added to modal (2026-04-18). Certainty uses `certainty_level` taxonomy. |
 
@@ -69,7 +69,7 @@ This is a living document. Update it as each gap is closed.
 
 - [x] **G7. Instantiation: `production_technical_characteristics`** — added 2026-04-18 as part of the G3 pass.
 - [x] **G8. Standalone Relations browse page** — added 2026-04-18. `/admin/ric/relations` with filter + pagination. Per-relation show page still deferred (G9).
-- [ ] **G9. In-place Relation edit** — deferred. Requires turning the create modal into an edit modal with pre-populated values, plus a `PATCH /relation-update/{id}` endpoint. Not blocking full capture.
+- [x] **G9. In-place Relation edit** — added 2026-04-18. Relation table now renders certainty + evidence columns and a pencil-edit button per outgoing row. Clicking pencil fills the modal with existing values and switches the submit button into save-changes mode; a cancel button returns to create mode. New `updateRelation()` service method + `POST /admin/ric/entity-api/relation-update/{id}` endpoint. Also fixed a latent bug: entity show pages that included `_relation-editor` standalone had no fetch to populate the table — the editor now self-loads when no external caller has done so.
 
 ### Root causes
 
@@ -93,3 +93,4 @@ This is a living document. Update it as each gap is closed.
 | 2026-04-18 | G1 closed: dedicated `/admin/ric/entities/{type}/create` routes for Place, Rule, Activity, Instantiation. Controller methods `createEntityForm()` + `storeEntityForm()`. All 4 browse pages now have "Create" buttons. Smoke-tested: all 5 new routes return HTTP 200. |
 | 2026-04-18 | G8 closed: standalone `/admin/ric/relations` global browse page with filter + pagination. |
 | 2026-04-18 | G9 deferred: in-place relation edit. Current workflow requires delete + recreate; not blocking full capture. |
+| 2026-04-18 | G9 closed: pencil-edit button per outgoing relation row; modal repurposed as dual-mode create/update; new `updateRelation()` service method + `POST /relation-update/{id}` endpoint. Bonus fix: standalone show pages now self-load the relation list (was stuck on "Loading…"). |

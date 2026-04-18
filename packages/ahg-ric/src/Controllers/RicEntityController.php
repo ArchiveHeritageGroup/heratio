@@ -169,6 +169,22 @@ class RicEntityController extends Controller
     }
 
     /**
+     * Update an existing RiC relation (G9 in-place edit).
+     */
+    public function updateRelationAjax(Request $request, int $id): JsonResponse
+    {
+        try {
+            $this->service->updateRelation(
+                $id,
+                $request->only(['start_date', 'end_date', 'certainty', 'evidence', 'relation_type'])
+            );
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
      * Create a RiC relation.
      */
     public function storeRelation(Request $request): JsonResponse
