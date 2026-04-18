@@ -131,11 +131,18 @@ class LinkedDataApiController extends Controller
         $page = $request->get('page', 1);
         $limit = min($request->get('limit', 50), 200);
         $level = $request->get('level'); // fonds, series, file, item
+        $culture = app()->getLocale() ?: 'en';
 
+        // Filter every _i18n join by culture — without this, one IO row with
+        // three translations appears three times (a regression seen in v0.2.x).
         $query = \DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i18n', 'io.id', '=', 'i18n.id')
+            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
+                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
             ->leftJoin('term as level', 'io.level_of_description_id', '=', 'level.id')
-            ->leftJoin('term_i18n as level_i18n', 'level.id', '=', 'level_i18n.id')
+            ->leftJoin('term_i18n as level_i18n', function ($j) use ($culture) {
+                $j->on('level.id', '=', 'level_i18n.id')->where('level_i18n.culture', '=', $culture);
+            })
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->select([
                 'io.id',
@@ -149,8 +156,10 @@ class LinkedDataApiController extends Controller
             $query->where('level_i18n.name', $level);
         }
 
-        $total = $query->count();
+        // Count distinct information_object ids (not the joined-row count).
+        $total = (clone $query)->distinct()->count('io.id');
         $records = $query
+            ->orderBy('io.id')
             ->offset(($page - 1) * $limit)
             ->limit($limit)
             ->get();

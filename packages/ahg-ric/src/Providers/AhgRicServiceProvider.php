@@ -94,6 +94,7 @@ class AhgRicServiceProvider extends ServiceProvider
                 \AhgRic\Console\Commands\VerifySplit::class,
                 \AhgRic\Console\Commands\IssueKey::class,
                 \AhgRic\Console\Commands\RebuildNestedSet::class,
+                \AhgRic\Console\Commands\SeedDemo::class,
             ]);
         }
 
