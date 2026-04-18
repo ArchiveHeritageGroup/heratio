@@ -3,7 +3,7 @@
     
     Copyright (C) 2026 Johan Pieterse
     Plain Sailing Information Systems
-    Email: johan@plansailingisystems.co.za
+    Email: johan@plainsailingisystems.co.za
     
     This file is part of Heratio.
     

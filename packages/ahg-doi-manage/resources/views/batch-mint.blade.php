@@ -1,4 +1,4 @@
-{{-- Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems — johan@plansailingisystems.co.za
+{{-- Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems — johan@plainsailingisystems.co.za
      This file is part of Heratio. Licensed under the GNU Affero General Public License v3+. --}}
 @extends('theme::layouts.1col')
 

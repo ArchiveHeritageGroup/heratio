@@ -4,7 +4,7 @@
 
   Copyright (C) 2026 Johan Pieterse
   Plain Sailing Information Systems
-  Email: johan@plansailingisystems.co.za
+  Email: johan@plainsailingisystems.co.za
   Licensed under the GNU Affero General Public License v3 or later.
 --}}
 @extends('theme::layouts.1col')
