@@ -25,6 +25,47 @@ class RicEntityController extends Controller
         $this->service = new RicEntityService(app()->getLocale());
     }
 
+    /**
+     * API-3 helper: call a public `/api/ric/v1/*` endpoint in-process,
+     * forwarding the caller's session cookie so write endpoints (`api.auth:write`)
+     * accept the admin's session. Returns the JSON decoded body, or null on any
+     * non-2xx / transport failure (signal to fall back to direct service call).
+     */
+    protected function callRicApi(string $method, string $path, array $data = [], ?Request $origRequest = null): ?array
+    {
+        $origRequest ??= request();
+        $appUrl = rtrim(config('app.url'), '/');
+        $url = $appUrl . $path;
+        $host = parse_url($appUrl, PHP_URL_HOST) ?: 'localhost';
+
+        $cookies = [];
+        $sessionCookieName = config('session.cookie');
+        if ($sessionCookieName && $origRequest->cookies->has($sessionCookieName)) {
+            // Forward raw encrypted cookie value — the inner request's
+            // EncryptCookies middleware will decrypt it and restore the session.
+            $cookies[$sessionCookieName] = $origRequest->cookies->get($sessionCookieName);
+        }
+
+        try {
+            $client = \Illuminate\Support\Facades\Http::timeout(5);
+            if ($cookies) $client = $client->withCookies($cookies, $host);
+            $response = match (strtolower($method)) {
+                'post' => $client->post($url, $data),
+                'put', 'patch' => $client->{strtolower($method)}($url, $data),
+                'delete' => $client->delete($url, $data),
+                default => $client->get($url, $data),
+            };
+            if ($response->successful()) {
+                return $response->json();
+            }
+            \Illuminate\Support\Facades\Log::info("[callRicApi] {$method} {$path} returned {$response->status()}");
+            return null;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("[callRicApi] {$method} {$path} failed: " . $e->getMessage());
+            return null;
+        }
+    }
+
     // ================================================================
     // RECORD-LEVEL AJAX ENDPOINTS (called from IO/Actor show pages)
     // ================================================================
@@ -49,43 +90,75 @@ class RicEntityController extends Controller
 
     /**
      * Create a RiC entity via AJAX (from record-level modal).
+     *
+     * API-3 migration: try the public API first (forwards admin session),
+     * fall back to direct service call if the HTTP hop is unreachable.
      */
     public function storeEntity(Request $request): JsonResponse
     {
         $type = $request->input('entity_type');
         $data = $request->all();
 
-        try {
-            $id = match ($type) {
-                'place' => $this->service->createPlace($data),
-                'rule' => $this->service->createRule($data),
-                'activity' => $this->service->createActivity($data),
-                'instantiation' => $this->service->createInstantiation($data),
-                default => throw new \InvalidArgumentException("Unknown entity type: {$type}"),
-            };
+        if (!in_array($type, ['place', 'rule', 'activity', 'instantiation'], true)) {
+            return response()->json(['success' => false, 'error' => "Unknown entity type: {$type}"], 422);
+        }
 
-            // If a record_id is provided, auto-create a relation
-            if (!empty($data['link_to_record_id']) && !empty($data['link_relation_type'])) {
+        // Try HTTP API first.
+        $apiResult = $this->callRicApi('POST', "/api/ric/v1/{$type}s", $data, $request);
+        $id = null;
+        if ($apiResult && isset($apiResult['id'])) {
+            $id = (int) $apiResult['id'];
+        }
+
+        // Fallback: direct service call.
+        if (!$id) {
+            try {
+                $id = match ($type) {
+                    'place' => $this->service->createPlace($data),
+                    'rule' => $this->service->createRule($data),
+                    'activity' => $this->service->createActivity($data),
+                    'instantiation' => $this->service->createInstantiation($data),
+                };
+            } catch (\Exception $e) {
+                return response()->json(['success' => false, 'error' => $e->getMessage()], 422);
+            }
+        }
+
+        // Auto-link to record if requested. (Kept service-side because this
+        // is a secondary action and already works.)
+        if (!empty($data['link_to_record_id']) && !empty($data['link_relation_type'])) {
+            try {
                 $this->service->createRelation(
                     (int) $data['link_to_record_id'],
                     $id,
                     $data['link_relation_type']
                 );
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning('auto-link relation failed: ' . $e->getMessage());
             }
-
-            return response()->json(['success' => true, 'id' => $id]);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'error' => $e->getMessage()], 422);
         }
+
+        return response()->json(['success' => true, 'id' => $id]);
     }
 
     /**
      * Update a RiC entity via AJAX.
+     *
+     * API-3 migration: try the public API first, fall back to service.
      */
     public function updateEntity(Request $request, int $id): JsonResponse
     {
         $type = $request->input('entity_type');
         $data = $request->all();
+
+        if (!in_array($type, ['place', 'rule', 'activity', 'instantiation'], true)) {
+            return response()->json(['success' => false, 'error' => "Unknown entity type: {$type}"], 422);
+        }
+
+        $apiResult = $this->callRicApi('PATCH', "/api/ric/v1/{$type}s/{$id}", $data, $request);
+        if ($apiResult && ($apiResult['success'] ?? false)) {
+            return response()->json(['success' => true]);
+        }
 
         try {
             match ($type) {
@@ -93,9 +166,7 @@ class RicEntityController extends Controller
                 'rule' => $this->service->updateRule($id, $data),
                 'activity' => $this->service->updateActivity($id, $data),
                 'instantiation' => $this->service->updateInstantiation($id, $data),
-                default => throw new \InvalidArgumentException("Unknown entity type: {$type}"),
             };
-
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()], 422);
@@ -104,10 +175,25 @@ class RicEntityController extends Controller
 
     /**
      * Delete a RiC entity via AJAX.
+     *
+     * API-3 migration: try the public API first, fall back to service.
      */
     public function destroyEntity(int $id): JsonResponse
     {
         $className = \Illuminate\Support\Facades\DB::table('object')->where('id', $id)->value('class_name');
+        $typeMap = [
+            'RicPlace' => 'places', 'RicRule' => 'rules',
+            'RicActivity' => 'activities', 'RicInstantiation' => 'instantiations',
+        ];
+        $typePlural = $typeMap[$className] ?? null;
+        if (!$typePlural) {
+            return response()->json(['success' => false, 'error' => "Cannot delete entity type: {$className}"], 422);
+        }
+
+        $apiResult = $this->callRicApi('DELETE', "/api/ric/v1/{$typePlural}/{$id}");
+        if ($apiResult && ($apiResult['success'] ?? false)) {
+            return response()->json(['success' => true]);
+        }
 
         try {
             match ($className) {
@@ -115,9 +201,7 @@ class RicEntityController extends Controller
                 'RicRule' => $this->service->deleteRule($id),
                 'RicActivity' => $this->service->deleteActivity($id),
                 'RicInstantiation' => $this->service->deleteInstantiation($id),
-                default => throw new \InvalidArgumentException("Cannot delete entity type: {$className}"),
             };
-
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()], 422);
@@ -209,9 +293,16 @@ class RicEntityController extends Controller
 
     /**
      * Update an existing RiC relation (G9 in-place edit).
+     *
+     * API-3 migration: try the public API first, fall back to service.
      */
     public function updateRelationAjax(Request $request, int $id): JsonResponse
     {
+        $apiResult = $this->callRicApi('PATCH', "/api/ric/v1/relations/{$id}", $request->all(), $request);
+        if ($apiResult && ($apiResult['success'] ?? false)) {
+            return response()->json(['success' => true]);
+        }
+
         try {
             $this->service->updateRelation(
                 $id,
@@ -234,6 +325,12 @@ class RicEntityController extends Controller
             'relation_type' => 'required|string',
         ]);
 
+        // API-3 migration: try public API first.
+        $apiResult = $this->callRicApi('POST', '/api/ric/v1/relations', $request->all(), $request);
+        if ($apiResult && isset($apiResult['id'])) {
+            return response()->json(['success' => true, 'id' => $apiResult['id']]);
+        }
+
         try {
             $id = $this->service->createRelation(
                 (int) $request->input('subject_id'),
@@ -250,9 +347,16 @@ class RicEntityController extends Controller
 
     /**
      * Delete a RiC relation.
+     *
+     * API-3 migration: try the public API first, fall back to service.
      */
     public function destroyRelation(int $id): JsonResponse
     {
+        $apiResult = $this->callRicApi('DELETE', "/api/ric/v1/relations/{$id}");
+        if ($apiResult && ($apiResult['success'] ?? false)) {
+            return response()->json(['success' => true]);
+        }
+
         try {
             $this->service->deleteRelation($id);
             return response()->json(['success' => true]);
@@ -421,12 +525,18 @@ class RicEntityController extends Controller
         $data = $request->all();
         $data['entity_type'] = rtrim($type, 's');
 
-        match ($type) {
-            'places' => $this->service->updatePlace($entity->id, $data),
-            'rules' => $this->service->updateRule($entity->id, $data),
-            'activities' => $this->service->updateActivity($entity->id, $data),
-            'instantiations' => $this->service->updateInstantiation($entity->id, $data),
-        };
+        // API-3 migration: try the public API first.
+        $apiResult = $this->callRicApi('PATCH', "/api/ric/v1/{$type}/{$entity->id}", $data, $request);
+
+        if (!$apiResult || !($apiResult['success'] ?? false)) {
+            // Fallback to direct service call.
+            match ($type) {
+                'places' => $this->service->updatePlace($entity->id, $data),
+                'rules' => $this->service->updateRule($entity->id, $data),
+                'activities' => $this->service->updateActivity($entity->id, $data),
+                'instantiations' => $this->service->updateInstantiation($entity->id, $data),
+            };
+        }
 
         return redirect()->route('ric.entities.show', [$type, $slug])
             ->with('success', ucfirst(rtrim($type, 's')) . ' updated successfully.');
@@ -474,19 +584,28 @@ class RicEntityController extends Controller
      */
     public function storeEntityForm(Request $request, string $type)
     {
+        if (!in_array($type, ['places', 'rules', 'activities', 'instantiations'], true)) {
+            abort(404);
+        }
+
         $data = $request->all();
         $data['entity_type'] = rtrim($type, 's');
 
-        try {
-            $id = match ($type) {
-                'places' => $this->service->createPlace($data),
-                'rules' => $this->service->createRule($data),
-                'activities' => $this->service->createActivity($data),
-                'instantiations' => $this->service->createInstantiation($data),
-                default => abort(404),
-            };
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()->withErrors(['create' => $e->getMessage()]);
+        // API-3 migration: try the public API first.
+        $apiResult = $this->callRicApi('POST', "/api/ric/v1/{$type}", $data, $request);
+        $id = $apiResult['id'] ?? null;
+
+        if (!$id) {
+            try {
+                $id = match ($type) {
+                    'places' => $this->service->createPlace($data),
+                    'rules' => $this->service->createRule($data),
+                    'activities' => $this->service->createActivity($data),
+                    'instantiations' => $this->service->createInstantiation($data),
+                };
+            } catch (\Exception $e) {
+                return redirect()->back()->withInput()->withErrors(['create' => $e->getMessage()]);
+            }
         }
 
         $slug = \Illuminate\Support\Facades\DB::table('slug')->where('object_id', $id)->value('slug');
@@ -568,6 +687,13 @@ class RicEntityController extends Controller
 
         if (!$entity) {
             abort(404);
+        }
+
+        // API-3 migration: try the public API first.
+        $apiResult = $this->callRicApi('DELETE', "/api/ric/v1/{$type}/{$entity->id}");
+        if ($apiResult && ($apiResult['success'] ?? false)) {
+            return redirect()->route("ric.{$type}.browse")
+                ->with('success', ucfirst(rtrim($type, 's')) . ' deleted successfully.');
         }
 
         match ($type) {

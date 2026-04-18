@@ -94,11 +94,13 @@ Consumers of the new API, tracked for the split. Each migration uses a **try-API
 - [ ] **`RicEntityController::getEntityInfo`** → `GET /api/ric/v1/entities/{id}/info` (info popovers) — **skipped for now** because the admin endpoint returns the *full* entity shape whereas the public one returns a minimal info card. Either broaden the public endpoint or keep the admin as an internal "details" endpoint.
 - [x] **`RicEntityController::entitiesForRecord`** → `GET /api/ric/v1/records/{id}/entities` (shipped 2026-04-18).
 - [x] **`RicEntityController::relationsForRecord`** → `GET /api/ric/v1/relations-for/{id}` (shipped 2026-04-18; public returns grouped {outgoing, incoming}, admin flattens back to the legacy array shape for front-end compat).
-- [ ] **`RicEntityController::storeEntity` (AJAX admin)** → `POST /api/ric/v1/{type}`. Auth complication: internal call needs to forward the admin session (cookies) or use a service-key. Tackle after the read migrations are all green.
-- [ ] **`RicEntityController::updateEntity`** / **`updateEntityForm`** → `PATCH /api/ric/v1/{type}/{id}` (same auth consideration).
-- [ ] **`RicEntityController::destroyEntity`** / **`destroyEntityForm`** → `DELETE /api/ric/v1/{type}/{id}`.
-- [ ] **`RicEntityController::storeRelation` / `updateRelationAjax` / `destroyRelation`** → `/api/ric/v1/relations` CRUD (same auth consideration).
-- [ ] **Relation-editor modal JS** — currently talks to `/admin/ric/entity-api/relation-*`. Switch the front-end to `/api/ric/v1/relations*` directly so the admin wrappers can be deleted.
+- [x] **`RicEntityController::storeEntity` (AJAX admin)** → `POST /api/ric/v1/{type}` (shipped 2026-04-18). Auth handled by forwarding the admin session cookie via `callRicApi()` — the inner request decrypts the cookie, finds the session, passes `api.auth:write`.
+- [x] **`RicEntityController::updateEntity`** / **`updateEntityForm`** → `PATCH /api/ric/v1/{type}/{id}` (shipped 2026-04-18).
+- [x] **`RicEntityController::destroyEntity`** / **`destroyEntityForm`** → `DELETE /api/ric/v1/{type}/{id}` (shipped 2026-04-18).
+- [x] **`RicEntityController::storeRelation` / `updateRelationAjax` / `destroyRelation`** → `/api/ric/v1/relations` CRUD (shipped 2026-04-18).
+- [ ] **Relation-editor modal JS** — still hits `/admin/ric/entity-api/relation-*`. Those admin endpoints are now thin pass-throughs that forward to the API, so the JS works unchanged. Migrating the front-end URLs + deleting the admin wrappers is a later cleanup once the rest of the split is in motion.
+
+**Internal helper:** `RicEntityController::callRicApi($method, $path, $data, $request)` forwards the session cookie to the in-process HTTP call. Returns the decoded JSON on 2xx, `null` on any non-2xx / transport failure — callers fall back to the direct service call.
 
 Each migration is ~1 file, composes. Once all admin controllers are HTTP-only callers, the **ahg-ric package can be lifted into its own Laravel service** and Heratio becomes a true client.
 
@@ -111,3 +113,4 @@ Each migration is ~1 file, composes. Once all admin controllers are HTTP-only ca
 | 2026-04-18 | Initial write-side shipped: 6 entity/relation mutating endpoints, `api.auth:write` gating. Verified 401 without key, 201/200 with session. |
 | 2026-04-18 | API-3 migration started — `browseRelations` and `autocompleteEntities` now consume the public API with DB/service fallback. First two of 10 consumers migrated. |
 | 2026-04-18 | API-3 migration continues — `entitiesForRecord` and `relationsForRecord` now route through the public API. 4 of 10 read-side consumers done. Only writes + `getEntityInfo` (shape mismatch) remain on the read side. |
+| 2026-04-18 | API-3 migration — ALL write consumers migrated in one pass: `storeEntity`, `updateEntity`, `destroyEntity`, `updateEntityForm`, `storeEntityForm`, `destroyEntityForm`, `storeRelation`, `updateRelationAjax`, `destroyRelation`. Uses `callRicApi()` helper that forwards the admin session cookie to the in-process HTTP call, so `api.auth:write` sees the session and accepts it. Direct service call retained as fallback for every endpoint. |
