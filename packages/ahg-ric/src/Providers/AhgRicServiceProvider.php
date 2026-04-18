@@ -92,6 +92,7 @@ class AhgRicServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgRic\Console\Commands\VerifySplit::class,
+                \AhgRic\Console\Commands\IssueKey::class,
             ]);
         }
 

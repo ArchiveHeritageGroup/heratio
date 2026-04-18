@@ -57,6 +57,7 @@ class OpenApiSpec
                 ['name' => 'Graph',     'description' => 'Subgraph walks + full SPARQL.'],
                 ['name' => 'Uploads',   'description' => 'Multipart file upload.'],
                 ['name' => 'Harvest',   'description' => 'OAI-PMH v2.0 harvester endpoint.'],
+                ['name' => 'Keys',      'description' => 'Self-service API key request flow (no auth required).'],
             ],
             'paths' => self::paths(),
         ];
@@ -237,6 +238,22 @@ class OpenApiSpec
             [], ['200' => ['description' => 'Validation report',
                 'content' => ['application/json' => ['schema' => ['type' => 'object']]]]], 'ValidateRequest')];
 
+        // -------- Self-service key request (no auth) --------
+        $paths['/keys/request'] = [
+            'get'  => self::op('Keys', 'Key request form (HTML)', [],
+                ['200' => ['description' => 'HTML form for requesting an API key.']]),
+            'post' => self::op('Keys', 'Submit a key request', [],
+                ['201' => ['description' => 'Accepted',
+                    'content' => ['application/json' => ['schema' => ['$ref' => '#/components/schemas/KeyRequestAccepted']]]],
+                 '429' => ['description' => 'Rate-limited — too many requests from your IP in the last 24h.']],
+                'KeyRequest'),
+        ];
+        $paths['/keys/request/{id}'] = ['get' => self::op('Keys', 'Check request status (no secret revealed)',
+            [['name' => 'id', 'in' => 'path', 'required' => true, 'schema' => ['type' => 'integer']]],
+            ['200' => ['description' => 'Status',
+                'content' => ['application/json' => ['schema' => ['$ref' => '#/components/schemas/KeyRequestStatus']]]],
+             '404' => ['description' => 'Not found']])];
+
         ksort($paths);
         return $paths;
     }
@@ -360,6 +377,26 @@ class OpenApiSpec
             'ValidateRequest' => ['type' => 'object', 'properties' => [
                 'graph' => ['type' => 'object', 'description' => 'JSON-LD graph to validate against SHACL shapes'],
                 'shapes' => ['type' => 'string', 'description' => 'Optional: named shape set; defaults to openric.shacl.ttl']]],
+
+            'KeyRequest' => ['type' => 'object', 'required' => ['email', 'intended_use'], 'properties' => [
+                'email' => ['type' => 'string', 'format' => 'email', 'description' => 'Where the issued key will be emailed.'],
+                'organization' => ['type' => 'string', 'description' => 'Institution or project name (optional).'],
+                'intended_use' => ['type' => 'string', 'minLength' => 20,
+                    'description' => 'What will you use this key for? Read by a human admin.'],
+                'scopes' => ['type' => 'string', 'example' => 'read,write,delete',
+                    'description' => 'Comma-separated subset of [read, write, delete]. Defaults to "read,write".']]],
+            'KeyRequestAccepted' => ['type' => 'object', 'properties' => [
+                'success' => ['type' => 'boolean'],
+                'request_id' => ['type' => 'integer'],
+                'message' => ['type' => 'string'],
+                'status_url' => ['type' => 'string', 'format' => 'uri']]],
+            'KeyRequestStatus' => ['type' => 'object', 'properties' => [
+                'id' => ['type' => 'integer'],
+                'status' => ['type' => 'string', 'enum' => ['pending', 'approved', 'denied', 'revoked']],
+                'email' => ['type' => 'string', 'description' => 'Masked — only prefix visible.'],
+                'requested_scopes' => ['type' => 'string'],
+                'created_at' => ['type' => 'string', 'format' => 'date-time'],
+                'reviewed_at' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true]]],
         ];
     }
 }

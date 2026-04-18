@@ -26,6 +26,7 @@
 use Illuminate\Support\Facades\Route;
 use AhgRic\Http\Controllers\LinkedDataApiController;
 use AhgRic\Http\Controllers\OaiPmhController;
+use AhgRic\Http\Controllers\KeyRequestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -89,6 +90,13 @@ Route::prefix('api/ric/v1')->middleware(['throttle:60,1', 'api.cors'])->group(fu
     // OAI-PMH v2.0 — standard archival harvest protocol.
     // Accepts both GET and POST per the OAI-PMH spec.
     Route::match(['get', 'post'], '/oai', [OaiPmhController::class, 'handle']);
+
+    // Self-service API key request flow. Reads are already public, so this
+    // is only useful for acquiring write/delete scope. GET shows an HTML
+    // form; POST queues a pending request for admin review.
+    Route::get ('/keys/request',        [KeyRequestController::class, 'form'])->name('openric.keys.form');
+    Route::post('/keys/request',        [KeyRequestController::class, 'submit']);
+    Route::get ('/keys/request/{id}',   [KeyRequestController::class, 'status'])->where('id', '[0-9]+');
     
     // Validation
     Route::post('/validate', [LinkedDataApiController::class, 'validate']);
