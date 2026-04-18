@@ -87,16 +87,20 @@ Keys are managed under the existing `ahg-api` package.
 
 ## Next — API-3 internal migration
 
-These are the *consumers* of the new API, tracked for the split:
+Consumers of the new API, tracked for the split. Each migration uses a **try-API-first-with-fallback-to-service** pattern for safety during the transition — if the HTTP call throws or returns non-2xx, the controller falls back to the direct service call so the UI never breaks.
 
-1. **`RicEntityController::storeEntity` (AJAX admin)** — currently calls `$this->service->createPlace()` etc. directly. Migrate to fetch `POST /api/ric/v1/{type}` via Laravel's `Http` facade, inheriting the session auth → server still handles it locally but through the HTTP layer.
-2. **`RicEntityController::updateEntity`** / **`updateEntityForm`** — same pattern, for PATCH.
-3. **`RicEntityController::destroyEntity`** / **`destroyEntityForm`** — same, for DELETE.
-4. **`RicEntityController::storeRelation` / `updateRelationAjax` / `destroyRelation`** — same for relation CRUD.
-5. **Relation-editor modal** — already talks to `/admin/ric/entity-api/relation-*` via AJAX. Switch to `/api/ric/v1/relations*` directly and delete the admin wrappers.
-6. **`RicEntityController::browseRelations`** — switch to calling `/api/ric/v1/relations?q=…`.
+- [x] **`RicEntityController::browseRelations`** → `GET /api/ric/v1/relations?q=…` (shipped 2026-04-18). Renders a "Served via …" banner on the admin page to make the code path visible.
+- [x] **`RicEntityController::autocompleteEntities`** → `GET /api/ric/v1/autocomplete` (shipped 2026-04-18). Used by every FK picker across the admin UI; biggest blast radius of any single migration.
+- [ ] **`RicEntityController::getEntityInfo`** → `GET /api/ric/v1/entities/{id}/info` (info popovers) — **skipped for now** because the admin endpoint returns the *full* entity shape whereas the public one returns a minimal info card. Either broaden the public endpoint or keep the admin as an internal "details" endpoint.
+- [x] **`RicEntityController::entitiesForRecord`** → `GET /api/ric/v1/records/{id}/entities` (shipped 2026-04-18).
+- [x] **`RicEntityController::relationsForRecord`** → `GET /api/ric/v1/relations-for/{id}` (shipped 2026-04-18; public returns grouped {outgoing, incoming}, admin flattens back to the legacy array shape for front-end compat).
+- [ ] **`RicEntityController::storeEntity` (AJAX admin)** → `POST /api/ric/v1/{type}`. Auth complication: internal call needs to forward the admin session (cookies) or use a service-key. Tackle after the read migrations are all green.
+- [ ] **`RicEntityController::updateEntity`** / **`updateEntityForm`** → `PATCH /api/ric/v1/{type}/{id}` (same auth consideration).
+- [ ] **`RicEntityController::destroyEntity`** / **`destroyEntityForm`** → `DELETE /api/ric/v1/{type}/{id}`.
+- [ ] **`RicEntityController::storeRelation` / `updateRelationAjax` / `destroyRelation`** → `/api/ric/v1/relations` CRUD (same auth consideration).
+- [ ] **Relation-editor modal JS** — currently talks to `/admin/ric/entity-api/relation-*`. Switch the front-end to `/api/ric/v1/relations*` directly so the admin wrappers can be deleted.
 
-Each migration is ~1 file, should compose. Do incrementally: one page, verify, next. Once all admin controllers are HTTP-only callers, the **ahg-ric package can be lifted into its own Laravel service** and Heratio becomes a true client.
+Each migration is ~1 file, composes. Once all admin controllers are HTTP-only callers, the **ahg-ric package can be lifted into its own Laravel service** and Heratio becomes a true client.
 
 ---
 
@@ -105,3 +109,5 @@ Each migration is ~1 file, should compose. Do incrementally: one page, verify, n
 | Date | Change |
 |---|---|
 | 2026-04-18 | Initial write-side shipped: 6 entity/relation mutating endpoints, `api.auth:write` gating. Verified 401 without key, 201/200 with session. |
+| 2026-04-18 | API-3 migration started — `browseRelations` and `autocompleteEntities` now consume the public API with DB/service fallback. First two of 10 consumers migrated. |
+| 2026-04-18 | API-3 migration continues — `entitiesForRecord` and `relationsForRecord` now route through the public API. 4 of 10 read-side consumers done. Only writes + `getEntityInfo` (shape mismatch) remain on the read side. |

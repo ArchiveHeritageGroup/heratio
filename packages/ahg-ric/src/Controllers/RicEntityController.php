@@ -34,8 +34,17 @@ class RicEntityController extends Controller
      */
     public function entitiesForRecord(int $id): JsonResponse
     {
-        $entities = $this->service->getEntitiesForRecord($id);
-        return response()->json($entities);
+        // API-3 migration: try the public API first, fall back to direct service.
+        $apiUrl = rtrim(config('app.url'), '/') . "/api/ric/v1/records/{$id}/entities";
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(5)->get($apiUrl);
+            if ($response->successful()) {
+                return response()->json($response->json());
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[entitiesForRecord] API fallback: ' . $e->getMessage());
+        }
+        return response()->json($this->service->getEntitiesForRecord($id));
     }
 
     /**
@@ -117,18 +126,35 @@ class RicEntityController extends Controller
 
     /**
      * Autocomplete search across all entity types.
+     *
+     * API-3 migration: delegates to the public `/api/ric/v1/autocomplete` endpoint.
+     * The admin route remains for back-compat with existing UI JS (`_relation-editor`,
+     * `_fk-autocomplete`, etc.) — can be deleted once all JS consumers reference
+     * the public URL directly.
      */
     public function autocompleteEntities(Request $request): JsonResponse
     {
         $query = $request->input('q', '');
-        $types = $request->input('types');
-        $limit = (int) $request->input('limit', 20);
-
         if (strlen($query) < 2) {
             return response()->json([]);
         }
 
-        $results = $this->service->autocompleteEntities($query, $types, $limit);
+        $apiUrl = rtrim(config('app.url'), '/') . '/api/ric/v1/autocomplete';
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(5)->get($apiUrl, [
+                'q' => $query,
+                'types' => $request->input('types'),
+                'limit' => (int) $request->input('limit', 20),
+            ]);
+            if ($response->successful()) {
+                return response()->json($response->json());
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[autocomplete] API call failed, falling back to service: ' . $e->getMessage());
+        }
+
+        // Fallback: direct service call.
+        $results = $this->service->autocompleteEntities($query, $request->input('types'), (int) $request->input('limit', 20));
         return response()->json($results);
     }
 
@@ -164,8 +190,21 @@ class RicEntityController extends Controller
      */
     public function relationsForRecord(int $id): JsonResponse
     {
-        $relations = $this->service->getRelationsForEntity($id);
-        return response()->json($relations);
+        // API-3 migration: try the public API first, fall back to direct service.
+        // Public endpoint returns grouped {outgoing, incoming}; admin JS expects a
+        // flat array with per-row `direction`, so we merge back.
+        $apiUrl = rtrim(config('app.url'), '/') . "/api/ric/v1/relations-for/{$id}";
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(5)->get($apiUrl);
+            if ($response->successful()) {
+                $payload = $response->json();
+                $flat = array_merge($payload['outgoing'] ?? [], $payload['incoming'] ?? []);
+                return response()->json($flat);
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[relationsForRecord] API fallback: ' . $e->getMessage());
+        }
+        return response()->json($this->service->getRelationsForEntity($id));
     }
 
     /**
@@ -461,10 +500,31 @@ class RicEntityController extends Controller
      */
     public function browseRelations(Request $request)
     {
+        // API-3 migration: this admin page is now a pure consumer of the public
+        // RiC API. Falls back to the direct DB query if the API call fails for
+        // any reason (keeps the page working during infra/deploy transitions).
         $q = trim((string) $request->input('q', ''));
         $page = max(1, (int) $request->input('page', 1));
         $perPage = 50;
 
+        $apiUrl = rtrim(config('app.url'), '/') . '/api/ric/v1/relations';
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(5)
+                ->get($apiUrl, ['q' => $q, 'page' => $page, 'per_page' => $perPage]);
+            if ($response->successful()) {
+                $payload = $response->json();
+                $rows = collect($payload['data'] ?? [])->map(fn ($r) => (object) $r);
+                $total = (int) ($payload['pagination']['total'] ?? 0);
+                return view('ahg-ric::relations.browse', [
+                    'rows' => $rows, 'total' => $total, 'page' => $page, 'perPage' => $perPage, 'q' => $q,
+                    'sourceBanner' => 'Served via /api/ric/v1/relations (API-3 migration)',
+                ]);
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[browseRelations] API call failed, falling back to direct DB: ' . $e->getMessage());
+        }
+
+        // Fallback: direct DB query (legacy path)
         $query = \Illuminate\Support\Facades\DB::table('relation as r')
             ->join('ric_relation_meta as m', 'r.id', '=', 'm.relation_id')
             ->leftJoin('object as subj_o', 'r.subject_id', '=', 'subj_o.id')
@@ -488,11 +548,8 @@ class RicEntityController extends Controller
         $rows = $query->forPage($page, $perPage)->get();
 
         return view('ahg-ric::relations.browse', [
-            'rows' => $rows,
-            'total' => $total,
-            'page' => $page,
-            'perPage' => $perPage,
-            'q' => $q,
+            'rows' => $rows, 'total' => $total, 'page' => $page, 'perPage' => $perPage, 'q' => $q,
+            'sourceBanner' => 'Served via direct DB fallback (API unreachable)',
         ]);
     }
 

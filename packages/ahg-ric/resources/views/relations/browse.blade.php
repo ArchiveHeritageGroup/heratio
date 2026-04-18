@@ -7,6 +7,9 @@
     <a href="{{ route('ric.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> RiC Dashboard</a>
 </div>
 <p class="text-muted small">Global view of every relation in the triple store. Relations are edited inline on individual entity show pages.</p>
+@isset($sourceBanner)
+    <div class="alert alert-info small py-1 px-2 mb-3"><i class="fas fa-info-circle me-1"></i>{{ $sourceBanner }}</div>
+@endisset
 <form method="get" class="mb-3">
     <div class="input-group input-group-sm" style="max-width:500px">
         <input type="text" name="q" class="form-control" placeholder="Search predicate / dropdown code / evidence…" value="{{ $q ?? '' }}">
