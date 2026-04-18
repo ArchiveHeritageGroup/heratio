@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Route;
 use AhgRic\Http\Controllers\LinkedDataApiController;
 use AhgRic\Http\Controllers\OaiPmhController;
 use AhgRic\Http\Controllers\KeyRequestController;
+use AhgRic\Http\Controllers\ImportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,6 +88,11 @@ Route::prefix('api/ric/v1')->middleware(['throttle:60,1', 'api.cors'])->group(fu
     Route::get('/sparql', [LinkedDataApiController::class, 'sparql']);
     Route::get('/graph', [LinkedDataApiController::class, 'graph']);
 
+    // Thumbnails — derivative of /uploads/. Generates + caches on first call.
+    // Public (no auth) since the /uploads/ files themselves are public.
+    Route::get('/thumbnail/{id}', [LinkedDataApiController::class, 'thumbnail'])
+        ->where('id', '[0-9]+');
+
     // OAI-PMH v2.0 — standard archival harvest protocol.
     // Accepts both GET and POST per the OAI-PMH spec.
     Route::match(['get', 'post'], '/oai', [OaiPmhController::class, 'handle']);
@@ -125,6 +131,11 @@ Route::prefix('api/ric/v1')->middleware(['throttle:60,1', 'api.cors'])->group(fu
     // Entity info card (API-R-7)
     Route::get('/entities/{id}/info', [LinkedDataApiController::class, 'entityInfo'])->where('id', '[0-9]+');
 
+    // Audit-log revisions for one entity.
+    Route::get('/{type}/{id}/revisions', [LinkedDataApiController::class, 'entityRevisions'])
+        ->where('type', 'places|rules|activities|instantiations|agents|records|repositories|functions|relations')
+        ->where('id', '[0-9]+');
+
     // Relation types with domain/range filter (API-R-8)
     Route::get('/relation-types', [LinkedDataApiController::class, 'relationTypes']);
 
@@ -135,6 +146,10 @@ Route::prefix('api/ric/v1')->middleware(['throttle:60,1', 'api.cors'])->group(fu
     // API-2 write surface — gated by api.auth:write
     // ------------------------------------------------------------
     Route::middleware(['api.auth:write'])->group(function () {
+        // Bulk import (CSV or JSON). See AhgRic\Http\Controllers\ImportController
+        // for query params; supports ?type=places|agents|records|... and &dry_run=1.
+        Route::post('/import', [ImportController::class, 'import']);
+
         // File / content upload (images, PDFs, audio, any binary)
         // Returns {id, url, mime, size, filename}; the url is publicly reachable
         // without the API key (for embedding in UIs, IIIF manifests, etc.).

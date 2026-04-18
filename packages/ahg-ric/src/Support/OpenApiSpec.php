@@ -266,6 +266,44 @@ class OpenApiSpec
             [], ['200' => ['description' => 'Validation report',
                 'content' => ['application/json' => ['schema' => ['type' => 'object']]]]], 'ValidateRequest')];
 
+        // -------- Bulk import + thumbnails + revisions --------
+        $paths['/import'] = ['post' => array_merge(
+            self::op('Uploads', 'Bulk-create entities from CSV or JSON',
+                [['name' => 'type', 'in' => 'query', 'required' => true,
+                  'schema' => ['type' => 'string',
+                    'enum' => ['places', 'rules', 'activities', 'instantiations', 'agents', 'records', 'repositories', 'functions']]],
+                 ['name' => 'format', 'in' => 'query',
+                  'schema' => ['type' => 'string', 'enum' => ['csv', 'json']]],
+                 ['name' => 'dry_run', 'in' => 'query',
+                  'schema' => ['type' => 'boolean', 'default' => false]]],
+                ['201' => ['description' => 'Per-row report',
+                    'content' => ['application/json' => ['schema' => ['$ref' => '#/components/schemas/ImportResponse']]]],
+                 '413' => ['description' => 'Too many rows (default 10 000)']], null, true),
+            ['requestBody' => ['content' => [
+                'multipart/form-data' => ['schema' => ['type' => 'object',
+                    'properties' => ['file' => ['type' => 'string', 'format' => 'binary']]]],
+                'application/json' => ['schema' => ['oneOf' => [
+                    ['type' => 'array', 'items' => ['type' => 'object']],
+                    ['type' => 'object', 'properties' => ['rows' => ['type' => 'array', 'items' => ['type' => 'object']]]],
+                ]]],
+            ]]])];
+
+        $paths['/thumbnail/{id}'] = ['get' => self::op('Uploads', 'Derivative thumbnail for a digital_object id',
+            [['name' => 'id', 'in' => 'path', 'required' => true, 'schema' => ['type' => 'integer']],
+             ['name' => 'w', 'in' => 'query', 'schema' => ['type' => 'integer', 'enum' => [150, 300, 600, 1200], 'default' => 300]],
+             ['name' => 'h', 'in' => 'query', 'schema' => ['type' => 'integer', 'enum' => [150, 300, 600, 1200]]]],
+            ['302' => ['description' => 'Redirect to the cached thumbnail file URL'],
+             '404' => ['description' => 'Digital object or source file not found'],
+             '415' => ['description' => 'Source is not an image']])];
+
+        $paths['/{type}/{id}/revisions'] = ['get' => self::op('Discovery', 'Audit-log entries for one entity',
+            [['name' => 'type', 'in' => 'path', 'required' => true,
+              'schema' => ['type' => 'string', 'enum' => ['places', 'rules', 'activities', 'instantiations', 'agents', 'records', 'repositories', 'functions', 'relations']]],
+             ['name' => 'id', 'in' => 'path', 'required' => true, 'schema' => ['type' => 'integer']],
+             ['name' => 'limit', 'in' => 'query', 'schema' => ['type' => 'integer', 'default' => 50, 'maximum' => 200]]],
+            ['200' => ['description' => 'Revision list',
+                'content' => ['application/json' => ['schema' => ['$ref' => '#/components/schemas/RevisionList']]]]])];
+
         // -------- Self-service key request (no auth) --------
         $paths['/keys/request'] = [
             'get'  => self::op('Keys', 'Key request form (HTML)', [],
@@ -335,8 +373,35 @@ class OpenApiSpec
                 'openric:edges' => ['type' => 'array', 'items' => ['type' => 'object']]]],
             'UploadResponse' => ['type' => 'object', 'properties' => [
                 'id' => ['type' => 'integer'], 'url' => ['type' => 'string', 'format' => 'uri'],
+                'thumbnail_url' => ['type' => 'string', 'format' => 'uri', 'nullable' => true,
+                    'description' => 'Non-null when the upload was an image and a default-size thumbnail was generated on write.'],
                 'mime' => ['type' => 'string'], 'size' => ['type' => 'integer'],
                 'filename' => ['type' => 'string'], 'path' => ['type' => 'string']]],
+
+            'ImportResponse' => ['type' => 'object', 'properties' => [
+                'type' => ['type' => 'string'],
+                'dry_run' => ['type' => 'boolean'],
+                'total' => ['type' => 'integer'],
+                'succeeded' => ['type' => 'integer'],
+                'failed' => ['type' => 'integer'],
+                'duration_ms' => ['type' => 'integer'],
+                'created' => ['type' => 'array', 'items' => ['type' => 'object', 'properties' => [
+                    'row' => ['type' => 'integer'], 'id' => ['type' => 'integer'],
+                    'slug' => ['type' => 'string'], 'label' => ['type' => 'string']]]],
+                'errors' => ['type' => 'array', 'items' => ['type' => 'object', 'properties' => [
+                    'row' => ['type' => 'integer'], 'error' => ['type' => 'string'], 'label' => ['type' => 'string']]]]]],
+
+            'RevisionList' => ['type' => 'object', 'properties' => [
+                '@type' => ['type' => 'string', 'example' => 'openric:RevisionList'],
+                'entity' => ['type' => 'object', 'properties' => [
+                    'type' => ['type' => 'string'], 'id' => ['type' => 'integer']]],
+                'total' => ['type' => 'integer'],
+                'items' => ['type' => 'array', 'items' => ['type' => 'object', 'properties' => [
+                    'id' => ['type' => 'integer'],
+                    'action' => ['type' => 'string', 'enum' => ['create', 'update', 'delete']],
+                    'actor' => ['type' => 'string'], 'ip' => ['type' => 'string'],
+                    'payload' => ['type' => 'object', 'nullable' => true],
+                    'created_at' => ['type' => 'string', 'format' => 'date-time']]]]]],
 
             'AgentCreate' => ['type' => 'object', 'required' => ['name'], 'properties' => [
                 'name' => ['type' => 'string', 'description' => 'Authorised form of name'],

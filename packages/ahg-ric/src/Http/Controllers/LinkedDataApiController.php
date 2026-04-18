@@ -53,7 +53,8 @@ class LinkedDataApiController extends Controller
         $limit = min($request->get('limit', 50), 200);
         $type = $request->get('type'); // person, corporate body, family
 
-        $culture = app()->getLocale() ?: 'en';
+        // Culture filter — accept ?culture=fr|nl|de|etc.; fall back to app locale.
+        $culture = $this->resolveCulture($request);
         $query = \DB::table('actor as a')
             ->leftJoin('actor_i18n as i18n', function ($j) use ($culture) {
                 $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
@@ -131,7 +132,7 @@ class LinkedDataApiController extends Controller
         $page = $request->get('page', 1);
         $limit = min($request->get('limit', 50), 200);
         $level = $request->get('level'); // fonds, series, file, item
-        $culture = app()->getLocale() ?: 'en';
+        $culture = $this->resolveCulture($request);
 
         // Filter every _i18n join by culture — without this, one IO row with
         // three translations appears three times (a regression seen in v0.2.x).
@@ -208,8 +209,9 @@ class LinkedDataApiController extends Controller
      * GET /api/ric/v1/records/{slug}/export
      * Export entire record set as JSON-LD graph
      */
-    public function exportRecordSet(string $slug): JsonResponse
+    public function exportRecordSet(string $slug, Request $request = null): \Symfony\Component\HttpFoundation\Response
     {
+        $request = $request ?: request();
         $io = \DB::table('information_object')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
@@ -220,12 +222,41 @@ class LinkedDataApiController extends Controller
             return response()->json(['error' => 'Record not found'], 404);
         }
 
-        $graph = $this->serializer->exportRecordSet($io->id, ['pretty' => true]);
+        // pretty=true returns a JSON string; we need the array so Turtle + RDF/XML
+        // converters (and default JSON-LD response) can all consume the same shape.
+        $graph = $this->serializer->exportRecordSet($io->id);
 
-        return response()->json($graph, 200, [
-            'Content-Type' => 'application/ld+json',
-            'Content-Disposition' => 'attachment; filename="' . $slug . '-ric.jsonld"',
-        ]);
+        // Content negotiation — ?format= takes precedence over Accept.
+        $format = strtolower((string) $request->query('format', ''));
+        if (!$format) {
+            $accept = strtolower((string) $request->header('Accept', ''));
+            if (str_contains($accept, 'text/turtle'))       $format = 'ttl';
+            elseif (str_contains($accept, 'application/rdf+xml')) $format = 'rdf';
+            else                                            $format = 'jsonld';
+        }
+
+        switch ($format) {
+            case 'ttl':
+            case 'turtle':
+                $body = \AhgRic\Support\JsonLdConverter::toTurtle($graph);
+                return response($body, 200, [
+                    'Content-Type' => 'text/turtle; charset=utf-8',
+                    'Content-Disposition' => 'attachment; filename="' . $slug . '-ric.ttl"',
+                ]);
+            case 'rdf':
+            case 'rdfxml':
+            case 'rdf+xml':
+                $body = \AhgRic\Support\JsonLdConverter::toRdfXml($graph);
+                return response($body, 200, [
+                    'Content-Type' => 'application/rdf+xml; charset=utf-8',
+                    'Content-Disposition' => 'attachment; filename="' . $slug . '-ric.rdf"',
+                ]);
+            default:
+                return response()->json($graph, 200, [
+                    'Content-Type' => 'application/ld+json',
+                    'Content-Disposition' => 'attachment; filename="' . $slug . '-ric.jsonld"',
+                ]);
+        }
     }
 
     /**
@@ -1639,9 +1670,65 @@ class LinkedDataApiController extends Controller
         return response()->json(['items' => $items, 'count' => count($items)]);
     }
 
+    /**
+     * GET /api/ric/v1/{type}/{id}/revisions
+     * Return the audit-log entries for one entity. Public (reads are public);
+     * sensitive keys are already redacted at write time.
+     */
+    public function entityRevisions(string $type, int $id, Request $request): JsonResponse
+    {
+        $limit = min((int) $request->query('limit', 50), 200);
+        // Audit rows store the singular form (place, record, …); accept the
+        // plural URL segment (places, records, …) and normalise here.
+        $singular = ['places' => 'place', 'rules' => 'rule', 'activities' => 'activity',
+                     'instantiations' => 'instantiation', 'agents' => 'agent', 'records' => 'record',
+                     'repositories' => 'repository', 'functions' => 'function', 'relations' => 'relation'];
+        $entityType = $singular[$type] ?? rtrim($type, 's');
+        $rows = DB::table('openric_audit_log')
+            ->where('entity_type', $entityType)
+            ->where('entity_id', $id)
+            ->orderByDesc('id')
+            ->limit($limit)
+            ->get([
+                'id', 'action', 'entity_type', 'entity_id',
+                'api_key_id', 'requester_ip', 'payload_json', 'created_at',
+            ]);
+
+        $items = $rows->map(fn($r) => [
+            'id'         => (int) $r->id,
+            'action'     => $r->action,
+            'entity'     => ['type' => $r->entity_type, 'id' => (int) $r->entity_id],
+            'actor'      => $r->api_key_id ? "api_key:{$r->api_key_id}" : 'session',
+            'ip'         => $r->requester_ip,
+            'payload'    => $r->payload_json ? json_decode($r->payload_json, true) : null,
+            'created_at' => $r->created_at,
+        ]);
+
+        return response()->json([
+            '@type' => 'openric:RevisionList',
+            'entity' => ['type' => $type, 'id' => $id],
+            'total' => $rows->count(),
+            'items' => $items,
+        ]);
+    }
+
     // ================================================================
     // API-2 WRITE SURFACE — gated by api.auth:write middleware on the route.
     // ================================================================
+
+    /**
+     * Resolve the culture for a list query. Accepts ?culture=xx where xx is
+     * a 2–5 char locale (en, fr, nl, de-DE, …). Falls back to the app's
+     * default locale. Prevents injection via a strict regex.
+     */
+    private function resolveCulture(Request $request): string
+    {
+        $raw = (string) $request->get('culture', '');
+        if ($raw && preg_match('/^[a-zA-Z]{2,3}(-[a-zA-Z]{2,4})?$/', $raw)) {
+            return strtolower($raw);
+        }
+        return app()->getLocale() ?: 'en';
+    }
 
     private function assertEntityTypeAllowed(string $type): void
     {
@@ -1666,6 +1753,7 @@ class LinkedDataApiController extends Controller
                 'instantiations' => $this->entities->createInstantiation($data),
             };
             $slug = DB::table('slug')->where('object_id', $id)->value('slug');
+            \AhgRic\Support\AuditLog::record($request, 'create', rtrim($type, 's'), $id, $data);
             return response()->json([
                 'id' => $id,
                 'slug' => $slug,
@@ -1693,6 +1781,7 @@ class LinkedDataApiController extends Controller
                 'activities' => $this->entities->updateActivity($id, $data),
                 'instantiations' => $this->entities->updateInstantiation($id, $data),
             };
+            \AhgRic\Support\AuditLog::record($request, 'update', rtrim($type, 's'), $id, $data);
             return response()->json(['success' => true, 'id' => $id]);
         } catch (\Throwable $e) {
             Log::error('[RiC API] updateEntity failed', ['type' => $type, 'id' => $id, 'error' => $e->getMessage()]);
@@ -1736,6 +1825,7 @@ class LinkedDataApiController extends Controller
                 'activities' => $this->entities->deleteActivity($id),
                 'instantiations' => $this->entities->deleteInstantiation($id),
             };
+            \AhgRic\Support\AuditLog::record(request(), 'delete', rtrim($type, 's'), $id);
             return response()->json(['success' => true, 'id' => $id]);
         } catch (\Throwable $e) {
             Log::error('[RiC API] deleteEntity failed', ['type' => $type, 'id' => $id, 'error' => $e->getMessage()]);
@@ -1760,6 +1850,7 @@ class LinkedDataApiController extends Controller
         try {
             $id = $this->entities->createAgent($data);
             $slug = DB::table('slug')->where('object_id', $id)->value('slug');
+            \AhgRic\Support\AuditLog::record($request, 'create', 'agent', $id, $data);
             return response()->json([
                 'id' => $id,
                 'slug' => $slug,
@@ -1825,6 +1916,7 @@ class LinkedDataApiController extends Controller
         try {
             $id = $this->entities->createRecord($data);
             $slug = DB::table('slug')->where('object_id', $id)->value('slug');
+            \AhgRic\Support\AuditLog::record($request, 'create', 'record', $id, $data);
             return response()->json([
                 'id' => $id,
                 'slug' => $slug,
@@ -1888,6 +1980,7 @@ class LinkedDataApiController extends Controller
         try {
             $id = $this->entities->createRepository($data);
             $slug = DB::table('slug')->where('object_id', $id)->value('slug');
+            \AhgRic\Support\AuditLog::record($request, 'create', 'repository', $id, $data);
             return response()->json([
                 'id' => $id, 'slug' => $slug, 'type' => 'repository',
                 'href' => "/api/ric/v1/repositories/" . ($slug ?: $id),
@@ -1937,6 +2030,7 @@ class LinkedDataApiController extends Controller
         try {
             $id = $this->entities->createFunction($data);
             $slug = DB::table('slug')->where('object_id', $id)->value('slug');
+            \AhgRic\Support\AuditLog::record($request, 'create', 'function', $id, $data);
             return response()->json([
                 'id' => $id, 'slug' => $slug, 'type' => 'function',
                 'href' => "/api/ric/v1/functions/{$id}",
@@ -2040,8 +2134,14 @@ class LinkedDataApiController extends Controller
             return response()->json(['error' => 'invalid_file', 'message' => $file->getErrorMessage()], 422);
         }
 
+        // Capture file metadata BEFORE move() — once the temp file moves,
+        // SplFileInfo's stat-based methods (getSize / getMimeType) fail.
+        $origName = $file->getClientOriginalName();
+        $origMime = $file->getClientMimeType() ?: ($file->getMimeType() ?: 'application/octet-stream');
+        $origSize = $file->getSize();
+
         $maxBytes = (int) env('OPENRIC_UPLOAD_MAX_BYTES', 100 * 1024 * 1024); // 100 MB default
-        if ($file->getSize() > $maxBytes) {
+        if ($origSize > $maxBytes) {
             return response()->json(['error' => 'too_large', 'message' => "Max upload size is {$maxBytes} bytes."], 413);
         }
 
@@ -2061,28 +2161,78 @@ class LinkedDataApiController extends Controller
         $url = $publicBase . '/uploads/' . $relative;
 
         // Record a row in digital_object so the file is discoverable alongside
-        // RiC entities. Wrapped in try — this is a secondary concern.
+        // RiC entities. AtoM's schema: digital_object.id is not auto-increment
+        // — it's a foreign key into object(id) for class-table inheritance. So
+        // we insert an object row first (class_name=QubitDigitalObject), then
+        // use its id for the digital_object row.
         $digitalObjectId = null;
         try {
-            $digitalObjectId = \Illuminate\Support\Facades\DB::table('digital_object')->insertGetId([
-                'name' => $file->getClientOriginalName(),
-                'path' => $relative,
-                'mime_type' => $file->getClientMimeType() ?: $file->getMimeType(),
-                'byte_size' => $file->getSize(),
-                'created_at' => now(),
-                'updated_at' => now(),
+            $digitalObjectId = \Illuminate\Support\Facades\DB::table('object')->insertGetId([
+                'class_name'    => 'QubitDigitalObject',
+                'created_at'    => now(),
+                'updated_at'    => now(),
+                'serial_number' => 0,
+            ]);
+            \Illuminate\Support\Facades\DB::table('digital_object')->insert([
+                'id'        => $digitalObjectId,
+                'name'      => $origName,
+                'path'      => $relative,
+                'mime_type' => $origMime,
+                'byte_size' => $origSize,
             ]);
         } catch (\Throwable $e) {
             Log::warning('[uploadContent] digital_object insert failed: ' . $e->getMessage());
+            $digitalObjectId = null;
+        }
+
+        // Generate a default-size thumbnail on upload if the file is an image.
+        // Other sizes are generated lazily on first GET /thumbnail request.
+        $thumbnailUrl = null;
+        if (str_starts_with($origMime, 'image/')) {
+            try {
+                \AhgRic\Support\Thumbnailer::ensure($absPath);
+                $thumbnailUrl = \AhgRic\Support\Thumbnailer::publicUrlFor($absPath);
+            } catch (\Throwable $e) {
+                Log::warning('[uploadContent] thumbnail generation failed: ' . $e->getMessage());
+            }
         }
 
         return response()->json([
-            'id'       => $digitalObjectId ?: $uuid,
-            'url'      => $url,
-            'mime'     => $file->getClientMimeType() ?: $file->getMimeType() ?: 'application/octet-stream',
-            'size'     => $file->getSize(),
-            'filename' => $file->getClientOriginalName(),
-            'path'     => $relative,
+            'id'            => $digitalObjectId ?: $uuid,
+            'url'           => $url,
+            'thumbnail_url' => $thumbnailUrl,
+            'mime'          => $origMime,
+            'size'          => $origSize,
+            'filename'      => $origName,
+            'path'          => $relative,
         ], 201);
+    }
+
+    /**
+     * GET /api/ric/v1/thumbnail/{id}?w=300&h=300
+     * Returns (or generates-then-returns) a thumbnail for a digital_object
+     * row. Redirects to the cached file URL on success so nginx serves the
+     * subsequent bytes directly.
+     */
+    public function thumbnail(Request $request, int $id): \Symfony\Component\HttpFoundation\Response
+    {
+        $row = DB::table('digital_object')->where('id', $id)->first(['path', 'mime_type']);
+        if (!$row) return response()->json(['error' => 'not_found'], 404);
+
+        $sourceAbs = storage_path('app/uploads/' . $row->path);
+        if (!file_exists($sourceAbs)) return response()->json(['error' => 'source_missing'], 404);
+        if (!str_starts_with((string) $row->mime_type, 'image/')) {
+            return response()->json(['error' => 'not_an_image', 'mime' => $row->mime_type], 415);
+        }
+
+        $w = (int) $request->query('w', \AhgRic\Support\Thumbnailer::DEFAULT_WIDTH);
+        $h = (int) $request->query('h', $w);  // default to square
+
+        $thumbPath = \AhgRic\Support\Thumbnailer::ensure($sourceAbs, $w, $h);
+        if (!$thumbPath) {
+            return response()->json(['error' => 'thumbnail_failed'], 500);
+        }
+
+        return redirect(\AhgRic\Support\Thumbnailer::publicUrlFor($sourceAbs, $w, $h), 302);
     }
 }

@@ -377,7 +377,15 @@
       "Bash(sudo -u www-data bash -c 'head -3 /etc/msmtprc')",
       "Bash(sudo -u www-data bash -c 'echo -e \"Subject: direct msmtp test\\\\nFrom: pieterse.johan3@gmail.com\\\\nTo: johan@theahg.co.za\\\\n\\\\nDirect test from www-data.\" | /usr/sbin/sendmail -bs -i johan@theahg.co.za')",
       "Bash(sudo tee *)",
-      "Bash(sudo newaliases *)"
+      "Bash(sudo newaliases *)",
+      "Bash(sudo cp *)",
+      "Bash(dpkg -l imagemagick)",
+      "Bash(sudo mkdir *)",
+      "Bash(sudo wc *)",
+      "Bash(sudo -u www-data bash -c 'mkdir -p /usr/share/nginx/OpenRiC/storage/app/thumbnails/2026/04 && echo \"www-data can mkdir\"')",
+      "Bash(sudo -u www-data bash -c 'convert -version')",
+      "Bash(sudo -u www-data bash -c 'command -v convert')",
+      "Bash(sudo -u www-data php -r ' *)"
     ]
   }
 }
