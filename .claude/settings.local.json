@@ -354,7 +354,8 @@
       "Bash(cp /usr/share/nginx/heratio/public/vendor/ahg-ric/js/cytoscape.min.js /usr/share/nginx/openric-spec/demo/js/cytoscape.min.js)",
       "Bash(xargs -I {} sh -c 'echo \"### {} ###\"; grep -n plainsailingisystems \"{}\"')",
       "Bash(xargs sed *)",
-      "Bash(openssl s_client -connect viewer.openric.org:443 -servername viewer.openric.org)"
+      "Bash(openssl s_client -connect viewer.openric.org:443 -servername viewer.openric.org)",
+      "Bash(npm test *)"
     ]
   }
 }

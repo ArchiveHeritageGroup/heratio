@@ -752,6 +752,15 @@ class LinkedDataApiController extends Controller
                     $graph = $this->buildInstantiationGraph((int) $lastSegment, $baseUri, $instanceId);
                 }
                 break;
+
+            case 'term':
+            case 'thing':
+            case 'concept':
+            case 'subject':
+                if (ctype_digit($lastSegment)) {
+                    $graph = $this->buildTermGraph((int) $lastSegment, $baseUri, $instanceId);
+                }
+                break;
         }
 
         if (!$graph || empty($graph['nodes'])) {
@@ -1126,6 +1135,81 @@ class LinkedDataApiController extends Controller
                 'predicate' => 'rico:hasInstantiation', 'label' => 'has instantiation',
             ];
         }
+        return ['nodes' => $nodes, 'edges' => $edges];
+    }
+
+    /**
+     * Build a subgraph rooted at a Term (rico:Thing / Concept / Subject).
+     *
+     * Returns: the term, its parent term (if any), up to 10 sibling terms,
+     * and up to 20 records tagged with this term.
+     */
+    private function buildTermGraph(int $termId, string $baseUri, string $instanceId): array
+    {
+        $term = DB::table('term')
+            ->leftJoin('term_i18n', function ($j) {
+                $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', 'en');
+            })
+            ->where('term.id', $termId)
+            ->select('term.id', 'term.taxonomy_id', 'term.parent_id', 'term_i18n.name')
+            ->first();
+        if (!$term) return ['nodes' => [], 'edges' => []];
+
+        $rootUri = $baseUri . '/' . $instanceId . '/term/' . $termId;
+        $nodes = [[
+            'id' => $rootUri,
+            'label' => $term->name ?: 'Term ' . $termId,
+            'type' => 'Thing',
+        ]];
+        $edges = [];
+
+        // Parent term.
+        if ($term->parent_id) {
+            $parent = DB::table('term')
+                ->leftJoin('term_i18n', function ($j) {
+                    $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', 'en');
+                })
+                ->where('term.id', $term->parent_id)
+                ->select('term.id', 'term_i18n.name')
+                ->first();
+            if ($parent) {
+                $parentUri = $baseUri . '/' . $instanceId . '/term/' . $parent->id;
+                $nodes[] = [
+                    'id' => $parentUri,
+                    'label' => $parent->name ?: 'Term ' . $parent->id,
+                    'type' => 'Thing',
+                ];
+                $edges[] = [
+                    'source' => $rootUri, 'target' => $parentUri,
+                    'predicate' => 'rico:hasBroaderConcept', 'label' => 'broader',
+                ];
+            }
+        }
+
+        // Records tagged with this term (via object_term_relation).
+        $records = DB::table('object_term_relation as otr')
+            ->join('information_object as io', 'otr.object_id', '=', 'io.id')
+            ->leftJoin('information_object_i18n as io_i18n', function ($j) {
+                $j->on('io.id', '=', 'io_i18n.id')->where('io_i18n.culture', 'en');
+            })
+            ->where('otr.term_id', $termId)
+            ->select('io.id', 'io_i18n.title')
+            ->limit(20)
+            ->get();
+
+        foreach ($records as $r) {
+            $recUri = $baseUri . '/' . $instanceId . '/recordset/' . $r->id;
+            $nodes[] = [
+                'id' => $recUri,
+                'label' => $r->title ?: 'Record ' . $r->id,
+                'type' => 'RecordSet',
+            ];
+            $edges[] = [
+                'source' => $recUri, 'target' => $rootUri,
+                'predicate' => 'rico:hasSubject', 'label' => 'has subject',
+            ];
+        }
+
         return ['nodes' => $nodes, 'edges' => $edges];
     }
 
