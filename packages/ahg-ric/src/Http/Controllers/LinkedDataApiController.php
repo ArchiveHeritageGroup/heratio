@@ -761,6 +761,13 @@ class LinkedDataApiController extends Controller
                     $graph = $this->buildTermGraph((int) $lastSegment, $baseUri, $instanceId);
                 }
                 break;
+
+            case 'date':
+            case 'event':
+                if (ctype_digit($lastSegment)) {
+                    $graph = $this->buildDateGraph((int) $lastSegment, $baseUri, $instanceId);
+                }
+                break;
         }
 
         if (!$graph || empty($graph['nodes'])) {
@@ -1208,6 +1215,101 @@ class LinkedDataApiController extends Controller
                 'source' => $recUri, 'target' => $rootUri,
                 'predicate' => 'rico:hasSubject', 'label' => 'has subject',
             ];
+        }
+
+        return ['nodes' => $nodes, 'edges' => $edges];
+    }
+
+    /**
+     * Build a subgraph for a date / event entity. Shape:
+     *   date-node  ←(rico:hasBeginningDate/hasEndDate/hasDate)—  parent entity
+     * where the parent is the information_object (event.object_id) or the
+     * actor (event.actor_id) the date is attached to. Uses the event's
+     * type term for the predicate label (Creation, Birth, Death, etc.).
+     */
+    private function buildDateGraph(int $eventId, string $baseUri, string $instanceId): array
+    {
+        $event = DB::table('event as e')
+            ->leftJoin('term_i18n as ti', function ($j) {
+                $j->on('e.type_id', '=', 'ti.id')->where('ti.culture', 'en');
+            })
+            ->where('e.id', $eventId)
+            ->select('e.id', 'e.object_id', 'e.actor_id', 'e.start_date', 'e.end_date',
+                    'e.type_id', 'ti.name as type_name')
+            ->first();
+        if (!$event) return ['nodes' => [], 'edges' => []];
+
+        // Human label for the date node.
+        $start = $event->start_date ?: '';
+        $end   = $event->end_date ?: '';
+        $dateLabel = trim(($start && $end && $start !== $end) ? "{$start} – {$end}" : ($start ?: $end ?: ('Date ' . $event->id)));
+        $typeLabel = $event->type_name ?: 'Date';
+        $fullLabel = $typeLabel . ($dateLabel ? ": {$dateLabel}" : '');
+
+        $rootUri = $baseUri . '/' . $instanceId . '/date/' . $event->id;
+        $nodes = [[
+            'id' => $rootUri,
+            'label' => $fullLabel,
+            'type' => 'Date',
+        ]];
+        $edges = [];
+
+        // Choose predicate based on the type name (best-effort mapping).
+        $typeLc = strtolower((string) $event->type_name);
+        $predicate = match (true) {
+            str_contains($typeLc, 'birth')         => 'rico:hasBirthDate',
+            str_contains($typeLc, 'death')         => 'rico:hasDeathDate',
+            str_contains($typeLc, 'creation')      => 'rico:hasCreationDate',
+            str_contains($typeLc, 'accumulation')  => 'rico:hasAccumulationDate',
+            str_contains($typeLc, 'existence')     => 'rico:hasDateOfExistence',
+            default                                => 'rico:hasDate',
+        };
+        $edgeLabel = strtolower(preg_replace('/([A-Z])/', ' $1', substr($predicate, 5)));
+
+        // Attach the parent information_object, if any.
+        if ($event->object_id) {
+            $io = DB::table('information_object as io')
+                ->leftJoin('information_object_i18n as i18n', function ($j) {
+                    $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', 'en');
+                })
+                ->where('io.id', $event->object_id)
+                ->select('io.id', 'i18n.title')
+                ->first();
+            if ($io) {
+                $ioUri = $baseUri . '/' . $instanceId . '/recordset/' . $io->id;
+                $nodes[] = [
+                    'id' => $ioUri,
+                    'label' => $io->title ?: 'Record ' . $io->id,
+                    'type' => 'RecordSet',
+                ];
+                $edges[] = [
+                    'source' => $ioUri, 'target' => $rootUri,
+                    'predicate' => $predicate, 'label' => trim($edgeLabel),
+                ];
+            }
+        }
+
+        // Attach the parent actor, if any.
+        if ($event->actor_id) {
+            $actor = DB::table('actor as a')
+                ->leftJoin('actor_i18n as ai', function ($j) {
+                    $j->on('a.id', '=', 'ai.id')->where('ai.culture', 'en');
+                })
+                ->where('a.id', $event->actor_id)
+                ->select('a.id', 'ai.authorized_form_of_name as name')
+                ->first();
+            if ($actor) {
+                $actorUri = $baseUri . '/' . $instanceId . '/actor/' . $actor->id;
+                $nodes[] = [
+                    'id' => $actorUri,
+                    'label' => $actor->name ?: 'Actor ' . $actor->id,
+                    'type' => 'Agent',
+                ];
+                $edges[] = [
+                    'source' => $actorUri, 'target' => $rootUri,
+                    'predicate' => $predicate, 'label' => trim($edgeLabel),
+                ];
+            }
         }
 
         return ['nodes' => $nodes, 'edges' => $edges];
