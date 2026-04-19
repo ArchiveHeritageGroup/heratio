@@ -104,3 +104,66 @@ Route::middleware('web')->group(function () {
         return redirect('https://capture.openric.org/', 302);
     })->name('ric.capture.studio');
 });
+
+// Linked-data IRI resolver. OpenRiC emits @id values shaped as
+// https://host/{instance}/{type}/{key} (see RicController::buildRecordUri).
+// Those IRIs are stable SPARQL subject identifiers but were not HTTP-routable.
+// This route content-negotiates Accept and 303-redirects to either the
+// JSON-LD API endpoint (machine clients) or the public slug page (browsers).
+Route::get('/{instance}/{type}/{key}', function (string $instance, string $type, string $key) {
+    $accept  = (string) request()->header('Accept', '');
+    $wantsLd = request()->wantsJson()
+        || str_contains($accept, 'ld+json')
+        || str_contains($accept, 'application/json')
+        || str_contains($accept, 'rdf+xml')
+        || str_contains($accept, 'turtle');
+
+    $apiMap = [
+        'record' => 'records', 'recordset' => 'records', 'informationobject' => 'records',
+        'agent' => 'agents', 'actor' => 'agents', 'person' => 'agents',
+        'corporatebody' => 'agents', 'family' => 'agents',
+        'repository' => 'repositories',
+        'function' => 'functions',
+        'place' => 'places',
+        'activity' => 'activities',
+        'rule' => 'rules',
+        'instantiation' => 'instantiations',
+    ];
+    $apiType = $apiMap[strtolower($type)] ?? null;
+    if (!$apiType) {
+        abort(404);
+    }
+
+    $slugTypes = ['records', 'agents', 'repositories'];
+    if (ctype_digit($key) && in_array($apiType, $slugTypes, true)) {
+        $resolvedSlug = \DB::table('slug')->where('object_id', (int) $key)->value('slug');
+        if ($resolvedSlug) {
+            $key = $resolvedSlug;
+        }
+    }
+
+    $headers = ['Vary' => 'Accept'];
+
+    if ($wantsLd) {
+        return redirect('/api/ric/v1/' . $apiType . '/' . $key, 303, $headers);
+    }
+
+    if ($apiType === 'records' || $apiType === 'agents') {
+        return redirect('/' . $key, 303, $headers);
+    }
+    if ($apiType === 'repositories') {
+        return redirect('/repository/' . $key, 303, $headers);
+    }
+
+    $singular = [
+        'functions' => 'function',
+        'places' => 'place',
+        'activities' => 'activity',
+        'rules' => 'rule',
+        'instantiations' => 'instantiation',
+    ][$apiType];
+    return redirect('/admin/ric/entities/' . $singular . '/' . $key, 303, $headers);
+})->where('instance', '[a-z0-9_-]+')
+  ->where('type', 'record|recordset|informationobject|agent|actor|person|corporatebody|family|repository|function|place|activity|rule|instantiation')
+  ->where('key', '[A-Za-z0-9_-]+')
+  ->name('openric.id-resolver');

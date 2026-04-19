@@ -385,7 +385,8 @@
       "Bash(sudo -u www-data bash -c 'mkdir -p /usr/share/nginx/OpenRiC/storage/app/thumbnails/2026/04 && echo \"www-data can mkdir\"')",
       "Bash(sudo -u www-data bash -c 'convert -version')",
       "Bash(sudo -u www-data bash -c 'command -v convert')",
-      "Bash(sudo -u www-data php -r ' *)"
+      "Bash(sudo -u www-data php -r ' *)",
+      "Bash(bundle exec *)"
     ]
   }
 }
