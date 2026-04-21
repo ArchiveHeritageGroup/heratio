@@ -126,7 +126,7 @@ class MediaController extends Controller
             }
         }
 
-        $metadata['created_at'] = now();
+        $metadata['extracted_at'] = now();
 
         DB::table('media_metadata')->updateOrInsert(
             ['digital_object_id' => $id],

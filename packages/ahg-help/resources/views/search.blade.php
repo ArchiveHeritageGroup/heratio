@@ -64,7 +64,7 @@
         </h2>
         <div class="list-group mb-4">
           @foreach($sectionResults as $result)
-            <a href="{{ route('help.article', $result['slug']) }}#{{ $result['anchor'] }}" class="list-group-item list-group-item-action">
+            <a href="{{ route('help.article', $result['slug']) }}#{{ $result['anchor'] ?? $result['id'] ?? '' }}" class="list-group-item list-group-item-action">
               <div>
                 <h6 class="mb-1">
                   {{ $result['heading'] }}

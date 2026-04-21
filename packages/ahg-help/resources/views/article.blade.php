@@ -26,8 +26,8 @@
             @foreach($toc as $entry)
               <li class="nav-item">
                 <a class="nav-link py-1 {{ ($entry['level'] ?? 2) === 3 ? 'ms-3 small' : '' }}"
-                  href="#{{ $entry['anchor'] }}">
-                  {{ $entry['text'] }}
+                  href="#{{ $entry['anchor'] ?? $entry['id'] ?? '' }}">
+                  {{ $entry['text'] ?? '' }}
                 </a>
               </li>
             @endforeach
