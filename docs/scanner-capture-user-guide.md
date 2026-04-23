@@ -204,25 +204,89 @@ still use the wizard ad-hoc.
 
 ## What's coming next
 
-Tracked phases from the [scanner integration plan](scanner-integration-plan.md):
+Every item below is cross-referenced against the [scanner integration
+plan](scanner-integration-plan.md). **Committed** items are assigned to a
+specific phase (§11 of the plan). **Open** items appear in §12 "Open
+questions" — the approach is drafted but the work has not been scheduled
+into a phase yet.
 
+Status legend: **P3 / P4 / P5 / P6 / P7** = plan phase. **Open** = not
+yet scheduled.
+
+- **Sector-aware destination routing (library / gallery / museum)** —
+  parses sector-specific fields from the sidecar and writes to
+  `library_item` / `gallery_artwork` / `museum_object` /
+  `museum_metadata`, plus optional Spectrum-workflow entry for museums.
+  Archive sector already works through path-layout. **Status: Committed —
+  plan P3.**
 - **Sidecar XML** (`<heratioScan>` envelope) — rich per-file metadata
-  without needing path encoding. All four sector profiles: archive (ISAD(G)
-  / EAD / DACS / RAD / RiC), library (MARC21 / MODS / RDA), gallery (CDWA /
-  VRA Core / LIDO), museum (Spectrum / LIDO / Darwin Core).
+  without path encoding. All four sector profiles inside the envelope:
+  archive (ISAD(G) / EAD / DACS / RAD / RiC), library (MARC21 / MODS /
+  RDA), gallery (CDWA / VRA Core / LIDO), museum (Spectrum / LIDO /
+  Darwin Core). DAM-augmentation block applies to all sectors.
+  **Status: Committed — envelope + parser in plan P5; sector-specific
+  field mapping in P3.**
 - **Scan API** (`/api/v2/scan/*`) — direct integration with scanner
-  applications (VueScan, NAPS2, custom). Wrapper scripts for PowerShell,
-  bash, and Python.
-- **Capture desktop helper** — a small cross-platform app for ad-hoc
-  archivist capture, browsing the hierarchy and uploading live.
-- **PREMIS events** + **DROID / PRONOM format identification** —
-  preservation record complete at ingest.
-- **Rights enforcement** — embargo, Creative Commons, ODRL, Traditional
-  Knowledge labels at ingest, with "awaiting rights" hold for classified
-  material.
-- **BagIt container ingest**, **EAD / MARC / MODS / LIDO native ingress
-  XSLTs**, **RAW → DNG preservation derivatives**, **audio / video / 3D
-  derivatives**.
+  applications (VueScan, NAPS2, ScanDirect, custom).
+  **Status: Committed — plan P5.**
+- **Wrapper scripts** for PowerShell, bash, Python — plug into scanner
+  apps' "post-scan" hooks without needing a desktop helper.
+  **Status: Committed — plan P5.**
+- **Capture desktop helper** — a small cross-platform app (Tauri
+  preferred) for ad-hoc archivist capture, browsing the hierarchy and
+  uploading live. **Status: Committed — plan P6.**
+- **PREMIS events** (virusCheck, format identification,
+  messageDigestCalculation, creation/derivation, replication) written to
+  `oais_premis_event` at each pipeline stage. **Status: Committed —
+  plan P4.**
+- **DROID / PRONOM format identification** against `oais_pronom_format`
+  + `preservation_format`, flagging obsolete formats for migration
+  planning. **Status: Committed — plan P4.**
+- **Rights enforcement** at ingest — embargo (`rights_embargo`),
+  Creative Commons (`rights_cc_license`), ODRL policy
+  (`research_rights_policy`), Traditional Knowledge labels
+  (`rights_tk_label`), with "awaiting rights" hold for classified
+  material. **Status: Committed — plan P4.**
+- **BagIt container ingest** — drop a `.zip` or directory with
+  `bag-info.txt` + `manifest-*.txt`; manifest rows become sibling IOs,
+  `bag-info.txt` fields map to session metadata.
+  **Status: Committed — plan P6.**
+- **EAD / MARC21 / MODS / LIDO native ingress XSLTs** — drop the
+  institution's existing XML standard directly into the watched folder;
+  Heratio transforms to the canonical `heratioScan` envelope on ingest.
+  **Status: Committed — plan P7.**
+- **Audio / video derivatives** (MP3 preview + waveform PNG; MP4 480p
+  + poster frame) and **3D preview thumbnails** (rendered from GLB /
+  OBJ / USDZ). **Status: Committed — plan P7.**
+- **IIIF pyramid pre-generation** for TIFF / JP2 masters, fed to
+  Cantaloupe. **Status: Committed — plan P7.**
+- **HTR** (handwritten text recognition) on opt-in, routed to the
+  on-premise Ollama server. **Status: Committed — plan P7.**
+- **Retry/backoff, quarantine UI, email notifications** for pipeline
+  failures. **Status: Committed — plan P6.**
+- **RAW → DNG preservation derivatives** — keep proprietary RAW
+  (CR2 / NEF / ARW / RAF) as preservation master and auto-generate
+  open-standard DNG for delivery to Cantaloupe. **Status: Open —
+  plan §12 question #9.** A proposal exists (keep-RAW + auto-DNG) but
+  has not been scheduled into a phase. Raise on the tracker if you
+  need it before P7 hardening.
+- **Alternate sidecar formats** (METS accepted alongside
+  `heratioScan`). **Status: Open — plan §12 question #1.** Proposed
+  as a transform plugin rather than core.
+- **Spectrum workflow auto-activation** on museum-sector scans.
+  **Status: Open — plan §12 question #7.** Proposed as an opt-in flag
+  per folder, default off.
+
+### Explicitly out of scope
+
+These are not planned for any release — see §13 of the plan:
+
+- Driving scanner hardware directly (no TWAIN / WIA / SANE) — use
+  your scanner application.
+- Auto-cropping, deskewing, colour correction — belongs in the
+  scanner application, not Heratio.
+- Form-recognition / structured data extraction from scanned forms —
+  separate AI pipeline.
 
 ## Related
 
