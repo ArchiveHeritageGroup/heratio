@@ -386,7 +386,9 @@
       "Bash(sudo -u www-data bash -c 'convert -version')",
       "Bash(sudo -u www-data bash -c 'command -v convert')",
       "Bash(sudo -u www-data php -r ' *)",
-      "Bash(bundle exec *)"
+      "Bash(bundle exec *)",
+      "Bash(COMPOSER_ALLOW_SUPERUSER=1 composer update ahg/scan --no-scripts)",
+      "Bash(set -e)"
     ]
   }
 }

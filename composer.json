@@ -98,6 +98,7 @@
         "ahg/researcher-manage": "@dev",
         "ahg/ric": "@dev",
         "ahg/rights-holder-manage": "@dev",
+        "ahg/scan": "@dev",
         "ahg/search": "@dev",
         "ahg/security-clearance": "@dev",
         "ahg/semantic-search": "@dev",

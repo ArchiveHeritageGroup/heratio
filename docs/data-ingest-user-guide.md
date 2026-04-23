@@ -4,6 +4,8 @@
 
 OAIS-aligned multi-stage ingestion pipeline for batch import of archival records and digital objects. A 6-step wizard that sits between AtoM's basic CSV import and Archivematica's full OAIS pipeline: Configure, Upload, Map & Enrich, Validate, Preview, Commit.
 
+**Scanner / watched-folder capture** uses this same engine through a different entry point. For continuous capture from scanning stations — where files arrive one at a time instead of in one big batch — see the [Scanner / Capture user guide](scanner-capture-user-guide.md). The scanner reuses the ingest session, derivatives, virus scan, OCR, and SIP/AIP/DIP packaging you configure here — you do not need to re-learn anything.
+
 ---
 
 ## Overview

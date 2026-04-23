@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "386c608c54e6c819f2379379d3378255",
+    "content-hash": "d96191dedacbf91388dbeda5589b28bb",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -2295,6 +2295,37 @@
                 }
             },
             "description": "Rights holder browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/scan",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-scan",
+                "reference": "8b0ba89ab580c224a3a7ec122a619177987e0854"
+            },
+            "require": {
+                "ahg/core": "@dev",
+                "ahg/ingest": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgScan\\Providers\\AhgScanServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgScan\\": "src/"
+                }
+            },
+            "description": "Scanner + capture entry points for Heratio (watched folders, scan API)",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -11549,6 +11580,7 @@
         "ahg/researcher-manage": 20,
         "ahg/ric": 20,
         "ahg/rights-holder-manage": 20,
+        "ahg/scan": 20,
         "ahg/search": 20,
         "ahg/security-clearance": 20,
         "ahg/semantic-search": 20,

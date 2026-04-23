@@ -755,6 +755,9 @@
           <li class="list-group-item"><a href="{{ Route::has('ingest.index') ? route('ingest.index') : url('/ingest') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Ingest Dashboard') }}</a></li>
           <li class="list-group-item"><a href="{{ Route::has('ingest.configure') ? route('ingest.configure') : url('/ingest/configure') }}"><i class="fas fa-plus-circle me-2 text-muted"></i>{{ __('New Ingest') }}</a></li>
           <li class="list-group-item"><a href="{{ Route::has('ingest.template') ? route('ingest.template', 'archive') : url('/ingest/template/archive') }}"><i class="fas fa-file-csv me-2 text-muted"></i>{{ __('CSV Template') }}</a></li>
+          @if(Route::has('scan.dashboard'))
+          <li class="list-group-item"><a href="{{ route('scan.dashboard') }}"><i class="fas fa-folder-open me-2 text-muted"></i>{{ __('Scanner / watched folders') }}</a></li>
+          @endif
         </ul>
       </div>
     </div>

@@ -166,4 +166,173 @@ class IngestService
             ->get()
             ->toArray();
     }
+
+    /**
+     * Streaming-mode entry point: ingest a single staged file against a
+     * long-lived session (session_kind = watched_folder | scan_api).
+     *
+     * Resolves / creates the information object, creates the digital object,
+     * and returns [io_id, do_id]. Callers own stage progression and status
+     * updates on the ingest_file row.
+     *
+     * @param int    $sessionId    ingest_session.id (must exist; kind != 'wizard' recommended)
+     * @param string $stagedPath   absolute path to the file on disk
+     * @param array  $meta         resolved destination + descriptive metadata:
+     *                             - parent_id    (int, required)     destination parent
+     *                             - identifier   (string, optional)  IO identifier; dedupes against (parent, identifier)
+     *                             - title        (string, optional)  defaults to identifier or filename stem
+     *                             - level_of_description_id (int, optional)
+     *                             - repository_id (int, optional)    inherited from session if unset
+     *                             - scope_and_content (string, optional)
+     *                             - source_standard (string, optional)
+     *                             - culture      (string, optional)  defaults to 'en'
+     *                             - merge        (string, optional)  'add-sequence' (default) | 'replace' | 'error'
+     * @param string $originalName original filename (for digital_object.name)
+     *
+     * @return array{io_id:int, do_id:int, was_existing_io:bool}
+     */
+    public function ingestFile(int $sessionId, string $stagedPath, array $meta, string $originalName): array
+    {
+        if (!is_file($stagedPath)) {
+            throw new \RuntimeException("Staged file not found: {$stagedPath}");
+        }
+
+        $session = $this->getSession($sessionId);
+        if (!$session) {
+            throw new \RuntimeException("Ingest session {$sessionId} not found.");
+        }
+
+        $parentId = (int) ($meta['parent_id'] ?? $session->parent_id ?? 1);
+        if (!$parentId) {
+            throw new \RuntimeException('ingestFile requires a parent_id in meta or on the session.');
+        }
+
+        $repositoryId = $meta['repository_id'] ?? $session->repository_id ?? null;
+        $culture = $meta['culture'] ?? 'en';
+
+        // Resolve existing IO by (parent_id, identifier) if identifier supplied.
+        $ioId = null;
+        $wasExisting = false;
+        if (!empty($meta['identifier'])) {
+            $existing = DB::table('information_object')
+                ->where('parent_id', $parentId)
+                ->where('identifier', $meta['identifier'])
+                ->value('id');
+            if ($existing) {
+                $mergeMode = $meta['merge'] ?? 'add-sequence';
+                if ($mergeMode === 'error') {
+                    throw new \RuntimeException("IO with identifier '{$meta['identifier']}' already exists under parent {$parentId}.");
+                }
+                $ioId = (int) $existing;
+                $wasExisting = true;
+            }
+        }
+
+        if ($ioId === null) {
+            $title = $meta['title']
+                ?? $meta['identifier']
+                ?? pathinfo($originalName, PATHINFO_FILENAME)
+                ?: 'Untitled';
+
+            $ioData = [
+                'title' => $title,
+                'parent_id' => $parentId,
+                'identifier' => $meta['identifier'] ?? null,
+                'repository_id' => $repositoryId,
+                'level_of_description_id' => $meta['level_of_description_id'] ?? null,
+                'scope_and_content' => $meta['scope_and_content'] ?? null,
+                'source_standard' => $meta['source_standard'] ?? $session->standard ?? null,
+            ];
+
+            $ioId = \AhgInformationObjectManage\Services\InformationObjectService::create($ioData, $culture);
+        }
+
+        $doId = $this->createDigitalObjectFromPath($ioId, $stagedPath, $originalName);
+
+        return ['io_id' => $ioId, 'do_id' => $doId, 'was_existing_io' => $wasExisting];
+    }
+
+    /**
+     * Create a digital_object row + move the file into the canonical location.
+     * Path-variant of DigitalObjectService::upload() which requires an
+     * UploadedFile; this one accepts an on-disk staged path.
+     */
+    protected function createDigitalObjectFromPath(int $ioId, string $stagedPath, string $originalName): int
+    {
+        $uploadsBase = config('heratio.uploads_path');
+        $targetDir = rtrim($uploadsBase, '/') . '/' . $ioId;
+        if (!is_dir($targetDir) && !mkdir($targetDir, 0775, true) && !is_dir($targetDir)) {
+            throw new \RuntimeException("Cannot create upload directory: {$targetDir}");
+        }
+
+        $extension = pathinfo($originalName, PATHINFO_EXTENSION);
+        $baseName = pathinfo($originalName, PATHINFO_FILENAME);
+        $safeName = preg_replace('/[^a-zA-Z0-9_.-]/', '_', $baseName);
+        $filename = 'master_' . $safeName . ($extension ? '.' . $extension : '');
+
+        $targetPath = $targetDir . '/' . $filename;
+        // If a file with this name already exists, append a sequence number.
+        $seq = 1;
+        while (file_exists($targetPath)) {
+            $filename = 'master_' . $safeName . '_' . $seq . ($extension ? '.' . $extension : '');
+            $targetPath = $targetDir . '/' . $filename;
+            $seq++;
+        }
+
+        if (!@rename($stagedPath, $targetPath)) {
+            if (!@copy($stagedPath, $targetPath)) {
+                throw new \RuntimeException("Failed to move staged file into uploads: {$stagedPath} -> {$targetPath}");
+            }
+            @unlink($stagedPath);
+        }
+
+        $byteSize = filesize($targetPath);
+        $checksum = hash_file('sha256', $targetPath);
+        $mimeType = function_exists('mime_content_type') ? (@mime_content_type($targetPath) ?: 'application/octet-stream') : 'application/octet-stream';
+        $mediaTypeId = $this->resolveMediaTypeId($mimeType);
+
+        $now = now()->format('Y-m-d H:i:s');
+        $doObjectId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitDigitalObject',
+            'created_at' => $now,
+            'updated_at' => $now,
+            'serial_number' => 0,
+        ]);
+
+        $webPath = '/uploads/r/' . $ioId . '/';
+
+        DB::table('digital_object')->insert([
+            'id' => $doObjectId,
+            'object_id' => $ioId,
+            'usage_id' => \AhgCore\Services\DigitalObjectService::USAGE_MASTER,
+            'mime_type' => $mimeType,
+            'media_type_id' => $mediaTypeId,
+            'name' => $filename,
+            'path' => $webPath,
+            'byte_size' => $byteSize,
+            'checksum' => $checksum,
+            'checksum_type' => 'sha256',
+            'parent_id' => null,
+        ]);
+
+        return $doObjectId;
+    }
+
+    protected function resolveMediaTypeId(string $mimeType): int
+    {
+        $type = explode('/', $mimeType)[0] ?? '';
+        return match ($type) {
+            'image' => \AhgCore\Services\DigitalObjectService::MEDIA_IMAGE,
+            'audio' => \AhgCore\Services\DigitalObjectService::MEDIA_AUDIO,
+            'video' => \AhgCore\Services\DigitalObjectService::MEDIA_VIDEO,
+            'text' => \AhgCore\Services\DigitalObjectService::MEDIA_TEXT,
+            'application' => in_array($mimeType, [
+                'application/pdf', 'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/rtf', 'application/vnd.oasis.opendocument.text',
+            ]) ? \AhgCore\Services\DigitalObjectService::MEDIA_TEXT
+              : \AhgCore\Services\DigitalObjectService::MEDIA_OTHER,
+            default => \AhgCore\Services\DigitalObjectService::MEDIA_OTHER,
+        };
+    }
 }

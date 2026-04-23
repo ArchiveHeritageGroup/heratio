@@ -1,0 +1,21 @@
+{
+    "name": "ahg/scan",
+    "description": "Scanner + capture entry points for Heratio (watched folders, scan API)",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev",
+        "ahg/ingest": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgScan\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgScan\\Providers\\AhgScanServiceProvider"
+            ]
+        }
+    }
+}

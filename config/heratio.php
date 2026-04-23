@@ -32,4 +32,20 @@ return [
     // Backups path — independently configurable.
     'backups_path' => env('HERATIO_BACKUPS_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads')) . '/backups'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Scanner / capture pipeline (ahg-scan)
+    |--------------------------------------------------------------------------
+    |
+    | Watched folders (and the scan API) stage files here while the ingest
+    | pipeline processes them. Successful files are moved to archive_path;
+    | failures to quarantine_path.
+    */
+    'scan' => [
+        'staging_path' => env('HERATIO_SCAN_STAGING', env('HERATIO_STORAGE_PATH', base_path('uploads')) . '/.scan_staging'),
+        'quarantine_path' => env('HERATIO_SCAN_QUARANTINE', env('HERATIO_STORAGE_PATH', base_path('uploads')) . '/.scan_quarantine'),
+        'archive_path' => env('HERATIO_SCAN_ARCHIVE', env('HERATIO_STORAGE_PATH', base_path('uploads')) . '/.scan_archived'),
+        'min_quiet_seconds' => (int) env('HERATIO_SCAN_MIN_QUIET', 10),
+        'max_attempts' => (int) env('HERATIO_SCAN_MAX_ATTEMPTS', 5),
+    ],
 ];

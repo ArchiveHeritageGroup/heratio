@@ -98,6 +98,7 @@ Deep-zoom viewer for TIFF/JP2 files via [Cantaloupe](https://cantaloupe-project.
 │   ├── ahg-ai-services/         ← AI tools (HTR, NER, condition scan)
 │   ├── ahg-api/                  ← REST API v1/v2 with key auth
 │   ├── ahg-ingest/               ← Data ingest wizard (CSV/file batch import)
+│   ├── ahg-scan/                 ← Scanner / capture entry points (watched folders, Scan API)
 │   ├── ahg-reports/              ← Central dashboards, report builder
 │   └── ... (88 total)
 ├── docs/                          ← User guides, technical docs, ADRs
@@ -116,7 +117,8 @@ Deep-zoom viewer for TIFF/JP2 files via [Cantaloupe](https://cantaloupe-project.
 | `ahg-settings` | AHG Settings, Dropdown Manager (all enumerated values) |
 | `ahg-search` | Elasticsearch service, `ahg:es-reindex` command |
 | `ahg-display` | GLAM browse (card/grid/table/full views), advanced search, ancestor filter (lft/rgt) |
-| `ahg-ingest` | Data ingest wizard: configure → upload → map → validate → preview → commit. CSV templates, AI processing (OCR, NER, virus scan, summarize, spell check, format ID, face detect, translate) |
+| `ahg-ingest` | Data ingest wizard: configure → upload → map → validate → preview → commit. CSV templates, AI processing (OCR, NER, virus scan, summarize, spell check, format ID, face detect, translate). Also exposes `IngestService::ingestFile()` — the streaming entry point used by `ahg-scan` for per-file ingestion. |
+| `ahg-scan` | Scanner / capture pipeline. Watched folders (`scan_folder`) bind to long-lived `ingest_session` rows (`session_kind='watched_folder'`). `ScanWatchCommand` polls, `ProcessScanFile` job advances stages. Dashboard at `/admin/scan`. See `docs/scanner-capture-user-guide.md` + `docs/scanner-integration-plan.md`. |
 | `ahg-reports` | Central dashboards with links to all admin modules |
 | `ahg-help` | 221+ help articles, searchable |
 
