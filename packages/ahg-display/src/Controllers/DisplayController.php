@@ -168,6 +168,16 @@ class DisplayController extends Controller
 
         // Text search filters
         $this->queryFilter = $request->input('query');
+        if ($this->queryFilter !== null) {
+            // Strip wildcard-only input: MySQL FULLTEXT rejects bare '*' with
+            // "unexpected $end, expecting FTS_TERM". Treat '*', '***', etc. as "no filter".
+            $trimmed = trim($this->queryFilter);
+            if ($trimmed === '' || preg_match('/^[\*\s]+$/', $trimmed)) {
+                $this->queryFilter = null;
+            } else {
+                $this->queryFilter = $trimmed;
+            }
+        }
         $semanticEnabled = $request->input('semantic') == '1';
 
         // Fuzzy search correction - skipped (FuzzySearchService not yet migrated)
@@ -1403,20 +1413,27 @@ class DisplayController extends Controller
         $useFulltext = $this->isFulltextAvailable();
         $sectorTables = $this->getSectorSearchTables();
 
+        // Sanitize FULLTEXT-bound terms: strip boolean-mode operators and wildcards
+        // that MySQL's NATURAL LANGUAGE parser rejects (e.g. bare '*').
+        $ftSanitize = static function (string $s): string {
+            return trim(preg_replace('/[\+\-><\(\)~\*"@]+/', ' ', $s));
+        };
+
         if (is_array($searchTerms)) {
             // Semantic search: OR between all terms
-            $query->where(function ($qb) use ($searchTerms, $useFulltext, $sectorTables) {
+            $query->where(function ($qb) use ($searchTerms, $useFulltext, $sectorTables, $ftSanitize) {
                 foreach ($searchTerms as $term) {
                     $q = '%' . $term . '%';
-                    $qb->orWhere(function ($inner) use ($q, $term, $useFulltext, $sectorTables) {
-                        if ($useFulltext) {
-                            $inner->whereExists(function ($sub) use ($term, $q) {
+                    $ftTerm = $ftSanitize((string) $term);
+                    $qb->orWhere(function ($inner) use ($q, $term, $ftTerm, $useFulltext, $sectorTables) {
+                        if ($useFulltext && $ftTerm !== '') {
+                            $inner->whereExists(function ($sub) use ($ftTerm, $q) {
                                 $sub->select(DB::raw(1))
                                     ->from('information_object_i18n as ioi')
                                     ->whereRaw('ioi.id = io.id')
-                                    ->where(function ($w) use ($term, $q) {
-                                        $w->whereRaw('MATCH(ioi.title) AGAINST(? IN NATURAL LANGUAGE MODE)', [$term])
-                                            ->orWhereRaw('MATCH(ioi.scope_and_content) AGAINST(? IN NATURAL LANGUAGE MODE)', [$term])
+                                    ->where(function ($w) use ($ftTerm, $q) {
+                                        $w->whereRaw('MATCH(ioi.title) AGAINST(? IN NATURAL LANGUAGE MODE)', [$ftTerm])
+                                            ->orWhereRaw('MATCH(ioi.scope_and_content) AGAINST(? IN NATURAL LANGUAGE MODE)', [$ftTerm])
                                             ->orWhere('ioi.title', 'like', $q)
                                             ->orWhere('ioi.scope_and_content', 'like', $q);
                                     });
@@ -1439,15 +1456,16 @@ class DisplayController extends Controller
         } else {
             // Normal search: single term
             $q = '%' . $searchTerms . '%';
-            if ($useFulltext) {
-                $query->where(function ($qb) use ($q, $searchTerms, $sectorTables) {
-                    $qb->whereExists(function ($sub) use ($searchTerms, $q) {
+            $ftTerm = $ftSanitize((string) $searchTerms);
+            if ($useFulltext && $ftTerm !== '') {
+                $query->where(function ($qb) use ($q, $ftTerm, $sectorTables) {
+                    $qb->whereExists(function ($sub) use ($ftTerm, $q) {
                         $sub->select(DB::raw(1))
                             ->from('information_object_i18n as ioi')
                             ->whereRaw('ioi.id = io.id')
-                            ->where(function ($w) use ($searchTerms, $q) {
-                                $w->whereRaw('MATCH(ioi.title) AGAINST(? IN NATURAL LANGUAGE MODE)', [$searchTerms])
-                                    ->orWhereRaw('MATCH(ioi.scope_and_content) AGAINST(? IN NATURAL LANGUAGE MODE)', [$searchTerms])
+                            ->where(function ($w) use ($ftTerm, $q) {
+                                $w->whereRaw('MATCH(ioi.title) AGAINST(? IN NATURAL LANGUAGE MODE)', [$ftTerm])
+                                    ->orWhereRaw('MATCH(ioi.scope_and_content) AGAINST(? IN NATURAL LANGUAGE MODE)', [$ftTerm])
                                     ->orWhere('ioi.title', 'like', $q)
                                     ->orWhere('ioi.scope_and_content', 'like', $q);
                             });
