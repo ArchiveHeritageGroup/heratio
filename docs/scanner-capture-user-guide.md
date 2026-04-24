@@ -443,11 +443,12 @@ event chain reflects the packaging.
 lets operators download the zip. Packages also appear on each IO's
 preservation tab.
 
-**Honest gap.** The Ingest wizard's "Commit" view shows SIP/AIP/DIP
-checkboxes, but the wizard has **no batch commit runner** at all (no
-ingest_job is ever actually executed). Packaging runs correctly from
-the scanner path; the wizard's commit path needs separate work before
-packaging applies there.
+**Both paths now real.** The wizard's "Commit" step got its own runner
+on 2026-04-24 — `IngestCommitRunner` walks `ingest_row` rows, creates
+IOs, attaches files, and invokes the OAIS packager per IO when the
+session has SIP/AIP/DIP flags set. See the
+[Data ingestion manager guide](data-ingest-user-guide.md) for the
+wizard side.
 
 ## Retry, backoff, and notifications
 

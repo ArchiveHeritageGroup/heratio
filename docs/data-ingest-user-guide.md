@@ -6,6 +6,17 @@ OAIS-aligned multi-stage ingestion pipeline for batch import of archival records
 
 **Scanner / watched-folder capture** uses this same engine through a different entry point. For continuous capture from scanning stations — where files arrive one at a time instead of in one big batch — see the [Scanner / Capture user guide](scanner-capture-user-guide.md). The scanner reuses the ingest session, derivatives, virus scan, OCR, and SIP/AIP/DIP packaging you configure here — you do not need to re-learn anything.
 
+## Commit runner (delivered 2026-04-24)
+
+The wizard's **Commit** step now runs a real commit: `IngestCommitRunner` walks every valid `ingest_row`, creates the information object (via `InformationObjectService::create()`), attaches any mapped digital object file (via `IngestService::ingestFile()`), and if the session has SIP/AIP/DIP flags set it invokes `OaisPackagerService` per IO. Progress is tracked in `ingest_job` and rendered on the commit page.
+
+Invocation paths:
+
+- **Web UI**: the "Start Commit" button on the commit page posts to `/ingest/{id}/commit` which triggers the runner synchronously.
+- **CLI**: `php artisan ahg:ingest-commit <session_id>` — useful for long batches or scripted workflows.
+
+For very large batches (>5,000 rows), run from the CLI or move the trigger into a queued job; the sync web path is fine for the CSV sizes the wizard typically handles.
+
 ---
 
 ## Overview

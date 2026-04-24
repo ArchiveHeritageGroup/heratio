@@ -199,6 +199,22 @@ class IngestController extends Controller
         $session = $this->service->getSession($id);
         abort_unless($session, 404);
 
+        // Any POST to this route triggers the commit runner. The existing
+        // commit view's "Start Commit" button posts without a form_action
+        // field — treat that as the default start action. `form_action=status`
+        // is reserved for the AJAX progress poll.
+        if ($request->isMethod('post') && $request->input('form_action') !== 'status') {
+            try {
+                $runner = app(\AhgIngest\Services\IngestCommitRunner::class);
+                $result = $runner->run($id);
+                return redirect()->route('ingest.commit', $id)
+                    ->with('notice', "Commit complete: {$result['created']} IO(s), {$result['errors']} error(s).");
+            } catch (\Throwable $e) {
+                return redirect()->route('ingest.commit', $id)
+                    ->with('error', 'Commit failed: ' . $e->getMessage());
+            }
+        }
+
         $job = $this->service->getJobBySession($id);
 
         return view('ahg-ingest::commit', compact('session', 'job'));

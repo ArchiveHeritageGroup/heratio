@@ -16,5 +16,11 @@ class AhgIngestServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__ . '/../../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-ingest');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgIngest\Console\IngestCommitCommand::class,
+            ]);
+        }
     }
 }

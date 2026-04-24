@@ -902,9 +902,16 @@ scanning work began. **Delivered 2026-04-24** as a standalone service
   overridable via `ingest_session.output_sip_path/aip_path/dip_path`
 
 Scanner pipeline wires packaging into `stagePackaging()` after
-indexing; honours session-level flags. Wizard still needs a batch
-commit runner before packaging applies to wizard-initiated ingests —
-flagged as a separate open gap.
+indexing; honours session-level flags.
+
+**Wizard commit runner** — also delivered 2026-04-24 as
+`AhgIngest\Services\IngestCommitRunner` + `ahg:ingest-commit` artisan
+command + POST action on the commit page. Walks `ingest_row` rows,
+creates IOs via `InformationObjectService::create()`, attaches
+digital objects via `IngestService::ingestFile()`, tracks progress in
+`ingest_job`, and invokes `OaisPackagerService` per IO when session
+flags request it. The wizard's "Start Commit" button now does what
+its name says.
 
 ## 13. Out of scope
 
