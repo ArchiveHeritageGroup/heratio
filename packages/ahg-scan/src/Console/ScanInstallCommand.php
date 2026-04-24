@@ -64,6 +64,12 @@ class ScanInstallCommand extends Command
         $this->addColumn('ingest_file', 'completed_at',
             "ALTER TABLE ingest_file ADD COLUMN completed_at DATETIME NULL AFTER resolved_do_id");
 
+        // P5: per-file sidecar tracking
+        $this->addColumn('ingest_file', 'sidecar_path',
+            "ALTER TABLE ingest_file ADD COLUMN sidecar_path VARCHAR(1024) NULL AFTER completed_at");
+        $this->addColumn('ingest_file', 'sidecar_json',
+            "ALTER TABLE ingest_file ADD COLUMN sidecar_json JSON NULL AFTER sidecar_path");
+
         $this->createTable('scan_folder', <<<SQL
 CREATE TABLE `scan_folder` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -83,6 +89,25 @@ CREATE TABLE `scan_folder` (
   UNIQUE KEY `uq_scan_folder_code` (`code`),
   KEY `ix_scan_folder_enabled` (`enabled`),
   KEY `ix_scan_folder_session` (`ingest_session_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+SQL
+        );
+
+        // P5: scan_session_token for Mode B (Scan API)
+        $this->createTable('scan_session_token', <<<SQL
+CREATE TABLE `scan_session_token` (
+  `token` VARCHAR(64) NOT NULL,
+  `ingest_session_id` INT NOT NULL,
+  `api_key_id` INT NULL,
+  `user_id` INT NULL,
+  `status` VARCHAR(16) NOT NULL DEFAULT 'open',
+  `expires_at` DATETIME NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `committed_at` DATETIME NULL,
+  PRIMARY KEY (`token`),
+  KEY `ix_scan_token_session` (`ingest_session_id`),
+  KEY `ix_scan_token_status` (`status`),
+  KEY `ix_scan_token_expires` (`expires_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL
         );

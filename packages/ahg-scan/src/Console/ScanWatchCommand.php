@@ -107,6 +107,11 @@ class ScanWatchCommand extends Command
                 continue;
             }
 
+            // For flat-sidecar layout, .xml files are sidecars, not primary DOs.
+            if (($folder->layout ?? 'path') === 'flat-sidecar' && strtolower(pathinfo($full, PATHINFO_EXTENSION)) === 'xml') {
+                continue;
+            }
+
             // Quiet-period check: file must be idle for min_quiet_seconds
             if (($now - $fileInfo->getMTime()) < $minQuiet) {
                 continue;
@@ -124,6 +129,9 @@ class ScanWatchCommand extends Command
             if ($already) {
                 continue;
             }
+
+            // Look up a paired sidecar (flat-sidecar layout): <base-stem>.xml next to the file.
+            $sidecarPath = $this->findSidecar($full, $folder->layout ?? 'path');
 
             // Lazily open an ingest_job for this pass on the first enqueued file.
             if ($jobId === null) {
@@ -146,6 +154,7 @@ class ScanWatchCommand extends Command
                 'stage' => null,
                 'source_hash' => $hash,
                 'attempts' => 0,
+                'sidecar_path' => $sidecarPath,
                 'created_at' => now(),
             ]);
 
@@ -164,6 +173,36 @@ class ScanWatchCommand extends Command
             'csv', 'tsv' => 'csv',
             default => 'digital_object',
         };
+    }
+
+    /**
+     * Return the path to a sidecar XML describing this file, or null if none.
+     *
+     * Stem-matching rules (per plan §3.1 Style 2):
+     *   ARC-2026-0001.tiff     → look for ARC-2026-0001.xml
+     *   ARC-2026-0001_p2.tiff  → strip _pN suffix → look for ARC-2026-0001.xml
+     *   ARC-2026-0001-002.tiff → same — strip trailing -NNN / _NNN → base stem
+     */
+    protected function findSidecar(string $filePath, string $layout): ?string
+    {
+        if ($layout !== 'flat-sidecar') {
+            return null;
+        }
+        $dir = dirname($filePath);
+        $stem = pathinfo($filePath, PATHINFO_FILENAME);
+
+        // Try exact-stem first, then progressively stripped base stems.
+        $candidates = [$stem];
+        if (preg_match('/^(.+?)[_-]p?\d+$/i', $stem, $m)) {
+            $candidates[] = $m[1];
+        }
+        foreach ($candidates as $s) {
+            $candidate = $dir . '/' . $s . '.xml';
+            if (is_file($candidate)) {
+                return $candidate;
+            }
+        }
+        return null;
     }
 
     /**

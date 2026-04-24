@@ -48,9 +48,12 @@
                     <label class="form-label">Layout</label>
                     <select name="layout" class="form-select">
                         <option value="path" {{ old('layout', $folder->layout) === 'path' ? 'selected' : '' }}>Path as destination</option>
-                        <option value="flat-sidecar" {{ old('layout', $folder->layout) === 'flat-sidecar' ? 'selected' : '' }} disabled>Flat files + XML sidecar (P3)</option>
+                        <option value="flat-sidecar" {{ old('layout', $folder->layout) === 'flat-sidecar' ? 'selected' : '' }}>Flat files + XML sidecar</option>
                     </select>
-                    <div class="form-text">Path layout: <code>&lt;folder&gt;/&lt;parent-slug&gt;/&lt;identifier&gt;/file.tiff</code></div>
+                    <div class="form-text">
+                        Path: <code>&lt;folder&gt;/&lt;parent-slug&gt;/&lt;identifier&gt;/file.tiff</code><br>
+                        Flat-sidecar: <code>&lt;folder&gt;/ARC-2026-0001.tiff</code> + <code>&lt;folder&gt;/ARC-2026-0001.xml</code>
+                    </div>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Quiet period (seconds)</label>

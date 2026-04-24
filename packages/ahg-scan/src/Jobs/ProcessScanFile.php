@@ -123,12 +123,15 @@ class ProcessScanFile implements ShouldQueue
             return;
         }
 
-        // Prefer clamdscan (daemon, fast); fall back to clamscan (standalone).
-        $clamd = trim((string) @shell_exec('command -v clamdscan 2>/dev/null'));
+        // Prefer clamscan (standalone, runs as PHP user so it can read
+        // staged files in the PHP-user-owned staging dir). Fall back to
+        // clamdscan (daemon — faster but needs the daemon's user to have
+        // traverse permission on the staging path).
         $clamsc = trim((string) @shell_exec('command -v clamscan 2>/dev/null'));
-        $binary = $clamd ?: $clamsc;
+        $clamd = trim((string) @shell_exec('command -v clamdscan 2>/dev/null'));
+        $binary = $clamsc ?: $clamd;
         if ($binary === '') {
-            Log::warning('[ahg-scan] virus scan requested but clamd/clamav not found; ingest continuing without scan for ingest_file ' . $fileId);
+            Log::warning('[ahg-scan] virus scan requested but clamscan/clamdscan not found; ingest continuing without scan for ingest_file ' . $fileId);
             return;
         }
 
@@ -183,7 +186,10 @@ class ProcessScanFile implements ShouldQueue
     }
 
     /**
-     * Use the path-layout resolver (Style 1) to compute parent + identifier.
+     * Compute destination + descriptive metadata for this file.
+     *
+     * Priority: sidecar XML > path-layout > session fallback.
+     *
      * Returns a meta array suitable for IngestService::ingestFile().
      */
     protected static function stageResolveDestination(int $fileId, ?object $folder): array
@@ -192,23 +198,11 @@ class ProcessScanFile implements ShouldQueue
         $file = DB::table('ingest_file')->where('id', $fileId)->first();
         $session = DB::table('ingest_session')->where('id', $file->session_id)->first();
 
-        if (!$folder || !$session) {
-            throw new \RuntimeException('Cannot resolve destination: missing folder or session context.');
+        if (!$session) {
+            throw new \RuntimeException('Cannot resolve destination: missing session context.');
         }
 
-        $layout = $folder->layout ?? 'path';
-        if ($layout !== 'path') {
-            throw new \RuntimeException("Layout '{$layout}' not yet supported (P3).");
-        }
-
-        $resolver = new PathLayoutResolver();
-        $desc = $resolver->resolve($folder, $file->stored_path);
-        if (!$desc) {
-            throw new \RuntimeException("Path does not match layout 'path' for folder {$folder->code}: " . $file->stored_path);
-        }
-
-        // Dedupe at IO level: if the file's hash already ingested against the
-        // same IO, treat as duplicate rather than create another DO.
+        // Dedupe at hash level: if the file's hash already ingested, treat as duplicate.
         if (!empty($file->source_hash)) {
             $existingDo = DB::table('digital_object')
                 ->where('checksum', $file->source_hash)
@@ -222,13 +216,68 @@ class ProcessScanFile implements ShouldQueue
             }
         }
 
-        return [
-            'parent_id' => $desc['parent_id'],
-            'identifier' => $desc['identifier'],
-            'title' => $desc['title'],
-            'repository_id' => $session->repository_id ?? null,
-            'source_standard' => $session->standard ?? null,
-        ];
+        $meta = [];
+
+        // 1a. XML sidecar on disk (watched-folder flat-sidecar layout, or Scan API sidecar upload).
+        if (!empty($file->sidecar_path) && is_file($file->sidecar_path)) {
+            $parser = new \AhgScan\Services\SidecarParser();
+            try {
+                $parsed = $parser->parse($file->sidecar_path);
+                $meta = $parser->toIngestMeta($parsed, $session);
+                DB::table('ingest_file')->where('id', $fileId)->update([
+                    'sidecar_json' => json_encode($parsed, JSON_UNESCAPED_SLASHES),
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning('[ahg-scan] sidecar parse failed for ingest_file ' . $fileId . ': ' . $e->getMessage());
+                // Fall through to inline metadata + path-layout.
+            }
+        }
+
+        // 1b. Inline metadata JSON (Scan API's `metadata` form field) — already
+        // stashed on ingest_file.sidecar_json when no XML sidecar was uploaded.
+        // Lower priority than a real sidecar but higher than path-layout.
+        if (empty($meta['parent_id']) && !empty($file->sidecar_json)) {
+            $inline = json_decode($file->sidecar_json, true);
+            if (is_array($inline) && empty($inline['_warnings'])) {
+                // Heuristic: treat as a flat meta dict if it has no nested
+                // sidecar envelope markers. Parser output has keys like
+                // sector/rights/digital_object — inline metadata is flat.
+                if (!isset($inline['rights']) && !isset($inline['digital_object'])) {
+                    foreach (['parent_id', 'identifier', 'title', 'scope_and_content',
+                              'level_of_description_id', 'repository_id', 'source_standard',
+                              'merge'] as $k) {
+                        if (isset($inline[$k]) && !isset($meta[$k])) {
+                            $meta[$k] = $inline[$k];
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. Path-layout (works for Style 1 folders and as fallback when sidecar gave incomplete info)
+        if (empty($meta['parent_id']) || empty($meta['identifier'])) {
+            if ($folder && ($folder->layout ?? 'path') === 'path') {
+                $resolver = new PathLayoutResolver();
+                $desc = $resolver->resolve($folder, $file->stored_path);
+                if ($desc) {
+                    $meta['parent_id'] = $meta['parent_id'] ?? $desc['parent_id'];
+                    $meta['identifier'] = $meta['identifier'] ?? $desc['identifier'];
+                    $meta['title'] = $meta['title'] ?? $desc['title'];
+                }
+            }
+        }
+
+        // 3. Session fallback for parent/repo/standard
+        $meta['parent_id'] = $meta['parent_id'] ?? $session->parent_id ?? null;
+        $meta['repository_id'] = $meta['repository_id'] ?? $session->repository_id ?? null;
+        $meta['source_standard'] = $meta['source_standard'] ?? $session->standard ?? null;
+
+        if (empty($meta['parent_id'])) {
+            $layout = $folder->layout ?? 'path';
+            throw new \RuntimeException("Cannot resolve parent destination for file (layout={$layout}, sidecar=" . ($file->sidecar_path ? 'yes' : 'no') . '): ' . $file->stored_path);
+        }
+
+        return $meta;
     }
 
     protected static function stageIoAndDo(int $fileId, array $meta): void
@@ -305,14 +354,27 @@ class ProcessScanFile implements ShouldQueue
             return; // already moved by IngestService into uploads canonical location
         }
 
+        // Also move the paired sidecar (if one exists and we own it) — but only
+        // after the LAST file sharing that sidecar has been processed. For
+        // simplicity, move it together with the current file on success; if
+        // other siblings still need it, they'll be resolved to 'duplicate' by
+        // hash match on next pass because their IO already exists.
+        $siblings = !empty($file->sidecar_path) && is_file($file->sidecar_path)
+            ? [$file->sidecar_path]
+            : [];
+
         switch ($folder->disposition_success) {
             case 'move':
                 $archive = rtrim(config('heratio.scan.archive_path'), '/') . '/' . date('Y/m');
                 if (!is_dir($archive)) { @mkdir($archive, 0775, true); }
                 @rename($srcPath, $archive . '/' . basename($srcPath));
+                foreach ($siblings as $sidecar) {
+                    @rename($sidecar, $archive . '/' . basename($sidecar));
+                }
                 break;
             case 'delete':
                 @unlink($srcPath);
+                foreach ($siblings as $sidecar) { @unlink($sidecar); }
                 break;
             case 'leave':
             default:

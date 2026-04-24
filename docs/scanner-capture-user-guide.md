@@ -13,12 +13,19 @@ sector profiles are on the roadmap — see §"What's coming next" below.
 
 ## At a glance
 
-| You do | Heratio does |
+Three ways to get scans into Heratio:
+
+| Mode | You do | Best for |
+|---|---|---|
+| **Watched folder — path layout** | Drop files into `<folder>/<parent-slug>/<identifier>/page_001.tiff` | Simple; scanner station saves straight to a shared folder |
+| **Watched folder — flat sidecar** | Drop `ARC-001.tiff` + `ARC-001.xml` in the same folder | Rich metadata (ISAD(G), MARC, LIDO, Spectrum, etc.) without encoding everything in paths |
+| **Scan API** | POST to `/api/v2/scan/*` from the scanner application or a wrapper script | Direct integration (VueScan, NAPS2, custom software) |
+
+| You configure | Heratio does |
 |---|---|
-| Configure a watched folder under `Admin → Scan → Watched folders` | Creates a long-lived ingest session with your chosen sector, standard, and processing options |
-| Point your scanner application at that folder, using path `<parent-slug>/<identifier>/` | Watches the folder, detects the new file once it's been idle for the quiet period |
-| Drop (or let the scanner drop) a file such as `<folder>/fonds-smith/SMITH-001/page_001.tiff` | Creates/finds the information object with identifier `SMITH-001` under the `fonds-smith` parent, then attaches the TIFF as a master digital object with SHA-256 checksum |
-| Check `Admin → Scan` dashboard | See throughput, failures, and per-folder stats; retry or discard any failed file |
+| Watched folder under `Admin → Scan → Watched folders`, or create an API session via `POST /api/v2/scan/sessions` | Binds a long-lived ingest session with your chosen sector, standard, and processing options |
+| Drop the file (or POST it) | Detects arrival, hashes for dedupe, virus-scans, creates IO + DO, extracts IPTC/EXIF/XMP into the DAM metadata tables, generates thumbnail + reference derivatives, indexes to Elasticsearch |
+| Open `Admin → Scan` | Live dashboard with per-folder stats, inbox, retry/discard controls |
 
 ## Key concepts
 
@@ -29,7 +36,8 @@ options you already know from the Ingest wizard (sector, archival standard,
 derivative generation, OCR, virus scan, SIP/AIP/DIP packaging) apply to
 every file that arrives.
 
-### Destination routing (path layout)
+### Destination routing: path layout
+
 The **path** of a file inside the watched folder decides where the record
 lands in Heratio's hierarchy:
 
@@ -51,6 +59,57 @@ lands in Heratio's hierarchy:
 - Files directly inside the parent slug directory (without an inner
   identifier sub-directory) are treated as single-file items with the
   filename stem as their identifier.
+
+### Destination routing: flat-sidecar layout
+
+For richer per-file metadata, pair each scan with an XML sidecar:
+
+```
+<watched-folder-path>/
+├── ARC-2026-0001.tiff        ← scan
+├── ARC-2026-0001.xml         ← heratioScan sidecar describing the scan
+├── ARC-2026-0001_p2.tiff     ← additional page, same base stem, same sidecar
+└── ARC-2026-0001_p3.tiff
+```
+
+The sidecar uses the `heratioScan` schema:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<heratioScan xmlns="https://heratio.io/scan/v1">
+  <sector>archive</sector>
+  <standard>isadg</standard>
+  <parentSlug>fonds-johan-smith-papers</parentSlug>
+  <identifier>ARC-2026-0001</identifier>
+  <title>Letter from Smith to editor, 1923</title>
+  <levelOfDescription>item</levelOfDescription>
+  <dates>
+    <date type="creation" start="1923-07-14" end="1923-07-14"/>
+  </dates>
+  <publicationStatus>draft</publicationStatus>
+  <rightsStatement uri="http://rightsstatements.org/vocab/InC/1.0/"/>
+  <ccLicense>cc-by-nc-4.0</ccLicense>
+  <digitalObject>
+    <usage>master</usage>
+    <makeDerivatives>true</makeDerivatives>
+    <ocr>auto</ocr>
+  </digitalObject>
+  <archiveProfile>
+    <scopeAndContent>One-page handwritten letter...</scopeAndContent>
+    <extentAndMedium>1 p. : ink on paper ; 21 x 28 cm</extentAndMedium>
+    <creators>
+      <creator vocab="ulan">Smith, Johan</creator>
+    </creators>
+  </archiveProfile>
+  <merge>add-sequence</merge>
+</heratioScan>
+```
+
+One `<heratioScan>` per IO. Per sector you include exactly one profile
+(archiveProfile / libraryProfile / galleryProfile / museumProfile). For
+now only the archive common fields drive IO creation — sector-specific
+fields (artist, ISBN, accession number, Darwin Core taxonomy) are
+preserved on the ingest_file record ready for P3 sector routing.
 
 ### Quiet period
 Scanner software often writes a file in chunks. Heratio waits until a file
@@ -179,6 +238,95 @@ through (or is currently in) the pipeline:
 | Watcher runs but enqueues nothing | Folder disabled, or no write-permission for the Heratio user | Toggle Enabled, check filesystem permissions |
 | All new files fail with DB error | Schema not installed | `php artisan ahg:scan-install` (idempotent) |
 
+## Scan API (Mode B — scanner-application integration)
+
+For scanner applications that can call HTTP (VueScan "After save", NAPS2
+external tool, custom software), Heratio exposes a REST API under
+`/api/v2/scan/*`. All endpoints require an API key with the `scan:write`
+scope (create at `Admin → API Keys`).
+
+### Endpoints
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET`    | `/api/v2/scan/destinations?q=<search>&parent=<id>` | Autocomplete; returns matching IOs with id / parent_id / identifier / title / slug |
+| `POST`   | `/api/v2/scan/sessions` | Create a scan session (backed by a long-lived `ingest_session`); returns `{token, upload_url, commit_url}` |
+| `POST`   | `/api/v2/scan/sessions/{token}/files` | Upload one file (multipart). Optional `sidecar` part (XML) or `metadata` part (JSON) to drive the IO |
+| `POST`   | `/api/v2/scan/sessions/{token}/commit` | Kick processing for pending files (only needed when `auto_commit=false`) |
+| `GET`    | `/api/v2/scan/sessions/{token}` | Status: per-file ingest state, resulting IO/DO ids |
+| `DELETE` | `/api/v2/scan/sessions/{token}` | Abandon — removes staged files not yet ingested; created IOs stay |
+
+### Session defaults
+
+`POST /sessions` body (JSON):
+
+```json
+{
+  "parent_id": 631,
+  "sector": "archive",
+  "standard": "isadg",
+  "auto_commit": true,
+  "title": "Monday scanning session"
+}
+```
+
+With `auto_commit: true`, each uploaded file is processed immediately. Use
+`false` + an explicit `/commit` call if you want to batch-review before
+anything is created.
+
+### Uploading a file
+
+Multipart form fields:
+
+| Field | Purpose |
+|---|---|
+| `file` | The scan (required) |
+| `sidecar` | Optional `heratioScan` XML — same schema as flat-sidecar layout. Takes precedence over `metadata`. |
+| `metadata` | Optional flat JSON: `{"identifier":"ARC-001","title":"...","scope_and_content":"..."}`. Used when a full sidecar isn't available. |
+
+Response: `{success: true, data: {ingest_file_id, auto_dispatched, status_url}}`.
+
+### Wrapper scripts
+
+Heratio ships three ready-made wrappers in
+`packages/ahg-scan/tools/scanner/` that do the 3-call dance for you:
+
+- `heratio-scan.sh` — Linux / macOS (needs `curl` + `jq`)
+- `heratio-scan.ps1` — Windows PowerShell 7+
+- `heratio-scan.py` — cross-platform (needs Python + `requests`)
+
+All three read configuration from environment variables or a config file
+(`~/.heratio-scan.conf` or `%USERPROFILE%\.heratio-scan.conf`):
+
+```
+HERATIO_URL=https://heratio.example.org
+HERATIO_API_KEY=<your-scan-key>
+HERATIO_PARENT_SLUG=fonds-johan-smith-papers
+HERATIO_SECTOR=archive
+HERATIO_STANDARD=isadg
+```
+
+Bash usage (VueScan "Command" field on Linux, SANE `scanadf` script):
+
+```bash
+heratio-scan.sh /path/to/scan.tiff "ARC-2026-0001" "Letter from Smith, 1923"
+```
+
+PowerShell (VueScan "After save" on Windows, NAPS2 external tool):
+
+```powershell
+.\heratio-scan.ps1 -File "C:\scans\page001.tiff" `
+                   -Identifier "ARC-2026-0001" `
+                   -Title "Letter from Smith, 1923" `
+                   -Sidecar "C:\scans\page001.xml"
+```
+
+Python (any platform, script-friendly):
+
+```bash
+heratio-scan.py /path/to/scan.tiff --identifier ARC-2026-0001 --title "Letter from Smith, 1923"
+```
+
 ## Relationship to the Ingest wizard
 
 The scanner is not a parallel system — it's a different **entry point** into
@@ -220,18 +368,16 @@ yet scheduled.
   Archive sector already works through path-layout. **Status: Committed —
   plan P3.**
 - **Sidecar XML** (`<heratioScan>` envelope) — rich per-file metadata
-  without path encoding. All four sector profiles inside the envelope:
-  archive (ISAD(G) / EAD / DACS / RAD / RiC), library (MARC21 / MODS /
-  RDA), gallery (CDWA / VRA Core / LIDO), museum (Spectrum / LIDO /
-  Darwin Core). DAM-augmentation block applies to all sectors.
-  **Status: Committed — envelope + parser in plan P5; sector-specific
-  field mapping in P3.**
+  without path encoding. ✅ **Envelope + archive profile: delivered (P5).**
+  Library / gallery / museum profile *field mapping* (writing to
+  `library_item`, `gallery_artwork`, `museum_object`) is **Committed —
+  plan P3**; sector-specific profile payload is already parsed and
+  preserved on `ingest_file.sidecar_json`, ready for P3 to consume.
 - **Scan API** (`/api/v2/scan/*`) — direct integration with scanner
-  applications (VueScan, NAPS2, ScanDirect, custom).
-  **Status: Committed — plan P5.**
+  applications (VueScan, NAPS2, ScanDirect, custom). ✅ **Delivered (P5).**
 - **Wrapper scripts** for PowerShell, bash, Python — plug into scanner
   apps' "post-scan" hooks without needing a desktop helper.
-  **Status: Committed — plan P5.**
+  ✅ **Delivered (P5).** Shipped in `packages/ahg-scan/tools/scanner/`.
 - **Capture desktop helper** — a small cross-platform app (Tauri
   preferred) for ad-hoc archivist capture, browsing the hierarchy and
   uploading live. **Status: Committed — plan P6.**

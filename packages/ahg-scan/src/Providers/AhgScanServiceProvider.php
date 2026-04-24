@@ -40,6 +40,7 @@ class AhgScanServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Route::middleware('web')->group(__DIR__ . '/../../routes/web.php');
+        Route::middleware('api')->group(__DIR__ . '/../../routes/api.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-scan');
 
         if ($this->app->runningInConsole()) {
