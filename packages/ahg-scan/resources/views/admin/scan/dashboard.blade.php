@@ -35,6 +35,7 @@
         ['failed', 'Failed', '#dc3545', 'exclamation-triangle'],
         ['duplicate', 'Duplicate', '#ffc107', 'clone'],
         ['quarantined', 'Quarantined', '#fd7e14', 'shield-virus'],
+        ['awaiting_rights', 'Awaiting rights', '#6f42c1', 'user-shield'],
     ]; @endphp
     @foreach($cards as $c)
         <div class="col-md-2 mb-3">

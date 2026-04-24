@@ -27,6 +27,7 @@ class ScanDashboardController extends Controller
             'failed' => (clone $base)->where('f.status', 'failed')->count(),
             'duplicate' => (clone $base)->where('f.status', 'duplicate')->count(),
             'quarantined' => (clone $base)->where('f.status', 'quarantined')->count(),
+            'awaiting_rights' => (clone $base)->where('f.status', 'awaiting_rights')->count(),
         ];
 
         $last24h = (clone $base)

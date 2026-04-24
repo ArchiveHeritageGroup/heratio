@@ -224,20 +224,37 @@ kicks a single pass without needing shell access.
 ## What happens when a file arrives
 
 ```
-pending → virus → meta → io → do → indexing → done
-                                             ↘ failed / quarantined
+pending → virus → format → io → do → meta → sector-route → rights
+   → deriving → indexing → done
+                         ↘ failed / quarantined / awaiting_rights
 ```
 
-1. **Virus** — ClamAV scan (logged to `preservation_virus_scan` when
-   available; full blocking scan in a later release).
-2. **Meta** — basic filename / MIME / size captured at detection.
-3. **IO** — parent slug + identifier resolved from the file's path; the
-   information object is created (or re-used) with the folder's sector and
-   standard.
-4. **DO** — the file is moved to Heratio's canonical uploads location under
-   `/uploads/<io-id>/master_<name>.<ext>`, hashed, and linked as a master
-   digital object.
-5. **Indexing** — Elasticsearch upsert so the new IO is searchable.
+1. **Virus** — ClamAV scan (`clamscan`, honours the session's
+   `process_virus_scan` flag). Aborts on infection.
+2. **Format** — siegfried PUID identification, falls back to `file`.
+   Obsolete formats flagged for migration planning.
+3. **IO** — parent + identifier resolved from sidecar XML (highest
+   priority), inline JSON metadata, path layout, or session fallback.
+4. **DO** — the file is moved to Heratio's canonical uploads location
+   under `/uploads/<io-id>/master_<name>.<ext>`, hashed (SHA-256), and
+   linked as a master digital object. `preservation_checksum` row
+   written.
+5. **Meta** — ExifTool runs, writing IPTC / EXIF / XMP to
+   `digital_object_metadata` + `media_metadata` + `dam_iptc_metadata`.
+6. **Sector-route** — based on the sidecar sector, writes to
+   `library_item` / `gallery_artwork` + `museum_metadata` /
+   `museum_object`; auto-creates draft actors for new creators; enters
+   Spectrum workflow when opted in.
+7. **Rights** — applies rights block (statements, CC, embargo, ODRL,
+   TK). Holds the file in `awaiting_rights` when a security
+   classification is set but no rights were supplied.
+8. **Deriving** — thumbnail + reference derivatives honour the session's
+   flags. One PREMIS `creation (derivation)` event emitted per
+   derivative.
+9. **Indexing** — Elasticsearch upsert so the new IO is searchable.
+
+Every observable stage emits a PREMIS event to `preservation_event`, so
+the preservation record is complete at ingest time.
 
 On **failure**, the file moves to the quarantine folder (by default
 `<storage_path>/.scan_quarantine/<yyyy>/<mm>/<reason>/`), and the ingest_file
@@ -421,18 +438,23 @@ yet scheduled.
 - **Capture desktop helper** — a small cross-platform app (Tauri
   preferred) for ad-hoc archivist capture, browsing the hierarchy and
   uploading live. **Status: Committed — plan P6.**
-- **PREMIS events** (virusCheck, format identification,
-  messageDigestCalculation, creation/derivation, replication) written to
-  `oais_premis_event` at each pipeline stage. **Status: Committed —
-  plan P4.**
-- **DROID / PRONOM format identification** against `oais_pronom_format`
-  + `preservation_format`, flagging obsolete formats for migration
-  planning. **Status: Committed — plan P4.**
+- **PREMIS events** (`virusCheck`, `formatIdentification`,
+  `messageDigestCalculation`, `ingestion`, `creation (derivation)` per
+  derivative) written to `preservation_event` at each pipeline stage.
+  ✅ **Delivered (P4).**
+- **PRONOM format identification** via `siegfried` (DROID-compatible),
+  falling back to `file --mime-type`. Results populate
+  `preservation_format` and flag obsolete formats via
+  `preservation_format_obsolescence`. ✅ **Delivered (P4).**
 - **Rights enforcement** at ingest — embargo (`rights_embargo`),
-  Creative Commons (`rights_cc_license`), ODRL policy
-  (`research_rights_policy`), Traditional Knowledge labels
-  (`rights_tk_label`), with "awaiting rights" hold for classified
-  material. **Status: Committed — plan P4.**
+  Creative Commons (`rights_cc_license`), rights statements
+  (`rights_statement` + `object_rights_statement`), Traditional
+  Knowledge labels (`rights_tk_label`), rights holders
+  (`object_rights_holder`), ODRL policy binding
+  (`research_rights_policy`). **"Awaiting rights" hold** when the
+  session has a `security_classification_id` set and the sidecar
+  supplied no rights — admin "Release rights + resume" action on the
+  Inbox detail view lifts the hold. ✅ **Delivered (P4).**
 - **BagIt container ingest** — drop a `.zip` or directory with
   `bag-info.txt` + `manifest-*.txt`; manifest rows become sibling IOs,
   `bag-info.txt` fields map to session metadata.

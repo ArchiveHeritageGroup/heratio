@@ -88,6 +88,14 @@
                         </button>
                     </form>
                 @endif
+                @if($file->status === 'awaiting_rights')
+                    <form method="POST" action="{{ route('scan.inbox.releaseRights', $file->id) }}" onsubmit="return confirm('Confirm rights have been reviewed and resume the pipeline for this file?')">
+                        @csrf
+                        <button class="btn btn-success w-100">
+                            <i class="fas fa-user-shield me-1"></i>Release rights + resume
+                        </button>
+                    </form>
+                @endif
                 @if(!in_array($file->status, ['done', 'duplicate']))
                     <form method="POST" action="{{ route('scan.inbox.discard', $file->id) }}" onsubmit="return confirm('Discard this file?')">
                         @csrf

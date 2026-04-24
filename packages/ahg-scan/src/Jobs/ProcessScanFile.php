@@ -45,6 +45,21 @@ class ProcessScanFile implements ShouldQueue
     }
 
     /**
+     * Resume the pipeline after a rights-hold release: IO + DO already
+     * exist, so we skip the early stages and just run derivation +
+     * indexing. Used by ScanInboxController::releaseRights().
+     */
+    public static function resumeFromDeriving(int $fileId): void
+    {
+        $file = DB::table('ingest_file')->where('id', $fileId)->first();
+        if (!$file || !$file->resolved_io_id || !$file->resolved_do_id) {
+            throw new \RuntimeException("Cannot resume: ingest_file #{$fileId} has no resolved IO/DO");
+        }
+        self::stageDeriving($fileId);
+        self::stageIndexing($fileId);
+    }
+
+    /**
      * Synchronous entry point — usable from the queue, from the CLI, and
      * from the admin "Retry" action.
      */
@@ -75,10 +90,15 @@ class ProcessScanFile implements ShouldQueue
 
         try {
             self::stageVirus($fileId);
+            self::stageFormatId($fileId);
             $resolved = self::stageResolveDestination($fileId, $folder);
             self::stageIoAndDo($fileId, $resolved);
             self::stageMeta($fileId);
             self::stageSectorRouting($fileId);
+            if (self::stageRights($fileId)) {
+                // needsReview was returned — hold the file, skip derivatives/indexing.
+                return;
+            }
             self::stageDeriving($fileId);
             self::stageIndexing($fileId);
 
@@ -159,6 +179,41 @@ class ProcessScanFile implements ShouldQueue
         }
         // Exit 0 = clean; proceed. preservation_virus_scan recording is P4 scope
         // (needs digital_object_id which doesn't exist until stageIoAndDo runs).
+        // Emit a PREMIS event for the successful check.
+        \AhgScan\Services\PremisEventService::emit(
+            null, null,
+            \AhgScan\Services\PremisEventService::TYPE_VIRUS_CHECK,
+            \AhgScan\Services\PremisEventService::OUTCOME_SUCCESS,
+            'ClamAV scan: clean',
+            ['binary' => $binary, 'exit_code' => $exitCode]
+        );
+    }
+
+    /**
+     * Identify the file's format (siegfried/file) and record the PUID +
+     * emit a formatIdentification PREMIS event. Runs pre-IO so the data is
+     * available to the sector-routing stage if needed.
+     */
+    protected static function stageFormatId(int $fileId): void
+    {
+        DB::table('ingest_file')->where('id', $fileId)->update(['stage' => 'format']);
+        $file = DB::table('ingest_file')->where('id', $fileId)->first();
+        if (!$file) { return; }
+
+        try {
+            $id = \AhgScan\Services\FormatIdService::identify($file->stored_path);
+            \AhgScan\Services\PremisEventService::emit(
+                null, null,
+                \AhgScan\Services\PremisEventService::TYPE_FORMAT_ID,
+                $id['puid'] === 'UNKNOWN'
+                    ? \AhgScan\Services\PremisEventService::OUTCOME_WARNING
+                    : \AhgScan\Services\PremisEventService::OUTCOME_SUCCESS,
+                sprintf('PUID=%s, MIME=%s, tool=%s', $id['puid'], $id['mime'] ?? '?', $id['tool']),
+                $id
+            );
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-scan] format-id failed for ingest_file ' . $fileId . ': ' . $e->getMessage());
+        }
     }
 
     /**
@@ -300,6 +355,29 @@ class ProcessScanFile implements ShouldQueue
             'resolved_io_id' => $result['io_id'],
             'resolved_do_id' => $result['do_id'],
         ]);
+
+        // PREMIS: ingestion + fixity events
+        \AhgScan\Services\PremisEventService::emit(
+            (int) $result['io_id'],
+            (int) $result['do_id'],
+            \AhgScan\Services\PremisEventService::TYPE_INGESTION,
+            \AhgScan\Services\PremisEventService::OUTCOME_SUCCESS,
+            $result['was_existing_io']
+                ? 'Ingested as new digital object on existing IO'
+                : 'Ingested as new information object + digital object',
+            ['session_id' => $file->session_id, 'source' => $file->stored_path]
+        );
+        $do = DB::table('digital_object')->where('id', $result['do_id'])->first();
+        if ($do && !empty($do->checksum)) {
+            \AhgScan\Services\PremisEventService::emit(
+                (int) $result['io_id'],
+                (int) $result['do_id'],
+                \AhgScan\Services\PremisEventService::TYPE_FIXITY,
+                \AhgScan\Services\PremisEventService::OUTCOME_SUCCESS,
+                "Checksum {$do->checksum_type} = {$do->checksum}",
+                ['algorithm' => $do->checksum_type, 'byte_size' => $do->byte_size]
+            );
+        }
     }
 
     /**
@@ -347,6 +425,49 @@ class ProcessScanFile implements ShouldQueue
         }
     }
 
+    /**
+     * Apply rights declared in the sidecar; hold for review when the session
+     * has a security classification but the sidecar supplied no rights.
+     *
+     * @return bool  true if the file should be held in awaiting_rights
+     */
+    protected static function stageRights(int $fileId): bool
+    {
+        DB::table('ingest_file')->where('id', $fileId)->update(['stage' => 'rights']);
+        $file = DB::table('ingest_file')->where('id', $fileId)->first();
+        if (!$file || !$file->resolved_io_id) { return false; }
+
+        $session = DB::table('ingest_session')->where('id', $file->session_id)->first();
+        $rights = [];
+        if (!empty($file->sidecar_json)) {
+            $parsed = json_decode($file->sidecar_json, true);
+            if (is_array($parsed) && !empty($parsed['rights'])) {
+                $rights = $parsed['rights'];
+            }
+        }
+
+        $svc = new \AhgScan\Services\RightsEnforcementService();
+        $result = $svc->apply((int) $file->resolved_io_id, $rights, $session);
+
+        if (!empty($result['warnings'])) {
+            $existing = $file->error_message ? $file->error_message . "\n" : '';
+            DB::table('ingest_file')->where('id', $fileId)->update([
+                'error_message' => trim($existing . "[rights warnings]\n" . implode("\n", $result['warnings'])),
+            ]);
+        }
+
+        if (!empty($result['needsReview'])) {
+            DB::table('ingest_file')->where('id', $fileId)->update([
+                'status' => 'awaiting_rights',
+                'stage' => 'rights',
+                'completed_at' => now(),
+            ]);
+            return true;
+        }
+
+        return false;
+    }
+
     protected static function stageDeriving(int $fileId): void
     {
         DB::table('ingest_file')->where('id', $fileId)->update(['stage' => 'deriving']);
@@ -365,6 +486,21 @@ class ProcessScanFile implements ShouldQueue
             (bool) ($session->derivative_reference ?? 1),
             (bool) ($session->derivative_thumbnails ?? 1)
         );
+
+        // Emit one PREMIS creation(derivation) event per derivative generated.
+        $derivatives = DB::table('digital_object')
+            ->where('parent_id', $file->resolved_do_id)
+            ->get(['id', 'name', 'usage_id']);
+        foreach ($derivatives as $d) {
+            \AhgScan\Services\PremisEventService::emit(
+                (int) $file->resolved_io_id,
+                (int) $d->id,
+                \AhgScan\Services\PremisEventService::TYPE_DERIVATION,
+                \AhgScan\Services\PremisEventService::OUTCOME_SUCCESS,
+                'Derivative generated: ' . $d->name,
+                ['usage_id' => $d->usage_id, 'parent_do_id' => $file->resolved_do_id]
+            );
+        }
     }
 
     protected static function stageIndexing(int $fileId): void

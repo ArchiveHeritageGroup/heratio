@@ -27,4 +27,5 @@ Route::middleware(['auth'])->prefix('admin/scan')->name('scan.')->group(function
     Route::get('/inbox/{id}', [ScanInboxController::class, 'show'])->name('inbox.show');
     Route::post('/inbox/{id}/retry', [ScanInboxController::class, 'retry'])->name('inbox.retry');
     Route::post('/inbox/{id}/discard', [ScanInboxController::class, 'discard'])->name('inbox.discard');
+    Route::post('/inbox/{id}/release-rights', [ScanInboxController::class, 'releaseRights'])->name('inbox.releaseRights');
 });

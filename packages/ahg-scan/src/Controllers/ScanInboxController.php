@@ -47,7 +47,7 @@ class ScanInboxController extends Controller
 
         $folders = DB::table('scan_folder')->orderBy('label')->get(['code', 'label']);
 
-        $statuses = ['pending', 'processing', 'done', 'failed', 'duplicate', 'quarantined'];
+        $statuses = ['pending', 'processing', 'done', 'failed', 'duplicate', 'quarantined', 'awaiting_rights'];
 
         return view('ahg-scan::admin.scan.inbox.index', compact('files', 'folders', 'statuses', 'status', 'folder', 'q'));
     }
@@ -104,5 +104,40 @@ class ScanInboxController extends Controller
         ]);
 
         return redirect()->route('scan.inbox.index')->with('notice', 'File discarded.');
+    }
+
+    /**
+     * Release rights hold — resume the pipeline from the point it stopped
+     * (deriving + indexing only, skipping re-resolve which would dedupe).
+     */
+    public function releaseRights(int $id)
+    {
+        $file = DB::table('ingest_file')->where('id', $id)->first();
+        abort_unless($file, 404);
+        if ($file->status !== 'awaiting_rights') {
+            return redirect()->back()->with('error', 'File is not in awaiting_rights state.');
+        }
+
+        DB::table('ingest_file')->where('id', $id)->update([
+            'status' => 'processing',
+            'completed_at' => null,
+        ]);
+
+        try {
+            \AhgScan\Jobs\ProcessScanFile::resumeFromDeriving($id);
+            DB::table('ingest_file')->where('id', $id)->update([
+                'status' => 'done',
+                'stage' => null,
+                'completed_at' => now(),
+            ]);
+        } catch (\Throwable $e) {
+            DB::table('ingest_file')->where('id', $id)->update([
+                'status' => 'failed',
+                'error_message' => 'Resume failed: ' . $e->getMessage(),
+            ]);
+            return redirect()->route('scan.inbox.show', $id)->with('error', 'Resume failed: ' . $e->getMessage());
+        }
+
+        return redirect()->route('scan.inbox.show', $id)->with('notice', 'Rights released; pipeline resumed.');
     }
 }
