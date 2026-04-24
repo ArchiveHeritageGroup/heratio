@@ -102,6 +102,7 @@ class ProcessScanFile implements ShouldQueue
                 return;
             }
             self::stageDeriving($fileId);
+            self::stageOcr($fileId);
             self::stageIndexing($fileId);
             self::stagePackaging($fileId);
 
@@ -290,8 +291,21 @@ class ProcessScanFile implements ShouldQueue
         // 1a. XML sidecar on disk (watched-folder flat-sidecar layout, or Scan API sidecar upload).
         if (!empty($file->sidecar_path) && is_file($file->sidecar_path)) {
             $parser = new \AhgScan\Services\SidecarParser();
+            $sidecarPath = $file->sidecar_path;
+
+            // Alternate descriptive standards (EAD / MARC21 / MODS / LIDO):
+            // transform to heratioScan XML via XSLT first, then parse normally.
+            $transformed = \AhgScan\Services\AlternateFormatTransformer::detectAndTransform($sidecarPath);
+            if ($transformed) {
+                if (!empty($transformed['pending'])) {
+                    Log::warning('[ahg-scan] sidecar format ' . $transformed['format'] . ' recognised but no XSLT available for ingest_file ' . $fileId);
+                } elseif (!empty($transformed['transformed_path'])) {
+                    $sidecarPath = $transformed['transformed_path'];
+                }
+            }
+
             try {
-                $parsed = $parser->parse($file->sidecar_path);
+                $parsed = $parser->parse($sidecarPath);
                 $meta = $parser->toIngestMeta($parsed, $session);
                 DB::table('ingest_file')->where('id', $fileId)->update([
                     'sidecar_json' => json_encode($parsed, JSON_UNESCAPED_SLASHES),
@@ -299,6 +313,11 @@ class ProcessScanFile implements ShouldQueue
             } catch (\Throwable $e) {
                 Log::warning('[ahg-scan] sidecar parse failed for ingest_file ' . $fileId . ': ' . $e->getMessage());
                 // Fall through to inline metadata + path-layout.
+            }
+
+            // Clean up the transient transformed file.
+            if (!empty($transformed['transformed_path']) && $sidecarPath !== $file->sidecar_path) {
+                @unlink($sidecarPath);
             }
         }
 
@@ -380,6 +399,42 @@ class ProcessScanFile implements ShouldQueue
                 : 'Ingested as new information object + digital object',
             ['session_id' => $file->session_id, 'source' => $file->stored_path]
         );
+
+        // Audit trail: scanner-created records need the same audit-log footprint
+        // as human-initiated creation so compliance reports see them.
+        if (\Illuminate\Support\Facades\Schema::hasTable('audit_log')) {
+            try {
+                $session = DB::table('ingest_session')->where('id', $file->session_id)->first();
+                $agent = 'ahg-scan';
+                if ($session && !empty($session->source_ref)) {
+                    $agent .= ' (' . $session->source_ref . ')';
+                }
+                if (!$result['was_existing_io']) {
+                    DB::table('audit_log')->insert([
+                        'table_name' => 'information_object',
+                        'record_id' => $result['io_id'],
+                        'action' => 'create',
+                        'user_id' => $session->user_id ?? null,
+                        'username' => $agent,
+                        'module' => 'ahg-scan',
+                        'action_description' => 'Created by scanner ingest (ingest_file #' . $fileId . ')',
+                        'created_at' => now(),
+                    ]);
+                }
+                DB::table('audit_log')->insert([
+                    'table_name' => 'digital_object',
+                    'record_id' => $result['do_id'],
+                    'action' => 'create',
+                    'user_id' => $session->user_id ?? null,
+                    'username' => $agent,
+                    'module' => 'ahg-scan',
+                    'action_description' => 'Attached by scanner ingest (ingest_file #' . $fileId . ')',
+                    'created_at' => now(),
+                ]);
+            } catch (\Throwable $e) {
+                Log::info('[ahg-scan] audit_log insert skipped: ' . $e->getMessage());
+            }
+        }
         $do = DB::table('digital_object')->where('id', $result['do_id'])->first();
         if ($do && !empty($do->checksum)) {
             \AhgScan\Services\PremisEventService::emit(
@@ -500,6 +555,15 @@ class ProcessScanFile implements ShouldQueue
             (bool) ($session->derivative_thumbnails ?? 1)
         );
 
+        // Non-image masters (audio / video / 3D) — delegate to the media
+        // derivative service. GD only handles still images, so these formats
+        // fell through silently before P7.
+        try {
+            \AhgCore\Services\MediaDerivativeService::generateForMaster((int) $file->resolved_do_id);
+        } catch (\Throwable $e) {
+            Log::info('[ahg-scan] media derivative generation skipped: ' . $e->getMessage());
+        }
+
         // Emit one PREMIS creation(derivation) event per derivative generated.
         $derivatives = DB::table('digital_object')
             ->where('parent_id', $file->resolved_do_id)
@@ -513,6 +577,55 @@ class ProcessScanFile implements ShouldQueue
                 'Derivative generated: ' . $d->name,
                 ['usage_id' => $d->usage_id, 'parent_do_id' => $file->resolved_do_id]
             );
+        }
+    }
+
+    /**
+     * Run HTR / OCR when the session's process_ocr flag is set AND the
+     * master is an image or PDF. Hands off to AhgAiServices\HtrService —
+     * failure is non-fatal; OCR is a best-effort enhancement, not a
+     * gating requirement.
+     */
+    protected static function stageOcr(int $fileId): void
+    {
+        $file = DB::table('ingest_file')->where('id', $fileId)->first();
+        if (!$file || !$file->resolved_do_id) { return; }
+
+        $session = DB::table('ingest_session')->where('id', $file->session_id)->first();
+        if (!$session || empty($session->process_ocr)) { return; }
+
+        $do = DB::table('digital_object')->where('id', $file->resolved_do_id)->first();
+        if (!$do) { return; }
+
+        $mime = (string) ($do->mime_type ?? '');
+        $isText = str_starts_with($mime, 'image/') || $mime === 'application/pdf';
+        if (!$isText) { return; }
+
+        if (!class_exists(\AhgAiServices\Services\HtrService::class)) {
+            Log::info('[ahg-scan] HTR service not available; skipping OCR for DO ' . $file->resolved_do_id);
+            return;
+        }
+
+        DB::table('ingest_file')->where('id', $fileId)->update(['stage' => 'ocr']);
+
+        $uploads = rtrim(config('heratio.uploads_path'), '/');
+        $masterPath = $uploads . '/' . $do->object_id . '/' . $do->name;
+        if (!is_file($masterPath)) { return; }
+
+        try {
+            $htr = app(\AhgAiServices\Services\HtrService::class);
+            $result = $htr->extract($masterPath, 'auto', 'all');
+            $textLen = is_array($result) ? strlen(json_encode($result)) : 0;
+            \AhgScan\Services\PremisEventService::emit(
+                (int) $file->resolved_io_id,
+                (int) $file->resolved_do_id,
+                'HTR extraction',
+                $result ? \AhgScan\Services\PremisEventService::OUTCOME_SUCCESS : \AhgScan\Services\PremisEventService::OUTCOME_WARNING,
+                $result ? "HTR completed ({$textLen} bytes of output)" : 'HTR returned no output',
+                is_array($result) ? ['result_keys' => array_keys($result)] : []
+            );
+        } catch (\Throwable $e) {
+            Log::info('[ahg-scan] HTR failed for DO ' . $file->resolved_do_id . ': ' . $e->getMessage());
         }
     }
 

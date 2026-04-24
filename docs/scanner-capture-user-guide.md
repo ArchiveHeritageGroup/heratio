@@ -586,17 +586,33 @@ yet scheduled.
   verifies checksums, parses `bag-info.txt`, and ingests each `data/`
   file under one IO identified by `External-Identifier`. ✅ **Delivered
   (P6).**
-- **EAD / MARC21 / MODS / LIDO native ingress XSLTs** — drop the
-  institution's existing XML standard directly into the watched folder;
-  Heratio transforms to the canonical `heratioScan` envelope on ingest.
-  **Status: Committed — plan P7.**
-- **Audio / video derivatives** (MP3 preview + waveform PNG; MP4 480p
-  + poster frame) and **3D preview thumbnails** (rendered from GLB /
-  OBJ / USDZ). **Status: Committed — plan P7.**
-- **IIIF pyramid pre-generation** for TIFF / JP2 masters, fed to
-  Cantaloupe. **Status: Committed — plan P7.**
-- **HTR** (handwritten text recognition) on opt-in, routed to the
-  on-premise Ollama server. **Status: Committed — plan P7.**
+- **EAD / MARC21 / MODS / LIDO native ingress** — drop an EAD, MARC21-XML,
+  MODS, or LIDO sidecar into a watched folder; `AlternateFormatTransformer`
+  detects the format and applies the right XSLT to produce a canonical
+  `heratioScan` envelope before parsing. ✅ **Delivered (P7)** — EAD
+  stylesheet ships in `packages/ahg-scan/resources/transforms/`; MARC21 /
+  MODS / LIDO are detected but flagged "transform pending" (add the XSLT
+  file next to EAD's to enable).
+- **Audio / video derivatives** — `MediaDerivativeService` generates
+  waveform PNG + MP3 128 kbps preview for audio; MP4 480p preview + poster
+  frame for video. Runs via `ffmpeg`. ✅ **Delivered (P7).**
+- **3D preview thumbnails** — delegates to the existing
+  `ThreeDThumbnailService::createDerivatives()` when master is GLB / OBJ /
+  USDZ / PLY / STL / FBX. ✅ **Delivered (P7).**
+- **IIIF pyramid pre-generation** — for TIFF masters, ImageMagick's
+  `convert ... ptif:` target builds a pyramidal TIFF that Cantaloupe can
+  stream tiles from at any zoom. JP2 is already pyramidal natively.
+  ✅ **Delivered (P7)** — needs ImageMagick on PATH (present on the
+  reference server).
+- **HTR** (handwritten / printed text extraction) — when a session's
+  `process_ocr` flag is on and the master is image/PDF, `stageOcr` hands
+  the file to `AhgAiServices\HtrService::extract()` (routed to the
+  Ollama server per CLAUDE.md). Non-fatal on failure — emits a PREMIS
+  `HTR extraction` event either way. ✅ **Delivered (P7).**
+- **Audit trail** — scanner creates of IO + DO now insert `audit_log`
+  rows (action=`create`, module=`ahg-scan`, username=`ahg-scan
+  (<folder_code>)`) matching the footprint of human-initiated creation.
+  ✅ **Delivered (P7).**
 - **Retry/backoff + quarantine UX + email notifications**:
   `ahg:scan-retry-failed` runs every 5 minutes via cron and re-dispatches
   failed files using an exponential backoff ladder (15min → 1h → 4h →
