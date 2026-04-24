@@ -824,10 +824,18 @@ is delivered. SIP/AIP/DIP packaging still needs no new work.
 3. **Multi-file items** — is the unit of work a single TIFF/PDF, or a
    multi-file "bag" (many TIFFs = one item)? Plan above supports both via
    Style 1 directory-per-IO and Style 2 shared-stem.
-4. **Storage location for masters** — one hash-bucketed pool
+4. **Storage location for masters** — ~~one hash-bucketed pool
    (`{uploads_path}/r/<repo>/<hash>/`) or separate `masters/` vs
-   `derivatives/` roots? Current `digital_object.path` pattern suggests the
-   first; confirm before building.
+   `derivatives/` roots?~~ **Resolved (2026-04-24)**: per-IO directory
+   `{heratio.uploads_path}/<io_id>/` with `master_*`, `reference_*`,
+   `thumbnail_*` filename prefixes — matches the existing
+   `DigitalObjectService::upload()` convention used by wizard uploads and
+   by every legacy AtoM-derived ingest path. Keeps all derivatives next
+   to their master on disk, which IIIF (Cantaloupe) and the DAM viewers
+   already assume. Scanner pipeline uses this layout via
+   `IngestService::createDigitalObjectFromPath()`. The hash-bucketed
+   pool was rejected because it would fork the filesystem convention
+   for one entry point only.
 5. **TWAIN / WIA integration** — do we want the Mode C helper to drive the
    scanner directly (bypassing a third-party app), or always sit behind
    VueScan/NAPS2? **Proposed**: never drive hardware directly in v1 — let

@@ -517,6 +517,342 @@ class DigitalObjectService
     }
 
     /**
+     * Extract embedded metadata (EXIF / IPTC / XMP / document props) from a
+     * master DO via ExifTool and write it to the DAM metadata tables:
+     * preservation_checksum, digital_object_metadata, media_metadata,
+     * and dam_iptc_metadata (when IPTC-rich).
+     *
+     * Requires the `exiftool` binary on PATH. If absent, logs and returns
+     * so the caller's pipeline can continue.
+     *
+     * Idempotent: upserts by digital_object_id / object_id where a
+     * uniqueness constraint exists; inserts a fresh preservation_checksum
+     * row each time (append-only, as fixity verifications accrete).
+     */
+    public static function extractMetadataForMaster(int $masterId): void
+    {
+        $master = DB::table('digital_object')->where('id', $masterId)->first();
+        if (!$master || !$master->object_id) {
+            return;
+        }
+
+        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR) . '/' . $master->object_id;
+        $filePath = $uploadDir . '/' . $master->name;
+        if (!is_file($filePath)) {
+            return;
+        }
+
+        // Always record a checksum row when one is present on digital_object.
+        if (!empty($master->checksum) && !empty($master->checksum_type)) {
+            $existing = DB::table('preservation_checksum')
+                ->where('digital_object_id', $masterId)
+                ->where('algorithm', $master->checksum_type)
+                ->where('checksum_value', $master->checksum)
+                ->exists();
+            if (!$existing) {
+                DB::table('preservation_checksum')->insert([
+                    'digital_object_id' => $masterId,
+                    'algorithm' => $master->checksum_type,
+                    'checksum_value' => $master->checksum,
+                    'file_size' => $master->byte_size,
+                    'generated_at' => now(),
+                    'verification_status' => 'generated',
+                    'created_at' => now(),
+                ]);
+            }
+        }
+
+        // ExifTool extraction — optional; if not installed, skip without failing.
+        $binary = trim((string) @shell_exec('command -v exiftool 2>/dev/null'));
+        if ($binary === '') {
+            Log::info('[DigitalObjectService] exiftool not found; skipping metadata extraction for DO ' . $masterId);
+            return;
+        }
+
+        $cmd = $binary . ' -j -n -api largefilesupport=1 ' . escapeshellarg($filePath) . ' 2>/dev/null';
+        $json = @shell_exec($cmd);
+        if (!$json) {
+            return;
+        }
+        $decoded = json_decode($json, true);
+        if (!is_array($decoded) || empty($decoded[0])) {
+            return;
+        }
+        $meta = $decoded[0];
+
+        self::writeDigitalObjectMetadata($masterId, $meta, $master);
+        self::writeMediaMetadata($masterId, (int) $master->object_id, $meta, $master);
+        self::writeDamIptcMetadata((int) $master->object_id, $meta);
+    }
+
+    /**
+     * Write the per-DO descriptive + technical metadata row.
+     */
+    protected static function writeDigitalObjectMetadata(int $doId, array $meta, $master): void
+    {
+        $fileType = self::classifyByMime((string) ($master->mime_type ?? 'application/octet-stream'));
+
+        $row = [
+            'digital_object_id' => $doId,
+            'file_type' => $fileType,
+            'raw_metadata' => json_encode($meta, JSON_UNESCAPED_SLASHES),
+            'title' => self::pick($meta, ['Title', 'IPTC:ObjectName', 'XMP:Title']),
+            'creator' => self::pick($meta, ['Creator', 'By-line', 'Artist', 'Author', 'XMP:Creator']),
+            'description' => self::pick($meta, ['ImageDescription', 'Description', 'Caption-Abstract', 'XMP:Description']),
+            'keywords' => self::pickKeywords($meta),
+            'copyright' => self::pick($meta, ['Copyright', 'CopyrightNotice', 'Rights', 'XMP:Rights']),
+            'date_created' => self::pick($meta, ['DateTimeOriginal', 'CreateDate', 'DateCreated', 'XMP:CreateDate']),
+            'image_width' => self::pickInt($meta, ['ImageWidth', 'ExifImageWidth', 'PNG:ImageWidth']),
+            'image_height' => self::pickInt($meta, ['ImageHeight', 'ExifImageHeight', 'PNG:ImageHeight']),
+            'camera_make' => self::pick($meta, ['Make']),
+            'camera_model' => self::pick($meta, ['Model']),
+            'gps_latitude' => self::pickFloat($meta, ['GPSLatitude']),
+            'gps_longitude' => self::pickFloat($meta, ['GPSLongitude']),
+            'gps_altitude' => self::pickFloat($meta, ['GPSAltitude']),
+            'page_count' => self::pickInt($meta, ['PageCount', 'PDF:PageCount', 'Pages']),
+            'word_count' => self::pickInt($meta, ['Words', 'WordCount']),
+            'author' => self::pick($meta, ['Author']),
+            'application' => self::pick($meta, ['Software', 'CreatorTool', 'Producer']),
+            'duration' => self::pickFloat($meta, ['Duration', 'MediaDuration']),
+            'duration_formatted' => self::pick($meta, ['Duration#']),
+            'video_codec' => self::pick($meta, ['VideoCodec', 'CompressorID', 'VideoCompressionType']),
+            'audio_codec' => self::pick($meta, ['AudioCodec', 'AudioFormat']),
+            'resolution' => self::buildResolution($meta),
+            'frame_rate' => self::pickFloat($meta, ['VideoFrameRate', 'FrameRate']),
+            'bitrate' => self::pickInt($meta, ['AvgBitrate', 'Bitrate']),
+            'sample_rate' => self::pickInt($meta, ['AudioSampleRate', 'SampleRate']),
+            'channels' => self::pickInt($meta, ['AudioChannels', 'Channels']),
+            'artist' => self::pick($meta, ['Artist']),
+            'album' => self::pick($meta, ['Album']),
+            'track_number' => self::pickInt($meta, ['Track', 'TrackNumber']),
+            'genre' => self::pick($meta, ['Genre']),
+            'year' => self::pick($meta, ['Year']),
+            'extraction_date' => now(),
+            'extraction_method' => 'exiftool',
+        ];
+        $row = array_filter($row, fn($v) => $v !== null);
+
+        $existing = DB::table('digital_object_metadata')->where('digital_object_id', $doId)->exists();
+        if ($existing) {
+            $row['updated_at'] = now();
+            DB::table('digital_object_metadata')->where('digital_object_id', $doId)->update($row);
+        } else {
+            $row['created_at'] = now();
+            DB::table('digital_object_metadata')->insert($row);
+        }
+    }
+
+    /**
+     * Write the A/V-leaning technical metadata row.
+     */
+    protected static function writeMediaMetadata(int $doId, int $ioId, array $meta, $master): void
+    {
+        $mime = (string) ($master->mime_type ?? 'application/octet-stream');
+        $mediaClass = explode('/', $mime)[0] ?: 'other';
+        $format = self::pick($meta, ['FileType']) ?: strtoupper(pathinfo($master->name, PATHINFO_EXTENSION));
+
+        $row = [
+            'digital_object_id' => $doId,
+            'object_id' => $ioId,
+            'media_type' => $mediaClass,
+            'format' => $format,
+            'file_size' => $master->byte_size,
+            'duration' => self::pickFloat($meta, ['Duration', 'MediaDuration']),
+            'bitrate' => self::pickInt($meta, ['AvgBitrate', 'Bitrate']),
+            'audio_codec' => self::pick($meta, ['AudioCodec', 'AudioFormat']),
+            'audio_sample_rate' => self::pickInt($meta, ['AudioSampleRate', 'SampleRate']),
+            'audio_channels' => self::pickInt($meta, ['AudioChannels', 'Channels']),
+            'audio_bits_per_sample' => self::pickInt($meta, ['AudioBitsPerSample', 'BitsPerSample']),
+            'video_codec' => self::pick($meta, ['VideoCodec', 'CompressorID']),
+            'video_width' => self::pickInt($meta, ['ImageWidth', 'VideoFrameWidth']),
+            'video_height' => self::pickInt($meta, ['ImageHeight', 'VideoFrameHeight']),
+            'video_frame_rate' => self::pickFloat($meta, ['VideoFrameRate', 'FrameRate']),
+            'title' => self::pick($meta, ['Title', 'IPTC:ObjectName']),
+            'artist' => self::pick($meta, ['Artist', 'Creator', 'By-line']),
+            'album' => self::pick($meta, ['Album']),
+            'genre' => self::pick($meta, ['Genre']),
+            'year' => self::pick($meta, ['Year']),
+            'copyright' => self::pick($meta, ['Copyright', 'CopyrightNotice']),
+            'make' => self::pick($meta, ['Make']),
+            'model' => self::pick($meta, ['Model']),
+            'software' => self::pick($meta, ['Software', 'CreatorTool']),
+            'gps_coordinates' => self::buildGpsCoordinates($meta),
+            'raw_metadata' => json_encode($meta, JSON_UNESCAPED_SLASHES),
+            'extracted_at' => now(),
+        ];
+        $row = array_filter($row, fn($v) => $v !== null);
+
+        $existing = DB::table('media_metadata')->where('digital_object_id', $doId)->exists();
+        if ($existing) {
+            DB::table('media_metadata')->where('digital_object_id', $doId)->update($row);
+        } else {
+            DB::table('media_metadata')->insert($row);
+        }
+    }
+
+    /**
+     * Write the IPTC-rich per-IO row. Keyed on object_id (unique) — one row
+     * per information_object, populated on the first DO. Subsequent DOs on
+     * the same IO don't overwrite unless they carry fresh IPTC values.
+     */
+    protected static function writeDamIptcMetadata(int $ioId, array $meta): void
+    {
+        // Only write when there's IPTC-y content to store.
+        $creator = self::pick($meta, ['By-line', 'Creator', 'Artist', 'XMP:Creator']);
+        $headline = self::pick($meta, ['Headline', 'IPTC:Headline']);
+        $caption = self::pick($meta, ['Caption-Abstract', 'Description', 'IPTC:Caption-Abstract']);
+        $keywords = self::pickKeywords($meta);
+        $copyright = self::pick($meta, ['CopyrightNotice', 'Copyright', 'Rights']);
+
+        if (!$creator && !$headline && !$caption && !$keywords && !$copyright) {
+            return;
+        }
+
+        $row = [
+            'object_id' => $ioId,
+            'creator' => $creator,
+            'headline' => $headline,
+            'caption' => $caption,
+            'keywords' => $keywords,
+            'copyright_notice' => $copyright,
+            'credit_line' => self::pick($meta, ['Credit', 'CreditLine']),
+            'source' => self::pick($meta, ['Source']),
+            'date_created' => self::normalizeDate(self::pick($meta, ['DateTimeOriginal', 'DateCreated', 'CreateDate'])),
+            'city' => self::pick($meta, ['City']),
+            'state_province' => self::pick($meta, ['Province-State', 'State']),
+            'country' => self::pick($meta, ['Country-PrimaryLocationName', 'Country']),
+            'country_code' => self::pick($meta, ['Country-PrimaryLocationCode']),
+            'sublocation' => self::pick($meta, ['Sub-location', 'Location']),
+            'title' => self::pick($meta, ['ObjectName', 'Title']),
+            'instructions' => self::pick($meta, ['SpecialInstructions', 'Instructions']),
+            'iptc_subject_code' => self::pick($meta, ['SubjectReference', 'SubjectCode']),
+            'intellectual_genre' => self::pick($meta, ['IntellectualGenre']),
+            'image_width' => self::pickInt($meta, ['ImageWidth', 'ExifImageWidth']),
+            'image_height' => self::pickInt($meta, ['ImageHeight', 'ExifImageHeight']),
+            'resolution_x' => self::pickInt($meta, ['XResolution']),
+            'resolution_y' => self::pickInt($meta, ['YResolution']),
+            'resolution_unit' => self::pick($meta, ['ResolutionUnit']),
+            'color_space' => self::pick($meta, ['ColorSpace']),
+            'bit_depth' => self::pickInt($meta, ['BitsPerSample', 'ColorComponents']),
+            'orientation' => self::pick($meta, ['Orientation']),
+            'camera_make' => self::pick($meta, ['Make']),
+            'camera_model' => self::pick($meta, ['Model']),
+            'lens' => self::pick($meta, ['LensModel', 'Lens']),
+            'focal_length' => self::pick($meta, ['FocalLength']),
+            'aperture' => self::pick($meta, ['FNumber', 'ApertureValue']),
+            'shutter_speed' => self::pick($meta, ['ShutterSpeed', 'ExposureTime']),
+            'iso_speed' => self::pickInt($meta, ['ISO', 'ISOSpeedRatings']),
+            'flash_used' => self::pickFlash($meta),
+            'gps_latitude' => self::pickFloat($meta, ['GPSLatitude']),
+            'gps_longitude' => self::pickFloat($meta, ['GPSLongitude']),
+            'gps_altitude' => self::pickFloat($meta, ['GPSAltitude']),
+        ];
+        $row = array_filter($row, fn($v) => $v !== null);
+
+        $existing = DB::table('dam_iptc_metadata')->where('object_id', $ioId)->exists();
+        if ($existing) {
+            $row['updated_at'] = now();
+            DB::table('dam_iptc_metadata')->where('object_id', $ioId)->update($row);
+        } else {
+            $row['created_at'] = now();
+            DB::table('dam_iptc_metadata')->insert($row);
+        }
+    }
+
+    // --- extraction helpers ---
+
+    protected static function pick(array $meta, array $keys): ?string
+    {
+        foreach ($keys as $k) {
+            if (array_key_exists($k, $meta) && $meta[$k] !== null && $meta[$k] !== '') {
+                $v = is_array($meta[$k]) ? implode(', ', $meta[$k]) : (string) $meta[$k];
+                return mb_substr($v, 0, 500);
+            }
+        }
+        return null;
+    }
+
+    protected static function pickInt(array $meta, array $keys): ?int
+    {
+        foreach ($keys as $k) {
+            if (array_key_exists($k, $meta) && is_numeric($meta[$k])) {
+                return (int) $meta[$k];
+            }
+        }
+        return null;
+    }
+
+    protected static function pickFloat(array $meta, array $keys): ?float
+    {
+        foreach ($keys as $k) {
+            if (array_key_exists($k, $meta) && is_numeric($meta[$k])) {
+                return (float) $meta[$k];
+            }
+        }
+        return null;
+    }
+
+    protected static function pickKeywords(array $meta): ?string
+    {
+        foreach (['Keywords', 'Subject', 'XMP:Subject'] as $k) {
+            if (!empty($meta[$k])) {
+                return is_array($meta[$k]) ? implode('; ', $meta[$k]) : (string) $meta[$k];
+            }
+        }
+        return null;
+    }
+
+    protected static function pickFlash(array $meta): ?int
+    {
+        if (!array_key_exists('Flash', $meta)) {
+            return null;
+        }
+        $v = $meta['Flash'];
+        if (is_numeric($v)) {
+            return ((int) $v & 1) ? 1 : 0;
+        }
+        return stripos((string) $v, 'fired') !== false ? 1 : 0;
+    }
+
+    protected static function buildResolution(array $meta): ?string
+    {
+        $w = self::pickInt($meta, ['ImageWidth', 'VideoFrameWidth']);
+        $h = self::pickInt($meta, ['ImageHeight', 'VideoFrameHeight']);
+        return ($w && $h) ? "{$w}x{$h}" : null;
+    }
+
+    protected static function buildGpsCoordinates(array $meta): ?string
+    {
+        $lat = self::pickFloat($meta, ['GPSLatitude']);
+        $lon = self::pickFloat($meta, ['GPSLongitude']);
+        return ($lat !== null && $lon !== null) ? sprintf('%.6f,%.6f', $lat, $lon) : null;
+    }
+
+    protected static function normalizeDate(?string $raw): ?string
+    {
+        if (!$raw) return null;
+        // ExifTool emits "2026:04:24 07:27:42" — convert to ISO date.
+        if (preg_match('/^(\d{4}):(\d{2}):(\d{2})/', $raw, $m)) {
+            return "{$m[1]}-{$m[2]}-{$m[3]}";
+        }
+        $ts = strtotime($raw);
+        return $ts ? date('Y-m-d', $ts) : null;
+    }
+
+    protected static function classifyByMime(string $mime): string
+    {
+        $class = explode('/', $mime)[0] ?: 'other';
+        return match ($class) {
+            'image' => 'image',
+            'audio' => 'audio',
+            'video' => 'video',
+            'text' => 'document',
+            'application' => in_array($mime, ['application/pdf', 'application/msword'], true) ? 'document' : 'other',
+            default => 'other',
+        };
+    }
+
+    /**
      * Public entry point for generating derivatives from a master DO that
      * already exists on disk + in the DB. Used by the scanner pipeline and
      * any other non-HTTP-upload ingest path (e.g. data-migration).

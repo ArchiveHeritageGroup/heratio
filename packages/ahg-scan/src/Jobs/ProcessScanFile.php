@@ -75,9 +75,9 @@ class ProcessScanFile implements ShouldQueue
 
         try {
             self::stageVirus($fileId);
-            self::stageMeta($fileId);
             $resolved = self::stageResolveDestination($fileId, $folder);
             self::stageIoAndDo($fileId, $resolved);
+            self::stageMeta($fileId);
             self::stageDeriving($fileId);
             self::stageIndexing($fileId);
 
@@ -157,11 +157,29 @@ class ProcessScanFile implements ShouldQueue
         // (needs digital_object_id which doesn't exist until stageIoAndDo runs).
     }
 
+    /**
+     * Extract embedded metadata (EXIF / IPTC / XMP / document props) into
+     * preservation_checksum + digital_object_metadata + media_metadata +
+     * dam_iptc_metadata. Runs after IO/DO creation so the target tables
+     * have their FK targets in place. ExifTool is optional — absence is
+     * logged, never fatal.
+     */
     protected static function stageMeta(int $fileId): void
     {
         DB::table('ingest_file')->where('id', $fileId)->update(['stage' => 'meta']);
-        // ExifTool / JHOVE integration is P4; basic info is captured when
-        // the file row is inserted by the watcher.
+
+        $file = DB::table('ingest_file')->where('id', $fileId)->first();
+        if (!$file || !$file->resolved_do_id) {
+            return;
+        }
+
+        try {
+            \AhgCore\Services\DigitalObjectService::extractMetadataForMaster((int) $file->resolved_do_id);
+        } catch (\Throwable $e) {
+            // Non-fatal — metadata extraction failure shouldn't roll back a
+            // successful ingest. Log and continue.
+            Log::warning('[ahg-scan] metadata extraction failed for DO ' . $file->resolved_do_id . ': ' . $e->getMessage());
+        }
     }
 
     /**

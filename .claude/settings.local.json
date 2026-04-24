@@ -388,7 +388,10 @@
       "Bash(sudo -u www-data php -r ' *)",
       "Bash(bundle exec *)",
       "Bash(COMPOSER_ALLOW_SUPERUSER=1 composer update ahg/scan --no-scripts)",
-      "Bash(set -e)"
+      "Bash(set -e)",
+      "Bash(exiftool -ver)",
+      "Bash(exiftool -overwrite_original '-Artist=Jane Q. Archivist' '-Copyright=\\(c\\) 2026 AHG' '-By-line=Jane Q. Archivist' '-Headline=Test scan with IPTC metadata' '-Caption-Abstract=A synthetic test image with EXIF+IPTC fields for stageMeta verification.' -Keywords=test,metadata,exiftool,scanner -Make=Epson '-Model=Expression 12000XL' '-DateTimeOriginal=2026:04:24 07:30:00' '-City=Cape Town' '-Country-PrimaryLocationName=South Africa' /tmp/scan-meta-test/duck-duck-go/META-001/page_001.jpg)",
+      "Bash(exiftool /tmp/scan-meta-test/duck-duck-go/META-001/page_001.jpg)"
     ]
   }
 }
