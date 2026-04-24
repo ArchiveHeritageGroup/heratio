@@ -80,11 +80,13 @@ class ProcessScanFile implements ShouldQueue
         }
         $folder = $folderId ? DB::table('scan_folder')->where('id', $folderId)->first() : null;
 
-        // Mark processing; increment attempts.
+        // Mark processing; increment attempts + stamp last_attempt_at so the
+        // retry-failed scheduler can compute backoff windows correctly.
         DB::table('ingest_file')->where('id', $fileId)->update([
             'status' => 'processing',
             'stage' => 'virus',
             'attempts' => $file->attempts + 1,
+            'last_attempt_at' => now(),
             'error_message' => null,
         ]);
 
@@ -124,6 +126,16 @@ class ProcessScanFile implements ShouldQueue
                 'error_message' => substr($e->getMessage(), 0, 5000),
             ]);
             self::dispositionFailure($fileId, $folder, $e->getMessage());
+
+            // Send a notification only on the *final* failure — after
+            // max_attempts retries have been exhausted. Early failures are
+            // retried by the scheduler with exponential backoff.
+            $currentAttempts = (int) (DB::table('ingest_file')->where('id', $fileId)->value('attempts') ?? 0);
+            $maxAttempts = (int) config('heratio.scan.max_attempts', 5);
+            if ($currentAttempts >= $maxAttempts) {
+                \AhgScan\Services\ScanNotifier::notifyFinalFailure($fileId);
+            }
+
             throw $e;
         }
     }

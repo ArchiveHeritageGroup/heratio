@@ -29,6 +29,7 @@ class ScanInstallCommand extends Command
     {
         $this->installSchema();
         $this->installDropdowns();
+        $this->installCron();
         return self::SUCCESS;
     }
 
@@ -75,6 +76,17 @@ class ScanInstallCommand extends Command
             "ALTER TABLE ingest_session ADD COLUMN spectrum_auto_enter TINYINT(1) NOT NULL DEFAULT 0 AFTER source_ref");
         $this->addColumn('ingest_session', 'output_create_authorities',
             "ALTER TABLE ingest_session ADD COLUMN output_create_authorities TINYINT(1) NOT NULL DEFAULT 1 AFTER spectrum_auto_enter");
+
+        // P6: per-folder notification settings
+        $this->addColumn('scan_folder', 'notify_emails',
+            "ALTER TABLE scan_folder ADD COLUMN notify_emails VARCHAR(1024) NULL AFTER last_scanned_at");
+        $this->addColumn('scan_folder', 'notify_on_failure',
+            "ALTER TABLE scan_folder ADD COLUMN notify_on_failure TINYINT(1) NOT NULL DEFAULT 0 AFTER notify_emails");
+
+        // P6: retry/backoff — track when we last attempted a file so the
+        // scheduler can compute whether its next-attempt window has elapsed.
+        $this->addColumn('ingest_file', 'last_attempt_at',
+            "ALTER TABLE ingest_file ADD COLUMN last_attempt_at DATETIME NULL AFTER attempts");
 
         $this->createTable('scan_folder', <<<SQL
 CREATE TABLE `scan_folder` (
@@ -154,6 +166,38 @@ SQL
     // ---------------------------------------------------------------------
     // Dropdowns
     // ---------------------------------------------------------------------
+
+    // ---------------------------------------------------------------------
+    // Cron registration
+    // ---------------------------------------------------------------------
+
+    protected function installCron(): void
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('cron_schedule')) {
+            return;
+        }
+        $this->line('Cron:');
+        $entries = [
+            [
+                'slug' => 'scan-retry-failed',
+                'name' => 'Scanner retry failed files',
+                'description' => 'Re-dispatch failed scan files whose backoff window has elapsed.',
+                'category' => 'ingest',
+                'artisan_command' => 'ahg:scan-retry-failed',
+                'cron_expression' => '*/5 * * * *',
+                'duration_hint' => 'quick',
+            ],
+        ];
+        foreach ($entries as $e) {
+            $exists = DB::table('cron_schedule')->where('slug', $e['slug'])->exists();
+            if ($exists) {
+                $this->line('  ' . $e['slug'] . ' exists');
+                continue;
+            }
+            DB::table('cron_schedule')->insert($e + ['is_enabled' => 1, 'timeout_minutes' => 30]);
+            $this->info('  + ' . $e['slug'] . ' registered');
+        }
+    }
 
     protected function installDropdowns(): void
     {

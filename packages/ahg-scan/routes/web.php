@@ -28,4 +28,6 @@ Route::middleware(['auth'])->prefix('admin/scan')->name('scan.')->group(function
     Route::post('/inbox/{id}/retry', [ScanInboxController::class, 'retry'])->name('inbox.retry');
     Route::post('/inbox/{id}/discard', [ScanInboxController::class, 'discard'])->name('inbox.discard');
     Route::post('/inbox/{id}/release-rights', [ScanInboxController::class, 'releaseRights'])->name('inbox.releaseRights');
+    Route::post('/inbox/{id}/restore', [ScanInboxController::class, 'restore'])->name('inbox.restore');
+    Route::post('/inbox/bulk', [ScanInboxController::class, 'bulk'])->name('inbox.bulk');
 });

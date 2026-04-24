@@ -387,6 +387,87 @@ Python (any platform, script-friendly):
 heratio-scan.py /path/to/scan.tiff --identifier ARC-2026-0001 --title "Letter from Smith, 1923"
 ```
 
+## BagIt container ingest
+
+Drop a `.zip` that contains a BagIt structure
+(`bagit.txt` + `manifest-<alg>.txt` + `data/` subdir) into a watched
+folder. Heratio will:
+
+1. Detect the zip as a bag (looks for `bagit.txt` inside).
+2. Extract to a temporary directory, verify every `data/` file against
+   the manifest checksums (prefers `sha512` > `sha256` > `sha1` > `md5`).
+3. Parse `bag-info.txt` — `External-Identifier` becomes the IO's
+   identifier; `Source-Organization` / `Contact-Email` /
+   `Bagging-Date` are preserved as provenance metadata.
+4. Ingest every `data/` file against one IO (same identifier, multiple
+   digital objects per `<merge>add-sequence</merge>`). Files retain
+   their original names.
+5. Move the original bag zip to `.scan_archived/<yyyy>/<mm>/` on success
+   (or leave it in place, per folder disposition).
+
+Checksum mismatches or missing manifest entries surface as warnings in
+the Inbox detail view without failing other files in the same bag.
+
+## Retry, backoff, and notifications
+
+**Automatic retries**: the `ahg:scan-retry-failed` command runs every 5
+minutes (registered in `cron_schedule`) and re-dispatches failed
+files whose backoff window has elapsed. The exponential ladder is
+configurable via `HERATIO_SCAN_RETRY_BACKOFF` env
+(default `15,60,240,1440,4320` — minutes between retry #1 through #5).
+After `HERATIO_SCAN_MAX_ATTEMPTS` (default 5), the file stays in
+`failed` state and no further automatic retries happen — but an admin
+can click "Retry now" manually from the Inbox.
+
+**Quarantine UX**: files that hit `quarantined` (either on failure with
+`disposition_failure=quarantine` or via bulk discard) can be restored
+from the Inbox detail view. Use the **Bulk ops** toolbar on the Inbox
+list for multi-file retry or discard.
+
+**Email on final failure**: configure per watched folder in
+`Admin → Scan → Watched folders → (folder) → Notifications`. When
+`notify_on_failure` is on and `notify_emails` has recipients, the
+pipeline sends a terse email containing the file path, error message,
+and Inbox URL *only after the last retry has been exhausted* — early
+failures don't spam the inbox during the backoff period.
+
+## Capture TUI (Mode C — ad-hoc archivist capture)
+
+`packages/ahg-scan/tools/scanner/heratio-capture.py` is an interactive
+terminal UI that wraps the Scan API. Archivists can:
+
+1. Search for a parent IO by title, identifier, or slug.
+2. Pick it with a number, then specify sector + standard (inherited
+   from config if preset).
+3. Drop file paths one at a time (supports shell-style quoting), each
+   with optional identifier / title / sidecar XML.
+4. See live status with `status` inside the session.
+
+Configure once via `~/.heratio-scan.conf`:
+
+```
+HERATIO_URL=https://heratio.example.org
+HERATIO_API_KEY=<scan:write key>
+HERATIO_PARENT_SLUG=fonds-smith
+HERATIO_SECTOR=archive
+HERATIO_STANDARD=isadg
+```
+
+Run `heratio-capture.py` with no arguments for the interactive menu, or
+pass a file path + flags for one-shot use from automation scripts:
+
+```bash
+heratio-capture.py /path/to/scan.tiff \
+    --parent-slug fonds-smith \
+    --identifier ARC-2026-0001 \
+    --title "Letter from Smith, 1923"
+```
+
+A full Tauri/Electron desktop app remains on the backlog — it would
+wrap the same API surface and add drag-and-drop from Finder/Explorer.
+The TUI covers the same workflow for sites that don't need
+binary distribution.
+
 ## Relationship to the Ingest wizard
 
 The scanner is not a parallel system — it's a different **entry point** into
@@ -435,9 +516,12 @@ yet scheduled.
 - **Wrapper scripts** for PowerShell, bash, Python — plug into scanner
   apps' "post-scan" hooks without needing a desktop helper.
   ✅ **Delivered (P5).** Shipped in `packages/ahg-scan/tools/scanner/`.
-- **Capture desktop helper** — a small cross-platform app (Tauri
-  preferred) for ad-hoc archivist capture, browsing the hierarchy and
-  uploading live. **Status: Committed — plan P6.**
+- **Capture TUI helper** — `heratio-capture.py` in
+  `packages/ahg-scan/tools/scanner/` provides an interactive terminal UI
+  for browsing destinations and uploading files via the Scan API.
+  Cross-platform (Python + `requests`). ✅ **Delivered (P6).** A full
+  Tauri/Electron desktop app remains on the backlog as an
+  engineering-heavy follow-up — the TUI covers the same workflow.
 - **PREMIS events** (`virusCheck`, `formatIdentification`,
   `messageDigestCalculation`, `ingestion`, `creation (derivation)` per
   derivative) written to `preservation_event` at each pipeline stage.
@@ -455,10 +539,11 @@ yet scheduled.
   session has a `security_classification_id` set and the sidecar
   supplied no rights — admin "Release rights + resume" action on the
   Inbox detail view lifts the hold. ✅ **Delivered (P4).**
-- **BagIt container ingest** — drop a `.zip` or directory with
-  `bag-info.txt` + `manifest-*.txt`; manifest rows become sibling IOs,
-  `bag-info.txt` fields map to session metadata.
-  **Status: Committed — plan P6.**
+- **BagIt container ingest** — drop a `.zip` with `bagit.txt` +
+  `manifest-<alg>.txt` + `data/` into a watched folder; Heratio
+  verifies checksums, parses `bag-info.txt`, and ingests each `data/`
+  file under one IO identified by `External-Identifier`. ✅ **Delivered
+  (P6).**
 - **EAD / MARC21 / MODS / LIDO native ingress XSLTs** — drop the
   institution's existing XML standard directly into the watched folder;
   Heratio transforms to the canonical `heratioScan` envelope on ingest.
@@ -470,8 +555,12 @@ yet scheduled.
   Cantaloupe. **Status: Committed — plan P7.**
 - **HTR** (handwritten text recognition) on opt-in, routed to the
   on-premise Ollama server. **Status: Committed — plan P7.**
-- **Retry/backoff, quarantine UI, email notifications** for pipeline
-  failures. **Status: Committed — plan P6.**
+- **Retry/backoff + quarantine UX + email notifications**:
+  `ahg:scan-retry-failed` runs every 5 minutes via cron and re-dispatches
+  failed files using an exponential backoff ladder (15min → 1h → 4h →
+  24h → 72h, configurable). "Restore from quarantine" on the Inbox
+  detail view. Bulk retry / discard on the Inbox list. Per-folder email
+  recipients notified after the final failure. ✅ **Delivered (P6).**
 - **RAW → DNG preservation derivatives** — keep proprietary RAW
   (CR2 / NEF / ARW / RAF) as preservation master and auto-generate
   open-standard DNG for delivery to Cantaloupe. **Status: Open —

@@ -117,6 +117,28 @@ class ScanWatchCommand extends Command
                 continue;
             }
 
+            // BagIt detection: a .zip that contains bagit.txt is a bag, not
+            // a regular file. Unpack it here and enqueue each data/ file
+            // as its own ingest_file row; then skip this zip.
+            if (\AhgScan\Services\BagItIngestService::isBag($full)) {
+                try {
+                    $result = \AhgScan\Services\BagItIngestService::ingest($full, $folder);
+                    if ($result['enqueued'] > 0 || !empty($result['warnings'])) {
+                        $wmsg = $result['warnings'] ? (' warnings=' . count($result['warnings'])) : '';
+                        $this->info("[{$folder->code}] BagIt: enqueued {$result['enqueued']} from {$fileInfo->getFilename()}{$wmsg}");
+                    }
+                    // Move the bag off so we don't re-process it next pass.
+                    if ($folder->disposition_success === 'move') {
+                        $archive = rtrim(config('heratio.scan.archive_path'), '/') . '/' . date('Y/m');
+                        if (!is_dir($archive)) { @mkdir($archive, 0775, true); }
+                        @rename($full, $archive . '/' . basename($full));
+                    }
+                } catch (\Throwable $e) {
+                    $this->warn("[{$folder->code}] BagIt ingest failed for {$fileInfo->getFilename()}: " . $e->getMessage());
+                }
+                continue;
+            }
+
             // Dedupe: skip if already staged for this session
             $hash = @hash_file('sha256', $full);
             if (!$hash) {

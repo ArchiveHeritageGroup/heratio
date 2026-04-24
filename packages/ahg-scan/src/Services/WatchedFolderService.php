@@ -96,6 +96,8 @@ class WatchedFolderService
                 'disposition_failure' => $data['disposition_failure'] ?? 'quarantine',
                 'min_quiet_seconds' => (int) ($data['min_quiet_seconds'] ?? config('heratio.scan.min_quiet_seconds', 10)),
                 'enabled' => (int) ($data['enabled'] ?? 1),
+                'notify_emails' => $data['notify_emails'] ?: null,
+                'notify_on_failure' => (int) ($data['notify_on_failure'] ?? 0),
                 'created_at' => now(),
             ]);
         });
@@ -117,6 +119,8 @@ class WatchedFolderService
                 'disposition_failure' => $data['disposition_failure'] ?? $folder->disposition_failure,
                 'min_quiet_seconds' => (int) ($data['min_quiet_seconds'] ?? $folder->min_quiet_seconds),
                 'enabled' => isset($data['enabled']) ? (int) $data['enabled'] : $folder->enabled,
+                'notify_emails' => array_key_exists('notify_emails', $data) ? ($data['notify_emails'] ?: null) : $folder->notify_emails,
+                'notify_on_failure' => array_key_exists('notify_on_failure', $data) ? (int) $data['notify_on_failure'] : $folder->notify_on_failure,
             ]);
 
             if (!empty($folder->ingest_session_id)) {

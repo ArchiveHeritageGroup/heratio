@@ -47,5 +47,8 @@ return [
         'archive_path' => env('HERATIO_SCAN_ARCHIVE', env('HERATIO_STORAGE_PATH', base_path('uploads')) . '/.scan_archived'),
         'min_quiet_seconds' => (int) env('HERATIO_SCAN_MIN_QUIET', 10),
         'max_attempts' => (int) env('HERATIO_SCAN_MAX_ATTEMPTS', 5),
+        // Exponential backoff ladder (minutes per attempt); comma-separated.
+        // Default: 15 min → 1 h → 4 h → 24 h → 72 h.
+        'retry_backoff_minutes' => env('HERATIO_SCAN_RETRY_BACKOFF', '15,60,240,1440,4320'),
     ],
 ];

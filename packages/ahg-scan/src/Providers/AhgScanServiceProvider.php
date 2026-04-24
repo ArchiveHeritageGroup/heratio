@@ -48,6 +48,7 @@ class AhgScanServiceProvider extends ServiceProvider
                 \AhgScan\Console\ScanWatchCommand::class,
                 \AhgScan\Console\ScanProcessCommand::class,
                 \AhgScan\Console\ScanInstallCommand::class,
+                \AhgScan\Console\ScanRetryFailedCommand::class,
             ]);
         }
 

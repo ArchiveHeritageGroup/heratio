@@ -38,6 +38,7 @@ class ScanFolderController extends Controller
             'auto_commit' => 1,
             'derivative_thumbnails' => 1, 'derivative_reference' => 1,
             'process_virus_scan' => 1, 'process_ocr' => 0,
+            'notify_emails' => '', 'notify_on_failure' => 0,
         ];
         $parents = $this->parentOptions();
         $repositories = $this->repositoryOptions();
@@ -61,7 +62,8 @@ class ScanFolderController extends Controller
                 'sf.*',
                 's.sector', 's.standard', 's.parent_id', 's.repository_id',
                 's.auto_commit', 's.derivative_thumbnails', 's.derivative_reference',
-                's.process_virus_scan', 's.process_ocr'
+                's.process_virus_scan', 's.process_ocr',
+                's.spectrum_auto_enter', 's.output_create_authorities'
             )
             ->first();
         abort_unless($folder, 404);
@@ -109,6 +111,8 @@ class ScanFolderController extends Controller
             'auto_commit' => 'nullable|boolean',
             'spectrum_auto_enter' => 'nullable|boolean',
             'output_create_authorities' => 'nullable|boolean',
+            'notify_emails' => 'nullable|string|max:1024',
+            'notify_on_failure' => 'nullable|boolean',
         ];
         if (!$existingId) {
             $rules['code'] .= '|unique:scan_folder,code';
@@ -116,7 +120,7 @@ class ScanFolderController extends Controller
         $data = $request->validate($rules);
 
         // normalise boolean-ish checkboxes
-        foreach (['enabled', 'auto_commit', 'spectrum_auto_enter', 'output_create_authorities'] as $k) {
+        foreach (['enabled', 'auto_commit', 'spectrum_auto_enter', 'output_create_authorities', 'notify_on_failure'] as $k) {
             $data[$k] = (int) ($data[$k] ?? $request->input($k) ? 1 : 0);
         }
 

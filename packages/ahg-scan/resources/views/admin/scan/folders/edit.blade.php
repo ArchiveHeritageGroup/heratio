@@ -152,6 +152,22 @@
     </div>
 
     <div class="card mb-3">
+        <div class="card-header"><strong>Notifications</strong></div>
+        <div class="card-body">
+            <div class="form-check form-switch mb-3">
+                <input type="hidden" name="notify_on_failure" value="0">
+                <input type="checkbox" name="notify_on_failure" value="1" class="form-check-input" id="nof" {{ old('notify_on_failure', $folder->notify_on_failure ?? 0) ? 'checked' : '' }}>
+                <label class="form-check-label" for="nof">Email on final failure — notify only after all retries have been exhausted.</label>
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Recipients</label>
+                <input type="text" name="notify_emails" value="{{ old('notify_emails', $folder->notify_emails ?? '') }}" class="form-control" maxlength="1024" placeholder="archivist@example.org, ops@example.org">
+                <div class="form-text">Comma-separated email addresses. Leave empty to disable.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
         <div class="card-header"><strong>Disposition</strong></div>
         <div class="card-body">
             <div class="row">

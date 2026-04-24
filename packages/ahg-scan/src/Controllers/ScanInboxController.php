@@ -107,6 +107,75 @@ class ScanInboxController extends Controller
     }
 
     /**
+     * Restore a quarantined file — move it back to pending so the retry
+     * path picks it up. The file contents may still be in the quarantine
+     * folder; the path is left intact so stageResolveDestination can
+     * locate it on next run.
+     */
+    public function restore(int $id)
+    {
+        $file = DB::table('ingest_file')->where('id', $id)->first();
+        abort_unless($file, 404);
+        if ($file->status !== 'quarantined') {
+            return redirect()->back()->with('error', 'File is not quarantined.');
+        }
+        DB::table('ingest_file')->where('id', $id)->update([
+            'status' => 'pending',
+            'stage' => null,
+            'error_message' => null,
+            'completed_at' => null,
+        ]);
+        \AhgScan\Jobs\ProcessScanFile::dispatch($id, null);
+        return redirect()->route('scan.inbox.show', $id)->with('notice', 'File restored from quarantine; retry dispatched.');
+    }
+
+    /**
+     * Bulk operations — retry or discard many files in one request.
+     * Accepts `ids[]` array and an `action` form field.
+     */
+    public function bulk(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        $action = $request->input('action', '');
+        if (!is_array($ids) || empty($ids)) {
+            return redirect()->back()->with('error', 'No files selected.');
+        }
+        $ids = array_values(array_filter(array_map('intval', $ids)));
+        $count = 0;
+
+        switch ($action) {
+            case 'retry':
+                foreach ($ids as $id) {
+                    $f = DB::table('ingest_file')->where('id', $id)->first();
+                    if (!$f || !in_array($f->status, ['failed', 'pending', 'quarantined'])) { continue; }
+                    DB::table('ingest_file')->where('id', $id)->update([
+                        'status' => 'pending', 'stage' => null, 'error_message' => null, 'completed_at' => null,
+                    ]);
+                    \AhgScan\Jobs\ProcessScanFile::dispatch($id, null);
+                    $count++;
+                }
+                return redirect()->route('scan.inbox.index', $request->except(['ids', 'action', '_token']))
+                    ->with('notice', "Dispatched {$count} retry(s).");
+
+            case 'discard':
+                $count = DB::table('ingest_file')
+                    ->whereIn('id', $ids)
+                    ->whereNotIn('status', ['done', 'duplicate'])
+                    ->update([
+                        'status' => 'quarantined',
+                        'stage' => null,
+                        'error_message' => 'Discarded by admin (bulk)',
+                        'completed_at' => now(),
+                    ]);
+                return redirect()->route('scan.inbox.index', $request->except(['ids', 'action', '_token']))
+                    ->with('notice', "Discarded {$count} file(s).");
+
+            default:
+                return redirect()->back()->with('error', 'Unknown bulk action: ' . $action);
+        }
+    }
+
+    /**
      * Release rights hold — resume the pipeline from the point it stopped
      * (deriving + indexing only, skipping re-resolve which would dedupe).
      */

@@ -80,11 +80,19 @@
         <div class="card">
             <div class="card-header"><strong>Actions</strong></div>
             <div class="card-body d-grid gap-2">
-                @if(in_array($file->status, ['failed', 'pending', 'quarantined']))
+                @if(in_array($file->status, ['failed', 'pending']))
                     <form method="POST" action="{{ route('scan.inbox.retry', $file->id) }}">
                         @csrf
                         <button class="btn btn-outline-primary w-100">
                             <i class="fas fa-redo me-1"></i>Retry now
+                        </button>
+                    </form>
+                @endif
+                @if($file->status === 'quarantined')
+                    <form method="POST" action="{{ route('scan.inbox.restore', $file->id) }}" onsubmit="return confirm('Restore this file from quarantine and re-dispatch for ingest?')">
+                        @csrf
+                        <button class="btn btn-outline-warning w-100">
+                            <i class="fas fa-box-open me-1"></i>Restore from quarantine
                         </button>
                     </form>
                 @endif
