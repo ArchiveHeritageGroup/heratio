@@ -29,6 +29,7 @@ class AlternateFormatTransformer
         'marc21' => 'marc21-to-heratio.xsl',
         'mods' => 'mods-to-heratio.xsl',
         'lido' => 'lido-to-heratio.xsl',
+        'mets' => 'mets-to-heratio.xsl',
     ];
 
     /**
@@ -120,6 +121,8 @@ class AlternateFormatTransformer
                 // LIDO
                 if ($local === 'lido' && str_contains($ns, 'lido-schema.org')) { return 'lido'; }
                 if ($local === 'lidoWrap') { return 'lido'; }
+                // METS — wrapper that can carry DC/MODS/etc. inside dmdSec
+                if ($local === 'mets' && str_contains($ns, 'loc.gov/METS')) { return 'mets'; }
                 return null;
             }
         }

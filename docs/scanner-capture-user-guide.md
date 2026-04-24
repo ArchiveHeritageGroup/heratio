@@ -521,6 +521,7 @@ standards directly — no need to hand-convert to `heratioScan` first:
 | MARC21-XML | `<record>` / `<collection>` in `http://www.loc.gov/MARC21/slim` | `marc21-to-heratio.xsl` | library |
 | MODS 3.x | `<mods>` / `<modsCollection>` in `http://www.loc.gov/mods/v3` | `mods-to-heratio.xsl` | library |
 | LIDO 1.0 / 1.1 | `<lido>` in `http://www.lido-schema.org` | `lido-to-heratio.xsl` | gallery |
+| METS (DC / MODS dmdSec) | `<mets>` in `http://www.loc.gov/METS/` | `mets-to-heratio.xsl` | archive (default) |
 
 **What gets mapped** (most common fields — see the XSLT source for the full
 crosswalk):
@@ -544,6 +545,17 @@ actorInRole/nameActorSet → artist (with actorID as URI), eventDate
 earliestDate/latestDate → creation date range, materialsTech → materials
 list, objectMeasurementsSet → dimension entries, displayMaterialsTech →
 medium, objectDescriptionSet → envelope `scopeAndContent`.
+
+**METS** — handles the "simple METS" profile used by Archivematica AIPs
+and DSpace AIPs. `@OBJID` → identifier (or dmdSec DC/MODS identifier if
+present). Extracts the first `dmdSec/mdWrap` with `MDTYPE='DC'` or
+`MDTYPE='MODS'` and maps those fields directly. Other MDTYPEs (MARC,
+EAD, DDI, TEI, VRA) emit a shell heratioScan with the OBJID as
+identifier — operators should export the dmdSec content as a
+standalone XML and feed it directly to the matching parser for full
+field coverage. `fileSec` / `structMap` are ignored — the scanner
+ingests one payload file per sidecar and the structure is expressed
+via Heratio's IO hierarchy.
 
 **Things that don't round-trip** (by design): 008 language codes from
 MARC21 (parsing fixed-position fields is fiddly — use 041 if your

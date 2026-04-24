@@ -205,6 +205,34 @@ class IngestController extends Controller
         // is reserved for the AJAX progress poll.
         if ($request->isMethod('post') && $request->input('form_action') !== 'status') {
             try {
+                // Large batches run on the queue so the web request doesn't
+                // time out. Threshold is configurable; sync remains an option
+                // for small batches + sites without a queue worker.
+                $threshold = (int) config('heratio.ingest.queue_threshold', 500);
+                $rowCount = \Illuminate\Support\Facades\DB::table('ingest_row')
+                    ->where('session_id', $id)
+                    ->where('is_valid', 1)
+                    ->where('is_excluded', 0)
+                    ->count();
+
+                if ($threshold > 0 && $rowCount >= $threshold) {
+                    // Seed an ingest_job row so the UI polling sees "running"
+                    // immediately while the queue worker picks up the job.
+                    \Illuminate\Support\Facades\DB::table('ingest_job')->insert([
+                        'session_id' => $id,
+                        'status' => 'queued',
+                        'total_rows' => $rowCount,
+                        'processed_rows' => 0,
+                        'created_records' => 0,
+                        'created_dos' => 0,
+                        'error_count' => 0,
+                        'created_at' => now(),
+                    ]);
+                    \AhgIngest\Jobs\IngestCommitJob::dispatch($id);
+                    return redirect()->route('ingest.commit', $id)
+                        ->with('notice', "Commit dispatched to queue ({$rowCount} rows) — this page will auto-refresh as progress lands.");
+                }
+
                 $runner = app(\AhgIngest\Services\IngestCommitRunner::class);
                 $result = $runner->run($id);
                 return redirect()->route('ingest.commit', $id)

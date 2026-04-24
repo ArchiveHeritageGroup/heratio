@@ -15,7 +15,7 @@ Invocation paths:
 - **Web UI**: the "Start Commit" button on the commit page posts to `/ingest/{id}/commit` which triggers the runner synchronously.
 - **CLI**: `php artisan ahg:ingest-commit <session_id>` — useful for long batches or scripted workflows.
 
-For very large batches (>5,000 rows), run from the CLI or move the trigger into a queued job; the sync web path is fine for the CSV sizes the wizard typically handles.
+For very large batches, the web commit path **automatically dispatches to the Laravel queue worker** when the session's valid-row count is at or above `heratio.ingest.queue_threshold` (default 500, configurable via `HERATIO_INGEST_QUEUE_THRESHOLD`). The commit view polls the seeded `ingest_job` row for progress — the UI behaves identically whether the run is sync or queued. If your deployment doesn't run a queue worker, set the threshold very high (or to 0 — which disables the queue path entirely) to force sync, and use `php artisan ahg:ingest-commit <session_id>` on the CLI for long-running batches.
 
 ---
 

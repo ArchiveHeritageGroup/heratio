@@ -36,6 +36,13 @@ return [
     // exported to. Sessions can override via ingest_session.output_*_path.
     'packages_path' => env('HERATIO_PACKAGES_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads')) . '/packages'),
 
+    // Ingest wizard — at or above this row count, commit dispatches to the
+    // queue worker instead of running synchronously on the web request.
+    // Set to 0 to force sync always; set very high to force queue always.
+    'ingest' => [
+        'queue_threshold' => (int) env('HERATIO_INGEST_QUEUE_THRESHOLD', 500),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Scanner / capture pipeline (ahg-scan)

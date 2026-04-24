@@ -813,10 +813,13 @@ is delivered. SIP/AIP/DIP packaging still needs no new work.
 
 ## 12. Open questions
 
-1. **Sidecar format** — stick with our own `heratioScan` XML, or also accept
-   METS? (METS is heavier but expected by some institutions.) **Proposed**:
-   support our XML as canonical, ship a METS→heratioScan transformer as a
-   plugin rather than in core.
+1. **Sidecar format** — ~~stick with our own `heratioScan` XML, or also accept
+   METS?~~ **Resolved (2026-04-24)**: both. `heratioScan` is the canonical
+   envelope; `mets-to-heratio.xsl` ships in the same transforms directory
+   as EAD / MARC21 / MODS / LIDO and handles the common Archivematica-AIP
+   and DSpace-AIP profiles (dmdSec with DC or MODS inside). Full METS
+   flexibility (MARC-in-METS, PREMIS-in-METS, nested structMap) is out of
+   scope — operators with those should unwrap the dmdSec first.
 2. **Identifier collisions** — if two scans drop the same `identifier` under
    the same parent, is that a duplicate page (add sequence) or a conflict
    (quarantine)? **Proposed**: default to "add sequence"; flag with
