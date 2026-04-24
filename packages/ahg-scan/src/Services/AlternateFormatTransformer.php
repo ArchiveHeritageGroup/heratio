@@ -26,9 +26,9 @@ class AlternateFormatTransformer
     /** Map of detected format → XSLT filename (in resources/transforms/). */
     protected const STYLESHEETS = [
         'ead' => 'ead-to-heratio.xsl',
-        // 'marc21' => 'marc21-to-heratio.xsl',   // P7.1 — stub below flags unknown
-        // 'mods' => 'mods-to-heratio.xsl',       // P7.1
-        // 'lido' => 'lido-to-heratio.xsl',       // P7.1
+        'marc21' => 'marc21-to-heratio.xsl',
+        'mods' => 'mods-to-heratio.xsl',
+        'lido' => 'lido-to-heratio.xsl',
     ];
 
     /**

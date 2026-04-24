@@ -877,12 +877,14 @@ is delivered. SIP/AIP/DIP packaging still needs no new work.
     **Proposed**: treat `External-Identifier` as IO identifier; everything
     else goes into `media_metadata` as provenance. Map table shipped with
     the BagIt ingester.
-11. **Alternate descriptive-standard ingress** — when an institution drops
-    an EAD/MARC/LIDO file instead of our heratioScan XML, do we ship
-    XSLTs for each, or require external pre-conversion? **Proposed**: ship
-    XSLTs for the common four (EAD, MARC21-XML, MODS, LIDO) in
-    `ahg-ingest/resources/transforms/` — P7 scope. Anything else goes
-    through a separate transform package.
+11. **Alternate descriptive-standard ingress** — ~~ship XSLTs for the
+    common four (EAD, MARC21-XML, MODS, LIDO)?~~ **Resolved (2026-04-24)**:
+    all four shipped in `packages/ahg-scan/resources/transforms/`.
+    `AlternateFormatTransformer` detects by root + namespace and applies
+    the matching stylesheet. End-to-end verified with samples from each
+    format producing populated IO + sector-specific rows
+    (`library_item` / `gallery_artwork` / `museum_metadata`). METS is
+    the next candidate — same framework, drop in `mets-to-heratio.xsl`.
 
 ## 12a. OAIS packaging (delivered between P6 and P7)
 

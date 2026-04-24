@@ -510,6 +510,54 @@ wrap the same API surface and add drag-and-drop from Finder/Explorer.
 The TUI covers the same workflow for sites that don't need
 binary distribution.
 
+## Native-format sidecars (EAD / MARC21 / MODS / LIDO)
+
+A watched folder in `flat-sidecar` layout will accept any of these XML
+standards directly — no need to hand-convert to `heratioScan` first:
+
+| Format | Root element / namespace | Stylesheet | Sector routed to |
+|---|---|---|---|
+| EAD 2002 / 3 | `<ead>` / `<archdesc>` / `<c>` in `urn:isbn:1-931666-22-9` | `ead-to-heratio.xsl` | archive |
+| MARC21-XML | `<record>` / `<collection>` in `http://www.loc.gov/MARC21/slim` | `marc21-to-heratio.xsl` | library |
+| MODS 3.x | `<mods>` / `<modsCollection>` in `http://www.loc.gov/mods/v3` | `mods-to-heratio.xsl` | library |
+| LIDO 1.0 / 1.1 | `<lido>` in `http://www.lido-schema.org` | `lido-to-heratio.xsl` | gallery |
+
+**What gets mapped** (most common fields — see the XSLT source for the full
+crosswalk):
+
+**MARC21** — 020→ISBN, 022→ISSN, 010→LCCN, 035→OCLC, 050→LC call number,
+082→Dewey, 100/110/111/700/710→creators (with LCNAF vocab), 245→title +
+subtitle (trailing `/:,` stripped), 250→edition, 260/264→publisher/place
+(264 with `ind2=1` preferred per RDA), 300→extent + dimensions, 490→series,
+520→scope, 600-655→LCSH subjects with `--v` / `--x` subdivision joining.
+
+**MODS** — titleInfo (title+subTitle), name (with authority/valueURI +
+roleTerm), originInfo (publisher/place/date/edition), physicalDescription
+(extent/form), identifier[type] (isbn/issn/doi/lccn/oclc) mapped to
+dedicated profile columns, subject/topic|geographic|temporal|genre,
+abstract → envelope-level `scopeAndContent`, location/shelfLocator →
+callNumber.
+
+**LIDO** — lidoRecID → identifier, titleSet/appellationValue → title,
+objectWorkType → workType (aat-tagged), Creation-event's
+actorInRole/nameActorSet → artist (with actorID as URI), eventDate
+earliestDate/latestDate → creation date range, materialsTech → materials
+list, objectMeasurementsSet → dimension entries, displayMaterialsTech →
+medium, objectDescriptionSet → envelope `scopeAndContent`.
+
+**Things that don't round-trip** (by design): 008 language codes from
+MARC21 (parsing fixed-position fields is fiddly — use 041 if your
+source emits it; add handling when needed); alternate titles in MODS;
+LIDO's full `classificationWrap` (only the first work type term is
+used); full hierarchy — the scanner creates one IO per sidecar; if you
+have a nested-description finding aid, use the batch EAD loader in
+the ingest wizard instead.
+
+Adding more formats (METS, MARC-in-JSON, Darwin Core Archive XML) is
+just dropping a new `<format>-to-heratio.xsl` file alongside the
+existing four and registering it in
+`AlternateFormatTransformer::STYLESHEETS`.
+
 ## Relationship to the Ingest wizard
 
 The scanner is not a parallel system — it's a different **entry point** into
@@ -586,13 +634,13 @@ yet scheduled.
   verifies checksums, parses `bag-info.txt`, and ingests each `data/`
   file under one IO identified by `External-Identifier`. ✅ **Delivered
   (P6).**
-- **EAD / MARC21 / MODS / LIDO native ingress** — drop an EAD, MARC21-XML,
-  MODS, or LIDO sidecar into a watched folder; `AlternateFormatTransformer`
-  detects the format and applies the right XSLT to produce a canonical
-  `heratioScan` envelope before parsing. ✅ **Delivered (P7)** — EAD
-  stylesheet ships in `packages/ahg-scan/resources/transforms/`; MARC21 /
-  MODS / LIDO are detected but flagged "transform pending" (add the XSLT
-  file next to EAD's to enable).
+- **EAD / MARC21 / MODS / LIDO native ingress** — drop any of these native
+  XML standards into a watched folder; `AlternateFormatTransformer` detects
+  the format by root element + namespace and applies the matching XSLT to
+  produce a canonical `heratioScan` envelope before parsing. ✅ **All four
+  stylesheets delivered.** EAD (P7, 2026-04-24) + MARC21 / MODS / LIDO
+  (Y1 follow-up, 2026-04-24). Stylesheets live in
+  `packages/ahg-scan/resources/transforms/`.
 - **Audio / video derivatives** — `MediaDerivativeService` generates
   waveform PNG + MP3 128 kbps preview for audio; MP4 480p preview + poster
   frame for video. Runs via `ffmpeg`. ✅ **Delivered (P7).**
