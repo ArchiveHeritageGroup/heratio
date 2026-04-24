@@ -233,6 +233,7 @@ SQL
                 ['rights', 'Rights enforcement', null, null, 48],
                 ['deriving', 'Generating derivatives', null, null, 50],
                 ['indexing', 'Indexing', null, null, 60],
+                ['packaging', 'OAIS packaging (SIP/AIP/DIP)', null, null, 70],
             ]],
             ['taxonomy' => 'scan_folder_layout', 'label' => 'Scan Folder Layout', 'section' => 'scan', 'rows' => [
                 ['path', 'Path as destination', null, null, 10],

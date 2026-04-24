@@ -408,6 +408,47 @@ folder. Heratio will:
 Checksum mismatches or missing manifest entries surface as warnings in
 the Inbox detail view without failing other files in the same bag.
 
+## OAIS packaging (SIP / AIP / DIP)
+
+When a watched folder's session has any of `output_generate_sip`,
+`output_generate_aip`, or `output_generate_dip` turned on, the scanner
+pipeline runs a **packaging** stage after indexing that builds a BagIt
+zip for each requested type.
+
+| Type | Contents | Intended use |
+|---|---|---|
+| **SIP** (Submission) | Master file(s) + Dublin Core descriptive XML | What was submitted to the archive — the raw form |
+| **AIP** (Archival) | Master + all derivatives + Dublin Core + PREMIS 3.0 events + fixity manifest | Long-term preservation bundle; what's stored |
+| **DIP** (Dissemination) | Access derivatives only (reference + thumbnail) + Dublin Core | What's delivered to users; no master, no preservation record |
+
+All three use BagIt 1.0 (RFC 8493): `bagit.txt` + `bag-info.txt` +
+`manifest-sha256.txt` + `tagmanifest-sha256.txt` + `data/` tree.
+
+**Where packages land.** By default under
+`{heratio.storage_path}/packages/exports/<uuid>.zip`. Override per
+session via the ingest wizard's configure step (`output_sip_path`,
+`output_aip_path`, `output_dip_path`) or per folder by editing the
+backing ingest session through the "Configure processing" deep-link.
+
+**What gets recorded.** Each package inserts a row in
+`preservation_package` (with uuid, type, status, export path, checksum,
+object count, total size) plus one `preservation_package_object` per
+included file (master + each derivative, with role, PUID, checksum).
+A `preservation_package_event` of type `packageBuilt` marks the build.
+A PREMIS `accession (SIP)` / `preservation (AIP)` / `dissemination
+(DIP)` event is also written to `preservation_event` so the IO's
+event chain reflects the packaging.
+
+**Viewing packages.** `Admin → Preservation → Packages` lists them and
+lets operators download the zip. Packages also appear on each IO's
+preservation tab.
+
+**Honest gap.** The Ingest wizard's "Commit" view shows SIP/AIP/DIP
+checkboxes, but the wizard has **no batch commit runner** at all (no
+ingest_job is ever actually executed). Packaging runs correctly from
+the scanner path; the wizard's commit path needs separate work before
+packaging applies there.
+
 ## Retry, backoff, and notifications
 
 **Automatic retries**: the `ahg:scan-retry-failed` command runs every 5

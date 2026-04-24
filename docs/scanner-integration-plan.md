@@ -884,6 +884,28 @@ is delivered. SIP/AIP/DIP packaging still needs no new work.
     `ahg-ingest/resources/transforms/` — P7 scope. Anything else goes
     through a separate transform package.
 
+## 12a. OAIS packaging (delivered between P6 and P7)
+
+The plan called packaging "a free benefit of reusing ingest." That was
+aspirational — there was no actual packager anywhere in Heratio when
+scanning work began. **Delivered 2026-04-24** as a standalone service
+`AhgIngest\Services\OaisPackagerService` usable from any context:
+
+- Builds SIP / AIP / DIP as BagIt 1.0 zips
+- SIP = master + descriptive XML; AIP = SIP + all derivatives + PREMIS
+  events + fixity manifest; DIP = access derivatives + descriptive only
+- Writes `preservation_package` + `preservation_package_object` +
+  `preservation_package_event` rows
+- Emits PREMIS `accession (SIP)` / `preservation (AIP)` /
+  `dissemination (DIP)` events per package
+- Default export under `{heratio.storage_path}/packages/exports/`;
+  overridable via `ingest_session.output_sip_path/aip_path/dip_path`
+
+Scanner pipeline wires packaging into `stagePackaging()` after
+indexing; honours session-level flags. Wizard still needs a batch
+commit runner before packaging applies to wizard-initiated ingests —
+flagged as a separate open gap.
+
 ## 13. Out of scope
 
 - Driving scanner hardware directly from Heratio (no TWAIN/WIA/SANE)

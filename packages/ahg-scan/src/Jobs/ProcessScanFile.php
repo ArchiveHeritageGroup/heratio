@@ -103,6 +103,7 @@ class ProcessScanFile implements ShouldQueue
             }
             self::stageDeriving($fileId);
             self::stageIndexing($fileId);
+            self::stagePackaging($fileId);
 
             DB::table('ingest_file')->where('id', $fileId)->update([
                 'status' => 'done',
@@ -532,6 +533,51 @@ class ProcessScanFile implements ShouldQueue
             // Non-fatal — ES unavailable just means the record is searchable
             // after the next scheduled reindex. Log and continue.
             Log::info('[ahg-scan] ES index skipped for IO ' . $file->resolved_io_id . ': ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Build SIP / AIP / DIP packages according to the session's
+     * output_generate_* flags. Per-file packaging — one IO = one set
+     * of packages. Failure here does NOT roll back the successful ingest.
+     */
+    protected static function stagePackaging(int $fileId): void
+    {
+        DB::table('ingest_file')->where('id', $fileId)->update(['stage' => 'packaging']);
+
+        $file = DB::table('ingest_file')->where('id', $fileId)->first();
+        if (!$file || !$file->resolved_io_id) { return; }
+        $session = DB::table('ingest_session')->where('id', $file->session_id)->first();
+        if (!$session) { return; }
+
+        $build = [
+            'sip' => !empty($session->output_generate_sip),
+            'aip' => !empty($session->output_generate_aip),
+            'dip' => !empty($session->output_generate_dip),
+        ];
+        if (!array_filter($build)) { return; } // all flags off → no packages
+
+        $packager = new \AhgIngest\Services\OaisPackagerService();
+        $exportPaths = [
+            'sip' => $session->output_sip_path ?: null,
+            'aip' => $session->output_aip_path ?: null,
+            'dip' => $session->output_dip_path ?: null,
+        ];
+
+        foreach ($build as $type => $enabled) {
+            if (!$enabled) { continue; }
+            try {
+                $opts = ['originator' => $session->title ?: 'heratio-scan'];
+                if (!empty($exportPaths[$type])) { $opts['export_path'] = $exportPaths[$type]; }
+                $packager->buildPackage((int) $file->resolved_io_id, $type, $opts);
+            } catch (\Throwable $e) {
+                Log::warning("[ahg-scan] {$type} package build failed for ingest_file {$fileId}: " . $e->getMessage());
+                // Record a soft warning on the file; pipeline still succeeds.
+                $existing = DB::table('ingest_file')->where('id', $fileId)->value('error_message');
+                DB::table('ingest_file')->where('id', $fileId)->update([
+                    'error_message' => trim(($existing ? $existing . "\n" : '') . "[packaging warning] {$type}: " . $e->getMessage()),
+                ]);
+            }
         }
     }
 
