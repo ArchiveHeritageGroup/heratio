@@ -78,6 +78,7 @@ class ProcessScanFile implements ShouldQueue
             $resolved = self::stageResolveDestination($fileId, $folder);
             self::stageIoAndDo($fileId, $resolved);
             self::stageMeta($fileId);
+            self::stageSectorRouting($fileId);
             self::stageDeriving($fileId);
             self::stageIndexing($fileId);
 
@@ -299,6 +300,51 @@ class ProcessScanFile implements ShouldQueue
             'resolved_io_id' => $result['io_id'],
             'resolved_do_id' => $result['do_id'],
         ]);
+    }
+
+    /**
+     * Write sector-specific metadata (library/gallery/museum) + DAM
+     * augmentation based on the parsed sidecar. No-op for archive sector or
+     * when no sidecar was supplied. Warnings from the router are appended
+     * to ingest_file.error_message as soft warnings (pipeline continues).
+     */
+    protected static function stageSectorRouting(int $fileId): void
+    {
+        DB::table('ingest_file')->where('id', $fileId)->update(['stage' => 'sector-route']);
+
+        $file = DB::table('ingest_file')->where('id', $fileId)->first();
+        if (!$file || !$file->resolved_io_id || !$file->resolved_do_id) {
+            return;
+        }
+        $session = DB::table('ingest_session')->where('id', $file->session_id)->first();
+        if (!$session) { return; }
+
+        $parsed = null;
+        if (!empty($file->sidecar_json)) {
+            $decoded = json_decode($file->sidecar_json, true);
+            if (is_array($decoded) && (isset($decoded['sector_profile']) || isset($decoded['rights']) || isset($decoded['dam_augmentation']))) {
+                $parsed = $decoded;
+            }
+        }
+
+        try {
+            $router = new \AhgScan\Services\SectorRoutingService();
+            $warnings = $router->route(
+                (int) $file->resolved_io_id,
+                (int) $file->resolved_do_id,
+                $parsed,
+                $session
+            );
+            if (!empty($warnings)) {
+                // Append to any existing error_message (kept as "soft warnings" — the pipeline succeeds).
+                DB::table('ingest_file')->where('id', $fileId)->update([
+                    'error_message' => trim(($file->error_message ? $file->error_message . "\n" : '') . "[sector warnings]\n" . implode("\n", $warnings)),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-scan] sector routing failed for ingest_file ' . $fileId . ': ' . $e->getMessage());
+            // Non-fatal — the base IO/DO are already created.
+        }
     }
 
     protected static function stageDeriving(int $fileId): void

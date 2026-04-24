@@ -107,6 +107,8 @@ class ScanFolderController extends Controller
             'disposition_failure' => 'required|in:quarantine,leave',
             'enabled' => 'nullable|boolean',
             'auto_commit' => 'nullable|boolean',
+            'spectrum_auto_enter' => 'nullable|boolean',
+            'output_create_authorities' => 'nullable|boolean',
         ];
         if (!$existingId) {
             $rules['code'] .= '|unique:scan_folder,code';
@@ -114,7 +116,7 @@ class ScanFolderController extends Controller
         $data = $request->validate($rules);
 
         // normalise boolean-ish checkboxes
-        foreach (['enabled', 'auto_commit'] as $k) {
+        foreach (['enabled', 'auto_commit', 'spectrum_auto_enter', 'output_create_authorities'] as $k) {
             $data[$k] = (int) ($data[$k] ?? $request->input($k) ? 1 : 0);
         }
 

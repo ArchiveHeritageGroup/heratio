@@ -120,6 +120,16 @@
                 <input type="checkbox" name="auto_commit" value="1" class="form-check-input" id="ac" {{ old('auto_commit', $folder->auto_commit ?? 1) ? 'checked' : '' }}>
                 <label class="form-check-label" for="ac"><strong>Auto-commit</strong> — process files automatically without human approval (default on)</label>
             </div>
+            <div class="form-check form-switch mb-3">
+                <input type="hidden" name="output_create_authorities" value="0">
+                <input type="checkbox" name="output_create_authorities" value="1" class="form-check-input" id="oca" {{ old('output_create_authorities', $folder->output_create_authorities ?? 1) ? 'checked' : '' }}>
+                <label class="form-check-label" for="oca"><strong>Auto-create authorities</strong> — when a sidecar names a new creator/artist that doesn't exist, create a draft actor record (default on). Turn off to skip files with unknown creators instead.</label>
+            </div>
+            <div class="form-check form-switch mb-3">
+                <input type="hidden" name="spectrum_auto_enter" value="0">
+                <input type="checkbox" name="spectrum_auto_enter" value="1" class="form-check-input" id="sae" {{ old('spectrum_auto_enter', $folder->spectrum_auto_enter ?? 0) ? 'checked' : '' }}>
+                <label class="form-check-label" for="sae"><strong>Spectrum auto-entry</strong> — for museum-sector scans, automatically create a Spectrum object-entry + acquisition record and enter the configured workflow (default off).</label>
+            </div>
 
             @if($folder->id && !empty($folder->ingest_session_id ?? null))
                 <div class="alert alert-info d-flex align-items-center justify-content-between mb-0">

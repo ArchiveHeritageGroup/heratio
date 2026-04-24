@@ -800,7 +800,7 @@ path.
 |---|---|---|---|
 | **P1 — Ingest streaming mode** | `ingest_session.session_kind/auto_commit/source_ref` + `ingest_file` per-file state columns (§6.1). Teach `IngestService`/`IngestJob` to run in streaming mode. Add `ingestFile()` entry point that reuses the wizard's commit logic per file. | 1.5 weeks | Existing wizard unchanged; manually-inserted `ingest_file` rows on a `session_kind=watched_folder` session get processed end-to-end into IO + DO |
 | **P2 — Mode A watcher + dashboard + archive profile** | `scan_folder` table, `ScanWatchCommand`, admin dashboard (read-only filtered view of ingest), folder CRUD reusing `/ingest/configure`, Mode A path-layout, archive-sector sidecar profile | 2 weeks | Drop TIFF into folder with ISAD(G) sidecar → IO + DO + controlled-vocab resolution → dashboard shows throughput |
-| **P3 — Sector profiles (library / gallery / museum) + DAM augmentation** | Library/gallery/museum sidecar parsers + sector-routing stage (5.1 step 6) writing `library_item` / `gallery_artwork` / `museum_object` / `museum_metadata`, Spectrum workflow hook, `damAugmentation` merge, controlled-vocab resolver for AAT/ULAN/TGN/LCSH/Iconclass | 3 weeks | A gallery-sector session populates `gallery_artwork` + `gallery_artist` link; a museum session with Spectrum active creates `spectrum_object_entry`; a library session populates `library_item` + `library_copy` |
+| **P3 — Sector profiles (library / gallery / museum) + DAM augmentation** ✅ **DELIVERED 2026-04-24** | Library/gallery/museum sidecar parsers + sector-routing stage writing `library_item` / `gallery_artwork` / `museum_object` / `museum_metadata`, Spectrum workflow hook (opt-in per session), `damAugmentation` merge into `dam_iptc_metadata`, authority auto-creation for creators/artists (opt-out per session), controlled-vocab lookup (creation deferred to P7) | 3 weeks | ✅ End-to-end verified: library sidecar → `library_item` + creators + subjects + holdings; gallery sidecar → `gallery_artwork` + auto-created actor + `gallery_artist` + creation event + `gallery_valuation` + `museum_metadata`; museum sidecar → `museum_object` + `museum_metadata` + (when opted-in) `spectrum_object_entry` + `spectrum_acquisition` |
 | **P4 — PREMIS + format ID + rights enforcement** | DROID/PRONOM format-ID stage, PREMIS event emission per stage, rights-enforcement stage (embargo + CC + ODRL + TK), "awaiting rights" hold state | 2 weeks | Every ingested file has full PREMIS event chain + format PUID; ingest halts for missing rights when security classification demands it |
 | **P5 — Sidecar + Mode B API** ✅ **DELIVERED 2026-04-24** | Sidecar XML parser (envelope + archive profile, sector profiles preserved for P3), Mode A flat-sidecar layout, `scan_session_token` table, `/api/v2/scan/*` endpoints, wrapper scripts (ps1/sh/py) | 2.5 weeks | ✅ VueScan/NAPS2 post-scan hook creates fully-described IO via wrapper; archive sector fully round-trips. Library/gallery/museum profile *routing* (writing to sector tables) deferred to P3 as originally planned. |
 | **P6 — Reliability + Capture helper** | Retry/backoff, dedupe-on-hash, quarantine UI, email notifications, Tauri desktop helper MVP, BagIt container ingest | 4 weeks | Single archivist can scan ad-hoc and commit live; folder watcher survives day-long runs with ≥1 simulated failure injected; BagIt bag ingests as a bundle |
@@ -847,19 +847,23 @@ is delivered. SIP/AIP/DIP packaging still needs no new work.
    keyed on quiet-period — each run of the job runner for a session emits a
    new `ingest_job` row, closed when the file queue drains. Revisit after
    P2 dogfooding.
-7. **Spectrum workflow auto-activation** — should a museum-sector scan
+7. **Spectrum workflow auto-activation** — ~~should a museum-sector scan
    automatically create `spectrum_object_entry` + `spectrum_acquisition`
-   rows and enter the institution's configured Spectrum workflow, or only
-   when the sidecar explicitly includes `<spectrum>`? **Proposed**: opt-in
-   per `scan_folder` (and per API key) via a `spectrum_auto_enter` flag on
-   the ingest session, default off — avoids surprise workflow moves for
-   institutions not yet using Spectrum. Setting is in session config so
-   the existing ingest UI exposes it for free.
-8. **Authority-record creation** — when a sidecar names a new creator
+   rows and enter the institution's configured Spectrum workflow?~~
+   **Resolved (2026-04-24)**: opt-in per `scan_folder` / API session via
+   `ingest_session.spectrum_auto_enter` (default 0). When enabled and the
+   sidecar includes a `<spectrum>` block, the museum routing path creates
+   both rows with `workflow_state='received'`. Exposed as a toggle in the
+   folder edit form.
+8. **Authority-record creation** — ~~when a sidecar names a new creator
    (`<creator>` with no matching ULAN URI), do we auto-create an actor
-   record, or hold the file? **Proposed**: auto-create at `reserve` status
-   (draft, unpublished) so curators can later enrich and publish. Gated by
-   `ingest_session.output_create_records = 1` (already exists).
+   record, or hold the file?~~ **Resolved (2026-04-24)**: auto-create at
+   `description_status_id=232` (Draft) by default via
+   `ingest_session.output_create_authorities` (default 1). Draft actor
+   gets the sidecar's `uri=` stored in `actor.description_identifier` for
+   later reconciliation with ULAN / LCNAF / ORCID. Operators can disable
+   auto-creation per folder; missing creators then surface as soft
+   warnings in the Inbox detail view rather than failing the ingest.
 9. **RAW format handling** — proprietary camera RAW (CR2/NEF/ARW etc.) is
    opaque to most tools. Do we keep RAW as preservation master only and
    derive from an embedded JPEG, or require DNG conversion at ingest?

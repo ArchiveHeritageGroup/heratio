@@ -80,6 +80,8 @@ class WatchedFolderService
                 'derivative_reference' => (int) ($data['derivative_reference'] ?? 1),
                 'process_virus_scan' => (int) ($data['process_virus_scan'] ?? 1),
                 'process_ocr' => (int) ($data['process_ocr'] ?? 0),
+                'spectrum_auto_enter' => (int) ($data['spectrum_auto_enter'] ?? 0),
+                'output_create_authorities' => (int) ($data['output_create_authorities'] ?? 1),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

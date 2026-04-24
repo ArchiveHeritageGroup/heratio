@@ -106,10 +106,53 @@ The sidecar uses the `heratioScan` schema:
 ```
 
 One `<heratioScan>` per IO. Per sector you include exactly one profile
-(archiveProfile / libraryProfile / galleryProfile / museumProfile). For
-now only the archive common fields drive IO creation — sector-specific
-fields (artist, ISBN, accession number, Darwin Core taxonomy) are
-preserved on the ingest_file record ready for P3 sector routing.
+(archiveProfile / libraryProfile / galleryProfile / museumProfile).
+
+### Sector-aware routing
+
+When the sidecar sets `<sector>` (or the folder's session sector kicks in),
+the pipeline writes sector-specific rows **in addition to** the core IO:
+
+| Sector | Also writes to | Notes |
+|---|---|---|
+| `archive` | `information_object`, `information_object_i18n`, `slug`, `status` | Core only — nothing extra |
+| `library` | `library_item`, `library_item_creator`, `library_item_subject`, `library_copy`, `library_creator`, `library_subject` | ISBN/ISSN/edition/publisher/pagination; creators + subjects linked; `holdings/copy` entries populate `library_copy` |
+| `gallery` | `gallery_artwork`, `gallery_artist`, `gallery_valuation`, `museum_metadata`, `event` (type=Creation) | Artists auto-created as actors when `output_create_authorities=1`; descriptive fields (medium, techniques, dimensions, movement, provenance) land in `museum_metadata` (shared with museum sector) |
+| `museum` | `museum_object`, `museum_metadata`, `event`, plus optionally `spectrum_object_entry` + `spectrum_acquisition` when `spectrum_auto_enter=1` | Object number, accession number, classification, materials, cultural affiliation, measurements, current location, Spectrum workflow entry |
+
+### Authority auto-creation
+
+When a sidecar names a creator/artist that doesn't already exist, Heratio
+creates a **draft actor** record (`description_status_id = 232 — Draft`)
+so curators can later enrich and promote it to Final. Control this per
+watched folder (or per API session):
+
+- `output_create_authorities=1` (default): auto-create missing creators
+- `output_create_authorities=0`: skip the creator link and record a
+  warning in the Inbox — safer for sites where authority quality matters
+
+The draft actor has the sidecar's `uri` attribute stored in
+`actor.description_identifier`, so you can later reconcile against Getty
+ULAN / LCNAF / ORCID.
+
+### Spectrum auto-entry (museum sector)
+
+Off by default — museum scans create `museum_object` + `museum_metadata`
+only. Turn on `spectrum_auto_enter=1` at folder-config time to
+automatically create a `spectrum_object_entry` (workflow state:
+*received*) and a `spectrum_acquisition` row when the sidecar includes a
+`<spectrum>` block. Suitable for institutions that run the full Spectrum
+5.1 workflow.
+
+### Controlled vocabularies
+
+Sidecar values carrying `vocab=` / `uri=` attributes (AAT, ULAN, TGN,
+LCSH, LCNAF, Iconclass, Nomenclature 4, ITIS, GBIF) are preserved on the
+matching columns (`library_item_subject.uri`, `library_item_creator.authority_uri`)
+but **term resolution is lookup-only** in this release — if the term
+doesn't exist in Heratio's taxonomy, the raw label is written with a
+warning surfaced in the Inbox detail view. Full auto-creation of
+controlled-vocab terms is planned for P7.
 
 ### Quiet period
 Scanner software often writes a file in chunks. Heratio waits until a file
@@ -364,15 +407,12 @@ yet scheduled.
 - **Sector-aware destination routing (library / gallery / museum)** —
   parses sector-specific fields from the sidecar and writes to
   `library_item` / `gallery_artwork` / `museum_object` /
-  `museum_metadata`, plus optional Spectrum-workflow entry for museums.
-  Archive sector already works through path-layout. **Status: Committed —
-  plan P3.**
+  `museum_metadata`, plus optional Spectrum-workflow entry for museums,
+  plus authority auto-creation (creators/artists) with configurable
+  opt-out. ✅ **Delivered (P3).**
 - **Sidecar XML** (`<heratioScan>` envelope) — rich per-file metadata
-  without path encoding. ✅ **Envelope + archive profile: delivered (P5).**
-  Library / gallery / museum profile *field mapping* (writing to
-  `library_item`, `gallery_artwork`, `museum_object`) is **Committed —
-  plan P3**; sector-specific profile payload is already parsed and
-  preserved on `ingest_file.sidecar_json`, ready for P3 to consume.
+  without path encoding. ✅ **All four profiles delivered: archive (P5),
+  library / gallery / museum (P3).**
 - **Scan API** (`/api/v2/scan/*`) — direct integration with scanner
   applications (VueScan, NAPS2, ScanDirect, custom). ✅ **Delivered (P5).**
 - **Wrapper scripts** for PowerShell, bash, Python — plug into scanner

@@ -70,6 +70,12 @@ class ScanInstallCommand extends Command
         $this->addColumn('ingest_file', 'sidecar_json',
             "ALTER TABLE ingest_file ADD COLUMN sidecar_json JSON NULL AFTER sidecar_path");
 
+        // P3: sector routing flags (plan §12 Q#7 + Q#8)
+        $this->addColumn('ingest_session', 'spectrum_auto_enter',
+            "ALTER TABLE ingest_session ADD COLUMN spectrum_auto_enter TINYINT(1) NOT NULL DEFAULT 0 AFTER source_ref");
+        $this->addColumn('ingest_session', 'output_create_authorities',
+            "ALTER TABLE ingest_session ADD COLUMN output_create_authorities TINYINT(1) NOT NULL DEFAULT 1 AFTER spectrum_auto_enter");
+
         $this->createTable('scan_folder', <<<SQL
 CREATE TABLE `scan_folder` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
