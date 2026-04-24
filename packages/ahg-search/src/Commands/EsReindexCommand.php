@@ -27,6 +27,7 @@ class EsReindexCommand extends Command
 {
     protected $signature = 'ahg:es-reindex
         {--index= : Reindex a specific index (informationobject, actor, term, repository). Omit for all.}
+        {--id= : Reindex a single object by id (requires --index)}
         {--clone-from= : Clone mapping and data from an existing prefix (e.g. archive_) instead of building from MySQL}
         {--drop : Drop and recreate the target indices before reindexing}
         {--batch=500 : Batch size for bulk indexing}';
@@ -236,13 +237,17 @@ class EsReindexCommand extends Command
      */
     protected function reindexInformationobject(string $index): void
     {
-        $total = DB::table('information_object')->where('id', '!=', 1)->count();
+        $onlyId = $this->option('id') ? (int) $this->option('id') : null;
+
+        $countQuery = DB::table('information_object')->where('id', '!=', 1);
+        if ($onlyId) { $countQuery->where('id', $onlyId); }
+        $total = $countQuery->count();
         $this->info("  Found {$total} information objects");
         $bar = $this->output->createProgressBar($total);
 
-        DB::table('information_object')
-            ->where('id', '!=', 1)
-            ->orderBy('id')
+        $rowQuery = DB::table('information_object')->where('id', '!=', 1)->orderBy('id');
+        if ($onlyId) { $rowQuery->where('id', $onlyId); }
+        $rowQuery
             ->chunk($this->batchSize, function ($rows) use ($index, $bar) {
                 $ids = $rows->pluck('id')->toArray();
 
@@ -263,11 +268,11 @@ class EsReindexCommand extends Command
                     ->where('type_id', 158)
                     ->pluck('status_id', 'object_id');
 
-                // Batch-load digital objects
+                // Batch-load digital objects (digital_object.object_id links to information_object.id)
                 $digitalObjects = DB::table('digital_object')
-                    ->whereIn('information_object_id', $ids)
+                    ->whereIn('object_id', $ids)
                     ->get()
-                    ->keyBy('information_object_id');
+                    ->keyBy('object_id');
 
                 // Batch-load repository info
                 $repoIds = $rows->pluck('repository_id')->filter()->unique()->toArray();
@@ -285,13 +290,13 @@ class EsReindexCommand extends Command
                     }
                 }
 
-                // Batch-load creators via event table
+                // Batch-load creators via event table (event.object_id links to information_object.id)
                 $creators = DB::table('event')
-                    ->whereIn('information_object_id', $ids)
+                    ->whereIn('object_id', $ids)
                     ->where('type_id', 111) // creation event
                     ->whereNotNull('actor_id')
                     ->get()
-                    ->groupBy('information_object_id');
+                    ->groupBy('object_id');
 
                 $creatorActorIds = $creators->flatten()->pluck('actor_id')->unique()->toArray();
                 $creatorI18n = [];
@@ -331,8 +336,8 @@ class EsReindexCommand extends Command
                         'levelOfDescriptionId' => $row->level_of_description_id,
                         'publicationStatusId' => $pubStatus ?? 159,
                         'hasDigitalObject' => $do !== null,
-                        'createdAt' => $row->created_at ? date('Y-m-d\TH:i:s\Z', strtotime($row->created_at)) : null,
-                        'updatedAt' => $row->updated_at ? date('Y-m-d\TH:i:s\Z', strtotime($row->updated_at)) : null,
+                        'createdAt' => !empty($row->created_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->created_at)) : null,
+                        'updatedAt' => !empty($row->updated_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->updated_at)) : null,
                         'sourceCulture' => $row->source_culture ?? 'en',
                         'lft' => $row->lft,
                         'i18n' => $this->buildI18n($i18nGroup, [
@@ -414,8 +419,8 @@ class EsReindexCommand extends Command
                         'entityTypeId' => $row->entity_type_id,
                         'corporateBodyIdentifiers' => $row->corporate_body_identifiers,
                         'hasDigitalObject' => $do !== null,
-                        'createdAt' => $row->created_at ? date('Y-m-d\TH:i:s\Z', strtotime($row->created_at)) : null,
-                        'updatedAt' => $row->updated_at ? date('Y-m-d\TH:i:s\Z', strtotime($row->updated_at)) : null,
+                        'createdAt' => !empty($row->created_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->created_at)) : null,
+                        'updatedAt' => !empty($row->updated_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->updated_at)) : null,
                         'sourceCulture' => $row->source_culture ?? 'en',
                         'i18n' => $this->buildI18n($i18nGroup, [
                             'authorizedFormOfName' => 'authorized_form_of_name',
@@ -484,8 +489,8 @@ class EsReindexCommand extends Command
                         'taxonomyId' => $row->taxonomy_id,
                         'code' => $row->code ?? null,
                         'isProtected' => (bool) ($row->source_culture === 'en'),
-                        'createdAt' => $row->created_at ? date('Y-m-d\TH:i:s\Z', strtotime($row->created_at)) : null,
-                        'updatedAt' => $row->updated_at ? date('Y-m-d\TH:i:s\Z', strtotime($row->updated_at)) : null,
+                        'createdAt' => !empty($row->created_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->created_at)) : null,
+                        'updatedAt' => !empty($row->updated_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->updated_at)) : null,
                         'sourceCulture' => $row->source_culture ?? 'en',
                         'i18n' => $this->buildI18n($i18nGroup, ['name' => 'name']),
                     ];

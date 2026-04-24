@@ -517,6 +517,75 @@ class DigitalObjectService
     }
 
     /**
+     * Public entry point for generating derivatives from a master DO that
+     * already exists on disk + in the DB. Used by the scanner pipeline and
+     * any other non-HTTP-upload ingest path (e.g. data-migration).
+     *
+     * @param int         $masterId  digital_object.id of the master
+     * @param bool|null   $makeReference  null = honour session flag upstream
+     * @param bool|null   $makeThumbnail
+     */
+    public static function generateDerivativesForMaster(int $masterId, ?bool $makeReference = true, ?bool $makeThumbnail = true): void
+    {
+        $master = DB::table('digital_object')->where('id', $masterId)->first();
+        if (!$master || !$master->object_id) {
+            return;
+        }
+
+        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR) . '/' . $master->object_id;
+        $masterPath = $uploadDir . '/' . $master->name;
+        if (!is_file($masterPath)) {
+            return;
+        }
+
+        $mimeType = $master->mime_type ?: 'application/octet-stream';
+        $mediaTypeId = $master->media_type_id ?: self::resolveMediaTypeId($mimeType);
+
+        $safeName = pathinfo($master->name, PATHINFO_FILENAME);
+        if (str_starts_with($safeName, 'master_')) {
+            $safeName = substr($safeName, 7);
+        }
+        $webPath = $master->path ?: ('/uploads/r/' . $master->object_id . '/');
+
+        $isImage = in_array($mediaTypeId, [self::MEDIA_IMAGE]);
+
+        if ($isImage && extension_loaded('gd') && ($makeReference || $makeThumbnail)) {
+            $imageInfo = @getimagesize($masterPath);
+            if (!$imageInfo) {
+                return;
+            }
+            $srcImage = self::createGdImage($masterPath, $imageInfo[2]);
+            if (!$srcImage) {
+                return;
+            }
+            $srcWidth = imagesx($srcImage);
+            $srcHeight = imagesy($srcImage);
+
+            if ($makeReference) {
+                self::createDerivative(
+                    $srcImage, $srcWidth, $srcHeight, 480,
+                    $uploadDir . '/reference_' . $safeName . '.jpg',
+                    'reference_' . $safeName . '.jpg',
+                    $masterId, $master->object_id, $webPath,
+                    self::USAGE_REFERENCE
+                );
+            }
+            if ($makeThumbnail) {
+                self::createDerivative(
+                    $srcImage, $srcWidth, $srcHeight, 100,
+                    $uploadDir . '/thumbnail_' . $safeName . '.jpg',
+                    'thumbnail_' . $safeName . '.jpg',
+                    $masterId, $master->object_id, $webPath,
+                    self::USAGE_THUMBNAIL
+                );
+            }
+            imagedestroy($srcImage);
+        } else {
+            self::generateGenericDerivatives($masterId, $master->object_id, $mimeType, $safeName, $webPath, $uploadDir);
+        }
+    }
+
+    /**
      * Generate image reference and thumbnail derivatives using GD.
      */
     protected static function generateImageDerivatives(

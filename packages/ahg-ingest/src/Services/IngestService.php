@@ -31,7 +31,14 @@ use Illuminate\Support\Facades\DB;
 
 class IngestService
 {
-    public function getSessions(?int $userId = null): array
+    /**
+     * List ingest sessions.
+     *
+     * By default hides non-wizard sessions (watched folders, scan API) so the
+     * Ingest wizard UI stays focused on interactive batches. Pass $includeAllKinds
+     * = true to show everything (admin debugging).
+     */
+    public function getSessions(?int $userId = null, bool $includeAllKinds = false): array
     {
         $query = DB::table('ingest_session')
             ->leftJoin('user', 'ingest_session.user_id', '=', 'user.id')
@@ -40,6 +47,13 @@ class IngestService
 
         if ($userId) {
             $query->where('ingest_session.user_id', $userId);
+        }
+
+        if (!$includeAllKinds) {
+            $query->where(function ($w) {
+                $w->where('ingest_session.session_kind', 'wizard')
+                  ->orWhereNull('ingest_session.session_kind');
+            });
         }
 
         return $query->orderByDesc('ingest_session.updated_at')->get()->toArray();
@@ -91,10 +105,27 @@ class IngestService
 
     /**
      * Delete an ingest session and all its dependent rows (files, mappings,
-     * rows, validation errors, jobs). Heratio-specific — no PSIS equivalent.
+     * rows, validation errors, jobs). Wizard sessions only — refuses
+     * watched-folder and scan-API sessions, which are long-lived records
+     * that must be retired through their owning package (ahg-scan) so that
+     * historical ingest_file audit rows and scan_folder linkage are
+     * preserved correctly.
+     *
+     * @throws \RuntimeException when the session is not a wizard session.
      */
     public function deleteSession(int $id): bool
     {
+        $session = DB::table('ingest_session')->where('id', $id)->first();
+        if (!$session) {
+            return false;
+        }
+        $kind = $session->session_kind ?? 'wizard';
+        if ($kind !== 'wizard') {
+            throw new \RuntimeException(
+                "Ingest session {$id} is a {$kind} session; delete it via its owning package (/admin/scan for watched folders) so history is preserved."
+            );
+        }
+
         DB::table('ingest_validation')->where('session_id', $id)->delete();
         DB::table('ingest_row')->where('session_id', $id)->delete();
         DB::table('ingest_mapping')->where('session_id', $id)->delete();

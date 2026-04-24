@@ -112,37 +112,29 @@
     <div class="card mb-3">
         <div class="card-header"><strong>Processing</strong></div>
         <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-check form-switch mb-2">
-                        <input type="hidden" name="auto_commit" value="0">
-                        <input type="checkbox" name="auto_commit" value="1" class="form-check-input" id="ac" {{ old('auto_commit', $folder->auto_commit ?? 1) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="ac">Auto-commit (no manual approval)</label>
-                    </div>
-                    <div class="form-check form-switch mb-2">
-                        <input type="hidden" name="derivative_thumbnails" value="0">
-                        <input type="checkbox" name="derivative_thumbnails" value="1" class="form-check-input" id="dt" {{ old('derivative_thumbnails', $folder->derivative_thumbnails ?? 1) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="dt">Generate thumbnails</label>
-                    </div>
-                    <div class="form-check form-switch mb-2">
-                        <input type="hidden" name="derivative_reference" value="0">
-                        <input type="checkbox" name="derivative_reference" value="1" class="form-check-input" id="dr" {{ old('derivative_reference', $folder->derivative_reference ?? 1) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="dr">Generate reference image</label>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-check form-switch mb-2">
-                        <input type="hidden" name="process_virus_scan" value="0">
-                        <input type="checkbox" name="process_virus_scan" value="1" class="form-check-input" id="pv" {{ old('process_virus_scan', $folder->process_virus_scan ?? 1) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="pv">Virus scan</label>
-                    </div>
-                    <div class="form-check form-switch mb-2">
-                        <input type="hidden" name="process_ocr" value="0">
-                        <input type="checkbox" name="process_ocr" value="1" class="form-check-input" id="po" {{ old('process_ocr', $folder->process_ocr ?? 0) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="po">OCR (image/PDF)</label>
-                    </div>
-                </div>
+            <div class="form-check form-switch mb-3">
+                <input type="hidden" name="auto_commit" value="0">
+                <input type="checkbox" name="auto_commit" value="1" class="form-check-input" id="ac" {{ old('auto_commit', $folder->auto_commit ?? 1) ? 'checked' : '' }}>
+                <label class="form-check-label" for="ac"><strong>Auto-commit</strong> — process files automatically without human approval (default on)</label>
             </div>
+
+            @if($folder->id && !empty($folder->ingest_session_id ?? null))
+                <div class="alert alert-info d-flex align-items-center justify-content-between mb-0">
+                    <div>
+                        <strong>Derivatives, virus scan, OCR, SIP/AIP/DIP</strong> are configured on this folder's ingest session.
+                        The scanner pipeline honours those settings.
+                    </div>
+                    <a href="{{ url('/ingest/configure/' . $folder->ingest_session_id) }}" class="btn btn-sm btn-outline-primary ms-3">
+                        <i class="fas fa-sliders-h me-1"></i>Configure processing
+                    </a>
+                </div>
+            @else
+                <div class="alert alert-warning mb-0">
+                    Derivative and processing options (thumbnails, reference images, virus scan, OCR, SIP/AIP/DIP packaging)
+                    will be configurable in the Ingest wizard after this folder is created — a persistent ingest session is
+                    created on save.
+                </div>
+            @endif
         </div>
     </div>
 

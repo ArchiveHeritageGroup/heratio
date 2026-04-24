@@ -44,14 +44,25 @@ class ScanWatchCommand extends Command
             }
 
             foreach ($list as $folder) {
+                $jobId = null;
                 try {
-                    $count = $this->scanOne($folder);
+                    $count = $this->scanOne($folder, $jobId);
                     if ($count > 0) {
                         $this->info("[{$folder->code}] enqueued {$count} new file(s).");
                     }
                     $folders->touchScanned($folder->id);
+                    if ($jobId) {
+                        $this->closeJob($folder, (int) $jobId);
+                    }
                 } catch (\Throwable $e) {
                     $this->error("[{$folder->code}] " . $e->getMessage());
+                    if ($jobId) {
+                        DB::table('ingest_job')->where('id', $jobId)->update([
+                            'status' => 'failed',
+                            'error_log' => json_encode(['message' => $e->getMessage()]),
+                            'completed_at' => now(),
+                        ]);
+                    }
                 }
             }
 
@@ -63,7 +74,7 @@ class ScanWatchCommand extends Command
         return self::SUCCESS;
     }
 
-    protected function scanOne(object $folder): int
+    protected function scanOne(object $folder, ?int &$jobId = null): int
     {
         if (!is_dir($folder->path)) {
             throw new \RuntimeException("Watched path is not a directory: {$folder->path}");
@@ -72,6 +83,7 @@ class ScanWatchCommand extends Command
         $minQuiet = max(1, (int) $folder->min_quiet_seconds);
         $now = time();
         $enqueued = 0;
+        $jobId = null;
 
         $rii = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($folder->path, \FilesystemIterator::SKIP_DOTS),
@@ -113,6 +125,16 @@ class ScanWatchCommand extends Command
                 continue;
             }
 
+            // Lazily open an ingest_job for this pass on the first enqueued file.
+            if ($jobId === null) {
+                $jobId = DB::table('ingest_job')->insertGetId([
+                    'session_id' => $folder->ingest_session_id,
+                    'status' => 'running',
+                    'started_at' => now(),
+                    'created_at' => now(),
+                ]);
+            }
+
             $fileId = DB::table('ingest_file')->insertGetId([
                 'session_id' => $folder->ingest_session_id,
                 'file_type' => $this->classifyFile($full),
@@ -142,5 +164,36 @@ class ScanWatchCommand extends Command
             'csv', 'tsv' => 'csv',
             default => 'digital_object',
         };
+    }
+
+    /**
+     * Close an ingest_job opened for this watcher pass, writing summary
+     * counts from the ingest_file rows the pass produced.
+     */
+    protected function closeJob(object $folder, int $jobId): void
+    {
+        $job = DB::table('ingest_job')->where('id', $jobId)->first();
+        if (!$job) { return; }
+
+        $files = DB::table('ingest_file')
+            ->where('session_id', $folder->ingest_session_id)
+            ->where('created_at', '>=', $job->started_at)
+            ->get();
+
+        $total = $files->count();
+        $processed = $files->whereIn('status', ['done', 'duplicate'])->count();
+        $createdDos = $files->whereNotNull('resolved_do_id')->count();
+        $createdIos = $files->whereNotNull('resolved_io_id')->unique('resolved_io_id')->count();
+        $errors = $files->where('status', 'failed')->count();
+
+        DB::table('ingest_job')->where('id', $jobId)->update([
+            'status' => $errors > 0 ? 'completed_with_errors' : 'completed',
+            'total_rows' => $total,
+            'processed_rows' => $processed,
+            'created_records' => $createdIos,
+            'created_dos' => $createdDos,
+            'error_count' => $errors,
+            'completed_at' => now(),
+        ]);
     }
 }

@@ -78,6 +78,7 @@ class ProcessScanFile implements ShouldQueue
             self::stageMeta($fileId);
             $resolved = self::stageResolveDestination($fileId, $folder);
             self::stageIoAndDo($fileId, $resolved);
+            self::stageDeriving($fileId);
             self::stageIndexing($fileId);
 
             DB::table('ingest_file')->where('id', $fileId)->update([
@@ -113,20 +114,47 @@ class ProcessScanFile implements ShouldQueue
     protected static function stageVirus(int $fileId): void
     {
         DB::table('ingest_file')->where('id', $fileId)->update(['stage' => 'virus']);
-        // Full ClamAV integration is P4. For now: record the attempt in
-        // preservation_virus_scan if the table exists; otherwise pass.
+
         $file = DB::table('ingest_file')->where('id', $fileId)->first();
-        if (\Illuminate\Support\Facades\Schema::hasTable('preservation_virus_scan')) {
-            try {
-                DB::table('preservation_virus_scan')->insert([
-                    'file_path' => $file->stored_path,
-                    'scan_result' => 'not_scanned',
-                    'scanned_at' => now(),
-                ]);
-            } catch (\Throwable $e) {
-                // Schema variant — don't block ingest on metadata insert failure.
-            }
+        $session = DB::table('ingest_session')->where('id', $file->session_id)->first();
+
+        // Honour the session's process_virus_scan flag.
+        if (!$session || !(int) ($session->process_virus_scan ?? 0)) {
+            return;
         }
+
+        // Prefer clamdscan (daemon, fast); fall back to clamscan (standalone).
+        $clamd = trim((string) @shell_exec('command -v clamdscan 2>/dev/null'));
+        $clamsc = trim((string) @shell_exec('command -v clamscan 2>/dev/null'));
+        $binary = $clamd ?: $clamsc;
+        if ($binary === '') {
+            Log::warning('[ahg-scan] virus scan requested but clamd/clamav not found; ingest continuing without scan for ingest_file ' . $fileId);
+            return;
+        }
+
+        $escaped = escapeshellarg($file->stored_path);
+        // --no-summary keeps output short; clamdscan exit code: 0=clean, 1=infected, 2=error.
+        $cmd = $binary . ' --no-summary --infected ' . $escaped . ' 2>&1';
+        $output = [];
+        $exitCode = 0;
+        exec($cmd, $output, $exitCode);
+
+        if ($exitCode === 1) {
+            $threat = '';
+            foreach ($output as $line) {
+                if (preg_match('/:\s*(.+)\s+FOUND$/', $line, $m)) {
+                    $threat = trim($m[1]);
+                    break;
+                }
+            }
+            throw new \RuntimeException('Virus scan detected threat: ' . ($threat ?: 'unknown') . ' (exit ' . $exitCode . ')');
+        }
+        if ($exitCode !== 0) {
+            // ClamAV error — not a clean PASS, but also not a known infection. Fail safe: abort.
+            throw new \RuntimeException('Virus scanner error (exit ' . $exitCode . '): ' . substr(implode("\n", $output), 0, 500));
+        }
+        // Exit 0 = clean; proceed. preservation_virus_scan recording is P4 scope
+        // (needs digital_object_id which doesn't exist until stageIoAndDo runs).
     }
 
     protected static function stageMeta(int $fileId): void
@@ -206,11 +234,44 @@ class ProcessScanFile implements ShouldQueue
         ]);
     }
 
+    protected static function stageDeriving(int $fileId): void
+    {
+        DB::table('ingest_file')->where('id', $fileId)->update(['stage' => 'deriving']);
+
+        $file = DB::table('ingest_file')->where('id', $fileId)->first();
+        if (!$file || !$file->resolved_do_id) {
+            return;
+        }
+        $session = DB::table('ingest_session')->where('id', $file->session_id)->first();
+        if (!$session) {
+            return;
+        }
+
+        \AhgCore\Services\DigitalObjectService::generateDerivativesForMaster(
+            (int) $file->resolved_do_id,
+            (bool) ($session->derivative_reference ?? 1),
+            (bool) ($session->derivative_thumbnails ?? 1)
+        );
+    }
+
     protected static function stageIndexing(int $fileId): void
     {
         DB::table('ingest_file')->where('id', $fileId)->update(['stage' => 'indexing']);
-        // ES upsert hook — handled by ahg-search via model events when present;
-        // no-op here to avoid double-indexing.
+
+        $file = DB::table('ingest_file')->where('id', $fileId)->first();
+        if (!$file || !$file->resolved_io_id) {
+            return;
+        }
+        try {
+            \Illuminate\Support\Facades\Artisan::call('ahg:es-reindex', [
+                '--index' => 'informationobject',
+                '--id' => (int) $file->resolved_io_id,
+            ]);
+        } catch (\Throwable $e) {
+            // Non-fatal — ES unavailable just means the record is searchable
+            // after the next scheduled reindex. Log and continue.
+            Log::info('[ahg-scan] ES index skipped for IO ' . $file->resolved_io_id . ': ' . $e->getMessage());
+        }
     }
 
     // ---------------------------------------------------------------------
