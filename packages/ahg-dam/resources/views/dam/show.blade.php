@@ -324,6 +324,11 @@
           <i class="fas fa-plus me-1"></i>Add new
         </a>
       </li>
+      <li>
+        <a class="btn atom-btn-outline-light" href="{{ route('ahgmarketplace.seller-listing-create', ['io' => $asset->id]) }}">
+          <i class="fas fa-store me-1"></i>Add to marketplace
+        </a>
+      </li>
     </ul>
   @endauth
 @endsection

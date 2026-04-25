@@ -108,6 +108,22 @@
   </div>
 @endauth
 
+{{-- ===== Marketplace (auth only) ===== --}}
+@auth
+  @if($ioId)
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-store me-1"></i> {{ __('Marketplace') }}
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('ahgmarketplace.seller-listing-create', ['io' => $ioId]) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-tag me-1"></i> {{ __('Add to marketplace') }}
+        </a>
+      </div>
+    </div>
+  @endif
+@endauth
+
 {{-- ===== Tasks (auth only) ===== --}}
 @auth
   <div class="card mb-3">

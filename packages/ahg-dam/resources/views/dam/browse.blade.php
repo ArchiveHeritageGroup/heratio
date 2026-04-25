@@ -132,6 +132,14 @@
                   <i class="fas fa-paperclip" aria-hidden="true"></i>
                   <span class="visually-hidden">Add to clipboard</span>
                 </button>
+                @auth
+                  <a class="btn btn-sm atom-btn-white"
+                     href="{{ route('ahgmarketplace.seller-listing-create', ['io' => $doc['id']]) }}"
+                     title="Add to marketplace">
+                    <i class="fas fa-store" aria-hidden="true"></i>
+                    <span class="visually-hidden">Add to marketplace</span>
+                  </a>
+                @endauth
               </td>
             </tr>
           @endforeach
