@@ -569,7 +569,9 @@
           $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
           $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
           $objSlug = $obj->slug ?? '';
-          $objThumb = $obj->thumbnail_path ?? $obj->thumbnail ?? null;
+          // Prefer the larger reference image over the thumbnail — tile cards
+          // are 200px tall, and small thumbnails (~100px) upscale to a blur.
+          $objCardImg = $obj->reference ?? $obj->reference_path ?? $obj->thumbnail_path ?? $obj->thumbnail ?? null;
           $objUrl = '/' . $objSlug;
           $objIdentifier = $obj->identifier ?? '';
           $objLevel = $obj->level_of_description ?? $obj->level ?? '';
@@ -578,8 +580,8 @@
         <div class="col">
           <div class="card h-100 shadow-sm">
             <a href="{{ $objUrl }}" class="text-decoration-none">
-              @if($objThumb)
-                <img src="{{ $objThumb }}" class="card-img-top" alt="{{ $objTitle }}" style="height:200px;object-fit:cover;" loading="lazy">
+              @if($objCardImg)
+                <img src="{{ $objCardImg }}" class="card-img-top" alt="{{ $objTitle }}" style="height:200px;object-fit:cover;" loading="lazy">
               @else
                 <div class="card-img-top bg-light d-flex align-items-center justify-content-center text-{{ $otc['color'] }}" style="height:200px;">
                   <i class="fas {{ $otc['icon'] }} fa-3x"></i>

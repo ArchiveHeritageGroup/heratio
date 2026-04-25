@@ -346,6 +346,7 @@ class DisplayController extends Controller
             }
 
             $obj->thumbnail = null;
+            $obj->reference = null;
 
             $digitalObject = DB::table('digital_object')
                 ->where('object_id', $obj->id)
@@ -361,19 +362,21 @@ class DisplayController extends Controller
                     ->where('usage_id', 142)
                     ->select('path', 'name')
                     ->first();
+                $ref = DB::table('digital_object')
+                    ->where('parent_id', $digitalObject->id)
+                    ->where('usage_id', 141)
+                    ->select('path', 'name')
+                    ->first();
 
                 if ($thumb && $thumb->path && $thumb->name) {
                     $obj->thumbnail = rtrim($thumb->path, '/') . '/' . $thumb->name;
-                } else {
-                    $ref = DB::table('digital_object')
-                        ->where('parent_id', $digitalObject->id)
-                        ->where('usage_id', 141)
-                        ->select('path', 'name')
-                        ->first();
-
-                    if ($ref && $ref->path && $ref->name) {
-                        $obj->thumbnail = rtrim($ref->path, '/') . '/' . $ref->name;
-                    }
+                }
+                if ($ref && $ref->path && $ref->name) {
+                    $obj->reference = rtrim($ref->path, '/') . '/' . $ref->name;
+                }
+                // If no separate thumbnail, fall back to reference for the small slot too
+                if (!$obj->thumbnail && $obj->reference) {
+                    $obj->thumbnail = $obj->reference;
                 }
             }
 
