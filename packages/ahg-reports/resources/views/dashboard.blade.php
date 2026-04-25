@@ -752,11 +752,16 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#0dcaf0!important"><h5 class="mb-0"><i class="fas fa-file-import me-2"></i>{{ __('Data Ingest') }}</h5></div>
         <ul class="list-group list-group-flush">
+          <li class="list-group-item text-muted small"><strong>{{ __('Wizard') }}</strong></li>
           <li class="list-group-item"><a href="{{ Route::has('ingest.index') ? route('ingest.index') : url('/ingest') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Ingest Dashboard') }}</a></li>
           <li class="list-group-item"><a href="{{ Route::has('ingest.configure') ? route('ingest.configure') : url('/ingest/configure') }}"><i class="fas fa-plus-circle me-2 text-muted"></i>{{ __('New Ingest') }}</a></li>
           <li class="list-group-item"><a href="{{ Route::has('ingest.template') ? route('ingest.template', 'archive') : url('/ingest/template/archive') }}"><i class="fas fa-file-csv me-2 text-muted"></i>{{ __('CSV Template') }}</a></li>
           @if(Route::has('scan.dashboard'))
-          <li class="list-group-item"><a href="{{ route('scan.dashboard') }}"><i class="fas fa-folder-open me-2 text-muted"></i>{{ __('Scanner / watched folders') }}</a></li>
+            <li class="list-group-item text-muted small"><strong>{{ __('Scanner / capture') }}</strong></li>
+            <li class="list-group-item"><a href="{{ route('scan.dashboard') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Scan Dashboard') }}</a></li>
+            <li class="list-group-item"><a href="{{ route('scan.folders.create') }}"><i class="fas fa-folder-plus me-2 text-muted"></i>{{ __('New Watched Folder') }}</a></li>
+            <li class="list-group-item"><a href="{{ route('scan.folders.index') }}"><i class="fas fa-folder-open me-2 text-muted"></i>{{ __('Watched Folders') }}</a></li>
+            <li class="list-group-item"><a href="{{ route('scan.inbox.index') }}"><i class="fas fa-inbox me-2 text-muted"></i>{{ __('Scan Inbox') }}</a></li>
           @endif
         </ul>
       </div>

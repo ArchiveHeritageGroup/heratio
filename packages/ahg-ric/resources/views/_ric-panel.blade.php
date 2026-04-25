@@ -62,16 +62,43 @@
   var fsGraph = null;
   var currentView = '2d';
 
+  // Activity bucket — Production / Accumulation / Custody / Transfer / Publication /
+  // Reproduction are pre-spec-v0.37 emissions. v0.37+ servers emit rico:Activity +
+  // rico:hasActivityType; getEffectiveType() resolves the slug for colouring.
   var typeColors = {
     'RecordSet': '#17a2b8', 'Record': '#17a2b8',
     'CorporateBody': '#ffc107', 'Person': '#dc3545', 'Family': '#dc3545',
-    'Production': '#6f42c1', 'Accumulation': '#6f42c1', 'Activity': '#6f42c1',
+    'Mechanism': '#e74c3c',
+    'Production': '#6f42c1', 'Accumulation': '#6f42c1',
+    'Custody': '#7d5fff', 'Transfer': '#7d5fff',
+    'Publication': '#7d5fff', 'Reproduction': '#7d5fff',
+    'Activity': '#6f42c1',
     'Place': '#fd7e14', 'Thing': '#20c997',
     'Concept': '#20c997', 'DocumentaryFormType': '#20c997', 'CarrierType': '#20c997',
     'ContentType': '#20c997', 'RecordState': '#adb5bd', 'Language': '#0d6efd'
   };
 
-  function getColor(type) { return typeColors[type] || '#6c757d'; }
+  function localName(value) {
+    if (!value) return '';
+    return String(value).split('#').pop().split('/').pop().split(':').pop();
+  }
+  function capitalise(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+  function getEffectiveType(node) {
+    if (!node || !node.type) return 'default';
+    var t = localName(node.type);
+    if (t !== 'Activity') return t;
+    var attrs = node.attributes || {};
+    var candidate = attrs.activityType || attrs['rico:hasActivityType'] || attrs.hasActivityType;
+    if (!candidate) return 'Activity';
+    return capitalise(localName(candidate)) || 'Activity';
+  }
+  function getColor(typeOrNode) {
+    if (typeOrNode && typeof typeOrNode === 'object' && 'type' in typeOrNode) {
+      return typeColors[getEffectiveType(typeOrNode)] || '#6c757d';
+    }
+    if (!typeOrNode) return '#6c757d';
+    return typeColors[localName(typeOrNode)] || '#6c757d';
+  }
 
   function loadRicData() {
     document.getElementById('ric-placeholder').style.display = 'none';
@@ -135,7 +162,7 @@
         data: {
           id: node.id,
           label: node.label || 'Unknown',
-          color: getColor(node.type)
+          color: getColor(node)
         }
       });
     });
@@ -184,7 +211,7 @@
     if (!graphData || !graphData.nodes) return null;
 
     var nodes = graphData.nodes.map(function(n) {
-      return { id: n.id, name: n.label || 'Unknown', color: getColor(n.type), val: 1 };
+      return { id: n.id, name: n.label || 'Unknown', color: getColor(n), val: 1 };
     });
     var links = (graphData.edges || []).map(function(e) {
       return { source: e.source, target: e.target };
