@@ -114,13 +114,13 @@
             $ecommerceEnabled = app(\AhgCart\Services\EcommerceService::class)->isEcommerceEnabled();
           @endphp
           @auth
+            <form method="POST" action="{{ route('cart.listing-add', ['listingId' => $listing->id]) }}" class="mb-2">
+              @csrf
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-cart-plus me-1"></i> {{ __('Add to cart') }}
+              </button>
+            </form>
             @if($ecommerceEnabled)
-              <form method="POST" action="{{ route('cart.listing-add', ['listingId' => $listing->id]) }}" class="mb-2">
-                @csrf
-                <button type="submit" class="btn btn-primary w-100">
-                  <i class="fas fa-cart-plus me-1"></i> {{ __('Add to cart') }}
-                </button>
-              </form>
               <form method="POST" action="{{ route('ahgmarketplace.checkout-buy', ['listingId' => $listing->id]) }}" class="mb-2">
                 @csrf
                 <button type="submit" class="btn btn-outline-primary w-100">
@@ -128,12 +128,12 @@
                 </button>
               </form>
             @else
-              <button type="button" class="btn btn-primary w-100 mb-2"
+              <button type="button" class="btn btn-outline-primary w-100 mb-2"
                       data-bs-toggle="modal" data-bs-target="#dummySaleModal"
                       data-dummy-title="{{ $listing->title ?? '' }}"
                       data-dummy-price="{{ (string) (float) ($listing->price ?? 0) }}"
                       data-dummy-currency="{{ $listing->currency ?: 'ZAR' }}">
-                <i class="fas fa-flask me-1"></i> {{ __('Demo Sale (e-commerce disabled)') }}
+                <i class="fas fa-bolt me-1"></i> {{ __('Buy Now') }}
               </button>
             @endif
           @else
@@ -193,7 +193,7 @@
                         data-dummy-title="{{ $listing->title ?? '' }}"
                         data-dummy-price="{{ (string) (float) $auction->buy_now_price }}"
                         data-dummy-currency="{{ $listing->currency ?: 'ZAR' }}">
-                  <i class="fas fa-flask me-1"></i> {{ __('Demo Sale') }}
+                  <i class="fas fa-bolt me-1"></i> {{ __('Buy Now') }}
                 </button>
               @endif
             @endauth

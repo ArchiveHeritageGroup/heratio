@@ -4186,24 +4186,46 @@ class MarketplaceService
             ->whereIn('usage_id', [141, 142, 140]) // reference > thumbnail > master
             ->where($imageOnly)
             ->orderByRaw("FIELD(usage_id, 141, 142, 140)")
-            ->first(['id', 'name', 'mime_type']);
+            ->first(['id', 'name', 'mime_type', 'path']);
 
         $masterDo = DB::table('digital_object')
             ->where('object_id', $listing->information_object_id)
             ->where('usage_id', 140)
             ->where($imageOnly)
-            ->first(['id', 'name', 'mime_type']);
+            ->first(['id', 'name', 'mime_type', 'path']);
 
+        // Fallback 1: legacy AtoM derivatives may exist on disk without
+        // matching digital_object rows (typical for migrated PDFs whose _141
+        // and _142 jpgs were generated outside Heratio). Scan the IO's
+        // storage dir, register any image we find as a thumbnail DO.
         if (!$cardDo) {
-            return false; // no image DO — let the seller upload manually
+            $cardDo = $this->registerOrphanImageDerivative((int) $listing->information_object_id);
         }
 
-        $webBase = '/uploads/r/' . $listing->information_object_id . '/';
+        // Fallback 2: render PDF page 1 as a fresh JPG.
+        if (!$cardDo) {
+            $pdfMaster = DB::table('digital_object')
+                ->where('object_id', $listing->information_object_id)
+                ->where('usage_id', 140)
+                ->where('mime_type', 'application/pdf')
+                ->first(['id', 'name', 'path']);
+
+            if ($pdfMaster) {
+                $cardDo = $this->generatePdfPageOneThumbnail((int) $listing->information_object_id, $pdfMaster);
+            }
+        }
+
+        if (!$cardDo) {
+            return false; // no image, no PDF, nothing to default to — let the seller upload manually
+        }
+
         $primaryDo = $masterDo ?: $cardDo;
+        $webBase = $this->doWebBase($cardDo, (int) $listing->information_object_id);
+        $primaryWebBase = $this->doWebBase($primaryDo, (int) $listing->information_object_id);
 
         DB::table($this->imageTable)->insert([
             'listing_id' => $listingId,
-            'file_path'  => $webBase . $primaryDo->name,
+            'file_path'  => $primaryWebBase . $primaryDo->name,
             'file_name'  => $primaryDo->name,
             'mime_type'  => $primaryDo->mime_type ?? 'image/jpeg',
             'caption'    => 'Default image (from linked GLAM record)',
@@ -4218,6 +4240,185 @@ class MarketplaceService
         ]);
 
         return true;
+    }
+
+    /**
+     * Resolve a digital_object's web base URL. Honours the legacy AtoM hashed
+     * `path` when set; otherwise falls back to the new gallery convention
+     * /uploads/r/<io_id>/.
+     */
+    private function doWebBase(object $do, int $ioId): string
+    {
+        if (!empty($do->path)) {
+            return rtrim((string) $do->path, '/') . '/';
+        }
+        return '/uploads/r/' . $ioId . '/';
+    }
+
+    /**
+     * Resolve the on-disk directory for an IO, honouring both path conventions.
+     * Returns null if nothing on disk matches.
+     */
+    private function ioDiskDir(int $ioId, ?object $referenceDo = null): ?string
+    {
+        $base = rtrim((string) config('heratio.uploads_path', ''), '/');
+        if ($base === '') {
+            return null;
+        }
+
+        // Legacy AtoM convention: digital_object.path holds /uploads/r/null/HASH/
+        if ($referenceDo && !empty($referenceDo->path)) {
+            $rel = ltrim((string) $referenceDo->path, '/');
+            $rel = preg_replace('#^uploads/r/#', '', $rel);
+            $candidate = $base . '/' . rtrim($rel, '/');
+            if (is_dir($candidate)) {
+                return $candidate;
+            }
+        }
+
+        // New gallery convention: <uploads_path>/<io_id>/
+        $candidate = $base . '/' . $ioId;
+        return is_dir($candidate) ? $candidate : null;
+    }
+
+    /**
+     * If image derivatives exist on disk for an IO but aren't registered as
+     * digital_object rows (typical for AtoM-migrated PDFs whose _141/_142 jpgs
+     * were generated outside Heratio), register the smallest one as a thumbnail
+     * DO and return it.
+     */
+    private function registerOrphanImageDerivative(int $ioId): ?object
+    {
+        $sampleDo = DB::table('digital_object')
+            ->where('object_id', $ioId)
+            ->orderBy('usage_id')
+            ->first(['path']);
+        $dir = $this->ioDiskDir($ioId, $sampleDo);
+        if (!$dir) {
+            return null;
+        }
+
+        $candidates = [];
+        foreach (glob($dir . '/*.{jpg,jpeg,png,JPG,JPEG,PNG}', GLOB_BRACE) ?: [] as $file) {
+            $candidates[] = $file;
+        }
+        if (empty($candidates)) {
+            return null;
+        }
+
+        // Prefer files containing _142 (thumbnail), then _141 (reference), then any.
+        usort($candidates, function ($a, $b) {
+            $rank = function ($n) {
+                if (str_contains($n, '_142')) return 0;
+                if (str_contains($n, '_141')) return 1;
+                return 2;
+            };
+            return $rank($a) <=> $rank($b);
+        });
+        $pick = $candidates[0];
+        $name = basename($pick);
+        $webPath = $sampleDo && !empty($sampleDo->path)
+            ? rtrim((string) $sampleDo->path, '/') . '/'
+            : ('/uploads/r/' . $ioId . '/');
+
+        $now = now();
+        $doObjectId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitDigitalObject',
+            'created_at' => $now,
+            'updated_at' => $now,
+            'serial_number' => 0,
+        ]);
+        DB::table('digital_object')->insert([
+            'id' => $doObjectId,
+            'object_id' => $ioId,
+            'usage_id' => 142,
+            'mime_type' => 'image/jpeg',
+            'name' => $name,
+            'path' => $webPath,
+            'byte_size' => @filesize($pick) ?: null,
+            'checksum' => @md5_file($pick) ?: null,
+            'checksum_type' => 'md5',
+            'parent_id' => null,
+        ]);
+
+        return (object) [
+            'id'        => $doObjectId,
+            'name'      => $name,
+            'mime_type' => 'image/jpeg',
+            'path'      => $webPath,
+        ];
+    }
+
+    /**
+     * Render page 1 of a PDF master into a JPG, persist it as a new image
+     * digital_object (usage_id=142, thumbnail), and return a row matching the
+     * shape used by defaultListingImageFromIo (id, name, mime_type).
+     *
+     * Requires `pdftoppm` (poppler-utils) on the host. Returns null on failure.
+     */
+    private function generatePdfPageOneThumbnail(int $ioId, object $pdfMaster): ?object
+    {
+        if (!is_executable('/usr/bin/pdftoppm')) {
+            return null;
+        }
+
+        $sourceDir = $this->ioDiskDir($ioId, $pdfMaster);
+        if (!$sourceDir) {
+            return null;
+        }
+        $sourcePath = $sourceDir . '/' . $pdfMaster->name;
+        if (!is_file($sourcePath)) {
+            return null;
+        }
+
+        $stem = 'derived_pdfpage1_' . time();
+        $outBase = $sourceDir . '/' . $stem;
+        $outFile = $outBase . '.jpg';
+
+        // pdftoppm -jpeg -f 1 -l 1 -r 150 INPUT OUTPUT_BASE  (writes OUTPUT_BASE-1.jpg or OUTPUT_BASE.jpg depending on version)
+        $cmd = sprintf(
+            '/usr/bin/pdftoppm -jpeg -f 1 -l 1 -singlefile -r 150 %s %s 2>&1',
+            escapeshellarg($sourcePath),
+            escapeshellarg($outBase)
+        );
+        @exec($cmd, $output, $rc);
+        if ($rc !== 0 || !is_file($outFile)) {
+            return null;
+        }
+
+        // Insert a new digital_object row so the linkage survives future calls.
+        // Use the same web path convention as the master (legacy hashed or new).
+        $webPath = !empty($pdfMaster->path)
+            ? rtrim((string) $pdfMaster->path, '/') . '/'
+            : ('/uploads/r/' . $ioId . '/');
+
+        $now = now();
+        $doObjectId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitDigitalObject',
+            'created_at' => $now,
+            'updated_at' => $now,
+            'serial_number' => 0,
+        ]);
+        $name = basename($outFile);
+        DB::table('digital_object')->insert([
+            'id' => $doObjectId,
+            'object_id' => $ioId,
+            'usage_id' => 142, // thumbnail
+            'mime_type' => 'image/jpeg',
+            'name' => $name,
+            'path' => $webPath,
+            'byte_size' => @filesize($outFile) ?: null,
+            'checksum' => @md5_file($outFile) ?: null,
+            'checksum_type' => 'md5',
+            'parent_id' => $pdfMaster->id,
+        ]);
+
+        return (object) [
+            'id'        => $doObjectId,
+            'name'      => $name,
+            'mime_type' => 'image/jpeg',
+            'path'      => $webPath,
+        ];
     }
 
     /**
