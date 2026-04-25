@@ -162,7 +162,17 @@
     <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3" id="listings-grid">
       @forelse($listings ?? [] as $listing)
         <div class="col">
-          <div class="card h-100">
+          <div class="card h-100 position-relative">
+            @auth
+              @php $favOn = in_array((int) $listing->id, $favouritedIds ?? [], true); @endphp
+              <button type="button"
+                      class="btn btn-light position-absolute top-0 end-0 m-2 rounded-circle shadow-sm fav-toggle"
+                      style="z-index:2;width:36px;height:36px;padding:0;"
+                      data-listing-id="{{ (int) $listing->id }}"
+                      title="{{ $favOn ? __('Remove from favourites') : __('Add to favourites') }}">
+                <i class="{{ $favOn ? 'fas' : 'far' }} fa-heart text-danger"></i>
+              </button>
+            @endauth
             <a href="{{ route('ahgmarketplace.listing', ['slug' => $listing->slug ?? '']) }}" class="text-decoration-none">
               @if(!empty($listing->featured_image_path))
                 <img src="{{ $listing->featured_image_path }}" class="card-img-top" alt="{{ $listing->title ?? '' }}" style="height:200px;object-fit:cover;">
@@ -249,6 +259,40 @@ document.addEventListener('DOMContentLoaded', function() {
       btnGrid.classList.remove('active');
     });
   }
+
+  // Heart toggle (fav) — shared on browse / sector / listing pages
+  var csrf = document.querySelector('meta[name="csrf-token"]');
+  document.querySelectorAll('.fav-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var id = btn.getAttribute('data-listing-id');
+      if (!id) return;
+      var icon = btn.querySelector('i');
+      btn.disabled = true;
+      fetch('/marketplace/api/' + id + '/favourite', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': csrf ? csrf.getAttribute('content') : '',
+          'Accept': 'application/json',
+        },
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.favourited) {
+          icon.classList.remove('far'); icon.classList.add('fas');
+          btn.title = 'Remove from favourites';
+        } else {
+          icon.classList.remove('fas'); icon.classList.add('far');
+          btn.title = 'Add to favourites';
+        }
+      })
+      .catch(function () { /* ignore */ })
+      .finally(function () { btn.disabled = false; });
+    });
+  });
 });
 </script>
 @endpush

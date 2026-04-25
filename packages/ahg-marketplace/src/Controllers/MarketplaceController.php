@@ -595,6 +595,10 @@ class MarketplaceController extends Controller
         $results = $this->service->getListings($filters, $page, $limit);
         $facets = $this->service->getFacetCounts($filters);
 
+        $favouritedIds = Auth::id()
+            ? $this->service->getFavouritedListingIds((int) Auth::id(), array_map(fn($l) => (int) $l->id, $results['items']))
+            : [];
+
         $sectorFilter = !empty($filters['sector']) ? $filters['sector'] : null;
         $categories = method_exists($this->service, 'getCategories')
             ? $this->service->getCategories($sectorFilter)
@@ -610,6 +614,7 @@ class MarketplaceController extends Controller
             'limit' => $limit,
             'sectors' => $sectors,
             'categories' => $categories,
+            'favouritedIds' => $favouritedIds,
         ]);
     }
 
@@ -758,12 +763,17 @@ class MarketplaceController extends Controller
         $results = $this->service->getListings(['sector' => $sector, 'sort' => $sort], $page, $limit);
         $categories = $this->service->getCategories($sector);
 
+        $favouritedIds = Auth::id()
+            ? $this->service->getFavouritedListingIds((int) Auth::id(), array_map(fn($l) => (int) $l->id, $results['items']))
+            : [];
+
         return view('marketplace::sector', [
             'sector' => $sector,
             'listings' => $results['items'],
             'total' => $results['total'],
             'categories' => $categories,
             'page' => $page,
+            'favouritedIds' => $favouritedIds,
         ]);
     }
 
@@ -1914,6 +1924,20 @@ class MarketplaceController extends Controller
         $ok = $this->service->cancelReservation($reservationId, $userId);
         session()->flash($ok ? 'notice' : 'error', $ok ? 'Reservation cancelled.' : 'Could not cancel that reservation.');
         return redirect()->back();
+    }
+
+    /**
+     * POST /marketplace/api/{listingId}/favourite — toggle the user's
+     * favourite for a listing. Returns JSON {favourited: bool}.
+     */
+    public function toggleFavouriteApi(Request $request, int $listingId)
+    {
+        $userId = $this->requireAuth($request);
+        $result = $this->service->toggleFavourite($userId, $listingId);
+        return response()->json([
+            'success'    => (bool) ($result['success'] ?? true),
+            'favourited' => (bool) ($result['favourited'] ?? false),
+        ]);
     }
 
     /**

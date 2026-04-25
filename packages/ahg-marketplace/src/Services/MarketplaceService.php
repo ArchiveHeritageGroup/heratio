@@ -4134,6 +4134,21 @@ class MarketplaceService
             ->exists();
     }
 
+    /**
+     * Listing IDs the user has favourited from a candidate set.
+     * Returns a flat array, suitable for `in_array()` checks in views.
+     * (Note: toggleFavourite is defined further down in this file with the
+     *  PSIS-style array return shape — do not duplicate it here.)
+     */
+    public function getFavouritedListingIds(int $userId, array $listingIds = []): array
+    {
+        $q = DB::table($this->favouriteTable)->where('user_id', $userId);
+        if (!empty($listingIds)) {
+            $q->whereIn('listing_id', $listingIds);
+        }
+        return $q->pluck('listing_id')->map(fn ($v) => (int) $v)->all();
+    }
+
     // =========================================================================
     //  HERATIO-SPECIFIC HELPERS (Phase X.1.8)
     //
