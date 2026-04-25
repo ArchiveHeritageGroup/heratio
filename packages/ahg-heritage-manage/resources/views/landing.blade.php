@@ -17,6 +17,19 @@
          ================================================================ -->
     <section class="heritage-hero" id="heritage-hero" style="height: calc(100vh - 280px); min-height: 450px;">
 
+        <!-- Marketplace CTA (top-right corner) -->
+        <div class="position-absolute d-flex flex-wrap gap-2"
+             style="top: 1rem; right: 1rem; z-index: 5;">
+            <a href="{{ url('/marketplace/browse') }}"
+               class="btn btn-warning btn-sm fw-semibold shadow-sm">
+                <i class="fas fa-shopping-bag me-1"></i> Browse &amp; Buy
+            </a>
+            <a href="{{ url('/marketplace/register') }}"
+               class="btn btn-light btn-sm fw-semibold shadow-sm">
+                <i class="fas fa-tag me-1"></i> Sell
+            </a>
+        </div>
+
         <!-- Background Images -->
         <div class="heritage-hero-backgrounds">
             @if(!empty($heroImages))
