@@ -543,6 +543,15 @@
           $modelViewerId = 'model-3d-' . ($masterObj->id ?? uniqid());
           $modelExt = strtolower(pathinfo($masterObj->name ?? '', PATHINFO_EXTENSION));
           $isGlb = in_array($modelExt, ['glb', 'gltf']);
+          // Check for a turntable MP4 alongside this GLB (rendered by ahg:3d-multiangle)
+          $turntableMp4 = null;
+          try {
+            $turntableMp4 = \Illuminate\Support\Facades\DB::table('object_3d_model')
+              ->where('object_id', $io->id)
+              ->whereNotNull('turntable_mp4_path')
+              ->orderByDesc('id')
+              ->value('turntable_mp4_path');
+          } catch (\Throwable $e) { /* ignore */ }
         @endphp
         <div class="digitalObject3D">
           <div class="d-flex flex-column align-items-center">
@@ -550,7 +559,23 @@
               <span class="badge bg-primary"><i class="fas fa-cube me-1"></i>3D Model</span>
               <span class="badge bg-secondary">{{ $masterObj->name ?? '3D Model' }}</span>
               <span class="badge bg-info">{{ strtoupper($modelExt) }}</span>
+              @if($turntableMp4)
+                <span class="badge bg-dark"><i class="fas fa-video me-1"></i>Turntable MP4</span>
+              @endif
             </div>
+
+            @if($turntableMp4)
+              <video src="{{ $turntableMp4 }}" autoplay muted loop playsinline
+                     style="max-width:100%;max-height:380px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2);margin-bottom:0.5rem;"
+                     poster="">
+                Your browser does not support video playback.
+              </video>
+              <div class="small text-muted mb-2">
+                <i class="fas fa-video me-1"></i>{{ __('Auto-playing turntable preview') }} &middot;
+                <a href="#" onclick="document.getElementById('{{ $modelViewerId }}-container').scrollIntoView({behavior:'smooth'});return false;">{{ __('view interactive 3D below') }}</a>
+              </div>
+            @endif
+
 
             @if($isGlb)
               {{-- GLB/GLTF: Google model-viewer --}}
