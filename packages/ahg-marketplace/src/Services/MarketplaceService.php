@@ -2616,19 +2616,38 @@ class MarketplaceService
             ];
         }
 
-        // Seller-scoped stats (seller dashboard)
+        // Seller-scoped stats (seller dashboard).
+        // 'sold' is counted from paid transactions (incl. demo gateway) so the
+        // dashboard reflects every successful sale even when demo runs leave
+        // listings on 'active' for repeat demos.
         $listingCounts = DB::table($this->listingTable)
             ->where('seller_id', $sellerId)
             ->selectRaw('COUNT(*) as total,
                 SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as drafts,
-                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as published,
-                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as withdrawn,
-                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as sold', ['draft', 'published', 'withdrawn', 'sold'])
+                SUM(CASE WHEN status IN (?, ?) THEN 1 ELSE 0 END) as published,
+                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as withdrawn', ['draft', 'active', 'published', 'withdrawn'])
             ->first();
+
+        $soldCount = (int) DB::table($this->transactionTable)
+            ->where('seller_id', $sellerId)
+            ->where('payment_status', 'paid')
+            ->distinct()
+            ->count('listing_id');
+
+        $demoSoldCount = (int) DB::table($this->transactionTable)
+            ->where('seller_id', $sellerId)
+            ->where('payment_status', 'paid')
+            ->where('payment_gateway', 'demo')
+            ->distinct()
+            ->count('listing_id');
 
         $totalRevenue = DB::table($this->transactionTable)
             ->where('seller_id', $sellerId)
             ->where('payment_status', 'paid')
+            ->where(function ($q) {
+                // Real revenue only — exclude demo-mode transactions
+                $q->whereNull('payment_gateway')->orWhere('payment_gateway', '!=', 'demo');
+            })
             ->sum('sale_price') ?? 0;
 
         $pendingOffers = $this->getPendingOfferCount($sellerId);
@@ -2656,17 +2675,18 @@ class MarketplaceService
             ->sum('favourite_count');
 
         return [
-            'total_listings'    => (int) ($listingCounts->total ?? 0),
-            'draft_listings'    => (int) ($listingCounts->drafts ?? 0),
-            'published_listings'=> (int) ($listingCounts->published ?? 0),
-            'withdrawn_listings'=> (int) ($listingCounts->withdrawn ?? 0),
-            'sold_listings'     => (int) ($listingCounts->sold ?? 0),
-            'total_revenue'     => (float) $totalRevenue,
-            'pending_offers'    => $pendingOffers,
-            'active_auctions'   => (int) $activeAuctions,
-            'total_enquiries'   => (int) $totalEnquiries,
-            'total_views'       => $totalViews,
-            'total_favourites'  => $totalFavourites,
+            'total_listings'     => (int) ($listingCounts->total ?? 0),
+            'draft_listings'     => (int) ($listingCounts->drafts ?? 0),
+            'published_listings' => (int) ($listingCounts->published ?? 0),
+            'withdrawn_listings' => (int) ($listingCounts->withdrawn ?? 0),
+            'sold_listings'      => $soldCount,
+            'demo_sold_listings' => $demoSoldCount,
+            'total_revenue'      => (float) $totalRevenue,
+            'pending_offers'     => $pendingOffers,
+            'active_auctions'    => (int) $activeAuctions,
+            'total_enquiries'    => (int) $totalEnquiries,
+            'total_views'        => $totalViews,
+            'total_favourites'   => $totalFavourites,
         ];
     }
 

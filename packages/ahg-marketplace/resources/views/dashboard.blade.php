@@ -75,7 +75,14 @@
       <div class="card h-100 text-center">
         <div class="card-body">
           <div class="display-6 mb-1">{{ number_format($stats['sold_listings']) }}</div>
-          <div class="text-muted small">Sold</div>
+          <div class="text-muted small">
+            Sold
+            @if(($stats['demo_sold_listings'] ?? 0) > 0)
+              <span class="badge bg-warning text-dark ms-1" title="Includes demo-mode sales (e-commerce disabled)">
+                {{ number_format($stats['demo_sold_listings']) }} demo
+              </span>
+            @endif
+          </div>
         </div>
       </div>
     </div>

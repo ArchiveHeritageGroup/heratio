@@ -249,6 +249,24 @@ class CartController extends Controller
                     'updated_at'             => now(),
                 ]);
             $createdTxns[] = $txnId;
+
+            // If the listing was on a reservation hold, release it back to
+            // 'active' (so it stays buyable for the next demo run) and mark
+            // any matching reservation row as converted.
+            DB::table('marketplace_listing')
+                ->where('id', $item->listing_id)
+                ->where('status', 'reserved')
+                ->update([
+                    'status' => 'active',
+                    'reserved_by_user_id' => null,
+                    'reserved_until' => null,
+                    'updated_at' => now(),
+                ]);
+            DB::table('marketplace_reservation')
+                ->where('listing_id', $item->listing_id)
+                ->where('user_id', $userId)
+                ->where('status', 'active')
+                ->update(['status' => 'converted', 'updated_at' => now()]);
         }
 
         // Clear the cart rows
