@@ -2097,6 +2097,11 @@ class MarketplaceController extends Controller
         $result = $this->service->createListing($data);
 
         if ($result['success']) {
+            // If the listing is linked to a GLAM record, default its primary
+            // image to the linked record's reference/master image. The user can
+            // override on the listing-images page.
+            $this->service->defaultListingImageFromIo((int) $result['id']);
+
             session()->flash('notice', 'Listing created. Add images to complete your listing.');
 
             return redirect()->route('ahgmarketplace.seller-listing-images', ['id' => $result['id']]);
@@ -2218,6 +2223,14 @@ class MarketplaceController extends Controller
         }
 
         $maxImages = (int) $this->service->getSetting('max_images_per_listing', 10);
+
+        // If the listing has no images yet but is linked to a GLAM record with
+        // digital objects, auto-attach the linked record's reference/master image
+        // as the primary image so the listing isn't blank on the public site.
+        if ($this->service->defaultListingImageFromIo($listingId)) {
+            session()->flash('notice', 'Used the linked GLAM record\'s image as the default. Upload your own to replace it.');
+        }
+
         $images = $this->service->getListingImages($listingId);
 
         return view('marketplace::seller-listing-images', compact(

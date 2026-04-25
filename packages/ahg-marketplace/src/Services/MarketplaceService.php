@@ -4157,6 +4157,70 @@ class MarketplaceService
     }
 
     /**
+     * If a listing is linked to an IO and has no marketplace_listing_image rows,
+     * create a primary image pointing at the IO's reference/master digital object.
+     * Also populates featured_image_path on the listing. Idempotent — does nothing
+     * if the listing already has at least one image, or no linked IO with a DO.
+     *
+     * Returns true if a default image was inserted, false otherwise.
+     */
+    public function defaultListingImageFromIo(int $listingId): bool
+    {
+        $listing = DB::table($this->listingTable)->where('id', $listingId)->first();
+        if (!$listing || empty($listing->information_object_id)) {
+            return false;
+        }
+        $hasImage = DB::table($this->imageTable)->where('listing_id', $listingId)->exists();
+        if ($hasImage) {
+            return false;
+        }
+
+        // Only auto-default with image-mime digital objects. PDFs / audio /
+        // video master files would render as broken images on the marketplace.
+        $imageOnly = function ($q) {
+            $q->where('mime_type', 'like', 'image/%');
+        };
+
+        $cardDo = DB::table('digital_object')
+            ->where('object_id', $listing->information_object_id)
+            ->whereIn('usage_id', [141, 142, 140]) // reference > thumbnail > master
+            ->where($imageOnly)
+            ->orderByRaw("FIELD(usage_id, 141, 142, 140)")
+            ->first(['id', 'name', 'mime_type']);
+
+        $masterDo = DB::table('digital_object')
+            ->where('object_id', $listing->information_object_id)
+            ->where('usage_id', 140)
+            ->where($imageOnly)
+            ->first(['id', 'name', 'mime_type']);
+
+        if (!$cardDo) {
+            return false; // no image DO — let the seller upload manually
+        }
+
+        $webBase = '/uploads/r/' . $listing->information_object_id . '/';
+        $primaryDo = $masterDo ?: $cardDo;
+
+        DB::table($this->imageTable)->insert([
+            'listing_id' => $listingId,
+            'file_path'  => $webBase . $primaryDo->name,
+            'file_name'  => $primaryDo->name,
+            'mime_type'  => $primaryDo->mime_type ?? 'image/jpeg',
+            'caption'    => 'Default image (from linked GLAM record)',
+            'is_primary' => 1,
+            'sort_order' => 0,
+            'created_at' => now(),
+        ]);
+
+        DB::table($this->listingTable)->where('id', $listingId)->update([
+            'featured_image_path' => $webBase . $cardDo->name,
+            'updated_at'          => now(),
+        ]);
+
+        return true;
+    }
+
+    /**
      * Find the marketplace listing linked to a given information object, if any.
      * Returns the most-recently-updated listing (a single IO could in theory be
      * relisted after withdrawal). Heratio-specific: PSIS has no GLAM linkage.
