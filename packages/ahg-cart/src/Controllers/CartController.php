@@ -185,6 +185,92 @@ class CartController extends Controller
         return redirect()->away($url);
     }
 
+    /**
+     * Demo-mode cart checkout — used when e-commerce is disabled. Creates
+     * marketplace_transaction rows with payment_gateway=demo + status=paid,
+     * marks the cart items as completed (so they don't reappear in the cart),
+     * but leaves the underlying marketplace_listing rows on 'active' so
+     * the same demo can be repeated.
+     */
+    public function marketplaceDemoCheckout(Request $request)
+    {
+        $userId = Auth::id();
+        if (!$userId) {
+            return redirect()->route('login');
+        }
+
+        $ecommerce = app(\AhgCart\Services\EcommerceService::class);
+        if ($ecommerce->isEcommerceEnabled()) {
+            session()->flash('error', 'E-commerce is enabled — use the real PayFast checkout.');
+            return redirect()->route('cart.browse');
+        }
+
+        $cart = $this->cartService->getMarketplaceCart($userId, null);
+        if ($cart['items']->isEmpty()) {
+            return redirect()->route('cart.browse')->with('error', 'Your marketplace cart is empty.');
+        }
+
+        $marketplace = app(\AhgMarketplace\Services\MarketplaceService::class);
+        $createdTxns = [];
+
+        foreach ($cart['items'] as $item) {
+            $listing = $marketplace->getListingById((int) $item->listing_id);
+            if (!$listing) {
+                continue;
+            }
+            $sellerForBuyer = $marketplace->getSellerByUserId($userId);
+            if ($sellerForBuyer && (int) $sellerForBuyer->id === (int) $listing->seller_id) {
+                continue; // skip self-buy
+            }
+
+            $result = $marketplace->createTransaction([
+                'source'     => 'fixed_price',
+                'listing_id' => (int) $item->listing_id,
+                'buyer_id'   => $userId,
+            ]);
+            if (empty($result['success'])) {
+                continue;
+            }
+            $txnId = (int) ($result['transaction_id'] ?? ($result['transaction']->id ?? 0));
+            if (!$txnId) {
+                continue;
+            }
+
+            // Mark the demo transaction as paid without flipping the listing
+            // to 'sold' (so the demo data stays available for repeated demos).
+            DB::table('marketplace_transaction')
+                ->where('id', $txnId)
+                ->update([
+                    'payment_status'         => 'paid',
+                    'payment_gateway'        => 'demo',
+                    'payment_transaction_id' => 'TXN-DEMO-' . random_int(10000, 99999),
+                    'gateway_response'       => json_encode(['demo' => true, 'note' => 'simulated payment — e-commerce disabled']),
+                    'paid_at'                => now(),
+                    'updated_at'             => now(),
+                ]);
+            $createdTxns[] = $txnId;
+        }
+
+        // Clear the cart rows
+        DB::table('cart')
+            ->where('user_id', $userId)
+            ->where('kind', 'marketplace')
+            ->whereNull('completed_at')
+            ->update(['completed_at' => now()]);
+
+        $count = count($createdTxns);
+        $total = (float) DB::table('marketplace_transaction')->whereIn('id', $createdTxns)->sum('grand_total');
+
+        session()->flash('notice', sprintf(
+            'Demo sale completed — %d listing%s simulated for %s %s. Listings remain available for further demos.',
+            $count,
+            $count === 1 ? '' : 's',
+            $cart['currency'],
+            number_format($total, 2)
+        ));
+        return redirect()->route('cart.browse');
+    }
+
     private function generateCartGroupId(): string
     {
         $date = date('Ymd');

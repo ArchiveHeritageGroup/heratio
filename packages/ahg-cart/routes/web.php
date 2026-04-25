@@ -18,6 +18,9 @@ Route::post('/cart/listing/add/{listingId}', [CartController::class, 'addListing
 Route::post('/cart/marketplace/checkout', [CartController::class, 'marketplaceCheckout'])
     ->name('cart.marketplace-checkout')
     ->middleware('auth');
+Route::post('/cart/marketplace/demo-checkout', [CartController::class, 'marketplaceDemoCheckout'])
+    ->name('cart.marketplace-demo-checkout')
+    ->middleware('auth');
 
 Route::match(['get', 'post'], '/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
 Route::get('/cart/thank-you', [CartController::class, 'thankYou'])->name('cart.thankyou');

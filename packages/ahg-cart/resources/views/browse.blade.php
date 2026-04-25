@@ -95,13 +95,17 @@
           </button>
         </form>
       @else
-        <button type="button" class="btn btn-warning"
-                data-bs-toggle="modal" data-bs-target="#dummySaleModal"
-                data-dummy-title="Marketplace cart ({{ $marketplaceCart['items']->count() }} items)"
-                data-dummy-price="{{ (string) $marketplaceCart['subtotal'] }}"
-                data-dummy-currency="{{ $marketplaceCart['currency'] }}">
-          <i class="fas fa-flask me-1"></i> Demo Sale (e-commerce disabled)
-        </button>
+        <form id="demo-checkout-form" method="post" action="{{ route('cart.marketplace-demo-checkout') }}">
+          @csrf
+          <button type="button" class="btn btn-warning"
+                  data-bs-toggle="modal" data-bs-target="#dummySaleModal"
+                  data-dummy-title="Marketplace cart ({{ $marketplaceCart['items']->count() }} items)"
+                  data-dummy-price="{{ (string) $marketplaceCart['subtotal'] }}"
+                  data-dummy-currency="{{ $marketplaceCart['currency'] }}"
+                  data-demo-submit="#demo-checkout-form">
+            <i class="fas fa-flask me-1"></i> Demo Sale (e-commerce disabled)
+          </button>
+        </form>
       @endif
     </div>
   </div>

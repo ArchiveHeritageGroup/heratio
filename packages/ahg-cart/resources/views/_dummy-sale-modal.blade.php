@@ -84,6 +84,10 @@
     var title = (trigger && trigger.getAttribute('data-dummy-title'))   || 'Sample listing';
     var price = (trigger && trigger.getAttribute('data-dummy-price'))   || '6500.00';
     var curr  = (trigger && trigger.getAttribute('data-dummy-currency')) || 'ZAR';
+    // Optional CSS selector — when present, submit that form once Stage 3 hits.
+    // Used by the cart's "Demo Sale" button to actually clear the cart and
+    // create demo marketplace_transaction rows server-side.
+    var submitSel = trigger && trigger.getAttribute('data-demo-submit');
 
     document.getElementById('dummySaleItem').textContent = title;
     document.getElementById('dummySaleAmount').textContent =
@@ -103,6 +107,16 @@
     setTimeout(function () {
       document.getElementById('dummySaleStage2').style.display = 'none';
       document.getElementById('dummySaleStage3').style.display = 'block';
+
+      // Trigger any associated server-side form (e.g. cart demo checkout).
+      // Wait briefly so the user sees the "Payment received" frame before
+      // the page navigates.
+      if (submitSel) {
+        var form = document.querySelector(submitSel);
+        if (form) {
+          setTimeout(function () { form.submit(); }, 1800);
+        }
+      }
     }, 2100);
   });
 })();
