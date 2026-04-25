@@ -391,7 +391,11 @@ class MarketplaceService
         $query = DB::table($this->listingTable)->where('status', 'active');
 
         if (!empty($filters['sector'])) {
-            $query->where('sector', $filters['sector']);
+            if (is_array($filters['sector'])) {
+                $query->whereIn('sector', $filters['sector']);
+            } else {
+                $query->where('sector', $filters['sector']);
+            }
         }
 
         $sectors    = (clone $query)->selectRaw("sector, COUNT(*) as cnt")->groupBy('sector')->pluck('cnt', 'sector')->all();
@@ -445,7 +449,12 @@ class MarketplaceService
             $query->where('verification_status', $filters['verification_status']);
         }
         if (!empty($filters['sector'])) {
-            $query->whereRaw("JSON_CONTAINS(sectors, ?)", ['"' . $filters['sector'] . '"']);
+            $sectorVals = is_array($filters['sector']) ? $filters['sector'] : [$filters['sector']];
+            $query->where(function ($q) use ($sectorVals) {
+                foreach ($sectorVals as $s) {
+                    $q->orWhereRaw("JSON_CONTAINS(sectors, ?)", ['"' . $s . '"']);
+                }
+            });
         }
         if (!empty($filters['country'])) {
             $query->where('country', $filters['country']);
@@ -2311,10 +2320,15 @@ class MarketplaceService
     /**
      * Get all active categories (optionally by sector).
      */
-    public function getCategories(?string $sector = null, bool $activeOnly = true): array
+    /**
+     * @param string|array|null $sector single sector slug, an array of slugs, or null for all.
+     */
+    public function getCategories($sector = null, bool $activeOnly = true): array
     {
         $query = DB::table($this->categoryTable);
-        if ($sector) {
+        if (is_array($sector) && !empty($sector)) {
+            $query->whereIn('sector', $sector);
+        } elseif (is_string($sector) && $sector !== '') {
             $query->where('sector', $sector);
         }
         if ($activeOnly) {
@@ -3192,7 +3206,11 @@ class MarketplaceService
     private function applyListingFilters($query, array $filters): void
     {
         if (!empty($filters['sector'])) {
-            $query->where('l.sector', $filters['sector']);
+            if (is_array($filters['sector'])) {
+                $query->whereIn('l.sector', $filters['sector']);
+            } else {
+                $query->where('l.sector', $filters['sector']);
+            }
         }
         if (!empty($filters['category_id'])) {
             $query->where('l.category_id', $filters['category_id']);
