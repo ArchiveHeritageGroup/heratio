@@ -32,9 +32,9 @@ class TriposrGenerateCommand extends Command
         {--object-id= : Information object id to import the result into}
         {--import : Persist the result to the IO storage dir + DB (default)}
         {--no-import : Save to temp dir only — return the path}
-        {--remove-bg=true}
-        {--resolution=256}
-        {--texture}
+        {--remove-bg= : Override remove_bg (defaults to admin setting)}
+        {--resolution= : Override marching cubes resolution (defaults to admin setting)}
+        {--texture : Force bake_texture on (defaults to admin setting)}
         {--health}
         {--preload}
         {--stats}
@@ -81,8 +81,10 @@ class TriposrGenerateCommand extends Command
         }
 
         $timeout = (int) ($cfg['triposr_timeout'] ?? 300);
-        $resolution = (int) ($this->option('resolution') ?: ($cfg['triposr_mc_resolution'] ?? 256));
-        $removeBg = filter_var($this->option('remove-bg') ?? ($cfg['triposr_remove_bg'] ?? '1'), FILTER_VALIDATE_BOOLEAN);
+        $resOption = $this->option('resolution');
+        $resolution = (int) (($resOption !== null && $resOption !== '') ? $resOption : ($cfg['triposr_mc_resolution'] ?? 256));
+        $bgOption = $this->option('remove-bg');
+        $removeBg = filter_var(($bgOption !== null && $bgOption !== '') ? $bgOption : ($cfg['triposr_remove_bg'] ?? '1'), FILTER_VALIDATE_BOOLEAN);
         $bakeTexture = $this->option('texture') || ((string) ($cfg['triposr_bake_texture'] ?? '0')) === '1';
 
         // Output path — staging in temp until the caller commits via --import

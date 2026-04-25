@@ -3438,13 +3438,7 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
             <form method="POST" action="{{ route('admin.3d-models.preview-discard', ['ioId' => $io->id]) }}" class="d-inline">
               @csrf
               <button type="submit" class="btn btn-outline-secondary">
-                <i class="fas fa-trash me-1"></i> {{ __('Discard') }}
-              </button>
-            </form>
-            <form method="POST" action="{{ route('admin.3d-models.preview-save', ['ioId' => $io->id]) }}" class="d-inline">
-              @csrf
-              <button type="submit" class="btn btn-success">
-                <i class="fas fa-save me-1"></i> {{ __('Save & attach') }}
+                <i class="fas fa-times me-1"></i> {{ __('Close') }}
               </button>
             </form>
           </div>
