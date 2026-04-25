@@ -256,6 +256,10 @@
      class="btn btn-sm {{ ($viewMode ?? 'card') === 'full' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Full width" aria-label="Full width">
     <i class="fas fa-bars"></i>
   </a>
+  <a href="{{ glamBrowseUrl($fp, ['view' => 'tile']) }}"
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'tile' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Marketplace-style tiles" aria-label="Marketplace-style tiles">
+    <i class="fas fa-shopping-bag"></i>
+  </a>
 
   {{-- Limit dropdown --}}
   <div class="dropdown">
@@ -552,6 +556,55 @@
               @include('ahg-display::display._discovery_meta', ['discovery' => $obj->_discovery])
             </div>
           @endif
+        </div>
+      @endforeach
+    </div>
+
+  {{-- ===== TILE VIEW (Marketplace-style) ===== --}}
+  @elseif(($viewMode ?? 'card') === 'tile')
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3 mb-3">
+      @foreach($objects as $obj)
+        @php
+          $objType = $obj->glam_type ?? $obj->object_type ?? $obj->type ?? 'archive';
+          $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
+          $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
+          $objSlug = $obj->slug ?? '';
+          $objThumb = $obj->thumbnail_path ?? $obj->thumbnail ?? null;
+          $objUrl = '/' . $objSlug;
+          $objIdentifier = $obj->identifier ?? '';
+          $objLevel = $obj->level_of_description ?? $obj->level ?? '';
+          $objCreator = $obj->creator ?? $obj->creator_name ?? '';
+        @endphp
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            <a href="{{ $objUrl }}" class="text-decoration-none">
+              @if($objThumb)
+                <img src="{{ $objThumb }}" class="card-img-top" alt="{{ $objTitle }}" style="height:200px;object-fit:cover;" loading="lazy">
+              @else
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center text-{{ $otc['color'] }}" style="height:200px;">
+                  <i class="fas {{ $otc['icon'] }} fa-3x"></i>
+                </div>
+              @endif
+            </a>
+            <div class="card-body p-3">
+              <h6 class="card-title mb-1">
+                <a href="{{ $objUrl }}" class="text-decoration-none">{{ \Illuminate\Support\Str::limit($objTitle, 60) }}</a>
+              </h6>
+              @if($objCreator)
+                <p class="small text-muted mb-2 text-truncate" title="{{ $objCreator }}">{{ $objCreator }}</p>
+              @endif
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="badge bg-{{ $otc['color'] }}">
+                  <i class="fas {{ $otc['icon'] }} me-1"></i>{{ $otc['label'] }}
+                </span>
+                @if($objLevel)
+                  <small class="text-muted text-truncate ms-2">{{ $objLevel }}</small>
+                @elseif($objIdentifier)
+                  <small class="text-muted text-truncate ms-2">{{ $objIdentifier }}</small>
+                @endif
+              </div>
+            </div>
+          </div>
         </div>
       @endforeach
     </div>
