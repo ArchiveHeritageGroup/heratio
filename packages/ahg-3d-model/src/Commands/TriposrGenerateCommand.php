@@ -96,11 +96,16 @@ class TriposrGenerateCommand extends Command
         $this->info(sprintf('Calling TripoSR @ %s (resolution=%d, remove_bg=%s, texture=%s)...',
             $apiBase, $resolution, $removeBg ? 'yes' : 'no', $bakeTexture ? 'yes' : 'no'));
 
+        // Detect mime so the server's `image must be image/*` check passes;
+        // CURLFile's default content-type is application/octet-stream which is
+        // rejected by our FastAPI endpoint.
+        $imageMime = function_exists('mime_content_type') ? (mime_content_type($image) ?: 'image/png') : 'image/png';
+
         $ch = curl_init($apiBase . '/generate');
         curl_setopt_array($ch, [
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => [
-                'image' => new CURLFile($image),
+                'image' => new CURLFile($image, $imageMime, basename($image)),
                 'mc_resolution' => $resolution,
                 'remove_bg' => $removeBg ? '1' : '0',
                 'bake_texture' => $bakeTexture ? '1' : '0',
@@ -120,6 +125,31 @@ class TriposrGenerateCommand extends Command
 
         if ($err || $httpCode !== 200 || !$body) {
             $msg = $err ?: ('HTTP ' . $httpCode);
+
+            // Demo-mode fallback — if admin opted in, serve a bundled placeholder
+            // GLB cube so the preview/save UX still works while the real backend
+            // is unavailable (Ollama-vs-TripoSR GPU contention, server down, etc.).
+            $demoOn = ((string) ($cfg['triposr_demo_mode'] ?? '0')) === '1';
+            $sample = __DIR__ . '/../../resources/sample-cube.glb';
+            if ($demoOn && is_file($sample)) {
+                if (@copy($sample, $outFile)) {
+                    $this->warn('TripoSR backend unreachable — using bundled demo placeholder ('
+                        . basename($sample) . '). Real GPU/AI generation is on its way.');
+                    if ($this->option('no-import')) {
+                        $this->line('TRIPOSR_OUTPUT=' . $outFile);
+                        $this->line('TRIPOSR_DEMO=1');
+                    }
+                    if (!$this->option('no-import')) {
+                        $objectId = (int) $this->option('object-id');
+                        if ($objectId) {
+                            $importer = new \Ahg3dModel\Services\TriposrImportService();
+                            $importer->importGlb($outFile, $objectId, $image);
+                        }
+                    }
+                    return 0;
+                }
+            }
+
             $detail = '';
             if ($httpCode === 404) {
                 $detail = ' — endpoint /generate not found at ' . $apiBase

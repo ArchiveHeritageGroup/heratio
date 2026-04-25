@@ -396,7 +396,10 @@
       "Bash(sf -version)",
       "Bash(ffmpeg -version)",
       "Bash(vips --version)",
-      "Bash(convert -list format)"
+      "Bash(convert -list format)",
+      "Bash(ip addr *)",
+      "Bash(ip route *)",
+      "Bash(file /tmp/heratio-triposr/*.glb)"
     ]
   }
 }

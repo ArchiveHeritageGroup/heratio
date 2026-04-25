@@ -327,6 +327,13 @@
                   <label class="form-check-label" for="enable_2d_to_3d_user_button"><strong>Show "Generate 3D" button on IO show pages</strong></label>
                   <div class="form-text">When checked, authenticated users see a "Generate 3D model" button on each IO that has an image but no 3D model yet. Disable to keep TripoSR cron-only.</div>
                 </div>
+                <div class="form-check mb-3">
+                  <input type="hidden" name="triposr_demo_mode" value="0">
+                  <input class="form-check-input" type="checkbox" id="triposr_demo_mode" name="triposr_demo_mode" value="1"
+                         {{ isSettingEnabled3d($settings, 'triposr_demo_mode') ? 'checked' : '' }}>
+                  <label class="form-check-label" for="triposr_demo_mode"><strong>Demo placeholder fallback</strong></label>
+                  <div class="form-text">When the TripoSR API is unreachable (server down, GPU contention, etc.), serve a bundled placeholder cube instead of failing. Useful for demos while the AI backend is being deployed.</div>
+                </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">

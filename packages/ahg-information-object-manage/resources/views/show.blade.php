@@ -3402,10 +3402,18 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <div class="alert alert-warning small mb-3">
-              <i class="fas fa-flask me-1"></i>
-              {{ __('AI-generated reconstruction. Review the preview below — geometry is approximate. Click Save to attach it as a 3D model on this object, or Discard to throw it away.') }}
-            </div>
+            @if(!empty($triposrPreview['is_demo']))
+              <div class="alert alert-info small mb-3">
+                <i class="fas fa-flask me-1"></i>
+                <strong>{{ __('Demo placeholder') }}</strong> &mdash;
+                {{ __('the TripoSR backend is currently unavailable, so this is a bundled cube standing in for what a real generation would produce. Real GPU/AI generation is on its way.') }}
+              </div>
+            @else
+              <div class="alert alert-warning small mb-3">
+                <i class="fas fa-flask me-1"></i>
+                {{ __('AI-generated reconstruction. Review the preview below — geometry is approximate. Click Save to attach it as a 3D model on this object, or Discard to throw it away.') }}
+              </div>
+            @endif
             <div style="height:420px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:8px;">
               <model-viewer
                 src="{{ route('admin.3d-models.preview-file') }}"
@@ -3443,13 +3451,25 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
         </div>
       </div>
     </div>
-    <script type="module" src="/vendor/ahg-theme-b5/js/vendor/model-viewer.min.js"></script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         var el = document.getElementById('triposrPreviewModal');
         if (!el) return;
         var m = bootstrap.Modal.getOrCreateInstance(el, { backdrop: 'static', keyboard: false });
         m.show();
+        // Surface model-viewer load errors to the user instead of a permanent spinner
+        var mv = el.querySelector('model-viewer');
+        if (mv) {
+          mv.addEventListener('error', function (ev) {
+            console.error('model-viewer error', ev);
+            var slot = mv.querySelector('[slot="poster"]');
+            if (slot) {
+              slot.innerHTML = '<div class="text-danger small text-center"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><br>'
+                + 'Could not load the 3D preview.<br>Check the browser console for details.</div>';
+            }
+          });
+        }
       });
     </script>
   @endif

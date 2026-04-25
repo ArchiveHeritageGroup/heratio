@@ -686,6 +686,7 @@ class Model3dController extends Controller
                 'allowed_formats' => json_encode($request->input('allowed_formats', [])),
                 'triposr_enabled' => $request->has('triposr_enabled') ? '1' : '0',
                 'enable_2d_to_3d_user_button' => $request->has('enable_2d_to_3d_user_button') ? '1' : '0',
+                'triposr_demo_mode' => $request->has('triposr_demo_mode') ? '1' : '0',
                 'triposr_api_url' => $request->input('triposr_api_url', 'http://127.0.0.1:5050'),
                 'triposr_mode' => $request->input('triposr_mode', 'local'),
                 'triposr_remote_url' => $request->input('triposr_remote_url', ''),
@@ -1182,6 +1183,8 @@ class Model3dController extends Controller
                 return redirect()->back();
             }
 
+            $isDemo = (bool) preg_match('/^TRIPOSR_DEMO=1$/m', $output);
+
             // Park the staging path in session — the show page picks it up
             // and opens the preview modal automatically.
             session()->put('triposr_preview', [
@@ -1189,8 +1192,11 @@ class Model3dController extends Controller
                 'path'  => $stagedPath,
                 'filename' => basename($stagedPath),
                 'created_at' => now()->toIso8601String(),
+                'is_demo' => $isDemo,
             ]);
-            session()->flash('notice', '3D preview ready — review and click Save to attach it.');
+            session()->flash('notice', $isDemo
+                ? '3D demo placeholder ready — real GPU/AI generation is on its way.'
+                : '3D preview ready — review and click Save to attach it.');
         } catch (\Throwable $e) {
             Log::error('[userGenerate3d] failed', ['io' => $ioId, 'err' => $e->getMessage()]);
             session()->flash('error', '3D generation failed: ' . $e->getMessage());
