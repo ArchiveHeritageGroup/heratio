@@ -14,7 +14,12 @@
 @php
   $sectorList = ['gallery' => __('Gallery'), 'museum' => __('Museum'), 'archive' => __('Archive'), 'library' => __('Library'), 'dam' => __('Digital Asset Management')];
   $conditions = ['mint' => __('Mint'), 'excellent' => __('Excellent'), 'good' => __('Good'), 'fair' => __('Fair'), 'poor' => __('Poor')];
-  $listingTypes = ['fixed_price' => __('Fixed Price'), 'auction' => __('Auction'), 'offer_only' => __('Offer Only')];
+  $listingTypes = [
+    'fixed_price' => __('Fixed Price'),
+    'auction'     => __('Auction'),
+    'offer_only'  => __('Offer Only'),
+    'licence'     => __('Licence'),
+  ];
 @endphp
 
 @section('content')
@@ -224,6 +229,84 @@
           </div>
         </div>
       </div>
+
+      {{-- Licence-template fields — visible only when listing_type=licence --}}
+      <div class="card mb-3 border-warning" id="licence-terms-card"
+           style="{{ ($listing->listing_type ?? '') === 'licence' ? '' : 'display:none;' }}">
+        <div class="card-header bg-warning bg-opacity-10 fw-semibold">
+          <i class="fas fa-file-contract me-1 text-warning"></i> {{ __('Licence terms') }}
+          <span class="small text-muted ms-1">{{ __('— template applied to new agreements; existing buyer agreements keep the terms they were issued under') }}</span>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">{{ __('Licence type') }}</label>
+              <select name="licence_template_type" class="form-select">
+                @php $lct = old('licence_template_type', $listing->licence_template_type ?? 'standard'); @endphp
+                @foreach($licenceTypes ?? [] as $val => $label)
+                  <option value="{{ $val }}" {{ $lct === $val ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">{{ __('Duration (days)') }}</label>
+              <input type="number" min="1" name="licence_template_duration_days" class="form-control"
+                     value="{{ old('licence_template_duration_days', $listing->licence_template_duration_days ?? '') }}"
+                     placeholder="{{ __('Leave blank for perpetual') }}">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">{{ __('Territory') }}</label>
+              <input type="text" name="licence_template_territory" class="form-control"
+                     value="{{ old('licence_template_territory', $listing->licence_template_territory ?? 'Worldwide') }}" maxlength="100">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">{{ __('Exclusivity') }}</label>
+              <select name="licence_template_exclusivity" class="form-select">
+                @php $lex = old('licence_template_exclusivity', $listing->licence_template_exclusivity ?? 'non-exclusive'); @endphp
+                @foreach(['non-exclusive' => __('Non-exclusive'), 'exclusive' => __('Exclusive')] as $val => $label)
+                  <option value="{{ $val }}" {{ $lex === $val ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">{{ __('Max copies / impressions') }}</label>
+              <input type="number" min="1" name="licence_template_max_copies" class="form-control"
+                     value="{{ old('licence_template_max_copies', $listing->licence_template_max_copies ?? '') }}"
+                     placeholder="{{ __('Unlimited if blank') }}">
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">{{ __('Scope of grant') }}</label>
+              <textarea name="licence_template_scope" class="form-control" rows="3">{{ old('licence_template_scope', $listing->licence_template_scope ?? '') }}</textarea>
+            </div>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col-md-4">
+              <div class="form-check">
+                <input type="hidden" name="licence_template_attribution_required" value="0">
+                <input type="checkbox" class="form-check-input" id="lic-attr-edit" name="licence_template_attribution_required" value="1"
+                       {{ old('licence_template_attribution_required', $listing->licence_template_attribution_required ?? 1) ? 'checked' : '' }}>
+                <label class="form-check-label" for="lic-attr-edit">{{ __('Attribution required') }}</label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check">
+                <input type="hidden" name="licence_template_modifications_allowed" value="0">
+                <input type="checkbox" class="form-check-input" id="lic-mods-edit" name="licence_template_modifications_allowed" value="1"
+                       {{ old('licence_template_modifications_allowed', $listing->licence_template_modifications_allowed ?? 0) ? 'checked' : '' }}>
+                <label class="form-check-label" for="lic-mods-edit">{{ __('Modifications allowed') }}</label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check">
+                <input type="hidden" name="licence_template_sublicensing_allowed" value="0">
+                <input type="checkbox" class="form-check-input" id="lic-sublic-edit" name="licence_template_sublicensing_allowed" value="1"
+                       {{ old('licence_template_sublicensing_allowed', $listing->licence_template_sublicensing_allowed ?? 0) ? 'checked' : '' }}>
+                <label class="form-check-label" for="lic-sublic-edit">{{ __('Sub-licensing allowed') }}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -339,12 +422,16 @@ document.addEventListener('DOMContentLoaded', function() {
     sectorSelect.dispatchEvent(new Event('change'));
   }
 
+  var licenceFields = document.getElementById('licence-terms-card');
   function togglePricingFields() {
     var checked = document.querySelector('input[name="listing_type"]:checked');
     var val = checked ? checked.value : 'fixed_price';
-    fixedFields.style.display = (val === 'fixed_price') ? '' : 'none';
+    fixedFields.style.display = (val === 'fixed_price' || val === 'licence') ? '' : 'none';
     auctionFields.style.display = (val === 'auction') ? '' : 'none';
     offerFields.style.display = (val === 'offer_only') ? '' : 'none';
+    if (licenceFields) {
+      licenceFields.style.display = (val === 'licence') ? '' : 'none';
+    }
   }
   typeRadios.forEach(function(r) { r.addEventListener('change', togglePricingFields); });
   togglePricingFields();

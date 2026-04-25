@@ -2391,6 +2391,10 @@ class MarketplaceController extends Controller
         $sectors = ['gallery', 'museum', 'archive', 'library', 'dam'];
         $categories = $this->service->getCategories();
         $currencies = $this->service->getCurrencies();
+        $licenceTypes = $this->service->getLicenceTypes();
+        $brokerArtists = $this->service->isBrokerSeller($seller)
+            ? $this->service->getArtistsForSeller((int) $seller->id, true)
+            : collect();
 
         return view('marketplace::seller-listing-edit', compact(
             'seller',
@@ -2398,6 +2402,8 @@ class MarketplaceController extends Controller
             'sectors',
             'categories',
             'currencies',
+            'licenceTypes',
+            'brokerArtists',
         ));
     }
 
@@ -2420,18 +2426,44 @@ class MarketplaceController extends Controller
 
         $request->validate([
             'title' => 'required|string|max:255',
+            'listing_type' => 'nullable|string|in:fixed_price,auction,offer_only,licence',
         ]);
+
+        $newType = $request->input('listing_type', $listing->listing_type);
+
+        // Broker mode — recompute price from base + markup if seller passes them
+        $artistId = (int) $request->input('artist_id', 0) ?: null;
+        $artistBasePrice = $request->filled('artist_base_price') ? (float) $request->input('artist_base_price') : null;
+        $markupType = $request->input('markup_type') ?: null;
+        $markupValue = $request->filled('markup_value') ? (float) $request->input('markup_value') : null;
+        $artistName = trim($request->input('artist_name', ''));
+        if ($artistId) {
+            $artist = $this->service->getArtistById($artistId);
+            if ($artist && (int) $artist->seller_id === (int) $seller->id) {
+                $artistName = $artist->display_name;
+                if (!$markupType) { $markupType = $artist->default_markup_type; }
+                if ($markupValue === null) { $markupValue = (float) $artist->default_markup_value; }
+            }
+        }
+        $rawPrice = $request->filled('price') ? (float) $request->input('price') : null;
+        $finalPrice = $artistBasePrice !== null
+            ? $this->service->computePriceFromMarkup($artistBasePrice, $markupType, $markupValue)
+            : $rawPrice;
 
         $data = [
             'title' => trim($request->input('title')),
             'sector' => $request->input('sector', $listing->sector),
-            'listing_type' => $request->input('listing_type', $listing->listing_type),
+            'listing_type' => $newType,
             'category_id' => $request->input('category_id') ?: null,
             'description' => trim($request->input('description', '')),
-            'price' => $request->input('price') ? (float) $request->input('price') : null,
+            'price' => $finalPrice,
             'currency' => $request->input('currency', 'ZAR'),
             'minimum_offer' => $request->input('minimum_offer') ? (float) $request->input('minimum_offer') : null,
-            'artist_name' => trim($request->input('artist_name', '')),
+            'artist_id' => $artistId,
+            'artist_name' => $artistName,
+            'artist_base_price' => $artistBasePrice,
+            'markup_type' => $artistBasePrice !== null ? $markupType : null,
+            'markup_value' => $artistBasePrice !== null ? $markupValue : null,
             'medium' => trim($request->input('medium', '')),
             'dimensions' => trim($request->input('dimensions', '')),
             'year_created' => trim($request->input('year_created', '')),
@@ -2444,6 +2476,35 @@ class MarketplaceController extends Controller
             'shipping_domestic_price' => $request->input('shipping_domestic_price') ? (float) $request->input('shipping_domestic_price') : null,
             'shipping_international_price' => $request->input('shipping_international_price') ? (float) $request->input('shipping_international_price') : null,
         ];
+
+        // Licence template fields — write when listing is a licence; clear when changing away
+        if ($newType === 'licence') {
+            $data['requires_shipping'] = 0;
+            $data['is_physical'] = 0;
+            $data['is_digital'] = 1;
+            $data['licence_template_type'] = $request->input('licence_template_type', 'standard');
+            $data['licence_template_duration_days'] = $request->filled('licence_template_duration_days')
+                ? (int) $request->input('licence_template_duration_days') : null;
+            $data['licence_template_scope'] = trim($request->input('licence_template_scope', '')) ?: null;
+            $data['licence_template_territory'] = trim($request->input('licence_template_territory', 'Worldwide'));
+            $data['licence_template_exclusivity'] = $request->input('licence_template_exclusivity', 'non-exclusive');
+            $data['licence_template_attribution_required'] = $request->boolean('licence_template_attribution_required') ? 1 : 0;
+            $data['licence_template_modifications_allowed'] = $request->boolean('licence_template_modifications_allowed') ? 1 : 0;
+            $data['licence_template_sublicensing_allowed'] = $request->boolean('licence_template_sublicensing_allowed') ? 1 : 0;
+            $data['licence_template_max_copies'] = $request->filled('licence_template_max_copies')
+                ? (int) $request->input('licence_template_max_copies') : null;
+        } elseif ($listing->listing_type === 'licence' && $newType !== 'licence') {
+            // Switching away from licence — wipe template (existing agreements are unaffected)
+            $data['licence_template_type'] = null;
+            $data['licence_template_duration_days'] = null;
+            $data['licence_template_scope'] = null;
+            $data['licence_template_territory'] = null;
+            $data['licence_template_exclusivity'] = null;
+            $data['licence_template_attribution_required'] = 0;
+            $data['licence_template_modifications_allowed'] = 0;
+            $data['licence_template_sublicensing_allowed'] = 0;
+            $data['licence_template_max_copies'] = null;
+        }
 
         $result = $this->service->updateListing($listingId, $data);
 
