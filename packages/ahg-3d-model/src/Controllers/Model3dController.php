@@ -1167,7 +1167,13 @@ class Model3dController extends Controller
             // Parse the marker line we emit in the command
             if (!preg_match('/^TRIPOSR_OUTPUT=(.+)$/m', $output, $m)) {
                 Log::warning('[userGenerate3d] no TRIPOSR_OUTPUT marker', ['out' => $output]);
-                session()->flash('error', '3D generation failed: ' . trim(preg_replace('/^Calling.*$/m', '', $output)));
+                // Surface only the first error line so the flash isn't a wall of text.
+                $errLine = '';
+                if (preg_match('/^(?:.*\bTripoSR call failed:.+|.*\bERROR\b.*|.*failed.*)$/im', $output, $em)) {
+                    $errLine = trim($em[0]);
+                }
+                $errLine = $errLine ?: 'TripoSR did not return a model. Check /admin/3d-models/settings.';
+                session()->flash('error', '3D generation failed: ' . $errLine);
                 return redirect()->back();
             }
             $stagedPath = trim($m[1]);

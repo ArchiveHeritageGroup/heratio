@@ -119,7 +119,16 @@ class TriposrGenerateCommand extends Command
         curl_close($ch);
 
         if ($err || $httpCode !== 200 || !$body) {
-            $this->error('TripoSR call failed: ' . ($err ?: ('HTTP ' . $httpCode)));
+            $msg = $err ?: ('HTTP ' . $httpCode);
+            $detail = '';
+            if ($httpCode === 404) {
+                $detail = ' — endpoint /generate not found at ' . $apiBase
+                    . '. Set the correct TripoSR API URL on /admin/3d-models/settings (or switch to "Remote GPU Server" mode if your TripoSR runs elsewhere).';
+            } elseif ($httpCode === 0 || stripos($msg, 'timed out') !== false || stripos($msg, 'could not connect') !== false) {
+                $detail = ' — could not reach ' . $apiBase
+                    . '. Verify the host is up and the port is reachable from this server (firewall, nginx, etc.).';
+            }
+            $this->error('TripoSR call failed: ' . $msg . $detail);
             return 1;
         }
         if (file_put_contents($outFile, $body) === false) {
