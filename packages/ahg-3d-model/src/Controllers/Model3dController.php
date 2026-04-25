@@ -1109,6 +1109,11 @@ class Model3dController extends Controller
      * single IO. Honours the admin enable/disable toggles. Runs the existing
      * artisan command synchronously (TripoSR call ~30-60s on the AI server).
      */
+    /**
+     * Step 1 — generate to a staged GLB and stash the path in session.
+     * Doesn't write any DB rows or copy into the IO's permanent dir.
+     * The IO show page reads the session and opens a preview modal.
+     */
     public function userGenerate3d(Request $request, int $ioId)
     {
         if (!self::is2dTo3dUserButtonEnabled()) {
@@ -1140,12 +1145,11 @@ class Model3dController extends Controller
             return redirect()->back();
         }
 
-        // Resolve absolute disk path
         $base = rtrim((string) config('heratio.uploads_path', ''), '/');
         $rel = preg_replace('#^/uploads/r?/?#', '', (string) $sourceDo->path);
         $sourcePath = $base . '/' . trim($rel, '/') . '/' . $sourceDo->name;
         if (!is_file($sourcePath)) {
-            $sourcePath = $base . '/' . $ioId . '/' . $sourceDo->name; // fallback
+            $sourcePath = $base . '/' . $ioId . '/' . $sourceDo->name;
         }
         if (!is_file($sourcePath)) {
             session()->flash('error', 'Could not locate the source image on disk.');
@@ -1153,21 +1157,90 @@ class Model3dController extends Controller
         }
 
         try {
-            $exit = Artisan::call('ahg:triposr-generate', [
+            \Illuminate\Support\Facades\Artisan::call('ahg:triposr-generate', [
                 '--image' => $sourcePath,
                 '--object-id' => (string) $ioId,
-                '--import' => true,
+                '--no-import' => true,
             ]);
-            if ($exit === 0) {
-                session()->flash('notice', '3D model generated and attached to this object.');
-            } else {
-                session()->flash('error', '3D generation completed with errors. Check the TripoSR logs.');
+            $output = \Illuminate\Support\Facades\Artisan::output();
+
+            // Parse the marker line we emit in the command
+            if (!preg_match('/^TRIPOSR_OUTPUT=(.+)$/m', $output, $m)) {
+                Log::warning('[userGenerate3d] no TRIPOSR_OUTPUT marker', ['out' => $output]);
+                session()->flash('error', '3D generation failed: ' . trim(preg_replace('/^Calling.*$/m', '', $output)));
+                return redirect()->back();
             }
+            $stagedPath = trim($m[1]);
+            if (!is_file($stagedPath)) {
+                session()->flash('error', '3D generation completed but the staged file is missing.');
+                return redirect()->back();
+            }
+
+            // Park the staging path in session — the show page picks it up
+            // and opens the preview modal automatically.
+            session()->put('triposr_preview', [
+                'io_id' => $ioId,
+                'path'  => $stagedPath,
+                'filename' => basename($stagedPath),
+                'created_at' => now()->toIso8601String(),
+            ]);
+            session()->flash('notice', '3D preview ready — review and click Save to attach it.');
         } catch (\Throwable $e) {
             Log::error('[userGenerate3d] failed', ['io' => $ioId, 'err' => $e->getMessage()]);
             session()->flash('error', '3D generation failed: ' . $e->getMessage());
         }
 
         return redirect()->back();
+    }
+
+    /** Step 2a — confirm the preview and import the GLB into the IO. */
+    public function confirmAttach3d(Request $request, int $ioId)
+    {
+        $preview = session('triposr_preview');
+        if (!$preview || (int) ($preview['io_id'] ?? 0) !== $ioId) {
+            session()->flash('error', 'No matching 3D preview to save.');
+            return redirect()->back();
+        }
+        $importer = new \Ahg3dModel\Services\TriposrImportService();
+        $result = $importer->importGlb((string) $preview['path'], $ioId);
+        session()->forget('triposr_preview');
+        @unlink((string) $preview['path']);
+
+        if (!empty($result['success'])) {
+            session()->flash('notice', '3D model attached to this object.');
+        } else {
+            session()->flash('error', 'Could not save the 3D model: ' . ($result['error'] ?? 'unknown'));
+        }
+        return redirect()->back();
+    }
+
+    /** Step 2b — discard the preview (delete the staged file). */
+    public function discard3d(Request $request, int $ioId)
+    {
+        $preview = session('triposr_preview');
+        if ($preview && (int) ($preview['io_id'] ?? 0) === $ioId) {
+            $importer = new \Ahg3dModel\Services\TriposrImportService();
+            $importer->discardStaged((string) ($preview['path'] ?? ''));
+        }
+        session()->forget('triposr_preview');
+        session()->flash('notice', '3D preview discarded.');
+        return redirect()->back();
+    }
+
+    /**
+     * GET /3d-models/preview-file — serves the staged GLB to the in-page
+     * <model-viewer>. The path is whitelisted against the session-stored
+     * preview so users can't fish around the temp dir.
+     */
+    public function previewFile(Request $request)
+    {
+        $preview = session('triposr_preview');
+        if (!$preview || empty($preview['path']) || !is_file($preview['path'])) {
+            abort(404);
+        }
+        return response()->file($preview['path'], [
+            'Content-Type' => 'model/gltf-binary',
+            'Cache-Control' => 'no-store',
+        ]);
     }
 }

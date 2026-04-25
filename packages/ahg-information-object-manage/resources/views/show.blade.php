@@ -3385,5 +3385,73 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
     modalEl.addEventListener('hidden.bs.modal', function(){ showStep(1); document.getElementById('translateStatus').style.display='none'; document.getElementById('translatePreview').innerHTML=''; results=[]; });
   })();
   </script>
+
+  {{-- TripoSR preview modal — auto-opens when session has a staged preview for this IO --}}
+  @php
+    $triposrPreview = session('triposr_preview');
+    $hasTriposrPreview = $triposrPreview && (int) ($triposrPreview['io_id'] ?? 0) === (int) $io->id;
+  @endphp
+  @if($hasTriposrPreview)
+    <div class="modal fade" id="triposrPreviewModal" tabindex="-1" aria-labelledby="triposrPreviewModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-warning bg-opacity-25">
+            <h5 class="modal-title" id="triposrPreviewModalLabel">
+              <i class="fas fa-cube me-2 text-warning"></i> 3D preview &mdash; review before saving
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-warning small mb-3">
+              <i class="fas fa-flask me-1"></i>
+              {{ __('AI-generated reconstruction. Review the preview below — geometry is approximate. Click Save to attach it as a 3D model on this object, or Discard to throw it away.') }}
+            </div>
+            <div style="height:420px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:8px;">
+              <model-viewer
+                src="{{ route('admin.3d-models.preview-file') }}"
+                camera-controls
+                touch-action="pan-y"
+                auto-rotate
+                shadow-intensity="1"
+                exposure="1"
+                style="width:100%;height:100%;background:transparent;border-radius:8px;">
+                <div slot="poster" class="d-flex align-items-center justify-content-center h-100 text-white">
+                  <div class="spinner-border me-2"></div>{{ __('Loading 3D preview…') }}
+                </div>
+              </model-viewer>
+            </div>
+            <div class="small text-muted mt-2">
+              <strong>{{ __('Source image') }}:</strong> the IO's image &middot;
+              <strong>{{ __('Generated') }}:</strong> {{ \Carbon\Carbon::parse($triposrPreview['created_at'])->diffForHumans() }} &middot;
+              <strong>{{ __('Filename') }}:</strong> <code>{{ $triposrPreview['filename'] }}</code>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <form method="POST" action="{{ route('admin.3d-models.preview-discard', ['ioId' => $io->id]) }}" class="d-inline">
+              @csrf
+              <button type="submit" class="btn btn-outline-secondary">
+                <i class="fas fa-trash me-1"></i> {{ __('Discard') }}
+              </button>
+            </form>
+            <form method="POST" action="{{ route('admin.3d-models.preview-save', ['ioId' => $io->id]) }}" class="d-inline">
+              @csrf
+              <button type="submit" class="btn btn-success">
+                <i class="fas fa-save me-1"></i> {{ __('Save & attach') }}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/vendor/ahg-theme-b5/js/vendor/model-viewer.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        var el = document.getElementById('triposrPreviewModal');
+        if (!el) return;
+        var m = bootstrap.Modal.getOrCreateInstance(el, { backdrop: 'static', keyboard: false });
+        m.show();
+      });
+    </script>
+  @endif
   @endauth
 @endsection

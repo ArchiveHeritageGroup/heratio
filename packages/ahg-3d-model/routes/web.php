@@ -3,11 +3,20 @@
 use Ahg3dModel\Controllers\Model3dController;
 use Illuminate\Support\Facades\Route;
 
-// User-facing — auth-only Generate 3D button on IO show pages
+// User-facing — auth-only Generate 3D button on IO show pages.
+// Two-step flow: generate → preview modal → save / discard.
 Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/3d-models/generate/{ioId}', [Model3dController::class, 'userGenerate3d'])
         ->where('ioId', '[0-9]+')
         ->name('admin.3d-models.user-generate');
+    Route::post('/3d-models/preview/{ioId}/save', [Model3dController::class, 'confirmAttach3d'])
+        ->where('ioId', '[0-9]+')
+        ->name('admin.3d-models.preview-save');
+    Route::post('/3d-models/preview/{ioId}/discard', [Model3dController::class, 'discard3d'])
+        ->where('ioId', '[0-9]+')
+        ->name('admin.3d-models.preview-discard');
+    Route::get('/3d-models/preview-file', [Model3dController::class, 'previewFile'])
+        ->name('admin.3d-models.preview-file');
 });
 
 Route::middleware('admin')->group(function () {
