@@ -33,10 +33,11 @@ class CartService
 {
     public function addToCart(?int $userId, ?string $sessionId, int $objectId, string $title, string $slug): bool
     {
-        // Prevent duplicates
+        // Prevent duplicates within the same kind
         $exists = DB::table('cart')
             ->when($userId, fn ($q) => $q->where('user_id', $userId))
             ->when(!$userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->where('kind', 'reproduction')
             ->where('archival_description_id', $objectId)
             ->whereNull('completed_at')
             ->exists();
@@ -46,6 +47,7 @@ class CartService
         }
 
         DB::table('cart')->insert([
+            'kind' => 'reproduction',
             'user_id' => $userId,
             'session_id' => $sessionId,
             'archival_description_id' => $objectId,
@@ -59,11 +61,89 @@ class CartService
         return true;
     }
 
+    /**
+     * Add a marketplace listing to the cart. Idempotent: a listing already
+     * in the user's cart returns false rather than duplicating.
+     */
+    public function addListingToCart(?int $userId, ?string $sessionId, int $listingId): bool
+    {
+        $listing = DB::table('marketplace_listing')->where('id', $listingId)->first();
+        if (!$listing) {
+            return false;
+        }
+        if ($listing->status !== 'active') {
+            return false;
+        }
+
+        $exists = DB::table('cart')
+            ->when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when(!$userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->where('kind', 'marketplace')
+            ->where('listing_id', $listingId)
+            ->whereNull('completed_at')
+            ->exists();
+
+        if ($exists) {
+            return false;
+        }
+
+        DB::table('cart')->insert([
+            'kind' => 'marketplace',
+            'user_id' => $userId,
+            'session_id' => $sessionId,
+            'listing_id' => $listingId,
+            'archival_description_id' => $listing->information_object_id,
+            'archival_description' => $listing->title,
+            'slug' => $listing->slug,
+            'unit_price' => $listing->price,
+            'quantity' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Marketplace-only cart with pricing joined back from marketplace_listing.
+     * Returns ['items' => Collection, 'subtotal' => float, 'currency' => 'ZAR'].
+     */
+    public function getMarketplaceCart(?int $userId, ?string $sessionId): array
+    {
+        $items = DB::table('cart as c')
+            ->join('marketplace_listing as l', 'l.id', '=', 'c.listing_id')
+            ->leftJoin('marketplace_seller as s', 's.id', '=', 'l.seller_id')
+            ->when($userId, fn ($q) => $q->where('c.user_id', $userId))
+            ->when(!$userId, fn ($q) => $q->where('c.session_id', $sessionId))
+            ->where('c.kind', 'marketplace')
+            ->whereNull('c.completed_at')
+            ->select(
+                'c.id as cart_id',
+                'c.created_at as added_at',
+                'c.quantity',
+                'l.id as listing_id', 'l.title', 'l.slug', 'l.price', 'l.currency',
+                'l.featured_image_path', 'l.status', 'l.listing_type',
+                's.display_name as seller_name', 's.slug as seller_slug'
+            )
+            ->orderByDesc('c.created_at')
+            ->get();
+
+        $subtotal = $items->reduce(
+            fn (float $carry, $item) => $carry + ((float) $item->price * (int) ($item->quantity ?: 1)),
+            0.0
+        );
+        $currency = $items->first()->currency ?? 'ZAR';
+
+        return ['items' => $items, 'subtotal' => $subtotal, 'currency' => $currency];
+    }
+
     public function getCart(?int $userId, ?string $sessionId): \Illuminate\Support\Collection
     {
+        // Reproduction kind only — marketplace listings have their own getter.
         return DB::table('cart')
             ->when($userId, fn ($q) => $q->where('user_id', $userId))
             ->when(!$userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->where('kind', 'reproduction')
             ->whereNull('completed_at')
             ->orderByDesc('created_at')
             ->get();
@@ -71,6 +151,7 @@ class CartService
 
     public function getCartCount(?int $userId, ?string $sessionId): int
     {
+        // Combined count across both kinds — used for badge displays.
         return DB::table('cart')
             ->when($userId, fn ($q) => $q->where('user_id', $userId))
             ->when(!$userId, fn ($q) => $q->where('session_id', $sessionId))

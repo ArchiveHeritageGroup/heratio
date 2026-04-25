@@ -60,7 +60,144 @@ class CartController extends Controller
         $productTypes = $isEcommerce ? $this->ecommerceService->getProductTypes() : collect();
         $pricing = $isEcommerce ? $this->ecommerceService->getProductPricing() : collect();
 
-        return view('ahg-cart::browse', compact('items', 'isEcommerce', 'productTypes', 'pricing'));
+        // Marketplace cart (separate kind) — listings the user wants to buy
+        $marketplaceCart = $this->cartService->getMarketplaceCart($userId, $userId ? null : $sessionId);
+
+        return view('ahg-cart::browse', compact('items', 'isEcommerce', 'productTypes', 'pricing', 'marketplaceCart'));
+    }
+
+    /**
+     * POST /cart/listing/add/{listingId} — add a marketplace listing to the cart.
+     */
+    public function addListing(Request $request, int $listingId)
+    {
+        $userId = Auth::id();
+        if (!$userId) {
+            return redirect()->route('login');
+        }
+        $sessionId = $request->session()->getId();
+
+        $added = $this->cartService->addListingToCart($userId, null, $listingId);
+
+        if ($added) {
+            return redirect()->route('cart.browse')->with('success', 'Listing added to your cart.');
+        }
+        return redirect()->route('cart.browse')->with('info', 'That listing is already in your cart (or no longer active).');
+    }
+
+    /**
+     * POST /cart/marketplace/checkout — combined PayFast checkout for every
+     * marketplace listing currently in the cart.
+     *
+     * Strategy: create one marketplace_transaction per cart item in
+     * pending_payment state, all sharing a generated cart_group_id and a
+     * common transaction_number prefix. Redirect the buyer to PayFast with
+     * the parent group id as m_payment_id and the combined total. The ITN
+     * handler matches payments back via cart_group_id.
+     */
+    public function marketplaceCheckout(Request $request)
+    {
+        $userId = Auth::id();
+        if (!$userId) {
+            return redirect()->route('login');
+        }
+
+        $cart = $this->cartService->getMarketplaceCart($userId, null);
+        if ($cart['items']->isEmpty()) {
+            return redirect()->route('cart.browse')->with('error', 'Your marketplace cart is empty.');
+        }
+
+        $payments = app(\AhgMarketplace\Services\MarketplacePaymentService::class);
+        $marketplace = app(\AhgMarketplace\Services\MarketplaceService::class);
+
+        $groupId = $this->generateCartGroupId();
+        $createdTxnIds = [];
+        $listingsCovered = [];
+
+        foreach ($cart['items'] as $i => $item) {
+            // Skip self-buy
+            $listing = $marketplace->getListingById((int) $item->listing_id);
+            if (!$listing) {
+                continue;
+            }
+            $sellerForBuyer = $marketplace->getSellerByUserId($userId);
+            if ($sellerForBuyer && (int) $sellerForBuyer->id === (int) $listing->seller_id) {
+                continue;
+            }
+
+            $result = $marketplace->createTransaction([
+                'source'     => 'fixed_price',
+                'listing_id' => (int) $item->listing_id,
+                'buyer_id'   => $userId,
+            ]);
+            if (empty($result['success'])) {
+                continue;
+            }
+            $txnId = (int) ($result['transaction_id'] ?? ($result['transaction']->id ?? 0));
+            if (!$txnId) {
+                continue;
+            }
+
+            DB::table('marketplace_transaction')
+                ->where('id', $txnId)
+                ->update(['cart_group_id' => $groupId, 'updated_at' => now()]);
+
+            $createdTxnIds[] = $txnId;
+            $listingsCovered[] = (int) $item->listing_id;
+        }
+
+        if (empty($createdTxnIds)) {
+            return redirect()->route('cart.browse')->with('error', 'No payable items in your cart.');
+        }
+
+        $grandTotal = (float) DB::table('marketplace_transaction')
+            ->where('cart_group_id', $groupId)
+            ->sum('grand_total');
+
+        // Build a synthetic "transaction" object for PayFast — group id as
+        // identifier, summed grand_total. Reuse the first listing's title for
+        // a friendly item_name.
+        $firstListing = $marketplace->getListingById($listingsCovered[0]);
+        $syntheticTxn = (object) [
+            'id'                 => 0,
+            'transaction_number' => $groupId,
+            'grand_total'        => number_format($grandTotal, 2, '.', ''),
+            'currency'           => $cart['currency'],
+        ];
+        $itemTitle = count($createdTxnIds) === 1
+            ? ($firstListing->title ?? 'Marketplace purchase')
+            : 'Marketplace cart (' . count($createdTxnIds) . ' items)';
+        $syntheticListing = (object) [
+            'title' => $itemTitle,
+            'description' => 'Combined PayFast checkout for ' . count($createdTxnIds) . ' marketplace listing(s).',
+        ];
+
+        $userRow = DB::table('users')->where('id', $userId)->first(['name', 'email']);
+        $name = $userRow->name ?? 'Buyer';
+        $email = $userRow->email ?? 'buyer@example.com';
+
+        try {
+            $url = $payments->buildProcessUrl($syntheticTxn, $syntheticListing, $name, $email);
+        } catch (\Throwable $e) {
+            return redirect()->route('cart.browse')->with('error', 'Payment gateway is not configured: ' . $e->getMessage());
+        }
+
+        return redirect()->away($url);
+    }
+
+    private function generateCartGroupId(): string
+    {
+        $date = date('Ymd');
+        $last = DB::table('marketplace_transaction')
+            ->where('cart_group_id', 'LIKE', 'CART-' . $date . '-%')
+            ->orderByDesc('id')
+            ->first();
+        $seq = 1;
+        if ($last && !empty($last->cart_group_id)) {
+            $parts = explode('-', $last->cart_group_id);
+            $seq = (int) end($parts) + 1;
+        }
+        return sprintf('CART-%s-%04d', $date, $seq);
     }
 
     public function add(Request $request, string $slug)

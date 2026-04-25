@@ -1689,25 +1689,30 @@ class MarketplaceController extends Controller
     {
         $payload = $request->all();
         $sourceIp = $request->ip();
-        $txnNumber = $payload['m_payment_id'] ?? null;
-        $txn = $txnNumber ? $this->service->getTransactionByNumber($txnNumber) : null;
+        $mPaymentId = (string) ($payload['m_payment_id'] ?? '');
+        $isCart = str_starts_with($mPaymentId, 'CART-');
 
         // Always log raw payloads for audit
         DB::table('ahg_payment_notifications')->insert([
             'gateway'    => 'payfast-marketplace',
             'payload'    => json_encode($payload),
             'status'     => $payload['payment_status'] ?? 'unknown',
-            'order_id'   => $txnNumber,
+            'order_id'   => $mPaymentId,
             'created_at' => now(),
         ]);
 
+        if ($isCart) {
+            return $this->handleCartItn($payload, $sourceIp, $mPaymentId, $payments);
+        }
+
+        $txn = $mPaymentId ? $this->service->getTransactionByNumber($mPaymentId) : null;
         if (!$txn) {
-            Log::warning('[PayFast ITN] unknown transaction', ['txn_number' => $txnNumber]);
+            Log::warning('[PayFast ITN] unknown transaction', ['txn_number' => $mPaymentId]);
             return response('OK', 200);
         }
 
         if (!$payments->verifyItn($payload, $sourceIp, $txn)) {
-            Log::warning('[PayFast ITN] verification failed', ['txn' => $txnNumber, 'ip' => $sourceIp]);
+            Log::warning('[PayFast ITN] verification failed', ['txn' => $mPaymentId, 'ip' => $sourceIp]);
             return response('OK', 200);
         }
 
@@ -1730,31 +1735,118 @@ class MarketplaceController extends Controller
         return response('OK', 200);
     }
 
+    /**
+     * ITN for a cart-mode payment (m_payment_id = CART-YYYYMMDD-NNNN).
+     * Verifies the signature/IP/server-validate against the SUM of grand_totals
+     * for transactions sharing the cart_group_id, then marks all of them paid
+     * (or failed) and clears the cart rows.
+     */
+    private function handleCartItn(array $payload, string $sourceIp, string $cartGroupId, MarketplacePaymentService $payments): \Illuminate\Http\Response
+    {
+        $txns = DB::table('marketplace_transaction')->where('cart_group_id', $cartGroupId)->get();
+        if ($txns->isEmpty()) {
+            Log::warning('[PayFast ITN cart] unknown cart_group_id', ['group' => $cartGroupId]);
+            return response('OK', 200);
+        }
+
+        $grandTotal = (float) $txns->sum('grand_total');
+        $synthetic = (object) ['grand_total' => $grandTotal];
+        if (!$payments->verifyItn($payload, $sourceIp, $synthetic)) {
+            Log::warning('[PayFast ITN cart] verification failed', ['group' => $cartGroupId, 'ip' => $sourceIp]);
+            return response('OK', 200);
+        }
+
+        $status = strtoupper((string) ($payload['payment_status'] ?? ''));
+        if ($status === 'COMPLETE') {
+            $buyerId = (int) ($txns->first()->buyer_id ?? 0);
+            foreach ($txns as $t) {
+                $this->service->markTransactionPaid(
+                    (int) $t->id,
+                    'payfast',
+                    (string) ($payload['pf_payment_id'] ?? ''),
+                    $payload
+                );
+            }
+            // Clear the cart rows for these listings now that they're paid.
+            $listingIds = $txns->pluck('listing_id')->filter()->all();
+            if (!empty($listingIds) && $buyerId) {
+                DB::table('cart')
+                    ->where('user_id', $buyerId)
+                    ->where('kind', 'marketplace')
+                    ->whereIn('listing_id', $listingIds)
+                    ->update(['completed_at' => now()]);
+            }
+        } elseif (in_array($status, ['FAILED', 'CANCELLED'], true)) {
+            DB::table('marketplace_transaction')
+                ->where('cart_group_id', $cartGroupId)
+                ->update([
+                    'payment_status' => 'failed',
+                    'gateway_response' => json_encode($payload),
+                    'updated_at' => now(),
+                ]);
+        }
+
+        return response('OK', 200);
+    }
+
     /** Buyer is bounced back to this URL after a successful payment. */
     public function paymentReturn(Request $request)
     {
-        $txn = $this->service->getTransactionByNumber((string) $request->input('txn'));
-        return view('marketplace::payment-return', [
-            'transaction' => $txn,
-            'success'     => $txn && $txn->payment_status === 'paid',
-        ]);
+        $key = (string) $request->input('txn');
+        return view('marketplace::payment-return', $this->resolveReturnContext($key, false));
     }
 
     /** Buyer cancelled at PayFast — return to listing with a retry option. */
     public function paymentCancel(Request $request)
     {
-        $txn = $this->service->getTransactionByNumber((string) $request->input('txn'));
-        if ($txn && $txn->payment_status === 'pending') {
-            DB::table('marketplace_transaction')->where('id', $txn->id)->update([
+        $key = (string) $request->input('txn');
+        $ctx = $this->resolveReturnContext($key, true);
+
+        // Mark pending transactions as cancelled
+        if (str_starts_with($key, 'CART-')) {
+            DB::table('marketplace_transaction')
+                ->where('cart_group_id', $key)
+                ->whereIn('payment_status', ['pending', 'pending_payment'])
+                ->update(['payment_status' => 'cancelled', 'updated_at' => now()]);
+        } elseif (!empty($ctx['transaction']) && in_array($ctx['transaction']->payment_status, ['pending', 'pending_payment'], true)) {
+            DB::table('marketplace_transaction')->where('id', $ctx['transaction']->id)->update([
                 'payment_status' => 'cancelled',
-                'updated_at'     => now(),
+                'updated_at' => now(),
             ]);
         }
-        return view('marketplace::payment-return', [
+        return view('marketplace::payment-return', $ctx);
+    }
+
+    /**
+     * Resolve $request['txn'] to a view context for both single and cart payments.
+     */
+    private function resolveReturnContext(string $key, bool $cancelled): array
+    {
+        if (str_starts_with($key, 'CART-')) {
+            $txns = DB::table('marketplace_transaction')->where('cart_group_id', $key)->get();
+            $grandTotal = (float) $txns->sum('grand_total');
+            $allPaid = $txns->isNotEmpty() && $txns->every(fn ($t) => $t->payment_status === 'paid');
+            $synthetic = (object) [
+                'transaction_number' => $key,
+                'grand_total'        => $grandTotal,
+                'currency'           => $txns->first()->currency ?? 'ZAR',
+                'payment_status'     => $allPaid ? 'paid' : ($cancelled ? 'cancelled' : 'pending'),
+            ];
+            return [
+                'transaction' => $synthetic,
+                'success'     => $allPaid && !$cancelled,
+                'cancelled'   => $cancelled,
+                'cartCount'   => $txns->count(),
+            ];
+        }
+
+        $txn = $this->service->getTransactionByNumber($key);
+        return [
             'transaction' => $txn,
-            'success'     => false,
-            'cancelled'   => true,
-        ]);
+            'success'     => $txn && $txn->payment_status === 'paid' && !$cancelled,
+            'cancelled'   => $cancelled,
+            'cartCount'   => 0,
+        ];
     }
 
     /**

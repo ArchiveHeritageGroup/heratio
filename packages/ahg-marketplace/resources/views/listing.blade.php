@@ -111,10 +111,16 @@
             <p class="small text-muted mb-3">{{ __('Condition: :c', ['c' => ucfirst($listing->condition_rating)]) }}</p>
           @endif
           @auth
-            <form method="POST" action="{{ route('ahgmarketplace.checkout-buy', ['listingId' => $listing->id]) }}" class="mb-2">
+            <form method="POST" action="{{ route('cart.listing-add', ['listingId' => $listing->id]) }}" class="mb-2">
               @csrf
               <button type="submit" class="btn btn-primary w-100">
-                <i class="fas fa-shopping-cart me-1"></i> {{ __('Buy Now') }}
+                <i class="fas fa-cart-plus me-1"></i> {{ __('Add to cart') }}
+              </button>
+            </form>
+            <form method="POST" action="{{ route('ahgmarketplace.checkout-buy', ['listingId' => $listing->id]) }}" class="mb-2">
+              @csrf
+              <button type="submit" class="btn btn-outline-primary w-100">
+                <i class="fas fa-bolt me-1"></i> {{ __('Buy Now') }}
               </button>
             </form>
           @else

@@ -8,6 +8,17 @@ Route::get('/cart', [CartController::class, 'browse'])->name('cart.browse');
 Route::get('/cart/add/{slug}', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove')->where('id', '[0-9]+');
 Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+
+// Marketplace cart entry — Add-to-cart from a marketplace listing,
+// then combined PayFast checkout for everything in the cart at once.
+Route::post('/cart/listing/add/{listingId}', [CartController::class, 'addListing'])
+    ->where('listingId', '[0-9]+')
+    ->name('cart.listing-add')
+    ->middleware('auth');
+Route::post('/cart/marketplace/checkout', [CartController::class, 'marketplaceCheckout'])
+    ->name('cart.marketplace-checkout')
+    ->middleware('auth');
+
 Route::match(['get', 'post'], '/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
 Route::get('/cart/thank-you', [CartController::class, 'thankYou'])->name('cart.thankyou');
 Route::get('/cart/order/{id}', [CartController::class, 'orderConfirmation'])->name('cart.order-confirmation')->where('id', '[0-9]+');
