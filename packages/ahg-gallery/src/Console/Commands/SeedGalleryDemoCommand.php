@@ -250,6 +250,39 @@ class SeedGalleryDemoCommand extends Command
                 'mood' => 'Tender, reflective, vital',
                 'description' => 'A tender moment between mother and calf, a celebration of love, guidance and generational wisdom. Bold brushwork and vibrant colours express the spirit of togetherness that sustains life in the wild.',
             ],
+            [
+                'n' => 25, 'file' => 'Gallery Item 25.png',
+                'title' => 'King of the Silent Plains',
+                'style' => 'Wildlife sculpture',
+                'materials' => 'Bronze',
+                'dimensions' => '38 x 28 x 60 cm',
+                'edition' => 'Limited Edition of 20',
+                'palette' => 'Patinated bronze, deep umber',
+                'mood' => 'Noble, quiet, authoritative',
+                'description' => 'A symbol of courage, leadership and quiet authority. Every textured detail speaks of strength earned, not given. This piece captures the spirit of a guardian who watches, protects and inspires.',
+            ],
+            [
+                'n' => 26, 'file' => 'Gallery Item 26.png',
+                'title' => 'Earthkeeper',
+                'style' => 'Wildlife sculpture',
+                'materials' => 'Stone and brass',
+                'dimensions' => '50 x 20 x 35 cm',
+                'edition' => 'Edition of 15',
+                'palette' => 'Stone grey, warm brass',
+                'mood' => 'Resilient, grounded, protective',
+                'description' => 'A tribute to resilience and ancient wisdom. The rhinoceros, carved in solid stone with brass accents, reminds us of our duty to protect the earth and all who journey upon it.',
+            ],
+            [
+                'n' => 27, 'file' => 'Gallery Item 27.png',
+                'title' => 'Sky Sentinel',
+                'style' => 'Mythic / fantasy sculpture',
+                'materials' => 'Bronze & patinated metal',
+                'dimensions' => '52 x 38 x 70 cm',
+                'edition' => 'Limited Edition of 18',
+                'palette' => 'Patinated bronze, deep umber, gold',
+                'mood' => 'Mythic, watchful, soaring',
+                'description' => 'Poised between earth and wind, Sky Sentinel embodies the eternal mythicality of ancient skies. Its form captures the moment before flight — muscles coiled, wings unfolding, vision set beyond horizon and time. A tribute to the unseen guardians of deep time, it speaks to freedom, instinct, and the vast silence that shaped a world long before our own. A symbol of courage, perspective, and the enduring spirit of the wild.',
+            ],
         ];
     }
 
@@ -298,7 +331,12 @@ class SeedGalleryDemoCommand extends Command
                 'identifier' => $identifier,
                 'title' => $item['title'],
                 'scope_and_content' => $scope,
-                'extent_and_medium' => trim(($item['materials'] ?? '') . (isset($item['dimensions']) ? ', ' . $item['dimensions'] : ''), ', '),
+                'extent_and_medium' => trim(
+                    ($item['materials'] ?? '')
+                    . (isset($item['dimensions']) ? ', ' . $item['dimensions'] : '')
+                    . (isset($item['edition']) ? ', ' . $item['edition'] : ''),
+                    ', '
+                ),
                 'source_standard' => 'CCO',
                 // CCO / museum_metadata
                 'work_type' => 'Painting (digital reproduction)',
