@@ -262,6 +262,13 @@ class GalleryController extends Controller
                 ->first();
         }
 
+        // Marketplace listing linked to this artwork (if any)
+        $marketplaceListing = null;
+        if (class_exists(\AhgMarketplace\Services\MarketplaceService::class)) {
+            $marketplaceListing = app(\AhgMarketplace\Services\MarketplaceService::class)
+                ->getListingByInformationObjectId((int) $artwork->id);
+        }
+
         return view('ahg-gallery::gallery.show', [
             'artwork' => $artwork,
             'levelName' => $levelName,
@@ -279,6 +286,7 @@ class GalleryController extends Controller
             'physicalObjects' => $physicalObjects,
             'breadcrumbs' => $breadcrumbs,
             'galleryArtist' => $galleryArtist,
+            'marketplaceListing' => $marketplaceListing,
         ]);
     }
 

@@ -53,7 +53,7 @@
     <div class="card mb-3">
       <div class="card-header fw-bold">
         <i class="fas fa-cog me-1"></i> Actions
-      
+
       <div class="list-group list-group-flush">
         <a href="{{ route('gallery.edit', $artwork->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-pencil-alt me-1"></i> Edit
@@ -80,8 +80,49 @@
         <a href="{{ url('/' . $artwork->slug . '/right/edit') }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-gavel me-1"></i> Edit rights
         </a>
-      
-    
+
+
+
+    {{-- Marketplace (admin) --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold">
+        <i class="fas fa-store me-1"></i> Marketplace
+      </div>
+      @if($marketplaceListing ?? null)
+        <div class="card-body p-2 small">
+          @if($marketplaceListing->price_on_request)
+            <div><span class="text-muted">Price:</span> <strong>On request</strong></div>
+          @elseif($marketplaceListing->price !== null)
+            <div><span class="text-muted">Price:</span>
+              <strong>{{ $marketplaceListing->currency ?: 'ZAR' }} {{ number_format((float) $marketplaceListing->price, 2) }}</strong>
+            </div>
+          @else
+            <div class="text-muted fst-italic">Price not set</div>
+          @endif
+          <div><span class="text-muted">Type:</span> {{ str_replace('_', ' ', $marketplaceListing->listing_type) }}</div>
+          <div><span class="text-muted">Status:</span> <span class="badge bg-secondary">{{ $marketplaceListing->status }}</span></div>
+        </div>
+        <div class="list-group list-group-flush">
+          <a href="{{ route('ahgmarketplace.seller-listing-edit', ['id' => $marketplaceListing->id]) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-edit me-1"></i> Edit listing &amp; price
+          </a>
+          <a href="{{ route('ahgmarketplace.seller-listing-images', ['id' => $marketplaceListing->id]) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-images me-1"></i> Manage images
+          </a>
+          @if($marketplaceListing->status === 'published')
+            <a href="{{ route('ahgmarketplace.listing', ['slug' => $marketplaceListing->slug]) }}" class="list-group-item list-group-item-action small" target="_blank">
+              <i class="fas fa-external-link-alt me-1"></i> View public listing
+            </a>
+          @endif
+        </div>
+      @else
+        <div class="list-group list-group-flush">
+          <a href="{{ route('ahgmarketplace.seller-listing-create', ['io' => $artwork->id]) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-tag me-1"></i> Add to marketplace &amp; set price
+          </a>
+        </div>
+      @endif
+    </div>
   @endauth
 
 @endsection

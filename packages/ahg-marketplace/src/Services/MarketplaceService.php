@@ -4084,6 +4084,19 @@ class MarketplaceService
     }
 
     /**
+     * Find the marketplace listing linked to a given information object, if any.
+     * Returns the most-recently-updated listing (a single IO could in theory be
+     * relisted after withdrawal). Heratio-specific: PSIS has no GLAM linkage.
+     */
+    public function getListingByInformationObjectId(int $ioId): ?object
+    {
+        return DB::table('marketplace_listing')
+            ->where('information_object_id', $ioId)
+            ->orderByDesc('updated_at')
+            ->first();
+    }
+
+    /**
      * Pre-fill enquiry/offer forms from the authenticated user's profile.
      * Heratio-specific: PSIS uses AtoM's `user` table which has a different
      * shape (authorized_form_of_name + email across joined tables).
