@@ -87,7 +87,8 @@ class MarketplaceService
                 's.display_name as seller_name',
                 's.slug as seller_slug',
                 's.average_rating as seller_rating',
-                's.verification_status as seller_verified'
+                's.verification_status as seller_verified',
+                DB::raw('EXISTS(SELECT 1 FROM object_3d_model m WHERE m.object_id = l.information_object_id) AS has_3d')
             );
 
         // Only active listings for public browse unless overridden

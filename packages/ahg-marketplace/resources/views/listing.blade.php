@@ -86,7 +86,22 @@
 
   {{-- Listing details --}}
   <div class="col-md-5 mb-4">
-    <h1 class="h4 mb-2">{{ $listing->title ?? '' }}</h1>
+    <h1 class="h4 mb-2">
+      {{ $listing->title ?? '' }}
+      @php
+        $listingHas3d = false;
+        try {
+          $listingHas3d = !empty($listing->information_object_id)
+            && \Illuminate\Support\Facades\DB::table('object_3d_model')
+              ->where('object_id', $listing->information_object_id)->exists();
+        } catch (\Throwable $e) { /* ignore */ }
+      @endphp
+      @if($listingHas3d)
+        <span class="badge bg-dark ms-1 fs-6" title="3D model available">
+          <i class="fas fa-cube me-1"></i>3D
+        </span>
+      @endif
+    </h1>
 
     @if(!empty($listing->artist_name))
       <p class="text-muted mb-2">

@@ -3,6 +3,13 @@
 use Ahg3dModel\Controllers\Model3dController;
 use Illuminate\Support\Facades\Route;
 
+// User-facing — auth-only Generate 3D button on IO show pages
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::post('/3d-models/generate/{ioId}', [Model3dController::class, 'userGenerate3d'])
+        ->where('ioId', '[0-9]+')
+        ->name('admin.3d-models.user-generate');
+});
+
 Route::middleware('admin')->group(function () {
     // Browse (derivative management)
     Route::get('/admin/3d-models', [Model3dController::class, 'browse'])

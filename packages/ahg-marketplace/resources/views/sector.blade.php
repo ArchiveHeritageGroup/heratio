@@ -130,6 +130,9 @@
                   {{ __('Buy') }}
                 @endif
               </span>
+              @if(!empty($listing->has_3d))
+                <span class="badge bg-dark ms-1" title="3D model available"><i class="fas fa-cube me-1"></i>3D</span>
+              @endif
             </div>
           </div>
         </div>

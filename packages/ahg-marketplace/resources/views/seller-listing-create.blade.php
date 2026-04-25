@@ -21,6 +21,7 @@
     'auction'     => __('Auction'),
     'offer_only'  => __('Offer Only'),
     'licence'     => __('Licence'),
+    '3d_model'    => __('3D Model'),
   ];
 @endphp
 

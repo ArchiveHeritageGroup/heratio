@@ -2271,7 +2271,7 @@ class MarketplaceController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'sector' => 'required|string|in:gallery,museum,archive,library,dam',
-            'listing_type' => 'required|string|in:fixed_price,auction,offer_only,licence',
+            'listing_type' => 'required|string|in:fixed_price,auction,offer_only,licence,3d_model',
         ]);
 
         // Broker mode — when an artist is selected, compute price from base + markup
@@ -2426,7 +2426,7 @@ class MarketplaceController extends Controller
 
         $request->validate([
             'title' => 'required|string|max:255',
-            'listing_type' => 'nullable|string|in:fixed_price,auction,offer_only,licence',
+            'listing_type' => 'nullable|string|in:fixed_price,auction,offer_only,licence,3d_model',
         ]);
 
         $newType = $request->input('listing_type', $listing->listing_type);

@@ -9,8 +9,27 @@ $viewerId = 'viewer-' . uniqid(); @endphp
 
 <div class="digitalObject3D">
   <div class="d-flex flex-column align-items-center">
-    <div class="mb-2">
+    <div class="mb-2 d-flex flex-wrap gap-1 align-items-center justify-content-center">
       <span class="badge bg-primary"><i class="fas fa-cube me-1"></i>@php echo esc_entities($resource->name); @endphp (3D)</span>
+      @php
+        $isAiGenerated = false;
+        try {
+          if (isset($resource->object_id)) {
+            $isAiGenerated = (bool) \Illuminate\Support\Facades\DB::table('object_3d_model')
+              ->where('object_id', $resource->object_id)
+              ->where(function ($q) {
+                $q->where('original_filename', 'like', 'triposr_%')
+                  ->orWhere('filename', 'like', 'triposr_%');
+              })
+              ->exists();
+          }
+        } catch (\Throwable $e) { /* ignore */ }
+      @endphp
+      @if($isAiGenerated)
+        <span class="badge bg-warning text-dark" title="Reconstructed by an AI model from a 2D source — geometry is approximate">
+          <i class="fas fa-flask me-1"></i>{{ __('AI-generated reconstruction') }}
+        </span>
+      @endif
     </div>
     
     <div id="@php echo $viewerId; @endphp-container" style="width: 100%; height: 400px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 8px; position: relative;">
@@ -85,5 +104,11 @@ $viewerId = 'viewer-' . uniqid(); @endphp
     <small class="text-muted mt-2">
       <i class="fas fa-mouse me-1"></i>{{ __('Drag to rotate') }} | <i class="fas fa-search-plus me-1"></i>{{ __('Scroll to zoom') }}
     </small>
+    @if($isAiGenerated)
+      <small class="text-muted mt-1 fst-italic" style="max-width:520px;text-align:center;">
+        <i class="fas fa-info-circle me-1"></i>
+        {{ __('This model was reconstructed by an AI from a 2D source image. Geometry is approximate and not authoritative — refer to the source image for accurate detail.') }}
+      </small>
+    @endif
   </div>
 </div>

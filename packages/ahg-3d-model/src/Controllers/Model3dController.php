@@ -32,7 +32,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * 3D Model management controller.
@@ -682,6 +685,7 @@ class Model3dController extends Controller
                 'watermark_text' => $request->input('watermark_text', ''),
                 'allowed_formats' => json_encode($request->input('allowed_formats', [])),
                 'triposr_enabled' => $request->has('triposr_enabled') ? '1' : '0',
+                'enable_2d_to_3d_user_button' => $request->has('enable_2d_to_3d_user_button') ? '1' : '0',
                 'triposr_api_url' => $request->input('triposr_api_url', 'http://127.0.0.1:5050'),
                 'triposr_mode' => $request->input('triposr_mode', 'local'),
                 'triposr_remote_url' => $request->input('triposr_remote_url', ''),
@@ -1081,5 +1085,89 @@ class Model3dController extends Controller
         } catch (\Exception $e) {
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
+    }
+
+    /**
+     * Whether the public-facing 'Generate 3D' button is allowed to render.
+     * Both flags must be on: triposr_enabled AND enable_2d_to_3d_user_button.
+     */
+    public static function is2dTo3dUserButtonEnabled(): bool
+    {
+        try {
+            $rows = DB::table('viewer_3d_settings')
+                ->whereIn('setting_key', ['triposr_enabled', 'enable_2d_to_3d_user_button'])
+                ->pluck('setting_value', 'setting_key')->all();
+        } catch (\Throwable $e) {
+            return false;
+        }
+        return ((string) ($rows['triposr_enabled'] ?? '0')) === '1'
+            && ((string) ($rows['enable_2d_to_3d_user_button'] ?? '1')) === '1';
+    }
+
+    /**
+     * POST /3d-models/generate/{ioId} — user-triggered 2D→3D generation for a
+     * single IO. Honours the admin enable/disable toggles. Runs the existing
+     * artisan command synchronously (TripoSR call ~30-60s on the AI server).
+     */
+    public function userGenerate3d(Request $request, int $ioId)
+    {
+        if (!self::is2dTo3dUserButtonEnabled()) {
+            session()->flash('error', '3D generation is currently disabled by the administrator.');
+            return redirect()->back();
+        }
+
+        $io = DB::table('information_object')->where('id', $ioId)->first(['id']);
+        if (!$io) {
+            abort(404);
+        }
+
+        // Idempotency — refuse if a 3D model already exists for this IO
+        $existing = DB::table('object_3d_model')->where('object_id', $ioId)->first(['id']);
+        if ($existing) {
+            session()->flash('notice', 'This object already has a 3D model.');
+            return redirect()->back();
+        }
+
+        // Find a usable source image — prefer master, fall back to reference.
+        $sourceDo = DB::table('digital_object')
+            ->where('object_id', $ioId)
+            ->where('mime_type', 'like', 'image/%')
+            ->orderByRaw("FIELD(usage_id, 140, 141, 142)")
+            ->first(['id', 'name', 'path']);
+
+        if (!$sourceDo) {
+            session()->flash('error', 'No image found for this object. Upload an image first.');
+            return redirect()->back();
+        }
+
+        // Resolve absolute disk path
+        $base = rtrim((string) config('heratio.uploads_path', ''), '/');
+        $rel = preg_replace('#^/uploads/r?/?#', '', (string) $sourceDo->path);
+        $sourcePath = $base . '/' . trim($rel, '/') . '/' . $sourceDo->name;
+        if (!is_file($sourcePath)) {
+            $sourcePath = $base . '/' . $ioId . '/' . $sourceDo->name; // fallback
+        }
+        if (!is_file($sourcePath)) {
+            session()->flash('error', 'Could not locate the source image on disk.');
+            return redirect()->back();
+        }
+
+        try {
+            $exit = Artisan::call('ahg:triposr-generate', [
+                '--image' => $sourcePath,
+                '--object-id' => (string) $ioId,
+                '--import' => true,
+            ]);
+            if ($exit === 0) {
+                session()->flash('notice', '3D model generated and attached to this object.');
+            } else {
+                session()->flash('error', '3D generation completed with errors. Check the TripoSR logs.');
+            }
+        } catch (\Throwable $e) {
+            Log::error('[userGenerate3d] failed', ['io' => $ioId, 'err' => $e->getMessage()]);
+            session()->flash('error', '3D generation failed: ' . $e->getMessage());
+        }
+
+        return redirect()->back();
     }
 }

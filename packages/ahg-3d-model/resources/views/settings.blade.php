@@ -318,6 +318,14 @@
                   <input class="form-check-input" type="checkbox" id="triposr_enabled" name="triposr_enabled" value="1"
                          {{ isSettingEnabled3d($settings, 'triposr_enabled') ? 'checked' : '' }}>
                   <label class="form-check-label" for="triposr_enabled"><strong>Enable TripoSR</strong> <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <div class="form-text">Required for 2D-to-3D model generation. Calls the TripoSR API on each request.</div>
+                </div>
+                <div class="form-check mb-3">
+                  <input type="hidden" name="enable_2d_to_3d_user_button" value="0">
+                  <input class="form-check-input" type="checkbox" id="enable_2d_to_3d_user_button" name="enable_2d_to_3d_user_button" value="1"
+                         {{ isSettingEnabled3d($settings, 'enable_2d_to_3d_user_button') ? 'checked' : '' }}>
+                  <label class="form-check-label" for="enable_2d_to_3d_user_button"><strong>Show "Generate 3D" button on IO show pages</strong></label>
+                  <div class="form-text">When checked, authenticated users see a "Generate 3D model" button on each IO that has an image but no 3D model yet. Disable to keep TripoSR cron-only.</div>
                 </div>
               </div>
               <div class="col-md-6">
