@@ -29,6 +29,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\RequireAdmin::class,
             'acl' => \App\Http\Middleware\CheckAcl::class,
         ]);
+
+        // Payment gateway webhooks — server-to-server, no CSRF token available
+        $middleware->validateCsrfTokens(except: [
+            'cart/payment/notify',
+            'marketplace/payfast/notify',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Log all exceptions to ahg_error_log table

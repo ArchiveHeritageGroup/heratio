@@ -10,5 +10,11 @@ class AhgMarketplaceServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'marketplace');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgMarketplace\Console\Commands\AssignGalleryItemsCommand::class,
+            ]);
+        }
     }
 }

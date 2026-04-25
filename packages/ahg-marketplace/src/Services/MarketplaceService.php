@@ -2571,26 +2571,81 @@ class MarketplaceService
     /**
      * Get admin dashboard statistics.
      */
-    public function getDashboardStats(): array
+    public function getDashboardStats(?int $sellerId = null): array
     {
-        $now = now();
+        // Site-wide stats (admin dashboard)
+        if ($sellerId === null) {
+            $now = now();
+            return [
+                'total_listings'         => DB::table($this->listingTable)->count(),
+                'active_listings'        => DB::table($this->listingTable)->where('status', 'active')->count(),
+                'pending_listings'       => DB::table($this->listingTable)->where('status', 'pending_review')->count(),
+                'total_sellers'          => DB::table($this->sellerTable)->count(),
+                'active_sellers'         => DB::table($this->sellerTable)->where('is_active', 1)->count(),
+                'unverified_sellers'     => DB::table($this->sellerTable)->where('verification_status', 'unverified')->count(),
+                'total_transactions'     => DB::table($this->transactionTable)->count(),
+                'pending_transactions'   => DB::table($this->transactionTable)->where('status', 'pending_payment')->count(),
+                'total_revenue'          => DB::table($this->transactionTable)->where('payment_status', 'paid')->sum('sale_price') ?? 0,
+                'total_commission'       => DB::table($this->transactionTable)->where('payment_status', 'paid')->sum('platform_commission_amount') ?? 0,
+                'pending_payouts'        => DB::table($this->payoutTable)->where('status', 'pending')->count(),
+                'pending_payout_amount'  => DB::table($this->payoutTable)->where('status', 'pending')->sum('amount') ?? 0,
+                'active_auctions'        => DB::table($this->auctionTable)->where('status', 'active')->where('end_time', '>', $now)->count(),
+                'flagged_reviews'        => DB::table($this->reviewTable)->where('flagged', 1)->count(),
+                'pending_enquiries'      => Schema::hasTable($this->enquiryTable) ? DB::table($this->enquiryTable)->where('status', 'new')->count() : 0,
+            ];
+        }
+
+        // Seller-scoped stats (seller dashboard)
+        $listingCounts = DB::table($this->listingTable)
+            ->where('seller_id', $sellerId)
+            ->selectRaw('COUNT(*) as total,
+                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as drafts,
+                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as published,
+                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as withdrawn,
+                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as sold', ['draft', 'published', 'withdrawn', 'sold'])
+            ->first();
+
+        $totalRevenue = DB::table($this->transactionTable)
+            ->where('seller_id', $sellerId)
+            ->where('payment_status', 'paid')
+            ->sum('sale_price') ?? 0;
+
+        $pendingOffers = $this->getPendingOfferCount($sellerId);
+
+        $activeAuctions = DB::table($this->auctionTable . ' as a')
+            ->join($this->listingTable . ' as l', 'l.id', '=', 'a.listing_id')
+            ->where('l.seller_id', $sellerId)
+            ->where('a.status', 'active')
+            ->where('a.end_time', '>', now())
+            ->count();
+
+        $totalEnquiries = Schema::hasTable($this->enquiryTable)
+            ? DB::table($this->enquiryTable)
+                ->join($this->listingTable . ' as l', 'l.id', '=', $this->enquiryTable . '.listing_id')
+                ->where('l.seller_id', $sellerId)
+                ->count()
+            : 0;
+
+        $totalViews = (int) DB::table($this->listingTable)
+            ->where('seller_id', $sellerId)
+            ->sum('view_count');
+
+        $totalFavourites = (int) DB::table($this->listingTable)
+            ->where('seller_id', $sellerId)
+            ->sum('favourite_count');
 
         return [
-            'total_listings'         => DB::table($this->listingTable)->count(),
-            'active_listings'        => DB::table($this->listingTable)->where('status', 'active')->count(),
-            'pending_listings'       => DB::table($this->listingTable)->where('status', 'pending_review')->count(),
-            'total_sellers'          => DB::table($this->sellerTable)->count(),
-            'active_sellers'         => DB::table($this->sellerTable)->where('is_active', 1)->count(),
-            'unverified_sellers'     => DB::table($this->sellerTable)->where('verification_status', 'unverified')->count(),
-            'total_transactions'     => DB::table($this->transactionTable)->count(),
-            'pending_transactions'   => DB::table($this->transactionTable)->where('status', 'pending_payment')->count(),
-            'total_revenue'          => DB::table($this->transactionTable)->where('payment_status', 'paid')->sum('sale_price') ?? 0,
-            'total_commission'       => DB::table($this->transactionTable)->where('payment_status', 'paid')->sum('platform_commission_amount') ?? 0,
-            'pending_payouts'        => DB::table($this->payoutTable)->where('status', 'pending')->count(),
-            'pending_payout_amount'  => DB::table($this->payoutTable)->where('status', 'pending')->sum('amount') ?? 0,
-            'active_auctions'        => DB::table($this->auctionTable)->where('status', 'active')->where('end_time', '>', $now)->count(),
-            'flagged_reviews'        => DB::table($this->reviewTable)->where('flagged', 1)->count(),
-            'pending_enquiries'      => Schema::hasTable($this->enquiryTable) ? DB::table($this->enquiryTable)->where('status', 'new')->count() : 0,
+            'total_listings'    => (int) ($listingCounts->total ?? 0),
+            'draft_listings'    => (int) ($listingCounts->drafts ?? 0),
+            'published_listings'=> (int) ($listingCounts->published ?? 0),
+            'withdrawn_listings'=> (int) ($listingCounts->withdrawn ?? 0),
+            'sold_listings'     => (int) ($listingCounts->sold ?? 0),
+            'total_revenue'     => (float) $totalRevenue,
+            'pending_offers'    => $pendingOffers,
+            'active_auctions'   => (int) $activeAuctions,
+            'total_enquiries'   => (int) $totalEnquiries,
+            'total_views'       => $totalViews,
+            'total_favourites'  => $totalFavourites,
         ];
     }
 
@@ -3651,7 +3706,7 @@ class MarketplaceService
         $isPrimary = $existingCount === 0 ? 1 : 0;
 
         $id = $this->addListingImage($listingId, [
-            'file_path'   => '/uploads/marketplace/' . $listingId . '/' . $filename,
+            'file_path'   => '/uploads/r/marketplace/' . $listingId . '/' . $filename,
             'file_name'   => $filename,
             'mime_type'   => $file->getClientMimeType(),
             'caption'     => $caption,
@@ -3664,7 +3719,7 @@ class MarketplaceService
         if ($isPrimary) {
             DB::table($this->listingTable)
                 ->where('id', $listingId)
-                ->update(['featured_image_path' => '/uploads/marketplace/' . $listingId . '/' . $filename]);
+                ->update(['featured_image_path' => '/uploads/r/marketplace/' . $listingId . '/' . $filename]);
         }
 
         return ['success' => true, 'image_id' => $id];
@@ -3793,7 +3848,7 @@ class MarketplaceService
         $ext = $file->getClientOriginalExtension() ?: 'jpg';
         $filename = $kind . '_' . time() . '_' . bin2hex(random_bytes(3)) . '.' . $ext;
         $file->move($destDir, $filename);
-        $relPath = '/uploads/marketplace/sellers/' . $sellerId . '/' . $filename;
+        $relPath = '/uploads/r/marketplace/sellers/' . $sellerId . '/' . $filename;
         DB::table($this->sellerTable)
             ->where('id', $sellerId)
             ->update([$kind . '_path' => $relPath, 'updated_at' => now()]);
@@ -4055,7 +4110,7 @@ class MarketplaceService
         $ext = $file->getClientOriginalExtension() ?: 'jpg';
         $filename = 'cover_' . time() . '_' . bin2hex(random_bytes(3)) . '.' . $ext;
         $file->move($destDir, $filename);
-        return '/uploads/marketplace/collections/' . $sellerId . '/' . $filename;
+        return '/uploads/r/marketplace/collections/' . $sellerId . '/' . $filename;
     }
 
     /**

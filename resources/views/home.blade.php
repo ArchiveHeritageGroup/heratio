@@ -56,6 +56,40 @@
 @endsection
 
 @section('content')
+  {{-- Marketplace hero CTA — Buy & Sell --}}
+  <section class="marketplace-hero rounded shadow-sm mb-4 p-4"
+           style="background:linear-gradient(135deg, var(--ahg-primary, #1d6a52) 0%, #134537 100%); color:#fff;">
+    <div class="row align-items-center g-3">
+      <div class="col-md-7">
+        <h2 class="h3 mb-2 d-flex align-items-center">
+          <i class="fas fa-store me-2"></i>
+          Heratio Marketplace
+        </h2>
+        <p class="mb-0 lh-base">
+          Buy and sell GLAM objects, artworks and collectibles &mdash; from gallery pieces to
+          archival material. Browse listings or open your own seller account to set your price.
+        </p>
+      </div>
+      <div class="col-md-5">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+          <a href="{{ url('/marketplace/browse') }}"
+             class="btn btn-warning btn-lg fw-semibold px-4 shadow-sm">
+            <i class="fas fa-shopping-bag me-2"></i>Browse &amp; Buy
+          </a>
+          <a href="{{ url('/marketplace/register') }}"
+             class="btn btn-light btn-lg fw-semibold px-4 shadow-sm">
+            <i class="fas fa-tag me-2"></i>Sell or join
+          </a>
+        </div>
+        <div class="text-end mt-2">
+          <a href="{{ url('/marketplace/featured') }}" class="text-white-50 small text-decoration-none">
+            <i class="fas fa-star me-1"></i>See featured listings &raquo;
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   {{-- Featured collection carousel --}}
   @if(!empty($carousel) && !empty($carousel['slides']))
     @php

@@ -19,7 +19,33 @@ Route::prefix('marketplace')->middleware(['web'])->group(function () use ($contr
     // Enquiry form (may allow guest)
     Route::get('/enquiry-form', [$controller, 'enquiryForm'])->name('ahgmarketplace.enquiry-form');
     Route::post('/enquiry-form', [$controller, 'enquiryFormPost'])->name('ahgmarketplace.enquiry-form.post')->middleware('acl:create');
+
+    // Unified registration chooser (buyer or seller)
+    Route::get('/register', [$controller, 'register'])->name('ahgmarketplace.register');
 });
+
+// Buyer "start" entry — auth-only convenience route.
+Route::prefix('marketplace')->middleware(['web', 'auth'])->group(function () use ($controller) {
+    Route::get('/buyer/start', [$controller, 'buyerStart'])->name('ahgmarketplace.buyer-start');
+
+    // Checkout — buy-now (fixed-price) and auction-win flows
+    Route::post('/checkout/buy/{listingId}', [$controller, 'checkoutBuy'])
+        ->where('listingId', '[0-9]+')
+        ->name('ahgmarketplace.checkout-buy');
+    Route::post('/checkout/win/{auctionId}', [$controller, 'checkoutWin'])
+        ->where('auctionId', '[0-9]+')
+        ->name('ahgmarketplace.checkout-win');
+
+    // Buyer return URLs from PayFast
+    Route::get('/payment/return', [$controller, 'paymentReturn'])->name('ahgmarketplace.payment-return');
+    Route::get('/payment/cancel', [$controller, 'paymentCancel'])->name('ahgmarketplace.payment-cancel');
+});
+
+// PayFast ITN webhook — public, no CSRF (excepted in bootstrap/app.php),
+// verified by signature + IP + server-to-server validate
+Route::post('/marketplace/payfast/notify', [$controller, 'payfastNotify'])
+    ->middleware('web')
+    ->name('ahgmarketplace.payfast-notify');
 
 // ─── Authenticated user routes (buyer) ────────────────────────────
 Route::prefix('marketplace')->middleware(['web', 'auth'])->group(function () use ($controller) {

@@ -110,11 +110,18 @@
           @if(!empty($listing->condition_rating))
             <p class="small text-muted mb-3">{{ __('Condition: :c', ['c' => ucfirst($listing->condition_rating)]) }}</p>
           @endif
-          @if(Route::has('ahgmarketplace.buy'))
-            <a href="{{ route('ahgmarketplace.buy', ['slug' => $listing->slug ?? '']) }}" class="btn btn-primary w-100 mb-2">
-              <i class="fas fa-shopping-cart me-1"></i> {{ __('Buy Now') }}
+          @auth
+            <form method="POST" action="{{ route('ahgmarketplace.checkout-buy', ['listingId' => $listing->id]) }}" class="mb-2">
+              @csrf
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-shopping-cart me-1"></i> {{ __('Buy Now') }}
+              </button>
+            </form>
+          @else
+            <a href="{{ route('login') }}" class="btn btn-primary w-100 mb-2">
+              <i class="fas fa-sign-in-alt me-1"></i> {{ __('Sign in to Buy') }}
             </a>
-          @endif
+          @endauth
           @if(!is_null($listing->minimum_offer ?? null))
             <a href="{{ route('ahgmarketplace.offer-form', ['slug' => $listing->slug ?? '']) }}" class="btn btn-outline-primary w-100">
               <i class="fas fa-hand-holding-usd me-1"></i> {{ __('Make an Offer') }}
@@ -153,11 +160,14 @@
             <hr>
             <p class="small text-muted mb-1">{{ __('Buy Now Price') }}</p>
             <p class="h5 mb-2">{{ $listing->currency ?? '' }} {{ number_format((float) $auction->buy_now_price, 2) }}</p>
-            @if(Route::has('ahgmarketplace.buy'))
-              <a href="{{ route('ahgmarketplace.buy', ['slug' => $listing->slug ?? '']) }}" class="btn btn-outline-primary w-100">
-                <i class="fas fa-bolt me-1"></i> {{ __('Buy Now') }}
-              </a>
-            @endif
+            @auth
+              <form method="POST" action="{{ route('ahgmarketplace.checkout-buy', ['listingId' => $listing->id]) }}">
+                @csrf
+                <button type="submit" class="btn btn-outline-primary w-100">
+                  <i class="fas fa-bolt me-1"></i> {{ __('Buy Now') }}
+                </button>
+              </form>
+            @endauth
           @endif
 
         @elseif(($listing->listing_type ?? '') === 'offer_only')

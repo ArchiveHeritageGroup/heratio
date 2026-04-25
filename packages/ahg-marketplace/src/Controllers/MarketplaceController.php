@@ -27,11 +27,13 @@
 
 namespace AhgMarketplace\Controllers;
 
+use AhgMarketplace\Services\MarketplacePaymentService;
 use AhgMarketplace\Services\MarketplaceService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class MarketplaceController extends Controller
 {
@@ -885,11 +887,23 @@ class MarketplaceController extends Controller
         $recentTransactions = $this->service->getSellerRecentTransactions($seller->id, 5);
         $pendingOfferCount = $this->service->getPendingOfferCount($seller->id);
 
+        $recentListings = $this->service->getSellerListings($seller->id, [], 10, 0);
+        $recentOffers = DB::table('marketplace_offer as o')
+            ->join('marketplace_listing as l', 'l.id', '=', 'o.listing_id')
+            ->where('l.seller_id', $seller->id)
+            ->orderByDesc('o.created_at')
+            ->limit(5)
+            ->select('o.id', 'o.offer_amount', 'o.currency', 'o.status as offer_status', 'o.created_at', 'l.title as listing_title', 'l.slug as listing_slug')
+            ->get();
+
         return view('marketplace::dashboard', [
             'seller' => $seller,
             'stats' => $stats,
             'recentTransactions' => $recentTransactions,
             'pendingOfferCount' => $pendingOfferCount,
+            'recentListings' => $recentListings['items'],
+            'recentListingsTotal' => $recentListings['total'],
+            'recentOffers' => $recentOffers,
         ]);
     }
 
@@ -1211,11 +1225,27 @@ class MarketplaceController extends Controller
 
         $result = $this->service->getUserBids($userId, $limit, $offset);
 
+        // Auctions the user has won — surfaced separately so they can pay
+        $wonAuctions = DB::table('marketplace_auction as a')
+            ->join('marketplace_listing as l', 'l.id', '=', 'a.listing_id')
+            ->leftJoin('marketplace_transaction as t', function ($j) use ($userId) {
+                $j->on('t.auction_id', '=', 'a.id')->where('t.buyer_id', '=', $userId);
+            })
+            ->where('a.winner_id', $userId)
+            ->select(
+                'a.id as auction_id', 'a.winning_bid', 'a.end_time', 'a.status',
+                'l.id as listing_id', 'l.title', 'l.slug', 'l.currency', 'l.featured_image_path',
+                't.id as transaction_id', 't.transaction_number', 't.payment_status'
+            )
+            ->orderByDesc('a.end_time')
+            ->get();
+
         return view('marketplace::my-bids', [
             'bids' => $result['items'],
             'total' => $result['total'],
             'page' => $page,
             'limit' => $limit,
+            'wonAuctions' => $wonAuctions,
         ]);
     }
 
@@ -1529,6 +1559,237 @@ class MarketplaceController extends Controller
         return view('marketplace::seller-register', compact('sectors'));
     }
 
+    /**
+     * Unified marketplace registration landing — lets a user pick whether they
+     * want to register as a buyer (no extra signup beyond their Heratio
+     * account) or as a seller (full seller profile).
+     */
+    public function register(Request $request)
+    {
+        $userId = Auth::id();
+        $existingSeller = $userId ? $this->service->getSellerByUserId($userId) : null;
+
+        return view('marketplace::register', [
+            'isAuthenticated' => (bool) $userId,
+            'existingSeller'  => $existingSeller,
+        ]);
+    }
+
+    /**
+     * Buyer-side "register" entry: there's no separate buyer table — any
+     * authenticated user can buy, place offers, and bid. This route ensures
+     * the user is signed in (auth middleware), flashes a confirmation, and
+     * sends them to the marketplace browse page.
+     */
+    public function buyerStart(Request $request)
+    {
+        $this->requireAuth($request);
+        session()->flash('notice', "You're all set. Browse the marketplace below — your Heratio account is your buyer account.");
+        return redirect()->route('ahgmarketplace.browse');
+    }
+
+    // =========================================================================
+    //  PAYMENT (PayFast) — buy-now, auction-win, ITN, return URLs
+    // =========================================================================
+
+    /**
+     * Buy-now flow. Creates a transaction in pending_payment state, then
+     * redirects the buyer to PayFast's process URL.
+     */
+    public function checkoutBuy(Request $request, int $listingId)
+    {
+        $userId = $this->requireAuth($request);
+
+        $listing = $this->service->getListingById($listingId);
+        if (!$listing) {
+            abort(404);
+        }
+        if (!in_array($listing->status, ['active', 'published'], true)) {
+            session()->flash('error', 'This listing is no longer available.');
+            return redirect()->route('ahgmarketplace.listing', ['slug' => $listing->slug]);
+        }
+        if ($listing->listing_type === 'offer_only') {
+            session()->flash('error', 'This listing only accepts offers.');
+            return redirect()->route('ahgmarketplace.offer-form', ['slug' => $listing->slug]);
+        }
+        if ($listing->seller_id && (int) $listing->seller_id === $this->getSellerIdForUser($userId)) {
+            session()->flash('error', 'You cannot buy your own listing.');
+            return redirect()->route('ahgmarketplace.listing', ['slug' => $listing->slug]);
+        }
+
+        $result = $this->service->createTransaction([
+            'source'     => 'fixed_price',
+            'listing_id' => (int) $listing->id,
+            'buyer_id'   => $userId,
+        ]);
+
+        if (empty($result['success'])) {
+            session()->flash('error', $result['error'] ?? 'Unable to start checkout.');
+            return redirect()->route('ahgmarketplace.listing', ['slug' => $listing->slug]);
+        }
+
+        return $this->redirectToPayFast($result, $listing, $userId);
+    }
+
+    /**
+     * Auction-win flow. The auction's winner_id pays for the lot they won.
+     */
+    public function checkoutWin(Request $request, int $auctionId)
+    {
+        $userId = $this->requireAuth($request);
+
+        $auction = DB::table('marketplace_auction')->where('id', $auctionId)->first();
+        if (!$auction) {
+            abort(404);
+        }
+        if ((int) ($auction->winner_id ?? 0) !== (int) $userId) {
+            session()->flash('error', 'Only the auction winner can pay for this lot.');
+            return redirect()->route('ahgmarketplace.my-bids');
+        }
+
+        $listing = $this->service->getListingById((int) $auction->listing_id);
+        if (!$listing) {
+            abort(404);
+        }
+
+        // Idempotent: reuse an existing pending transaction if one was already created
+        $existing = DB::table('marketplace_transaction')
+            ->where('auction_id', $auctionId)
+            ->where('buyer_id', $userId)
+            ->whereIn('payment_status', ['pending', 'pending_payment'])
+            ->first();
+
+        if ($existing) {
+            return $this->redirectToPayFast(
+                ['transaction_id' => $existing->id, 'transaction' => $existing],
+                $listing,
+                $userId
+            );
+        }
+
+        $result = $this->service->createTransaction([
+            'source'     => 'auction',
+            'auction_id' => $auctionId,
+            'buyer_id'   => $userId,
+        ]);
+
+        if (empty($result['success'])) {
+            session()->flash('error', $result['error'] ?? 'Unable to start checkout.');
+            return redirect()->route('ahgmarketplace.my-bids');
+        }
+
+        return $this->redirectToPayFast($result, $listing, $userId);
+    }
+
+    /**
+     * PayFast ITN webhook (server-to-server). No CSRF, no auth — verified
+     * via PayFast's signature + source-IP + server-to-server validate.
+     */
+    public function payfastNotify(Request $request, MarketplacePaymentService $payments)
+    {
+        $payload = $request->all();
+        $sourceIp = $request->ip();
+        $txnNumber = $payload['m_payment_id'] ?? null;
+        $txn = $txnNumber ? $this->service->getTransactionByNumber($txnNumber) : null;
+
+        // Always log raw payloads for audit
+        DB::table('ahg_payment_notifications')->insert([
+            'gateway'    => 'payfast-marketplace',
+            'payload'    => json_encode($payload),
+            'status'     => $payload['payment_status'] ?? 'unknown',
+            'order_id'   => $txnNumber,
+            'created_at' => now(),
+        ]);
+
+        if (!$txn) {
+            Log::warning('[PayFast ITN] unknown transaction', ['txn_number' => $txnNumber]);
+            return response('OK', 200);
+        }
+
+        if (!$payments->verifyItn($payload, $sourceIp, $txn)) {
+            Log::warning('[PayFast ITN] verification failed', ['txn' => $txnNumber, 'ip' => $sourceIp]);
+            return response('OK', 200);
+        }
+
+        $status = strtoupper((string) ($payload['payment_status'] ?? ''));
+        if ($status === 'COMPLETE') {
+            $this->service->markTransactionPaid(
+                (int) $txn->id,
+                'payfast',
+                (string) ($payload['pf_payment_id'] ?? ''),
+                $payload
+            );
+        } elseif (in_array($status, ['FAILED', 'CANCELLED'], true)) {
+            DB::table('marketplace_transaction')->where('id', $txn->id)->update([
+                'payment_status' => 'failed',
+                'gateway_response' => json_encode($payload),
+                'updated_at' => now(),
+            ]);
+        }
+
+        return response('OK', 200);
+    }
+
+    /** Buyer is bounced back to this URL after a successful payment. */
+    public function paymentReturn(Request $request)
+    {
+        $txn = $this->service->getTransactionByNumber((string) $request->input('txn'));
+        return view('marketplace::payment-return', [
+            'transaction' => $txn,
+            'success'     => $txn && $txn->payment_status === 'paid',
+        ]);
+    }
+
+    /** Buyer cancelled at PayFast — return to listing with a retry option. */
+    public function paymentCancel(Request $request)
+    {
+        $txn = $this->service->getTransactionByNumber((string) $request->input('txn'));
+        if ($txn && $txn->payment_status === 'pending') {
+            DB::table('marketplace_transaction')->where('id', $txn->id)->update([
+                'payment_status' => 'cancelled',
+                'updated_at'     => now(),
+            ]);
+        }
+        return view('marketplace::payment-return', [
+            'transaction' => $txn,
+            'success'     => false,
+            'cancelled'   => true,
+        ]);
+    }
+
+    /**
+     * Redirect helper used by both buy-now and auction-win flows.
+     */
+    private function redirectToPayFast(array $result, object $listing, int $userId): \Illuminate\Http\RedirectResponse
+    {
+        $payments = app(MarketplacePaymentService::class);
+        $txn = $result['transaction'] ?? $this->service->getTransaction((int) $result['transaction_id']);
+        if (!$txn) {
+            session()->flash('error', 'Transaction not found after creation.');
+            return redirect()->route('ahgmarketplace.listing', ['slug' => $listing->slug]);
+        }
+
+        $userRow = DB::table('users')->where('id', $userId)->first(['name', 'email']);
+        $name = $userRow->name ?? 'Buyer';
+        $email = $userRow->email ?? 'buyer@example.com';
+
+        try {
+            $url = $payments->buildProcessUrl($txn, $listing, $name, $email);
+        } catch (\Throwable $e) {
+            Log::error('[PayFast] buildProcessUrl failed', ['err' => $e->getMessage()]);
+            session()->flash('error', 'Payment gateway is not configured: ' . $e->getMessage());
+            return redirect()->route('ahgmarketplace.listing', ['slug' => $listing->slug]);
+        }
+
+        return redirect()->away($url);
+    }
+
+    private function getSellerIdForUser(int $userId): int
+    {
+        $seller = $this->service->getSellerByUserId($userId);
+        return $seller ? (int) $seller->id : 0;
+    }
+
     public function sellerRegisterPost(Request $request)
     {
         $userId = $this->requireAuth($request);
@@ -1732,7 +1993,7 @@ class MarketplaceController extends Controller
             'year_created' => trim($request->input('year_created', '')),
             'provenance' => trim($request->input('provenance', '')),
             'condition_rating' => $request->input('condition_rating') ?: null,
-            'condition_notes' => trim($request->input('condition_notes', '')),
+            'condition_description' => trim($request->input('condition_description', '')),
             'is_digital' => $request->input('is_digital') ? 1 : 0,
             'requires_shipping' => $request->input('requires_shipping') ? 1 : 0,
             'shipping_from_country' => trim($request->input('shipping_from_country', '')),
@@ -1823,7 +2084,7 @@ class MarketplaceController extends Controller
             'year_created' => trim($request->input('year_created', '')),
             'provenance' => trim($request->input('provenance', '')),
             'condition_rating' => $request->input('condition_rating') ?: null,
-            'condition_notes' => trim($request->input('condition_notes', '')),
+            'condition_description' => trim($request->input('condition_description', '')),
             'is_digital' => $request->input('is_digital') ? 1 : 0,
             'requires_shipping' => $request->input('requires_shipping') ? 1 : 0,
             'shipping_from_country' => trim($request->input('shipping_from_country', '')),
