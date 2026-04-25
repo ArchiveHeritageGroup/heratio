@@ -20,6 +20,7 @@ class AhgGalleryServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgGallery\Console\Commands\ImportGalleryCsvCommand::class,
+                \AhgGallery\Console\Commands\SeedGalleryDemoCommand::class,
             ]);
         }
     }
