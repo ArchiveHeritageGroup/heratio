@@ -73,6 +73,7 @@ Route::prefix('marketplace')->middleware(['web', 'auth'])->group(function () use
 
     Route::get('/my-purchases', [$controller, 'myPurchases'])->name('ahgmarketplace.my-purchases');
     Route::post('/my-purchases', [$controller, 'myPurchasesPost'])->name('ahgmarketplace.my-purchases.post')->middleware('acl:update');
+    Route::get('/my-licences', [$controller, 'myLicences'])->name('ahgmarketplace.my-licences');
 
     // Phase X.3 — cloned from PSIS marketplace actions
     Route::match(['get', 'post'], '/buy', [$controller, 'buy'])->name('ahgmarketplace.buy')->middleware('acl:create');

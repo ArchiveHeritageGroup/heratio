@@ -1916,6 +1916,17 @@ class MarketplaceController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * /marketplace/my-licences — buyer's licence agreements (active + expired).
+     */
+    public function myLicences(Request $request)
+    {
+        $userId = $this->requireAuth($request);
+        $this->service->expireOldLicences();
+        $licences = $this->service->getLicencesForBuyer($userId);
+        return view('marketplace::my-licences', compact('licences'));
+    }
+
     // =========================================================================
     //  BROKER — manage artists the seller represents
     // =========================================================================
@@ -2215,6 +2226,7 @@ class MarketplaceController extends Controller
         $brokerArtists = $this->service->isBrokerSeller($seller)
             ? $this->service->getArtistsForSeller((int) $seller->id, true)
             : collect();
+        $licenceTypes = $this->service->getLicenceTypes();
 
         return view('marketplace::seller-listing-create', compact(
             'seller',
@@ -2223,6 +2235,7 @@ class MarketplaceController extends Controller
             'currencies',
             'prefill',
             'brokerArtists',
+            'licenceTypes',
         ));
     }
 
@@ -2234,7 +2247,7 @@ class MarketplaceController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'sector' => 'required|string|in:gallery,museum,archive,library,dam',
-            'listing_type' => 'required|string|in:fixed_price,auction,offer_only',
+            'listing_type' => 'required|string|in:fixed_price,auction,offer_only,licence',
         ]);
 
         // Broker mode — when an artist is selected, compute price from base + markup
@@ -2288,6 +2301,24 @@ class MarketplaceController extends Controller
             'shipping_domestic_price' => $request->input('shipping_domestic_price') ? (float) $request->input('shipping_domestic_price') : null,
             'shipping_international_price' => $request->input('shipping_international_price') ? (float) $request->input('shipping_international_price') : null,
         ];
+
+        // Licence template fields — only when listing_type=licence
+        if ($request->input('listing_type') === 'licence') {
+            $data['requires_shipping'] = 0;
+            $data['is_physical'] = 0;
+            $data['is_digital'] = 1;
+            $data['licence_template_type'] = $request->input('licence_template_type', 'standard');
+            $data['licence_template_duration_days'] = $request->filled('licence_template_duration_days')
+                ? (int) $request->input('licence_template_duration_days') : null;
+            $data['licence_template_scope'] = trim($request->input('licence_template_scope', '')) ?: null;
+            $data['licence_template_territory'] = trim($request->input('licence_template_territory', 'Worldwide'));
+            $data['licence_template_exclusivity'] = $request->input('licence_template_exclusivity', 'non-exclusive');
+            $data['licence_template_attribution_required'] = $request->boolean('licence_template_attribution_required') ? 1 : 0;
+            $data['licence_template_modifications_allowed'] = $request->boolean('licence_template_modifications_allowed') ? 1 : 0;
+            $data['licence_template_sublicensing_allowed'] = $request->boolean('licence_template_sublicensing_allowed') ? 1 : 0;
+            $data['licence_template_max_copies'] = $request->filled('licence_template_max_copies')
+                ? (int) $request->input('licence_template_max_copies') : null;
+        }
 
         $data['seller_id'] = $seller->id;
         $result = $this->service->createListing($data);

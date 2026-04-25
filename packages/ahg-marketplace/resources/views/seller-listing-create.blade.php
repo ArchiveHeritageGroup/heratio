@@ -16,7 +16,12 @@
   $pf = $prefill ?? null;
   $sectorList = ['gallery' => __('Gallery'), 'museum' => __('Museum'), 'archive' => __('Archive'), 'library' => __('Library'), 'dam' => __('Digital Asset Management')];
   $conditions = ['mint' => __('Mint'), 'excellent' => __('Excellent'), 'good' => __('Good'), 'fair' => __('Fair'), 'poor' => __('Poor')];
-  $listingTypes = ['fixed_price' => __('Fixed Price'), 'auction' => __('Auction'), 'offer_only' => __('Offer Only')];
+  $listingTypes = [
+    'fixed_price' => __('Fixed Price'),
+    'auction'     => __('Auction'),
+    'offer_only'  => __('Offer Only'),
+    'licence'     => __('Licence'),
+  ];
 @endphp
 
 @section('content')
@@ -270,12 +275,102 @@
         <div>
           @foreach($listingTypes as $val => $label)
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="listing_type" id="type-{{ $val }}" value="{{ $val }}" {{ old('listing_type', 'fixed_price') === $val ? 'checked' : '' }} required>
+              <input class="form-check-input listing-type-radio" type="radio" name="listing_type" id="type-{{ $val }}" value="{{ $val }}" {{ old('listing_type', 'fixed_price') === $val ? 'checked' : '' }} required>
               <label class="form-check-label" for="type-{{ $val }}">{{ $label }}</label>
             </div>
           @endforeach
         </div>
+        <small class="text-muted">{{ __('Choose Licence to sell rights to use the work (digital deliverable, no shipping).') }}</small>
       </div>
+
+      {{-- Licence terms — shown only when listing_type=licence --}}
+      <div class="card mb-3 border-warning" id="licence-terms-card" style="display:none;">
+        <div class="card-header bg-warning bg-opacity-10 fw-semibold">
+          <i class="fas fa-file-contract me-1 text-warning"></i> {{ __('Licence terms') }}
+          <span class="small text-muted ms-1">{{ __('— a signed agreement is generated for the buyer on payment') }}</span>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">{{ __('Licence type') }}</label>
+              <select name="licence_template_type" class="form-select">
+                @foreach($licenceTypes ?? [] as $val => $label)
+                  <option value="{{ $val }}" {{ old('licence_template_type', 'standard') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">{{ __('Duration (days)') }}</label>
+              <input type="number" min="1" name="licence_template_duration_days" class="form-control"
+                     value="{{ old('licence_template_duration_days') }}" placeholder="{{ __('Leave blank for perpetual') }}">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">{{ __('Territory') }}</label>
+              <input type="text" name="licence_template_territory" class="form-control"
+                     value="{{ old('licence_template_territory', 'Worldwide') }}" maxlength="100">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">{{ __('Exclusivity') }}</label>
+              <select name="licence_template_exclusivity" class="form-select">
+                @foreach(['non-exclusive' => __('Non-exclusive'), 'exclusive' => __('Exclusive')] as $val => $label)
+                  <option value="{{ $val }}" {{ old('licence_template_exclusivity', 'non-exclusive') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">{{ __('Max copies / impressions') }}</label>
+              <input type="number" min="1" name="licence_template_max_copies" class="form-control"
+                     value="{{ old('licence_template_max_copies') }}" placeholder="{{ __('Unlimited if blank') }}">
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">{{ __('Scope of grant') }}</label>
+              <textarea name="licence_template_scope" class="form-control" rows="3"
+                        placeholder="{{ __('e.g. Right to reproduce in print and digital formats for the campaign described in the agreement.') }}">{{ old('licence_template_scope') }}</textarea>
+            </div>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col-md-4">
+              <div class="form-check">
+                <input type="hidden" name="licence_template_attribution_required" value="0">
+                <input type="checkbox" class="form-check-input" id="lic-attr" name="licence_template_attribution_required" value="1"
+                       {{ old('licence_template_attribution_required', 1) ? 'checked' : '' }}>
+                <label class="form-check-label" for="lic-attr">{{ __('Attribution required') }}</label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check">
+                <input type="hidden" name="licence_template_modifications_allowed" value="0">
+                <input type="checkbox" class="form-check-input" id="lic-mods" name="licence_template_modifications_allowed" value="1"
+                       {{ old('licence_template_modifications_allowed') ? 'checked' : '' }}>
+                <label class="form-check-label" for="lic-mods">{{ __('Modifications allowed') }}</label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check">
+                <input type="hidden" name="licence_template_sublicensing_allowed" value="0">
+                <input type="checkbox" class="form-check-input" id="lic-sublic" name="licence_template_sublicensing_allowed" value="1"
+                       {{ old('licence_template_sublicensing_allowed') ? 'checked' : '' }}>
+                <label class="form-check-label" for="lic-sublic">{{ __('Sub-licensing allowed') }}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+      (function () {
+        function toggleLicenceCard() {
+          var checked = document.querySelector('input[name="listing_type"]:checked');
+          var card = document.getElementById('licence-terms-card');
+          if (!card) return;
+          card.style.display = (checked && checked.value === 'licence') ? '' : 'none';
+        }
+        document.querySelectorAll('input[name="listing_type"]').forEach(function (r) {
+          r.addEventListener('change', toggleLicenceCard);
+        });
+        toggleLicenceCard();
+      })();
+      </script>
       <div class="row mb-3">
         <div class="col-md-4">
           <label for="currency" class="form-label">{{ __('Currency') }}</label>

@@ -1460,6 +1460,12 @@ class MarketplaceService
             ->where('status', 'active')
             ->update(['status' => 'converted', 'updated_at' => now()]);
 
+        // If this was a licence purchase, mint the agreement.
+        $listing = DB::table($this->listingTable)->where('id', $txn->listing_id)->first(['listing_type']);
+        if ($listing && $listing->listing_type === 'licence') {
+            $this->createLicenceAgreementForTransaction((int) $txnId);
+        }
+
         return ['success' => true];
     }
 
@@ -4181,6 +4187,116 @@ class MarketplaceService
             ])
             ->first();
         return $row ?: null;
+    }
+
+    // =========================================================================
+    //  LICENCE AGREEMENTS — listing_type='licence' purchases mint an agreement
+    // =========================================================================
+
+    private const LICENCE_TYPES = [
+        'standard'   => 'Standard',
+        'commercial' => 'Commercial use',
+        'editorial'  => 'Editorial use',
+        'personal'   => 'Personal / non-commercial',
+        'academic'   => 'Academic / research',
+        'broadcast'  => 'Broadcast',
+        'print_run'  => 'Print run',
+    ];
+
+    public function getLicenceTypes(): array
+    {
+        return self::LICENCE_TYPES;
+    }
+
+    /**
+     * Create a marketplace_licence_agreement from a paid licence-type listing.
+     * Idempotent — if an agreement already exists for this (listing, buyer,
+     * transaction), returns the existing id.
+     */
+    public function createLicenceAgreementForTransaction(int $transactionId): ?int
+    {
+        $txn = DB::table($this->transactionTable)->where('id', $transactionId)->first();
+        if (!$txn) {
+            return null;
+        }
+        $listing = DB::table($this->listingTable)->where('id', $txn->listing_id)->first();
+        if (!$listing || $listing->listing_type !== 'licence') {
+            return null;
+        }
+
+        $existing = DB::table('marketplace_licence_agreement')
+            ->where('listing_id', $txn->listing_id)
+            ->where('buyer_id', $txn->buyer_id)
+            ->where('transaction_id', $transactionId)
+            ->value('id');
+        if ($existing) {
+            return (int) $existing;
+        }
+
+        $now = now();
+        $duration = $listing->licence_template_duration_days ? (int) $listing->licence_template_duration_days : null;
+        $validUntil = $duration ? $now->copy()->addDays($duration) : null;
+
+        $id = DB::table('marketplace_licence_agreement')->insertGetId([
+            'agreement_number'      => $this->generateAgreementNumber(),
+            'listing_id'            => $txn->listing_id,
+            'buyer_id'              => $txn->buyer_id,
+            'seller_id'             => $txn->seller_id,
+            'transaction_id'        => $transactionId,
+            'licence_type'          => $listing->licence_template_type ?: 'standard',
+            'duration_days'         => $duration,
+            'valid_from'            => $now,
+            'valid_until'           => $validUntil,
+            'scope'                 => $listing->licence_template_scope,
+            'territory'             => $listing->licence_template_territory ?: 'Worldwide',
+            'exclusivity'           => $listing->licence_template_exclusivity ?: 'non-exclusive',
+            'attribution_required'  => (int) ($listing->licence_template_attribution_required ?? 1),
+            'modifications_allowed' => (int) ($listing->licence_template_modifications_allowed ?? 0),
+            'sublicensing_allowed'  => (int) ($listing->licence_template_sublicensing_allowed ?? 0),
+            'max_copies'            => $listing->licence_template_max_copies,
+            'status'                => 'active',
+            'created_at'            => $now,
+            'updated_at'            => $now,
+        ]);
+        return (int) $id;
+    }
+
+    public function getLicencesForBuyer(int $buyerId): \Illuminate\Support\Collection
+    {
+        return DB::table('marketplace_licence_agreement as a')
+            ->leftJoin($this->listingTable . ' as l', 'l.id', '=', 'a.listing_id')
+            ->leftJoin($this->sellerTable . ' as s', 's.id', '=', 'a.seller_id')
+            ->where('a.buyer_id', $buyerId)
+            ->orderByDesc('a.id')
+            ->select(
+                'a.*',
+                'l.title as listing_title', 'l.slug as listing_slug', 'l.featured_image_path',
+                's.display_name as seller_name', 's.slug as seller_slug'
+            )
+            ->get();
+    }
+
+    public function expireOldLicences(): int
+    {
+        return DB::table('marketplace_licence_agreement')
+            ->where('status', 'active')
+            ->whereNotNull('valid_until')
+            ->where('valid_until', '<', now())
+            ->update(['status' => 'expired', 'updated_at' => now()]);
+    }
+
+    private function generateAgreementNumber(): string
+    {
+        $date = date('Ymd');
+        $last = DB::table('marketplace_licence_agreement')
+            ->where('agreement_number', 'LIKE', 'AGR-' . $date . '-%')
+            ->orderByDesc('id')->first();
+        $seq = 1;
+        if ($last) {
+            $parts = explode('-', $last->agreement_number);
+            $seq = (int) end($parts) + 1;
+        }
+        return sprintf('AGR-%s-%04d', $date, $seq);
     }
 
     // =========================================================================

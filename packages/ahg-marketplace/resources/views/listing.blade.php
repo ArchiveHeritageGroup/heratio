@@ -112,6 +112,46 @@
             <i class="fas fa-envelope me-1"></i> {{ __('Enquire') }}
           </a>
 
+        @elseif(($listing->listing_type ?? '') === 'licence')
+          <p class="small text-muted mb-1">{{ __('Licence fee') }}</p>
+          <p class="h4 text-primary mb-1">{{ $listing->currency ?? '' }} {{ number_format((float) ($listing->price ?? 0), 2) }}</p>
+          @if($listing->licence_template_duration_days)
+            <p class="small text-muted mb-3">
+              <i class="fas fa-clock me-1"></i>{{ __(':n-day term', ['n' => (int) $listing->licence_template_duration_days]) }}
+            </p>
+          @else
+            <p class="small text-muted mb-3"><i class="fas fa-infinity me-1"></i>{{ __('Perpetual licence') }}</p>
+          @endif
+          @auth
+            <form method="POST" action="{{ route('cart.listing-add', ['listingId' => $listing->id]) }}" class="mb-2">
+              @csrf
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-cart-plus me-1"></i> {{ __('Add licence to cart') }}
+              </button>
+            </form>
+            @php $ecommerceEnabled = app(\AhgCart\Services\EcommerceService::class)->isEcommerceEnabled(); @endphp
+            @if($ecommerceEnabled)
+              <form method="POST" action="{{ route('ahgmarketplace.checkout-buy', ['listingId' => $listing->id]) }}">
+                @csrf
+                <button type="submit" class="btn btn-outline-primary w-100">
+                  <i class="fas fa-file-contract me-1"></i> {{ __('Buy Licence Now') }}
+                </button>
+              </form>
+            @else
+              <button type="button" class="btn btn-outline-primary w-100"
+                      data-bs-toggle="modal" data-bs-target="#dummySaleModal"
+                      data-dummy-title="{{ $listing->title ?? '' }} (licence)"
+                      data-dummy-price="{{ (string) (float) ($listing->price ?? 0) }}"
+                      data-dummy-currency="{{ $listing->currency ?: 'ZAR' }}">
+                <i class="fas fa-file-contract me-1"></i> {{ __('Buy Licence Now') }}
+              </button>
+            @endif
+          @else
+            <a href="{{ route('login') }}" class="btn btn-primary w-100">
+              <i class="fas fa-sign-in-alt me-1"></i> {{ __('Sign in to Licence') }}
+            </a>
+          @endauth
+
         @elseif(($listing->listing_type ?? '') === 'fixed_price')
           <p class="h4 text-primary mb-1">{{ $listing->currency ?? '' }} {{ number_format((float) ($listing->price ?? 0), 2) }}</p>
           @if(!empty($listing->condition_rating))
@@ -260,6 +300,77 @@
         @endif
       </div>
     </div>
+
+    {{-- Licence terms preview (visible to all visitors before purchase) --}}
+    @if(($listing->listing_type ?? '') === 'licence')
+      <div class="card mb-3 border-warning">
+        <div class="card-header bg-warning bg-opacity-10 fw-bold">
+          <i class="fas fa-file-contract me-1 text-warning"></i> {{ __('Licence terms') }}
+        </div>
+        <ul class="list-group list-group-flush small">
+          <li class="list-group-item">
+            <span class="text-muted">{{ __('Type') }}:</span>
+            <strong>{{ ucfirst(str_replace('_', ' ', $listing->licence_template_type ?? 'standard')) }}</strong>
+          </li>
+          <li class="list-group-item">
+            <span class="text-muted">{{ __('Term') }}:</span>
+            @if($listing->licence_template_duration_days)
+              <strong>{{ (int) $listing->licence_template_duration_days }} {{ __('days from purchase') }}</strong>
+            @else
+              <strong>{{ __('Perpetual') }}</strong>
+            @endif
+          </li>
+          <li class="list-group-item">
+            <span class="text-muted">{{ __('Territory') }}:</span>
+            <strong>{{ $listing->licence_template_territory ?? 'Worldwide' }}</strong>
+          </li>
+          <li class="list-group-item">
+            <span class="text-muted">{{ __('Exclusivity') }}:</span>
+            <strong>{{ ucfirst($listing->licence_template_exclusivity ?? 'non-exclusive') }}</strong>
+          </li>
+          @if($listing->licence_template_max_copies)
+            <li class="list-group-item">
+              <span class="text-muted">{{ __('Max copies / impressions') }}:</span>
+              <strong>{{ number_format((int) $listing->licence_template_max_copies) }}</strong>
+            </li>
+          @endif
+          <li class="list-group-item">
+            <span class="text-muted">{{ __('Attribution required') }}:</span>
+            @if($listing->licence_template_attribution_required ?? 1)
+              <i class="fas fa-check-circle text-success"></i> Yes
+            @else
+              <i class="fas fa-times-circle text-secondary"></i> No
+            @endif
+          </li>
+          <li class="list-group-item">
+            <span class="text-muted">{{ __('Modifications allowed') }}:</span>
+            @if($listing->licence_template_modifications_allowed ?? 0)
+              <i class="fas fa-check-circle text-success"></i> Yes
+            @else
+              <i class="fas fa-times-circle text-secondary"></i> No
+            @endif
+          </li>
+          <li class="list-group-item">
+            <span class="text-muted">{{ __('Sub-licensing') }}:</span>
+            @if($listing->licence_template_sublicensing_allowed ?? 0)
+              <i class="fas fa-check-circle text-success"></i> Allowed
+            @else
+              <i class="fas fa-times-circle text-secondary"></i> Not allowed
+            @endif
+          </li>
+          @if($listing->licence_template_scope)
+            <li class="list-group-item">
+              <div class="text-muted mb-1">{{ __('Scope of grant') }}:</div>
+              {{ $listing->licence_template_scope }}
+            </li>
+          @endif
+        </ul>
+        <div class="card-footer small text-muted">
+          <i class="fas fa-info-circle me-1"></i>
+          {{ __('A signed agreement will be issued to your account on payment.') }}
+        </div>
+      </div>
+    @endif
 
     {{-- Seller info card --}}
     @if(!empty($seller))
