@@ -87,6 +87,16 @@ Route::prefix('marketplace')->middleware(['web', 'auth'])->group(function () use
         ->name('ahgmarketplace.reservation-cancel');
 });
 
+// Broker artist management — for sellers acting on behalf of multiple artists
+Route::prefix('marketplace/seller')->middleware(['web', 'auth'])->group(function () use ($controller) {
+    Route::get('/artists', [$controller, 'sellerArtists'])->name('ahgmarketplace.seller-artists');
+    Route::get('/artist/create', [$controller, 'sellerArtistCreate'])->name('ahgmarketplace.seller-artist-create');
+    Route::post('/artist/create', [$controller, 'sellerArtistCreatePost'])->name('ahgmarketplace.seller-artist-create.post')->middleware('acl:create');
+    Route::get('/artist/edit', [$controller, 'sellerArtistEdit'])->name('ahgmarketplace.seller-artist-edit');
+    Route::post('/artist/edit', [$controller, 'sellerArtistEditPost'])->name('ahgmarketplace.seller-artist-edit.post')->middleware('acl:update');
+    Route::post('/artist/delete', [$controller, 'sellerArtistDelete'])->name('ahgmarketplace.seller-artist-delete')->middleware('acl:delete');
+});
+
 // ─── Seller routes (authenticated) ───────────────────────────────
 Route::prefix('marketplace/seller')->middleware(['web', 'auth'])->group(function () use ($controller) {
     // Registration

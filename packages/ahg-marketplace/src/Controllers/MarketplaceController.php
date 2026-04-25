@@ -1916,6 +1916,132 @@ class MarketplaceController extends Controller
         return redirect()->back();
     }
 
+    // =========================================================================
+    //  BROKER — manage artists the seller represents
+    // =========================================================================
+
+    public function sellerArtists(Request $request)
+    {
+        $userId = $this->requireAuth($request);
+        $seller = $this->requireSeller($userId);
+
+        $artists = $this->service->getArtistsForSeller((int) $seller->id);
+        $isBroker = $this->service->isBrokerSeller($seller);
+
+        return view('marketplace::seller-artists', compact('seller', 'artists', 'isBroker'));
+    }
+
+    public function sellerArtistCreate(Request $request)
+    {
+        $userId = $this->requireAuth($request);
+        $seller = $this->requireSeller($userId);
+        $artist = null;
+        return view('marketplace::seller-artist-edit', compact('seller', 'artist'));
+    }
+
+    public function sellerArtistCreatePost(Request $request)
+    {
+        $userId = $this->requireAuth($request);
+        $seller = $this->requireSeller($userId);
+
+        $request->validate([
+            'display_name'         => 'required|string|max:255',
+            'bio'                  => 'nullable|string|max:5000',
+            'birth_year'           => 'nullable|integer|min:1000|max:2200',
+            'death_year'           => 'nullable|integer|min:1000|max:2200',
+            'nationality'          => 'nullable|string|max:100',
+            'contact_email'        => 'nullable|email|max:255',
+            'contact_phone'        => 'nullable|string|max:50',
+            'website'              => 'nullable|url|max:255',
+            'default_markup_type'  => 'nullable|string|in:percentage,fixed,none',
+            'default_markup_value' => 'nullable|numeric|min:0',
+            'default_commission_split' => 'nullable|numeric|min:0|max:100',
+            'notes'                => 'nullable|string|max:2000',
+        ]);
+
+        $result = $this->service->createArtist((int) $seller->id, $request->only([
+            'display_name', 'bio', 'birth_year', 'death_year', 'nationality',
+            'contact_email', 'contact_phone', 'website',
+            'default_markup_type', 'default_markup_value', 'default_commission_split',
+            'notes',
+        ]));
+
+        if (!empty($result['success'])) {
+            session()->flash('notice', "Artist '{$request->input('display_name')}' added.");
+            return redirect()->route('ahgmarketplace.seller-artists');
+        }
+        session()->flash('error', $result['error'] ?? 'Failed to add artist.');
+        return redirect()->route('ahgmarketplace.seller-artist-create');
+    }
+
+    public function sellerArtistEdit(Request $request)
+    {
+        $userId = $this->requireAuth($request);
+        $seller = $this->requireSeller($userId);
+
+        $artistId = (int) $request->input('id');
+        $artist = $this->service->getArtistById($artistId);
+        if (!$artist || (int) $artist->seller_id !== (int) $seller->id) {
+            abort(404);
+        }
+        return view('marketplace::seller-artist-edit', compact('seller', 'artist'));
+    }
+
+    public function sellerArtistEditPost(Request $request)
+    {
+        $userId = $this->requireAuth($request);
+        $seller = $this->requireSeller($userId);
+
+        $request->validate([
+            'id'                   => 'required|integer|min:1',
+            'display_name'         => 'required|string|max:255',
+            'bio'                  => 'nullable|string|max:5000',
+            'birth_year'           => 'nullable|integer|min:1000|max:2200',
+            'death_year'           => 'nullable|integer|min:1000|max:2200',
+            'nationality'          => 'nullable|string|max:100',
+            'contact_email'        => 'nullable|email|max:255',
+            'contact_phone'        => 'nullable|string|max:50',
+            'website'              => 'nullable|url|max:255',
+            'default_markup_type'  => 'nullable|string|in:percentage,fixed,none',
+            'default_markup_value' => 'nullable|numeric|min:0',
+            'default_commission_split' => 'nullable|numeric|min:0|max:100',
+            'notes'                => 'nullable|string|max:2000',
+            'status'               => 'nullable|string|in:active,inactive',
+        ]);
+
+        $artistId = (int) $request->input('id');
+        $artist = $this->service->getArtistById($artistId);
+        if (!$artist || (int) $artist->seller_id !== (int) $seller->id) {
+            abort(404);
+        }
+
+        $result = $this->service->updateArtist($artistId, $request->only([
+            'display_name', 'bio', 'birth_year', 'death_year', 'nationality',
+            'contact_email', 'contact_phone', 'website',
+            'default_markup_type', 'default_markup_value', 'default_commission_split',
+            'notes', 'status',
+        ]));
+
+        session()->flash($result['success'] ? 'notice' : 'error', $result['success'] ? 'Artist updated.' : ($result['error'] ?? 'Failed to update artist.'));
+        return redirect()->route('ahgmarketplace.seller-artists');
+    }
+
+    public function sellerArtistDelete(Request $request)
+    {
+        $userId = $this->requireAuth($request);
+        $seller = $this->requireSeller($userId);
+
+        $artistId = (int) $request->input('id');
+        $artist = $this->service->getArtistById($artistId);
+        if (!$artist || (int) $artist->seller_id !== (int) $seller->id) {
+            abort(404);
+        }
+
+        $result = $this->service->deleteArtist($artistId);
+        session()->flash($result['success'] ? 'notice' : 'error', $result['success'] ? 'Artist removed.' : ($result['error'] ?? 'Failed.'));
+        return redirect()->route('ahgmarketplace.seller-artists');
+    }
+
     public function sellerRegisterPost(Request $request)
     {
         $userId = $this->requireAuth($request);
@@ -2086,12 +2212,17 @@ class MarketplaceController extends Controller
             $prefill = $this->service->getIOPrefillData($ioId);
         }
 
+        $brokerArtists = $this->service->isBrokerSeller($seller)
+            ? $this->service->getArtistsForSeller((int) $seller->id, true)
+            : collect();
+
         return view('marketplace::seller-listing-create', compact(
             'seller',
             'sectors',
             'categories',
             'currencies',
             'prefill',
+            'brokerArtists',
         ));
     }
 
@@ -2106,6 +2237,30 @@ class MarketplaceController extends Controller
             'listing_type' => 'required|string|in:fixed_price,auction,offer_only',
         ]);
 
+        // Broker mode — when an artist is selected, compute price from base + markup
+        $artistId = (int) $request->input('artist_id', 0) ?: null;
+        $artistBasePrice = $request->filled('artist_base_price') ? (float) $request->input('artist_base_price') : null;
+        $markupType = $request->input('markup_type') ?: null;
+        $markupValue = $request->filled('markup_value') ? (float) $request->input('markup_value') : null;
+
+        $artistNameFromBroker = null;
+        if ($artistId) {
+            $artist = $this->service->getArtistById($artistId);
+            if (!$artist || (int) $artist->seller_id !== (int) $seller->id) {
+                session()->flash('error', 'Selected artist is not in your roster.');
+                return redirect()->route('ahgmarketplace.seller-listing-create');
+            }
+            $artistNameFromBroker = $artist->display_name;
+            // Apply artist defaults if the seller didn't override
+            if (!$markupType) { $markupType = $artist->default_markup_type; }
+            if ($markupValue === null) { $markupValue = (float) $artist->default_markup_value; }
+        }
+
+        $rawPrice = $request->filled('price') ? (float) $request->input('price') : null;
+        $finalPrice = $artistBasePrice !== null
+            ? $this->service->computePriceFromMarkup($artistBasePrice, $markupType, $markupValue)
+            : $rawPrice;
+
         $data = [
             'title' => trim($request->input('title')),
             'sector' => $request->input('sector'),
@@ -2113,10 +2268,14 @@ class MarketplaceController extends Controller
             'information_object_id' => $request->input('information_object_id') ?: null,
             'category_id' => $request->input('category_id') ?: null,
             'description' => trim($request->input('description', '')),
-            'price' => $request->input('price') ? (float) $request->input('price') : null,
+            'price' => $finalPrice,
             'currency' => $request->input('currency', 'ZAR'),
             'minimum_offer' => $request->input('minimum_offer') ? (float) $request->input('minimum_offer') : null,
-            'artist_name' => trim($request->input('artist_name', '')),
+            'artist_id' => $artistId,
+            'artist_name' => $artistNameFromBroker ?: trim($request->input('artist_name', '')),
+            'artist_base_price' => $artistBasePrice,
+            'markup_type' => $artistBasePrice !== null ? $markupType : null,
+            'markup_value' => $artistBasePrice !== null ? $markupValue : null,
             'medium' => trim($request->input('medium', '')),
             'dimensions' => trim($request->input('dimensions', '')),
             'year_created' => trim($request->input('year_created', '')),
@@ -2132,6 +2291,10 @@ class MarketplaceController extends Controller
 
         $data['seller_id'] = $seller->id;
         $result = $this->service->createListing($data);
+
+        if (!empty($result['success']) && $artistId) {
+            DB::table('marketplace_artist')->where('id', $artistId)->increment('total_listings');
+        }
 
         if ($result['success']) {
             // If the listing is linked to a GLAM record, default its primary

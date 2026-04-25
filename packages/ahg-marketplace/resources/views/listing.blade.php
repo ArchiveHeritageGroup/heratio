@@ -89,7 +89,14 @@
     <h1 class="h4 mb-2">{{ $listing->title ?? '' }}</h1>
 
     @if(!empty($listing->artist_name))
-      <p class="text-muted mb-2">{{ __('by :name', ['name' => $listing->artist_name]) }}</p>
+      <p class="text-muted mb-2">
+        {{ __('by :name', ['name' => $listing->artist_name]) }}
+        @if(!empty($listing->artist_id))
+          <span class="badge bg-info text-dark ms-1" title="Sold on behalf of this artist by the seller">
+            <i class="fas fa-handshake me-1"></i>via broker
+          </span>
+        @endif
+      </p>
     @endif
 
     @if(!empty($listing->listing_number))

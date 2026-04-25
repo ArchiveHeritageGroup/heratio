@@ -4184,6 +4184,131 @@ class MarketplaceService
     }
 
     // =========================================================================
+    //  BROKER / ARTIST MANAGEMENT — sellers acting on behalf of artists
+    // =========================================================================
+
+    /**
+     * Returns the list of artists managed by a seller.
+     */
+    public function getArtistsForSeller(int $sellerId, bool $activeOnly = false): \Illuminate\Support\Collection
+    {
+        $q = DB::table('marketplace_artist')->where('seller_id', $sellerId);
+        if ($activeOnly) {
+            $q->where('status', 'active');
+        }
+        return $q->orderBy('display_name')->get();
+    }
+
+    public function getArtistById(int $artistId): ?object
+    {
+        return DB::table('marketplace_artist')->where('id', $artistId)->first();
+    }
+
+    public function createArtist(int $sellerId, array $data): array
+    {
+        $name = trim((string) ($data['display_name'] ?? ''));
+        if ($name === '') {
+            return ['success' => false, 'error' => 'Display name is required.'];
+        }
+
+        $slug = $this->generateUniqueArtistSlug($sellerId, $name);
+
+        $row = [
+            'seller_id'    => $sellerId,
+            'display_name' => $name,
+            'slug'         => $slug,
+            'bio'          => $data['bio'] ?? null,
+            'birth_year'   => $data['birth_year'] ?? null,
+            'death_year'   => $data['death_year'] ?? null,
+            'nationality'  => $data['nationality'] ?? null,
+            'contact_email'=> $data['contact_email'] ?? null,
+            'contact_phone'=> $data['contact_phone'] ?? null,
+            'website'      => $data['website'] ?? null,
+            'default_markup_type'  => $data['default_markup_type'] ?? 'percentage',
+            'default_markup_value' => isset($data['default_markup_value']) ? (float) $data['default_markup_value'] : 30.00,
+            'default_commission_split' => isset($data['default_commission_split']) ? (float) $data['default_commission_split'] : null,
+            'notes'        => $data['notes'] ?? null,
+            'status'       => $data['status'] ?? 'active',
+            'created_at'   => now(),
+            'updated_at'   => now(),
+        ];
+        $id = DB::table('marketplace_artist')->insertGetId($row);
+        return ['success' => true, 'id' => $id, 'slug' => $slug];
+    }
+
+    public function updateArtist(int $artistId, array $data): array
+    {
+        $artist = $this->getArtistById($artistId);
+        if (!$artist) {
+            return ['success' => false, 'error' => 'Artist not found.'];
+        }
+        $update = array_intersect_key($data, array_flip([
+            'display_name', 'bio', 'birth_year', 'death_year', 'nationality',
+            'contact_email', 'contact_phone', 'website',
+            'default_markup_type', 'default_markup_value', 'default_commission_split',
+            'notes', 'status',
+        ]));
+        if (isset($update['display_name']) && trim((string) $update['display_name']) === '') {
+            return ['success' => false, 'error' => 'Display name cannot be empty.'];
+        }
+        $update['updated_at'] = now();
+        DB::table('marketplace_artist')->where('id', $artistId)->update($update);
+        return ['success' => true];
+    }
+
+    public function deleteArtist(int $artistId): array
+    {
+        $linked = DB::table($this->listingTable)->where('artist_id', $artistId)->count();
+        if ($linked > 0) {
+            return ['success' => false, 'error' => "Cannot delete: $linked listing(s) are linked to this artist."];
+        }
+        DB::table('marketplace_artist')->where('id', $artistId)->delete();
+        return ['success' => true];
+    }
+
+    private function generateUniqueArtistSlug(int $sellerId, string $name): string
+    {
+        $base = \Illuminate\Support\Str::slug($name) ?: 'artist';
+        $slug = $base;
+        $i = 1;
+        while (DB::table('marketplace_artist')->where('seller_id', $sellerId)->where('slug', $slug)->exists()) {
+            $slug = $base . '-' . $i++;
+        }
+        return $slug;
+    }
+
+    /**
+     * Compute final price from base + markup. Used by the listing-create
+     * flow when a broker provides artist_base_price + markup.
+     */
+    public function computePriceFromMarkup(?float $basePrice, ?string $markupType, ?float $markupValue): ?float
+    {
+        if ($basePrice === null) {
+            return null;
+        }
+        if (!$markupType || $markupType === 'none' || $markupValue === null) {
+            return round($basePrice, 2);
+        }
+        return match ($markupType) {
+            'percentage' => round($basePrice * (1 + $markupValue / 100), 2),
+            'fixed'      => round($basePrice + $markupValue, 2),
+            default      => round($basePrice, 2),
+        };
+    }
+
+    /**
+     * Whether a seller is broker-shaped (manages other artists). Treats
+     * seller_type values: broker, gallery, dealer.
+     */
+    public function isBrokerSeller(?object $seller): bool
+    {
+        if (!$seller) {
+            return false;
+        }
+        return in_array(strtolower((string) ($seller->seller_type ?? '')), ['broker', 'gallery', 'dealer'], true);
+    }
+
+    // =========================================================================
     //  RESERVATIONS — 12-hour holds, max 2 per user per 24 hours
     // =========================================================================
 

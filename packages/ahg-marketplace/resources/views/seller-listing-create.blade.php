@@ -169,6 +169,98 @@
     </div>
   </div>
 
+  {{-- Broker / Artist + markup (only when seller represents artists) --}}
+  @if(isset($brokerArtists) && $brokerArtists->isNotEmpty())
+    <div class="card mb-4 border-info">
+      <div class="card-header fw-semibold bg-info bg-opacity-10">
+        <i class="fas fa-palette me-1 text-info"></i> {{ __('Broker / Artist') }}
+        <span class="small text-muted ms-1">{{ __('— select an artist from your roster to apply markup pricing') }}</span>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="artist_id" class="form-label">{{ __('Artist') }}</label>
+            <select id="artist_id" name="artist_id" class="form-select">
+              <option value="">{{ __('— Not on behalf of an artist (sell as yourself)') }}</option>
+              @foreach($brokerArtists as $bA)
+                <option value="{{ $bA->id }}"
+                        data-markup-type="{{ $bA->default_markup_type }}"
+                        data-markup-value="{{ $bA->default_markup_value }}"
+                        {{ old('artist_id') == $bA->id ? 'selected' : '' }}>
+                  {{ $bA->display_name }}{{ $bA->nationality ? ' (' . $bA->nationality . ')' : '' }}
+                </option>
+              @endforeach
+            </select>
+            <small class="text-muted">{{ __('Manage your roster on the') }}
+              <a href="{{ route('ahgmarketplace.seller-artists') }}">{{ __('Artists page') }}</a>.
+            </small>
+          </div>
+          <div class="col-md-3">
+            <label for="artist_base_price" class="form-label">{{ __('Artist base price') }}</label>
+            <input type="number" step="0.01" min="0" class="form-control"
+                   id="artist_base_price" name="artist_base_price"
+                   value="{{ old('artist_base_price') }}"
+                   placeholder="{{ __('e.g. 5000.00') }}">
+            <small class="text-muted">{{ __('What the artist receives.') }}</small>
+          </div>
+          <div class="col-md-2">
+            <label for="markup_type" class="form-label">{{ __('Markup') }}</label>
+            <select id="markup_type" name="markup_type" class="form-select">
+              <option value="percentage" {{ old('markup_type', 'percentage') === 'percentage' ? 'selected' : '' }}>%</option>
+              <option value="fixed"      {{ old('markup_type') === 'fixed' ? 'selected' : '' }}>Fixed</option>
+              <option value="none"       {{ old('markup_type') === 'none' ? 'selected' : '' }}>None</option>
+            </select>
+          </div>
+          <div class="col-md-1">
+            <label for="markup_value" class="form-label">{{ __('Value') }}</label>
+            <input type="number" step="0.01" min="0" class="form-control"
+                   id="markup_value" name="markup_value"
+                   value="{{ old('markup_value') }}">
+          </div>
+        </div>
+        <div class="mt-2 small">
+          <span class="text-muted">{{ __('Computed listing price:') }}</span>
+          <strong id="markup-preview" class="text-info">—</strong>
+          <span class="text-muted">{{ __('(overrides the manual price below)') }}</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    (function () {
+      var sel = document.getElementById('artist_id');
+      var base = document.getElementById('artist_base_price');
+      var type = document.getElementById('markup_type');
+      var val  = document.getElementById('markup_value');
+      var preview = document.getElementById('markup-preview');
+      if (!sel) return;
+
+      function applyArtistDefaults() {
+        var opt = sel.options[sel.selectedIndex];
+        if (!opt || !opt.value) return;
+        if (!val.value) { val.value = opt.getAttribute('data-markup-value') || ''; }
+        if (type.value === 'percentage') {
+          var defType = opt.getAttribute('data-markup-type');
+          if (defType) { type.value = defType; }
+        }
+      }
+      function recompute() {
+        var b = parseFloat(base.value || '0');
+        if (!b) { preview.textContent = '—'; return; }
+        var v = parseFloat(val.value || '0');
+        var t = type.value;
+        var p = b;
+        if (t === 'percentage') p = b * (1 + v / 100);
+        else if (t === 'fixed') p = b + v;
+        preview.textContent = p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+      sel.addEventListener('change', function () { applyArtistDefaults(); recompute(); });
+      [base, type, val].forEach(function (el) { el.addEventListener('input', recompute); });
+      recompute();
+    })();
+    </script>
+  @endif
+
   {{-- Pricing --}}
   <div class="card mb-4">
     <div class="card-header fw-semibold">{{ __('Pricing') }}</div>

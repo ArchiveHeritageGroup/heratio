@@ -143,6 +143,9 @@
         <a href="{{ route('ahgmarketplace.seller-collections') }}" class="btn btn-outline-primary btn-sm">
           <i class="fas fa-layer-group me-1"></i> Collections
         </a>
+        <a href="{{ route('ahgmarketplace.seller-artists') }}" class="btn btn-outline-primary btn-sm">
+          <i class="fas fa-palette me-1"></i> Artists
+        </a>
         <a href="{{ route('ahgmarketplace.seller-payouts') }}" class="btn btn-outline-primary btn-sm">
           <i class="fas fa-money-check-alt me-1"></i> Payouts
         </a>
