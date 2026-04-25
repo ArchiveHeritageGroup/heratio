@@ -102,10 +102,19 @@
             </div>
           </div>
         </div>
-        <div class="card-footer">
+        <div class="card-footer d-flex justify-content-between align-items-center">
           <button type="submit" class="btn btn-primary">
             <i class="fas fa-save me-2"></i>Save Settings
           </button>
+          @unless($settings->is_enabled ?? 0)
+            <button type="button" class="btn btn-outline-warning"
+                    data-bs-toggle="modal" data-bs-target="#dummySaleModal"
+                    data-dummy-title="Sample marketplace listing"
+                    data-dummy-price="6500.00"
+                    data-dummy-currency="{{ $settings->currency ?? 'ZAR' }}">
+              <i class="fas fa-flask me-1"></i> Preview dummy sale
+            </button>
+          @endunless
         </div>
       </div>
     </form>
@@ -266,4 +275,7 @@
     <i class="fas fa-list me-2"></i>View Orders
   </a>
 </div>
+
+@include('ahg-cart::_dummy-sale-modal')
+
 @endsection

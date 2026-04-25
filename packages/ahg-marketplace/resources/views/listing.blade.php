@@ -110,19 +110,32 @@
           @if(!empty($listing->condition_rating))
             <p class="small text-muted mb-3">{{ __('Condition: :c', ['c' => ucfirst($listing->condition_rating)]) }}</p>
           @endif
+          @php
+            $ecommerceEnabled = app(\AhgCart\Services\EcommerceService::class)->isEcommerceEnabled();
+          @endphp
           @auth
-            <form method="POST" action="{{ route('cart.listing-add', ['listingId' => $listing->id]) }}" class="mb-2">
-              @csrf
-              <button type="submit" class="btn btn-primary w-100">
-                <i class="fas fa-cart-plus me-1"></i> {{ __('Add to cart') }}
+            @if($ecommerceEnabled)
+              <form method="POST" action="{{ route('cart.listing-add', ['listingId' => $listing->id]) }}" class="mb-2">
+                @csrf
+                <button type="submit" class="btn btn-primary w-100">
+                  <i class="fas fa-cart-plus me-1"></i> {{ __('Add to cart') }}
+                </button>
+              </form>
+              <form method="POST" action="{{ route('ahgmarketplace.checkout-buy', ['listingId' => $listing->id]) }}" class="mb-2">
+                @csrf
+                <button type="submit" class="btn btn-outline-primary w-100">
+                  <i class="fas fa-bolt me-1"></i> {{ __('Buy Now') }}
+                </button>
+              </form>
+            @else
+              <button type="button" class="btn btn-primary w-100 mb-2"
+                      data-bs-toggle="modal" data-bs-target="#dummySaleModal"
+                      data-dummy-title="{{ $listing->title ?? '' }}"
+                      data-dummy-price="{{ (string) (float) ($listing->price ?? 0) }}"
+                      data-dummy-currency="{{ $listing->currency ?: 'ZAR' }}">
+                <i class="fas fa-flask me-1"></i> {{ __('Demo Sale (e-commerce disabled)') }}
               </button>
-            </form>
-            <form method="POST" action="{{ route('ahgmarketplace.checkout-buy', ['listingId' => $listing->id]) }}" class="mb-2">
-              @csrf
-              <button type="submit" class="btn btn-outline-primary w-100">
-                <i class="fas fa-bolt me-1"></i> {{ __('Buy Now') }}
-              </button>
-            </form>
+            @endif
           @else
             <a href="{{ route('login') }}" class="btn btn-primary w-100 mb-2">
               <i class="fas fa-sign-in-alt me-1"></i> {{ __('Sign in to Buy') }}
@@ -167,12 +180,22 @@
             <p class="small text-muted mb-1">{{ __('Buy Now Price') }}</p>
             <p class="h5 mb-2">{{ $listing->currency ?? '' }} {{ number_format((float) $auction->buy_now_price, 2) }}</p>
             @auth
-              <form method="POST" action="{{ route('ahgmarketplace.checkout-buy', ['listingId' => $listing->id]) }}">
-                @csrf
-                <button type="submit" class="btn btn-outline-primary w-100">
-                  <i class="fas fa-bolt me-1"></i> {{ __('Buy Now') }}
+              @if($ecommerceEnabled ?? app(\AhgCart\Services\EcommerceService::class)->isEcommerceEnabled())
+                <form method="POST" action="{{ route('ahgmarketplace.checkout-buy', ['listingId' => $listing->id]) }}">
+                  @csrf
+                  <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="fas fa-bolt me-1"></i> {{ __('Buy Now') }}
+                  </button>
+                </form>
+              @else
+                <button type="button" class="btn btn-outline-primary w-100"
+                        data-bs-toggle="modal" data-bs-target="#dummySaleModal"
+                        data-dummy-title="{{ $listing->title ?? '' }}"
+                        data-dummy-price="{{ (string) (float) $auction->buy_now_price }}"
+                        data-dummy-currency="{{ $listing->currency ?: 'ZAR' }}">
+                  <i class="fas fa-flask me-1"></i> {{ __('Demo Sale') }}
                 </button>
-              </form>
+              @endif
             @endauth
           @endif
 
@@ -430,4 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
+
+@include('ahg-cart::_dummy-sale-modal')
+
 @endsection

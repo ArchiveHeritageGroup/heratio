@@ -7,6 +7,7 @@
   $totalCount = $items->count() + (isset($marketplaceCart) ? $marketplaceCart['items']->count() : 0);
   $hasMarketplace = isset($marketplaceCart) && $marketplaceCart['items']->isNotEmpty();
   $hasReproductions = $items->isNotEmpty();
+  $ecommerceEnabled = app(\AhgCart\Services\EcommerceService::class)->isEcommerceEnabled();
 @endphp
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -86,12 +87,22 @@
       <a href="{{ url('/marketplace/browse') }}" class="btn btn-outline-secondary btn-sm">
         <i class="fas fa-arrow-left me-1"></i> Continue browsing marketplace
       </a>
-      <form method="post" action="{{ route('cart.marketplace-checkout') }}">
-        @csrf
-        <button type="submit" class="btn btn-success">
-          <i class="fas fa-credit-card me-1"></i> Pay {{ $marketplaceCart['currency'] }} {{ number_format($marketplaceCart['subtotal'], 2) }} via PayFast
+      @if($ecommerceEnabled)
+        <form method="post" action="{{ route('cart.marketplace-checkout') }}">
+          @csrf
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-credit-card me-1"></i> Pay {{ $marketplaceCart['currency'] }} {{ number_format($marketplaceCart['subtotal'], 2) }} via PayFast
+          </button>
+        </form>
+      @else
+        <button type="button" class="btn btn-warning"
+                data-bs-toggle="modal" data-bs-target="#dummySaleModal"
+                data-dummy-title="Marketplace cart ({{ $marketplaceCart['items']->count() }} items)"
+                data-dummy-price="{{ (string) $marketplaceCart['subtotal'] }}"
+                data-dummy-currency="{{ $marketplaceCart['currency'] }}">
+          <i class="fas fa-flask me-1"></i> Demo Sale (e-commerce disabled)
         </button>
-      </form>
+      @endif
     </div>
   </div>
 @endif
@@ -153,5 +164,8 @@
     <a href="{{ route('cart.checkout') }}" class="btn atom-btn-white"><i class="fas fa-credit-card me-1"></i>Proceed to checkout</a>
   </div>
 @endif
+
+@include('ahg-cart::_dummy-sale-modal')
+
 @endsection
 {{-- end-of-template --}}

@@ -163,13 +163,15 @@
       @forelse($listings ?? [] as $listing)
         <div class="col">
           <div class="card h-100">
-            @if(!empty($listing->featured_image_path))
-              <img src="{{ $listing->featured_image_path }}" class="card-img-top" alt="" style="height:200px;object-fit:cover;">
-            @else
-              <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height:200px;">
-                <i class="fas fa-image fa-3x text-muted"></i>
-              </div>
-            @endif
+            <a href="{{ route('ahgmarketplace.listing', ['slug' => $listing->slug ?? '']) }}" class="text-decoration-none">
+              @if(!empty($listing->featured_image_path))
+                <img src="{{ $listing->featured_image_path }}" class="card-img-top" alt="{{ $listing->title ?? '' }}" style="height:200px;object-fit:cover;">
+              @else
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height:200px;">
+                  <i class="fas fa-image fa-3x text-muted"></i>
+                </div>
+              @endif
+            </a>
             <div class="card-body">
               <h6 class="card-title">
                 <a href="{{ route('ahgmarketplace.listing', ['slug' => $listing->slug ?? '']) }}" class="text-decoration-none">{{ \Illuminate\Support\Str::limit($listing->title ?? 'Untitled', 50) }}</a>

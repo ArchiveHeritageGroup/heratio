@@ -2093,7 +2093,8 @@ class MarketplaceController extends Controller
             'shipping_international_price' => $request->input('shipping_international_price') ? (float) $request->input('shipping_international_price') : null,
         ];
 
-        $result = $this->service->createListing($seller->id, $data);
+        $data['seller_id'] = $seller->id;
+        $result = $this->service->createListing($data);
 
         if ($result['success']) {
             session()->flash('notice', 'Listing created. Add images to complete your listing.');
