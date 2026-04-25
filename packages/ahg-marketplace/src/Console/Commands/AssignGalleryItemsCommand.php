@@ -27,7 +27,7 @@ class AssignGalleryItemsCommand extends Command
         {--seller= : Seller id (defaults to seller record matching --email)}
         {--email=johan@theahg.co.za : Seller email when --seller is not given}
         {--identifier-prefix=GALLERY-DEMO- : IO identifier prefix to scope which items get assigned}
-        {--status=draft : Listing status (draft, published)}
+        {--status=active : Listing status (draft, pending_review, active)}
         {--force : Overwrite if a listing already exists for an IO}
         {--dry-run : Preview without writing}';
 
@@ -58,12 +58,21 @@ class AssignGalleryItemsCommand extends Command
             })
             ->leftJoin('museum_metadata as mm', 'mm.object_id', '=', 'io.id')
             ->leftJoin('display_object_config as doc', 'doc.object_id', '=', 'io.id')
+            ->leftJoin('digital_object as do_ref', function ($j) {
+                $j->on('do_ref.object_id', '=', 'io.id')->where('do_ref.usage_id', '=', 141);
+            })
+            ->leftJoin('digital_object as do_master', function ($j) {
+                $j->on('do_master.object_id', '=', 'io.id')->where('do_master.usage_id', '=', 140);
+            })
             ->where('io.identifier', 'like', $prefix . '%')
             ->select([
                 'io.id', 'io.identifier',
                 'i18n.title', 'i18n.scope_and_content', 'i18n.extent_and_medium',
                 'mm.materials', 'mm.dimensions', 'mm.creator_identity',
                 'doc.object_type as glam_type',
+                'do_ref.name as ref_filename',
+                'do_master.name as master_filename',
+                'do_master.mime_type as master_mime',
             ])
             ->orderBy('io.identifier')
             ->get();
@@ -92,6 +101,10 @@ class AssignGalleryItemsCommand extends Command
                 ? $io->glam_type
                 : 'gallery';
 
+            $featuredPath = $io->ref_filename
+                ? '/uploads/r/' . $io->id . '/' . $io->ref_filename
+                : ($io->master_filename ? '/uploads/r/' . $io->id . '/' . $io->master_filename : null);
+
             $payload = [
                 'seller_id'             => $sellerId,
                 'information_object_id' => $io->id,
@@ -107,6 +120,7 @@ class AssignGalleryItemsCommand extends Command
                 'is_physical'           => 1,
                 'requires_shipping'     => 1,
                 'shipping_from_country' => 'South Africa',
+                'featured_image_path'   => $featuredPath,
                 'updated_at'            => now(),
             ];
 
@@ -129,6 +143,21 @@ class AssignGalleryItemsCommand extends Command
                 }
 
                 $listingId = DB::table('marketplace_listing')->insertGetId($payload);
+
+                // Attach the master DO as the primary listing image so the
+                // listing show page renders correctly without a manual upload step.
+                if ($io->master_filename) {
+                    DB::table('marketplace_listing_image')->insert([
+                        'listing_id' => $listingId,
+                        'file_path'  => '/uploads/r/' . $io->id . '/' . $io->master_filename,
+                        'file_name'  => $io->master_filename,
+                        'mime_type'  => $io->master_mime,
+                        'is_primary' => 1,
+                        'sort_order' => 0,
+                        'created_at' => now(),
+                    ]);
+                }
+
                 $this->info("[{$io->identifier}] Created listing #{$listingId} ({$payload['listing_number']})");
                 $created++;
             }
