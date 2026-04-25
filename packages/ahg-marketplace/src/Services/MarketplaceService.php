@@ -1453,6 +1453,13 @@ class MarketplaceService
         DB::table($this->sellerTable)->where('id', $txn->seller_id)->increment('total_sales');
         DB::table($this->sellerTable)->where('id', $txn->seller_id)->increment('total_revenue', $txn->seller_amount);
 
+        // If the listing was reserved by the buyer, mark that reservation converted.
+        DB::table('marketplace_reservation')
+            ->where('listing_id', $txn->listing_id)
+            ->where('user_id', $txn->buyer_id)
+            ->where('status', 'active')
+            ->update(['status' => 'converted', 'updated_at' => now()]);
+
         return ['success' => true];
     }
 
@@ -4154,6 +4161,191 @@ class MarketplaceService
             ])
             ->first();
         return $row ?: null;
+    }
+
+    // =========================================================================
+    //  RESERVATIONS — 12-hour holds, max 2 per user per 24 hours
+    // =========================================================================
+
+    private const RESERVATION_DURATION_HOURS = 12;
+    private const RESERVATION_USER_LIMIT = 2;
+    private const RESERVATION_USER_LIMIT_HOURS = 24;
+
+    /**
+     * Reserve a listing for a user for 12 hours.
+     *
+     * Returns ['success' => bool, 'error' => ?string, 'reservation_id' => ?int,
+     *          'expires_at' => ?Carbon].
+     */
+    public function reserveListing(int $listingId, int $userId): array
+    {
+        // Lazy-expire any past-due reservations before validating
+        $this->expireOldReservations();
+
+        $listing = DB::table('marketplace_listing')->where('id', $listingId)->first();
+        if (!$listing) {
+            return ['success' => false, 'error' => 'Listing not found.'];
+        }
+
+        // Block self-reserve
+        $sellerForUser = $this->getSellerByUserId($userId);
+        if ($sellerForUser && (int) $sellerForUser->id === (int) $listing->seller_id) {
+            return ['success' => false, 'error' => 'You cannot reserve your own listing.'];
+        }
+
+        if ($listing->status === 'reserved' && (int) $listing->reserved_by_user_id === $userId) {
+            return [
+                'success' => true,
+                'reservation_id' => DB::table('marketplace_reservation')
+                    ->where('listing_id', $listingId)
+                    ->where('user_id', $userId)
+                    ->where('status', 'active')
+                    ->value('id'),
+                'expires_at' => $listing->reserved_until,
+                'note' => 'You already have this listing reserved.',
+            ];
+        }
+
+        if ($listing->status !== 'active') {
+            return ['success' => false, 'error' => 'This listing is not currently available to reserve.'];
+        }
+
+        // Per-user 24h limit (counts active + recently-converted reservations)
+        $sinceCutoff = now()->subHours(self::RESERVATION_USER_LIMIT_HOURS);
+        $recentCount = DB::table('marketplace_reservation')
+            ->where('user_id', $userId)
+            ->where('started_at', '>=', $sinceCutoff)
+            ->whereIn('status', ['active', 'converted'])
+            ->count();
+
+        if ($recentCount >= self::RESERVATION_USER_LIMIT) {
+            return [
+                'success' => false,
+                'error' => sprintf(
+                    'You\'ve reached the limit of %d reservations in %d hours. Try again later.',
+                    self::RESERVATION_USER_LIMIT,
+                    self::RESERVATION_USER_LIMIT_HOURS
+                ),
+            ];
+        }
+
+        $now = now();
+        $expiresAt = $now->copy()->addHours(self::RESERVATION_DURATION_HOURS);
+
+        $reservationId = DB::transaction(function () use ($listingId, $userId, $now, $expiresAt) {
+            $rid = DB::table('marketplace_reservation')->insertGetId([
+                'listing_id' => $listingId,
+                'user_id'    => $userId,
+                'started_at' => $now,
+                'expires_at' => $expiresAt,
+                'status'     => 'active',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+
+            DB::table('marketplace_listing')->where('id', $listingId)->update([
+                'status'              => 'reserved',
+                'reserved_by_user_id' => $userId,
+                'reserved_until'      => $expiresAt,
+                'updated_at'          => $now,
+            ]);
+            return $rid;
+        });
+
+        // Fire-and-forget notification (best effort — failure doesn't affect reservation)
+        try {
+            app(\AhgMarketplace\Services\ReservationNotifier::class)->notifyOnReserve($reservationId);
+        } catch (\Throwable $e) {
+            \Log::warning('[reserveListing] notifyOnReserve failed', ['err' => $e->getMessage()]);
+        }
+
+        return [
+            'success'        => true,
+            'reservation_id' => $reservationId,
+            'expires_at'     => $expiresAt,
+        ];
+    }
+
+    /**
+     * Release any reservations whose expires_at has passed. Returns rows expired.
+     * Idempotent — safe to call on every read.
+     */
+    public function expireOldReservations(): int
+    {
+        $now = now();
+
+        $expired = DB::table('marketplace_reservation')
+            ->where('status', 'active')
+            ->where('expires_at', '<', $now)
+            ->get(['id', 'listing_id']);
+
+        if ($expired->isEmpty()) {
+            return 0;
+        }
+
+        DB::table('marketplace_reservation')
+            ->whereIn('id', $expired->pluck('id'))
+            ->update(['status' => 'expired', 'updated_at' => $now]);
+
+        // Return listings to active state (only if still flagged reserved with this user/timestamp)
+        DB::table('marketplace_listing')
+            ->whereIn('id', $expired->pluck('listing_id'))
+            ->where('status', 'reserved')
+            ->update([
+                'status'              => 'active',
+                'reserved_by_user_id' => null,
+                'reserved_until'      => null,
+                'updated_at'          => $now,
+            ]);
+
+        return $expired->count();
+    }
+
+    /**
+     * Active reservation row for a listing (or null). Auto-expires first.
+     */
+    public function getActiveReservationForListing(int $listingId): ?object
+    {
+        $this->expireOldReservations();
+        return DB::table('marketplace_reservation')
+            ->where('listing_id', $listingId)
+            ->where('status', 'active')
+            ->orderByDesc('id')
+            ->first();
+    }
+
+    /**
+     * How many active+converted reservations the user has started in the last N hours.
+     */
+    public function countActiveReservationsForUser(int $userId, int $hours = self::RESERVATION_USER_LIMIT_HOURS): int
+    {
+        return DB::table('marketplace_reservation')
+            ->where('user_id', $userId)
+            ->where('started_at', '>=', now()->subHours($hours))
+            ->whereIn('status', ['active', 'converted'])
+            ->count();
+    }
+
+    /**
+     * Manually release a user's own reservation.
+     */
+    public function cancelReservation(int $reservationId, int $userId): bool
+    {
+        $row = DB::table('marketplace_reservation')->where('id', $reservationId)->first();
+        if (!$row || (int) $row->user_id !== $userId || $row->status !== 'active') {
+            return false;
+        }
+        $now = now();
+        DB::table('marketplace_reservation')->where('id', $reservationId)->update([
+            'status' => 'cancelled', 'updated_at' => $now,
+        ]);
+        DB::table('marketplace_listing')->where('id', $row->listing_id)->update([
+            'status'              => 'active',
+            'reserved_by_user_id' => null,
+            'reserved_until'      => null,
+            'updated_at'          => $now,
+        ]);
+        return true;
     }
 
     /**

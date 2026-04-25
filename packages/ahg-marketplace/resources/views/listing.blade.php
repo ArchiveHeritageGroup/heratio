@@ -112,29 +112,69 @@
           @endif
           @php
             $ecommerceEnabled = app(\AhgCart\Services\EcommerceService::class)->isEcommerceEnabled();
+            $reservation = app(\AhgMarketplace\Services\MarketplaceService::class)->getActiveReservationForListing((int) $listing->id);
+            $iAmHolder = $reservation && Auth::id() && (int) $reservation->user_id === (int) Auth::id();
+            $isHeldByOther = $reservation && !$iAmHolder;
           @endphp
+
+          @if($reservation)
+            <div class="alert {{ $iAmHolder ? 'alert-success' : 'alert-warning' }} small mb-3">
+              @if($iAmHolder)
+                <i class="fas fa-clock me-1"></i>
+                <strong>You have this reserved.</strong>
+                Hold expires <span data-countdown="{{ $reservation->expires_at }}">{{ \Carbon\Carbon::parse($reservation->expires_at)->diffForHumans() }}</span>.
+                Complete the purchase below to keep it.
+              @else
+                <i class="fas fa-lock me-1"></i>
+                <strong>Reserved by another buyer</strong> &mdash; hold released
+                <span data-countdown="{{ $reservation->expires_at }}">{{ \Carbon\Carbon::parse($reservation->expires_at)->diffForHumans() }}</span>.
+              @endif
+            </div>
+          @endif
+
           @auth
             <form method="POST" action="{{ route('cart.listing-add', ['listingId' => $listing->id]) }}" class="mb-2">
               @csrf
-              <button type="submit" class="btn btn-primary w-100">
+              <button type="submit" class="btn btn-primary w-100" {{ $isHeldByOther ? 'disabled' : '' }}>
                 <i class="fas fa-cart-plus me-1"></i> {{ __('Add to cart') }}
               </button>
             </form>
+
             @if($ecommerceEnabled)
               <form method="POST" action="{{ route('ahgmarketplace.checkout-buy', ['listingId' => $listing->id]) }}" class="mb-2">
                 @csrf
-                <button type="submit" class="btn btn-outline-primary w-100">
+                <button type="submit" class="btn btn-outline-primary w-100" {{ $isHeldByOther ? 'disabled' : '' }}>
                   <i class="fas fa-bolt me-1"></i> {{ __('Buy Now') }}
                 </button>
               </form>
             @else
               <button type="button" class="btn btn-outline-primary w-100 mb-2"
+                      {{ $isHeldByOther ? 'disabled' : '' }}
                       data-bs-toggle="modal" data-bs-target="#dummySaleModal"
                       data-dummy-title="{{ $listing->title ?? '' }}"
                       data-dummy-price="{{ (string) (float) ($listing->price ?? 0) }}"
                       data-dummy-currency="{{ $listing->currency ?: 'ZAR' }}">
                 <i class="fas fa-bolt me-1"></i> {{ __('Buy Now') }}
               </button>
+            @endif
+
+            {{-- Reserve / Release --}}
+            @if($iAmHolder)
+              <form method="POST" action="{{ route('ahgmarketplace.reservation-cancel', ['reservationId' => $reservation->id]) }}" class="mb-2"
+                    onsubmit="return confirm('Release your reservation? Other buyers will be able to purchase this item.');">
+                @csrf
+                <button type="submit" class="btn btn-outline-secondary w-100">
+                  <i class="fas fa-unlock me-1"></i> {{ __('Release reservation') }}
+                </button>
+              </form>
+            @elseif(!$isHeldByOther)
+              <form method="POST" action="{{ route('ahgmarketplace.reserve', ['listingId' => $listing->id]) }}" class="mb-2">
+                @csrf
+                <button type="submit" class="btn btn-outline-warning w-100"
+                        title="Hold this listing for 12 hours (max 2 per 24 hours).">
+                  <i class="fas fa-clock me-1"></i> {{ __('Reserve for 12 hours') }}
+                </button>
+              </form>
             @endif
           @else
             <a href="{{ route('login') }}" class="btn btn-primary w-100 mb-2">

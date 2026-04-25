@@ -14,6 +14,7 @@ class AhgMarketplaceServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgMarketplace\Console\Commands\AssignGalleryItemsCommand::class,
+                \AhgMarketplace\Console\Commands\ReservationNotifyCommand::class,
             ]);
         }
     }

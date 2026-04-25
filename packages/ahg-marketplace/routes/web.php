@@ -77,6 +77,14 @@ Route::prefix('marketplace')->middleware(['web', 'auth'])->group(function () use
     // Phase X.3 — cloned from PSIS marketplace actions
     Route::match(['get', 'post'], '/buy', [$controller, 'buy'])->name('ahgmarketplace.buy')->middleware('acl:create');
     Route::post('/follow', [$controller, 'follow'])->name('ahgmarketplace.follow')->middleware('acl:update');
+
+    // Reservations — 12-hour holds, max 2 per user per 24h
+    Route::post('/listing/reserve/{listingId}', [$controller, 'reserveListing'])
+        ->where('listingId', '[0-9]+')
+        ->name('ahgmarketplace.reserve');
+    Route::post('/reservation/cancel/{reservationId}', [$controller, 'cancelReservation'])
+        ->where('reservationId', '[0-9]+')
+        ->name('ahgmarketplace.reservation-cancel');
 });
 
 // ─── Seller routes (authenticated) ───────────────────────────────

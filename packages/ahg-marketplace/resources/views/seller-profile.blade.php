@@ -223,6 +223,49 @@
         </div>
       </div>
 
+      {{-- Reservation notification preferences --}}
+      <h5 class="mt-4 mb-2">
+        <i class="fas fa-bell me-1 text-primary"></i> {{ __('Reservation notifications') }}
+      </h5>
+      <p class="small text-muted mb-3">
+        {{ __('Email me when buyers reserve my listings (12-hour holds, max 2 per buyer per 24h).') }}
+      </p>
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <div class="form-check form-switch">
+            <input type="hidden" name="notify_on_reservation" value="0">
+            <input class="form-check-input" type="checkbox" id="notify_on_reservation" name="notify_on_reservation" value="1"
+                   {{ ((int) ($seller->notify_on_reservation ?? 1) === 1) ? 'checked' : '' }}>
+            <label class="form-check-label" for="notify_on_reservation">
+              <strong>{{ __('On new reservation') }}</strong>
+              <span class="d-block small text-muted">{{ __('Email me when a buyer places a 12-hour hold on one of my listings.') }}</span>
+            </label>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-check form-switch">
+            <input type="hidden" name="notify_reservation_reminders" value="0">
+            <input class="form-check-input" type="checkbox" id="notify_reservation_reminders" name="notify_reservation_reminders" value="1"
+                   {{ ((int) ($seller->notify_reservation_reminders ?? 1) === 1) ? 'checked' : '' }}>
+            <label class="form-check-label" for="notify_reservation_reminders">
+              <strong>{{ __('Reminder updates (6h / 1h before expiry)') }}</strong>
+              <span class="d-block small text-muted">{{ __('Email me when a buyer\'s hold is about to expire.') }}</span>
+            </label>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-check form-switch">
+            <input type="hidden" name="notify_on_reservation_expiry" value="0">
+            <input class="form-check-input" type="checkbox" id="notify_on_reservation_expiry" name="notify_on_reservation_expiry" value="1"
+                   {{ ((int) ($seller->notify_on_reservation_expiry ?? 1) === 1) ? 'checked' : '' }}>
+            <label class="form-check-label" for="notify_on_reservation_expiry">
+              <strong>{{ __('When a hold expires unconverted') }}</strong>
+              <span class="d-block small text-muted">{{ __('Email me when a buyer\'s 12-hour hold expires without a purchase.') }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
       <div class="d-flex justify-content-between">
         <a href="{{ route('ahgmarketplace.dashboard') }}" class="btn btn-outline-secondary">
           <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Dashboard') }}

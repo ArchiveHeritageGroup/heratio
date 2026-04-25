@@ -1882,6 +1882,40 @@ class MarketplaceController extends Controller
         return $seller ? (int) $seller->id : 0;
     }
 
+    // =========================================================================
+    //  RESERVATIONS — 12-hour holds, max 2 per user per 24h
+    // =========================================================================
+
+    public function reserveListing(Request $request, int $listingId)
+    {
+        $userId = $this->requireAuth($request);
+
+        $result = $this->service->reserveListing($listingId, $userId);
+
+        if (!empty($result['success'])) {
+            $expiresAt = $result['expires_at'] instanceof \DateTimeInterface
+                ? \Carbon\Carbon::instance($result['expires_at'])
+                : \Carbon\Carbon::parse((string) $result['expires_at']);
+            session()->flash('notice', sprintf(
+                'Reserved for 12 hours. Hold expires at %s — Buy Now to complete the purchase.',
+                $expiresAt->format('Y-m-d H:i')
+            ));
+        } else {
+            session()->flash('error', $result['error'] ?? 'Could not reserve this listing.');
+        }
+
+        $listing = $this->service->getListingById($listingId);
+        return redirect()->route('ahgmarketplace.listing', ['slug' => $listing->slug ?? '']);
+    }
+
+    public function cancelReservation(Request $request, int $reservationId)
+    {
+        $userId = $this->requireAuth($request);
+        $ok = $this->service->cancelReservation($reservationId, $userId);
+        session()->flash($ok ? 'notice' : 'error', $ok ? 'Reservation cancelled.' : 'Could not cancel that reservation.');
+        return redirect()->back();
+    }
+
     public function sellerRegisterPost(Request $request)
     {
         $userId = $this->requireAuth($request);
@@ -1972,6 +2006,9 @@ class MarketplaceController extends Controller
             'phone' => trim($request->input('phone', '')),
             'payout_method' => $request->input('payout_method', 'bank_transfer'),
             'payout_currency' => $request->input('payout_currency', 'ZAR'),
+            'notify_on_reservation'        => $request->boolean('notify_on_reservation') ? 1 : 0,
+            'notify_reservation_reminders' => $request->boolean('notify_reservation_reminders') ? 1 : 0,
+            'notify_on_reservation_expiry' => $request->boolean('notify_on_reservation_expiry') ? 1 : 0,
         ];
 
         $selectedSectors = $request->input('sectors');
