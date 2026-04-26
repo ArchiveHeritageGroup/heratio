@@ -402,7 +402,12 @@
       "Bash(file /tmp/heratio-triposr/*.glb)",
       "Bash(xxd -l 32 /tmp/heratio-triposr/triposr_da48c2a13883.glb)",
       "Bash(COMPOSER_ALLOW_SUPERUSER=1 composer update ahg/image-animate --no-interaction)",
-      "Bash(ffprobe -v error -show_entries stream=codec_name,width,height,duration,nb_frames -of default=nw=1 /mnt/nas/heratio/archive/animations/912621/master_Gallery_Item_26_ken_burns_diagonal.mp4)"
+      "Bash(ffprobe -v error -show_entries stream=codec_name,width,height,duration,nb_frames -of default=nw=1 /mnt/nas/heratio/archive/animations/912621/master_Gallery_Item_26_ken_burns_diagonal.mp4)",
+      "Bash(sudo -u www-data test -w /mnt/nas/heratio/uploads)",
+      "Bash(rm -f /mnt/nas/heratio/archive/912621/kenburns_*.mp4)",
+      "Bash(rm -rf /mnt/nas/heratio/uploads/animations)",
+      "Bash(mkdir -p /mnt/nas/heratio/uploads/animations)",
+      "Bash(sudo -u www-data php /usr/share/nginx/heratio/artisan ahg:image-animate --object-id=912621 --duration=4 --motion=zoom_in --force)"
     ]
   }
 }

@@ -57,14 +57,14 @@ class ImageAnimateController extends Controller
             $opts['motion'] = (string) $request->input('motion');
         }
 
-        // Mirror the 3D MP4 layout: write next to the source image inside the
-        // IO's media dir. Uploads-path resolves to the on-disk archive root,
-        // and /uploads/r/ is a symlink to that root, so the web URL works.
-        $base = rtrim((string) config('heratio.uploads_path', ''), '/');
+        // Write under {storage_path}/uploads/animations/<ioId>/ — that root is
+        // www-data-writable (the archive dirs are root-owned and would 403),
+        // and the existing nginx /uploads/ alias maps straight to it.
+        $storage = rtrim((string) config('heratio.storage_path', ''), '/');
         $stem = pathinfo($sourceDo->name, PATHINFO_FILENAME);
         $filename = 'kenburns_' . $stem . '_' . $opts['motion'] . '_' . substr((string) time(), -6) . '.mp4';
-        $absPath = $base . '/' . $ioId . '/' . $filename;
-        $webPath = '/uploads/r/' . $ioId . '/' . $filename;
+        $absPath = $storage . '/uploads/animations/' . $ioId . '/' . $filename;
+        $webPath = '/uploads/animations/' . $ioId . '/' . $filename;
 
         try {
             $stats = $this->kb->render($sourcePath, $absPath, $opts);

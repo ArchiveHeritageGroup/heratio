@@ -77,16 +77,14 @@ class ImageAnimateCommand extends Command
             'zoom_strength' => (float) $this->option('zoom'),
         ];
 
-        $base = rtrim((string) config('heratio.uploads_path', ''), '/');
+        $storage = rtrim((string) config('heratio.storage_path', ''), '/');
         $stem = pathinfo($source, PATHINFO_FILENAME);
         $filename = 'kenburns_' . $stem . '_' . $opts['motion'] . '.mp4';
         if ($ioId) {
-            // Mirror the 3D MP4 layout — drop the file into the IO's media dir
-            // so /uploads/r/<ioId>/ resolves it via the existing nginx alias.
-            $absPath = $base . '/' . $ioId . '/' . $filename;
-            $webPath = '/uploads/r/' . $ioId . '/' . $filename;
+            $absPath = $storage . '/uploads/animations/' . $ioId . '/' . $filename;
+            $webPath = '/uploads/animations/' . $ioId . '/' . $filename;
         } else {
-            $absPath = $base . '/animations/cli/' . $filename;
+            $absPath = $storage . '/uploads/animations/cli/' . $filename;
             $webPath = '/uploads/animations/cli/' . $filename;
         }
 
