@@ -734,7 +734,20 @@ class SettingsController extends Controller
               . "--ahg-primary-color: var(--ahg-primary); --ahg-primary-dark: var(--ahg-secondary);"
               . "--ahg-accent-color: var(--ahg-primary); --ahg-accent-dark: var(--ahg-secondary);"
               . "--ahg-border-color: #dee2e6;"
+              // Bootstrap 5 "success" subtle tints — re-derive from the configured primary so
+              // .alert-success / .bg-success-subtle / .text-success-emphasis match the theme
+              // instead of falling back to the framework's hardcoded greens.
+              . "--bs-success-bg-subtle: color-mix(in srgb, var(--ahg-primary) 12%, #fff);"
+              . "--bs-success-border-subtle: color-mix(in srgb, var(--ahg-primary) 35%, #fff);"
+              . "--bs-success-text-emphasis: color-mix(in srgb, var(--ahg-primary) 60%, #000);"
+              . "--bs-success: var(--ahg-primary);"
+              . "--bs-success-rgb: 77, 110, 170;"
               . "}\n"
+            // Direct .alert-success / .alert-info / .alert-primary fallback for browsers that
+            // skip color-mix(); also kicks in when a downstream stylesheet overrides --bs-*-bg-subtle.
+            . ".alert-success { background-color: color-mix(in srgb, var(--ahg-primary) 12%, #fff) !important; "
+              . "border-color: color-mix(in srgb, var(--ahg-primary) 35%, #fff) !important; "
+              . "color: color-mix(in srgb, var(--ahg-primary) 60%, #000) !important; }\n"
             // Defuse the bundle's aggressive `div[class*=action]` rule — that selector matches
             // way too broadly (e.g. .actions-row, .row-actions, .action-icons) and was painting
             // every action-related container green. Reset to transparent and let the .actions
