@@ -704,10 +704,13 @@ class SettingsController extends Controller
             'ahg_link_color' => ['--ahg-link-color', '#005837'],
             'ahg_sidebar_bg' => ['--ahg-sidebar-bg', '#f8f9fa'],
             'ahg_sidebar_text' => ['--ahg-sidebar-text', '#333333'],
-            'ahg_success_color' => ['--ahg-success', '#28a745'],
-            'ahg_danger_color' => ['--ahg-danger', '#dc3545'],
+            // Status colours default to the configured primary so a non-green theme cascades
+            // through alerts, badges and `bg-success-subtle` automatically. The themes admin
+            // page still lets the operator override each one with an explicit hex.
+            'ahg_success_color' => ['--ahg-success', 'var(--ahg-primary)'],
+            'ahg_danger_color'  => ['--ahg-danger',  '#dc3545'],
             'ahg_warning_color' => ['--ahg-warning', '#ffc107'],
-            'ahg_info_color' => ['--ahg-info', '#17a2b8'],
+            'ahg_info_color'    => ['--ahg-info',    'var(--ahg-secondary)'],
             'ahg_light_color' => ['--ahg-light', '#f8f9fa'],
             'ahg_dark_color' => ['--ahg-dark', '#343a40'],
             'ahg_muted_color' => ['--ahg-muted', '#6c757d'],
@@ -734,20 +737,19 @@ class SettingsController extends Controller
               . "--ahg-primary-color: var(--ahg-primary); --ahg-primary-dark: var(--ahg-secondary);"
               . "--ahg-accent-color: var(--ahg-primary); --ahg-accent-dark: var(--ahg-secondary);"
               . "--ahg-border-color: #dee2e6;"
-              // Bootstrap 5 "success" subtle tints — re-derive from the configured primary so
-              // .alert-success / .bg-success-subtle / .text-success-emphasis match the theme
-              // instead of falling back to the framework's hardcoded greens.
-              . "--bs-success-bg-subtle: color-mix(in srgb, var(--ahg-primary) 12%, #fff);"
-              . "--bs-success-border-subtle: color-mix(in srgb, var(--ahg-primary) 35%, #fff);"
-              . "--bs-success-text-emphasis: color-mix(in srgb, var(--ahg-primary) 60%, #000);"
-              . "--bs-success: var(--ahg-primary);"
-              . "--bs-success-rgb: 77, 110, 170;"
+              // Bootstrap 5 "success" subtle tints — re-derive from the configured success
+              // colour (defaults to --ahg-primary). Themes admin's "Success color" field still
+              // wins when the operator sets it explicitly.
+              . "--bs-success-bg-subtle: color-mix(in srgb, var(--ahg-success) 12%, #fff);"
+              . "--bs-success-border-subtle: color-mix(in srgb, var(--ahg-success) 35%, #fff);"
+              . "--bs-success-text-emphasis: color-mix(in srgb, var(--ahg-success) 60%, #000);"
+              . "--bs-success: var(--ahg-success);"
               . "}\n"
-            // Direct .alert-success / .alert-info / .alert-primary fallback for browsers that
-            // skip color-mix(); also kicks in when a downstream stylesheet overrides --bs-*-bg-subtle.
-            . ".alert-success { background-color: color-mix(in srgb, var(--ahg-primary) 12%, #fff) !important; "
-              . "border-color: color-mix(in srgb, var(--ahg-primary) 35%, #fff) !important; "
-              . "color: color-mix(in srgb, var(--ahg-primary) 60%, #000) !important; }\n"
+            // Direct .alert-success fallback for browsers that skip color-mix(); also kicks
+            // in when a downstream stylesheet overrides --bs-success-bg-subtle.
+            . ".alert-success { background-color: color-mix(in srgb, var(--ahg-success) 12%, #fff) !important; "
+              . "border-color: color-mix(in srgb, var(--ahg-success) 35%, #fff) !important; "
+              . "color: color-mix(in srgb, var(--ahg-success) 60%, #000) !important; }\n"
             // Defuse the bundle's aggressive `div[class*=action]` rule — that selector matches
             // way too broadly (e.g. .actions-row, .row-actions, .action-icons) and was painting
             // every action-related container green. Reset to transparent and let the .actions
@@ -770,32 +772,32 @@ class SettingsController extends Controller
             // `background-color` leaves the hover/active states green; we therefore set the
             // entire variable family on each success-style selector.
             . ".btn-success, .btn.btn-success {"
-              . "--bs-btn-color: #fff; --bs-btn-bg: var(--ahg-primary); --bs-btn-border-color: var(--ahg-primary);"
-              . "--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-primary); --bs-btn-hover-border-color: var(--ahg-primary);"
-              . "--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-primary); --bs-btn-active-border-color: var(--ahg-primary);"
+              . "--bs-btn-color: #fff; --bs-btn-bg: var(--ahg-success); --bs-btn-border-color: var(--ahg-success);"
+              . "--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-success); --bs-btn-hover-border-color: var(--ahg-success);"
+              . "--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-success); --bs-btn-active-border-color: var(--ahg-success);"
               . "filter: none;"
             . "}\n"
             . ".btn-outline-success, .atom-btn-outline-success {"
-              . "--bs-btn-color: var(--ahg-primary); --bs-btn-border-color: var(--ahg-primary);"
-              . "--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-primary); --bs-btn-hover-border-color: var(--ahg-primary);"
-              . "--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-primary); --bs-btn-active-border-color: var(--ahg-primary);"
-              . "color: var(--ahg-primary) !important; border-color: var(--ahg-primary) !important;"
+              . "--bs-btn-color: var(--ahg-success); --bs-btn-border-color: var(--ahg-success);"
+              . "--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-success); --bs-btn-hover-border-color: var(--ahg-success);"
+              . "--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-success); --bs-btn-active-border-color: var(--ahg-success);"
+              . "color: var(--ahg-success) !important; border-color: var(--ahg-success) !important;"
             . "}\n"
             . ".btn-outline-success:hover, .btn-outline-success:focus, .atom-btn-outline-success:hover, .atom-btn-outline-success:focus {"
-              . "background-color: var(--ahg-primary) !important; color: #fff !important; border-color: var(--ahg-primary) !important;"
+              . "background-color: var(--ahg-success) !important; color: #fff !important; border-color: var(--ahg-success) !important;"
             . "}\n"
             . ".atom-btn-success, .btn.atom-btn-success {"
-              . "--bs-btn-color: #fff; --bs-btn-bg: var(--ahg-primary); --bs-btn-border-color: var(--ahg-primary);"
-              . "--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-primary); --bs-btn-hover-border-color: var(--ahg-primary);"
-              . "--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-primary); --bs-btn-active-border-color: var(--ahg-primary);"
-              . "background-color: var(--ahg-primary) !important; color: #fff !important; border-color: var(--ahg-primary) !important;"
+              . "--bs-btn-color: #fff; --bs-btn-bg: var(--ahg-success); --bs-btn-border-color: var(--ahg-success);"
+              . "--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-success); --bs-btn-hover-border-color: var(--ahg-success);"
+              . "--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-success); --bs-btn-active-border-color: var(--ahg-success);"
+              . "background-color: var(--ahg-success) !important; color: #fff !important; border-color: var(--ahg-success) !important;"
             . "}\n"
-            . ".bg-success { background-color: var(--ahg-primary) !important; color: #fff !important; }\n"
-            . ".text-success { color: var(--ahg-primary) !important; }\n"
-            . ".border-success { border-color: var(--ahg-primary) !important; }\n"
-            . ".badge.bg-success { background-color: var(--ahg-primary) !important; color: #fff !important; }\n"
+            . ".bg-success { background-color: var(--ahg-success) !important; color: #fff !important; }\n"
+            . ".text-success { color: var(--ahg-success) !important; }\n"
+            . ".border-success { border-color: var(--ahg-success) !important; }\n"
+            . ".badge.bg-success { background-color: var(--ahg-success) !important; color: #fff !important; }\n"
 
-            // Dropdown headers (top-nav menus) inherit the primary tint
+            // Dropdown headers inherit the primary tint
             . ".dropdown-header { color: var(--ahg-primary) !important; font-weight: 600; }\n";
     }
 
