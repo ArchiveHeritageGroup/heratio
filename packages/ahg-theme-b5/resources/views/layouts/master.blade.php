@@ -13,7 +13,26 @@
     {{-- Google Analytics --}}
     @include('theme::partials.google-analytics')
 
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    {{-- Favicon: prefer ahg_favicon_path setting; fall back to ahg_logo_path; final fallback /favicon.ico --}}
+    @php
+      $__favicon = trim((string) \AhgCore\Services\AhgSettingsService::get('ahg_favicon_path', ''));
+      if ($__favicon === '') {
+          $__favicon = trim((string) \AhgCore\Services\AhgSettingsService::get('ahg_logo_path', ''));
+      }
+      $__favicon = preg_replace('#^public/#', '', $__favicon);
+      $__faviconType = match (strtolower(pathinfo($__favicon, PATHINFO_EXTENSION) ?: 'ico')) {
+          'svg'  => 'image/svg+xml',
+          'png'  => 'image/png',
+          'gif'  => 'image/gif',
+          'jpg', 'jpeg' => 'image/jpeg',
+          default => 'image/x-icon',
+      };
+    @endphp
+    @if($__favicon !== '' && (str_starts_with($__favicon, 'http') || file_exists(public_path(ltrim($__favicon, '/')))))
+      <link rel="icon" type="{{ $__faviconType }}" href="{{ str_starts_with($__favicon, 'http') ? $__favicon : asset(ltrim($__favicon, '/')) }}">
+    @else
+      <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    @endif
 
     {{-- Normalize clipboard localStorage before bundle loads (prevents indexOf crash + stale phantom badge) --}}
     <script>

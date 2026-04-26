@@ -448,7 +448,9 @@
           $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
           $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
           $objSlug = $obj->slug ?? '';
-          $objThumb = $obj->thumbnail_path ?? $obj->thumbnail ?? null;
+          // Treat empty strings as missing — keeps the typed-icon fallback meaningful
+          $__candidates = array_filter([$obj->thumbnail_path ?? null, $obj->thumbnail ?? null], fn ($v) => is_string($v) && trim($v) !== '');
+          $objThumb = $__candidates ? reset($__candidates) : null;
           $objUrl = '/' . $objSlug;
         @endphp
         <div class="col">
@@ -571,7 +573,15 @@
           $objSlug = $obj->slug ?? '';
           // Prefer the larger reference image over the thumbnail — tile cards
           // are 200px tall, and small thumbnails (~100px) upscale to a blur.
-          $objCardImg = $obj->reference ?? $obj->reference_path ?? $obj->thumbnail_path ?? $obj->thumbnail ?? null;
+          // Filter empty strings — a blank thumbnail column would otherwise render <img src="">
+          // and surface a browser broken-image icon instead of the typed fallback below.
+          $__candidates = array_filter([
+              $obj->reference ?? null,
+              $obj->reference_path ?? null,
+              $obj->thumbnail_path ?? null,
+              $obj->thumbnail ?? null,
+          ], fn ($v) => is_string($v) && trim($v) !== '');
+          $objCardImg = $__candidates ? reset($__candidates) : null;
           $objUrl = '/' . $objSlug;
           $objIdentifier = $obj->identifier ?? '';
           $objLevel = $obj->level_of_description ?? $obj->level ?? '';
@@ -620,7 +630,8 @@
           $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
           $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
           $objSlug = $obj->slug ?? '';
-          $objThumb = $obj->thumbnail_path ?? $obj->thumbnail ?? null;
+          $__candidates = array_filter([$obj->thumbnail_path ?? null, $obj->thumbnail ?? null], fn ($v) => is_string($v) && trim($v) !== '');
+          $objThumb = $__candidates ? reset($__candidates) : null;
           $objIdentifier = $obj->identifier ?? '';
           $objLevel = $obj->level_of_description ?? $obj->level ?? '';
           $objUrl = '/' . $objSlug;

@@ -97,16 +97,20 @@
     <li><a class="dropdown-item" href="{{ route('audit.settings') }}"><i class="fas fa-cog me-2"></i>Settings</a></li>
     <li><a class="dropdown-item" href="{{ route('settings.error-log') }}"><i class="fas fa-exclamation-triangle me-2"></i>Error Log</a></li>
 
-    {{-- RiC --}}
+    {{-- RiC (gated by ahgRicExplorerPlugin) --}}
+    @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgRicExplorerPlugin'))
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">RiC</h6></li>
     <li><a class="dropdown-item" href="{{ route('ric.index') }}"><i class="fas fa-sitemap me-2"></i>RiC Dashboard</a></li>
     <li><a class="dropdown-item" href="{{ route('ric.import') }}"><i class="fas fa-file-import me-2"></i>RDF Import (TTL/JSON-LD/RDF-XML)</a></li>
+    @endif
 
-    {{-- Data Quality --}}
+    {{-- Data Quality (Data Migration gated by ahgDataMigrationPlugin; Dedupe always shown) --}}
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">Data Quality</h6></li>
+    @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgDataMigrationPlugin'))
     <li><a class="dropdown-item" href="{{ route('data-migration.index') }}"><i class="fas fa-exchange-alt me-2"></i>Data Migration</a></li>
+    @endif
     <li><a class="dropdown-item" href="{{ route('dedupe.index') }}"><i class="fas fa-clone me-2"></i>Duplicate Detection</a></li>
 
     {{-- Data Entry --}}
@@ -120,18 +124,22 @@
     <li><a class="dropdown-item" href="{{ route('doi.index') }}"><i class="fas fa-fingerprint me-2"></i>DOI Dashboard</a></li>
     <li><a class="dropdown-item" href="{{ route('doi.queue') }}"><i class="fas fa-stream me-2"></i>Minting Queue</a></li>
 
-    {{-- Heritage --}}
+    {{-- Heritage (gated by ahgHeritageAccountingPlugin) --}}
+    @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgHeritageAccountingPlugin'))
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">Heritage</h6></li>
     <li><a class="dropdown-item" href="{{ route('heritage.admin') }}"><i class="fas fa-landmark me-2"></i>Admin</a></li>
     <li><a class="dropdown-item" href="{{ route('heritage.analytics') }}"><i class="fas fa-chart-line me-2"></i>Analytics</a></li>
     <li><a class="dropdown-item" href="{{ route('heritage.custodian') }}"><i class="fas fa-hands me-2"></i>Custodian</a></li>
+    @endif
 
-    {{-- Maintenance --}}
+    {{-- Maintenance (Backup/Restore gated by ahgBackupPlugin; Jobs always shown) --}}
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">Maintenance</h6></li>
+    @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgBackupPlugin'))
     <li><a class="dropdown-item" href="{{ route('backup.index') }}"><i class="fas fa-download me-2"></i>Backup</a></li>
     <li><a class="dropdown-item" href="{{ route('backup.restore') }}"><i class="fas fa-upload me-2"></i>Restore</a></li>
+    @endif
     <li><a class="dropdown-item" href="{{ route('job.browse') }}"><i class="fas fa-tasks me-2"></i>Jobs</a></li>
   </ul>
 </li>

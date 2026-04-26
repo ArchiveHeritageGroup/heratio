@@ -726,12 +726,62 @@ class SettingsController extends Controller
             . ".btn-primary:hover, .btn-primary:focus { filter: brightness(0.9); }\n"
             . "a:not(.btn):not(.nav-link):not(.dropdown-item) { color: var(--ahg-link-color); }\n"
             . ".sidebar, #sidebar-content { background-color: var(--ahg-sidebar-bg) !important; color: var(--ahg-sidebar-text) !important; }\n"
-            . ":root { --ahg-background-white: var(--ahg-background-light); --bs-body-bg: var(--ahg-background-light); }\n"
+            . ":root { --ahg-background-white: var(--ahg-background-light); --bs-body-bg: var(--ahg-background-light); "
+              // Legacy bundled-CSS aliases — the older AtoM bundle uses `--ahg-primary-color`
+              // (with `-color` suffix) and `--ahg-primary-dark` to paint .action-bar / .btn-toolbar /
+              // div[class*=action]. Pin those to the live theme so the regenerator's --ahg-primary
+              // wins everywhere.
+              . "--ahg-primary-color: var(--ahg-primary); --ahg-primary-dark: var(--ahg-secondary);"
+              . "}\n"
+            // Defuse the bundle's aggressive `div[class*=action]` rule — that selector matches
+            // way too broadly (e.g. .actions-row, .row-actions, .action-icons) and was painting
+            // every action-related container green. Reset to transparent and let the .actions
+            // bar's own grey background remain.
+            . "div[class*=\"action\"] { background-color: transparent !important; }\n"
+            . ".actions { background-color: var(--ahg-card-header-bg, #495057) !important; }\n"
+            . ".action-bar, .button-bar, .toolbar, .record-actions, .item-actions, .btn-toolbar, .action-buttons { background: transparent !important; }\n"
             . "#wrapper { background: var(--ahg-background-light) !important; color: var(--ahg-body-text); }\n"
             . "body { background-color: var(--ahg-background-light) !important; color: var(--ahg-body-text) !important; }\n"
             . "#top-bar { background-color: var(--ahg-header-bg) !important; }\n"
             . "#top-bar, #top-bar .navbar-brand, #top-bar .nav-link, #top-bar .nav-link i { color: var(--ahg-header-text) !important; }\n"
-            . ".ahg-description-bar { text-align: var(--ahg-descbar-align, left); }\n";
+            . ".ahg-description-bar { text-align: var(--ahg-descbar-align, left); }\n"
+
+            // ── Theme-wide overrides: re-tint Bootstrap "success/green" classes to the
+            // configured primary so legacy blades that hardcode btn-success / bg-success
+            // stop rendering green when the operator picks a non-green palette.
+            //
+            // Bootstrap 5.3 buttons read their styling from per-class CSS custom properties
+            // (`--bs-btn-bg`, `--bs-btn-color`, `--bs-btn-hover-bg`, etc.). Overriding only
+            // `background-color` leaves the hover/active states green; we therefore set the
+            // entire variable family on each success-style selector.
+            . ".btn-success, .btn.btn-success {"
+              . "--bs-btn-color: #fff; --bs-btn-bg: var(--ahg-primary); --bs-btn-border-color: var(--ahg-primary);"
+              . "--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-primary); --bs-btn-hover-border-color: var(--ahg-primary);"
+              . "--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-primary); --bs-btn-active-border-color: var(--ahg-primary);"
+              . "filter: none;"
+            . "}\n"
+            . ".btn-outline-success, .atom-btn-outline-success {"
+              . "--bs-btn-color: var(--ahg-primary); --bs-btn-border-color: var(--ahg-primary);"
+              . "--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-primary); --bs-btn-hover-border-color: var(--ahg-primary);"
+              . "--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-primary); --bs-btn-active-border-color: var(--ahg-primary);"
+              . "color: var(--ahg-primary) !important; border-color: var(--ahg-primary) !important;"
+            . "}\n"
+            . ".btn-outline-success:hover, .btn-outline-success:focus, .atom-btn-outline-success:hover, .atom-btn-outline-success:focus {"
+              . "background-color: var(--ahg-primary) !important; color: #fff !important; border-color: var(--ahg-primary) !important;"
+            . "}\n"
+            . ".atom-btn-success, .btn.atom-btn-success {"
+              . "--bs-btn-color: #fff; --bs-btn-bg: var(--ahg-primary); --bs-btn-border-color: var(--ahg-primary);"
+              . "--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-primary); --bs-btn-hover-border-color: var(--ahg-primary);"
+              . "--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-primary); --bs-btn-active-border-color: var(--ahg-primary);"
+              . "background-color: var(--ahg-primary) !important; color: #fff !important; border-color: var(--ahg-primary) !important;"
+            . "}\n"
+            . ".bg-success { background-color: var(--ahg-primary) !important; color: #fff !important; }\n"
+            . ".text-success { color: var(--ahg-primary) !important; }\n"
+            . ".border-success { border-color: var(--ahg-primary) !important; }\n"
+            . ".badge.bg-success { background-color: var(--ahg-primary) !important; color: #fff !important; }\n"
+
+            // Dropdown headers (top-nav menus) inherit the primary tint
+            . ".dropdown-header { color: var(--ahg-primary) !important; font-weight: 600; }\n";
     }
 
     public function ahgSection(Request $request, string $group)

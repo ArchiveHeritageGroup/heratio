@@ -13,9 +13,11 @@
     // ── Build a single sorted array of ALL tiles ──────────────────────────
     $allTiles = [];
 
-    // Helper to add a tile only when its route exists
-    $addTile = function (string $label, string $icon, string $desc, string $routeName, string $color = 'primary', string $btnText = 'Configure', string $btnIcon = 'fa-cog', ?string $routeParam = null) use (&$allTiles) {
+    // Helper to add a tile only when its route exists AND, if a plugin is named, the plugin is enabled.
+    // Pass $plugin (e.g. 'ahgAIPlugin') as the 9th arg to gate by atom_plugin.is_enabled.
+    $addTile = function (string $label, string $icon, string $desc, string $routeName, string $color = 'primary', string $btnText = 'Configure', string $btnIcon = 'fa-cog', ?string $routeParam = null, ?string $plugin = null) use (&$allTiles) {
         if (!\Route::has($routeName)) return;
+        if ($plugin && !\AhgCore\Services\MenuService::isPluginEnabled($plugin)) return;
         $allTiles[$label] = [
             'label' => $label,
             'icon'  => $icon,
@@ -26,6 +28,27 @@
             'btn_icon' => $btnIcon,
         ];
     };
+
+    // Tile-label → plugin name (for gating via the existing $allTiles aggregation).
+    // Disabled-plugin tiles are stripped at render time below.
+    $tilePlugin = [
+        'AI Condition Assessment'  => 'ahgAIPlugin',
+        'AI Services'              => 'ahgAIPlugin',
+        'AHG Central'              => 'ahgAIPlugin',
+        'Face Detection'           => 'ahgAIPlugin',
+        'Voice & AI'               => 'ahgAIPlugin',
+        'E-Commerce'               => 'ahgCartPlugin',
+        'Order Management'         => 'ahgCartPlugin',
+        'Spectrum / Collections'   => 'ahgSpectrumPlugin',
+        'Library Settings'         => 'ahgLibraryPlugin',
+        'Multi-Tenancy'            => 'ahgMultiTenantPlugin',
+        'Heritage Accounting'      => 'ahgHeritageAccountingPlugin',
+        'Preservation & Backup'    => 'ahgBackupPlugin',
+        'Semantic Search'          => 'ahgRicExplorerPlugin',
+        'Fuseki / RIC Triplestore' => 'ahgRicExplorerPlugin',
+        'Privacy Compliance'       => 'ahgPrivacyPlugin',
+        'Data Protection'          => 'ahgPrivacyPlugin',
+    ];
 
     // ── 1. Scope cards from controller ($scopeCards) ──
     $dedicatedRoutes = [
@@ -174,6 +197,13 @@
     $addTile('Security',              'fa-shield-alt',         'Security lockout and password policies', 'settings.ahg.security', 'danger');
     $addTile('Spectrum / Collections','fa-archive',            'Spectrum collections management procedures', 'settings.ahg.spectrum');
     $addTile('Voice & AI',            'fa-microphone',         'Voice interface and AI assistant settings', 'settings.ahg.voice_ai');
+
+    // Strip tiles whose plugin is disabled (atom_plugin.is_enabled = 0).
+    foreach ($tilePlugin as $label => $plugin) {
+        if (isset($allTiles[$label]) && !\AhgCore\Services\MenuService::isPluginEnabled($plugin)) {
+            unset($allTiles[$label]);
+        }
+    }
 
     // Sort alphabetically by label (matching AtoM ksort)
     ksort($allTiles, SORT_NATURAL | SORT_FLAG_CASE);

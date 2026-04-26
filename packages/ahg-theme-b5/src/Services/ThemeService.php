@@ -110,7 +110,18 @@ class ThemeService
     }
 
     /**
-     * Get custom logo path from ahg_settings.
+     * Get custom logo URL from ahg_settings.
+     *
+     * Setting `ahg_logo_path` may be:
+     *   - An absolute URL                       (returned verbatim)
+     *   - A web-relative path under public/     (e.g. "vendor/ahg-theme-b5/images/foo.svg"
+     *                                            or "public/vendor/...svg" — leading "public/"
+     *                                            is stripped because nginx serves from public/)
+     *   - An uploads-relative path              (e.g. "/uploads/r/.../logo.png" — nginx alias
+     *                                            serves /uploads/ from HERATIO_UPLOADS_PATH)
+     *
+     * Previously the existence check hardcoded "/usr/share/nginx/archive" — wrong on every
+     * install except the AtoM PSIS box. Replaced with public_path() / uploads_path() lookup.
      */
     private function getCustomLogo(): ?string
     {
@@ -120,13 +131,31 @@ class ThemeService
             return null;
         }
 
-        // Check if file exists in the archive uploads
-        $fullPath = '/usr/share/nginx/archive' . $logoPath;
-        if (file_exists($fullPath)) {
+        // Absolute URL — return as-is
+        if (preg_match('#^https?://#', $logoPath)) {
             return $logoPath;
         }
 
-        return null;
+        // Strip leading "public/" — DB occasionally stores it but the served URL must not include it
+        $webPath = preg_replace('#^public/#', '', $logoPath);
+        $webPath = '/' . ltrim($webPath, '/');
+
+        // 1. File under this install's public/
+        if (file_exists(public_path(ltrim($webPath, '/')))) {
+            return $webPath;
+        }
+
+        // 2. File under HERATIO_UPLOADS_PATH (served by nginx via /uploads/ alias)
+        if (str_starts_with($webPath, '/uploads/')) {
+            $uploadsBase = rtrim((string) config('heratio.uploads_path', ''), '/');
+            if ($uploadsBase && file_exists($uploadsBase . '/' . substr($webPath, strlen('/uploads/')))) {
+                return $webPath;
+            }
+        }
+
+        // 3. Fall through — return the path so the admin sees a broken logo and can correct it,
+        // rather than silently reverting to the default.
+        return $webPath;
     }
 
     /**

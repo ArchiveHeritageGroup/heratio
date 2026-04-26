@@ -49,8 +49,8 @@
 
       <div class="d-flex flex-nowrap flex-column flex-lg-row align-items-strech align-items-lg-center">
         <ul class="navbar-nav mx-lg-2">
-          {{-- RiC Tools Dropdown --}}
-          @if(true)
+          {{-- RiC Tools Dropdown — gated by ahgRicExplorerPlugin --}}
+          @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgRicExplorerPlugin'))
             <li class="nav-item dropdown d-flex flex-column">
               <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="ric-tools-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-2x fa-fw fa-sitemap px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="RiC Tools" aria-hidden="true"></i>

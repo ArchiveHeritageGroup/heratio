@@ -557,8 +557,8 @@ class EsReindexCommand extends Command
                     $doc = [
                         'slug' => $slug,
                         'identifier' => $row->identifier ?? ($actor->description_identifier ?? null),
-                        'createdAt' => $actor && $actor->created_at ? date('Y-m-d\TH:i:s\Z', strtotime($actor->created_at)) : null,
-                        'updatedAt' => $actor && $actor->updated_at ? date('Y-m-d\TH:i:s\Z', strtotime($actor->updated_at)) : null,
+                        'createdAt' => (isset($actor->created_at) && $actor->created_at) ? date('Y-m-d\TH:i:s\Z', strtotime($actor->created_at)) : null,
+                        'updatedAt' => (isset($actor->updated_at) && $actor->updated_at) ? date('Y-m-d\TH:i:s\Z', strtotime($actor->updated_at)) : null,
                         'sourceCulture' => $actor->source_culture ?? 'en',
                         'i18n' => $this->buildI18n($ai, [
                             'authorizedFormOfName' => 'authorized_form_of_name',

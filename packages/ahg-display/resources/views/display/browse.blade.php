@@ -48,7 +48,7 @@
 
 {{-- Inline styles --}}
 <style>
-  .glam-filter-header { background-color: #1d6a52; color: #fff; }
+  .glam-filter-header { background-color: var(--ahg-primary, #1d6a52); color: var(--ahg-header-text, #fff); }
   .cursor-pointer { cursor: pointer; }
   .facet-link { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
   .browse-table { width: 100%; table-layout: auto; }

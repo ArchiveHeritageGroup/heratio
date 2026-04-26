@@ -73,12 +73,16 @@
         <a href="{{ route('io.condition', $io->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-clipboard-check me-1"></i> Condition assessment
         </a>
+        @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgSpectrumPlugin'))
         <a href="{{ route('io.spectrum', $io->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-chart-bar me-1"></i> Spectrum data
         </a>
+        @endif
+        @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgHeritageAccountingPlugin'))
         <a href="{{ route('io.heritage', $io->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-landmark me-1"></i> Heritage Assets
         </a>
+        @endif
         <a href="{{ route('io.research.citation', $io->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-quote-left me-1"></i> Cite this Record
         </a>
@@ -98,9 +102,9 @@
       </div>
     </div>
 
-    {{-- AI Tools (only if AI controller is available and user is authenticated) --}}
+    {{-- AI Tools (only if AI controller is available, AI plugin enabled, and user is authenticated) --}}
     @auth
-    @if(class_exists(\AhgInformationObjectManage\Controllers\AiController::class))
+    @if(class_exists(\AhgInformationObjectManage\Controllers\AiController::class) && \AhgCore\Services\MenuService::isPluginEnabled('ahgAIPlugin'))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-robot me-1"></i> AI Tools
@@ -174,8 +178,8 @@
     @endif {{-- end AI Tools package check --}}
     @endauth
 
-    {{-- Privacy & PII (only if privacy controller is available) --}}
-    @if(class_exists(\AhgInformationObjectManage\Controllers\PrivacyController::class))
+    {{-- Privacy & PII (controller exists AND ahgPrivacyPlugin is enabled) --}}
+    @if(class_exists(\AhgInformationObjectManage\Controllers\PrivacyController::class) && \AhgCore\Services\MenuService::isPluginEnabled('ahgPrivacyPlugin'))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-user-shield me-1"></i> Privacy & PII
@@ -317,7 +321,7 @@
   @endauth
 
   {{-- Translation links (other cultures available) --}}
-  @if(isset($translationLinks) && !empty($translationLinks))
+  @if(isset($translationLinks) && !empty($translationLinks) && \AhgCore\Services\MenuService::isPluginEnabled('ahgTranslationPlugin'))
     <div class="dropdown d-inline-block mb-3 translation-links">
       <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" id="translation-links-button" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fas fa-globe-europe me-1" aria-hidden="true"></i>
@@ -1259,9 +1263,10 @@
     @auth
       @php
         $userId = auth()->id();
+        $cartEnabled = \AhgCore\Services\MenuService::isPluginEnabled('ahgCartPlugin');
         $isFavorited = \Illuminate\Support\Facades\DB::table('favorites')
           ->where('user_id', $userId)->where('archival_description_id', $io->id)->exists();
-        $inCart = \Illuminate\Support\Facades\DB::table('cart')
+        $inCart = $cartEnabled && \Illuminate\Support\Facades\DB::table('cart')
           ->where('user_id', $userId)->where('archival_description_id', $io->id)
           ->whereNull('completed_at')->exists();
         $hasDigitalObject = isset($digitalObjects) && ($digitalObjects['master'] ?? null);
@@ -1282,8 +1287,8 @@
         </a>
       @endif
 
-      {{-- Cart --}}
-      @if($hasDigitalObject)
+      {{-- Cart (only when ahgCartPlugin is enabled) --}}
+      @if($cartEnabled && $hasDigitalObject)
         @if($inCart)
           <a href="{{ route('cart.browse') }}" class="btn btn-sm atom-btn-outline-success" title="Go to Cart" data-bs-toggle="tooltip">
             <i class="fas fa-shopping-cart"></i>
@@ -1300,8 +1305,8 @@
         <i class="fas fa-comment"></i>
       </a>
 
-      {{-- Request to Publish --}}
-      @if($hasDigitalObject)
+      {{-- Request to Publish (uses cart route — gated by cart plugin) --}}
+      @if($cartEnabled && $hasDigitalObject)
         <a href="{{ route('cart.add', $io->slug) }}" class="btn btn-sm atom-btn-white" title="Request to Publish" data-bs-toggle="tooltip">
           <i class="fas fa-paper-plane"></i>
         </a>

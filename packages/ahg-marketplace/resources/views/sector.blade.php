@@ -35,7 +35,7 @@
 
 {{-- Sector hero --}}
 <section class="rounded shadow-sm mb-4 p-4"
-         style="background:linear-gradient(135deg, var(--ahg-primary, #1d6a52) 0%, #134537 100%); color:#fff;">
+         style="background:linear-gradient(135deg, var(--ahg-primary, #1d6a52) 0%, var(--ahg-secondary, #134537) 100%); color:#fff;">
   <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
     <div>
       <h1 class="h3 mb-1">
