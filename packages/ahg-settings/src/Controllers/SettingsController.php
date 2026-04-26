@@ -727,11 +727,13 @@ class SettingsController extends Controller
             . "a:not(.btn):not(.nav-link):not(.dropdown-item) { color: var(--ahg-link-color); }\n"
             . ".sidebar, #sidebar-content { background-color: var(--ahg-sidebar-bg) !important; color: var(--ahg-sidebar-text) !important; }\n"
             . ":root { --ahg-background-white: var(--ahg-background-light); --bs-body-bg: var(--ahg-background-light); "
-              // Legacy bundled-CSS aliases — the older AtoM bundle uses `--ahg-primary-color`
-              // (with `-color` suffix) and `--ahg-primary-dark` to paint .action-bar / .btn-toolbar /
-              // div[class*=action]. Pin those to the live theme so the regenerator's --ahg-primary
-              // wins everywhere.
+              // Legacy bundled-CSS aliases — the AtoM-era theme bundle ships with hardcoded
+              // green defaults on a parallel set of variable names (`--ahg-primary-color`,
+              // `--ahg-accent-color`, etc.). Aliasing them onto the live theme palette neutralises
+              // every rule that reads them — dropdown-hovers, action bars, toolbars and so on.
               . "--ahg-primary-color: var(--ahg-primary); --ahg-primary-dark: var(--ahg-secondary);"
+              . "--ahg-accent-color: var(--ahg-primary); --ahg-accent-dark: var(--ahg-secondary);"
+              . "--ahg-border-color: #dee2e6;"
               . "}\n"
             // Defuse the bundle's aggressive `div[class*=action]` rule — that selector matches
             // way too broadly (e.g. .actions-row, .row-actions, .action-icons) and was painting

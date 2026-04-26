@@ -2987,8 +2987,8 @@
     @endif
     @endif {{-- end physical_storage visibility --}}
 
-    {{-- RiC Actions --}}
-    @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
+    {{-- RiC Actions — controller available AND ahgRicExplorerPlugin enabled --}}
+    @if(class_exists(\AhgRic\Controllers\RicEntityController::class) && \AhgCore\Services\MenuService::isPluginEnabled('ahgRicExplorerPlugin'))
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-project-diagram me-1"></i> RiC
