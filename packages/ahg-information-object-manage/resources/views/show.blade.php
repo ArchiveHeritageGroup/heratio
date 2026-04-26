@@ -90,7 +90,8 @@
     </div>
     @endif {{-- end Collections Management package check --}}
 
-    {{-- Digital Preservation (OAIS) --}}
+    {{-- Digital Preservation (OAIS) — gated by ahgPreservationPlugin --}}
+    @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgPreservationPlugin'))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-shield-alt me-1"></i> Digital Preservation (OAIS)
@@ -101,6 +102,7 @@
         </a>
       </div>
     </div>
+    @endif
 
     {{-- AI Tools (only if AI controller is available, AI plugin enabled, and user is authenticated) --}}
     @auth
