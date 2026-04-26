@@ -50,6 +50,9 @@
               <dt class="col-5 text-muted">Item</dt>
               <dd class="col-7" id="dummySaleItem">Sample listing</dd>
 
+              <dt class="col-5 text-muted" id="dummySaleListingIdLabel" style="display:none;">Listing ID</dt>
+              <dd class="col-7" id="dummySaleListingIdRow" style="display:none;"><code id="dummySaleListingId"></code></dd>
+
               <dt class="col-5 text-muted">Amount</dt>
               <dd class="col-7"><strong id="dummySaleAmount">ZAR 6,500.00</strong></dd>
 
@@ -81,9 +84,17 @@
 
   modalEl.addEventListener('show.bs.modal', function (event) {
     var trigger = event.relatedTarget;
-    var title = (trigger && trigger.getAttribute('data-dummy-title'))   || 'Sample listing';
-    var price = (trigger && trigger.getAttribute('data-dummy-price'))   || '6500.00';
-    var curr  = (trigger && trigger.getAttribute('data-dummy-currency')) || 'ZAR';
+    // Treat empty string the same as missing — defensive against blade output of
+    // {{ $listing->title ?? '' }} when title is null. Caller is expected to pass
+    // a non-empty title; we only fall through to "Sample listing" when truly absent.
+    function attr(t, name) {
+      var v = t && t.getAttribute(name);
+      return (v && v.trim() !== '') ? v : null;
+    }
+    var title     = attr(trigger, 'data-dummy-title')      || 'Sample listing';
+    var price     = attr(trigger, 'data-dummy-price')      || '6500.00';
+    var curr      = attr(trigger, 'data-dummy-currency')   || 'ZAR';
+    var listingId = attr(trigger, 'data-dummy-listing-id');
     // Optional CSS selector — when present, submit that form once Stage 3 hits.
     // Used by the cart's "Demo Sale" button to actually clear the cart and
     // create demo marketplace_transaction rows server-side.
@@ -92,8 +103,22 @@
     document.getElementById('dummySaleItem').textContent = title;
     document.getElementById('dummySaleAmount').textContent =
       curr + ' ' + Number(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    var txnPrefix = listingId ? ('TXN-DEMO-L' + listingId + '-') : 'TXN-DEMO-';
     document.getElementById('dummySaleTxn').textContent =
-      'TXN-DEMO-' + String(Math.floor(Math.random() * 9000) + 1000);
+      txnPrefix + String(Math.floor(Math.random() * 9000) + 1000);
+
+    var lidLabel = document.getElementById('dummySaleListingIdLabel');
+    var lidRow   = document.getElementById('dummySaleListingIdRow');
+    var lidCode  = document.getElementById('dummySaleListingId');
+    if (listingId) {
+      lidLabel.style.display = '';
+      lidRow.style.display   = '';
+      lidCode.textContent    = listingId;
+    } else {
+      lidLabel.style.display = 'none';
+      lidRow.style.display   = 'none';
+      lidCode.textContent    = '';
+    }
 
     document.getElementById('dummySaleStage1').style.display = 'block';
     document.getElementById('dummySaleStage2').style.display = 'none';

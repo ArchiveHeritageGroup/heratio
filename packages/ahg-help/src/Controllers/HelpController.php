@@ -95,6 +95,15 @@ class HelpController extends Controller
         $category = urldecode($category);
         $articles = HelpArticleService::getByCategory($category);
 
+        // Slug-form (e.g. "import-export") — reverse-resolve to display name ("Import/Export")
+        if (empty($articles)) {
+            $resolved = HelpArticleService::categoryFromSlug($category);
+            if ($resolved !== $category) {
+                $category = $resolved;
+                $articles = HelpArticleService::getByCategory($category);
+            }
+        }
+
         if (empty($articles)) {
             return redirect()->route('help.index');
         }

@@ -87,6 +87,34 @@ class HelpArticleService
             ->all();
     }
 
+    /**
+     * URL-safe slug for a category name. Converts "Import/Export" → "import-export",
+     * "Admin & Settings" → "admin-settings", etc. Avoids `%2F`-in-path issues that
+     * break the {category} route placeholder in some web-server configurations.
+     */
+    public static function categorySlug(string $name): string
+    {
+        $s = strtolower(trim($name));
+        $s = preg_replace('/[^a-z0-9]+/', '-', $s) ?? '';
+        return trim($s, '-');
+    }
+
+    /**
+     * Reverse-resolve a category slug back to its display name by scanning known
+     * categories. Falls back to the input verbatim if no match (preserves backwards
+     * compatibility with already-encoded URLs).
+     */
+    public static function categoryFromSlug(string $slug): string
+    {
+        $slug = strtolower(trim($slug));
+        foreach (self::getCategories() as $row) {
+            if (self::categorySlug($row['category']) === $slug) {
+                return $row['category'];
+            }
+        }
+        return $slug;
+    }
+
     public static function search(string $query, int $limit = 20): array
     {
         $escaped = addslashes($query);

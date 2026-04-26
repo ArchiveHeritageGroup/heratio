@@ -11,7 +11,7 @@
     @foreach($categories as $cat)
       <li class="nav-item">
         <a class="nav-link py-1 d-flex justify-content-between align-items-center"
-          href="{{ route('help.category', urlencode($cat['category'])) }}">
+          href="{{ route('help.category', \AhgHelp\Services\HelpArticleService::categorySlug($cat['category'])) }}">
           <span>{{ $cat['category'] }}</span>
           <span class="badge bg-secondary rounded-pill">{{ $cat['article_count'] }}</span>
         </a>

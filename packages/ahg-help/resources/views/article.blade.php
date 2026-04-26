@@ -15,7 +15,7 @@
         </form>
       </div>
 
-      <a href="{{ route('help.category', urlencode($article['category'])) }}" class="d-block mb-3 small">
+      <a href="{{ route('help.category', \AhgHelp\Services\HelpArticleService::categorySlug($article['category'])) }}" class="d-block mb-3 small">
         <i class="fas fa-arrow-left me-1"></i>Back to {{ $article['category'] }}
       </a>
 
@@ -38,7 +38,7 @@
       <div class="mt-3 pt-3 border-top small text-muted">
         <div class="mb-1">
           <i class="fas fa-tag me-1"></i>
-          <a href="{{ route('help.category', urlencode($article['category'])) }}">{{ $article['category'] }}</a>
+          <a href="{{ route('help.category', \AhgHelp\Services\HelpArticleService::categorySlug($article['category'])) }}">{{ $article['category'] }}</a>
           @if(!empty($article['subcategory']))
             / {{ $article['subcategory'] }}
           @endif
@@ -54,7 +54,7 @@
     <nav aria-label="breadcrumb" class="mb-3">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('help.index') }}">Help Center</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('help.category', urlencode($article['category'])) }}">{{ $article['category'] }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('help.category', \AhgHelp\Services\HelpArticleService::categorySlug($article['category'])) }}">{{ $article['category'] }}</a></li>
         <li class="breadcrumb-item active">{{ $article['title'] }}</li>
       </ol>
     </nav>

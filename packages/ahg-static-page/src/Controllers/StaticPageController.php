@@ -326,11 +326,22 @@ class StaticPageController extends Controller
         if ($markdownEnabled !== '0' && !empty($page->content)) {
             // Convert literal \n to actual newlines (DB may store escaped newlines)
             $content = str_replace(['\\n', '\n'], "\n", $page->content);
-            $converter = new \League\CommonMark\CommonMarkConverter([
+            // GFM converter — handles pipe tables, task lists, autolinks; plain CommonMark
+            // would render | tables | as raw paragraph text.
+            $converter = new \League\CommonMark\GithubFlavoredMarkdownConverter([
                 'html_input' => 'allow',
                 'allow_unsafe_links' => false,
             ]);
-            $page->content = $converter->convert($content)->getContent();
+            $html = (string) $converter->convert($content);
+            // Wrap any rendered <table> in Bootstrap's .table-responsive so wide tables
+            // scroll horizontally instead of overflowing the page width.
+            $html = preg_replace(
+                '/<table(\s|>)/',
+                '<div class="table-responsive"><table class="table table-sm table-bordered"$1',
+                $html
+            );
+            $html = preg_replace('/<\/table>/', '</table></div>', $html);
+            $page->content = $html;
         }
 
         return view('ahg-static-page::show', [

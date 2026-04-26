@@ -49,7 +49,7 @@
       @foreach($categories as $cat)
         @php $catName = $cat['category']; @endphp
         <div class="col-lg-4 col-md-6">
-          <a href="{{ route('help.category', urlencode($catName)) }}" class="text-decoration-none">
+          <a href="{{ route('help.category', \AhgHelp\Services\HelpArticleService::categorySlug($catName)) }}" class="text-decoration-none">
             <div class="card h-100 shadow-sm">
               <div class="card-body">
                 <div class="d-flex align-items-center mb-2">

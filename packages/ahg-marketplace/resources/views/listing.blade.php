@@ -155,9 +155,10 @@
             @else
               <button type="button" class="btn btn-outline-primary w-100"
                       data-bs-toggle="modal" data-bs-target="#dummySaleModal"
-                      data-dummy-title="{{ $listing->title ?? '' }} (licence)"
+                      data-dummy-title="{{ ($listing->title ?: 'Listing #' . $listing->id) }} (licence)"
                       data-dummy-price="{{ (string) (float) ($listing->price ?? 0) }}"
-                      data-dummy-currency="{{ $listing->currency ?: 'ZAR' }}">
+                      data-dummy-currency="{{ $listing->currency ?: 'ZAR' }}"
+                      data-dummy-listing-id="{{ $listing->id }}">
                 <i class="fas fa-file-contract me-1"></i> {{ __('Buy Licence Now') }}
               </button>
             @endif
@@ -213,9 +214,10 @@
               <button type="button" class="btn btn-outline-primary w-100 mb-2"
                       {{ $isHeldByOther ? 'disabled' : '' }}
                       data-bs-toggle="modal" data-bs-target="#dummySaleModal"
-                      data-dummy-title="{{ $listing->title ?? '' }}"
+                      data-dummy-title="{{ $listing->title ?: 'Listing #' . $listing->id }}"
                       data-dummy-price="{{ (string) (float) ($listing->price ?? 0) }}"
-                      data-dummy-currency="{{ $listing->currency ?: 'ZAR' }}">
+                      data-dummy-currency="{{ $listing->currency ?: 'ZAR' }}"
+                      data-dummy-listing-id="{{ $listing->id }}">
                 <i class="fas fa-bolt me-1"></i> {{ __('Buy Now') }}
               </button>
             @endif
@@ -292,9 +294,10 @@
               @else
                 <button type="button" class="btn btn-outline-primary w-100"
                         data-bs-toggle="modal" data-bs-target="#dummySaleModal"
-                        data-dummy-title="{{ $listing->title ?? '' }}"
+                        data-dummy-title="{{ $listing->title ?: 'Listing #' . $listing->id }}"
                         data-dummy-price="{{ (string) (float) $auction->buy_now_price }}"
-                        data-dummy-currency="{{ $listing->currency ?: 'ZAR' }}">
+                        data-dummy-currency="{{ $listing->currency ?: 'ZAR' }}"
+                        data-dummy-listing-id="{{ $listing->id }}">
                   <i class="fas fa-bolt me-1"></i> {{ __('Buy Now') }}
                 </button>
               @endif

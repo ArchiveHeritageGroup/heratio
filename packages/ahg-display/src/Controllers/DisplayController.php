@@ -544,11 +544,13 @@ class DisplayController extends Controller
                 $query->orderBy('i18n.title', $safeSortDir);
         }
 
-        $objects = $query->limit(500)->get()->toArray();
-        $total = count($objects);
+        $printCap = 500;
+        $total    = (clone $query)->count('io.id');
+        $objects  = $query->limit($printCap)->get()->toArray();
+        $shown    = count($objects);
 
         return view('ahg-display::display.print', compact(
-            'objects', 'total', 'typeFilter', 'parentId', 'topLevelOnly', 'parent', 'sort', 'sortDir'
+            'objects', 'total', 'shown', 'printCap', 'typeFilter', 'parentId', 'topLevelOnly', 'parent', 'sort', 'sortDir'
         ));
     }
 
