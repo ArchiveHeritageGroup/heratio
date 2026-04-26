@@ -329,21 +329,6 @@
           <i class="fas fa-store me-1"></i>Add to marketplace
         </a>
       </li>
-      @if(class_exists(\Ahg3dModel\Controllers\Model3dController::class)
-          && \Ahg3dModel\Controllers\Model3dController::is2dTo3dUserButtonEnabled()
-          && !\Illuminate\Support\Facades\DB::table('object_3d_model')->where('object_id', $asset->id)->exists()
-          && \Illuminate\Support\Facades\DB::table('digital_object')
-                ->where('object_id', $asset->id)->where('mime_type', 'like', 'image/%')->exists())
-        <li>
-          <form action="{{ route('admin.3d-models.user-generate', ['ioId' => $asset->id]) }}" method="POST" class="d-inline"
-                onsubmit="return confirm('Generate a 3D model from this asset\'s image?\n\nThis runs TripoSR on the AI server and may take 30–60 seconds.');">
-            @csrf
-            <button type="submit" class="btn atom-btn-outline-light" title="AI-generated, non-authoritative">
-              <i class="fas fa-cube me-1"></i>Generate 3D model
-            </button>
-          </form>
-        </li>
-      @endif
     </ul>
   @endauth
 @endsection

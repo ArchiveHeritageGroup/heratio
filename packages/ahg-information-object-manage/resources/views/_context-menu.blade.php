@@ -124,33 +124,6 @@
   @endif
 @endauth
 
-{{-- ===== 3D model (auth only, if 2D→3D enabled and IO has no 3D model yet) ===== --}}
-@auth
-  @if($ioId
-      && class_exists(\Ahg3dModel\Controllers\Model3dController::class)
-      && \Ahg3dModel\Controllers\Model3dController::is2dTo3dUserButtonEnabled()
-      && !\Illuminate\Support\Facades\DB::table('object_3d_model')->where('object_id', $ioId)->exists()
-      && \Illuminate\Support\Facades\DB::table('digital_object')
-            ->where('object_id', $ioId)->where('mime_type', 'like', 'image/%')->exists())
-    <div class="card mb-3">
-      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-cube me-1"></i> {{ __('3D model') }}
-      </div>
-      <div class="list-group list-group-flush">
-        <form action="{{ route('admin.3d-models.user-generate', ['ioId' => $ioId]) }}" method="POST"
-              onsubmit="return confirm('Generate a 3D model from this object\'s image?\n\nThis runs TripoSR on the AI server and may take 30–60 seconds.');">
-          @csrf
-          <button type="submit" class="list-group-item list-group-item-action small border-0 text-start w-100">
-            <i class="fas fa-cube me-1"></i> {{ __('Generate 3D model from image') }}
-          </button>
-        </form>
-        <span class="list-group-item small text-muted border-0">
-          <i class="fas fa-flask me-1"></i> {{ __('AI-generated, non-authoritative') }}
-        </span>
-      </div>
-    </div>
-  @endif
-@endauth
 
 {{-- ===== Tasks (auth only) ===== --}}
 @auth

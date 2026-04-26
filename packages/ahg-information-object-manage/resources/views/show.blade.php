@@ -128,20 +128,6 @@
           </a>
         @endif
 
-        {{-- 2D-to-3D generation (TripoSR) — gated by admin toggles + IO state --}}
-        @if(class_exists(\Ahg3dModel\Controllers\Model3dController::class)
-            && \Ahg3dModel\Controllers\Model3dController::is2dTo3dUserButtonEnabled()
-            && !\Illuminate\Support\Facades\DB::table('object_3d_model')->where('object_id', $io->id)->exists()
-            && \Illuminate\Support\Facades\DB::table('digital_object')
-                  ->where('object_id', $io->id)->where('mime_type', 'like', 'image/%')->exists())
-          <form action="{{ route('admin.3d-models.user-generate', ['ioId' => $io->id]) }}" method="POST"
-                onsubmit="return confirm('Generate a 3D model from this object\'s image?\n\nThis runs TripoSR on the AI server and may take 30–60 seconds.');">
-            @csrf
-            <button type="submit" class="list-group-item list-group-item-action small border-0 text-start w-100">
-              <i class="fas fa-cube me-1"></i> Generate 3D Model from Image
-            </button>
-          </form>
-        @endif
       </div>
     </div>
     @endif {{-- end AI Tools package check --}}
@@ -1066,6 +1052,59 @@
 @section('content')
 
   @include('ahg-ric::_view-switch')
+
+  {{-- 3D companion model (auto-rendered MP4 turntable + interactive viewer) ----- --}}
+  @php
+    $companion3d = null;
+    try {
+      $companion3d = \Illuminate\Support\Facades\DB::table('object_3d_model')
+        ->where('object_id', $io->id)
+        ->orderByDesc('id')
+        ->first();
+    } catch (\Throwable $e) { /* ignore */ }
+  @endphp
+  @if($companion3d)
+    <div class="card mb-3 border-info">
+      <div class="card-header bg-info bg-opacity-10 fw-bold d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-cube me-1 text-info"></i> 3D reconstruction</span>
+        @if(\Illuminate\Support\Str::startsWith($companion3d->filename, 'triposr_'))
+          <span class="badge bg-warning text-dark"><i class="fas fa-flask me-1"></i>AI-generated, non-authoritative</span>
+        @endif
+      </div>
+      <div class="card-body">
+        <div class="row g-3 align-items-start">
+          @if($companion3d->turntable_mp4_path)
+            <div class="col-md-5 text-center">
+              <video src="{{ $companion3d->turntable_mp4_path }}"
+                     autoplay muted loop playsinline
+                     style="max-width:100%;max-height:280px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+              </video>
+              <div class="small text-muted mt-1"><i class="fas fa-video me-1"></i>{{ __('Auto-playing turntable preview') }}</div>
+            </div>
+          @endif
+          <div class="col-md-{{ $companion3d->turntable_mp4_path ? 7 : 12 }}">
+            <div style="height:280px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:8px;">
+              <model-viewer src="{{ $companion3d->file_path }}"
+                            camera-controls touch-action="pan-y" auto-rotate
+                            shadow-intensity="1" exposure="1"
+                            style="width:100%;height:100%;background:transparent;border-radius:8px;">
+                <div slot="poster" class="d-flex align-items-center justify-content-center h-100 text-white">
+                  <div class="spinner-border me-2"></div>{{ __('Loading 3D model…') }}
+                </div>
+              </model-viewer>
+            </div>
+            <div class="small text-muted mt-1">
+              <i class="fas fa-mouse me-1"></i>{{ __('Drag to rotate') }} &middot;
+              <i class="fas fa-search-plus me-1"></i>{{ __('Scroll to zoom') }} &middot;
+              <code>{{ $companion3d->filename }}</code>
+              ({{ number_format(($companion3d->file_size ?? 0) / 1024, 0) }} KB)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+  @endif
 
   @if(session('ric_view_mode') === 'ric')
     @include('ahg-ric::_ric-view-io', ['io' => $io])
