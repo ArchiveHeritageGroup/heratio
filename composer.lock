@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d96191dedacbf91388dbeda5589b28bb",
+    "content-hash": "68c493d65ce03bb69e1bc102432bd077",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -1226,6 +1226,36 @@
                 }
             },
             "description": "IIIF Collection management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/image-animate",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-image-animate",
+                "reference": "63799e923e7604a43d6fbee177140742184425f4"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgImageAnimate\\Providers\\AhgImageAnimateServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgImageAnimate\\": "src/"
+                }
+            },
+            "description": "Ken Burns / 2.5D image animation for Heratio — turns flat 2D images into MP4 motion clips",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -11544,6 +11574,7 @@
         "ahg/heritage-manage": 20,
         "ahg/icip": 20,
         "ahg/iiif-collection": 20,
+        "ahg/image-animate": 20,
         "ahg/information-object-manage": 20,
         "ahg/ingest": 20,
         "ahg/integrity": 20,

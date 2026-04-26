@@ -62,6 +62,7 @@
         "ahg/heritage-manage": "@dev",
         "ahg/icip": "@dev",
         "ahg/iiif-collection": "@dev",
+        "ahg/image-animate": "@dev",
         "ahg/information-object-manage": "@dev",
         "ahg/ingest": "@dev",
         "ahg/integrity": "@dev",

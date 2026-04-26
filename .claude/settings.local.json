@@ -400,7 +400,9 @@
       "Bash(ip addr *)",
       "Bash(ip route *)",
       "Bash(file /tmp/heratio-triposr/*.glb)",
-      "Bash(xxd -l 32 /tmp/heratio-triposr/triposr_da48c2a13883.glb)"
+      "Bash(xxd -l 32 /tmp/heratio-triposr/triposr_da48c2a13883.glb)",
+      "Bash(COMPOSER_ALLOW_SUPERUSER=1 composer update ahg/image-animate --no-interaction)",
+      "Bash(ffprobe -v error -show_entries stream=codec_name,width,height,duration,nb_frames -of default=nw=1 /mnt/nas/heratio/archive/animations/912621/master_Gallery_Item_26_ken_burns_diagonal.mp4)"
     ]
   }
 }

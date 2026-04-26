@@ -128,6 +128,23 @@
           </a>
         @endif
 
+        {{-- Image animation (Ken Burns / 2.5D) — gated by admin toggle + IO state --}}
+        @if(class_exists(\AhgImageAnimate\Services\KenBurnsService::class)
+            && app(\AhgImageAnimate\Services\KenBurnsService::class)->isEnabled()
+            && \Illuminate\Support\Facades\DB::table('digital_object')
+                  ->where('object_id', $io->id)->where('mime_type', 'like', 'image/%')->exists())
+          @php
+            $existingAnim = \Illuminate\Support\Facades\DB::table('object_image_animation')
+              ->where('object_id', $io->id)->orderByDesc('id')->first(['id']);
+          @endphp
+          <form action="{{ route('image-animate.generate', ['ioId' => $io->id]) }}" method="POST"
+                onsubmit="return confirm('Generate a Ken Burns animation from this object\'s image?\n\nRuns ffmpeg locally — typically 5–15 seconds.');">
+            @csrf
+            <button type="submit" class="list-group-item list-group-item-action small border-0 text-start w-100">
+              <i class="fas fa-film me-1"></i> {{ $existingAnim ? __('Regenerate animation') : __('Animate image') }}
+            </button>
+          </form>
+        @endif
       </div>
     </div>
     @endif {{-- end AI Tools package check --}}
@@ -1104,6 +1121,47 @@
       </div>
     </div>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+  @endif
+
+  {{-- Animated companion clip (Ken Burns / 2.5D) ------------------------------ --}}
+  @php
+    $companionAnim = null;
+    try {
+      $companionAnim = \Illuminate\Support\Facades\DB::table('object_image_animation')
+        ->where('object_id', $io->id)
+        ->orderByDesc('id')
+        ->first();
+    } catch (\Throwable $e) { /* table may not exist yet */ }
+  @endphp
+  @if($companionAnim)
+    <div class="card mb-3 border-info">
+      <div class="card-header bg-info bg-opacity-10 fw-bold d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-film me-1 text-info"></i> {{ __('Animated preview') }}</span>
+        <span class="badge bg-warning text-dark"><i class="fas fa-flask me-1"></i>{{ __('Auto-generated, non-authoritative') }}</span>
+      </div>
+      <div class="card-body text-center">
+        <video src="{{ $companionAnim->file_path }}"
+               autoplay muted loop playsinline controls
+               style="max-width:100%;max-height:420px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+        </video>
+        <div class="small text-muted mt-2">
+          <i class="fas fa-video me-1"></i>{{ __('Motion') }}: <code>{{ $companionAnim->motion }}</code>
+          &middot; {{ $companionAnim->duration_secs }}s @ {{ $companionAnim->fps }}fps
+          &middot; {{ $companionAnim->width }}×{{ $companionAnim->height }}
+          &middot; {{ number_format(($companionAnim->file_size ?? 0) / 1024, 0) }} KB
+          @auth
+            &middot;
+            <form action="{{ route('image-animate.delete', ['id' => $companionAnim->id]) }}" method="POST" class="d-inline"
+                  onsubmit="return confirm('Delete this animation?');">
+              @csrf
+              <button type="submit" class="btn btn-link btn-sm p-0 text-danger align-baseline">
+                <i class="fas fa-trash-alt"></i> {{ __('Delete') }}
+              </button>
+            </form>
+          @endauth
+        </div>
+      </div>
+    </div>
   @endif
 
   @if(session('ric_view_mode') === 'ric')
