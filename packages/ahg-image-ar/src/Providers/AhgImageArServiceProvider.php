@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AhgImageAnimateServiceProvider — Heratio
+ * AhgImageArServiceProvider — Heratio
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
@@ -15,15 +15,15 @@
  * (at your option) any later version.
  */
 
-namespace AhgImageAnimate\Providers;
+namespace AhgImageAr\Providers;
 
-use AhgImageAnimate\Services\KenBurnsService;
+use AhgImageAr\Services\KenBurnsService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
-class AhgImageAnimateServiceProvider extends ServiceProvider
+class AhgImageArServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
@@ -33,32 +33,26 @@ class AhgImageAnimateServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Route::middleware('web')->group(__DIR__ . '/../../routes/web.php');
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-image-animate');
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-image-ar');
 
         $this->commands([
-            \AhgImageAnimate\Commands\ImageAnimateCommand::class,
+            \AhgImageAr\Commands\ImageArCommand::class,
         ]);
 
         $this->ensureInstalled();
     }
 
-    /**
-     * One-shot install + seed on first boot. Idempotent — uses CREATE TABLE
-     * IF NOT EXISTS and INSERT IGNORE so it's safe to run on every request.
-     */
     protected function ensureInstalled(): void
     {
         try {
-            if (!Schema::hasTable('image_animate_settings') || !Schema::hasTable('object_image_animation')) {
+            if (!Schema::hasTable('image_ar_settings') || !Schema::hasTable('object_image_ar')) {
                 DB::unprepared(file_get_contents(__DIR__ . '/../../database/install.sql'));
             }
-            $count = DB::table('image_animate_settings')->count();
-            if ($count === 0) {
+            if (DB::table('image_ar_settings')->count() === 0) {
                 DB::unprepared(file_get_contents(__DIR__ . '/../../database/seed_settings.sql'));
             }
         } catch (\Throwable $e) {
-            // Don't break the request; surface via logs instead.
-            \Log::warning('[ahg-image-animate] install/seed failed: ' . $e->getMessage());
+            \Log::warning('[ahg-image-ar] install/seed failed: ' . $e->getMessage());
         }
     }
 }

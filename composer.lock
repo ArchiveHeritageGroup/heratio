@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "68c493d65ce03bb69e1bc102432bd077",
+    "content-hash": "ef54c30f6b2e3cb24b2b33d99aac2f2d",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -1232,12 +1232,12 @@
             }
         },
         {
-            "name": "ahg/image-animate",
+            "name": "ahg/image-ar",
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "packages/ahg-image-animate",
-                "reference": "63799e923e7604a43d6fbee177140742184425f4"
+                "url": "packages/ahg-image-ar",
+                "reference": "d5dbdf0ba249f5842f94d1f6e8ce856fc43b268c"
             },
             "require": {
                 "ahg/core": "@dev"
@@ -1246,16 +1246,16 @@
             "extra": {
                 "laravel": {
                     "providers": [
-                        "AhgImageAnimate\\Providers\\AhgImageAnimateServiceProvider"
+                        "AhgImageAr\\Providers\\AhgImageArServiceProvider"
                     ]
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "AhgImageAnimate\\": "src/"
+                    "AhgImageAr\\": "src/"
                 }
             },
-            "description": "Ken Burns / 2.5D image animation for Heratio — turns flat 2D images into MP4 motion clips",
+            "description": "Browser-based AR overlay for Heratio — turns a flat 2D image into an image-target that triggers a Ken Burns MP4 overlay when scanned with a phone camera (MindAR + A-Frame). Artivive-style, zero-install.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -11574,7 +11574,7 @@
         "ahg/heritage-manage": 20,
         "ahg/icip": 20,
         "ahg/iiif-collection": 20,
-        "ahg/image-animate": 20,
+        "ahg/image-ar": 20,
         "ahg/information-object-manage": 20,
         "ahg/ingest": 20,
         "ahg/integrity": 20,

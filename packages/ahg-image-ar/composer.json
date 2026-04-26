@@ -1,0 +1,20 @@
+{
+    "name": "ahg/image-ar",
+    "description": "Browser-based AR overlay for Heratio — turns a flat 2D image into an image-target that triggers a Ken Burns MP4 overlay when scanned with a phone camera (MindAR + A-Frame). Artivive-style, zero-install.",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgImageAr\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgImageAr\\Providers\\AhgImageArServiceProvider"
+            ]
+        }
+    }
+}

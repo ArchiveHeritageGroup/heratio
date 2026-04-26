@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ImageAnimateController — Heratio
+ * ImageArController — Heratio
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
@@ -15,24 +15,24 @@
  * (at your option) any later version.
  */
 
-namespace AhgImageAnimate\Controllers;
+namespace AhgImageAr\Controllers;
 
-use AhgImageAnimate\Services\KenBurnsService;
+use AhgImageAr\Services\KenBurnsService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class ImageAnimateController extends Controller
+class ImageArController extends Controller
 {
     public function __construct(private KenBurnsService $kb)
     {
     }
 
     /**
-     * POST /image-animate/generate/{ioId}
-     * User-triggered render. Always replaces any existing animation for the IO.
+     * POST /image-ar/generate/{ioId}
+     * Render a Ken Burns MP4 from the IO's master image. Atomic replace.
      */
     public function userGenerate(Request $request, int $ioId)
     {
@@ -57,107 +57,96 @@ class ImageAnimateController extends Controller
             $opts['motion'] = (string) $request->input('motion');
         }
 
-        // Write under {storage_path}/uploads/animations/<ioId>/ — that root is
-        // www-data-writable (the archive dirs are root-owned and would 403),
-        // and the existing nginx /uploads/ alias maps straight to it.
         $storage = rtrim((string) config('heratio.storage_path', ''), '/');
         $stem = pathinfo($sourceDo->name, PATHINFO_FILENAME);
-        $filename = 'kenburns_' . $stem . '_' . $opts['motion'] . '_' . substr((string) time(), -6) . '.mp4';
-        $absPath = $storage . '/uploads/animations/' . $ioId . '/' . $filename;
-        $webPath = '/uploads/animations/' . $ioId . '/' . $filename;
+        $stamp = substr((string) time(), -6);
+        $mp4Filename = 'kenburns_' . $stem . '_' . $opts['motion'] . '_' . $stamp . '.mp4';
+        $mp4Abs = $storage . '/uploads/ar/' . $ioId . '/' . $mp4Filename;
+        $mp4Web = '/uploads/ar/' . $ioId . '/' . $mp4Filename;
 
         try {
-            $stats = $this->kb->render($sourcePath, $absPath, $opts);
+            $kbStats = $this->kb->render($sourcePath, $mp4Abs, $opts);
         } catch (\Throwable $e) {
-            Log::error('[image-animate] render failed', ['io' => $ioId, 'err' => $e->getMessage()]);
+            Log::error('[image-ar] mp4 render failed', ['io' => $ioId, 'err' => $e->getMessage()]);
             session()->flash('error', __('Animation failed: ') . $e->getMessage());
             return redirect()->back();
         }
 
-        // Replace any existing row for this IO (and remove the old MP4).
-        $existing = DB::table('object_image_animation')->where('object_id', $ioId)->first(['id', 'file_path']);
+        // Replace any existing row + delete its old file.
+        $existing = DB::table('object_image_ar')->where('object_id', $ioId)->first();
         if ($existing) {
-            $oldAbs = $base . '/' . ltrim(preg_replace('#^/uploads/#', '', (string) $existing->file_path), '/');
-            if ($oldAbs !== $absPath && is_file($oldAbs)) {
-                @unlink($oldAbs);
-            }
-            DB::table('object_image_animation')->where('id', $existing->id)->delete();
+            $this->unlinkWeb($existing->mp4_path, $storage, $mp4Abs);
+            $this->unlinkWeb($existing->mind_path, $storage); // legacy AR tracker, may be present
+            DB::table('object_image_ar')->where('id', $existing->id)->delete();
         }
 
-        DB::table('object_image_animation')->insert([
+        DB::table('object_image_ar')->insert([
             'object_id' => $ioId,
             'digital_object_id' => $sourceDo->id,
-            'filename' => $filename,
-            'file_path' => $webPath,
-            'file_size' => $stats['size'],
-            'mime_type' => 'video/mp4',
-            'mode' => 'kenburns',
-            'motion' => $stats['motion'],
-            'duration_secs' => $opts['duration_secs'],
-            'fps' => $opts['fps'],
-            'width' => $opts['width'],
-            'height' => $opts['height'],
+            'mp4_filename' => $mp4Filename,
+            'mp4_path' => $mp4Web,
+            'mp4_size' => $kbStats['size'],
+            'mp4_motion' => $kbStats['motion'],
+            'mp4_duration_secs' => $opts['duration_secs'],
             'created_by' => Auth::id(),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        session()->flash('notice', __('Animation generated.'));
+        session()->flash('notice', sprintf(
+            __('Animation generated — %d KB.'),
+            (int) ($kbStats['size'] / 1024)
+        ));
         return redirect()->back();
     }
 
     /**
-     * POST /image-animate/{id}/delete
+     * POST /image-ar/{id}/delete
      */
     public function delete(Request $request, int $id)
     {
-        $row = DB::table('object_image_animation')->where('id', $id)->first(['id', 'file_path', 'object_id']);
+        $row = DB::table('object_image_ar')->where('id', $id)->first();
         if (!$row) {
             session()->flash('error', __('Animation not found.'));
             return redirect()->back();
         }
-        $base = rtrim((string) config('heratio.uploads_path', ''), '/');
-        $abs = $base . '/' . ltrim(preg_replace('#^/uploads/#', '', (string) $row->file_path), '/');
-        if (is_file($abs)) {
-            @unlink($abs);
-        }
-        DB::table('object_image_animation')->where('id', $id)->delete();
+        $storage = rtrim((string) config('heratio.storage_path', ''), '/');
+        $this->unlinkWeb($row->mp4_path, $storage);
+        $this->unlinkWeb($row->mind_path, $storage);
+        DB::table('object_image_ar')->where('id', $id)->delete();
         session()->flash('notice', __('Animation removed.'));
         return redirect()->back();
     }
 
     /**
-     * GET/POST /admin/image-animate/settings
+     * GET/POST /admin/image-ar/settings
      */
     public function settings(Request $request)
     {
         if ($request->isMethod('post')) {
             $allowed = [
-                'animate_enabled', 'animate_user_button',
-                'animate_default_motion', 'animate_duration_secs',
-                'animate_fps', 'animate_width', 'animate_height', 'animate_zoom_strength',
+                'ar_enabled', 'ar_user_button',
+                'ar_default_motion', 'ar_duration_secs',
+                'ar_fps', 'ar_width', 'ar_height', 'ar_zoom_strength',
             ];
             foreach ($allowed as $key) {
-                if (!$request->has($key) && !str_starts_with($key, 'animate_enabled') && !str_starts_with($key, 'animate_user_button')) {
-                    continue;
-                }
                 $value = (string) ($request->input($key) ?? '0');
-                DB::table('image_animate_settings')->updateOrInsert(
+                DB::table('image_ar_settings')->updateOrInsert(
                     ['setting_key' => $key],
                     ['setting_value' => $value, 'updated_at' => now()]
                 );
             }
             session()->flash('success', __('Settings saved.'));
-            return redirect()->route('admin.image-animate.settings');
+            return redirect()->route('admin.image-ar.settings');
         }
 
-        $settings = DB::table('image_animate_settings')->get()->keyBy('setting_key');
+        $settings = DB::table('image_ar_settings')->get()->keyBy('setting_key');
         $stats = [
-            'total' => DB::table('object_image_animation')->count(),
-            'recent' => DB::table('object_image_animation')->orderByDesc('id')->limit(5)
-                ->get(['id', 'object_id', 'motion', 'duration_secs', 'file_size', 'created_at']),
+            'total' => DB::table('object_image_ar')->count(),
+            'recent' => DB::table('object_image_ar')->orderByDesc('id')->limit(5)
+                ->get(['id', 'object_id', 'mp4_motion', 'mp4_size', 'mp4_duration_secs', 'created_at']),
         ];
-        return view('ahg-image-animate::settings', compact('settings', 'stats'));
+        return view('ahg-image-ar::settings', compact('settings', 'stats'));
     }
 
     /**
@@ -174,7 +163,6 @@ class ImageAnimateController extends Controller
         if (!$do) {
             return [null, null];
         }
-
         $base = rtrim((string) config('heratio.uploads_path', ''), '/');
         $rel = preg_replace('#^/uploads/r?/?#', '', (string) $do->path);
         $abs = $base . '/' . trim($rel, '/') . '/' . $do->name;
@@ -182,5 +170,19 @@ class ImageAnimateController extends Controller
             $abs = $base . '/' . $ioId . '/' . $do->name;
         }
         return [is_file($abs) ? $abs : null, $do];
+    }
+
+    protected function unlinkWeb(?string $webPath, string $storage, ?string $skipAbs = null): void
+    {
+        if (!$webPath) {
+            return;
+        }
+        $abs = $storage . '/' . ltrim(preg_replace('#^/uploads/#', 'uploads/', $webPath), '/');
+        if ($abs === $skipAbs) {
+            return;
+        }
+        if (is_file($abs)) {
+            @unlink($abs);
+        }
     }
 }

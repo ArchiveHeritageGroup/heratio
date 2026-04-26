@@ -407,7 +407,17 @@
       "Bash(rm -f /mnt/nas/heratio/archive/912621/kenburns_*.mp4)",
       "Bash(rm -rf /mnt/nas/heratio/uploads/animations)",
       "Bash(mkdir -p /mnt/nas/heratio/uploads/animations)",
-      "Bash(sudo -u www-data php /usr/share/nginx/heratio/artisan ahg:image-animate --object-id=912621 --duration=4 --motion=zoom_in --force)"
+      "Bash(sudo -u www-data php /usr/share/nginx/heratio/artisan ahg:image-animate --object-id=912621 --duration=4 --motion=zoom_in --force)",
+      "Bash(npm init *)",
+      "Bash(COMPOSER_ALLOW_SUPERUSER=1 composer update ahg/image-ar ahg/image-animate --no-interaction)",
+      "Bash(sudo -u www-data php /usr/share/nginx/heratio/artisan ahg:image-ar --object-id=912621 --motion=ken_burns_diagonal --duration=4 --force)",
+      "Bash(sudo -u www-data node compile.mjs /mnt/nas/heratio/uploads/r/912621/master_Gallery_Item_26.png /tmp/diag.mind)",
+      "Bash(/usr/bin/node --version)",
+      "Bash(rm -f /mnt/nas/heratio/uploads/ar/912621/*)",
+      "Bash(sudo -u www-data sh -c '/usr/local/bin/node compile.mjs /mnt/nas/heratio/uploads/r/912621/master_Gallery_Item_26.png /tmp/diag.mind')",
+      "Bash(rm -rf /mnt/nas/heratio/uploads/ar/912621/*)",
+      "Bash(sudo -u www-data php /usr/share/nginx/heratio/artisan ahg:image-ar --object-id=912621 --motion=zoom_in --duration=4 --force)",
+      "Bash(xargs -I {} curl -sLo /dev/null -w \"MP4: HTTP %{http_code} size=%{size_download} type=%{content_type}\\\\n\" \"http://heratio.theahg.co.za{}\")"
     ]
   }
 }
