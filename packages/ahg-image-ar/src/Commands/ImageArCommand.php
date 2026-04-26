@@ -7,17 +7,12 @@
  * Plain Sailing Information Systems
  * Email: johan@plainsailingisystems.co.za
  *
- * This file is part of Heratio.
- *
- * Heratio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * AGPL-3.0-or-later. See LICENSE.
  */
 
 namespace AhgImageAr\Commands;
 
-use AhgImageAr\Services\KenBurnsService;
+use AhgImageAr\Services\AnimationService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -25,20 +20,32 @@ class ImageArCommand extends Command
 {
     protected $signature = 'ahg:image-ar
         {--object-id= : information_object.id}
-        {--motion=zoom_in : Ken Burns motion preset}
-        {--duration=5}
-        {--fps=25}
-        {--width=1280} {--height=720}
-        {--zoom=1.30}
-        {--force : Re-render even if an animation already exists}';
+        {--prompt= : Text prompt (ignored by SVD; used by CogVideoX/WAN)}
+        {--model= : Override default model (svd, svd-xt, cogvideox-2b, wan-2.1)}
+        {--frames= : Override default num_frames}
+        {--fps= : Override default fps}
+        {--motion= : Override default motion_bucket_id (1..255, SVD-only)}
+        {--seed=0 : Random by default; >0 = deterministic}
+        {--force : Re-render even if an animation already exists}
+        {--health : Just print the AI server health and exit}';
 
-    protected $description = 'Render a Ken Burns MP4 animation for an information object';
+    protected $description = 'Generate an AI image-to-video clip via the video-server (SVD on 8 GB; CogVideoX / WAN on 24 GB)';
 
-    public function handle(KenBurnsService $kb): int
+    public function handle(AnimationService $ai): int
     {
+        if ($this->option('health')) {
+            $h = $ai->health();
+            if (!$h) {
+                $this->error('AI server unreachable.');
+                return 1;
+            }
+            $this->line(json_encode($h, JSON_PRETTY_PRINT));
+            return 0;
+        }
+
         $ioId = (int) $this->option('object-id');
         if (!$ioId) {
-            $this->error('Provide --object-id.');
+            $this->error('Provide --object-id (or use --health).');
             return 1;
         }
 
@@ -70,54 +77,57 @@ class ImageArCommand extends Command
             return 1;
         }
 
-        $opts = [
-            'motion' => $this->option('motion'),
-            'duration_secs' => (float) $this->option('duration'),
-            'fps' => (int) $this->option('fps'),
-            'width' => (int) $this->option('width'),
-            'height' => (int) $this->option('height'),
-            'zoom_strength' => (float) $this->option('zoom'),
-        ];
+        $opts = $ai->defaults();
+        foreach (['prompt' => 'prompt', 'model' => 'model',
+                  'num_frames' => 'frames', 'fps' => 'fps',
+                  'motion_bucket_id' => 'motion', 'seed' => 'seed'] as $optKey => $cliKey) {
+            $val = $this->option($cliKey);
+            if ($val !== null && $val !== '') {
+                $opts[$optKey] = $val;
+            }
+        }
 
         $storage = rtrim((string) config('heratio.storage_path', ''), '/');
         $stem = pathinfo($do->name, PATHINFO_FILENAME);
         $stamp = substr((string) time(), -6);
-        $mp4Filename = 'kenburns_' . $stem . '_' . $opts['motion'] . '_' . $stamp . '.mp4';
+        $modelTag = preg_replace('/[^a-z0-9]+/i', '', (string) $opts['model']) ?: 'ai';
+        $mp4Filename = $modelTag . '_' . $stem . '_' . $stamp . '.mp4';
         $mp4Abs = $storage . '/uploads/ar/' . $ioId . '/' . $mp4Filename;
         $mp4Web = '/uploads/ar/' . $ioId . '/' . $mp4Filename;
 
-        $this->info("Rendering MP4 ({$opts['motion']}, {$opts['duration_secs']}s @ {$opts['fps']}fps)…");
-        $kbStats = $kb->render($sourcePath, $mp4Abs, $opts);
-        $this->info(sprintf('  → %d KB', (int) ($kbStats['size'] / 1024)));
+        $this->info(sprintf(
+            "Sending to AI server (%s, model=%s, %d frames @ %d fps, motion=%d)…\nThis can take 3–8 minutes on the 8 GB card.",
+            $opts['server_url'], $opts['model'], $opts['num_frames'], $opts['fps'], $opts['motion_bucket_id']
+        ));
 
-        // Replace existing row + remove its old files.
-        $existing = DB::table('object_image_ar')->where('object_id', $ioId)->first();
-        if ($existing) {
-            foreach ([$existing->mp4_path, $existing->mind_path] as $oldWeb) {
-                if (!$oldWeb) {
-                    continue;
-                }
-                $oldAbs = $storage . '/' . ltrim(preg_replace('#^/uploads/#', 'uploads/', $oldWeb), '/');
-                if (is_file($oldAbs) && $oldAbs !== $mp4Abs) {
-                    @unlink($oldAbs);
-                }
-            }
-            DB::table('object_image_ar')->where('id', $existing->id)->delete();
+        try {
+            $stats = $ai->generate($sourcePath, $mp4Abs, $opts);
+        } catch (\Throwable $e) {
+            $this->error('Generation failed: ' . $e->getMessage());
+            return 1;
         }
 
+        $duration = $stats['fps'] > 0 ? round($stats['frames'] / $stats['fps'], 2) : null;
+        DB::table('object_image_ar')->where('object_id', $ioId)->delete();
         DB::table('object_image_ar')->insert([
             'object_id' => $ioId,
             'digital_object_id' => $do->id,
             'mp4_filename' => $mp4Filename,
             'mp4_path' => $mp4Web,
-            'mp4_size' => $kbStats['size'],
-            'mp4_motion' => $kbStats['motion'],
-            'mp4_duration_secs' => $opts['duration_secs'],
+            'mp4_size' => $stats['size'],
+            'mp4_duration_secs' => $duration,
+            'mp4_fps' => $stats['fps'],
+            'mp4_motion' => 'ai-' . $stats['model'],
+            'ai_model' => $stats['model'],
+            'ai_prompt' => $stats['prompt'],
+            'ai_seed' => $stats['seed'],
+            'ai_motion_bucket_id' => $stats['motion_bucket_id'],
+            'generation_secs' => $stats['generation_secs'],
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        $this->info("Animation ready — {$mp4Web}");
+        $this->info(sprintf('Done — %d KB in %.0f s at %s', (int) ($stats['size'] / 1024), $stats['generation_secs'], $mp4Web));
         return 0;
     }
 }

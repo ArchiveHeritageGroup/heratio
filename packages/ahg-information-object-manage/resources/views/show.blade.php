@@ -128,22 +128,46 @@
           </a>
         @endif
 
-        {{-- Image animation (Ken Burns MP4) — gated by admin toggle + IO state --}}
-        @if(class_exists(\AhgImageAr\Services\KenBurnsService::class)
-            && app(\AhgImageAr\Services\KenBurnsService::class)->isEnabled()
+        {{-- AI image-to-video (SVD on 8 GB; CogVideoX/WAN on 24 GB) ----------- --}}
+        @if(class_exists(\AhgImageAr\Services\AnimationService::class)
+            && app(\AhgImageAr\Services\AnimationService::class)->isEnabled()
             && \Illuminate\Support\Facades\DB::table('digital_object')
                   ->where('object_id', $io->id)->where('mime_type', 'like', 'image/%')->exists())
           @php
             $existingAnim = \Illuminate\Support\Facades\DB::table('object_image_ar')
               ->where('object_id', $io->id)->first(['id']);
+            $aiDefaults = app(\AhgImageAr\Services\AnimationService::class)->defaults();
           @endphp
-          <form action="{{ route('image-ar.generate', ['ioId' => $io->id]) }}" method="POST"
-                onsubmit="return confirm('Generate a Ken Burns animation from this object\'s image?\n\nRuns ffmpeg locally — typically 5–15 seconds.');">
-            @csrf
-            <button type="submit" class="list-group-item list-group-item-action small border-0 text-start w-100">
-              <i class="fas fa-film me-1"></i> {{ $existingAnim ? __('Regenerate animation') : __('Animate image') }}
-            </button>
-          </form>
+          <a class="list-group-item list-group-item-action small d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#aiAnimateForm" role="button">
+            <span><i class="fas fa-magic me-1"></i> {{ $existingAnim ? __('Regenerate animation') : __('Animate image (AI)') }}</span>
+            <i class="fas fa-chevron-down small text-muted"></i>
+          </a>
+          <div id="aiAnimateForm" class="collapse">
+            <form action="{{ route('image-ar.generate', ['ioId' => $io->id]) }}" method="POST"
+                  onsubmit="return confirm('Send to AI server ({{ $aiDefaults['server_url'] }})?\n\nModel: {{ $aiDefaults['model'] }}\nFrames: {{ $aiDefaults['num_frames'] }} @ {{ $aiDefaults['fps'] }} fps\n\nOn the 8 GB GPU this can take 3–8 minutes. The page will sit and wait.');"
+                  class="p-2 border-top">
+              @csrf
+              <label class="form-label small mb-1">{{ __('Prompt (optional — used by CogVideoX/WAN, ignored by SVD)') }}</label>
+              <textarea name="prompt" rows="2" class="form-control form-control-sm mb-2"
+                        placeholder="e.g. the elephant walks slowly forward, the egret on its back lifts off and flies right">{{ $aiDefaults['prompt'] }}</textarea>
+              <div class="row g-1 mb-2">
+                <div class="col-6">
+                  <label class="form-label small mb-0">{{ __('Frames') }}</label>
+                  <input type="number" name="num_frames" value="{{ $aiDefaults['num_frames'] }}" min="8" max="25" class="form-control form-control-sm">
+                </div>
+                <div class="col-6">
+                  <label class="form-label small mb-0">{{ __('Motion') }}</label>
+                  <input type="number" name="motion_bucket_id" value="{{ $aiDefaults['motion_bucket_id'] }}" min="1" max="255" class="form-control form-control-sm" title="SVD motion strength 1–255">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-sm btn-primary w-100">
+                <i class="fas fa-play me-1"></i>{{ __('Generate') }}
+              </button>
+              <div class="form-text small mt-1">
+                <i class="fas fa-info-circle me-1"></i>{{ __('Model:') }} <code>{{ $aiDefaults['model'] }}</code>
+              </div>
+            </form>
+          </div>
         @endif
       </div>
     </div>
@@ -261,6 +285,11 @@
     @if($io->identifier){{ $io->identifier }} - @endif
     {{ $io->title ?: '[Untitled]' }}
   </h1>
+
+  {{-- OCAP® overlay badges (rendered only if overlay enabled and the IO has ICIP signal) --}}
+  @if(view()->exists('icip::partials.ocap-badges'))
+    @include('icip::partials.ocap-badges', ['ioId' => $io->id])
+  @endif
 
   {{-- Breadcrumb trail --}}
   @if($io->parent_id != 1 && !empty($breadcrumbs))
@@ -739,7 +768,7 @@
         </script>
 
       @elseif($refUrl || $thumbUrl)
-        {{-- Image: OpenSeadragon + Mirador viewer (matching AtoM) --}}
+        {{-- Image: OpenSeadragon + Mirador + Carousel viewer (matching AtoM) --}}
         @php
           $viewerId = 'iiif-viewer-' . $io->id;
           $imgSrc = $masterUrl ?: $refUrl;
@@ -753,8 +782,53 @@
               } catch (\Throwable $e) { $__vSettings = []; }
           }
           $vType = $__vSettings['viewer_type'] ?? 'openseadragon';
+          // Per-IO override: ?viewer=carousel|single|mirador|openseadragon
+          $__viewerOverride = request()->query('viewer');
+          if (in_array($__viewerOverride, ['carousel', 'single', 'mirador', 'openseadragon'], true)) {
+              $vType = $__viewerOverride;
+          }
           $vHeight = $__vSettings['viewer_height'] ?? '500px';
           $vBg = $__vSettings['background_color'] ?? '#1a1a1a';
+          $vAutoplay = (string)($__vSettings['carousel_autoplay'] ?? '1') === '1';
+          $vInterval = (int)($__vSettings['carousel_interval'] ?? 5000);
+          $vShowThumbs = (string)($__vSettings['carousel_show_thumbnails'] ?? '1') === '1';
+          $vShowControls = (string)($__vSettings['carousel_show_controls'] ?? '1') === '1';
+
+          // Carousel slides: this IO + direct children that have a reference/thumbnail digital object
+          $carouselSlides = [];
+          if ($vType === 'carousel') {
+              $carouselSlides[] = [
+                  'src'   => $refUrl ?: $thumbUrl,
+                  'href'  => url('/' . ($io->slug ?? 'informationobject/' . $io->id)),
+                  'title' => $io->title ?? '',
+                  'id'    => $io->id,
+              ];
+              try {
+                  $childIds = \DB::table('information_object')
+                      ->where('parent_id', $io->id)
+                      ->orderBy('lft')
+                      ->limit(40)
+                      ->pluck('id')->all();
+                  foreach ($childIds as $cid) {
+                      $childDOs = \AhgCore\Services\DigitalObjectService::getForObject($cid);
+                      $childUrl = \AhgCore\Services\DigitalObjectService::getDisplayUrl($childDOs)
+                          ?: \AhgCore\Services\DigitalObjectService::getThumbnailUrl($childDOs);
+                      if (!$childUrl) continue;
+                      $childRow = \DB::table('information_object as io')
+                          ->leftJoin('information_object_i18n as i', function($j){ $j->on('i.id','=','io.id')->where('i.culture','en'); })
+                          ->where('io.id', $cid)
+                          ->select('io.id','io.slug','i.title')
+                          ->first();
+                      $carouselSlides[] = [
+                          'src'   => $childUrl,
+                          'href'  => url('/' . ($childRow->slug ?? 'informationobject/' . $cid)),
+                          'title' => $childRow->title ?? '',
+                          'id'    => $cid,
+                      ];
+                      if (count($carouselSlides) >= 20) break;
+                  }
+              } catch (\Throwable $e) { /* keep just the parent slide */ }
+          }
         @endphp
 
         {{-- Viewer toggle --}}
@@ -787,17 +861,63 @@
         <div id="mirador-{{ $viewerId }}" style="width:100%;height:{{ $vHeight }};border-radius:8px;{{ $vType !== 'mirador' ? 'display:none;' : '' }}"></div>
 
         {{-- Simple image --}}
-        <div id="img-{{ $viewerId }}" style="{{ !in_array($vType, ['single', 'carousel']) ? 'display:none;' : '' }}" class="text-center">
+        <div id="img-{{ $viewerId }}" style="{{ $vType !== 'single' ? 'display:none;' : '' }}" class="text-center">
           <a href="{{ $imgSrc }}" target="_blank">
             <img src="{{ $refUrl ?: $thumbUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:{{ $vHeight }};">
           </a>
         </div>
 
+        {{-- Bootstrap 5 carousel (wired to iiif_viewer_settings: carousel_autoplay / carousel_interval / carousel_show_thumbnails / carousel_show_controls) --}}
+        @if($vType === 'carousel')
+          <div id="carousel-{{ $viewerId }}" class="carousel slide{{ $vAutoplay ? ' carousel-fade' : '' }}"
+               style="background:{{ $vBg }};border-radius:8px;"
+               data-bs-ride="{{ $vAutoplay ? 'carousel' : 'false' }}"
+               data-bs-interval="{{ $vAutoplay ? $vInterval : 'false' }}"
+               data-bs-pause="hover">
+            @if($vShowThumbs && count($carouselSlides) > 1)
+              <div class="carousel-indicators" style="position:relative;margin:0;padding:.5rem;background:rgba(0,0,0,.6);bottom:auto;">
+                @foreach($carouselSlides as $i => $s)
+                  <button type="button" data-bs-target="#carousel-{{ $viewerId }}" data-bs-slide-to="{{ $i }}"
+                          class="{{ $i === 0 ? 'active' : '' }}"
+                          style="width:auto;height:auto;background:none;border:2px solid {{ $i === 0 ? '#fff' : 'transparent' }};border-radius:4px;margin:2px;text-indent:0;opacity:1;"
+                          aria-label="Slide {{ $i + 1 }}">
+                    <img src="{{ $s['src'] }}" alt="" style="height:48px;width:auto;display:block;border-radius:2px;">
+                  </button>
+                @endforeach
+              </div>
+            @endif
+            <div class="carousel-inner" style="border-radius:8px;">
+              @foreach($carouselSlides as $i => $s)
+                <div class="carousel-item {{ $i === 0 ? 'active' : '' }}" style="text-align:center;">
+                  <a href="{{ $s['href'] }}">
+                    <img src="{{ $s['src'] }}" alt="{{ $s['title'] }}" class="d-block mx-auto" style="max-height:{{ $vHeight }};max-width:100%;object-fit:contain;">
+                  </a>
+                  @if(!empty($s['title']))
+                    <div class="carousel-caption d-none d-md-block" style="background:rgba(0,0,0,.55);border-radius:4px;padding:.25rem .5rem;bottom:.5rem;left:25%;right:25%;">
+                      <small>{{ $s['title'] }}</small>
+                    </div>
+                  @endif
+                </div>
+              @endforeach
+            </div>
+            @if($vShowControls && count($carouselSlides) > 1)
+              <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ $viewerId }}" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ $viewerId }}" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            @endif
+          </div>
+        @endif
+
         <script src="{{ asset('vendor/ahg-theme-b5/js/vendor/openseadragon.min.js') }}"></script>
         <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js') }}"></script>
         <script nonce="{{ $cspNonce ?? '' }}">
         document.addEventListener('DOMContentLoaded', function() {
-          initIiifViewer('{{ $viewerId }}', '{{ url($imgSrc) }}', '{{ $io->title }}');
+          initIiifViewer('{{ $viewerId }}', '{{ url($imgSrc) }}', '{{ $io->title }}', '{{ $vType }}');
         });
         </script>
       @elseif(($masterObj->path ?? '') && (str_contains($masterObj->path, 'sketchfab.com') || str_contains($masterObj->path, 'youtube.com') || str_contains($masterObj->path, 'youtu.be') || str_contains($masterObj->path, 'vimeo.com')))
@@ -1091,9 +1211,18 @@
                style="max-width:100%;max-height:420px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2);">
         </video>
         <div class="small text-muted mt-2">
-          <i class="fas fa-video me-1"></i>{{ __('Motion') }}: <code>{{ $companionAnim->mp4_motion }}</code>
-          &middot; {{ $companionAnim->mp4_duration_secs }}s
-          &middot; {{ number_format(($companionAnim->mp4_size ?? 0) / 1024, 0) }} KB
+          @if(!empty($companionAnim->ai_model))
+            <i class="fas fa-brain me-1"></i>{{ $companionAnim->ai_model }}
+            &middot; {{ $companionAnim->mp4_duration_secs }}s @ {{ $companionAnim->mp4_fps }}fps
+            &middot; {{ number_format(($companionAnim->mp4_size ?? 0) / 1024, 0) }} KB
+            @if($companionAnim->generation_secs)
+              &middot; {{ __('Took') }} {{ (int) $companionAnim->generation_secs }}s
+            @endif
+          @else
+            <i class="fas fa-video me-1"></i>{{ $companionAnim->mp4_motion }}
+            &middot; {{ $companionAnim->mp4_duration_secs }}s
+            &middot; {{ number_format(($companionAnim->mp4_size ?? 0) / 1024, 0) }} KB
+          @endif
           @auth
             &middot;
             <form action="{{ route('image-ar.delete', ['id' => $companionAnim->id]) }}" method="POST" class="d-inline"
@@ -1105,6 +1234,9 @@
             </form>
           @endauth
         </div>
+        @if(!empty($companionAnim->ai_prompt))
+          <div class="small text-muted mt-1 fst-italic">"{{ $companionAnim->ai_prompt }}"</div>
+        @endif
       </div>
     </div>
   @endif

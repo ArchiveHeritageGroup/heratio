@@ -7,17 +7,12 @@
  * Plain Sailing Information Systems
  * Email: johan@plainsailingisystems.co.za
  *
- * This file is part of Heratio.
- *
- * Heratio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * AGPL-3.0-or-later. See LICENSE.
  */
 
 namespace AhgImageAr\Controllers;
 
-use AhgImageAr\Services\KenBurnsService;
+use AhgImageAr\Services\AnimationService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -26,17 +21,18 @@ use Illuminate\Support\Facades\Log;
 
 class ImageArController extends Controller
 {
-    public function __construct(private KenBurnsService $kb)
+    public function __construct(private AnimationService $ai)
     {
     }
 
     /**
      * POST /image-ar/generate/{ioId}
-     * Render a Ken Burns MP4 from the IO's master image. Atomic replace.
+     * Send the IO's master image to the AI video server, save the MP4.
+     * Atomic replace of any prior generation.
      */
     public function userGenerate(Request $request, int $ioId)
     {
-        if (!$this->kb->isEnabled()) {
+        if (!$this->ai->isEnabled()) {
             session()->flash('error', __('Image animation is currently disabled by the administrator.'));
             return redirect()->back();
         }
@@ -52,57 +48,67 @@ class ImageArController extends Controller
             return redirect()->back();
         }
 
-        $opts = $this->kb->defaults();
-        if ($request->filled('motion')) {
-            $opts['motion'] = (string) $request->input('motion');
+        // Per-call overrides from the form (prompt, motion_bucket_id, seed).
+        $opts = $this->ai->defaults();
+        foreach (['prompt', 'motion_bucket_id', 'num_frames', 'fps', 'seed', 'model'] as $k) {
+            if ($request->filled($k)) {
+                $opts[$k] = $request->input($k);
+            }
         }
 
         $storage = rtrim((string) config('heratio.storage_path', ''), '/');
         $stem = pathinfo($sourceDo->name, PATHINFO_FILENAME);
         $stamp = substr((string) time(), -6);
-        $mp4Filename = 'kenburns_' . $stem . '_' . $opts['motion'] . '_' . $stamp . '.mp4';
+        $modelTag = preg_replace('/[^a-z0-9]+/i', '', (string) $opts['model']) ?: 'ai';
+        $mp4Filename = $modelTag . '_' . $stem . '_' . $stamp . '.mp4';
         $mp4Abs = $storage . '/uploads/ar/' . $ioId . '/' . $mp4Filename;
         $mp4Web = '/uploads/ar/' . $ioId . '/' . $mp4Filename;
 
         try {
-            $kbStats = $this->kb->render($sourcePath, $mp4Abs, $opts);
+            $stats = $this->ai->generate($sourcePath, $mp4Abs, $opts);
         } catch (\Throwable $e) {
-            Log::error('[image-ar] mp4 render failed', ['io' => $ioId, 'err' => $e->getMessage()]);
+            Log::error('[image-ar] generation failed', ['io' => $ioId, 'err' => $e->getMessage()]);
             session()->flash('error', __('Animation failed: ') . $e->getMessage());
             return redirect()->back();
         }
 
-        // Replace any existing row + delete its old file.
+        // Replace any existing row + delete its old MP4.
         $existing = DB::table('object_image_ar')->where('object_id', $ioId)->first();
         if ($existing) {
             $this->unlinkWeb($existing->mp4_path, $storage, $mp4Abs);
-            $this->unlinkWeb($existing->mind_path, $storage); // legacy AR tracker, may be present
+            $this->unlinkWeb($existing->mind_path ?? null, $storage); // legacy
             DB::table('object_image_ar')->where('id', $existing->id)->delete();
         }
 
+        $duration = $stats['fps'] > 0 ? round($stats['frames'] / $stats['fps'], 2) : null;
         DB::table('object_image_ar')->insert([
             'object_id' => $ioId,
             'digital_object_id' => $sourceDo->id,
             'mp4_filename' => $mp4Filename,
             'mp4_path' => $mp4Web,
-            'mp4_size' => $kbStats['size'],
-            'mp4_motion' => $kbStats['motion'],
-            'mp4_duration_secs' => $opts['duration_secs'],
+            'mp4_size' => $stats['size'],
+            'mp4_duration_secs' => $duration,
+            'mp4_fps' => $stats['fps'],
+            'mp4_motion' => 'ai-' . $stats['model'],
+            'ai_model' => $stats['model'],
+            'ai_prompt' => $stats['prompt'],
+            'ai_seed' => $stats['seed'],
+            'ai_motion_bucket_id' => $stats['motion_bucket_id'],
+            'generation_secs' => $stats['generation_secs'],
             'created_by' => Auth::id(),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
         session()->flash('notice', sprintf(
-            __('Animation generated — %d KB.'),
-            (int) ($kbStats['size'] / 1024)
+            __('Animation generated — %d KB in %.0f s (model %s).'),
+            (int) ($stats['size'] / 1024),
+            $stats['generation_secs'],
+            $stats['model']
         ));
         return redirect()->back();
     }
 
-    /**
-     * POST /image-ar/{id}/delete
-     */
     public function delete(Request $request, int $id)
     {
         $row = DB::table('object_image_ar')->where('id', $id)->first();
@@ -112,7 +118,7 @@ class ImageArController extends Controller
         }
         $storage = rtrim((string) config('heratio.storage_path', ''), '/');
         $this->unlinkWeb($row->mp4_path, $storage);
-        $this->unlinkWeb($row->mind_path, $storage);
+        $this->unlinkWeb($row->mind_path ?? null, $storage);
         DB::table('object_image_ar')->where('id', $id)->delete();
         session()->flash('notice', __('Animation removed.'));
         return redirect()->back();
@@ -126,8 +132,9 @@ class ImageArController extends Controller
         if ($request->isMethod('post')) {
             $allowed = [
                 'ar_enabled', 'ar_user_button',
-                'ar_default_motion', 'ar_duration_secs',
-                'ar_fps', 'ar_width', 'ar_height', 'ar_zoom_strength',
+                'ar_server_url', 'ar_model',
+                'ar_num_frames', 'ar_fps', 'ar_motion_bucket_id',
+                'ar_default_prompt', 'ar_seed', 'ar_request_timeout',
             ];
             foreach ($allowed as $key) {
                 $value = (string) ($request->input($key) ?? '0');
@@ -141,12 +148,13 @@ class ImageArController extends Controller
         }
 
         $settings = DB::table('image_ar_settings')->get()->keyBy('setting_key');
+        $health = $this->ai->health();
         $stats = [
             'total' => DB::table('object_image_ar')->count(),
             'recent' => DB::table('object_image_ar')->orderByDesc('id')->limit(5)
-                ->get(['id', 'object_id', 'mp4_motion', 'mp4_size', 'mp4_duration_secs', 'created_at']),
+                ->get(['id', 'object_id', 'ai_model', 'ai_prompt', 'mp4_size', 'generation_secs', 'created_at']),
         ];
-        return view('ahg-image-ar::settings', compact('settings', 'stats'));
+        return view('ahg-image-ar::settings', compact('settings', 'stats', 'health'));
     }
 
     /**

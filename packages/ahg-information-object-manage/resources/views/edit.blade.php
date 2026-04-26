@@ -25,6 +25,57 @@
 @section('content')
   <h1>Item {{ $io->identifier ? $io->identifier . ' - ' : '' }}{{ $io->title ?? '[Untitled]' }}</h1>
 
+  @php
+    // Form-templates banner: list active templates for information_object so the user can switch
+    // to a template-driven edit. Auto-resolves the same template the dispatcher would pick.
+    $__formTemplates = collect();
+    $__defaultTpl = null;
+    try {
+        if (\Illuminate\Support\Facades\Schema::hasTable('ahg_form_template')) {
+            $__svc = app(\AhgForms\Services\FormService::class);
+            $__formTemplates = $__svc->getActiveTemplates('information_object');
+            $__defaultTpl = $__svc->resolveTemplate('information_object', [
+                'repository_id'           => $io->repository_id ?? null,
+                'level_of_description_id' => $io->level_of_description_id ?? null,
+            ]);
+        }
+    } catch (\Throwable $e) { /* ahg-forms not installed yet */ }
+  @endphp
+  @if($__formTemplates->isNotEmpty())
+    <div class="alert alert-light border d-flex justify-content-between align-items-center mb-3 py-2 px-3">
+      <div>
+        <i class="fas fa-clipboard-list me-2 text-primary"></i>
+        <strong>Form templates available:</strong>
+        @if($__defaultTpl)
+          <a href="{{ url('/forms/edit/information_object/' . $io->id . '/' . $__defaultTpl->id) }}"
+             class="btn btn-sm btn-primary ms-2">
+            Edit with “{{ $__defaultTpl->name }}”
+          </a>
+        @endif
+        @if($__formTemplates->count() > 1)
+          <div class="dropdown d-inline-block ms-1">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+              Other templates
+            </button>
+            <ul class="dropdown-menu">
+              @foreach($__formTemplates as $tpl)
+                @if(!$__defaultTpl || (int)$tpl->id !== (int)$__defaultTpl->id)
+                  <li>
+                    <a class="dropdown-item" href="{{ url('/forms/edit/information_object/' . $io->id . '/' . $tpl->id) }}">
+                      {{ $tpl->name }}
+                      @if($tpl->is_default)<span class="badge bg-success ms-1">default</span>@endif
+                    </a>
+                  </li>
+                @endif
+              @endforeach
+            </ul>
+          </div>
+        @endif
+      </div>
+      <small class="text-muted">Or continue editing with the standard ISAD form below.</small>
+    </div>
+  @endif
+
   @if(session('error'))
     <div class="alert alert-danger">{{ session('error') }}</div>
   @endif

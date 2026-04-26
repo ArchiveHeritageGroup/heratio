@@ -15,8 +15,8 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h1><i class="fas fa-film me-2"></i>Image Animation Settings</h1>
-      <p class="text-muted mb-0">Ken Burns / 2.5D motion clips generated from still images via local ffmpeg. Plays inline on the IO show page.</p>
+      <h1><i class="fas fa-magic me-2"></i>Image Animation Settings</h1>
+      <p class="text-muted mb-0">AI image-to-video. Default: Stable Video Diffusion (works on the 8&nbsp;GB card with CPU offload). Swap to CogVideoX/WAN once the 24&nbsp;GB card is in.</p>
     </div>
   </div>
 
@@ -27,12 +27,46 @@
     </div>
   @endif
 
+  {{-- AI server health -------------------------------------------------- --}}
+  <div class="card mb-3 border-{{ $health ? 'success' : 'danger' }}">
+    <div class="card-header fw-bold">
+      <i class="fas fa-heartbeat me-1"></i>AI server health
+      <span class="badge bg-{{ $health ? 'success' : 'danger' }} float-end">
+        {{ $health ? 'reachable' : 'unreachable' }}
+      </span>
+    </div>
+    <div class="card-body small">
+      @if($health)
+        <div class="row">
+          <div class="col-md-3"><strong>Default model:</strong> <code>{{ $health['default_model'] ?? '—' }}</code></div>
+          <div class="col-md-3"><strong>Loaded:</strong> <code>{{ implode(', ', $health['loaded_models'] ?? []) ?: 'none' }}</code></div>
+          <div class="col-md-3"><strong>CUDA:</strong> {{ ($health['cuda'] ?? false) ? 'yes' : 'no' }}</div>
+          <div class="col-md-3"><strong>Low-VRAM mode:</strong> {{ ($health['low_vram_mode'] ?? false) ? 'yes' : 'no' }}</div>
+        </div>
+        @if(!empty($health['device']))
+          <div class="mt-1">
+            <strong>GPU:</strong> {{ $health['device'] }}
+            @if(!empty($health['vram_total_gb']))
+              &middot; {{ $health['vram_free_gb'] }} GB free / {{ $health['vram_total_gb'] }} GB total
+            @endif
+          </div>
+        @endif
+      @else
+        <div class="text-danger">
+          Could not reach <code>{{ get_ar_setting($settings, 'ar_server_url', 'http://192.168.0.78:5052') }}</code>.<br>
+          Check the server is running: <code>sudo systemctl status heratio-video-server</code> on the AI host.
+          Install steps in <code>packages/ahg-image-ar/tools/video-server/INSTALL.md</code>.
+        </div>
+      @endif
+    </div>
+  </div>
+
   <div class="row mb-4">
     <div class="col-md-3">
       <div class="card text-center">
         <div class="card-body">
           <div class="display-6" style="color:var(--ahg-primary);">{{ number_format($stats['total']) }}</div>
-          <small class="text-muted">Animations built</small>
+          <small class="text-muted">Animations generated</small>
         </div>
       </div>
     </div>
@@ -54,72 +88,92 @@
           <input type="hidden" name="ar_user_button" value="0">
           <input class="form-check-input" type="checkbox" id="ar_user_button" name="ar_user_button" value="1"
                  {{ is_ar_on($settings, 'ar_user_button') ? 'checked' : '' }}>
-          <label class="form-check-label" for="ar_user_button">Show <em>Animate image</em> button on IO show pages</label>
+          <label class="form-check-label" for="ar_user_button">Show <em>Animate image (AI)</em> button on IO show pages</label>
         </div>
       </div>
     </div>
 
     <div class="card mb-3">
-      <div class="card-header fw-bold">Render defaults</div>
+      <div class="card-header fw-bold">AI server</div>
       <div class="card-body">
         <div class="row g-3">
-          <div class="col-md-4">
-            <label class="form-label">Default motion preset</label>
-            <select class="form-select" name="ar_default_motion">
-              @foreach(['zoom_in' => 'Zoom in (centred)',
-                        'zoom_out' => 'Zoom out (centred)',
-                        'pan_lr' => 'Pan left → right',
-                        'pan_rl' => 'Pan right → left',
-                        'ken_burns_diagonal' => 'Diagonal pan + zoom (classic Ken Burns)'] as $k => $label)
-                <option value="{{ $k }}" {{ get_ar_setting($settings, 'ar_default_motion', 'zoom_in') === $k ? 'selected' : '' }}>{{ $label }}</option>
+          <div class="col-md-6">
+            <label class="form-label">Server URL</label>
+            <input type="url" class="form-control" name="ar_server_url"
+                   value="{{ get_ar_setting($settings, 'ar_server_url', 'http://192.168.0.78:5052') }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Model</label>
+            <select class="form-select" name="ar_model">
+              @foreach(['svd' => 'SVD (8 GB OK)',
+                        'svd-xt' => 'SVD-XT (25 frames; tighter on 8 GB)',
+                        'cogvideox-2b' => 'CogVideoX-2B (24 GB; prompt-aware)',
+                        'wan-2.1' => 'WAN 2.1 I2V (24 GB; prompt-aware)'] as $k => $label)
+                <option value="{{ $k }}" {{ get_ar_setting($settings, 'ar_model', 'svd') === $k ? 'selected' : '' }}>{{ $label }}</option>
               @endforeach
             </select>
           </div>
-          <div class="col-md-2">
-            <label class="form-label">Duration (s)</label>
-            <input type="number" step="0.5" min="2" max="20" class="form-control" name="ar_duration_secs"
-                   value="{{ get_ar_setting($settings, 'ar_duration_secs', '5') }}">
-          </div>
-          <div class="col-md-2">
-            <label class="form-label">FPS</label>
-            <input type="number" min="12" max="60" class="form-control" name="ar_fps"
-                   value="{{ get_ar_setting($settings, 'ar_fps', '25') }}">
-          </div>
-          <div class="col-md-2">
-            <label class="form-label">Width</label>
-            <input type="number" min="320" max="3840" class="form-control" name="ar_width"
-                   value="{{ get_ar_setting($settings, 'ar_width', '1280') }}">
-          </div>
-          <div class="col-md-2">
-            <label class="form-label">Height</label>
-            <input type="number" min="240" max="2160" class="form-control" name="ar_height"
-                   value="{{ get_ar_setting($settings, 'ar_height', '720') }}">
-          </div>
           <div class="col-md-3">
-            <label class="form-label">Zoom strength</label>
-            <input type="number" step="0.05" min="1.05" max="2.0" class="form-control" name="ar_zoom_strength"
-                   value="{{ get_ar_setting($settings, 'ar_zoom_strength', '1.30') }}">
+            <label class="form-label">Request timeout (s)</label>
+            <input type="number" class="form-control" min="60" max="3600" name="ar_request_timeout"
+                   value="{{ get_ar_setting($settings, 'ar_request_timeout', '900') }}">
           </div>
         </div>
       </div>
     </div>
 
+    <div class="card mb-3">
+      <div class="card-header fw-bold">Generation defaults</div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-2">
+            <label class="form-label">Frames</label>
+            <input type="number" class="form-control" min="8" max="49" name="ar_num_frames"
+                   value="{{ get_ar_setting($settings, 'ar_num_frames', '14') }}">
+            <div class="form-text">SVD: 14 / 25 · CogVideoX: 49</div>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">FPS</label>
+            <input type="number" class="form-control" min="4" max="30" name="ar_fps"
+                   value="{{ get_ar_setting($settings, 'ar_fps', '7') }}">
+            <div class="form-text">SVD canonical = 7</div>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Motion bucket</label>
+            <input type="number" class="form-control" min="1" max="255" name="ar_motion_bucket_id"
+                   value="{{ get_ar_setting($settings, 'ar_motion_bucket_id', '127') }}">
+            <div class="form-text">SVD only · 1=still · 255=wild</div>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Seed</label>
+            <input type="number" class="form-control" min="0" name="ar_seed"
+                   value="{{ get_ar_setting($settings, 'ar_seed', '0') }}">
+            <div class="form-text">0 = random per call</div>
+          </div>
+          <div class="col-md-12">
+            <label class="form-label">Default prompt (CogVideoX/WAN only — SVD ignores it)</label>
+            <textarea class="form-control" rows="2" name="ar_default_prompt" placeholder="e.g. cinematic, soft motion, painterly camera">{{ get_ar_setting($settings, 'ar_default_prompt', '') }}</textarea>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save settings</button>
   </form>
 
   @if($stats['recent']->count())
-    <h5 class="mt-4">Recent animations</h5>
+    <h5 class="mt-4">Recent generations</h5>
     <table class="table table-sm">
-      <thead><tr><th>#</th><th>IO</th><th>Motion</th><th>Duration</th><th>MP4</th><th>Created</th></tr></thead>
+      <thead><tr><th>#</th><th>IO</th><th>Model</th><th>Prompt</th><th>MP4</th><th>Took</th><th>Created</th></tr></thead>
       <tbody>
         @foreach($stats['recent'] as $r)
           <tr>
             <td>{{ $r->id }}</td>
             <td>{{ $r->object_id }}</td>
-            <td><code>{{ $r->mp4_motion }}</code></td>
-            <td>{{ $r->mp4_duration_secs }}s</td>
+            <td><code>{{ $r->ai_model ?: '—' }}</code></td>
+            <td class="text-truncate small fst-italic" style="max-width:280px;">{{ $r->ai_prompt ?: '(none)' }}</td>
             <td>{{ number_format(($r->mp4_size ?? 0) / 1024, 0) }} KB</td>
+            <td>{{ $r->generation_secs ? (int) $r->generation_secs . 's' : '—' }}</td>
             <td>{{ $r->created_at }}</td>
           </tr>
         @endforeach

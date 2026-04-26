@@ -1,6 +1,7 @@
 <?php
 
 use AhgForms\Controllers\FormsController;
+use AhgForms\Controllers\TemplateEditController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'admin'])->prefix('forms')->group(function () {
@@ -36,4 +37,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin/formTemplates')->group(funct
 Route::middleware('auth')->group(function () {
     Route::post('/api/forms/autosave', [FormsController::class, 'apiAutosave'])->name('forms.api.autosave');
     Route::get('/api/forms/template', [FormsController::class, 'apiGetForm'])->name('forms.api.template');
+});
+
+// Entity edit driven by a form template (dispatcher + renderer + submit)
+Route::middleware(['auth', 'acl:update'])->prefix('forms/edit')->group(function () {
+    Route::get('/{entityType}/{entityId}/{templateId?}', [TemplateEditController::class, 'edit'])
+        ->name('forms.template.edit')
+        ->whereNumber(['entityId', 'templateId'])
+        ->where('entityType', 'information_object|actor|repository|accession');
+
+    Route::post('/{entityType}/{entityId}/submit/{templateId}', [TemplateEditController::class, 'submit'])
+        ->name('forms.template.submit')
+        ->whereNumber(['entityId', 'templateId'])
+        ->where('entityType', 'information_object|actor|repository|accession');
 });

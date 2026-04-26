@@ -1,0 +1,17 @@
+# Pinned for reproducibility — tested on Python 3.10/3.11 with CUDA 12.1.
+fastapi==0.115.4
+uvicorn[standard]==0.32.0
+python-multipart==0.0.17
+Pillow==10.4.0
+
+# Diffusion stack
+torch==2.4.1
+diffusers==0.31.0
+transformers==4.46.2
+accelerate==1.1.1
+safetensors==0.4.5
+
+# SVD's image-to-video pipeline relies on these
+einops==0.8.0
+imageio==2.36.0
+imageio-ffmpeg==0.5.1

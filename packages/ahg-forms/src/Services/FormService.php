@@ -206,6 +206,92 @@ class FormService
         DB::table('ahg_form_assignment')->where('id', $id)->delete();
     }
 
+    /**
+     * Resolve the best-matching template for a form_type given an entity context.
+     *
+     * Order of precedence:
+     *   1. Active assignment whose repository_id / level_of_description_id / collection_id all match → highest priority wins
+     *   2. Active assignment matching any subset of the context (priority order)
+     *   3. is_default=1 active template for this form_type (global fallback)
+     *   4. null (no template — caller should fall back to standard edit)
+     *
+     * @param string $formType   e.g. 'information_object', 'actor', 'accession'
+     * @param array<string,mixed>|null $context  optional: ['repository_id'=>, 'level_of_description_id'=>, 'collection_id'=>]
+     */
+    public function resolveTemplate(string $formType, ?array $context = null): ?object
+    {
+        $ctx = $context ?? [];
+
+        // 1. Try assignments. Higher priority (lower number) wins; ties broken by specificity.
+        $assignments = DB::table('ahg_form_assignment as a')
+            ->join('ahg_form_template as t', 'a.template_id', '=', 't.id')
+            ->where('t.form_type', $formType)
+            ->where('a.is_active', 1)
+            ->where('t.is_active', 1)
+            ->select('a.*', 't.name', 't.config_json', 't.config', 't.descriptive_standard')
+            ->orderBy('a.priority')
+            ->get();
+
+        foreach ($assignments as $a) {
+            $matches = true;
+            if (!empty($a->repository_id) && (int)$a->repository_id !== (int)($ctx['repository_id'] ?? 0)) {
+                $matches = false;
+            }
+            if ($matches && !empty($a->level_of_description_id) && (int)$a->level_of_description_id !== (int)($ctx['level_of_description_id'] ?? 0)) {
+                $matches = false;
+            }
+            if ($matches && !empty($a->collection_id) && (int)$a->collection_id !== (int)($ctx['collection_id'] ?? 0)) {
+                $matches = false;
+            }
+            if ($matches) {
+                return $this->getTemplate((int)$a->template_id);
+            }
+        }
+
+        // 2. Global default
+        $default = DB::table('ahg_form_template')
+            ->where('form_type', $formType)
+            ->where('is_default', 1)
+            ->where('is_active', 1)
+            ->orderByDesc('id')
+            ->first();
+
+        return $default ? $this->getTemplate((int)$default->id) : null;
+    }
+
+    /**
+     * List all active templates for a form_type — used to render a picker on the standard edit page.
+     */
+    public function getActiveTemplates(string $formType): \Illuminate\Support\Collection
+    {
+        return DB::table('ahg_form_template')
+            ->where('form_type', $formType)
+            ->where('is_active', 1)
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->get();
+    }
+
+    /**
+     * Field mappings for a template — keyed by field_id.
+     *
+     * @return array<int,array<int,object>>  map: field_id => list of mapping rows (a field can map to multiple columns)
+     */
+    public function getMappingsForTemplate(int $templateId): array
+    {
+        $rows = DB::table('ahg_form_field_mapping as m')
+            ->join('ahg_form_field as f', 'm.field_id', '=', 'f.id')
+            ->where('f.template_id', $templateId)
+            ->select('m.*', 'f.field_name')
+            ->get();
+
+        $out = [];
+        foreach ($rows as $r) {
+            $out[(int)$r->field_id][] = $r;
+        }
+        return $out;
+    }
+
     public function getStatistics(): array
     {
         $templatesByType = DB::table('ahg_form_template')

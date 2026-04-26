@@ -1919,4 +1919,75 @@ class IcipController extends Controller
 
         return $value !== null ? $value : $default;
     }
+
+    // ========================================
+    // OCAP OVERLAY — Ownership, Control, Access, Possession
+    // Pluggable per-market (Canada, Australia, Aotearoa, etc.). No defaults are applied
+    // to the platform unless icip_config.ocap_enabled = '1'.
+    // ========================================
+
+    public function ocapDashboard()
+    {
+        $svc = new \AhgIcip\Services\OcapService();
+        if (!$svc->isEnabled()) {
+            return view('icip::ocap-disabled', [
+                'enableUrl' => route('ahgicip.ocap-settings'),
+            ]);
+        }
+
+        return view('icip::ocap-dashboard', [
+            'agg'    => $svc->aggregate(),
+            'rollup' => $svc->rollup(),
+        ]);
+    }
+
+    public function ocapSettings(Request $request)
+    {
+        if (!Schema::hasTable('icip_config')) {
+            abort(404);
+        }
+
+        if ($request->isMethod('post')) {
+            $val = $request->input('ocap_enabled') === '1' ? '1' : '0';
+            DB::table('icip_config')->updateOrInsert(
+                ['config_key' => 'ocap_enabled'],
+                ['config_value' => $val, 'updated_at' => now()]
+            );
+            return redirect()->route('ahgicip.ocap-settings')->with('success', 'OCAP overlay ' . ($val === '1' ? 'enabled' : 'disabled') . '.');
+        }
+
+        return view('icip::ocap-settings', [
+            'enabled' => (string) $this->getIcipConfig('ocap_enabled', '0') === '1',
+        ]);
+    }
+
+    public function ocapSetPossession(Request $request)
+    {
+        $request->validate([
+            'information_object_id' => 'required|integer',
+            'possession'            => 'nullable|in:community,repository,shared',
+        ]);
+
+        $ioId = (int) $request->input('information_object_id');
+        $possession = $request->input('possession') ?: null;
+
+        if (!Schema::hasTable('icip_object_summary') || !Schema::hasColumn('icip_object_summary', 'possession_assertion')) {
+            abort(409, 'OCAP columns missing.');
+        }
+
+        $exists = DB::table('icip_object_summary')->where('information_object_id', $ioId)->exists();
+        if ($exists) {
+            DB::table('icip_object_summary')
+                ->where('information_object_id', $ioId)
+                ->update(['possession_assertion' => $possession, 'updated_at' => now()]);
+        } else {
+            DB::table('icip_object_summary')->insert([
+                'information_object_id' => $ioId,
+                'possession_assertion'  => $possession,
+                'updated_at'            => now(),
+            ]);
+        }
+
+        return back()->with('success', 'Possession assertion updated.');
+    }
 }

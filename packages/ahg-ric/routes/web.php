@@ -1,5 +1,6 @@
 <?php
 
+use AhgRic\Controllers\RdfImportController;
 use AhgRic\Controllers\RicController;
 use AhgRic\Controllers\RicEntityController;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,10 @@ Route::middleware('web')->group(function () {
     Route::get('/admin/ric/export/jsonld', [RicController::class, 'exportJsonLd'])->name('ric.export-jsonld');
     Route::get('/admin/ric/lookup-external', [RicController::class, 'lookupExternal'])->name('ric.lookup-external');
 
+    // RDF inbound — TTL / JSON-LD / RDF-XML import (dry-run + commit)
+    Route::get('/admin/ric/import',  [RdfImportController::class, 'form'])->name('ric.import');
+    Route::post('/admin/ric/import', [RdfImportController::class, 'run'])->middleware('acl:create')->name('ric.import.run');
+
     // AJAX endpoints for dashboard
     Route::get('/admin/ric/ajax-dashboard', [RicController::class, 'ajaxDashboard'])->name('ric.ajax-dashboard');
     Route::post('/admin/ric/ajax-sync', [RicController::class, 'ajaxSync'])->name('ric.ajax-sync');
@@ -67,6 +72,10 @@ Route::middleware('web')->group(function () {
 // Legacy camelCase public endpoints (ricExplorer prefix)
 Route::get('/ricExplorer/getData', [RicController::class, 'getData'])->name('ric.getData-legacy');
 Route::get('/ricExplorer/autocomplete', [RicController::class, 'autocomplete'])->name('ric.autocomplete-legacy');
+
+// Read-only SPARQL proxy → Fuseki (SELECT / ASK / CONSTRUCT / DESCRIBE only).
+// Federated linked-data clients can query Heratio's RiC graph here.
+Route::match(['get', 'post'], '/api/sparql', [RdfImportController::class, 'sparqlProxy'])->name('ric.sparql-proxy');
 
 // ================================================================
 // RiC Entity CRUD — Record-level AJAX + Standalone browse

@@ -1,11 +1,12 @@
 /**
- * AHG IIIF Viewer - OpenSeadragon + Mirador toggle for images
+ * AHG IIIF Viewer - OpenSeadragon + Mirador + Carousel toggle for images
  */
-function initIiifViewer(viewerId, imageUrl, title) {
+function initIiifViewer(viewerId, imageUrl, title, initialMode) {
     var vid = viewerId;
     var osdEl = document.getElementById('osd-' + vid);
     var mirEl = document.getElementById('mirador-' + vid);
     var imgEl = document.getElementById('img-' + vid);
+    var carEl = document.getElementById('carousel-' + vid);
     var osdViewer = null;
     var miradorLoaded = false;
 
@@ -20,10 +21,16 @@ function initIiifViewer(viewerId, imageUrl, title) {
         iiifTileSource = window.location.origin + '/iiif/3/' + iiifId + '/info.json';
     }
 
-    function showOSD() {
-        osdEl.style.display = 'block';
+    function hideAllPanels() {
+        osdEl.style.display = 'none';
         mirEl.style.display = 'none';
         imgEl.style.display = 'none';
+        if (carEl) carEl.style.display = 'none';
+    }
+
+    function showOSD() {
+        hideAllPanels();
+        osdEl.style.display = 'block';
         document.getElementById('btn-osd-' + vid).classList.add('active');
         document.getElementById('btn-mirador-' + vid).classList.remove('active');
         document.getElementById('btn-img-' + vid).classList.remove('active');
@@ -53,9 +60,8 @@ function initIiifViewer(viewerId, imageUrl, title) {
     }
 
     function showMirador() {
-        osdEl.style.display = 'none';
+        hideAllPanels();
         mirEl.style.display = 'block';
-        imgEl.style.display = 'none';
         document.getElementById('btn-mirador-' + vid).classList.add('active');
         document.getElementById('btn-osd-' + vid).classList.remove('active');
         document.getElementById('btn-img-' + vid).classList.remove('active');
@@ -156,9 +162,12 @@ function initIiifViewer(viewerId, imageUrl, title) {
     }
 
     function showImg() {
-        osdEl.style.display = 'none';
-        mirEl.style.display = 'none';
-        imgEl.style.display = 'block';
+        hideAllPanels();
+        if (carEl) {
+            carEl.style.display = 'block';
+        } else {
+            imgEl.style.display = 'block';
+        }
         document.getElementById('btn-img-' + vid).classList.add('active');
         document.getElementById('btn-osd-' + vid).classList.remove('active');
         document.getElementById('btn-mirador-' + vid).classList.remove('active');
@@ -168,11 +177,17 @@ function initIiifViewer(viewerId, imageUrl, title) {
     document.getElementById('btn-mirador-' + vid).addEventListener('click', showMirador);
     document.getElementById('btn-img-' + vid).addEventListener('click', showImg);
     document.getElementById('btn-fs-' + vid).addEventListener('click', function () {
-        var el = osdEl.style.display !== 'none' ? osdEl : (mirEl.style.display !== 'none' ? mirEl : imgEl);
+        var el = osdEl.style.display !== 'none' ? osdEl :
+                 (mirEl.style.display !== 'none' ? mirEl :
+                 (carEl && carEl.style.display !== 'none' ? carEl : imgEl));
         if (el.requestFullscreen) el.requestFullscreen();
         else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
     });
 
-    // Auto-init OSD
-    showOSD();
+    // Honour initial mode from server settings (defaults to OSD)
+    var mode = (initialMode || 'openseadragon').toLowerCase();
+    if (mode === 'mirador')              showMirador();
+    else if (mode === 'single' ||
+             mode === 'carousel')         showImg();
+    else                                  showOSD();
 }

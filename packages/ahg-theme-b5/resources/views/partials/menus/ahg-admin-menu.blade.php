@@ -101,6 +101,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">RiC</h6></li>
     <li><a class="dropdown-item" href="{{ route('ric.index') }}"><i class="fas fa-sitemap me-2"></i>RiC Dashboard</a></li>
+    <li><a class="dropdown-item" href="{{ route('ric.import') }}"><i class="fas fa-file-import me-2"></i>RDF Import (TTL/JSON-LD/RDF-XML)</a></li>
 
     {{-- Data Quality --}}
     <li><hr class="dropdown-divider"></li>
