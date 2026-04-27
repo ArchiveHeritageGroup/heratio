@@ -212,6 +212,8 @@ Institutions are responsible for configuring the system appropriately for their 
 - [ ] PostgreSQL Heratio-native domains (workflow, audit, enrichment)
 - [ ] Multi-language NER support (including isiZulu, Sesotho, Afrikaans)
 - [ ] Bulk shared drive ingestion agent with automated classification
+- [ ] Document Management (DM) — versioned digital-document workflows, check-in/check-out, redaction, watermarking, derivative chains
+- [ ] Records Management (RM) — file plans, retention schedules, disposal workflows (recommend / approve / execute / reject / legal hold), audit-grade event log; full ISO 15489 / ISO 16175 alignment
 
 ---
 
@@ -234,6 +236,14 @@ Heratio is the brainchild of **Johan Pieterse**, conceived and architected as th
 - **Johan Pieterse** — concept, architecture, platform lead
 - **Renaldo Venter** — AI engineering
 - **Stefan du Toit** — AI engineering
+
+### Acknowledgement — AtoM (Access to Memory) and the Qubit framework
+
+Heratio runs against the **Qubit schema** originally created for **AtoM (Access to Memory)** by **[Artefactual Systems Inc.](https://www.artefactual.com)** (Copyright © 2006–2014, Artefactual Systems Inc., licensed under the GNU Affero General Public License v3.0 — see [https://www.accesstomemory.org](https://www.accesstomemory.org)).
+
+AtoM remains a foundational contribution to the open-source archival software ecosystem. Heratio's data model, descriptive standards (ISAD(G), ISAAR(CPF), ISDIAH, ISDF), class-table inheritance, and many cataloguing patterns derive directly from AtoM's design. Heratio is a Laravel-based platform built on top of that schema; it is not a fork of AtoM and contains no AtoM source code, but its existence depends on Artefactual's two decades of standards work, and that contribution is gratefully acknowledged.
+
+The Heratio team thanks Artefactual Systems Inc., the AtoM contributor community, and the International Council on Archives (ICA) for the standards and tooling on which this work stands.
 
 ## Citation
 
