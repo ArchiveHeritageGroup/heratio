@@ -60,6 +60,11 @@
 
 @section('content')
 
+  @include('ahg-ric::_view-switch')
+  @if(session('ric_view_mode') === 'ric')
+    @include('ahg-ric::_ric-view-dam', ['asset' => $asset])
+  @else
+
   <h1>{{ $asset->title ?: $asset->identifier ?: '[Untitled]' }}</h1>
 
   {{-- Identification area --}}
@@ -331,6 +336,7 @@
       </li>
     </ul>
   @endauth
+  @endif {{-- end ric_view_mode toggle --}}
 @endsection
 
 @section('after-content')

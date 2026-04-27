@@ -206,7 +206,7 @@ Institutions are responsible for configuring the system appropriately for their 
 - [x] RiC Explorer with 2D/3D graph visualization
 - [x] Fuseki triplestore sync and SPARQL endpoint
 - [x] IIIF manifest generation for digitised collections
-- [ ] RiC dual-view on all major entity pages
+- [x] RiC dual-view on all major entity pages
 - [ ] Relation-aware editing widgets
 - [ ] SHACL and semantic validation in admin workflows
 - [ ] PostgreSQL Heratio-native domains (workflow, audit, enrichment)

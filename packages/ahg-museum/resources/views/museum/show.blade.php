@@ -100,6 +100,11 @@
 {{-- ============================================================ --}}
 @section('content')
 
+  @include('ahg-ric::_view-switch')
+  @if(session('ric_view_mode') === 'ric')
+    @include('ahg-ric::_ric-view-museum', ['museum' => $museum])
+  @else
+
   @if(session('success'))
     <div class="alert alert-success">{{ session('success') }}</div>
   @endif
@@ -915,6 +920,7 @@
     @endif
   </section>
 
+  @endif {{-- end ric_view_mode toggle --}}
 @endsection
 
 {{-- ============================================================ --}}

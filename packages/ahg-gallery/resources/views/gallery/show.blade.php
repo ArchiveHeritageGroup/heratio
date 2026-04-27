@@ -164,6 +164,11 @@
 {{-- ============================================================ --}}
 @section('content')
 
+  @include('ahg-ric::_view-switch')
+  @if(session('ric_view_mode') === 'ric')
+    @include('ahg-ric::_ric-view-gallery', ['artwork' => $artwork])
+  @else
+
   @if(session('success'))
     <div class="alert alert-success">{{ session('success') }}
   @endif
@@ -523,9 +528,10 @@
           <div class="col-9 p-2">{{ \Carbon\Carbon::parse($artwork->updated_at)->format('Y-m-d H:i') }}
         
       @endif
-    
+
   </section>
 
+  @endif {{-- end ric_view_mode toggle --}}
 @endsection
 
 {{-- ============================================================ --}}

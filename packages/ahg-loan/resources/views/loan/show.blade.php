@@ -5,6 +5,11 @@
 
 @section('content')
 
+  @include('ahg-ric::_view-switch')
+  @if(session('ric_view_mode') === 'ric')
+    @include('ahg-ric::_ric-view-loan', ['loan' => $loan])
+  @else
+
   @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show">
       {{ session('error') }}
@@ -831,6 +836,7 @@
     </div>
   </div>
 
+  @endif {{-- end ric_view_mode toggle --}}
 @endsection
 
 @push('js')

@@ -263,6 +263,11 @@
 {{-- ============================================================ --}}
 @section('content')
 
+  @include('ahg-ric::_view-switch')
+  @if(session('ric_view_mode') === 'ric')
+    @include('ahg-ric::_ric-view-library', ['item' => $item])
+  @else
+
 <link rel="stylesheet" href="/vendor/ahg-core/css/tts.css">
 <script src="/vendor/ahg-core/js/tts.js"></script>
 
@@ -891,6 +896,7 @@
 
 </div>{{-- /tts-content-area --}}
 
+  @endif {{-- end ric_view_mode toggle --}}
 @endsection
 
 {{-- ============================================================ --}}
