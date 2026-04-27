@@ -48,6 +48,7 @@
         'Fuseki / RIC Triplestore' => 'ahgRicExplorerPlugin',
         'Privacy Compliance'       => 'ahgPrivacyPlugin',
         'Data Protection'          => 'ahgPrivacyPlugin',
+        'Marketplace'              => 'ahgMarketplacePlugin',
     ];
 
     // ── 1. Scope cards from controller ($scopeCards) ──
@@ -147,6 +148,9 @@
     $addTile('Cron Jobs',             'fa-clock',              'Manage scheduled tasks — enable/disable, edit schedules, run now', 'settings.cron-jobs', 'secondary', 'Manage Jobs', 'fa-clock');
     $addTile('Error Log',             'fa-exclamation-triangle','View and manage application error logs', 'settings.error-log', 'danger', 'View Logs', 'fa-bug');
     $addTile('Plugin Management',     'fa-puzzle-piece',       'Manage installed packages and plugins', 'settings.plugins', 'info', 'View Plugins', 'fa-plug');
+
+    // Heritage Landing — public-facing /heritage page (hero slides, search placeholder, suggested searches)
+    $addTile('Heritage Landing',      'fa-landmark',           'Public /heritage landing page — hero gallery, tagline, suggested searches', 'heritage.admin-config', 'info', 'Configure', 'fa-cog');
 
     // AtoM-parity tiles
     $addTile('Heritage Accounting',   'fa-landmark',           'Multi-standard heritage asset accounting settings (GRAP, FRS, GASB, PSAS)', 'heritage.admin', 'warning', 'Admin', 'fa-tools');

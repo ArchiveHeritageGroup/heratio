@@ -3,8 +3,11 @@
 @push('css')
 <link rel="stylesheet" href="/css/heritage-landing.css">
 <style>
+/* Heritage page colours flow from /admin/ahgSettings/themes via the dynamic CSS:
+   --heritage-primary aliases --ahg-primary; gradient end uses --ahg-secondary. */
 :root {
-    --heritage-primary: {{ $primaryColor ?? '#0d6efd' }};
+    --heritage-primary: var(--ahg-primary);
+    --heritage-secondary: var(--ahg-secondary);
 }
 </style>
 @endpush
@@ -17,7 +20,8 @@
          ================================================================ -->
     <section class="heritage-hero" id="heritage-hero" style="height: calc(100vh - 280px); min-height: 450px;">
 
-        <!-- Marketplace CTA (top-right corner) -->
+        <!-- Marketplace CTA (top-right corner) — only when ahgMarketplacePlugin enabled -->
+        @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgMarketplacePlugin'))
         <div class="position-absolute d-flex flex-wrap gap-2"
              style="top: 1rem; right: 1rem; z-index: 5;">
             <a href="{{ url('/marketplace/browse') }}"
@@ -29,6 +33,7 @@
                 <i class="fas fa-tag me-1"></i> Sell
             </a>
         </div>
+        @endif
 
         <!-- Background Images -->
         <div class="heritage-hero-backgrounds">
@@ -41,7 +46,7 @@
                 </div>
                 @endforeach
             @else
-                <div class="heritage-hero-bg active" style="background: linear-gradient(135deg, var(--heritage-primary) 0%, #1a1a2e 100%);"></div>
+                <div class="heritage-hero-bg active" style="background: linear-gradient(135deg, var(--heritage-primary) 0%, var(--heritage-secondary) 100%);"></div>
             @endif
         </div>
 

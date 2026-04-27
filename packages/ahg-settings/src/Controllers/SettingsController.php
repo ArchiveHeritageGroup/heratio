@@ -737,6 +737,12 @@ class SettingsController extends Controller
               . "--ahg-primary-color: var(--ahg-primary); --ahg-primary-dark: var(--ahg-secondary);"
               . "--ahg-accent-color: var(--ahg-primary); --ahg-accent-dark: var(--ahg-secondary);"
               . "--ahg-border-color: #dee2e6;"
+              // Bootstrap list-group active state: bundle defaults are #dee2e6 light-grey bg
+              // with dark text, but blades add `text-white` (looks unreadable). Override so
+              // the .list-group-item.active state matches the configured palette.
+              . "--bs-list-group-active-bg: var(--ahg-primary);"
+              . "--bs-list-group-active-color: #fff;"
+              . "--bs-list-group-active-border-color: var(--ahg-primary);"
               // Bootstrap 5 "success" subtle tints — re-derive from the configured success
               // colour (defaults to --ahg-primary). Themes admin's "Success color" field still
               // wins when the operator sets it explicitly.
@@ -759,9 +765,11 @@ class SettingsController extends Controller
             . ".action-bar, .button-bar, .toolbar, .record-actions, .item-actions, .btn-toolbar, .action-buttons { background: transparent !important; }\n"
             . "#wrapper { background: var(--ahg-background-light) !important; color: var(--ahg-body-text); }\n"
             . "body { background-color: var(--ahg-background-light) !important; color: var(--ahg-body-text) !important; }\n"
-            . "#top-bar { background-color: var(--ahg-header-bg) !important; }\n"
+            . "#top-bar { background-color: var(--ahg-header-bg) !important; color: var(--ahg-header-text) !important; }\n"
             . "#top-bar, #top-bar .navbar-brand, #top-bar .nav-link, #top-bar .nav-link i { color: var(--ahg-header-text) !important; }\n"
-            . ".ahg-description-bar { text-align: var(--ahg-descbar-align, left); }\n"
+            // Site description bar — entirely driven by themes settings (no inline-style fallback in master.blade)
+            . ".ahg-description-bar { background-color: var(--ahg-descbar-bg) !important; color: var(--ahg-descbar-text) !important; text-align: var(--ahg-descbar-align, left); }\n"
+            . ".ahg-description-bar a { color: var(--ahg-descbar-text) !important; text-decoration: underline; }\n"
 
             // ── Theme-wide overrides: re-tint Bootstrap "success/green" classes to the
             // configured primary so legacy blades that hardcode btn-success / bg-success

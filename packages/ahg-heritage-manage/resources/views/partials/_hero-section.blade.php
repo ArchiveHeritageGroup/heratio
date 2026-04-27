@@ -1,5 +1,5 @@
 {{-- Hero Section Partial --}}
-<section class="heritage-hero py-5 text-white" style="background: linear-gradient(135deg, var(--ahg-primary) 0%, #1a1a2e 100%); min-height: 300px;">
+<section class="heritage-hero py-5 text-white" style="background: linear-gradient(135deg, var(--ahg-primary) 0%, var(--ahg-secondary) 100%); min-height: 300px;">
   <div class="container text-center">
     <h1 class="display-4 mb-3">{{ $tagline ?? 'Discover Our Heritage' }}</h1>
     <p class="lead mb-4">{{ $subtext ?? '' }}</p>

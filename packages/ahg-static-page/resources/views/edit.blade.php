@@ -47,9 +47,12 @@
             <div class="mb-3">
               <label class="form-label" for="slug">{{ __('Slug') }}</label>
               @if(!empty($isProtected))
-                <input type="text" class="form-control" id="slug" name="slug" value="{{ old('slug', $slug) }}" disabled>
+                {{-- readonly (not disabled): disabled inputs aren't submitted, which would fail
+                     the server-side `slug required` rule on update. --}}
+                <input type="text" class="form-control" id="slug" name="slug" value="{{ old('slug', $slug) }}" readonly>
+                <small class="form-text text-muted">{{ __('Protected slug — cannot be changed.') }}</small>
               @else
-                <input type="text" class="form-control" id="slug" name="slug" value="{{ old('slug', $slug) }}" pattern="^[a-zA-Z0-9\-_]+$">
+                <input type="text" class="form-control" id="slug" name="slug" value="{{ old('slug', $slug) }}" pattern="^[a-zA-Z0-9\-_]+$" required>
               @endif
             </div>
 

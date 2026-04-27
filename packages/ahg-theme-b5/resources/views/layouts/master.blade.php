@@ -76,7 +76,12 @@
 
     {{-- Theme CSS --}}
     <link href="{{ asset('vendor/ahg-theme-b5/css/ahg-theme.css') }}" rel="stylesheet">
-    <link href="{{ route('settings.dynamic-css') }}" rel="stylesheet">
+    {{-- Dynamic theme CSS — only when "Theme Enabled" is checked at /admin/ahgSettings/themes.
+         When off, the bundled theme defaults take over — useful as an instant undo if the
+         admin breaks their colour palette. --}}
+    @if((string) \AhgCore\Services\AhgSettingsService::get('ahg_theme_enabled', 'true') === 'true')
+      <link href="{{ route('settings.dynamic-css') }}" rel="stylesheet">
+    @endif
     <link href="{{ asset('vendor/ahg-theme-b5/css/custom.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/ahg-theme-b5/css/style.css') }}" rel="stylesheet">
 
@@ -101,7 +106,7 @@
 
     {{-- Site description bar --}}
     @if(($themeData['toggleDescription'] ?? false) && !empty($themeData['siteDescription']))
-      <div class="ahg-description-bar" style="background-color: var(--ahg-descbar-bg, var(--ahg-primary, #005837)); color: var(--ahg-descbar-text, #fff);">
+      <div class="ahg-description-bar">
         <div class="container-xl py-1">
           {{ $themeData['siteDescription'] }}
         </div>

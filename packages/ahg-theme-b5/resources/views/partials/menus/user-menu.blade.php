@@ -232,9 +232,13 @@
         <button class="btn btn-sm atom-btn-secondary w-100 mt-2" type="submit">Log in</button>
       </form>
 
+      {{-- Demo credentials — only on the AHG-branded heratio site, not on white-label client deployments.
+           Gated by Show Branding (same toggle that controls "Powered by Heratio"). --}}
+      @if($themeData['showBranding'] ?? true)
       <div class="alert alert-info py-2 px-2 mt-2 mb-2 small">
         <strong>Demo:</strong> <code>louise@theahg.co.za</code> / <code>Password@123</code>
       </div>
+      @endif
 
       <div class="text-center mt-2">
         <a href="{{ route('password.reset') }}" class="small text-muted">

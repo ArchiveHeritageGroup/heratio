@@ -14,7 +14,7 @@
   }
 </style>
 
-<header id="top-bar" class="navbar navbar-expand-lg navbar-dark bg-dark" role="navigation" aria-label="Main navigation" style="background-color: var(--ahg-header-bg, #212529) !important; color: var(--ahg-header-text, #fff) !important;">
+<header id="top-bar" class="navbar navbar-expand-lg navbar-dark" role="navigation" aria-label="Main navigation">
   <div class="container-fluid">
     {{-- Brand / Logo --}}
     @if(($themeData['toggleLogo'] ?? true) || ($themeData['toggleTitle'] ?? true))

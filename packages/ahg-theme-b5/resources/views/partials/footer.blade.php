@@ -82,10 +82,15 @@
           </div>
         @endif
 
-        <div class="mt-1 text-white-50">
-          @if($ftCustomText){{ $ftCustomText }} &middot; @endif
-          Powered by <strong>Heratio</strong>{{ $version ? ' v' . $version : '' }}
-        </div>
+        {{-- "Powered by Heratio" credit — hidden when Show Branding is off in /admin/ahgSettings/themes --}}
+        @if($themeData['showBranding'] ?? true)
+          <div class="mt-1 text-white-50">
+            @if($ftCustomText){{ $ftCustomText }} &middot; @endif
+            Powered by <strong>Heratio</strong>{{ $version ? ' v' . $version : '' }}
+          </div>
+        @elseif($ftCustomText)
+          <div class="mt-1 text-white-50">{{ $ftCustomText }}</div>
+        @endif
       </div>
     </div>
 

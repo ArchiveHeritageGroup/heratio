@@ -56,9 +56,10 @@
 @endsection
 
 @section('content')
-  {{-- Marketplace hero CTA — Buy & Sell --}}
+  {{-- Marketplace hero CTA — only when ahgMarketplacePlugin is enabled --}}
+  @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgMarketplacePlugin'))
   <section class="marketplace-hero rounded shadow-sm mb-4 p-4"
-           style="background:linear-gradient(135deg, var(--ahg-primary, #1d6a52) 0%, #134537 100%); color:#fff;">
+           style="background:linear-gradient(135deg, var(--ahg-primary, #1d6a52) 0%, var(--ahg-secondary, #134537) 100%); color:#fff;">
     <div class="row align-items-center g-3">
       <div class="col-md-7">
         <h2 class="h3 mb-2 d-flex align-items-center">
@@ -89,6 +90,7 @@
       </div>
     </div>
   </section>
+  @endif
 
   {{-- Featured collection carousel --}}
   @if(!empty($carousel) && !empty($carousel['slides']))

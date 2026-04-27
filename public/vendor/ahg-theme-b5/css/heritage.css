@@ -16,7 +16,7 @@
    Hero Section
    ============================================================================ */
 .heritage-hero {
-    background: #1a1a2e;
+    background: var(--heritage-secondary, var(--ahg-secondary));
 }
 
 .heritage-hero-backgrounds {
