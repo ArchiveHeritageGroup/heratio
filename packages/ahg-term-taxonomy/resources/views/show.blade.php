@@ -463,7 +463,7 @@
   </div>
 
   @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
-    @include('ahg-ric::_ric-entities-panel', ['record' => $term])
+    @include('ahg-ric::_ric-entities-panel', ['record' => $term, 'recordType' => 'term'])
   @endif
   @endif {{-- end heratio/ric view mode --}}
 

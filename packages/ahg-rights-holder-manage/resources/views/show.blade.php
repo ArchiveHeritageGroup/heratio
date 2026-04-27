@@ -360,7 +360,7 @@
   @endif
 
   @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
-    @include('ahg-ric::_ric-entities-panel', ['record' => $rightsHolder])
+    @include('ahg-ric::_ric-entities-panel', ['record' => $rightsHolder, 'recordType' => 'agent'])
   @endif
   @endif {{-- end heratio/ric view mode --}}
 

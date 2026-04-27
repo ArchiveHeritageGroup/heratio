@@ -28,6 +28,8 @@
 namespace AhgRic\Controllers;
 
 use AhgRic\Services\RelationshipService;
+use AhgRic\Services\RicSerializationService;
+use AhgRic\Services\ShaclValidationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -2736,5 +2738,100 @@ SPARQL;
         }
 
         return array_slice($items, 0, 10);
+    }
+
+    /**
+     * Per-entity SHACL validation surface.
+     *
+     * GET /admin/ric/validate/{type}/{id}
+     *
+     * Serialises the Heratio entity to its RiC shape via RicSerializationService, then
+     * runs ShaclValidationService::validateBeforeSave (mandatory-fields check + optional
+     * pyshacl SHACL evaluation against ric_shacl_shapes.ttl). Returns a server-rendered
+     * results page that the editor can act on.
+     *
+     * Supported types map to RicSerializationService methods:
+     *   record / recordset / io   → serializeRecord
+     *   agent / actor             → serializeAgent
+     *   function                  → serializeFunction
+     *   repository                → serializeRepository
+     *   place                     → serializePlace
+     *   rule                      → serializeRule
+     *   activity                  → serializeActivity
+     *   instantiation             → serializeInstantiation
+     *
+     * @see https://openric.org/spec/mapping.html for the canonical RiC shape mapping.
+     */
+    public function validateEntity(string $type, int $id)
+    {
+        $serializer = app(RicSerializationService::class);
+        $validator  = app(ShaclValidationService::class);
+
+        $typeKey = strtolower($type);
+        $entity  = null;
+        $entityType = 'Record';
+        $errorMessage = null;
+
+        try {
+            switch ($typeKey) {
+                case 'record':
+                case 'recordset':
+                case 'io':
+                case 'informationobject':
+                    $entity     = $serializer->serializeRecord($id);
+                    $entityType = 'RecordSet';
+                    break;
+                case 'agent':
+                case 'actor':
+                case 'person':
+                case 'corporatebody':
+                case 'family':
+                    $entity     = $serializer->serializeAgent($id);
+                    $entityType = 'Agent';
+                    break;
+                case 'function':
+                    $entity     = $serializer->serializeFunction($id);
+                    $entityType = 'Function';
+                    break;
+                case 'repository':
+                    $entity     = $serializer->serializeRepository($id);
+                    $entityType = 'Repository';
+                    break;
+                case 'place':
+                    $entity     = $serializer->serializePlace($id);
+                    $entityType = 'Place';
+                    break;
+                case 'rule':
+                    $entity     = $serializer->serializeRule($id);
+                    $entityType = 'Rule';
+                    break;
+                case 'activity':
+                    $entity     = $serializer->serializeActivity($id);
+                    $entityType = 'Activity';
+                    break;
+                case 'instantiation':
+                    $entity     = $serializer->serializeInstantiation($id);
+                    $entityType = 'Instantiation';
+                    break;
+                default:
+                    $errorMessage = "Unknown entity type: {$type}";
+            }
+        } catch (\Throwable $e) {
+            $errorMessage = "Could not serialise entity {$type}#{$id}: " . $e->getMessage();
+        }
+
+        $result = ['valid' => true, 'errors' => [], 'warnings' => []];
+        if ($entity && ! $errorMessage) {
+            $result = $validator->validateBeforeSave($entity, $entityType);
+        }
+
+        return view('ahg-ric::validate-entity', [
+            'type'         => $type,
+            'typeLabel'    => $entityType,
+            'id'           => $id,
+            'entity'       => $entity,
+            'result'       => $result,
+            'errorMessage' => $errorMessage,
+        ]);
     }
 }

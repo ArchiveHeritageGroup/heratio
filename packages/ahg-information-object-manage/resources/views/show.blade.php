@@ -2685,7 +2685,7 @@
     @include('ahg-ric::_ric-panel', ['resourceId' => $io->id])
 
     @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
-      @include('ahg-ric::_ric-entities-panel', ['record' => $io])
+      @include('ahg-ric::_ric-entities-panel', ['record' => $io, 'recordType' => 'io'])
     @endif
   @endif
 

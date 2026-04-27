@@ -301,7 +301,7 @@
   </section>
 
   @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
-    @include('ahg-ric::_ric-entities-panel', ['record' => $donor])
+    @include('ahg-ric::_ric-entities-panel', ['record' => $donor, 'recordType' => 'agent'])
   @endif
   @endif {{-- end heratio/ric view mode --}}
 

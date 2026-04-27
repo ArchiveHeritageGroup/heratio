@@ -458,7 +458,7 @@
   </section>
 
   @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
-    @include('ahg-ric::_ric-entities-panel', ['record' => $accession])
+    @include('ahg-ric::_ric-entities-panel', ['record' => $accession, 'recordType' => 'accession'])
   @endif
   @endif {{-- end heratio/ric view mode --}}
 

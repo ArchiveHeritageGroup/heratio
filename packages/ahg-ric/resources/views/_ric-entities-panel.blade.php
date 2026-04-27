@@ -8,12 +8,18 @@
 @endphp
 
 @if($recordId)
+@php
+    $recordType = $recordType ?? 'record';
+@endphp
 <section class="mt-4" id="ric-entities-panel">
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h2 class="h5 mb-0">
             <i class="fas fa-project-diagram me-1"></i> RiC Context
             <a href="https://openric.org" target="_blank" rel="noopener" class="ms-2 small text-decoration-none" title="Open RiC contract — see openric.org">
                 <i class="fas fa-external-link-alt"></i> <span class="small">OpenRiC</span>
+            </a>
+            <a href="{{ url('/admin/ric/validate/' . $recordType . '/' . $recordId) }}" class="ms-2 small text-decoration-none" title="Run SHACL validation against the OpenRiC shape set">
+                <i class="fas fa-check-double"></i> <span class="small">Validate</span>
             </a>
         </h2>
         <div class="btn-group btn-group-sm">

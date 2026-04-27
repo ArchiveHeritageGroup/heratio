@@ -837,7 +837,7 @@
   </div>
 
   @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
-    @include('ahg-ric::_ric-entities-panel', ['record' => $loan])
+    @include('ahg-ric::_ric-entities-panel', ['record' => $loan, 'recordType' => 'activity'])
   @endif
   @endif {{-- end ric_view_mode toggle --}}
 @endsection

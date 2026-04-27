@@ -395,7 +395,7 @@
   @endauth
 
   @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
-    @include('ahg-ric::_ric-entities-panel', ['record' => $storage])
+    @include('ahg-ric::_ric-entities-panel', ['record' => $storage, 'recordType' => 'instantiation'])
   @endif
   @endif {{-- end heratio/ric view mode --}}
 

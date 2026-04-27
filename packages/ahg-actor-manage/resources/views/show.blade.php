@@ -660,7 +660,7 @@
     @include('ahg-ric::_ric-panel', ['resourceId' => $actor->id])
 
     @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
-      @include('ahg-ric::_ric-entities-panel', ['record' => $actor])
+      @include('ahg-ric::_ric-entities-panel', ['record' => $actor, 'recordType' => 'actor'])
     @endif
   @endif
 @endsection

@@ -39,6 +39,9 @@ Route::middleware('web')->group(function () {
 
     // RiC-O Community Features: SHACL validation, JSON-LD export, external authority linking
     Route::get('/admin/ric/shacl-validate', [RicController::class, 'shaclValidate'])->name('ric.shacl-validate');
+    Route::get('/admin/ric/validate/{type}/{id}', [RicController::class, 'validateEntity'])
+        ->where(['type' => '[a-zA-Z]+', 'id' => '[0-9]+'])
+        ->name('ric.validate-entity');
     Route::get('/admin/ric/export/jsonld', [RicController::class, 'exportJsonLd'])->name('ric.export-jsonld');
     Route::get('/admin/ric/lookup-external', [RicController::class, 'lookupExternal'])->name('ric.lookup-external');
 

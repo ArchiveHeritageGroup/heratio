@@ -208,7 +208,7 @@ Institutions are responsible for configuring the system appropriately for their 
 - [x] IIIF manifest generation for digitised collections
 - [x] RiC dual-view on all major entity pages
 - [x] Relation-aware editing widgets
-- [ ] SHACL and semantic validation in admin workflows
+- [x] SHACL and semantic validation in admin workflows
 - [ ] PostgreSQL Heratio-native domains (workflow, audit, enrichment)
 - [ ] Multi-language NER support (including isiZulu, Sesotho, Afrikaans)
 - [ ] Bulk shared drive ingestion agent with automated classification
