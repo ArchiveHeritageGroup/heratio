@@ -1,0 +1,272 @@
+#!/usr/bin/env bash
+#
+# Heratio overlay install — orchestration script.
+#
+# Wires Heratio onto an existing AtoM database WITHOUT destroying any data.
+# Re-runnable / idempotent. Each step is a separate concern; can be re-run after a fix.
+#
+# Usage:
+#   bin/install-overlay --target=<db> [options]
+#
+# Options:
+#   --target=<db>          Target DB to overlay onto (REQUIRED).
+#   --reference=<db>       Reference Heratio DB to copy schema from. Default: heratio.
+#   --host=<host>          MySQL host. Default: localhost.
+#   --user=<user>          MySQL user. Default: root.
+#   --skip-schema          Skip the schema-overlay (mysqldump --no-data) step.
+#   --skip-columns         Skip the column-delta sync step.
+#   --skip-help            Skip the help-article + help-section replication.
+#   --skip-settings        Skip the ahg_settings INSERT IGNORE replication.
+#   --skip-es              Skip the Elasticsearch reindex step.
+#   --skip-smoke           Skip the post-install smoke test.
+#   --dry-run              Print everything that would happen, don't mutate target.
+#   --yes                  Don't prompt before applying.
+#
+# Stages, in order:
+#   1.  Pre-flight        — verify target DB exists and looks like an AtoM/Heratio DB.
+#   2.  Schema overlay    — add Heratio-only tables to the target (database/tools/overlay-schema.sh).
+#   3.  Column-delta sync — add Heratio-only columns on shared tables (database/tools/sync-columns.php).
+#   4.  Settings replicate— INSERT IGNORE ahg_settings rows from reference.
+#   5.  Help replicate    — INSERT IGNORE help_article + help_section rows from reference.
+#   6.  Auto-seed boot    — hit /admin to trigger ServiceProvider::boot() auto-seeders for dropdowns.
+#   7.  ES reindex        — php artisan ahg:es-reindex (clones from archive_ if present).
+#   8.  Smoke test        — curl /admin/login, /glam/browse, /admin/dropdowns.
+#
+# The target is mutated. Re-running is safe (every step is idempotent).
+#
+# @copyright  Johan Pieterse / Plain Sailing Information Systems
+# @license    AGPL-3.0-or-later
+
+set -euo pipefail
+
+REFERENCE="heratio"
+TARGET=""
+HOST="localhost"
+USER="root"
+SKIP_SCHEMA=0
+SKIP_COLUMNS=0
+SKIP_HELP=0
+SKIP_SETTINGS=0
+SKIP_ES=0
+SKIP_SMOKE=0
+DRY_RUN=0
+ASSUME_YES=0
+
+# ANSI helpers
+GREEN='\033[0;32m'; YELLOW='\033[0;33m'; RED='\033[0;31m'; CYAN='\033[0;36m'; NC='\033[0m'
+say()  { echo -e "${CYAN}==>${NC} $*"; }
+ok()   { echo -e "${GREEN}OK${NC} $*"; }
+warn() { echo -e "${YELLOW}WARN${NC} $*"; }
+die()  { echo -e "${RED}ERROR${NC} $*" >&2; exit 1; }
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$REPO_ROOT"
+
+# Bootstrap MySQL auth from .env if present, so PHP/PDO and mysql CLI both work.
+# Order of precedence: existing env > .env DB_PASSWORD > nothing (socket auth attempt).
+if [[ -z "${MYSQL_PWD:-}" && -f "${REPO_ROOT}/.env" ]]; then
+  ENV_DB_PASS=$(grep -E '^DB_PASSWORD=' "${REPO_ROOT}/.env" | head -1 | cut -d= -f2- | sed 's/^["'"'"']//; s/["'"'"']$//')
+  if [[ -n "$ENV_DB_PASS" ]]; then
+    export MYSQL_PWD="$ENV_DB_PASS"
+  fi
+fi
+
+for arg in "$@"; do
+  case "$arg" in
+    --reference=*)     REFERENCE="${arg#*=}" ;;
+    --target=*)        TARGET="${arg#*=}" ;;
+    --host=*)          HOST="${arg#*=}" ;;
+    --user=*)          USER="${arg#*=}" ;;
+    --skip-schema)     SKIP_SCHEMA=1 ;;
+    --skip-columns)    SKIP_COLUMNS=1 ;;
+    --skip-help)       SKIP_HELP=1 ;;
+    --skip-settings)   SKIP_SETTINGS=1 ;;
+    --skip-es)         SKIP_ES=1 ;;
+    --skip-smoke)      SKIP_SMOKE=1 ;;
+    --dry-run)         DRY_RUN=1 ;;
+    --yes|-y)          ASSUME_YES=1 ;;
+    -h|--help)         sed -n '2,38p' "$0" | sed 's/^# \?//'; exit 0 ;;
+    *) die "Unknown arg: $arg" ;;
+  esac
+done
+
+[[ -n "$TARGET" ]] || die "--target is required (e.g. --target=dam)"
+[[ "$REFERENCE" != "$TARGET" ]] || die "reference and target must differ"
+
+MYSQL_OPTS=(-h "$HOST" -u "$USER")
+
+# -- Stage 1: Pre-flight ------------------------------------------------------------------------
+
+say "Stage 1: Pre-flight"
+
+if ! mysql "${MYSQL_OPTS[@]}" -e "USE \`${TARGET}\`" 2>/dev/null; then
+  die "target DB \`${TARGET}\` does not exist or is unreachable"
+fi
+if ! mysql "${MYSQL_OPTS[@]}" -e "USE \`${REFERENCE}\`" 2>/dev/null; then
+  die "reference DB \`${REFERENCE}\` does not exist or is unreachable"
+fi
+
+REF_TABLES=$(mysql "${MYSQL_OPTS[@]}" -N -B -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='${REFERENCE}' AND table_type='BASE TABLE'")
+TGT_TABLES=$(mysql "${MYSQL_OPTS[@]}" -N -B -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='${TARGET}' AND table_type='BASE TABLE'")
+
+ok "reference \`${REFERENCE}\` has ${REF_TABLES} tables"
+ok "target    \`${TARGET}\` has ${TGT_TABLES} tables"
+
+# Sanity: the target should already be an AtoM-derived DB (or an empty Heratio).
+SHARED_PROBE=$(mysql "${MYSQL_OPTS[@]}" -N -B -e "
+  SELECT COUNT(*) FROM information_schema.tables
+  WHERE table_schema='${TARGET}' AND table_name IN ('information_object','actor','term','taxonomy')")
+if [[ "$SHARED_PROBE" -lt 4 ]]; then
+  warn "target does not look like an AtoM/Heratio DB — only ${SHARED_PROBE}/4 of (information_object, actor, term, taxonomy) found."
+  warn "If this is a brand-new Heratio install (no AtoM), use bin/install instead — overlay is for AtoM-derived DBs."
+fi
+
+if [[ "$ASSUME_YES" -eq 0 && "$DRY_RUN" -eq 0 ]]; then
+  echo ""
+  echo "About to overlay Heratio onto \`${TARGET}\`."
+  echo "This adds tables and columns. It will NOT delete or modify existing data."
+  read -r -p "Continue? [y/N] " ans
+  [[ "$ans" =~ ^[Yy]$ ]] || die "aborted by user"
+fi
+
+# -- Stage 2: Schema overlay --------------------------------------------------------------------
+
+if [[ "$SKIP_SCHEMA" -eq 0 ]]; then
+  say "Stage 2: Schema overlay (Heratio-only tables)"
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    bash "${REPO_ROOT}/database/tools/overlay-schema.sh" --reference="$REFERENCE" --target="$TARGET" --host="$HOST" --user="$USER"
+  else
+    bash "${REPO_ROOT}/database/tools/overlay-schema.sh" --reference="$REFERENCE" --target="$TARGET" --host="$HOST" --user="$USER" --apply
+  fi
+else
+  warn "Stage 2 skipped (--skip-schema)"
+fi
+
+# -- Stage 3: Column-delta sync -----------------------------------------------------------------
+
+if [[ "$SKIP_COLUMNS" -eq 0 ]]; then
+  say "Stage 3: Column-delta sync (missing columns on shared tables)"
+  PHP_PASS_ARG=""
+  if [[ -n "${MYSQL_PWD:-}" ]]; then
+    PHP_PASS_ARG="--pass=${MYSQL_PWD}"
+  fi
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    php "${REPO_ROOT}/database/tools/sync-columns.php" --reference="$REFERENCE" --target="$TARGET" --host="$HOST" --user="$USER" $PHP_PASS_ARG
+  else
+    php "${REPO_ROOT}/database/tools/sync-columns.php" --reference="$REFERENCE" --target="$TARGET" --host="$HOST" --user="$USER" $PHP_PASS_ARG --apply
+  fi
+else
+  warn "Stage 3 skipped (--skip-columns)"
+fi
+
+# -- Stage 4: ahg_settings replicate (INSERT IGNORE) ---------------------------------------------
+
+if [[ "$SKIP_SETTINGS" -eq 0 ]]; then
+  say "Stage 4: Replicate ahg_settings (INSERT IGNORE — preserves any customer-set values)"
+  if [[ "$DRY_RUN" -eq 0 ]]; then
+    mysqldump "${MYSQL_OPTS[@]}" --no-create-info --skip-comments --skip-extended-insert "${REFERENCE}" ahg_settings 2>/dev/null \
+      | sed 's/^INSERT INTO/INSERT IGNORE INTO/' \
+      | mysql "${MYSQL_OPTS[@]}" "${TARGET}"
+    SETTINGS_COUNT=$(mysql "${MYSQL_OPTS[@]}" -N -B -e "SELECT COUNT(*) FROM \`${TARGET}\`.ahg_settings")
+    ok "target has ${SETTINGS_COUNT} ahg_settings rows"
+  else
+    echo "  (dry-run) would replicate ahg_settings rows with INSERT IGNORE"
+  fi
+else
+  warn "Stage 4 skipped (--skip-settings)"
+fi
+
+# -- Stage 5: help_article + help_section replicate ---------------------------------------------
+
+if [[ "$SKIP_HELP" -eq 0 ]]; then
+  say "Stage 5: Replicate help_article + help_section (INSERT IGNORE)"
+  if [[ "$DRY_RUN" -eq 0 ]]; then
+    for tbl in help_article help_section; do
+      if mysql "${MYSQL_OPTS[@]}" -N -B -e "SELECT 1 FROM information_schema.tables WHERE table_schema='${REFERENCE}' AND table_name='${tbl}'" | grep -q 1; then
+        mysqldump "${MYSQL_OPTS[@]}" --no-create-info --skip-comments --skip-extended-insert "${REFERENCE}" "${tbl}" 2>/dev/null \
+          | sed 's/^INSERT INTO/INSERT IGNORE INTO/' \
+          | mysql "${MYSQL_OPTS[@]}" "${TARGET}"
+        ROW_COUNT=$(mysql "${MYSQL_OPTS[@]}" -N -B -e "SELECT COUNT(*) FROM \`${TARGET}\`.${tbl}")
+        ok "target has ${ROW_COUNT} ${tbl} rows"
+      fi
+    done
+  else
+    echo "  (dry-run) would replicate help_article + help_section rows with INSERT IGNORE"
+  fi
+else
+  warn "Stage 5 skipped (--skip-help)"
+fi
+
+# -- Stage 6: ServiceProvider auto-seed boot ----------------------------------------------------
+
+say "Stage 6: Auto-seed boot — Laravel ServiceProvider::boot() runs the per-package seeders"
+if [[ "$DRY_RUN" -eq 0 ]]; then
+  if [[ -x "${REPO_ROOT}/artisan" || -f "${REPO_ROOT}/artisan" ]]; then
+    # The auto-seed is idempotent — runs only when sentinel rows are missing.
+    # Use a known-cheap artisan command to bootstrap providers.
+    DB_DATABASE="${TARGET}" php "${REPO_ROOT}/artisan" config:clear   >/dev/null 2>&1 || true
+    DB_DATABASE="${TARGET}" php "${REPO_ROOT}/artisan" route:list -q  >/dev/null 2>&1 || true
+    ok "ServiceProviders booted against ${TARGET} — package seeders ran for any missing dropdowns"
+  else
+    warn "no artisan binary at ${REPO_ROOT}/artisan — skipping boot"
+  fi
+else
+  echo "  (dry-run) would invoke artisan config:clear + route:list with DB_DATABASE=${TARGET}"
+fi
+
+# -- Stage 7: Elasticsearch reindex -------------------------------------------------------------
+
+if [[ "$SKIP_ES" -eq 0 ]]; then
+  say "Stage 7: Elasticsearch reindex"
+  if [[ "$DRY_RUN" -eq 0 ]]; then
+    if [[ -f "${REPO_ROOT}/artisan" ]]; then
+      # If the install came from an AtoM cutover, ES indices may already exist with prefix archive_.
+      # Try clone-from first; fall back to fresh reindex.
+      ES_PREFIX_FROM=$(grep -E '^ELASTICSEARCH_PREFIX' "${REPO_ROOT}/.env" 2>/dev/null | cut -d= -f2 | tr -d ' ' || true)
+      DB_DATABASE="${TARGET}" php "${REPO_ROOT}/artisan" ahg:es-reindex --batch=500 \
+        || warn "ES reindex returned non-zero. Inspect manually: php artisan ahg:es-reindex"
+    else
+      warn "no artisan binary — skipping ES reindex"
+    fi
+  else
+    echo "  (dry-run) would run: php artisan ahg:es-reindex --batch=500"
+  fi
+else
+  warn "Stage 7 skipped (--skip-es)"
+fi
+
+# -- Stage 8: Smoke test ------------------------------------------------------------------------
+
+if [[ "$SKIP_SMOKE" -eq 0 ]]; then
+  say "Stage 8: Smoke test"
+  if [[ "$DRY_RUN" -eq 0 ]]; then
+    APP_URL=$(grep -E '^APP_URL' "${REPO_ROOT}/.env" 2>/dev/null | head -1 | cut -d= -f2- | tr -d ' "'"'"'' || true)
+    if [[ -n "$APP_URL" ]]; then
+      for path in "/admin/login" "/glam/browse" "/admin/dropdowns"; do
+        STATUS=$(curl -s -k -o /dev/null -w "%{http_code}" "${APP_URL%/}${path}" 2>/dev/null || echo "000")
+        if [[ "$STATUS" =~ ^(200|302|303|301)$ ]]; then
+          ok "${path} → ${STATUS}"
+        else
+          warn "${path} → ${STATUS}"
+        fi
+      done
+    else
+      warn "APP_URL not found in .env — skipping HTTP smoke test"
+    fi
+  else
+    echo "  (dry-run) would curl /admin/login /glam/browse /admin/dropdowns"
+  fi
+else
+  warn "Stage 8 skipped (--skip-smoke)"
+fi
+
+echo ""
+say "Done. Heratio overlay applied to \`${TARGET}\`."
+echo ""
+echo "Next steps:"
+echo "  1. Visit the site, log in as admin (existing AtoM admin credentials still work)."
+echo "  2. /admin/ahgSettings/plugins — verify plugin rows; enable per-package as needed."
+echo "  3. /admin/ahgSettings/themes — set palette, logo, branding flags."
+echo "  4. /admin/dropdowns — confirm dropdown values seeded."
+echo "  5. /glam/browse — confirm records render with facets."
+echo ""

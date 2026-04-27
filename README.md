@@ -131,48 +131,53 @@ OpenRiC powers the RiC capabilities within Heratio and is available as a standal
 
 ## Installation
 
-### 1. Clone the repository
+Heratio supports two install scenarios.
+
+| Scenario | When to use | Entry point |
+| --- | --- | --- |
+| **1. Overlay** onto an existing AtoM database | You already run AtoM and want to add Heratio without losing your catalogue, or you're cutting a customer over from AtoM | `./bin/install-overlay` |
+| **2. Standalone** clean install | No AtoM. New deployment from scratch | `./bin/install` *(in development — see [`docs/standalone-install-plan.md`](docs/standalone-install-plan.md))* |
+
+Both paths share the same Laravel-side bootstrap (composer install, `.env`, `key:generate`, ServiceProvider auto-seed). The two scenarios differ only in how the database is brought to life.
+
+### Scenario 1 — Overlay onto existing AtoM
+
+Heratio sits **on top of** your existing AtoM database without destroying any data. The overlay adds Heratio-only tables, syncs missing columns on shared tables, and seeds Heratio's settings + help — using `INSERT IGNORE` everywhere so customer customisations are preserved. Re-runnable / idempotent.
 
 ```bash
-git clone https://github.com/ArchiveHeritageGroup/heratio.git
-cd heratio
-```
-
-### 2. Install dependencies
-
-```bash
+git clone https://github.com/ArchiveHeritageGroup/heratio.git /path/to/heratio
+cd /path/to/heratio
 composer install
-```
-
-### 3. Configure environment
-
-```bash
 cp .env.example .env
 php artisan key:generate
+
+# Point .env at your existing AtoM DB
+# DB_DATABASE=your_atom_db
+# DB_USERNAME=root
+# DB_PASSWORD=...
+
+# Dry-run first to see what would change (read-only)
+./bin/install-overlay --target=your_atom_db --dry-run
+
+# Apply
+./bin/install-overlay --target=your_atom_db
 ```
 
-Edit `.env` to point to your archival MySQL database:
+The overlay runs eight idempotent stages: pre-flight → schema overlay → column-delta sync → settings replicate → help replicate → ServiceProvider boot (auto-seed dropdowns) → Elasticsearch reindex → smoke test.
 
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=your_archival_db
-DB_USERNAME=your_db_user
-DB_PASSWORD=your_db_password
-```
+Full guide: [`docs/overlay-install-howto.md`](docs/overlay-install-howto.md)
 
-### 4. Run migrations
+### Scenario 2 — Standalone clean install
 
-```bash
-php artisan migrate
-```
+For a fresh deployment with no AtoM. Status: planning document committed; entry point `bin/install` under development. The plan ports AtoM's core schema + 81 AHG plugin install.sqls + 6 YAML fixtures into Heratio's own `database/core/`, `packages/*/database/`, and `database/seeds/` so a fresh box becomes a working Heratio in one command.
 
-### 5. Configure your web server
+See [`docs/standalone-install-plan.md`](docs/standalone-install-plan.md) for the full work plan.
 
-Point a subdomain (e.g. `heratio.yourdomain.com`) to Heratio's `public/` directory.
+### Web server
 
-### 6. Set up encryption key (optional)
+Point a subdomain (e.g. `heratio.yourdomain.com`) to Heratio's `public/` directory. Nginx vhost templates ship under `config/nginx/` for reference.
+
+### Encryption key (optional, for restricted-holdings encryption)
 
 ```bash
 php artisan heratio:generate-encryption-key
