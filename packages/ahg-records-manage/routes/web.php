@@ -1,8 +1,10 @@
 <?php
 
-use AhgRecordsManage\Controllers\RetentionController;
+use AhgRecordsManage\Controllers\ComplianceController;
 use AhgRecordsManage\Controllers\DisposalController;
+use AhgRecordsManage\Controllers\EmailCaptureController;
 use AhgRecordsManage\Controllers\FilePlanController;
+use AhgRecordsManage\Controllers\RetentionController;
 use AhgRecordsManage\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
@@ -67,4 +69,20 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/records/reviews/{id}', [ReviewController::class, 'show'])->name('records.reviews.show')->where('id', '[0-9]+');
     Route::post('/admin/records/reviews/{id}/complete', [ReviewController::class, 'complete'])->name('records.reviews.complete')->where('id', '[0-9]+');
     Route::post('/admin/records/reviews/{id}/assign', [ReviewController::class, 'assign'])->name('records.reviews.assign')->where('id', '[0-9]+');
+
+    // Email capture (P2.6)
+    Route::get('/admin/records/emails', [EmailCaptureController::class, 'index'])->name('records.emails.index');
+    Route::get('/admin/records/emails/upload', [EmailCaptureController::class, 'uploadForm'])->name('records.emails.upload-form');
+    Route::post('/admin/records/emails/upload', [EmailCaptureController::class, 'upload'])->name('records.emails.upload');
+    Route::get('/admin/records/emails/{id}', [EmailCaptureController::class, 'show'])->name('records.emails.show')->where('id', '[0-9]+');
+    Route::post('/admin/records/emails/{id}/classify', [EmailCaptureController::class, 'classify'])->name('records.emails.classify')->where('id', '[0-9]+');
+    Route::post('/admin/records/emails/{id}/declare', [EmailCaptureController::class, 'declareRecord'])->name('records.emails.declare')->where('id', '[0-9]+');
+
+    // Compliance reporting (P2.8)
+    Route::get('/admin/records/compliance', [ComplianceController::class, 'index'])->name('records.compliance.index');
+    Route::get('/admin/records/compliance/create', [ComplianceController::class, 'create'])->name('records.compliance.create');
+    Route::post('/admin/records/compliance', [ComplianceController::class, 'store'])->name('records.compliance.store');
+    Route::get('/admin/records/compliance/{id}', [ComplianceController::class, 'show'])->name('records.compliance.show')->where('id', '[0-9]+');
+    Route::post('/admin/records/compliance/{id}/run-checks', [ComplianceController::class, 'runChecks'])->name('records.compliance.run-checks')->where('id', '[0-9]+');
+    Route::post('/admin/records/compliance/{id}/finalize', [ComplianceController::class, 'finalize'])->name('records.compliance.finalize')->where('id', '[0-9]+');
 });

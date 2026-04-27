@@ -92,13 +92,15 @@
 
   {{-- Email Capture --}}
   <div class="col-md-4">
-    <div class="card h-100 border-secondary">
-      <div class="card-body">
-        <h5 class="card-title text-secondary"><i class="fas fa-envelope me-1"></i> Email Capture <small class="text-muted">(P2.6)</small></h5>
-        <p class="card-text text-muted small">Capture and classify business email as records of activity.</p>
-        <div class="mt-2"><span class="badge bg-secondary">{{ $stats['captured_emails'] }}</span> captured</div>
+    <a href="{{ route('records.emails.index') }}" class="text-decoration-none">
+      <div class="card h-100 border-secondary">
+        <div class="card-body">
+          <h5 class="card-title text-secondary"><i class="fas fa-envelope me-1"></i> Email Capture</h5>
+          <p class="card-text text-muted small">Capture and classify business email as records of activity.</p>
+          <div class="mt-2"><span class="badge bg-secondary">{{ $stats['captured_emails'] }}</span> captured</div>
+        </div>
       </div>
-    </div>
+    </a>
   </div>
 
   {{-- Classification --}}
@@ -114,13 +116,15 @@
 
   {{-- Compliance --}}
   <div class="col-md-4">
-    <div class="card h-100 border-dark">
-      <div class="card-body">
-        <h5 class="card-title text-dark"><i class="fas fa-clipboard-check me-1"></i> Compliance <small class="text-muted">(P2.8)</small></h5>
-        <p class="card-text text-muted small">ISO 15489 / MoReq2010 / DoD 5015.2 self-assessment + reporting.</p>
-        <div class="mt-2"><span class="badge bg-dark">{{ $stats['compliance_assessments'] }}</span> assessment(s)</div>
+    <a href="{{ route('records.compliance.index') }}" class="text-decoration-none">
+      <div class="card h-100 border-dark">
+        <div class="card-body">
+          <h5 class="card-title text-dark"><i class="fas fa-clipboard-check me-1"></i> Compliance</h5>
+          <p class="card-text text-muted small">ISO 15489 / MoReq2010 / DoD 5015.2 self-assessment + reporting.</p>
+          <div class="mt-2"><span class="badge bg-dark">{{ $stats['compliance_assessments'] }}</span> assessment(s)</div>
+        </div>
       </div>
-    </div>
+    </a>
   </div>
 
   {{-- Vital Records (Phase 1, lives in ahg-integrity) --}}
