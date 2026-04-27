@@ -6,6 +6,9 @@ use AhgRecordsManage\Controllers\FilePlanController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('admin')->group(function () {
+    // Dashboard / landing page (single entry point)
+    Route::get('/admin/records', [RetentionController::class, 'index'])->name('records.index');
+
     // Retention Schedules
     Route::get('/admin/records/schedules', [RetentionController::class, 'schedules'])->name('records.schedules.index');
     Route::get('/admin/records/schedules/create', [RetentionController::class, 'scheduleCreate'])->name('records.schedules.create');

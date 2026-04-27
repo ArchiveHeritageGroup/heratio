@@ -19,6 +19,39 @@ class RetentionController extends Controller
     }
 
     /**
+     * Dashboard / landing page for the Records Management module.
+     *
+     * GET /admin/records
+     *
+     * Surfaces counts across the RM data plane (schedules, disposal classes, file plan
+     * nodes, pending disposal actions, overdue reviews, captured emails) and links out
+     * to every tool. This is the single entry point an officer should bookmark.
+     */
+    public function index()
+    {
+        $stats = [
+            'retention_schedules' => \Illuminate\Support\Facades\DB::table('rm_retention_schedule')->count(),
+            'disposal_classes'    => \Illuminate\Support\Facades\DB::table('rm_disposal_class')->where('is_active', 1)->count(),
+            'fileplan_nodes'      => \Illuminate\Support\Facades\DB::table('rm_fileplan_node')->where('status', 'active')->count(),
+            'pending_disposal'    => \Illuminate\Support\Facades\DB::table('rm_disposal_action')->whereIn('status', ['pending', 'recommended'])->count(),
+            'overdue_reviews'     => \Illuminate\Support\Facades\Schema::hasTable('rm_review_schedule')
+                ? \Illuminate\Support\Facades\DB::table('rm_review_schedule')->where('status', 'pending')->where('review_due_date', '<=', now()->toDateString())->count()
+                : 0,
+            'captured_emails'     => \Illuminate\Support\Facades\Schema::hasTable('rm_email_capture')
+                ? \Illuminate\Support\Facades\DB::table('rm_email_capture')->count()
+                : 0,
+            'classified_records'  => \Illuminate\Support\Facades\Schema::hasTable('rm_classification_log')
+                ? \Illuminate\Support\Facades\DB::table('rm_classification_log')->count()
+                : 0,
+            'compliance_assessments' => \Illuminate\Support\Facades\Schema::hasTable('rm_compliance_assessment')
+                ? \Illuminate\Support\Facades\DB::table('rm_compliance_assessment')->count()
+                : 0,
+        ];
+
+        return view('ahg-records::dashboard', ['stats' => $stats]);
+    }
+
+    /**
      * Browse all retention schedules.
      */
     public function schedules(Request $request)
