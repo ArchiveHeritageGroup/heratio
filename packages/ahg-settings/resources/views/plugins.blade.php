@@ -82,9 +82,67 @@
         <p class="card-text text-muted small">
           {{ e($plugin->description ?? 'No description available') }}
         </p>
-        @if(!empty($plugin->version))
-        <small class="text-muted"><i class="fas fa-code-branch me-1"></i>v{{ e($plugin->version) }}</small>
-        @endif
+        @php
+          // Find the preferred help article for this plugin.
+          // Strategy:
+          //   1. exact related_plugin match (best — explicit curation)
+          //   2. fuzzy fallback: slug contains plugin-stem as a token (handles unlinked articles)
+          //
+          // Stem derivation: "ahgAccessionManagePlugin" → "accession" (drop ahg/Manage/Plugin
+          // suffixes to get the topic word). Compound stems like "AiCondition" yield
+          // "ai-condition" so kebab-case slugs match.
+          $__helpRow = null;
+          $__stem = '';
+          try {
+              $__bare = preg_replace(['/^ahg/', '/(Manage)?Plugin$/'], '', $plugin->name);
+              $__stem = strtolower(preg_replace('/(?<!^)([A-Z])/', '-$1', $__bare));
+
+              // Pass 1: explicit related_plugin link
+              $__helpRow = \Illuminate\Support\Facades\DB::table('help_article')
+                  ->where('related_plugin', $plugin->name)
+                  ->where('is_published', 1)
+                  ->orderByRaw(
+                      "CASE
+                          WHEN slug = ? THEN 0
+                          WHEN slug LIKE ? AND slug LIKE '%-user-guide' THEN 1
+                          WHEN slug LIKE '%-user-guide' THEN 2
+                          ELSE 3
+                       END",
+                      [$__stem . '-user-guide', '%' . $__stem . '%']
+                  )
+                  ->orderBy('sort_order')
+                  ->first(['slug', 'title']);
+
+              // Pass 2: fuzzy-fallback by slug if nothing was explicitly linked
+              if (! $__helpRow && strlen($__stem) >= 3) {
+                  $__helpRow = \Illuminate\Support\Facades\DB::table('help_article')
+                      ->where('is_published', 1)
+                      ->where(function ($q) use ($__stem) {
+                          $q->where('slug', 'LIKE', $__stem . '-%')
+                            ->orWhere('slug', 'LIKE', '%-' . $__stem . '-%')
+                            ->orWhere('slug', 'LIKE', '%-' . $__stem)
+                            ->orWhere('slug', '=',     $__stem);
+                      })
+                      ->orderByRaw(
+                          "CASE WHEN slug LIKE '%-user-guide' THEN 0 ELSE 1 END"
+                      )
+                      ->orderBy('sort_order')
+                      ->first(['slug', 'title']);
+              }
+          } catch (\Throwable $e) { /* help table not present */ }
+        @endphp
+        <div class="d-flex justify-content-between align-items-center mt-2 small">
+          @if(!empty($plugin->version))
+            <span class="text-muted"><i class="fas fa-code-branch me-1"></i>v{{ e($plugin->version) }}</span>
+          @else
+            <span></span>
+          @endif
+          @if($__helpRow)
+            <a href="{{ url('/help/article/' . $__helpRow->slug) }}" class="text-decoration-none" title="{{ e($__helpRow->title) }}">
+              <i class="fas fa-book-open me-1"></i>Help
+            </a>
+          @endif
+        </div>
       </div>
       <div class="card-footer bg-white">
         <form method="post" action="{{ route('settings.plugins') }}" class="d-inline">

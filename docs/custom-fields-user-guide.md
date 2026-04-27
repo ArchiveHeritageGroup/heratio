@@ -1,8 +1,6 @@
 # Custom Fields — User Guide
 
 **Plugin:** ahgCustomFieldsPlugin
-**Version:** 1.0.0
-**Heratio Framework:** >= 2.8.0
 
 ---
 
@@ -193,10 +191,10 @@ Add institution-specific codes via **Admin > Dropdown Manager** under the `restr
 
 | Problem | Solution |
 |---------|----------|
-| Custom fields not appearing on entity pages | Verify the plugin is enabled: `php bin/atom extension:discover` |
+| Custom fields not appearing on entity pages | Verify the plugin is enabled at `/admin/ahgSettings/plugins` |
 | Fields show on edit but not on view | Check "Visible on Public View" is enabled for the field |
 | Dropdown shows no options | Verify the linked taxonomy has active values in Dropdown Manager |
-| Changes not visible after update | Clear cache: `rm -rf cache/* && php symfony cc` |
+| Changes not visible after update | Clear cache: `php artisan cache:clear && php artisan view:clear` |
 | Import reports 0 fields imported | Fields with the same key + entity type already exist (skipped) |
 
 ---
