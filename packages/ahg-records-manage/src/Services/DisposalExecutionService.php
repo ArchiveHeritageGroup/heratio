@@ -156,16 +156,60 @@ class DisposalExecutionService
             return ['success' => false, 'error' => 'Disposal action must be in "cleared" status to execute. Current status: ' . $action->status];
         }
 
-        return DB::transaction(function () use ($action, $disposalActionId, $destination, $userId) {
+        $ioId = $action->information_object_id;
+
+        // P3.6 — Transfer to archives: build a BagIt AIP via OaisLifecycleService BEFORE
+        // we mark the disposal as executed, so a build failure aborts the whole transition.
+        // External transfers (action_type='transfer_external') skip the bag — they're handed
+        // off to a third party out-of-band; the AIP is only meaningful when the destination is
+        // the in-house preservation store.
+        $aipResult = null;
+        $aipError  = null;
+        if ($action->action_type === 'transfer_archives') {
+            try {
+                $oais = app(\AhgPreservation\Services\OaisLifecycleService::class);
+                $aipResult = $oais->createAipFromIO((int) $ioId, [
+                    'description'         => 'Transfer to archives via disposal action #' . $disposalActionId,
+                    'source_organization' => 'Heratio',
+                    'submission_agreement'=> 'Disposal action #' . $disposalActionId,
+                    'include_descendants' => true,
+                    'zip'                 => true,
+                ], 'disposal-action-' . $disposalActionId);
+            } catch (\Throwable $e) {
+                $aipError = $e->getMessage();
+            }
+            if ($aipError !== null) {
+                return [
+                    'success' => false,
+                    'error'   => 'AIP build failed during transfer: ' . $aipError,
+                ];
+            }
+        }
+
+        return DB::transaction(function () use ($action, $disposalActionId, $destination, $userId, $aipResult) {
             $ioId = $action->information_object_id;
 
-            // Update disposal action
+            // Compose a notes line that captures the AIP linkage for audit.
+            $existingNotes = (string) ($action->notes ?? '');
+            $aipLine = $aipResult
+                ? sprintf('Transfer to archives: AIP package #%d, %d files, %d bytes, bag at %s',
+                    $aipResult['aip_id'],
+                    $aipResult['payload_files'],
+                    $aipResult['total_size'],
+                    $aipResult['bag_path'])
+                : null;
+
+            $newNotes = trim(($existingNotes !== '' ? $existingNotes . "\n" : '') . ($aipLine ?? ''));
+
             DB::table('rm_disposal_action')->where('id', $disposalActionId)->update([
-                'status' => 'executed',
-                'executed_by' => $userId,
-                'executed_at' => Carbon::now(),
-                'transfer_destination' => $destination,
-                'updated_at' => Carbon::now(),
+                'status'               => 'executed',
+                'executed_by'          => $userId,
+                'executed_at'          => Carbon::now(),
+                'transfer_destination' => $aipResult
+                    ? sprintf('Heratio archives (AIP #%d)', $aipResult['aip_id'])
+                    : $destination,
+                'notes'                => $newNotes !== '' ? $newNotes : null,
+                'updated_at'           => Carbon::now(),
             ]);
 
             // Update record_declaration if exists
@@ -180,13 +224,20 @@ class DisposalExecutionService
 
             // Audit log
             $this->auditLog($userId, 'update', 'rm_disposal_action', $disposalActionId, 'Disposal executed: transfer', [
-                'destination' => $destination,
+                'destination'           => $destination,
                 'information_object_id' => $ioId,
+                'aip_package_id'        => $aipResult['aip_id'] ?? null,
+                'aip_files'             => $aipResult['payload_files'] ?? null,
+                'aip_bytes'             => $aipResult['total_size'] ?? null,
             ]);
 
             return [
-                'success' => true,
-                'destination' => $destination,
+                'success'        => true,
+                'destination'    => $destination,
+                'aip_package_id' => $aipResult['aip_id'] ?? null,
+                'aip_files'      => $aipResult['payload_files'] ?? null,
+                'aip_bytes'      => $aipResult['total_size'] ?? null,
+                'aip_bag_path'   => $aipResult['bag_path'] ?? null,
             ];
         });
     }

@@ -11,7 +11,9 @@ namespace AhgPreservation\Providers;
 
 use AhgPreservation\Console\RunFixitySchedulesCommand;
 use AhgPreservation\Services\BagItService;
+use AhgPreservation\Services\OaisLifecycleService;
 use AhgPreservation\Services\PreservationService;
+use AhgPreservation\Services\PronomIdentificationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
@@ -23,6 +25,8 @@ class AhgPreservationServiceProvider extends ServiceProvider
     {
         $this->app->singleton(PreservationService::class);
         $this->app->singleton(BagItService::class);
+        $this->app->singleton(OaisLifecycleService::class);
+        $this->app->singleton(PronomIdentificationService::class);
     }
 
     public function boot(): void
