@@ -10,7 +10,12 @@
 @if($recordId)
 <section class="mt-4" id="ric-entities-panel">
     <div class="d-flex justify-content-between align-items-center mb-2">
-        <h2 class="h5 mb-0"><i class="fas fa-project-diagram me-1"></i> RiC Context</h2>
+        <h2 class="h5 mb-0">
+            <i class="fas fa-project-diagram me-1"></i> RiC Context
+            <a href="https://openric.org" target="_blank" rel="noopener" class="ms-2 small text-decoration-none" title="Open RiC contract — see openric.org">
+                <i class="fas fa-external-link-alt"></i> <span class="small">OpenRiC</span>
+            </a>
+        </h2>
         <div class="btn-group btn-group-sm">
             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ricEntityModal" onclick="ricSetEntityType('activity')">
                 <i class="fas fa-running"></i> Add Activity

@@ -407,6 +407,9 @@
     </div>
   </section>
 
+  @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
+    @include('ahg-ric::_ric-entities-panel', ['record' => $repository])
+  @endif
   @endif {{-- end heratio/ric view mode --}}
 
   {{-- Action buttons (bottom bar, matching AtoM) — shown in both views --}}

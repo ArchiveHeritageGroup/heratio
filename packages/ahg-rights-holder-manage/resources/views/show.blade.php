@@ -359,6 +359,9 @@
     </section>
   @endif
 
+  @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
+    @include('ahg-ric::_ric-entities-panel', ['record' => $rightsHolder])
+  @endif
   @endif {{-- end heratio/ric view mode --}}
 
   {{-- RiC Context Sidebar --}}

@@ -207,7 +207,7 @@ Institutions are responsible for configuring the system appropriately for their 
 - [x] Fuseki triplestore sync and SPARQL endpoint
 - [x] IIIF manifest generation for digitised collections
 - [x] RiC dual-view on all major entity pages
-- [ ] Relation-aware editing widgets
+- [x] Relation-aware editing widgets
 - [ ] SHACL and semantic validation in admin workflows
 - [ ] PostgreSQL Heratio-native domains (workflow, audit, enrichment)
 - [ ] Multi-language NER support (including isiZulu, Sesotho, Afrikaans)

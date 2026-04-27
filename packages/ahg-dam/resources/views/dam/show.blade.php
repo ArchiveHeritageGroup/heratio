@@ -336,6 +336,9 @@
       </li>
     </ul>
   @endauth
+  @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
+    @include('ahg-ric::_ric-entities-panel', ['record' => $asset])
+  @endif
   @endif {{-- end ric_view_mode toggle --}}
 @endsection
 

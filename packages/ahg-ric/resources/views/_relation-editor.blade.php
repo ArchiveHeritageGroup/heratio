@@ -11,6 +11,11 @@
 @endphp
 
 <div id="ric-relation-editor">
+    <p class="small text-muted mb-2">
+        <i class="fas fa-link me-1"></i>
+        Predicate vocabulary follows the <a href="https://openric.org/spec/mapping.html" target="_blank" rel="noopener">OpenRiC</a> mapping —
+        each relation written here also serialises as canonical <code>rico:*</code> in the RDF/JSON-LD/Turtle exports.
+    </p>
     <table class="table table-sm table-striped mb-2">
         <thead>
             <tr>
