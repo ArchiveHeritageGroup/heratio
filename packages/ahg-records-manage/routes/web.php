@@ -1,5 +1,6 @@
 <?php
 
+use AhgRecordsManage\Controllers\ClassificationController;
 use AhgRecordsManage\Controllers\ComplianceController;
 use AhgRecordsManage\Controllers\DisposalController;
 use AhgRecordsManage\Controllers\EmailCaptureController;
@@ -85,4 +86,16 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/records/compliance/{id}', [ComplianceController::class, 'show'])->name('records.compliance.show')->where('id', '[0-9]+');
     Route::post('/admin/records/compliance/{id}/run-checks', [ComplianceController::class, 'runChecks'])->name('records.compliance.run-checks')->where('id', '[0-9]+');
     Route::post('/admin/records/compliance/{id}/finalize', [ComplianceController::class, 'finalize'])->name('records.compliance.finalize')->where('id', '[0-9]+');
+
+    // Classification rules engine (P4.2)
+    Route::get('/admin/records/classification', [ClassificationController::class, 'index'])->name('records.classification.index');
+    Route::get('/admin/records/classification/create', [ClassificationController::class, 'create'])->name('records.classification.create');
+    Route::post('/admin/records/classification', [ClassificationController::class, 'store'])->name('records.classification.store');
+    Route::post('/admin/records/classification/run-batch', [ClassificationController::class, 'runBatch'])->name('records.classification.run-batch');
+    Route::post('/admin/records/classification/classify-io/{ioId}', [ClassificationController::class, 'classifyIO'])->name('records.classification.classify-io')->where('ioId', '[0-9]+');
+    Route::get('/admin/records/classification/{id}', [ClassificationController::class, 'show'])->name('records.classification.show')->where('id', '[0-9]+');
+    Route::get('/admin/records/classification/{id}/edit', [ClassificationController::class, 'edit'])->name('records.classification.edit')->where('id', '[0-9]+');
+    Route::put('/admin/records/classification/{id}', [ClassificationController::class, 'update'])->name('records.classification.update')->where('id', '[0-9]+');
+    Route::delete('/admin/records/classification/{id}', [ClassificationController::class, 'destroy'])->name('records.classification.destroy')->where('id', '[0-9]+');
+    Route::post('/admin/records/classification/{id}/test', [ClassificationController::class, 'testRule'])->name('records.classification.test')->where('id', '[0-9]+');
 });

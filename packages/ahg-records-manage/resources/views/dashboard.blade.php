@@ -105,13 +105,15 @@
 
   {{-- Classification --}}
   <div class="col-md-4">
-    <div class="card h-100 border-primary">
-      <div class="card-body">
-        <h5 class="card-title text-primary"><i class="fas fa-magic me-1"></i> Classification Rules <small class="text-muted">(P4.2)</small></h5>
-        <p class="card-text text-muted small">Auto-assign records to file plan + disposal class on declare.</p>
-        <div class="mt-2"><span class="badge bg-primary">{{ $stats['classified_records'] }}</span> classified record(s)</div>
+    <a href="{{ route('records.classification.index') }}" class="text-decoration-none">
+      <div class="card h-100 border-primary">
+        <div class="card-body">
+          <h5 class="card-title text-primary"><i class="fas fa-magic me-1"></i> Classification Rules</h5>
+          <p class="card-text text-muted small">Auto-assign records to file plan + disposal class on declare.</p>
+          <div class="mt-2"><span class="badge bg-primary">{{ $stats['classified_records'] }}</span> classified record(s)</div>
+        </div>
       </div>
-    </div>
+    </a>
   </div>
 
   {{-- Compliance --}}

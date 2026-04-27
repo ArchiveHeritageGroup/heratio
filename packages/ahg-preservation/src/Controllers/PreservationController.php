@@ -27,14 +27,94 @@
 
 namespace AhgPreservation\Controllers;
 
+use AhgPreservation\Services\BagItService;
 use AhgPreservation\Services\PreservationService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 
 class PreservationController extends Controller
 {
-    public function __construct(protected PreservationService $service)
+    public function __construct(
+        protected PreservationService $service,
+        protected BagItService $bagit
+    ) {
+    }
+
+    /**
+     * Build a BagIt v1.0 package from an information_object subtree (P3.1).
+     *
+     * POST /admin/preservation/package/build/{ioId}
+     *
+     * Form fields:
+     *   algorithm           sha256 (default), sha512, sha1, md5
+     *   description         optional bag description
+     *   source_organization optional Source-Organization for bag-info.txt
+     *   include_descendants 0|1, default 1
+     *   zip                 0|1, default 1
+     */
+    public function buildBagItPackage(Request $request, int $ioId)
     {
+        $opts = $request->validate([
+            'algorithm'           => 'nullable|string|in:sha256,sha512,sha1,md5',
+            'name'                => 'nullable|string|max:120',
+            'description'         => 'nullable|string|max:65535',
+            'source_organization' => 'nullable|string|max:255',
+            'originator'          => 'nullable|string|max:255',
+            'submission_agreement'=> 'nullable|string|max:255',
+            'include_descendants' => 'nullable|boolean',
+            'zip'                 => 'nullable|boolean',
+        ]);
+
+        try {
+            $result = $this->bagit->buildPackage(
+                $ioId,
+                $opts,
+                (string) (auth()->user()->email ?? auth()->user()->username ?? 'admin')
+            );
+        } catch (\Throwable $e) {
+            return redirect()->route('preservation.packages')
+                ->with('error', 'BagIt build failed: ' . $e->getMessage());
+        }
+
+        return redirect()->route('preservation.package-view', $result['package_id'])
+            ->with('success', sprintf(
+                'Bag built: %d files (%s). Stored at %s%s',
+                $result['payload_files'],
+                $this->bytesHuman($result['total_size']),
+                $result['bag_path'],
+                $result['export_path'] ? ' (zip: ' . $result['export_path'] . ')' : ''
+            ));
+    }
+
+    /**
+     * Re-validate every payload + tag file in a built bag against its manifest (P3.1 part 2).
+     *
+     * POST /admin/preservation/package/{id}/validate
+     */
+    public function validateBagItPackage(int $id)
+    {
+        try {
+            $r = $this->bagit->validatePackage($id);
+        } catch (\Throwable $e) {
+            return redirect()->route('preservation.package-view', $id)
+                ->with('error', 'Validation failed: ' . $e->getMessage());
+        }
+
+        $msg = sprintf(
+            'Validation: %d ok, %d mismatched, %d missing (of %d files)',
+            $r['ok'], $r['mismatched'], $r['missing'], $r['total']
+        );
+        return redirect()->route('preservation.package-view', $id)
+            ->with(($r['mismatched'] + $r['missing']) === 0 ? 'success' : 'error', $msg);
+    }
+
+    private function bytesHuman(int $bytes): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $i = 0; $size = (float) $bytes;
+        while ($size >= 1024 && $i < count($units) - 1) { $size /= 1024; $i++; }
+        return round($size, 2) . ' ' . $units[$i];
     }
 
     /**

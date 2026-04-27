@@ -26,6 +26,14 @@ Route::middleware('admin')->group(function () {
     Route::post('/admin/preservation/api/fixity/{id}/verify', [PreservationController::class, 'apiVerifyFixity'])->name('preservation.api.fixity.verify');
     Route::get('/admin/preservation/api/stats', [PreservationController::class, 'apiStats'])->name('preservation.api.stats');
 
+    // BagIt v1.0 packaging (P3.1)
+    Route::post('/admin/preservation/package/build/{ioId}', [PreservationController::class, 'buildBagItPackage'])
+        ->where('ioId', '[0-9]+')
+        ->name('preservation.package.build');
+    Route::post('/admin/preservation/package/{id}/validate', [PreservationController::class, 'validateBagItPackage'])
+        ->where('id', '[0-9]+')
+        ->name('preservation.package.validate');
+
     // TIFF/PDF Merge
     Route::prefix('admin/preservation/tiffpdfmerge')->group(function () {
         Route::get('/', [TiffPdfMergeController::class, 'index'])->name('preservation.tiffpdfmerge.index');
