@@ -79,13 +79,15 @@
 
   {{-- Reviews --}}
   <div class="col-md-4">
-    <div class="card h-100 border-warning">
-      <div class="card-body">
-        <h5 class="card-title text-warning"><i class="fas fa-eye me-1"></i> Reviews <small class="text-muted">(P2.4)</small></h5>
-        <p class="card-text text-muted small">Periodic review queue — when retention asks "look again before disposing".</p>
-        <div class="mt-2"><span class="badge bg-warning text-dark">{{ $stats['overdue_reviews'] }}</span> overdue</div>
+    <a href="{{ route('records.reviews.index') }}" class="text-decoration-none">
+      <div class="card h-100 border-warning">
+        <div class="card-body">
+          <h5 class="card-title text-warning"><i class="fas fa-eye me-1"></i> Reviews</h5>
+          <p class="card-text text-muted small">Periodic review queue — when retention asks "look again before disposing".</p>
+          <div class="mt-2"><span class="badge bg-warning text-dark">{{ $stats['overdue_reviews'] }}</span> overdue</div>
+        </div>
       </div>
-    </div>
+    </a>
   </div>
 
   {{-- Email Capture --}}

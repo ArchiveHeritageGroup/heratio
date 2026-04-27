@@ -3,6 +3,7 @@
 use AhgRecordsManage\Controllers\RetentionController;
 use AhgRecordsManage\Controllers\DisposalController;
 use AhgRecordsManage\Controllers\FilePlanController;
+use AhgRecordsManage\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('admin')->group(function () {
@@ -59,4 +60,11 @@ Route::middleware('admin')->group(function () {
     Route::put('/admin/records/fileplan/{id}', [FilePlanController::class, 'update'])->name('records.fileplan.update')->where('id', '[0-9]+');
     Route::delete('/admin/records/fileplan/{id}', [FilePlanController::class, 'destroy'])->name('records.fileplan.destroy')->where('id', '[0-9]+');
     Route::post('/admin/records/fileplan/{id}/move', [FilePlanController::class, 'move'])->name('records.fileplan.move')->where('id', '[0-9]+');
+
+    // Review queue (P2.4)
+    Route::get('/admin/records/reviews', [ReviewController::class, 'index'])->name('records.reviews.index');
+    Route::post('/admin/records/reviews', [ReviewController::class, 'store'])->name('records.reviews.store');
+    Route::get('/admin/records/reviews/{id}', [ReviewController::class, 'show'])->name('records.reviews.show')->where('id', '[0-9]+');
+    Route::post('/admin/records/reviews/{id}/complete', [ReviewController::class, 'complete'])->name('records.reviews.complete')->where('id', '[0-9]+');
+    Route::post('/admin/records/reviews/{id}/assign', [ReviewController::class, 'assign'])->name('records.reviews.assign')->where('id', '[0-9]+');
 });
