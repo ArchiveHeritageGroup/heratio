@@ -227,19 +227,38 @@ Heratio is released under the [GNU Affero General Public License v3.0 (AGPL-3.0)
 
 ---
 
+## Authors and Credits
+
+Heratio is the brainchild of **Johan Pieterse**, conceived and architected as the operational platform for AI-assisted archival, records, and digital asset management. The AI subsystems and platform were built by:
+
+- **Johan Pieterse** — concept, architecture, platform lead
+- **Renaldo Venter** — AI engineering
+- **Stefan du Toit** — AI engineering
+
 ## Citation
 
 If you use Heratio in your research, please cite:
 
 ```bibtex
 @article{pieterse2026heratio,
-  author  = {Pieterse, Johannes Jurie and Jacobs, Lorette},
-  title   = {AI-Driven Digital Transformation of Unstructured Records in a
-             South African State-Owned Company: A Socio-Technical Framework
-             and Proof-of-Concept Implementation},
+  author  = {Pieterse, Johannes Jurie},
+  title   = {AI-Driven Digital Transformation of Unstructured Records:
+             A Socio-Technical Framework and Proof-of-Concept Implementation},
   journal = {Information Systems Frontiers},
   year    = {2026},
   note    = {Submitted}
+}
+
+@article{pieterse2026samab,
+  author  = {Pieterse, Johannes Jurie},
+  title   = {Artificial Intelligence as Collections Steward:
+             Enabling Inclusive, Sustainable Museum Collections Management
+             in the African Context},
+  journal = {South African Museums Association Bulletin (SAMAB)},
+  volume  = {48},
+  year    = {2026},
+  note    = {Abstract accepted; full paper due 30 May 2026;
+             editorial decision by 26 June 2026}
 }
 ```
 
