@@ -1039,30 +1039,43 @@ class DisplayController extends Controller
             }
         }
 
+        $useDenorm = $this->useDenormFacets();
+        $relTable  = $useDenorm ? 'ahg_io_facet_denorm' : 'object_term_relation';
+        $relIoCol  = $useDenorm ? 'io_id' : 'object_id';
+
         if ($this->subjectFilter) {
-            $query->whereExists(function ($q) {
+            $query->whereExists(function ($q) use ($relTable, $relIoCol, $useDenorm) {
                 $q->select(DB::raw(1))
-                    ->from('object_term_relation')
-                    ->whereRaw('object_term_relation.object_id = io.id')
-                    ->where('object_term_relation.term_id', $this->subjectFilter);
+                    ->from($relTable)
+                    ->whereRaw("{$relTable}.{$relIoCol} = io.id")
+                    ->where("{$relTable}.term_id", $this->subjectFilter);
+                if ($useDenorm) {
+                    $q->where("{$relTable}.taxonomy_id", 35);
+                }
             });
         }
 
         if ($this->placeFilter) {
-            $query->whereExists(function ($q) {
+            $query->whereExists(function ($q) use ($relTable, $relIoCol, $useDenorm) {
                 $q->select(DB::raw(1))
-                    ->from('object_term_relation')
-                    ->whereRaw('object_term_relation.object_id = io.id')
-                    ->where('object_term_relation.term_id', $this->placeFilter);
+                    ->from($relTable)
+                    ->whereRaw("{$relTable}.{$relIoCol} = io.id")
+                    ->where("{$relTable}.term_id", $this->placeFilter);
+                if ($useDenorm) {
+                    $q->where("{$relTable}.taxonomy_id", 42);
+                }
             });
         }
 
         if ($this->genreFilter) {
-            $query->whereExists(function ($q) {
+            $query->whereExists(function ($q) use ($relTable, $relIoCol, $useDenorm) {
                 $q->select(DB::raw(1))
-                    ->from('object_term_relation')
-                    ->whereRaw('object_term_relation.object_id = io.id')
-                    ->where('object_term_relation.term_id', $this->genreFilter);
+                    ->from($relTable)
+                    ->whereRaw("{$relTable}.{$relIoCol} = io.id")
+                    ->where("{$relTable}.term_id", $this->genreFilter);
+                if ($useDenorm) {
+                    $q->where("{$relTable}.taxonomy_id", 78);
+                }
             });
         }
 
@@ -1283,6 +1296,20 @@ class DisplayController extends Controller
     }
 
     /**
+     * Pattern C — read facet term relations from ahg_io_facet_denorm sidecar
+     * instead of joining object_term_relation → term, when the flag is on.
+     * See docs/adr/0001-atom-base-schema-readonly-sidecar-pattern.md.
+     */
+    protected function useDenormFacets(): bool
+    {
+        static $cached = null;
+        if ($cached !== null) {
+            return $cached;
+        }
+        return $cached = SettingHelper::get('ahg_display_use_facet_denorm', '0') === '1';
+    }
+
+    /**
      * Get cached facet data from display_facet_cache table.
      *
      * @param string $facetType The facet type, e.g. 'subject', 'subject_all', 'glam_type', 'glam_type_all'
@@ -1355,27 +1382,54 @@ class DisplayController extends Controller
                 break;
 
             case 'subject':
-                $query->join('object_term_relation as otr_s', 'otr_s.object_id', '=', 'io.id')
-                    ->join('term as ts', function ($j) { $j->on('otr_s.term_id', '=', 'ts.id')->where('ts.taxonomy_id', '=', 35); })
-                    ->join('term_i18n as tis', function ($j) use ($culture) { $j->on('ts.id', '=', 'tis.id')->where('tis.culture', '=', $culture); })
-                    ->select('ts.id as facet_id', 'tis.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                    ->groupBy('ts.id', 'tis.name');
+                if ($this->useDenormFacets()) {
+                    $query->join('ahg_io_facet_denorm as fd_s', function ($j) {
+                            $j->on('fd_s.io_id', '=', 'io.id')->where('fd_s.taxonomy_id', '=', 35);
+                        })
+                        ->join('term_i18n as tis', function ($j) use ($culture) { $j->on('fd_s.term_id', '=', 'tis.id')->where('tis.culture', '=', $culture); })
+                        ->select('fd_s.term_id as facet_id', 'tis.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                        ->groupBy('fd_s.term_id', 'tis.name');
+                } else {
+                    $query->join('object_term_relation as otr_s', 'otr_s.object_id', '=', 'io.id')
+                        ->join('term as ts', function ($j) { $j->on('otr_s.term_id', '=', 'ts.id')->where('ts.taxonomy_id', '=', 35); })
+                        ->join('term_i18n as tis', function ($j) use ($culture) { $j->on('ts.id', '=', 'tis.id')->where('tis.culture', '=', $culture); })
+                        ->select('ts.id as facet_id', 'tis.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                        ->groupBy('ts.id', 'tis.name');
+                }
                 break;
 
             case 'place':
-                $query->join('object_term_relation as otr_p', 'otr_p.object_id', '=', 'io.id')
-                    ->join('term as tp', function ($j) { $j->on('otr_p.term_id', '=', 'tp.id')->where('tp.taxonomy_id', '=', 42); })
-                    ->join('term_i18n as tip', function ($j) use ($culture) { $j->on('tp.id', '=', 'tip.id')->where('tip.culture', '=', $culture); })
-                    ->select('tp.id as facet_id', 'tip.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                    ->groupBy('tp.id', 'tip.name');
+                if ($this->useDenormFacets()) {
+                    $query->join('ahg_io_facet_denorm as fd_p', function ($j) {
+                            $j->on('fd_p.io_id', '=', 'io.id')->where('fd_p.taxonomy_id', '=', 42);
+                        })
+                        ->join('term_i18n as tip', function ($j) use ($culture) { $j->on('fd_p.term_id', '=', 'tip.id')->where('tip.culture', '=', $culture); })
+                        ->select('fd_p.term_id as facet_id', 'tip.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                        ->groupBy('fd_p.term_id', 'tip.name');
+                } else {
+                    $query->join('object_term_relation as otr_p', 'otr_p.object_id', '=', 'io.id')
+                        ->join('term as tp', function ($j) { $j->on('otr_p.term_id', '=', 'tp.id')->where('tp.taxonomy_id', '=', 42); })
+                        ->join('term_i18n as tip', function ($j) use ($culture) { $j->on('tp.id', '=', 'tip.id')->where('tip.culture', '=', $culture); })
+                        ->select('tp.id as facet_id', 'tip.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                        ->groupBy('tp.id', 'tip.name');
+                }
                 break;
 
             case 'genre':
-                $query->join('object_term_relation as otr_g', 'otr_g.object_id', '=', 'io.id')
-                    ->join('term as tg', function ($j) { $j->on('otr_g.term_id', '=', 'tg.id')->where('tg.taxonomy_id', '=', 78); })
-                    ->join('term_i18n as tig', function ($j) use ($culture) { $j->on('tg.id', '=', 'tig.id')->where('tig.culture', '=', $culture); })
-                    ->select('tg.id as facet_id', 'tig.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                    ->groupBy('tg.id', 'tig.name');
+                if ($this->useDenormFacets()) {
+                    $query->join('ahg_io_facet_denorm as fd_g', function ($j) {
+                            $j->on('fd_g.io_id', '=', 'io.id')->where('fd_g.taxonomy_id', '=', 78);
+                        })
+                        ->join('term_i18n as tig', function ($j) use ($culture) { $j->on('fd_g.term_id', '=', 'tig.id')->where('tig.culture', '=', $culture); })
+                        ->select('fd_g.term_id as facet_id', 'tig.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                        ->groupBy('fd_g.term_id', 'tig.name');
+                } else {
+                    $query->join('object_term_relation as otr_g', 'otr_g.object_id', '=', 'io.id')
+                        ->join('term as tg', function ($j) { $j->on('otr_g.term_id', '=', 'tg.id')->where('tg.taxonomy_id', '=', 78); })
+                        ->join('term_i18n as tig', function ($j) use ($culture) { $j->on('tg.id', '=', 'tig.id')->where('tig.culture', '=', $culture); })
+                        ->select('tg.id as facet_id', 'tig.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                        ->groupBy('tg.id', 'tig.name');
+                }
                 break;
 
             case 'level':
