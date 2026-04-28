@@ -45,6 +45,37 @@ class DiscoveryController extends Controller
     public const VALID_STRATEGIES = ['keyword', 'entity', 'hierarchical', 'vector', 'image'];
 
     /**
+     * Cached resolved connection name, so the per-request lookup hits ahg_settings once.
+     * Cleared at the boundary of each request via Laravel's normal lifecycle.
+     */
+    private ?string $discoveryConn = null;
+
+    /**
+     * Connection name for non-ES strategies — entity NER lookups, hierarchical
+     * walks, and enrich/group joins. Reads ahg_settings.discovery_db_connection;
+     * defaults to 'atom' (the ANC corpus). Falls back to the framework default
+     * connection if the requested one is missing — e.g. fresh installs without
+     * an `atom` DB will keep working in degraded mode (smaller heratio sample).
+     *
+     * Issue #14.
+     */
+    protected function discoveryDb(): \Illuminate\Database\ConnectionInterface
+    {
+        if ($this->discoveryConn === null) {
+            $name = (string) (DB::table('ahg_settings')
+                ->where('setting_key', 'discovery_db_connection')
+                ->value('setting_value') ?? 'atom');
+            $this->discoveryConn = $name !== '' ? $name : 'atom';
+        }
+        try {
+            return DB::connection($this->discoveryConn);
+        } catch (\Throwable $e) {
+            // Configured connection missing — degrade to default rather than fatal.
+            return DB::connection();
+        }
+    }
+
+    /**
      * Map a request's `strategies` param + legacy `mode` into the canonical
      * list of enabled retrieval strategies.
      *
@@ -973,9 +1004,19 @@ class DiscoveryController extends Controller
     }
 
     /**
-     * DB-based keyword search (no Elasticsearch dependency).
-     * Searches information_object_i18n title + scope_and_content using LIKE
-     * with relevance scoring.
+     * Elasticsearch-backed keyword search (issue #13).
+     *
+     * Hits {prefix}qubitinformationobject directly via AhgSearch's
+     * ElasticsearchService::search(). Title is weighted 3× over scope/history.
+     * Returns [object_id, es_score, highlights, slug] in the same shape the
+     * downstream merger expects.
+     *
+     * Previous implementation was a MySQL `LIKE %term%` scan with hand-rolled
+     * relevance scoring (~240 ms cold, 176 ms warm against atom 455k rows).
+     * ES on the same query lands in 6–9 ms wall time per the Apr-2026 status doc.
+     *
+     * If Elasticsearch is unreachable, returns []; the rest of the pipeline
+     * (entity, hierarchical, vector) keeps running.
      */
     private function keywordSearch(array $expanded, string $culture, int $limit = 100): array
     {
@@ -983,45 +1024,54 @@ class DiscoveryController extends Controller
         if (empty($searchTerms)) {
             return [];
         }
+        $queryString = trim(implode(' ', $searchTerms));
+        if ($queryString === '') {
+            return [];
+        }
 
         try {
-            $query = DB::table('information_object_i18n as ioi')
-                ->join('information_object as io', 'ioi.id', '=', 'io.id')
-                ->select('ioi.id as object_id')
-                ->where('ioi.culture', $culture)
-                ->where('io.parent_id', '>', 1);
+            $es = app(\AhgSearch\Services\ElasticsearchService::class);
+            $body = [
+                'query' => [
+                    'query_string' => [
+                        'query'            => $queryString,
+                        'fields'           => [
+                            "i18n.{$culture}.title^3",
+                            "i18n.{$culture}.scopeAndContent",
+                            "i18n.{$culture}.history",
+                            "identifier^2",
+                        ],
+                        'default_operator' => 'OR',
+                    ],
+                ],
+                '_source' => ['slug', "i18n.{$culture}.title"],
+                'highlight' => [
+                    'fields' => [
+                        "i18n.{$culture}.title"            => (object) [],
+                        "i18n.{$culture}.scopeAndContent"  => [
+                            'fragment_size'       => 200,
+                            'number_of_fragments' => 1,
+                        ],
+                    ],
+                    'pre_tags'  => ['<mark>'],
+                    'post_tags' => ['</mark>'],
+                ],
+            ];
 
-            $query->where(function ($q) use ($searchTerms) {
-                foreach ($searchTerms as $term) {
-                    $q->orWhere('ioi.title', 'LIKE', '%' . $term . '%');
-                    $q->orWhere('ioi.scope_and_content', 'LIKE', '%' . $term . '%');
-                }
-            });
+            $resp = $es->search('qubitinformationobject', $body, 0, $limit);
 
-            // Score: title matches weighted higher
-            $scoreParts = [];
-            foreach ($searchTerms as $term) {
-                $escaped = addslashes($term);
-                $scoreParts[] = "(CASE WHEN ioi.title LIKE '%" . $escaped . "%' THEN 3 ELSE 0 END)";
-                $scoreParts[] = "(CASE WHEN ioi.scope_and_content LIKE '%" . $escaped . "%' THEN 1 ELSE 0 END)";
-            }
-            $scoreExpr = implode(' + ', $scoreParts);
-
-            $results = $query
-                ->selectRaw("({$scoreExpr}) as relevance_score")
-                ->orderByDesc('relevance_score')
-                ->limit($limit)
-                ->get();
-
-            return $results->map(function ($row) {
-                return [
-                    'object_id' => (int) $row->object_id,
-                    'es_score' => (float) $row->relevance_score,
-                    'highlights' => [],
-                    'slug' => null,
+            $hits = [];
+            foreach (($resp['hits']['hits'] ?? []) as $hit) {
+                $hits[] = [
+                    'object_id'  => (int) ($hit['_id'] ?? 0),
+                    'es_score'   => (float) ($hit['_score'] ?? 0),
+                    'highlights' => $hit['highlight'] ?? [],
+                    'slug'       => $hit['_source']['slug'] ?? null,
                 ];
-            })->toArray();
-        } catch (\Exception $e) {
+            }
+            return $hits;
+        } catch (\Throwable $e) {
+            // ES unavailable — let the pipeline carry on with the other strategies.
             return [];
         }
     }
@@ -1057,11 +1107,12 @@ class DiscoveryController extends Controller
         }
 
         try {
-            $exists = DB::select("SHOW TABLES LIKE 'ahg_ner_entity'");
+            $db = $this->discoveryDb();
+            $exists = $db->select("SHOW TABLES LIKE 'ahg_ner_entity'");
             if (empty($exists)) {
                 return [];
             }
-            return DB::table('ahg_ner_entity')
+            return $db->table('ahg_ner_entity')
                 ->select(
                     'object_id',
                     DB::raw('COUNT(*) as match_count'),
@@ -1107,7 +1158,8 @@ class DiscoveryController extends Controller
         $highLevels = $this->getHighLevelIds();
 
         try {
-            $nodes = DB::table('information_object')
+            $db = $this->discoveryDb();
+            $nodes = $db->table('information_object')
                 ->select('id', 'parent_id', 'level_of_description_id')
                 ->whereIn('id', $walkIds)
                 ->get()->keyBy('id');
@@ -1119,7 +1171,7 @@ class DiscoveryController extends Controller
                     continue;
                 }
 
-                $siblings = DB::table('information_object')
+                $siblings = $db->table('information_object')
                     ->where('parent_id', $parentId)
                     ->where('id', '!=', $objectId)
                     ->whereNotIn('id', $alreadyFound)
@@ -1133,7 +1185,7 @@ class DiscoveryController extends Controller
                 }
 
                 if (in_array((int) $node->level_of_description_id, $highLevels)) {
-                    $children = DB::table('information_object')
+                    $children = $db->table('information_object')
                         ->where('parent_id', $objectId)
                         ->whereNotIn('id', $alreadyFound)
                         ->limit(10)->pluck('id')->toArray();
@@ -1159,7 +1211,7 @@ class DiscoveryController extends Controller
             return $ids;
         }
         try {
-            $ids = DB::table('term')
+            $ids = $this->discoveryDb()->table('term')
                 ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
                 ->where('term.taxonomy_id', 34)
                 ->whereIn('term_i18n.name', ['Fonds', 'Sub-fonds', 'Series', 'Collection', 'Sub-series'])
@@ -1267,33 +1319,35 @@ class DiscoveryController extends Controller
             return [];
         }
 
-        $titles = DB::table('information_object_i18n')
+        $db = $this->discoveryDb();
+
+        $titles = $db->table('information_object_i18n')
             ->select('id', 'title', 'scope_and_content')
             ->whereIn('id', $ids)->where('culture', $culture)
             ->get()->keyBy('id');
 
-        $slugs = DB::table('slug')->whereIn('object_id', $ids)->pluck('slug', 'object_id');
+        $slugs = $db->table('slug')->whereIn('object_id', $ids)->pluck('slug', 'object_id');
 
-        $levels = DB::table('information_object as io')
+        $levels = $db->table('information_object as io')
             ->leftJoin('term_i18n as ti', function ($j) use ($culture) {
                 $j->on('io.level_of_description_id', '=', 'ti.id')->where('ti.culture', '=', $culture);
             })
             ->select('io.id', 'ti.name as level')
             ->whereIn('io.id', $ids)->get()->pluck('level', 'id');
 
-        $dates = DB::table('event')
+        $dates = $db->table('event')
             ->select('object_id', 'start_date', 'end_date')
             ->whereIn('object_id', $ids)->where('type_id', TermId::EVENT_TYPE_CREATION)
             ->get()->keyBy('object_id');
 
-        $creators = DB::table('event')
+        $creators = $db->table('event')
             ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
             ->select('event.object_id', 'actor_i18n.authorized_form_of_name as creator')
             ->whereIn('event.object_id', $ids)->where('event.type_id', TermId::EVENT_TYPE_CREATION)
             ->where('actor_i18n.culture', $culture)
             ->get()->pluck('creator', 'object_id');
 
-        $repos = DB::table('information_object as io')
+        $repos = $db->table('information_object as io')
             ->join('actor_i18n as ai', function ($j) use ($culture) {
                 $j->on('io.repository_id', '=', 'ai.id')->where('ai.culture', '=', $culture);
             })
@@ -1301,16 +1355,16 @@ class DiscoveryController extends Controller
             ->whereIn('io.id', $ids)->whereNotNull('io.repository_id')
             ->get()->pluck('repository', 'id');
 
-        $thumbnails = DB::table('digital_object')
+        $thumbnails = $db->table('digital_object')
             ->select('object_id', 'path', 'name')
             ->whereIn('object_id', $ids)->where('usage_id', 142)
             ->get()->keyBy('object_id');
 
         $entities = [];
         try {
-            $exists = DB::select("SHOW TABLES LIKE 'ahg_ner_entity'");
+            $exists = $db->select("SHOW TABLES LIKE 'ahg_ner_entity'");
             if (!empty($exists)) {
-                $entRows = DB::table('ahg_ner_entity')
+                $entRows = $db->table('ahg_ner_entity')
                     ->select('object_id', 'entity_type', 'entity_value')
                     ->whereIn('object_id', $ids)->whereIn('status', ['approved', 'pending'])->get();
                 foreach ($entRows as $row) {
@@ -1376,13 +1430,14 @@ class DiscoveryController extends Controller
             return $cache[$objectId];
         }
         try {
+            $db = $this->discoveryDb();
             $current = $objectId;
             $maxDepth = 20;
             while ($maxDepth-- > 0) {
-                $node = DB::table('information_object')->select('id', 'parent_id')->where('id', $current)->first();
+                $node = $db->table('information_object')->select('id', 'parent_id')->where('id', $current)->first();
                 if (!$node || (int) $node->parent_id <= 1) {
-                    $title = DB::table('information_object_i18n')->where('id', $current)->where('culture', $culture)->value('title');
-                    $slug = DB::table('slug')->where('object_id', $current)->value('slug');
+                    $title = $db->table('information_object_i18n')->where('id', $current)->where('culture', $culture)->value('title');
+                    $slug = $db->table('slug')->where('object_id', $current)->value('slug');
                     $result = ['id' => (int) $current, 'title' => $title ?: 'Untitled', 'slug' => $slug ?: ''];
                     $cache[$objectId] = $result;
                     return $result;

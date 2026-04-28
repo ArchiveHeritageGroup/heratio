@@ -32,10 +32,33 @@ class PageIndexService
     private string $fusekiUsername;
     private string $fusekiPassword;
 
+    /** Cached connection name resolved once per instance (issue #14). */
+    private ?string $discoveryConn = null;
+
     public function __construct(?OllamaPageIndexClient $llmClient = null)
     {
         $this->llmClient = $llmClient ?? OllamaPageIndexClient::fromSettings();
         $this->loadConfig();
+    }
+
+    /**
+     * Resolve the connection used for ANC content lookups. Mirrors
+     * DiscoveryController::discoveryDb(); reads ahg_settings.discovery_db_connection
+     * (default 'atom'); falls back to framework default if missing.
+     */
+    private function discoveryDb(): \Illuminate\Database\ConnectionInterface
+    {
+        if ($this->discoveryConn === null) {
+            $name = (string) (DB::table('ahg_settings')
+                ->where('setting_key', 'discovery_db_connection')
+                ->value('setting_value') ?? 'atom');
+            $this->discoveryConn = $name !== '' ? $name : 'atom';
+        }
+        try {
+            return DB::connection($this->discoveryConn);
+        } catch (\Throwable $e) {
+            return DB::connection();
+        }
     }
 
     private function loadConfig(): void
@@ -386,7 +409,8 @@ class PageIndexService
     private function extractEadContent(int $objectId, string $culture): array
     {
         // Get the root information object
-        $root = DB::table('information_object as i')
+        $db = $this->discoveryDb();
+        $root = $db->table('information_object as i')
             ->join('object as o', 'i.id', '=', 'o.id')
             ->leftJoin('information_object_i18n as i18n', function ($join) use ($culture) {
                 $join->on('i.id', '=', 'i18n.id')
@@ -427,7 +451,7 @@ class PageIndexService
         $levelLabel = $this->getLevelLabel($root->level_of_description_id, $culture);
 
         // Get children within the nested set range
-        $children = DB::table('information_object as i')
+        $children = $db->table('information_object as i')
             ->join('object as o', 'i.id', '=', 'o.id')
             ->leftJoin('information_object_i18n as i18n', function ($join) use ($culture) {
                 $join->on('i.id', '=', 'i18n.id')
@@ -451,7 +475,7 @@ class PageIndexService
             ->get();
 
         // Get events (dates)
-        $events = DB::table('event as e')
+        $events = $db->table('event as e')
             ->leftJoin('event_i18n as ei18n', function ($join) use ($culture) {
                 $join->on('e.id', '=', 'ei18n.id')
                      ->where('ei18n.culture', $culture);
@@ -461,7 +485,7 @@ class PageIndexService
             ->get();
 
         // Get creators (via event)
-        $creators = DB::table('event as e')
+        $creators = $db->table('event as e')
             ->join('actor_i18n as ai', function ($join) use ($culture) {
                 $join->on('e.actor_id', '=', 'ai.id')
                      ->where('ai.culture', $culture);
@@ -472,7 +496,7 @@ class PageIndexService
             ->get();
 
         // Get repository name
-        $repository = DB::table('information_object as i')
+        $repository = $db->table('information_object as i')
             ->join('repository as r', 'i.repository_id', '=', 'r.id')
             ->join('actor_i18n as ai', function ($join) use ($culture) {
                 $join->on('r.id', '=', 'ai.id')
@@ -570,7 +594,8 @@ class PageIndexService
     private function extractPdfContent(int $objectId): array
     {
         // Find the digital object's file path
-        $digitalObject = DB::table('digital_object as do')
+        $db = $this->discoveryDb();
+        $digitalObject = $db->table('digital_object as do')
             ->where('do.object_id', $objectId)
             ->select('do.id', 'do.path', 'do.name', 'do.mime_type')
             ->first();
@@ -596,14 +621,14 @@ class PageIndexService
         }
 
         // Check if we already have OCR text in iiif_ocr_text table
-        $existingOcr = DB::table('iiif_ocr_text')
+        $existingOcr = $db->table('iiif_ocr_text')
             ->where('digital_object_id', $digitalObject->id)
             ->whereNotNull('full_text')
             ->where('full_text', '!=', '')
             ->value('full_text');
 
         if ($existingOcr) {
-            $title = DB::table('information_object_i18n')
+            $title = $db->table('information_object_i18n')
                 ->where('id', $objectId)
                 ->where('culture', 'en')
                 ->value('title');
@@ -626,7 +651,7 @@ class PageIndexService
             return ['success' => false, 'text' => '', 'error' => 'OCR service failed or unavailable'];
         }
 
-        $title = DB::table('information_object_i18n')
+        $title = $db->table('information_object_i18n')
             ->where('id', $objectId)
             ->where('culture', 'en')
             ->value('title');
@@ -871,7 +896,8 @@ SPARQL;
             return '';
         }
 
-        $label = DB::table('term_i18n')
+        $db = $this->discoveryDb();
+        $label = $db->table('term_i18n')
             ->where('id', $termId)
             ->where('culture', $culture)
             ->value('name');

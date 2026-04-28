@@ -9,6 +9,7 @@
 
 namespace AhgDiscovery\Providers;
 
+use AhgDiscovery\Console\DiscoveryPruneCommand;
 use AhgDiscovery\Services\DiscoveryQueryLogger;
 use AhgDiscovery\Services\Search\ImageSearchStrategy;
 use AhgDiscovery\Services\Search\VectorSearchStrategy;
@@ -31,6 +32,12 @@ class AhgDiscoveryServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'discovery');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-discovery');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                DiscoveryPruneCommand::class,
+            ]);
+        }
 
         $this->seedDefaultSettings();
     }
@@ -68,6 +75,8 @@ class AhgDiscoveryServiceProvider extends ServiceProvider
                 'ahg_discovery_image_embed_model'    => 'clip-vit-b-32',
                 // Logging — always on; turn off via this flag if too chatty
                 'ahg_discovery_log_queries'          => '1',
+                // Retention for ahg_discovery_log; consumed by `php artisan ahg:discovery-prune` (#19)
+                'ahg_discovery_log_retention_days'   => '90',
             ];
 
             $existingKeys = DB::table('ahg_settings')

@@ -29,7 +29,10 @@ class OllamaPageIndexClient
     public function __construct(array $config = [])
     {
         $this->endpoint = rtrim($config['endpoint'] ?? 'http://192.168.0.112:11434', '/');
-        $this->model = $config['model'] ?? 'llama3.1:8b';
+        // Default switched from llama3.1:8b (not pulled locally as of 2026-04-28)
+        // to qwen3:8b which is on disk; configurable per-install via ahg_settings
+        // setting_group='pageindex'. Issue #12.
+        $this->model = $config['model'] ?? 'qwen3:8b';
         $this->timeout = (int) ($config['timeout'] ?? 300);
         $this->temperature = (float) ($config['temperature'] ?? 0.3);
         $this->maxRetries = (int) ($config['max_retries'] ?? 2);

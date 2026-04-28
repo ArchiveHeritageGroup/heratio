@@ -63,6 +63,26 @@ return [
             ]) : [],
         ],
 
+        // Read-only ANC corpus connection used by Discovery (issue #14).
+        // Heratio's primary DB has 743 demo IOs; the ANC pilot lives in `atom`
+        // (~454k IOs, ~9.79M ahg_ner_entity rows). Keyword search already hits
+        // ES which is sourced from atom; entity / hierarchical / enrichResults
+        // need direct DB access. Override DISCOVERY_DB_DATABASE in .env if the
+        // ANC corpus name changes per environment.
+        'atom' => [
+            'driver'      => 'mysql',
+            'host'        => env('DB_HOST', '127.0.0.1'),
+            'port'        => env('DB_PORT', '3306'),
+            'database'    => env('DISCOVERY_DB_DATABASE', 'atom'),
+            'username'    => env('DB_USERNAME', 'root'),
+            'password'    => env('DB_PASSWORD', ''),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset'     => env('DB_CHARSET', 'utf8mb4'),
+            'collation'   => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix'      => '',
+            'strict'      => true,
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),
