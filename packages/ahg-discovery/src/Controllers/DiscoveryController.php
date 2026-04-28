@@ -159,31 +159,68 @@ class DiscoveryController extends Controller
             return response()->json($cached);
         }
 
+        // Per-strategy telemetry capture — populated as we run each strategy below.
+        // Schema: ['strategy_name' => ['hits' => [...], 'ms' => N]]
+        $strategyResults = [];
+
         // Step 1: Query Expansion
+        $t0 = microtime(true);
         $expanded = $this->expandQuery($query);
+        $strategyResults['expansion'] = ['hits' => [], 'ms' => (int) ((microtime(true) - $t0) * 1000)];
 
         // Step 2: Keyword search (DB-based)
+        $t0 = microtime(true);
         $keywordResults = $this->keywordSearch($expanded, $culture, 100);
+        $strategyResults['keyword'] = ['hits' => $keywordResults, 'ms' => (int) ((microtime(true) - $t0) * 1000)];
 
         // Step 3: Entity search (semantic mode)
         $entityResults = [];
         if (in_array($mode, ['semantic', 'vector'])) {
+            $t0 = microtime(true);
             $entityResults = $this->entitySearch($expanded, 200);
+            $strategyResults['entity'] = ['hits' => $entityResults, 'ms' => (int) ((microtime(true) - $t0) * 1000)];
+        }
+
+        // Step 3b (NEW): Vector similarity via Qdrant — run when in semantic/vector mode
+        // and the strategy is enabled; failure is silent (returns []).
+        $vectorResults = [];
+        if (in_array($mode, ['semantic', 'vector'])) {
+            $t0 = microtime(true);
+            try {
+                $vectorStrategy = app(\AhgDiscovery\Services\Search\VectorSearchStrategy::class);
+                if ($vectorStrategy->isEnabled()) {
+                    $vectorResults = $vectorStrategy->search($query, ['culture' => $culture, 'limit' => 100]);
+                }
+            } catch (\Throwable $e) {
+                // Strategy unavailable; carry on with non-vector results.
+            }
+            $strategyResults['vector'] = ['hits' => $vectorResults, 'ms' => (int) ((microtime(true) - $t0) * 1000)];
         }
 
         // Step 4: Hierarchical walk on top results
+        $t0 = microtime(true);
         $topResults = array_merge(
             array_slice($keywordResults, 0, 10),
             array_slice($entityResults, 0, 10)
         );
         $allFoundIds = array_unique(array_merge(
             array_column($keywordResults, 'object_id'),
-            array_column($entityResults, 'object_id')
+            array_column($entityResults, 'object_id'),
+            array_column($vectorResults, 'object_id')
         ));
         $hierarchicalResults = $this->hierarchicalSearch($topResults, $allFoundIds, 20);
+        $strategyResults['hierarchical'] = ['hits' => $hierarchicalResults, 'ms' => (int) ((microtime(true) - $t0) * 1000)];
 
-        // Step 5: Merge & Rank
+        // Step 5: Merge & Rank (existing 3-way merger)
+        $t0 = microtime(true);
         $merged = $this->mergeResults($keywordResults, $entityResults, $hierarchicalResults);
+
+        // Step 5b (NEW): Reciprocal Rank Fusion with vector results — boosts items
+        // that appear in both the merged keyword pipeline AND the vector index.
+        if (! empty($vectorResults)) {
+            $merged = $this->rrfBoostWithVector($merged, $vectorResults);
+        }
+        $strategyResults['merge'] = ['hits' => $merged, 'ms' => (int) ((microtime(true) - $t0) * 1000)];
 
         // Step 6: Enrich with metadata (paginated slice)
         $totalResults = count($merged);
@@ -213,9 +250,82 @@ class DiscoveryController extends Controller
         ];
 
         $this->putInCache($cacheKey, $query, $response);
-        $this->logSearch($query, $expanded, $totalResults, $startTime);
+
+        // Rich telemetry — captures per-strategy timings + ranks for ablation.
+        try {
+            $logId = app(\AhgDiscovery\Services\DiscoveryQueryLogger::class)->logQuery([
+                'query'            => $query,
+                'user_id'          => auth()->id(),
+                'session_id'       => $request->session()->getId(),
+                'expanded'         => $expanded,
+                'keywords'         => $expanded['keywords'] ?? [],
+                'strategy_results' => $strategyResults,
+                'merged_ids'       => array_column($merged, 'object_id'),
+                'final_ids'        => array_column($enrichedResults, 'object_id'),
+                'response_ms'      => (int) ((microtime(true) - $startTime) * 1000),
+            ]);
+            if ($logId) {
+                $response['log_id'] = $logId; // exposed so the JS click handler can correlate
+            }
+        } catch (\Throwable $e) {
+            $this->logSearch($query, $expanded, $totalResults, $startTime); // legacy fallback
+        }
 
         return response()->json($response);
+    }
+
+    /**
+     * Reciprocal Rank Fusion boost. Reorders the existing merged-results array
+     * by adding a 1/(60+rank_in_vector) bonus to items that also appeared in the
+     * vector hit list. Items with no vector signal keep their original score.
+     *
+     * Standard RRF k=60 (Cormack et al., SIGIR 2009).
+     *
+     * @param array $merged          Output of {@see mergeResults()}
+     * @param array $vectorResults   Output of VectorSearchStrategy::search()
+     * @return array reordered merged-results array
+     */
+    private function rrfBoostWithVector(array $merged, array $vectorResults): array
+    {
+        if (empty($vectorResults)) {
+            return $merged;
+        }
+        $k = 60;
+        $vectorRank = [];
+        foreach ($vectorResults as $i => $v) {
+            $vectorRank[(int) $v['object_id']] = $i;
+        }
+
+        // Add vector items the merger missed entirely so they can rank into the result set.
+        $existing = array_column($merged, 'object_id');
+        $existingSet = array_flip(array_map('intval', $existing));
+        foreach ($vectorResults as $v) {
+            $id = (int) $v['object_id'];
+            if (! isset($existingSet[$id])) {
+                $merged[] = [
+                    'object_id'     => $id,
+                    'score'         => 0.0,
+                    'match_reasons' => ['VECTOR'],
+                    'highlights'    => [],
+                    'slug'          => $v['slug'] ?? null,
+                ];
+            }
+        }
+
+        // Recompute scores with vector boost, then re-sort.
+        foreach ($merged as &$row) {
+            $id = (int) $row['object_id'];
+            if (isset($vectorRank[$id])) {
+                $row['score'] = (float) $row['score'] + (1.0 / ($k + $vectorRank[$id] + 1));
+                if (! in_array('VECTOR', $row['match_reasons'] ?? [])) {
+                    $row['match_reasons'][] = 'VECTOR';
+                }
+            }
+        }
+        unset($row);
+
+        usort($merged, fn($a, $b) => $b['score'] <=> $a['score']);
+        return $merged;
     }
 
     /**
@@ -283,24 +393,45 @@ class DiscoveryController extends Controller
      */
     public function click(Request $request)
     {
-        $query = trim($request->input('query', ''));
-        $objectId = (int) $request->input('object_id', 0);
+        $query     = trim($request->input('query', ''));
+        $objectId  = (int) $request->input('object_id', 0);
         $sessionId = $request->input('session_id', '');
+        $logId     = (int) $request->input('log_id', 0);
+        $dwellMs   = $request->has('dwell_ms') ? (int) $request->input('dwell_ms') : null;
 
-        if (empty($query) || $objectId <= 0) {
-            return response()->json(['success' => false, 'error' => 'Missing query or object_id'], 400);
+        if ($objectId <= 0) {
+            return response()->json(['success' => false, 'error' => 'Missing object_id'], 400);
         }
 
-        try {
-            DB::table('ahg_discovery_log')
-                ->where('query_text', $query)
-                ->where('session_id', $sessionId)
-                ->whereNull('clicked_object')
-                ->orderByDesc('created_at')
-                ->limit(1)
-                ->update(['clicked_object' => $objectId]);
-        } catch (\Exception $e) {
-            // Table may not exist yet
+        $logger = app(\AhgDiscovery\Services\DiscoveryQueryLogger::class);
+        $ok = $logger->logClick(
+            $logId > 0 ? $logId : null,
+            $objectId,
+            $sessionId !== '' ? $sessionId : null
+        );
+
+        // Legacy path — older callers that only pass query+session and no log_id.
+        // Falls through to a query-text match for back-compat. New rows now
+        // record clicked_at as well as clicked_object.
+        if (! $ok && $query !== '' && $sessionId !== '') {
+            try {
+                DB::table('ahg_discovery_log')
+                    ->where('query_text', $query)
+                    ->where('session_id', $sessionId)
+                    ->whereNull('clicked_object')
+                    ->orderByDesc('created_at')
+                    ->limit(1)
+                    ->update([
+                        'clicked_object' => $objectId,
+                        'clicked_at'     => now(),
+                    ]);
+            } catch (\Throwable $e) {
+                // Table may not exist yet
+            }
+        }
+
+        if ($dwellMs !== null && $logId > 0) {
+            $logger->logDwell($logId, $dwellMs);
         }
 
         return response()->json(['success' => true]);
