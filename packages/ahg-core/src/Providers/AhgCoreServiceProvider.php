@@ -92,7 +92,6 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Commands\HeritageRegionCommand::class,
                 \AhgCore\Commands\HeritageBuildGraphCommand::class,
                 \AhgCore\Commands\LinkedDataSyncCommand::class,
-                \AhgCore\Commands\IngestCommitCommand::class,
                 \AhgCore\Commands\FormsExportCommand::class,
                 \AhgCore\Commands\FormsImportCommand::class,
                 \AhgCore\Commands\IpsasReportCommand::class,
