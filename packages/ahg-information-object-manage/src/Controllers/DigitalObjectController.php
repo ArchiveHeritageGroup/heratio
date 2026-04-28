@@ -68,9 +68,10 @@ class DigitalObjectController extends Controller
         try {
             $masterId = DigitalObjectService::upload($io->id, $request->file('digital_object'));
 
-            // Auto-scan for condition if enabled
+            // Auto-scan for condition if enabled.
+            // Deferred: dispatch happens once the AI condition service ships. Scope-locked
+            // to HTR work for now, so the hook stays observable but inert.
             if (AhgSettingsService::getBool('ai_condition_auto_scan', false)) {
-                // TODO: wire ai_condition_auto_scan — dispatch condition scan job when AI condition service is built
                 \Log::info('ai_condition_auto_scan: would dispatch condition scan for IO ' . $io->id);
             }
 
