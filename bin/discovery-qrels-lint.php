@@ -32,7 +32,15 @@
  */
 
 const EXPECTED_HEADER = ['query_id', 'query_text', 'query_type', 'object_id', 'relevance'];
-const VALID_QUERY_TYPES = ['known_item', 'person', 'place', 'topical', 'hierarchical'];
+// query_type enum.
+// Curated set (#16): known_item, person, place, topical, hierarchical.
+// Simulated set (#11): title, subject, scope_np, typo — mirror the four
+// generators in DiscoverySimulatedQueryService so the same lint passes for
+// both curated and simulated qrels.
+const VALID_QUERY_TYPES = [
+    'known_item', 'person', 'place', 'topical', 'hierarchical',
+    'title', 'subject', 'scope_np', 'typo',
+];
 const VALID_RELEVANCES = [0, 1, 2];
 
 [$path, $checkDb] = parseArgs($argv);

@@ -1,0 +1,2268 @@
+query_id,query_text,query_type,object_id,relevance
+q001,"Correspondence French Mission",title,42665,2
+q002,"Statements Finland Mission",title,32363,2
+q003,"Correspondence Italian Mission",title,7160,2
+q004,"Discussion Documents Department",title,3888,2
+q005,"July 5th 9th,",title,374960,2
+q006,"Discussion Documents French",title,78810,2
+q007,"SOMAFCO Photographic Collection",title,341046,2
+q008,"Subject Files Italian",title,15405,2
+q009,"SOMAFCO Photographic Collection",title,320699,2
+q010,"Newsletters French Mission",title,83611,2
+q011,"Living conditions Dakawa.",title,375017,2
+q012,"Progress Report",title,160542,2
+q013,"Reports Department Education",title,6454,2
+q014,"Correspondence and Minutes",title,88715,2
+q015,"Morogoro Office",title,374930,2
+q016,"Subjects Files Finland",title,32784,2
+q017,"Minutes Finland Mission",title,29293,2
+q018,"Subject Files",title,180897,2
+q019,"Tanzania Mission Office",title,360576,2
+q020,"Photographs Loose Nelson",title,360520,2
+q021,"and Ireland Mission",title,341072,2
+q022,"Documents Italian Mission",title,14097,2
+q023,"Additions Belgian Mission",title,88709,2
+q024,"Minutes French Mission",title,82212,2
+q025,"Reports Additions",title,176405,2
+q026,"SOUTH AFRICAN COMMUNIST",title,374983,2
+q027,"Subject Files and",title,16455,2
+q028,"Department Education Discussion",title,3878,2
+q029,"Correspondence Department Education",title,460,2
+q030,"Subjects Files",title,300934,2
+q031,"Fort Hare University",subject,381877,2
+q031,"Fort Hare University",subject,394328,1
+q031,"Fort Hare University",subject,457246,1
+q031,"Fort Hare University",subject,505907,1
+q031,"Fort Hare University",subject,506054,1
+q031,"Fort Hare University",subject,506173,1
+q031,"Fort Hare University",subject,506231,1
+q031,"Fort Hare University",subject,524299,1
+q031,"Fort Hare University",subject,605713,1
+q031,"Fort Hare University",subject,605740,1
+q031,"Fort Hare University",subject,606081,1
+q031,"Fort Hare University",subject,608546,1
+q031,"Fort Hare University",subject,610279,1
+q031,"Fort Hare University",subject,610299,1
+q031,"Fort Hare University",subject,636119,1
+q031,"Fort Hare University",subject,640126,1
+q031,"Fort Hare University",subject,640151,1
+q031,"Fort Hare University",subject,640621,1
+q031,"Fort Hare University",subject,640652,1
+q031,"Fort Hare University",subject,640684,1
+q031,"Fort Hare University",subject,643822,1
+q031,"Fort Hare University",subject,649786,1
+q031,"Fort Hare University",subject,649817,1
+q031,"Fort Hare University",subject,651646,1
+q031,"Fort Hare University",subject,667415,1
+q031,"Fort Hare University",subject,667429,1
+q031,"Fort Hare University",subject,668041,1
+q031,"Fort Hare University",subject,668064,1
+q031,"Fort Hare University",subject,668891,1
+q031,"Fort Hare University",subject,668909,1
+q031,"Fort Hare University",subject,669543,1
+q031,"Fort Hare University",subject,669567,1
+q031,"Fort Hare University",subject,670240,1
+q031,"Fort Hare University",subject,671377,1
+q031,"Fort Hare University",subject,671386,1
+q031,"Fort Hare University",subject,685176,1
+q031,"Fort Hare University",subject,727151,1
+q031,"Fort Hare University",subject,727184,1
+q031,"Fort Hare University",subject,728587,1
+q031,"Fort Hare University",subject,728707,1
+q031,"Fort Hare University",subject,737394,1
+q031,"Fort Hare University",subject,737414,1
+q031,"Fort Hare University",subject,737433,1
+q031,"Fort Hare University",subject,737455,1
+q031,"Fort Hare University",subject,738631,1
+q031,"Fort Hare University",subject,738649,1
+q031,"Fort Hare University",subject,742174,1
+q031,"Fort Hare University",subject,742202,1
+q031,"Fort Hare University",subject,742473,1
+q031,"Fort Hare University",subject,742494,1
+q032,"The Department Of Education",subject,376731,2
+q032,"The Department Of Education",subject,376967,1
+q032,"The Department Of Education",subject,388321,1
+q032,"The Department Of Education",subject,388472,1
+q032,"The Department Of Education",subject,406473,1
+q032,"The Department Of Education",subject,418136,1
+q032,"The Department Of Education",subject,442705,1
+q032,"The Department Of Education",subject,442856,1
+q032,"The Department Of Education",subject,497218,1
+q032,"The Department Of Education",subject,497559,1
+q032,"The Department Of Education",subject,504814,1
+q032,"The Department Of Education",subject,504927,1
+q032,"The Department Of Education",subject,512740,1
+q032,"The Department Of Education",subject,515803,1
+q032,"The Department Of Education",subject,518509,1
+q032,"The Department Of Education",subject,529902,1
+q032,"The Department Of Education",subject,558279,1
+q032,"The Department Of Education",subject,558494,1
+q032,"The Department Of Education",subject,558678,1
+q032,"The Department Of Education",subject,593582,1
+q032,"The Department Of Education",subject,593820,1
+q032,"The Department Of Education",subject,605920,1
+q032,"The Department Of Education",subject,606925,1
+q032,"The Department Of Education",subject,614891,1
+q032,"The Department Of Education",subject,619220,1
+q032,"The Department Of Education",subject,622113,1
+q032,"The Department Of Education",subject,622931,1
+q032,"The Department Of Education",subject,623091,1
+q032,"The Department Of Education",subject,623665,1
+q032,"The Department Of Education",subject,623751,1
+q032,"The Department Of Education",subject,632219,1
+q032,"The Department Of Education",subject,632929,1
+q032,"The Department Of Education",subject,633639,1
+q032,"The Department Of Education",subject,656801,1
+q032,"The Department Of Education",subject,656919,1
+q032,"The Department Of Education",subject,657624,1
+q032,"The Department Of Education",subject,662383,1
+q032,"The Department Of Education",subject,665622,1
+q032,"The Department Of Education",subject,667855,1
+q032,"The Department Of Education",subject,667869,1
+q032,"The Department Of Education",subject,667902,1
+q032,"The Department Of Education",subject,667928,1
+q032,"The Department Of Education",subject,668891,1
+q032,"The Department Of Education",subject,668909,1
+q032,"The Department Of Education",subject,670720,1
+q032,"The Department Of Education",subject,671349,1
+q032,"The Department Of Education",subject,671571,1
+q032,"The Department Of Education",subject,671610,1
+q032,"The Department Of Education",subject,684568,1
+q032,"The Department Of Education",subject,684586,1
+q033,"Oxford University",subject,452499,2
+q033,"Oxford University",subject,454187,1
+q033,"Oxford University",subject,472683,1
+q033,"Oxford University",subject,475569,1
+q033,"Oxford University",subject,489017,1
+q033,"Oxford University",subject,501833,1
+q033,"Oxford University",subject,509639,1
+q033,"Oxford University",subject,511061,1
+q033,"Oxford University",subject,516561,1
+q033,"Oxford University",subject,517186,1
+q033,"Oxford University",subject,584049,1
+q033,"Oxford University",subject,584295,1
+q033,"Oxford University",subject,606354,1
+q033,"Oxford University",subject,606561,1
+q033,"Oxford University",subject,620618,1
+q033,"Oxford University",subject,624454,1
+q033,"Oxford University",subject,706433,1
+q033,"Oxford University",subject,732677,1
+q033,"Oxford University",subject,732781,1
+q033,"Oxford University",subject,752784,1
+q033,"Oxford University",subject,796897,1
+q033,"Oxford University",subject,908373,1
+q033,"Oxford University",subject,924527,1
+q033,"Oxford University",subject,933317,1
+q033,"Oxford University",subject,942919,1
+q033,"Oxford University",subject,948944,1
+q033,"Oxford University",subject,971512,1
+q033,"Oxford University",subject,977913,1
+q033,"Oxford University",subject,979564,1
+q033,"Oxford University",subject,983630,1
+q033,"Oxford University",subject,996857,1
+q033,"Oxford University",subject,997208,1
+q033,"Oxford University",subject,1034596,1
+q033,"Oxford University",subject,1114608,1
+q033,"Oxford University",subject,1163201,1
+q033,"Oxford University",subject,1216818,1
+q033,"Oxford University",subject,1217579,1
+q033,"Oxford University",subject,1218617,1
+q033,"Oxford University",subject,1303180,1
+q033,"Oxford University",subject,1350873,1
+q033,"Oxford University",subject,1351875,1
+q033,"Oxford University",subject,1366200,1
+q033,"Oxford University",subject,1368793,1
+q033,"Oxford University",subject,1369715,1
+q033,"Oxford University",subject,1381819,1
+q033,"Oxford University",subject,1386217,1
+q033,"Oxford University",subject,1386282,1
+q033,"Oxford University",subject,1406424,1
+q033,"Oxford University",subject,1421424,1
+q033,"Oxford University",subject,1421527,1
+q034,"Foreign Affairs",subject,548581,2
+q034,"Foreign Affairs",subject,678468,1
+q034,"Foreign Affairs",subject,678503,1
+q034,"Foreign Affairs",subject,699366,1
+q034,"Foreign Affairs",subject,796137,1
+q034,"Foreign Affairs",subject,1013138,1
+q034,"Foreign Affairs",subject,1013147,1
+q034,"Foreign Affairs",subject,1191219,1
+q034,"Foreign Affairs",subject,1203146,1
+q034,"Foreign Affairs",subject,1289636,1
+q034,"Foreign Affairs",subject,1324744,1
+q034,"Foreign Affairs",subject,1461050,1
+q034,"Foreign Affairs",subject,1461549,1
+q034,"Foreign Affairs",subject,1534896,1
+q034,"Foreign Affairs",subject,1723924,1
+q034,"Foreign Affairs",subject,1723937,1
+q034,"Foreign Affairs",subject,1957181,1
+q034,"Foreign Affairs",subject,2374966,1
+q034,"Foreign Affairs",subject,2826953,1
+q034,"Foreign Affairs",subject,3119028,1
+q034,"Foreign Affairs",subject,3119068,1
+q034,"Foreign Affairs",subject,3666147,1
+q034,"Foreign Affairs",subject,3668228,1
+q034,"Foreign Affairs",subject,3812728,1
+q034,"Foreign Affairs",subject,3921979,1
+q034,"Foreign Affairs",subject,3977856,1
+q034,"Foreign Affairs",subject,4057534,1
+q034,"Foreign Affairs",subject,4233577,1
+q034,"Foreign Affairs",subject,4233598,1
+q034,"Foreign Affairs",subject,4509888,1
+q034,"Foreign Affairs",subject,4529566,1
+q034,"Foreign Affairs",subject,4529618,1
+q034,"Foreign Affairs",subject,4560678,1
+q034,"Foreign Affairs",subject,4560750,1
+q034,"Foreign Affairs",subject,4614105,1
+q034,"Foreign Affairs",subject,4629783,1
+q034,"Foreign Affairs",subject,4642019,1
+q034,"Foreign Affairs",subject,5964501,1
+q034,"Foreign Affairs",subject,5964517,1
+q034,"Foreign Affairs",subject,6237805,1
+q034,"Foreign Affairs",subject,6237818,1
+q034,"Foreign Affairs",subject,6302469,1
+q034,"Foreign Affairs",subject,6366959,1
+q034,"Foreign Affairs",subject,6420242,1
+q034,"Foreign Affairs",subject,7210737,1
+q034,"Foreign Affairs",subject,7395634,1
+q034,"Foreign Affairs",subject,7434596,1
+q034,"Foreign Affairs",subject,7434611,1
+q034,"Foreign Affairs",subject,7434626,1
+q034,"Foreign Affairs",subject,7896675,1
+q035,"African Unity",subject,431051,2
+q035,"African Unity",subject,431119,1
+q035,"African Unity",subject,458623,1
+q035,"African Unity",subject,461923,1
+q035,"African Unity",subject,495672,1
+q035,"African Unity",subject,503718,1
+q035,"African Unity",subject,519475,1
+q035,"African Unity",subject,536861,1
+q035,"African Unity",subject,549370,1
+q035,"African Unity",subject,804850,1
+q035,"African Unity",subject,825212,1
+q035,"African Unity",subject,929779,1
+q035,"African Unity",subject,1101144,1
+q035,"African Unity",subject,1114119,1
+q035,"African Unity",subject,1177125,1
+q035,"African Unity",subject,1224731,1
+q035,"African Unity",subject,1250027,1
+q035,"African Unity",subject,1557772,1
+q035,"African Unity",subject,1650900,1
+q035,"African Unity",subject,2085963,1
+q035,"African Unity",subject,2198358,1
+q035,"African Unity",subject,2198376,1
+q035,"African Unity",subject,2273152,1
+q035,"African Unity",subject,2356018,1
+q035,"African Unity",subject,2373954,1
+q035,"African Unity",subject,2415631,1
+q035,"African Unity",subject,2463526,1
+q035,"African Unity",subject,2481540,1
+q035,"African Unity",subject,2506276,1
+q035,"African Unity",subject,2563323,1
+q035,"African Unity",subject,2598480,1
+q035,"African Unity",subject,2728134,1
+q035,"African Unity",subject,2820715,1
+q035,"African Unity",subject,2990626,1
+q035,"African Unity",subject,3008259,1
+q035,"African Unity",subject,3009870,1
+q035,"African Unity",subject,3118273,1
+q035,"African Unity",subject,3191190,1
+q035,"African Unity",subject,3234997,1
+q035,"African Unity",subject,3324890,1
+q035,"African Unity",subject,3399436,1
+q035,"African Unity",subject,3533219,1
+q035,"African Unity",subject,3535847,1
+q035,"African Unity",subject,3551516,1
+q035,"African Unity",subject,3569834,1
+q035,"African Unity",subject,3598736,1
+q035,"African Unity",subject,4005374,1
+q035,"African Unity",subject,4009669,1
+q035,"African Unity",subject,4051128,1
+q035,"African Unity",subject,4105513,1
+q036,"The Cape Times",subject,460917,2
+q036,"The Cape Times",subject,464615,1
+q036,"The Cape Times",subject,467791,1
+q036,"The Cape Times",subject,468240,1
+q036,"The Cape Times",subject,490589,1
+q036,"The Cape Times",subject,548797,1
+q036,"The Cape Times",subject,554986,1
+q036,"The Cape Times",subject,768990,1
+q036,"The Cape Times",subject,769148,1
+q036,"The Cape Times",subject,807536,1
+q036,"The Cape Times",subject,883175,1
+q036,"The Cape Times",subject,926888,1
+q036,"The Cape Times",subject,945766,1
+q036,"The Cape Times",subject,953510,1
+q036,"The Cape Times",subject,955575,1
+q036,"The Cape Times",subject,999968,1
+q036,"The Cape Times",subject,1006860,1
+q036,"The Cape Times",subject,1006919,1
+q036,"The Cape Times",subject,1021176,1
+q036,"The Cape Times",subject,1021503,1
+q036,"The Cape Times",subject,1036210,1
+q036,"The Cape Times",subject,1067643,1
+q036,"The Cape Times",subject,1067681,1
+q036,"The Cape Times",subject,1195129,1
+q036,"The Cape Times",subject,1249269,1
+q036,"The Cape Times",subject,1249832,1
+q036,"The Cape Times",subject,1273764,1
+q036,"The Cape Times",subject,1335422,1
+q036,"The Cape Times",subject,1335874,1
+q036,"The Cape Times",subject,1337714,1
+q036,"The Cape Times",subject,1337975,1
+q036,"The Cape Times",subject,1338184,1
+q036,"The Cape Times",subject,1383011,1
+q036,"The Cape Times",subject,1383028,1
+q036,"The Cape Times",subject,1424779,1
+q036,"The Cape Times",subject,1428495,1
+q036,"The Cape Times",subject,1450964,1
+q036,"The Cape Times",subject,1461719,1
+q036,"The Cape Times",subject,1470435,1
+q036,"The Cape Times",subject,1470466,1
+q036,"The Cape Times",subject,1470783,1
+q036,"The Cape Times",subject,1470801,1
+q036,"The Cape Times",subject,1471122,1
+q036,"The Cape Times",subject,1472216,1
+q036,"The Cape Times",subject,1472462,1
+q036,"The Cape Times",subject,1473251,1
+q036,"The Cape Times",subject,1473274,1
+q036,"The Cape Times",subject,1476747,1
+q036,"The Cape Times",subject,1477135,1
+q036,"The Cape Times",subject,1478879,1
+q037,Harvard,subject,464368,2
+q037,Harvard,subject,465724,1
+q037,Harvard,subject,534608,1
+q037,Harvard,subject,561880,1
+q037,Harvard,subject,563706,1
+q037,Harvard,subject,764494,1
+q037,Harvard,subject,764627,1
+q037,Harvard,subject,773796,1
+q037,Harvard,subject,774268,1
+q037,Harvard,subject,805773,1
+q037,Harvard,subject,811949,1
+q037,Harvard,subject,833268,1
+q037,Harvard,subject,833474,1
+q037,Harvard,subject,880246,1
+q037,Harvard,subject,928032,1
+q037,Harvard,subject,941985,1
+q037,Harvard,subject,969757,1
+q037,Harvard,subject,977913,1
+q037,Harvard,subject,982695,1
+q037,Harvard,subject,1022272,1
+q037,Harvard,subject,1090573,1
+q037,Harvard,subject,1090781,1
+q037,Harvard,subject,1174029,1
+q037,Harvard,subject,1174681,1
+q037,Harvard,subject,1196192,1
+q037,Harvard,subject,1196566,1
+q037,Harvard,subject,1263522,1
+q037,Harvard,subject,1264154,1
+q037,Harvard,subject,1301700,1
+q037,Harvard,subject,1302569,1
+q037,Harvard,subject,1315425,1
+q037,Harvard,subject,1316502,1
+q037,Harvard,subject,1325815,1
+q037,Harvard,subject,1330384,1
+q037,Harvard,subject,1357297,1
+q037,Harvard,subject,1372034,1
+q037,Harvard,subject,1372341,1
+q037,Harvard,subject,1385177,1
+q037,Harvard,subject,1405713,1
+q037,Harvard,subject,1408565,1
+q037,Harvard,subject,1408618,1
+q037,Harvard,subject,1411103,1
+q037,Harvard,subject,1411302,1
+q037,Harvard,subject,1413416,1
+q037,Harvard,subject,1413583,1
+q037,Harvard,subject,1413689,1
+q037,Harvard,subject,1441006,1
+q037,Harvard,subject,1450781,1
+q037,Harvard,subject,1458441,1
+q037,Harvard,subject,1472116,1
+q038,"the United Nations",subject,9113503,2
+q038,"the United Nations",subject,9114066,1
+q038,"the United Nations",subject,9114359,1
+q038,"the United Nations",subject,9114435,1
+q038,"the United Nations",subject,9115082,1
+q038,"the United Nations",subject,9115185,1
+q038,"the United Nations",subject,9115360,1
+q038,"the United Nations",subject,9116366,1
+q038,"the United Nations",subject,9116754,1
+q038,"the United Nations",subject,9117333,1
+q038,"the United Nations",subject,9118863,1
+q038,"the United Nations",subject,9121276,1
+q038,"the United Nations",subject,9121456,1
+q038,"the United Nations",subject,9121513,1
+q038,"the United Nations",subject,9122197,1
+q038,"the United Nations",subject,9122264,1
+q038,"the United Nations",subject,9123428,1
+q038,"the United Nations",subject,9123936,1
+q038,"the United Nations",subject,9124410,1
+q038,"the United Nations",subject,9125179,1
+q038,"the United Nations",subject,9126463,1
+q038,"the United Nations",subject,9127695,1
+q038,"the United Nations",subject,9127878,1
+q038,"the United Nations",subject,9128874,1
+q038,"the United Nations",subject,9129280,1
+q038,"the United Nations",subject,9129511,1
+q038,"the United Nations",subject,9131923,1
+q038,"the United Nations",subject,9132188,1
+q038,"the United Nations",subject,9132242,1
+q038,"the United Nations",subject,9132340,1
+q038,"the United Nations",subject,9132789,1
+q038,"the United Nations",subject,9133109,1
+q038,"the United Nations",subject,9133413,1
+q038,"the United Nations",subject,9133826,1
+q038,"the United Nations",subject,9133998,1
+q038,"the United Nations",subject,9134225,1
+q038,"the United Nations",subject,9134667,1
+q038,"the United Nations",subject,9134955,1
+q038,"the United Nations",subject,9135923,1
+q038,"the United Nations",subject,9137188,1
+q038,"the United Nations",subject,9138185,1
+q038,"the United Nations",subject,9138679,1
+q038,"the United Nations",subject,9139450,1
+q038,"the United Nations",subject,9139520,1
+q038,"the United Nations",subject,9140138,1
+q038,"the United Nations",subject,9140190,1
+q038,"the United Nations",subject,9140524,1
+q038,"the United Nations",subject,9140944,1
+q038,"the United Nations",subject,9141185,1
+q038,"the United Nations",subject,9141918,1
+q039,Secretary-General,subject,9113945,2
+q039,Secretary-General,subject,9114066,1
+q039,Secretary-General,subject,9114664,1
+q039,Secretary-General,subject,9116754,1
+q039,Secretary-General,subject,9121513,1
+q039,Secretary-General,subject,9122197,1
+q039,Secretary-General,subject,9122228,1
+q039,Secretary-General,subject,9123428,1
+q039,Secretary-General,subject,9126387,1
+q039,Secretary-General,subject,9126463,1
+q039,Secretary-General,subject,9129204,1
+q039,Secretary-General,subject,9130860,1
+q039,Secretary-General,subject,9132188,1
+q039,Secretary-General,subject,9134058,1
+q039,Secretary-General,subject,9134349,1
+q039,Secretary-General,subject,9135858,1
+q039,Secretary-General,subject,9135923,1
+q039,Secretary-General,subject,9136905,1
+q039,Secretary-General,subject,9137188,1
+q039,Secretary-General,subject,9140052,1
+q039,Secretary-General,subject,9140492,1
+q039,Secretary-General,subject,9141448,1
+q039,Secretary-General,subject,9143060,1
+q039,Secretary-General,subject,9146277,1
+q039,Secretary-General,subject,9147773,1
+q039,Secretary-General,subject,9147943,1
+q039,Secretary-General,subject,9150113,1
+q039,Secretary-General,subject,9151480,1
+q039,Secretary-General,subject,9154191,1
+q039,Secretary-General,subject,9154512,1
+q039,Secretary-General,subject,9154600,1
+q039,Secretary-General,subject,9155014,1
+q039,Secretary-General,subject,9156745,1
+q039,Secretary-General,subject,9160999,1
+q039,Secretary-General,subject,9164662,1
+q039,Secretary-General,subject,9165917,1
+q039,Secretary-General,subject,9166540,1
+q039,Secretary-General,subject,9169640,1
+q039,Secretary-General,subject,9174707,1
+q039,Secretary-General,subject,9175601,1
+q039,Secretary-General,subject,9176721,1
+q039,Secretary-General,subject,9177299,1
+q039,Secretary-General,subject,9182026,1
+q039,Secretary-General,subject,9183091,1
+q039,Secretary-General,subject,9184923,1
+q039,Secretary-General,subject,9186697,1
+q039,Secretary-General,subject,9188997,1
+q039,Secretary-General,subject,9189167,1
+q039,Secretary-General,subject,9190176,1
+q039,Secretary-General,subject,9191233,1
+q040,"The United Democratic Front",subject,378749,2
+q040,"The United Democratic Front",subject,389685,1
+q040,"The United Democratic Front",subject,406869,1
+q040,"The United Democratic Front",subject,444080,1
+q040,"The United Democratic Front",subject,451296,1
+q040,"The United Democratic Front",subject,452581,1
+q040,"The United Democratic Front",subject,463803,1
+q040,"The United Democratic Front",subject,464615,1
+q040,"The United Democratic Front",subject,468240,1
+q040,"The United Democratic Front",subject,489017,1
+q040,"The United Democratic Front",subject,495065,1
+q040,"The United Democratic Front",subject,496860,1
+q040,"The United Democratic Front",subject,524299,1
+q040,"The United Democratic Front",subject,556290,1
+q040,"The United Democratic Front",subject,557247,1
+q040,"The United Democratic Front",subject,580786,1
+q040,"The United Democratic Front",subject,580885,1
+q040,"The United Democratic Front",subject,582200,1
+q040,"The United Democratic Front",subject,631059,1
+q040,"The United Democratic Front",subject,655363,1
+q040,"The United Democratic Front",subject,668989,1
+q040,"The United Democratic Front",subject,669589,1
+q040,"The United Democratic Front",subject,769308,1
+q040,"The United Democratic Front",subject,769384,1
+q040,"The United Democratic Front",subject,775878,1
+q040,"The United Democratic Front",subject,777336,1
+q040,"The United Democratic Front",subject,777489,1
+q040,"The United Democratic Front",subject,781138,1
+q040,"The United Democratic Front",subject,786784,1
+q040,"The United Democratic Front",subject,801479,1
+q040,"The United Democratic Front",subject,801623,1
+q040,"The United Democratic Front",subject,801837,1
+q040,"The United Democratic Front",subject,807365,1
+q040,"The United Democratic Front",subject,808498,1
+q040,"The United Democratic Front",subject,813270,1
+q040,"The United Democratic Front",subject,824178,1
+q040,"The United Democratic Front",subject,824270,1
+q040,"The United Democratic Front",subject,826199,1
+q040,"The United Democratic Front",subject,838183,1
+q040,"The United Democratic Front",subject,847649,1
+q040,"The United Democratic Front",subject,847869,1
+q040,"The United Democratic Front",subject,894087,1
+q040,"The United Democratic Front",subject,895307,1
+q040,"The United Democratic Front",subject,896000,1
+q040,"The United Democratic Front",subject,898084,1
+q040,"The United Democratic Front",subject,898187,1
+q040,"The United Democratic Front",subject,926132,1
+q040,"The United Democratic Front",subject,927135,1
+q040,"The United Democratic Front",subject,931227,1
+q040,"The United Democratic Front",subject,936970,1
+q041,"The University Of The Western Cape",subject,384271,2
+q041,"The University Of The Western Cape",subject,387729,1
+q041,"The University Of The Western Cape",subject,398366,1
+q041,"The University Of The Western Cape",subject,403298,1
+q041,"The University Of The Western Cape",subject,404782,1
+q041,"The University Of The Western Cape",subject,468240,1
+q041,"The University Of The Western Cape",subject,471695,1
+q041,"The University Of The Western Cape",subject,489017,1
+q041,"The University Of The Western Cape",subject,505138,1
+q041,"The University Of The Western Cape",subject,506411,1
+q041,"The University Of The Western Cape",subject,542857,1
+q041,"The University Of The Western Cape",subject,585723,1
+q041,"The University Of The Western Cape",subject,585878,1
+q041,"The University Of The Western Cape",subject,607319,1
+q041,"The University Of The Western Cape",subject,608706,1
+q041,"The University Of The Western Cape",subject,608805,1
+q041,"The University Of The Western Cape",subject,609520,1
+q041,"The University Of The Western Cape",subject,609643,1
+q041,"The University Of The Western Cape",subject,611499,1
+q041,"The University Of The Western Cape",subject,611538,1
+q041,"The University Of The Western Cape",subject,618585,1
+q041,"The University Of The Western Cape",subject,630267,1
+q041,"The University Of The Western Cape",subject,686614,1
+q041,"The University Of The Western Cape",subject,686669,1
+q041,"The University Of The Western Cape",subject,687232,1
+q041,"The University Of The Western Cape",subject,687959,1
+q041,"The University Of The Western Cape",subject,688515,1
+q041,"The University Of The Western Cape",subject,701649,1
+q041,"The University Of The Western Cape",subject,706953,1
+q041,"The University Of The Western Cape",subject,707011,1
+q041,"The University Of The Western Cape",subject,735102,1
+q041,"The University Of The Western Cape",subject,735145,1
+q041,"The University Of The Western Cape",subject,742102,1
+q041,"The University Of The Western Cape",subject,747738,1
+q041,"The University Of The Western Cape",subject,747765,1
+q041,"The University Of The Western Cape",subject,752784,1
+q041,"The University Of The Western Cape",subject,756783,1
+q041,"The University Of The Western Cape",subject,757401,1
+q041,"The University Of The Western Cape",subject,767384,1
+q041,"The University Of The Western Cape",subject,767471,1
+q041,"The University Of The Western Cape",subject,773599,1
+q041,"The University Of The Western Cape",subject,773698,1
+q041,"The University Of The Western Cape",subject,773796,1
+q041,"The University Of The Western Cape",subject,774268,1
+q041,"The University Of The Western Cape",subject,775732,1
+q041,"The University Of The Western Cape",subject,796050,1
+q041,"The University Of The Western Cape",subject,882380,1
+q041,"The University Of The Western Cape",subject,882400,1
+q041,"The University Of The Western Cape",subject,884913,1
+q041,"The University Of The Western Cape",subject,906967,1
+q042,STORE,subject,476734,2
+q042,STORE,subject,2720038,1
+q042,STORE,subject,2776577,1
+q042,STORE,subject,2859815,1
+q042,STORE,subject,3247872,1
+q042,STORE,subject,3491254,1
+q042,STORE,subject,3691924,1
+q042,STORE,subject,3815652,1
+q042,STORE,subject,3819505,1
+q042,STORE,subject,3854717,1
+q042,STORE,subject,3867725,1
+q042,STORE,subject,3873391,1
+q042,STORE,subject,3896525,1
+q042,STORE,subject,3896532,1
+q042,STORE,subject,3896550,1
+q042,STORE,subject,3904004,1
+q042,STORE,subject,4974966,1
+q042,STORE,subject,5102102,1
+q042,STORE,subject,5744476,1
+q042,STORE,subject,5837017,1
+q042,STORE,subject,5859909,1
+q042,STORE,subject,5860782,1
+q042,STORE,subject,5976666,1
+q042,STORE,subject,5976671,1
+q042,STORE,subject,5992888,1
+q042,STORE,subject,6020751,1
+q042,STORE,subject,6020769,1
+q042,STORE,subject,6102435,1
+q042,STORE,subject,6968811,1
+q042,STORE,subject,6970258,1
+q042,STORE,subject,6972033,1
+q042,STORE,subject,6978883,1
+q042,STORE,subject,6982963,1
+q042,STORE,subject,6983058,1
+q042,STORE,subject,6995182,1
+q042,STORE,subject,7085063,1
+q042,STORE,subject,7085124,1
+q042,STORE,subject,7085185,1
+q042,STORE,subject,7085191,1
+q042,STORE,subject,7085197,1
+q042,STORE,subject,7085319,1
+q042,STORE,subject,7085364,1
+q042,STORE,subject,7085458,1
+q042,STORE,subject,7085477,1
+q042,STORE,subject,7085523,1
+q042,STORE,subject,7085565,1
+q042,STORE,subject,7085601,1
+q042,STORE,subject,7085622,1
+q042,STORE,subject,7085798,1
+q042,STORE,subject,7085846,1
+q043,"Africanist Congress",subject,971729,2
+q043,"Africanist Congress",subject,1267847,1
+q043,"Africanist Congress",subject,1747074,1
+q043,"Africanist Congress",subject,1998618,1
+q043,"Africanist Congress",subject,1998971,1
+q043,"Africanist Congress",subject,3761196,1
+q043,"Africanist Congress",subject,4272281,1
+q043,"Africanist Congress",subject,4573864,1
+q043,"Africanist Congress",subject,4574131,1
+q043,"Africanist Congress",subject,6312268,1
+q043,"Africanist Congress",subject,6312357,1
+q043,"Africanist Congress",subject,7564644,1
+q043,"Africanist Congress",subject,7564717,1
+q043,"Africanist Congress",subject,7564780,1
+q043,"Africanist Congress",subject,7748863,1
+q043,"Africanist Congress",subject,7748939,1
+q043,"Africanist Congress",subject,7749015,1
+q043,"Africanist Congress",subject,7819867,1
+q043,"Africanist Congress",subject,7937806,1
+q043,"Africanist Congress",subject,7937880,1
+q043,"Africanist Congress",subject,7937951,1
+q043,"Africanist Congress",subject,7948372,1
+q043,"Africanist Congress",subject,7948408,1
+q043,"Africanist Congress",subject,7960805,1
+q043,"Africanist Congress",subject,7971702,1
+q043,"Africanist Congress",subject,7972124,1
+q043,"Africanist Congress",subject,7993224,1
+q043,"Africanist Congress",subject,8021041,1
+q043,"Africanist Congress",subject,8032023,1
+q043,"Africanist Congress",subject,8047584,1
+q043,"Africanist Congress",subject,8050835,1
+q043,"Africanist Congress",subject,8050900,1
+q043,"Africanist Congress",subject,8050967,1
+q043,"Africanist Congress",subject,8085340,1
+q043,"Africanist Congress",subject,8140955,1
+q043,"Africanist Congress",subject,8141030,1
+q043,"Africanist Congress",subject,8209768,1
+q043,"Africanist Congress",subject,8238319,1
+q043,"Africanist Congress",subject,8267571,1
+q043,"Africanist Congress",subject,8274636,1
+q043,"Africanist Congress",subject,8274738,1
+q043,"Africanist Congress",subject,8365616,1
+q043,"Africanist Congress",subject,8365763,1
+q043,"Africanist Congress",subject,8387284,1
+q043,"Africanist Congress",subject,8418789,1
+q043,"Africanist Congress",subject,8419259,1
+q043,"Africanist Congress",subject,8441249,1
+q043,"Africanist Congress",subject,8449984,1
+q043,"Africanist Congress",subject,8450036,1
+q043,"Africanist Congress",subject,8450087,1
+q044,"The University Of Cape Town",subject,379112,2
+q044,"The University Of Cape Town",subject,384091,1
+q044,"The University Of Cape Town",subject,386826,1
+q044,"The University Of Cape Town",subject,387045,1
+q044,"The University Of Cape Town",subject,390097,1
+q044,"The University Of Cape Town",subject,398223,1
+q044,"The University Of Cape Town",subject,402487,1
+q044,"The University Of Cape Town",subject,402616,1
+q044,"The University Of Cape Town",subject,410324,1
+q044,"The University Of Cape Town",subject,444315,1
+q044,"The University Of Cape Town",subject,463388,1
+q044,"The University Of Cape Town",subject,468240,1
+q044,"The University Of Cape Town",subject,488891,1
+q044,"The University Of Cape Town",subject,491363,1
+q044,"The University Of Cape Town",subject,608582,1
+q044,"The University Of Cape Town",subject,608639,1
+q044,"The University Of Cape Town",subject,608706,1
+q044,"The University Of Cape Town",subject,608805,1
+q044,"The University Of Cape Town",subject,609339,1
+q044,"The University Of Cape Town",subject,609379,1
+q044,"The University Of Cape Town",subject,629793,1
+q044,"The University Of Cape Town",subject,639191,1
+q044,"The University Of Cape Town",subject,639272,1
+q044,"The University Of Cape Town",subject,688610,1
+q044,"The University Of Cape Town",subject,688652,1
+q044,"The University Of Cape Town",subject,692192,1
+q044,"The University Of Cape Town",subject,692210,1
+q044,"The University Of Cape Town",subject,701649,1
+q044,"The University Of Cape Town",subject,726754,1
+q044,"The University Of Cape Town",subject,726806,1
+q044,"The University Of Cape Town",subject,727855,1
+q044,"The University Of Cape Town",subject,728129,1
+q044,"The University Of Cape Town",subject,731255,1
+q044,"The University Of Cape Town",subject,731292,1
+q044,"The University Of Cape Town",subject,749818,1
+q044,"The University Of Cape Town",subject,749888,1
+q044,"The University Of Cape Town",subject,750454,1
+q044,"The University Of Cape Town",subject,750540,1
+q044,"The University Of Cape Town",subject,752784,1
+q044,"The University Of Cape Town",subject,764494,1
+q044,"The University Of Cape Town",subject,764627,1
+q044,"The University Of Cape Town",subject,767384,1
+q044,"The University Of Cape Town",subject,767471,1
+q044,"The University Of Cape Town",subject,767561,1
+q044,"The University Of Cape Town",subject,767781,1
+q044,"The University Of Cape Town",subject,833855,1
+q044,"The University Of Cape Town",subject,839406,1
+q044,"The University Of Cape Town",subject,839981,1
+q044,"The University Of Cape Town",subject,840005,1
+q044,"The University Of Cape Town",subject,841457,1
+q045,"Photographs Loose",subject,316321,2
+q045,"Photographs Loose",subject,316351,1
+q045,"Photographs Loose",subject,316361,1
+q045,"Photographs Loose",subject,316371,1
+q045,"Photographs Loose",subject,316381,1
+q045,"Photographs Loose",subject,316391,1
+q045,"Photographs Loose",subject,316401,1
+q045,"Photographs Loose",subject,316411,1
+q045,"Photographs Loose",subject,316421,1
+q045,"Photographs Loose",subject,316431,1
+q045,"Photographs Loose",subject,316441,1
+q045,"Photographs Loose",subject,316451,1
+q045,"Photographs Loose",subject,316461,1
+q045,"Photographs Loose",subject,316471,1
+q045,"Photographs Loose",subject,316481,1
+q045,"Photographs Loose",subject,316491,1
+q045,"Photographs Loose",subject,316501,1
+q045,"Photographs Loose",subject,316511,1
+q045,"Photographs Loose",subject,316521,1
+q045,"Photographs Loose",subject,316531,1
+q045,"Photographs Loose",subject,316541,1
+q045,"Photographs Loose",subject,316551,1
+q045,"Photographs Loose",subject,316561,1
+q045,"Photographs Loose",subject,316571,1
+q045,"Photographs Loose",subject,316581,1
+q045,"Photographs Loose",subject,316591,1
+q045,"Photographs Loose",subject,316601,1
+q045,"Photographs Loose",subject,316611,1
+q045,"Photographs Loose",subject,316621,1
+q045,"Photographs Loose",subject,316631,1
+q045,"Photographs Loose",subject,316641,1
+q045,"Photographs Loose",subject,316651,1
+q045,"Photographs Loose",subject,316661,1
+q045,"Photographs Loose",subject,316671,1
+q045,"Photographs Loose",subject,316681,1
+q045,"Photographs Loose",subject,316691,1
+q045,"Photographs Loose",subject,316701,1
+q045,"Photographs Loose",subject,316711,1
+q045,"Photographs Loose",subject,316721,1
+q045,"Photographs Loose",subject,316731,1
+q045,"Photographs Loose",subject,316741,1
+q045,"Photographs Loose",subject,316751,1
+q045,"Photographs Loose",subject,316761,1
+q045,"Photographs Loose",subject,316771,1
+q045,"Photographs Loose",subject,316781,1
+q045,"Photographs Loose",subject,316791,1
+q045,"Photographs Loose",subject,316801,1
+q045,"Photographs Loose",subject,316811,1
+q045,"Photographs Loose",subject,316821,1
+q045,"Photographs Loose",subject,316831,1
+q046,"The Working Group",subject,384629,2
+q046,"The Working Group",subject,398992,1
+q046,"The Working Group",subject,454487,1
+q046,"The Working Group",subject,489017,1
+q046,"The Working Group",subject,522385,1
+q046,"The Working Group",subject,546654,1
+q046,"The Working Group",subject,547712,1
+q046,"The Working Group",subject,581260,1
+q046,"The Working Group",subject,581288,1
+q046,"The Working Group",subject,589269,1
+q046,"The Working Group",subject,589301,1
+q046,"The Working Group",subject,598228,1
+q046,"The Working Group",subject,598243,1
+q046,"The Working Group",subject,613558,1
+q046,"The Working Group",subject,638503,1
+q046,"The Working Group",subject,638531,1
+q046,"The Working Group",subject,638796,1
+q046,"The Working Group",subject,638826,1
+q046,"The Working Group",subject,638913,1
+q046,"The Working Group",subject,639342,1
+q046,"The Working Group",subject,639369,1
+q046,"The Working Group",subject,728525,1
+q046,"The Working Group",subject,728561,1
+q046,"The Working Group",subject,730751,1
+q046,"The Working Group",subject,730884,1
+q046,"The Working Group",subject,822830,1
+q046,"The Working Group",subject,823336,1
+q046,"The Working Group",subject,828126,1
+q046,"The Working Group",subject,828156,1
+q046,"The Working Group",subject,828409,1
+q046,"The Working Group",subject,828434,1
+q046,"The Working Group",subject,883860,1
+q046,"The Working Group",subject,883870,1
+q046,"The Working Group",subject,883902,1
+q046,"The Working Group",subject,928944,1
+q046,"The Working Group",subject,943885,1
+q046,"The Working Group",subject,944074,1
+q046,"The Working Group",subject,964415,1
+q046,"The Working Group",subject,969259,1
+q046,"The Working Group",subject,982628,1
+q046,"The Working Group",subject,993513,1
+q046,"The Working Group",subject,1003451,1
+q046,"The Working Group",subject,1004672,1
+q046,"The Working Group",subject,1012439,1
+q046,"The Working Group",subject,1012464,1
+q046,"The Working Group",subject,1069815,1
+q046,"The Working Group",subject,1080623,1
+q046,"The Working Group",subject,1113953,1
+q046,"The Working Group",subject,1135830,1
+q046,"The Working Group",subject,1135871,1
+q047,"National Executive",subject,537382,2
+q047,"National Executive",subject,778844,1
+q047,"National Executive",subject,1178865,1
+q047,"National Executive",subject,1178910,1
+q047,"National Executive",subject,1284413,1
+q047,"National Executive",subject,1286760,1
+q047,"National Executive",subject,1286840,1
+q047,"National Executive",subject,1445820,1
+q047,"National Executive",subject,1468198,1
+q047,"National Executive",subject,1589362,1
+q047,"National Executive",subject,1603377,1
+q047,"National Executive",subject,1611448,1
+q047,"National Executive",subject,1611495,1
+q047,"National Executive",subject,1666646,1
+q047,"National Executive",subject,1823898,1
+q047,"National Executive",subject,2060811,1
+q047,"National Executive",subject,2061270,1
+q047,"National Executive",subject,2154081,1
+q047,"National Executive",subject,2154143,1
+q047,"National Executive",subject,2165614,1
+q047,"National Executive",subject,2165674,1
+q047,"National Executive",subject,2273212,1
+q047,"National Executive",subject,2274027,1
+q047,"National Executive",subject,2403335,1
+q047,"National Executive",subject,2403358,1
+q047,"National Executive",subject,2458209,1
+q047,"National Executive",subject,2460442,1
+q047,"National Executive",subject,2544146,1
+q047,"National Executive",subject,2683952,1
+q047,"National Executive",subject,3220825,1
+q047,"National Executive",subject,3223855,1
+q047,"National Executive",subject,3396525,1
+q047,"National Executive",subject,3472687,1
+q047,"National Executive",subject,3631264,1
+q047,"National Executive",subject,3901583,1
+q047,"National Executive",subject,3994390,1
+q047,"National Executive",subject,4002896,1
+q047,"National Executive",subject,4075139,1
+q047,"National Executive",subject,4087716,1
+q047,"National Executive",subject,4130777,1
+q047,"National Executive",subject,4194563,1
+q047,"National Executive",subject,4293314,1
+q047,"National Executive",subject,4345659,1
+q047,"National Executive",subject,4345745,1
+q047,"National Executive",subject,4380444,1
+q047,"National Executive",subject,4401105,1
+q047,"National Executive",subject,4401239,1
+q047,"National Executive",subject,4500914,1
+q047,"National Executive",subject,4500980,1
+q047,"National Executive",subject,4599193,1
+q048,"The Urban Foundation",subject,376472,2
+q048,"The Urban Foundation",subject,381633,1
+q048,"The Urban Foundation",subject,388176,1
+q048,"The Urban Foundation",subject,394138,1
+q048,"The Urban Foundation",subject,442560,1
+q048,"The Urban Foundation",subject,468009,1
+q048,"The Urban Foundation",subject,468746,1
+q048,"The Urban Foundation",subject,489017,1
+q048,"The Urban Foundation",subject,504039,1
+q048,"The Urban Foundation",subject,524174,1
+q048,"The Urban Foundation",subject,524299,1
+q048,"The Urban Foundation",subject,554986,1
+q048,"The Urban Foundation",subject,575505,1
+q048,"The Urban Foundation",subject,575640,1
+q048,"The Urban Foundation",subject,587386,1
+q048,"The Urban Foundation",subject,587419,1
+q048,"The Urban Foundation",subject,688515,1
+q048,"The Urban Foundation",subject,688688,1
+q048,"The Urban Foundation",subject,688725,1
+q048,"The Urban Foundation",subject,701649,1
+q048,"The Urban Foundation",subject,714508,1
+q048,"The Urban Foundation",subject,719097,1
+q048,"The Urban Foundation",subject,720377,1
+q048,"The Urban Foundation",subject,720425,1
+q048,"The Urban Foundation",subject,729558,1
+q048,"The Urban Foundation",subject,730751,1
+q048,"The Urban Foundation",subject,730884,1
+q048,"The Urban Foundation",subject,752784,1
+q048,"The Urban Foundation",subject,795296,1
+q048,"The Urban Foundation",subject,842335,1
+q048,"The Urban Foundation",subject,842456,1
+q048,"The Urban Foundation",subject,846764,1
+q048,"The Urban Foundation",subject,846927,1
+q048,"The Urban Foundation",subject,849293,1
+q048,"The Urban Foundation",subject,849597,1
+q048,"The Urban Foundation",subject,849653,1
+q048,"The Urban Foundation",subject,849692,1
+q048,"The Urban Foundation",subject,849735,1
+q048,"The Urban Foundation",subject,849762,1
+q048,"The Urban Foundation",subject,849865,1
+q048,"The Urban Foundation",subject,878127,1
+q048,"The Urban Foundation",subject,878139,1
+q048,"The Urban Foundation",subject,938516,1
+q048,"The Urban Foundation",subject,946636,1
+q048,"The Urban Foundation",subject,957655,1
+q048,"The Urban Foundation",subject,972402,1
+q048,"The Urban Foundation",subject,997463,1
+q048,"The Urban Foundation",subject,998206,1
+q048,"The Urban Foundation",subject,1026550,1
+q048,"The Urban Foundation",subject,1067258,1
+q049,"The South African Council Of Churches",subject,413212,2
+q049,"The South African Council Of Churches",subject,429983,1
+q049,"The South African Council Of Churches",subject,453756,1
+q049,"The South African Council Of Churches",subject,454927,1
+q049,"The South African Council Of Churches",subject,458579,1
+q049,"The South African Council Of Churches",subject,467317,1
+q049,"The South African Council Of Churches",subject,507288,1
+q049,"The South African Council Of Churches",subject,576907,1
+q049,"The South African Council Of Churches",subject,577089,1
+q049,"The South African Council Of Churches",subject,655074,1
+q049,"The South African Council Of Churches",subject,672235,1
+q049,"The South African Council Of Churches",subject,672246,1
+q049,"The South African Council Of Churches",subject,688467,1
+q049,"The South African Council Of Churches",subject,688495,1
+q049,"The South African Council Of Churches",subject,700910,1
+q049,"The South African Council Of Churches",subject,721016,1
+q049,"The South African Council Of Churches",subject,721072,1
+q049,"The South African Council Of Churches",subject,726754,1
+q049,"The South African Council Of Churches",subject,726806,1
+q049,"The South African Council Of Churches",subject,737721,1
+q049,"The South African Council Of Churches",subject,737749,1
+q049,"The South African Council Of Churches",subject,738811,1
+q049,"The South African Council Of Churches",subject,738851,1
+q049,"The South African Council Of Churches",subject,741226,1
+q049,"The South African Council Of Churches",subject,741271,1
+q049,"The South African Council Of Churches",subject,757282,1
+q049,"The South African Council Of Churches",subject,757348,1
+q049,"The South African Council Of Churches",subject,770083,1
+q049,"The South African Council Of Churches",subject,770095,1
+q049,"The South African Council Of Churches",subject,773796,1
+q049,"The South African Council Of Churches",subject,774268,1
+q049,"The South African Council Of Churches",subject,796897,1
+q049,"The South African Council Of Churches",subject,803911,1
+q049,"The South African Council Of Churches",subject,810722,1
+q049,"The South African Council Of Churches",subject,828271,1
+q049,"The South African Council Of Churches",subject,828285,1
+q049,"The South African Council Of Churches",subject,838183,1
+q049,"The South African Council Of Churches",subject,840704,1
+q049,"The South African Council Of Churches",subject,869789,1
+q049,"The South African Council Of Churches",subject,888155,1
+q049,"The South African Council Of Churches",subject,888169,1
+q049,"The South African Council Of Churches",subject,898084,1
+q049,"The South African Council Of Churches",subject,898187,1
+q049,"The South African Council Of Churches",subject,910074,1
+q049,"The South African Council Of Churches",subject,937659,1
+q049,"The South African Council Of Churches",subject,953114,1
+q049,"The South African Council Of Churches",subject,954436,1
+q049,"The South African Council Of Churches",subject,964743,1
+q049,"The South African Council Of Churches",subject,971971,1
+q049,"The South African Council Of Churches",subject,979376,1
+q050,Cathedral,subject,383508,2
+q050,Cathedral,subject,397783,1
+q050,Cathedral,subject,411105,1
+q050,Cathedral,subject,411949,1
+q050,Cathedral,subject,413186,1
+q050,Cathedral,subject,462652,1
+q050,Cathedral,subject,468240,1
+q050,Cathedral,subject,503465,1
+q050,Cathedral,subject,553487,1
+q050,Cathedral,subject,566633,1
+q050,Cathedral,subject,569880,1
+q050,Cathedral,subject,647346,1
+q050,Cathedral,subject,707011,1
+q050,Cathedral,subject,855474,1
+q050,Cathedral,subject,872006,1
+q050,Cathedral,subject,898084,1
+q050,Cathedral,subject,898187,1
+q050,Cathedral,subject,907677,1
+q050,Cathedral,subject,908373,1
+q050,Cathedral,subject,912452,1
+q050,Cathedral,subject,926888,1
+q050,Cathedral,subject,944892,1
+q050,Cathedral,subject,953510,1
+q050,Cathedral,subject,1142517,1
+q050,Cathedral,subject,1165199,1
+q050,Cathedral,subject,1166212,1
+q050,Cathedral,subject,1167982,1
+q050,Cathedral,subject,1212940,1
+q050,Cathedral,subject,1231133,1
+q050,Cathedral,subject,1251965,1
+q050,Cathedral,subject,1252227,1
+q050,Cathedral,subject,1297288,1
+q050,Cathedral,subject,1297872,1
+q050,Cathedral,subject,1307313,1
+q050,Cathedral,subject,1307501,1
+q050,Cathedral,subject,1320249,1
+q050,Cathedral,subject,1321247,1
+q050,Cathedral,subject,1331600,1
+q050,Cathedral,subject,1334765,1
+q050,Cathedral,subject,1335168,1
+q050,Cathedral,subject,1339344,1
+q050,Cathedral,subject,1341401,1
+q050,Cathedral,subject,1404725,1
+q050,Cathedral,subject,1406655,1
+q050,Cathedral,subject,1468662,1
+q050,Cathedral,subject,1472216,1
+q050,Cathedral,subject,1472462,1
+q050,Cathedral,subject,1473571,1
+q050,Cathedral,subject,1473791,1
+q050,Cathedral,subject,1475954,1
+q051,"Copyright Notice",subject,7074312,2
+q051,"Copyright Notice",subject,7074374,1
+q051,"Copyright Notice",subject,7074405,1
+q051,"Copyright Notice",subject,7074446,1
+q051,"Copyright Notice",subject,7074537,1
+q051,"Copyright Notice",subject,7074587,1
+q051,"Copyright Notice",subject,7074658,1
+q051,"Copyright Notice",subject,7074676,1
+q051,"Copyright Notice",subject,7074722,1
+q051,"Copyright Notice",subject,7074806,1
+q051,"Copyright Notice",subject,7074830,1
+q051,"Copyright Notice",subject,7074878,1
+q051,"Copyright Notice",subject,7074897,1
+q051,"Copyright Notice",subject,7074942,1
+q051,"Copyright Notice",subject,7075011,1
+q051,"Copyright Notice",subject,7075090,1
+q051,"Copyright Notice",subject,7075117,1
+q051,"Copyright Notice",subject,7075152,1
+q051,"Copyright Notice",subject,7075203,1
+q051,"Copyright Notice",subject,7075287,1
+q051,"Copyright Notice",subject,7075305,1
+q051,"Copyright Notice",subject,7075366,1
+q051,"Copyright Notice",subject,7075387,1
+q051,"Copyright Notice",subject,7075475,1
+q051,"Copyright Notice",subject,7075512,1
+q051,"Copyright Notice",subject,7075529,1
+q051,"Copyright Notice",subject,7075577,1
+q051,"Copyright Notice",subject,7075601,1
+q051,"Copyright Notice",subject,7075639,1
+q051,"Copyright Notice",subject,7075698,1
+q051,"Copyright Notice",subject,7075714,1
+q051,"Copyright Notice",subject,7075776,1
+q051,"Copyright Notice",subject,7075797,1
+q051,"Copyright Notice",subject,7075834,1
+q051,"Copyright Notice",subject,7075884,1
+q051,"Copyright Notice",subject,7075907,1
+q051,"Copyright Notice",subject,7075962,1
+q051,"Copyright Notice",subject,7075979,1
+q051,"Copyright Notice",subject,7076002,1
+q051,"Copyright Notice",subject,7076027,1
+q051,"Copyright Notice",subject,7076070,1
+q051,"Copyright Notice",subject,7076097,1
+q051,"Copyright Notice",subject,7076139,1
+q051,"Copyright Notice",subject,7076162,1
+q051,"Copyright Notice",subject,7076178,1
+q051,"Copyright Notice",subject,7076250,1
+q051,"Copyright Notice",subject,7076295,1
+q051,"Copyright Notice",subject,7076337,1
+q051,"Copyright Notice",subject,7076388,1
+q051,"Copyright Notice",subject,7076453,1
+q052,"National Executive Committee",subject,403920,2
+q052,"National Executive Committee",subject,403930,1
+q052,"National Executive Committee",subject,412457,1
+q052,"National Executive Committee",subject,414479,1
+q052,"National Executive Committee",subject,414521,1
+q052,"National Executive Committee",subject,433409,1
+q052,"National Executive Committee",subject,433440,1
+q052,"National Executive Committee",subject,484855,1
+q052,"National Executive Committee",subject,491330,1
+q052,"National Executive Committee",subject,519135,1
+q052,"National Executive Committee",subject,542616,1
+q052,"National Executive Committee",subject,577580,1
+q052,"National Executive Committee",subject,578054,1
+q052,"National Executive Committee",subject,613264,1
+q052,"National Executive Committee",subject,637081,1
+q052,"National Executive Committee",subject,637109,1
+q052,"National Executive Committee",subject,731453,1
+q052,"National Executive Committee",subject,731516,1
+q052,"National Executive Committee",subject,754651,1
+q052,"National Executive Committee",subject,754856,1
+q052,"National Executive Committee",subject,818071,1
+q052,"National Executive Committee",subject,825322,1
+q052,"National Executive Committee",subject,825385,1
+q052,"National Executive Committee",subject,825993,1
+q052,"National Executive Committee",subject,836564,1
+q052,"National Executive Committee",subject,836589,1
+q052,"National Executive Committee",subject,843171,1
+q052,"National Executive Committee",subject,843183,1
+q052,"National Executive Committee",subject,861923,1
+q052,"National Executive Committee",subject,869628,1
+q052,"National Executive Committee",subject,875737,1
+q052,"National Executive Committee",subject,892215,1
+q052,"National Executive Committee",subject,896396,1
+q052,"National Executive Committee",subject,898270,1
+q052,"National Executive Committee",subject,898277,1
+q052,"National Executive Committee",subject,911957,1
+q052,"National Executive Committee",subject,942673,1
+q052,"National Executive Committee",subject,943554,1
+q052,"National Executive Committee",subject,945483,1
+q052,"National Executive Committee",subject,946065,1
+q052,"National Executive Committee",subject,949283,1
+q052,"National Executive Committee",subject,957655,1
+q052,"National Executive Committee",subject,965845,1
+q052,"National Executive Committee",subject,976584,1
+q052,"National Executive Committee",subject,976636,1
+q052,"National Executive Committee",subject,1002246,1
+q052,"National Executive Committee",subject,1033260,1
+q052,"National Executive Committee",subject,1038390,1
+q052,"National Executive Committee",subject,1041571,1
+q052,"National Executive Committee",subject,1046789,1
+q053,"Anglo American",subject,454089,2
+q053,"Anglo American",subject,460225,1
+q053,"Anglo American",subject,469406,1
+q053,"Anglo American",subject,586304,1
+q053,"Anglo American",subject,586381,1
+q053,"Anglo American",subject,589948,1
+q053,"Anglo American",subject,589979,1
+q053,"Anglo American",subject,593415,1
+q053,"Anglo American",subject,648750,1
+q053,"Anglo American",subject,648825,1
+q053,"Anglo American",subject,655802,1
+q053,"Anglo American",subject,695118,1
+q053,"Anglo American",subject,712569,1
+q053,"Anglo American",subject,794087,1
+q053,"Anglo American",subject,801837,1
+q053,"Anglo American",subject,827432,1
+q053,"Anglo American",subject,828762,1
+q053,"Anglo American",subject,828805,1
+q053,"Anglo American",subject,870553,1
+q053,"Anglo American",subject,883175,1
+q053,"Anglo American",subject,884130,1
+q053,"Anglo American",subject,884535,1
+q053,"Anglo American",subject,908292,1
+q053,"Anglo American",subject,911957,1
+q053,"Anglo American",subject,915932,1
+q053,"Anglo American",subject,944958,1
+q053,"Anglo American",subject,945483,1
+q053,"Anglo American",subject,947367,1
+q053,"Anglo American",subject,980186,1
+q053,"Anglo American",subject,981542,1
+q053,"Anglo American",subject,1021609,1
+q053,"Anglo American",subject,1021816,1
+q053,"Anglo American",subject,1027098,1
+q053,"Anglo American",subject,1028494,1
+q053,"Anglo American",subject,1038565,1
+q053,"Anglo American",subject,1151616,1
+q053,"Anglo American",subject,1151875,1
+q053,"Anglo American",subject,1187540,1
+q053,"Anglo American",subject,1195129,1
+q053,"Anglo American",subject,1210828,1
+q053,"Anglo American",subject,1211019,1
+q053,"Anglo American",subject,1216755,1
+q053,"Anglo American",subject,1252463,1
+q053,"Anglo American",subject,1259315,1
+q053,"Anglo American",subject,1259340,1
+q053,"Anglo American",subject,1292815,1
+q053,"Anglo American",subject,1293239,1
+q053,"Anglo American",subject,1303180,1
+q053,"Anglo American",subject,1349038,1
+q053,"Anglo American",subject,1397568,1
+q054,"The ANC Youth League",subject,404341,2
+q054,"The ANC Youth League",subject,421326,1
+q054,"The ANC Youth League",subject,423895,1
+q054,"The ANC Youth League",subject,424933,1
+q054,"The ANC Youth League",subject,452581,1
+q054,"The ANC Youth League",subject,459241,1
+q054,"The ANC Youth League",subject,465396,1
+q054,"The ANC Youth League",subject,558678,1
+q054,"The ANC Youth League",subject,566323,1
+q054,"The ANC Youth League",subject,566335,1
+q054,"The ANC Youth League",subject,577580,1
+q054,"The ANC Youth League",subject,578054,1
+q054,"The ANC Youth League",subject,590671,1
+q054,"The ANC Youth League",subject,590785,1
+q054,"The ANC Youth League",subject,595470,1
+q054,"The ANC Youth League",subject,595901,1
+q054,"The ANC Youth League",subject,599788,1
+q054,"The ANC Youth League",subject,599820,1
+q054,"The ANC Youth League",subject,602796,1
+q054,"The ANC Youth League",subject,603420,1
+q054,"The ANC Youth League",subject,655736,1
+q054,"The ANC Youth League",subject,697199,1
+q054,"The ANC Youth League",subject,770298,1
+q054,"The ANC Youth League",subject,770310,1
+q054,"The ANC Youth League",subject,791177,1
+q054,"The ANC Youth League",subject,822460,1
+q054,"The ANC Youth League",subject,827070,1
+q054,"The ANC Youth League",subject,840811,1
+q054,"The ANC Youth League",subject,840852,1
+q054,"The ANC Youth League",subject,842335,1
+q054,"The ANC Youth League",subject,842456,1
+q054,"The ANC Youth League",subject,860901,1
+q054,"The ANC Youth League",subject,861009,1
+q054,"The ANC Youth League",subject,871131,1
+q054,"The ANC Youth League",subject,960890,1
+q054,"The ANC Youth League",subject,965318,1
+q054,"The ANC Youth League",subject,972578,1
+q054,"The ANC Youth League",subject,973448,1
+q054,"The ANC Youth League",subject,988773,1
+q054,"The ANC Youth League",subject,1021293,1
+q054,"The ANC Youth League",subject,1033801,1
+q054,"The ANC Youth League",subject,1061755,1
+q054,"The ANC Youth League",subject,1061788,1
+q054,"The ANC Youth League",subject,1090573,1
+q054,"The ANC Youth League",subject,1090781,1
+q054,"The ANC Youth League",subject,1097936,1
+q054,"The ANC Youth League",subject,1098002,1
+q054,"The ANC Youth League",subject,1107965,1
+q054,"The ANC Youth League",subject,1125753,1
+q054,"The ANC Youth League",subject,1126123,1
+q055,SADTU,subject,411162,2
+q055,SADTU,subject,577191,1
+q055,SADTU,subject,590005,1
+q055,SADTU,subject,590671,1
+q055,SADTU,subject,590785,1
+q055,SADTU,subject,593582,1
+q055,SADTU,subject,593820,1
+q055,SADTU,subject,602796,1
+q055,SADTU,subject,603420,1
+q055,SADTU,subject,604363,1
+q055,SADTU,subject,608326,1
+q055,SADTU,subject,608337,1
+q055,SADTU,subject,626544,1
+q055,SADTU,subject,644013,1
+q055,SADTU,subject,644164,1
+q055,SADTU,subject,644297,1
+q055,SADTU,subject,644940,1
+q055,SADTU,subject,645061,1
+q055,SADTU,subject,648881,1
+q055,SADTU,subject,648903,1
+q055,SADTU,subject,684689,1
+q055,SADTU,subject,684710,1
+q055,SADTU,subject,685088,1
+q055,SADTU,subject,685139,1
+q055,SADTU,subject,688400,1
+q055,SADTU,subject,688428,1
+q055,SADTU,subject,689236,1
+q055,SADTU,subject,689269,1
+q055,SADTU,subject,690015,1
+q055,SADTU,subject,690073,1
+q055,SADTU,subject,719051,1
+q055,SADTU,subject,730751,1
+q055,SADTU,subject,730884,1
+q055,SADTU,subject,740605,1
+q055,SADTU,subject,741484,1
+q055,SADTU,subject,741521,1
+q055,SADTU,subject,744031,1
+q055,SADTU,subject,744131,1
+q055,SADTU,subject,744898,1
+q055,SADTU,subject,744993,1
+q055,SADTU,subject,752784,1
+q055,SADTU,subject,754291,1
+q055,SADTU,subject,754497,1
+q055,SADTU,subject,754992,1
+q055,SADTU,subject,755152,1
+q055,SADTU,subject,755434,1
+q055,SADTU,subject,755767,1
+q055,SADTU,subject,755980,1
+q055,SADTU,subject,756133,1
+q055,SADTU,subject,756362,1
+q056,"the SA",subject,9114051,2
+q056,"the SA",subject,9114463,1
+q056,"the SA",subject,9114546,1
+q056,"the SA",subject,9117937,1
+q056,"the SA",subject,9118280,1
+q056,"the SA",subject,9119767,1
+q056,"the SA",subject,9120159,1
+q056,"the SA",subject,9120892,1
+q056,"the SA",subject,9123696,1
+q056,"the SA",subject,9124081,1
+q056,"the SA",subject,9124563,1
+q056,"the SA",subject,9125747,1
+q056,"the SA",subject,9127531,1
+q056,"the SA",subject,9130413,1
+q056,"the SA",subject,9131196,1
+q056,"the SA",subject,9131627,1
+q056,"the SA",subject,9131903,1
+q056,"the SA",subject,9132112,1
+q056,"the SA",subject,9134990,1
+q056,"the SA",subject,9135193,1
+q056,"the SA",subject,9135322,1
+q056,"the SA",subject,9136146,1
+q056,"the SA",subject,9136197,1
+q056,"the SA",subject,9137545,1
+q056,"the SA",subject,9137756,1
+q056,"the SA",subject,9139129,1
+q056,"the SA",subject,9139915,1
+q056,"the SA",subject,9141564,1
+q056,"the SA",subject,9143668,1
+q056,"the SA",subject,9147614,1
+q056,"the SA",subject,9148136,1
+q056,"the SA",subject,9149268,1
+q056,"the SA",subject,9151936,1
+q056,"the SA",subject,9152670,1
+q056,"the SA",subject,9153445,1
+q056,"the SA",subject,9155319,1
+q056,"the SA",subject,9158523,1
+q056,"the SA",subject,9161254,1
+q056,"the SA",subject,9161594,1
+q056,"the SA",subject,9162121,1
+q056,"the SA",subject,9163074,1
+q056,"the SA",subject,9165823,1
+q056,"the SA",subject,9166408,1
+q056,"the SA",subject,9168361,1
+q056,"the SA",subject,9168446,1
+q056,"the SA",subject,9169794,1
+q056,"the SA",subject,9170928,1
+q056,"the SA",subject,9172735,1
+q056,"the SA",subject,9175760,1
+q056,"the SA",subject,9175912,1
+q057,"Sun City",subject,577381,2
+q057,"Sun City",subject,577419,1
+q057,"Sun City",subject,580497,1
+q057,"Sun City",subject,580533,1
+q057,"Sun City",subject,580680,1
+q057,"Sun City",subject,736238,1
+q057,"Sun City",subject,736272,1
+q057,"Sun City",subject,791854,1
+q057,"Sun City",subject,800983,1
+q057,"Sun City",subject,807649,1
+q057,"Sun City",subject,812025,1
+q057,"Sun City",subject,818179,1
+q057,"Sun City",subject,818710,1
+q057,"Sun City",subject,849510,1
+q057,"Sun City",subject,852151,1
+q057,"Sun City",subject,852414,1
+q057,"Sun City",subject,911957,1
+q057,"Sun City",subject,912452,1
+q057,"Sun City",subject,926888,1
+q057,"Sun City",subject,933660,1
+q057,"Sun City",subject,941621,1
+q057,"Sun City",subject,948372,1
+q057,"Sun City",subject,957655,1
+q057,"Sun City",subject,960078,1
+q057,"Sun City",subject,970729,1
+q057,"Sun City",subject,979678,1
+q057,"Sun City",subject,983630,1
+q057,"Sun City",subject,987234,1
+q057,"Sun City",subject,999762,1
+q057,"Sun City",subject,1009028,1
+q057,"Sun City",subject,1044366,1
+q057,"Sun City",subject,1127357,1
+q057,"Sun City",subject,1151236,1
+q057,"Sun City",subject,1165199,1
+q057,"Sun City",subject,1166212,1
+q057,"Sun City",subject,1167019,1
+q057,"Sun City",subject,1167214,1
+q057,"Sun City",subject,1168221,1
+q057,"Sun City",subject,1168377,1
+q057,"Sun City",subject,1170627,1
+q057,"Sun City",subject,1198035,1
+q057,"Sun City",subject,1228174,1
+q057,"Sun City",subject,1250550,1
+q057,"Sun City",subject,1250824,1
+q057,"Sun City",subject,1303180,1
+q057,"Sun City",subject,1304664,1
+q057,"Sun City",subject,1305202,1
+q057,"Sun City",subject,1307641,1
+q057,"Sun City",subject,1325815,1
+q057,"Sun City",subject,1335422,1
+q058,"The National Peace Accord",subject,384629,2
+q058,"The National Peace Accord",subject,398992,1
+q058,"The National Peace Accord",subject,547688,1
+q058,"The National Peace Accord",subject,547753,1
+q058,"The National Peace Accord",subject,572389,1
+q058,"The National Peace Accord",subject,572427,1
+q058,"The National Peace Accord",subject,572637,1
+q058,"The National Peace Accord",subject,576514,1
+q058,"The National Peace Accord",subject,576635,1
+q058,"The National Peace Accord",subject,577580,1
+q058,"The National Peace Accord",subject,578054,1
+q058,"The National Peace Accord",subject,581366,1
+q058,"The National Peace Accord",subject,581642,1
+q058,"The National Peace Accord",subject,588891,1
+q058,"The National Peace Accord",subject,588910,1
+q058,"The National Peace Accord",subject,589667,1
+q058,"The National Peace Accord",subject,589762,1
+q058,"The National Peace Accord",subject,594413,1
+q058,"The National Peace Accord",subject,601501,1
+q058,"The National Peace Accord",subject,602643,1
+q058,"The National Peace Accord",subject,602666,1
+q058,"The National Peace Accord",subject,602796,1
+q058,"The National Peace Accord",subject,603420,1
+q058,"The National Peace Accord",subject,773359,1
+q058,"The National Peace Accord",subject,773429,1
+q058,"The National Peace Accord",subject,843224,1
+q058,"The National Peace Accord",subject,843243,1
+q058,"The National Peace Accord",subject,844109,1
+q058,"The National Peace Accord",subject,844122,1
+q058,"The National Peace Accord",subject,846297,1
+q058,"The National Peace Accord",subject,846361,1
+q058,"The National Peace Accord",subject,847466,1
+q058,"The National Peace Accord",subject,847484,1
+q058,"The National Peace Accord",subject,847498,1
+q058,"The National Peace Accord",subject,847509,1
+q058,"The National Peace Accord",subject,848981,1
+q058,"The National Peace Accord",subject,848995,1
+q058,"The National Peace Accord",subject,849340,1
+q058,"The National Peace Accord",subject,849399,1
+q058,"The National Peace Accord",subject,871994,1
+q058,"The National Peace Accord",subject,937659,1
+q058,"The National Peace Accord",subject,943384,1
+q058,"The National Peace Accord",subject,943885,1
+q058,"The National Peace Accord",subject,944139,1
+q058,"The National Peace Accord",subject,948568,1
+q058,"The National Peace Accord",subject,965715,1
+q058,"The National Peace Accord",subject,967308,1
+q058,"The National Peace Accord",subject,970105,1
+q058,"The National Peace Accord",subject,970982,1
+q058,"The National Peace Accord",subject,971159,1
+q059,"The Human Rights Commission",subject,384629,2
+q059,"The Human Rights Commission",subject,386521,1
+q059,"The Human Rights Commission",subject,387149,1
+q059,"The Human Rights Commission",subject,398992,1
+q059,"The Human Rights Commission",subject,402298,1
+q059,"The Human Rights Commission",subject,402685,1
+q059,"The Human Rights Commission",subject,439538,1
+q059,"The Human Rights Commission",subject,439594,1
+q059,"The Human Rights Commission",subject,457879,1
+q059,"The Human Rights Commission",subject,462652,1
+q059,"The Human Rights Commission",subject,465480,1
+q059,"The Human Rights Commission",subject,468240,1
+q059,"The Human Rights Commission",subject,527084,1
+q059,"The Human Rights Commission",subject,594413,1
+q059,"The Human Rights Commission",subject,601501,1
+q059,"The Human Rights Commission",subject,602325,1
+q059,"The Human Rights Commission",subject,602357,1
+q059,"The Human Rights Commission",subject,612806,1
+q059,"The Human Rights Commission",subject,626617,1
+q059,"The Human Rights Commission",subject,631059,1
+q059,"The Human Rights Commission",subject,701338,1
+q059,"The Human Rights Commission",subject,707011,1
+q059,"The Human Rights Commission",subject,714102,1
+q059,"The Human Rights Commission",subject,733272,1
+q059,"The Human Rights Commission",subject,733324,1
+q059,"The Human Rights Commission",subject,822406,1
+q059,"The Human Rights Commission",subject,839406,1
+q059,"The Human Rights Commission",subject,841457,1
+q059,"The Human Rights Commission",subject,847649,1
+q059,"The Human Rights Commission",subject,847869,1
+q059,"The Human Rights Commission",subject,848035,1
+q059,"The Human Rights Commission",subject,848209,1
+q059,"The Human Rights Commission",subject,906967,1
+q059,"The Human Rights Commission",subject,910582,1
+q059,"The Human Rights Commission",subject,936418,1
+q059,"The Human Rights Commission",subject,971904,1
+q059,"The Human Rights Commission",subject,977354,1
+q059,"The Human Rights Commission",subject,990967,1
+q059,"The Human Rights Commission",subject,992887,1
+q059,"The Human Rights Commission",subject,997463,1
+q059,"The Human Rights Commission",subject,998206,1
+q059,"The Human Rights Commission",subject,1020677,1
+q059,"The Human Rights Commission",subject,1025257,1
+q059,"The Human Rights Commission",subject,1057851,1
+q059,"The Human Rights Commission",subject,1058486,1
+q059,"The Human Rights Commission",subject,1063478,1
+q059,"The Human Rights Commission",subject,1063493,1
+q059,"The Human Rights Commission",subject,1074860,1
+q059,"The Human Rights Commission",subject,1194512,1
+q059,"The Human Rights Commission",subject,1223623,1
+q060,"The University Of Fort Hare",subject,506054,2
+q060,"The University Of Fort Hare",subject,506130,1
+q060,"The University Of Fort Hare",subject,506155,1
+q060,"The University Of Fort Hare",subject,604718,1
+q060,"The University Of Fort Hare",subject,604799,1
+q060,"The University Of Fort Hare",subject,605010,1
+q060,"The University Of Fort Hare",subject,605047,1
+q060,"The University Of Fort Hare",subject,605078,1
+q060,"The University Of Fort Hare",subject,605096,1
+q060,"The University Of Fort Hare",subject,605112,1
+q060,"The University Of Fort Hare",subject,605177,1
+q060,"The University Of Fort Hare",subject,605227,1
+q060,"The University Of Fort Hare",subject,605244,1
+q060,"The University Of Fort Hare",subject,605259,1
+q060,"The University Of Fort Hare",subject,605293,1
+q060,"The University Of Fort Hare",subject,605422,1
+q060,"The University Of Fort Hare",subject,605439,1
+q060,"The University Of Fort Hare",subject,607484,1
+q060,"The University Of Fort Hare",subject,607550,1
+q060,"The University Of Fort Hare",subject,608517,1
+q060,"The University Of Fort Hare",subject,611903,1
+q060,"The University Of Fort Hare",subject,617750,1
+q060,"The University Of Fort Hare",subject,618585,1
+q060,"The University Of Fort Hare",subject,640126,1
+q060,"The University Of Fort Hare",subject,640151,1
+q060,"The University Of Fort Hare",subject,642918,1
+q060,"The University Of Fort Hare",subject,642944,1
+q060,"The University Of Fort Hare",subject,643908,1
+q060,"The University Of Fort Hare",subject,643927,1
+q060,"The University Of Fort Hare",subject,648247,1
+q060,"The University Of Fort Hare",subject,648270,1
+q060,"The University Of Fort Hare",subject,648314,1
+q060,"The University Of Fort Hare",subject,648338,1
+q060,"The University Of Fort Hare",subject,648380,1
+q060,"The University Of Fort Hare",subject,648426,1
+q060,"The University Of Fort Hare",subject,648470,1
+q060,"The University Of Fort Hare",subject,648503,1
+q060,"The University Of Fort Hare",subject,648535,1
+q060,"The University Of Fort Hare",subject,649988,1
+q060,"The University Of Fort Hare",subject,650040,1
+q060,"The University Of Fort Hare",subject,668745,1
+q060,"The University Of Fort Hare",subject,668825,1
+q060,"The University Of Fort Hare",subject,670465,1
+q060,"The University Of Fort Hare",subject,670720,1
+q060,"The University Of Fort Hare",subject,671349,1
+q060,"The University Of Fort Hare",subject,671395,1
+q060,"The University Of Fort Hare",subject,671439,1
+q060,"The University Of Fort Hare",subject,671571,1
+q060,"The University Of Fort Hare",subject,671610,1
+q060,"The University Of Fort Hare",subject,671646,1
+q061,"The Peace Accord",subject,572542,2
+q061,"The Peace Accord",subject,572561,1
+q061,"The Peace Accord",subject,573343,1
+q061,"The Peace Accord",subject,574563,1
+q061,"The Peace Accord",subject,574575,1
+q061,"The Peace Accord",subject,581217,1
+q061,"The Peace Accord",subject,581740,1
+q061,"The Peace Accord",subject,587150,1
+q061,"The Peace Accord",subject,587202,1
+q061,"The Peace Accord",subject,640003,1
+q061,"The Peace Accord",subject,640056,1
+q061,"The Peace Accord",subject,842641,1
+q061,"The Peace Accord",subject,842678,1
+q061,"The Peace Accord",subject,846297,1
+q061,"The Peace Accord",subject,846361,1
+q061,"The Peace Accord",subject,847466,1
+q061,"The Peace Accord",subject,847484,1
+q061,"The Peace Accord",subject,847498,1
+q061,"The Peace Accord",subject,847509,1
+q061,"The Peace Accord",subject,847649,1
+q061,"The Peace Accord",subject,847869,1
+q061,"The Peace Accord",subject,848035,1
+q061,"The Peace Accord",subject,848209,1
+q061,"The Peace Accord",subject,849340,1
+q061,"The Peace Accord",subject,849399,1
+q061,"The Peace Accord",subject,875737,1
+q061,"The Peace Accord",subject,937868,1
+q061,"The Peace Accord",subject,989698,1
+q061,"The Peace Accord",subject,990045,1
+q061,"The Peace Accord",subject,990820,1
+q061,"The Peace Accord",subject,990851,1
+q061,"The Peace Accord",subject,992887,1
+q061,"The Peace Accord",subject,994858,1
+q061,"The Peace Accord",subject,994910,1
+q061,"The Peace Accord",subject,1000438,1
+q061,"The Peace Accord",subject,1000542,1
+q061,"The Peace Accord",subject,1002434,1
+q061,"The Peace Accord",subject,1002981,1
+q061,"The Peace Accord",subject,1033476,1
+q061,"The Peace Accord",subject,1078170,1
+q061,"The Peace Accord",subject,1099173,1
+q061,"The Peace Accord",subject,1099373,1
+q061,"The Peace Accord",subject,1106760,1
+q061,"The Peace Accord",subject,1106941,1
+q061,"The Peace Accord",subject,1107128,1
+q061,"The Peace Accord",subject,1107151,1
+q061,"The Peace Accord",subject,1109289,1
+q061,"The Peace Accord",subject,1142970,1
+q061,"The Peace Accord",subject,1144022,1
+q061,"The Peace Accord",subject,1144158,1
+q062,"The University Of Natal",subject,410324,2
+q062,"The University Of Natal",subject,451457,1
+q062,"The University Of Natal",subject,463388,1
+q062,"The University Of Natal",subject,468240,1
+q062,"The University Of Natal",subject,524045,1
+q062,"The University Of Natal",subject,582200,1
+q062,"The University Of Natal",subject,603790,1
+q062,"The University Of Natal",subject,609751,1
+q062,"The University Of Natal",subject,609868,1
+q062,"The University Of Natal",subject,612983,1
+q062,"The University Of Natal",subject,619342,1
+q062,"The University Of Natal",subject,619371,1
+q062,"The University Of Natal",subject,619435,1
+q062,"The University Of Natal",subject,629793,1
+q062,"The University Of Natal",subject,631059,1
+q062,"The University Of Natal",subject,670110,1
+q062,"The University Of Natal",subject,670159,1
+q062,"The University Of Natal",subject,686492,1
+q062,"The University Of Natal",subject,686518,1
+q062,"The University Of Natal",subject,688015,1
+q062,"The University Of Natal",subject,693732,1
+q062,"The University Of Natal",subject,701649,1
+q062,"The University Of Natal",subject,729558,1
+q062,"The University Of Natal",subject,743194,1
+q062,"The University Of Natal",subject,743424,1
+q062,"The University Of Natal",subject,745958,1
+q062,"The University Of Natal",subject,752784,1
+q062,"The University Of Natal",subject,756362,1
+q062,"The University Of Natal",subject,756528,1
+q062,"The University Of Natal",subject,767384,1
+q062,"The University Of Natal",subject,767471,1
+q062,"The University Of Natal",subject,830092,1
+q062,"The University Of Natal",subject,830222,1
+q062,"The University Of Natal",subject,832920,1
+q062,"The University Of Natal",subject,832992,1
+q062,"The University Of Natal",subject,833855,1
+q062,"The University Of Natal",subject,840121,1
+q062,"The University Of Natal",subject,840246,1
+q062,"The University Of Natal",subject,846409,1
+q062,"The University Of Natal",subject,846457,1
+q062,"The University Of Natal",subject,869789,1
+q062,"The University Of Natal",subject,903624,1
+q062,"The University Of Natal",subject,924527,1
+q062,"The University Of Natal",subject,957655,1
+q062,"The University Of Natal",subject,967308,1
+q062,"The University Of Natal",subject,970982,1
+q062,"The University Of Natal",subject,972344,1
+q062,"The University Of Natal",subject,973697,1
+q062,"The University Of Natal",subject,974018,1
+q062,"The University Of Natal",subject,976991,1
+q063,AZAPO,subject,402154,2
+q063,AZAPO,subject,413535,1
+q063,AZAPO,subject,453756,1
+q063,AZAPO,subject,463117,1
+q063,AZAPO,subject,468009,1
+q063,AZAPO,subject,482764,1
+q063,AZAPO,subject,542659,1
+q063,AZAPO,subject,577191,1
+q063,AZAPO,subject,588365,1
+q063,AZAPO,subject,588544,1
+q063,AZAPO,subject,598436,1
+q063,AZAPO,subject,598693,1
+q063,AZAPO,subject,599197,1
+q063,AZAPO,subject,599300,1
+q063,AZAPO,subject,607052,1
+q063,AZAPO,subject,607640,1
+q063,AZAPO,subject,607668,1
+q063,AZAPO,subject,634242,1
+q063,AZAPO,subject,634294,1
+q063,AZAPO,subject,672654,1
+q063,AZAPO,subject,672672,1
+q063,AZAPO,subject,672762,1
+q063,AZAPO,subject,672781,1
+q063,AZAPO,subject,672818,1
+q063,AZAPO,subject,672834,1
+q063,AZAPO,subject,672850,1
+q063,AZAPO,subject,672916,1
+q063,AZAPO,subject,673133,1
+q063,AZAPO,subject,674142,1
+q063,AZAPO,subject,674543,1
+q063,AZAPO,subject,674598,1
+q063,AZAPO,subject,674689,1
+q063,AZAPO,subject,674790,1
+q063,AZAPO,subject,675088,1
+q063,AZAPO,subject,675147,1
+q063,AZAPO,subject,685834,1
+q063,AZAPO,subject,702624,1
+q063,AZAPO,subject,730751,1
+q063,AZAPO,subject,730884,1
+q063,AZAPO,subject,737721,1
+q063,AZAPO,subject,737749,1
+q063,AZAPO,subject,749062,1
+q063,AZAPO,subject,750670,1
+q063,AZAPO,subject,752784,1
+q063,AZAPO,subject,765695,1
+q063,AZAPO,subject,794663,1
+q063,AZAPO,subject,796137,1
+q063,AZAPO,subject,801479,1
+q063,AZAPO,subject,813964,1
+q063,AZAPO,subject,871131,1
+q064,Secretary-general,subject,378815,2
+q064,Secretary-general,subject,389728,1
+q064,Secretary-general,subject,420020,1
+q064,Secretary-general,subject,444123,1
+q064,Secretary-general,subject,449264,1
+q064,Secretary-general,subject,454855,1
+q064,Secretary-general,subject,467890,1
+q064,Secretary-general,subject,469851,1
+q064,Secretary-general,subject,488754,1
+q064,Secretary-general,subject,493888,1
+q064,Secretary-general,subject,502902,1
+q064,Secretary-general,subject,518123,1
+q064,Secretary-general,subject,521007,1
+q064,Secretary-general,subject,522563,1
+q064,Secretary-general,subject,522728,1
+q064,Secretary-general,subject,534873,1
+q064,Secretary-general,subject,542313,1
+q064,Secretary-general,subject,547418,1
+q064,Secretary-general,subject,563114,1
+q064,Secretary-general,subject,572187,1
+q064,Secretary-general,subject,572203,1
+q064,Secretary-general,subject,572218,1
+q064,Secretary-general,subject,572234,1
+q064,Secretary-general,subject,577580,1
+q064,Secretary-general,subject,578054,1
+q064,Secretary-general,subject,584507,1
+q064,Secretary-general,subject,584548,1
+q064,Secretary-general,subject,590124,1
+q064,Secretary-general,subject,631432,1
+q064,Secretary-general,subject,631456,1
+q064,Secretary-general,subject,636223,1
+q064,Secretary-general,subject,655736,1
+q064,Secretary-general,subject,661313,1
+q064,Secretary-general,subject,717894,1
+q064,Secretary-general,subject,733697,1
+q064,Secretary-general,subject,733710,1
+q064,Secretary-general,subject,760037,1
+q064,Secretary-general,subject,760058,1
+q064,Secretary-general,subject,773599,1
+q064,Secretary-general,subject,773698,1
+q064,Secretary-general,subject,773796,1
+q064,Secretary-general,subject,774268,1
+q064,Secretary-general,subject,777918,1
+q064,Secretary-general,subject,780038,1
+q064,Secretary-general,subject,793765,1
+q064,Secretary-general,subject,795082,1
+q064,Secretary-general,subject,822406,1
+q064,Secretary-general,subject,833092,1
+q064,Secretary-general,subject,833118,1
+q064,Secretary-general,subject,861382,1
+q065,"The Patriotic Front",subject,459676,2
+q065,"The Patriotic Front",subject,490854,1
+q065,"The Patriotic Front",subject,491363,1
+q065,"The Patriotic Front",subject,547779,1
+q065,"The Patriotic Front",subject,551084,1
+q065,"The Patriotic Front",subject,551628,1
+q065,"The Patriotic Front",subject,573355,1
+q065,"The Patriotic Front",subject,573413,1
+q065,"The Patriotic Front",subject,577580,1
+q065,"The Patriotic Front",subject,578054,1
+q065,"The Patriotic Front",subject,579935,1
+q065,"The Patriotic Front",subject,579970,1
+q065,"The Patriotic Front",subject,584049,1
+q065,"The Patriotic Front",subject,584295,1
+q065,"The Patriotic Front",subject,585679,1
+q065,"The Patriotic Front",subject,587566,1
+q065,"The Patriotic Front",subject,587585,1
+q065,"The Patriotic Front",subject,590005,1
+q065,"The Patriotic Front",subject,590056,1
+q065,"The Patriotic Front",subject,590904,1
+q065,"The Patriotic Front",subject,591033,1
+q065,"The Patriotic Front",subject,593582,1
+q065,"The Patriotic Front",subject,593820,1
+q065,"The Patriotic Front",subject,599678,1
+q065,"The Patriotic Front",subject,599726,1
+q065,"The Patriotic Front",subject,640003,1
+q065,"The Patriotic Front",subject,640056,1
+q065,"The Patriotic Front",subject,734191,1
+q065,"The Patriotic Front",subject,734232,1
+q065,"The Patriotic Front",subject,767112,1
+q065,"The Patriotic Front",subject,767217,1
+q065,"The Patriotic Front",subject,776084,1
+q065,"The Patriotic Front",subject,780038,1
+q065,"The Patriotic Front",subject,795149,1
+q065,"The Patriotic Front",subject,826494,1
+q065,"The Patriotic Front",subject,847073,1
+q065,"The Patriotic Front",subject,847141,1
+q065,"The Patriotic Front",subject,847189,1
+q065,"The Patriotic Front",subject,897961,1
+q065,"The Patriotic Front",subject,898014,1
+q065,"The Patriotic Front",subject,900053,1
+q065,"The Patriotic Front",subject,907166,1
+q065,"The Patriotic Front",subject,924527,1
+q065,"The Patriotic Front",subject,937868,1
+q065,"The Patriotic Front",subject,942601,1
+q065,"The Patriotic Front",subject,943554,1
+q065,"The Patriotic Front",subject,948029,1
+q065,"The Patriotic Front",subject,948944,1
+q065,"The Patriotic Front",subject,952464,1
+q065,"The Patriotic Front",subject,964743,1
+q066,Municipality,subject,456175,2
+q066,Municipality,subject,478735,1
+q066,Municipality,subject,554986,1
+q066,Municipality,subject,701612,1
+q066,Municipality,subject,810108,1
+q066,Municipality,subject,841792,1
+q066,Municipality,subject,976465,1
+q066,Municipality,subject,995714,1
+q066,Municipality,subject,995837,1
+q066,Municipality,subject,1021693,1
+q066,Municipality,subject,1026550,1
+q066,Municipality,subject,1075835,1
+q066,Municipality,subject,1115807,1
+q066,Municipality,subject,1177281,1
+q066,Municipality,subject,1206617,1
+q066,Municipality,subject,1360702,1
+q066,Municipality,subject,1383325,1
+q066,Municipality,subject,1383612,1
+q066,Municipality,subject,1386500,1
+q066,Municipality,subject,1386539,1
+q066,Municipality,subject,1386633,1
+q066,Municipality,subject,1386642,1
+q066,Municipality,subject,1386650,1
+q066,Municipality,subject,1386682,1
+q066,Municipality,subject,1422428,1
+q066,Municipality,subject,1422843,1
+q066,Municipality,subject,1428648,1
+q066,Municipality,subject,1429171,1
+q066,Municipality,subject,1431087,1
+q066,Municipality,subject,1434262,1
+q066,Municipality,subject,1438929,1
+q066,Municipality,subject,1438969,1
+q066,Municipality,subject,1493691,1
+q066,Municipality,subject,1494562,1
+q066,Municipality,subject,1531356,1
+q066,Municipality,subject,1531455,1
+q066,Municipality,subject,1573116,1
+q066,Municipality,subject,1580831,1
+q066,Municipality,subject,1610708,1
+q066,Municipality,subject,1631872,1
+q066,Municipality,subject,1634602,1
+q066,Municipality,subject,1665278,1
+q066,Municipality,subject,1729374,1
+q066,Municipality,subject,1808350,1
+q066,Municipality,subject,1808494,1
+q066,Municipality,subject,1838522,1
+q066,Municipality,subject,1844631,1
+q066,Municipality,subject,1860274,1
+q066,Municipality,subject,1860546,1
+q066,Municipality,subject,1864663,1
+q067,"the British Government",subject,9113503,2
+q067,"the British Government",subject,9117183,1
+q067,"the British Government",subject,9122855,1
+q067,"the British Government",subject,9127557,1
+q067,"the British Government",subject,9127642,1
+q067,"the British Government",subject,9131196,1
+q067,"the British Government",subject,9133998,1
+q067,"the British Government",subject,9135389,1
+q067,"the British Government",subject,9149268,1
+q067,"the British Government",subject,9152670,1
+q067,"the British Government",subject,9154191,1
+q067,"the British Government",subject,9155926,1
+q067,"the British Government",subject,9160091,1
+q067,"the British Government",subject,9172472,1
+q067,"the British Government",subject,9175551,1
+q067,"the British Government",subject,9175601,1
+q067,"the British Government",subject,9176231,1
+q067,"the British Government",subject,9178401,1
+q067,"the British Government",subject,9178795,1
+q067,"the British Government",subject,9179260,1
+q067,"the British Government",subject,9181142,1
+q067,"the British Government",subject,9185267,1
+q067,"the British Government",subject,9186925,1
+q067,"the British Government",subject,9186954,1
+q067,"the British Government",subject,9202649,1
+q067,"the British Government",subject,9203247,1
+q067,"the British Government",subject,9209887,1
+q067,"the British Government",subject,9211018,1
+q067,"the British Government",subject,9228163,1
+q067,"the British Government",subject,9234732,1
+q067,"the British Government",subject,9235238,1
+q067,"the British Government",subject,9240325,1
+q067,"the British Government",subject,9241164,1
+q067,"the British Government",subject,9242301,1
+q067,"the British Government",subject,9243769,1
+q067,"the British Government",subject,9248927,1
+q067,"the British Government",subject,9251302,1
+q067,"the British Government",subject,9269520,1
+q067,"the British Government",subject,9270407,1
+q067,"the British Government",subject,9287330,1
+q067,"the British Government",subject,9288967,1
+q067,"the British Government",subject,9289258,1
+q067,"the British Government",subject,9292069,1
+q067,"the British Government",subject,9292411,1
+q067,"the British Government",subject,9292434,1
+q067,"the British Government",subject,9292546,1
+q067,"the British Government",subject,9295127,1
+q067,"the British Government",subject,9297097,1
+q067,"the British Government",subject,9304381,1
+q067,"the British Government",subject,9320467,1
+q068,"The Security Police",subject,413535,2
+q068,"The Security Police",subject,457246,1
+q068,"The Security Police",subject,493044,1
+q068,"The Security Police",subject,536789,1
+q068,"The Security Police",subject,540525,1
+q068,"The Security Police",subject,540591,1
+q068,"The Security Police",subject,552204,1
+q068,"The Security Police",subject,554085,1
+q068,"The Security Police",subject,827070,1
+q068,"The Security Police",subject,954150,1
+q068,"The Security Police",subject,955903,1
+q068,"The Security Police",subject,997463,1
+q068,"The Security Police",subject,998206,1
+q068,"The Security Police",subject,1024694,1
+q068,"The Security Police",subject,1039523,1
+q068,"The Security Police",subject,1044770,1
+q068,"The Security Police",subject,1073158,1
+q068,"The Security Police",subject,1079202,1
+q068,"The Security Police",subject,1092000,1
+q068,"The Security Police",subject,1092099,1
+q068,"The Security Police",subject,1118154,1
+q068,"The Security Police",subject,1118234,1
+q068,"The Security Police",subject,1158363,1
+q068,"The Security Police",subject,1190355,1
+q068,"The Security Police",subject,1192952,1
+q068,"The Security Police",subject,1199968,1
+q068,"The Security Police",subject,1212332,1
+q068,"The Security Police",subject,1215364,1
+q068,"The Security Police",subject,1229357,1
+q068,"The Security Police",subject,1306967,1
+q068,"The Security Police",subject,1306998,1
+q068,"The Security Police",subject,1336947,1
+q068,"The Security Police",subject,1358022,1
+q068,"The Security Police",subject,1358349,1
+q068,"The Security Police",subject,1376213,1
+q068,"The Security Police",subject,1379317,1
+q068,"The Security Police",subject,1395656,1
+q068,"The Security Police",subject,1425734,1
+q068,"The Security Police",subject,1426202,1
+q068,"The Security Police",subject,1429581,1
+q068,"The Security Police",subject,1429628,1
+q068,"The Security Police",subject,1437206,1
+q068,"The Security Police",subject,1437227,1
+q068,"The Security Police",subject,1437354,1
+q068,"The Security Police",subject,1468071,1
+q068,"The Security Police",subject,1479911,1
+q068,"The Security Police",subject,1503415,1
+q068,"The Security Police",subject,1503580,1
+q068,"The Security Police",subject,1513416,1
+q068,"The Security Police",subject,1513564,1
+q069,"AFRICAN NATIONAL",subject,381971,2
+q069,"AFRICAN NATIONAL",subject,383291,1
+q069,"AFRICAN NATIONAL",subject,394384,1
+q069,"AFRICAN NATIONAL",subject,397595,1
+q069,"AFRICAN NATIONAL",subject,407955,1
+q069,"AFRICAN NATIONAL",subject,412431,1
+q069,"AFRICAN NATIONAL",subject,426229,1
+q069,"AFRICAN NATIONAL",subject,496026,1
+q069,"AFRICAN NATIONAL",subject,502228,1
+q069,"AFRICAN NATIONAL",subject,502716,1
+q069,"AFRICAN NATIONAL",subject,502835,1
+q069,"AFRICAN NATIONAL",subject,502870,1
+q069,"AFRICAN NATIONAL",subject,503268,1
+q069,"AFRICAN NATIONAL",subject,504898,1
+q069,"AFRICAN NATIONAL",subject,516139,1
+q069,"AFRICAN NATIONAL",subject,520173,1
+q069,"AFRICAN NATIONAL",subject,529138,1
+q069,"AFRICAN NATIONAL",subject,535810,1
+q069,"AFRICAN NATIONAL",subject,535827,1
+q069,"AFRICAN NATIONAL",subject,535874,1
+q069,"AFRICAN NATIONAL",subject,535888,1
+q069,"AFRICAN NATIONAL",subject,535957,1
+q069,"AFRICAN NATIONAL",subject,536415,1
+q069,"AFRICAN NATIONAL",subject,557626,1
+q069,"AFRICAN NATIONAL",subject,557858,1
+q069,"AFRICAN NATIONAL",subject,559824,1
+q069,"AFRICAN NATIONAL",subject,563101,1
+q069,"AFRICAN NATIONAL",subject,563431,1
+q069,"AFRICAN NATIONAL",subject,563457,1
+q069,"AFRICAN NATIONAL",subject,563499,1
+q069,"AFRICAN NATIONAL",subject,563506,1
+q069,"AFRICAN NATIONAL",subject,563614,1
+q069,"AFRICAN NATIONAL",subject,617570,1
+q069,"AFRICAN NATIONAL",subject,622500,1
+q069,"AFRICAN NATIONAL",subject,633501,1
+q069,"AFRICAN NATIONAL",subject,633538,1
+q069,"AFRICAN NATIONAL",subject,633821,1
+q069,"AFRICAN NATIONAL",subject,634335,1
+q069,"AFRICAN NATIONAL",subject,655587,1
+q069,"AFRICAN NATIONAL",subject,656195,1
+q069,"AFRICAN NATIONAL",subject,657872,1
+q069,"AFRICAN NATIONAL",subject,660727,1
+q069,"AFRICAN NATIONAL",subject,663943,1
+q069,"AFRICAN NATIONAL",subject,663957,1
+q069,"AFRICAN NATIONAL",subject,664164,1
+q069,"AFRICAN NATIONAL",subject,664283,1
+q069,"AFRICAN NATIONAL",subject,664349,1
+q069,"AFRICAN NATIONAL",subject,664487,1
+q069,"AFRICAN NATIONAL",subject,664716,1
+q069,"AFRICAN NATIONAL",subject,665131,1
+q070,Technikon,subject,468240,2
+q070,Technikon,subject,566633,1
+q070,Technikon,subject,569880,1
+q070,Technikon,subject,588365,1
+q070,Technikon,subject,588544,1
+q070,Technikon,subject,593943,1
+q070,Technikon,subject,593985,1
+q070,Technikon,subject,608902,1
+q070,Technikon,subject,609449,1
+q070,Technikon,subject,609751,1
+q070,Technikon,subject,609868,1
+q070,Technikon,subject,611499,1
+q070,Technikon,subject,611538,1
+q070,Technikon,subject,635271,1
+q070,Technikon,subject,642316,1
+q070,Technikon,subject,642332,1
+q070,Technikon,subject,642738,1
+q070,Technikon,subject,643908,1
+q070,Technikon,subject,643927,1
+q070,Technikon,subject,649573,1
+q070,Technikon,subject,649597,1
+q070,Technikon,subject,649786,1
+q070,Technikon,subject,649817,1
+q070,Technikon,subject,650391,1
+q070,Technikon,subject,650413,1
+q070,Technikon,subject,650544,1
+q070,Technikon,subject,650563,1
+q070,Technikon,subject,650653,1
+q070,Technikon,subject,650673,1
+q070,Technikon,subject,651091,1
+q070,Technikon,subject,651104,1
+q070,Technikon,subject,651117,1
+q070,Technikon,subject,651148,1
+q070,Technikon,subject,651226,1
+q070,Technikon,subject,651241,1
+q070,Technikon,subject,651337,1
+q070,Technikon,subject,651351,1
+q070,Technikon,subject,668353,1
+q070,Technikon,subject,668375,1
+q070,Technikon,subject,674142,1
+q070,Technikon,subject,674543,1
+q070,Technikon,subject,674598,1
+q070,Technikon,subject,675088,1
+q070,Technikon,subject,675147,1
+q070,Technikon,subject,688753,1
+q070,Technikon,subject,688788,1
+q070,Technikon,subject,701649,1
+q070,Technikon,subject,714902,1
+q070,Technikon,subject,727855,1
+q070,Technikon,subject,728129,1
+q071,"Albert Luther",scope_np,1098,2
+q072,"Vaal Triangle Technikon",scope_np,3258,2
+q073,"African National Congress",scope_np,5526,2
+q074,"Housing Policy",scope_np,5216,2
+q075,"African National Congress",scope_np,8407,2
+q076,"Nigel Dennis",scope_np,4396,2
+q077,"Education Department",scope_np,2478,2
+q078,"Standing Committees",scope_np,6592,2
+q079,"Steering Committee",scope_np,5634,2
+q080,"Manpower Development",scope_np,7727,2
+q081,"National Education Conference",scope_np,3946,2
+q082,"World Congress",scope_np,8257,2
+q083,"From Resistance",scope_np,5016,2
+q084,"Cape Town",scope_np,3698,2
+q085,"Siphokazi Mbonda",scope_np,2278,2
+q086,"South Africa",scope_np,1558,2
+q087,"Correspondence College",scope_np,6742,2
+q088,"African National Congress",scope_np,2018,2
+q089,"Advisory Committee",scope_np,5844,2
+q090,"John Samuel",scope_np,2808,2
+q091,SACP,typo,374983,2
+q092,Sowetto,typo,968,2
+q092,Sowetto,typo,1948,1
+q092,Sowetto,typo,1978,1
+q092,Sowetto,typo,2008,1
+q092,Sowetto,typo,2238,1
+q092,Sowetto,typo,2268,1
+q092,Sowetto,typo,4426,1
+q092,Sowetto,typo,6404,1
+q092,Sowetto,typo,6662,1
+q092,Sowetto,typo,6832,1
+q092,Sowetto,typo,6952,1
+q092,Sowetto,typo,7977,1
+q093,"Education Department",typo,460,2
+q093,"Education Department",typo,450,1
+q093,"Education Department",typo,468,1
+q093,"Education Department",typo,478,1
+q093,"Education Department",typo,488,1
+q093,"Education Department",typo,498,1
+q093,"Education Department",typo,508,1
+q093,"Education Department",typo,518,1
+q093,"Education Department",typo,528,1
+q093,"Education Department",typo,538,1
+q093,"Education Department",typo,548,1
+q093,"Education Department",typo,558,1
+q093,"Education Department",typo,568,1
+q093,"Education Department",typo,578,1
+q093,"Education Department",typo,588,1
+q093,"Education Department",typo,598,1
+q093,"Education Department",typo,608,1
+q093,"Education Department",typo,618,1
+q093,"Education Department",typo,628,1
+q093,"Education Department",typo,638,1
+q093,"Education Department",typo,648,1
+q093,"Education Department",typo,658,1
+q093,"Education Department",typo,668,1
+q093,"Education Department",typo,678,1
+q093,"Education Department",typo,688,1
+q093,"Education Department",typo,698,1
+q093,"Education Department",typo,708,1
+q093,"Education Department",typo,718,1
+q093,"Education Department",typo,728,1
+q093,"Education Department",typo,738,1
+q093,"Education Department",typo,748,1
+q093,"Education Department",typo,758,1
+q093,"Education Department",typo,768,1
+q093,"Education Department",typo,778,1
+q093,"Education Department",typo,788,1
+q093,"Education Department",typo,798,1
+q093,"Education Department",typo,808,1
+q093,"Education Department",typo,818,1
+q093,"Education Department",typo,828,1
+q093,"Education Department",typo,838,1
+q093,"Education Department",typo,848,1
+q093,"Education Department",typo,858,1
+q093,"Education Department",typo,868,1
+q093,"Education Department",typo,878,1
+q093,"Education Department",typo,888,1
+q093,"Education Department",typo,898,1
+q093,"Education Department",typo,908,1
+q093,"Education Department",typo,918,1
+q093,"Education Department",typo,928,1
+q093,"Education Department",typo,938,1
+q094,Apartheid,typo,478,2
+q094,Apartheid,typo,618,1
+q094,Apartheid,typo,708,1
+q094,Apartheid,typo,778,1
+q094,Apartheid,typo,938,1
+q094,Apartheid,typo,948,1
+q094,Apartheid,typo,958,1
+q094,Apartheid,typo,978,1
+q094,Apartheid,typo,988,1
+q094,Apartheid,typo,1018,1
+q094,Apartheid,typo,1028,1
+q094,Apartheid,typo,1038,1
+q094,Apartheid,typo,1138,1
+q094,Apartheid,typo,1298,1
+q094,Apartheid,typo,1468,1
+q094,Apartheid,typo,1938,1
+q094,Apartheid,typo,1948,1
+q094,Apartheid,typo,1958,1
+q094,Apartheid,typo,2128,1
+q094,Apartheid,typo,2138,1
+q094,Apartheid,typo,2178,1
+q094,Apartheid,typo,2238,1
+q094,Apartheid,typo,2268,1
+q094,Apartheid,typo,2308,1
+q094,Apartheid,typo,2478,1
+q094,Apartheid,typo,2558,1
+q094,Apartheid,typo,2568,1
+q094,Apartheid,typo,2988,1
+q094,Apartheid,typo,3048,1
+q094,Apartheid,typo,3068,1
+q094,Apartheid,typo,3118,1
+q094,Apartheid,typo,3148,1
+q094,Apartheid,typo,3178,1
+q094,Apartheid,typo,3188,1
+q094,Apartheid,typo,3218,1
+q094,Apartheid,typo,3508,1
+q094,Apartheid,typo,3548,1
+q094,Apartheid,typo,3648,1
+q094,Apartheid,typo,3688,1
+q094,Apartheid,typo,3738,1
+q094,Apartheid,typo,3946,1
+q094,Apartheid,typo,3966,1
+q094,Apartheid,typo,3976,1
+q094,Apartheid,typo,4016,1
+q094,Apartheid,typo,4036,1
+q094,Apartheid,typo,4066,1
+q094,Apartheid,typo,4086,1
+q094,Apartheid,typo,4096,1
+q094,Apartheid,typo,4266,1
+q094,Apartheid,typo,4286,1
+q095,Mandella,typo,578,2
+q095,Mandella,typo,918,1
+q095,Mandella,typo,2028,1
+q095,Mandella,typo,2048,1
+q095,Mandella,typo,2108,1
+q095,Mandella,typo,2218,1
+q095,Mandella,typo,2438,1
+q095,Mandella,typo,3198,1
+q095,Mandella,typo,6194,1
+q095,Mandella,typo,6374,1
+q095,Mandella,typo,6444,1
+q095,Mandella,typo,6902,1
+q095,Mandella,typo,7387,1
+q095,Mandella,typo,7427,1
+q095,Mandella,typo,7437,1
+q095,Mandella,typo,7447,1
+q095,Mandella,typo,7477,1
+q095,Mandella,typo,7487,1
+q095,Mandella,typo,7567,1
+q095,Mandella,typo,7587,1
+q095,Mandella,typo,7597,1
+q095,Mandella,typo,7607,1
+q095,Mandella,typo,7627,1
+q095,Mandella,typo,7637,1
+q095,Mandella,typo,7697,1
+q095,Mandella,typo,7887,1
+q095,Mandella,typo,7947,1
+q095,Mandella,typo,7957,1
+q095,Mandella,typo,8217,1
+q095,Mandella,typo,8237,1
+q095,Mandella,typo,8267,1
+q095,Mandella,typo,8297,1
+q095,Mandella,typo,8337,1
+q095,Mandella,typo,8377,1
+q095,Mandella,typo,8417,1
+q095,Mandella,typo,8537,1
+q095,Mandella,typo,8657,1
+q095,Mandella,typo,8807,1
+q095,Mandella,typo,8837,1
+q095,Mandella,typo,361829,1
+q095,Mandella,typo,360525,1
+q095,Mandella,typo,360534,1
+q095,Mandella,typo,360541,1
+q095,Mandella,typo,360548,1
+q095,Mandella,typo,360555,1
+q095,Mandella,typo,360562,1
+q095,Mandella,typo,360569,1
+q095,Mandella,typo,360520,1
+q096,"June 16",typo,968,2
+q096,"June 16",typo,4426,1
+q096,"June 16",typo,6832,1
+q097,"Umkonto we Sizwe",typo,6522,2
+q098,A.N.C.,typo,478,2
+q098,A.N.C.,typo,508,1
+q098,A.N.C.,typo,518,1
+q098,A.N.C.,typo,528,1
+q098,A.N.C.,typo,538,1
+q098,A.N.C.,typo,548,1
+q098,A.N.C.,typo,598,1
+q098,A.N.C.,typo,608,1
+q098,A.N.C.,typo,668,1
+q098,A.N.C.,typo,698,1
+q098,A.N.C.,typo,708,1
+q098,A.N.C.,typo,728,1
+q098,A.N.C.,typo,758,1
+q098,A.N.C.,typo,808,1
+q098,A.N.C.,typo,828,1
+q098,A.N.C.,typo,868,1
+q098,A.N.C.,typo,888,1
+q098,A.N.C.,typo,908,1
+q098,A.N.C.,typo,948,1
+q098,A.N.C.,typo,968,1
+q098,A.N.C.,typo,978,1
+q098,A.N.C.,typo,988,1
+q098,A.N.C.,typo,1038,1
+q098,A.N.C.,typo,1118,1
+q098,A.N.C.,typo,1128,1
+q098,A.N.C.,typo,1138,1
+q098,A.N.C.,typo,1178,1
+q098,A.N.C.,typo,1248,1
+q098,A.N.C.,typo,1258,1
+q098,A.N.C.,typo,1268,1
+q098,A.N.C.,typo,1278,1
+q098,A.N.C.,typo,1298,1
+q098,A.N.C.,typo,1328,1
+q098,A.N.C.,typo,1348,1
+q098,A.N.C.,typo,1368,1
+q098,A.N.C.,typo,1388,1
+q098,A.N.C.,typo,1398,1
+q098,A.N.C.,typo,1408,1
+q098,A.N.C.,typo,1418,1
+q098,A.N.C.,typo,1438,1
+q098,A.N.C.,typo,1508,1
+q098,A.N.C.,typo,1798,1
+q098,A.N.C.,typo,1838,1
+q098,A.N.C.,typo,1898,1
+q098,A.N.C.,typo,1918,1
+q098,A.N.C.,typo,1948,1
+q098,A.N.C.,typo,1958,1
+q098,A.N.C.,typo,1968,1
+q098,A.N.C.,typo,1978,1
+q098,A.N.C.,typo,1988,1
+q099,PAC,typo,1978,2
+q100,IFP,typo,4836,2

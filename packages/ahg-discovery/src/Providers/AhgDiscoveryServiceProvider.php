@@ -10,6 +10,7 @@
 namespace AhgDiscovery\Providers;
 
 use AhgDiscovery\Console\DiscoveryPruneCommand;
+use AhgDiscovery\Console\DiscoverySimulateCommand;
 use AhgDiscovery\Services\DiscoveryQueryLogger;
 use AhgDiscovery\Services\Search\ImageSearchStrategy;
 use AhgDiscovery\Services\Search\VectorSearchStrategy;
@@ -36,6 +37,7 @@ class AhgDiscoveryServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 DiscoveryPruneCommand::class,
+                DiscoverySimulateCommand::class,
             ]);
         }
 
@@ -77,6 +79,17 @@ class AhgDiscoveryServiceProvider extends ServiceProvider
                 'ahg_discovery_log_queries'          => '1',
                 // Retention for ahg_discovery_log; consumed by `php artisan ahg:discovery-prune` (#19)
                 'ahg_discovery_log_retention_days'   => '90',
+                // Fusion / RRF tunables — issue #21. Defaults match the AtoM
+                // ResultMerger constants so behaviour is unchanged on first boot.
+                'ahg_discovery_weight_keyword_3way'  => '0.35',
+                'ahg_discovery_weight_entity_3way'   => '0.40',
+                'ahg_discovery_weight_hier_3way'     => '0.25',
+                'ahg_discovery_weight_keyword_2way'  => '0.70',
+                'ahg_discovery_weight_hier_2way'     => '0.30',
+                'ahg_discovery_hier_sibling_score'   => '0.5',
+                'ahg_discovery_hier_child_score'     => '0.3',
+                'ahg_discovery_multi_source_bonus'   => '0.10',
+                'ahg_discovery_rrf_k'                => '60',
             ];
 
             $existingKeys = DB::table('ahg_settings')
@@ -93,9 +106,17 @@ class AhgDiscoveryServiceProvider extends ServiceProvider
                 $rows[] = [
                     'setting_key'   => $key,
                     'setting_value' => $defaults[$key],
+                    'setting_group' => 'discovery',
                 ];
             }
             DB::table('ahg_settings')->insertOrIgnore($rows);
+
+            // Tag any pre-existing rows that landed in 'general' due to the
+            // earlier seed pass that omitted setting_group. Idempotent.
+            DB::table('ahg_settings')
+                ->whereIn('setting_key', array_keys($defaults))
+                ->where('setting_group', 'general')
+                ->update(['setting_group' => 'discovery']);
         } catch (Throwable $e) {
             // Never block boot.
         }

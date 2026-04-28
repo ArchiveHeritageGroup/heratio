@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://heratio.theahg.co.za/schemas/qdrant/anc_records.json",
+  "title": "Qdrant payload — anc_records",
+  "description": "Vector index of ANC corpus information_object rows. One point per IO. Vector is a 384-dim text embedding (default model: all-minilm) of the IO's title + scope_and_content. Hosted at http://localhost:6333/collections/anc_records. Issue #23.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["database", "title", "parent_id", "slug", "has_scope", "has_transcript"],
+  "properties": {
+    "database": {
+      "type": "string",
+      "enum": ["atom"],
+      "description": "Source MySQL database. Always 'atom' for the ANC corpus pilot."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "information_object_i18n.title (en culture) — embedded into the vector."
+    },
+    "parent_id": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "information_object.parent_id (1 = top-level). Lets discovery RRF wrap a hierarchical-aware re-rank without a JOIN."
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Public URL slug for the IO; used by discovery to render result links without a DB lookup."
+    },
+    "has_scope": {
+      "type": "boolean",
+      "description": "Whether scope_and_content was non-empty when the embedding was built. Lets ablation runs filter to scope-bearing IOs cheaply."
+    },
+    "has_transcript": {
+      "type": "boolean",
+      "description": "Whether an OCR or AI-generated transcript was available for embedding. Affects vector quality for image-only IOs."
+    }
+  },
+  "x-collection": {
+    "name": "anc_records",
+    "vector_dim": 384,
+    "distance": "Cosine",
+    "embedding_model": "all-minilm",
+    "settings_keys": {
+      "embedding_url": "ahg_settings.semantic_embedding_url",
+      "embedding_model": "ahg_settings.semantic_embedding_model",
+      "qdrant_url": "ahg_settings.semantic_qdrant_url",
+      "collection": "ahg_settings.semantic_qdrant_collection (default 'anc_records')"
+    },
+    "consumers": [
+      "AhgSearch\\Services\\VectorSearchService::search()",
+      "AhgDiscovery\\Services\\Search\\VectorSearchStrategy::search()",
+      "AhgDiscovery\\Controllers\\DiscoveryController::search() — when ?strategies includes 'vector'"
+    ]
+  }
+}

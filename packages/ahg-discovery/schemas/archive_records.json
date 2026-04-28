@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://heratio.theahg.co.za/schemas/qdrant/archive_records.json",
+  "title": "Qdrant payload — archive_records",
+  "description": "Vector index of archive-DB information_object rows (the AtoM-side production AHG demo / staging instance). One point per IO. Same schema shape as anc_records but `database` is fixed to 'archive'. Hosted at http://localhost:6333/collections/archive_records. Issue #23.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["database", "title", "parent_id", "slug", "has_scope", "has_transcript"],
+  "properties": {
+    "database": {
+      "type": "string",
+      "enum": ["archive"],
+      "description": "Source MySQL database. Always 'archive' for the AHG-demo collection."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "information_object_i18n.title (en culture) — embedded into the vector."
+    },
+    "parent_id": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "information_object.parent_id (1 = top-level)."
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Public URL slug."
+    },
+    "has_scope": {
+      "type": "boolean",
+      "description": "Whether scope_and_content was non-empty at embedding time."
+    },
+    "has_transcript": {
+      "type": "boolean",
+      "description": "Whether an OCR/AI transcript was available at embedding time."
+    }
+  },
+  "x-collection": {
+    "name": "archive_records",
+    "vector_dim": 384,
+    "distance": "Cosine",
+    "embedding_model": "all-minilm",
+    "consumers": [
+      "AhgSearch\\Services\\VectorSearchService — when ahg_settings.semantic_qdrant_collection is set to 'archive_records'"
+    ],
+    "notes": "Smaller corpus (~693 points). Used for parity testing against the larger anc_records collection. Switch via ahg_settings.semantic_qdrant_collection."
+  }
+}

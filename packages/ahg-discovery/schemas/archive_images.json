@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://heratio.theahg.co.za/schemas/qdrant/archive_images.json",
+  "title": "Qdrant payload — archive_images",
+  "description": "CLIP image-embedding index of digital_object thumbnails. One point per image; vector is a 512-dim CLIP ViT-B/32 image embedding. Hosted at http://localhost:6333/collections/archive_images. Issue #23.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["database", "object_id", "title", "slug", "mime_type"],
+  "properties": {
+    "database": {
+      "type": "string",
+      "enum": ["archive", "atom"],
+      "description": "Source MySQL database for the parent IO."
+    },
+    "object_id": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "information_object.id of the IO that owns this image. Discovery uses this to project image hits back to IO results."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Title of the parent IO (denormalised so image-only retrieval can render a label without a DB lookup)."
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Public URL slug of the parent IO."
+    },
+    "mime_type": {
+      "type": "string",
+      "pattern": "^image/",
+      "examples": ["image/jpeg", "image/webp", "image/png"],
+      "description": "Mime type of the source thumbnail; lets the UI decide how to render."
+    }
+  },
+  "x-collection": {
+    "name": "archive_images",
+    "vector_dim": 512,
+    "distance": "Cosine",
+    "embedding_model": "clip-vit-b-32",
+    "settings_keys": {
+      "embed_url": "ahg_settings.ahg_discovery_image_embed_url (default http://192.168.0.78:11434)",
+      "embed_model": "ahg_settings.ahg_discovery_image_embed_model (default 'clip-vit-b-32')",
+      "collection": "ahg_settings.ahg_discovery_image_collection (default 'archive_images')",
+      "min_score": "ahg_settings.ahg_discovery_image_min_score (default 0.30)",
+      "pool_size": "ahg_settings.ahg_discovery_image_pool_size (default 50)"
+    },
+    "consumers": [
+      "AhgDiscovery\\Services\\Search\\ImageSearchStrategy::searchByExistingObject()",
+      "AhgDiscovery\\Services\\Search\\ImageSearchStrategy::searchByVector()"
+    ],
+    "notes": "Currently 279 points; population is ad-hoc (no scheduled index job). Text-to-image (CLIP-text encoded query) is planned under #26 once 192.168.0.78 returns."
+  }
+}

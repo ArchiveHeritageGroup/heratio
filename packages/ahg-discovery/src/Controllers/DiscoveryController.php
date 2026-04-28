@@ -51,6 +51,117 @@ class DiscoveryController extends Controller
     private ?string $discoveryConn = null;
 
     /**
+     * Cached fusion-config block — merge weights + RRF k + hierarchical-tier scores +
+     * multi-source bonus. Loaded once per controller instance from ahg_settings
+     * (group=discovery, keys ahg_discovery_weight_*, ahg_discovery_rrf_k, etc.).
+     * Issue #21.
+     */
+    private ?array $fusionConfig = null;
+
+    /**
+     * Per-instance cache for termIds() lookups. Issue #22.
+     * Key: "$taxonomyId:" . sorted-csv-of-names → int[]
+     */
+    private array $termIdCache = [];
+
+    /**
+     * Default fusion weights — replicate the AtoM ResultMerger constants so
+     * a fresh install with no settings rows behaves identically to pre-#21.
+     */
+    private const FUSION_DEFAULTS = [
+        'weight_keyword_3way'  => 0.35,  // when keyword + entity + hier all present
+        'weight_entity_3way'   => 0.40,
+        'weight_hier_3way'     => 0.25,
+        'weight_keyword_2way'  => 0.70,  // when entity absent (keyword + hier only)
+        'weight_hier_2way'     => 0.30,
+        'hier_sibling_score'   => 0.5,
+        'hier_child_score'     => 0.3,
+        'multi_source_bonus'   => 0.10,  // per-extra-source multiplier (1 + (n-1)*bonus)
+        'rrf_k'                => 60,    // Cormack et al. SIGIR 2009 default
+    ];
+
+    /**
+     * Resolve term IDs by taxonomy + name list. Honours the discoveryDb()
+     * connection (#14) so the lookup hits the same DB the rest of the pipeline
+     * reads. Cached per controller instance. Issue #22.
+     *
+     * Names are matched case-insensitively against term_i18n.name in the en
+     * culture. Pass synonyms (e.g. ['Subfonds', 'Sub-fonds']) to handle the
+     * AtoM/Heratio orthography drift — the lookup unions them all.
+     *
+     * @return int[] term IDs (may be empty if no matches)
+     */
+    protected function termIds(int $taxonomyId, array $names): array
+    {
+        $names = array_values(array_filter(array_map('strval', $names)));
+        if (empty($names)) return [];
+        $cacheKey = $taxonomyId . ':' . implode(',', $names);
+        if (array_key_exists($cacheKey, $this->termIdCache)) {
+            return $this->termIdCache[$cacheKey];
+        }
+        try {
+            $ids = $this->discoveryDb()->table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->where('term.taxonomy_id', $taxonomyId)
+                ->whereIn(DB::raw('LOWER(term_i18n.name)'), array_map('strtolower', $names))
+                ->where('term_i18n.culture', 'en')
+                ->pluck('term.id')->map(fn($v) => (int) $v)->toArray();
+            return $this->termIdCache[$cacheKey] = $ids;
+        } catch (\Throwable $e) {
+            return $this->termIdCache[$cacheKey] = [];
+        }
+    }
+
+    /**
+     * Single-term variant of termIds(). Returns first match, or $default if no
+     * matches. Used where the caller wants a scalar (e.g. thumbnail usage_id).
+     */
+    protected function termId(int $taxonomyId, array $names, ?int $default = null): ?int
+    {
+        $ids = $this->termIds($taxonomyId, $names);
+        return $ids[0] ?? $default;
+    }
+
+    /**
+     * Read fusion config from ahg_settings, falling back to FUSION_DEFAULTS for
+     * any key that's missing. One DB hit per controller instance.
+     */
+    protected function fusionConfig(): array
+    {
+        if ($this->fusionConfig !== null) {
+            return $this->fusionConfig;
+        }
+        $cfg = self::FUSION_DEFAULTS;
+        try {
+            $rows = DB::table('ahg_settings')
+                ->where('setting_group', 'discovery')
+                ->whereIn('setting_key', [
+                    'ahg_discovery_weight_keyword_3way',
+                    'ahg_discovery_weight_entity_3way',
+                    'ahg_discovery_weight_hier_3way',
+                    'ahg_discovery_weight_keyword_2way',
+                    'ahg_discovery_weight_hier_2way',
+                    'ahg_discovery_hier_sibling_score',
+                    'ahg_discovery_hier_child_score',
+                    'ahg_discovery_multi_source_bonus',
+                    'ahg_discovery_rrf_k',
+                ])
+                ->pluck('setting_value', 'setting_key');
+            foreach ($rows as $key => $value) {
+                $short = preg_replace('/^ahg_discovery_/', '', $key);
+                if (array_key_exists($short, $cfg)) {
+                    $cfg[$short] = is_numeric($value) ? (float) $value : $cfg[$short];
+                }
+            }
+            // rrf_k is integer; cast back
+            $cfg['rrf_k'] = (int) $cfg['rrf_k'];
+        } catch (\Throwable $e) {
+            // Settings unreadable — defaults stand.
+        }
+        return $this->fusionConfig = $cfg;
+    }
+
+    /**
      * Connection name for non-ES strategies — entity NER lookups, hierarchical
      * walks, and enrich/group joins. Reads ahg_settings.discovery_db_connection;
      * defaults to 'atom' (the ANC corpus). Falls back to the framework default
@@ -398,7 +509,8 @@ class DiscoveryController extends Controller
         if (empty($vectorResults)) {
             return $merged;
         }
-        $k = 60;
+        // RRF k from ahg_settings (issue #21); default 60 = Cormack et al. SIGIR 2009.
+        $k = $this->fusionConfig()['rrf_k'];
         $vectorRank = [];
         foreach ($vectorResults as $i => $v) {
             $vectorRank[(int) $v['object_id']] = $i;
@@ -1077,8 +1189,18 @@ class DiscoveryController extends Controller
     }
 
     /**
-     * NER Entity search -- searches ahg_ner_entity table.
-     * Migrated from AhgDiscovery\Services\EntitySearchStrategy.
+     * NER Entity search — Elasticsearch BM25 over the denormalised
+     * `nerEntityValues` field on `heratio_qubitinformationobject`.
+     *
+     * Issue #24 — replaces the prior MySQL `LIKE %term%` over the 9.79M-row
+     * `ahg_ner_entity` table (28 s warm) with an ES bool/should query that
+     * lands in tens of milliseconds. The denormalisation is built by
+     * `bin/discovery-ner-reindex.php`; status filter ('approved' / 'pending')
+     * is applied at reindex time, so the live query path doesn't see
+     * unapproved entities.
+     *
+     * Returns the same shape the merger expects:
+     *   [{object_id, match_count, entity_types, matched_values}, ...]
      */
     private function entitySearch(array $expanded, int $limit = 200): array
     {
@@ -1107,35 +1229,57 @@ class DiscoveryController extends Controller
         }
 
         try {
-            $db = $this->discoveryDb();
-            $exists = $db->select("SHOW TABLES LIKE 'ahg_ner_entity'");
-            if (empty($exists)) {
-                return [];
+            $es = app(\AhgSearch\Services\ElasticsearchService::class);
+            // bool/should — every term contributes a phrase + an analyzed clause;
+            // BM25 sums the matches, so an IO whose entities mention multiple
+            // search terms ranks higher than one that mentions just one.
+            $should = [];
+            foreach ($searchTerms as $term) {
+                $should[] = ['match_phrase' => ['nerEntityValues' => ['query' => $term, 'boost' => 2.0]]];
+                $should[] = ['match'        => ['nerEntityValues' => ['query' => $term]]];
             }
-            return $db->table('ahg_ner_entity')
-                ->select(
-                    'object_id',
-                    DB::raw('COUNT(*) as match_count'),
-                    DB::raw("GROUP_CONCAT(DISTINCT entity_type SEPARATOR ',') as entity_types"),
-                    DB::raw("GROUP_CONCAT(DISTINCT entity_value SEPARATOR '||') as matched_values")
-                )
-                ->where(function ($q) use ($searchTerms) {
-                    foreach ($searchTerms as $term) {
-                        $q->orWhere('entity_value', 'LIKE', '%' . $term . '%');
+            $body = [
+                'query' => [
+                    'bool' => [
+                        'should'               => $should,
+                        'minimum_should_match' => 1,
+                    ],
+                ],
+                '_source' => ['nerEntityTypes', 'nerEntityValues'],
+                'highlight' => [
+                    'fields'    => ['nerEntityValues' => (object) []],
+                    'pre_tags'  => ['<mark>'],
+                    'post_tags' => ['</mark>'],
+                ],
+            ];
+            $resp = $es->search('qubitinformationobject', $body, 0, $limit);
+
+            $hits = [];
+            foreach (($resp['hits']['hits'] ?? []) as $hit) {
+                $highlightFragments = $hit['highlight']['nerEntityValues'] ?? [];
+                $matchedValues = [];
+                foreach ($highlightFragments as $frag) {
+                    $clean = trim(strip_tags($frag));
+                    if ($clean !== '' && ! in_array($clean, $matchedValues, true)) {
+                        $matchedValues[] = $clean;
                     }
-                })
-                ->whereIn('status', ['approved', 'pending'])
-                ->groupBy('object_id')
-                ->orderByDesc('match_count')
-                ->limit($limit)
-                ->get()
-                ->map(fn($row) => [
-                    'object_id' => (int) $row->object_id,
-                    'match_count' => (int) $row->match_count,
-                    'entity_types' => $row->entity_types,
-                    'matched_values' => explode('||', $row->matched_values),
-                ])
-                ->toArray();
+                }
+                if (empty($matchedValues)) {
+                    // Fallback if highlighter is disabled — pull the source values.
+                    $vals = $hit['_source']['nerEntityValues'] ?? [];
+                    if (is_array($vals)) {
+                        $matchedValues = array_slice($vals, 0, 5);
+                    }
+                }
+                $hits[] = [
+                    'object_id'      => (int) ($hit['_id'] ?? 0),
+                    // ES BM25 score → keep raw; merger normalises against max.
+                    'match_count'    => (float) ($hit['_score'] ?? 0),
+                    'entity_types'   => implode(',', (array) ($hit['_source']['nerEntityTypes'] ?? [])),
+                    'matched_values' => $matchedValues,
+                ];
+            }
+            return $hits;
         } catch (\Exception $e) {
             return [];
         }
@@ -1144,6 +1288,17 @@ class DiscoveryController extends Controller
     /**
      * Hierarchical walk: find siblings/children of top results.
      * Migrated from AhgDiscovery\Services\HierarchicalStrategy.
+     */
+    /**
+     * Hierarchical walk — find siblings + children-of-fonds for the top N
+     * results from keyword/entity. Issue #29: was 1 + 20 sibling + up to 20
+     * children = up to 41 round-trips per request (~412 ms warm). Now
+     * batches into 3 IN-clause queries — the parent_id index does the work
+     * once instead of N times.
+     *
+     * Per-parent cap of 5 siblings / 10 children is preserved post-fetch in
+     * PHP (was previously baked into per-node \limit(5)\ / \limit(10)\ on
+     * each individual query).
      */
     private function hierarchicalSearch(array $topResults, array $alreadyFound = [], int $topN = 20): array
     {
@@ -1159,39 +1314,89 @@ class DiscoveryController extends Controller
 
         try {
             $db = $this->discoveryDb();
+
+            // Q1: pull the walk-target nodes themselves (one IN query).
             $nodes = $db->table('information_object')
                 ->select('id', 'parent_id', 'level_of_description_id')
                 ->whereIn('id', $walkIds)
                 ->get()->keyBy('id');
 
+            // Collect parents to fetch siblings against, and high-level node IDs
+            // whose children we want to enumerate.
+            $parentIds       = [];
+            $highLevelNodeIds = [];
             foreach ($nodes as $node) {
                 $objectId = (int) $node->id;
                 $parentId = (int) $node->parent_id;
-                if ($parentId <= 1) {
-                    continue;
+                if ($parentId > 1 && ! in_array($parentId, $parentIds, true)) {
+                    $parentIds[] = $parentId;
                 }
+                if (in_array((int) $node->level_of_description_id, $highLevels, true)) {
+                    $highLevelNodeIds[] = $objectId;
+                }
+            }
 
-                $siblings = $db->table('information_object')
-                    ->where('parent_id', $parentId)
-                    ->where('id', '!=', $objectId)
+            // Q2: siblings — ONE query for all parent_ids at once.
+            // Per-parent cap (5) is enforced in PHP after the fetch since
+            // ROW_NUMBER() partitioning would complicate the query plan.
+            $siblingsByParent = [];
+            if (! empty($parentIds)) {
+                $sibRows = $db->table('information_object')
+                    ->select('id', 'parent_id')
+                    ->whereIn('parent_id', $parentIds)
+                    ->whereNotIn('id', $walkIds)            // not the walk-targets themselves
                     ->whereNotIn('id', $alreadyFound)
-                    ->limit(5)->pluck('id')->toArray();
-                foreach ($siblings as $sibId) {
-                    $sibId = (int) $sibId;
-                    if (!isset($processed[$sibId])) {
+                    ->limit(count($parentIds) * 5 * 4)      // 4× headroom; per-parent cap below
+                    ->get();
+                foreach ($sibRows as $r) {
+                    $pid = (int) $r->parent_id;
+                    $sid = (int) $r->id;
+                    if (! isset($siblingsByParent[$pid])) {
+                        $siblingsByParent[$pid] = [];
+                    }
+                    if (count($siblingsByParent[$pid]) < 5) {
+                        $siblingsByParent[$pid][] = $sid;
+                    }
+                }
+            }
+
+            // Q3: children of high-level walk targets — ONE query for all of them.
+            $childrenByParent = [];
+            if (! empty($highLevelNodeIds)) {
+                $childRows = $db->table('information_object')
+                    ->select('id', 'parent_id')
+                    ->whereIn('parent_id', $highLevelNodeIds)
+                    ->whereNotIn('id', $alreadyFound)
+                    ->limit(count($highLevelNodeIds) * 10 * 4)
+                    ->get();
+                foreach ($childRows as $r) {
+                    $pid = (int) $r->parent_id;
+                    $cid = (int) $r->id;
+                    if (! isset($childrenByParent[$pid])) {
+                        $childrenByParent[$pid] = [];
+                    }
+                    if (count($childrenByParent[$pid]) < 10) {
+                        $childrenByParent[$pid][] = $cid;
+                    }
+                }
+            }
+
+            // Walk and emit results in the same order as before.
+            foreach ($nodes as $node) {
+                $objectId = (int) $node->id;
+                $parentId = (int) $node->parent_id;
+                if ($parentId <= 1) continue;
+
+                foreach ($siblingsByParent[$parentId] ?? [] as $sibId) {
+                    if (! isset($processed[$sibId])) {
                         $results[] = ['object_id' => $sibId, 'relationship_type' => 'sibling', 'via_object_id' => $objectId];
                         $processed[$sibId] = true;
                     }
                 }
 
-                if (in_array((int) $node->level_of_description_id, $highLevels)) {
-                    $children = $db->table('information_object')
-                        ->where('parent_id', $objectId)
-                        ->whereNotIn('id', $alreadyFound)
-                        ->limit(10)->pluck('id')->toArray();
-                    foreach ($children as $childId) {
-                        $childId = (int) $childId;
-                        if (!isset($processed[$childId])) {
+                if (in_array((int) $node->level_of_description_id, $highLevels, true)) {
+                    foreach ($childrenByParent[$objectId] ?? [] as $childId) {
+                        if (! isset($processed[$childId])) {
                             $results[] = ['object_id' => $childId, 'relationship_type' => 'child', 'via_object_id' => $objectId];
                             $processed[$childId] = true;
                         }
@@ -1204,20 +1409,30 @@ class DiscoveryController extends Controller
         return $results;
     }
 
+    /**
+     * Resolve the level-of-description term IDs that count as "high-level"
+     * for hierarchical walks (siblings + children-of-fonds). Issue #22 —
+     * runtime taxonomy lookup with synonym support so atom/AtoM orthography
+     * differences don't silently drop fonds-level matches.
+     */
     private function getHighLevelIds(): array
     {
-        static $ids = null;
-        if ($ids !== null) {
-            return $ids;
-        }
-        try {
-            $ids = $this->discoveryDb()->table('term')
-                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
-                ->where('term.taxonomy_id', 34)
-                ->whereIn('term_i18n.name', ['Fonds', 'Sub-fonds', 'Series', 'Collection', 'Sub-series'])
-                ->pluck('term.id')->toArray();
-        } catch (\Exception $e) {
-            $ids = [227, 228, 229, 231];
+        // Taxonomy 34 = Levels of description. Includes both hyphenated AtoM
+        // names ('Sub-fonds') and the Heratio/atom-DB unhyphenated form
+        // ('Subfonds'); the lookup unions them so either spelling matches.
+        $ids = $this->termIds(34, [
+            'Fonds', 'Subfonds', 'Sub-fonds',
+            'Series', 'Subseries', 'Sub-series',
+            'Collection', 'Record group',
+        ]);
+        if (empty($ids)) {
+            // Hard fallback: AtoM-derived constants. Will silently misbehave on
+            // a fresh install where these IDs aren't fonds-level — log a warning.
+            \Illuminate\Support\Facades\Log::warning(
+                'DiscoveryController::getHighLevelIds() — no high-level terms in taxonomy 34; '
+                . 'falling back to AtoM-default IDs. This is incorrect on this install.'
+            );
+            return [227, 228, 229, 231];
         }
         return $ids;
     }
@@ -1274,10 +1489,16 @@ class DiscoveryController extends Controller
         $maxEsScore = max(1, max(array_column($keywordResults, 'es_score') ?: [0]));
         $maxEntityCount = max(1, max(array_column($entityResults, 'match_count') ?: [0]));
 
+        // Fusion weights from ahg_settings (issue #21); fallback defaults match
+        // the historical AtoM ResultMerger constants.
+        $cfg = $this->fusionConfig();
         $hasEntity = !empty($entityResults);
-        $wKeyword = $hasEntity ? 0.35 : 0.70;
-        $wEntity = $hasEntity ? 0.40 : 0;
-        $wHierarchy = $hasEntity ? 0.25 : 0.30;
+        $wKeyword   = $hasEntity ? $cfg['weight_keyword_3way'] : $cfg['weight_keyword_2way'];
+        $wEntity    = $hasEntity ? $cfg['weight_entity_3way']  : 0.0;
+        $wHierarchy = $hasEntity ? $cfg['weight_hier_3way']    : $cfg['weight_hier_2way'];
+        $sibScore   = $cfg['hier_sibling_score'];
+        $childScore = $cfg['hier_child_score'];
+        $bonus      = $cfg['multi_source_bonus'];
 
         $scored = [];
         foreach ($map as $objectId => $entry) {
@@ -1285,13 +1506,13 @@ class DiscoveryController extends Controller
             $en = isset($entry['sources']['entity']) ? $entry['sources']['entity']['match_count'] / $maxEntityCount : 0;
             $hn = 0;
             if (isset($entry['sources']['hierarchical'])) {
-                $hn = ($entry['sources']['hierarchical']['relationship_type'] ?? '') === 'sibling' ? 0.5 : 0.3;
+                $hn = ($entry['sources']['hierarchical']['relationship_type'] ?? '') === 'sibling' ? $sibScore : $childScore;
             }
 
             $score = ($kn * $wKeyword) + ($en * $wEntity) + ($hn * $wHierarchy);
             $sourceCount = count($entry['sources']);
             if ($sourceCount > 1) {
-                $score *= (1 + ($sourceCount - 1) * 0.1);
+                $score *= (1 + ($sourceCount - 1) * $bonus);
             }
 
             $scored[] = [
@@ -1335,15 +1556,19 @@ class DiscoveryController extends Controller
             ->select('io.id', 'ti.name as level')
             ->whereIn('io.id', $ids)->get()->pluck('level', 'id');
 
+        // Resolve "Creation" event type by taxonomy lookup (issue #22).
+        // Falls back to the AtoM-derived constant if the taxonomy is unreachable.
+        $creationTypeId = $this->termId(40, ['Creation'], TermId::EVENT_TYPE_CREATION);
+
         $dates = $db->table('event')
             ->select('object_id', 'start_date', 'end_date')
-            ->whereIn('object_id', $ids)->where('type_id', TermId::EVENT_TYPE_CREATION)
+            ->whereIn('object_id', $ids)->where('type_id', $creationTypeId)
             ->get()->keyBy('object_id');
 
         $creators = $db->table('event')
             ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
             ->select('event.object_id', 'actor_i18n.authorized_form_of_name as creator')
-            ->whereIn('event.object_id', $ids)->where('event.type_id', TermId::EVENT_TYPE_CREATION)
+            ->whereIn('event.object_id', $ids)->where('event.type_id', $creationTypeId)
             ->where('actor_i18n.culture', $culture)
             ->get()->pluck('creator', 'object_id');
 
@@ -1355,9 +1580,13 @@ class DiscoveryController extends Controller
             ->whereIn('io.id', $ids)->whereNotNull('io.repository_id')
             ->get()->pluck('repository', 'id');
 
+        // Thumbnail digital_object usage — taxonomy 47 ('Digital Object Usages').
+        // Issue #22: was hardcoded to 142; now resolved by name with the AtoM
+        // default as fallback so first install on a stock AtoM keeps working.
+        $thumbnailUsageId = $this->termId(47, ['Thumbnail'], 142);
         $thumbnails = $db->table('digital_object')
             ->select('object_id', 'path', 'name')
-            ->whereIn('object_id', $ids)->where('usage_id', 142)
+            ->whereIn('object_id', $ids)->where('usage_id', $thumbnailUsageId)
             ->get()->keyBy('object_id');
 
         $entities = [];
