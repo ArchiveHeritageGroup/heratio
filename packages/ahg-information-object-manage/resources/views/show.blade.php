@@ -2687,6 +2687,9 @@
     @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
       @include('ahg-ric::_ric-entities-panel', ['record' => $io, 'recordType' => 'io'])
     @endif
+
+    {{-- P5.e Find Similar Records (vector similarity via Qdrant) --}}
+    @include('ahg-search::_find-similar', ['ioId' => $io->id])
   @endif
 
 @endsection

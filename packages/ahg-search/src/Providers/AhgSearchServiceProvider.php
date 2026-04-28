@@ -2,7 +2,9 @@
 
 namespace AhgSearch\Providers;
 
+use AhgSearch\Services\BlendedSearchService;
 use AhgSearch\Services\ElasticsearchService;
+use AhgSearch\Services\VectorSearchService;
 use Illuminate\Support\ServiceProvider;
 
 class AhgSearchServiceProvider extends ServiceProvider
@@ -10,6 +12,8 @@ class AhgSearchServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(ElasticsearchService::class);
+        $this->app->singleton(VectorSearchService::class);
+        $this->app->singleton(BlendedSearchService::class);
     }
 
     public function boot(): void

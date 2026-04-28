@@ -186,8 +186,44 @@ class DisplayController extends Controller
         $originalQuery = $this->queryFilter;
         $esAssistedSearch = false;
 
-        // Semantic expansion - skipped (ahgSemanticSearchPlugin not yet migrated)
+        // Semantic expansion (P5.a) — when ?semantic=1 is on, ask the thesaurus
+        // (ahg-semantic-search) to expand the query into related terms; the search
+        // builder then runs them as an OR-match in the FULLTEXT branch and as
+        // additional should-match clauses in the ES branch.
         $this->queryFilterTerms = null;
+        if ($semanticEnabled
+            && $this->queryFilter
+            && class_exists(\AhgSemanticSearch\Services\SemanticSearchService::class)
+        ) {
+            try {
+                $svc = app(\AhgSemanticSearch\Services\SemanticSearchService::class);
+                $expansion = $svc->expandQuery((string) $this->queryFilter, app()->getLocale());
+                if (! empty($expansion['expanded_terms'])) {
+                    $bag = [(string) $this->queryFilter];
+                    foreach ($expansion['expanded_terms'] as $orig => $syns) {
+                        foreach ((array) $syns as $s) {
+                            $bag[] = (string) $s;
+                        }
+                    }
+                    // Deduplicate case-insensitively while preserving order.
+                    $seen = [];
+                    $uniq = [];
+                    foreach ($bag as $t) {
+                        $k = mb_strtolower(trim($t));
+                        if ($k === '' || isset($seen[$k])) {
+                            continue;
+                        }
+                        $seen[$k] = true;
+                        $uniq[] = $t;
+                    }
+                    if (count($uniq) > 1) {
+                        $this->queryFilterTerms = $uniq;
+                    }
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::info('semantic expansion skipped: ' . $e->getMessage());
+            }
+        }
 
         // Advanced text filters
         $this->titleFilter = $request->input('title');

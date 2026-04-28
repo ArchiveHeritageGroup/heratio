@@ -1,6 +1,7 @@
 <?php
 
 use AhgSearch\Controllers\SearchController;
+use AhgSearch\Controllers\VectorSearchController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/search', [SearchController::class, 'search'])->name('search');
@@ -10,6 +11,15 @@ Route::get('/search/autocomplete', [SearchController::class, 'autocomplete'])->n
 // Legacy aliases
 Route::get('/search/index', fn () => redirect('/search', 301));
 Route::get('/search/semantic', [SearchController::class, 'search'])->name('search.semantic');
+
+// Vector-similarity API (Qdrant-backed). Public — read-only.
+Route::get('/api/search/semantic', [VectorSearchController::class, 'search'])
+    ->name('search.api.semantic');
+Route::get('/api/search/semantic/health', [VectorSearchController::class, 'health'])
+    ->name('search.api.semantic.health');
+Route::get('/api/search/semantic/similar/{ioId}', [VectorSearchController::class, 'similar'])
+    ->where('ioId', '[0-9]+')
+    ->name('search.api.semantic.similar');
 
 // Admin search pages
 Route::middleware('admin')->group(function () {
