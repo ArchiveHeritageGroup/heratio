@@ -1,0 +1,266 @@
+{
+    "config": "full_hybrid",
+    "strategies": [
+        "keyword",
+        "entity",
+        "hierarchical",
+        "vector"
+    ],
+    "run_timestamp": "2026-04-28T13:49:36+00:00",
+    "qrels_file": "/usr/share/nginx/heratio/tests/discovery/qrels.csv",
+    "qrels_file_hash": "sha256:9d6e4f6af86df395c1de47d0aa0fd29779a64d298e206753b927f95f40f72399",
+    "code_git_sha": "95153213",
+    "n_queries": 5,
+    "metrics": {
+        "ndcg10": {
+            "mean": 0,
+            "ci95_low": 0,
+            "ci95_high": 0
+        },
+        "mrr": {
+            "mean": 0,
+            "ci95_low": 0,
+            "ci95_high": 0
+        },
+        "recall10": {
+            "mean": 0,
+            "ci95_low": 0,
+            "ci95_high": 0
+        },
+        "recall50": {
+            "mean": 0,
+            "ci95_low": 0,
+            "ci95_high": 0
+        },
+        "recall100": {
+            "mean": 0,
+            "ci95_low": 0,
+            "ci95_high": 0
+        }
+    },
+    "by_query_type": {
+        "known_item": {
+            "n": 2,
+            "ndcg10": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            },
+            "mrr": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            },
+            "recall10": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            },
+            "recall50": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            },
+            "recall100": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            }
+        },
+        "place": {
+            "n": 1,
+            "ndcg10": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            },
+            "mrr": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            },
+            "recall10": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            },
+            "recall50": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            },
+            "recall100": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            }
+        },
+        "person": {
+            "n": 1,
+            "ndcg10": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            },
+            "mrr": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            },
+            "recall10": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            },
+            "recall50": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            },
+            "recall100": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            }
+        },
+        "topical": {
+            "n": 1,
+            "ndcg10": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            },
+            "mrr": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            },
+            "recall10": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            },
+            "recall50": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            },
+            "recall100": {
+                "mean": 0,
+                "ci95_low": 0,
+                "ci95_high": 0
+            }
+        }
+    },
+    "latency_ms": {
+        "mean_total": 352,
+        "p50_total": 355,
+        "p95_total": 377,
+        "by_strategy": {
+            "keyword": 12,
+            "entity": 27,
+            "hierarchical": 4,
+            "vector": 7,
+            "image": 0
+        }
+    },
+    "per_query": [
+        {
+            "query_id": "q001",
+            "query_type": "known_item",
+            "log_id": 62,
+            "latency_ms_total": 355,
+            "ndcg10": 0,
+            "mrr": 0,
+            "recall10": 0,
+            "recall50": 0,
+            "recall100": 0,
+            "retrieved_top10": []
+        },
+        {
+            "query_id": "q002",
+            "query_type": "known_item",
+            "log_id": 63,
+            "latency_ms_total": 377,
+            "ndcg10": 0,
+            "mrr": 0,
+            "recall10": 0,
+            "recall50": 0,
+            "recall100": 0,
+            "retrieved_top10": []
+        },
+        {
+            "query_id": "q003",
+            "query_type": "place",
+            "log_id": 64,
+            "latency_ms_total": 283,
+            "ndcg10": 0,
+            "mrr": 0,
+            "recall10": 0,
+            "recall50": 0,
+            "recall100": 0,
+            "retrieved_top10": []
+        },
+        {
+            "query_id": "q004",
+            "query_type": "person",
+            "log_id": 65,
+            "latency_ms_total": 335,
+            "ndcg10": 0,
+            "mrr": 0,
+            "recall10": 0,
+            "recall50": 0,
+            "recall100": 0,
+            "retrieved_top10": []
+        },
+        {
+            "query_id": "q005",
+            "query_type": "topical",
+            "log_id": 66,
+            "latency_ms_total": 409,
+            "ndcg10": 0,
+            "mrr": 0,
+            "recall10": 0,
+            "recall50": 0,
+            "recall100": 0,
+            "retrieved_top10": [
+                {
+                    "object_id": 902403,
+                    "rank": 1,
+                    "score": 0.7,
+                    "sources": []
+                },
+                {
+                    "object_id": 900589,
+                    "rank": 2,
+                    "score": 0.15,
+                    "sources": []
+                },
+                {
+                    "object_id": 900604,
+                    "rank": 3,
+                    "score": 0.15,
+                    "sources": []
+                },
+                {
+                    "object_id": 900605,
+                    "rank": 4,
+                    "score": 0.15,
+                    "sources": []
+                },
+                {
+                    "object_id": 900608,
+                    "rank": 5,
+                    "score": 0.15,
+                    "sources": []
+                },
+                {
+                    "object_id": 900663,
+                    "rank": 6,
+                    "score": 0.15,
+                    "sources": []
+                }
+            ]
+        }
+    ]
+}

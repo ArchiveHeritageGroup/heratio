@@ -1,0 +1,13 @@
+query_id,query_text,query_type,object_id,relevance
+q001,Department of Education,known_item,450,2
+q001,Department of Education,known_item,460,1
+q001,Department of Education,known_item,361856,0
+q002,Dakawa Development Centre,known_item,91126,2
+q002,Dakawa Development Centre,known_item,450,0
+q003,Luthuli House,place,319554,2
+q003,Luthuli House,place,361818,2
+q003,Luthuli House,place,361856,1
+q004,Walter Sisulu,person,361856,2
+q004,Walter Sisulu,person,374705,2
+q005,Women's Section,topical,347579,2
+q005,Women's Section,topical,361827,2

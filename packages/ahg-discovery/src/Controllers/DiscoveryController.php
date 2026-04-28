@@ -41,6 +41,52 @@ class DiscoveryController extends Controller
     /** Cache TTL in seconds (1 hour) */
     private const CACHE_TTL = 3600;
 
+    /** All retrieval-strategy keys recognised by the ablation switch (#28). */
+    public const VALID_STRATEGIES = ['keyword', 'entity', 'hierarchical', 'vector', 'image'];
+
+    /**
+     * Map a request's `strategies` param + legacy `mode` into the canonical
+     * list of enabled retrieval strategies.
+     *
+     * - When `strategies` is non-empty, it wins outright (whitelist filtered
+     *   against {@see VALID_STRATEGIES}, deduplicated, order preserved).
+     * - When `strategies` is absent / empty, fall back to the legacy mode
+     *   mapping so existing callers see byte-identical behaviour:
+     *     mode=standard            → keyword + hierarchical
+     *     mode=semantic | vector   → keyword + entity + hierarchical + vector
+     *
+     * @param  string|array|null  $strategiesInput
+     * @param  string             $mode
+     * @return string[]
+     */
+    public static function resolveEnabledStrategies($strategiesInput, string $mode): array
+    {
+        if (is_array($strategiesInput)) {
+            $tokens = $strategiesInput;
+        } elseif (is_string($strategiesInput) && trim($strategiesInput) !== '') {
+            $tokens = preg_split('/[,\s]+/', trim($strategiesInput)) ?: [];
+        } else {
+            $tokens = [];
+        }
+
+        if (! empty($tokens)) {
+            $clean = [];
+            foreach ($tokens as $t) {
+                $t = strtolower(trim((string) $t));
+                if ($t !== '' && in_array($t, self::VALID_STRATEGIES, true) && ! in_array($t, $clean, true)) {
+                    $clean[] = $t;
+                }
+            }
+            if (! empty($clean)) {
+                return $clean;
+            }
+        }
+
+        return $mode === 'standard'
+            ? ['keyword', 'hierarchical']
+            : ['keyword', 'entity', 'hierarchical', 'vector'];
+    }
+
     /**
      * Discovery landing page with search.
      * Supports both the original browse-style view (type filter, paginated)
@@ -137,6 +183,14 @@ class DiscoveryController extends Controller
             $mode = 'standard';
         }
 
+        // Ablation switch (#28): explicit strategies list overrides mode-based gating.
+        // ?strategies=keyword,entity,hierarchical,vector — comma-separated whitelist.
+        // Absent → fall back to legacy mode mapping (full back-compat).
+        $enabledStrategies = self::resolveEnabledStrategies(
+            $request->input('strategies'),
+            $mode
+        );
+
         if (empty($query)) {
             return response()->json([
                 'success' => true,
@@ -145,46 +199,64 @@ class DiscoveryController extends Controller
                 'results' => [],
                 'expanded' => null,
                 'mode' => $mode,
+                'strategies' => array_values($enabledStrategies),
             ]);
         }
 
         $culture = app()->getLocale() ?: 'en';
         $startTime = microtime(true);
 
-        // Check cache first
-        $cacheKey = md5($query . '|' . $culture . '|' . $page . '|' . $limit . '|' . $mode);
-        $cached = $this->getFromCache($cacheKey);
-        if ($cached !== null) {
-            $this->logSearch($query, $cached['expanded'] ?? null, $cached['total'] ?? 0, $startTime);
-            return response()->json($cached);
+        // Cache key includes the resolved strategies list so two ablation configs
+        // never read each other's cached responses. ?nocache=1 bypasses the cache
+        // entirely — used by the eval harness (#17) and verify twin (#20B) to
+        // measure the actual retrieval pipeline rather than cached responses.
+        $bypassCache = $request->boolean('nocache');
+        $strategiesKey = implode(',', $enabledStrategies);
+        $cacheKey = md5($query . '|' . $culture . '|' . $page . '|' . $limit . '|' . $mode . '|' . $strategiesKey);
+        if (! $bypassCache) {
+            $cached = $this->getFromCache($cacheKey);
+            if ($cached !== null) {
+                $this->logSearch($query, $cached['expanded'] ?? null, $cached['total'] ?? 0, $startTime);
+                return response()->json($cached);
+            }
         }
 
-        // Per-strategy telemetry capture — populated as we run each strategy below.
-        // Schema: ['strategy_name' => ['hits' => [...], 'ms' => N]]
-        $strategyResults = [];
+        // Per-strategy telemetry capture. All 5 retrieval-strategy keys are
+        // pre-populated with {hits:[], ms:0} so the JSON schema is stable
+        // across configs — disabled strategies still appear in the log row
+        // with zero hits/ms instead of being absent.
+        $strategyResults = [
+            'keyword'      => ['hits' => [], 'ms' => 0],
+            'entity'       => ['hits' => [], 'ms' => 0],
+            'hierarchical' => ['hits' => [], 'ms' => 0],
+            'vector'       => ['hits' => [], 'ms' => 0],
+            'image'        => ['hits' => [], 'ms' => 0],
+        ];
 
-        // Step 1: Query Expansion
+        // Step 1: Query Expansion (always — not a retrieval strategy, just preprocessing)
         $t0 = microtime(true);
         $expanded = $this->expandQuery($query);
         $strategyResults['expansion'] = ['hits' => [], 'ms' => (int) ((microtime(true) - $t0) * 1000)];
 
         // Step 2: Keyword search (DB-based)
-        $t0 = microtime(true);
-        $keywordResults = $this->keywordSearch($expanded, $culture, 100);
-        $strategyResults['keyword'] = ['hits' => $keywordResults, 'ms' => (int) ((microtime(true) - $t0) * 1000)];
+        $keywordResults = [];
+        if (in_array('keyword', $enabledStrategies, true)) {
+            $t0 = microtime(true);
+            $keywordResults = $this->keywordSearch($expanded, $culture, 100);
+            $strategyResults['keyword'] = ['hits' => $keywordResults, 'ms' => (int) ((microtime(true) - $t0) * 1000)];
+        }
 
-        // Step 3: Entity search (semantic mode)
+        // Step 3: Entity search
         $entityResults = [];
-        if (in_array($mode, ['semantic', 'vector'])) {
+        if (in_array('entity', $enabledStrategies, true)) {
             $t0 = microtime(true);
             $entityResults = $this->entitySearch($expanded, 200);
             $strategyResults['entity'] = ['hits' => $entityResults, 'ms' => (int) ((microtime(true) - $t0) * 1000)];
         }
 
-        // Step 3b (NEW): Vector similarity via Qdrant — run when in semantic/vector mode
-        // and the strategy is enabled; failure is silent (returns []).
+        // Step 3b: Vector similarity via Qdrant — failure is silent (returns []).
         $vectorResults = [];
-        if (in_array($mode, ['semantic', 'vector'])) {
+        if (in_array('vector', $enabledStrategies, true)) {
             $t0 = microtime(true);
             try {
                 $vectorStrategy = app(\AhgDiscovery\Services\Search\VectorSearchStrategy::class);
@@ -198,25 +270,27 @@ class DiscoveryController extends Controller
         }
 
         // Step 4: Hierarchical walk on top results
-        $t0 = microtime(true);
-        $topResults = array_merge(
-            array_slice($keywordResults, 0, 10),
-            array_slice($entityResults, 0, 10)
-        );
-        $allFoundIds = array_unique(array_merge(
-            array_column($keywordResults, 'object_id'),
-            array_column($entityResults, 'object_id'),
-            array_column($vectorResults, 'object_id')
-        ));
-        $hierarchicalResults = $this->hierarchicalSearch($topResults, $allFoundIds, 20);
-        $strategyResults['hierarchical'] = ['hits' => $hierarchicalResults, 'ms' => (int) ((microtime(true) - $t0) * 1000)];
+        $hierarchicalResults = [];
+        if (in_array('hierarchical', $enabledStrategies, true)) {
+            $t0 = microtime(true);
+            $topResults = array_merge(
+                array_slice($keywordResults, 0, 10),
+                array_slice($entityResults, 0, 10)
+            );
+            $allFoundIds = array_unique(array_merge(
+                array_column($keywordResults, 'object_id'),
+                array_column($entityResults, 'object_id'),
+                array_column($vectorResults, 'object_id')
+            ));
+            $hierarchicalResults = $this->hierarchicalSearch($topResults, $allFoundIds, 20);
+            $strategyResults['hierarchical'] = ['hits' => $hierarchicalResults, 'ms' => (int) ((microtime(true) - $t0) * 1000)];
+        }
 
         // Step 5: Merge & Rank (existing 3-way merger)
         $t0 = microtime(true);
         $merged = $this->mergeResults($keywordResults, $entityResults, $hierarchicalResults);
 
-        // Step 5b (NEW): Reciprocal Rank Fusion with vector results — boosts items
-        // that appear in both the merged keyword pipeline AND the vector index.
+        // Step 5b: RRF boost with vector results.
         if (! empty($vectorResults)) {
             $merged = $this->rrfBoostWithVector($merged, $vectorResults);
         }
@@ -238,6 +312,7 @@ class DiscoveryController extends Controller
             'limit' => $limit,
             'pages' => max(1, (int) ceil($totalResults / $limit)),
             'mode' => $mode,
+            'strategies' => array_values($enabledStrategies),
             'collections' => $collections,
             'results' => $enrichedResults,
             'expanded' => [
@@ -249,7 +324,9 @@ class DiscoveryController extends Controller
             ],
         ];
 
-        $this->putInCache($cacheKey, $query, $response);
+        if (! $bypassCache) {
+            $this->putInCache($cacheKey, $query, $response);
+        }
 
         // Rich telemetry — captures per-strategy timings + ranks for ablation.
         try {
