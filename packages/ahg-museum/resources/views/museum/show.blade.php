@@ -4,31 +4,11 @@
 @section('body-class', 'view museum')
 
 {{-- ============================================================ --}}
-{{-- LEFT SIDEBAR                                                  --}}
+{{-- LEFT SIDEBAR — matches AtoM ahgMuseumPlugin contextMenu      --}}
 {{-- ============================================================ --}}
 @section('sidebar')
 
-  @auth
-    <div class="card mb-3">
-      <div class="card-header fw-bold">
-        <i class="fas fa-cogs me-1"></i> Actions
-      </div>
-      <div class="list-group list-group-flush">
-        <a href="{{ route('museum.edit', $museum->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-pencil-alt me-1"></i> Edit
-        </a>
-        <form method="POST" action="{{ route('museum.destroy', $museum->slug) }}"
-              onsubmit="return confirm('Are you sure you want to delete this museum object?');">
-          @csrf
-          <button type="submit" class="list-group-item list-group-item-action small text-danger border-0 w-100 text-start">
-            <i class="fas fa-trash me-1"></i> Delete
-          </button>
-        </form>
-      </div>
-    </div>
-  @endauth
-
-  {{-- Access points (sidebar mode) --}}
+  {{-- Access points (subject / name / place) — sidebar mode --}}
   @include('ahg-core::_subject-access-points', ['resource' => $museum, 'sidebar' => true])
   @include('ahg-core::_place-access-points', ['resource' => $museum, 'sidebar' => true])
   @include('ahg-core::_name-access-points', ['resource' => $museum, 'sidebar' => true])
@@ -40,10 +20,27 @@
 {{-- ============================================================ --}}
 @section('title-block')
 
-  <h1 class="mb-2">
-    @if($museum->work_type)<span class="text-muted">{{ $museum->work_type }}</span> @endif
-    @if($museum->identifier){{ $museum->identifier }} - @endif
-    {{ $museum->title ?: '[Untitled]' }}
+  <h1 class="mb-2 d-flex align-items-start">
+    <span class="flex-grow-1">
+      @if($museum->work_type)<span class="text-muted">{{ $museum->work_type }}</span> @endif
+      @if($museum->identifier){{ $museum->identifier }} - @endif
+      {{ $museum->title ?: '[Untitled]' }}
+    </span>
+    @auth
+      {{-- Inline edit / delete affordance (descriptionHeader equivalent in AtoM) --}}
+      <span class="ms-2 d-inline-flex gap-1" style="font-size:1rem;">
+        <a href="{{ route('museum.edit', $museum->slug) }}" class="btn btn-sm atom-btn-white" title="Edit" data-bs-toggle="tooltip">
+          <i class="fas fa-pencil-alt"></i>
+        </a>
+        <form method="POST" action="{{ route('museum.destroy', $museum->slug) }}" class="d-inline"
+              onsubmit="return confirm('Are you sure you want to delete this museum object?');">
+          @csrf
+          <button type="submit" class="btn btn-sm atom-btn-white text-danger" title="Delete" data-bs-toggle="tooltip">
+            <i class="fas fa-trash"></i>
+          </button>
+        </form>
+      </span>
+    @endauth
   </h1>
 
   {{-- Breadcrumb trail --}}
@@ -94,69 +91,119 @@
     <div class="alert alert-success">{{ session('success') }}</div>
   @endif
 
-  {{-- User action buttons (Favorites, Cart, Feedback, Loan) --}}
+  {{-- AtoM-parity action toolbar (ahgMuseumPlugin/.../indexSuccess.php lines 263-309).
+       Order: TTS, PDF-read, Favourites, Feedback, Request-to-Publish, Cart, Loan-New,
+       Manage-Loans. Auth gating matches AtoM: TTS / Feedback / Request-to-Publish /
+       Cart are public; Favourites / Loan require auth. --}}
+  @php
+    $userId = auth()->id();
+    $favouritesEnabled = \AhgCore\Services\MenuService::isPluginEnabled('ahgFavoritesPlugin');
+    $feedbackEnabled = \AhgCore\Services\MenuService::isPluginEnabled('ahgFeedbackPlugin');
+    $requestToPublishEnabled = \AhgCore\Services\MenuService::isPluginEnabled('ahgRequestToPublishPlugin');
+    $cartEnabled = \AhgCore\Services\MenuService::isPluginEnabled('ahgCartPlugin');
+    $loanEnabled = \AhgCore\Services\MenuService::isPluginEnabled('ahgLoanPlugin');
+    $hasDigitalObject = isset($digitalObjects) && ($digitalObjects['master'] ?? null);
+    $pdfDigitalObject = \Illuminate\Support\Facades\DB::table('digital_object')
+        ->where('object_id', $museum->id)
+        ->where('mime_type', 'application/pdf')
+        ->first();
+    $favoriteId = $userId
+        ? \Illuminate\Support\Facades\DB::table('favorites')
+            ->where('user_id', $userId)
+            ->where('archival_description_id', $museum->id)
+            ->value('id')
+        : null;
+    $cartId = null;
+    if ($userId) {
+        $cartId = \Illuminate\Support\Facades\DB::table('cart')
+            ->where('user_id', $userId)
+            ->where('archival_description_id', $museum->id)
+            ->whereNull('completed_at')->value('id');
+    } elseif (session()->getId()) {
+        $cartId = \Illuminate\Support\Facades\DB::table('cart')
+            ->where('session_id', session()->getId())
+            ->where('archival_description_id', $museum->id)
+            ->whereNull('completed_at')->value('id');
+    }
+  @endphp
+
   <div class="d-flex flex-wrap gap-1 mb-3 align-items-center">
+    {{-- TTS: read metadata aloud --}}
+    <button type="button" class="btn btn-sm btn-outline-secondary"
+            data-tts-action="toggle" data-tts-target="#tts-content-area"
+            title="Read metadata aloud" data-bs-toggle="tooltip">
+      <i class="fas fa-volume-up"></i>
+    </button>
+
+    {{-- TTS PDF: read PDF content aloud (when a PDF derivative exists) --}}
+    @if($pdfDigitalObject)
+      <button type="button" class="btn btn-sm btn-outline-info"
+              data-tts-action="read-pdf" data-tts-pdf-id="{{ $pdfDigitalObject->id }}"
+              title="Read PDF content aloud" data-bs-toggle="tooltip">
+        <i class="fas fa-file-pdf"></i>
+      </button>
+    @endif
+
+    {{-- Favourites — @auth + plugin gate --}}
     @auth
-      @php
-        $userId = auth()->id();
-        $cartEnabled = \AhgCore\Services\MenuService::isPluginEnabled('ahgCartPlugin');
-        $isFavorited = \Illuminate\Support\Facades\DB::table('favorites')
-          ->where('user_id', $userId)->where('archival_description_id', $museum->id)->exists();
-        $inCart = $cartEnabled && \Illuminate\Support\Facades\DB::table('cart')
-          ->where('user_id', $userId)->where('archival_description_id', $museum->id)
-          ->whereNull('completed_at')->exists();
-        $hasDigitalObject = isset($digitalObjects) && ($digitalObjects['master'] ?? null);
-      @endphp
-
-      {{-- Favorites toggle --}}
-      @if($isFavorited)
-        <form method="POST" action="{{ route('favorites.remove', \Illuminate\Support\Facades\DB::table('favorites')->where('user_id', $userId)->where('archival_description_id', $museum->id)->value('id')) }}" class="d-inline">
-          @csrf
-          <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove from Favorites" data-bs-toggle="tooltip">
-            <i class="fas fa-heart-broken"></i>
-          </button>
-        </form>
-      @else
-        <a href="{{ route('favorites.add', $museum->slug) }}"
-           class="btn btn-sm atom-btn-outline-danger" title="Add to Favorites" data-bs-toggle="tooltip">
-          <i class="fas fa-heart"></i>
-        </a>
-      @endif
-
-      {{-- Cart (only when ahgCartPlugin is enabled) --}}
-      @if($cartEnabled && $hasDigitalObject)
-        @if($inCart)
-          <a href="{{ route('cart.browse') }}" class="btn btn-sm atom-btn-outline-success" title="Go to Cart" data-bs-toggle="tooltip">
-            <i class="fas fa-shopping-cart"></i>
-          </a>
+      @if($favouritesEnabled)
+        @if($favoriteId)
+          <form method="POST" action="{{ route('favorites.remove', $favoriteId) }}" class="d-inline">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove from Favorites" data-bs-toggle="tooltip">
+              <i class="fas fa-heart-broken"></i>
+            </button>
+          </form>
         @else
-          <a href="{{ route('cart.add', $museum->slug) }}" class="btn btn-sm atom-btn-outline-success" title="Add to Cart" data-bs-toggle="tooltip">
-            <i class="fas fa-cart-plus"></i>
+          <a href="{{ route('favorites.add', $museum->slug) }}" class="btn btn-sm btn-outline-danger" title="Add to Favorites" data-bs-toggle="tooltip">
+            <i class="fas fa-heart"></i>
           </a>
         @endif
       @endif
+    @endauth
 
-      {{-- Feedback --}}
-      <a href="{{ url('/feedback/submit/' . $museum->slug) }}" class="btn btn-sm atom-btn-white" title="Item Feedback" data-bs-toggle="tooltip">
+    {{-- Feedback — public, plugin-gated --}}
+    @if($feedbackEnabled)
+      <a href="{{ url('/feedback/submit/' . $museum->slug) }}" class="btn btn-sm btn-outline-secondary" title="Item Feedback" data-bs-toggle="tooltip">
         <i class="fas fa-comment"></i>
       </a>
+    @endif
 
-      {{-- Request to Publish (uses cart route — gated by cart plugin) --}}
-      @if($cartEnabled && $hasDigitalObject)
-        <a href="{{ route('cart.add', $museum->slug) }}" class="btn btn-sm atom-btn-white" title="Request to Publish" data-bs-toggle="tooltip">
-          <i class="fas fa-paper-plane"></i>
+    {{-- Request to Publish — public, plugin-gated, requires DO --}}
+    @if($requestToPublishEnabled && $hasDigitalObject)
+      <a href="{{ url('/request-to-publish/' . $museum->slug) }}" class="btn btn-sm btn-outline-primary" title="Request to Publish" data-bs-toggle="tooltip">
+        <i class="fas fa-paper-plane"></i>
+      </a>
+    @endif
+
+    {{-- Cart — public, plugin-gated, requires DO --}}
+    @if($cartEnabled && $hasDigitalObject)
+      @if($cartId)
+        <a href="{{ route('cart.browse') }}" class="btn btn-sm btn-outline-success" title="Go to Cart" data-bs-toggle="tooltip">
+          <i class="fas fa-shopping-cart"></i>
+        </a>
+      @else
+        <a href="{{ route('cart.add', $museum->slug) }}" class="btn btn-sm btn-outline-success" title="Add to Cart" data-bs-toggle="tooltip">
+          <i class="fas fa-cart-plus"></i>
         </a>
       @endif
+    @endif
 
-      {{-- Loan: New + Manage --}}
-      <a href="{{ route('loan.create', ['object_id' => $museum->id]) }}" class="btn btn-sm atom-btn-white" title="New Loan" data-bs-toggle="tooltip">
-        <i class="fas fa-hand-holding"></i>
-      </a>
-      <a href="{{ route('loan.index', ['object_id' => $museum->id]) }}" class="btn btn-sm atom-btn-white" title="Manage Loans" data-bs-toggle="tooltip">
-        <i class="fas fa-exchange-alt"></i>
-      </a>
+    {{-- Loan — @auth + plugin gate --}}
+    @auth
+      @if($loanEnabled)
+        <a href="{{ route('loan.create', ['type' => 'out', 'sector' => 'museum', 'object_id' => $museum->id]) }}" class="btn btn-sm btn-outline-warning" title="New Loan" data-bs-toggle="tooltip">
+          <i class="fas fa-hand-holding"></i>
+        </a>
+        <a href="{{ route('loan.index', ['sector' => 'museum', 'object_id' => $museum->id]) }}" class="btn btn-sm btn-outline-info" title="Manage Loans" data-bs-toggle="tooltip">
+          <i class="fas fa-exchange-alt"></i>
+        </a>
+      @endif
     @endauth
   </div>
+
+  {{-- TTS content area: everything below this is read aloud when TTS toggles on --}}
+  <div id="tts-content-area" data-tts-content>
 
   {{-- ===== Object Identification ===== --}}
   <section id="objectIdentificationArea" class="border-bottom">
@@ -1126,6 +1173,8 @@
   @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
     @include('ahg-ric::_ric-entities-panel', ['record' => $museum, 'recordType' => 'record'])
   @endif
+
+  </div> {{-- /#tts-content-area --}}
   @endif {{-- end ric_view_mode toggle --}}
 @endsection
 
