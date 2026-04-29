@@ -28,6 +28,11 @@
     </div>
   @endauth
 
+  {{-- Access points (sidebar mode) --}}
+  @include('ahg-core::_subject-access-points', ['resource' => $museum, 'sidebar' => true])
+  @include('ahg-core::_place-access-points', ['resource' => $museum, 'sidebar' => true])
+  @include('ahg-core::_name-access-points', ['resource' => $museum, 'sidebar' => true])
+
 @endsection
 
 {{-- ============================================================ --}}
@@ -69,30 +74,10 @@
 @endsection
 
 {{-- ============================================================ --}}
-{{-- BEFORE CONTENT: Digital object reference image               --}}
+{{-- BEFORE CONTENT: Digital object reference image (carousel/IIIF) --}}
 {{-- ============================================================ --}}
 @section('before-content')
-
-  @if(isset($digitalObjects) && ($digitalObjects['master'] || $digitalObjects['reference'] || $digitalObjects['thumbnail']))
-    @php
-      $masterObj = $digitalObjects['master'];
-      $refObj = $digitalObjects['reference'] ?? null;
-      $thumbObj = $digitalObjects['thumbnail'] ?? null;
-      $refUrl = $refObj ? \AhgCore\Services\DigitalObjectService::getUrl($refObj) : '';
-      $thumbUrl = $thumbObj ? \AhgCore\Services\DigitalObjectService::getUrl($thumbObj) : '';
-      $masterUrl = $masterObj ? \AhgCore\Services\DigitalObjectService::getUrl($masterObj) : '';
-      $displayUrl = $refUrl ?: $thumbUrl ?: $masterUrl;
-    @endphp
-
-    @if($displayUrl)
-      <div class="digital-object-reference text-center p-3 border-bottom">
-        <a href="{{ $masterUrl ?: $displayUrl }}" target="_blank">
-          <img src="{{ $displayUrl }}" alt="{{ $museum->title }}" class="img-fluid" style="max-height:400px;">
-        </a>
-      </div>
-    @endif
-  @endif
-
+  @include('ahg-information-object-manage::partials._digital-object-viewer', ['io' => $museum])
 @endsection
 
 {{-- ============================================================ --}}
@@ -109,9 +94,83 @@
     <div class="alert alert-success">{{ session('success') }}</div>
   @endif
 
+  {{-- User action buttons (Favorites, Cart, Feedback, Loan) --}}
+  <div class="d-flex flex-wrap gap-1 mb-3 align-items-center">
+    @auth
+      @php
+        $userId = auth()->id();
+        $cartEnabled = \AhgCore\Services\MenuService::isPluginEnabled('ahgCartPlugin');
+        $isFavorited = \Illuminate\Support\Facades\DB::table('favorites')
+          ->where('user_id', $userId)->where('archival_description_id', $museum->id)->exists();
+        $inCart = $cartEnabled && \Illuminate\Support\Facades\DB::table('cart')
+          ->where('user_id', $userId)->where('archival_description_id', $museum->id)
+          ->whereNull('completed_at')->exists();
+        $hasDigitalObject = isset($digitalObjects) && ($digitalObjects['master'] ?? null);
+      @endphp
+
+      {{-- Favorites toggle --}}
+      @if($isFavorited)
+        <form method="POST" action="{{ route('favorites.remove', \Illuminate\Support\Facades\DB::table('favorites')->where('user_id', $userId)->where('archival_description_id', $museum->id)->value('id')) }}" class="d-inline">
+          @csrf
+          <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove from Favorites" data-bs-toggle="tooltip">
+            <i class="fas fa-heart-broken"></i>
+          </button>
+        </form>
+      @else
+        <a href="{{ route('favorites.add', $museum->slug) }}"
+           class="btn btn-sm atom-btn-outline-danger" title="Add to Favorites" data-bs-toggle="tooltip">
+          <i class="fas fa-heart"></i>
+        </a>
+      @endif
+
+      {{-- Cart (only when ahgCartPlugin is enabled) --}}
+      @if($cartEnabled && $hasDigitalObject)
+        @if($inCart)
+          <a href="{{ route('cart.browse') }}" class="btn btn-sm atom-btn-outline-success" title="Go to Cart" data-bs-toggle="tooltip">
+            <i class="fas fa-shopping-cart"></i>
+          </a>
+        @else
+          <a href="{{ route('cart.add', $museum->slug) }}" class="btn btn-sm atom-btn-outline-success" title="Add to Cart" data-bs-toggle="tooltip">
+            <i class="fas fa-cart-plus"></i>
+          </a>
+        @endif
+      @endif
+
+      {{-- Feedback --}}
+      <a href="{{ url('/feedback/submit/' . $museum->slug) }}" class="btn btn-sm atom-btn-white" title="Item Feedback" data-bs-toggle="tooltip">
+        <i class="fas fa-comment"></i>
+      </a>
+
+      {{-- Request to Publish (uses cart route — gated by cart plugin) --}}
+      @if($cartEnabled && $hasDigitalObject)
+        <a href="{{ route('cart.add', $museum->slug) }}" class="btn btn-sm atom-btn-white" title="Request to Publish" data-bs-toggle="tooltip">
+          <i class="fas fa-paper-plane"></i>
+        </a>
+      @endif
+
+      {{-- Loan: New + Manage --}}
+      <a href="{{ route('loan.create', ['object_id' => $museum->id]) }}" class="btn btn-sm atom-btn-white" title="New Loan" data-bs-toggle="tooltip">
+        <i class="fas fa-hand-holding"></i>
+      </a>
+      <a href="{{ route('loan.index', ['object_id' => $museum->id]) }}" class="btn btn-sm atom-btn-white" title="Manage Loans" data-bs-toggle="tooltip">
+        <i class="fas fa-exchange-alt"></i>
+      </a>
+    @endauth
+  </div>
+
   {{-- ===== Object Identification ===== --}}
-  <section class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Object Identification</div></h2>
+  <section id="objectIdentificationArea" class="border-bottom">
+    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+      <a class="text-decoration-none text-white" href="#objectIdentification-collapse">
+        Object Identification
+      </a>
+      @auth
+        <a href="{{ route('museum.edit', $museum->slug) }}#objectIdentification-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Object Identification">
+          <i class="fas fa-pencil-alt"></i>
+        </a>
+      @endauth
+    </h2>
+    <div id="objectIdentification-collapse">
 
     @if($museum->work_type)
       <div class="field text-break row g-0">
@@ -182,11 +241,22 @@
         <div>{{ $levelName }}</div>
       </div>
     @endif
+    </div>
   </section>
 
   {{-- ===== Title ===== --}}
-  <section class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Title</div></h2>
+  <section id="titleArea" class="border-bottom">
+    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+      <a class="text-decoration-none text-white" href="#title-collapse">
+        Title
+      </a>
+      @auth
+        <a href="{{ route('museum.edit', $museum->slug) }}#title-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Title">
+          <i class="fas fa-pencil-alt"></i>
+        </a>
+      @endauth
+    </h2>
+    <div id="title-collapse">
 
     <div class="field text-break row g-0">
       <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Title</h3>
@@ -199,12 +269,23 @@
         <div>{{ $museum->alternate_title }}</div>
       </div>
     @endif
+    </div>
   </section>
 
   {{-- ===== Creator ===== --}}
   @if($museum->creator_identity || $museum->creator_role || $museum->creator_extent || $museum->creator_qualifier || $museum->creator_attribution)
-    <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Creator</div></h2>
+    <section id="creatorArea" class="border-bottom">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        <a class="text-decoration-none text-white" href="#creator-collapse">
+          Creator
+        </a>
+        @auth
+          <a href="{{ route('museum.edit', $museum->slug) }}#creator-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Creator">
+            <i class="fas fa-pencil-alt"></i>
+          </a>
+        @endauth
+      </h2>
+      <div id="creator-collapse">
 
       @if($museum->creator_identity)
         <div class="field text-break row g-0">
@@ -240,13 +321,24 @@
           <div>{{ $museum->creator_attribution }}</div>
         </div>
       @endif
+      </div>
     </section>
   @endif
 
   {{-- ===== Creation ===== --}}
   @if($museum->creation_date_display || $museum->creation_date_earliest || $museum->creation_date_latest || $museum->creation_place || $museum->style || $museum->period || $museum->cultural_group || $museum->movement || $museum->school || $museum->dynasty || $museum->discovery_place)
-    <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Creation</div></h2>
+    <section id="creationArea" class="border-bottom">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        <a class="text-decoration-none text-white" href="#creation-collapse">
+          Creation
+        </a>
+        @auth
+          <a href="{{ route('museum.edit', $museum->slug) }}#creation-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Creation">
+            <i class="fas fa-pencil-alt"></i>
+          </a>
+        @endauth
+      </h2>
+      <div id="creation-collapse">
 
       @if($museum->creation_date_display)
         <div class="field text-break row g-0">
@@ -342,13 +434,24 @@
           <div>{{ $museum->dynasty }}</div>
         </div>
       @endif
+      </div>
     </section>
   @endif
 
   {{-- ===== Measurements ===== --}}
   @if($museum->measurements || $museum->dimensions || $museum->orientation || $museum->shape)
-    <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Measurements</div></h2>
+    <section id="measurementsArea" class="border-bottom">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        <a class="text-decoration-none text-white" href="#measurements-collapse">
+          Measurements
+        </a>
+        @auth
+          <a href="{{ route('museum.edit', $museum->slug) }}#measurements-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Measurements">
+            <i class="fas fa-pencil-alt"></i>
+          </a>
+        @endauth
+      </h2>
+      <div id="measurements-collapse">
 
       @if($museum->measurements)
         <div class="field text-break row g-0">
@@ -377,13 +480,24 @@
           <div>{{ $museum->shape }}</div>
         </div>
       @endif
+      </div>
     </section>
   @endif
 
   {{-- ===== Materials / Techniques ===== --}}
   @if($museum->materials || $museum->techniques || $museum->technique_cco || $museum->facture_description || $museum->color || $museum->physical_appearance || $museum->extent_and_medium)
-    <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Materials / Techniques</div></h2>
+    <section id="materialsArea" class="border-bottom">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        <a class="text-decoration-none text-white" href="#materials-collapse">
+          Materials / Techniques
+        </a>
+        @auth
+          <a href="{{ route('museum.edit', $museum->slug) }}#materials-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Materials / Techniques">
+            <i class="fas fa-pencil-alt"></i>
+          </a>
+        @endauth
+      </h2>
+      <div id="materials-collapse">
 
       @if($museum->materials)
         <div class="field text-break row g-0">
@@ -440,13 +554,24 @@
           <div>{!! nl2br(e($museum->extent_and_medium)) !!}</div>
         </div>
       @endif
+      </div>
     </section>
   @endif
 
   {{-- ===== Subject / Content ===== --}}
   @if($museum->scope_and_content || $museum->style_period || $museum->cultural_context || $museum->subject_display || $museum->historical_context || $museum->architectural_context || $museum->archaeological_context || $subjects->isNotEmpty() || $places->isNotEmpty())
-    <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Subject / Content</div></h2>
+    <section id="subjectContentArea" class="border-bottom">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        <a class="text-decoration-none text-white" href="#subjectContent-collapse">
+          Subject / Content
+        </a>
+        @auth
+          <a href="{{ route('museum.edit', $museum->slug) }}#subjectContent-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Subject / Content">
+            <i class="fas fa-pencil-alt"></i>
+          </a>
+        @endauth
+      </h2>
+      <div id="subjectContent-collapse">
 
       @if($museum->scope_and_content)
         <div class="field text-break row g-0">
@@ -532,13 +657,24 @@
           </div>
         </div>
       @endif
+      </div>
     </section>
   @endif
 
   {{-- ===== Edition / State ===== --}}
   @if($museum->edition_description || $museum->edition_number || $museum->edition_size || $museum->state_identification || $museum->state_description)
-    <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Edition / State</div></h2>
+    <section id="editionStateArea" class="border-bottom">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        <a class="text-decoration-none text-white" href="#editionState-collapse">
+          Edition / State
+        </a>
+        @auth
+          <a href="{{ route('museum.edit', $museum->slug) }}#editionState-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Edition / State">
+            <i class="fas fa-pencil-alt"></i>
+          </a>
+        @endauth
+      </h2>
+      <div id="editionState-collapse">
 
       @if($museum->edition_description)
         <div class="field text-break row g-0">
@@ -574,13 +710,24 @@
           <div>{!! nl2br(e($museum->state_description)) !!}</div>
         </div>
       @endif
+      </div>
     </section>
   @endif
 
   {{-- ===== Inscriptions ===== --}}
   @if($museum->inscription || $museum->inscriptions || $museum->inscription_transcription || $museum->inscription_type || $museum->inscription_location || $museum->mark_type || $museum->mark_description)
-    <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Inscriptions</div></h2>
+    <section id="inscriptionsArea" class="border-bottom">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        <a class="text-decoration-none text-white" href="#inscriptions-collapse">
+          Inscriptions
+        </a>
+        @auth
+          <a href="{{ route('museum.edit', $museum->slug) }}#inscriptions-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Inscriptions">
+            <i class="fas fa-pencil-alt"></i>
+          </a>
+        @endauth
+      </h2>
+      <div id="inscriptions-collapse">
 
       @if($museum->inscription)
         <div class="field text-break row g-0">
@@ -651,13 +798,24 @@
           <div>{{ $museum->mark_location }}</div>
         </div>
       @endif
+      </div>
     </section>
   @endif
 
   {{-- ===== Condition ===== --}}
   @if($museum->condition_term || $museum->condition_date || $museum->condition_description || $museum->condition_notes || $museum->treatment_type || $museum->treatment_description)
-    <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Condition</div></h2>
+    <section id="conditionArea" class="border-bottom">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        <a class="text-decoration-none text-white" href="#condition-collapse">
+          Condition
+        </a>
+        @auth
+          <a href="{{ route('museum.edit', $museum->slug) }}#condition-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Condition">
+            <i class="fas fa-pencil-alt"></i>
+          </a>
+        @endauth
+      </h2>
+      <div id="condition-collapse">
 
       @if($museum->condition_term)
         <div class="field text-break row g-0">
@@ -721,13 +879,24 @@
           <div>{!! nl2br(e($museum->treatment_description)) !!}</div>
         </div>
       @endif
+      </div>
     </section>
   @endif
 
   {{-- ===== Provenance / Location ===== --}}
   @if($museum->provenance || $museum->provenance_text || $museum->ownership_history || $museum->current_location || $museum->legal_status || $museum->rights_type || $museum->rights_holder || $repository)
-    <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Provenance / Location</div></h2>
+    <section id="provenanceLocationArea" class="border-bottom">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        <a class="text-decoration-none text-white" href="#provenanceLocation-collapse">
+          Provenance / Location
+        </a>
+        @auth
+          <a href="{{ route('museum.edit', $museum->slug) }}#provenanceLocation-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Provenance / Location">
+            <i class="fas fa-pencil-alt"></i>
+          </a>
+        @endauth
+      </h2>
+      <div id="provenanceLocation-collapse">
 
       @if($museum->provenance)
         <div class="field text-break row g-0">
@@ -828,13 +997,24 @@
           </div>
         </div>
       @endif
+      </div>
     </section>
   @endif
 
   {{-- ===== Related Works ===== --}}
   @if($museum->related_work_type || $museum->related_work_relationship || $museum->related_work_label || $museum->related_work_id)
-    <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Related Works</div></h2>
+    <section id="relatedWorksArea" class="border-bottom">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        <a class="text-decoration-none text-white" href="#relatedWorks-collapse">
+          Related Works
+        </a>
+        @auth
+          <a href="{{ route('museum.edit', $museum->slug) }}#relatedWorks-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Related Works">
+            <i class="fas fa-pencil-alt"></i>
+          </a>
+        @endauth
+      </h2>
+      <div id="relatedWorks-collapse">
 
       @if($museum->related_work_type)
         <div class="field text-break row g-0">
@@ -863,13 +1043,24 @@
           <div>{{ $museum->related_work_id }}</div>
         </div>
       @endif
+      </div>
     </section>
   @endif
 
   {{-- ===== Cataloging ===== --}}
   @if($museum->cataloger_name || $museum->cataloging_date || $museum->cataloging_institution || $museum->cataloging_remarks)
-    <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Cataloging</div></h2>
+    <section id="catalogingArea" class="border-bottom">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        <a class="text-decoration-none text-white" href="#cataloging-collapse">
+          Cataloging
+        </a>
+        @auth
+          <a href="{{ route('museum.edit', $museum->slug) }}#cataloging-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Cataloging">
+            <i class="fas fa-pencil-alt"></i>
+          </a>
+        @endauth
+      </h2>
+      <div id="cataloging-collapse">
 
       @if($museum->cataloger_name)
         <div class="field text-break row g-0">
@@ -898,12 +1089,23 @@
           <div>{!! nl2br(e($museum->cataloging_remarks)) !!}</div>
         </div>
       @endif
+      </div>
     </section>
   @endif
 
   {{-- ===== Record Info ===== --}}
-  <section class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Record Info</div></h2>
+  <section id="recordInfoArea" class="border-bottom">
+    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+      <a class="text-decoration-none text-white" href="#recordInfo-collapse">
+        Record Info
+      </a>
+      @auth
+        <a href="{{ route('museum.edit', $museum->slug) }}#recordInfo-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Record Info">
+          <i class="fas fa-pencil-alt"></i>
+        </a>
+      @endauth
+    </h2>
+    <div id="recordInfo-collapse">
 
     @if($museum->created_at)
       <div class="field text-break row g-0">
@@ -918,6 +1120,7 @@
         <div>{{ \Carbon\Carbon::parse($museum->updated_at)->format('Y-m-d H:i') }}</div>
       </div>
     @endif
+    </div>
   </section>
 
   @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
