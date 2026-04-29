@@ -23,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\AuditLog::class,
             \App\Http\Middleware\SecurityHeaders::class,
             \Spatie\Csp\AddCspHeaders::class,
+            // Must run after AddCspHeaders so the nonce is bound in the
+            // container by the time we post-process the response body.
+            \App\Http\Middleware\InjectCspNonces::class,
         ]);
 
         $middleware->alias([

@@ -30,7 +30,7 @@
   #treeview-tree .tv-load-more:hover { color: #0d6efd; }
 </style>
 
-<script>
+<script nonce="{{ csp_nonce() }}">
 document.addEventListener('DOMContentLoaded', function() {
   var currentId = {{ $io->id }};
   var treeviewUrl = '{{ route("io.treeview") }}';
