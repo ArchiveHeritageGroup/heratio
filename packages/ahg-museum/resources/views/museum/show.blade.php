@@ -4,9 +4,214 @@
 @section('body-class', 'view museum')
 
 {{-- ============================================================ --}}
-{{-- LEFT SIDEBAR — matches AtoM ahgMuseumPlugin contextMenu      --}}
+{{-- LEFT SIDEBAR — full AtoM contextMenu equivalent (cloned from --}}
+{{-- IO show; museum objects are IOs so io.* routes resolve)      --}}
 {{-- ============================================================ --}}
 @section('sidebar')
+
+  {{-- Repository logo --}}
+  @if(isset($repository) && $repository)
+    @php
+      $repoLogoPath = null;
+      $repoDigitalObject = \Illuminate\Support\Facades\DB::table('digital_object')
+        ->where('object_id', $repository->id)
+        ->first();
+      if ($repoDigitalObject) {
+        $repoLogoPath = \AhgCore\Services\DigitalObjectService::getUrl($repoDigitalObject);
+      }
+    @endphp
+    <div class="text-center mb-3">
+      @if($repoLogoPath)
+        <a href="{{ route('repository.show', $repository->slug) }}">
+          <img src="{{ $repoLogoPath }}" alt="{{ $repository->name }}" class="img-fluid" style="max-height:80px;">
+        </a>
+      @else
+        <a href="{{ route('repository.show', $repository->slug) }}" class="text-decoration-none">
+          <strong>{{ $repository->name }}</strong>
+        </a>
+      @endif
+    </div>
+  @endif
+
+  {{-- Static pages menu --}}
+  @include('ahg-menu-manage::_static-pages-menu')
+
+  {{-- Dynamic treeview hierarchy --}}
+  @include('ahg-io-manage::partials._treeview', ['io' => $museum])
+
+  {{-- Quick search within this collection --}}
+  <div class="card mb-3">
+    <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+      <i class="fas fa-search me-1"></i> Search within
+    </div>
+    <div class="card-body p-2">
+      <form action="{{ route('informationobject.browse') }}" method="GET">
+        <input type="hidden" name="collection" value="{{ $museum->id }}">
+        <div class="input-group input-group-sm">
+          <input type="text" name="subquery" class="form-control" placeholder="Search...">
+          <button class="btn atom-btn-white" type="submit">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  @auth
+
+    {{-- Collections Management --}}
+    @if(class_exists(\AhgInformationObjectManage\Controllers\ProvenanceController::class))
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-archive me-1"></i> Collections Management
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('io.provenance', $museum->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-project-diagram me-1"></i> Provenance
+        </a>
+        <a href="{{ route('io.condition', $museum->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-clipboard-check me-1"></i> Condition assessment
+        </a>
+        @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgSpectrumPlugin'))
+        <a href="{{ route('io.spectrum', $museum->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-chart-bar me-1"></i> Spectrum data
+        </a>
+        @endif
+        @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgHeritageAccountingPlugin'))
+        <a href="{{ route('io.heritage', $museum->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-landmark me-1"></i> Heritage Assets
+        </a>
+        @endif
+        <a href="{{ route('io.research.citation', $museum->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-quote-left me-1"></i> Cite this Record
+        </a>
+      </div>
+    </div>
+    @endif
+
+    {{-- Digital Preservation (OAIS) --}}
+    @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgPreservationPlugin'))
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-shield-alt me-1"></i> Digital Preservation (OAIS)
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('io.preservation', $museum->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-box-open me-1"></i> Preservation packages
+        </a>
+      </div>
+    </div>
+    @endif
+
+    {{-- AI Tools --}}
+    @if(class_exists(\AhgInformationObjectManage\Controllers\AiController::class) && \AhgCore\Services\MenuService::isPluginEnabled('ahgAIPlugin'))
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-robot me-1"></i> AI Tools
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#describeModal">
+          <i class="fas fa-eye me-1"></i> Describe Object/Image
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#nerModal">
+          <i class="fas fa-brain me-1"></i> Extract Entities (NER)
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#summaryModal">
+          <i class="fas fa-file-alt me-1"></i> Generate Summary
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#translateModal">
+          <i class="fas fa-language me-1"></i> Translate
+        </a>
+        <a href="{{ route('io.ai.review') }}?object_id={{ $museum->id }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-list-check me-1"></i> NER Review
+        </a>
+      </div>
+    </div>
+    @endif
+
+    {{-- Privacy & PII --}}
+    @if(class_exists(\AhgInformationObjectManage\Controllers\PrivacyController::class) && \AhgCore\Services\MenuService::isPluginEnabled('ahgPrivacyPlugin'))
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-user-shield me-1"></i> Privacy & PII
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('io.privacy.scan', $museum->id) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-search me-1"></i> Scan for PII
+        </a>
+        @if(isset($digitalObjects) && $digitalObjects['master'])
+          <a href="{{ route('io.privacy.redaction', $museum->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-eraser me-1"></i> Visual Redaction
+          </a>
+        @endif
+        <a href="{{ route('io.privacy.dashboard') }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-clipboard-check me-1"></i> Privacy Dashboard
+        </a>
+      </div>
+    </div>
+    @endif
+
+    {{-- Rights --}}
+    @php
+      $hasExtRights = \Illuminate\Support\Facades\Schema::hasTable('extended_rights')
+          && \Illuminate\Support\Facades\DB::table('extended_rights')->where('object_id', $museum->id)->exists();
+      $activeEmbargoSidebar = \Illuminate\Support\Facades\Schema::hasTable('embargo')
+          ? \Illuminate\Support\Facades\DB::table('embargo')->where('object_id', $museum->id)->where('is_active', 1)->first()
+          : null;
+    @endphp
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
+        <i class="fas fa-copyright me-1"></i> Rights
+      </div>
+      <div class="card-body py-2">
+        @if($hasExtRights)
+          <span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>Extended rights applied</span>
+        @endif
+        @if($activeEmbargoSidebar)
+          <span class="badge bg-danger me-1"><i class="fas fa-ban me-1"></i>Under embargo</span>
+        @endif
+        @if(!$hasExtRights && !$activeEmbargoSidebar)
+          <span class="badge bg-secondary"><i class="fas fa-info-circle me-1"></i>No extended rights or embargo</span>
+        @endif
+      </div>
+      <div class="list-group list-group-flush">
+        @if(\Illuminate\Support\Facades\Route::has('io.rights.manage'))
+          <a href="{{ route('io.rights.manage', $museum->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-copyright me-1"></i> {{ ($hasExtRights || $activeEmbargoSidebar) ? 'Edit' : 'Add' }} rights
+          </a>
+        @endif
+        @if(\Illuminate\Support\Facades\Route::has('io.rights.export'))
+          <a href="{{ route('io.rights.export', $museum->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-download me-1"></i> Export rights (JSON-LD)
+          </a>
+        @endif
+      </div>
+    </div>
+
+    {{-- Research Tools --}}
+    @if(class_exists(\AhgInformationObjectManage\Controllers\ResearchController::class))
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-graduation-cap me-1"></i> Research Tools
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('io.research.assessment', $museum->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-clipboard-check me-1"></i> Source Assessment
+        </a>
+        <a href="{{ route('io.research.annotations', $museum->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-highlighter me-1"></i> Annotation Studio
+        </a>
+        <a href="{{ route('io.research.trust', $museum->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-star-half-alt me-1"></i> Trust Score
+        </a>
+        <a href="{{ route('io.research.dashboard') }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-graduation-cap me-1"></i> Research Dashboard
+        </a>
+      </div>
+    </div>
+    @endif
+
+  @endauth
 
   {{-- Access points (subject / name / place) — sidebar mode --}}
   @include('ahg-core::_subject-access-points', ['resource' => $museum, 'sidebar' => true])
@@ -20,27 +225,22 @@
 {{-- ============================================================ --}}
 @section('title-block')
 
-  <h1 class="mb-2 d-flex align-items-start">
-    <span class="flex-grow-1">
-      @if($museum->work_type)<span class="text-muted">{{ $museum->work_type }}</span> @endif
-      @if($museum->identifier){{ $museum->identifier }} - @endif
-      {{ $museum->title ?: '[Untitled]' }}
-    </span>
-    @auth
-      {{-- Inline edit / delete affordance (descriptionHeader equivalent in AtoM) --}}
-      <span class="ms-2 d-inline-flex gap-1" style="font-size:1rem;">
-        <a href="{{ route('museum.edit', $museum->slug) }}" class="btn btn-sm atom-btn-white" title="Edit" data-bs-toggle="tooltip">
-          <i class="fas fa-pencil-alt"></i>
-        </a>
-        <form method="POST" action="{{ route('museum.destroy', $museum->slug) }}" class="d-inline"
-              onsubmit="return confirm('Are you sure you want to delete this museum object?');">
-          @csrf
-          <button type="submit" class="btn btn-sm atom-btn-white text-danger" title="Delete" data-bs-toggle="tooltip">
-            <i class="fas fa-trash"></i>
-          </button>
-        </form>
-      </span>
-    @endauth
+  {{-- Validation errors --}}
+  @if($errors->any())
+    <div class="alert alert-danger" role="alert">
+      <ul class="list-unstyled mb-0">
+        @foreach($errors->all() as $error)
+          <li>{{ $error }}</li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
+
+  {{-- Description header: Work type / Identifier - Title --}}
+  <h1 class="mb-2">
+    @if($museum->work_type)<span class="text-muted">{{ $museum->work_type }}</span> @endif
+    @if($museum->identifier){{ $museum->identifier }} - @endif
+    {{ $museum->title ?: '[Untitled]' }}
   </h1>
 
   {{-- Breadcrumb trail --}}
@@ -61,12 +261,31 @@
     </nav>
   @endif
 
-  {{-- Publication status badge --}}
+  {{-- Publication status badge (auth only) --}}
   @auth
     @if($publicationStatus)
       <span class="badge {{ (isset($publicationStatusId) && $publicationStatusId == 159) ? 'bg-warning text-dark' : 'bg-info' }} mb-2">{{ $publicationStatus }}</span>
     @endif
   @endauth
+
+  {{-- Translation links (other cultures available) --}}
+  @if(isset($translationLinks) && !empty($translationLinks) && \AhgCore\Services\MenuService::isPluginEnabled('ahgTranslationPlugin'))
+    <div class="dropdown d-inline-block mb-3 translation-links">
+      <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" id="translation-links-button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-globe-europe me-1" aria-hidden="true"></i>
+        Other languages available
+      </button>
+      <ul class="dropdown-menu mt-2" aria-labelledby="translation-links-button">
+        @foreach($translationLinks as $code => $translation)
+          <li>
+            <a class="dropdown-item" href="{{ route('museum.show', $museum->slug) }}?sf_culture={{ $code }}">
+              {{ $translation['language'] }} &raquo; {{ $translation['name'] }}
+            </a>
+          </li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
 
 @endsection
 
@@ -83,9 +302,6 @@
 @section('content')
 
   @include('ahg-ric::_view-switch', ['standard' => 'Spectrum'])
-  @if(session('ric_view_mode') === 'ric')
-    @include('ahg-ric::_ric-view-museum', ['museum' => $museum])
-  @else
 
   @if(session('success'))
     <div class="alert alert-success">{{ session('success') }}</div>
@@ -204,6 +420,10 @@
 
   {{-- TTS content area: everything below this is read aloud when TTS toggles on --}}
   <div id="tts-content-area" data-tts-content>
+
+  @if(session('ric_view_mode') === 'ric')
+    @include('ahg-ric::_ric-view-museum', ['museum' => $museum])
+  @else
 
   {{-- ===== Object Identification ===== --}}
   <section id="objectIdentificationArea" class="border-bottom">
@@ -1174,8 +1394,8 @@
     @include('ahg-ric::_ric-entities-panel', ['record' => $museum, 'recordType' => 'record'])
   @endif
 
-  </div> {{-- /#tts-content-area --}}
   @endif {{-- end ric_view_mode toggle --}}
+  </div> {{-- /#tts-content-area --}}
 @endsection
 
 {{-- ============================================================ --}}
@@ -1197,5 +1417,122 @@
 @endsection
 
 @section('after-content')
+  @auth
+  @php $isAdmin = auth()->user()->is_admin; @endphp
+  <ul class="actions mb-3 nav gap-2">
+    {{-- Edit --}}
+    <li>
+      <a href="{{ route('museum.edit', $museum->slug) }}" class="btn atom-btn-outline-light">Edit</a>
+    </li>
+
+    {{-- Delete (admin only) --}}
+    @if($isAdmin)
+    <li>
+      <form action="{{ route('museum.destroy', $museum->slug) }}" method="POST"
+            onsubmit="return confirm('Are you sure you want to delete this museum object?');">
+        @csrf
+        <button type="submit" class="btn atom-btn-outline-danger">Delete</button>
+      </form>
+    </li>
+    @endif
+
+    {{-- Add new (creates a child museum object) --}}
+    <li>
+      <a href="{{ route('museum.create', ['parent_id' => $museum->id]) }}" class="btn atom-btn-outline-light">Add new</a>
+    </li>
+
+    {{-- Duplicate (pre-populated from this record) --}}
+    <li>
+      <a href="{{ route('museum.create', ['parent_id' => $museum->id, 'copy_from' => $museum->id]) }}" class="btn atom-btn-outline-light">Duplicate</a>
+    </li>
+
+    {{-- Move (admin only) --}}
+    @if($isAdmin)
+    <li>
+      <a href="{{ url('/' . $museum->slug . '/default/move') }}" class="btn atom-btn-outline-light">Move</a>
+    </li>
+    @endif
+
+    {{-- More dropdown --}}
+    <li>
+      <div class="dropup">
+        <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          More
+        </button>
+        <ul class="dropdown-menu mb-2">
+          @if(\Illuminate\Support\Facades\Route::has('informationobject.rename'))
+          <li>
+            <a class="dropdown-item" href="{{ route('informationobject.rename', $museum->slug) }}">
+              <i class="fas fa-i-cursor me-2"></i>Rename
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          @endif
+          <li>
+            <a class="dropdown-item" href="{{ route('museum.edit', ['slug' => $museum->slug, 'storage' => 1]) }}">
+              <i class="fas fa-box me-2"></i>Link physical storage
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          @if(isset($digitalObjects) && ($digitalObjects['master'] ?? null))
+            <li>
+              <a class="dropdown-item" href="{{ route('io.digitalobject.show', $digitalObjects['master']->id) }}">
+                <i class="fas fa-photo-video me-2"></i>Edit digital object
+              </a>
+            </li>
+          @else
+            <li>
+              <a class="dropdown-item" href="{{ route('museum.edit', ['slug' => $museum->slug, 'upload' => 1]) }}">
+                <i class="fas fa-link me-2"></i>Link digital object
+              </a>
+            </li>
+          @endif
+          <li>
+            <a class="dropdown-item" href="{{ route('museum.multi-upload', $museum->slug) }}">
+              <i class="fas fa-file-import me-2"></i>Import digital objects
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ url('/' . $museum->slug . '/right/edit') }}">
+              <i class="fas fa-balance-scale me-2"></i>Create new rights
+            </a>
+          </li>
+          @if(isset($hasChildren) && $hasChildren)
+            <li>
+              <a class="dropdown-item" href="{{ url('/' . $museum->slug . '/right/manage') }}">
+                <i class="fas fa-sitemap me-2"></i>Manage rights inheritance
+              </a>
+            </li>
+          @endif
+          @if(\Illuminate\Support\Facades\Route::has('io.showUpdateStatus'))
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item" href="{{ route('io.showUpdateStatus', $museum->slug) }}">
+              <i class="fas fa-eye me-2"></i>Update publication status
+            </a>
+          </li>
+          @endif
+          @if(isset($auditLogEnabled) && $auditLogEnabled)
+          <li>
+            <a class="dropdown-item" href="{{ route('audit.browse', ['type' => 'QubitInformationObject', 'id' => $museum->id]) }}">
+              <i class="fas fa-history me-2"></i>Modification history
+            </a>
+          </li>
+          @endif
+        </ul>
+      </div>
+    </li>
+
+    {{-- Print --}}
+    @if(\Illuminate\Support\Facades\Route::has('informationobject.print'))
+    <li>
+      <a href="{{ route('informationobject.print', $museum->slug) }}" class="btn atom-btn-outline-light" target="_blank">
+        <i class="fas fa-print me-1"></i>Print
+      </a>
+    </li>
+    @endif
+  </ul>
+  @endauth
+
   @include('ahg-core::partials._ner-modal', ['objectId' => $museum->id, 'objectTitle' => $museum->title])
 @endsection
