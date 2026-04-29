@@ -11,7 +11,7 @@
         @csrf
         <input type="hidden" name="mode" value="heratio">
         <button type="submit" class="btn {{ $viewMode === 'heratio' ? 'btn-primary' : 'btn-outline-secondary' }}">
-          <i class="fas fa-list-alt me-1"></i>Heratio
+          <i class="fas fa-list-alt me-1"></i>ISAD(G)
         </button>
       </form>
       <form method="POST" action="{{ route('ric.set-view-mode') }}" style="display:inline;">
