@@ -534,7 +534,7 @@
           </div>
         </div>
 
-        <script nonce="{{ $cspNonce ?? '' }}">
+        <script nonce="{{ csp_nonce() }}">
         document.addEventListener('DOMContentLoaded', function() {
           var audio = document.getElementById('{{ $audioPlayerId }}');
           var playBtn = document.getElementById('{{ $audioPlayerId }}-play');
@@ -631,7 +631,7 @@
               <script type="importmap">
               { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
               </script>
-              <script type="module" nonce="{{ $cspNonce ?? '' }}">
+              <script type="module" nonce="{{ csp_nonce() }}">
               import * as THREE from 'three';
               import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
               @if($modelExt === 'obj')
@@ -757,7 +757,7 @@
 
         {{-- Load model-viewer from CDN and add error handling --}}
         <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
-        <script nonce="{{ $cspNonce ?? '' }}">
+        <script nonce="{{ csp_nonce() }}">
         document.addEventListener('DOMContentLoaded', function() {
           var mv = document.getElementById('{{ $modelViewerId }}');
           var errorDiv = document.getElementById('{{ $modelViewerId }}-error');
@@ -921,7 +921,7 @@
 
         <script src="{{ asset('vendor/ahg-theme-b5/js/vendor/openseadragon.min.js') }}"></script>
         <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js') }}"></script>
-        <script nonce="{{ $cspNonce ?? '' }}">
+        <script nonce="{{ csp_nonce() }}">
         document.addEventListener('DOMContentLoaded', function() {
           initIiifViewer('{{ $viewerId }}', '{{ url($imgSrc) }}', '{{ $io->title }}', '{{ $vType }}');
         });

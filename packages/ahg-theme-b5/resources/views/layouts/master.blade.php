@@ -1,4 +1,4 @@
-@php $cspNonce = base64_encode(random_bytes(16)); @endphp
+@php $cspNonce = csp_nonce(); @endphp
 <!DOCTYPE html>
 <html lang="{{ $themeData['culture'] ?? 'en' }}" dir="ltr">
   <head>
