@@ -285,9 +285,22 @@ class SecurityClearanceController extends Controller
         $code = trim($request->input('code'));
         $returnUrl = $request->input('return', '/');
 
-        // Placeholder: in production this would verify against TOTP
-        // For now, accept any 6-digit code for stub
-        $verified = preg_match('/^\d{6}$/', $code);
+        // SECURITY: real TOTP verification is not yet wired (no pragmarx/google2fa,
+        // no user_2fa_secret table). Until that lands, this endpoint accepts any
+        // 6-digit code in non-production environments only, and hard-rejects in
+        // production so a half-built 2FA flow can't ship as security theatre.
+        if (app()->environment('production')) {
+            \Log::warning('2FA verify attempted but TOTP backend not implemented', [
+                'user_id' => $userId, 'ip' => $request->ip(),
+            ]);
+            return redirect()->route('security-clearance.two-factor', ['return' => $returnUrl])
+                ->with('error', __('Two-factor authentication is not yet available on this deployment.'));
+        }
+
+        $verified = (bool) preg_match('/^\d{6}$/', $code);
+        if ($verified) {
+            \Log::info('2FA bypass accepted (non-production)', ['user_id' => $userId, 'env' => app()->environment()]);
+        }
 
         if ($verified) {
             // Create 2FA session
