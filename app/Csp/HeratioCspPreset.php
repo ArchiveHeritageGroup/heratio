@@ -48,9 +48,17 @@ class HeratioCspPreset implements Preset
             ])
             ->addNonce(Directive::SCRIPT)
 
-            // Styles: self + nonce + CDN bundles + Google Fonts
-            // 'unsafe-inline' is included as a fallback — many AtoM-port views
-            // still emit ad-hoc style="" attributes that aren't nonce-able.
+            // Styles: self + 'unsafe-inline' + CDN bundles + Google Fonts.
+            //
+            // We deliberately do NOT add a nonce to style-src. Mirador 3 (and
+            // any other library that bundles MUI v5 / Emotion) injects runtime
+            // <style> blocks from a pre-built bundle that has no way to learn
+            // our per-request nonce. CSP's "nonce-source ignores unsafe-inline"
+            // rule would block those injections and the library renders
+            // unstyled. Keeping unsafe-inline for styles only is the standard
+            // trade-off: style-based attacks are exfiltration via attribute
+            // selectors, materially smaller than the script-RCE class that the
+            // script nonce defends against.
             ->add(Directive::STYLE, [
                 Keyword::SELF,
                 Keyword::UNSAFE_INLINE,
@@ -58,7 +66,6 @@ class HeratioCspPreset implements Preset
                 'https://cdnjs.cloudflare.com',
                 'https://fonts.googleapis.com',
             ])
-            ->addNonce(Directive::STYLE)
 
             // Fonts
             ->add(Directive::FONT, [

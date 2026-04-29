@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', $themeData['siteTitle'] ?? 'Heratio')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    {{-- CSS-in-JS libraries (Material-UI / JSS, used by Mirador 3) discover the
+         per-request CSP nonce from this meta tag and tag their dynamically
+         injected <style> blocks with it. Without this, browsers ignore
+         'unsafe-inline' (because a nonce is present in style-src) and the
+         library renders unstyled. --}}
+    <meta property="csp-nonce" content="{{ csp_nonce() }}">
 
     {{-- Google Tag Manager (script) --}}
     @include('theme::partials.tag-manager', ['slot' => 'script'])
@@ -138,8 +144,9 @@
     {{-- Footer --}}
     @include('theme::partials.footer')
 
-    {{-- D3.js for visualizations --}}
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    {{-- D3.js for visualizations. Served from jsdelivr because d3js.org is not
+         in our CSP script-src allowlist (and jsdelivr is) — see HeratioCspPreset. --}}
+    <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 
     {{-- Base JS (display-mode + voiceCommands already in theme bundle — don't load standalone) --}}
     <script src="{{ asset('vendor/ahg-theme-b5/js/base.js') }}"></script>

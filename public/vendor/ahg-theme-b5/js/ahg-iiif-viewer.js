@@ -82,83 +82,99 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
             };
         }
 
-        var manifest = {
-            '@context': 'http://iiif.io/api/presentation/2/context.json',
-            '@type': 'sc:Manifest',
-            '@id': imageUrl + '/manifest.json',
-            label: title || 'Image',
-            sequences: [{
-                '@type': 'sc:Sequence',
-                canvases: [{
-                    '@type': 'sc:Canvas',
-                    '@id': imageUrl + '/canvas/1',
-                    label: title || 'Image',
-                    width: 4000,
-                    height: 3000,
-                    images: [{
-                        '@type': 'oa:Annotation',
-                        motivation: 'sc:painting',
-                        resource: Object.assign({
-                            '@id': miradorImageUrl,
-                            '@type': 'dctypes:Image',
-                            format: 'image/jpeg',
-                            width: 4000,
-                            height: 3000
-                        }, miradorService ? { service: miradorService } : {}),
-                        on: imageUrl + '/canvas/1'
+        // Probe the real image dimensions before building the manifest. Mirador
+        // sizes its canvas from manifest width/height, so a wrong value parks
+        // the image in a corner of an oversized empty canvas.
+        function buildAndShow(realW, realH) {
+            var manifest = {
+                '@context': 'http://iiif.io/api/presentation/2/context.json',
+                '@type': 'sc:Manifest',
+                '@id': imageUrl + '/manifest.json',
+                label: title || 'Image',
+                sequences: [{
+                    '@type': 'sc:Sequence',
+                    canvases: [{
+                        '@type': 'sc:Canvas',
+                        '@id': imageUrl + '/canvas/1',
+                        label: title || 'Image',
+                        width: realW,
+                        height: realH,
+                        images: [{
+                            '@type': 'oa:Annotation',
+                            motivation: 'sc:painting',
+                            resource: Object.assign({
+                                '@id': miradorImageUrl,
+                                '@type': 'dctypes:Image',
+                                format: 'image/jpeg',
+                                width: realW,
+                                height: realH
+                            }, miradorService ? { service: miradorService } : {}),
+                            on: imageUrl + '/canvas/1'
+                        }]
                     }]
                 }]
-            }]
-        };
+            };
 
-        var manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-        var manifestUrl = URL.createObjectURL(manifestBlob);
+            var manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+            var manifestUrl = URL.createObjectURL(manifestBlob);
 
-        function createMirador() {
-            if (typeof Mirador === 'undefined') {
-                mirEl.innerHTML = '<div class="alert alert-warning m-3">Mirador viewer not available.</div>';
-                return;
+            function createMirador() {
+                if (typeof Mirador === 'undefined') {
+                    mirEl.innerHTML = '<div class="alert alert-warning m-3">Mirador viewer not available.</div>';
+                    return;
+                }
+                Mirador.viewer({
+                    id: 'mirador-' + vid,
+                    windows: [{ manifestId: manifestUrl }],
+                    window: {
+                        allowClose: false,
+                        allowMaximize: false,
+                        allowFullscreen: true,
+                        allowTopMenuButton: false,
+                        allowWindowSideBar: true,
+                        sideBarOpen: false
+                    },
+                    workspaceControlPanel: { enabled: false },
+                    workspace: { type: 'mosaic', allowNewWindows: false }
+                });
+
+                // Hide Mirador's own close/minimize/maximize buttons via CSS
+                setTimeout(function() {
+                    var style = document.createElement('style');
+                    style.textContent = '#mirador-' + vid + ' button[aria-label="Close"], ' +
+                        '#mirador-' + vid + ' button[aria-label="Minimize window"], ' +
+                        '#mirador-' + vid + ' button[aria-label="Maximize window"], ' +
+                        '#mirador-' + vid + ' .mirador-window-top-bar-buttons button:first-child { display: none !important; }';
+                    document.head.appendChild(style);
+                }, 500);
             }
-            Mirador.viewer({
-                id: 'mirador-' + vid,
-                windows: [{ manifestId: manifestUrl }],
-                window: {
-                    allowClose: false,
-                    allowMaximize: false,
-                    allowFullscreen: true,
-                    allowTopMenuButton: false,
-                    allowWindowSideBar: true,
-                    sideBarOpen: false
-                },
-                workspaceControlPanel: { enabled: false },
-                workspace: { type: 'mosaic', allowNewWindows: false }
-            });
 
-            // Hide Mirador's own close/minimize/maximize buttons via CSS
-            setTimeout(function() {
-                var style = document.createElement('style');
-                style.textContent = '#mirador-' + vid + ' button[aria-label="Close"], ' +
-                    '#mirador-' + vid + ' button[aria-label="Minimize window"], ' +
-                    '#mirador-' + vid + ' button[aria-label="Maximize window"], ' +
-                    '#mirador-' + vid + ' .mirador-window-top-bar-buttons button:first-child { display: none !important; }';
-                document.head.appendChild(style);
-            }, 500);
-        }
-
-        if (!miradorLoaded) {
-            var s = document.createElement('script');
-            s.src = '/vendor/ahg-theme-b5/js/vendor/mirador/mirador.min.js';
-            s.onload = function () {
-                miradorLoaded = true;
+            if (!miradorLoaded) {
+                var s = document.createElement('script');
+                s.src = '/vendor/ahg-theme-b5/js/vendor/mirador/mirador.min.js';
+                s.onload = function () {
+                    miradorLoaded = true;
+                    createMirador();
+                };
+                s.onerror = function () {
+                    mirEl.innerHTML = '<div class="alert alert-warning m-3">Could not load Mirador.</div>';
+                };
+                document.head.appendChild(s);
+            } else {
                 createMirador();
-            };
-            s.onerror = function () {
-                mirEl.innerHTML = '<div class="alert alert-warning m-3">Could not load Mirador.</div>';
-            };
-            document.head.appendChild(s);
-        } else {
-            createMirador();
+            }
         }
+
+        var probe = new Image();
+        probe.onload = function () {
+            buildAndShow(probe.naturalWidth || 4000, probe.naturalHeight || 3000);
+        };
+        probe.onerror = function () {
+            // Fall back to a sane default if probing fails — better to render
+            // an oversized canvas than to show nothing.
+            buildAndShow(4000, 3000);
+        };
+        probe.src = miradorImageUrl;
     }
 
     function showImg() {
