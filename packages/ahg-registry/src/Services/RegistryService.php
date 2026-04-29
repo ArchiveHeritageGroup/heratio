@@ -3,6 +3,14 @@
 /**
  * RegistryService - Service for Heratio
  *
+ * Note on admin notifications: the AtoM ahgRegistryPlugin had a
+ * dedicated registry_notification table + NotificationService (fired
+ * "vendor_registered" / similar events to admins). Deferred for Heratio.
+ * When this is needed, do NOT recreate registry_notification — extend
+ * the existing research_notification table to accept admin recipients
+ * (it currently keys on researcher_id only) and add a small generic
+ * NotificationService::notifyAdmins() helper to ahg-core.
+ *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
  * Email: johan@plainsailingisystems.co.za
@@ -42,7 +50,7 @@ class RegistryService
             'vendors'      => DB::table('registry_vendor')->count(),
             'software'     => DB::table('registry_software')->count(),
             'standards'    => DB::table('registry_standard')->count(),
-            'groups'       => DB::table('registry_group')->count(),
+            'groups'       => DB::table('registry_user_group')->count(),
         ];
     }
 
@@ -133,7 +141,7 @@ class RegistryService
 
     public function browseGroups(array $filters, int $page = 1, int $limit = 20): array
     {
-        $q = DB::table('registry_group');
+        $q = DB::table('registry_user_group');
         if (!empty($filters['q'])) {
             $q->where('name', 'like', '%' . $filters['q'] . '%');
         }
@@ -219,7 +227,7 @@ class RegistryService
     public function getFeaturedInstitutions(int $limit = 6): \Illuminate\Support\Collection
     {
         return DB::table('registry_institution')
-            ->where('featured', 1)
+            ->where('is_featured', 1)
             ->orderByDesc('updated_at')
             ->limit($limit)
             ->get();
@@ -228,7 +236,7 @@ class RegistryService
     public function getFeaturedVendors(int $limit = 6): \Illuminate\Support\Collection
     {
         return DB::table('registry_vendor')
-            ->where('featured', 1)
+            ->where('is_featured', 1)
             ->orderByDesc('updated_at')
             ->limit($limit)
             ->get();
@@ -237,7 +245,7 @@ class RegistryService
     public function getFeaturedSoftware(int $limit = 6): \Illuminate\Support\Collection
     {
         return DB::table('registry_software')
-            ->where('featured', 1)
+            ->where('is_featured', 1)
             ->orderByDesc('updated_at')
             ->limit($limit)
             ->get();

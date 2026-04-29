@@ -4,7 +4,7 @@
   Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
   This file is part of Heratio. AGPL-3.0-or-later.
 --}}
-@extends('theme::layouts.1col')
+@extends('ahg-registry::layouts.registry')
 
 @section('title', __('Settings') . ' — ' . __('Admin'))
 @section('body-class', 'registry registry-admin-settings')

@@ -85,13 +85,20 @@ Route::prefix('registry')->name('registry.')->middleware('auth')->group(function
     Route::get('/institution/register',          [RegistryController::class, 'institutionRegister'])->name('institutionRegister');
     Route::post('/institution/register',         [RegistryController::class, 'institutionRegisterStore'])->name('institutionRegisterStore');
     Route::get('/institution/{id}/edit',         [RegistryController::class, 'institutionEdit'])->name('institutionEdit')->where('id', '[0-9]+');
+    Route::post('/institution/{id}/edit',        [RegistryController::class, 'institutionUpdate'])->name('institutionUpdate')->where('id', '[0-9]+');
+    Route::post('/institution/{id}/logo/delete', [RegistryController::class, 'institutionLogoDelete'])->name('institutionLogoDelete')->where('id', '[0-9]+');
 
     // Vendor management
     Route::get('/vendor/register',               [RegistryController::class, 'vendorRegister'])->name('vendorRegister');
+    Route::post('/vendor/register',              [RegistryController::class, 'vendorRegisterStore'])->name('vendorRegisterStore');
     Route::get('/vendor/{id}/edit',              [RegistryController::class, 'vendorEdit'])->name('vendorEdit')->where('id', '[0-9]+');
+    Route::post('/vendor/{id}/edit',             [RegistryController::class, 'vendorUpdate'])->name('vendorUpdate')->where('id', '[0-9]+');
+    Route::post('/vendor/{id}/logo/delete',      [RegistryController::class, 'vendorLogoDelete'])->name('vendorLogoDelete')->where('id', '[0-9]+');
     Route::get('/vendor/{id}/client-form',       [RegistryController::class, 'vendorClientForm'])->name('vendorClientForm')->where('id', '[0-9]+');
     Route::get('/vendor/{id}/software-manage',   [RegistryController::class, 'vendorSoftwareManage'])->name('vendorSoftwareManage')->where('id', '[0-9]+');
     Route::get('/vendor/{id}/software-form',     [RegistryController::class, 'vendorSoftwareForm'])->name('vendorSoftwareForm')->where('id', '[0-9]+');
+    Route::post('/software/{id}/edit',           [RegistryController::class, 'softwareUpdate'])->name('softwareUpdate')->where('id', '[0-9]+');
+    Route::post('/software/{id}/logo/delete',    [RegistryController::class, 'softwareLogoDelete'])->name('softwareLogoDelete')->where('id', '[0-9]+');
     Route::get('/vendor/{id}/software-upload',   [RegistryController::class, 'vendorSoftwareUpload'])->name('vendorSoftwareUpload')->where('id', '[0-9]+');
     Route::get('/vendor/{id}/release-manage',    [RegistryController::class, 'vendorReleaseManage'])->name('vendorReleaseManage')->where('id', '[0-9]+');
     Route::get('/vendor/{id}/release-form',      [RegistryController::class, 'vendorReleaseForm'])->name('vendorReleaseForm')->where('id', '[0-9]+');
@@ -117,6 +124,7 @@ Route::prefix('registry')->name('registry.')->middleware('auth')->group(function
 
     // Favorites & groups
     Route::get('/my-favorites',                  [RegistryController::class, 'myFavorites'])->name('myFavorites');
+    Route::post('/favorite/toggle',              [RegistryController::class, 'favoriteToggle'])->name('favoriteToggle');
     Route::get('/my-groups',                     [RegistryController::class, 'myGroups'])->name('myGroups');
 
     // My institution

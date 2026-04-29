@@ -92,6 +92,19 @@ class RegistryController extends Controller
     public function institutionRegisterStore(Request $request)
     {
         $request->validate(['name' => 'required|string|max:255']);
+
+        // Notify all admins that a new institution was registered.
+        // (Actor info is best-effort — current user may be guest if registration is public.)
+        app(\AhgCore\Services\NotificationService::class)->notifyAdmins(
+            type: 'institution_registered',
+            title: __('New institution registered: :name', ['name' => $request->input('name')]),
+            message: __('A new institution has been registered in the registry.'),
+            link: '/registry/institutions',
+            relatedType: 'institution',
+            actorUserId: auth()->id(),
+            actorName: auth()->user()->username ?? null,
+        );
+
         session()->flash('success', __('Institution registered successfully.'));
         return redirect()->route('registry.institutionBrowse');
     }
@@ -101,6 +114,55 @@ class RegistryController extends Controller
         $institution = $this->service->getInstitution($id);
         abort_unless($institution, 404);
         return view('ahg-registry::institution-edit', compact('institution'));
+    }
+
+    /** POST /registry/institution/{id}/edit — accepts multipart/form-data with optional `logo` file. */
+    public function institutionUpdate(Request $request, int $id)
+    {
+        $institution = $this->service->getInstitution($id);
+        abort_unless($institution, 404);
+
+        $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'logo' => 'sometimes|file|max:5120',
+        ]);
+
+        $update = [];
+        foreach (['name', 'description', 'institution_type', 'city', 'country'] as $f) {
+            if ($request->has($f)) $update[$f] = $request->input($f);
+        }
+
+        if ($request->hasFile('logo')) {
+            try {
+                $url = app(\AhgRegistry\Services\LogoUploadService::class)
+                    ->replace('institution', $id, $request->file('logo'), $institution->logo_path ?? null);
+                $update['logo_path'] = $url;
+            } catch (\Throwable $e) {
+                return back()->with('error', __('Logo upload failed: :msg', ['msg' => $e->getMessage()]));
+            }
+        }
+
+        if (! empty($update)) {
+            $update['updated_at'] = now();
+            \Illuminate\Support\Facades\DB::table('registry_institution')->where('id', $id)->update($update);
+        }
+
+        return redirect()->route('registry.institutionView', ['id' => $id])
+            ->with('success', __('Institution updated.'));
+    }
+
+    /** POST /registry/institution/{id}/logo/delete — clear logo. */
+    public function institutionLogoDelete(int $id)
+    {
+        $institution = $this->service->getInstitution($id);
+        abort_unless($institution, 404);
+        if (! empty($institution->logo_path)) {
+            app(\AhgRegistry\Services\LogoUploadService::class)->deleteByUrl($institution->logo_path);
+            \Illuminate\Support\Facades\DB::table('registry_institution')
+                ->where('id', $id)
+                ->update(['logo_path' => null, 'updated_at' => now()]);
+        }
+        return back()->with('success', __('Logo removed.'));
     }
 
     public function institutionSoftware(int $id)
@@ -141,11 +203,132 @@ class RegistryController extends Controller
         return view('ahg-registry::vendor-register');
     }
 
+    /**
+     * POST handler for vendor signup. When the actual create logic is filled in,
+     * leave the notifyAdmins() call in place — it mirrors AtoM's "vendor_registered"
+     * admin alert and depends on RegistryService::createVendor() returning the new id.
+     */
+    public function vendorRegisterStore(Request $request)
+    {
+        $request->validate(['name' => 'required|string|max:255']);
+
+        app(\AhgCore\Services\NotificationService::class)->notifyAdmins(
+            type: 'vendor_registered',
+            title: __('New vendor registered: :name', ['name' => $request->input('name')]),
+            message: __('A new vendor has been registered in the registry.'),
+            link: '/registry/vendors',
+            relatedType: 'vendor',
+            actorUserId: auth()->id(),
+            actorName: auth()->user()->username ?? null,
+        );
+
+        session()->flash('success', __('Vendor registered successfully.'));
+        return redirect()->route('registry.vendorBrowse');
+    }
+
     public function vendorEdit(int $id)
     {
         $vendor = $this->service->getVendor($id);
         abort_unless($vendor, 404);
         return view('ahg-registry::vendor-edit', compact('vendor'));
+    }
+
+    /** POST /registry/vendor/{id}/edit — accepts multipart/form-data with optional `logo` file. */
+    public function vendorUpdate(Request $request, int $id)
+    {
+        $vendor = $this->service->getVendor($id);
+        abort_unless($vendor, 404);
+
+        $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'logo' => 'sometimes|file|max:5120',
+        ]);
+
+        $update = [];
+        foreach (['name', 'short_description', 'description', 'city', 'country'] as $f) {
+            if ($request->has($f)) $update[$f] = $request->input($f);
+        }
+
+        if ($request->hasFile('logo')) {
+            try {
+                $url = app(\AhgRegistry\Services\LogoUploadService::class)
+                    ->replace('vendor', $id, $request->file('logo'), $vendor->logo_path ?? null);
+                $update['logo_path'] = $url;
+            } catch (\Throwable $e) {
+                return back()->with('error', __('Logo upload failed: :msg', ['msg' => $e->getMessage()]));
+            }
+        }
+
+        if (! empty($update)) {
+            $update['updated_at'] = now();
+            \Illuminate\Support\Facades\DB::table('registry_vendor')->where('id', $id)->update($update);
+        }
+
+        return redirect()->route('registry.vendorView', ['id' => $id])
+            ->with('success', __('Vendor updated.'));
+    }
+
+    /** POST /registry/vendor/{id}/logo/delete — clear logo. */
+    public function vendorLogoDelete(int $id)
+    {
+        $vendor = $this->service->getVendor($id);
+        abort_unless($vendor, 404);
+        if (! empty($vendor->logo_path)) {
+            app(\AhgRegistry\Services\LogoUploadService::class)->deleteByUrl($vendor->logo_path);
+            \Illuminate\Support\Facades\DB::table('registry_vendor')
+                ->where('id', $id)
+                ->update(['logo_path' => null, 'updated_at' => now()]);
+        }
+        return back()->with('success', __('Logo removed.'));
+    }
+
+    /** POST /registry/software/{id}/edit — accepts multipart/form-data with optional `logo` file. */
+    public function softwareUpdate(Request $request, int $id)
+    {
+        $software = \Illuminate\Support\Facades\DB::table('registry_software')->where('id', $id)->first();
+        abort_unless($software, 404);
+
+        $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'logo' => 'sometimes|file|max:5120',
+        ]);
+
+        $update = [];
+        foreach (['name', 'short_description', 'description', 'license', 'pricing_model', 'git_url', 'latest_version'] as $f) {
+            if ($request->has($f)) $update[$f] = $request->input($f);
+        }
+
+        if ($request->hasFile('logo')) {
+            try {
+                $url = app(\AhgRegistry\Services\LogoUploadService::class)
+                    ->replace('software', $id, $request->file('logo'), $software->logo_path ?? null);
+                $update['logo_path'] = $url;
+            } catch (\Throwable $e) {
+                return back()->with('error', __('Logo upload failed: :msg', ['msg' => $e->getMessage()]));
+            }
+        }
+
+        if (! empty($update)) {
+            $update['updated_at'] = now();
+            \Illuminate\Support\Facades\DB::table('registry_software')->where('id', $id)->update($update);
+        }
+
+        return redirect()->route('registry.softwareView', ['id' => $id])
+            ->with('success', __('Software updated.'));
+    }
+
+    /** POST /registry/software/{id}/logo/delete — clear logo. */
+    public function softwareLogoDelete(int $id)
+    {
+        $software = \Illuminate\Support\Facades\DB::table('registry_software')->where('id', $id)->first();
+        abort_unless($software, 404);
+        if (! empty($software->logo_path)) {
+            app(\AhgRegistry\Services\LogoUploadService::class)->deleteByUrl($software->logo_path);
+            \Illuminate\Support\Facades\DB::table('registry_software')
+                ->where('id', $id)
+                ->update(['logo_path' => null, 'updated_at' => now()]);
+        }
+        return back()->with('success', __('Logo removed.'));
     }
 
     public function vendorClients(int $id)
@@ -614,7 +797,81 @@ class RegistryController extends Controller
 
     public function myFavorites()
     {
-        return view('ahg-registry::my-favorites');
+        if (! auth()->check()) {
+            return redirect('/registry/login');
+        }
+        $userId = auth()->id();
+
+        $favorites = \Illuminate\Support\Facades\DB::table('registry_favorite')
+            ->where('user_id', $userId)
+            ->orderByDesc('created_at')
+            ->get();
+
+        $institutions = collect();
+        $vendors = collect();
+        $software = collect();
+        $groups = collect();
+
+        foreach ($favorites as $fav) {
+            $row = match ($fav->entity_type) {
+                'institution' => \Illuminate\Support\Facades\DB::table('registry_institution')->where('id', $fav->entity_id)->first(),
+                'vendor'      => \Illuminate\Support\Facades\DB::table('registry_vendor')->where('id', $fav->entity_id)->first(),
+                'software'    => \Illuminate\Support\Facades\DB::table('registry_software')->where('id', $fav->entity_id)->first(),
+                'group'       => \Illuminate\Support\Facades\DB::table('registry_user_group')->where('id', $fav->entity_id)->first(),
+                default       => null,
+            };
+            if (! $row) continue;
+            match ($fav->entity_type) {
+                'institution' => $institutions->push($row),
+                'vendor'      => $vendors->push($row),
+                'software'    => $software->push($row),
+                'group'       => $groups->push($row),
+                default       => null,
+            };
+        }
+
+        return view('ahg-registry::my-favorites', compact('institutions', 'vendors', 'software', 'groups'));
+    }
+
+    /**
+     * POST /registry/favorite/toggle
+     * Body: entity_type (institution|vendor|software|group), entity_id, return (URL).
+     * Idempotent toggle: insert if missing, delete if present.
+     */
+    public function favoriteToggle(Request $request)
+    {
+        if (! auth()->check()) {
+            return redirect('/registry/login');
+        }
+
+        $entityType = (string) $request->input('entity_type', '');
+        $entityId = (int) $request->input('entity_id', 0);
+        $returnUrl = (string) $request->input('return', '/registry');
+
+        $validTypes = ['institution', 'vendor', 'software', 'group'];
+        if (! in_array($entityType, $validTypes, true) || $entityId < 1) {
+            return redirect($returnUrl);
+        }
+
+        $userId = auth()->id();
+        $existing = \Illuminate\Support\Facades\DB::table('registry_favorite')
+            ->where('user_id', $userId)
+            ->where('entity_type', $entityType)
+            ->where('entity_id', $entityId)
+            ->first();
+
+        if ($existing) {
+            \Illuminate\Support\Facades\DB::table('registry_favorite')->where('id', $existing->id)->delete();
+        } else {
+            \Illuminate\Support\Facades\DB::table('registry_favorite')->insert([
+                'user_id' => $userId,
+                'entity_type' => $entityType,
+                'entity_id' => $entityId,
+                'created_at' => now(),
+            ]);
+        }
+
+        return redirect($returnUrl);
     }
 
     public function myGroups()

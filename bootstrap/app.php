@@ -21,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
             \App\Http\Middleware\AuditLog::class,
+            \App\Http\Middleware\SecurityHeaders::class,
+            \Spatie\Csp\AddCspHeaders::class,
         ]);
 
         $middleware->alias([

@@ -116,7 +116,8 @@
         "ahg/workflow": "@dev",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
-        "phpoffice/phpspreadsheet": "^5.5"
+        "phpoffice/phpspreadsheet": "^5.5",
+        "spatie/laravel-csp": "^3.23"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -132,7 +133,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Helpers/csp.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

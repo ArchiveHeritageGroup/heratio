@@ -1,70 +1,88 @@
-{{--
-  Attachments list (icons + size + download).
-  Vars: $attachments (iterable of objects/arrays with file_name|filename, file_url|url,
-  mime_type, file_size|size, download_count).
-
-  Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
-  Licensed under the GNU AGPL v3.
---}}
+{{-- Cloned from atom-ahg-plugins/ahgRegistryPlugin/modules/registry/templates/_attachmentList.php --}}
 @php
-    $iconFor = function ($att): string {
-        $att = (object) $att;
-        $ext = strtolower(pathinfo($att->file_name ?? $att->filename ?? '', PATHINFO_EXTENSION));
-        $mime = $att->mime_type ?? '';
-        if (in_array($ext, ['jpg','jpeg','png','gif','svg','webp','bmp','tiff']) || str_starts_with($mime, 'image/'))
-            return 'fas fa-file-image text-success';
-        if ($ext === 'pdf' || stripos($mime, 'pdf') !== false)
-            return 'fas fa-file-pdf text-danger';
-        if (in_array($ext, ['xls','xlsx','csv','ods']))
-            return 'fas fa-file-excel text-success';
-        if (in_array($ext, ['ppt','pptx','odp']))
-            return 'fas fa-file-powerpoint text-warning';
-        if (in_array($ext, ['zip','tar','gz','rar','7z']))
-            return 'fas fa-file-archive text-secondary';
-        if (in_array($ext, ['mp4','avi','mov','mkv','webm']) || str_starts_with($mime, 'video/'))
-            return 'fas fa-file-video text-info';
-        if (in_array($ext, ['mp3','wav','ogg','flac','aac']) || str_starts_with($mime, 'audio/'))
-            return 'fas fa-file-audio text-purple';
-        if (in_array($ext, ['py','php','js','html','css','json','xml']))
-            return 'fas fa-file-code text-dark';
-        return 'fas fa-file-alt text-primary';
+    $fileIcons = [
+        'image' => 'fas fa-file-image text-success',
+        'document' => 'fas fa-file-alt text-primary',
+        'pdf' => 'fas fa-file-pdf text-danger',
+        'spreadsheet' => 'fas fa-file-excel text-success',
+        'presentation' => 'fas fa-file-powerpoint text-warning',
+        'archive' => 'fas fa-file-archive text-secondary',
+        'video' => 'fas fa-file-video text-info',
+        'audio' => 'fas fa-file-audio text-purple',
+        'code' => 'fas fa-file-code text-dark',
+    ];
+
+    $fileIconFor = function ($attachment) use ($fileIcons) {
+        $ext = strtolower(pathinfo($attachment->file_name ?? $attachment->filename ?? '', PATHINFO_EXTENSION));
+        $mime = $attachment->mime_type ?? '';
+
+        if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp', 'tiff']) || stripos($mime, 'image/') === 0) {
+            return $fileIcons['image'];
+        }
+        if (in_array($ext, ['pdf']) || stripos($mime, 'pdf') !== false) {
+            return $fileIcons['pdf'];
+        }
+        if (in_array($ext, ['xls', 'xlsx', 'csv', 'ods'])) {
+            return $fileIcons['spreadsheet'];
+        }
+        if (in_array($ext, ['ppt', 'pptx', 'odp'])) {
+            return $fileIcons['presentation'];
+        }
+        if (in_array($ext, ['zip', 'tar', 'gz', 'rar', '7z'])) {
+            return $fileIcons['archive'];
+        }
+        if (in_array($ext, ['mp4', 'avi', 'mov', 'mkv', 'webm']) || stripos($mime, 'video/') === 0) {
+            return $fileIcons['video'];
+        }
+        if (in_array($ext, ['mp3', 'wav', 'ogg', 'flac', 'aac']) || stripos($mime, 'audio/') === 0) {
+            return $fileIcons['audio'];
+        }
+        if (in_array($ext, ['py', 'php', 'js', 'html', 'css', 'json', 'xml'])) {
+            return $fileIcons['code'];
+        }
+        return $fileIcons['document'];
     };
-    $formatSize = function ($bytes): string {
-        $b = (int) $bytes;
-        return match (true) {
-            $b >= 1073741824 => number_format($b / 1073741824, 1) . ' GB',
-            $b >= 1048576    => number_format($b / 1048576, 1) . ' MB',
-            $b >= 1024       => number_format($b / 1024, 1) . ' KB',
-            default          => $b . ' B',
-        };
+
+    $formatSize = function ($bytes) {
+        $bytes = (int) $bytes;
+        if ($bytes >= 1073741824) return number_format($bytes / 1073741824, 1) . ' GB';
+        if ($bytes >= 1048576)    return number_format($bytes / 1048576, 1) . ' MB';
+        if ($bytes >= 1024)       return number_format($bytes / 1024, 1) . ' KB';
+        return $bytes . ' B';
     };
 @endphp
-@if (! empty($attachments))
-    <div class="list-group list-group-flush">
-        @foreach ($attachments as $att)
-            @php
-                $att = (object) $att;
-                $name = $att->file_name ?? $att->filename ?? __('Unnamed file');
-                $url = $att->file_url ?? $att->url ?? '#';
-                $size = (int) ($att->file_size ?? $att->size ?? 0);
-                $downloads = (int) ($att->download_count ?? 0);
-            @endphp
-            <div class="list-group-item d-flex align-items-center py-2">
-                <i class="{{ $iconFor($att) }} me-3 fa-lg flex-shrink-0"></i>
-                <div class="flex-grow-1 min-width-0">
-                    <a href="{{ $url }}" class="text-decoration-none small fw-semibold" target="_blank" rel="noopener">{{ $name }}</a>
-                    <br>
-                    <small class="text-muted">
-                        @if ($size > 0){{ $formatSize($size) }}@endif
-                        @if ($downloads > 0)<span class="ms-2"><i class="fas fa-download me-1"></i>{{ number_format($downloads) }}</span>@endif
-                    </small>
-                </div>
-                <a href="{{ $url }}" class="btn btn-sm btn-outline-secondary flex-shrink-0" download title="{{ __('Download') }}">
-                    <i class="fas fa-download"></i>
-                </a>
-            </div>
-        @endforeach
+@if (!empty($attachments))
+<div class="list-group list-group-flush">
+  @foreach ($attachments as $att)
+    @php
+      $icon = $fileIconFor($att);
+      $fileName = $att->file_name ?? $att->filename ?? __('Unnamed file');
+      $fileUrl = $att->file_url ?? $att->url ?? '#';
+      $fileSize = $att->file_size ?? $att->size ?? 0;
+      $downloads = (int) ($att->download_count ?? 0);
+    @endphp
+    <div class="list-group-item d-flex align-items-center py-2">
+      <i class="{{ $icon }} me-3 fa-lg flex-shrink-0"></i>
+      <div class="flex-grow-1 min-width-0">
+        <a href="{{ $fileUrl }}" class="text-decoration-none small fw-semibold" target="_blank" rel="noopener">
+          {{ $fileName }}
+        </a>
+        <br>
+        <small class="text-muted">
+          @if ($fileSize > 0)
+            {{ $formatSize($fileSize) }}
+          @endif
+          @if ($downloads > 0)
+            <span class="ms-2"><i class="fas fa-download me-1"></i>{{ number_format($downloads) }}</span>
+          @endif
+        </small>
+      </div>
+      <a href="{{ $fileUrl }}" class="btn btn-sm btn-outline-secondary flex-shrink-0" download title="{{ __('Download') }}">
+        <i class="fas fa-download"></i>
+      </a>
     </div>
+  @endforeach
+</div>
 @else
-    <p class="text-muted small mb-0">{{ __('No attachments.') }}</p>
+<p class="text-muted small mb-0">{{ __('No attachments.') }}</p>
 @endif

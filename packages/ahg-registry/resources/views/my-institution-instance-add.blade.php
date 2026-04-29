@@ -1,4 +1,4 @@
-@extends('theme::layouts.1col')
+@extends('ahg-registry::layouts.registry')
 
 @section('title', 'Add Instance')
 

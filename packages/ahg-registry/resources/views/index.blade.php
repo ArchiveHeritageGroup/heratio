@@ -1,4 +1,4 @@
-@extends('theme::layouts.1col')
+@extends('ahg-registry::layouts.registry')
 
 @section('title', 'Community Hub')
 @section('body-class', 'registry index')
@@ -88,7 +88,7 @@
   </div>
   <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
     @foreach($featuredInstitutions as $inst)
-      @include('ahg-registry::partials.institution-card', ['item' => $inst])
+      @include('ahg-registry::_institution-card', ['item' => $inst])
     @endforeach
   </div>
 </div>
@@ -103,7 +103,7 @@
   </div>
   <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
     @foreach($featuredVendors as $v)
-      @include('ahg-registry::partials.vendor-card', ['item' => $v])
+      @include('ahg-registry::_vendor-card', ['item' => $v])
     @endforeach
   </div>
 </div>
@@ -118,7 +118,7 @@
   </div>
   <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
     @foreach($featuredSoftware as $sw)
-      @include('ahg-registry::partials.software-card', ['item' => $sw])
+      @include('ahg-registry::_software-card', ['item' => $sw])
     @endforeach
   </div>
 </div>
