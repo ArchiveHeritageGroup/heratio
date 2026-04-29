@@ -60,7 +60,7 @@
 
 @section('content')
 
-  @include('ahg-ric::_view-switch')
+  @include('ahg-ric::_view-switch', ['standard' => 'Dublin Core'])
   @if(session('ric_view_mode') === 'ric')
     @include('ahg-ric::_ric-view-dam', ['asset' => $asset])
   @else

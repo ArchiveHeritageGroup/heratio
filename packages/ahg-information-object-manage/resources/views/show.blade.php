@@ -1194,7 +1194,7 @@
 {{-- ============================================================ --}}
 @section('content')
 
-  @include('ahg-ric::_view-switch')
+  @include('ahg-ric::_view-switch', ['standard' => 'ISAD(G)'])
 
   {{-- Animated companion clip (Ken Burns / 2.5D) ------------------------------ --}}
   @php

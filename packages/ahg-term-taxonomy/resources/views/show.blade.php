@@ -4,7 +4,7 @@
 @section('body-class', 'view term')
 
 @section('content')
-  @include('ahg-ric::_view-switch')
+  @include('ahg-ric::_view-switch', ['standard' => 'SKOS'])
 
   @if(session('ric_view_mode') === 'ric')
     @include('ahg-ric::_ric-view-term', ['term' => $term])

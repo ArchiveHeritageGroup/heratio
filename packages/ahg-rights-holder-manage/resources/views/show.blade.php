@@ -28,7 +28,7 @@
 
 @section('content')
 
-  @include('ahg-ric::_view-switch')
+  @include('ahg-ric::_view-switch', ['standard' => 'ISAAR(CPF)'])
 
   @if(session('ric_view_mode') === 'ric')
     @include('ahg-ric::_ric-view-rights-holder', ['rightsHolder' => $rightsHolder])
