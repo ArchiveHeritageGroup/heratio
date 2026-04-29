@@ -82,9 +82,12 @@ class HeratioCspPreset implements Preset
                 Scheme::BLOB,
             ])
 
-            // Connect: AJAX endpoints (autocomplete, IIIF info.json, search)
+            // Connect: AJAX endpoints (autocomplete, IIIF info.json, search).
+            // blob: is required for Mirador, which fetches its manifest from a
+            // URL.createObjectURL() blob built client-side.
             ->add(Directive::CONNECT, [
                 Keyword::SELF,
+                Scheme::BLOB,
                 'https://cdn.jsdelivr.net',
             ])
 

@@ -861,10 +861,10 @@
         </div>
 
         {{-- OSD container --}}
-        <div id="osd-{{ $viewerId }}" style="width:100%;height:{{ $vHeight }};background:{{ $vBg }};border-radius:8px;{{ $vType !== 'openseadragon' ? 'display:none;' : '' }}"></div>
+        <div id="osd-{{ $viewerId }}" style="position:relative;width:100%;height:{{ $vHeight }};background:{{ $vBg }};border-radius:8px;overflow:hidden;{{ $vType !== 'openseadragon' ? 'display:none;' : '' }}"></div>
 
         {{-- Mirador container --}}
-        <div id="mirador-{{ $viewerId }}" style="width:100%;height:{{ $vHeight }};border-radius:8px;{{ $vType !== 'mirador' ? 'display:none;' : '' }}"></div>
+        <div id="mirador-{{ $viewerId }}" style="position:relative;width:100%;height:{{ $vHeight }};border-radius:8px;overflow:hidden;{{ $vType !== 'mirador' ? 'display:none;' : '' }}"></div>
 
         {{-- Simple image --}}
         <div id="img-{{ $viewerId }}" style="{{ $vType !== 'single' ? 'display:none;' : '' }}" class="text-center">
