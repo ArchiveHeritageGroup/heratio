@@ -18,11 +18,38 @@ $subjects = DB::table('object_term_relation as otr')
     ->leftJoin('slug', 't.id', '=', 'slug.object_id')
     ->where('otr.object_id', $resourceId)
     ->where('t.taxonomy_id', $subjectTaxonomyId)
-    ->select(['t.id', 'slug.slug', DB::raw('COALESCE(ti.name, ti_en.name) as name')])
+    ->select(['t.id', 't.code', 'slug.slug', DB::raw('COALESCE(ti.name, ti_en.name) as name')])
     ->orderBy(DB::raw('COALESCE(ti.name, ti_en.name)'))
     ->get()->toArray();
 
 if (empty($subjects)) { return; }
+
+// LCSH/LCNAF pass: when term.code is an id.loc.gov URI, resolve the localised
+// prefLabel through VocabularyResolverService (vocabulary_label_cache; populated
+// by ahg:vocabulary-mirror + ahg:vocabulary-import). Falls through to the
+// locally-stored term_i18n name when no cache row exists for this culture.
+$lcshUris = [];
+foreach ($subjects as $s) {
+    if (!empty($s->code) && preg_match('#^https?://id\.loc\.gov/#i', (string) $s->code)) {
+        $lcshUris[] = $s->code;
+    }
+}
+$resolved = [];
+if (!empty($lcshUris) && class_exists(\AhgCore\Services\VocabularyResolverService::class)) {
+    try {
+        $resolver = app(\AhgCore\Services\VocabularyResolverService::class);
+        $resolved = $resolver->resolveMany($lcshUris, $culture);
+    } catch (\Throwable $e) {
+        $resolved = [];
+    }
+}
+foreach ($subjects as $s) {
+    $s->lcsh = !empty($s->code) && isset($resolved[$s->code]) && $resolved[$s->code] !== '';
+    if ($s->lcsh) {
+        $s->name = $resolved[$s->code];
+    }
+}
+
 $isSidebar = isset($sidebar) && $sidebar;
 @endphp
 
@@ -36,6 +63,11 @@ $isSidebar = isset($sidebar) && $sidebar;
             <a href="{{ route('term.show', $subject->slug) }}">{{ $subject->name ?? '' }}</a>
           @else
             {{ $subject->name ?? '' }}
+          @endif
+          @if(!empty($subject->lcsh))
+            <a href="{{ $subject->code }}" target="_blank" rel="noopener"
+               class="badge bg-light text-dark border ms-1"
+               title="{{ __('Resolved from Library of Congress Subject Headings') }}: {{ $subject->code }}">LCSH</a>
           @endif
         </li>
       @endforeach
@@ -54,6 +86,11 @@ $isSidebar = isset($sidebar) && $sidebar;
             <a href="{{ route('term.show', $subject->slug) }}">{{ $subject->name ?? '' }}</a>
           @else
             {{ $subject->name ?? '' }}
+          @endif
+          @if(!empty($subject->lcsh))
+            <a href="{{ $subject->code }}" target="_blank" rel="noopener"
+               class="badge bg-light text-dark border ms-1"
+               title="{{ __('Resolved from Library of Congress Subject Headings') }}: {{ $subject->code }}">LCSH</a>
           @endif
         </li>
       @endforeach

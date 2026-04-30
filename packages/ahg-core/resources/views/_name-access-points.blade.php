@@ -82,6 +82,49 @@ if (empty($allActors)) {
     return;
 }
 
+// LCNAF pass: pull each actor's id.loc.gov authority URI from
+// ahg_actor_identifier (identifier_type='lcnaf' or uri matching the LoC
+// authorities/names pattern) and resolve the localised prefLabel through
+// VocabularyResolverService (vocabulary_label_cache, populated by
+// ahg:vocabulary-mirror + ahg:vocabulary-import). Falls through to the
+// locally-stored actor_i18n.authorized_form_of_name when no cache row exists.
+$actorIds = array_column($allActors, 'id');
+$lcnafByActor = [];
+if (!empty($actorIds) && \Illuminate\Support\Facades\Schema::hasTable('ahg_actor_identifier')) {
+    $lcnafRows = DB::table('ahg_actor_identifier')
+        ->whereIn('actor_id', $actorIds)
+        ->where(function ($q) {
+            $q->where('identifier_type', 'lcnaf')
+              ->orWhere('uri', 'like', 'http://id.loc.gov/authorities/names/%')
+              ->orWhere('uri', 'like', 'https://id.loc.gov/authorities/names/%');
+        })
+        ->whereNotNull('uri')
+        ->select('actor_id', 'uri')
+        ->get();
+    foreach ($lcnafRows as $r) {
+        if (!isset($lcnafByActor[$r->actor_id])) {
+            $lcnafByActor[$r->actor_id] = $r->uri;
+        }
+    }
+}
+$resolved = [];
+if (!empty($lcnafByActor) && class_exists(\AhgCore\Services\VocabularyResolverService::class)) {
+    try {
+        $resolver = app(\AhgCore\Services\VocabularyResolverService::class);
+        $resolved = $resolver->resolveMany(array_values($lcnafByActor), $culture);
+    } catch (\Throwable $e) {
+        $resolved = [];
+    }
+}
+foreach ($allActors as $a) {
+    $a->lcnaf_uri = $lcnafByActor[$a->id] ?? null;
+    $a->lcnaf = false;
+    if ($a->lcnaf_uri && !empty($resolved[$a->lcnaf_uri])) {
+        $a->name = $resolved[$a->lcnaf_uri];
+        $a->lcnaf = true;
+    }
+}
+
 // Check if sidebar display
 $isSidebar = isset($sidebar) && $sidebar;
 @endphp
@@ -101,6 +144,11 @@ $isSidebar = isset($sidebar) && $sidebar;
           @endif
           @if(!empty($actor->event_type))
             <span class="text-muted">({{ $actor->event_type }})</span>
+          @endif
+          @if(!empty($actor->lcnaf))
+            <a href="{{ $actor->lcnaf_uri }}" target="_blank" rel="noopener"
+               class="badge bg-light text-dark border ms-1"
+               title="{{ __('Resolved from Library of Congress Name Authority File') }}: {{ $actor->lcnaf_uri }}">LCNAF</a>
           @endif
         </li>
       @endforeach
@@ -126,6 +174,11 @@ $isSidebar = isset($sidebar) && $sidebar;
           @endif
           @if(!empty($actor->event_type))
             <span class="text-muted">({{ $actor->event_type }})</span>
+          @endif
+          @if(!empty($actor->lcnaf))
+            <a href="{{ $actor->lcnaf_uri }}" target="_blank" rel="noopener"
+               class="badge bg-light text-dark border ms-1"
+               title="{{ __('Resolved from Library of Congress Name Authority File') }}: {{ $actor->lcnaf_uri }}">LCNAF</a>
           @endif
         </li>
       @endforeach
