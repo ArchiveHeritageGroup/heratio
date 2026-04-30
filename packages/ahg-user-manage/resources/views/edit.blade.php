@@ -246,18 +246,26 @@
         <div id="apiKeys-collapse" class="accordion-collapse collapse show">
           <div class="accordion-body">
             @php
-              // AtoM stores these properties with camelized names (sfInflector::camelize)
+              // AtoM stores these properties with camelized names (sfInflector::camelize).
+              // API keys are not language-dependent — read against the property's
+              // source_culture so the value stays visible after the user switches
+              // their UI locale (was previously filtered by app()->getLocale(),
+              // which hid the key whenever current locale != generation locale).
               $restApiKey = \Illuminate\Support\Facades\DB::table('property')
-                  ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+                  ->join('property_i18n', function ($j) {
+                      $j->on('property.id', '=', 'property_i18n.id')
+                        ->on('property.source_culture', '=', 'property_i18n.culture');
+                  })
                   ->where('property.object_id', $user->id)
                   ->where('property.name', 'RestApiKey')
-                  ->where('property_i18n.culture', app()->getLocale())
                   ->value('property_i18n.value');
               $oaiApiKey = \Illuminate\Support\Facades\DB::table('property')
-                  ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+                  ->join('property_i18n', function ($j) {
+                      $j->on('property.id', '=', 'property_i18n.id')
+                        ->on('property.source_culture', '=', 'property_i18n.culture');
+                  })
                   ->where('property.object_id', $user->id)
                   ->where('property.name', 'OaiApiKey')
-                  ->where('property_i18n.culture', app()->getLocale())
                   ->value('property_i18n.value');
             @endphp
 

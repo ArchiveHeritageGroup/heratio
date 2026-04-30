@@ -229,7 +229,6 @@ class UserController extends Controller
             return;
         }
 
-        $culture = app()->getLocale();
         $existing = DB::table('property')
             ->where('object_id', $userId)
             ->where('name', $propertyName)
@@ -244,24 +243,27 @@ class UserController extends Controller
             return;
         }
 
-        // generate
+        // generate. Always write/update against the property's source_culture
+        // (not the current UI locale) — API keys aren't language-dependent
+        // and editing under a different locale must not orphan the existing
+        // value or create a duplicate row in another culture.
         $newKey = bin2hex(random_bytes(8));
 
         if ($existing) {
-            // Update existing key value
-            DB::table('property_i18n')
-                ->where('id', $existing->id)
-                ->where('culture', $culture)
-                ->update(['value' => $newKey]);
-            // Insert i18n row if missing for this culture
+            $sourceCulture = $existing->source_culture ?: app()->getLocale();
             $hasI18n = DB::table('property_i18n')
                 ->where('id', $existing->id)
-                ->where('culture', $culture)
+                ->where('culture', $sourceCulture)
                 ->exists();
-            if (!$hasI18n) {
+            if ($hasI18n) {
+                DB::table('property_i18n')
+                    ->where('id', $existing->id)
+                    ->where('culture', $sourceCulture)
+                    ->update(['value' => $newKey]);
+            } else {
                 DB::table('property_i18n')->insert([
                     'id' => $existing->id,
-                    'culture' => $culture,
+                    'culture' => $sourceCulture,
                     'value' => $newKey,
                 ]);
             }
@@ -269,6 +271,7 @@ class UserController extends Controller
         }
 
         // Create new property row (class table inheritance: object → property → property_i18n)
+        $culture = app()->getLocale();
         DB::transaction(function () use ($userId, $propertyName, $culture, $newKey) {
             $objectId = DB::table('object')->insertGetId([
                 'class_name' => 'QubitProperty',

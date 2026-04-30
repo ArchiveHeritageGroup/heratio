@@ -177,7 +177,17 @@
       <div class="list-group list-group-flush">
         @if(\Illuminate\Support\Facades\Route::has('io.rights.manage'))
           <a href="{{ route('io.rights.manage', $museum->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-copyright me-1"></i> {{ ($hasExtRights || $activeEmbargoSidebar) ? 'Edit' : 'Add' }} rights
+            <i class="fas fa-copyright me-1"></i> {{ ($hasExtRights || $activeEmbargoSidebar) ? __('Edit rights') : __('Add rights') }}
+          </a>
+        @endif
+        @if(\Illuminate\Support\Facades\Route::has('io.rights.extended'))
+          <a href="{{ route('io.rights.extended', $museum->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-shield-alt me-1"></i> {{ $hasExtRights ? __('Edit extended rights') : __('Add extended rights') }}
+          </a>
+        @endif
+        @if(\Illuminate\Support\Facades\Route::has('io.rights.embargo'))
+          <a href="{{ route('io.rights.embargo', $museum->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-ban me-1"></i> {{ $activeEmbargoSidebar ? __('Manage embargo') : __('Add embargo') }}
           </a>
         @endif
         @if(\Illuminate\Support\Facades\Route::has('io.rights.export'))
@@ -1424,7 +1434,7 @@
     @include('ahg-core::clipboard._button', ['slug' => $museum->slug, 'type' => 'informationObject'])
   </div>
 
-  @include('ahg-core::partials._record-sidebar-extras', ['objectId' => $museum->id, 'slug' => $museum->slug, 'title' => $museum->title, 'hideNer' => true])
+  @include('ahg-core::partials._record-sidebar-extras', ['objectId' => $museum->id, 'slug' => $museum->slug, 'title' => $museum->title, 'hideNer' => true, 'hideRights' => true])
 
 @endsection
 

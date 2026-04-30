@@ -67,9 +67,10 @@
 @endif
 @endif
 
-{{-- Rights --}}
+{{-- Rights — suppressed when the parent show page renders its own Rights
+     card in the left sidebar. Pass `hideRights => true` from those views. --}}
 @auth
-@if(\Illuminate\Support\Facades\Route::has('io.rights.extended') && $__slug)
+@if(empty($hideRights) && \Illuminate\Support\Facades\Route::has('io.rights.extended') && $__slug)
 @php
   $__hasExtRights = \Illuminate\Support\Facades\Schema::hasTable('extended_rights')
       && \Illuminate\Support\Facades\DB::table('extended_rights')->where('object_id', $__objId)->exists();
