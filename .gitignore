@@ -45,6 +45,11 @@ __pycache__/
 # Local agent worktrees
 .claude/worktrees/
 
+# Playwright + test runner artefacts
+test-results/
+playwright-report/
+/tests/e2e/reports/
+
 # Generated exports / reports
 /storage/app/exports/
 /storage/app/reports/

@@ -358,6 +358,10 @@ jobs:
     name: E2E Workflows
     runs-on: ubuntu-latest
     needs: playwright-setup
+    # CRUD spec hits the live HERATIO_URL as admin and creates/updates/deletes
+    # real records. Restrict to nightly cron + manual dispatch so a push to
+    # main never pollutes the public demo.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
