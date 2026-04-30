@@ -94,5 +94,17 @@
       </div>
     </div>
 
+    {{-- Translation attribution — see ACKNOWLEDGMENTS.md --}}
+    <hr class="border-light my-2 opacity-25">
+    <div class="text-center">
+      <small class="text-white-50">
+        UI translations courtesy of
+        <a href="https://www.accesstomemory.org/" target="_blank" rel="noopener" class="footer-link">AtoM</a>,
+        <a href="https://www.artefactual.com/" target="_blank" rel="noopener" class="footer-link">Artefactual Systems</a>,
+        and the AtoM community.
+        South African languages by The AHG.
+      </small>
+    </div>
+
   </div>
 </footer>
