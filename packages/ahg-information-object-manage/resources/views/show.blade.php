@@ -358,6 +358,16 @@
 
   @include('ahg-ric::_view-switch', ['standard' => 'ISAD(G)'])
 
+  {{-- Bulk-load translation provenance for this record + current culture so
+       per-field AI-disclosure badges render without N+1 lookups. See issue
+       #36 Phase 4 + ahg-translation::components.badge. --}}
+  @php
+    $translationSources = \AhgTranslation\Helpers\TranslationProvenance::forRecord(
+        (int) $io->id,
+        app()->getLocale()
+    );
+  @endphp
+
   {{-- Animated companion clip (Ken Burns / 2.5D) ------------------------------ --}}
   @php
     $companionAnim = null;
@@ -511,7 +521,7 @@
       @if($io->title)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Title') }}</h3>
-          <div class="col-9 p-2">{{ $io->title }}</div>
+          <div class="col-9 p-2">{{ $io->title }}@include('ahg-translation::components.badge', ['source' => $translationSources['title'] ?? null])</div>
         </div>
       @endif
 
@@ -685,7 +695,7 @@
       @if($io->scope_and_content)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Scope and content') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->scope_and_content)) !!}</div>
+          <div class="col-9 p-2">{!! nl2br(e($io->scope_and_content)) !!}@include('ahg-translation::components.badge', ['source' => $translationSources['scope_and_content'] ?? null])</div>
         </div>
       @endif
 

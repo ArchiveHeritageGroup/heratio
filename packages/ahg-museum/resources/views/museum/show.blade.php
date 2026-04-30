@@ -303,6 +303,14 @@
 
   @include('ahg-ric::_view-switch', ['standard' => 'Spectrum'])
 
+  {{-- Translation-provenance bulk-load for AI-disclosure badges (issue #36 Phase 4) --}}
+  @php
+    $translationSources = \AhgTranslation\Helpers\TranslationProvenance::forRecord(
+        (int) $museum->id,
+        app()->getLocale()
+    );
+  @endphp
+
   @if(session('success'))
     <div class="alert alert-success">{{ session('success') }}</div>
   @endif
@@ -527,7 +535,7 @@
 
     <div class="field text-break row g-0">
       <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Title') }}</h3>
-      <div>{{ $museum->title ?: '[Untitled]' }}</div>
+      <div>{{ $museum->title ?: '[Untitled]' }}@include('ahg-translation::components.badge', ['source' => $translationSources['title'] ?? null])</div>
     </div>
 
     @if($museum->alternate_title)
@@ -843,7 +851,7 @@
       @if($museum->scope_and_content)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Scope and content') }}</h3>
-          <div>{!! nl2br(e($museum->scope_and_content)) !!}</div>
+          <div>{!! nl2br(e($museum->scope_and_content)) !!}@include('ahg-translation::components.badge', ['source' => $translationSources['scope_and_content'] ?? null])</div>
         </div>
       @endif
 

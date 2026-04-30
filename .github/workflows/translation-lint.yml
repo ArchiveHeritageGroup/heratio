@@ -1,0 +1,101 @@
+name: Translation lint
+
+# Flags new hardcoded UI strings that should be wrapped in __() so the
+# multilingual layer (issue #34) can translate them. Also fails when a
+# blade file goes over a per-PR threshold so regressions can't slip in
+# without explicit acknowledgement.
+#
+# Tuning the threshold: bump TOTAL_THRESHOLD when the absolute lint count
+# has been reduced. The point is not to hit zero — it's to ensure new
+# code doesn't push the count up.
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+env:
+  # Absolute cap on hardcoded UI string candidates across the codebase.
+  # Currently ~6 in ~5 files after the C1 sweep. Set to 50 to allow some
+  # headroom for legitimate new code while still catching mass regressions.
+  TOTAL_THRESHOLD: 50
+
+jobs:
+  lint:
+    name: Hardcoded UI string scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, json, dom, libxml
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
+
+      - name: Run translation lint
+        id: lint
+        run: |
+          set -o pipefail
+          # Capture full output so we can post a comment on PRs
+          php artisan ahg:translation-lint --top=20 \
+              --fail-above=$TOTAL_THRESHOLD \
+              | tee lint-output.txt
+          # Capture totals from the line "Found N candidate hardcoded UI strings in M files"
+          if grep -qE 'Found ([0-9]+) candidate' lint-output.txt; then
+            count=$(grep -oE 'Found [0-9]+' lint-output.txt | head -1 | awk '{print $2}')
+            files=$(grep -oE 'in [0-9]+ files' lint-output.txt | head -1 | awk '{print $2}')
+            echo "count=${count}" >> $GITHUB_OUTPUT
+            echo "files=${files}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on PR with lint summary
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const output = fs.readFileSync('lint-output.txt', 'utf8');
+            const count = '${{ steps.lint.outputs.count }}';
+            const threshold = process.env.TOTAL_THRESHOLD;
+            const status = parseInt(count) > parseInt(threshold) ? '❌ FAIL' : '✅ OK';
+            const body = [
+              '### Translation lint ' + status,
+              '',
+              `Hardcoded UI strings: **${count}** (threshold: ${threshold})`,
+              '',
+              '<details><summary>Top files (click to expand)</summary>',
+              '',
+              '```',
+              output.substring(0, 4000),
+              '```',
+              '',
+              '</details>',
+              '',
+              '_To fix: wrap user-visible strings in `{{ __(\'…\') }}` (Blade) or `__(\'…\')` (PHP)._',
+              '_To bump threshold: edit `.github/workflows/translation-lint.yml` `TOTAL_THRESHOLD`._'
+            ].join('\n');
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+        env:
+          TOTAL_THRESHOLD: ${{ env.TOTAL_THRESHOLD }}
