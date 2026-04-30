@@ -119,7 +119,7 @@
         <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#summaryModal">
           <i class="fas fa-file-alt me-1"></i> Generate Summary
         </a>
-        <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#translateModal">
+        <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#ahgTranslateModal-{{ $museum->id }}">
           <i class="fas fa-language me-1"></i> Translate
         </a>
         <a href="{{ route('io.ai.review') }}?object_id={{ $museum->id }}" class="list-group-item list-group-item-action small">
@@ -1519,6 +1519,16 @@
             </a>
           </li>
           @endif
+          @auth
+            @if(\Illuminate\Support\Facades\Route::has('ahgtranslation.translate'))
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateModal-{{ $museum->id }}">
+                  <i class="fas fa-language me-2"></i>Translate this record
+                </a>
+              </li>
+            @endif
+          @endauth
         </ul>
       </div>
     </li>
@@ -1535,4 +1545,10 @@
   @endauth
 
   @include('ahg-core::partials._ner-modal', ['objectId' => $museum->id, 'objectTitle' => $museum->title])
+
+  @auth
+    @if(view()->exists('ahg-translation::_translate-modal'))
+      @include('ahg-translation::_translate-modal', ['objectId' => $museum->id])
+    @endif
+  @endauth
 @endsection

@@ -290,7 +290,9 @@
       html += '<div id="collapse-' + objectId + '-' + idx + '" class="accordion-collapse collapse show"><div class="accordion-body">';
       if (r.ok) {
         html += '<div class="row"><div class="col-md-6"><label class="form-label fw-bold text-muted">Source Text</label><div class="border rounded p-2 bg-light" style="max-height:150px;overflow-y:auto;">' + escapeHtml(r.sourceText || '(empty)') + '</div></div>';
-        html += '<div class="col-md-6"><label class="form-label fw-bold text-success"><i class="fas fa-arrow-right me-1"></i>Translation</label><textarea class="form-control ahg-translated-text" data-field="' + r.field + '" data-draft-id="' + r.draft_id + '" rows="4" style="max-height:150px;">' + escapeHtml(r.translation || '') + '</textarea></div></div>';
+        html += '<div class="col-md-6"><label class="form-label fw-bold text-success"><i class="fas fa-arrow-right me-1"></i>Translation</label><textarea class="form-control ahg-translated-text" data-field="' + r.field + '" data-draft-id="' + r.draft_id + '" rows="4" style="max-height:150px;">' + escapeHtml(r.translation || '') + '</textarea>';
+        html += '<div class="d-flex justify-content-end mt-2"><button type="button" class="btn btn-sm btn-outline-success ahg-save-one" data-field="' + r.field + '"><i class="fas fa-save me-1"></i>Save this field</button> <span class="ms-2 small ahg-save-one-status text-muted"></span></div>';
+        html += '</div></div>';
       } else {
         html += '<div class="alert alert-danger mb-0"><i class="fas fa-exclamation-triangle me-1"></i>' + escapeHtml(r.error || 'Translation failed') + '</div>';
       }
@@ -328,6 +330,46 @@
   });
 
   btnBack.addEventListener("click", function() { showStep(1); hideStatus(); });
+
+  // Per-field Save button (event delegation; preview is rebuilt on each translate run).
+  previewContainer.addEventListener("click", async function(ev) {
+    var btn = ev.target.closest(".ahg-save-one");
+    if (!btn) return;
+    var field = btn.dataset.field;
+    var ta = previewContainer.querySelector('.ahg-translated-text[data-field="' + field + '"]');
+    if (!ta) return;
+    var statusSpan = btn.parentElement.querySelector(".ahg-save-one-status");
+    btn.disabled = true;
+    statusSpan.textContent = "Saving...";
+    statusSpan.className = "ms-2 small ahg-save-one-status text-muted";
+    var body = new URLSearchParams({
+      object_id: objectId,
+      culture: targetSel.value,
+      field: field,
+      value: ta.value,
+      confirmed: "1",
+      _token: "{{ csrf_token() }}"
+    });
+    try {
+      var res = await fetch("/admin/translation/save", {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"},
+        body: body
+      });
+      var json = await res.json();
+      if (json.ok) {
+        statusSpan.textContent = "Saved (" + (json.source || "human") + ", " + (json.culture || targetSel.value) + ")";
+        statusSpan.className = "ms-2 small ahg-save-one-status text-success";
+      } else {
+        statusSpan.textContent = "Error: " + (json.error || "save failed");
+        statusSpan.className = "ms-2 small ahg-save-one-status text-danger";
+      }
+    } catch (e) {
+      statusSpan.textContent = "Network error";
+      statusSpan.className = "ms-2 small ahg-save-one-status text-danger";
+    }
+    btn.disabled = false;
+  });
 
   btnApprove.addEventListener("click", async function() {
     var saveCulture = saveCultureCb.checked, overwrite = overwriteCb.checked, target = targetSel.value;

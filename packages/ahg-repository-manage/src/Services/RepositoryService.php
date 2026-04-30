@@ -58,17 +58,27 @@ class RepositoryService
      */
     public function getById(int $id): ?object
     {
+        $fallback = config('app.fallback_locale', 'en');
+
         return DB::table('repository')
             ->join('actor', 'repository.id', '=', 'actor.id')
             ->join('object', 'repository.id', '=', 'object.id')
             ->join('slug', 'repository.id', '=', 'slug.object_id')
-            ->leftJoin('actor_i18n', function ($j) {
-                $j->on('repository.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $this->culture);
+            ->leftJoin('actor_i18n as ai_cur', function ($j) {
+                $j->on('repository.id', '=', 'ai_cur.id')
+                    ->where('ai_cur.culture', '=', $this->culture);
             })
-            ->leftJoin('repository_i18n', function ($j) {
-                $j->on('repository.id', '=', 'repository_i18n.id')
-                    ->where('repository_i18n.culture', '=', $this->culture);
+            ->leftJoin('actor_i18n as ai_fb', function ($j) use ($fallback) {
+                $j->on('repository.id', '=', 'ai_fb.id')
+                    ->where('ai_fb.culture', '=', $fallback);
+            })
+            ->leftJoin('repository_i18n as ri_cur', function ($j) {
+                $j->on('repository.id', '=', 'ri_cur.id')
+                    ->where('ri_cur.culture', '=', $this->culture);
+            })
+            ->leftJoin('repository_i18n as ri_fb', function ($j) use ($fallback) {
+                $j->on('repository.id', '=', 'ri_fb.id')
+                    ->where('ri_fb.culture', '=', $fallback);
             })
             ->where('repository.id', $id)
             ->where('object.class_name', 'QubitRepository')
@@ -87,36 +97,36 @@ class RepositoryService
                 'actor.source_standard',
                 'actor.corporate_body_identifiers',
                 'actor.parent_id',
-                // Actor i18n (ISAAR)
-                'actor_i18n.authorized_form_of_name',
-                'actor_i18n.dates_of_existence',
-                'actor_i18n.history',
-                'actor_i18n.places',
-                'actor_i18n.legal_status',
-                'actor_i18n.functions',
-                'actor_i18n.mandates',
-                'actor_i18n.internal_structures',
-                'actor_i18n.general_context',
-                'actor_i18n.institution_responsible_identifier',
-                'actor_i18n.rules',
-                'actor_i18n.sources',
-                'actor_i18n.revision_history',
-                // Repository i18n (ISDIAH)
-                'repository_i18n.geocultural_context',
-                'repository_i18n.collecting_policies',
-                'repository_i18n.buildings',
-                'repository_i18n.holdings',
-                'repository_i18n.finding_aids',
-                'repository_i18n.opening_times',
-                'repository_i18n.access_conditions',
-                'repository_i18n.disabled_access',
-                'repository_i18n.research_services',
-                'repository_i18n.reproduction_services',
-                'repository_i18n.public_facilities',
-                'repository_i18n.desc_institution_identifier',
-                'repository_i18n.desc_rules',
-                'repository_i18n.desc_sources',
-                'repository_i18n.desc_revision_history',
+                // Actor i18n (ISAAR) — culture fallback
+                DB::raw('COALESCE(ai_cur.authorized_form_of_name, ai_fb.authorized_form_of_name) AS authorized_form_of_name'),
+                DB::raw('COALESCE(ai_cur.dates_of_existence, ai_fb.dates_of_existence) AS dates_of_existence'),
+                DB::raw('COALESCE(ai_cur.history, ai_fb.history) AS history'),
+                DB::raw('COALESCE(ai_cur.places, ai_fb.places) AS places'),
+                DB::raw('COALESCE(ai_cur.legal_status, ai_fb.legal_status) AS legal_status'),
+                DB::raw('COALESCE(ai_cur.functions, ai_fb.functions) AS functions'),
+                DB::raw('COALESCE(ai_cur.mandates, ai_fb.mandates) AS mandates'),
+                DB::raw('COALESCE(ai_cur.internal_structures, ai_fb.internal_structures) AS internal_structures'),
+                DB::raw('COALESCE(ai_cur.general_context, ai_fb.general_context) AS general_context'),
+                DB::raw('COALESCE(ai_cur.institution_responsible_identifier, ai_fb.institution_responsible_identifier) AS institution_responsible_identifier'),
+                DB::raw('COALESCE(ai_cur.rules, ai_fb.rules) AS rules'),
+                DB::raw('COALESCE(ai_cur.sources, ai_fb.sources) AS sources'),
+                DB::raw('COALESCE(ai_cur.revision_history, ai_fb.revision_history) AS revision_history'),
+                // Repository i18n (ISDIAH) — culture fallback
+                DB::raw('COALESCE(ri_cur.geocultural_context, ri_fb.geocultural_context) AS geocultural_context'),
+                DB::raw('COALESCE(ri_cur.collecting_policies, ri_fb.collecting_policies) AS collecting_policies'),
+                DB::raw('COALESCE(ri_cur.buildings, ri_fb.buildings) AS buildings'),
+                DB::raw('COALESCE(ri_cur.holdings, ri_fb.holdings) AS holdings'),
+                DB::raw('COALESCE(ri_cur.finding_aids, ri_fb.finding_aids) AS finding_aids'),
+                DB::raw('COALESCE(ri_cur.opening_times, ri_fb.opening_times) AS opening_times'),
+                DB::raw('COALESCE(ri_cur.access_conditions, ri_fb.access_conditions) AS access_conditions'),
+                DB::raw('COALESCE(ri_cur.disabled_access, ri_fb.disabled_access) AS disabled_access'),
+                DB::raw('COALESCE(ri_cur.research_services, ri_fb.research_services) AS research_services'),
+                DB::raw('COALESCE(ri_cur.reproduction_services, ri_fb.reproduction_services) AS reproduction_services'),
+                DB::raw('COALESCE(ri_cur.public_facilities, ri_fb.public_facilities) AS public_facilities'),
+                DB::raw('COALESCE(ri_cur.desc_institution_identifier, ri_fb.desc_institution_identifier) AS desc_institution_identifier'),
+                DB::raw('COALESCE(ri_cur.desc_rules, ri_fb.desc_rules) AS desc_rules'),
+                DB::raw('COALESCE(ri_cur.desc_sources, ri_fb.desc_sources) AS desc_sources'),
+                DB::raw('COALESCE(ri_cur.desc_revision_history, ri_fb.desc_revision_history) AS desc_revision_history'),
                 // Object
                 'object.created_at',
                 'object.updated_at',

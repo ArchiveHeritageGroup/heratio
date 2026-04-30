@@ -62,14 +62,23 @@ class InformationObjectController extends Controller
     public function show(string $slug)
     {
         $culture = app()->getLocale();
+        $fallback = config('app.fallback_locale', 'en');
 
-        // Main information object
+        // Main information object — culture-fallback pattern: prefer requested
+        // culture, fall back to default locale so records authored in another
+        // language still render instead of 404'ing.
         $io = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->leftJoin('information_object_i18n as ioi_cur', function ($j) use ($culture) {
+                $j->on('ioi_cur.id', '=', 'information_object.id')
+                    ->where('ioi_cur.culture', '=', $culture);
+            })
+            ->leftJoin('information_object_i18n as ioi_fb', function ($j) use ($fallback) {
+                $j->on('ioi_fb.id', '=', 'information_object.id')
+                    ->where('ioi_fb.culture', '=', $fallback);
+            })
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
-            ->where('information_object_i18n.culture', $culture)
             ->select([
                 'information_object.id',
                 'information_object.identifier',
@@ -85,27 +94,27 @@ class InformationObjectController extends Controller
                 'information_object.display_standard_id',
                 'information_object.collection_type_id',
                 'information_object.source_culture',
-                'information_object_i18n.title',
-                'information_object_i18n.alternate_title',
-                'information_object_i18n.edition',
-                'information_object_i18n.extent_and_medium',
-                'information_object_i18n.archival_history',
-                'information_object_i18n.acquisition',
-                'information_object_i18n.scope_and_content',
-                'information_object_i18n.appraisal',
-                'information_object_i18n.accruals',
-                'information_object_i18n.arrangement',
-                'information_object_i18n.access_conditions',
-                'information_object_i18n.reproduction_conditions',
-                'information_object_i18n.physical_characteristics',
-                'information_object_i18n.finding_aids',
-                'information_object_i18n.location_of_originals',
-                'information_object_i18n.location_of_copies',
-                'information_object_i18n.related_units_of_description',
-                'information_object_i18n.rules',
-                'information_object_i18n.sources',
-                'information_object_i18n.revision_history',
-                'information_object_i18n.institution_responsible_identifier',
+                DB::raw('COALESCE(ioi_cur.title, ioi_fb.title) AS title'),
+                DB::raw('COALESCE(ioi_cur.alternate_title, ioi_fb.alternate_title) AS alternate_title'),
+                DB::raw('COALESCE(ioi_cur.edition, ioi_fb.edition) AS edition'),
+                DB::raw('COALESCE(ioi_cur.extent_and_medium, ioi_fb.extent_and_medium) AS extent_and_medium'),
+                DB::raw('COALESCE(ioi_cur.archival_history, ioi_fb.archival_history) AS archival_history'),
+                DB::raw('COALESCE(ioi_cur.acquisition, ioi_fb.acquisition) AS acquisition'),
+                DB::raw('COALESCE(ioi_cur.scope_and_content, ioi_fb.scope_and_content) AS scope_and_content'),
+                DB::raw('COALESCE(ioi_cur.appraisal, ioi_fb.appraisal) AS appraisal'),
+                DB::raw('COALESCE(ioi_cur.accruals, ioi_fb.accruals) AS accruals'),
+                DB::raw('COALESCE(ioi_cur.arrangement, ioi_fb.arrangement) AS arrangement'),
+                DB::raw('COALESCE(ioi_cur.access_conditions, ioi_fb.access_conditions) AS access_conditions'),
+                DB::raw('COALESCE(ioi_cur.reproduction_conditions, ioi_fb.reproduction_conditions) AS reproduction_conditions'),
+                DB::raw('COALESCE(ioi_cur.physical_characteristics, ioi_fb.physical_characteristics) AS physical_characteristics'),
+                DB::raw('COALESCE(ioi_cur.finding_aids, ioi_fb.finding_aids) AS finding_aids'),
+                DB::raw('COALESCE(ioi_cur.location_of_originals, ioi_fb.location_of_originals) AS location_of_originals'),
+                DB::raw('COALESCE(ioi_cur.location_of_copies, ioi_fb.location_of_copies) AS location_of_copies'),
+                DB::raw('COALESCE(ioi_cur.related_units_of_description, ioi_fb.related_units_of_description) AS related_units_of_description'),
+                DB::raw('COALESCE(ioi_cur.rules, ioi_fb.rules) AS rules'),
+                DB::raw('COALESCE(ioi_cur.sources, ioi_fb.sources) AS sources'),
+                DB::raw('COALESCE(ioi_cur.revision_history, ioi_fb.revision_history) AS revision_history'),
+                DB::raw('COALESCE(ioi_cur.institution_responsible_identifier, ioi_fb.institution_responsible_identifier) AS institution_responsible_identifier'),
                 'object.created_at',
                 'object.updated_at',
                 'slug.slug',

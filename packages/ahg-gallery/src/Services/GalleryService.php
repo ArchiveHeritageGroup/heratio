@@ -40,9 +40,14 @@ class GalleryService
      */
     public function getBySlug(string $slug, string $culture = 'en'): ?object
     {
+        $fallback = config('app.fallback_locale', 'en');
+
         $artwork = DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            ->leftJoin('information_object_i18n as i18n_cur', function ($j) use ($culture) {
+                $j->on('io.id', '=', 'i18n_cur.id')->where('i18n_cur.culture', '=', $culture);
+            })
+            ->leftJoin('information_object_i18n as i18n_fb', function ($j) use ($fallback) {
+                $j->on('io.id', '=', 'i18n_fb.id')->where('i18n_fb.culture', '=', $fallback);
             })
             ->join('object as obj', 'io.id', '=', 'obj.id')
             ->join('slug', 'io.id', '=', 'slug.object_id')
@@ -66,26 +71,26 @@ class GalleryService
                 'io.display_standard_id',
                 'io.collection_type_id',
                 'io.source_culture',
-                'i18n.title',
-                'i18n.alternate_title',
-                'i18n.extent_and_medium',
-                'i18n.scope_and_content',
-                'i18n.archival_history',
-                'i18n.acquisition',
-                'i18n.access_conditions',
-                'i18n.reproduction_conditions',
-                'i18n.physical_characteristics',
-                'i18n.arrangement',
-                'i18n.appraisal',
-                'i18n.accruals',
-                'i18n.finding_aids',
-                'i18n.location_of_originals',
-                'i18n.location_of_copies',
-                'i18n.related_units_of_description',
-                'i18n.rules',
-                'i18n.sources',
-                'i18n.revision_history',
-                'i18n.institution_responsible_identifier',
+                DB::raw('COALESCE(i18n_cur.title, i18n_fb.title) AS title'),
+                DB::raw('COALESCE(i18n_cur.alternate_title, i18n_fb.alternate_title) AS alternate_title'),
+                DB::raw('COALESCE(i18n_cur.extent_and_medium, i18n_fb.extent_and_medium) AS extent_and_medium'),
+                DB::raw('COALESCE(i18n_cur.scope_and_content, i18n_fb.scope_and_content) AS scope_and_content'),
+                DB::raw('COALESCE(i18n_cur.archival_history, i18n_fb.archival_history) AS archival_history'),
+                DB::raw('COALESCE(i18n_cur.acquisition, i18n_fb.acquisition) AS acquisition'),
+                DB::raw('COALESCE(i18n_cur.access_conditions, i18n_fb.access_conditions) AS access_conditions'),
+                DB::raw('COALESCE(i18n_cur.reproduction_conditions, i18n_fb.reproduction_conditions) AS reproduction_conditions'),
+                DB::raw('COALESCE(i18n_cur.physical_characteristics, i18n_fb.physical_characteristics) AS physical_characteristics'),
+                DB::raw('COALESCE(i18n_cur.arrangement, i18n_fb.arrangement) AS arrangement'),
+                DB::raw('COALESCE(i18n_cur.appraisal, i18n_fb.appraisal) AS appraisal'),
+                DB::raw('COALESCE(i18n_cur.accruals, i18n_fb.accruals) AS accruals'),
+                DB::raw('COALESCE(i18n_cur.finding_aids, i18n_fb.finding_aids) AS finding_aids'),
+                DB::raw('COALESCE(i18n_cur.location_of_originals, i18n_fb.location_of_originals) AS location_of_originals'),
+                DB::raw('COALESCE(i18n_cur.location_of_copies, i18n_fb.location_of_copies) AS location_of_copies'),
+                DB::raw('COALESCE(i18n_cur.related_units_of_description, i18n_fb.related_units_of_description) AS related_units_of_description'),
+                DB::raw('COALESCE(i18n_cur.rules, i18n_fb.rules) AS rules'),
+                DB::raw('COALESCE(i18n_cur.sources, i18n_fb.sources) AS sources'),
+                DB::raw('COALESCE(i18n_cur.revision_history, i18n_fb.revision_history) AS revision_history'),
+                DB::raw('COALESCE(i18n_cur.institution_responsible_identifier, i18n_fb.institution_responsible_identifier) AS institution_responsible_identifier'),
                 'obj.created_at',
                 'obj.updated_at',
                 'slug.slug',

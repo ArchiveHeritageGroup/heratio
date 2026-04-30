@@ -57,6 +57,8 @@ class DamService
      */
     public function getById(int $id): ?object
     {
+        $fallback = config('app.fallback_locale', 'en');
+
         return DB::table('information_object as io')
             ->join('object as o', 'io.id', '=', 'o.id')
             ->join('slug', 'io.id', '=', 'slug.object_id')
@@ -64,9 +66,13 @@ class DamService
                 $j->on('io.id', '=', 'doc.object_id')
                     ->where('doc.object_type', '=', 'dam');
             })
-            ->leftJoin('information_object_i18n as i18n', function ($j) {
-                $j->on('io.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $this->culture);
+            ->leftJoin('information_object_i18n as i18n_cur', function ($j) {
+                $j->on('io.id', '=', 'i18n_cur.id')
+                    ->where('i18n_cur.culture', '=', $this->culture);
+            })
+            ->leftJoin('information_object_i18n as i18n_fb', function ($j) use ($fallback) {
+                $j->on('io.id', '=', 'i18n_fb.id')
+                    ->where('i18n_fb.culture', '=', $fallback);
             })
             ->leftJoin('dam_iptc_metadata as iptc', 'io.id', '=', 'iptc.object_id')
             ->where('io.id', $id)
@@ -77,9 +83,9 @@ class DamService
                 'io.repository_id',
                 'io.level_of_description_id',
                 'io.source_culture',
-                'i18n.title',
-                'i18n.scope_and_content',
-                'i18n.extent_and_medium',
+                DB::raw('COALESCE(i18n_cur.title, i18n_fb.title) AS title'),
+                DB::raw('COALESCE(i18n_cur.scope_and_content, i18n_fb.scope_and_content) AS scope_and_content'),
+                DB::raw('COALESCE(i18n_cur.extent_and_medium, i18n_fb.extent_and_medium) AS extent_and_medium'),
                 'slug.slug',
                 'o.created_at',
                 'o.updated_at',

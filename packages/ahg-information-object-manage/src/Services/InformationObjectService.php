@@ -109,13 +109,20 @@ class InformationObjectService
     public static function getBySlug(string $slug, ?string $culture = null): ?object
     {
         $culture = $culture ?: app()->getLocale();
+        $fallback = config('app.fallback_locale', 'en');
 
         return DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->leftJoin('information_object_i18n as ioi_cur', function ($j) use ($culture) {
+                $j->on('ioi_cur.id', '=', 'information_object.id')
+                    ->where('ioi_cur.culture', '=', $culture);
+            })
+            ->leftJoin('information_object_i18n as ioi_fb', function ($j) use ($fallback) {
+                $j->on('ioi_fb.id', '=', 'information_object.id')
+                    ->where('ioi_fb.culture', '=', $fallback);
+            })
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
-            ->where('information_object_i18n.culture', $culture)
             ->select(self::buildSelectColumns())
             ->first();
     }
@@ -128,13 +135,20 @@ class InformationObjectService
     public static function getById(int $id, ?string $culture = null): ?object
     {
         $culture = $culture ?: app()->getLocale();
+        $fallback = config('app.fallback_locale', 'en');
 
         return DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->leftJoin('information_object_i18n as ioi_cur', function ($j) use ($culture) {
+                $j->on('ioi_cur.id', '=', 'information_object.id')
+                    ->where('ioi_cur.culture', '=', $culture);
+            })
+            ->leftJoin('information_object_i18n as ioi_fb', function ($j) use ($fallback) {
+                $j->on('ioi_fb.id', '=', 'information_object.id')
+                    ->where('ioi_fb.culture', '=', $fallback);
+            })
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('information_object.id', $id)
-            ->where('information_object_i18n.culture', $culture)
             ->select(self::buildSelectColumns())
             ->first();
     }
@@ -508,7 +522,7 @@ class InformationObjectService
         ];
 
         foreach (self::$i18nFields as $field) {
-            $columns[] = "information_object_i18n.{$field}";
+            $columns[] = DB::raw("COALESCE(ioi_cur.{$field}, ioi_fb.{$field}) AS {$field}");
         }
 
         $columns[] = 'object.created_at';

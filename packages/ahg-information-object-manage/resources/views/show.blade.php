@@ -2558,6 +2558,16 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
             </a>
           </li>
           @endif
+          @auth
+            @if(\Illuminate\Support\Facades\Route::has('ahgtranslation.translate'))
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#translateModal">
+                  <i class="fas fa-language me-2"></i>Translate this record
+                </a>
+              </li>
+            @endif
+          @endauth
         </ul>
       </div>
     </li>

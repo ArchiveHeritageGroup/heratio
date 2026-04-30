@@ -10,6 +10,7 @@ Route::prefix('admin/translation')->middleware(['web', 'auth'])->group(function 
     Route::post('/translate/{slug}', [\AhgTranslation\Controllers\TranslationController::class, 'store'])->name('ahgtranslation.store');
 
     Route::post('/apply', [\AhgTranslation\Controllers\TranslationController::class, 'apply'])->name('ahgtranslation.apply');
+    Route::post('/save', [\AhgTranslation\Controllers\TranslationController::class, 'save'])->name('ahgtranslation.save');
     Route::get('/health', [\AhgTranslation\Controllers\TranslationController::class, 'health'])->name('ahgtranslation.health');
 
     Route::get('/languages', [\AhgTranslation\Controllers\TranslationController::class, 'languages'])->name('ahgtranslation.languages');

@@ -58,12 +58,18 @@ class ActorService
      */
     public function getById(int $id): ?object
     {
+        $fallback = config('app.fallback_locale', 'en');
+
         $actor = DB::table('actor')
             ->join('object', 'actor.id', '=', 'object.id')
             ->join('slug', 'actor.id', '=', 'slug.object_id')
-            ->leftJoin('actor_i18n', function ($j) {
-                $j->on('actor.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $this->culture);
+            ->leftJoin('actor_i18n as ai_cur', function ($j) {
+                $j->on('actor.id', '=', 'ai_cur.id')
+                    ->where('ai_cur.culture', '=', $this->culture);
+            })
+            ->leftJoin('actor_i18n as ai_fb', function ($j) use ($fallback) {
+                $j->on('actor.id', '=', 'ai_fb.id')
+                    ->where('ai_fb.culture', '=', $fallback);
             })
             ->where('actor.id', $id)
             ->where('object.class_name', 'QubitActor')
@@ -77,19 +83,19 @@ class ActorService
                 'actor.corporate_body_identifiers',
                 'actor.parent_id',
                 'actor.source_culture',
-                'actor_i18n.authorized_form_of_name',
-                'actor_i18n.dates_of_existence',
-                'actor_i18n.history',
-                'actor_i18n.places',
-                'actor_i18n.legal_status',
-                'actor_i18n.functions',
-                'actor_i18n.mandates',
-                'actor_i18n.internal_structures',
-                'actor_i18n.general_context',
-                'actor_i18n.institution_responsible_identifier',
-                'actor_i18n.rules',
-                'actor_i18n.sources',
-                'actor_i18n.revision_history',
+                DB::raw('COALESCE(ai_cur.authorized_form_of_name, ai_fb.authorized_form_of_name) AS authorized_form_of_name'),
+                DB::raw('COALESCE(ai_cur.dates_of_existence, ai_fb.dates_of_existence) AS dates_of_existence'),
+                DB::raw('COALESCE(ai_cur.history, ai_fb.history) AS history'),
+                DB::raw('COALESCE(ai_cur.places, ai_fb.places) AS places'),
+                DB::raw('COALESCE(ai_cur.legal_status, ai_fb.legal_status) AS legal_status'),
+                DB::raw('COALESCE(ai_cur.functions, ai_fb.functions) AS functions'),
+                DB::raw('COALESCE(ai_cur.mandates, ai_fb.mandates) AS mandates'),
+                DB::raw('COALESCE(ai_cur.internal_structures, ai_fb.internal_structures) AS internal_structures'),
+                DB::raw('COALESCE(ai_cur.general_context, ai_fb.general_context) AS general_context'),
+                DB::raw('COALESCE(ai_cur.institution_responsible_identifier, ai_fb.institution_responsible_identifier) AS institution_responsible_identifier'),
+                DB::raw('COALESCE(ai_cur.rules, ai_fb.rules) AS rules'),
+                DB::raw('COALESCE(ai_cur.sources, ai_fb.sources) AS sources'),
+                DB::raw('COALESCE(ai_cur.revision_history, ai_fb.revision_history) AS revision_history'),
                 'object.created_at',
                 'object.updated_at',
                 'object.serial_number',

@@ -57,12 +57,18 @@ class LibraryService
      */
     public function getById(int $id): ?object
     {
+        $fallback = config('app.fallback_locale', 'en');
+
         return DB::table('information_object')
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
-            ->leftJoin('information_object_i18n', function ($j) {
-                $j->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $this->culture);
+            ->leftJoin('information_object_i18n as ioi_cur', function ($j) {
+                $j->on('information_object.id', '=', 'ioi_cur.id')
+                    ->where('ioi_cur.culture', '=', $this->culture);
+            })
+            ->leftJoin('information_object_i18n as ioi_fb', function ($j) use ($fallback) {
+                $j->on('information_object.id', '=', 'ioi_fb.id')
+                    ->where('ioi_fb.culture', '=', $fallback);
             })
             ->leftJoin('library_item', 'information_object.id', '=', 'library_item.information_object_id')
             ->leftJoin('display_object_config', function ($j) {
@@ -76,8 +82,8 @@ class LibraryService
                 'information_object.level_of_description_id',
                 'information_object.repository_id',
                 'information_object.source_culture',
-                'information_object_i18n.title',
-                'information_object_i18n.scope_and_content',
+                DB::raw('COALESCE(ioi_cur.title, ioi_fb.title) AS title'),
+                DB::raw('COALESCE(ioi_cur.scope_and_content, ioi_fb.scope_and_content) AS scope_and_content'),
                 'information_object.source_culture as language',
                 'library_item.id as library_item_id',
                 'library_item.material_type',

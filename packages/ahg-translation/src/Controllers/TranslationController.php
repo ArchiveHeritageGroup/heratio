@@ -34,6 +34,47 @@ use Illuminate\Support\Facades\DB;
 class TranslationController extends Controller
 {
     /**
+     * class_name → [i18n_table, allowed columns] map for the save endpoint.
+     *
+     * The save flow looks up object.class_name to decide which *_i18n table
+     * to write to, and only the listed columns are accepted as targets.
+     */
+    private const I18N_TABLE_BY_CLASS = [
+        'QubitInformationObject' => [
+            'table'   => 'information_object_i18n',
+            'columns' => [
+                'title', 'alternate_title', 'edition', 'extent_and_medium',
+                'archival_history', 'acquisition', 'scope_and_content',
+                'appraisal', 'accruals', 'arrangement', 'access_conditions',
+                'reproduction_conditions', 'physical_characteristics',
+                'finding_aids', 'location_of_originals', 'location_of_copies',
+                'related_units_of_description', 'institution_responsible_identifier',
+                'rules', 'sources', 'revision_history',
+            ],
+        ],
+        'QubitActor' => [
+            'table'   => 'actor_i18n',
+            'columns' => [
+                'authorized_form_of_name', 'dates_of_existence', 'history',
+                'places', 'legal_status', 'functions', 'mandates',
+                'internal_structures', 'general_context',
+                'institution_responsible_identifier', 'rules', 'sources',
+                'revision_history',
+            ],
+        ],
+        'QubitRepository' => [
+            'table'   => 'actor_i18n',
+            'columns' => [
+                'authorized_form_of_name', 'dates_of_existence', 'history',
+                'places', 'legal_status', 'functions', 'mandates',
+                'internal_structures', 'general_context',
+                'institution_responsible_identifier', 'rules', 'sources',
+                'revision_history',
+            ],
+        ],
+    ];
+
+    /**
      * Map UI field keys to DB columns in information_object_i18n.
      * Mirrors AhgTranslationRepository::allowedFields() from AtoM plugin.
      */
@@ -323,6 +364,114 @@ class TranslationController extends Controller
         }
 
         return response()->json($result);
+    }
+
+    /**
+     * POST /admin/translation/save
+     *
+     * Persist a single field translation directly into the entity's *_i18n
+     * table. This is the simple "I edited this and want it saved" endpoint
+     * that the per-field Save button on the Translate modal posts to.
+     *
+     * Inputs:
+     *   - object_id: int (required)        — IO/Actor/Repository ID
+     *   - culture:   string (required)     — target culture code (e.g. 'af')
+     *   - field:     string (required)     — i18n column name
+     *   - value:     string (required)     — translated text
+     *   - confirmed: bool (optional)       — true if a human reviewed it
+     *
+     * Provenance is recorded in ahg_translation_log with source='ai' (when
+     * confirmed=false) or 'human' (when confirmed=true), plus created_by_user_id.
+     */
+    public function save(Request $request)
+    {
+        $objectId  = (int) $request->input('object_id');
+        $culture   = trim((string) $request->input('culture'));
+        $field     = trim((string) $request->input('field'));
+        $value     = (string) $request->input('value', '');
+        $confirmed = (bool) $request->input('confirmed', false);
+
+        if ($objectId <= 0 || $culture === '' || $field === '') {
+            return response()->json([
+                'ok' => false,
+                'error' => 'object_id, culture, and field are required',
+            ], 422);
+        }
+
+        // Look up the class_name to know which *_i18n table to write to.
+        $className = DB::table('object')->where('id', $objectId)->value('class_name');
+        if (!$className) {
+            return response()->json(['ok' => false, 'error' => 'Object not found'], 404);
+        }
+
+        if (!isset(self::I18N_TABLE_BY_CLASS[$className])) {
+            return response()->json([
+                'ok' => false,
+                'error' => "Unsupported entity class: {$className}",
+            ], 422);
+        }
+
+        $cfg = self::I18N_TABLE_BY_CLASS[$className];
+        $i18nTable = $cfg['table'];
+        $allowed   = $cfg['columns'];
+
+        if (!in_array($field, $allowed, true)) {
+            return response()->json([
+                'ok' => false,
+                'error' => "Field '{$field}' is not translatable for {$className}",
+            ], 422);
+        }
+
+        // Upsert the i18n row for the requested culture.
+        $exists = DB::table($i18nTable)
+            ->where('id', $objectId)
+            ->where('culture', $culture)
+            ->exists();
+
+        if ($exists) {
+            DB::table($i18nTable)
+                ->where('id', $objectId)
+                ->where('culture', $culture)
+                ->update([$field => $value]);
+        } else {
+            DB::table($i18nTable)->insert([
+                'id'      => $objectId,
+                'culture' => $culture,
+                $field    => $value,
+            ]);
+        }
+
+        // Log provenance: who saved it, machine vs human, the saved value.
+        try {
+            DB::table('ahg_translation_log')->insert([
+                'object_id'           => $objectId,
+                'field_name'          => $field,
+                'source_culture'      => null,
+                'target_culture'      => $culture,
+                'endpoint'            => null,
+                'http_status'         => null,
+                'ok'                  => 1,
+                'error'               => null,
+                'value'               => $value,
+                'source'              => $confirmed ? 'human' : 'ai',
+                'created_by_user_id'  => auth()->id(),
+                'confirmed'           => $confirmed ? 1 : 0,
+                'elapsed_ms'          => null,
+                'created_at'          => now(),
+            ]);
+        } catch (\Throwable $e) {
+            // Provenance logging is best-effort; never block the save.
+        }
+
+        return response()->json([
+            'ok'        => true,
+            'object_id' => $objectId,
+            'culture'   => $culture,
+            'field'     => $field,
+            'source'    => $confirmed ? 'human' : 'ai',
+            'class'     => $className,
+            'table'     => $i18nTable,
+        ]);
     }
 
     /**

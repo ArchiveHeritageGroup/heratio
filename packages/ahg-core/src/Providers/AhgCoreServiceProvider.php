@@ -76,6 +76,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Commands\DonorRemindersCommand::class,
                 \AhgCore\Commands\CleanupLoginAttemptsCommand::class,
                 \AhgCore\Commands\AuditRetentionCommand::class,
+                \AhgCore\Commands\TranslationImportXliffCommand::class,
                 \AhgCore\Commands\NestedSetRebuildCommand::class,
                 \AhgCore\Commands\AuditPurgeCommand::class,
                 \AhgCore\Commands\EmbargoProcessCommand::class,
