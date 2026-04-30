@@ -46,11 +46,11 @@
   <div class="card mb-3 border-success">
     <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
       <div><i class="fas fa-tag me-2"></i><strong>{{ $term->name }}</strong></div>
-      <span style="background:#fff !important;color:#198754 !important;border:2px solid #198754;padding:.25em .6em;border-radius:.375em;font-size:.85em;font-weight:600;display:inline-block;">rico:Concept</span>
+      @include('ahg-ric::components.type-pill', ['type' => 'Concept'])
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">{{ __('RiC Entity Type') }}</th><td><code>rico:Concept</code></td></tr>
+        <tr><th class="text-muted" style="width:35%">{{ __('RiC Entity Type') }}</th><td>@include('ahg-ric::components.type-pill', ['type' => 'Concept'])</td></tr>
         @if($taxonomyName)<tr><th class="text-muted">{{ __('Taxonomy') }}</th><td>{{ $taxonomyName }}</td></tr>@endif
         @if($parentTerm)<tr><th class="text-muted">{{ __('broaderTerm') }}</th><td><a href="{{ url('/' . $parentTerm->slug) }}">{{ $parentTerm->name }}</a></td></tr>@endif
       </table>

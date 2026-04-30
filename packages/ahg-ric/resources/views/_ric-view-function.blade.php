@@ -40,11 +40,11 @@
   <div class="card mb-3 border-success">
     <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
       <div><i class="fas fa-cogs me-2"></i><strong>{{ $function->authorized_form_of_name }}</strong></div>
-      <span style="background:#fff !important;color:#198754 !important;border:2px solid #198754;padding:.25em .6em;border-radius:.375em;font-size:.85em;font-weight:600;display:inline-block;">rico:Function</span>
+      @include('ahg-ric::components.type-pill', ['type' => 'Function'])
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">{{ __('RiC Entity Type') }}</th><td><code>rico:Function</code></td></tr>
+        <tr><th class="text-muted" style="width:35%">{{ __('RiC Entity Type') }}</th><td>@include('ahg-ric::components.type-pill', ['type' => 'Function'])</td></tr>
         @if($function->classification ?? null)<tr><th class="text-muted">{{ __('Classification') }}</th><td>{{ $function->classification }}</td></tr>@endif
         @if($function->description ?? null)<tr><th class="text-muted">{{ __('Description') }}</th><td>{{ \Illuminate\Support\Str::limit(strip_tags($function->description), 200) }}</td></tr>@endif
       </table>

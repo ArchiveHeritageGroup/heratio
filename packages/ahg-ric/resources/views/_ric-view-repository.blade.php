@@ -44,7 +44,7 @@
   <div class="card mb-3 border-success">
     <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
       <div><i class="fas fa-building me-2"></i><strong>{{ $repository->authorized_form_of_name }}</strong></div>
-      <span style="background:#fff !important;color:#198754 !important;border:2px solid #198754;padding:.25em .6em;border-radius:.375em;font-size:.85em;font-weight:600;display:inline-block;">rico:CorporateBody (Holder)</span>
+      @include('ahg-ric::components.type-pill', ['type' => 'CorporateBody', 'qualifier' => 'Holder'])
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
