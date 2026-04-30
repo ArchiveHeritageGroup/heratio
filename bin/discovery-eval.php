@@ -84,6 +84,9 @@ foreach ($qrels as $qid => $q) {
         urlencode($q['query_text']),
         urlencode($strategiesCsv)
     );
+    if (! empty($opts['extra-query'])) {
+        $url .= '&' . ltrim($opts['extra-query'], '&?');
+    }
     $t0 = microtime(true);
     $resp = httpGetJson($url, $opts['host-header']);
     $wallMs = (int) ((microtime(true) - $t0) * 1000);
@@ -191,6 +194,9 @@ function parseArgs(array $argv): array
         'bootstrap-samples' => 1000,
         'seed'              => 42,
         'quiet'             => false,
+        // Extra query string appended to every /discovery/search call, e.g.
+        // "exactMatch=phrase". Used by issue #33 to A/B the entitySearch modes.
+        'extra-query'       => '',
     ];
     foreach (array_slice($argv, 1) as $arg) {
         if ($arg === '--help' || $arg === '-h') {

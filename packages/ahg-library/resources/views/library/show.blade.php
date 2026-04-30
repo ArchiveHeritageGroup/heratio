@@ -5,13 +5,13 @@
 
 @push('css')
 <style>
-  /* Library page sidebar widths. Right column was originally 27% to give the
-     barcode + viewer breathing room; user requested two 33% reductions, so
-     it's now 27% → 18% → 12%. Main column absorbs the gain (55% → 70%);
+  /* Library page sidebar widths. Right column was originally 27%, then two
+     33% reductions (27% → 18% → 12%), then user asked for +1cm back. Using
+     calc() so it scales with viewport. Main column absorbs the inverse;
      left stays at 18%. */
   .view.library #left-column  { flex: 0 0 auto; width: 18%; max-width: 18%; }
-  .view.library #main-column  { flex: 0 0 auto; width: 70%; max-width: 70%; }
-  .view.library #right-column { flex: 0 0 auto; width: 12%; max-width: 12%; }
+  .view.library #main-column  { flex: 0 0 auto; width: calc(70% - 2cm); max-width: calc(70% - 2cm); }
+  .view.library #right-column { flex: 0 0 auto; width: calc(12% + 2cm); max-width: calc(12% + 2cm); }
   @media (max-width: 991.98px) {
     .view.library #left-column,
     .view.library #main-column,
