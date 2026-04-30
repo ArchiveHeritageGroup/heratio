@@ -217,8 +217,10 @@
                 <label for="translate" class="form-label">Translate <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="translate[]" id="translate" class="form-select" multiple size="{{ min(max(count($availableLanguages), 3), 8) }}">
                   @foreach($availableLanguages as $lang)
-                    <option value="{{ $lang }}" {{ in_array($lang, old('translate', $currentTranslate)) ? 'selected' : '' }}>
-                      {{ locale_get_display_language($lang, app()->getLocale()) ?: $lang }}
+                    <option value="{{ $lang }}"
+                            title="{{ locale_get_display_language($lang, app()->getLocale()) ?: $lang }}"
+                            {{ in_array($lang, old('translate', $currentTranslate)) ? 'selected' : '' }}>
+                      {{ strtoupper($lang) }}
                     </option>
                   @endforeach
                 </select>

@@ -179,22 +179,24 @@ class UserService
      */
     public function getAvailableLanguages(): array
     {
-        $row = DB::table('setting')
-            ->join('setting_i18n', 'setting.id', '=', 'setting_i18n.id')
-            ->where('setting.name', 'i18n_languages')
-            ->first();
+        // Cultures are stored as one row per culture under scope='i18n_languages',
+        // mirroring the /set-locale route handler. (Earlier implementation looked
+        // for a single serialised row with name='i18n_languages' — that shape
+        // never existed in this DB, so the call always fell through to [$culture].)
+        $cultures = DB::table('setting')
+            ->where('scope', 'i18n_languages')
+            ->where('editable', 1)
+            ->pluck('name')
+            ->toArray();
 
-        if (!$row || empty($row->value)) {
-            // Fallback: check source_culture from setting
-            return [$this->culture];
+        if (!empty($cultures)) {
+            return $cultures;
         }
 
-        $data = @unserialize($row->value);
-        if (is_array($data)) {
-            return $data;
-        }
-        $data = json_decode($row->value, true);
-        return is_array($data) ? $data : [$this->culture];
+        // Fallback: filenames in /lang/*.json (matches /set-locale fallback).
+        $files = glob(base_path('lang/*.json')) ?: [];
+        $cultures = array_map(fn ($f) => pathinfo($f, PATHINFO_FILENAME), $files);
+        return !empty($cultures) ? $cultures : [$this->culture];
     }
 
     /**
