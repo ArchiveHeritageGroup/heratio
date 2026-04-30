@@ -1142,6 +1142,33 @@
               </div>
             </div>
 
+            {{-- ICIP cultural-sensitivity classification (issue #36 Phase 2b).
+                 Resolved at render time via VocabularyResolverService against
+                 the icip SKOS vocabulary in Fuseki. --}}
+            <div class="cco-field level-recommended" data-field="icip_sensitivity">
+              <div class="field-header">
+                <label for="icip_sensitivity">{{ __('ICIP cultural-sensitivity classification') }}</label>
+                <span class="field-badges">
+                  <span class="badge badge-recommended">{{ __('Recommended') }}</span>
+                  <span class="badge bg-info text-dark" title="{{ __('Indigenous Cultural and Intellectual Property') }}">ICIP</span>
+                </span>
+                <button type="button" class="btn-help" data-field="icip_sensitivity" title="{{ __('Help') }}">
+                  <i class="fa fa-question-circle"></i>
+                </button>
+              </div>
+              <div class="field-input">
+                @include('ahg-translation::components.icip-sensitivity-select', [
+                    'name' => 'icip_sensitivity',
+                    'value' => old('icip_sensitivity', $museum->icip_sensitivity ?? null),
+                ])
+              </div>
+              <div class="field-help" id="help-icip_sensitivity" style="display: none;">
+                <div class="help-content">
+                  <p class="help-text">{{ __('Cultural-sensitivity classification per ICIP (Indigenous Cultural and Intellectual Property) protocols. Determines who may view, reproduce, or transmit this item. Values resolved from the icip SKOS vocabulary; labels render in the user\'s active language.') }}</p>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>

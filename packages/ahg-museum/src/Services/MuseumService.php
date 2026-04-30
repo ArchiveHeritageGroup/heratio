@@ -166,6 +166,7 @@ class MuseumService
                 'museum_metadata.style',
                 'museum_metadata.period',
                 'museum_metadata.cultural_group',
+                'museum_metadata.icip_sensitivity',
                 'museum_metadata.movement',
                 'museum_metadata.school',
                 'museum_metadata.dynasty',
@@ -792,6 +793,9 @@ class MuseumService
         'historical_context', 'architectural_context', 'archaeological_context',
         'object_class', 'object_category', 'object_sub_category', 'edition_number',
         'edition_size',
+        // ICIP cultural-sensitivity URI (issue #36 Phase 2b) — stored as full
+        // SKOS URI; resolved via VocabularyResolverService at render time.
+        'icip_sensitivity',
     ];
 
     /**

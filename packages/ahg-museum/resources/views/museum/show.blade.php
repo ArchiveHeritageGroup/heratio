@@ -241,6 +241,10 @@
     @if($museum->work_type)<span class="text-muted">{{ $museum->work_type }}</span> @endif
     @if($museum->identifier){{ $museum->identifier }} - @endif
     {{ $museum->title ?: '[Untitled]' }}
+    {{-- ICIP cultural-sensitivity badge (issue #36 Phase 2b) — visible to anyone
+         who can see the title; lets viewers know up-front whether the item
+         carries access restrictions before they engage with it. --}}
+    @include('ahg-translation::components.icip-sensitivity-badge', ['uri' => $museum->icip_sensitivity ?? null])
   </h1>
 
   {{-- Breadcrumb trail --}}
