@@ -1923,19 +1923,8 @@
       </div>
     @endauth
 
-    {{-- Marketplace (auth only) --}}
-    @auth
-      <div class="card mb-3">
-        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-store me-1"></i> {{ __('Marketplace') }}
-        </div>
-        <div class="list-group list-group-flush">
-          <a href="{{ route('ahgmarketplace.seller-listing-create', ['io' => $io->id]) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-tag me-1"></i> {{ __('Add to marketplace') }}
-          </a>
-        </div>
-      </div>
-    @endauth
+    {{-- Marketplace (auth + marketplace_enabled gate via shared partial) --}}
+    @includeIf('ahg-marketplace::partials._add-to-marketplace', ['ioId' => $io->id])
 
     {{-- Active Loans --}}
     @if(\Illuminate\Support\Facades\Schema::hasTable('ahg_loan'))

@@ -256,6 +256,9 @@
   </div>
   @endauth
 
+  {{-- Marketplace (Buy/Sell, gated on marketplace_enabled setting) --}}
+  @includeIf('ahg-marketplace::partials._add-to-marketplace', ['ioId' => $item->id])
+
 @endsection
 
 {{-- ============================================================ --}}
