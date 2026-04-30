@@ -3,84 +3,324 @@
     "_attribution": "AtoM-sourced locales credit Artefactual Systems + the AtoM community translators (https://www.transifex.com/artefactual/atom/). SA-language locales (af, en, nr, nso, ss, st, tn, ts, ve, xh, zu) are authored by The Archive and Heritage Group. See ACKNOWLEDGMENTS.md.",
     "locales": {
         "af": {
-            "primary_source": "ahg",
-            "secondary_source": "atom-xliff",
+            "atom_version_at_import": "unknown",
+            "credit": "The Archive and Heritage Group (Pty) Ltd; AtoM community contributors via Artefactual Weblate",
             "first_seeded_at": "2026-04-30",
             "last_imported_at": "2026-04-30",
-            "atom_version_at_import": "unknown",
-            "credit": "The Archive and Heritage Group (Pty) Ltd; AtoM community contributors via Artefactual Weblate"
+            "primary_source": "ahg",
+            "secondary_source": "atom-xliff"
+        },
+        "am": {
+            "credit": "(empty in AtoM upstream — needs translator)",
+            "primary_source": "placeholder"
+        },
+        "ar": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "bs": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "ca": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "ca@valencia": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "cs": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "cy": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "de": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "de_AT": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "de_CH": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "el": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
         },
         "en": {
-            "primary_source": "ahg",
-            "secondary_source": "extracted-from-codebase",
+            "atom_version_at_import": null,
+            "credit": "Heratio source code (identity map, 3290 keys extracted from __() calls)",
             "first_seeded_at": "2026-04-30",
             "last_imported_at": "2026-04-30",
-            "atom_version_at_import": null,
-            "credit": "Heratio source code (identity map, 3290 keys extracted from __() calls)"
+            "primary_source": "ahg",
+            "secondary_source": "extracted-from-codebase"
+        },
+        "es": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "et": {
+            "credit": "(empty in AtoM upstream — needs translator)",
+            "primary_source": "placeholder"
+        },
+        "eu": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "fa": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "fil": {
+            "credit": "(empty in AtoM upstream — needs translator)",
+            "primary_source": "placeholder"
+        },
+        "fr": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "ga": {
+            "credit": "(empty in AtoM upstream — needs translator)",
+            "primary_source": "placeholder"
+        },
+        "gl": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "he": {
+            "credit": "(empty in AtoM upstream — needs translator)",
+            "primary_source": "placeholder"
+        },
+        "hr": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "hu": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "id": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "is": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "it": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "ja": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "ka": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "khi": {
+            "credit": "The Archive and Heritage Group (Pty) Ltd. NOTE: khi is a collective language-family code (Khoisan), not a single language. Native-speaker review required before production.",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "ahg"
+        },
+        "kj": {
+            "credit": "The Archive and Heritage Group (Pty) Ltd. Aligned to Oshikwanyama / Kuanyama / Kwanyama (ISO kua/kj). Native-speaker review required before production.",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "ahg"
+        },
+        "ko": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "mk": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "nb": {
+            "credit": "(empty in AtoM upstream — needs translator)",
+            "primary_source": "placeholder"
+        },
+        "nd": {
+            "credit": "The Archive and Heritage Group (Pty) Ltd. Northern Ndebele / Sindebele (Zimbabwe). Native-speaker review required before production.",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "ahg"
+        },
+        "nl": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "nr": {
+            "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "ahg"
+        },
+        "nso": {
+            "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "ahg"
+        },
+        "pl": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "pt": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "pt_BR": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "ro": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "ru": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "sk": {
+            "credit": "(empty in AtoM upstream — needs translator)",
+            "primary_source": "placeholder"
+        },
+        "sl": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "sn": {
+            "credit": "The Archive and Heritage Group (Pty) Ltd. chiShona (Zimbabwe). Native-speaker review required before production.",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "ahg"
+        },
+        "sq": {
+            "credit": "(empty in AtoM upstream — needs translator)",
+            "primary_source": "placeholder"
+        },
+        "sr": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "ss": {
+            "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "ahg"
+        },
+        "st": {
+            "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "ahg"
+        },
+        "sv": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "ta": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "th": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "tn": {
+            "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "ahg"
+        },
+        "tr": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "ts": {
+            "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "ahg"
+        },
+        "umb": {
+            "credit": "The Archive and Heritage Group (Pty) Ltd. Umbundu (Angola). Native-speaker review required before production.",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "ahg"
+        },
+        "ur": {
+            "credit": "(empty in AtoM upstream — needs translator)",
+            "primary_source": "placeholder"
+        },
+        "uz": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "ve": {
+            "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "ahg"
+        },
+        "vi": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
+        },
+        "xh": {
+            "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "ahg"
+        },
+        "zh": {
+            "credit": "AtoM / Artefactual community",
+            "first_seeded_at": "2026-04-30",
+            "primary_source": "atom-xliff"
         },
         "zu": {
-            "primary_source": "ahg",
-            "secondary_source": "atom-xliff",
+            "atom_version_at_import": "unknown",
+            "credit": "The Archive and Heritage Group (Pty) Ltd",
             "first_seeded_at": "2026-04-30",
             "last_imported_at": "2026-04-30",
-            "atom_version_at_import": "unknown",
-            "credit": "The Archive and Heritage Group (Pty) Ltd"
-        },
-        "xh":  { "primary_source": "ahg", "credit": "The Archive and Heritage Group (Pty) Ltd" },
-        "nr":  { "primary_source": "ahg", "credit": "The Archive and Heritage Group (Pty) Ltd" },
-        "nso": { "primary_source": "ahg", "credit": "The Archive and Heritage Group (Pty) Ltd" },
-        "ss":  { "primary_source": "ahg", "credit": "The Archive and Heritage Group (Pty) Ltd" },
-        "st":  { "primary_source": "ahg", "credit": "The Archive and Heritage Group (Pty) Ltd" },
-        "tn":  { "primary_source": "ahg", "credit": "The Archive and Heritage Group (Pty) Ltd" },
-        "ts":  { "primary_source": "ahg", "credit": "The Archive and Heritage Group (Pty) Ltd" },
-        "ve":  { "primary_source": "ahg", "credit": "The Archive and Heritage Group (Pty) Ltd" },
-        "ar":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "bs":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "ca":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "ca@valencia": { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "cs":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "cy":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "de":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "de_AT":  { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "de_CH":  { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "el":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "es":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "eu":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "fa":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "fr":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "gl":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "hr":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "hu":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "id":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "is":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "it":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "ja":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "ka":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "ko":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "mk":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "nl":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "pl":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "pt":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "pt_BR":  { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "ro":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "ru":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "sl":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "sr":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "sv":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "ta":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "th":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "tr":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "uz":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "vi":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "zh":     { "primary_source": "atom-xliff", "first_seeded_at": "2026-04-30", "credit": "AtoM / Artefactual community" },
-        "am":     { "primary_source": "placeholder", "credit": "(empty in AtoM upstream — needs translator)" },
-        "et":     { "primary_source": "placeholder", "credit": "(empty in AtoM upstream — needs translator)" },
-        "fil":    { "primary_source": "placeholder", "credit": "(empty in AtoM upstream — needs translator)" },
-        "ga":     { "primary_source": "placeholder", "credit": "(empty in AtoM upstream — needs translator)" },
-        "he":     { "primary_source": "placeholder", "credit": "(empty in AtoM upstream — needs translator)" },
-        "nb":     { "primary_source": "placeholder", "credit": "(empty in AtoM upstream — needs translator)" },
-        "sk":     { "primary_source": "placeholder", "credit": "(empty in AtoM upstream — needs translator)" },
-        "sq":     { "primary_source": "placeholder", "credit": "(empty in AtoM upstream — needs translator)" },
-        "ur":     { "primary_source": "placeholder", "credit": "(empty in AtoM upstream — needs translator)" }
+            "primary_source": "ahg",
+            "secondary_source": "atom-xliff"
+        }
     }
 }

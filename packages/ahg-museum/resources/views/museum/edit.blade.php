@@ -8,7 +8,7 @@
 
   <!-- Template Selector -->
   <section id="template-selector" class="sidebar-section">
-    <h4>Object Template</h4>
+    <h4>{{ __('Object Template') }}</h4>
     <div class="template-list">
       <a href="javascript:void(0)" data-template="general" class="template-option active">
         <i class="fas fa-cube"></i> <span>General</span>
@@ -30,7 +30,7 @@
 
   <!-- Completeness Meter -->
   <section id="completeness-meter" class="sidebar-section">
-    <h4>Record Completeness</h4>
+    <h4>{{ __('Record Completeness') }}</h4>
     <div class="progress-container">
       <div class="progress">
         <div class="progress-bar bg-danger" id="completeness-bar" style="width: 0%"></div>
@@ -42,7 +42,7 @@
 
   <!-- CCO Reference -->
   <section id="cco-reference" class="sidebar-section">
-    <h4>CCO Reference</h4>
+    <h4>{{ __('CCO Reference') }}</h4>
     <p class="small">This form follows the Cataloguing Cultural Objects (CCO) standard.</p>
     <a href="http://cco.vrafoundation.org/" target="_blank" class="btn btn-sm btn-cco-guide">
       <i class="fas fa-external-link-alt"></i> CCO Guide
@@ -51,7 +51,7 @@
 
   <!-- Field Legend -->
   <section id="field-legend" class="sidebar-section">
-    <h4>Field Legend</h4>
+    <h4>{{ __('Field Legend') }}</h4>
     <ul class="legend-list">
       <li><span class="badge badge-required">Required</span> Must be completed</li>
       <li><span class="badge badge-recommended">Recommended</span> Should be completed</li>
@@ -114,15 +114,15 @@
                 </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
-                  <span class="badge badge-cco" title="CCO Reference">2.1</span>
-                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_OBJECT_TYPES</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">2.1</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_OBJECT_TYPES</span>
                 </span>
-                <button type="button" class="btn-help" data-field="work_type" title="Help">
+                <button type="button" class="btn-help" data-field="work_type" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
               <div class="field-input">
-                <input type="text" class="form-control" id="work_type" name="work_type" value="{{ old('work_type', $museum->work_type ?? '') }}" placeholder="Type to search..." autocomplete="off">
+                <input type="text" class="form-control" id="work_type" name="work_type" value="{{ old('work_type', $museum->work_type ?? '') }}" placeholder="{{ __('Type to search...') }}" autocomplete="off">
               </div>
               <div class="field-help" id="help-work_type" style="display: none;">
                 <div class="help-content">
@@ -140,9 +140,9 @@
                 </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
-                  <span class="badge badge-cco" title="CCO Reference">2.3</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">2.3</span>
                 </span>
-                <button type="button" class="btn-help" data-field="object_number" title="Help">
+                <button type="button" class="btn-help" data-field="object_number" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -187,9 +187,9 @@
                 </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
-                  <span class="badge badge-cco" title="CCO Reference">3.1</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">3.1</span>
                 </span>
-                <button type="button" class="btn-help" data-field="title" title="Help">
+                <button type="button" class="btn-help" data-field="title" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -216,10 +216,10 @@
                 </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
-                  <span class="badge badge-cco" title="CCO Reference">3.1.1</span>
-                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> CCO_TITLE_TYPES</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">3.1.1</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> CCO_TITLE_TYPES</span>
                 </span>
-                <button type="button" class="btn-help" data-field="title_type" title="Help">
+                <button type="button" class="btn-help" data-field="title_type" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -267,9 +267,9 @@
                 </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
-                  <span class="badge badge-cco" title="CCO Reference">4.1</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.1</span>
                 </span>
-                <button type="button" class="btn-help" data-field="creator_display" title="Help">
+                <button type="button" class="btn-help" data-field="creator_display" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -293,10 +293,10 @@
                 </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
-                  <span class="badge badge-cco" title="CCO Reference">4.1</span>
-                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> ULAN</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.1</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> ULAN</span>
                 </span>
-                <button type="button" class="btn-help" data-field="creator" title="Help">
+                <button type="button" class="btn-help" data-field="creator" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -324,10 +324,10 @@
                 </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
-                  <span class="badge badge-cco" title="CCO Reference">4.1.1</span>
-                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_CREATOR_ROLES</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.1.1</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_CREATOR_ROLES</span>
                 </span>
-                <button type="button" class="btn-help" data-field="creator_role" title="Help">
+                <button type="button" class="btn-help" data-field="creator_role" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -345,13 +345,13 @@
             {{-- attribution_qualifier: optional, CCO 4.1.2, vocab CCO_ATTRIBUTION --}}
             <div class="cco-field level-recommended" data-field="attribution_qualifier">
               <div class="field-header">
-                <label for="attribution_qualifier">Attribution qualifier</label>
+                <label for="attribution_qualifier">{{ __('Attribution qualifier') }}</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
-                  <span class="badge badge-cco" title="CCO Reference">4.1.2</span>
-                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> CCO_ATTRIBUTION</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.1.2</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> CCO_ATTRIBUTION</span>
                 </span>
-                <button type="button" class="btn-help" data-field="attribution_qualifier" title="Help">
+                <button type="button" class="btn-help" data-field="attribution_qualifier" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -385,9 +385,9 @@
                 </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
-                  <span class="badge badge-cco" title="CCO Reference">4.2</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.2</span>
                 </span>
-                <button type="button" class="btn-help" data-field="creation_date_display" title="Help">
+                <button type="button" class="btn-help" data-field="creation_date_display" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -407,12 +407,12 @@
               <div class="col-md-6">
                 <div class="cco-field level-recommended" data-field="creation_date_earliest">
                   <div class="field-header">
-                    <label for="creation_date_earliest">Creation date (earliest)</label>
+                    <label for="creation_date_earliest">{{ __('Creation date (earliest)') }}</label>
                     <span class="field-badges">
                       <span class="badge badge-recommended">Recommended</span>
-                      <span class="badge badge-cco" title="CCO Reference">4.2.1</span>
+                      <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.2.1</span>
                     </span>
-                    <button type="button" class="btn-help" data-field="creation_date_earliest" title="Help">
+                    <button type="button" class="btn-help" data-field="creation_date_earliest" title="{{ __('Help') }}">
                       <i class="fa fa-question-circle"></i>
                     </button>
                   </div>
@@ -430,12 +430,12 @@
               <div class="col-md-6">
                 <div class="cco-field level-recommended" data-field="creation_date_latest">
                   <div class="field-header">
-                    <label for="creation_date_latest">Creation date (latest)</label>
+                    <label for="creation_date_latest">{{ __('Creation date (latest)') }}</label>
                     <span class="field-badges">
                       <span class="badge badge-recommended">Recommended</span>
-                      <span class="badge badge-cco" title="CCO Reference">4.2.2</span>
+                      <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.2.2</span>
                     </span>
-                    <button type="button" class="btn-help" data-field="creation_date_latest" title="Help">
+                    <button type="button" class="btn-help" data-field="creation_date_latest" title="{{ __('Help') }}">
                       <i class="fa fa-question-circle"></i>
                     </button>
                   </div>
@@ -455,19 +455,19 @@
             {{-- creation_place: optional, CCO 4.3, vocab TGN --}}
             <div class="cco-field level-recommended" data-field="creation_place">
               <div class="field-header">
-                <label for="creation_place">Place of creation</label>
+                <label for="creation_place">{{ __('Place of creation') }}</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
-                  <span class="badge badge-cco" title="CCO Reference">4.3</span>
-                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> TGN</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.3</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> TGN</span>
                 </span>
-                <button type="button" class="btn-help" data-field="creation_place" title="Help">
+                <button type="button" class="btn-help" data-field="creation_place" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
               <div class="field-input">
                 <input type="text" class="form-control" id="creation_place" name="creation_place"
-                       value="{{ old('creation_place', $museum->creation_place ?? '') }}" placeholder="Type to search places..." autocomplete="off">
+                       value="{{ old('creation_place', $museum->creation_place ?? '') }}" placeholder="{{ __('Type to search places...') }}" autocomplete="off">
               </div>
               <div class="field-help" id="help-creation_place" style="display: none;">
                 <div class="help-content">
@@ -479,19 +479,19 @@
             {{-- culture: optional, CCO 4.4, vocab AAT_CULTURES --}}
             <div class="cco-field level-optional" data-field="culture">
               <div class="field-header">
-                <label for="culture">Culture/People</label>
+                <label for="culture">{{ __('Culture/People') }}</label>
                 <span class="field-badges">
                   <span class="badge badge-optional">Optional</span>
-                  <span class="badge badge-cco" title="CCO Reference">4.4</span>
-                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_CULTURES</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.4</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_CULTURES</span>
                 </span>
-                <button type="button" class="btn-help" data-field="culture" title="Help">
+                <button type="button" class="btn-help" data-field="culture" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
               <div class="field-input">
                 <input type="text" class="form-control" id="culture" name="culture"
-                       value="{{ old('culture', $museum->culture ?? '') }}" placeholder="Type to search cultures..." autocomplete="off">
+                       value="{{ old('culture', $museum->culture ?? '') }}" placeholder="{{ __('Type to search cultures...') }}" autocomplete="off">
               </div>
               <div class="field-help" id="help-culture" style="display: none;">
                 <div class="help-content">
@@ -519,13 +519,13 @@
             {{-- style: optional, CCO 5.1, vocab AAT_STYLES --}}
             <div class="cco-field level-recommended" data-field="style">
               <div class="field-header">
-                <label for="style">Style</label>
+                <label for="style">{{ __('Style') }}</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
-                  <span class="badge badge-cco" title="CCO Reference">5.1</span>
-                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_STYLES</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">5.1</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_STYLES</span>
                 </span>
-                <button type="button" class="btn-help" data-field="style" title="Help">
+                <button type="button" class="btn-help" data-field="style" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -543,13 +543,13 @@
             {{-- period: optional, CCO 5.2, vocab AAT_PERIODS --}}
             <div class="cco-field level-optional" data-field="period">
               <div class="field-header">
-                <label for="period">Period</label>
+                <label for="period">{{ __('Period') }}</label>
                 <span class="field-badges">
                   <span class="badge badge-optional">Optional</span>
-                  <span class="badge badge-cco" title="CCO Reference">5.2</span>
-                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_PERIODS</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">5.2</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_PERIODS</span>
                 </span>
-                <button type="button" class="btn-help" data-field="period" title="Help">
+                <button type="button" class="btn-help" data-field="period" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -589,9 +589,9 @@
                 </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
-                  <span class="badge badge-cco" title="CCO Reference">6.1</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">6.1</span>
                 </span>
-                <button type="button" class="btn-help" data-field="dimensions_display" title="Help">
+                <button type="button" class="btn-help" data-field="dimensions_display" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -611,12 +611,12 @@
               <div class="col-md-4">
                 <div class="cco-field level-recommended" data-field="height_value">
                   <div class="field-header">
-                    <label for="height_value">Height</label>
+                    <label for="height_value">{{ __('Height') }}</label>
                     <span class="field-badges">
                       <span class="badge badge-recommended">Recommended</span>
-                      <span class="badge badge-cco" title="CCO Reference">6.2</span>
+                      <span class="badge badge-cco" title="{{ __('CCO Reference') }}">6.2</span>
                     </span>
-                    <button type="button" class="btn-help" data-field="height_value" title="Help">
+                    <button type="button" class="btn-help" data-field="height_value" title="{{ __('Help') }}">
                       <i class="fa fa-question-circle"></i>
                     </button>
                   </div>
@@ -634,12 +634,12 @@
               <div class="col-md-4">
                 <div class="cco-field level-recommended" data-field="width_value">
                   <div class="field-header">
-                    <label for="width_value">Width</label>
+                    <label for="width_value">{{ __('Width') }}</label>
                     <span class="field-badges">
                       <span class="badge badge-recommended">Recommended</span>
-                      <span class="badge badge-cco" title="CCO Reference">6.2</span>
+                      <span class="badge badge-cco" title="{{ __('CCO Reference') }}">6.2</span>
                     </span>
-                    <button type="button" class="btn-help" data-field="width_value" title="Help">
+                    <button type="button" class="btn-help" data-field="width_value" title="{{ __('Help') }}">
                       <i class="fa fa-question-circle"></i>
                     </button>
                   </div>
@@ -657,12 +657,12 @@
               <div class="col-md-4">
                 <div class="cco-field level-optional" data-field="depth_value">
                   <div class="field-header">
-                    <label for="depth_value">Depth</label>
+                    <label for="depth_value">{{ __('Depth') }}</label>
                     <span class="field-badges">
                       <span class="badge badge-optional">Optional</span>
-                      <span class="badge badge-cco" title="CCO Reference">6.2</span>
+                      <span class="badge badge-cco" title="{{ __('CCO Reference') }}">6.2</span>
                     </span>
-                    <button type="button" class="btn-help" data-field="depth_value" title="Help">
+                    <button type="button" class="btn-help" data-field="depth_value" title="{{ __('Help') }}">
                       <i class="fa fa-question-circle"></i>
                     </button>
                   </div>
@@ -704,9 +704,9 @@
                 </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
-                  <span class="badge badge-cco" title="CCO Reference">7.1</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">7.1</span>
                 </span>
-                <button type="button" class="btn-help" data-field="materials_display" title="Help">
+                <button type="button" class="btn-help" data-field="materials_display" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -724,13 +724,13 @@
             {{-- materials: optional, CCO 7.1.1, vocab AAT_MATERIALS --}}
             <div class="cco-field level-recommended" data-field="materials">
               <div class="field-header">
-                <label for="materials">Materials (Indexed)</label>
+                <label for="materials">{{ __('Materials (Indexed)') }}</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
-                  <span class="badge badge-cco" title="CCO Reference">7.1.1</span>
-                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_MATERIALS</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">7.1.1</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_MATERIALS</span>
                 </span>
-                <button type="button" class="btn-help" data-field="materials" title="Help">
+                <button type="button" class="btn-help" data-field="materials" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -747,13 +747,13 @@
             {{-- techniques: optional, CCO 7.2, vocab AAT_TECHNIQUES --}}
             <div class="cco-field level-recommended" data-field="techniques">
               <div class="field-header">
-                <label for="techniques">Techniques</label>
+                <label for="techniques">{{ __('Techniques') }}</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
-                  <span class="badge badge-cco" title="CCO Reference">7.2</span>
-                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_TECHNIQUES</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">7.2</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_TECHNIQUES</span>
                 </span>
-                <button type="button" class="btn-help" data-field="techniques" title="Help">
+                <button type="button" class="btn-help" data-field="techniques" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -776,10 +776,10 @@
                 </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
-                  <span class="badge badge-cco" title="CCO Reference">7.3</span>
-                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_SUPPORTS</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">7.3</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_SUPPORTS</span>
                 </span>
-                <button type="button" class="btn-help" data-field="support" title="Help">
+                <button type="button" class="btn-help" data-field="support" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -813,12 +813,12 @@
             {{-- subject_display: optional, CCO 8.1 --}}
             <div class="cco-field level-recommended" data-field="subject_display">
               <div class="field-header">
-                <label for="subject_display">Subject (Display)</label>
+                <label for="subject_display">{{ __('Subject (Display)') }}</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
-                  <span class="badge badge-cco" title="CCO Reference">8.1</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">8.1</span>
                 </span>
-                <button type="button" class="btn-help" data-field="subject_display" title="Help">
+                <button type="button" class="btn-help" data-field="subject_display" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -835,19 +835,19 @@
             {{-- subjects_depicted: optional, CCO 8.2, vocab AAT_SUBJECTS --}}
             <div class="cco-field level-recommended" data-field="subjects_depicted">
               <div class="field-header">
-                <label for="subjects_depicted">Subjects depicted</label>
+                <label for="subjects_depicted">{{ __('Subjects depicted') }}</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
-                  <span class="badge badge-cco" title="CCO Reference">8.2</span>
-                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_SUBJECTS</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">8.2</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_SUBJECTS</span>
                 </span>
-                <button type="button" class="btn-help" data-field="subjects_depicted" title="Help">
+                <button type="button" class="btn-help" data-field="subjects_depicted" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
               <div class="field-input">
                 <input type="text" class="form-control" id="subjects_depicted" name="subjects_depicted"
-                       value="{{ old('subjects_depicted', $museum->subjects_depicted ?? '') }}" placeholder="Type to search subjects..." autocomplete="off">
+                       value="{{ old('subjects_depicted', $museum->subjects_depicted ?? '') }}" placeholder="{{ __('Type to search subjects...') }}" autocomplete="off">
               </div>
               <div class="field-help" id="help-subjects_depicted" style="display: none;">
                 <div class="help-content">
@@ -875,12 +875,12 @@
             {{-- inscriptions: optional, CCO 9.1 --}}
             <div class="cco-field level-optional" data-field="inscriptions">
               <div class="field-header">
-                <label for="inscriptions">Inscriptions</label>
+                <label for="inscriptions">{{ __('Inscriptions') }}</label>
                 <span class="field-badges">
                   <span class="badge badge-optional">Optional</span>
-                  <span class="badge badge-cco" title="CCO Reference">9.1</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">9.1</span>
                 </span>
-                <button type="button" class="btn-help" data-field="inscriptions" title="Help">
+                <button type="button" class="btn-help" data-field="inscriptions" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -897,12 +897,12 @@
             {{-- signature: optional, CCO 9.2 --}}
             <div class="cco-field level-recommended" data-field="signature">
               <div class="field-header">
-                <label for="signature">Signature</label>
+                <label for="signature">{{ __('Signature') }}</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
-                  <span class="badge badge-cco" title="CCO Reference">9.2</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">9.2</span>
                 </span>
-                <button type="button" class="btn-help" data-field="signature" title="Help">
+                <button type="button" class="btn-help" data-field="signature" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -935,12 +935,12 @@
             {{-- description: optional, CCO 11.1 --}}
             <div class="cco-field level-recommended" data-field="description">
               <div class="field-header">
-                <label for="description">Description</label>
+                <label for="description">{{ __('Description') }}</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
-                  <span class="badge badge-cco" title="CCO Reference">11.1</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">11.1</span>
                 </span>
-                <button type="button" class="btn-help" data-field="description" title="Help">
+                <button type="button" class="btn-help" data-field="description" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -973,12 +973,12 @@
             {{-- condition_summary: optional, CCO 12.1 --}}
             <div class="cco-field level-recommended" data-field="condition_summary">
               <div class="field-header">
-                <label for="condition_summary">Condition summary</label>
+                <label for="condition_summary">{{ __('Condition summary') }}</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
-                  <span class="badge badge-cco" title="CCO Reference">12.1</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">12.1</span>
                 </span>
-                <button type="button" class="btn-help" data-field="condition_summary" title="Help">
+                <button type="button" class="btn-help" data-field="condition_summary" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -1022,9 +1022,9 @@
                 </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
-                  <span class="badge badge-cco" title="CCO Reference">13.1</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">13.1</span>
                 </span>
-                <button type="button" class="btn-help" data-field="repository" title="Help">
+                <button type="button" class="btn-help" data-field="repository" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -1046,12 +1046,12 @@
             {{-- location_within_repository: optional, CCO 13.2 --}}
             <div class="cco-field level-recommended" data-field="location_within_repository">
               <div class="field-header">
-                <label for="location_within_repository">Location</label>
+                <label for="location_within_repository">{{ __('Location') }}</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
-                  <span class="badge badge-cco" title="CCO Reference">13.2</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">13.2</span>
                 </span>
-                <button type="button" class="btn-help" data-field="location_within_repository" title="Help">
+                <button type="button" class="btn-help" data-field="location_within_repository" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -1069,12 +1069,12 @@
             {{-- credit_line: optional, CCO 13.3 --}}
             <div class="cco-field level-recommended" data-field="credit_line">
               <div class="field-header">
-                <label for="credit_line">Credit line</label>
+                <label for="credit_line">{{ __('Credit line') }}</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
-                  <span class="badge badge-cco" title="CCO Reference">13.3</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">13.3</span>
                 </span>
-                <button type="button" class="btn-help" data-field="credit_line" title="Help">
+                <button type="button" class="btn-help" data-field="credit_line" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -1123,12 +1123,12 @@
             {{-- rights_statement: optional, CCO 15.1 --}}
             <div class="cco-field level-recommended" data-field="rights_statement">
               <div class="field-header">
-                <label for="rights_statement">Rights statement</label>
+                <label for="rights_statement">{{ __('Rights statement') }}</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
-                  <span class="badge badge-cco" title="CCO Reference">15.1</span>
+                  <span class="badge badge-cco" title="{{ __('CCO Reference') }}">15.1</span>
                 </span>
-                <button type="button" class="btn-help" data-field="rights_statement" title="Help">
+                <button type="button" class="btn-help" data-field="rights_statement" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
@@ -1165,7 +1165,7 @@
 
             <div class="row mb-3">
               <div class="col-md-6">
-                <label class="form-label">Storage container</label>
+                <label class="form-label">{{ __('Storage container') }}</label>
                 <select name="item_physical_object_id" class="form-select">
                   <option value="">-- Select container --</option>
                   @foreach($physicalObjects ?? [] as $poId => $poName)
@@ -1175,7 +1175,7 @@
                 <small class="form-text text-muted">Link to a physical storage container</small>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Item barcode</label>
+                <label class="form-label">{{ __('Item barcode') }}</label>
                 <input type="text" name="item_barcode" class="form-control" value="{{ old('item_barcode', $itemLocation['barcode'] ?? '') }}">
               </div>
             </div>
@@ -1183,38 +1183,38 @@
             <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-box me-2"></i>Location within container</h6>
             <div class="row mb-3">
               <div class="col-md-2">
-                <label class="form-label">Box</label>
+                <label class="form-label">{{ __('Box') }}</label>
                 <input type="text" name="item_box_number" class="form-control" value="{{ old('item_box_number', $itemLocation['box_number'] ?? '') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Folder</label>
+                <label class="form-label">{{ __('Folder') }}</label>
                 <input type="text" name="item_folder_number" class="form-control" value="{{ old('item_folder_number', $itemLocation['folder_number'] ?? '') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Shelf</label>
+                <label class="form-label">{{ __('Shelf') }}</label>
                 <input type="text" name="item_shelf" class="form-control" value="{{ old('item_shelf', $itemLocation['shelf'] ?? '') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Row</label>
+                <label class="form-label">{{ __('Row') }}</label>
                 <input type="text" name="item_row" class="form-control" value="{{ old('item_row', $itemLocation['row'] ?? '') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Position</label>
+                <label class="form-label">{{ __('Position') }}</label>
                 <input type="text" name="item_position" class="form-control" value="{{ old('item_position', $itemLocation['position'] ?? '') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Item #</label>
+                <label class="form-label">{{ __('Item #') }}</label>
                 <input type="text" name="item_item_number" class="form-control" value="{{ old('item_item_number', $itemLocation['item_number'] ?? '') }}">
               </div>
             </div>
 
             <div class="row mb-3">
               <div class="col-md-3">
-                <label class="form-label">Extent value</label>
+                <label class="form-label">{{ __('Extent value') }}</label>
                 <input type="number" step="0.01" name="item_extent_value" class="form-control" value="{{ old('item_extent_value', $itemLocation['extent_value'] ?? '') }}">
               </div>
               <div class="col-md-3">
-                <label class="form-label">Extent unit</label>
+                <label class="form-label">{{ __('Extent unit') }}</label>
                 <select name="item_extent_unit" class="form-select">
                   <option value="">-- Select --</option>
                   @foreach(['items' => 'Items', 'pages' => 'Pages', 'folders' => 'Folders', 'boxes' => 'Boxes', 'cm' => 'cm', 'm' => 'metres', 'cubic_m' => 'cubic metres'] as $val => $label)
@@ -1227,7 +1227,7 @@
             <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>Condition &amp; Status</h6>
             <div class="row mb-3">
               <div class="col-md-3">
-                <label class="form-label">Condition</label>
+                <label class="form-label">{{ __('Condition') }}</label>
                 <select name="item_condition_status" class="form-select">
                   <option value="">-- Select --</option>
                   @foreach(['excellent' => 'Excellent', 'good' => 'Good', 'fair' => 'Fair', 'poor' => 'Poor', 'critical' => 'Critical'] as $val => $label)
@@ -1236,7 +1236,7 @@
                 </select>
               </div>
               <div class="col-md-3">
-                <label class="form-label">Access status</label>
+                <label class="form-label">{{ __('Access status') }}</label>
                 <select name="item_access_status" class="form-select">
                   @foreach(['available' => 'Available', 'in_use' => 'In Use', 'restricted' => 'Restricted', 'offsite' => 'Offsite', 'missing' => 'Missing'] as $val => $label)
                     <option value="{{ $val }}" @selected(old('item_access_status', $itemLocation['access_status'] ?? 'available') == $val)>{{ $label }}</option>
@@ -1244,14 +1244,14 @@
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Condition notes</label>
+                <label class="form-label">{{ __('Condition notes') }}</label>
                 <input type="text" name="item_condition_notes" class="form-control" value="{{ old('item_condition_notes', $itemLocation['condition_notes'] ?? '') }}">
               </div>
             </div>
 
             <div class="row mb-3">
               <div class="col-md-12">
-                <label class="form-label">Location notes</label>
+                <label class="form-label">{{ __('Location notes') }}</label>
                 <textarea name="item_location_notes" class="form-control" rows="2">{{ old('item_location_notes', $itemLocation['notes'] ?? '') }}</textarea>
               </div>
             </div>
@@ -1292,12 +1292,12 @@
 
               <div class="cco-field">
                 <div class="field-header">
-                  <label for="watermark_type_id">System Watermark</label>
+                  <label for="watermark_type_id">{{ __('System Watermark') }}</label>
                   <span class="field-badges"><span class="badge badge-optional">Optional</span></span>
                 </div>
                 <div class="field-input">
                   <select name="watermark_type_id" id="watermark_type_id" class="form-select">
-                    <option value="">Use default</option>
+                    <option value="">{{ __('Use default') }}</option>
                     @foreach($watermarkTypes ?? [] as $type)
                       <option value="{{ $type->id }}" @selected(old('watermark_type_id', $watermarkSetting->watermark_type_id ?? '') == $type->id)>{{ $type->name }}</option>
                     @endforeach
@@ -1308,12 +1308,12 @@
               @if(($customWatermarks ?? collect())->count() > 0)
               <div class="cco-field">
                 <div class="field-header">
-                  <label for="custom_watermark_id">Or use Custom Watermark</label>
+                  <label for="custom_watermark_id">{{ __('Or use Custom Watermark') }}</label>
                   <span class="field-badges"><span class="badge badge-optional">Optional</span></span>
                 </div>
                 <div class="field-input">
                   <select name="custom_watermark_id" id="custom_watermark_id" class="form-select">
-                    <option value="">None</option>
+                    <option value="">{{ __('None') }}</option>
                     @foreach($customWatermarks as $custom)
                       <option value="{{ $custom->id }}" @selected(old('custom_watermark_id', $watermarkSetting->custom_watermark_id ?? '') == $custom->id)>
                         {{ $custom->name }}{{ $custom->object_id ? '' : ' (Global)' }}
@@ -1326,19 +1326,19 @@
 
               <div class="cco-field" style="background: #fff3cd; border-left-color: #ffc107;">
                 <div class="field-header">
-                  <label>Upload NEW Custom Watermark</label>
+                  <label>{{ __('Upload NEW Custom Watermark') }}</label>
                   <span class="field-badges"><span class="badge badge-optional">Optional</span></span>
                 </div>
                 <p class="text-muted small">Leave empty to keep existing selection above</p>
 
                 <div class="row g-3">
                   <div class="col-md-6">
-                    <label for="new_watermark_name" class="form-label">Watermark Name</label>
+                    <label for="new_watermark_name" class="form-label">{{ __('Watermark Name') }}</label>
                     <input type="text" class="form-control" id="new_watermark_name"
-                           name="new_watermark_name" placeholder="e.g., Company Logo">
+                           name="new_watermark_name" placeholder="{{ __('e.g., Company Logo') }}">
                   </div>
                   <div class="col-md-6">
-                    <label for="new_watermark_file" class="form-label">Watermark Image</label>
+                    <label for="new_watermark_file" class="form-label">{{ __('Watermark Image') }}</label>
                     <input type="file" class="form-control" id="new_watermark_file"
                            name="new_watermark_file" accept="image/png,image/gif">
                     <div class="form-text">PNG or GIF with transparency recommended</div>
@@ -1347,7 +1347,7 @@
 
                 <div class="row g-3 mt-2">
                   <div class="col-md-6">
-                    <label for="new_watermark_position" class="form-label">Position</label>
+                    <label for="new_watermark_position" class="form-label">{{ __('Position') }}</label>
                     @php $wmPosition = old('new_watermark_position', $watermarkSetting->position ?? 'center'); @endphp
                     <select name="new_watermark_position" id="new_watermark_position" class="form-select">
                       @foreach(['center' => 'Center', 'top left' => 'Top Left', 'top center' => 'Top Center', 'top right' => 'Top Right', 'left center' => 'Left Center', 'right center' => 'Right Center', 'bottom left' => 'Bottom Left', 'bottom center' => 'Bottom Center', 'bottom right' => 'Bottom Right', 'repeat' => 'Repeat/Tile'] as $val => $label)
@@ -1399,7 +1399,7 @@
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                   data-bs-target="#admin-collapse" aria-expanded="false" aria-controls="admin-collapse"
                   style="background-color: var(--ahg-primary, #005837) !important; color: #fff !important;">
-            Administration area
+            {{ __('Administration area') }}
           </button>
         </h2>
         <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
@@ -1407,13 +1407,13 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label fw-bold">Source language</label>
+                  <label class="form-label fw-bold">{{ __('Source language') }}</label>
                   <div>{{ $sourceCulture ?? 'English' }}</div>
                 </div>
 
                 @if(!$isNew && isset($museum->updated_at) && $museum->updated_at)
                 <div class="mb-3">
-                  <label class="form-label fw-bold">Last updated</label>
+                  <label class="form-label fw-bold">{{ __('Last updated') }}</label>
                   <div>{{ \Carbon\Carbon::parse($museum->updated_at)->format('F j, Y, g:i a') }}</div>
                 </div>
                 @endif
@@ -1421,7 +1421,7 @@
 
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="displayStandard" class="form-label fw-bold">Display standard</label>
+                  <label for="displayStandard" class="form-label fw-bold">{{ __('Display standard') }}</label>
                   <select name="displayStandard" id="displayStandard" class="form-select">
                     @foreach($displayStandards ?? [] as $dsId => $dsName)
                       <option value="{{ $dsId }}" @selected(old('displayStandard', $currentDisplayStandard ?? '') == $dsId)>{{ $dsName }}</option>
