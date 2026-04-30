@@ -1,0 +1,83 @@
+##
+# Heratio — nginx vhost template
+##
+# Rendered by bin/install with placeholders substituted:
+#   {{DOMAIN}}         — e.g. mysite.example
+#   {{INSTALL_DIR}}    — e.g. /usr/share/nginx/heratio
+#   {{UPLOADS_PATH}}   — e.g. /mnt/nas/heratio  (HERATIO_UPLOADS_PATH parent)
+#   {{PHP_FPM_SOCK}}   — e.g. /run/php/php8.3-fpm.sock
+##
+# This template is HTTP-only by default. SSL setup is the operator's concern
+# (recommended: certbot --nginx -d {{DOMAIN}} after the vhost is in place).
+##
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name {{DOMAIN}};
+
+    client_max_body_size 2G;
+
+    root {{INSTALL_DIR}}/public;
+    index index.php;
+
+    access_log /var/log/nginx/heratio_access.log;
+    error_log  /var/log/nginx/heratio_error.log;
+
+    # ------------------------------------------------------------------
+    # Security headers
+    # ------------------------------------------------------------------
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # ------------------------------------------------------------------
+    # Uploaded media — alias to HERATIO_STORAGE_PATH. The ^~ prefix is
+    # critical so the static-file regex below doesn't intercept tile
+    # / image requests.
+    # ------------------------------------------------------------------
+    location ^~ /uploads/ {
+        alias {{UPLOADS_PATH}}/;
+        expires 30d;
+        access_log off;
+        add_header Access-Control-Allow-Origin "*" always;
+    }
+
+    # ------------------------------------------------------------------
+    # IIIF — proxy to Cantaloupe (only active if bin/install-cantaloupe
+    # has been run; otherwise this block 502s and the IIIF viewer just
+    # falls back to the JPEG reference image).
+    # ------------------------------------------------------------------
+    # include snippets/heratio-iiif.conf;
+
+    # ------------------------------------------------------------------
+    # Laravel front controller
+    # ------------------------------------------------------------------
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass unix:{{PHP_FPM_SOCK}};
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        fastcgi_read_timeout 300;
+    }
+
+    # Static asset cache
+    location ~* \.(jpg|jpeg|png|gif|webp|svg|ico|css|js|woff|woff2|ttf|eot)$ {
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+        try_files $uri =404;
+    }
+
+    # Block sensitive files
+    location ~ /\.(?!well-known) { deny all; }
+    location = /.env             { deny all; }
+}
