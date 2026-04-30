@@ -1,0 +1,19 @@
+[Unit]
+Description=Cantaloupe IIIF Image Server
+After=network.target
+
+[Service]
+Type=simple
+User={{SERVICE_USER}}
+Group={{SERVICE_GROUP}}
+WorkingDirectory={{INSTALL_DIR}}
+Environment="JAVA_OPTS=-Xmx{{HEAP_SIZE}}"
+ExecStart=/usr/bin/java -Dcantaloupe.config={{INSTALL_DIR}}/cantaloupe.properties -Xmx{{HEAP_SIZE}} -jar {{INSTALL_DIR}}/cantaloupe-{{CANTALOUPE_VERSION}}.jar
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

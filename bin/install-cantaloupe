@@ -1,0 +1,244 @@
+#!/usr/bin/env bash
+# =============================================================================
+# install-cantaloupe — install Cantaloupe IIIF Image Server for Heratio
+# =============================================================================
+# Idempotent. Safe to re-run. Detects already-installed state and skips done
+# stages. Required by Heratio's deep-zoom viewers (OpenSeadragon, Mirador) for
+# TIFF / JP2 masters; not required for plain JPEG/PNG which serve via nginx.
+#
+# Usage:
+#   sudo bin/install-cantaloupe
+#   sudo bin/install-cantaloupe --version=5.0.6 --port=8182 --heap=2g \
+#       --domain=mysite.example --uploads-path=/mnt/nas/heratio
+#
+# Reads defaults from .env (HERATIO_UPLOADS_PATH, APP_URL host) when present.
+# =============================================================================
+
+set -euo pipefail
+
+# ---------- defaults ----------
+CANTALOUPE_VERSION="5.0.6"
+HTTP_PORT="8182"
+HEAP_SIZE="2g"
+SERVICE_USER="www-data"
+SERVICE_GROUP="www-data"
+INSTALL_PARENT="/opt"
+CACHE_PATH="/var/cache/cantaloupe"
+LOG_PATH="/var/log/cantaloupe"
+DOMAIN=""
+UPLOADS_PATH=""
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+TEMPLATES="${REPO_ROOT}/config/cantaloupe"
+
+# ---------- read .env if present ----------
+if [[ -f "${REPO_ROOT}/.env" ]]; then
+    UPLOADS_PATH="$(grep -E '^HERATIO_UPLOADS_PATH=' "${REPO_ROOT}/.env" | cut -d= -f2- || true)"
+    APP_URL="$(grep -E '^APP_URL=' "${REPO_ROOT}/.env" | cut -d= -f2- | sed 's|https\?://||;s|/.*$||' || true)"
+    DOMAIN="${APP_URL:-$DOMAIN}"
+fi
+
+# ---------- parse flags ----------
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --version=*)        CANTALOUPE_VERSION="${1#*=}" ;;
+        --port=*)           HTTP_PORT="${1#*=}" ;;
+        --heap=*)           HEAP_SIZE="${1#*=}" ;;
+        --domain=*)         DOMAIN="${1#*=}" ;;
+        --uploads-path=*)   UPLOADS_PATH="${1#*=}" ;;
+        --cache-path=*)     CACHE_PATH="${1#*=}" ;;
+        --user=*)           SERVICE_USER="${1#*=}" ;;
+        --group=*)          SERVICE_GROUP="${1#*=}" ;;
+        -h|--help)
+            grep -E '^# ' "$0" | sed 's/^# \?//' | head -20
+            exit 0
+            ;;
+        *)
+            echo "Unknown flag: $1" >&2
+            exit 2
+            ;;
+    esac
+    shift
+done
+
+INSTALL_DIR="${INSTALL_PARENT}/cantaloupe-${CANTALOUPE_VERSION}"
+SYMLINK="${INSTALL_PARENT}/cantaloupe"
+JAR="${INSTALL_DIR}/cantaloupe-${CANTALOUPE_VERSION}.jar"
+
+# ---------- preflight ----------
+echo "==> Preflight"
+
+if [[ $EUID -ne 0 ]]; then
+    echo "ERROR: must run as root (sudo)" >&2
+    exit 1
+fi
+
+if [[ -z "$UPLOADS_PATH" ]]; then
+    echo "ERROR: --uploads-path is required (or set HERATIO_UPLOADS_PATH in .env)" >&2
+    exit 1
+fi
+
+if [[ -z "$DOMAIN" ]]; then
+    echo "ERROR: --domain is required (or set APP_URL in .env)" >&2
+    exit 1
+fi
+
+if ! command -v java &>/dev/null; then
+    echo "ERROR: Java not installed. Run: apt-get install -y default-jre-headless" >&2
+    exit 1
+fi
+
+JAVA_VER="$(java -version 2>&1 | head -1 | grep -oE '[0-9]+' | head -1)"
+if [[ "$JAVA_VER" -lt 11 ]]; then
+    echo "ERROR: Java 11+ required (found $JAVA_VER)" >&2
+    exit 1
+fi
+
+if ss -ltn 2>/dev/null | awk '{print $4}' | grep -qE ":${HTTP_PORT}\$"; then
+    if ! systemctl is-active --quiet cantaloupe; then
+        echo "ERROR: port ${HTTP_PORT} is in use by another service" >&2
+        exit 1
+    fi
+    echo "    port ${HTTP_PORT} already bound by Cantaloupe (re-run scenario)"
+fi
+
+echo "    java=$JAVA_VER, port=${HTTP_PORT}, version=${CANTALOUPE_VERSION}"
+
+# ---------- download + extract ----------
+echo "==> Install"
+
+if [[ -f "$JAR" ]]; then
+    echo "    ${JAR} already present — skipping download"
+else
+    TMP="$(mktemp -d)"
+    trap 'rm -rf "$TMP"' EXIT
+
+    URL="https://github.com/cantaloupe-project/cantaloupe/releases/download/v${CANTALOUPE_VERSION}/cantaloupe-${CANTALOUPE_VERSION}.zip"
+    echo "    downloading $URL"
+    curl -fsSL -o "${TMP}/cantaloupe.zip" "$URL"
+
+    mkdir -p "$INSTALL_DIR"
+    unzip -q "${TMP}/cantaloupe.zip" -d "${INSTALL_PARENT}"
+    # The zip extracts to ${INSTALL_PARENT}/cantaloupe-${VERSION}/...
+    [[ -f "$JAR" ]] || { echo "ERROR: jar not found after extract: $JAR" >&2; exit 1; }
+    chown -R "${SERVICE_USER}:${SERVICE_GROUP}" "$INSTALL_DIR"
+    echo "    extracted to ${INSTALL_DIR}"
+fi
+
+# Stable symlink so config paths don't change across versions
+ln -sfn "$INSTALL_DIR" "$SYMLINK"
+echo "    ${SYMLINK} -> ${INSTALL_DIR}"
+
+# ---------- directories ----------
+mkdir -p "$CACHE_PATH" "$LOG_PATH"
+chown "${SERVICE_USER}:${SERVICE_GROUP}" "$CACHE_PATH" "$LOG_PATH"
+
+# ---------- render config ----------
+echo "==> Config"
+
+render() {
+    local src="$1" dest="$2"
+    sed \
+        -e "s|{{HTTP_PORT}}|${HTTP_PORT}|g" \
+        -e "s|{{HEAP_SIZE}}|${HEAP_SIZE}|g" \
+        -e "s|{{UPLOADS_PATH}}|${UPLOADS_PATH}|g" \
+        -e "s|{{CACHE_PATH}}|${CACHE_PATH}|g" \
+        -e "s|{{INSTALL_DIR}}|${SYMLINK}|g" \
+        -e "s|{{SERVICE_USER}}|${SERVICE_USER}|g" \
+        -e "s|{{SERVICE_GROUP}}|${SERVICE_GROUP}|g" \
+        -e "s|{{CANTALOUPE_VERSION}}|${CANTALOUPE_VERSION}|g" \
+        "$src" > "$dest"
+}
+
+render "${TEMPLATES}/cantaloupe.properties.template" "${INSTALL_DIR}/cantaloupe.properties"
+chown "${SERVICE_USER}:${SERVICE_GROUP}" "${INSTALL_DIR}/cantaloupe.properties"
+echo "    wrote ${INSTALL_DIR}/cantaloupe.properties"
+
+# delegates.rb — render INSTANCE_PATHS hash for current host
+INSTANCE_PATHS_HASH="    '${DOMAIN}' => '${UPLOADS_PATH}/',"
+sed \
+    -e "s|{{INSTANCE_PATHS_HASH}}|${INSTANCE_PATHS_HASH}|" \
+    -e "s|{{DEFAULT_PATH}}|${UPLOADS_PATH}/|g" \
+    "${TEMPLATES}/delegates.rb.template" > "${INSTALL_DIR}/delegates.rb"
+chown "${SERVICE_USER}:${SERVICE_GROUP}" "${INSTALL_DIR}/delegates.rb"
+echo "    wrote ${INSTALL_DIR}/delegates.rb (host: ${DOMAIN} -> ${UPLOADS_PATH}/)"
+
+# ---------- systemd ----------
+echo "==> systemd"
+
+UNIT="/etc/systemd/system/cantaloupe.service"
+render "${TEMPLATES}/cantaloupe.service.template" "$UNIT"
+systemctl daemon-reload
+systemctl enable cantaloupe >/dev/null
+
+if systemctl is-active --quiet cantaloupe; then
+    systemctl restart cantaloupe
+    echo "    cantaloupe restarted"
+else
+    systemctl start cantaloupe
+    echo "    cantaloupe started"
+fi
+
+# wait for service to be ready
+echo "    waiting for service…"
+for i in {1..30}; do
+    if curl -fsS "http://127.0.0.1:${HTTP_PORT}/iiif/3/" >/dev/null 2>&1 \
+        || curl -fsSI "http://127.0.0.1:${HTTP_PORT}/" >/dev/null 2>&1; then
+        echo "    service responding"
+        break
+    fi
+    sleep 1
+    [[ $i -eq 30 ]] && { echo "ERROR: service did not become ready" >&2; exit 1; }
+done
+
+# ---------- nginx snippet ----------
+echo "==> nginx snippet"
+SNIPPET_TARGET="/etc/nginx/snippets/heratio-iiif.conf"
+mkdir -p /etc/nginx/snippets
+sed -e "s|{{HTTP_PORT}}|${HTTP_PORT}|g" \
+    "${TEMPLATES}/nginx-iiif-snippet.conf" > "$SNIPPET_TARGET"
+echo "    wrote $SNIPPET_TARGET"
+echo "    add 'include snippets/heratio-iiif.conf;' inside your Heratio server block,"
+echo "    then: sudo nginx -t && sudo systemctl reload nginx"
+
+# ---------- update Heratio settings ----------
+if [[ -x "${REPO_ROOT}/artisan" ]]; then
+    if php "${REPO_ROOT}/artisan" list 2>/dev/null | grep -q "ahg:settings-set"; then
+        php "${REPO_ROOT}/artisan" ahg:settings-set iiif_image_server_url "https://${DOMAIN}/iiif/" >/dev/null 2>&1 \
+            && echo "    ahg_settings.iiif_image_server_url = https://${DOMAIN}/iiif/"
+    fi
+fi
+
+# ---------- smoke test ----------
+echo "==> Smoke test"
+
+# We can't pick a real identifier without DB access; just check the server
+# answers an info.json on a synthetic id (will 404 but with IIIF error JSON).
+RESP="$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:${HTTP_PORT}/iiif/3/test_SL_image.tif/info.json" || true)"
+if [[ "$RESP" =~ ^(200|404)$ ]]; then
+    echo "    ✓ Cantaloupe answering on 127.0.0.1:${HTTP_PORT} (HTTP ${RESP})"
+else
+    echo "    ⚠ unexpected response: HTTP ${RESP} — check journalctl -u cantaloupe"
+fi
+
+# ---------- done ----------
+cat <<EOF
+
+═══════════════════════════════════════════════════════════════════════════════
+  Cantaloupe IIIF installed
+═══════════════════════════════════════════════════════════════════════════════
+  Version:   ${CANTALOUPE_VERSION}
+  Endpoint:  http://127.0.0.1:${HTTP_PORT}/iiif/3/
+  Public:    https://${DOMAIN}/iiif/3/
+  Config:    ${INSTALL_DIR}/cantaloupe.properties
+  Delegate:  ${INSTALL_DIR}/delegates.rb
+  Cache:     ${CACHE_PATH}
+  Logs:      journalctl -u cantaloupe   |   ${LOG_PATH}/
+
+  Next:
+    1. Add 'include snippets/heratio-iiif.conf;' to your Heratio nginx vhost.
+    2. sudo nginx -t && sudo systemctl reload nginx
+    3. Test with a real TIFF identifier:
+         curl -I "https://${DOMAIN}/iiif/3/<id>/info.json"
+═══════════════════════════════════════════════════════════════════════════════
+EOF

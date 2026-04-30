@@ -89,7 +89,18 @@ cd /usr/share/nginx/heratio
 5. `/admin/login` works. `/admin/dashboards` loads. `/admin/dropdowns` shows values. `/informationobject/browse` loads an empty GLAM grid.
 6. **Zero** references to AtoM at runtime. AtoM codebase not present, not required.
 
-Cantaloupe (IIIF), Fuseki (RiC), Qdrant (semantic search), Ollama (AI) are **optional services** — install walks the admin through each but does not block install.
+Cantaloupe (IIIF) and Qdrant (semantic search) are **optional services** — install walks the admin through each but does not block install.
+
+**AI is not bundled.** Heratio is a remote-AI *client* — it calls an Ollama (or other LLM/vision) host over HTTP for HTR, NER, condition scan, and visual description. The AI host is the operator's responsibility (managed externally or self-hosted on a separate GPU box). Heratio's only AI install step is setting `ahg_settings.voice_local_llm_url` and related endpoints.
+
+**OpenRiC is a separate product, not an optional service.** Heratio ships with the `ric_*` tables and the in-app RiC views (RiC Context panel, JSON-LD export, Graph Explorer link). What lives in OpenRiC is the standalone SPARQL / SHACL / graph engine that customers install **only if** they want a public RiC-O endpoint at `ric.example.com`. The OpenRiC repo has its own `bin/install`, its own database, its own service. Heratio's `bin/install` does not touch it.
+
+| Product | Repo | DB | Runs as |
+|---|---|---|---|
+| **Heratio** (default) | `github.com/ArchiveHeritageGroup/heratio` | `heratio` | Always |
+| **OpenRiC** (opt-in) | `github.com/ArchiveHeritageGroup/openric` | `openric` (separate) | Only if customer wants public RiC endpoint |
+
+Heratio talks to OpenRiC via HTTP when present (configured via `ahg_settings.openric_base_url`); when absent, the in-app RiC features still work against the local `ric_*` tables.
 
 ---
 
@@ -104,6 +115,37 @@ Three approaches were considered:
 | **C — Hybrid (recommended)** | Do B as canonical; auto-generate A in CI as a release artifact for fast install + verification | Both benefits; B stays the source of truth, A is a cached build output | Requires install-verification CI job |
 
 **Recommendation: C.** Own the schema/seeds per-package (option B). Treat the monolithic dump as a *build artifact*, not source.
+
+---
+
+## 4.5. Distribution channels
+
+Heratio ships **as a Laravel monorepo with composer + npm dependencies**. The repo is the install — there is no separate build artifact for the application itself (only optional cached SQL dumps, see §4 option C). System packages (PHP, MySQL, Nginx, ES, Redis, Node, Composer) stay on the OS package manager — `bin/install` preflight-checks but does not try to install them.
+
+| Channel | Recommended | Use when |
+|---|---|---|
+| **Git clone** | ✅ primary | Standard install. Updates via `git pull && bin/install` (idempotent). Pin a release with `git checkout v1.33.x`. |
+| **Tarball from GitHub Releases** | ✅ secondary | Air-gapped boxes, no `git` available. `bin/release` already produces these. Updates via download-and-replace + `bin/install`. |
+| **Docker image** | ⏳ future (out of scope for Phase 1) | One-line install, fully isolated. Build on top of `bin/install --non-interactive` once it stabilises. |
+| **APT / .deb package** | ❌ not pursued | A Laravel app with composer-managed `vendor/` and npm-managed `node_modules/` does not fit Debian packaging policy: bundling them inflates the .deb to 500+ MB and locks dependency state; running composer/npm in `postinst` is fragile and breaks on no-internet boxes. Multi-distro (RPM/AUR) doubles the burden. Skip unless a customer specifically requires it. |
+| **Custom installer .deb shim** | ⚠️ low priority | Tiny .deb that only drops `/usr/bin/heratio-install` which then runs git-clone + `bin/install`. Sugar, not a real install channel. Defer until multiple customers ask. |
+
+### Install matrix (post-Phase-3)
+
+```bash
+# Method A — git (recommended for ongoing operation)
+git clone https://github.com/ArchiveHeritageGroup/heratio.git /usr/share/nginx/heratio
+cd /usr/share/nginx/heratio
+./bin/install --domain=mysite.example --admin-email=admin@mysite.example
+
+# Method B — tarball (recommended for air-gapped / no-git environments)
+curl -L https://github.com/ArchiveHeritageGroup/heratio/releases/download/v1.33.19/heratio-1.33.19.tar.gz \
+  | tar -xz -C /usr/share/nginx/
+cd /usr/share/nginx/heratio
+./bin/install --domain=mysite.example --admin-email=admin@mysite.example
+```
+
+Both A and B run the same `bin/install` with identical results. The decision tree belongs at the top of `docs/standalone-install-howto.md`.
 
 ---
 
@@ -182,6 +224,60 @@ Crash behaviour: every stage wraps in `set -e`. Failure at any stage prints the 
 
 ---
 
+## 6.5. Sub-installer pattern (optional services)
+
+External services Heratio integrates with are **separate, idempotent sub-installers** under `bin/install-<service>`. They are NOT invoked by `bin/install` and they do NOT block the Heratio install. Heratio works without them, with reduced features:
+
+| Sub-installer | Service | What you lose without it |
+|---|---|---|
+| `bin/install-cantaloupe` | Cantaloupe IIIF Image Server | Deep-zoom for TIFF / JP2 masters in OpenSeadragon and Mirador. JPEG/PNG still serve directly via nginx. |
+| `bin/install-qdrant` | Qdrant vector DB | Semantic search, image-similarity search, NER vector index. Lexical search still works via Elasticsearch. |
+
+**Intentionally NOT in this list:**
+
+- **AI runtimes (Ollama, vLLM, etc.)** — Heratio is a remote-AI *client*. AI services (HTR, NER, condition scan, vision describe) are HTTP calls to an externally-managed AI host. The operator points Heratio at a host they own/rent via `ahg_settings.voice_local_llm_url` and related endpoints. Heratio does not bundle, install, or supervise any AI runtime.
+- **OpenRiC** — a *separate product* with its own repo and its own `bin/install`, not a Heratio sub-installer. See §3.
+
+### Convention for every sub-installer
+
+1. **Single bash script**, ~100–200 lines. Lives at `bin/install-<service>`.
+2. **Idempotent** — safe to re-run. Detects already-installed state via service-presence + config-file checks and skips already-done stages.
+3. **Parameterised** — `--port`, `--domain`, `--data-path` etc. Sensible defaults from `.env`.
+4. **Renders config from a template** under `config/<service>/<file>.template` with `{{PLACEHOLDER}}` substitution. The template is the canonical config — when ops change a setting, they edit the template + re-run, not the rendered file.
+5. **Writes a systemd unit** from `config/<service>/<service>.service.template`, enables + starts via `systemctl`.
+6. **Updates Heratio settings** at the end via `php artisan ahg:settings-set <key> <value>` so the running app picks up the new endpoint without manual config.
+7. **Smoke test** before exiting non-zero — proves the service is reachable and serving the expected response.
+8. **Re-run safe on existing install** — detects the service is already running with the same config and exits 0.
+
+### Repo layout for sub-installers
+
+```
+bin/
+  install                                     # main Heratio installer
+  install-cantaloupe                          # NEW
+  install-qdrant                              # NEW (Phase 3.5)
+config/
+  cantaloupe/
+    cantaloupe.properties.template            # NEW
+    delegates.rb.template                     # NEW
+    cantaloupe.service.template               # NEW
+    nginx-iiif-snippet.conf                   # NEW
+  qdrant/
+    config.yaml.template
+    qdrant.service.template
+docs/
+  cantaloupe-install-howto.md                 # NEW
+  qdrant-install-howto.md                     # NEW (Phase 3.5)
+  ai-host-setup.md                            # NEW — points at remote AI host;
+                                              #       installer-free guide
+```
+
+### Discoverability
+
+`bin/install` prints a "next steps" block at the end listing each sub-installer the operator can run when ready. No service auto-installs. Operator opts in.
+
+---
+
 ## 7. Work items — what has to be built
 
 Ordered by dependency. Each item is ~small, scoped, independently releasable.
@@ -214,6 +310,14 @@ Ordered by dependency. Each item is ~small, scoped, independently releasable.
 2. Write `php artisan heratio:install-bootstrap` — fires every ServiceProvider's install + seed. Replaces the first-visit auto-seed for the install-time bulk load.
 3. Write `.env.example` with every `HERATIO_*`, `RIC_*`, `ELASTICSEARCH_*` key referenced in the codebase, with sensible defaults and inline comments.
 4. Write `config/nginx/heratio.conf.template` with placeholders for domain + doc_root. Apply during install.
+
+### Phase 3.5 — Optional sub-installers
+
+1. **`bin/install-cantaloupe`** — first sub-installer to scaffold (we already have a working `delegates.rb` from production; it becomes the canonical template). Template + script + systemd unit + nginx vhost stanza + smoke test. **Done 2026-04-30.**
+2. **`bin/install-qdrant`** — Qdrant binary + systemd + collection bootstrap (`heratio_docs`, `archive_records`, etc.). Estimate: 0.5 day.
+3. **`docs/ai-host-setup.md`** — installer-free guide. Walks the admin through pointing Heratio at an existing AI host (their own Ollama / vLLM / OpenAI-compatible endpoint). Sets `voice_local_llm_url`, `htr_endpoint`, `ner_endpoint`, etc. via `ahg:settings-set`. Estimate: 0.5 day. **AI is not installed by Heratio.**
+
+These are individually shippable and can land in any order after Phase 3.
 
 ### Phase 4 — Build artifact (option A side of the hybrid)
 

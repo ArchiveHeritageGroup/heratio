@@ -1,0 +1,101 @@
+# =============================================================================
+# Cantaloupe IIIF Image Server — Heratio config template
+# =============================================================================
+# Rendered by bin/install-cantaloupe with placeholders substituted:
+#   {{HTTP_PORT}}      — bind port (default 8182)
+#   {{HEAP_SIZE}}      — Java heap (default 2g)
+#   {{UPLOADS_PATH}}   — base path for FilesystemSource lookups (Heratio's
+#                        HERATIO_UPLOADS_PATH ancestor — typically
+#                        /mnt/nas/heratio so that /uploads/r/<slug>/...
+#                        resolves through the symlink chain)
+#   {{CACHE_PATH}}     — derivative cache dir (default /var/cache/cantaloupe)
+# =============================================================================
+
+http.enabled = true
+http.host = 127.0.0.1
+http.port = {{HTTP_PORT}}
+https.enabled = false
+
+base_uri =
+slash_substitute = _SL_
+max_pixels = 0
+max_scale = 1.0
+log_error_responses = false
+print_stack_trace_on_error_pages = false
+
+# IIIF endpoints — v2 + v3 enabled, v1 disabled
+endpoint.iiif.1.enabled = false
+endpoint.iiif.2.enabled = true
+endpoint.iiif.3.enabled = true
+endpoint.iiif.min_size = 64
+endpoint.iiif.min_tile_size = 512
+
+# Admin/API disabled — operate via SSH + systemctl
+endpoint.admin.enabled = false
+endpoint.api.enabled = false
+endpoint.health.dependency_check = false
+
+# -----------------------------------------------------------------------------
+# Source: filesystem (delegate decides path per-host)
+# -----------------------------------------------------------------------------
+source.static = FilesystemSource
+FilesystemSource.lookup_strategy = ScriptLookupStrategy
+FilesystemSource.BasicLookupStrategy.path_prefix = {{UPLOADS_PATH}}/
+
+# -----------------------------------------------------------------------------
+# Processor selection — TIFF via OpenJpegProcessor (kakadu fallback for JP2)
+# -----------------------------------------------------------------------------
+processor.selection_strategy = ManualSelectionStrategy
+processor.ManualSelectionStrategy.jp2 = KakaduNativeProcessor
+processor.ManualSelectionStrategy.tif = OpenJpegProcessor
+processor.ManualSelectionStrategy.pdf = PdfBoxProcessor
+processor.ManualSelectionStrategy.mp4 = FfmpegProcessor
+processor.ManualSelectionStrategy.mov = FfmpegProcessor
+processor.ManualSelectionStrategy.fallback = Java2dProcessor
+
+processor.stream_retrieval_strategy = StreamStrategy
+processor.fallback_retrieval_strategy = DownloadStrategy
+processor.dpi = 150
+processor.background_color = white
+processor.downscale_filter = bicubic
+processor.upscale_filter = bicubic
+processor.jpg.progressive = true
+processor.jpg.quality = 80
+processor.tif.compression = LZW
+
+# -----------------------------------------------------------------------------
+# Cache: filesystem derivatives
+# -----------------------------------------------------------------------------
+cache.client.enabled = true
+cache.client.max_age = 2592000
+cache.client.shared_max_age = 2592000
+cache.client.public = true
+
+cache.server.derivative = FilesystemCache
+cache.server.derivative.ttl_seconds = 0
+FilesystemCache.pathname = {{CACHE_PATH}}
+FilesystemCache.dir.depth = 3
+FilesystemCache.dir.name_length = 2
+
+# -----------------------------------------------------------------------------
+# Delegate script — handles per-host path resolution + IIIF auth
+# -----------------------------------------------------------------------------
+delegate_script.enabled = true
+delegate_script.pathname = /opt/cantaloupe/delegates.rb
+
+# -----------------------------------------------------------------------------
+# Logging
+# -----------------------------------------------------------------------------
+log.application.level = info
+log.application.ConsoleAppender.enabled = false
+log.application.FileAppender.enabled = true
+log.application.FileAppender.pathname = /var/log/cantaloupe/application.log
+log.application.RollingFileAppender.enabled = false
+
+log.access.ConsoleAppender.enabled = false
+log.access.FileAppender.enabled = true
+log.access.FileAppender.pathname = /var/log/cantaloupe/access.log
+log.access.RollingFileAppender.enabled = false
+
+log.error.FileAppender.enabled = true
+log.error.FileAppender.pathname = /var/log/cantaloupe/error.log
