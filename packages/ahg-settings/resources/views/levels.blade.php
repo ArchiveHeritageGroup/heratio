@@ -29,13 +29,13 @@ function levelsGetSectorIcon(string $sector): string {
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h1 class="mb-0"><i class="fas fa-layer-group me-2"></i>Levels of Description</h1>
   <a href="{{ route('term.browse', ['taxonomy' => 'levels-of-description']) }}" class="btn atom-btn-outline-success" target="_blank">
-    <i class="fas fa-plus me-1"></i>Add new term in Taxonomy
+    <i class="fas fa-plus me-1"></i>{{ __('Add new term in Taxonomy') }}
   </a>
 </div>
 
 <div class="alert alert-info mb-4">
   <i class="fas fa-info-circle me-2"></i>
-  <strong>How it works:</strong> Select which levels appear in each sector. Only sectors with enabled plugins are shown. Archive levels are always available.
+  <strong>{{ __('How it works:') }}</strong> Select which levels appear in each sector. Only sectors with enabled plugins are shown. Archive levels are always available.
 </div>
 
 {{-- Sector tabs --}}
@@ -103,7 +103,7 @@ function levelsGetSectorIcon(string $sector): string {
 
           <hr>
           <button type="submit" class="btn atom-btn-outline-success">
-            <i class="fas fa-save me-1"></i> Save Changes
+            <i class="fas fa-save me-1"></i> {{ __('Save Changes') }}
           </button>
         </form>
       </div>
@@ -153,7 +153,7 @@ function levelsGetSectorIcon(string $sector): string {
           </table>
 
           <button type="submit" class="btn btn-secondary btn-sm">
-            <i class="fas fa-sort me-1"></i> Update Order
+            <i class="fas fa-sort me-1"></i> {{ __('Update Order') }}
           </button>
         </form>
       </div>
@@ -220,7 +220,7 @@ function levelsGetSectorIcon(string $sector): string {
 <hr>
 <div class="d-flex justify-content-start">
   <a href="{{ route('settings.index') }}" class="btn atom-btn-white">
-    <i class="fas fa-arrow-left me-1"></i>Back to Settings
+    <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}
   </a>
 </div>
 @endsection

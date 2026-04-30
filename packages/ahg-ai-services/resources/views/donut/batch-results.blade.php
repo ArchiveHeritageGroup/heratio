@@ -7,8 +7,8 @@
 
 @if($jobId)
 <div class="mb-3">
-  <a href="{{ route('admin.ai.donut.download', $jobId) }}" class="btn atom-btn-outline-success btn-sm"><i class="fas fa-download me-1"></i>Download All (JSON)</a>
-  <a href="{{ route('admin.ai.donut.batch') }}" class="btn atom-btn-white btn-sm ms-2"><i class="fas fa-redo me-1"></i>New Batch</a>
+  <a href="{{ route('admin.ai.donut.download', $jobId) }}" class="btn atom-btn-outline-success btn-sm"><i class="fas fa-download me-1"></i>{{ __('Download All (JSON)') }}</a>
+  <a href="{{ route('admin.ai.donut.batch') }}" class="btn atom-btn-white btn-sm ms-2"><i class="fas fa-redo me-1"></i>{{ __('New Batch') }}</a>
 </div>
 @endif
 
@@ -36,7 +36,7 @@
         <td>{{ $r['EVENT_PLACE_ORIG'] ?? '' }}</td>
         <td>
           @if($r['non_genealogical'] ?? false)
-            <span class="badge bg-secondary">Yes</span>
+            <span class="badge bg-secondary">{{ __('Yes') }}</span>
           @else
             <span class="badge bg-success">No</span>
           @endif
@@ -48,7 +48,7 @@
         </td>
         <td>
           @if($r['needs_review'] ?? true)
-            <span class="badge bg-warning text-dark">Yes</span>
+            <span class="badge bg-warning text-dark">{{ __('Yes') }}</span>
           @endif
         </td>
       </tr>

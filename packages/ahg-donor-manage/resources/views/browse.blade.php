@@ -51,7 +51,7 @@
     </div>
     @auth
       <a href="{{ route('donor.create') }}" class="btn btn-primary">
-        <i class="fas fa-plus me-1"></i> New donor
+        <i class="fas fa-plus me-1"></i> {{ __('New donor') }}
       </a>
     @endauth
   </div>
@@ -89,7 +89,7 @@
             </select>
           </div>
           <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i> Filter</button>
+            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i> {{ __('Filter') }}</button>
           </div>
         </div>
       </form>
@@ -120,7 +120,7 @@
                 </td>
                 <td><small>{{ $doc['identifier'] ?: '—' }}</small></td>
                 <td>
-                  <span class="badge bg-success">Active</span>
+                  <span class="badge bg-success">{{ __('Active') }}</span>
                 </td>
                 <td>
                   @if(!empty($doc['updated_at']))

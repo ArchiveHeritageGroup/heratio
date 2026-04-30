@@ -45,7 +45,7 @@
                     @if($rec['has_nested_set'])
                       <span class="badge bg-success">OK</span>
                     @else
-                      <span class="badge bg-warning text-dark">Missing lft/rgt</span>
+                      <span class="badge bg-warning text-dark">{{ __('Missing lft/rgt') }}</span>
                     @endif
                   </td>
                   <td>
@@ -53,7 +53,7 @@
                       @csrf
                       <input type="hidden" name="object_id" value="{{ $rec['id'] }}">
                       <button type="submit" class="btn btn-sm atom-btn-outline-success">
-                        <i class="fas fa-link me-1"></i>Generate Slug
+                        <i class="fas fa-link me-1"></i>{{ __('Generate Slug') }}
                       </button>
                     </form>
                   </td>
@@ -73,6 +73,6 @@
   </div>
 @endif
 
-<a href="{{ url('/') }}" class="btn atom-btn-white"><i class="fas fa-home me-1"></i>Go to Homepage</a>
-<a href="{{ url('/glam/browse') }}" class="btn atom-btn-outline-success"><i class="fas fa-search me-1"></i>Browse Records</a>
+<a href="{{ url('/') }}" class="btn atom-btn-white"><i class="fas fa-home me-1"></i>{{ __('Go to Homepage') }}</a>
+<a href="{{ url('/glam/browse') }}" class="btn atom-btn-outline-success"><i class="fas fa-search me-1"></i>{{ __('Browse Records') }}</a>
 @endsection

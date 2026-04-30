@@ -9,7 +9,7 @@
 
 <div class="mb-3">
   <a href="{{ route('security.pending-requests') }}" class="btn btn-outline-secondary">
-    <i class="fas fa-arrow-left"></i> Back to Pending Requests
+    <i class="fas fa-arrow-left"></i> {{ __('Back to Pending Requests') }}
   </a>
 </div>
 
@@ -82,10 +82,10 @@
 
           <div class="d-grid gap-2">
             <button type="submit" name="decision" value="approved" class="btn btn-success btn-lg">
-              <i class="fas fa-check"></i> Approve
+              <i class="fas fa-check"></i> {{ __('Approve') }}
             </button>
             <button type="submit" name="decision" value="denied" class="btn btn-danger">
-              <i class="fas fa-times"></i> Deny
+              <i class="fas fa-times"></i> {{ __('Deny') }}
             </button>
           </div>
         </form>

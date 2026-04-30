@@ -11,7 +11,7 @@
   <div class="col-md-8">
     <div class="card mb-3">
       <div class="card-header py-2 d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff;">
-        <span><i class="fas fa-image me-1"></i>Detected Fields</span>
+        <span><i class="fas fa-image me-1"></i>{{ __('Detected Fields') }}</span>
         <div class="btn-group btn-group-sm">
           <button class="btn btn-sm btn-outline-light" id="btn-zin"><i class="fas fa-search-plus"></i></button>
           <button class="btn btn-sm btn-outline-light" id="btn-zout"><i class="fas fa-search-minus"></i></button>
@@ -91,8 +91,8 @@
 
     {{-- Actions --}}
     <div class="d-flex flex-column gap-2">
-      <a href="{{ route('admin.ai.htr.extract') }}" class="btn atom-btn-outline-success"><i class="fas fa-redo me-1"></i>Extract Another</a>
-      <a href="{{ route('admin.ai.htr.annotate') }}" class="btn atom-btn-white"><i class="fas fa-pen me-1"></i>Annotate</a>
+      <a href="{{ route('admin.ai.htr.extract') }}" class="btn atom-btn-outline-success"><i class="fas fa-redo me-1"></i>{{ __('Extract Another') }}</a>
+      <a href="{{ route('admin.ai.htr.annotate') }}" class="btn atom-btn-white"><i class="fas fa-pen me-1"></i>{{ __('Annotate') }}</a>
     </div>
   </div>
 </div>

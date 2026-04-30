@@ -20,7 +20,7 @@
           <div class="card-body">
             <div class="alert alert-warning">
               <i class="bi bi-exclamation-triangle me-2"></i>
-              <strong>This action will create permanent records in AtoM.</strong>
+              <strong>{{ __('This action will create permanent records in AtoM.') }}</strong>
               Information objects, digital objects, access points, and related records will be created
               from the items in this submission. This cannot be easily undone.
             </div>
@@ -31,17 +31,17 @@
               <dt class="col-3">Items</dt>
               <dd class="col-9">@php echo $submission->total_items @endphp items, @php echo $submission->total_files @endphp files</dd>
               <dt class="col-3">Status</dt>
-              <dd class="col-9"><span class="badge bg-success">Approved</span></dd>
+              <dd class="col-9"><span class="badge bg-success">{{ __('Approved') }}</span></dd>
             </dl>
 
             <form method="post">
               <div class="d-flex justify-content-between">
                 <a href="{{ route('researcher.viewSubmission', ['id' => $submission->id]) }}"
                    class="btn btn-outline-secondary">
-                  <i class="bi bi-arrow-left me-1"></i>Cancel
+                  <i class="bi bi-arrow-left me-1"></i>{{ __('Cancel') }}
                 </a>
                 <button type="submit" class="btn atom-btn-white" onclick="return confirm('Publish this submission? Records will be created in AtoM.')">
-                  <i class="bi bi-globe me-1"></i>Publish Now
+                  <i class="bi bi-globe me-1"></i>{{ __('Publish Now') }}
                 </button>
               </div>
             </form>
@@ -60,19 +60,19 @@
             <div class="row g-3 mb-4">
               <div class="col-md-3 text-center">
                 <h3 class="mb-0 text-success">{{ __("@php echo count($publishResult['created_objects']) @endphp") }}</h3>
-                <small class="text-muted">Records Created</small>
+                <small class="text-muted">{{ __('Records Created') }}</small>
               </div>
               <div class="col-md-3 text-center">
                 <h3 class="mb-0 text-primary">{{ __("@php echo count($publishResult['created_actors']) @endphp") }}</h3>
-                <small class="text-muted">Creators Created</small>
+                <small class="text-muted">{{ __('Creators Created') }}</small>
               </div>
               <div class="col-md-3 text-center">
                 <h3 class="mb-0 text-info">{{ __("@php echo count($publishResult['created_repos']) @endphp") }}</h3>
-                <small class="text-muted">Repositories Created</small>
+                <small class="text-muted">{{ __('Repositories Created') }}</small>
               </div>
               <div class="col-md-3 text-center">
                 <h3 class="mb-0 text-@php echo count($publishResult['errors']) > 0 ? 'danger' : 'muted' @endphp">@php echo count($publishResult['errors']) @endphp</h3>
-                <small class="text-muted">Errors</small>
+                <small class="text-muted">{{ __('Errors') }}</small>
               </div>
             </div>
 
@@ -101,7 +101,7 @@
                               <i class="bi bi-box-arrow-up-right me-1"></i>@php echo $obj['slug'] @endphp
                             </a>
                           @else
-                            <small class="text-muted">ID: @php echo $obj['object_id'] @endphp</small>
+                            <small class="text-muted">{{ __("ID: @php echo $obj['object_id'] @endphp") }}</small>
                           @endif
                         </td>
                       </tr>
@@ -159,11 +159,11 @@
 
             <div class="d-flex justify-content-between">
               <a href="@php echo route('researcher.dashboard') @endphp" class="btn btn-outline-secondary">
-                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                <i class="bi bi-speedometer2 me-1"></i>{{ __('Dashboard') }}
               </a>
               <a href="{{ route('researcher.viewSubmission', ['id' => $submission->id]) }}"
                  class="btn atom-btn-white">
-                <i class="bi bi-eye me-1"></i>View Submission
+                <i class="bi bi-eye me-1"></i>{{ __('View Submission') }}
               </a>
             </div>
 

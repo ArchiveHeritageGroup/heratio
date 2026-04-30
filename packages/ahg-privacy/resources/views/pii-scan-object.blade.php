@@ -9,14 +9,14 @@
         </div>
         <div>
             <a href="{{ route('ahgprivacy.pii-scan') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i>Back to Scanner
+                <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Scanner') }}
             </a>
             @php
               $slug = \Illuminate\Support\Facades\DB::table('slug')->where('object_id', $object->id ?? 0)->value('slug');
             @endphp
             @if($slug)
               <a href="{{ url('/' . $slug) }}" class="btn btn-outline-primary" target="_blank">
-                <i class="fas fa-external-link-alt me-1"></i>View Record
+                <i class="fas fa-external-link-alt me-1"></i>{{ __('View Record') }}
               </a>
             @endif
         </div>
@@ -187,7 +187,7 @@ $risk = $entity['risk_level'] ?? 'low';
                     <form method="post" action="{{ route('ahgprivacy.pii-scan-object', ['id' => $object->id]) }}">
                         <input type="hidden" name="save" value="1">
                         <button type="submit" class="btn btn-success w-100">
-                            <i class="fas fa-save me-1"></i>Save to Review Queue
+                            <i class="fas fa-save me-1"></i>{{ __('Save to Review Queue') }}
                         </button>
                     </form>
                 </div>
@@ -238,13 +238,13 @@ $risk = $entity['risk_level'] ?? 'low';
                 </div>
                 <div class="card-body">
                     <a href="{{ route('ahgprivacy.pii-review') }}" class="btn btn-outline-warning w-100 mb-2">
-                        <i class="fas fa-tasks me-1"></i>Review Queue
+                        <i class="fas fa-tasks me-1"></i>{{ __('Review Queue') }}
                     </a>
                     <a href="{{ route('ahgprivacy.visual-redaction-editor', ['id' => $object->id]) }}" class="btn btn-outline-danger w-100 mb-2">
-                        <i class="fas fa-eraser me-1"></i>Visual Redaction Editor
+                        <i class="fas fa-eraser me-1"></i>{{ __('Visual Redaction Editor') }}
                     </a>
                     <a href="{{ route('ahgprivacy.pii-scan') }}" class="btn btn-outline-secondary w-100">
-                        <i class="fas fa-search me-1"></i>Scan More Objects
+                        <i class="fas fa-search me-1"></i>{{ __('Scan More Objects') }}
                     </a>
                 </div>
             </div>

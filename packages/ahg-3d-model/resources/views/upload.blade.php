@@ -49,7 +49,7 @@
           <div class="col-md-8">
             {{-- File Upload --}}
             <div class="mb-4">
-              <label class="form-label"><strong>3D Model File</strong> <span class="badge bg-danger ms-1">Required</span></label>
+              <label class="form-label"><strong>3D Model File</strong> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <div class="upload-zone" id="upload-zone">
                 <input type="file" name="model_file" id="model_file" accept=".glb,.gltf,.obj,.stl,.ply,.usdz" required>
                 <div class="upload-content">
@@ -70,7 +70,7 @@
 
             {{-- Title --}}
             <div class="mb-3">
-              <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" class="form-control" id="title" name="title"
                      value="{{ old('title') }}" placeholder="{{ __('e.g., Bronze Statue - Front View') }}">
               <div class="form-text">A descriptive title for this 3D model</div>
@@ -78,14 +78,14 @@
 
             {{-- Description --}}
             <div class="mb-3">
-              <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea class="form-control" id="description" name="description" rows="3"
                         placeholder="{{ __('Describe the 3D model, its origin, scanning method, etc.') }}">{{ old('description') }}</textarea>
             </div>
 
             {{-- Alt Text --}}
             <div class="mb-3">
-              <label for="alt_text" class="form-label">Alt Text (Accessibility) <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="alt_text" class="form-label">Alt Text (Accessibility) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" class="form-control" id="alt_text" name="alt_text"
                      value="{{ old('alt_text') }}" placeholder="{{ __('A brief description for screen readers') }}">
             </div>
@@ -100,16 +100,16 @@
                 <div class="form-check mb-3">
                   <input class="form-check-input" type="checkbox" id="is_primary" name="is_primary" value="1">
                   <label class="form-check-label" for="is_primary">
-                    <strong>Primary Model</strong> <span class="badge bg-secondary ms-1">Optional</span>
-                    <br><small class="text-muted">Show this model first on the object page</small>
+                    <strong>{{ __('Primary Model') }}</strong> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                    <br><small class="text-muted">{{ __('Show this model first on the object page') }}</small>
                   </label>
                 </div>
 
                 <div class="form-check mb-3">
                   <input class="form-check-input" type="checkbox" id="is_public" name="is_public" value="1" checked>
                   <label class="form-check-label" for="is_public">
-                    <strong>Public</strong> <span class="badge bg-secondary ms-1">Optional</span>
-                    <br><small class="text-muted">Make this model visible to all users</small>
+                    <strong>{{ __('Public') }}</strong> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                    <br><small class="text-muted">{{ __('Make this model visible to all users') }}</small>
                   </label>
                 </div>
 
@@ -138,10 +138,10 @@
 
         <div class="d-flex justify-content-between">
           <a href="{{ url($object->slug ?? '/') }}" class="btn atom-btn-white">
-            <i class="fas fa-arrow-left me-1"></i>Cancel
+            <i class="fas fa-arrow-left me-1"></i>{{ __('Cancel') }}
           </a>
           <button type="submit" class="btn atom-btn-white" id="submit-btn">
-            <i class="fas fa-upload me-1"></i>Upload Model
+            <i class="fas fa-upload me-1"></i>{{ __('Upload Model') }}
           </button>
         </div>
       </form>

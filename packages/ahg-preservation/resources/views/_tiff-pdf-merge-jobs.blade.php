@@ -19,9 +19,9 @@
           <tr>
             <td>{{ $job->id }}</td>
             <td>
-              @if($job->status === 'completed') <span class="badge bg-success">Completed</span>
-              @elseif($job->status === 'processing') <span class="badge bg-info">Processing</span>
-              @elseif($job->status === 'failed') <span class="badge bg-danger">Failed</span>
+              @if($job->status === 'completed') <span class="badge bg-success">{{ __('Completed') }}</span>
+              @elseif($job->status === 'processing') <span class="badge bg-info">{{ __('Processing') }}</span>
+              @elseif($job->status === 'failed') <span class="badge bg-danger">{{ __('Failed') }}</span>
               @else <span class="badge bg-warning text-dark">{{ ucfirst($job->status ?? 'pending') }}</span> @endif
             </td>
             <td>{{ $job->file_count ?? 0 }}</td>

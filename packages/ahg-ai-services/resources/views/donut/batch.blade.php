@@ -14,11 +14,11 @@
     <form method="POST" action="{{ route('admin.ai.donut.doBatch') }}" enctype="multipart/form-data">
       @csrf
       <div class="mb-3">
-        <label class="form-label">Document Images <span class="badge bg-secondary ms-1">Required</span></label>
+        <label class="form-label">Document Images <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
         <input type="file" name="files[]" class="form-control" accept="image/*" multiple required>
         <div class="form-text">Select up to 50 images. Accepted: JPG, PNG, TIFF (max 20MB each)</div>
       </div>
-      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-magic me-1"></i>Extract All</button>
+      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-magic me-1"></i>{{ __('Extract All') }}</button>
       <a href="{{ route('admin.ai.donut.dashboard') }}" class="btn atom-btn-white ms-2">Cancel</a>
     </form>
   </div>

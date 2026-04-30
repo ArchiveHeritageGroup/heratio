@@ -10,7 +10,7 @@
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="mb-0"><i class="fas fa-list me-2"></i>Dropdown Manager</h1>
-      <a href="{{ route('settings.dropdown.store') }}" class="btn atom-btn-white"><i class="fas fa-plus me-1"></i>Add Dropdown</a>
+      <a href="{{ route('settings.dropdown.store') }}" class="btn atom-btn-white"><i class="fas fa-plus me-1"></i>{{ __('Add Dropdown') }}</a>
     </div>
 
     @if($dropdowns->isEmpty())
@@ -29,7 +29,7 @@
                 <td>{{ Str::limit($dd->description ?? '', 60) }}</td>
                 <td>{{ $dd->value_count ?? '-' }}</td>
                 <td>
-                  <a href="{{ route('settings.dropdown.store', ['id' => $dd->id]) }}" class="btn btn-sm atom-btn-white"><i class="fas fa-edit"></i> Edit</a>
+                  <a href="{{ route('settings.dropdown.store', ['id' => $dd->id]) }}" class="btn btn-sm atom-btn-white"><i class="fas fa-edit"></i> {{ __('Edit') }}</a>
                 </td>
               </tr>
             @endforeach

@@ -40,7 +40,7 @@
             <div class="card-body text-center">
               <div class="mb-2"><i class="fas fa-eye fa-2x text-primary"></i></div>
               <h3 class="mb-1">{{ number_format($pageViews) }}</h3>
-              <small class="text-muted">Page Views</small>
+              <small class="text-muted">{{ __('Page Views') }}</small>
             </div>
           </div>
         </div>
@@ -49,7 +49,7 @@
             <div class="card-body text-center">
               <div class="mb-2"><i class="fas fa-search fa-2x text-info"></i></div>
               <h3 class="mb-1">{{ number_format($searches) }}</h3>
-              <small class="text-muted">Searches</small>
+              <small class="text-muted">{{ __('Searches') }}</small>
             </div>
           </div>
         </div>
@@ -58,7 +58,7 @@
             <div class="card-body text-center">
               <div class="mb-2"><i class="fas fa-download fa-2x text-success"></i></div>
               <h3 class="mb-1">{{ number_format($downloads) }}</h3>
-              <small class="text-muted">Downloads</small>
+              <small class="text-muted">{{ __('Downloads') }}</small>
             </div>
           </div>
         </div>
@@ -67,7 +67,7 @@
             <div class="card-body text-center">
               <div class="mb-2"><i class="fas fa-user fa-2x text-secondary"></i></div>
               <h3 class="mb-1">{{ number_format($uniqueVisitors) }}</h3>
-              <small class="text-muted">Unique Visitors</small>
+              <small class="text-muted">{{ __('Unique Visitors') }}</small>
             </div>
           </div>
         </div>
@@ -83,19 +83,19 @@
             <div class="col-md-4 mb-3">
               <div class="border rounded p-3">
                 <h4 class="mb-1 text-primary">{{ $avgResults }}</h4>
-                <small class="text-muted">Avg Results per Search</small>
+                <small class="text-muted">{{ __('Avg Results per Search') }}</small>
               </div>
             </div>
             <div class="col-md-4 mb-3">
               <div class="border rounded p-3">
                 <h4 class="mb-1 {{ $zeroResultRate > 20 ? 'text-danger' : 'text-success' }}">{{ $zeroResultRate }}%</h4>
-                <small class="text-muted">Zero Results Rate</small>
+                <small class="text-muted">{{ __('Zero Results Rate') }}</small>
               </div>
             </div>
             <div class="col-md-4 mb-3">
               <div class="border rounded p-3">
                 <h4 class="mb-1 text-info">{{ $clickThroughRate }}%</h4>
-                <small class="text-muted">Click-through Rate</small>
+                <small class="text-muted">{{ __('Click-through Rate') }}</small>
               </div>
             </div>
           </div>
@@ -137,19 +137,19 @@
             <div class="col-md-4 mb-3">
               <div class="border rounded p-3">
                 <h4 class="mb-1 {{ $pendingRequests > 0 ? 'text-warning' : 'text-success' }}">{{ number_format($pendingRequests) }}</h4>
-                <small class="text-muted">Pending Requests</small>
+                <small class="text-muted">{{ __('Pending Requests') }}</small>
               </div>
             </div>
             <div class="col-md-4 mb-3">
               <div class="border rounded p-3">
                 <h4 class="mb-1 text-success">{{ $approvalRate }}%</h4>
-                <small class="text-muted">Approval Rate</small>
+                <small class="text-muted">{{ __('Approval Rate') }}</small>
               </div>
             </div>
             <div class="col-md-4 mb-3">
               <div class="border rounded p-3">
                 <h4 class="mb-1 {{ $popiaFlags > 0 ? 'text-danger' : 'text-success' }}">{{ number_format($popiaFlags) }}</h4>
-                <small class="text-muted">POPIA Flags</small>
+                <small class="text-muted">{{ __('POPIA Flags') }}</small>
               </div>
             </div>
           </div>

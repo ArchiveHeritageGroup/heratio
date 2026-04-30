@@ -184,11 +184,11 @@ $canManageClearance = $isAdmin || ($currentUser && $currentUser->can('manage_sec
                   <i class="fas fa-info-circle me-1"></i>{{ __('Classification Levels') }}
                 </h6>
                 <ul class="list-unstyled small mb-0">
-                  <li><span class="badge bg-success">Public</span> - {{ __('Open access materials') }}</li>
-                  <li><span class="badge bg-info">Restricted</span> - {{ __('Limited distribution') }}</li>
-                  <li><span class="badge bg-warning text-dark">Confidential</span> - {{ __('Sensitive information') }}</li>
-                  <li><span class="badge bg-danger">Secret</span> - {{ __('Highly sensitive') }}</li>
-                  <li><span class="badge bg-dark">Top Secret</span> - {{ __('Maximum protection') }}</li>
+                  <li><span class="badge bg-success">{{ __('Public') }}</span> - {{ __('Open access materials') }}</li>
+                  <li><span class="badge bg-info">{{ __('Restricted') }}</span> - {{ __('Limited distribution') }}</li>
+                  <li><span class="badge bg-warning text-dark">{{ __('Confidential') }}</span> - {{ __('Sensitive information') }}</li>
+                  <li><span class="badge bg-danger">{{ __('Secret') }}</span> - {{ __('Highly sensitive') }}</li>
+                  <li><span class="badge bg-dark">{{ __('Top Secret') }}</span> - {{ __('Maximum protection') }}</li>
                 </ul>
               </div>
             </div>
@@ -288,7 +288,7 @@ $canManageClearance = $isAdmin || ($currentUser && $currentUser->can('manage_sec
           </p>
 
           <div class="mb-3">
-            <label for="classification_id" class="form-label">{{ __('Classification Level') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+            <label for="classification_id" class="form-label">{{ __('Classification Level') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <select name="classification_id" id="classification_id" class="form-select" required>
               <option value="">{{ __('Select level...') }}</option>
               @php
@@ -312,7 +312,7 @@ $canManageClearance = $isAdmin || ($currentUser && $currentUser->can('manage_sec
           </div>
 
           <div class="mb-3">
-            <label for="expires_at" class="form-label">{{ __('Expiration Date') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="expires_at" class="form-label">{{ __('Expiration Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="expires_at" id="expires_at" class="form-control"
                    value="{{ ($userClearance && isset($userClearance->expires_at)) ? date('Y-m-d', strtotime($userClearance->expires_at)) : '' }}"
                    min="{{ date('Y-m-d') }}">
@@ -320,7 +320,7 @@ $canManageClearance = $isAdmin || ($currentUser && $currentUser->can('manage_sec
           </div>
 
           <div class="mb-3">
-            <label for="notes" class="form-label">{{ __('Notes') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="notes" class="form-label">{{ __('Notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea name="notes" id="notes" class="form-control" rows="3"
                       placeholder="{{ __('Reason for granting clearance, special conditions, etc.') }}">{{ ($userClearance && isset($userClearance->notes)) ? htmlspecialchars($userClearance->notes) : '' }}</textarea>
           </div>

@@ -16,7 +16,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-copy text-primary me-2"></i>Reproduction Requests</h1>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRequestModal"><i class="fas fa-plus me-1"></i>New Request</button>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRequestModal"><i class="fas fa-plus me-1"></i>{{ __('New Request') }}</button>
 </div>
 
 <div class="row mb-3">
@@ -74,7 +74,7 @@
         <i class="fas fa-copy fa-3x text-muted mb-3"></i>
         <h5>{{ __('No Reproduction Requests') }}</h5>
         <p class="text-muted">Request copies or scans of archival materials.</p>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRequestModal"><i class="fas fa-plus me-1"></i>New Request</button>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRequestModal"><i class="fas fa-plus me-1"></i>{{ __('New Request') }}</button>
     </div>
 </div>
 @endif
@@ -108,7 +108,7 @@
             <div class="mb-3">
                 <label class="form-label">{{ __('Publication Details') }}</label>
                 <textarea name="publication_details" class="form-control" rows="2" placeholder="{{ __('If for publication, provide title, publisher, expected date...') }}"></textarea>
-                <small class="text-muted">Required for publication or commercial use</small>
+                <small class="text-muted">{{ __('Required for publication or commercial use') }}</small>
             </div>
             <div class="row mb-3">
                 <div class="col-md-6">
@@ -130,12 +130,12 @@
                 </div>
             </div>
             <hr>
-            <h6><span class="badge bg-primary me-1">Optional</span> Add First Item</h6>
+            <h6><span class="badge bg-primary me-1">{{ __('Optional') }}</span> Add First Item</h6>
             <input type="hidden" name="object_id" id="createReproObjectId">
             <div class="mb-3">
                 <label class="form-label">{{ __('Archive Item') }}</label>
                 <select id="createReproItemSearch" placeholder="{{ __('Search by title...') }}"></select>
-                <small class="text-muted">You can add more items after creating the request.</small>
+                <small class="text-muted">{{ __('You can add more items after creating the request.') }}</small>
             </div>
             <div class="row mb-3">
                 <div class="col-md-4">
@@ -164,7 +164,7 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-            <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Create Request</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>{{ __('Create Request') }}</button>
         </div>
     </form>
 </div>

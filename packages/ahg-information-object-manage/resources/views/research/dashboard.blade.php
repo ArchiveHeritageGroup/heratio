@@ -13,7 +13,7 @@
       <div class="card bg-primary text-white">
         <div class="card-body text-center">
           <h2 class="mb-0">0</h2>
-          <small>Projects</small>
+          <small>{{ __('Projects') }}</small>
         </div>
       </div>
     </div>
@@ -21,7 +21,7 @@
       <div class="card bg-success text-white">
         <div class="card-body text-center">
           <h2 class="mb-0">0</h2>
-          <small>Annotations</small>
+          <small>{{ __('Annotations') }}</small>
         </div>
       </div>
     </div>
@@ -29,7 +29,7 @@
       <div class="card bg-info text-white">
         <div class="card-body text-center">
           <h2 class="mb-0">0</h2>
-          <small>Citations</small>
+          <small>{{ __('Citations') }}</small>
         </div>
       </div>
     </div>
@@ -37,7 +37,7 @@
       <div class="card bg-secondary text-white">
         <div class="card-body text-center">
           <h2 class="mb-0">0</h2>
-          <small>Saved Searches</small>
+          <small>{{ __('Saved Searches') }}</small>
         </div>
       </div>
     </div>

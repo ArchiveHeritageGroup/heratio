@@ -94,7 +94,7 @@
       {{-- GLAM Type facet (open by default) --}}
       <div class="card mb-2">
         <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="true" aria-controls="facetType" data-bs-toggle="collapse" data-bs-target="#facetType" style="background:var(--ahg-primary);color:#fff">
-          <strong>GLAM Type</strong> <i class="fas fa-chevron-down float-end"></i>
+          <strong>{{ __('GLAM Type') }}</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div id="facetType" class="collapse show">
           <ul class="list-group list-group-flush">
@@ -127,7 +127,7 @@
       {{-- Creator facet (closed by default) --}}
       <div class="card mb-2">
         <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetCreator" data-bs-toggle="collapse" data-bs-target="#facetCreator" style="background:var(--ahg-primary);color:#fff">
-          <strong>Creator</strong> <i class="fas fa-chevron-down float-end"></i>
+          <strong>{{ __('Creator') }}</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div id="facetCreator" class="collapse">
           <ul class="list-group list-group-flush">
@@ -154,7 +154,7 @@
       {{-- Place facet (closed by default) --}}
       <div class="card mb-2">
         <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetPlace" data-bs-toggle="collapse" data-bs-target="#facetPlace" style="background:var(--ahg-primary);color:#fff">
-          <strong>Place</strong> <i class="fas fa-chevron-down float-end"></i>
+          <strong>{{ __('Place') }}</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div id="facetPlace" class="collapse">
           <ul class="list-group list-group-flush">
@@ -181,7 +181,7 @@
       {{-- Subject facet (closed by default) --}}
       <div class="card mb-2">
         <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetSubject" data-bs-toggle="collapse" data-bs-target="#facetSubject" style="background:var(--ahg-primary);color:#fff">
-          <strong>Subject</strong> <i class="fas fa-chevron-down float-end"></i>
+          <strong>{{ __('Subject') }}</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div id="facetSubject" class="collapse">
           <ul class="list-group list-group-flush">
@@ -208,7 +208,7 @@
       {{-- Genre facet (closed by default) --}}
       <div class="card mb-2">
         <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetGenre" data-bs-toggle="collapse" data-bs-target="#facetGenre" style="background:var(--ahg-primary);color:#fff">
-          <strong>Genre</strong> <i class="fas fa-chevron-down float-end"></i>
+          <strong>{{ __('Genre') }}</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div id="facetGenre" class="collapse">
           <ul class="list-group list-group-flush">
@@ -235,7 +235,7 @@
       {{-- Level of description facet (closed by default) --}}
       <div class="card mb-2">
         <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetLevel" data-bs-toggle="collapse" data-bs-target="#facetLevel" style="background:var(--ahg-primary);color:#fff">
-          <strong>Level of description</strong> <i class="fas fa-chevron-down float-end"></i>
+          <strong>{{ __('Level of description') }}</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div id="facetLevel" class="collapse">
           <ul class="list-group list-group-flush">
@@ -267,7 +267,7 @@
       @endphp
       <div class="card mb-2">
         <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetMedia" data-bs-toggle="collapse" data-bs-target="#facetMedia" style="background:var(--ahg-primary);color:#fff">
-          <strong>Media type</strong> <i class="fas fa-chevron-down float-end"></i>
+          <strong>{{ __('Media type') }}</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div id="facetMedia" class="collapse">
           <ul class="list-group list-group-flush">
@@ -298,7 +298,7 @@
       {{-- Repository facet (closed by default) --}}
       <div class="card mb-2">
         <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetRepo" data-bs-toggle="collapse" data-bs-target="#facetRepo" style="background:var(--ahg-primary);color:#fff">
-          <strong>Repository</strong> <i class="fas fa-chevron-down float-end"></i>
+          <strong>{{ __('Repository') }}</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div id="facetRepo" class="collapse">
           <ul class="list-group list-group-flush">
@@ -367,7 +367,7 @@
         @endforeach
         <div class="modal-body">
           <div class="mb-3">
-            <label for="semantic-query" class="form-label fw-bold">Search query <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="semantic-query" class="form-label fw-bold">Search query <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control form-control-lg" id="semantic-query" name="query"
                    value="{{ $queryFilter ?? '' }}" placeholder="{{ __('Enter your search terms...') }}"
                    autofocus>
@@ -378,17 +378,17 @@
                      {{ !empty($fp['semantic']) ? 'checked' : '' }}>
               <label class="form-check-label" for="semantic-toggle">
                 <i class="fas fa-brain me-1"></i> Enable AI-powered semantic expansion
-               <span class="badge bg-secondary ms-1">Optional</span></label>
+               <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
             <small class="text-muted d-block mt-1">
-              Semantic search uses AI to understand meaning, expanding your query with synonyms, related terms, and named entities.
+              {{ __('Semantic search uses AI to understand meaning, expanding your query with synonyms, related terms, and named entities.') }}
             </small>
           </div>
           <div id="semantic-expansion-preview" class="browse-hidden">
-            <label class="form-label fw-bold">Expansion preview <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label fw-bold">Expansion preview <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="border rounded p-3 bg-light">
               <div id="semantic-preview-content">
-                <span class="text-muted">Enter a query and enable semantic search to see expansion preview...</span>
+                <span class="text-muted">{{ __('Enter a query and enable semantic search to see expansion preview...') }}</span>
               </div>
             </div>
           </div>
@@ -396,7 +396,7 @@
         <div class="modal-footer">
           <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="submit" class="btn atom-btn-outline-success">
-            <i class="fas fa-search me-1"></i> Search
+            <i class="fas fa-search me-1"></i> {{ __('Search') }}
           </button>
         </div>
       </form>

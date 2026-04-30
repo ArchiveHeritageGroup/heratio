@@ -16,11 +16,11 @@
       <i class="fas fa-3x fa-sitemap me-3 text-primary" aria-hidden="true"></i>
       <div>
         <h1 class="mb-0">{{ __('Levels of Description') }}</h1>
-        <span class="small text-muted">Manage hierarchical levels and their relationships</span>
+        <span class="small text-muted">{{ __('Manage hierarchical levels and their relationships') }}</span>
       </div>
     </div>
     <a href="{{ route('glam.index') }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left me-1"></i> Back
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
     </a>
   </div>
 
@@ -33,7 +33,7 @@
     <div class="card-body">
       <form method="GET" action="{{ route('glam.levels') }}" class="row g-2 align-items-end">
         <div class="col-auto">
-          <label for="domain" class="form-label mb-0"><strong>Filter by domain:</strong> <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="domain" class="form-label mb-0"><strong>{{ __('Filter by domain:') }}</strong> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         </div>
         <div class="col-auto">
           <select name="domain" id="domain" class="form-select form-select-sm">
@@ -55,7 +55,7 @@
         @if(!empty($currentDomain))
           <div class="col-auto">
             <a href="{{ route('glam.levels') }}" class="btn btn-sm atom-btn-white">
-              <i class="fas fa-times me-1"></i> Clear
+              <i class="fas fa-times me-1"></i> {{ __('Clear') }}
             </a>
           </div>
         @endif

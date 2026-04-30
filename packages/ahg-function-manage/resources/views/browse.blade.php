@@ -14,7 +14,7 @@
           No results found
         @endif
       </h1>
-      <span class="small" id="heading-label">Function</span>
+      <span class="small" id="heading-label">{{ __('Function') }}</span>
     </div>
   </div>
 @endsection

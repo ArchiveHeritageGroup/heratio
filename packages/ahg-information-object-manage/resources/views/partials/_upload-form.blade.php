@@ -10,7 +10,7 @@
   <h2 class="accordion-header" id="headingDigitalObject">
     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#collapseDigitalObject" aria-expanded="false" aria-controls="collapseDigitalObject">
-      <i class="fas fa-file-upload me-2"></i> Digital object
+      <i class="fas fa-file-upload me-2"></i> {{ __('Digital object') }}
     </button>
   </h2>
   <div id="collapseDigitalObject" class="accordion-collapse collapse" aria-labelledby="headingDigitalObject">
@@ -74,7 +74,7 @@
                   @csrf
                   @method('DELETE')
                   <button type="submit" class="btn atom-btn-outline-danger btn-sm">
-                    <i class="fas fa-trash me-1"></i> Delete digital object
+                    <i class="fas fa-trash me-1"></i> {{ __('Delete digital object') }}
                   </button>
                 </form>
               </div>
@@ -88,7 +88,7 @@
           @csrf
 
           <div class="mb-3">
-            <label for="digital_object" class="form-label">Select file to upload <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="digital_object" class="form-label">Select file to upload <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="file" class="form-control @error('digital_object') is-invalid @enderror"
                    id="digital_object" name="digital_object"
                    accept="image/*,application/pdf,audio/*,video/*,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.odp,.txt,.rtf,.csv,.xml,.json">
@@ -102,7 +102,7 @@
           </div>
 
           <button type="submit" class="btn atom-btn-outline-light btn-sm">
-            <i class="fas fa-upload me-1"></i> Upload
+            <i class="fas fa-upload me-1"></i> {{ __('Upload') }}
           </button>
         </form>
       @endif

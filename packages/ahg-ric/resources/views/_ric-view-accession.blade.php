@@ -28,7 +28,7 @@
   <div class="card mb-3 border-success">
     <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
       <div><i class="fas fa-inbox me-2"></i><strong>{{ $accession->title ?: $accession->identifier ?: '[Untitled]' }}</strong></div>
-      <span style="background:#fff !important;color:#198754 !important;border:2px solid #198754;padding:.25em .6em;border-radius:.375em;font-size:.85em;font-weight:600;display:inline-block;">Accession (Transfer Activity)</span>
+      <span style="background:#fff !important;color:#198754 !important;border:2px solid #198754;padding:.25em .6em;border-radius:.375em;font-size:.85em;font-weight:600;display:inline-block;">{{ __('Accession (Transfer Activity)') }}</span>
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
@@ -69,8 +69,8 @@
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bolt me-1"></i> Actions</div>
         <div class="card-body">
-          <a href="/explorer" class="btn btn-sm btn-outline-success w-100 mb-2"><i class="fas fa-project-diagram me-1"></i>Open in Graph Explorer</a>
-          <a href="/ric-api/relations/{{ $accession->id }}" class="btn btn-sm btn-outline-info w-100" target="_blank"><i class="fas fa-code me-1"></i>View Relations JSON</a>
+          <a href="/explorer" class="btn btn-sm btn-outline-success w-100 mb-2"><i class="fas fa-project-diagram me-1"></i>{{ __('Open in Graph Explorer') }}</a>
+          <a href="/ric-api/relations/{{ $accession->id }}" class="btn btn-sm btn-outline-info w-100" target="_blank"><i class="fas fa-code me-1"></i>{{ __('View Relations JSON') }}</a>
         </div>
       </div>
     </div>

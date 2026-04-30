@@ -17,7 +17,7 @@
       <div class="card text-center">
         <div class="card-body py-3">
           <h3 class="mb-0">{{ number_format($totalCount) }}</h3>
-          <small class="text-muted">Total 3D objects</small>
+          <small class="text-muted">{{ __('Total 3D objects') }}</small>
         </div>
       </div>
     </div>
@@ -25,7 +25,7 @@
       <div class="card text-center border-success">
         <div class="card-body py-3">
           <h3 class="mb-0 text-success">{{ number_format($withThumbnails) }}</h3>
-          <small class="text-muted">With thumbnails</small>
+          <small class="text-muted">{{ __('With thumbnails') }}</small>
         </div>
       </div>
     </div>
@@ -33,7 +33,7 @@
       <div class="card text-center border-warning">
         <div class="card-body py-3">
           <h3 class="mb-0 text-warning">{{ number_format($withoutThumbnails) }}</h3>
-          <small class="text-muted">Without thumbnails</small>
+          <small class="text-muted">{{ __('Without thumbnails') }}</small>
         </div>
       </div>
     </div>
@@ -120,16 +120,16 @@
                 </td>
                 <td class="text-center">
                   @if($model->has_thumbnail)
-                    <span class="badge bg-success"><i class="fas fa-check"></i> Yes</span>
+                    <span class="badge bg-success"><i class="fas fa-check"></i> {{ __('Yes') }}</span>
                   @else
-                    <span class="badge bg-warning text-dark"><i class="fas fa-times"></i> No</span>
+                    <span class="badge bg-warning text-dark"><i class="fas fa-times"></i> {{ __('No') }}</span>
                   @endif
                 </td>
                 <td class="text-center">
                   @if($model->has_multiangle)
-                    <span class="badge bg-success"><i class="fas fa-check"></i> Yes</span>
+                    <span class="badge bg-success"><i class="fas fa-check"></i> {{ __('Yes') }}</span>
                   @else
-                    <span class="badge bg-warning text-dark"><i class="fas fa-times"></i> No</span>
+                    <span class="badge bg-warning text-dark"><i class="fas fa-times"></i> {{ __('No') }}</span>
                   @endif
                 </td>
                 <td>
@@ -142,7 +142,7 @@
                     <a href="{{ route('admin.3d-models.multiangle', $model->id) }}"
                        class="btn atom-btn-white"
                        title="{{ $model->has_multiangle ? 'Regenerate multi-angle' : 'Generate multi-angle' }}">
-                      <i class="fas fa-th-large me-1"></i>Multi
+                      <i class="fas fa-th-large me-1"></i>{{ __('Multi') }}
                     </a>
                   </div>
                 </td>

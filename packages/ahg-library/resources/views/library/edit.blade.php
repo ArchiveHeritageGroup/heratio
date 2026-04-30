@@ -28,7 +28,7 @@
           <div class="card-body">
 
             <div class="mb-3">
-              <label for="title" class="form-label required">Title <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="title" class="form-label required">Title <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror"
                      value="{{ old('title', $item->title ?? '') }}" required>
               @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -37,13 +37,13 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="subtitle" class="form-label">Subtitle <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="subtitle" class="form-label">Subtitle <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="subtitle" id="subtitle" class="form-control @error('subtitle') is-invalid @enderror"
                        value="{{ old('subtitle', $item->subtitle ?? '') }}">
                 @error('subtitle') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-6 mb-3">
-                <label for="identifier" class="form-label">Identifier <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="identifier" class="form-label">Identifier <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="identifier" id="identifier" class="form-control @error('identifier') is-invalid @enderror"
                        value="{{ old('identifier', $item->identifier ?? '') }}">
                 @error('identifier') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -51,7 +51,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="responsibility_statement" class="form-label">Statement of responsibility <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="responsibility_statement" class="form-label">Statement of responsibility <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="responsibility_statement" id="responsibility_statement" class="form-control @error('responsibility_statement') is-invalid @enderror"
                      value="{{ old('responsibility_statement', $item->responsibility_statement ?? '') }}"
                      placeholder="{{ __('e.g. by John Smith ; edited by Jane Doe') }}">
@@ -61,7 +61,7 @@
 
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label for="level_of_description_id" class="form-label required">Level of description <span class="badge bg-danger ms-1">Required</span></label>
+                <label for="level_of_description_id" class="form-label required">Level of description <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <select name="level_of_description_id" id="level_of_description_id" class="form-select" required>
                   <option value="">-- Select --</option>
                   @foreach($formChoices['levels'] as $level)
@@ -70,7 +70,7 @@
                 </select>
               </div>
               <div class="col-md-4 mb-3">
-                <label for="material_type" class="form-label">Material type <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="material_type" class="form-label">Material type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="material_type" id="material_type" class="form-select">
                   <option value="">-- Select --</option>
                   @foreach($formChoices['materialTypes'] as $value => $label)
@@ -79,7 +79,7 @@
                 </select>
               </div>
               <div class="col-md-4 mb-3">
-                <label for="language" class="form-label">Language <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="language" class="form-label">Language <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="language" id="language" class="form-select">
                   <option value="">-- Select --</option>
                   @foreach($formChoices['languages'] as $code => $name)
@@ -97,7 +97,7 @@
           <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-users me-2"></i>Creators / Authors</h5>
             <button type="button" class="btn btn-sm atom-btn-white" id="add-creator-btn">
-              <i class="fas fa-plus me-1"></i>Add
+              <i class="fas fa-plus me-1"></i>{{ __('Add') }}
             </button>
           </div>
           <div class="card-body">
@@ -144,25 +144,25 @@
 
             <div class="row">
               <div class="col-md-5 mb-3">
-                <label class="form-label">ISBN <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">ISBN <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div class="input-group">
                   <input type="text" name="isbn" id="isbn-input" class="form-control @error('isbn') is-invalid @enderror"
                          value="{{ old('isbn', $item->isbn ?? '') }}" placeholder="978-0-123456-78-9">
                   <button type="button" class="btn atom-btn-white" id="isbn-lookup" title="{{ __('Lookup ISBN and auto-fill form') }}">
-                    <i class="fas fa-search me-1"></i>Lookup
+                    <i class="fas fa-search me-1"></i>{{ __('Lookup') }}
                   </button>
                 </div>
                 @error('isbn') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 <div class="form-text">Enter ISBN and click Lookup to auto-fill</div>
               </div>
               <div class="col-md-4 mb-3">
-                <label class="form-label">ISSN <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">ISSN <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="issn" class="form-control @error('issn') is-invalid @enderror"
                        value="{{ old('issn', $item->issn ?? '') }}" placeholder="1234-5678">
                 @error('issn') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-3 mb-3">
-                <label class="form-label">DOI <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">DOI <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="doi" class="form-control @error('doi') is-invalid @enderror"
                        value="{{ old('doi', $item->doi ?? '') }}" placeholder="{{ __('10.1000/xyz123') }}">
                 @error('doi') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -171,25 +171,25 @@
 
             <div class="row">
               <div class="col-md-3 mb-3">
-                <label class="form-label">LCCN <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">LCCN <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="lccn" class="form-control @error('lccn') is-invalid @enderror"
                        value="{{ old('lccn', $item->lccn ?? '') }}">
                 @error('lccn') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-3 mb-3">
-                <label class="form-label">OCLC Number <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">OCLC Number <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="oclc_number" class="form-control @error('oclc_number') is-invalid @enderror"
                        value="{{ old('oclc_number', $item->oclc_number ?? '') }}">
                 @error('oclc_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-3 mb-3">
-                <label class="form-label">Barcode <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Barcode <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="barcode" class="form-control @error('barcode') is-invalid @enderror"
                        value="{{ old('barcode', $item->barcode ?? '') }}">
                 @error('barcode') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-3 mb-3">
-                <label class="form-label">Open Library ID <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Open Library ID <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="openlibrary_id" class="form-control @error('openlibrary_id') is-invalid @enderror"
                        value="{{ old('openlibrary_id', $item->openlibrary_id ?? '') }}" placeholder="{{ __('OL12345M') }}">
                 @error('openlibrary_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -198,19 +198,19 @@
 
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label class="form-label">Goodreads ID <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Goodreads ID <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="goodreads_id" class="form-control @error('goodreads_id') is-invalid @enderror"
                        value="{{ old('goodreads_id', $item->goodreads_id ?? '') }}">
                 @error('goodreads_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-4 mb-3">
-                <label class="form-label">LibraryThing ID <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">LibraryThing ID <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="librarything_id" class="form-control @error('librarything_id') is-invalid @enderror"
                        value="{{ old('librarything_id', $item->librarything_id ?? '') }}">
                 @error('librarything_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-4 mb-3">
-                <label class="form-label">Open Library URL <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Open Library URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div class="input-group">
                   <input type="text" name="openlibrary_url" id="openlibrary_url" class="form-control @error('openlibrary_url') is-invalid @enderror"
                          value="{{ old('openlibrary_url', $item->openlibrary_url ?? '') }}">
@@ -236,7 +236,7 @@
 
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label class="form-label">Classification scheme <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Classification scheme <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="classification_scheme" id="classification_scheme" class="form-select">
                   <option value="">-- Select --</option>
                   @foreach($formChoices['classificationSchemes'] as $value => $label)
@@ -245,13 +245,13 @@
                 </select>
               </div>
               <div class="col-md-4 mb-3">
-                <label for="call_number" class="form-label">Call number (LC) <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="call_number" class="form-label">Call number (LC) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="call_number" id="call_number" class="form-control @error('call_number') is-invalid @enderror"
                        value="{{ old('call_number', $item->call_number ?? '') }}" placeholder="{{ __('e.g. QA76.73.J38') }}">
                 @error('call_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-4 mb-3">
-                <label for="dewey_decimal" class="form-label">Dewey Decimal <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="dewey_decimal" class="form-label">Dewey Decimal <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="dewey_decimal" id="dewey_decimal" class="form-control @error('dewey_decimal') is-invalid @enderror"
                        value="{{ old('dewey_decimal', $item->dewey_decimal ?? '') }}" placeholder="{{ __('e.g. 005.133') }}">
                 @error('dewey_decimal') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -260,19 +260,19 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="shelf_location" class="form-label">Shelf location <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="shelf_location" class="form-label">Shelf location <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="shelf_location" id="shelf_location" class="form-control @error('shelf_location') is-invalid @enderror"
                        value="{{ old('shelf_location', $item->shelf_location ?? '') }}" placeholder="{{ __('e.g. Main Library, Floor 2, Section A') }}">
                 @error('shelf_location') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-3 mb-3">
-                <label for="copy_number" class="form-label">Copy number <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="copy_number" class="form-label">Copy number <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="copy_number" id="copy_number" class="form-control @error('copy_number') is-invalid @enderror"
                        value="{{ old('copy_number', $item->copy_number ?? '') }}">
                 @error('copy_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-3 mb-3">
-                <label for="volume_designation" class="form-label">Volume <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="volume_designation" class="form-label">Volume <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="volume_designation" id="volume_designation" class="form-control @error('volume_designation') is-invalid @enderror"
                        value="{{ old('volume_designation', $item->volume_designation ?? '') }}">
                 @error('volume_designation') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -291,13 +291,13 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="publisher" class="form-label">Publisher <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="publisher" class="form-label">Publisher <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="publisher" id="publisher" class="form-control @error('publisher') is-invalid @enderror"
                        value="{{ old('publisher', $item->publisher ?? '') }}">
                 @error('publisher') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-6 mb-3">
-                <label for="publication_place" class="form-label">Place of publication <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="publication_place" class="form-label">Place of publication <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="publication_place" id="publication_place" class="form-control @error('publication_place') is-invalid @enderror"
                        value="{{ old('publication_place', $item->publication_place ?? '') }}">
                 @error('publication_place') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -306,19 +306,19 @@
 
             <div class="row">
               <div class="col-md-3 mb-3">
-                <label for="publication_date" class="form-label">Publication date <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="publication_date" class="form-label">Publication date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="publication_date" id="publication_date" class="form-control @error('publication_date') is-invalid @enderror"
                        value="{{ old('publication_date', $item->publication_date ?? '') }}" placeholder="{{ __('e.g. 2023') }}">
                 @error('publication_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-3 mb-3">
-                <label for="edition" class="form-label">Edition <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="edition" class="form-label">Edition <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="edition" id="edition" class="form-control @error('edition') is-invalid @enderror"
                        value="{{ old('edition', $item->edition ?? '') }}" placeholder="{{ __('e.g. 3rd ed.') }}">
                 @error('edition') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-6 mb-3">
-                <label for="edition_statement" class="form-label">Edition statement <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="edition_statement" class="form-label">Edition statement <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="edition_statement" id="edition_statement" class="form-control @error('edition_statement') is-invalid @enderror"
                        value="{{ old('edition_statement', $item->edition_statement ?? '') }}" placeholder="{{ __('e.g. Revised and expanded') }}">
                 @error('edition_statement') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -327,13 +327,13 @@
 
             <div class="row">
               <div class="col-md-8 mb-3">
-                <label for="series_title" class="form-label">Series title <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="series_title" class="form-label">Series title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="series_title" id="series_title" class="form-control @error('series_title') is-invalid @enderror"
                        value="{{ old('series_title', $item->series_title ?? '') }}">
                 @error('series_title') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-4 mb-3">
-                <label for="series_number" class="form-label">Series number <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="series_number" class="form-label">Series number <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="series_number" id="series_number" class="form-control @error('series_number') is-invalid @enderror"
                        value="{{ old('series_number', $item->series_number ?? '') }}" placeholder="{{ __('e.g. vol. 3') }}">
                 @error('series_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -352,19 +352,19 @@
 
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label for="pagination" class="form-label">Pages <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="pagination" class="form-label">Pages <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="pagination" id="pagination" class="form-control @error('pagination') is-invalid @enderror"
                        value="{{ old('pagination', $item->pagination ?? '') }}" placeholder="{{ __('e.g. xiv, 350 p.') }}">
                 @error('pagination') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-4 mb-3">
-                <label for="dimensions" class="form-label">Dimensions <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="dimensions" class="form-label">Dimensions <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="dimensions" id="dimensions" class="form-control @error('dimensions') is-invalid @enderror"
                        value="{{ old('dimensions', $item->dimensions ?? '') }}" placeholder="{{ __('e.g. 24 cm') }}">
                 @error('dimensions') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-4 mb-3">
-                <label for="physical_details" class="form-label">Physical details <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="physical_details" class="form-label">Physical details <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="physical_details" id="physical_details" class="form-control @error('physical_details') is-invalid @enderror"
                        value="{{ old('physical_details', $item->physical_details ?? '') }}" placeholder="{{ __('e.g. ill., maps') }}">
                 @error('physical_details') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -380,10 +380,10 @@
             <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Subjects</h5>
             <div class="btn-group">
               <button type="button" class="btn btn-sm atom-btn-white" id="suggest-subjects-btn" title="{{ __('Get AI-powered subject suggestions') }}">
-                <i class="fas fa-magic me-1"></i>Suggest
+                <i class="fas fa-magic me-1"></i>{{ __('Suggest') }}
               </button>
               <button type="button" class="btn btn-sm atom-btn-white" id="add-subject-btn">
-                <i class="fas fa-plus me-1"></i>Add
+                <i class="fas fa-plus me-1"></i>{{ __('Add') }}
               </button>
             </div>
           </div>
@@ -419,17 +419,17 @@
           <div class="card-body">
 
             <div class="mb-3">
-              <label for="summary" class="form-label">Summary / Abstract <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="summary" class="form-label">Summary / Abstract <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea name="summary" id="summary" class="form-control" rows="4">{{ old('summary', $item->summary ?? '') }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="scope_and_content" class="form-label">Scope and content <span class="badge bg-warning ms-1">Recommended</span></label>
+              <label for="scope_and_content" class="form-label">Scope and content <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
               <textarea name="scope_and_content" id="scope_and_content" class="form-control" rows="3">{{ old('scope_and_content', $item->scope_and_content ?? '') }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="contents_note" class="form-label">Table of contents <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="contents_note" class="form-label">Table of contents <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea name="contents_note" id="contents_note" class="form-control" rows="3"
                         placeholder="{{ __('Chapter listing or table of contents') }}">{{ old('contents_note', $item->contents_note ?? '') }}</textarea>
             </div>
@@ -445,12 +445,12 @@
           <div class="card-body">
 
             <div class="mb-3">
-              <label for="general_note" class="form-label">General note <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="general_note" class="form-label">General note <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea name="general_note" id="general_note" class="form-control" rows="2">{{ old('general_note', $item->general_note ?? '') }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="bibliography_note" class="form-label">Bibliography note <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="bibliography_note" class="form-label">Bibliography note <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea name="bibliography_note" id="bibliography_note" class="form-control" rows="2"
                         placeholder="{{ __('e.g. Includes bibliographical references and index') }}">{{ old('bibliography_note', $item->bibliography_note ?? '') }}</textarea>
             </div>
@@ -475,11 +475,11 @@
 
             @if($item)
               <a href="{{ route('library.show', $item->slug) }}" class="btn atom-btn-white w-100 mb-2">
-                <i class="fas fa-times me-2"></i>Cancel
+                <i class="fas fa-times me-2"></i>{{ __('Cancel') }}
               </a>
             @else
               <a href="{{ route('library.browse') }}" class="btn atom-btn-white w-100 mb-2">
-                <i class="fas fa-times me-2"></i>Cancel
+                <i class="fas fa-times me-2"></i>{{ __('Cancel') }}
               </a>
             @endif
           </div>
@@ -499,16 +499,16 @@
             <div id="cover-preview">
               @if(!empty($item->cover_url))
                 <img src="{{ $item->cover_url }}" alt="{{ __('Cover') }}" class="img-fluid rounded shadow-sm mb-2" style="max-height: 200px;">
-                <div class="mt-1"><small class="text-muted">Current cover</small></div>
+                <div class="mt-1"><small class="text-muted">{{ __('Current cover') }}</small></div>
               @elseif(!empty($cleanIsbn))
                 <img src="/library/cover/{{ $cleanIsbn }}" alt="{{ __('Cover') }}" class="img-fluid rounded shadow-sm mb-2" style="max-height: 200px;"
                      onerror="this.parentElement.innerHTML='<p class=\'text-muted\'>No Open Library cover found</p>'">
-                <div class="mt-1"><small class="text-muted">Open Library Preview</small></div>
+                <div class="mt-1"><small class="text-muted">{{ __('Open Library Preview') }}</small></div>
                 <div class="mt-1"><small class="text-success"><i class="fas fa-info-circle me-1"></i>Will be saved on save</small></div>
               @elseif($item)
                 <p class="text-muted fst-italic mb-2">Enter ISBN to preview Open Library cover</p>
                 <a href="{{ route('library.show', $item->slug) }}" class="btn btn-sm atom-btn-outline-success">
-                  <i class="fas fa-upload me-1"></i>Upload cover
+                  <i class="fas fa-upload me-1"></i>{{ __('Upload cover') }}
                 </a>
               @else
                 <p class="text-muted fst-italic mb-0">Save record first to upload cover</p>
@@ -527,7 +527,7 @@
             </div>
             <div class="card-body">
               <a href="{{ $item->ebook_preview_url ?? old('ebook_preview_url') }}" target="_blank" class="btn atom-btn-white w-100">
-                <i class="fas fa-book-reader me-2"></i>Preview on Archive.org
+                <i class="fas fa-book-reader me-2"></i>{{ __('Preview on Archive.org') }}
               </a>
             </div>
           </section>
@@ -544,7 +544,7 @@
             {{-- Container Link --}}
             <div class="row mb-3">
               <div class="col-md-6">
-                <label class="form-label">Storage container <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Storage container <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="item_physical_object_id" class="form-select">
                   <option value="">-- Select container --</option>
                   @foreach($formChoices['physicalObjects'] as $poId => $poName)
@@ -554,7 +554,7 @@
                 <div class="form-text">Link to a physical storage container</div>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Item barcode <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Item barcode <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="item_barcode" class="form-control" value="{{ $itemLocation['barcode'] ?? '' }}">
               </div>
             </div>
@@ -563,27 +563,27 @@
             <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-box me-2"></i>Location within container</h6>
             <div class="row mb-3">
               <div class="col-md-2">
-                <label class="form-label">Box <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Box <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="item_box_number" class="form-control" value="{{ $itemLocation['box_number'] ?? '' }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Folder <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Folder <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="item_folder_number" class="form-control" value="{{ $itemLocation['folder_number'] ?? '' }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Shelf <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Shelf <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="item_shelf" class="form-control" value="{{ $itemLocation['shelf'] ?? '' }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Row <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Row <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="item_row" class="form-control" value="{{ $itemLocation['row'] ?? '' }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Position <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Position <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="item_position" class="form-control" value="{{ $itemLocation['position'] ?? '' }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Item # <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Item # <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="item_item_number" class="form-control" value="{{ $itemLocation['item_number'] ?? '' }}">
               </div>
             </div>
@@ -591,11 +591,11 @@
             {{-- Extent --}}
             <div class="row mb-3">
               <div class="col-md-6">
-                <label class="form-label">Extent value <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Extent value <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="number" step="0.01" name="item_extent_value" class="form-control" value="{{ $itemLocation['extent_value'] ?? '' }}">
               </div>
               <div class="col-md-6">
-                <label class="form-label">Extent unit <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Extent unit <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="item_extent_unit" class="form-select">
                   <option value="">-- Select --</option>
                   @foreach(['items' => 'Items', 'pages' => 'Pages', 'folders' => 'Folders', 'boxes' => 'Boxes', 'cm' => 'cm', 'm' => 'metres', 'cubic_m' => 'cubic metres'] as $val => $label)
@@ -609,7 +609,7 @@
             <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>Condition &amp; Status</h6>
             <div class="row mb-3">
               <div class="col-md-6">
-                <label class="form-label">Condition <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Condition <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="item_condition_status" class="form-select">
                   <option value="">-- Select --</option>
                   @foreach(['excellent' => 'Excellent', 'good' => 'Good', 'fair' => 'Fair', 'poor' => 'Poor', 'critical' => 'Critical'] as $val => $label)
@@ -618,7 +618,7 @@
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Access status <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Access status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="item_access_status" class="form-select">
                   @foreach(['available' => 'Available', 'in_use' => 'In Use', 'restricted' => 'Restricted', 'offsite' => 'Offsite', 'missing' => 'Missing'] as $val => $label)
                     <option value="{{ $val }}" @selected(($itemLocation['access_status'] ?? 'available') == $val)>{{ $label }}</option>
@@ -628,7 +628,7 @@
             </div>
             <div class="row mb-3">
               <div class="col-md-12">
-                <label class="form-label">Condition notes <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Condition notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="item_condition_notes" class="form-control" value="{{ $itemLocation['condition_notes'] ?? '' }}">
               </div>
             </div>
@@ -636,7 +636,7 @@
             {{-- Notes --}}
             <div class="row mb-3">
               <div class="col-md-12">
-                <label class="form-label">Location notes <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Location notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea name="item_location_notes" class="form-control" rows="2">{{ $itemLocation['notes'] ?? '' }}</textarea>
               </div>
             </div>
@@ -652,14 +652,14 @@
           </div>
           <div class="card-body">
             <a href="{{ route('library.browse') }}" class="btn atom-btn-white w-100 mb-2">
-              <i class="fas fa-list me-2"></i>Browse library
+              <i class="fas fa-list me-2"></i>{{ __('Browse library') }}
             </a>
             @if($item)
               <a href="{{ url('/' . $item->slug . '/object/addDigitalObject') }}" class="btn atom-btn-white w-100 mb-2">
-                <i class="fas fa-upload me-2"></i>Add digital object
+                <i class="fas fa-upload me-2"></i>{{ __('Add digital object') }}
               </a>
               <a href="{{ url('/' . $item->slug . '/digitalobject/edit') }}" class="btn atom-btn-white w-100 mb-2">
-                <i class="fas fa-edit me-2"></i>Edit digital object
+                <i class="fas fa-edit me-2"></i>{{ __('Edit digital object') }}
               </a>
             @endif
           </div>
@@ -674,16 +674,16 @@
           <div class="list-group list-group-flush">
             @if($item->oclc_number)
               <a href="https://www.worldcat.org/oclc/{{ $item->oclc_number }}" target="_blank" class="list-group-item list-group-item-action small">
-                <i class="fas fa-globe me-1"></i> WorldCat
+                <i class="fas fa-globe me-1"></i> {{ __('WorldCat') }}
               </a>
             @endif
             @if($item->openlibrary_url)
               <a href="{{ $item->openlibrary_url }}" target="_blank" class="list-group-item list-group-item-action small">
-                <i class="fas fa-book-open me-1"></i> OpenLibrary
+                <i class="fas fa-book-open me-1"></i> {{ __('OpenLibrary') }}
               </a>
             @elseif($item->openlibrary_id)
               <a href="https://openlibrary.org/books/{{ $item->openlibrary_id }}" target="_blank" class="list-group-item list-group-item-action small">
-                <i class="fas fa-book-open me-1"></i> OpenLibrary
+                <i class="fas fa-book-open me-1"></i> {{ __('OpenLibrary') }}
               </a>
             @endif
           </div>

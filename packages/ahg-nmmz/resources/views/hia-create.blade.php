@@ -150,7 +150,7 @@
       <div class="card">
         <div class="card-body d-grid gap-2">
           <button type="submit" class="btn btn-primary btn-lg">
-            <i class="fas fa-paper-plane me-2"></i>Submit Assessment
+            <i class="fas fa-paper-plane me-2"></i>{{ __('Submit Assessment') }}
           </button>
           <a href="{{ route('nmmz.hia') }}" class="btn btn-outline-secondary">Cancel</a>
         </div>

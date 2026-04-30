@@ -64,7 +64,7 @@
                 <div class="col-9 p-2">
                   <span class="text-primary">{{ $contactItem->contact_person }}</span>
                   @if($contactItem->primary_contact)
-                    <span class="badge bg-secondary ms-1">Primary contact</span>
+                    <span class="badge bg-secondary ms-1">{{ __('Primary contact') }}</span>
                   @endif
                 </div>
               </div>
@@ -293,7 +293,7 @@
             @if($er->is_primary)
               <div class="field row g-0">
                 <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Primary') }}</h3>
-                <div class="col-9 p-2"><span class="badge bg-primary">Primary rights record</span></div>
+                <div class="col-9 p-2"><span class="badge bg-primary">{{ __('Primary rights record') }}</span></div>
               </div>
             @endif
 

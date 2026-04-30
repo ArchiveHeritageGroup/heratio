@@ -20,10 +20,10 @@
       </div>
       <div class="card-body">
         <a href="{{ route('dropdown.index') }}" class="btn atom-btn-white w-100 mb-2">
-          <i class="fas fa-arrow-left me-2"></i>Back to List
+          <i class="fas fa-arrow-left me-2"></i>{{ __('Back to List') }}
         </a>
         <button type="button" class="btn atom-btn-outline-success w-100" data-bs-toggle="modal" data-bs-target="#addTermModal">
-          <i class="fas fa-plus me-2"></i>Add Term
+          <i class="fas fa-plus me-2"></i>{{ __('Add Term') }}
         </button>
       </div>
     </div>
@@ -34,15 +34,15 @@
       </div>
       <div class="card-body small">
         <div class="mb-2">
-          <span class="text-muted">Code:</span><br>
+          <span class="text-muted">{{ __('Code:') }}</span><br>
           <code>{{ $taxonomy }}</code>
         </div>
         <div class="mb-2">
-          <span class="text-muted">Section:</span><br>
+          <span class="text-muted">{{ __('Section:') }}</span><br>
           {{ $sectionLabels[$taxonomySection] ?? $taxonomySection ?? 'Other' }}
         </div>
         <div>
-          <span class="text-muted">Terms:</span><br>
+          <span class="text-muted">{{ __('Terms:') }}</span><br>
           <span id="termCountDisplay">{{ $terms->count() }}</span>
           (<span id="activeCountDisplay">{{ $terms->where('is_active', 1)->count() }}</span> active)
         </div>
@@ -87,10 +87,10 @@
 
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <span><i class="fas fa-grip-lines me-2"></i>Drag to reorder</span>
+        <span><i class="fas fa-grip-lines me-2"></i>{{ __('Drag to reorder') }}</span>
         <div class="form-check form-switch mb-0">
           <input class="form-check-input" type="checkbox" id="showInactive" checked>
-          <label class="form-check-label" for="showInactive">Show inactive <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-check-label" for="showInactive">Show inactive <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         </div>
       </div>
       <div class="table-responsive">
@@ -163,21 +163,21 @@
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Label <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+          <label class="form-label">Label <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <input type="text" id="addTermLabel" class="form-control" placeholder="{{ __('e.g., Approved') }}">
         </div>
         <div class="mb-3">
-          <label class="form-label">Code <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+          <label class="form-label">Code <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <input type="text" id="addTermCode" class="form-control" placeholder="{{ __('e.g., approved') }}">
           <div class="form-text">Lowercase letters, numbers, and underscores only</div>
         </div>
         <div class="row">
           <div class="col-6">
-            <label class="form-label">Color <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Color <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="color" id="addTermColor" class="form-control form-control-color w-100" value="#6c757d">
           </div>
           <div class="col-6">
-            <label class="form-label">Icon <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Icon <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" id="addTermIcon" class="form-control" placeholder="{{ __('fa-check') }}">
           </div>
         </div>

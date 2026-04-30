@@ -1,7 +1,7 @@
 {{-- Object Entry Report — cloned from AtoM. @copyright Johan Pieterse / Plain Sailing @license AGPL-3.0-or-later --}}
 @extends('theme::layouts.2col')
 @section('title', 'Object Entry Report')
-@section('sidebar')<div class="sidebar-content"><a href="{{ route('ahgspectrum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>Back</a></div>@endsection
+@section('sidebar')<div class="sidebar-content"><a href="{{ route('ahgspectrum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back') }}</a></div>@endsection
 @section('title-block')<h1><i class="fas fa-sign-in-alt me-2"></i>Object Entry Report</h1>@endsection
 @section('content')
 <div class="alert alert-info"><strong>{{ count($items) }}</strong> entries found</div>

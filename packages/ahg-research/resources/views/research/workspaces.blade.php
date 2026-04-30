@@ -17,7 +17,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-users-cog text-primary me-2"></i>Research Workspaces</h1>
     <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createWorkspaceModal">
-        <i class="fas fa-plus me-1"></i> New Workspace
+        <i class="fas fa-plus me-1"></i> {{ __('New Workspace') }}
     </button>
 </div>
 
@@ -64,7 +64,7 @@
             <h5>{{ __('No Workspaces Yet') }}</h5>
             <p class="text-muted">Create a private workspace to collaborate with other researchers.</p>
             <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createWorkspaceModal">
-                <i class="fas fa-plus me-1"></i> Create Workspace
+                <i class="fas fa-plus me-1"></i> {{ __('Create Workspace') }}
             </button>
         </div>
     </div>
@@ -83,26 +83,26 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Name * <span class="badge bg-danger ms-1">Required</span></label>
+                        <label class="form-label">Name * <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g., Thesis Research Group') }}">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <textarea name="description" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Visibility <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Visibility <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select name="visibility" class="form-select">
                             <option value="private">{{ __('Private') }}</option>
                             <option value="members">{{ __('Members Only') }}</option>
                             <option value="public">{{ __('Public') }}</option>
                         </select>
-                        <small class="text-muted">Private is recommended for research collaboration</small>
+                        <small class="text-muted">{{ __('Private is recommended for research collaboration') }}</small>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                    <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i> Create</button>
+                    <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i> {{ __('Create') }}</button>
                 </div>
             </form>
         </div>

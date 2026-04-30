@@ -18,7 +18,7 @@
   @endif
 
   <div class="mb-3">
-    <label class="form-label" for="target-language">Target language <span class="badge bg-secondary ms-1">Optional</span></label>
+    <label class="form-label" for="target-language">Target language <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
     <select class="form-select" id="target-language" style="max-width: 300px;">
       <option value="af">{{ __('Afrikaans') }}</option>
       <option value="en" selected>{{ __('English') }}</option>
@@ -40,6 +40,6 @@
   </div>
 
   <button class="btn atom-btn-outline-success" id="translate-btn" data-object-id="{{ $io->id }}">
-    <i class="fas fa-language me-1"></i> Translate
+    <i class="fas fa-language me-1"></i> {{ __('Translate') }}
   </button>
 @endsection

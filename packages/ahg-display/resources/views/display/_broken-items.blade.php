@@ -12,12 +12,12 @@
           <td>{{ $broken->identifier ?? '-' }}</td>
           <td>{{ $broken->level_name ?? '-' }}</td>
           <td>{{ ucfirst($broken->object_type ?? '?') }}</td>
-          <td><span class="text-danger">Missing slug</span></td>
+          <td><span class="text-danger">{{ __('Missing slug') }}</span></td>
           <td>
             <form method="POST" action="{{ route('admin.fix-missing-slug') }}" class="d-inline">
               @csrf
               <input type="hidden" name="object_id" value="{{ $broken->id }}">
-              <button type="submit" class="btn btn-sm atom-btn-outline-success py-0 px-1"><i class="fas fa-link me-1"></i>Fix</button>
+              <button type="submit" class="btn btn-sm atom-btn-outline-success py-0 px-1"><i class="fas fa-link me-1"></i>{{ __('Fix') }}</button>
             </form>
           </td>
         </tr>

@@ -14,11 +14,11 @@
             <div>
                 @if($package->status === 'draft')
                 <a href="{{ route('preservation.package-edit', $package->id) }}" class="btn btn-sm atom-btn-white">
-                    <i class="fas fa-edit me-1"></i>Edit
+                    <i class="fas fa-edit me-1"></i>{{ __('Edit') }}
                 </a>
                 @endif
                 <a href="{{ route('preservation.packages') }}" class="btn btn-sm atom-btn-white">
-                    <i class="fas fa-arrow-left me-1"></i>Back to Packages
+                    <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Packages') }}
                 </a>
             </div>
         </div>
@@ -35,11 +35,11 @@
                                     <tr><th class="text-muted" style="width:40%">UUID</th><td><code>{{ $package->uuid }}</code></td></tr>
                                     <tr><th class="text-muted">{{ __('Type') }}</th><td>
                                         @if(strtoupper($package->package_type) === 'SIP')
-                                            <span class="badge bg-info">SIP</span> Submission Information Package
+                                            <span class="badge bg-info">{{ __('SIP') }}</span> Submission Information Package
                                         @elseif(strtoupper($package->package_type) === 'AIP')
-                                            <span class="badge bg-success">AIP</span> Archival Information Package
+                                            <span class="badge bg-success">{{ __('AIP') }}</span> Archival Information Package
                                         @elseif(strtoupper($package->package_type) === 'DIP')
-                                            <span class="badge bg-warning text-dark">DIP</span> Dissemination Information Package
+                                            <span class="badge bg-warning text-dark">{{ __('DIP') }}</span> Dissemination Information Package
                                         @else
                                             <span class="badge bg-secondary">{{ $package->package_type }}</span>
                                         @endif
@@ -71,16 +71,16 @@
                             </div>
                         </div>
                         @if($package->description ?? null)
-                            <div class="mt-2"><strong>Description:</strong> {{ $package->description }}</div>
+                            <div class="mt-2"><strong>{{ __('Description:') }}</strong> {{ $package->description }}</div>
                         @endif
                         @if($package->source_path ?? null)
-                            <div class="mt-1"><strong>Source Path:</strong> <code>{{ $package->source_path }}</code></div>
+                            <div class="mt-1"><strong>{{ __('Source Path:') }}</strong> <code>{{ $package->source_path }}</code></div>
                         @endif
                         @if($package->export_path ?? null)
-                            <div class="mt-1"><strong>Export Path:</strong> <code>{{ $package->export_path }}</code></div>
+                            <div class="mt-1"><strong>{{ __('Export Path:') }}</strong> <code>{{ $package->export_path }}</code></div>
                         @endif
                         @if($package->submission_agreement ?? null)
-                            <div class="mt-1"><strong>Submission Agreement:</strong> {{ $package->submission_agreement }}</div>
+                            <div class="mt-1"><strong>{{ __('Submission Agreement:') }}</strong> {{ $package->submission_agreement }}</div>
                         @endif
                     </div>
                 </div>
@@ -147,9 +147,9 @@
                                         <td><span class="badge bg-secondary">{{ $event->event_type ?? '' }}</span></td>
                                         <td>
                                             @if(($event->event_outcome ?? '') === 'success')
-                                                <span class="badge bg-success">Success</span>
+                                                <span class="badge bg-success">{{ __('Success') }}</span>
                                             @elseif(($event->event_outcome ?? '') === 'failure')
-                                                <span class="badge bg-danger">Failure</span>
+                                                <span class="badge bg-danger">{{ __('Failure') }}</span>
                                             @else
                                                 <span class="badge bg-info">{{ ucfirst($event->event_outcome ?? 'unknown') }}</span>
                                             @endif
@@ -177,30 +177,30 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between">
-                            <span>Created</span>
+                            <span>{{ __('Created') }}</span>
                             <span>{{ $package->created_at }}</span>
                         </li>
                         @if($package->created_by ?? null)
                         <li class="list-group-item d-flex justify-content-between">
-                            <span>Created By</span>
+                            <span>{{ __('Created By') }}</span>
                             <span>{{ $package->created_by }}</span>
                         </li>
                         @endif
                         @if($package->built_at ?? null)
                         <li class="list-group-item d-flex justify-content-between">
-                            <span>Built</span>
+                            <span>{{ __('Built') }}</span>
                             <span class="text-success">{{ $package->built_at }}</span>
                         </li>
                         @endif
                         @if($package->validated_at ?? null)
                         <li class="list-group-item d-flex justify-content-between">
-                            <span>Validated</span>
+                            <span>{{ __('Validated') }}</span>
                             <span class="text-primary">{{ $package->validated_at }}</span>
                         </li>
                         @endif
                         @if($package->exported_at ?? null)
                         <li class="list-group-item d-flex justify-content-between">
-                            <span>Exported</span>
+                            <span>{{ __('Exported') }}</span>
                             <span class="text-success">{{ $package->exported_at }}</span>
                         </li>
                         @endif
@@ -239,7 +239,7 @@
                     <ul class="list-group list-group-flush">
                         @if($parentPackage)
                         <li class="list-group-item">
-                            <small class="text-muted d-block">Parent Package</small>
+                            <small class="text-muted d-block">{{ __('Parent Package') }}</small>
                             <a href="{{ route('preservation.package-view', $parentPackage->id) }}">
                                 <i class="fas fa-arrow-up me-1"></i>{{ $parentPackage->name }}
                             </a>
@@ -249,7 +249,7 @@
                         @endif
                         @foreach($childPackages as $child)
                         <li class="list-group-item">
-                            <small class="text-muted d-block">Derived Package</small>
+                            <small class="text-muted d-block">{{ __('Derived Package') }}</small>
                             <a href="{{ route('preservation.package-view', $child->id) }}">
                                 <i class="fas fa-arrow-down me-1"></i>{{ $child->name }}
                             </a>

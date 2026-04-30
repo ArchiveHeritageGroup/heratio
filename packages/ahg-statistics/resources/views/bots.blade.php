@@ -61,9 +61,9 @@
                                         <td><span class="badge bg-info">{{ str_replace('_', ' ', $bot->category) }}</span></td>
                                         <td>
                                             @if(!empty($bot->is_active))
-                                                <span class="badge bg-success">Active</span>
+                                                <span class="badge bg-success">{{ __('Active') }}</span>
                                             @else
-                                                <span class="badge bg-secondary">Inactive</span>
+                                                <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                                             @endif
                                         </td>
                                         <td>
@@ -111,7 +111,7 @@
                         <div class="mb-3">
                             <label for="pattern" class="form-label">{{ __('Regex Pattern *') }}</label>
                             <input type="text" class="form-control" id="pattern" name="pattern" required placeholder="{{ __('e.g., MyBot|mybot') }}">
-                            <small class="form-text text-muted">Case-insensitive regex to match user agent</small>
+                            <small class="form-text text-muted">{{ __('Case-insensitive regex to match user agent') }}</small>
                         </div>
 
                         <div class="mb-3">
@@ -127,7 +127,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-plus me-1"></i>Add Pattern
+                            <i class="fas fa-plus me-1"></i>{{ __('Add Pattern') }}
                         </button>
                     </form>
                 </div>

@@ -9,7 +9,7 @@
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h1 class="mb-0"><i class="fas fa-sync-alt me-2"></i>Format Conversion</h1>
         <div class="text-end">
-            <span class="text-muted">Pending conversions:</span>
+            <span class="text-muted">{{ __('Pending conversions:') }}</span>
             <span class="badge bg-{{ ($pendingConversions ?? 0) > 0 ? 'warning' : 'success' }} ms-2">
                 {{ number_format($pendingConversions ?? 0) }}
             </span>
@@ -25,8 +25,8 @@
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <h6 class="mb-0">{{ $name }}</h6>
-              @if($info['available'] ?? false) <span class="badge bg-success">Available</span>
-              @else <span class="badge bg-secondary">Not Installed</span> @endif
+              @if($info['available'] ?? false) <span class="badge bg-success">{{ __('Available') }}</span>
+              @else <span class="badge bg-secondary">{{ __('Not Installed') }}</span> @endif
             </div>
             <small class="text-muted">{{ implode(', ', array_slice((array)($info['formats'] ?? []), 0, 5)) }}</small>
           </div>
@@ -105,9 +105,9 @@ php artisan preservation:convert --mime-type=image/jpeg --format=tiff --limit=50
                 <td><small>{{ $conv->source_format ?? '-' }}</small></td>
                 <td><small>{{ $conv->target_format ?? '-' }}</small></td>
                 <td>
-                  @if($conv->status === 'completed') <span class="badge bg-success">Completed</span>
-                  @elseif($conv->status === 'processing') <span class="badge bg-info">Processing</span>
-                  @elseif($conv->status === 'failed') <span class="badge bg-danger">Failed</span>
+                  @if($conv->status === 'completed') <span class="badge bg-success">{{ __('Completed') }}</span>
+                  @elseif($conv->status === 'processing') <span class="badge bg-info">{{ __('Processing') }}</span>
+                  @elseif($conv->status === 'failed') <span class="badge bg-danger">{{ __('Failed') }}</span>
                   @else <span class="badge bg-warning text-dark">{{ ucfirst($conv->status ?? 'pending') }}</span> @endif
                 </td>
                 <td><small>{{ $conv->conversion_tool ?? '-' }}</small></td>

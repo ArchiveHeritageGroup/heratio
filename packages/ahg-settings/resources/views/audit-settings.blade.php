@@ -27,7 +27,7 @@
       <div class="card-body">
         <div class="form-check form-switch mb-3">
           <input class="form-check-input" type="checkbox" id="audit_enabled" name="settings[audit_enabled]" value="1" {{ ($settings['audit_enabled'] ?? '0') === '1' ? 'checked' : '' }}>
-          <label class="form-check-label" for="audit_enabled"><strong>Enable Audit Logging</strong></label>
+          <label class="form-check-label" for="audit_enabled"><strong>{{ __('Enable Audit Logging') }}</strong></label>
         </div>
       </div>
     </section>
@@ -73,8 +73,8 @@
     </section>
 
     <div class="d-flex justify-content-between">
-      <a href="{{ route('settings.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back to Settings</a>
-      <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Settings</button>
+      <a href="{{ route('settings.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}</a>
+      <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save Settings') }}</button>
     </div>
   </form>
 @endsection

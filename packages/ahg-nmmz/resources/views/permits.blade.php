@@ -32,7 +32,7 @@
     </div>
     <div class="col-auto">
       <a href="{{ route('nmmz.permit.create') }}" class="btn btn-primary">
-        <i class="fas fa-plus me-1"></i> New Application
+        <i class="fas fa-plus me-1"></i> {{ __('New Application') }}
       </a>
     </div>
   </div>

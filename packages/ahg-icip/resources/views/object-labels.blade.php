@@ -131,7 +131,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary">
-              <i class="bi bi-plus-circle me-1"></i> Add Label
+              <i class="bi bi-plus-circle me-1"></i> {{ __('Add Label') }}
             </button>
           </form>
         </div>
@@ -142,9 +142,9 @@
       <div class="card mb-4">
         <div class="card-header"><h5 class="mb-0">{{ __('About TK Labels') }}</h5></div>
         <div class="card-body small">
-          <p>TK Labels are developed by <strong>Local Contexts</strong> to help Indigenous communities manage their cultural heritage.</p>
-          <p><strong>TK Labels</strong> (brown) relate to Traditional Knowledge.</p>
-          <p><strong>BC Labels</strong> (green) relate to Biocultural heritage.</p>
+          <p>TK Labels are developed by <strong>{{ __('Local Contexts') }}</strong> to help Indigenous communities manage their cultural heritage.</p>
+          <p><strong>{{ __('TK Labels') }}</strong> (brown) relate to Traditional Knowledge.</p>
+          <p><strong>{{ __('BC Labels') }}</strong> (green) relate to Biocultural heritage.</p>
           <p class="mb-0">
             <a href="https://localcontexts.org/labels/traditional-knowledge-labels/" target="_blank">
               Learn more at Local Contexts <i class="bi bi-box-arrow-up-right"></i>
@@ -156,8 +156,8 @@
       <div class="card">
         <div class="card-header"><h5 class="mb-0">{{ __('Applied By') }}</h5></div>
         <div class="card-body small">
-          <p><strong>Community:</strong> Labels applied directly by or at the request of the community.</p>
-          <p class="mb-0"><strong>Institution:</strong> Labels applied by the institution to acknowledge Indigenous origin or protocols.</p>
+          <p><strong>{{ __('Community:') }}</strong> Labels applied directly by or at the request of the community.</p>
+          <p class="mb-0"><strong>{{ __('Institution:') }}</strong> Labels applied by the institution to acknowledge Indigenous origin or protocols.</p>
         </div>
       </div>
     </div>

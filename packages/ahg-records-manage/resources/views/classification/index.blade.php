@@ -11,13 +11,13 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0"><i class="fas fa-magic me-2"></i> Classification Rules</h1>
   <div>
-    <a href="{{ route('records.classification.create') }}" class="btn btn-sm btn-success"><i class="fas fa-plus me-1"></i>New rule</a>
+    <a href="{{ route('records.classification.create') }}" class="btn btn-sm btn-success"><i class="fas fa-plus me-1"></i>{{ __('New rule') }}</a>
     <form method="POST" action="{{ route('records.classification.run-batch') }}" class="d-inline" onsubmit="return confirm('Run classification across up to 1,000 unclassified records? This may take a while.');">
       @csrf
       <input type="hidden" name="limit" value="1000">
-      <button type="submit" class="btn btn-sm btn-warning"><i class="fas fa-bolt me-1"></i>Batch run</button>
+      <button type="submit" class="btn btn-sm btn-warning"><i class="fas fa-bolt me-1"></i>{{ __('Batch run') }}</button>
     </form>
-    <a href="{{ route('records.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Records dashboard</a>
+    <a href="{{ route('records.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Records dashboard') }}</a>
   </div>
 </div>
 
@@ -29,9 +29,9 @@
 @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
 <div class="row g-2 mb-3">
-  <div class="col"><div class="card border-secondary"><div class="card-body py-2"><small class="text-muted">Total rules</small><h4 class="mb-0">{{ $counts['total_rules'] }}</h4></div></div></div>
-  <div class="col"><div class="card border-success"><div class="card-body py-2"><small class="text-muted">Active</small><h4 class="mb-0 text-success">{{ $counts['active_rules'] }}</h4></div></div></div>
-  <div class="col"><div class="card border-info"><div class="card-body py-2"><small class="text-muted">Records classified</small><h4 class="mb-0 text-info">{{ $counts['classified_records'] }}</h4></div></div></div>
+  <div class="col"><div class="card border-secondary"><div class="card-body py-2"><small class="text-muted">{{ __('Total rules') }}</small><h4 class="mb-0">{{ $counts['total_rules'] }}</h4></div></div></div>
+  <div class="col"><div class="card border-success"><div class="card-body py-2"><small class="text-muted">{{ __('Active') }}</small><h4 class="mb-0 text-success">{{ $counts['active_rules'] }}</h4></div></div></div>
+  <div class="col"><div class="card border-info"><div class="card-body py-2"><small class="text-muted">{{ __('Records classified') }}</small><h4 class="mb-0 text-info">{{ $counts['classified_records'] }}</h4></div></div></div>
 </div>
 
 <form method="GET" class="row g-2 align-items-end mb-3">
@@ -75,7 +75,7 @@
         </td>
       </tr>
     @empty
-      <tr><td colspan="8" class="text-muted text-center py-4">No classification rules yet. Use <strong>New rule</strong> to add the first one.</td></tr>
+      <tr><td colspan="8" class="text-muted text-center py-4">No classification rules yet. Use <strong>{{ __('New rule') }}</strong> to add the first one.</td></tr>
     @endforelse
     </tbody>
   </table>

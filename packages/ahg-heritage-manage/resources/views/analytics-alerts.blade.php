@@ -48,7 +48,7 @@ $stats = $alertData['stats'] ?? [];
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">{{ __('Active Alerts') }}</h5>
-        <button type="button" class="btn btn-sm btn-outline-light" onclick="if(confirm('Dismiss all info-level alerts?'))location.reload()"><i class="fas fa-check-double me-1"></i>Dismiss All Read</button>
+        <button type="button" class="btn btn-sm btn-outline-light" onclick="if(confirm('Dismiss all info-level alerts?'))location.reload()"><i class="fas fa-check-double me-1"></i>{{ __('Dismiss All Read') }}</button>
       </div>
       <div class="card-body p-0">
         @if(empty($alerts))

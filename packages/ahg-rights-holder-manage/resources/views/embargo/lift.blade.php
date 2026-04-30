@@ -24,22 +24,22 @@
     </div>
     <div class="card-body">
       <div class="row mb-3">
-        <div class="col-md-4"><strong>Embargo Type:</strong></div>
+        <div class="col-md-4"><strong>{{ __('Embargo Type:') }}</strong></div>
         <div class="col-md-8">{{ ucfirst(str_replace('_', ' ', $embargo->embargo_type ?? 'full')) }}</div>
       </div>
       <div class="row mb-3">
-        <div class="col-md-4"><strong>Start Date:</strong></div>
+        <div class="col-md-4"><strong>{{ __('Start Date:') }}</strong></div>
         <div class="col-md-8">{{ $embargo->start_date }}</div>
       </div>
       @if($embargo->end_date)
         <div class="row mb-3">
-          <div class="col-md-4"><strong>End Date:</strong></div>
+          <div class="col-md-4"><strong>{{ __('End Date:') }}</strong></div>
           <div class="col-md-8">{{ $embargo->end_date }}</div>
         </div>
       @endif
       <hr>
       <div class="mb-3">
-        <label for="lift_reason" class="form-label">Reason for lifting (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="lift_reason" class="form-label">Reason for lifting (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <textarea name="lift_reason" id="lift_reason" class="form-control" rows="3" placeholder="{{ __('e.g., Embargo period completed, Permission granted, Error correction') }}"></textarea>
       </div>
     </div>
@@ -47,7 +47,7 @@
 
   <section class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
     <a href="{{ url()->previous() }}" class="btn atom-btn-outline-light">Cancel</a>
-    <button type="submit" class="btn atom-btn-white"><i class="fas fa-unlock me-1"></i> Lift Embargo</button>
+    <button type="submit" class="btn atom-btn-white"><i class="fas fa-unlock me-1"></i> {{ __('Lift Embargo') }}</button>
   </section>
 </form>
 @endsection

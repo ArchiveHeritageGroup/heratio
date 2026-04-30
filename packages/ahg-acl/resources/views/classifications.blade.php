@@ -16,7 +16,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="fas fa-shield-alt me-2"></i> Security Classifications</h2>
     <a href="{{ route('acl.groups') }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left me-1"></i> Back to ACL
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back to ACL') }}
     </a>
   </div>
 

@@ -16,7 +16,7 @@
             </select>
         </form>
         <a href="{{ route('acl.security-dashboard') }}" class="btn btn-sm btn-primary ms-2">
-            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+            <i class="fas fa-tachometer-alt me-1"></i>{{ __('Dashboard') }}
         </a>
     </div>
 </div>

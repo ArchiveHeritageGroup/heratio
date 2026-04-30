@@ -17,7 +17,7 @@
     </p>
     <hr class="my-4">
     <a href="{{ route('research.dashboard') }}" class="btn atom-btn-white">
-      <i class="fas fa-tachometer-alt me-1"></i>Return to Dashboard
+      <i class="fas fa-tachometer-alt me-1"></i>{{ __('Return to Dashboard') }}
     </a>
   </div>
 @endsection

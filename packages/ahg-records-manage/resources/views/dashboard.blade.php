@@ -136,7 +136,7 @@
         <div class="card-body">
           <h5 class="card-title text-success"><i class="fas fa-shield-alt me-1"></i> Vital Records</h5>
           <p class="card-text text-muted small">Records essential to organisational continuity. Off-site replicated.</p>
-          <div class="mt-2"><span class="text-success small"><i class="fas fa-arrow-right me-1"></i>Open registry</span></div>
+          <div class="mt-2"><span class="text-success small"><i class="fas fa-arrow-right me-1"></i>{{ __('Open registry') }}</span></div>
         </div>
       </div>
     </a>
@@ -147,9 +147,9 @@
 
 <h2 class="h5 mb-3">{{ __('Quick links') }}</h2>
 <div class="d-flex gap-2 flex-wrap">
-  <a href="{{ route('records.fileplan.import') }}" class="btn btn-sm btn-outline-success"><i class="fas fa-file-upload me-1"></i>Import file plan (CSV / spreadsheet)</a>
-  <a href="{{ route('records.schedules.create') }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus me-1"></i>New retention schedule</a>
-  <a href="{{ route('records.disposal.history') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-history me-1"></i>Disposal history</a>
+  <a href="{{ route('records.fileplan.import') }}" class="btn btn-sm btn-outline-success"><i class="fas fa-file-upload me-1"></i>{{ __('Import file plan (CSV / spreadsheet)') }}</a>
+  <a href="{{ route('records.schedules.create') }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus me-1"></i>{{ __('New retention schedule') }}</a>
+  <a href="{{ route('records.disposal.history') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-history me-1"></i>{{ __('Disposal history') }}</a>
 </div>
 
 <div class="mt-4 small text-muted">

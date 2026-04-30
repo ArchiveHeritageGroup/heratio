@@ -59,7 +59,7 @@
             <div>
               <h6 class="mb-0">{{ __('SIPs') }}</h6>
               <h2 class="mb-0">{{ $sipCount }}</h2>
-              <small>Submission</small>
+              <small>{{ __('Submission') }}</small>
             </div>
             <i class="fas fa-upload fa-2x opacity-50"></i>
           </div>
@@ -73,7 +73,7 @@
             <div>
               <h6 class="mb-0">{{ __('AIPs') }}</h6>
               <h2 class="mb-0">{{ $aipCount }}</h2>
-              <small>Archival</small>
+              <small>{{ __('Archival') }}</small>
             </div>
             <i class="fas fa-archive fa-2x opacity-50"></i>
           </div>
@@ -87,7 +87,7 @@
             <div>
               <h6 class="mb-0">{{ __('DIPs') }}</h6>
               <h2 class="mb-0">{{ $dipCount }}</h2>
-              <small>Dissemination</small>
+              <small>{{ __('Dissemination') }}</small>
             </div>
             <i class="fas fa-download fa-2x opacity-50"></i>
           </div>
@@ -100,18 +100,18 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <a href="{{ route('informationobject.show', ['slug' => $io->slug ?? $io->id]) }}" class="btn atom-btn-white me-2">
-        <i class="fas fa-arrow-left me-1"></i> Back
+        <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
       </a>
       @auth
         <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createPackageModal">
-          <i class="fas fa-plus me-1"></i> Create Package
+          <i class="fas fa-plus me-1"></i> {{ __('Create Package') }}
         </button>
       @endauth
     </div>
     <div class="d-flex gap-2">
       <div class="dropdown">
         <button class="btn atom-btn-white dropdown-toggle" type="button" id="typeFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="fas fa-filter me-1"></i> Type
+          <i class="fas fa-filter me-1"></i> {{ __('Type') }}
         </button>
         <ul class="dropdown-menu" aria-labelledby="typeFilterDropdown">
           <li><a class="dropdown-item" href="javascript:void(0)" data-filter-type="all">All Types</a></li>
@@ -123,7 +123,7 @@
       </div>
       <div class="dropdown">
         <button class="btn atom-btn-white dropdown-toggle" type="button" id="statusFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="fas fa-tasks me-1"></i> Status
+          <i class="fas fa-tasks me-1"></i> {{ __('Status') }}
         </button>
         <ul class="dropdown-menu" aria-labelledby="statusFilterDropdown">
           <li><a class="dropdown-item" href="javascript:void(0)" data-filter-status="all">All Statuses</a></li>
@@ -275,7 +275,7 @@
       </p>
       @auth
         <button type="button" class="btn atom-btn-outline-success btn-lg" data-bs-toggle="modal" data-bs-target="#createPackageModal">
-          <i class="fas fa-plus me-1"></i> Create Package
+          <i class="fas fa-plus me-1"></i> {{ __('Create Package') }}
         </button>
       @endauth
     </div>
@@ -296,7 +296,7 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label for="package_type" class="form-label">Package Type <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="package_type" class="form-label">Package Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="package_type" id="package_type" class="form-select">
               <option value="SIP">{{ __('SIP (Submission Information Package)') }}</option>
               <option value="AIP" selected>{{ __('AIP (Archival Information Package)') }}</option>
@@ -304,14 +304,14 @@
             </select>
           </div>
           <div class="mb-3">
-            <label for="package_name" class="form-label">Package Name <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="package_name" class="form-label">Package Name <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="package_name" id="package_name" class="form-control" placeholder="{{ __('Enter a descriptive name') }}">
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="submit" class="btn atom-btn-outline-success">
-            <i class="fas fa-plus me-1"></i> Create Package
+            <i class="fas fa-plus me-1"></i> {{ __('Create Package') }}
           </button>
         </div>
       </form>

@@ -6,7 +6,7 @@
 @section('title-block')
   <div class="multiline-header d-flex flex-column mb-3">
     <h1 class="mb-0">{{ $io->title ?? 'Untitled' }}</h1>
-    <span class="small">Move</span>
+    <span class="small">{{ __('Move') }}</span>
   </div>
 @endsection
 
@@ -48,9 +48,9 @@
           </div>
 
           @if($currentParent)
-            <p><strong>Current parent:</strong> {{ $currentParent->title }}</p>
+            <p><strong>{{ __('Current parent:') }}</strong> {{ $currentParent->title }}</p>
           @else
-            <p><strong>Current parent:</strong> <em>Top level (no parent)</em></p>
+            <p><strong>{{ __('Current parent:') }}</strong> <em>Top level (no parent)</em></p>
           @endif
 
           <hr>

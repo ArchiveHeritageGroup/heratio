@@ -41,11 +41,11 @@
           <div class="d-grid">
             @if($isAuthenticated)
               <a href="{{ route('ahgmarketplace.buyer-start') }}" class="btn btn-success btn-lg">
-                <i class="fas fa-shopping-bag me-1"></i> Start buying
+                <i class="fas fa-shopping-bag me-1"></i> {{ __('Start buying') }}
               </a>
             @else
               <a href="{{ route('login') }}?next={{ urlencode(route('ahgmarketplace.buyer-start')) }}" class="btn btn-success btn-lg">
-                <i class="fas fa-sign-in-alt me-1"></i> Sign in to start buying
+                <i class="fas fa-sign-in-alt me-1"></i> {{ __('Sign in to start buying') }}
               </a>
             @endif
           </div>
@@ -75,15 +75,15 @@
           <div class="d-grid">
             @if($existingSeller)
               <a href="{{ route('ahgmarketplace.dashboard') }}" class="btn btn-primary btn-lg">
-                <i class="fas fa-tachometer-alt me-1"></i> Open my seller dashboard
+                <i class="fas fa-tachometer-alt me-1"></i> {{ __('Open my seller dashboard') }}
               </a>
             @elseif($isAuthenticated)
               <a href="{{ route('ahgmarketplace.seller-register') }}" class="btn btn-primary btn-lg">
-                <i class="fas fa-tag me-1"></i> Set up seller profile
+                <i class="fas fa-tag me-1"></i> {{ __('Set up seller profile') }}
               </a>
             @else
               <a href="{{ route('login') }}?next={{ urlencode(route('ahgmarketplace.seller-register')) }}" class="btn btn-primary btn-lg">
-                <i class="fas fa-sign-in-alt me-1"></i> Sign in to set up selling
+                <i class="fas fa-sign-in-alt me-1"></i> {{ __('Sign in to set up selling') }}
               </a>
             @endif
           </div>

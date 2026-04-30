@@ -57,7 +57,7 @@
                 <td>{{ $embargo->start_date ?? '-' }}</td>
                 <td>
                   @if($embargo->is_perpetual ?? false)
-                    <span class="text-danger">Perpetual</span>
+                    <span class="text-danger">{{ __('Perpetual') }}</span>
                   @elseif($embargo->end_date ?? null)
                     {{ $embargo->end_date }}
                   @else

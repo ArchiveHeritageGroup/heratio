@@ -101,7 +101,7 @@
       @if(!empty($types))
       <div class="card mb-2">
         <div class="card-header py-2 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#embFacetType" style="background:var(--ahg-primary);color:#fff;cursor:pointer;">
-          <strong>GLAM Type</strong> <i class="fas fa-chevron-down float-end"></i>
+          <strong>{{ __('GLAM Type') }}</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div class="collapse show" id="embFacetType">
           <ul class="list-group list-group-flush">
@@ -133,7 +133,7 @@
       @if(!empty($repositories))
       <div class="card mb-2">
         <div class="card-header py-2 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#embFacetRepo" style="background:var(--ahg-primary);color:#fff;cursor:pointer;">
-          <strong>Repository</strong> <i class="fas fa-chevron-down float-end"></i>
+          <strong>{{ __('Repository') }}</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div class="collapse" id="embFacetRepo">
           <ul class="list-group list-group-flush">
@@ -160,7 +160,7 @@
       @if(!empty($subjects))
       <div class="card mb-2">
         <div class="card-header py-2 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#embFacetSubject" style="background:var(--ahg-primary);color:#fff;cursor:pointer;">
-          <strong>Subject</strong> <i class="fas fa-chevron-down float-end"></i>
+          <strong>{{ __('Subject') }}</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div class="collapse" id="embFacetSubject">
           <ul class="list-group list-group-flush">
@@ -187,7 +187,7 @@
       @if(!empty($levels))
       <div class="card mb-2">
         <div class="card-header py-2 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#embFacetLevel" style="background:var(--ahg-primary);color:#fff;cursor:pointer;">
-          <strong>Level</strong> <i class="fas fa-chevron-down float-end"></i>
+          <strong>{{ __('Level') }}</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div class="collapse" id="embFacetLevel">
           <ul class="list-group list-group-flush">
@@ -214,7 +214,7 @@
       @if(!empty($creators))
       <div class="card mb-2">
         <div class="card-header py-2 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#embFacetCreator" style="background:var(--ahg-primary);color:#fff;cursor:pointer;">
-          <strong>Creator</strong> <i class="fas fa-chevron-down float-end"></i>
+          <strong>{{ __('Creator') }}</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div class="collapse" id="embFacetCreator">
           <ul class="list-group list-group-flush">
@@ -241,7 +241,7 @@
       @if(!empty($places))
       <div class="card mb-2">
         <div class="card-header py-2 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#embFacetPlace" style="background:var(--ahg-primary);color:#fff;cursor:pointer;">
-          <strong>Place</strong> <i class="fas fa-chevron-down float-end"></i>
+          <strong>{{ __('Place') }}</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div class="collapse" id="embFacetPlace">
           <ul class="list-group list-group-flush">
@@ -268,7 +268,7 @@
       @if(!empty($mediaTypes))
       <div class="card mb-2">
         <div class="card-header py-2 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#embFacetMedia" style="background:var(--ahg-primary);color:#fff;cursor:pointer;">
-          <strong>Media type</strong> <i class="fas fa-chevron-down float-end"></i>
+          <strong>{{ __('Media type') }}</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div class="collapse" id="embFacetMedia">
           <ul class="list-group list-group-flush">
@@ -297,7 +297,7 @@
 
       {{-- Full Browse Page link --}}
       <a href="{{ route('glam.browse') }}" class="btn atom-btn-outline-success btn-sm w-100 mt-2">
-        <i class="fas fa-expand-arrows-alt me-1"></i> Full Browse Page
+        <i class="fas fa-expand-arrows-alt me-1"></i> {{ __('Full Browse Page') }}
       </a>
 
     </div>
@@ -313,7 +313,7 @@
           Showing {{ number_format($total) }} results
         </h4>
         <a href="{{ route('glam.browse') }}" class="btn atom-btn-outline-success btn-sm">
-          <i class="fas fa-search me-1"></i> Advanced Search
+          <i class="fas fa-search me-1"></i> {{ __('Advanced Search') }}
         </a>
       </div>
 

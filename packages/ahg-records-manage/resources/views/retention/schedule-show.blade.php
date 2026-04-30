@@ -17,10 +17,10 @@
     <div class="d-flex gap-2">
       @if($schedule->status === 'draft')
         <form method="post" action="{{ route('records.schedules.approve', $schedule->id) }}" class="d-inline">@csrf
-          <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve and activate this schedule?')"><i class="fas fa-check me-1"></i>Approve</button>
+          <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve and activate this schedule?')"><i class="fas fa-check me-1"></i>{{ __('Approve') }}</button>
         </form>
       @endif
-      <a href="{{ route('records.schedules.edit', $schedule->id) }}" class="btn btn-sm btn-light"><i class="fas fa-edit me-1"></i>Edit</a>
+      <a href="{{ route('records.schedules.edit', $schedule->id) }}" class="btn btn-sm btn-light"><i class="fas fa-edit me-1"></i>{{ __('Edit') }}</a>
     </div>
   </div>
   <div class="card-body">
@@ -37,10 +37,10 @@
       <div class="col-md-6">
         <table class="table table-sm">
           <tr><th style="width:160px">{{ __('Status') }}</th><td>
-            @if($schedule->status === 'draft')<span class="badge bg-secondary">Draft</span>
-            @elseif($schedule->status === 'active')<span class="badge bg-success">Active</span>
-            @elseif($schedule->status === 'superseded')<span class="badge bg-warning text-dark">Superseded</span>
-            @elseif($schedule->status === 'expired')<span class="badge bg-danger">Expired</span>
+            @if($schedule->status === 'draft')<span class="badge bg-secondary">{{ __('Draft') }}</span>
+            @elseif($schedule->status === 'active')<span class="badge bg-success">{{ __('Active') }}</span>
+            @elseif($schedule->status === 'superseded')<span class="badge bg-warning text-dark">{{ __('Superseded') }}</span>
+            @elseif($schedule->status === 'expired')<span class="badge bg-danger">{{ __('Expired') }}</span>
             @else<span class="badge bg-secondary">{{ ucfirst($schedule->status) }}</span>@endif
           </td></tr>
           <tr><th>{{ __('Effective Date') }}</th><td>{{ $schedule->effective_date ?? '-' }}</td></tr>
@@ -52,7 +52,7 @@
       </div>
     </div>
     @if($schedule->description)
-      <div class="mt-2"><strong>Description:</strong><p class="mt-1">{{ $schedule->description }}</p></div>
+      <div class="mt-2"><strong>{{ __('Description:') }}</strong><p class="mt-1">{{ $schedule->description }}</p></div>
     @endif
   </div>
 </div>
@@ -60,7 +60,7 @@
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between align-items-center" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
     <h5 class="mb-0">Disposal Classes ({{ count($classes) }})</h5>
-    <a href="{{ route('records.classes.create', $schedule->id) }}" class="btn btn-sm btn-light"><i class="fas fa-plus me-1"></i>Add Class</a>
+    <a href="{{ route('records.classes.create', $schedule->id) }}" class="btn btn-sm btn-light"><i class="fas fa-plus me-1"></i>{{ __('Add Class') }}</a>
   </div>
   <div class="card-body p-0">
     @if(count($classes) > 0)
@@ -83,7 +83,7 @@
           <td>{{ ucfirst(str_replace('_', ' ', $class->retention_trigger)) }}</td>
           <td>{{ ucfirst(str_replace('_', ' ', $class->disposal_action)) }}</td>
           <td>{{ $class->record_count ?? 0 }}</td>
-          <td>{!! $class->is_active ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-secondary">No</span>' !!}</td>
+          <td>{!! $class->is_active ? '<span class="badge bg-success">{{ __('Yes') }}</span>' : '<span class="badge bg-secondary">No</span>' !!}</td>
           <td>
             <a href="{{ route('records.classes.edit', [$schedule->id, $class->id]) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Edit') }}"><i class="fas fa-edit"></i></a>
             @if(($class->record_count ?? 0) === 0)
@@ -102,5 +102,5 @@
   </div>
 </div>
 
-<div class="mt-3"><a href="{{ route('records.schedules.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Schedules</a></div>
+<div class="mt-3"><a href="{{ route('records.schedules.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Schedules') }}</a></div>
 @endsection

@@ -37,7 +37,7 @@
 
 @if($__ocapAssessment)
   <div class="ocap-badges mb-2" aria-label="{{ __('OCAP compliance') }}">
-    <small class="text-muted me-2"><strong>OCAP®</strong></small>
+    <small class="text-muted me-2"><strong>{{ __('OCAP®') }}</strong></small>
     {!! $__ocapBadge('Ownership',  $__ocapAssessment['ownership']) !!}
     {!! $__ocapBadge('Control',    $__ocapAssessment['control']) !!}
     {!! $__ocapBadge('Access',     $__ocapAssessment['access']) !!}

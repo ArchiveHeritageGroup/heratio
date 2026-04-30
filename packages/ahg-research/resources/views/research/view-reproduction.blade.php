@@ -26,17 +26,17 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <p><strong>Purpose:</strong> {{ e($reproRequest->purpose ?? '-') }}</p>
-                        <p><strong>Delivery:</strong> {{ ucfirst(str_replace('_', ' ', $reproRequest->delivery_method ?? 'email')) }}</p>
+                        <p><strong>{{ __('Purpose:') }}</strong> {{ e($reproRequest->purpose ?? '-') }}</p>
+                        <p><strong>{{ __('Delivery:') }}</strong> {{ ucfirst(str_replace('_', ' ', $reproRequest->delivery_method ?? 'email')) }}</p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>Created:</strong> {{ date('M j, Y', strtotime($reproRequest->created_at)) }}</p>
-                        @if($reproRequest->estimated_cost)<p><strong>Estimated:</strong> R{{ number_format($reproRequest->estimated_cost, 2) }}</p>@endif
-                        @if($reproRequest->final_cost)<p><strong>Final Cost:</strong> R{{ number_format($reproRequest->final_cost, 2) }}</p>@endif
+                        <p><strong>{{ __('Created:') }}</strong> {{ date('M j, Y', strtotime($reproRequest->created_at)) }}</p>
+                        @if($reproRequest->estimated_cost)<p><strong>{{ __('Estimated:') }}</strong> R{{ number_format($reproRequest->estimated_cost, 2) }}</p>@endif
+                        @if($reproRequest->final_cost)<p><strong>{{ __('Final Cost:') }}</strong> R{{ number_format($reproRequest->final_cost, 2) }}</p>@endif
                     </div>
                 </div>
-                @if($reproRequest->notes)<p><strong>Notes:</strong> {{ e($reproRequest->notes) }}</p>@endif
-                @if($reproRequest->publication_details)<p><strong>Publication:</strong> {{ e($reproRequest->publication_details) }}</p>@endif
+                @if($reproRequest->notes)<p><strong>{{ __('Notes:') }}</strong> {{ e($reproRequest->notes) }}</p>@endif
+                @if($reproRequest->publication_details)<p><strong>{{ __('Publication:') }}</strong> {{ e($reproRequest->publication_details) }}</p>@endif
             </div>
         </div>
 
@@ -44,7 +44,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Items ({{ count($items) }})</h5>
                 @if(in_array($reproRequest->status, ['draft', 'submitted']))
-                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal"><i class="fas fa-plus me-1"></i>Add Item</button>
+                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal"><i class="fas fa-plus me-1"></i>{{ __('Add Item') }}</button>
                 @endif
             </div>
             @if(!empty($items))
@@ -76,12 +76,12 @@
             <div class="card-header"><h6 class="mb-0"><i class="fas fa-cog me-2"></i>Actions</h6></div>
             <div class="card-body d-grid gap-2">
                 @if($reproRequest->status === 'draft' && count($items) > 0)
-                <form method="POST">@csrf<input type="hidden" name="form_action" value="submit"><button class="btn btn-success w-100"><i class="fas fa-paper-plane me-1"></i>Submit Request</button></form>
+                <form method="POST">@csrf<input type="hidden" name="form_action" value="submit"><button class="btn btn-success w-100"><i class="fas fa-paper-plane me-1"></i>{{ __('Submit Request') }}</button></form>
                 @endif
                 @if(in_array($reproRequest->status, ['draft', 'submitted']))
-                <form method="POST" onsubmit="return confirm('Cancel this request?')">@csrf<input type="hidden" name="form_action" value="cancel"><button class="btn btn-outline-danger w-100"><i class="fas fa-times me-1"></i>Cancel Request</button></form>
+                <form method="POST" onsubmit="return confirm('Cancel this request?')">@csrf<input type="hidden" name="form_action" value="cancel"><button class="btn btn-outline-danger w-100"><i class="fas fa-times me-1"></i>{{ __('Cancel Request') }}</button></form>
                 @endif
-                <a href="{{ route('research.reproductions') }}" class="btn btn-outline-secondary w-100"><i class="fas fa-arrow-left me-1"></i>Back to List</a>
+                <a href="{{ route('research.reproductions') }}" class="btn btn-outline-secondary w-100"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to List') }}</a>
             </div>
         </div>
         <div class="card">
@@ -107,7 +107,7 @@
         </div>
         <div class="mb-3"><label class="form-label">{{ __('Instructions') }}</label><textarea name="special_instructions" class="form-control" rows="2" placeholder="{{ __('e.g. 300dpi colour, A3...') }}"></textarea></div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Add</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>{{ __('Add') }}</button></div>
     </form>
 </div></div></div>
 

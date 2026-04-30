@@ -20,7 +20,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">{{ __('Snapshots') }}</h1>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSnapshotModal"><i class="fas fa-camera me-1"></i> Create Snapshot</button>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSnapshotModal"><i class="fas fa-camera me-1"></i> {{ __('Create Snapshot') }}</button>
 </div>
 
 @if(empty($snapshots) || count($snapshots) === 0)
@@ -65,12 +65,12 @@
                     <div class="mb-3">
                         <label class="form-label">{{ __('Collection (optional — freezes a specific collection)') }}</label>
                         <select id="snapshotCollectionSelect" name="collection_id"></select>
-                        <small class="text-muted">Leave empty to snapshot the entire project.</small>
+                        <small class="text-muted">{{ __('Leave empty to snapshot the entire project.') }}</small>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-camera me-1"></i>Create</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-camera me-1"></i>{{ __('Create') }}</button>
                 </div>
             </div>
         </form>

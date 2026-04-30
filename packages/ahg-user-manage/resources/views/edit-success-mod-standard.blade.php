@@ -76,7 +76,7 @@
               </div>
               <div class="col-md-6 template" hidden>
                 <div class="mb-3 bg-light p-3 rounded border-start border-4">
-                  <label class="form-label">{{ __('Password strength:') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">{{ __('Password strength:') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <div class="progress mb-3">
                     <div class="progress-bar w-0" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                   </div>

@@ -49,7 +49,7 @@
             </option>
           @endforeach
         </select>
-        <small class="text-muted">Showing top-level archival descriptions.</small>
+        <small class="text-muted">{{ __('Showing top-level archival descriptions.') }}</small>
       </div>
 
       <div class="mb-3 form-check">
@@ -76,10 +76,10 @@
 
       <div class="d-flex justify-content-between">
         <a href="{{ route('export.index') }}" class="btn btn-secondary">
-          <i class="bi bi-arrow-left me-1"></i>Back
+          <i class="bi bi-arrow-left me-1"></i>{{ __('Back') }}
         </a>
         <button type="submit" class="btn btn-primary">
-          <i class="bi bi-download me-1"></i>Export EAD XML
+          <i class="bi bi-download me-1"></i>{{ __('Export EAD XML') }}
         </button>
       </div>
 

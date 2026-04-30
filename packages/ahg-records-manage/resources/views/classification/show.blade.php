@@ -14,8 +14,8 @@
     @if($rule->is_active)<span class="badge bg-success ms-2">active</span>@else<span class="badge bg-secondary ms-2">inactive</span>@endif
   </h1>
   <div>
-    <a href="{{ route('records.classification.edit', $rule->id) }}" class="btn btn-sm btn-primary"><i class="fas fa-pencil-alt me-1"></i>Edit</a>
-    <a href="{{ route('records.classification.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-list me-1"></i>All rules</a>
+    <a href="{{ route('records.classification.edit', $rule->id) }}" class="btn btn-sm btn-primary"><i class="fas fa-pencil-alt me-1"></i>{{ __('Edit') }}</a>
+    <a href="{{ route('records.classification.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-list me-1"></i>{{ __('All rules') }}</a>
   </div>
 </div>
 
@@ -70,9 +70,9 @@
         @if($tr !== null)
           <div class="alert alert-{{ $tr['matched'] ? 'success' : 'warning' }}">
             @if($tr['matched'])
-              <i class="fas fa-check-circle me-1"></i> <strong>Match.</strong> <code class="small">{{ $tr['detail'] }}</code>
+              <i class="fas fa-check-circle me-1"></i> <strong>{{ __('Match.') }}</strong> <code class="small">{{ $tr['detail'] }}</code>
             @else
-              <i class="fas fa-times-circle me-1"></i> <strong>No match.</strong>
+              <i class="fas fa-times-circle me-1"></i> <strong>{{ __('No match.') }}</strong>
             @endif
           </div>
         @endif
@@ -103,7 +103,7 @@
             <div class="col"><label class="form-label small mb-1">custom key</label><input type="text" name="custom_key" class="form-control form-control-sm"></div>
             <div class="col"><label class="form-label small mb-1">custom value</label><input type="text" name="custom_value" class="form-control form-control-sm"></div>
           </div>
-          <button type="submit" class="btn btn-info btn-sm"><i class="fas fa-vial me-1"></i>Test rule</button>
+          <button type="submit" class="btn btn-info btn-sm"><i class="fas fa-vial me-1"></i>{{ __('Test rule') }}</button>
         </form>
       </div>
     </div>

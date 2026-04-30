@@ -85,7 +85,7 @@
             <div class="entity-count">{{ number_format($t['count']) }} existing</div>
             <div class="entity-actions">
                 <a href="{{ route('ric.entities.create', [$t['key']]) }}" class="btn btn-primary btn-sm">
-                    <i class="fas fa-plus"></i> Create
+                    <i class="fas fa-plus"></i> {{ __('Create') }}
                 </a>
                 <a href="{{ route('ric.' . $t['key'] . '.browse') }}" class="btn btn-outline-secondary btn-sm">
                     Browse
@@ -103,7 +103,7 @@
         <div class="rel-count">{{ number_format($relationCount) }} canonical <code>rico:*</code> relations across the triple store.</div>
     </div>
     <a href="{{ route('ric.relations.browse') }}" class="btn btn-outline-primary btn-sm">Browse all relations</a>
-    <span class="text-muted small">Create relations inline on any entity's show page via the relation editor.</span>
+    <span class="text-muted small">{{ __("Create relations inline on any entity's show page via the relation editor.") }}</span>
 </div>
 
 <section class="recent-section">

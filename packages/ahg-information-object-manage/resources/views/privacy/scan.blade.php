@@ -25,10 +25,10 @@
     </div>
     <div class="btn-group">
       <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn atom-btn-white">
-        <i class="fas fa-arrow-left me-1"></i> Back
+        <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
       </a>
       <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn atom-btn-white">
-        <i class="fas fa-eye me-1"></i> View Record
+        <i class="fas fa-eye me-1"></i> {{ __('View Record') }}
       </a>
     </div>
   </div>
@@ -94,7 +94,7 @@
       <div class="card border-0 shadow-sm h-100">
         <div class="card-body text-center">
           <div class="display-6 fw-bold text-primary">{{ $totalEntities }}</div>
-          <small class="text-muted">Total Entities</small>
+          <small class="text-muted">{{ __('Total Entities') }}</small>
         </div>
       </div>
     </div>
@@ -102,7 +102,7 @@
       <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #dc3545 !important;">
         <div class="card-body text-center">
           <div class="display-6 fw-bold text-danger">{{ $highRisk }}</div>
-          <small class="text-muted">High Risk</small>
+          <small class="text-muted">{{ __('High Risk') }}</small>
         </div>
       </div>
     </div>
@@ -110,7 +110,7 @@
       <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #ffc107 !important;">
         <div class="card-body text-center">
           <div class="display-6 fw-bold text-warning">{{ $mediumRisk }}</div>
-          <small class="text-muted">Medium Risk</small>
+          <small class="text-muted">{{ __('Medium Risk') }}</small>
         </div>
       </div>
     </div>
@@ -118,7 +118,7 @@
       <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #198754 !important;">
         <div class="card-body text-center">
           <div class="display-6 fw-bold text-success">{{ $lowRisk }}</div>
-          <small class="text-muted">Low Risk</small>
+          <small class="text-muted">{{ __('Low Risk') }}</small>
         </div>
       </div>
     </div>
@@ -222,7 +222,7 @@
               @csrf
               <input type="hidden" name="information_object_id" value="{{ $io->id ?? '' }}">
               <button type="submit" class="btn atom-btn-outline-success w-100" id="save-scan-btn">
-                <i class="fas fa-save me-1"></i> Save Scan Results
+                <i class="fas fa-save me-1"></i> {{ __('Save Scan Results') }}
               </button>
             </form>
           </div>
@@ -284,13 +284,13 @@
           <div class="card-body">
             <div class="d-grid gap-2">
               <a href="{{ route('io.privacy.dashboard') }}" class="btn atom-btn-white btn-sm">
-                <i class="fas fa-clipboard-list me-1"></i> Review Queue
+                <i class="fas fa-clipboard-list me-1"></i> {{ __('Review Queue') }}
               </a>
               <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) . '/privacy/redaction' : '#' }}" class="btn atom-btn-white btn-sm">
-                <i class="fas fa-eraser me-1"></i> Visual Redaction
+                <i class="fas fa-eraser me-1"></i> {{ __('Visual Redaction') }}
               </a>
               <a href="{{ route('io.privacy.scan', $io->id) }}" class="btn atom-btn-white btn-sm">
-                <i class="fas fa-search-plus me-1"></i> Scan More
+                <i class="fas fa-search-plus me-1"></i> {{ __('Scan More') }}
               </a>
             </div>
           </div>
@@ -312,10 +312,10 @@
         </p>
         <div class="btn-group">
           <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn atom-btn-white">
-            <i class="fas fa-arrow-left me-1"></i> Back to Record
+            <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Record') }}
           </a>
           <a href="{{ route('io.privacy.scan', $io->id) }}" class="btn atom-btn-white">
-            <i class="fas fa-redo me-1"></i> Scan Again
+            <i class="fas fa-redo me-1"></i> {{ __('Scan Again') }}
           </a>
         </div>
       </div>

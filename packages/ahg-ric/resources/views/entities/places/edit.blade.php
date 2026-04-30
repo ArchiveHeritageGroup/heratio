@@ -37,7 +37,7 @@
     <div class="mb-3"><label class="form-label">{{ __('Address') }}</label><textarea name="address" class="form-control" rows="2">{{ $entity->address ?? '' }}</textarea></div>
     <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="3">{{ $entity->description ?? '' }}</textarea></div>
     <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> {{ __('Save') }}</button>
         @if($entity)<a href="{{ route('ric.entities.show', ['places', $entity->slug]) }}" class="btn btn-secondary">Cancel</a>@endif
     </div>
 </form>

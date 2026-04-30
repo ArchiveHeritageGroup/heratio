@@ -19,7 +19,7 @@ $io = $resource ?? $informationObject ?? null; @endphp
         <a href="{{ url('/tiffpdfmerge/index/' . ($io->slug ?? '')) }}"
            class="btn atom-btn-white">
             <i class="fas fa-file-pdf me-1"></i>
-            Merge Images to PDF
+            {{ __('Merge Images to PDF') }}
         </a>
         <p class="small text-muted mt-2 mb-0">
             <i class="fas fa-info-circle me-1"></i>

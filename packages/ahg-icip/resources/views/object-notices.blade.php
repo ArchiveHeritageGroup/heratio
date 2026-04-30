@@ -55,10 +55,10 @@
                   <div>
                     <strong>{{ $notice->notice_name }}</strong>
                     @if(!empty($notice->requires_acknowledgement))
-                      <span class="badge bg-warning text-dark ms-2">Requires Acknowledgement</span>
+                      <span class="badge bg-warning text-dark ms-2">{{ __('Requires Acknowledgement') }}</span>
                     @endif
                     @if(!empty($notice->blocks_access))
-                      <span class="badge bg-danger ms-2">Blocks Access</span>
+                      <span class="badge bg-danger ms-2">{{ __('Blocks Access') }}</span>
                     @endif
                     <p class="mb-1 mt-1">{{ $notice->custom_text ?? $notice->default_text ?? '' }}</p>
                     @if(!empty($notice->community_name))
@@ -136,7 +136,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary">
-              <i class="bi bi-plus-circle me-1"></i> Add Notice
+              <i class="bi bi-plus-circle me-1"></i> {{ __('Add Notice') }}
             </button>
           </form>
         </div>

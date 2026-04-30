@@ -24,7 +24,7 @@ $savedSearches = $isAuthenticated ? $searchService->getSavedSearches($userId) : 
   <!-- Quick Search Templates -->
   @if(!empty($templates))
   <div class="mb-3">
-    <label class="form-label small text-muted">{{ __('Quick Searches') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+    <label class="form-label small text-muted">{{ __('Quick Searches') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
     <div class="d-flex flex-wrap gap-2">
       @foreach($templates as $template)
       <a href="{{ route('searchEnhancement.runTemplate', ['id' => $template->id]) }}"
@@ -94,7 +94,7 @@ $savedSearches = $isAuthenticated ? $searchService->getSavedSearches($userId) : 
   <!-- Popular Searches -->
   @if(!empty($popular))
   <div class="mb-3">
-    <label class="form-label small text-muted">{{ __('Popular Searches') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+    <label class="form-label small text-muted">{{ __('Popular Searches') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
     <div class="d-flex flex-wrap gap-1">
       @foreach($popular as $p)
       @php $params = json_decode($p->search_params, true) ?: []; @endphp
@@ -120,39 +120,39 @@ $savedSearches = $isAuthenticated ? $searchService->getSavedSearches($userId) : 
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">{{ __('Name') }} * <span class="badge bg-danger ms-1">Required</span></label>
+          <label class="form-label">{{ __('Name') }} * <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <input type="text" id="save-search-name" class="form-control" required>
         </div>
         <div class="mb-3">
-          <label class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <textarea id="save-search-description" class="form-control" rows="2"></textarea>
         </div>
         <div class="mb-3">
-          <label class="form-label">{{ __('Tags') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label">{{ __('Tags') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="text" id="save-search-tags" class="form-control" placeholder="{{ __('comma-separated') }}">
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="save-search-public">
           <label class="form-check-label" for="save-search-public">
-            <i class="fa fa-link me-1"></i>{{ __('Make public (shareable link)') }} <span class="badge bg-secondary ms-1">Optional</span>
+            <i class="fa fa-link me-1"></i>{{ __('Make public (shareable link)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
           </label>
         </div>
         @if($user && $user->hasRole('administrator'))
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="save-search-global">
           <label class="form-check-label" for="save-search-global">
-            <i class="fa fa-globe me-1"></i>{{ __('Global (visible to all users)') }} <span class="badge bg-secondary ms-1">Optional</span>
+            <i class="fa fa-globe me-1"></i>{{ __('Global (visible to all users)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
           </label>
         </div>
         @endif
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="save-search-notify">
           <label class="form-check-label" for="save-search-notify">
-            {{ __('Notify me of new results') }} <span class="badge bg-secondary ms-1">Optional</span>
+            {{ __('Notify me of new results') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
           </label>
         </div>
         <div class="mb-3" id="notify-frequency-group" style="display:none;">
-          <label class="form-label">{{ __('Notification frequency') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label">{{ __('Notification frequency') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select id="save-search-frequency" class="form-select">
             <option value="daily">{{ __('Daily') }}</option>
             <option value="weekly" selected>{{ __('Weekly') }}</option>

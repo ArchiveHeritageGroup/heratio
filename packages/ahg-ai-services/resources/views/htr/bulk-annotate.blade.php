@@ -33,12 +33,12 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
     <h1 class="mb-0"><i class="fas fa-magic me-2"></i>Bulk Annotate</h1>
-    <span class="small text-muted">Draw boxes to map spreadsheet data to image regions</span>
+    <span class="small text-muted">{{ __('Draw boxes to map spreadsheet data to image regions') }}</span>
   </div>
   <div class="btn-group btn-group-sm">
-    <a href="{{ route('admin.ai.htr.annotate') }}" class="btn atom-btn-white"><i class="fas fa-pencil-alt me-1"></i>Manual Annotate</a>
-    <a href="{{ route('admin.ai.htr.fsOverlay') }}" class="btn atom-btn-white"><i class="fas fa-layer-group me-1"></i>FS Overlay</a>
-    <a href="{{ route('admin.ai.htr.training') }}" class="btn atom-btn-white"><i class="fas fa-graduation-cap me-1"></i>Training</a>
+    <a href="{{ route('admin.ai.htr.annotate') }}" class="btn atom-btn-white"><i class="fas fa-pencil-alt me-1"></i>{{ __('Manual Annotate') }}</a>
+    <a href="{{ route('admin.ai.htr.fsOverlay') }}" class="btn atom-btn-white"><i class="fas fa-layer-group me-1"></i>{{ __('FS Overlay') }}</a>
+    <a href="{{ route('admin.ai.htr.training') }}" class="btn atom-btn-white"><i class="fas fa-graduation-cap me-1"></i>{{ __('Training') }}</a>
   </div>
 </div>
 
@@ -58,7 +58,7 @@
       </div>
       <div class="col-md-2">
         <button id="ba-load-btn" class="btn btn-sm atom-btn-outline-success w-100" onclick="loadBulkData()">
-          <i class="fas fa-upload me-1"></i>Load
+          <i class="fas fa-upload me-1"></i>{{ __('Load') }}
         </button>
       </div>
     </div>
@@ -71,7 +71,7 @@
   <div class="col-md-8">
     <div class="card">
       <div class="card-header py-1 d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <span id="ba-image-name" class="small">No image loaded</span>
+        <span id="ba-image-name" class="small">{{ __('No image loaded') }}</span>
         <span>
           <span id="ba-counter" class="badge bg-light text-dark me-2">0/0</span>
           <div class="btn-group btn-group-sm me-2">
@@ -89,9 +89,9 @@
       </div>
     </div>
     <div class="d-flex justify-content-between mt-2">
-      <button class="btn btn-sm atom-btn-white" onclick="baPrev()" id="ba-prev-btn" disabled><i class="fas fa-arrow-left me-1"></i>Previous</button>
-      <button class="btn btn-sm atom-btn-white" onclick="baSkip()"><i class="fas fa-forward me-1"></i>Skip Image</button>
-      <button class="btn btn-sm atom-btn-outline-success" onclick="baSaveAndNext()" id="ba-save-btn" disabled><i class="fas fa-save me-1"></i>Save & Next</button>
+      <button class="btn btn-sm atom-btn-white" onclick="baPrev()" id="ba-prev-btn" disabled><i class="fas fa-arrow-left me-1"></i>{{ __('Previous') }}</button>
+      <button class="btn btn-sm atom-btn-white" onclick="baSkip()"><i class="fas fa-forward me-1"></i>{{ __('Skip Image') }}</button>
+      <button class="btn btn-sm atom-btn-outline-success" onclick="baSaveAndNext()" id="ba-save-btn" disabled><i class="fas fa-save me-1"></i>{{ __('Save & Next') }}</button>
     </div>
   </div>
 
@@ -99,7 +99,7 @@
   <div class="col-md-4">
     <div class="card">
       <div class="card-header py-1" style="background:var(--ahg-primary);color:#fff">
-        <span class="small">Fields — draw box for each in order</span>
+        <span class="small">{{ __('Fields — draw box for each in order') }}</span>
       </div>
       <div class="card-body p-2 ba-sidebar" id="ba-fields"></div>
     </div>
@@ -113,19 +113,19 @@
     {{-- Session stats --}}
     <div class="card mt-3">
       <div class="card-header py-1" style="background:var(--ahg-primary);color:#fff">
-        <span class="small">Session</span>
+        <span class="small">{{ __('Session') }}</span>
       </div>
       <div class="card-body p-2">
         <div class="d-flex justify-content-between">
-          <span>Images done</span>
+          <span>{{ __('Images done') }}</span>
           <span class="badge bg-success" id="ba-done-count">0</span>
         </div>
         <div class="d-flex justify-content-between mt-1">
-          <span>Remaining</span>
+          <span>{{ __('Remaining') }}</span>
           <span class="badge bg-warning text-dark" id="ba-remaining-count">0</span>
         </div>
         <div class="d-flex justify-content-between mt-1">
-          <span>Fields annotated</span>
+          <span>{{ __('Fields annotated') }}</span>
           <span class="badge bg-primary" id="ba-fields-count">0</span>
         </div>
       </div>

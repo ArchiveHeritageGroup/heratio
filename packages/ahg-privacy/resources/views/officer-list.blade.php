@@ -31,10 +31,10 @@
             <a href="{{ route('ahgprivacy.dashboard') }}" class="btn btn-outline-secondary btn-sm me-2">
                 <i class="fas fa-arrow-left"></i>
             </a>
-            <span class="h2"><i class="fas fa-user-tie me-2"></i>Privacy Officers</span>
+            <span class="h2"><i class="fas fa-user-tie me-2"></i>{{ __('Privacy Officers') }}</span>
         </div>
         <a href="{{ route('ahgprivacy.officer-add') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-1"></i>Add Officer
+            <i class="fas fa-plus me-1"></i>{{ __('Add Officer') }}
         </a>
     </div>
 
@@ -58,7 +58,7 @@
                     <h5 class="mb-0">
                         {{ $officer->name }}
                         @if(!$officer->is_active)
-                        <span class="badge bg-secondary">Inactive</span>
+                        <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                         @endif
                     </h5>
                 </div>
@@ -88,7 +88,7 @@
                 </div>
                 <div class="card-footer bg-transparent">
                     <a href="{{ route('ahgprivacy.officer-edit', ['id' => $officer->id]) }}" class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-edit me-1"></i>Edit
+                        <i class="fas fa-edit me-1"></i>{{ __('Edit') }}
                     </a>
                 </div>
             </div>

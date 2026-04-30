@@ -32,13 +32,13 @@
           @if($submission->status === 'draft')
             <a href="{{ route('researcher.editSubmission', ['id' => $submission->id]) }}"
                class="btn btn-outline-primary btn-sm me-1">
-              <i class="bi bi-pencil me-1"></i>Edit
+              <i class="bi bi-pencil me-1"></i>{{ __('Edit') }}
             </a>
           @endif
           @if(in_array($submission->status, ['draft', 'returned']))
             <a href="{{ route('researcher.addItem', ['id' => $submission->id]) }}"
                class="btn atom-btn-white btn-sm">
-              <i class="bi bi-plus-lg me-1"></i>Add Item
+              <i class="bi bi-plus-lg me-1"></i>{{ __('Add Item') }}
             </a>
           @endif
         </div>
@@ -249,22 +249,22 @@
             <form method="post" action="{{ route('researcher.submit', ['id' => $submission->id]) }}">
               <button type="submit" class="btn atom-btn-outline-warning w-100" @php echo count($items) === 0 ? 'disabled' : '' @endphp
                       onclick="return confirm('Submit this collection for archivist review?')">
-                <i class="bi bi-send me-1"></i>Submit for Review
+                <i class="bi bi-send me-1"></i>{{ __('Submit for Review') }}
               </button>
             </form>
             @if(count($items) === 0)
-              <small class="text-muted text-center">Add at least one item before submitting.</small>
+              <small class="text-muted text-center">{{ __('Add at least one item before submitting.') }}</small>
             @endif
           @endif
 
           @if($submission->status === 'returned')
             <a href="{{ route('researcher.addItem', ['id' => $submission->id]) }}"
                class="btn btn-outline-success">
-              <i class="bi bi-plus-lg me-1"></i>Add More Items
+              <i class="bi bi-plus-lg me-1"></i>{{ __('Add More Items') }}
             </a>
             <form method="post" action="{{ route('researcher.resubmit', ['id' => $submission->id]) }}">
               <button type="submit" class="btn atom-btn-outline-warning w-100" onclick="return confirm('Resubmit for review?')">
-                <i class="bi bi-send me-1"></i>Resubmit
+                <i class="bi bi-send me-1"></i>{{ __('Resubmit') }}
               </button>
             </form>
           @endif
@@ -272,7 +272,7 @@
           @if($submission->status === 'approved' && $isAdmin)
             <a href="{{ route('researcher.publish', ['id' => $submission->id]) }}"
                class="btn atom-btn-white">
-              <i class="bi bi-globe me-1"></i>Publish to AtoM
+              <i class="bi bi-globe me-1"></i>{{ __('Publish to AtoM') }}
             </a>
           @endif
 

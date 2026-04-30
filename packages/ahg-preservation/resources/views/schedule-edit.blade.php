@@ -9,7 +9,7 @@
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h1><i class="fas fa-{{ ($schedule ?? null) ? 'edit' : 'plus' }} me-2"></i>{{ ($schedule ?? null) ? 'Edit Schedule' : 'New Schedule' }}</h1>
         <a href="{{ route('preservation.scheduler') }}" class="btn btn-sm atom-btn-white">
-            <i class="fas fa-arrow-left me-1"></i>Back to Scheduler
+            <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Scheduler') }}
         </a>
     </div>
 
@@ -30,13 +30,13 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col-md-8 mb-3">
-                        <label for="name" class="form-label">Schedule Name <span class="badge bg-danger ms-1">Required</span></label>
+                        <label for="name" class="form-label">Schedule Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <input type="text" class="form-control" id="name" name="name" required
                                value="{{ old('name', $schedule->name ?? '') }}"
                                placeholder="{{ __('e.g., Daily Format Identification') }}">
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="workflow_type" class="form-label">Workflow Type <span class="badge bg-danger ms-1">Required</span></label>
+                        <label for="workflow_type" class="form-label">Workflow Type <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <select class="form-select" id="workflow_type" name="workflow_type" required>
                             @php
                                 $workflowTypes = [
@@ -58,7 +58,7 @@
                   </div>
 
                   <div class="mb-3">
-                    <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <textarea class="form-control" id="description" name="description" rows="2"
                               placeholder="{{ __('Optional description of this schedule') }}">{{ old('description', $schedule->description ?? '') }}</textarea>
                   </div>
@@ -68,7 +68,7 @@
 
                   <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="cron_expression" class="form-label">Cron Expression <span class="badge bg-danger ms-1">Required</span></label>
+                        <label for="cron_expression" class="form-label">Cron Expression <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <input type="text" class="form-control font-monospace" id="cron_expression" name="cron_expression"
                                value="{{ old('cron_expression', $schedule->cron_expression ?? '0 2 * * *') }}"
                                placeholder="{{ __('0 2 * * *') }}">
@@ -92,23 +92,23 @@
 
                   <div class="row">
                     <div class="col-md-4 mb-3">
-                        <label for="batch_limit" class="form-label">Batch Limit <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label for="batch_limit" class="form-label">Batch Limit <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="number" class="form-control" id="batch_limit" name="batch_limit"
                                value="{{ old('batch_limit', $schedule->batch_limit ?? 100) }}" min="1" max="10000">
                         <div class="form-text">Max objects per run</div>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="timeout_minutes" class="form-label">Timeout (minutes) <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label for="timeout_minutes" class="form-label">Timeout (minutes) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="number" class="form-control" id="timeout_minutes" name="timeout_minutes"
                                value="{{ old('timeout_minutes', $schedule->timeout_minutes ?? 60) }}" min="1" max="480">
                         <div class="form-text">Max runtime before abort</div>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <div class="form-check form-switch mt-2">
                             <input class="form-check-input" type="checkbox" id="is_enabled" name="is_enabled" value="1"
                                    {{ old('is_enabled', $schedule->is_enabled ?? 1) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="is_enabled">Enabled <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-check-label" for="is_enabled">Enabled <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         </div>
                     </div>
                   </div>
@@ -121,11 +121,11 @@
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="notify_on_failure" name="notify_on_failure" value="1"
                                    {{ old('notify_on_failure', $schedule->notify_on_failure ?? 1) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="notify_on_failure">Notify on Failure <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-check-label" for="notify_on_failure">Notify on Failure <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         </div>
                     </div>
                     <div class="col-md-8 mb-3">
-                        <label for="notify_email" class="form-label">Notification Email <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label for="notify_email" class="form-label">Notification Email <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="email" class="form-control" id="notify_email" name="notify_email"
                                value="{{ old('notify_email', $schedule->notify_email ?? '') }}"
                                placeholder="{{ __('admin@example.com') }}">
@@ -138,7 +138,7 @@
 
               <div class="d-flex justify-content-between">
                 <a href="{{ route('preservation.scheduler') }}" class="btn atom-btn-white">
-                    <i class="fas fa-times me-1"></i>Cancel
+                    <i class="fas fa-times me-1"></i>{{ __('Cancel') }}
                 </a>
                 <button type="submit" class="btn atom-btn-white">
                     <i class="fas fa-save me-1"></i>{{ ($schedule ?? null) ? 'Update Schedule' : 'Create Schedule' }}
@@ -162,7 +162,7 @@
  │ │ │ │ │              (Sunday = 0)
  │ │ │ │ │
  * * * * *</pre>
-                    <p class="small mb-2"><strong>Examples:</strong></p>
+                    <p class="small mb-2"><strong>{{ __('Examples:') }}</strong></p>
                     <ul class="small mb-0">
                         <li><code>0 2 * * *</code> - Daily at 2:00 AM</li>
                         <li><code>0 */4 * * *</code> - Every 4 hours</li>

@@ -26,7 +26,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="bi bi-people me-2"></i>Community Registry</h1>
     <a href="{{ route('ahgicip.community-edit') }}" class="btn btn-primary">
-      <i class="bi bi-plus-circle me-1"></i> Add Community
+      <i class="bi bi-plus-circle me-1"></i> {{ __('Add Community') }}
     </a>
   </div>
 
@@ -57,7 +57,7 @@
           </div>
         </div>
         <div class="col-md-3">
-          <button type="submit" class="btn btn-outline-primary me-2"><i class="bi bi-search"></i> Filter</button>
+          <button type="submit" class="btn btn-outline-primary me-2"><i class="bi bi-search"></i> {{ __('Filter') }}</button>
           <a href="{{ route('ahgicip.communities') }}" class="btn btn-outline-secondary">Reset</a>
         </div>
       </form>
@@ -113,9 +113,9 @@
                   </td>
                   <td>
                     @if($community->is_active)
-                      <span class="badge bg-success">Active</span>
+                      <span class="badge bg-success">{{ __('Active') }}</span>
                     @else
-                      <span class="badge bg-secondary">Inactive</span>
+                      <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                     @endif
                   </td>
                   <td>

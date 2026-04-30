@@ -55,14 +55,14 @@
       $__capped   = $__total > $__printCap;
     @endphp
     @if($__capped)
-      <strong>Showing:</strong> first {{ number_format($__shown) }} of {{ number_format($__total) }} records
+      <strong>{{ __('Showing:') }}</strong> first {{ number_format($__shown) }} of {{ number_format($__total) }} records
       <span style="color:#a00;">(print capped at {{ number_format($__printCap) }} — refine the filter to print all)</span>
     @else
-      <strong>Total:</strong> {{ number_format($__total) }} records
+      <strong>{{ __('Total:') }}</strong> {{ number_format($__total) }} records
     @endif
-    | <strong>Generated:</strong> {{ now()->format('Y-m-d H:i:s') }}
+    | <strong>{{ __('Generated:') }}</strong> {{ now()->format('Y-m-d H:i:s') }}
     @if(!empty($typeFilter))
-      | <strong>Type:</strong> {{ ucfirst($typeFilter) }}
+      | <strong>{{ __('Type:') }}</strong> {{ ucfirst($typeFilter) }}
     @endif
   </div>
 

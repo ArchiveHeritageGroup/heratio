@@ -7,8 +7,8 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-shield-alt"></i> Publish Gate Rules</h1>
     <div>
-      <a href="{{ route('workflow.admin') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Workflows</a>
-      <a href="{{ route('workflow.gates.edit') }}" class="btn atom-btn-outline-success"><i class="fas fa-plus"></i> Create Rule</a>
+      <a href="{{ route('workflow.admin') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('Workflows') }}</a>
+      <a href="{{ route('workflow.gates.edit') }}" class="btn atom-btn-outline-success"><i class="fas fa-plus"></i> {{ __('Create Rule') }}</a>
     </div>
   </div>
 
@@ -42,17 +42,17 @@
                   <td>{{ str_replace('_', ' ', ucfirst($rule->entity_type ?? 'any')) }}</td>
                   <td>
                     @if($rule->severity === 'blocker')
-                      <span class="badge bg-danger">Blocker</span>
+                      <span class="badge bg-danger">{{ __('Blocker') }}</span>
                     @else
-                      <span class="badge bg-warning text-dark">Warning</span>
+                      <span class="badge bg-warning text-dark">{{ __('Warning') }}</span>
                     @endif
                   </td>
                   <td>{{ $rule->field_name ?? '-' }}</td>
                   <td>
                     @if($rule->is_active)
-                      <span class="badge bg-success">Active</span>
+                      <span class="badge bg-success">{{ __('Active') }}</span>
                     @else
-                      <span class="badge bg-secondary">Inactive</span>
+                      <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                     @endif
                   </td>
                   <td>

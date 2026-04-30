@@ -21,7 +21,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h3>{{ number_format($stats['total_actors'] ?? 0) }}</h3>
-        <small class="text-muted">Total Actors</small>
+        <small class="text-muted">{{ __('Total Actors') }}</small>
       </div>
     </div>
   </div>
@@ -29,7 +29,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h3>{{ $stats['threshold'] ?? 0.80 }}</h3>
-        <small class="text-muted">Threshold</small>
+        <small class="text-muted">{{ __('Threshold') }}</small>
       </div>
     </div>
   </div>
@@ -37,7 +37,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h3>{{ number_format($stats['pending'] ?? 0) }}</h3>
-        <small class="text-muted">Pending</small>
+        <small class="text-muted">{{ __('Pending') }}</small>
       </div>
     </div>
   </div>
@@ -45,7 +45,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h3>{{ number_format($stats['completed'] ?? 0) }}</h3>
-        <small class="text-muted">Completed Merges</small>
+        <small class="text-muted">{{ __('Completed Merges') }}</small>
       </div>
     </div>
   </div>
@@ -65,7 +65,7 @@
         </div>
         <div class="col-auto">
           <button type="submit" class="btn btn-warning">
-            <i class="fas fa-search me-1"></i>Start Scan
+            <i class="fas fa-search me-1"></i>{{ __('Start Scan') }}
           </button>
         </div>
       </div>

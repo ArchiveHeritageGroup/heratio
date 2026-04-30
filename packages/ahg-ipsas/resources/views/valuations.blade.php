@@ -36,7 +36,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('ipsas.valuation.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i> New Valuation
+                <i class="fas fa-plus me-1"></i> {{ __('New Valuation') }}
             </a>
         </div>
     </div>

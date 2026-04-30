@@ -153,7 +153,7 @@
     </div>
     <div class="btn-group">
       <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn atom-btn-outline-light btn-sm">
-        <i class="fas fa-arrow-left me-1"></i> Back
+        <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
       </a>
     </div>
   </div>
@@ -174,7 +174,7 @@
   @if($isUnsupported)
     <div class="alert alert-warning">
       <i class="fas fa-exclamation-triangle me-2"></i>
-      <strong>Visual redaction is not available for this object type.</strong>
+      <strong>{{ __('Visual redaction is not available for this object type.') }}</strong>
       @if($documentType === '3d')
         This is a 3D model — redaction only works on images and PDFs.
       @elseif(!$documentUrl)
@@ -183,7 +183,7 @@
         The file type ({{ $digitalObject->mime_type ?? 'unknown' }}) is not supported for visual redaction.
       @endif
     </div>
-    <a href="{{ route('informationobject.show', $io->slug) }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Back</a>
+    <a href="{{ route('informationobject.show', $io->slug) }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
     @php return; @endphp
   @endif
 
@@ -221,10 +221,10 @@
       <div class="d-flex align-items-center justify-content-between">
         <div class="btn-group" role="group" aria-label="{{ __('Redaction tools') }}">
           <button type="button" class="btn btn-outline-light btn-sm active" id="tool-select" data-tool="select" title="{{ __('Select tool') }}">
-            <i class="fas fa-mouse-pointer me-1"></i> Select
+            <i class="fas fa-mouse-pointer me-1"></i> {{ __('Select') }}
           </button>
           <button type="button" class="btn atom-atom-btn-outline-danger btn-sm" id="tool-draw" data-tool="draw" title="{{ __('Draw redaction rectangle') }}">
-            <i class="fas fa-vector-square me-1"></i> Draw
+            <i class="fas fa-vector-square me-1"></i> {{ __('Draw') }}
           </button>
         </div>
 
@@ -244,10 +244,10 @@
 
           <div class="btn-group">
             <button type="button" class="btn atom-atom-btn-outline-success btn-sm" id="save-redactions" title="{{ __('Save redactions') }}">
-              <i class="fas fa-save me-1"></i> Save
+              <i class="fas fa-save me-1"></i> {{ __('Save') }}
             </button>
             <button type="button" class="btn atom-btn-outline-light btn-sm" id="apply-redactions" title="{{ __('Apply redactions permanently') }}">
-              <i class="fas fa-stamp me-1"></i> Apply
+              <i class="fas fa-stamp me-1"></i> {{ __('Apply') }}
             </button>
           </div>
         </div>
@@ -297,7 +297,7 @@
       <div class="card border-0 shadow-sm" style="background: #1a1a2e;">
         <div class="card-header border-0" style="background:var(--ahg-primary);color:#fff">
           <div class="d-flex justify-content-between align-items-center">
-            <span><i class="fas fa-list me-1"></i> Redaction Regions</span>
+            <span><i class="fas fa-list me-1"></i> {{ __('Redaction Regions') }}</span>
             <span class="badge bg-danger" id="region-count-badge">{{ $redactionCount }}</span>
           </div>
         </div>
@@ -312,7 +312,7 @@
         </div>
         <div class="card-footer border-0 p-2" style="background: #16213e;">
           <button class="btn atom-atom-btn-outline-danger btn-sm w-100" id="clear-all-regions" title="{{ __('Remove all regions') }}">
-            <i class="fas fa-trash me-1"></i> Clear All
+            <i class="fas fa-trash me-1"></i> {{ __('Clear All') }}
           </button>
         </div>
       </div>
@@ -324,12 +324,12 @@
         </div>
         <div class="card-body small">
           <ol class="ps-3 mb-0">
-            <li class="mb-2">Click <strong>Draw</strong> to activate the drawing tool.</li>
+            <li class="mb-2">Click <strong>{{ __('Draw') }}</strong> to activate the drawing tool.</li>
             <li class="mb-2">Click and drag on the document to draw a redaction rectangle.</li>
-            <li class="mb-2">Use <strong>Select</strong> to move or resize existing redactions.</li>
+            <li class="mb-2">Use <strong>{{ __('Select') }}</strong> to move or resize existing redactions.</li>
             <li class="mb-2">Click the <i class="fas fa-trash-alt text-danger"></i> icon on a region to remove it.</li>
-            <li class="mb-2">Click <strong>Save</strong> to store redactions without applying them.</li>
-            <li class="mb-0">Click <strong>Apply</strong> to permanently redact the document (irreversible).</li>
+            <li class="mb-2">Click <strong>{{ __('Save') }}</strong> to store redactions without applying them.</li>
+            <li class="mb-0">Click <strong>{{ __('Apply') }}</strong> to permanently redact the document (irreversible).</li>
           </ol>
         </div>
       </div>

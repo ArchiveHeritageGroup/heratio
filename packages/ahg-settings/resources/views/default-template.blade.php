@@ -26,7 +26,7 @@
 
               @if(isset($templateSettings['informationobject']))
                 <div class="mb-3">
-                  <label class="form-label">Information object <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Information object <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select name="settings[{{ $templateSettings['informationobject']->id }}]" class="form-select">
                     @foreach($ioChoices as $val => $label)
                       <option value="{{ $val }}" {{ ($templateSettings['informationobject']->value ?? '') === $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -37,7 +37,7 @@
 
               @if(isset($templateSettings['actor']))
                 <div class="mb-3">
-                  <label class="form-label">Actor <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Actor <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select name="settings[{{ $templateSettings['actor']->id }}]" class="form-select">
                     @foreach($actorChoices as $val => $label)
                       <option value="{{ $val }}" {{ ($templateSettings['actor']->value ?? '') === $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -48,7 +48,7 @@
 
               @if(isset($templateSettings['repository']))
                 <div class="mb-3">
-                  <label class="form-label">Repository <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Repository <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select name="settings[{{ $templateSettings['repository']->id }}]" class="form-select">
                     @foreach($repoChoices as $val => $label)
                       <option value="{{ $val }}" {{ ($templateSettings['repository']->value ?? '') === $val ? 'selected' : '' }}>{{ $label }}</option>

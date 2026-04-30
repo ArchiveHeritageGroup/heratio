@@ -153,7 +153,7 @@
             <div class="card-body">
               <p class="small text-muted mb-2">This community may be linked to consent records, consultations, and cultural notices.</p>
               <a href="{{ route('ahgicip.community-view', ['id' => $id]) }}" class="btn btn-outline-primary btn-sm w-100">
-                <i class="bi bi-eye me-1"></i> View Details
+                <i class="bi bi-eye me-1"></i> {{ __('View Details') }}
               </a>
             </div>
           </div>

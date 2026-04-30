@@ -29,11 +29,11 @@
     </div>
     <div class="d-flex gap-2">
         <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#importBibliographyModal">
-            <i class="fas fa-upload me-1"></i>Import
+            <i class="fas fa-upload me-1"></i>{{ __('Import') }}
         </button>
         <div class="dropdown">
             <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                <i class="fas fa-download me-1"></i>Export
+                <i class="fas fa-download me-1"></i>{{ __('Export') }}
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{{ route('research.viewBibliography', $bibliography->id) }}?export=ris">RIS (EndNote, Zotero)</a></li>
@@ -52,7 +52,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">{{ __('Entries') }}</h5>
                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addEntryModal">
-                    <i class="fas fa-plus me-1"></i>Add Entry
+                    <i class="fas fa-plus me-1"></i>{{ __('Add Entry') }}
                 </button>
             </div>
             <div class="card-body p-0">
@@ -127,18 +127,18 @@
         <div class="card mb-4">
             <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>About</h6></div>
             <div class="card-body">
-                <p class="mb-2"><strong>Created:</strong> {{ date('M j, Y', strtotime($bibliography->created_at)) }}</p>
-                <p class="mb-0"><strong>Updated:</strong> {{ date('M j, Y', strtotime($bibliography->updated_at ?? $bibliography->created_at)) }}</p>
+                <p class="mb-2"><strong>{{ __('Created:') }}</strong> {{ date('M j, Y', strtotime($bibliography->created_at)) }}</p>
+                <p class="mb-0"><strong>{{ __('Updated:') }}</strong> {{ date('M j, Y', strtotime($bibliography->updated_at ?? $bibliography->created_at)) }}</p>
             </div>
         </div>
         <div class="card">
             <div class="card-header"><h6 class="mb-0"><i class="fas fa-cog me-2"></i>Actions</h6></div>
             <div class="card-body">
-                <a href="{{ route('research.bibliographies') }}" class="btn btn-outline-secondary w-100 mb-2"><i class="fas fa-arrow-left me-1"></i>Back to Bibliographies</a>
+                <a href="{{ route('research.bibliographies') }}" class="btn btn-outline-secondary w-100 mb-2"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Bibliographies') }}</a>
                 <form method="POST" onsubmit="return confirm('Delete this bibliography and all entries?')">
                     @csrf
                     <input type="hidden" name="form_action" value="delete">
-                    <button type="submit" class="btn btn-outline-danger w-100"><i class="fas fa-trash me-1"></i>Delete Bibliography</button>
+                    <button type="submit" class="btn btn-outline-danger w-100"><i class="fas fa-trash me-1"></i>{{ __('Delete Bibliography') }}</button>
                 </form>
             </div>
         </div>
@@ -175,7 +175,7 @@
         </div>
         <div class="mb-3"><label class="form-label">{{ __('Notes') }}</label><textarea class="form-control" name="notes" rows="2"></textarea></div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Add Entry</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>{{ __('Add Entry') }}</button></div>
     </form>
 </div></div></div>
 
@@ -206,7 +206,7 @@
         </div>
         <div class="mb-3"><label class="form-label">{{ __('Notes') }}</label><textarea class="form-control" name="notes" id="editNotes" rows="2"></textarea></div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button></div>
     </form>
 </div></div></div>
 
@@ -225,7 +225,7 @@
             </select>
         </div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button></div>
     </form>
 </div></div></div>
 
@@ -252,7 +252,7 @@
         </div>
         <div class="alert alert-info small mb-0"><i class="fas fa-info-circle me-1"></i>Entries will be added. Duplicate titles will be skipped.</div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-success"><i class="fas fa-upload me-1"></i>Import</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-success"><i class="fas fa-upload me-1"></i>{{ __('Import') }}</button></div>
     </form>
 </div></div></div>
 

@@ -11,7 +11,7 @@
     <h4 class="mb-0">
       Rights Information
       @auth
-        <a href="{{ route('extended-rights.edit', $resource->slug ?? '') }}" class="btn btn-sm atom-btn-outline-light float-end"><i class="fas fa-edit"></i> Edit</a>
+        <a href="{{ route('extended-rights.edit', $resource->slug ?? '') }}" class="btn btn-sm atom-btn-outline-light float-end"><i class="fas fa-edit"></i> {{ __('Edit') }}</a>
       @endauth
     </h4>
   </div>
@@ -121,7 +121,7 @@
 <section id="extended-rights-area" class="card mb-3">
   <div class="card-body text-center">
     <p class="text-muted mb-2">No extended rights information has been added.</p>
-    <a href="{{ route('extended-rights.edit', $resource->slug ?? '') }}" class="btn atom-btn-white"><i class="fas fa-plus"></i> Add Rights Information</a>
+    <a href="{{ route('extended-rights.edit', $resource->slug ?? '') }}" class="btn atom-btn-white"><i class="fas fa-plus"></i> {{ __('Add Rights Information') }}</a>
   </div>
 </section>
 @endauth

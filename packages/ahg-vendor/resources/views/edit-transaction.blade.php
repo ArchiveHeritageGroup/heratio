@@ -247,10 +247,10 @@
                     <div class="card-body">
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-save me-2"></i>Save Changes
+                                <i class="fas fa-save me-2"></i>{{ __('Save Changes') }}
                             </button>
                             <a href="{{ route('ahgvendor.view-transaction', ['id' => $transaction->id]) }}" class="btn btn-secondary">
-                                <i class="fas fa-times me-2"></i>Cancel
+                                <i class="fas fa-times me-2"></i>{{ __('Cancel') }}
                             </a>
                         </div>
                     </div>

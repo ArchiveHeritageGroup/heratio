@@ -30,7 +30,7 @@
   <a href="{{ route('settings.index') }}"
      class="list-group-item list-group-item-action d-flex align-items-center">
     <i class="fas fa-home me-2" style="width:18px;text-align:center;"></i>
-    Settings home
+    {{ __('Settings home') }}
   </a>
   @foreach ($ahgMenuGroups as $node)
     <a href="{{ route('settings.ahg', $node['key']) }}"

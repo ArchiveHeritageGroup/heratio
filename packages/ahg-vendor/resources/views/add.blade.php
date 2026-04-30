@@ -238,7 +238,7 @@
         <div class="card">
             <div class="card-body">
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save me-1"></i>Save Vendor
+                    <i class="fas fa-save me-1"></i>{{ __('Save Vendor') }}
                 </button>
                 <a href="{{ route('ahgvendor.list') }}" class="btn btn-secondary">Cancel</a>
             </div>

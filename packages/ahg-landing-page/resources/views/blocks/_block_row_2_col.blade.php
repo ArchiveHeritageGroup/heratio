@@ -50,7 +50,7 @@ $col2Class = 'col-md-' . ($colMap[$col2Width] ?? '6');
         </div>
       @elseif ($isEditorMode)
         <div class="empty-column-preview text-center text-muted py-4 bg-light rounded border border-dashed">
-          <small>Column 1 (empty)</small>
+          <small>{{ __('Column 1 (empty)') }}</small>
         </div>
       @endif
     </div>
@@ -78,7 +78,7 @@ $col2Class = 'col-md-' . ($colMap[$col2Width] ?? '6');
         </div>
       @elseif ($isEditorMode)
         <div class="empty-column-preview text-center text-muted py-4 bg-light rounded border border-dashed">
-          <small>Column 2 (empty)</small>
+          <small>{{ __('Column 2 (empty)') }}</small>
         </div>
       @endif
     </div>

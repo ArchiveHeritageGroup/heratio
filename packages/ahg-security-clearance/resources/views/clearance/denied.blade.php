@@ -15,18 +15,18 @@
 
           @if(!empty($reason))
             <div class="alert alert-warning">
-              <strong>Reason:</strong> {{ e($reason) }}
+              <strong>{{ __('Reason:') }}</strong> {{ e($reason) }}
             </div>
           @endif
 
           @if(!empty($requiredLevel))
-            <p><strong>Required clearance:</strong>
+            <p><strong>{{ __('Required clearance:') }}</strong>
               <span class="badge" style="background-color: {{ $requiredColor ?? '#666' }}; font-size: 1em;">{{ e($requiredLevel) }}</span>
             </p>
           @endif
 
           @if(!empty($currentLevel))
-            <p><strong>Your clearance:</strong>
+            <p><strong>{{ __('Your clearance:') }}</strong>
               <span class="badge" style="background-color: {{ $currentColor ?? '#999' }}; font-size: 1em;">{{ e($currentLevel) }}</span>
             </p>
           @endif
@@ -36,14 +36,14 @@
           <div class="d-grid gap-2 d-md-flex justify-content-md-center">
             @auth
               <a href="{{ route('security-clearance.my-requests') }}" class="btn btn-primary">
-                <i class="fas fa-file-alt"></i> Request Access
+                <i class="fas fa-file-alt"></i> {{ __('Request Access') }}
               </a>
             @endauth
             <a href="{{ url()->previous() }}" class="btn btn-secondary">
-              <i class="fas fa-arrow-left"></i> Go Back
+              <i class="fas fa-arrow-left"></i> {{ __('Go Back') }}
             </a>
             <a href="/" class="btn btn-outline-secondary">
-              <i class="fas fa-home"></i> Home
+              <i class="fas fa-home"></i> {{ __('Home') }}
             </a>
           </div>
         </div>

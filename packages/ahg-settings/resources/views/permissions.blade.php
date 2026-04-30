@@ -26,7 +26,7 @@
           <div id="permissions-collapse" class="accordion-collapse collapse" aria-labelledby="permissions-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">PREMIS act <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">PREMIS act <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="granted_right" class="form-select">
                   @foreach ($acts as $act)
                     <option value="{{ $act->id }}">{{ $act->name }}</option>
@@ -49,15 +49,15 @@
                     <th colspan="3" scope="colgroup" class="text-center">{{ __('Disallow') }}</th>
                   </tr>
                   <tr>
-                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Master</span></th>
-                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Reference</span></th>
-                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Thumb</span></th>
-                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Master</span></th>
-                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Reference</span></th>
-                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Thumb</span></th>
-                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Master</span></th>
-                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Reference</span></th>
-                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Thumb</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">{{ __('Master') }}</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">{{ __('Reference') }}</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">{{ __('Thumb') }}</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">{{ __('Master') }}</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">{{ __('Reference') }}</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">{{ __('Thumb') }}</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">{{ __('Master') }}</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">{{ __('Reference') }}</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">{{ __('Thumb') }}</span></th>
                   </tr>
                   @foreach ($basis as $basisSlug => $basisName)
                     <tr>
@@ -122,11 +122,11 @@
                     aria-labelledby="{{ $basisSlug }}-tab"
                   >
                     <div class="mb-3">
-                      <label class="form-label">Disallow statement <span class="badge bg-secondary ms-1">Optional</span></label>
+                      <label class="form-label">Disallow statement <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                       <textarea name="access_statements[{{ $basisSlug }}_disallow]" class="form-control" rows="3">{{ e($accessStatements["{$basisSlug}_disallow"] ?? '') }}</textarea>
                     </div>
                     <div class="mb-3">
-                      <label class="form-label">Conditional statement <span class="badge bg-secondary ms-1">Optional</span></label>
+                      <label class="form-label">Conditional statement <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                       <textarea name="access_statements[{{ $basisSlug }}_conditional]" class="form-control" rows="3">{{ e($accessStatements["{$basisSlug}_conditional"] ?? '') }}</textarea>
                     </div>
                   </div>
@@ -146,21 +146,21 @@
           <div id="copyright-collapse" class="accordion-collapse collapse" aria-labelledby="copyright-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Enable copyright statement <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Enable copyright statement <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="copyrightStatementEnabled" id="copyright_enabled_no" value="0" {{ $copyrightStatementEnabled != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="copyright_enabled_no">No <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-check-label" for="copyright_enabled_no">No <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="copyrightStatementEnabled" id="copyright_enabled_yes" value="1" {{ $copyrightStatementEnabled == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="copyright_enabled_yes">Yes <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-check-label" for="copyright_enabled_yes">Yes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 </div>
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Copyright statement <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Copyright statement <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea name="copyrightStatement" class="form-control" rows="5">{{ e($copyrightStatement) }}</textarea>
                 <small class="text-muted">When enabled the following text will appear whenever a user tries to download a digital object master with an associated rights statement where the Basis = copyright and the Restriction = conditional. You can style and customize the text as in a static page.</small>
               </div>
@@ -168,18 +168,18 @@
               <input class="btn atom-btn-white mb-3" type="submit" name="preview" value="Preview">
 
               <div class="mb-3">
-                <label class="form-label">Apply to every digital object <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Apply to every digital object <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="copyrightStatementApplyGlobally" id="copyright_global_no" value="0" {{ $copyrightStatementApplyGlobally != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="copyright_global_no">No <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-check-label" for="copyright_global_no">No <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="copyrightStatementApplyGlobally" id="copyright_global_yes" value="1" {{ $copyrightStatementApplyGlobally == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="copyright_global_yes">Yes <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-check-label" for="copyright_global_yes">Yes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 </div>
-                <small class="text-muted">When enabled, the copyright pop-up will be applied to every digital object, regardless of whether there is an accompanying Rights statement.</small>
+                <small class="text-muted">{{ __('When enabled, the copyright pop-up will be applied to every digital object, regardless of whether there is an accompanying Rights statement.') }}</small>
               </div>
             </div>
           </div>
@@ -195,21 +195,21 @@
           <div id="preservation-collapse" class="accordion-collapse collapse" aria-labelledby="preservation-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Enable access statement <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Enable access statement <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="preservationStatementEnabled" id="pres_enabled_no" value="0" {{ $preservationEnabled != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="pres_enabled_no">No <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-check-label" for="pres_enabled_no">No <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="preservationStatementEnabled" id="pres_enabled_yes" value="1" {{ $preservationEnabled == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="pres_enabled_yes">Yes <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-check-label" for="pres_enabled_yes">Yes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 </div>
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Access statement <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Access statement <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea name="preservationStatement" class="form-control" rows="5">{{ e($preservationStatement) }}</textarea>
                 <small class="text-muted">When enabled the text above will appear in the digital object metadata section to describe how a user may access the original and preservation copy of the file stored in a linked digital preservation system. The text appears in the "Permissions" field. When disabled, the "Permissions" field is not displayed.</small>
               </div>

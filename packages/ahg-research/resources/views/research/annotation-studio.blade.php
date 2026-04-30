@@ -21,10 +21,10 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0">Annotation Studio: {{ e($objectTitle ?? '') }}</h1>
     <div class="d-flex gap-2">
-        <a href="{{ route('research.annotations', ['export_iiif' => 1, 'object_id' => $objectId ?? 0]) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-download me-1"></i>Export IIIF</a>
-        <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#importIiifModal"><i class="fas fa-file-import me-1"></i>Import IIIF</button>
+        <a href="{{ route('research.annotations', ['export_iiif' => 1, 'object_id' => $objectId ?? 0]) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-download me-1"></i>{{ __('Export IIIF') }}</a>
+        <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#importIiifModal"><i class="fas fa-file-import me-1"></i>{{ __('Import IIIF') }}</button>
         @if(!empty($objectSlug))
-            <a href="/{{ e($objectSlug) }}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="fas fa-external-link-alt me-1"></i>View Record</a>
+            <a href="/{{ e($objectSlug) }}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="fas fa-external-link-alt me-1"></i>{{ __('View Record') }}</a>
         @endif
     </div>
 </div>
@@ -62,7 +62,7 @@
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="fas fa-sticky-note me-2"></i>Annotations ({{ count($annotations ?? []) }})</span>
-                <button class="btn btn-sm atom-btn-white" id="addAnnotationBtn"><i class="fas fa-plus me-1"></i>Add Annotation</button>
+                <button class="btn btn-sm atom-btn-white" id="addAnnotationBtn"><i class="fas fa-plus me-1"></i>{{ __('Add Annotation') }}</button>
             </div>
             <div class="card-body p-0">
                 @if(!empty($annotations))
@@ -118,11 +118,11 @@
                     <input type="hidden" name="object_id" value="{{ $objectId ?? 0 }}">
                     <input type="hidden" name="target_selector" id="targetSelector" value="">
                     <div class="mb-3">
-                        <label class="form-label">Title <span class="badge bg-danger ms-1">Required</span></label>
+                        <label class="form-label">Title <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <input type="text" name="title" class="form-control form-control-sm" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select name="annotation_type" class="form-select form-select-sm">
                             <option value="comment">{{ __('Comment') }}</option>
                             <option value="transcription">{{ __('Transcription') }}</option>
@@ -133,15 +133,15 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Content <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Content <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <textarea name="content" class="form-control form-control-sm" rows="4"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Tags <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Tags <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="text" name="tags" class="form-control form-control-sm" placeholder="{{ __('comma-separated') }}">
                     </div>
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn atom-btn-white btn-sm"><i class="fas fa-save me-1"></i>Save</button>
+                        <button type="submit" class="btn atom-btn-white btn-sm"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
                         <button type="button" class="btn atom-btn-white btn-sm" id="cancelAnnotation">{{ __('Cancel') }}</button>
                     </div>
                 </form>
@@ -153,11 +153,11 @@
             <div class="card-header"><h6 class="mb-0"><i class="fas fa-layer-group me-2"></i>Layers</h6></div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-image me-2 text-primary"></i>Base Image</span>
+                    <span><i class="fas fa-image me-2 text-primary"></i>{{ __('Base Image') }}</span>
                     <div class="form-check form-switch"><input class="form-check-input" type="checkbox" checked disabled></div>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-sticky-note me-2 text-warning"></i>Annotations</span>
+                    <span><i class="fas fa-sticky-note me-2 text-warning"></i>{{ __('Annotations') }}</span>
                     <div class="form-check form-switch"><input class="form-check-input" type="checkbox" checked id="toggleAnnotations"></div>
                 </li>
             </ul>
@@ -186,13 +186,13 @@
             <div class="modal-header"><h5 class="modal-title">{{ __('Import IIIF Annotations') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">IIIF Annotation List URL or JSON <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-label">IIIF Annotation List URL or JSON <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <textarea id="iiifImportData" class="form-control" rows="6" placeholder="{{ __('Paste IIIF annotation list JSON or URL...') }}"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                <button type="button" class="btn atom-btn-white" id="importIiifBtn"><i class="fas fa-file-import me-1"></i>Import</button>
+                <button type="button" class="btn atom-btn-white" id="importIiifBtn"><i class="fas fa-file-import me-1"></i>{{ __('Import') }}</button>
             </div>
         </div>
     </div>

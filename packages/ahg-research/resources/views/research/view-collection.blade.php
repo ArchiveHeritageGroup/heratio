@@ -19,15 +19,15 @@
   </h1>
   <div>
     <div class="dropdown d-inline-block me-1">
-      <button class="btn btn-danger btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="fas fa-file-export me-1"></i>Export Finding Aid</button>
+      <button class="btn btn-danger btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="fas fa-file-export me-1"></i>{{ __('Export Finding Aid') }}</button>
       <ul class="dropdown-menu dropdown-menu-end">
         <li><a class="dropdown-item" href="{{ url('/research/exportFindingAid?id=' . $collection->id . '&format=pdf') }}"><i class="fas fa-file-pdf me-2 text-danger"></i>PDF</a></li>
-        <li><a class="dropdown-item" href="{{ url('/research/exportFindingAid?id=' . $collection->id . '&format=docx') }}"><i class="fas fa-file-word me-2 text-primary"></i>DOCX</a></li>
+        <li><a class="dropdown-item" href="{{ url('/research/exportFindingAid?id=' . $collection->id . '&format=docx') }}"><i class="fas fa-file-word me-2 text-primary"></i>{{ __('DOCX') }}</a></li>
         <li><a class="dropdown-item" href="{{ url('/research/generateFindingAid?id=' . $collection->id) }}"><i class="fas fa-file-code me-2 text-secondary"></i>HTML</a></li>
       </ul>
     </div>
-    <button type="button" class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#editCollectionModal"><i class="fas fa-edit me-1"></i>Edit</button>
-    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteCollectionModal"><i class="fas fa-trash me-1"></i>Delete</button>
+    <button type="button" class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#editCollectionModal"><i class="fas fa-edit me-1"></i>{{ __('Edit') }}</button>
+    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteCollectionModal"><i class="fas fa-trash me-1"></i>{{ __('Delete') }}</button>
   </div>
 </div>
 
@@ -74,7 +74,7 @@
         </div>
         <div class="col-md-2">
           <label class="form-label d-block">&nbsp;</label>
-          <button type="submit" class="btn btn-success w-100"><i class="fas fa-plus me-1"></i>Add</button>
+          <button type="submit" class="btn btn-success w-100"><i class="fas fa-plus me-1"></i>{{ __('Add') }}</button>
         </div>
       </div>
     </form>
@@ -151,7 +151,7 @@
           <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="3">{{ e($collection->description ?? '') }}</textarea></div>
           <div class="form-check"><input type="checkbox" name="is_public" value="1" class="form-check-input" id="isPublic" {{ ($collection->is_public ?? false) ? 'checked' : '' }}><label class="form-check-label" for="isPublic">{{ __('Public') }}</label></div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button></div>
       </div>
     </form>
   </div>
@@ -170,9 +170,9 @@
           <p class="text-muted mb-2"><small><i class="fas fa-file-alt me-1"></i><span id="editNotesItemTitle"></span></small></p>
           <label class="form-label">{{ __('Notes') }}</label>
           <textarea name="notes" id="editNotesTextarea" class="form-control" rows="6" placeholder="{{ __('Add your research notes here...') }}"></textarea>
-          <small class="text-muted">Use these notes to track research progress, observations, or relevant information.</small>
+          <small class="text-muted">{{ __('Use these notes to track research progress, observations, or relevant information.') }}</small>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Notes</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save Notes') }}</button></div>
       </div>
     </form>
   </div>
@@ -187,7 +187,7 @@
       <div class="modal-content">
         <div class="modal-header bg-danger text-white"><h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Delete</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
         <div class="modal-body"><p>Delete this evidence set?</p><p class="text-danger"><strong>{{ e($collection->name) }}</strong></p></div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-danger"><i class="fas fa-trash me-1"></i>Delete</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-danger"><i class="fas fa-trash me-1"></i>{{ __('Delete') }}</button></div>
       </div>
     </form>
   </div>

@@ -5,7 +5,7 @@ $isPreview = $isPreview ?? false;
 
 @if ($isPreview)
 <div class="alert alert-warning alert-dismissible fade show m-3" role="alert">
-  <i class="bi bi-eye"></i> <strong>Preview Mode</strong> - This is how the page will appear to visitors.
+  <i class="bi bi-eye"></i> <strong>{{ __('Preview Mode') }}</strong> - This is how the page will appear to visitors.
   Hidden blocks are shown with reduced opacity.
   <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 </div>

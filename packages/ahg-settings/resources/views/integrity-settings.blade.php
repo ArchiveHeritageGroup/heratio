@@ -42,7 +42,7 @@
                      name="settings[integrity_enabled]" value="true"
                      {{ ($settings['integrity_enabled'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="integrity_enabled">
-                <strong>Enable Integrity Assurance</strong>
+                <strong>{{ __('Enable Integrity Assurance') }}</strong>
               </label>
             </div>
             <div class="form-text mb-3">Master switch for all integrity verification functionality.</div>
@@ -53,7 +53,7 @@
                      name="settings[integrity_auto_baseline]" value="true"
                      {{ ($settings['integrity_auto_baseline'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="integrity_auto_baseline">
-                <strong>Auto-Generate Baselines</strong>
+                <strong>{{ __('Auto-Generate Baselines') }}</strong>
               </label>
             </div>
             <div class="form-text mb-3">Automatically generate baseline checksums on first verification if none exist.</div>
@@ -119,7 +119,7 @@
                      name="settings[integrity_notify_on_failure]" value="true"
                      {{ ($settings['integrity_notify_on_failure'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="integrity_notify_on_failure">
-                <strong>Notify on Run Failure</strong>
+                <strong>{{ __('Notify on Run Failure') }}</strong>
               </label>
             </div>
           </div>
@@ -129,7 +129,7 @@
                      name="settings[integrity_notify_on_mismatch]" value="true"
                      {{ ($settings['integrity_notify_on_mismatch'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="integrity_notify_on_mismatch">
-                <strong>Notify on Hash Mismatch</strong>
+                <strong>{{ __('Notify on Hash Mismatch') }}</strong>
               </label>
             </div>
           </div>
@@ -165,35 +165,35 @@
           @if(\Route::has('integrity.index'))
           <div class="col-auto">
             <a href="{{ route('integrity.index') }}" class="btn btn-outline-primary">
-              <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+              <i class="fas fa-tachometer-alt me-1"></i>{{ __('Dashboard') }}
             </a>
           </div>
           @endif
           @if(\Route::has('integrity.schedules'))
           <div class="col-auto">
             <a href="{{ route('integrity.schedules') }}" class="btn btn-outline-primary">
-              <i class="fas fa-clock me-1"></i>Schedules
+              <i class="fas fa-clock me-1"></i>{{ __('Schedules') }}
             </a>
           </div>
           @endif
           @if(\Route::has('integrity.policies'))
           <div class="col-auto">
             <a href="{{ route('integrity.policies') }}" class="btn btn-outline-warning">
-              <i class="fas fa-archive me-1"></i>Retention Policies
+              <i class="fas fa-archive me-1"></i>{{ __('Retention Policies') }}
             </a>
           </div>
           @endif
           @if(\Route::has('integrity.alerts'))
           <div class="col-auto">
             <a href="{{ route('integrity.alerts') }}" class="btn btn-outline-dark">
-              <i class="fas fa-bell me-1"></i>Alert Rules
+              <i class="fas fa-bell me-1"></i>{{ __('Alert Rules') }}
             </a>
           </div>
           @endif
           @if(\Route::has('integrity.export'))
           <div class="col-auto">
             <a href="{{ route('integrity.export') }}" class="btn btn-outline-success">
-              <i class="fas fa-download me-1"></i>Export
+              <i class="fas fa-download me-1"></i>{{ __('Export') }}
             </a>
           </div>
           @endif
@@ -204,10 +204,10 @@
     {{-- Save --}}
     <div class="d-flex justify-content-between align-items-center">
       <a href="{{ route('settings.index') }}" class="btn btn-link text-secondary">
-        <i class="fas fa-arrow-left me-1"></i>Back to Settings
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}
       </a>
       <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save me-1"></i>Save
+        <i class="fas fa-save me-1"></i>{{ __('Save') }}
       </button>
     </div>
   </form>

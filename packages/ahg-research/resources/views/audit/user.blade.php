@@ -50,5 +50,5 @@
     </table>
   </div>
 </div>
-<div class="mt-3"><a href="{{ route('audit.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back</a></div>
+<div class="mt-3"><a href="{{ route('audit.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a></div>
 @endsection

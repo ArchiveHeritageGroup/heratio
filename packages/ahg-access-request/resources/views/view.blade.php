@@ -45,13 +45,13 @@
                                     <th>{{ __('Status') }}</th>
                                     <td>
                                         @if($accessRequest->status === 'approved')
-                                            <span class="badge bg-success">Approved</span>
+                                            <span class="badge bg-success">{{ __('Approved') }}</span>
                                         @elseif($accessRequest->status === 'denied')
-                                            <span class="badge bg-danger">Denied</span>
+                                            <span class="badge bg-danger">{{ __('Denied') }}</span>
                                         @elseif($accessRequest->status === 'cancelled')
-                                            <span class="badge bg-secondary">Cancelled</span>
+                                            <span class="badge bg-secondary">{{ __('Cancelled') }}</span>
                                         @else
-                                            <span class="badge bg-warning text-dark">Pending</span>
+                                            <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -80,13 +80,13 @@
                                 <form method="post" action="{{ route('accessRequest.approve', $accessRequest->id) }}">
                                     @csrf
                                     <button type="submit" class="btn atom-btn-white">
-                                        <i class="fas fa-check me-1"></i>Approve
+                                        <i class="fas fa-check me-1"></i>{{ __('Approve') }}
                                     </button>
                                 </form>
                                 <form method="post" action="{{ route('accessRequest.deny', $accessRequest->id) }}">
                                     @csrf
                                     <button type="submit" class="btn atom-btn-outline-danger">
-                                        <i class="fas fa-times me-1"></i>Deny
+                                        <i class="fas fa-times me-1"></i>{{ __('Deny') }}
                                     </button>
                                 </form>
                             </div>
@@ -100,8 +100,8 @@
                             <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Request Info</h6>
                         </div>
                         <div class="card-body small">
-                            <p><strong>Object:</strong> {{ $accessRequest->object_slug ?? 'General request' }}</p>
-                            <p><strong>Updated:</strong> {{ $accessRequest->updated_at ?? 'N/A' }}</p>
+                            <p><strong>{{ __('Object:') }}</strong> {{ $accessRequest->object_slug ?? 'General request' }}</p>
+                            <p><strong>{{ __('Updated:') }}</strong> {{ $accessRequest->updated_at ?? 'N/A' }}</p>
                         </div>
                     </div>
                 </div>

@@ -31,11 +31,11 @@
                 <td>{{ $lang['name'] }}</td>
                 <td>
                   @if ($lang['default'])
-                    <span class="badge bg-primary">Default</span>
+                    <span class="badge bg-primary">{{ __('Default') }}</span>
                   @elseif ($lang['enabled'])
-                    <span class="badge bg-success">Enabled</span>
+                    <span class="badge bg-success">{{ __('Enabled') }}</span>
                   @else
-                    <span class="badge bg-secondary">Available</span>
+                    <span class="badge bg-secondary">{{ __('Available') }}</span>
                   @endif
                 </td>
               </tr>

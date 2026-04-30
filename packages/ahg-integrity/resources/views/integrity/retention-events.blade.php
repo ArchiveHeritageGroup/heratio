@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-clock me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Retention Events') }}</h1><span class="small text-muted">Event-based retention triggers</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Retention Events') }}</h1><span class="small text-muted">{{ __('Event-based retention triggers') }}</span></div>
   </div>
 @endsection
 @section('content')
@@ -44,7 +44,7 @@
             <label for="notes" class="form-label">{{ __('Notes') }}</label>
             <textarea class="form-control" id="notes" name="notes" rows="2" maxlength="2000"></textarea>
           </div>
-          <button type="submit" class="btn atom-btn-white"><i class="fas fa-bolt me-1"></i>Fire Event</button>
+          <button type="submit" class="btn atom-btn-white"><i class="fas fa-bolt me-1"></i>{{ __('Fire Event') }}</button>
         </form>
       </div>
     </div>
@@ -62,7 +62,7 @@
               <td>{{ $p->name }}</td>
               <td>{{ $p->retention_period_days }} days</td>
               <td><span class="badge bg-info">{{ $p->trigger_type }}</span></td>
-              <td>{!! $p->is_enabled ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-secondary">No</span>' !!}</td>
+              <td>{!! $p->is_enabled ? '<span class="badge bg-success">{{ __('Yes') }}</span>' : '<span class="badge bg-secondary">No</span>' !!}</td>
             </tr>
             @endforeach
           </tbody>
@@ -117,5 +117,5 @@
   </div>
 </div>
 
-<div class="mt-3"><a href="{{ route('integrity.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Dashboard</a></div>
+<div class="mt-3"><a href="{{ route('integrity.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}</a></div>
 @endsection

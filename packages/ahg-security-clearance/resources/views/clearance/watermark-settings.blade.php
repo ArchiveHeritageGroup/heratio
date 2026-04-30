@@ -37,7 +37,7 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Minimum Image Size (px)') }}</label>
               <input type="number" name="min_size" class="form-control" value="{{ $settings['min_size'] ?? 200 }}">
-              <small class="text-muted">Images smaller than this won't be watermarked.</small>
+              <small class="text-muted">{{ __("Images smaller than this won't be watermarked.") }}</small>
             </div>
           </div>
           <div class="col-md-6">
@@ -58,7 +58,7 @@
               <input type="checkbox" name="security_override" value="1" class="form-check-input" id="securityOverride"
                      {{ ($settings['security_override'] ?? '0') === '1' ? 'checked' : '' }}>
               <label class="form-check-label" for="securityOverride">{{ __('Security clearance overrides watermark') }}</label>
-              <small class="text-muted d-block">Users with sufficient clearance can bypass watermarks.</small>
+              <small class="text-muted d-block">{{ __('Users with sufficient clearance can bypass watermarks.') }}</small>
             </div>
           </div>
         </div>
@@ -109,8 +109,8 @@
     </div>
     @endif
 
-    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Settings</button>
-    <a href="{{ route('security-clearance.trace-watermark') }}" class="btn btn-outline-secondary"><i class="fas fa-search"></i> Trace Watermark</a>
+    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> {{ __('Save Settings') }}</button>
+    <a href="{{ route('security-clearance.trace-watermark') }}" class="btn btn-outline-secondary"><i class="fas fa-search"></i> {{ __('Trace Watermark') }}</a>
   </form>
 </div>
 @endsection

@@ -62,7 +62,7 @@
                      name="accession_auto_assign_enabled" value="true"
                      {{ ($settings['accession_auto_assign_enabled'] ?? 'false') === 'true' || ($settings['accession_auto_assign_enabled'] ?? '0') === '1' ? 'checked' : '' }}>
               <label class="form-check-label" for="accession_auto_assign_enabled">
-                <strong>Auto-Assign to Archivist</strong>
+                <strong>{{ __('Auto-Assign to Archivist') }}</strong>
               </label>
             </div>
             <div class="form-text">Automatically assign new accessions to the creating archivist.</div>
@@ -73,7 +73,7 @@
                      name="accession_require_donor_agreement" value="true"
                      {{ ($settings['accession_require_donor_agreement'] ?? 'false') === 'true' || ($settings['accession_require_donor_agreement'] ?? '0') === '1' ? 'checked' : '' }}>
               <label class="form-check-label" for="accession_require_donor_agreement">
-                <strong>Require Donor Agreement</strong>
+                <strong>{{ __('Require Donor Agreement') }}</strong>
               </label>
             </div>
             <div class="form-text">Donor agreement must be attached before an accession can be finalised.</div>
@@ -84,7 +84,7 @@
                      name="accession_require_appraisal" value="true"
                      {{ ($settings['accession_require_appraisal'] ?? 'false') === 'true' || ($settings['accession_require_appraisal'] ?? '0') === '1' ? 'checked' : '' }}>
               <label class="form-check-label" for="accession_require_appraisal">
-                <strong>Require Appraisal</strong>
+                <strong>{{ __('Require Appraisal') }}</strong>
               </label>
             </div>
             <div class="form-text">Appraisal must be completed before an accession can be finalised.</div>
@@ -106,7 +106,7 @@
                      name="accession_allow_container_barcodes" value="true"
                      {{ ($settings['accession_allow_container_barcodes'] ?? 'false') === 'true' || ($settings['accession_allow_container_barcodes'] ?? '0') === '1' ? 'checked' : '' }}>
               <label class="form-check-label" for="accession_allow_container_barcodes">
-                <strong>Allow Container Barcodes</strong>
+                <strong>{{ __('Allow Container Barcodes') }}</strong>
               </label>
             </div>
             <div class="form-text">Enable barcode scanning for linking containers to accessions.</div>
@@ -117,7 +117,7 @@
                      name="accession_rights_inheritance_enabled" value="true"
                      {{ ($settings['accession_rights_inheritance_enabled'] ?? 'false') === 'true' || ($settings['accession_rights_inheritance_enabled'] ?? '0') === '1' ? 'checked' : '' }}>
               <label class="form-check-label" for="accession_rights_inheritance_enabled">
-                <strong>Rights Inheritance</strong>
+                <strong>{{ __('Rights Inheritance') }}</strong>
               </label>
             </div>
             <div class="form-text">Automatically inherit rights from the donor agreement to created information objects.</div>
@@ -129,10 +129,10 @@
     {{-- Save --}}
     <div class="d-flex justify-content-between align-items-center">
       <a href="{{ route('settings.index') }}" class="btn btn-link text-secondary">
-        <i class="fas fa-arrow-left me-1"></i>Back to Settings
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}
       </a>
       <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save me-1"></i>Save
+        <i class="fas fa-save me-1"></i>{{ __('Save') }}
       </button>
     </div>
   </form>

@@ -35,7 +35,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 mb-0"><i class="fas fa-clipboard-check me-2"></i>Condition Report</h1>
     <a href="{{ route('io.condition', $io->slug) }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left me-1"></i>Back
+      <i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}
     </a>
   </div>
 
@@ -47,29 +47,29 @@
     <div class="card-body">
       <div class="row g-3">
         <div class="col-md-3">
-          <strong>Assessment Date</strong>
+          <strong>{{ __('Assessment Date') }}</strong>
           <p class="mb-0">{{ $report->assessment_date ?? '—' }}</p>
         </div>
         <div class="col-md-3">
-          <strong>Overall Rating</strong>
+          <strong>{{ __('Overall Rating') }}</strong>
           <p class="mb-0"><span class="badge bg-{{ $ratingColor }} fs-6">{{ ucfirst($report->overall_rating ?? '—') }}</span></p>
         </div>
         <div class="col-md-3">
-          <strong>Context</strong>
+          <strong>{{ __('Context') }}</strong>
           <p class="mb-0">{{ ucfirst($report->context ?? '—') }}</p>
         </div>
         <div class="col-md-3">
-          <strong>Assessor</strong>
+          <strong>{{ __('Assessor') }}</strong>
           <p class="mb-0">{{ $assessor }}</p>
         </div>
       </div>
       <div class="row g-3 mt-2">
         <div class="col-md-3">
-          <strong>Priority</strong>
+          <strong>{{ __('Priority') }}</strong>
           <p class="mb-0">{{ ucfirst($report->priority ?? '—') }}</p>
         </div>
         <div class="col-md-3">
-          <strong>Next Check</strong>
+          <strong>{{ __('Next Check') }}</strong>
           <p class="mb-0">{{ $report->next_check_date ?? '—' }}</p>
         </div>
       </div>
@@ -85,13 +85,13 @@
       <div class="card-body">
         @if($report->summary)
           <div class="mb-3">
-            <strong>Summary</strong>
+            <strong>{{ __('Summary') }}</strong>
             <p>{{ $report->summary }}</p>
           </div>
         @endif
         @if($report->recommendations)
           <div class="mb-3">
-            <strong>Treatment Recommendations</strong>
+            <strong>{{ __('Treatment Recommendations') }}</strong>
             <p>{{ $report->recommendations }}</p>
           </div>
         @endif
@@ -174,7 +174,7 @@
               </div>
               <div class="col-md-2">
                 <button type="submit" class="btn btn-sm atom-btn-outline-success w-100">
-                  <i class="fas fa-upload me-1"></i>Upload
+                  <i class="fas fa-upload me-1"></i>{{ __('Upload') }}
                 </button>
               </div>
             </div>
@@ -266,7 +266,7 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
         <button type="button" class="btn btn-primary" data-action="save-annotations">
-          <i class="fas fa-save me-1"></i>Save Annotations
+          <i class="fas fa-save me-1"></i>{{ __('Save Annotations') }}
         </button>
       </div>
     </div>
@@ -290,7 +290,7 @@
       </div>
       <div class="modal-footer" id="aiScanFooter" style="display:none">
         <a href="#" id="aiScanViewFull" class="btn btn-primary btn-sm" target="_blank">
-          <i class="fas fa-eye me-1"></i>View Full Report
+          <i class="fas fa-eye me-1"></i>{{ __('View Full Report') }}
         </a>
         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">{{ __('Close') }}</button>
       </div>

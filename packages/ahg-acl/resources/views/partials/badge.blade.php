@@ -1,7 +1,7 @@
 {{-- Security Badge Component - Migrated from AtoM: ahgSecurityClearancePlugin/modules/securityClearance/templates/_badge.php --}}
 @if(!($classification ?? null))
   <span class="badge bg-success security-badge" title="{{ __('Public') }}">
-    <i class="fa fa-globe"></i> Public
+    <i class="fa fa-globe"></i> {{ __('Public') }}
   </span>
 @else
   @php

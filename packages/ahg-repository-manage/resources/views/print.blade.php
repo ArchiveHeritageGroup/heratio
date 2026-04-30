@@ -68,16 +68,16 @@
     <h2 class="section-heading">{{ __('Contact area') }}</h2>
     @foreach($contacts as $contact)
       <div class="contact-block">
-        @if($contact->contact_person) <div><strong>Contact person:</strong> {{ $contact->contact_person }}</div> @endif
+        @if($contact->contact_person) <div><strong>{{ __('Contact person:') }}</strong> {{ $contact->contact_person }}</div> @endif
         @if($contact->street_address) <div>{{ $contact->street_address }}</div> @endif
         @if($contact->city)
           <div>{{ $contact->city }}{{ $contact->region ? ', ' . $contact->region : '' }} {{ $contact->postal_code ?? '' }}</div>
         @endif
         @if($contact->country_code) <div>{{ $contact->country_code }}</div> @endif
-        @if($contact->telephone) <div><strong>Telephone:</strong> {{ $contact->telephone }}</div> @endif
-        @if($contact->fax) <div><strong>Fax:</strong> {{ $contact->fax }}</div> @endif
-        @if($contact->email) <div><strong>Email:</strong> {{ $contact->email }}</div> @endif
-        @if($contact->website) <div><strong>Website:</strong> {{ $contact->website }}</div> @endif
+        @if($contact->telephone) <div><strong>{{ __('Telephone:') }}</strong> {{ $contact->telephone }}</div> @endif
+        @if($contact->fax) <div><strong>{{ __('Fax:') }}</strong> {{ $contact->fax }}</div> @endif
+        @if($contact->email) <div><strong>{{ __('Email:') }}</strong> {{ $contact->email }}</div> @endif
+        @if($contact->website) <div><strong>{{ __('Website:') }}</strong> {{ $contact->website }}</div> @endif
       </div>
     @endforeach
   @endif

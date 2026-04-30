@@ -11,7 +11,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-book text-primary me-2"></i>My Bibliographies</h1>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBibModal">
-        <i class="fas fa-plus me-1"></i> New Bibliography
+        <i class="fas fa-plus me-1"></i> {{ __('New Bibliography') }}
     </button>
 </div>
 
@@ -52,7 +52,7 @@
             <h5>{{ __('No Bibliographies Yet') }}</h5>
             <p class="text-muted">Create a bibliography to organize your research citations.</p>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBibModal">
-                <i class="fas fa-plus me-1"></i> Create Bibliography
+                <i class="fas fa-plus me-1"></i> {{ __('Create Bibliography') }}
             </button>
         </div>
     </div>
@@ -91,7 +91,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Create</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i> {{ __('Create') }}</button>
                 </div>
             </form>
         </div>

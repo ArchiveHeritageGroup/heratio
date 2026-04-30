@@ -110,7 +110,7 @@
             <div class="card">
                 <div class="card-body d-grid gap-2">
                     <button type="submit" class="btn btn-danger btn-lg">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Report Breach
+                        <i class="fas fa-exclamation-triangle me-2"></i>{{ __('Report Breach') }}
                     </button>
                     <a href="{{ route('ahgcdpa.breaches') }}" class="btn btn-outline-secondary">
                         Cancel

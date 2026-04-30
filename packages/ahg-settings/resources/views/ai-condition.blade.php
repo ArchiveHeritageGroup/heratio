@@ -19,17 +19,17 @@
         <div class="card-body py-2">
             @if(\Route::has('admin.ai.condition.assess'))
             <a href="{{ route('admin.ai.condition.assess') }}" class="btn btn-success btn-sm w-100 mb-2">
-                <i class="fas fa-camera me-1"></i>New Assessment
+                <i class="fas fa-camera me-1"></i>{{ __('New Assessment') }}
             </a>
             @endif
             @if(\Route::has('admin.ai.condition.bulk'))
             <a href="{{ route('admin.ai.condition.bulk') }}" class="btn btn-outline-primary btn-sm w-100 mb-2">
-                <i class="fas fa-layer-group me-1"></i>Bulk Scan
+                <i class="fas fa-layer-group me-1"></i>{{ __('Bulk Scan') }}
             </a>
             @endif
             @if(\Route::has('admin.ai.condition.training'))
             <a href="{{ route('admin.ai.condition.training') }}" class="btn btn-outline-info btn-sm w-100 mb-2">
-                <i class="fas fa-brain me-1"></i>Model Training
+                <i class="fas fa-brain me-1"></i>{{ __('Model Training') }}
             </a>
             @endif
         </div>
@@ -40,19 +40,19 @@
         <div class="card-header py-2"><h6 class="mb-0">{{ __('Statistics') }}</h6></div>
         <div class="card-body py-2 small">
             <div class="d-flex justify-content-between mb-1">
-                <span>Total Assessments</span>
+                <span>{{ __('Total Assessments') }}</span>
                 <strong>{{ $stats['total'] ?? 0 }}</strong>
             </div>
             <div class="d-flex justify-content-between mb-1">
-                <span>Confirmed</span>
+                <span>{{ __('Confirmed') }}</span>
                 <strong class="text-success">{{ $stats['confirmed'] ?? 0 }}</strong>
             </div>
             <div class="d-flex justify-content-between mb-1">
-                <span>Pending Review</span>
+                <span>{{ __('Pending Review') }}</span>
                 <strong class="text-warning">{{ $stats['pending'] ?? 0 }}</strong>
             </div>
             <div class="d-flex justify-content-between">
-                <span>Avg Score</span>
+                <span>{{ __('Avg Score') }}</span>
                 <strong>{{ $stats['avg_score'] ?? '--' }}</strong>
             </div>
         </div>
@@ -90,7 +90,7 @@
                 </div>
                 <div class="col-sm-2">
                     <button type="button" class="btn btn-sm btn-outline-primary w-100" id="testBtn">
-                        <i class="fas fa-plug me-1"></i>Test
+                        <i class="fas fa-plug me-1"></i>{{ __('Test') }}
                     </button>
                 </div>
             </div>
@@ -152,7 +152,7 @@
     </div>
 
     <button type="submit" class="btn btn-primary mb-4">
-        <i class="fas fa-save me-1"></i>Save Settings
+        <i class="fas fa-save me-1"></i>{{ __('Save Settings') }}
     </button>
 </form>
 
@@ -161,7 +161,7 @@
     <div class="card-header py-2 d-flex justify-content-between align-items-center">
         <h6 class="mb-0"><i class="fas fa-key me-2"></i>API Clients</h6>
         <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addClientModal">
-            <i class="fas fa-plus me-1"></i>Add Client
+            <i class="fas fa-plus me-1"></i>{{ __('Add Client') }}
         </button>
     </div>
     <div class="card-body p-0">
@@ -209,9 +209,9 @@
                         </td>
                         <td class="text-center">
                             @if($c->is_active)
-                            <span class="badge bg-success">Active</span>
+                            <span class="badge bg-success">{{ __('Active') }}</span>
                             @else
-                            <span class="badge bg-danger">Revoked</span>
+                            <span class="badge bg-danger">{{ __('Revoked') }}</span>
                             @endif
                         </td>
                         <td class="text-end">
@@ -293,10 +293,10 @@
                         <td>
                             @if(!empty($ac->training_approval_doc))
                                 <a href="/{{ e($ac->training_approval_doc) }}" target="_blank" class="small text-success">
-                                    <i class="fas fa-file-alt me-1"></i>View Document
+                                    <i class="fas fa-file-alt me-1"></i>{{ __('View Document') }}
                                 </a>
                             @else
-                                <span class="small text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Not uploaded</span>
+                                <span class="small text-warning"><i class="fas fa-exclamation-triangle me-1"></i>{{ __('Not uploaded') }}</span>
                             @endif
                             <button type="button" class="btn btn-outline-secondary btn-sm ms-1" onclick="uploadConsent({{ $ac->id }}, '{{ e($ac->name) }}')">
                                 <i class="fas fa-upload"></i>
@@ -304,23 +304,23 @@
                         </td>
                         <td class="text-center">
                             @if($ac->training_approved)
-                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Approved</span>
+                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>{{ __('Approved') }}</span>
                                 @if($ac->training_approved_at)
                                 <br><small class="text-muted">{{ date('d M Y', strtotime($ac->training_approved_at)) }}</small>
                                 @endif
                             @else
-                                <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>Pending</span>
+                                <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>{{ __('Pending') }}</span>
                             @endif
                         </td>
                         <td class="text-end">
                             @if(!$ac->training_approved)
                                 <button type="button" class="btn btn-sm btn-success" onclick="approveTraining({{ $ac->id }}, '{{ e($ac->name) }}')"
                                     {{ empty($ac->training_approval_doc) ? 'disabled title="{{ __('Upload consent document first') }}"' : '' }}>
-                                    <i class="fas fa-check me-1"></i>Approve
+                                    <i class="fas fa-check me-1"></i>{{ __('Approve') }}
                                 </button>
                             @else
                                 <button type="button" class="btn btn-sm btn-outline-info me-1" onclick="pushTrainingData({{ $ac->id }})" {{ $approvedContrib < 1 ? 'disabled' : '' }}>
-                                    <i class="fas fa-paper-plane me-1"></i>Push to Training
+                                    <i class="fas fa-paper-plane me-1"></i>{{ __('Push to Training') }}
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-danger" onclick="revokeTrainingApproval({{ $ac->id }})">
                                     <i class="fas fa-ban"></i>
@@ -346,7 +346,7 @@
             </div>
             <div class="modal-body">
                 <p class="small text-muted">Upload a signed consent/approval document from the client authorizing use of their data for model training.</p>
-                <p class="small"><strong>Client:</strong> <span id="consentClientName"></span></p>
+                <p class="small"><strong>{{ __('Client:') }}</strong> <span id="consentClientName"></span></p>
                 <input type="hidden" id="consentClientId">
                 <div class="mb-3">
                     <label class="form-label">Document <span class="text-danger">*</span></label>
@@ -357,7 +357,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                 <button type="button" class="btn btn-primary" onclick="submitConsent()">
-                    <i class="fas fa-upload me-1"></i>Upload
+                    <i class="fas fa-upload me-1"></i>{{ __('Upload') }}
                 </button>
             </div>
         </div>

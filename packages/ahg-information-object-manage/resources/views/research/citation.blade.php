@@ -15,7 +15,7 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2 mb-0"><i class="fas fa-quote-right text-primary me-2"></i>Citation Generator</h1>
-    <a href="{{ route('informationobject.show', $io->slug) }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Back</a>
+    <a href="{{ route('informationobject.show', $io->slug) }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
   </div>
 
   @php
@@ -76,7 +76,7 @@
           </div>
           <div class="card-footer">
             <button class="btn btn-sm btn-outline-primary copy-cite-btn" data-target="cite-{{ $style }}">
-              <i class="fas fa-copy me-1"></i> Copy
+              <i class="fas fa-copy me-1"></i> {{ __('Copy') }}
             </button>
           </div>
         </div>
@@ -112,11 +112,11 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-6">
-          <h6><span class="badge bg-danger">Harvard</span></h6>
+          <h6><span class="badge bg-danger">{{ __('Harvard') }}</span></h6>
           <p class="small text-muted">Standard Harvard referencing style used internationally.</p>
         </div>
         <div class="col-md-6">
-          <h6><span class="badge bg-dark">UNISA Harvard</span></h6>
+          <h6><span class="badge bg-dark">{{ __('UNISA Harvard') }}</span></h6>
           <p class="small text-muted">University of South Africa's specific Harvard referencing format, commonly used in South African academic institutions.</p>
         </div>
       </div>

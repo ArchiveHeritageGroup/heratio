@@ -7,8 +7,8 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-clipboard-check"></i> Task #{{ $task->id }}: {{ $task->step_name }}</h1>
     <div>
-      <a href="{{ route('workflow.my-tasks') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> My Tasks</a>
-      <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="{{ route('workflow.my-tasks') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('My Tasks') }}</a>
+      <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-tachometer-alt"></i> {{ __('Dashboard') }}</a>
     </div>
   </div>
 
@@ -56,13 +56,13 @@
                   <th class="text-muted" style="width:40%">{{ __('Status') }}</th>
                   <td>
                     @if($task->status === 'completed')
-                      <span class="badge bg-success">Completed</span>
+                      <span class="badge bg-success">{{ __('Completed') }}</span>
                     @elseif($task->status === 'claimed')
-                      <span class="badge bg-info">Claimed</span>
+                      <span class="badge bg-info">{{ __('Claimed') }}</span>
                     @elseif($task->status === 'in_progress')
-                      <span class="badge bg-primary">In Progress</span>
+                      <span class="badge bg-primary">{{ __('In Progress') }}</span>
                     @else
-                      <span class="badge bg-warning text-dark">Pending</span>
+                      <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
                     @endif
                   </td>
                 </tr>
@@ -70,11 +70,11 @@
                   <th class="text-muted">{{ __('Priority') }}</th>
                   <td>
                     @if($task->priority === 'high')
-                      <span class="badge bg-danger">High</span>
+                      <span class="badge bg-danger">{{ __('High') }}</span>
                     @elseif($task->priority === 'low')
-                      <span class="badge bg-secondary">Low</span>
+                      <span class="badge bg-secondary">{{ __('Low') }}</span>
                     @else
-                      <span class="badge bg-primary">Normal</span>
+                      <span class="badge bg-primary">{{ __('Normal') }}</span>
                     @endif
                   </td>
                 </tr>
@@ -96,7 +96,7 @@
                         {{ $task->due_date }}
                       @endif
                     @else
-                      <span class="text-muted">No due date</span>
+                      <span class="text-muted">{{ __('No due date') }}</span>
                     @endif
                   </td>
                 </tr>
@@ -104,11 +104,11 @@
                   <th class="text-muted">{{ __('Decision') }}</th>
                   <td>
                     @if($task->decision === 'approved')
-                      <span class="badge bg-success">Approved</span>
+                      <span class="badge bg-success">{{ __('Approved') }}</span>
                     @elseif($task->decision === 'rejected')
-                      <span class="badge bg-danger">Rejected</span>
+                      <span class="badge bg-danger">{{ __('Rejected') }}</span>
                     @else
-                      <span class="badge bg-secondary">Pending</span>
+                      <span class="badge bg-secondary">{{ __('Pending') }}</span>
                     @endif
                   </td>
                 </tr>
@@ -148,31 +148,31 @@
               {{-- Claim --}}
               <form action="{{ route('workflow.task.claim', $task->id) }}" method="POST">
                 @csrf
-                <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-hand-paper"></i> Claim This Task</button>
+                <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-hand-paper"></i> {{ __('Claim This Task') }}</button>
               </form>
             @elseif((int) $task->assigned_to === (int) auth()->id())
               {{-- Approve / Reject / Release --}}
               <div class="mb-3">
-                <label for="comment" class="form-label">Comment <span class="badge bg-danger ms-1">Required</span></label>
+                <label for="comment" class="form-label">Comment <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <textarea id="comment" class="form-control" rows="3" form="approve-form" name="comment" placeholder="{{ __('Optional comment for approval, required for rejection...') }}"></textarea>
               </div>
 
               <div class="d-flex gap-2 flex-wrap">
                 <form id="approve-form" action="{{ route('workflow.task.approve', $task->id) }}" method="POST" class="d-inline">
                   @csrf
-                  <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-check"></i> Approve</button>
+                  <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-check"></i> {{ __('Approve') }}</button>
                 </form>
 
                 <form action="{{ route('workflow.task.reject', $task->id) }}" method="POST" class="d-inline" onsubmit="this.querySelector('[name=comment]').value = document.getElementById('comment').value; if(!this.querySelector('[name=comment]').value) { alert('Comment is required for rejection.'); return false; }">
                   @csrf
                   <input type="hidden" name="comment" value="">
-                  <button type="submit" class="btn atom-btn-outline-danger"><i class="fas fa-times"></i> Reject</button>
+                  <button type="submit" class="btn atom-btn-outline-danger"><i class="fas fa-times"></i> {{ __('Reject') }}</button>
                 </form>
 
                 <form action="{{ route('workflow.task.release', $task->id) }}" method="POST" class="d-inline">
                   @csrf
                   <input type="hidden" name="comment" value="">
-                  <button type="submit" class="btn atom-btn-white" onclick="this.form.querySelector('[name=comment]').value = document.getElementById('comment').value;"><i class="fas fa-undo"></i> Release to Pool</button>
+                  <button type="submit" class="btn atom-btn-white" onclick="this.form.querySelector('[name=comment]').value = document.getElementById('comment').value;"><i class="fas fa-undo"></i> {{ __('Release to Pool') }}</button>
                 </form>
               </div>
 
@@ -308,7 +308,7 @@
           <div class="card-header"><h6 class="mb-0">{{ __('Publish Readiness') }}</h6></div>
           <div class="card-body text-center">
             <a href="{{ route('workflow.publish-readiness', $task->object_id) }}" class="btn atom-btn-white">
-              <i class="fas fa-clipboard-check"></i> Check Publish Gates
+              <i class="fas fa-clipboard-check"></i> {{ __('Check Publish Gates') }}
             </a>
           </div>
         </div>

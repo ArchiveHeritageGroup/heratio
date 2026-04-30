@@ -16,7 +16,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="fas fa-users-cog me-2"></i> {{ $group->name ?? 'Unnamed' }}</h2>
     <a href="{{ route('acl.groups') }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left me-1"></i> Back to Groups
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Groups') }}
     </a>
   </div>
 
@@ -79,7 +79,7 @@
           <form action="{{ route('acl.add-member', ['groupId' => $group->id]) }}" method="POST" class="row g-2 align-items-end">
             @csrf
             <div class="col">
-              <label for="user_id" class="form-label form-label-sm">Add Member <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="user_id" class="form-label form-label-sm">Add Member <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="user_id" id="user_id" class="form-select form-select-sm" required>
                 <option value="">-- Select User --</option>
                 @foreach($allUsers as $user)
@@ -89,7 +89,7 @@
             </div>
             <div class="col-auto">
               <button type="submit" class="btn btn-sm atom-btn-outline-success">
-                <i class="fas fa-user-plus me-1"></i> Add
+                <i class="fas fa-user-plus me-1"></i> {{ __('Add') }}
               </button>
             </div>
           </form>
@@ -121,9 +121,9 @@
                     <td>{{ $perm->object_id ?? '<em class="text-muted">All</em>' }}</td>
                     <td class="text-center">
                       @if($perm->grant_deny == 1)
-                        <span class="badge bg-success"><i class="fas fa-check me-1"></i> Grant</span>
+                        <span class="badge bg-success"><i class="fas fa-check me-1"></i> {{ __('Grant') }}</span>
                       @else
-                        <span class="badge bg-danger"><i class="fas fa-times me-1"></i> Deny</span>
+                        <span class="badge bg-danger"><i class="fas fa-times me-1"></i> {{ __('Deny') }}</span>
                       @endif
                     </td>
                     <td class="text-end">
@@ -151,15 +151,15 @@
             @csrf
             <input type="hidden" name="_action" value="add_permission">
             <div class="col">
-              <label for="perm_action" class="form-label form-label-sm">Action <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="perm_action" class="form-label form-label-sm">Action <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" name="action" id="perm_action" class="form-control form-control-sm" placeholder="{{ __('e.g. read, create, update, delete') }}" required>
             </div>
             <div class="col-3">
-              <label for="perm_object_id" class="form-label form-label-sm">Object ID <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="perm_object_id" class="form-label form-label-sm">Object ID <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="number" name="object_id" id="perm_object_id" class="form-control form-control-sm" placeholder="{{ __('All') }}">
             </div>
             <div class="col-3">
-              <label for="perm_grant_deny" class="form-label form-label-sm">Grant/Deny <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="perm_grant_deny" class="form-label form-label-sm">Grant/Deny <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="grant_deny" id="perm_grant_deny" class="form-select form-select-sm" required>
                 <option value="1">{{ __('Grant') }}</option>
                 <option value="0">{{ __('Deny') }}</option>
@@ -167,7 +167,7 @@
             </div>
             <div class="col-auto">
               <button type="submit" class="btn btn-sm atom-btn-outline-success">
-                <i class="fas fa-plus me-1"></i> Add
+                <i class="fas fa-plus me-1"></i> {{ __('Add') }}
               </button>
             </div>
           </form>

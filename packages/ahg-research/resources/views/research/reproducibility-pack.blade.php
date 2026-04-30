@@ -13,7 +13,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">{{ __('Reproducibility Pack') }}</h1>
-    <button id="downloadPack" class="btn btn-primary"><i class="fas fa-download me-1"></i> Download Pack (JSON)</button>
+    <button id="downloadPack" class="btn btn-primary"><i class="fas fa-download me-1"></i> {{ __('Download Pack (JSON)') }}</button>
 </div>
 
 {{-- Summary cards --}}
@@ -21,37 +21,37 @@
     <div class="col-md-2">
         <div class="card text-center"><div class="card-body py-2">
             <h4 class="mb-0">{{ count($milestones ?? []) }}</h4>
-            <small class="text-muted">Milestones</small>
+            <small class="text-muted">{{ __('Milestones') }}</small>
         </div></div>
     </div>
     <div class="col-md-2">
         <div class="card text-center"><div class="card-body py-2">
             <h4 class="mb-0">{{ count($snapshots ?? []) }}</h4>
-            <small class="text-muted">Snapshots</small>
+            <small class="text-muted">{{ __('Snapshots') }}</small>
         </div></div>
     </div>
     <div class="col-md-2">
         <div class="card text-center"><div class="card-body py-2">
             <h4 class="mb-0">{{ count($resources ?? []) }}</h4>
-            <small class="text-muted">Resources</small>
+            <small class="text-muted">{{ __('Resources') }}</small>
         </div></div>
     </div>
     <div class="col-md-2">
         <div class="card text-center"><div class="card-body py-2">
             <h4 class="mb-0">{{ count($assertions ?? []) }}</h4>
-            <small class="text-muted">Assertions</small>
+            <small class="text-muted">{{ __('Assertions') }}</small>
         </div></div>
     </div>
     <div class="col-md-2">
         <div class="card text-center"><div class="card-body py-2">
             <h4 class="mb-0">{{ count($hypotheses ?? []) }}</h4>
-            <small class="text-muted">Hypotheses</small>
+            <small class="text-muted">{{ __('Hypotheses') }}</small>
         </div></div>
     </div>
     <div class="col-md-2">
         <div class="card text-center"><div class="card-body py-2">
             <h4 class="mb-0">{{ count($extractionJobs ?? []) }}</h4>
-            <small class="text-muted">Extraction Jobs</small>
+            <small class="text-muted">{{ __('Extraction Jobs') }}</small>
         </div></div>
     </div>
 </div>

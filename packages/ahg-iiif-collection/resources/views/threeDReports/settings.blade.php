@@ -10,5 +10,5 @@
   <tbody>@foreach($items as $item)<tr><td>{{ $item->id ?? '' }}</td><td>{{ $item->name ?? $item->title ?? '' }}</td><td>{{ $item->type ?? '-' }}</td><td>{{ ucfirst($item->status ?? '') }}</td><td>{{ $item->created_at ?? '' }}</td></tr>@endforeach</tbody></table>
   @else<div class="text-center py-4 text-muted">No records found.</div>@endif
 </div></div>
-<div class="mt-3"><a href="{{ route('iiif.three-d-reports.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to 3D Reports</a></div>
+<div class="mt-3"><a href="{{ route('iiif.three-d-reports.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to 3D Reports') }}</a></div>
 @endsection

@@ -20,7 +20,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">{{ __('Map Builder') }}</h1>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPointModal"><i class="fas fa-map-marker-alt me-1"></i> Add Point</button>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPointModal"><i class="fas fa-map-marker-alt me-1"></i> {{ __('Add Point') }}</button>
 </div>
 
 <div class="alert alert-info alert-dismissible fade show" id="mapClickHint">

@@ -12,7 +12,7 @@
           <i class="fas fa-check-circle display-1 text-success"></i>
           <h2 class="h4 mt-3">{{ __('Registration Successful!') }}</h2>
           <p class="text-muted mb-4">We've sent a verification email to your address. Please check your inbox and click the verification link to activate your account.</p>
-          <a href="{{ route('heritage.contributor-login') }}" class="btn atom-btn-secondary"><i class="fas fa-sign-in-alt me-2"></i>Go to Login</a>
+          <a href="{{ route('heritage.contributor-login') }}" class="btn atom-btn-secondary"><i class="fas fa-sign-in-alt me-2"></i>{{ __('Go to Login') }}</a>
         </div>
         @else
         <div class="text-center mb-4">
@@ -24,19 +24,19 @@
         @if(!empty($error))<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>{{ $error }}</div>@endif
 
         <form method="post" action="{{ route('heritage.contributor-register') }}">@csrf
-          <div class="mb-3"><label for="display_name" class="form-label">Display Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><div class="input-group"><span class="input-group-text"><i class="fas fa-user"></i></span><input type="text" class="form-control" id="display_name" name="display_name" required minlength="2" maxlength="100" placeholder="{{ __('How you want to be known') }}" value="{{ old('display_name') }}"></div><div class="form-text">This will be shown alongside your contributions</div></div>
-          <div class="mb-3"><label for="email" class="form-label">Email Address <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><div class="input-group"><span class="input-group-text"><i class="fas fa-envelope"></i></span><input type="email" class="form-control" id="email" name="email" required placeholder="{{ __('your@email.com') }}" value="{{ old('email') }}"></div><div class="form-text">We'll send a verification email to this address</div></div>
-          <div class="mb-3"><label for="password" class="form-label">Password <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><div class="input-group"><span class="input-group-text"><i class="fas fa-lock"></i></span><input type="password" class="form-control" id="password" name="password" required minlength="8" placeholder="{{ __('Minimum 8 characters') }}"></div></div>
-          <div class="mb-3"><label for="confirm_password" class="form-label">Confirm Password <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><div class="input-group"><span class="input-group-text"><i class="fas fa-lock"></i></span><input type="password" class="form-control" id="confirm_password" name="confirm_password" required minlength="8" placeholder="{{ __('Re-enter your password') }}"></div></div>
-          <div class="mb-4"><div class="form-check"><input type="checkbox" class="form-check-input" id="agree_terms" name="agree_terms" required><label class="form-check-label" for="agree_terms">I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a> and understand that my contributions will be reviewed before publication <span class="badge bg-danger ms-1">Required</span></label></div></div>
-          <div class="d-grid gap-2 mb-3"><button type="submit" class="btn atom-btn-secondary btn-lg"><i class="fas fa-user-plus me-2"></i>Create Account</button></div>
+          <div class="mb-3"><label for="display_name" class="form-label">Display Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><div class="input-group"><span class="input-group-text"><i class="fas fa-user"></i></span><input type="text" class="form-control" id="display_name" name="display_name" required minlength="2" maxlength="100" placeholder="{{ __('How you want to be known') }}" value="{{ old('display_name') }}"></div><div class="form-text">This will be shown alongside your contributions</div></div>
+          <div class="mb-3"><label for="email" class="form-label">Email Address <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><div class="input-group"><span class="input-group-text"><i class="fas fa-envelope"></i></span><input type="email" class="form-control" id="email" name="email" required placeholder="{{ __('your@email.com') }}" value="{{ old('email') }}"></div><div class="form-text">We'll send a verification email to this address</div></div>
+          <div class="mb-3"><label for="password" class="form-label">Password <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><div class="input-group"><span class="input-group-text"><i class="fas fa-lock"></i></span><input type="password" class="form-control" id="password" name="password" required minlength="8" placeholder="{{ __('Minimum 8 characters') }}"></div></div>
+          <div class="mb-3"><label for="confirm_password" class="form-label">Confirm Password <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><div class="input-group"><span class="input-group-text"><i class="fas fa-lock"></i></span><input type="password" class="form-control" id="confirm_password" name="confirm_password" required minlength="8" placeholder="{{ __('Re-enter your password') }}"></div></div>
+          <div class="mb-4"><div class="form-check"><input type="checkbox" class="form-check-input" id="agree_terms" name="agree_terms" required><label class="form-check-label" for="agree_terms">I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a> and understand that my contributions will be reviewed before publication <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label></div></div>
+          <div class="d-grid gap-2 mb-3"><button type="submit" class="btn atom-btn-secondary btn-lg"><i class="fas fa-user-plus me-2"></i>{{ __('Create Account') }}</button></div>
         </form>
         <hr class="my-4">
-        <div class="text-center"><p class="mb-2">Already have an account?</p><a href="{{ route('heritage.contributor-login') }}" class="btn atom-btn-white"><i class="fas fa-sign-in-alt me-2"></i>Sign In</a></div>
+        <div class="text-center"><p class="mb-2">Already have an account?</p><a href="{{ route('heritage.contributor-login') }}" class="btn atom-btn-white"><i class="fas fa-sign-in-alt me-2"></i>{{ __('Sign In') }}</a></div>
         @endif
       </div>
     </div>
-    <div class="text-center mt-4"><a href="{{ route('heritage.landing') }}" class="text-muted text-decoration-none"><i class="fas fa-arrow-left me-1"></i>Back to Heritage Portal</a></div>
+    <div class="text-center mt-4"><a href="{{ route('heritage.landing') }}" class="text-muted text-decoration-none"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Heritage Portal') }}</a></div>
   </div>
 </div>
 

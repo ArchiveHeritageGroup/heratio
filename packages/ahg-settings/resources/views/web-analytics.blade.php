@@ -24,9 +24,9 @@
           <div id="ga-collapse" class="accordion-collapse collapse" aria-labelledby="ga-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Google Analytics tracking ID <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Google Analytics tracking ID <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="settings[google_analytics_api_key]" class="form-control" value="{{ e($settings['google_analytics_api_key']) }}" placeholder="{{ __('G-XXXXXXXXXX or UA-XXXXXXXX-X') }}">
-                <small class="text-muted">Enter your Google Analytics measurement ID (GA4) or tracking ID (Universal Analytics). Leave blank to disable tracking.</small>
+                <small class="text-muted">{{ __('Enter your Google Analytics measurement ID (GA4) or tracking ID (Universal Analytics). Leave blank to disable tracking.') }}</small>
               </div>
             </div>
           </div>
@@ -41,9 +41,9 @@
           <div id="gtm-collapse" class="accordion-collapse collapse" aria-labelledby="gtm-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Google Tag Manager container ID <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Google Tag Manager container ID <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="settings[google_tag_manager_id]" class="form-control" value="{{ e($settings['google_tag_manager_id']) }}" placeholder="{{ __('GTM-XXXXXXX') }}">
-                <small class="text-muted">Enter your Google Tag Manager container ID. Leave blank to disable.</small>
+                <small class="text-muted">{{ __('Enter your Google Tag Manager container ID. Leave blank to disable.') }}</small>
               </div>
             </div>
           </div>

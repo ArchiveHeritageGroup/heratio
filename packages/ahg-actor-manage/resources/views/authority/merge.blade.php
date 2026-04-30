@@ -33,7 +33,7 @@
       </div>
       <div class="col-auto align-self-end">
         <button class="btn atom-btn-white" id="btn-merge-search">
-          <i class="fas fa-search me-1"></i>Search
+          <i class="fas fa-search me-1"></i>{{ __('Search') }}
         </button>
       </div>
     </div>

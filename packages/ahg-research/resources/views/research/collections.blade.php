@@ -16,7 +16,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-layer-group me-2"></i>Evidence Sets</h1>
     <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createCollectionModal">
-      <i class="fas fa-plus me-1"></i>New Collection
+      <i class="fas fa-plus me-1"></i>{{ __('New Collection') }}
     </button>
   </div>
 
@@ -74,17 +74,17 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="name" class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="name" class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" name="name" id="name" class="form-control" required>
             </div>
             <div class="mb-3">
-              <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea name="description" id="description" class="form-control" rows="3"></textarea>
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Create</button>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>{{ __('Create') }}</button>
           </div>
         </form>
       </div>

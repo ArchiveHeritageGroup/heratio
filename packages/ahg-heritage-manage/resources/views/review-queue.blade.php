@@ -58,7 +58,7 @@ $total = $queueData['total'] ?? 0;
               @endphp
             </div>
             <div class="d-flex gap-2">
-              <a href="{{ route('heritage.review-contribution', $contrib['id']) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye me-1"></i>Review</a>
+              <a href="{{ route('heritage.review-contribution', $contrib['id']) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye me-1"></i>{{ __('Review') }}</a>
             </div>
           </div>
           @endforeach

@@ -29,7 +29,7 @@
               checked
               value>
             <label class="form-check-label" for="search-realm-global">
-              {{ __('Global search') }} <span class="badge bg-secondary ms-1">Optional</span>
+              {{ __('Global search') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
             </label>
           </div>
           @if(isset($repository))
@@ -41,7 +41,7 @@
                 id="search-realm-repo"
                 value="{{ $repository->id }}">
               <label class="form-check-label" for="search-realm-repo">
-                {!! __('Search <span>%1%</span>', ['%1%' => $repository->authorized_form_of_name ?? $repository->title ?? '']) !!} <span class="badge bg-secondary ms-1">Optional</span>
+                {!! __('Search <span>%1%</span>', ['%1%' => $repository->authorized_form_of_name ?? $repository->title ?? '']) !!} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
               </label>
             </div>
           @endif
@@ -54,7 +54,7 @@
                 id="search-realm-alt-repo"
                 value="{{ $altRepository->id }}">
               <label class="form-check-label" for="search-realm-alt-repo">
-                {!! __('Search <span>%1%</span>', ['%1%' => $altRepository->authorized_form_of_name ?? $altRepository->title ?? '']) !!} <span class="badge bg-secondary ms-1">Optional</span>
+                {!! __('Search <span>%1%</span>', ['%1%' => $altRepository->authorized_form_of_name ?? $altRepository->title ?? '']) !!} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
               </label>
             </div>
           @endif
@@ -80,7 +80,7 @@
             value="1"
             {{ request('semantic') == '1' ? 'checked' : '' }}>
           <label class="form-check-label" for="semantic-search-toggle">
-            {{ __('Expand search with synonyms') }} <span class="badge bg-secondary ms-1">Optional</span>
+            {{ __('Expand search with synonyms') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
           </label>
         </div>
       </div>

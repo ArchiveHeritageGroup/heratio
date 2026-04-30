@@ -16,8 +16,8 @@
         <i class="fas fa-sticky-note text-warning me-2"></i>My Notes & Annotations
     </h1>
     <div class="d-flex gap-2">
-        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#exportNotesModal"><i class="fas fa-file-export me-1"></i>Export</button>
-        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#annotationModal"><i class="fas fa-plus me-1"></i>Add Note</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#exportNotesModal"><i class="fas fa-file-export me-1"></i>{{ __('Export') }}</button>
+        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#annotationModal"><i class="fas fa-plus me-1"></i>{{ __('Add Note') }}</button>
     </div>
 </div>
 
@@ -152,7 +152,7 @@
     <i class="fas fa-sticky-note fa-4x text-muted mb-3 opacity-50"></i>
     <h4 class="text-muted">{{ __('No notes yet') }}</h4>
     <p class="text-muted">Add notes to items while browsing or create standalone notes here.</p>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#annotationModal"><i class="fas fa-plus me-1"></i>Create Your First Note</button>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#annotationModal"><i class="fas fa-plus me-1"></i>{{ __('Create Your First Note') }}</button>
 </div>
 @endif
 
@@ -183,7 +183,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                    <button type="submit" class="btn btn-primary" id="annotationSubmitBtn"><i class="fas fa-save me-1"></i>Save Note</button>
+                    <button type="submit" class="btn btn-primary" id="annotationSubmitBtn"><i class="fas fa-save me-1"></i>{{ __('Save Note') }}</button>
                 </div>
             </form>
         </div>

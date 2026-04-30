@@ -20,7 +20,7 @@
             <div class="card-body">
               @foreach ($smtpSettings as $setting)
                 <div class="mb-3">
-                  <label class="form-label">{{ ucwords(str_replace('_', ' ', str_replace('smtp_', '', $setting->setting_key))) }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">{{ ucwords(str_replace('_', ' ', str_replace('smtp_', '', $setting->setting_key))) }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   @if ($setting->setting_type === 'boolean')
                     <select name="settings[{{ $setting->setting_key }}]" class="form-select">
                       <option value="0" {{ $setting->setting_value == '0' ? 'selected' : '' }}>Disabled</option>
@@ -47,7 +47,7 @@
               <div class="input-group">
                 <input type="email" name="test_email" class="form-control" placeholder="{{ __('test@example.com') }}" id="testEmailInput">
                 <button type="button" class="btn atom-btn-white" id="btnSendTest">
-                  <i class="fas fa-paper-plane me-1"></i>Send Test
+                  <i class="fas fa-paper-plane me-1"></i>{{ __('Send Test') }}
                 </button>
               </div>
             </div>
@@ -58,7 +58,7 @@
             <div class="card-body">
               @foreach ($notificationSettings as $setting)
                 <div class="mb-3">
-                  <label class="form-label">{{ ucwords(str_replace('_', ' ', str_replace('notify_', '', $setting->setting_key))) }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">{{ ucwords(str_replace('_', ' ', str_replace('notify_', '', $setting->setting_key))) }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="email" name="settings[{{ $setting->setting_key }}]" class="form-control" value="{{ e($setting->setting_value ?? '') }}" placeholder="{{ __('admin@example.com') }}">
                   @if ($setting->description)<small class="text-muted">{{ e($setting->description) }}</small>@endif
                 </div>
@@ -72,7 +72,7 @@
             <div class="card-header bg-success text-white"><i class="fas fa-file-alt me-2"></i>Email Templates</div>
             <div class="card-body">
               <div class="alert alert-info small">
-                <strong>Available placeholders:</strong><br>
+                <strong>{{ __('Available placeholders:') }}</strong><br>
                 <code>{name}</code> Recipient name, <code>{email}</code> Recipient email,
                 <code>{institution}</code> Institution, <code>{login_url}</code> Login URL,
                 <code>{reset_url}</code> Reset URL, <code>{date}</code> / <code>{time}</code> Booking details
@@ -93,12 +93,12 @@
                       <div id="tpl{{ $index }}" class="accordion-collapse collapse" data-bs-parent="#templateAccordion">
                         <div class="accordion-body">
                           <div class="mb-3">
-                            <label class="form-label">Subject <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-label">Subject <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <input type="text" name="settings[{{ $setting->setting_key }}]" class="form-control" value="{{ e($setting->setting_value ?? '') }}">
                           </div>
                           @if($bodySetting)
                           <div class="mb-3">
-                            <label class="form-label">Body <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-label">Body <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <textarea name="settings[{{ $bodyKey }}]" class="form-control" rows="5">{{ e($bodySetting->setting_value ?? '') }}</textarea>
                           </div>
                           @endif
@@ -118,32 +118,32 @@
         <div class="card-header bg-warning text-dark"><i class="fas fa-exclamation-triangle me-2"></i>Error Alert Configuration</div>
         <div class="card-body">
           <div class="mb-3">
-            <label class="form-label">Enable Error Alerts <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Enable Error Alerts <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="error_alert[error_alert_enabled]" class="form-select">
               <option value="0" {{ (isset($errorAlertSettings['error_alert_enabled']) && $errorAlertSettings['error_alert_enabled'] === '0') ? 'selected' : '' }}>{{ __('Disabled') }}</option>
               <option value="1" {{ (!isset($errorAlertSettings['error_alert_enabled']) || $errorAlertSettings['error_alert_enabled'] === '1') ? 'selected' : '' }}>{{ __('Enabled') }}</option>
             </select>
-            <small class="text-muted">Send email alerts when unhandled exceptions occur.</small>
+            <small class="text-muted">{{ __('Send email alerts when unhandled exceptions occur.') }}</small>
           </div>
           <div class="mb-3">
-            <label class="form-label">Throttle TTL (seconds) <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Throttle TTL (seconds) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="number" name="error_alert[error_alert_throttle_ttl]" class="form-control" min="30" max="86400"
                    value="{{ e($errorAlertSettings['error_alert_throttle_ttl'] ?? '300') }}">
-            <small class="text-muted">Minimum seconds between duplicate error alerts. Default: 300 (5 min).</small>
+            <small class="text-muted">{{ __('Minimum seconds between duplicate error alerts. Default: 300 (5 min).') }}</small>
           </div>
           <div class="mb-3">
-            <label class="form-label">Daily Cap <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Daily Cap <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="number" name="error_alert[error_alert_daily_cap]" class="form-control" min="0" max="1000"
                    value="{{ e($errorAlertSettings['error_alert_daily_cap'] ?? '50') }}">
-            <small class="text-muted">Maximum alert emails per day. 0 = unlimited. Default: 50.</small>
+            <small class="text-muted">{{ __('Maximum alert emails per day. 0 = unlimited. Default: 50.') }}</small>
           </div>
           <div class="mb-3">
-            <label class="form-label">Production Only <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Production Only <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="error_alert[error_alert_env_gate]" class="form-select">
               <option value="0" {{ (isset($errorAlertSettings['error_alert_env_gate']) && $errorAlertSettings['error_alert_env_gate'] === '0') ? 'selected' : '' }}>{{ __('Send in all environments') }}</option>
               <option value="1" {{ (!isset($errorAlertSettings['error_alert_env_gate']) || $errorAlertSettings['error_alert_env_gate'] === '1') ? 'selected' : '' }}>{{ __('Production only') }}</option>
             </select>
-            <small class="text-muted">When enabled, suppresses alerts in debug/development mode.</small>
+            <small class="text-muted">{{ __('When enabled, suppresses alerts in debug/development mode.') }}</small>
           </div>
         </div>
       </div>
@@ -154,14 +154,14 @@
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <div>
               <i class="fas fa-layer-group me-2 text-muted"></i>Spectrum Email Notifications
-              <br><small class="text-muted">Task assignments and state transitions</small>
+              <br><small class="text-muted">{{ __('Task assignments and state transitions') }}</small>
             </div>
             <a href="{{ route('settings.ahg.spectrum') }}" class="btn btn-sm btn-outline-primary">Configure</a>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <div>
               <i class="fas fa-book-reader me-2 text-muted"></i>Research Notifications
-              <br><small class="text-muted">Researcher registration, approval, booking emails</small>
+              <br><small class="text-muted">{{ __('Researcher registration, approval, booking emails') }}</small>
             </div>
             <div class="form-check form-switch">
               <input type="hidden" name="notif_toggles[research_email_notifications]" value="0">
@@ -172,7 +172,7 @@
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <div>
               <i class="fas fa-shield-alt me-2 text-muted"></i>Access Request Notifications
-              <br><small class="text-muted">Approver notifications, request status emails</small>
+              <br><small class="text-muted">{{ __('Approver notifications, request status emails') }}</small>
             </div>
             <div class="form-check form-switch">
               <input type="hidden" name="notif_toggles[access_request_email_notifications]" value="0">
@@ -183,7 +183,7 @@
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <div>
               <i class="fas fa-project-diagram me-2 text-muted"></i>Workflow Notifications
-              <br><small class="text-muted">Task assignment, approval, rejection emails</small>
+              <br><small class="text-muted">{{ __('Task assignment, approval, rejection emails') }}</small>
             </div>
             <div class="form-check form-switch">
               <input type="hidden" name="notif_toggles[workflow_email_notifications]" value="0">
@@ -197,10 +197,10 @@
       <hr>
       <div class="d-flex justify-content-between">
         <a href="{{ route('settings.index') }}" class="btn btn-secondary">
-          <i class="fas fa-arrow-left me-1"></i>Back to Settings
+          <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}
         </a>
         <button type="submit" class="btn btn-primary">
-          <i class="fas fa-save me-1"></i>Save Settings
+          <i class="fas fa-save me-1"></i>{{ __('Save Settings') }}
         </button>
       </div>
     </form>

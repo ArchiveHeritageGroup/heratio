@@ -52,12 +52,12 @@
 {{-- Wizard Progress --}}
 <div class="mb-4">
     <div class="d-flex justify-content-between text-center">
-        <div class="flex-fill"><span class="badge bg-success rounded-pill">1</span><br><small class="text-muted">Configure</small></div>
-        <div class="flex-fill"><span class="badge bg-success rounded-pill">2</span><br><small class="text-muted">Upload</small></div>
-        <div class="flex-fill"><span class="badge bg-success rounded-pill">3</span><br><small class="text-muted">Map</small></div>
-        <div class="flex-fill"><span class="badge bg-success rounded-pill">4</span><br><small class="text-muted">Validate</small></div>
-        <div class="flex-fill"><span class="badge bg-success rounded-pill">5</span><br><small class="text-muted">Preview</small></div>
-        <div class="flex-fill"><span class="badge bg-primary rounded-pill">6</span><br><small class="fw-bold">Commit</small></div>
+        <div class="flex-fill"><span class="badge bg-success rounded-pill">1</span><br><small class="text-muted">{{ __('Configure') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-success rounded-pill">2</span><br><small class="text-muted">{{ __('Upload') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-success rounded-pill">3</span><br><small class="text-muted">{{ __('Map') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-success rounded-pill">4</span><br><small class="text-muted">{{ __('Validate') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-success rounded-pill">5</span><br><small class="text-muted">{{ __('Preview') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-primary rounded-pill">6</span><br><small class="fw-bold">{{ __('Commit') }}</small></div>
     </div>
     <div class="progress mt-2" style="height: 4px;">
         <div class="progress-bar" style="width: 100%"></div>
@@ -72,7 +72,7 @@
             <div class="card-header">
                 <h5 class="mb-0" id="progress-header">
                     <i class="fas fa-spinner fa-spin me-2"></i>
-                    <span id="progress-label">Committing...</span>
+                    <span id="progress-label">{{ __('Committing...') }}</span>
                 </h5>
             </div>
             <div class="card-body">
@@ -89,19 +89,19 @@
                 <div class="row text-center">
                     <div class="col">
                         <strong id="stat-processed">{{ $job->processed_rows ?? 0 }}</strong> / <span id="stat-total">{{ $job->total_rows ?? 0 }}</span>
-                        <br><small class="text-muted">Processed</small>
+                        <br><small class="text-muted">{{ __('Processed') }}</small>
                     </div>
                     <div class="col">
                         <strong id="stat-records" class="text-success">{{ $job->created_records ?? 0 }}</strong>
-                        <br><small class="text-muted">Records</small>
+                        <br><small class="text-muted">{{ __('Records') }}</small>
                     </div>
                     <div class="col">
                         <strong id="stat-dos" class="text-info">{{ $job->created_dos ?? 0 }}</strong>
-                        <br><small class="text-muted">Digital Objects</small>
+                        <br><small class="text-muted">{{ __('Digital Objects') }}</small>
                     </div>
                     <div class="col">
                         <strong id="stat-errors" class="text-danger">{{ $job->error_count ?? 0 }}</strong>
-                        <br><small class="text-muted">Errors</small>
+                        <br><small class="text-muted">{{ __('Errors') }}</small>
                     </div>
                 </div>
             </div>
@@ -123,7 +123,7 @@
                         <div class="card border-0">
                             <div class="card-body">
                                 <h2 class="mb-0 text-success">{{ $job->created_records ?? 0 }}</h2>
-                                <small class="text-muted">Records Created</small>
+                                <small class="text-muted">{{ __('Records Created') }}</small>
                             </div>
                         </div>
                     </div>
@@ -131,7 +131,7 @@
                         <div class="card border-0">
                             <div class="card-body">
                                 <h2 class="mb-0 text-info">{{ $job->created_dos ?? 0 }}</h2>
-                                <small class="text-muted">Digital Objects</small>
+                                <small class="text-muted">{{ __('Digital Objects') }}</small>
                             </div>
                         </div>
                     </div>
@@ -139,7 +139,7 @@
                         <div class="card border-0">
                             <div class="card-body">
                                 <h2 class="mb-0 text-danger">{{ $job->error_count ?? 0 }}</h2>
-                                <small class="text-muted">Errors</small>
+                                <small class="text-muted">{{ __('Errors') }}</small>
                             </div>
                         </div>
                     </div>
@@ -147,7 +147,7 @@
                         <div class="card border-0">
                             <div class="card-body">
                                 <h2 class="mb-0">{{ $elapsed ?: '—' }}</h2>
-                                <small class="text-muted">Duration</small>
+                                <small class="text-muted">{{ __('Duration') }}</small>
                             </div>
                         </div>
                     </div>
@@ -157,7 +157,7 @@
                 <div class="d-flex flex-wrap gap-2 justify-content-center mb-3">
                     @if(!empty($job->created_records) && $job->created_records > 0)
                         <a href="/glam/browse" class="btn btn-outline-success">
-                            <i class="fas fa-list me-1"></i>Browse Records
+                            <i class="fas fa-list me-1"></i>{{ __('Browse Records') }}
                         </a>
                     @endif
                 </div>
@@ -228,7 +228,7 @@
                 @csrf
                 <button type="submit" class="btn btn-lg btn-success"
                         onclick="return confirm('Start committing records to Heratio?')">
-                    <i class="fas fa-play me-1"></i>Start Commit
+                    <i class="fas fa-play me-1"></i>{{ __('Start Commit') }}
                 </button>
             </form>
         </div>
@@ -237,7 +237,7 @@
 
 <div class="text-center">
     <a href="{{ route('ingest.index') }}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}
     </a>
 </div>
 

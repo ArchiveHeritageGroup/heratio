@@ -52,7 +52,7 @@
                 <div class="card-footer bg-transparent border-0">
                   <div class="btn-group btn-group-sm w-100" role="group">
                     <a href="{{ route('ahgmetadataexport.bulk') }}?format={{ $code }}" class="btn btn-outline-primary">
-                      <i class="fa fa-download"></i> Bulk Export
+                      <i class="fa fa-download"></i> {{ __('Bulk Export') }}
                     </a>
                   </div>
                 </div>
@@ -100,7 +100,7 @@
           </div>
 
           <button type="submit" class="btn btn-primary w-100">
-            <i class="fa fa-eye"></i> Preview
+            <i class="fa fa-eye"></i> {{ __('Preview') }}
           </button>
         </form>
       </div>

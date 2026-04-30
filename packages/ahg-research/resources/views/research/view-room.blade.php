@@ -25,11 +25,11 @@
 @endif
 </div><div class="col-md-4">
 <div class="card mb-4"><div class="card-header"><h6 class="mb-0">{{ __('Opening Hours') }}</h6></div><div class="card-body small">
-    @if(!empty($room->opening_hours)){{ e($room->opening_hours) }}@else <span class="text-muted">Not specified</span>@endif
+    @if(!empty($room->opening_hours)){{ e($room->opening_hours) }}@else <span class="text-muted">{{ __('Not specified') }}</span>@endif
 </div></div>
 <div class="d-flex flex-column gap-2">
-    <a href="{{ route('research.editRoom', ['id' => $room->id ?? 0]) }}" class="btn btn-outline-primary"><i class="fas fa-edit me-1"></i>Edit Room</a>
-    <a href="{{ route('research.rooms') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Rooms</a>
+    <a href="{{ route('research.editRoom', ['id' => $room->id ?? 0]) }}" class="btn btn-outline-primary"><i class="fas fa-edit me-1"></i>{{ __('Edit Room') }}</a>
+    <a href="{{ route('research.rooms') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Rooms') }}</a>
 </div>
 </div></div>
 @endsection

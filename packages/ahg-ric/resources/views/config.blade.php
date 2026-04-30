@@ -51,7 +51,7 @@
                      value="{{ old('config.fuseki_password', $config['fuseki_password'] ?? '') }}">
             </div>
             <button type="button" class="btn btn-outline-secondary" id="test-connection-btn">
-              <i class="fas fa-plug me-1"></i> Test Connection
+              <i class="fas fa-plug me-1"></i> {{ __('Test Connection') }}
             </button>
             <span id="test-connection-result" class="ms-2"></span>
           </div>
@@ -93,10 +93,10 @@
 
     <div class="d-flex justify-content-between mt-4">
       <a href="{{ route('ric.index') }}" class="btn btn-secondary">
-        <i class="fas fa-arrow-left me-1"></i> Back
+        <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
       </a>
       <button type="submit" class="btn atom-btn-white">
-        <i class="fas fa-save me-1"></i> Save Configuration
+        <i class="fas fa-save me-1"></i> {{ __('Save Configuration') }}
       </button>
     </div>
   </form>

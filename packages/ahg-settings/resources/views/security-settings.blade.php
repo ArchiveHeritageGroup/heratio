@@ -36,7 +36,7 @@
         <p class="text-muted mb-3">Configure password expiry and history requirements. These settings are enforced by the PasswordPolicyService (ISO 27001 A.9.4.3).</p>
         <div class="row">
           <div class="col-md-4">
-            <label for="password_expiry_days" class="form-label"><strong>Password Expiry (Days)</strong></label>
+            <label for="password_expiry_days" class="form-label"><strong>{{ __('Password Expiry (Days)') }}</strong></label>
             <input type="number" class="form-control" id="password_expiry_days"
                    name="settings[password_expiry_days]"
                    value="{{ $settings['password_expiry_days'] ?? '90' }}"
@@ -44,7 +44,7 @@
             <div class="form-text">Number of days before passwords expire. Set to 0 to disable. Default: 90</div>
           </div>
           <div class="col-md-4">
-            <label for="password_history_count" class="form-label"><strong>Password History</strong></label>
+            <label for="password_history_count" class="form-label"><strong>{{ __('Password History') }}</strong></label>
             <input type="number" class="form-control" id="password_history_count"
                    name="settings[password_history_count]"
                    value="{{ $settings['password_history_count'] ?? '5' }}"
@@ -52,7 +52,7 @@
             <div class="form-text">Number of previous passwords to remember (prevents reuse). Default: 5</div>
           </div>
           <div class="col-md-4">
-            <label for="security_password_expiry_warn_days" class="form-label"><strong>Expiry Warning (Days)</strong></label>
+            <label for="security_password_expiry_warn_days" class="form-label"><strong>{{ __('Expiry Warning (Days)') }}</strong></label>
             <input type="number" class="form-control" id="security_password_expiry_warn_days"
                    name="settings[security_password_expiry_warn_days]"
                    value="{{ $settings['security_password_expiry_warn_days'] ?? '14' }}"
@@ -66,7 +66,7 @@
               <input class="form-check-input" type="checkbox" id="security_password_expiry_notify"
                      name="settings[security_password_expiry_notify]" value="true"
                      {{ ($settings['security_password_expiry_notify'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="security_password_expiry_notify"><strong>Show Expiry Notification</strong></label>
+              <label class="form-check-label" for="security_password_expiry_notify"><strong>{{ __('Show Expiry Notification') }}</strong></label>
             </div>
             <div class="form-text">Display a flash notification on login when the password is expiring soon or has expired.</div>
           </div>
@@ -75,7 +75,7 @@
               <input class="form-check-input" type="checkbox" id="security_force_password_change"
                      name="settings[security_force_password_change]" value="true"
                      {{ ($settings['security_force_password_change'] ?? 'false') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="security_force_password_change"><strong>Force Password Change</strong></label>
+              <label class="form-check-label" for="security_force_password_change"><strong>{{ __('Force Password Change') }}</strong></label>
             </div>
             <div class="form-text">Redirect users to the password change page when their password has expired.</div>
           </div>
@@ -94,12 +94,12 @@
               <input class="form-check-input" type="checkbox" id="security_lockout_enabled"
                      name="settings[security_lockout_enabled]" value="true"
                      {{ ($settings['security_lockout_enabled'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="security_lockout_enabled"><strong>Enable Account Lockout</strong></label>
+              <label class="form-check-label" for="security_lockout_enabled"><strong>{{ __('Enable Account Lockout') }}</strong></label>
             </div>
             <div class="form-text">Lock accounts after repeated failed login attempts.</div>
           </div>
           <div class="col-md-4">
-            <label for="security_lockout_max_attempts" class="form-label"><strong>Max Failed Attempts</strong></label>
+            <label for="security_lockout_max_attempts" class="form-label"><strong>{{ __('Max Failed Attempts') }}</strong></label>
             <input type="number" class="form-control" id="security_lockout_max_attempts"
                    name="settings[security_lockout_max_attempts]"
                    value="{{ $settings['security_lockout_max_attempts'] ?? '5' }}"
@@ -107,7 +107,7 @@
             <div class="form-text">Number of failed attempts before lockout. Default: 5</div>
           </div>
           <div class="col-md-4">
-            <label for="security_lockout_duration_minutes" class="form-label"><strong>Lockout Duration (Minutes)</strong></label>
+            <label for="security_lockout_duration_minutes" class="form-label"><strong>{{ __('Lockout Duration (Minutes)') }}</strong></label>
             <input type="number" class="form-control" id="security_lockout_duration_minutes"
                    name="settings[security_lockout_duration_minutes]"
                    value="{{ $settings['security_lockout_duration_minutes'] ?? '15' }}"
@@ -124,7 +124,7 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-4">
-            <label for="security_session_timeout_minutes" class="form-label"><strong>Session Timeout (Minutes)</strong></label>
+            <label for="security_session_timeout_minutes" class="form-label"><strong>{{ __('Session Timeout (Minutes)') }}</strong></label>
             <input type="number" class="form-control" id="security_session_timeout_minutes"
                    name="settings[security_session_timeout_minutes]"
                    value="{{ $settings['security_session_timeout_minutes'] ?? '30' }}"
@@ -132,7 +132,7 @@
             <div class="form-text">Idle session timeout in minutes. Default: 30</div>
           </div>
           <div class="col-md-4">
-            <label for="security_login_attempt_cleanup_hours" class="form-label"><strong>Login Attempt Retention (Hours)</strong></label>
+            <label for="security_login_attempt_cleanup_hours" class="form-label"><strong>{{ __('Login Attempt Retention (Hours)') }}</strong></label>
             <input type="number" class="form-control" id="security_login_attempt_cleanup_hours"
                    name="settings[security_login_attempt_cleanup_hours]"
                    value="{{ $settings['security_login_attempt_cleanup_hours'] ?? '24' }}"
@@ -150,13 +150,13 @@
         <div class="alert alert-info mb-0">
           <h6><i class="fas fa-shield-alt me-2"></i>Active Security Features</h6>
           <ul class="mb-0 mt-2">
-            <li><strong>Session Fixation Prevention</strong> — Session ID regenerated on login</li>
-            <li><strong>CSRF Protection</strong> — Enforced on all state-changing requests</li>
-            <li><strong>Security Headers</strong> — HSTS, X-Frame-Options, Permissions-Policy</li>
-            <li><strong>HttpOnly Cookies</strong> — Session cookies inaccessible to JavaScript</li>
-            <li><strong>Bell-LaPadula MAC</strong> — Simple Security + Star Property</li>
-            <li><strong>SSRF Protection</strong> — DNS pre-resolution, private IP blocking</li>
-            <li><strong>XXE Protection</strong> — LIBXML_NONET on all XML parsing</li>
+            <li><strong>{{ __('Session Fixation Prevention') }}</strong> — Session ID regenerated on login</li>
+            <li><strong>{{ __('CSRF Protection') }}</strong> — Enforced on all state-changing requests</li>
+            <li><strong>{{ __('Security Headers') }}</strong> — HSTS, X-Frame-Options, Permissions-Policy</li>
+            <li><strong>{{ __('HttpOnly Cookies') }}</strong> — Session cookies inaccessible to JavaScript</li>
+            <li><strong>{{ __('Bell-LaPadula MAC') }}</strong> — Simple Security + Star Property</li>
+            <li><strong>{{ __('SSRF Protection') }}</strong> — DNS pre-resolution, private IP blocking</li>
+            <li><strong>{{ __('XXE Protection') }}</strong> — LIBXML_NONET on all XML parsing</li>
           </ul>
           <hr>
           <p class="mb-0 small text-muted">Standards: OWASP Top 10 (2021), ISO 27001:2022, Bell-LaPadula, POPIA Section 19</p>
@@ -166,10 +166,10 @@
 
     <div class="d-flex justify-content-between align-items-center">
       <a href="{{ route('settings.index') }}" class="btn btn-link text-secondary">
-        <i class="fas fa-arrow-left me-1"></i>Back to Settings
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}
       </a>
       <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save me-1"></i>Save
+        <i class="fas fa-save me-1"></i>{{ __('Save') }}
       </button>
     </div>
   </form>

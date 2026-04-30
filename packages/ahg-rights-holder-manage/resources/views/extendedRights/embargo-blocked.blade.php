@@ -32,8 +32,8 @@
         @endif
 
         <div class="mt-4">
-          <a href="{{ route('homepage') }}" class="btn atom-btn-white"><i class="fas fa-home me-2"></i>Return to homepage</a>
-          <a href="javascript:history.back()" class="btn atom-btn-white ms-2"><i class="fas fa-arrow-left me-2"></i>Go back</a>
+          <a href="{{ route('homepage') }}" class="btn atom-btn-white"><i class="fas fa-home me-2"></i>{{ __('Return to homepage') }}</a>
+          <a href="javascript:history.back()" class="btn atom-btn-white ms-2"><i class="fas fa-arrow-left me-2"></i>{{ __('Go back') }}</a>
         </div>
 
         @auth

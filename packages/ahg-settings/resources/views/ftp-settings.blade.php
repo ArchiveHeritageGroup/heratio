@@ -74,7 +74,7 @@
           <div class="col-md-4">
             <label class="form-label">&nbsp;</label>
             <button type="button" class="btn btn-outline-secondary d-block w-100" id="test-ftp-btn" disabled>
-              <i class="fas fa-plug me-1"></i>Test Connection
+              <i class="fas fa-plug me-1"></i>{{ __('Test Connection') }}
             </button>
           </div>
         </div>
@@ -127,10 +127,10 @@
     {{-- Save --}}
     <div class="d-flex justify-content-between align-items-center">
       <a href="{{ route('settings.index') }}" class="btn btn-link text-secondary">
-        <i class="fas fa-arrow-left me-1"></i>Back to Settings
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}
       </a>
       <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save me-1"></i>Save
+        <i class="fas fa-save me-1"></i>{{ __('Save') }}
       </button>
     </div>
   </form>

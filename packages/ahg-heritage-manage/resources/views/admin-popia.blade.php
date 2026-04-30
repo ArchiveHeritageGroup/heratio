@@ -14,10 +14,10 @@ $total = $flagData['total'] ?? 0;
     <div class="card border-0 shadow-sm mt-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">{{ __('Statistics') }}</h6></div>
       <div class="card-body">
-        <div class="d-flex justify-content-between mb-2"><span>Unresolved</span><span class="badge bg-warning">{{ $stats['unresolved'] ?? 0 }}</span></div>
-        <div class="d-flex justify-content-between mb-2"><span>Critical</span><span class="badge bg-danger">{{ $stats['critical'] ?? 0 }}</span></div>
-        <div class="d-flex justify-content-between mb-2"><span>High</span><span class="badge bg-warning">{{ $stats['high'] ?? 0 }}</span></div>
-        <div class="d-flex justify-content-between"><span>Resolved (This Month)</span><span class="badge bg-success">{{ $stats['resolved_this_month'] ?? 0 }}</span></div>
+        <div class="d-flex justify-content-between mb-2"><span>{{ __('Unresolved') }}</span><span class="badge bg-warning">{{ $stats['unresolved'] ?? 0 }}</span></div>
+        <div class="d-flex justify-content-between mb-2"><span>{{ __('Critical') }}</span><span class="badge bg-danger">{{ $stats['critical'] ?? 0 }}</span></div>
+        <div class="d-flex justify-content-between mb-2"><span>{{ __('High') }}</span><span class="badge bg-warning">{{ $stats['high'] ?? 0 }}</span></div>
+        <div class="d-flex justify-content-between"><span>{{ __('Resolved (This Month)') }}</span><span class="badge bg-success">{{ $stats['resolved_this_month'] ?? 0 }}</span></div>
       </div>
     </div>
   </div>
@@ -67,7 +67,7 @@ $total = $flagData['total'] ?? 0;
               <div class="col-md-5">{{ $flag->object_title ?? 'Item' }}<br><small class="text-muted">{{ ucfirst(str_replace('_',' ',$flag->flag_type)) }}</small></div>
               <div class="col-md-4">@if($flag->description)<small>{{ substr($flag->description,0,100) }}</small>@endif</div>
               <div class="col-md-2 text-end">
-                <button class="btn btn-sm atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#resolveModal" data-flag-id="{{ $flag->id }}"><i class="fas fa-check me-1"></i>Resolve</button>
+                <button class="btn btn-sm atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#resolveModal" data-flag-id="{{ $flag->id }}"><i class="fas fa-check me-1"></i>{{ __('Resolve') }}</button>
               </div>
             </div>
           </div>

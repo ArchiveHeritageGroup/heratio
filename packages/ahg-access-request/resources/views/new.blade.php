@@ -30,12 +30,12 @@
                         @csrf
 
                         <div class="mb-3">
-                            <label for="subject" class="form-label">Subject <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                            <label for="subject" class="form-label">Subject <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <input type="text" class="form-control" id="subject" name="subject" required value="{{ old('subject') }}">
                         </div>
 
                         <div class="mb-3">
-                            <label for="request_type" class="form-label">Request Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                            <label for="request_type" class="form-label">Request Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <select class="form-select" id="request_type" name="request_type" required>
                                 <option value="">-- Select type --</option>
                                 <option value="view">{{ __('View restricted material') }}</option>
@@ -47,18 +47,18 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="description" class="form-label">Description <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                            <label for="description" class="form-label">Description <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <textarea class="form-control" id="description" name="description" rows="5" required>{{ old('description') }}</textarea>
                             <div class="form-text">Describe the materials you need access to and the purpose of your request.</div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="justification" class="form-label">Justification <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label for="justification" class="form-label">Justification <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <textarea class="form-control" id="justification" name="justification" rows="3">{{ old('justification') }}</textarea>
                         </div>
 
                         <div class="mb-3">
-                            <label for="urgency" class="form-label">Urgency <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label for="urgency" class="form-label">Urgency <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="urgency" name="urgency">
                                 <option value="low" {{ old('urgency') === 'low' ? 'selected' : '' }}>{{ __('Low — no fixed deadline') }}</option>
                                 <option value="normal" {{ (old('urgency') ?? 'normal') === 'normal' ? 'selected' : '' }}>{{ __('Normal — within standard turnaround') }}</option>
@@ -70,7 +70,7 @@
 
                         @if(isset($classifications) && $classifications->isNotEmpty())
                         <div class="mb-3">
-                            <label for="requested_classification_id" class="form-label">Requested classification level <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label for="requested_classification_id" class="form-label">Requested classification level <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="requested_classification_id" name="requested_classification_id">
                                 <option value="">-- Default (lowest level) --</option>
                                 @foreach($classifications as $cls)
@@ -86,7 +86,7 @@
                         <div class="d-flex justify-content-between">
                             <a href="{{ route('accessRequest.myRequests') }}" class="atom-btn-white">Cancel</a>
                             <button type="submit" class="atom-btn-white">
-                                <i class="fas fa-paper-plane me-1"></i>Submit Request
+                                <i class="fas fa-paper-plane me-1"></i>{{ __('Submit Request') }}
                             </button>
                         </div>
                     </form>

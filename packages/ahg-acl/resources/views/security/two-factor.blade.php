@@ -21,7 +21,7 @@
 
         @if(isset($clearance) && $clearance)
         <p>
-          <strong>Your Clearance:</strong>
+          <strong>{{ __('Your Clearance:') }}</strong>
           <span class="badge" style="background-color: {{ e($clearance->color ?? '#666') }}">
             {{ e($clearance->name ?? '') }}
           </span>
@@ -45,7 +45,7 @@
 
           <div class="d-grid gap-2">
             <button type="submit" class="btn btn-primary btn-lg">
-              <i class="fas fa-check"></i> Verify
+              <i class="fas fa-check"></i> {{ __('Verify') }}
             </button>
           </div>
         </form>
@@ -57,7 +57,7 @@
             Don't have your authenticator app handy?
           </p>
           <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-send-email">
-            <i class="fas fa-envelope"></i> Send code via email
+            <i class="fas fa-envelope"></i> {{ __('Send code via email') }}
           </button>
           <div id="email-status" class="mt-2 small"></div>
         </div>

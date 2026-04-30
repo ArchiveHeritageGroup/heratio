@@ -47,10 +47,10 @@
                  name="default_watermark_enabled" value="1"
                  {{ ($defaultEnabled ?? '') === '1' ? 'checked' : '' }}>
           <label class="form-check-label" for="default_watermark_enabled">
-            <strong>Enable default watermark</strong>
+            <strong>{{ __('Enable default watermark') }}</strong>
           </label>
         </div>
-        <small class="text-muted">Apply watermark to all images by default.</small>
+        <small class="text-muted">{{ __('Apply watermark to all images by default.') }}</small>
       </div>
 
       <div class="mb-3">
@@ -63,7 +63,7 @@
             </option>
           @endforeach
         </select>
-        <small class="text-muted">Watermark applied when no specific watermark is set.</small>
+        <small class="text-muted">{{ __('Watermark applied when no specific watermark is set.') }}</small>
       </div>
 
     </div>
@@ -84,7 +84,7 @@
             Apply watermark when viewing images
           </label>
         </div>
-        <small class="text-muted">Watermark will be overlaid on IIIF image viewer.</small>
+        <small class="text-muted">{{ __('Watermark will be overlaid on IIIF image viewer.') }}</small>
       </div>
 
       <div class="mb-3">
@@ -96,7 +96,7 @@
             Apply watermark on download
           </label>
         </div>
-        <small class="text-muted">Downloaded images will have watermark applied. Master files are never modified.</small>
+        <small class="text-muted">{{ __('Downloaded images will have watermark applied. Master files are never modified.') }}</small>
       </div>
 
       <div class="mb-3">
@@ -108,7 +108,7 @@
             Security classification overrides default
           </label>
         </div>
-        <small class="text-muted">Security classification watermarks take priority over default/custom watermarks.</small>
+        <small class="text-muted">{{ __('Security classification watermarks take priority over default/custom watermarks.') }}</small>
       </div>
 
       <div class="mb-3">
@@ -118,7 +118,7 @@
                  name="watermark_min_size" value="{{ $minSize ?? 0 }}" min="0">
           <span class="input-group-text">px</span>
         </div>
-        <small class="text-muted">Images smaller than this dimension will not receive watermarks.</small>
+        <small class="text-muted">{{ __('Images smaller than this dimension will not receive watermarks.') }}</small>
       </div>
 
     </div>
@@ -158,11 +158,11 @@
         <div class="col-md-6">
           <label for="custom_watermark_file" class="form-label">{{ __('Watermark Image File') }}</label>
           <input type="file" class="form-control" id="custom_watermark_file" name="custom_watermark_file" accept="image/png,image/jpeg,image/gif">
-          <small class="text-muted">Supported: PNG, JPEG, GIF. Recommended: transparent PNG.</small>
+          <small class="text-muted">{{ __('Supported: PNG, JPEG, GIF. Recommended: transparent PNG.') }}</small>
         </div>
         <div class="col-md-2 d-flex align-items-center" style="padding-top: 25px;">
           <button type="submit" name="upload_watermark" value="1" class="btn btn-success">
-            <i class="fas fa-upload me-1"></i> Upload
+            <i class="fas fa-upload me-1"></i> {{ __('Upload') }}
           </button>
         </div>
       </div>
@@ -180,7 +180,7 @@
               <p class="mb-1"><small class="text-muted">{{ $cw->position ?? '' }} / {{ $cw->opacity ?? '' }}</small></p>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="default_custom_watermark_id" id="custom_{{ $cw->id }}" value="{{ $cw->id }}" {{ ($defaultCustomWatermarkId ?? '') == $cw->id ? 'checked' : '' }}>
-                <label class="form-check-label" for="custom_{{ $cw->id }}"><small>Use as Default</small></label>
+                <label class="form-check-label" for="custom_{{ $cw->id }}"><small>{{ __('Use as Default') }}</small></label>
               </div>
             </div>
             <div class="card-footer p-1 text-center">
@@ -197,7 +197,7 @@
               <div>
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="default_custom_watermark_id" id="custom_none" value="" {{ empty($defaultCustomWatermarkId) ? 'checked' : '' }}>
-                  <label class="form-check-label" for="custom_none"><small>No Custom (Use System)</small></label>
+                  <label class="form-check-label" for="custom_none"><small>{{ __('No Custom (Use System)') }}</small></label>
                 </div>
               </div>
             </div>
@@ -236,11 +236,11 @@
 
   <div class="actions">
     <button type="submit" class="btn btn-primary">
-      <i class="fas fa-save me-1"></i> Save Settings
+      <i class="fas fa-save me-1"></i> {{ __('Save Settings') }}
     </button>
     <a href="{{ route('settings.index') }}" class="btn btn-secondary">
       <i class="fas fa-arrow-left me-1"></i>
-      Back to Settings
+      {{ __('Back to Settings') }}
     </a>
   </div>
 

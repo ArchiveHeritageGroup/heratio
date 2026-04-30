@@ -23,7 +23,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('forms.index') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Dashboard') }}
             </a>
         </div>
     </div>
@@ -51,10 +51,10 @@
                 </div>
                 <div class="col-md-3 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary me-2">
-                        <i class="fas fa-search me-1"></i> Search
+                        <i class="fas fa-search me-1"></i> {{ __('Search') }}
                     </button>
                     <a href="{{ route('forms.browse') }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-times me-1"></i> Clear
+                        <i class="fas fa-times me-1"></i> {{ __('Clear') }}
                     </a>
                 </div>
             </form>
@@ -88,7 +88,7 @@
                                     <h6 class="mb-0">
                                         {{ $template->name }}
                                         @if(!empty($template->is_default))
-                                            <span class="badge bg-primary ms-1">Default</span>
+                                            <span class="badge bg-primary ms-1">{{ __('Default') }}</span>
                                         @endif
                                     </h6>
                                 </div>
@@ -108,11 +108,11 @@
                                         </span>
                                         @if(!empty($template->is_active))
                                             <span class="badge bg-success">
-                                                <i class="fas fa-check me-1"></i>Active
+                                                <i class="fas fa-check me-1"></i>{{ __('Active') }}
                                             </span>
                                         @else
                                             <span class="badge bg-warning">
-                                                <i class="fas fa-pause me-1"></i>Inactive
+                                                <i class="fas fa-pause me-1"></i>{{ __('Inactive') }}
                                             </span>
                                         @endif
                                     </div>
@@ -121,15 +121,15 @@
                                     <div class="btn-group btn-group-sm w-100">
                                         <a href="{{ route('forms.preview', ['id' => $template->id]) }}"
                                            class="btn btn-outline-primary" title="{{ __('Preview') }}">
-                                            <i class="fas fa-eye me-1"></i> Preview
+                                            <i class="fas fa-eye me-1"></i> {{ __('Preview') }}
                                         </a>
                                         <a href="{{ route('forms.builder', ['id' => $template->id]) }}"
                                            class="btn btn-outline-secondary" title="{{ __('Edit') }}">
-                                            <i class="fas fa-edit me-1"></i> Edit
+                                            <i class="fas fa-edit me-1"></i> {{ __('Edit') }}
                                         </a>
                                         <a href="{{ route('forms.template.export', ['id' => $template->id]) }}"
                                            class="btn btn-outline-success" title="{{ __('Export') }}">
-                                            <i class="fas fa-download me-1"></i> Export
+                                            <i class="fas fa-download me-1"></i> {{ __('Export') }}
                                         </a>
                                     </div>
                                 </div>

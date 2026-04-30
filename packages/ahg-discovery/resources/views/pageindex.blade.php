@@ -32,7 +32,7 @@
                     </div>
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-search me-1"></i> Search
+                            <i class="fas fa-search me-1"></i> {{ __('Search') }}
                         </button>
                     </div>
                 </div>
@@ -43,7 +43,7 @@
     {{-- Loading spinner --}}
     <div id="pageindex-loading" class="text-center py-5 d-none">
         <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Searching...</span>
+            <span class="visually-hidden">{{ __('Searching...') }}</span>
         </div>
         <p class="mt-2 text-muted">Querying LLM across indexed trees...</p>
     </div>
@@ -70,7 +70,7 @@
                                     @elseif ($typeName === 'pdf')
                                         <span class="badge bg-info">PDF</span>
                                     @elseif ($typeName === 'rico')
-                                        <span class="badge bg-warning text-dark">RiC-O</span>
+                                        <span class="badge bg-warning text-dark">{{ __('RiC-O') }}</span>
                                     @else
                                         <span class="badge bg-secondary">{{ $typeName }}</span>
                                     @endif
@@ -82,11 +82,11 @@
                             <tr>
                                 <td>
                                     @if ($statusName === 'ready')
-                                        <span class="text-success">Ready</span>
+                                        <span class="text-success">{{ __('Ready') }}</span>
                                     @elseif ($statusName === 'building')
-                                        <span class="text-warning">Building</span>
+                                        <span class="text-warning">{{ __('Building') }}</span>
                                     @elseif ($statusName === 'error')
-                                        <span class="text-danger">Error</span>
+                                        <span class="text-danger">{{ __('Error') }}</span>
                                     @else
                                         <span class="text-muted">{{ $statusName }}</span>
                                     @endif
@@ -131,7 +131,7 @@
                             @elseif ($treeResult['object_type'] === 'pdf')
                                 <span class="badge bg-info ms-2">PDF</span>
                             @elseif ($treeResult['object_type'] === 'rico')
-                                <span class="badge bg-warning text-dark ms-2">RiC-O</span>
+                                <span class="badge bg-warning text-dark ms-2">{{ __('RiC-O') }}</span>
                             @endif
                         </div>
                         <small class="text-muted">{{ count($treeResult['matches']) }} match(es)</small>

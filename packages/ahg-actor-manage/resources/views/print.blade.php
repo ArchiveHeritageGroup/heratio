@@ -123,17 +123,17 @@
         @if($contact->primary_contact)
           <div><strong>[Primary contact]</strong></div>
         @endif
-        @if($contact->contact_person) <div><strong>Contact:</strong> {{ $contact->contact_person }}</div> @endif
-        @if($contact->contact_type) <div><strong>Type:</strong> {{ $contact->contact_type }}</div> @endif
+        @if($contact->contact_person) <div><strong>{{ __('Contact:') }}</strong> {{ $contact->contact_person }}</div> @endif
+        @if($contact->contact_type) <div><strong>{{ __('Type:') }}</strong> {{ $contact->contact_type }}</div> @endif
         @if($contact->street_address) <div>{{ $contact->street_address }}</div> @endif
         @if($contact->city || $contact->region || $contact->postal_code)
           <div>{{ $contact->city ?? '' }}{{ $contact->region ? ', ' . $contact->region : '' }} {{ $contact->postal_code ?? '' }}</div>
         @endif
         @if($contact->country_code) <div>{{ $contact->country_code }}</div> @endif
-        @if($contact->telephone) <div><strong>Tel:</strong> {{ $contact->telephone }}</div> @endif
-        @if($contact->fax) <div><strong>Fax:</strong> {{ $contact->fax }}</div> @endif
-        @if($contact->email) <div><strong>Email:</strong> {{ $contact->email }}</div> @endif
-        @if($contact->website) <div><strong>Web:</strong> {{ $contact->website }}</div> @endif
+        @if($contact->telephone) <div><strong>{{ __('Tel:') }}</strong> {{ $contact->telephone }}</div> @endif
+        @if($contact->fax) <div><strong>{{ __('Fax:') }}</strong> {{ $contact->fax }}</div> @endif
+        @if($contact->email) <div><strong>{{ __('Email:') }}</strong> {{ $contact->email }}</div> @endif
+        @if($contact->website) <div><strong>{{ __('Web:') }}</strong> {{ $contact->website }}</div> @endif
         @if($contact->note) <div><em>{{ $contact->note }}</em></div> @endif
       </div>
     @endforeach

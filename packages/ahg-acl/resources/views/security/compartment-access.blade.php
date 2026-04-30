@@ -9,7 +9,7 @@
 
 <div class="mb-3">
   <a href="{{ route('acl.compartments') }}" class="btn btn-sm btn-outline-secondary">
-    <i class="fas fa-arrow-left"></i> Back to Compartments
+    <i class="fas fa-arrow-left"></i> {{ __('Back to Compartments') }}
   </a>
 </div>
 
@@ -22,7 +22,7 @@
     <p>{{ e($compartment->description) }}</p>
     @endif
     <p>
-      <strong>Requires Briefing:</strong>
+      <strong>{{ __('Requires Briefing:') }}</strong>
       {{ ($compartment->requires_briefing ?? false) ? 'Yes' : 'No' }}
     </p>
   </div>
@@ -66,7 +66,7 @@
                 {{ $user->expiry_date }}
               </span>
             @else
-              <span class="text-muted">No expiry</span>
+              <span class="text-muted">{{ __('No expiry') }}</span>
             @endif
           </td>
           <td>
@@ -88,7 +88,7 @@
               <input type="hidden" name="user_id" value="{{ $user->user_id }}">
               <input type="hidden" name="compartment_id" value="{{ $compartment->id }}">
               <button type="submit" class="btn btn-sm btn-outline-danger">
-                <i class="fas fa-ban"></i> Revoke
+                <i class="fas fa-ban"></i> {{ __('Revoke') }}
               </button>
             </form>
           </td>

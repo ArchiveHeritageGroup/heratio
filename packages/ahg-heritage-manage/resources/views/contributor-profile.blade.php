@@ -30,9 +30,9 @@ $statsByType = $profile['stats_by_type'] ?? [];
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Statistics</h6></div>
       <div class="card-body">
         <div class="row g-3 text-center">
-          <div class="col-4"><div class="h4 mb-0" style="color:var(--ahg-primary)">{{ number_format($contributor['approved_contributions'] ?? 0) }}</div><small class="text-muted">Approved</small></div>
-          <div class="col-4"><div class="h4 text-success mb-0">{{ number_format($contributor['points'] ?? 0) }}</div><small class="text-muted">Points</small></div>
-          <div class="col-4"><div class="h4 text-info mb-0">{{ count($badges) }}</div><small class="text-muted">Badges</small></div>
+          <div class="col-4"><div class="h4 mb-0" style="color:var(--ahg-primary)">{{ number_format($contributor['approved_contributions'] ?? 0) }}</div><small class="text-muted">{{ __('Approved') }}</small></div>
+          <div class="col-4"><div class="h4 text-success mb-0">{{ number_format($contributor['points'] ?? 0) }}</div><small class="text-muted">{{ __('Points') }}</small></div>
+          <div class="col-4"><div class="h4 text-info mb-0">{{ count($badges) }}</div><small class="text-muted">{{ __('Badges') }}</small></div>
         </div>
       </div>
     </div>
@@ -83,7 +83,7 @@ $statsByType = $profile['stats_by_type'] ?? [];
       @endif
     </div>
 
-    <div class="mt-4"><a href="{{ route('heritage.leaderboard') }}" class="btn atom-btn-white"><i class="fas fa-trophy me-1"></i>View Leaderboard</a></div>
+    <div class="mt-4"><a href="{{ route('heritage.leaderboard') }}" class="btn atom-btn-white"><i class="fas fa-trophy me-1"></i>{{ __('View Leaderboard') }}</a></div>
   </div>
 </div>
 @endsection

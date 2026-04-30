@@ -30,10 +30,10 @@
                 <h4><i class="fas fa-lock me-2"></i>Access Requests</h4>
                 <div>
                     <a href="{{ route('accessRequest.pending') }}" class="atom-btn-white">
-                        <i class="fas fa-clock me-1"></i>Pending
+                        <i class="fas fa-clock me-1"></i>{{ __('Pending') }}
                     </a>
                     <a href="{{ route('accessRequest.create') }}" class="atom-btn-white">
-                        <i class="fas fa-plus me-1"></i>New Request
+                        <i class="fas fa-plus me-1"></i>{{ __('New Request') }}
                     </a>
                 </div>
             </div>
@@ -65,11 +65,11 @@
                                             <td>{{ $req->subject ?? 'N/A' }}</td>
                                             <td>
                                                 @if($req->status === 'approved')
-                                                    <span class="badge bg-success">Approved</span>
+                                                    <span class="badge bg-success">{{ __('Approved') }}</span>
                                                 @elseif($req->status === 'denied')
-                                                    <span class="badge bg-danger">Denied</span>
+                                                    <span class="badge bg-danger">{{ __('Denied') }}</span>
                                                 @elseif($req->status === 'pending')
-                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                    <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
                                                 @else
                                                     <span class="badge bg-secondary">{{ ucfirst($req->status ?? 'Unknown') }}</span>
                                                 @endif

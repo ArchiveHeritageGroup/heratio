@@ -11,7 +11,7 @@
       <p class="text-muted mb-0">Manage your site's landing pages</p>
     </div>
     <a href="{{ route('landing-page.create') }}" class="btn btn-primary">
-      <i class="bi bi-plus-lg"></i> Create New Page
+      <i class="bi bi-plus-lg"></i> {{ __('Create New Page') }}
     </a>
   </div>
 
@@ -21,7 +21,7 @@
       <h3 class="mt-3 text-muted">{{ __('No Landing Pages Yet') }}</h3>
       <p class="text-muted">Create your first landing page to get started</p>
       <a href="{{ route('landing-page.create') }}" class="btn btn-primary btn-lg mt-2">
-        <i class="bi bi-plus-lg"></i> Create Landing Page
+        <i class="bi bi-plus-lg"></i> {{ __('Create Landing Page') }}
       </a>
     </div>
   @else
@@ -36,10 +36,10 @@
                 </h5>
                 <div>
                   @if ($page->is_default)
-                    <span class="badge bg-primary">Default</span>
+                    <span class="badge bg-primary">{{ __('Default') }}</span>
                   @endif
                   @if (!$page->is_active)
-                    <span class="badge bg-warning text-dark">Inactive</span>
+                    <span class="badge bg-warning text-dark">{{ __('Inactive') }}</span>
                   @endif
                 </div>
               </div>

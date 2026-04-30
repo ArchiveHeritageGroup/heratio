@@ -7,7 +7,7 @@
   <i class="fas fa-3x fa-undo me-3" aria-hidden="true"></i>
   <div class="d-flex flex-column">
     <h1 class="mb-0">{{ __('Restore from Backup') }}</h1>
-    <span class="small text-muted">Restore data from an existing backup</span>
+    <span class="small text-muted">{{ __('Restore data from an existing backup') }}</span>
   </div>
 </div>
 
@@ -22,18 +22,18 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
     <a href="{{ route('backup.index') }}" class="btn atom-btn-outline-secondary">
-      <i class="fas fa-arrow-left me-1"></i> Back to Backups
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Backups') }}
     </a>
     <a href="{{ route('backup.settings') }}" class="btn atom-btn-outline-secondary ms-2">
-      <i class="fas fa-cog me-1"></i> Settings
+      <i class="fas fa-cog me-1"></i> {{ __('Settings') }}
     </a>
     <a href="{{ route('backup.index') }}#upload" class="btn atom-btn-outline-primary ms-2">
-      <i class="fas fa-upload me-1"></i> Upload Backup
+      <i class="fas fa-upload me-1"></i> {{ __('Upload Backup') }}
     </a>
   </div>
   <div>
     <a href="{{ route('backup.index') }}" class="btn btn-primary">
-      <i class="fas fa-plus me-1"></i> Create Backup
+      <i class="fas fa-plus me-1"></i> {{ __('Create Backup') }}
     </a>
   </div>
 </div>
@@ -45,10 +45,10 @@
       <div class="card-header"><h5 class="mb-0"><i class="fas fa-database me-2"></i>Database Info</h5></div>
       <div class="card-body">
         <ul class="list-unstyled mb-0">
-          <li><strong>Host:</strong> {{ $dbConfig['host'] ?? 'localhost' }}</li>
-          <li><strong>Database:</strong> {{ $dbConfig['database'] ?? '' }}</li>
-          <li><strong>User:</strong> {{ $dbConfig['username'] ?? '' }}</li>
-          <li><strong>Port:</strong> {{ $dbConfig['port'] ?? 3306 }}</li>
+          <li><strong>{{ __('Host:') }}</strong> {{ $dbConfig['host'] ?? 'localhost' }}</li>
+          <li><strong>{{ __('Database:') }}</strong> {{ $dbConfig['database'] ?? '' }}</li>
+          <li><strong>{{ __('User:') }}</strong> {{ $dbConfig['username'] ?? '' }}</li>
+          <li><strong>{{ __('Port:') }}</strong> {{ $dbConfig['port'] ?? 3306 }}</li>
         </ul>
         <hr>
         <span class="badge bg-{{ ($dbConnected ?? false) ? 'success' : 'danger' }}">
@@ -62,11 +62,11 @@
       <div class="card-header"><h5 class="mb-0"><i class="fas fa-folder me-2"></i>Storage</h5></div>
       <div class="card-body">
         <ul class="list-unstyled mb-0">
-          <li><strong>Path:</strong> <code class="small">{{ $backupPath ?? '' }}</code></li>
-          <li><strong>Backups:</strong> {{ $backupCount ?? count($backups) }}</li>
-          <li><strong>Total Size:</strong> {{ $totalSize ?? '' }}</li>
-          <li><strong>Max Backups:</strong> {{ $maxBackups ?? '' }}</li>
-          <li><strong>Retention:</strong> {{ $retentionDays ?? '' }} days</li>
+          <li><strong>{{ __('Path:') }}</strong> <code class="small">{{ $backupPath ?? '' }}</code></li>
+          <li><strong>{{ __('Backups:') }}</strong> {{ $backupCount ?? count($backups) }}</li>
+          <li><strong>{{ __('Total Size:') }}</strong> {{ $totalSize ?? '' }}</li>
+          <li><strong>{{ __('Max Backups:') }}</strong> {{ $maxBackups ?? '' }}</li>
+          <li><strong>{{ __('Retention:') }}</strong> {{ $retentionDays ?? '' }} days</li>
         </ul>
       </div>
     </div>
@@ -76,13 +76,13 @@
       <div class="card-body">
         <div class="d-grid gap-2">
           <a href="{{ route('backup.index') }}?quick=database" class="btn atom-btn-outline-primary btn-sm">
-            <i class="fas fa-database me-1"></i> Database Only
+            <i class="fas fa-database me-1"></i> {{ __('Database Only') }}
           </a>
           <a href="{{ route('backup.index') }}?quick=full" class="btn atom-btn-outline-secondary btn-sm">
-            <i class="fas fa-archive me-1"></i> Full Backup
+            <i class="fas fa-archive me-1"></i> {{ __('Full Backup') }}
           </a>
           <a href="{{ route('backup.index') }}?quick=incremental" class="btn atom-btn-outline-info btn-sm">
-            <i class="fas fa-layer-group me-1"></i> Incremental Backup
+            <i class="fas fa-layer-group me-1"></i> {{ __('Incremental Backup') }}
           </a>
         </div>
       </div>
@@ -118,7 +118,7 @@
 
 <div class="alert alert-warning">
   <i class="fas fa-exclamation-triangle me-1"></i>
-  <strong>Warning:</strong> Restoring will overwrite existing data. This cannot be undone. Make sure you have a current backup before proceeding.
+  <strong>{{ __('Warning:') }}</strong> Restoring will overwrite existing data. This cannot be undone. Make sure you have a current backup before proceeding.
 </div>
 
 @if(count($backups) > 0)
@@ -126,7 +126,7 @@
   <div class="card-header" ><i class="fas fa-file-archive me-1"></i> Select Backup</div>
   <div class="card-body">
     <div class="mb-3">
-      <label for="backup-select" class="form-label">Available Backups <span class="badge bg-secondary ms-1">Optional</span></label>
+      <label for="backup-select" class="form-label">Available Backups <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
       <select class="form-select" id="backup-select" onchange="onBackupSelected()">
         <option value="">-- Select a backup --</option>
         @foreach($backups as $backup)
@@ -173,28 +173,28 @@
           <input class="form-check-input restore-component" type="checkbox" id="restore-comp-database" value="database">
           <label class="form-check-label" for="restore-comp-database">
             <i class="fas fa-database text-primary me-1"></i> Database
-           <span class="badge bg-secondary ms-1">Optional</span></label>
+           <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <div class="form-text">Restore the MySQL database from the backup dump.</div>
         </div>
         <div class="form-check mb-2" id="restore-comp-uploads-wrap" style="display:none;">
           <input class="form-check-input restore-component" type="checkbox" id="restore-comp-uploads" value="uploads">
           <label class="form-check-label" for="restore-comp-uploads">
             <i class="fas fa-upload text-info me-1"></i> Uploads
-           <span class="badge bg-secondary ms-1">Optional</span></label>
+           <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <div class="form-text">Restore uploaded digital objects and files.</div>
         </div>
         <div class="form-check mb-2" id="restore-comp-plugins-wrap" style="display:none;">
           <input class="form-check-input restore-component" type="checkbox" id="restore-comp-plugins" value="plugins">
           <label class="form-check-label" for="restore-comp-plugins">
             <i class="fas fa-puzzle-piece text-warning me-1"></i> Plugins
-           <span class="badge bg-secondary ms-1">Optional</span></label>
+           <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <div class="form-text">Restore all packages from the backup.</div>
         </div>
         <div class="form-check mb-2" id="restore-comp-framework-wrap" style="display:none;">
           <input class="form-check-input restore-component" type="checkbox" id="restore-comp-framework" value="framework">
           <label class="form-check-label" for="restore-comp-framework">
             <i class="fas fa-code text-secondary me-1"></i> Framework
-           <span class="badge bg-secondary ms-1">Optional</span></label>
+           <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <div class="form-text">Restore application framework files.</div>
         </div>
       </div>
@@ -211,7 +211,7 @@
       <div id="restore-result" class="d-none mb-3"></div>
 
       <button type="button" class="btn btn-outline-danger" id="btn-start-restore" onclick="confirmRestore()" disabled>
-        <i class="fas fa-undo me-1"></i> Restore Selected Components
+        <i class="fas fa-undo me-1"></i> {{ __('Restore Selected Components') }}
       </button>
     </div>
   </div>
@@ -222,7 +222,7 @@
       <i class="fas fa-3x fa-box-open mb-3 d-block"></i>
       <p class="mb-2">No backups available for restore.</p>
       <a href="{{ route('backup.index') }}" class="btn btn-primary">
-        <i class="fas fa-plus me-1"></i> Create a Backup First
+        <i class="fas fa-plus me-1"></i> {{ __('Create a Backup First') }}
       </a>
     </div>
   </div>

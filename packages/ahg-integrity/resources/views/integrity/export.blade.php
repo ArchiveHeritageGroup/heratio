@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-shield-alt me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Export') }}</h1><span class="small text-muted">Digital object integrity management</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Export') }}</h1><span class="small text-muted">{{ __('Digital object integrity management') }}</span></div>
   </div>
 @endsection
 @section('content')
@@ -13,13 +13,13 @@
   <div class="card-body">
     <form method="get" action="{{ route('integrity.export') }}">
       <div class="row">
-        <div class="col-md-4 mb-3"><label class="form-label">Format <span class="badge bg-secondary ms-1">Optional</span></label><select name="format" class="form-select"><option value="csv">CSV</option><option value="json">JSON</option></select></div>
-        <div class="col-md-4 mb-3"><label class="form-label">Date From <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" name="from" class="form-control"></div>
-        <div class="col-md-4 mb-3"><label class="form-label">Date To <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" name="to" class="form-control"></div>
+        <div class="col-md-4 mb-3"><label class="form-label">Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="format" class="form-select"><option value="csv">CSV</option><option value="json">JSON</option></select></div>
+        <div class="col-md-4 mb-3"><label class="form-label">Date From <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="from" class="form-control"></div>
+        <div class="col-md-4 mb-3"><label class="form-label">Date To <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="to" class="form-control"></div>
       </div>
-      <button type="submit" class="btn atom-btn-white"><i class="fas fa-download me-1"></i>Export</button>
+      <button type="submit" class="btn atom-btn-white"><i class="fas fa-download me-1"></i>{{ __('Export') }}</button>
     </form>
   </div>
 </div>
-<div class="mt-3"><a href="{{ route('integrity.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Dashboard</a></div>
+<div class="mt-3"><a href="{{ route('integrity.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}</a></div>
 @endsection

@@ -7,7 +7,7 @@
     </h6>
     <div class="btn-group btn-group-sm">
       <button type="button" class="btn btn-light btn-sm" id="ric-load-btn">
-        <i class="fas fa-sync-alt me-1"></i>Load
+        <i class="fas fa-sync-alt me-1"></i>{{ __('Load') }}
       </button>
       <button type="button" class="btn btn-light btn-sm ric-view-btn active" data-view="2d">2D</button>
       <button type="button" class="btn btn-outline-light btn-sm ric-view-btn" data-view="3d">3D</button>
@@ -41,7 +41,7 @@
       <button type="button" class="btn btn-light ric-fs-view-btn" data-view="3d">3D</button>
     </div>
     <button type="button" class="btn btn-danger btn-sm ms-2" id="ric-close-fullscreen">
-      <i class="fas fa-times"></i> Close
+      <i class="fas fa-times"></i> {{ __('Close') }}
     </button>
   </div>
   <div id="ric-fullscreen-graph" style="width:100%; height:100%;"></div>

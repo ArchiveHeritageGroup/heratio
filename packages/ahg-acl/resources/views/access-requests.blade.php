@@ -16,7 +16,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="fas fa-key me-2"></i> Security Access Requests</h2>
     <a href="{{ route('acl.groups') }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left me-1"></i> Back to ACL
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back to ACL') }}
     </a>
   </div>
 
@@ -24,22 +24,22 @@
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
       <a class="nav-link {{ $status === 'pending' ? 'active' : '' }}" href="{{ route('acl.access-requests', ['status' => 'pending']) }}">
-        <i class="fas fa-clock me-1"></i> Pending
+        <i class="fas fa-clock me-1"></i> {{ __('Pending') }}
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link {{ $status === 'approved' ? 'active' : '' }}" href="{{ route('acl.access-requests', ['status' => 'approved']) }}">
-        <i class="fas fa-check me-1"></i> Approved
+        <i class="fas fa-check me-1"></i> {{ __('Approved') }}
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link {{ $status === 'denied' ? 'active' : '' }}" href="{{ route('acl.access-requests', ['status' => 'denied']) }}">
-        <i class="fas fa-times me-1"></i> Denied
+        <i class="fas fa-times me-1"></i> {{ __('Denied') }}
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link {{ $status === null || $status === '' ? 'active' : '' }}" href="{{ route('acl.access-requests', ['status' => '']) }}">
-        <i class="fas fa-list me-1"></i> All
+        <i class="fas fa-list me-1"></i> {{ __('All') }}
       </a>
     </li>
   </ul>
@@ -127,14 +127,14 @@
                             <div class="modal-body text-start">
                               <p>Approve access request from <strong>{{ $req->user_name ?? $req->username }}</strong>?</p>
                               <div class="mb-3">
-                                <label for="approve_notes_{{ $req->id }}" class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
+                                <label for="approve_notes_{{ $req->id }}" class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <textarea name="notes" id="approve_notes_{{ $req->id }}" class="form-control" rows="3"></textarea>
                               </div>
                             </div>
                             <div class="modal-footer">
                               <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                               <button type="submit" class="btn atom-btn-outline-success">
-                                <i class="fas fa-check me-1"></i> Approve
+                                <i class="fas fa-check me-1"></i> {{ __('Approve') }}
                               </button>
                             </div>
                           </form>
@@ -156,14 +156,14 @@
                             <div class="modal-body text-start">
                               <p>Deny access request from <strong>{{ $req->user_name ?? $req->username }}</strong>?</p>
                               <div class="mb-3">
-                                <label for="deny_notes_{{ $req->id }}" class="form-label">Reason for denial <span class="badge bg-danger ms-1">Required</span></label>
+                                <label for="deny_notes_{{ $req->id }}" class="form-label">Reason for denial <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                                 <textarea name="notes" id="deny_notes_{{ $req->id }}" class="form-control" rows="3"></textarea>
                               </div>
                             </div>
                             <div class="modal-footer">
                               <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                               <button type="submit" class="btn atom-btn-outline-danger">
-                                <i class="fas fa-times me-1"></i> Deny
+                                <i class="fas fa-times me-1"></i> {{ __('Deny') }}
                               </button>
                             </div>
                           </form>
@@ -191,7 +191,7 @@
   <div class="mt-5">
     <div class="multiline-header d-flex flex-column mb-3">
       <h3 class="mb-0"><i class="fas fa-history me-2"></i> Access Request History</h3>
-      <span class="small text-muted">Full audit trail of all access request actions</span>
+      <span class="small text-muted">{{ __('Full audit trail of all access request actions') }}</span>
     </div>
 
     {{-- Stats --}}
@@ -200,7 +200,7 @@
         <div class="card text-center">
           <div class="card-body">
             <h2 class="text-primary mb-0">{{ number_format($stats['total_requests'] ?? 0) }}</h2>
-            <small class="text-muted">Total Requests</small>
+            <small class="text-muted">{{ __('Total Requests') }}</small>
           </div>
         </div>
       </div>
@@ -208,7 +208,7 @@
         <div class="card text-center">
           <div class="card-body">
             <h2 class="text-warning mb-0">{{ number_format($stats['pending'] ?? 0) }}</h2>
-            <small class="text-muted">Pending</small>
+            <small class="text-muted">{{ __('Pending') }}</small>
           </div>
         </div>
       </div>
@@ -216,7 +216,7 @@
         <div class="card text-center">
           <div class="card-body">
             <h2 class="text-success mb-0">{{ number_format($stats['approved'] ?? 0) }}</h2>
-            <small class="text-muted">Approved</small>
+            <small class="text-muted">{{ __('Approved') }}</small>
           </div>
         </div>
       </div>
@@ -224,7 +224,7 @@
         <div class="card text-center">
           <div class="card-body">
             <h2 class="text-danger mb-0">{{ number_format($stats['denied'] ?? 0) }}</h2>
-            <small class="text-muted">Denied</small>
+            <small class="text-muted">{{ __('Denied') }}</small>
           </div>
         </div>
       </div>
@@ -254,7 +254,7 @@
             </select>
           </div>
           <div class="col-md-4 d-flex align-items-end">
-            <button type="submit" class="btn btn-sm btn-primary me-2"><i class="fas fa-filter me-1"></i> Apply</button>
+            <button type="submit" class="btn btn-sm btn-primary me-2"><i class="fas fa-filter me-1"></i> {{ __('Apply') }}</button>
             <a href="{{ route('acl.access-requests', ['status' => $status]) }}" class="btn btn-sm atom-btn-white">Reset</a>
           </div>
         </form>

@@ -11,10 +11,10 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('repository.show', $repository->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-eye me-1"></i> View repository
+          <i class="fas fa-eye me-1"></i> {{ __('View repository') }}
         </a>
         <a href="{{ route('informationobject.browse', ['repository' => $repository->id]) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-list me-1"></i> Browse holdings
+          <i class="fas fa-list me-1"></i> {{ __('Browse holdings') }}
         </a>
       </div>
     </div>
@@ -48,7 +48,7 @@
         <div id="load-collapse" class="accordion-collapse collapse show" aria-labelledby="load-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="finding-aid-file" class="form-label">PDF file <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="finding-aid-file" class="form-label">PDF file <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input class="form-control" type="file" id="finding-aid-file" name="file" accept=".pdf,.rtf" required>
             </div>
           </div>

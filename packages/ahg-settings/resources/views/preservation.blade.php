@@ -16,31 +16,31 @@
     <div class="row mb-4">
       <div class="col-md-3">
         <div class="card bg-primary text-white"><div class="card-body text-center">
-          <h3 class="mb-0">{{ $stats['total_targets'] ?? 0 }}</h3><small>Total Targets</small>
+          <h3 class="mb-0">{{ $stats['total_targets'] ?? 0 }}</h3><small>{{ __('Total Targets') }}</small>
         </div></div>
       </div>
       <div class="col-md-3">
         <div class="card bg-success text-white"><div class="card-body text-center">
-          <h3 class="mb-0">{{ $stats['active_targets'] ?? 0 }}</h3><small>Active Targets</small>
+          <h3 class="mb-0">{{ $stats['active_targets'] ?? 0 }}</h3><small>{{ __('Active Targets') }}</small>
         </div></div>
       </div>
       <div class="col-md-3">
         <div class="card bg-info text-white"><div class="card-body text-center">
-          <h3 class="mb-0">{{ $stats['successful_syncs'] ?? 0 }}</h3><small>Successful Syncs</small>
+          <h3 class="mb-0">{{ $stats['successful_syncs'] ?? 0 }}</h3><small>{{ __('Successful Syncs') }}</small>
         </div></div>
       </div>
       <div class="col-md-3">
         <div class="card bg-{{ ($stats['failed_syncs'] ?? 0) > 0 ? 'danger' : 'secondary' }} text-white"><div class="card-body text-center">
-          <h3 class="mb-0">{{ $stats['failed_syncs'] ?? 0 }}</h3><small>Failed Syncs</small>
+          <h3 class="mb-0">{{ $stats['failed_syncs'] ?? 0 }}</h3><small>{{ __('Failed Syncs') }}</small>
         </div></div>
       </div>
     </div>
 
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="fas fa-server me-2"></i>Replication Targets</span>
+        <span><i class="fas fa-server me-2"></i>{{ __('Replication Targets') }}</span>
         <button class="btn atom-btn-white btn-sm" data-bs-toggle="modal" data-bs-target="#addTargetModal">
-          <i class="fas fa-plus me-1"></i>Add Target
+          <i class="fas fa-plus me-1"></i>{{ __('Add Target') }}
         </button>
       </div>
       <div class="table-responsive">
@@ -56,9 +56,9 @@
                 <td><code>{{ $target->path ?? $target->bucket ?? '-' }}</code></td>
                 <td>
                   @if($target->is_active ?? false)
-                    <span class="badge bg-success">Active</span>
+                    <span class="badge bg-success">{{ __('Active') }}</span>
                   @else
-                    <span class="badge bg-secondary">Inactive</span>
+                    <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                   @endif
                 </td>
                 <td>{{ $target->last_sync_at ?? 'Never' }}</td>

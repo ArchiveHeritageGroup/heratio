@@ -11,8 +11,8 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0"><i class="fas fa-envelope me-2"></i> Email Capture</h1>
   <div>
-    <a href="{{ route('records.emails.upload-form') }}" class="btn btn-sm btn-success"><i class="fas fa-upload me-1"></i>Upload .eml</a>
-    <a href="{{ route('records.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Records dashboard</a>
+    <a href="{{ route('records.emails.upload-form') }}" class="btn btn-sm btn-success"><i class="fas fa-upload me-1"></i>{{ __('Upload .eml') }}</a>
+    <a href="{{ route('records.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Records dashboard') }}</a>
   </div>
 </div>
 
@@ -22,10 +22,10 @@
 @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
 <div class="row g-2 mb-3">
-  <div class="col"><div class="card border-secondary"><div class="card-body py-2"><small class="text-muted">Total</small><h4 class="mb-0">{{ $counts['total'] }}</h4></div></div></div>
-  <div class="col"><div class="card border-warning"><div class="card-body py-2"><small class="text-muted">Captured (unclassified)</small><h4 class="mb-0 text-warning">{{ $counts['captured'] }}</h4></div></div></div>
-  <div class="col"><div class="card border-info"><div class="card-body py-2"><small class="text-muted">Classified</small><h4 class="mb-0 text-info">{{ $counts['classified'] }}</h4></div></div></div>
-  <div class="col"><div class="card border-success"><div class="card-body py-2"><small class="text-muted">Declared as records</small><h4 class="mb-0 text-success">{{ $counts['declared'] }}</h4></div></div></div>
+  <div class="col"><div class="card border-secondary"><div class="card-body py-2"><small class="text-muted">{{ __('Total') }}</small><h4 class="mb-0">{{ $counts['total'] }}</h4></div></div></div>
+  <div class="col"><div class="card border-warning"><div class="card-body py-2"><small class="text-muted">{{ __('Captured (unclassified)') }}</small><h4 class="mb-0 text-warning">{{ $counts['captured'] }}</h4></div></div></div>
+  <div class="col"><div class="card border-info"><div class="card-body py-2"><small class="text-muted">{{ __('Classified') }}</small><h4 class="mb-0 text-info">{{ $counts['classified'] }}</h4></div></div></div>
+  <div class="col"><div class="card border-success"><div class="card-body py-2"><small class="text-muted">{{ __('Declared as records') }}</small><h4 class="mb-0 text-success">{{ $counts['declared'] }}</h4></div></div></div>
 </div>
 
 <form method="GET" class="row g-2 align-items-end mb-3">
@@ -77,7 +77,7 @@
         <td class="text-end"><a href="{{ route('records.emails.show', $r->id) }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-arrow-right"></i></a></td>
       </tr>
       @empty
-      <tr><td colspan="7" class="text-center text-muted py-4">No captured emails. Use <strong>Upload .eml</strong> to capture one.</td></tr>
+      <tr><td colspan="7" class="text-center text-muted py-4">No captured emails. Use <strong>{{ __('Upload .eml') }}</strong> to capture one.</td></tr>
       @endforelse
     </tbody>
   </table>

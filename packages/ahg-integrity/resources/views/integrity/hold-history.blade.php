@@ -41,7 +41,7 @@
 </div>
 
 <div class="mt-3">
-  <a href="{{ route('integrity.holds') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Holds</a>
-  <a href="{{ url('/informationobject/show/' . $ioId) }}" class="btn atom-btn-white"><i class="fas fa-file-alt me-1"></i>View Object</a>
+  <a href="{{ route('integrity.holds') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Holds') }}</a>
+  <a href="{{ url('/informationobject/show/' . $ioId) }}" class="btn atom-btn-white"><i class="fas fa-file-alt me-1"></i>{{ __('View Object') }}</a>
 </div>
 @endsection

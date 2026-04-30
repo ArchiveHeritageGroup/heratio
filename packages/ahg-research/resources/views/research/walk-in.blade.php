@@ -7,7 +7,7 @@
     <div class="card-body">
         <form method="GET" class="row g-2 align-items-end">
             <div class="col-md-4">
-                <label class="form-label">Reading Room <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Reading Room <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="room_id" class="form-select">
                     <option value="">-- Select Room --</option>
                     @foreach($rooms as $room)
@@ -16,7 +16,7 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-arrow-right me-1"></i>Go</button>
+                <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-arrow-right me-1"></i>{{ __('Go') }}</button>
             </div>
         </form>
     </div>
@@ -56,7 +56,7 @@
                                         <input type="hidden" name="form_action" value="checkout">
                                         <input type="hidden" name="visitor_id" value="{{ $visitor->id }}">
                                         <input type="hidden" name="room_id" value="{{ $roomId }}">
-                                        <button type="submit" class="btn atom-btn-outline-danger btn-sm" title="{{ __('Check Out') }}"><i class="fas fa-sign-out-alt me-1"></i>Check Out</button>
+                                        <button type="submit" class="btn atom-btn-outline-danger btn-sm" title="{{ __('Check Out') }}"><i class="fas fa-sign-out-alt me-1"></i>{{ __('Check Out') }}</button>
                                     </form>
                                 </td>
                             </tr>
@@ -82,25 +82,25 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">First Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                            <label class="form-label">First Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <input type="text" class="form-control" name="first_name" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Last Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                            <label class="form-label">Last Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <input type="text" class="form-control" name="last_name" required>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Email <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Email <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="email" class="form-control" name="email">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Phone <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Phone <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="text" class="form-control" name="phone">
                     </div>
                     <div class="row">
                         <div class="col-md-5 mb-3">
-                            <label class="form-label">ID Type <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-label">ID Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select name="id_type" class="form-select">
                                 <option value="">-- Select --</option>
                                 @foreach(\Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'id_type')->where('is_active', 1)->orderBy('sort_order')->get() as $idType)
@@ -109,16 +109,16 @@
                             </select>
                         </div>
                         <div class="col-md-7 mb-3">
-                            <label class="form-label">ID Number <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-label">ID Number <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <input type="text" class="form-control" name="id_number">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Organization / Institution <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Organization / Institution <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="text" class="form-control" name="organization">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Purpose of Visit <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Purpose of Visit <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select name="purpose" class="form-select">
                             <option value="research">{{ __('Research') }}</option>
                             <option value="genealogy">{{ __('Genealogy') }}</option>
@@ -129,14 +129,14 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Research Topic <span class="badge bg-danger ms-1">Required</span></label>
+                        <label class="form-label">Research Topic <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <input type="text" class="form-control" name="research_topic">
                     </div>
                     <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" name="rules_acknowledged" id="rulesAck" value="1" required>
-                        <label class="form-check-label" for="rulesAck">Visitor acknowledges reading room rules <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-check-label" for="rulesAck">Visitor acknowledges reading room rules <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     </div>
-                    <button type="submit" class="btn atom-btn-outline-success w-100"><i class="fas fa-user-check me-1"></i>Register Visitor</button>
+                    <button type="submit" class="btn atom-btn-outline-success w-100"><i class="fas fa-user-check me-1"></i>{{ __('Register Visitor') }}</button>
                 </form>
             </div>
         </div>

@@ -207,7 +207,7 @@
     <div class="d-flex flex-wrap gap-2 mb-2">
       @foreach($filterTags as $tag)
         <a href="{{ $tag['removeUrl'] ?? '#' }}" class="btn btn-sm atom-btn-white filter-tag d-flex">
-          <span class="visually-hidden">Remove filter:</span>
+          <span class="visually-hidden">{{ __('Remove filter:') }}</span>
           <span class="text-truncate d-inline-block">{{ $tag['label'] ?? '' }}</span>
           <i aria-hidden="true" class="fas fa-times ms-2 align-self-center"></i>
         </a>
@@ -295,11 +295,11 @@
     <div class="btn-group" role="group" aria-label="{{ __('Display mode') }}">
       <a href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'list'])) }}"
          class="btn btn-sm {{ $displayMode === 'list' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Compact table/list view') }}">
-        <i class="fas fa-list me-1" aria-hidden="true"></i> Table view
+        <i class="fas fa-list me-1" aria-hidden="true"></i> {{ __('Table view') }}
       </a>
       <a href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'grid'])) }}"
          class="btn btn-sm {{ $displayMode === 'grid' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Thumbnail grid with cards') }}">
-        <i class="fas fa-th me-1" aria-hidden="true"></i> Card view
+        <i class="fas fa-th me-1" aria-hidden="true"></i> {{ __('Card view') }}
       </a>
     </div>
 
@@ -346,9 +346,9 @@
                   <span>{{ $doc['name'] ?: '[Untitled]' }}</span>
                   <button class="btn atom-btn-white ms-auto active-primary clipboard"
                           data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="repository"
-                          data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard">
+                          data-tooltip="true" data-title="{{ __('Add to clipboard') }}" data-alt-title="{{ __('Remove from clipboard') }}">
                     <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
-                    <span class="visually-hidden">Add to clipboard</span>
+                    <span class="visually-hidden">{{ __('Add to clipboard') }}</span>
                   </button>
                 </div>
               </div>
@@ -371,7 +371,7 @@
                 <a title="{{ __('Sort') }}" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'localityUp' ? 'localityDown' : 'localityUp'])) }}">Locality</a>
               </th>
               <th class="w-20">{{ __('Thematic area') }}</th>
-              <th><span class="visually-hidden">Clipboard</span></th>
+              <th><span class="visually-hidden">{{ __('Clipboard') }}</span></th>
             </tr>
           </thead>
           <tbody>
@@ -389,9 +389,9 @@
                 <td>
                   <button class="btn atom-btn-white ms-auto active-primary clipboard"
                           data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="repository"
-                          data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard">
+                          data-tooltip="true" data-title="{{ __('Add to clipboard') }}" data-alt-title="{{ __('Remove from clipboard') }}">
                     <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
-                    <span class="visually-hidden">Add to clipboard</span>
+                    <span class="visually-hidden">{{ __('Add to clipboard') }}</span>
                   </button>
                 </td>
               </tr>

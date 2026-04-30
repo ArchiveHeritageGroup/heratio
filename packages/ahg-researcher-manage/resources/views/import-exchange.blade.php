@@ -16,7 +16,7 @@
     <i class="fas fa-3x fa-file-import me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Import Exchange') }}</h1>
-      <span class="small text-muted">Import data from an exchange JSON file</span>
+      <span class="small text-muted">{{ __('Import data from an exchange JSON file') }}</span>
     </div>
   </div>
 
@@ -33,43 +33,43 @@
           @if(($result['notes'] ?? 0) > 0)
             <div class="col-4 col-md-2 text-center">
               <h4 class="mb-0">{{ number_format($result['notes']) }}</h4>
-              <small class="text-muted">Notes</small>
+              <small class="text-muted">{{ __('Notes') }}</small>
             </div>
           @endif
           @if(($result['files'] ?? 0) > 0)
             <div class="col-4 col-md-2 text-center">
               <h4 class="mb-0">{{ number_format($result['files']) }}</h4>
-              <small class="text-muted">File Items</small>
+              <small class="text-muted">{{ __('File Items') }}</small>
             </div>
           @endif
           @if(($result['items'] ?? 0) > 0)
             <div class="col-4 col-md-2 text-center">
               <h4 class="mb-0">{{ number_format($result['items']) }}</h4>
-              <small class="text-muted">New Items</small>
+              <small class="text-muted">{{ __('New Items') }}</small>
             </div>
           @endif
           @if(($result['creators'] ?? 0) > 0)
             <div class="col-4 col-md-2 text-center">
               <h4 class="mb-0">{{ number_format($result['creators']) }}</h4>
-              <small class="text-muted">Creators</small>
+              <small class="text-muted">{{ __('Creators') }}</small>
             </div>
           @endif
           @if(($result['repos'] ?? 0) > 0)
             <div class="col-4 col-md-2 text-center">
               <h4 class="mb-0">{{ number_format($result['repos']) }}</h4>
-              <small class="text-muted">Repositories</small>
+              <small class="text-muted">{{ __('Repositories') }}</small>
             </div>
           @endif
           @if(($result['collections'] ?? 0) > 0)
             <div class="col-4 col-md-2 text-center">
               <h4 class="mb-0">{{ number_format($result['collections']) }}</h4>
-              <small class="text-muted">Collections</small>
+              <small class="text-muted">{{ __('Collections') }}</small>
             </div>
           @endif
         </div>
 
         <a href="{{ route('researcher.submission.view', $result['submission_id']) }}" class="btn btn-success">
-          <i class="fas fa-eye me-1"></i>View Submission
+          <i class="fas fa-eye me-1"></i>{{ __('View Submission') }}
         </a>
       </div>
     </div>
@@ -94,7 +94,7 @@
         <div class="card-body">
           <div class="alert alert-info mb-3">
             <i class="fas fa-info-circle me-2"></i>
-            <strong>What is this?</strong> When you use the Portable Export viewer in edit mode (offline),
+            <strong>{{ __('What is this?') }}</strong> When you use the Portable Export viewer in edit mode (offline),
             you can add notes, import files, create new items, creators, and repositories.
             The viewer exports a <code>researcher-exchange.json</code> file that you upload here.
             It becomes a draft submission for archivist review.
@@ -129,7 +129,7 @@
                   </option>
                 @endforeach
               </select>
-              <small class="text-muted">Override the target repository for all imported items.</small>
+              <small class="text-muted">{{ __('Override the target repository for all imported items.') }}</small>
               @error('repository_id')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
@@ -150,10 +150,10 @@
 
             <div class="d-flex justify-content-between">
               <a href="{{ route('researcher.dashboard') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i>Cancel
+                <i class="fas fa-arrow-left me-1"></i>{{ __('Cancel') }}
               </a>
               <button type="submit" class="btn btn-primary" id="importBtn">
-                <i class="fas fa-upload me-1"></i>Import
+                <i class="fas fa-upload me-1"></i>{{ __('Import') }}
               </button>
             </div>
           </form>

@@ -16,7 +16,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-user-tag text-primary me-2"></i>Researcher Types</h1>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTypeModal"><i class="fas fa-plus me-1"></i>Add Type</button>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTypeModal"><i class="fas fa-plus me-1"></i>{{ __('Add Type') }}</button>
 </div>
 
 <div class="card">
@@ -45,8 +45,8 @@
                     <td>{{ $type->max_booking_days_advance ?? 14 }} days</td>
                     <td>{{ $type->max_booking_hours_per_day ?? 4 }} hrs</td>
                     <td>{{ $type->max_materials_per_booking ?? 10 }}</td>
-                    <td>{!! ($type->auto_approve ?? 0) ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-secondary">No</span>' !!}</td>
-                    <td>{!! ($type->is_active ?? 1) ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>' !!}</td>
+                    <td>{!! ($type->auto_approve ?? 0) ? '<span class="badge bg-success">{{ __('Yes') }}</span>' : '<span class="badge bg-secondary">No</span>' !!}</td>
+                    <td>{!! ($type->is_active ?? 1) ? '<span class="badge bg-success">{{ __('Active') }}</span>' : '<span class="badge bg-danger">{{ __('Inactive') }}</span>' !!}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary edit-type-btn"
                             data-type='{!! json_encode($type, JSON_HEX_APOS | JSON_HEX_QUOT) !!}'
@@ -106,7 +106,7 @@
                 <div class="col-md-4"><div class="mb-3"><label class="form-label">{{ __('Sort Order') }}</label><input type="number" name="sort_order" id="typeSortOrder" class="form-control" value="100"></div></div>
             </div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary" id="typeSubmitBtn"><i class="fas fa-plus me-1"></i>Add Type</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary" id="typeSubmitBtn"><i class="fas fa-plus me-1"></i>{{ __('Add Type') }}</button></div>
     </form>
 </div></div></div>
 

@@ -73,7 +73,7 @@
     <div class="col-md-3">
       <div class="card text-center">
         <div class="card-body py-2">
-          <small class="text-muted">Primary Relations</small>
+          <small class="text-muted">{{ __('Primary Relations') }}</small>
           <h5 class="mb-0">{{ $comparison['primary_relations'] ?? 0 }}</h5>
         </div>
       </div>
@@ -81,7 +81,7 @@
     <div class="col-md-3">
       <div class="card text-center">
         <div class="card-body py-2">
-          <small class="text-muted">Secondary Relations</small>
+          <small class="text-muted">{{ __('Secondary Relations') }}</small>
           <h5 class="mb-0">{{ $comparison['secondary_relations'] ?? 0 }}</h5>
         </div>
       </div>
@@ -89,7 +89,7 @@
     <div class="col-md-3">
       <div class="card text-center">
         <div class="card-body py-2">
-          <small class="text-muted">Primary Resources</small>
+          <small class="text-muted">{{ __('Primary Resources') }}</small>
           <h5 class="mb-0">{{ $comparison['primary_resources'] ?? 0 }}</h5>
         </div>
       </div>
@@ -97,7 +97,7 @@
     <div class="col-md-3">
       <div class="card text-center">
         <div class="card-body py-2">
-          <small class="text-muted">Secondary Resources</small>
+          <small class="text-muted">{{ __('Secondary Resources') }}</small>
           <h5 class="mb-0">{{ $comparison['secondary_resources'] ?? 0 }}</h5>
         </div>
       </div>
@@ -107,7 +107,7 @@
   {{-- Actions --}}
   <div class="d-flex gap-2">
     <a href="{{ route('actor.merge', ['id' => $primary->id ?? 0]) }}" class="btn btn-warning">
-      <i class="fas fa-compress-arrows-alt me-1"></i>Merge into Primary
+      <i class="fas fa-compress-arrows-alt me-1"></i>{{ __('Merge into Primary') }}
     </a>
     <a href="{{ route('actor.dedup') }}" class="btn atom-btn-white">
       Back to Dedup

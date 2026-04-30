@@ -26,7 +26,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-1">{{ $repository->name ?? '' }}</h1>
-            <span class="text-muted">Repository Statistics</span>
+            <span class="text-muted">{{ __('Repository Statistics') }}</span>
         </div>
     </div>
 

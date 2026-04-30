@@ -11,7 +11,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1><i class="fas fa-file-alt me-2"></i>Archival Description Report</h1>
       <div>
-        <a href="{{ route('reports.select') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Reports</a>
+        <a href="{{ route('reports.select') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Reports') }}</a>
         @if(!empty($results))
           <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn btn-sm atom-btn-outline-success ms-1"><i class="fas fa-file-csv me-1"></i>CSV</a>
         @endif
@@ -24,7 +24,7 @@
       <div class="card-body">
         <form method="get" class="row g-3">
           <div class="col-md-3">
-            <label class="form-label">Culture <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Culture <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="culture" class="form-select form-select-sm">
               <option value="en" {{ request('culture','en')=='en'?'selected':'' }}>{{ __('English') }}</option>
               <option value="af" {{ request('culture')=='af'?'selected':'' }}>{{ __('Afrikaans') }}</option>
@@ -32,15 +32,15 @@
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Date Start <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Date Start <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="dateStart" class="form-control form-control-sm" value="{{ request('dateStart') }}">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Date End <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Date End <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="dateEnd" class="form-control form-control-sm" value="{{ request('dateEnd') }}">
           </div>
           <div class="col-md-3 d-flex align-items-end gap-2">
-            <button type="submit" class="btn atom-btn-white btn-sm"><i class="fas fa-search me-1"></i>Search</button>
+            <button type="submit" class="btn atom-btn-white btn-sm"><i class="fas fa-search me-1"></i>{{ __('Search') }}</button>
           </div>
         </form>
       </div>

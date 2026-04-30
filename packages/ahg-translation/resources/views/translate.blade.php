@@ -18,7 +18,7 @@
     <div class="card-header bg-secondary text-white">
       <h5 class="mb-0">
         <i class="fas fa-language me-2"></i>Step 1: Select Fields
-        <span class="ahg-step-indicator badge bg-light text-dark ms-2" id="step-indicator">Step 1: Select Fields</span>
+        <span class="ahg-step-indicator badge bg-light text-dark ms-2" id="step-indicator">{{ __('Step 1: Select Fields') }}</span>
       </h5>
     </div>
     <div class="card-body" id="step1-body">
@@ -34,7 +34,7 @@
               </option>
             @endforeach
           </select>
-          <small class="text-muted">Culture where text is stored</small>
+          <small class="text-muted">{{ __('Culture where text is stored') }}</small>
         </div>
         <div class="col-md-4">
           <label class="form-label fw-bold">{{ __('Source Language') }}</label>
@@ -43,7 +43,7 @@
               <option value="{{ $code }}" {{ $code === $culture ? 'selected' : '' }}>{{ $name }}</option>
             @endforeach
           </select>
-          <small class="text-muted">Actual language of the text</small>
+          <small class="text-muted">{{ __('Actual language of the text') }}</small>
         </div>
         <div class="col-md-4">
           <label class="form-label fw-bold">{{ __('Target Language') }}</label>
@@ -62,14 +62,14 @@
             <input class="form-check-input" type="checkbox" id="save-culture" {{ $saveCultureDefault ? 'checked' : '' }}>
             <label class="form-check-label fw-bold" for="save-culture">{{ __('Save with culture code') }}</label>
           </div>
-          <small class="text-muted">Saves translation in target language's culture</small>
+          <small class="text-muted">{{ __("Saves translation in target language's culture") }}</small>
         </div>
         <div class="col-md-6">
           <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" id="overwrite" {{ $overwriteDefault ? 'checked' : '' }}>
             <label class="form-check-label fw-bold" for="overwrite">{{ __('Overwrite existing') }}</label>
           </div>
-          <small class="text-muted">Overwrite if target field already has content</small>
+          <small class="text-muted">{{ __('Overwrite if target field already has content') }}</small>
         </div>
       </div>
 
@@ -77,7 +77,7 @@
 
       {{-- Fields Selection --}}
       <div class="mb-2">
-        <span class="fw-bold">Fields to Translate</span>
+        <span class="fw-bold">{{ __('Fields to Translate') }}</span>
         <div class="float-end">
           <button type="button" class="btn btn-sm btn-outline-secondary" id="select-all">{{ __('Select All') }}</button>
           <button type="button" class="btn btn-sm btn-outline-secondary" id="deselect-all">{{ __('Deselect All') }}</button>
@@ -117,7 +117,7 @@
     <div class="card-body">
       <div class="alert alert-warning py-2 mb-3">
         <i class="fas fa-eye me-1"></i>
-        <strong>Review Translations</strong> - Edit if needed, then click "Approve &amp; Save" to apply.
+        <strong>{{ __('Review Translations') }}</strong> - Edit if needed, then click "Approve &amp; Save" to apply.
       </div>
       <div id="translations-preview"></div>
     </div>
@@ -132,21 +132,21 @@
   <div class="d-flex gap-2 mb-4">
     <div id="step1-buttons">
       <a href="{{ url()->previous() }}" class="btn btn-secondary">
-        <i class="fas fa-times me-1"></i>Close
+        <i class="fas fa-times me-1"></i>{{ __('Close') }}
       </a>
       <button type="button" class="btn btn-primary" id="btn-translate">
-        <i class="fas fa-language me-1"></i>Translate
+        <i class="fas fa-language me-1"></i>{{ __('Translate') }}
       </button>
     </div>
     <div id="step2-buttons" style="display:none;">
       <button type="button" class="btn btn-outline-secondary" id="btn-back">
-        <i class="fas fa-arrow-left me-1"></i>Back
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}
       </button>
       <a href="{{ url()->previous() }}" class="btn btn-secondary">
-        <i class="fas fa-times me-1"></i>Cancel
+        <i class="fas fa-times me-1"></i>{{ __('Cancel') }}
       </a>
       <button type="button" class="btn btn-success" id="btn-approve">
-        <i class="fas fa-check me-1"></i>Approve &amp; Save
+        <i class="fas fa-check me-1"></i>{{ __('Approve &amp; Save') }}
       </button>
     </div>
   </div>

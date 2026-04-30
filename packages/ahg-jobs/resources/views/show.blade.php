@@ -80,12 +80,12 @@
                             <th>{{ __('Status:') }}</th>
                             <td>
                                 @switch($job->status_id)
-                                    @case(183) <span class="badge bg-warning text-dark">Pending</span> @break
-                                    @case(182) <span class="badge bg-primary">Running</span> @break
-                                    @case(184) <span class="badge bg-success">Completed</span> @break
-                                    @case(185) <span class="badge bg-danger">Failed</span> @break
-                                    @case(186) <span class="badge bg-secondary">Cancelled</span> @break
-                                    @default <span class="badge bg-light text-dark">Unknown</span>
+                                    @case(183) <span class="badge bg-warning text-dark">{{ __('Pending') }}</span> @break
+                                    @case(182) <span class="badge bg-primary">{{ __('Running') }}</span> @break
+                                    @case(184) <span class="badge bg-success">{{ __('Completed') }}</span> @break
+                                    @case(185) <span class="badge bg-danger">{{ __('Failed') }}</span> @break
+                                    @case(186) <span class="badge bg-secondary">{{ __('Cancelled') }}</span> @break
+                                    @default <span class="badge bg-light text-dark">{{ __('Unknown') }}</span>
                                 @endswitch
                             </td>
                         </tr>
@@ -129,12 +129,12 @@
         </div>
         <div class="card-body">
             <div class="alert alert-danger mb-0">
-                <strong>Error Message:</strong><br>
+                <strong>{{ __('Error Message:') }}</strong><br>
                 {{ $job->error_message }}
             </div>
             @if(!empty($job->stack_trace))
             <div class="mt-3">
-                <strong>Stack Trace:</strong>
+                <strong>{{ __('Stack Trace:') }}</strong>
                 <pre class="bg-dark text-light p-3 mt-2" style="max-height: 300px; overflow-y: auto;"><code>{{ $job->stack_trace }}</code></pre>
             </div>
             @endif
@@ -162,7 +162,7 @@
         </div>
         <div class="card-body">
             <a href="{{ $job->download_path }}" class="btn btn-primary">
-                <i class="bi bi-download"></i> Download Result
+                <i class="bi bi-download"></i> {{ __('Download Result') }}
             </a>
         </div>
     </div>
@@ -171,7 +171,7 @@
     {{-- Back Button --}}
     <div class="mt-4">
         <a href="{{ route('jobs.browse') }}" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Back to Jobs
+            <i class="bi bi-arrow-left"></i> {{ __('Back to Jobs') }}
         </a>
     </div>
 </div>

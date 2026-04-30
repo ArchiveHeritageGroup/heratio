@@ -15,7 +15,7 @@
       data-bs-auto-close="outside"
       aria-expanded="false">
       <i class="fas fa-cog" aria-hidden="true"></i>
-      <span class="visually-hidden">Search options</span>
+      <span class="visually-hidden">{{ __('Search options') }}</span>
     </button>
     <div class="dropdown-menu mt-2" aria-labelledby="search-box-options">
       <div class="px-3 py-2">
@@ -39,7 +39,7 @@
       <div class="dropdown-divider"></div>
       <a class="dropdown-item" href="#" id="semantic-search-dropdown-link" onclick="event.preventDefault(); var btn = document.getElementById('openSemanticSearchBtn'); if (btn) { btn.click(); } else if (typeof openSemanticModal === 'function') { openSemanticModal(); }">
         <i class="fas fa-brain me-1" aria-hidden="true"></i>
-        Semantic search
+        {{ __('Semantic search') }}
       </a>
       <div class="dropdown-divider"></div>
       <div class="px-3 py-2">
@@ -72,7 +72,7 @@
     <ul id="search-box-results" class="dropdown-menu mt-2" aria-labelledby="search-box-input"></ul>
     <button class="btn btn-sm atom-btn-secondary" type="submit">
       <i class="fas fa-search" aria-hidden="true"></i>
-      <span class="visually-hidden">Search in browse page</span>
+      <span class="visually-hidden">{{ __('Search in browse page') }}</span>
     </button>
   </div>
 </form>

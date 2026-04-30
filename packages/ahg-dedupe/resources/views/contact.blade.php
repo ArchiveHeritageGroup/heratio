@@ -10,6 +10,6 @@
     <div class="card mb-4"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff">Details</div>
     <div class="card-body"><dl class="row mb-0"><dt class="col-sm-4">Name</dt><dd class="col-sm-8">{{ $record->authorized_form_of_name ?? "-" }}</dd><dt class="col-sm-4">Email</dt><dd class="col-sm-8">{{ $record->email ?? "-" }}</dd><dt class="col-sm-4">Phone</dt><dd class="col-sm-8">{{ $record->phone ?? "-" }}</dd></dl></div></div>
   </div><div class="col-lg-4">
-    <a href="{{ url()->previous() }}" class="btn atom-btn-white w-100"><i class="fas fa-arrow-left me-1"></i>Back</a>
+    <a href="{{ url()->previous() }}" class="btn atom-btn-white w-100"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
   </div></div>
 @endsection

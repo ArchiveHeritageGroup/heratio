@@ -14,7 +14,7 @@
           No results found
         @endif
       </h1>
-      <span class="small text-muted">DAM assets</span>
+      <span class="small text-muted">{{ __('DAM assets') }}</span>
     </div>
   </div>
 
@@ -130,14 +130,14 @@
                         data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="dam"
                         title="{{ __('Add to clipboard') }}">
                   <i class="fas fa-paperclip" aria-hidden="true"></i>
-                  <span class="visually-hidden">Add to clipboard</span>
+                  <span class="visually-hidden">{{ __('Add to clipboard') }}</span>
                 </button>
                 @auth
                   <a class="btn btn-sm atom-btn-white"
                      href="{{ route('ahgmarketplace.seller-listing-create', ['io' => $doc['id']]) }}"
                      title="{{ __('Add to marketplace') }}">
                     <i class="fas fa-store" aria-hidden="true"></i>
-                    <span class="visually-hidden">Add to marketplace</span>
+                    <span class="visually-hidden">{{ __('Add to marketplace') }}</span>
                   </a>
                 @endauth
               </td>
@@ -154,7 +154,7 @@
   @auth
     <div class="actions mb-3" style="background:#495057;border-radius:.375rem;padding:1rem;">
       <a href="{{ route('dam.create') }}" class="btn atom-btn-outline-light">
-        <i class="fas fa-plus me-1"></i>Add new
+        <i class="fas fa-plus me-1"></i>{{ __('Add new') }}
       </a>
     </div>
   @endauth

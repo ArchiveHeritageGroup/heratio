@@ -12,7 +12,7 @@
     <i class="fas fa-3x fa-brain me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Semantic Search') }}</h1>
-      <span class="small text-muted">Search the archives using natural language</span>
+      <span class="small text-muted">{{ __('Search the archives using natural language') }}</span>
     </div>
   </div>
 
@@ -23,7 +23,7 @@
         <i class="fas fa-project-diagram me-2"></i>
         Semantic Search
       </h5>
-      <small>Search the archives using natural language</small>
+      <small>{{ __('Search the archives using natural language') }}</small>
     </div>
     <div class="card-body">
       {{-- Search Input --}}
@@ -40,7 +40,7 @@
             />
             <button type="button" id="ric-search-btn" class="btn atom-btn-primary">
               <i class="fas fa-search me-1"></i>
-              Search
+              {{ __('Search') }}
             </button>
           </div>
         </div>
@@ -48,7 +48,7 @@
 
       {{-- Quick Examples --}}
       <div class="mb-3">
-        <small class="text-muted me-2">Try:</small>
+        <small class="text-muted me-2">{{ __('Try:') }}</small>
         <button class="btn btn-sm btn-outline-secondary ric-example" data-query="all fonds">{{ __('All fonds') }}</button>
         <button class="btn btn-sm btn-outline-secondary ric-example" data-query="records from 1948-1994">{{ __('Apartheid era') }}</button>
         <button class="btn btn-sm btn-outline-secondary ric-example" data-query="records about mining">{{ __('Mining') }}</button>
@@ -65,7 +65,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
       <span id="ric-result-count">0 results</span>
       <button type="button" id="ric-clear-btn" class="btn btn-sm btn-outline-secondary">
-        <i class="fas fa-times me-1"></i>Clear
+        <i class="fas fa-times me-1"></i>{{ __('Clear') }}
       </button>
     </div>
     <div class="card-body">
@@ -117,7 +117,7 @@
   {{-- SPARQL Display --}}
   <div class="mt-4">
     <button type="button" id="ric-sparql-toggle" class="btn btn-sm btn-link text-muted">
-      <i class="fas fa-code me-1"></i>View SPARQL Query
+      <i class="fas fa-code me-1"></i>{{ __('View SPARQL Query') }}
     </button>
     <pre id="ric-sparql-code" class="bg-dark text-light p-3 rounded mt-2" style="display: none; font-size: 12px;"></pre>
   </div>
@@ -125,10 +125,10 @@
   {{-- Navigation --}}
   <div class="mt-4 mb-3">
     <a href="{{ route('ric.index') }}" class="btn atom-btn-secondary">
-      <i class="fas fa-arrow-left me-1"></i> Back to RiC Dashboard
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back to RiC Dashboard') }}
     </a>
     <a href="{{ route('ric.explorer') }}" class="btn atom-btn-secondary">
-      <i class="fas fa-project-diagram me-1"></i> RiC Explorer
+      <i class="fas fa-project-diagram me-1"></i> {{ __('RiC Explorer') }}
     </a>
   </div>
 @endsection

@@ -11,12 +11,12 @@
     <form method="POST" action="{{ route('admin.ai.htr.doExtract') }}" enctype="multipart/form-data">
       @csrf
       <div class="mb-3">
-        <label class="form-label">Document Image/PDF <span class="badge bg-secondary ms-1">Required</span></label>
+        <label class="form-label">Document Image/PDF <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
         <input type="file" name="file" class="form-control" accept="image/*,.pdf" required>
       </div>
       <div class="row">
         <div class="col-md-4 mb-3">
-          <label class="form-label">Document Type <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label">Document Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="doc_type" class="form-select">
             <option value="auto">{{ __('Auto-detect') }}</option>
             <option value="type_a">{{ __('Type A — Government Form (Death Certificate)') }}</option>
@@ -25,7 +25,7 @@
           </select>
         </div>
         <div class="col-md-4 mb-3">
-          <label class="form-label">Era Hint <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label">Era Hint <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="era_hint" class="form-select">
             <option value="auto">{{ __('Auto-detect') }}</option>
             <option value="voc">{{ __('VOC (pre-1806)') }}</option>
@@ -35,14 +35,14 @@
           </select>
         </div>
         <div class="col-md-4 mb-3">
-          <label class="form-label">Output Format <span class="badge bg-secondary ms-1">Optional</span></label>
-          <div class="form-check"><input class="form-check-input" type="checkbox" name="formats[]" value="ilm" id="fmt-ilm" checked><label class="form-check-label" for="fmt-ilm"><strong>ILM (FamilySearch)</strong></label></div>
+          <label class="form-label">Output Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <div class="form-check"><input class="form-check-input" type="checkbox" name="formats[]" value="ilm" id="fmt-ilm" checked><label class="form-check-label" for="fmt-ilm"><strong>{{ __('ILM (FamilySearch)') }}</strong></label></div>
           <div class="form-check"><input class="form-check-input" type="checkbox" name="formats[]" value="json" id="fmt-json" checked><label class="form-check-label" for="fmt-json">JSON</label></div>
           <div class="form-check"><input class="form-check-input" type="checkbox" name="formats[]" value="csv" id="fmt-csv" checked><label class="form-check-label" for="fmt-csv">CSV</label></div>
           <div class="form-check"><input class="form-check-input" type="checkbox" name="formats[]" value="gedcom" id="fmt-gedcom" checked><label class="form-check-label" for="fmt-gedcom">{{ __('GEDCOM') }}</label></div>
         </div>
       </div>
-      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-magic me-1"></i>Extract</button>
+      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-magic me-1"></i>{{ __('Extract') }}</button>
       <a href="{{ route('admin.ai.htr.dashboard') }}" class="btn atom-btn-white ms-2">Cancel</a>
     </form>
   </div>

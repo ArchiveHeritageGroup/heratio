@@ -282,9 +282,9 @@
                 <td><code>{{ $svc[1] }}</code></td>
                 <td>
                   @if ($svc[2])
-                    <span class="badge bg-success"><i class="fas fa-check me-1"></i>Available</span>
+                    <span class="badge bg-success"><i class="fas fa-check me-1"></i>{{ __('Available') }}</span>
                   @else
-                    <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>Not installed</span>
+                    <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>{{ __('Not installed') }}</span>
                   @endif
                 </td>
               </tr>
@@ -298,10 +298,10 @@
     {{-- Save --}}
     <div class="d-flex justify-content-between align-items-center">
       <a href="{{ route('settings.index') }}" class="btn btn-link text-secondary">
-        <i class="fas fa-arrow-left me-1"></i>Back to Settings
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}
       </a>
       <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save me-1"></i>Save
+        <i class="fas fa-save me-1"></i>{{ __('Save') }}
       </button>
     </div>
   </form>

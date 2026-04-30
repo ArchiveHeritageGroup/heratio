@@ -20,7 +20,7 @@
     <form action="{{ route('help.search') }}" method="get" class="mb-4">
       <div class="input-group input-group-lg">
         <input type="text" name="q" class="form-control" value="{{ $query }}" placeholder="{{ __('Search help articles...') }}" autocomplete="off">
-        <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-search me-1"></i> Search</button>
+        <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-search me-1"></i> {{ __('Search') }}</button>
       </div>
     </form>
 

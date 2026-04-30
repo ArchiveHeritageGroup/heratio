@@ -11,17 +11,17 @@
             <div class="card-header" style="background:var(--ahg-primary);color:#fff">Finding Aid Configuration</div>
             <div class="card-body">
                 <form method="POST">@csrf
-                    <div class="mb-3"><label class="form-label">Collection / Fonds <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                    <div class="mb-3"><label class="form-label">Collection / Fonds <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <select name="collection_id" class="form-select" required><option value="">-- Select --</option>@foreach($collections ?? [] as $c)<option value="{{ $c->id }}">{{ e($c->title ?? '') }}</option>@endforeach</select>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-6"><label class="form-label">Format <span class="badge bg-secondary ms-1">Optional</span></label><select name="format" class="form-select"><option value="ead">{{ __('EAD (XML)') }}</option><option value="pdf">PDF</option><option value="html">HTML</option></select></div>
-                        <div class="col-md-6"><label class="form-label">Depth <span class="badge bg-secondary ms-1">Optional</span></label><select name="depth" class="form-select"><option value="full">{{ __('Full (all levels)') }}</option><option value="series">{{ __('Series level') }}</option><option value="file">{{ __('File level') }}</option></select></div>
+                        <div class="col-md-6"><label class="form-label">Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="format" class="form-select"><option value="ead">{{ __('EAD (XML)') }}</option><option value="pdf">PDF</option><option value="html">HTML</option></select></div>
+                        <div class="col-md-6"><label class="form-label">Depth <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="depth" class="form-select"><option value="full">{{ __('Full (all levels)') }}</option><option value="series">{{ __('Series level') }}</option><option value="file">{{ __('File level') }}</option></select></div>
                     </div>
-                    <div class="form-check mb-2"><input type="checkbox" name="include_dao" class="form-check-input" id="includeDao" checked><label class="form-check-label" for="includeDao">Include digital object links <span class="badge bg-secondary ms-1">Optional</span></label></div>
-                    <div class="form-check mb-2"><input type="checkbox" name="include_access" class="form-check-input" id="includeAccess" checked><label class="form-check-label" for="includeAccess">Include access points <span class="badge bg-secondary ms-1">Optional</span></label></div>
-                    <div class="form-check mb-3"><input type="checkbox" name="include_notes" class="form-check-input" id="includeNotes"><label class="form-check-label" for="includeNotes">Include archival notes <span class="badge bg-secondary ms-1">Optional</span></label></div>
-                    <button type="submit" class="btn atom-btn-white"><i class="fas fa-file-export me-1"></i>Generate</button>
+                    <div class="form-check mb-2"><input type="checkbox" name="include_dao" class="form-check-input" id="includeDao" checked><label class="form-check-label" for="includeDao">Include digital object links <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
+                    <div class="form-check mb-2"><input type="checkbox" name="include_access" class="form-check-input" id="includeAccess" checked><label class="form-check-label" for="includeAccess">Include access points <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
+                    <div class="form-check mb-3"><input type="checkbox" name="include_notes" class="form-check-input" id="includeNotes"><label class="form-check-label" for="includeNotes">Include archival notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
+                    <button type="submit" class="btn atom-btn-white"><i class="fas fa-file-export me-1"></i>{{ __('Generate') }}</button>
                     <a href="{{ route('research.reports') }}" class="btn atom-btn-white">Cancel</a>
                 </form>
             </div>

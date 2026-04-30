@@ -21,7 +21,7 @@
           <h5 class="mb-1">{{ $trainingStats[$type] ?? 0 }}</h5>
           <small class="text-muted">{{ $label }} images</small>
           @if(($trainingStats[$type] ?? 0) >= 50)
-            <span class="badge bg-success ms-2">Ready</span>
+            <span class="badge bg-success ms-2">{{ __('Ready') }}</span>
           @else
             <span class="badge bg-warning ms-2">Need {{ 50 - ($trainingStats[$type] ?? 0) }} more</span>
           @endif
@@ -62,7 +62,7 @@
             <input type="password" name="fs_password" class="form-control" placeholder="{{ __('FAMILYSEARCH_PASSWORD') }}">
           </div>
         </div>
-        <button type="submit" class="btn atom-btn-outline-success mt-3"><i class="fas fa-save me-1"></i>Save Credentials</button>
+        <button type="submit" class="btn atom-btn-outline-success mt-3"><i class="fas fa-save me-1"></i>{{ __('Save Credentials') }}</button>
       </form>
     @endif
   </div>
@@ -96,11 +96,11 @@
               <td><span class="badge bg-secondary">{{ $src['region'] ?? 'All' }}</span></td>
               <td>
                 @if($src['doc_type'] === 'type_a')
-                  <span class="badge bg-danger">Type A — Deaths</span>
+                  <span class="badge bg-danger">{{ __('Type A — Deaths') }}</span>
                 @elseif($src['doc_type'] === 'type_b')
-                  <span class="badge bg-primary">Type B — Registers</span>
+                  <span class="badge bg-primary">{{ __('Type B — Registers') }}</span>
                 @else
-                  <span class="badge bg-info">Type C — Narrative</span>
+                  <span class="badge bg-info">{{ __('Type C — Narrative') }}</span>
                 @endif
               </td>
               <td>
@@ -110,7 +110,7 @@
                 <div class="input-group input-group-sm justify-content-end" style="max-width:240px; margin-left:auto;">
                   <input type="number" class="form-control download-count" value="50" min="1" max="1000" data-collection="{{ $src['collection_id'] }}" data-doctype="{{ $src['doc_type'] }}">
                   <button class="btn atom-btn-outline-success btn-download" data-collection="{{ $src['collection_id'] }}" data-doctype="{{ $src['doc_type'] }}" @if(!$fsConfigured) disabled title="{{ __('Configure API key first') }}" @endif>
-                    <i class="fas fa-download me-1"></i>Download
+                    <i class="fas fa-download me-1"></i>{{ __('Download') }}
                   </button>
                 </div>
               </td>
@@ -146,13 +146,13 @@
                 <small class="text-muted">{{ $src['description'] }}</small><br>
                 <code class="small">ID: {{ $src['collection_id'] }}</code>
               </td>
-              <td><span class="badge bg-info">Type C — Narrative</span></td>
+              <td><span class="badge bg-info">{{ __('Type C — Narrative') }}</span></td>
               <td><span class="fw-bold">{{ $src['downloaded'] ?? 0 }}</span> images</td>
               <td class="text-end">
                 <div class="input-group input-group-sm justify-content-end" style="max-width:240px; margin-left:auto;">
                   <input type="number" class="form-control download-count" value="50" min="1" max="1000" data-collection="{{ $src['collection_id'] }}" data-doctype="{{ $src['doc_type'] }}">
                   <button class="btn atom-btn-outline-success btn-download" data-collection="{{ $src['collection_id'] }}" data-doctype="{{ $src['doc_type'] }}">
-                    <i class="fas fa-download me-1"></i>Download
+                    <i class="fas fa-download me-1"></i>{{ __('Download') }}
                   </button>
                 </div>
               </td>
@@ -191,11 +191,11 @@
             <td>{{ $job['downloaded'] ?? 0 }} / {{ $job['requested'] ?? 0 }}</td>
             <td>
               @if(($job['status'] ?? '') === 'completed')
-                <span class="badge bg-success">Completed</span>
+                <span class="badge bg-success">{{ __('Completed') }}</span>
               @elseif(($job['status'] ?? '') === 'downloading')
-                <span class="badge bg-warning text-dark">Downloading...</span>
+                <span class="badge bg-warning text-dark">{{ __('Downloading...') }}</span>
               @elseif(($job['status'] ?? '') === 'failed')
-                <span class="badge bg-danger">Failed</span>
+                <span class="badge bg-danger">{{ __('Failed') }}</span>
               @else
                 <span class="badge bg-secondary">{{ $job['status'] ?? 'pending' }}</span>
               @endif
@@ -212,13 +212,13 @@
 {{-- Quick Links --}}
 <div class="d-flex gap-2 mt-3">
   <a href="{{ route('admin.ai.htr.annotate') }}" class="btn atom-btn-outline-success">
-    <i class="fas fa-pen me-1"></i>Annotate Downloaded Images
+    <i class="fas fa-pen me-1"></i>{{ __('Annotate Downloaded Images') }}
   </a>
   <a href="{{ route('admin.ai.htr.training') }}" class="btn atom-btn-outline-success">
-    <i class="fas fa-graduation-cap me-1"></i>Training Status
+    <i class="fas fa-graduation-cap me-1"></i>{{ __('Training Status') }}
   </a>
   <a href="{{ route('admin.ai.htr.dashboard') }}" class="btn atom-btn-white">
-    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+    <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}
   </a>
 </div>
 

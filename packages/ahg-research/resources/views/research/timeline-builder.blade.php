@@ -18,8 +18,8 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">{{ __('Timeline Builder') }}</h1>
     <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#autoPopulateModal"><i class="fas fa-magic me-1"></i>Auto-populate</button>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal"><i class="fas fa-plus me-1"></i> Add Event</button>
+        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#autoPopulateModal"><i class="fas fa-magic me-1"></i>{{ __('Auto-populate') }}</button>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal"><i class="fas fa-plus me-1"></i> {{ __('Add Event') }}</button>
     </div>
 </div>
 

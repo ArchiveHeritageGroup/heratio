@@ -13,19 +13,19 @@
             @csrf
             <input type="hidden" name="checkout_id" value="{{ $checkout->id ?? 0 }}">
             <div class="row mb-3">
-                <div class="col-md-6"><label class="form-label">Item <span class="badge bg-danger ms-1">Required</span></label><input type="text" class="form-control" value="{{ e($checkout->item_title ?? '') }}" readonly></div>
-                <div class="col-md-6"><label class="form-label">Researcher <span class="badge bg-danger ms-1">Required</span></label><input type="text" class="form-control" value="{{ e(($checkout->first_name ?? '') . ' ' . ($checkout->last_name ?? '')) }}" readonly></div>
+                <div class="col-md-6"><label class="form-label">Item <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" class="form-control" value="{{ e($checkout->item_title ?? '') }}" readonly></div>
+                <div class="col-md-6"><label class="form-label">Researcher <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" class="form-control" value="{{ e(($checkout->first_name ?? '') . ' ' . ($checkout->last_name ?? '')) }}" readonly></div>
             </div>
             <div class="row mb-3">
-                <div class="col-md-4"><label class="form-label">Checked Out <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" value="{{ $checkout->checkout_date ?? '' }}" readonly></div>
-                <div class="col-md-4"><label class="form-label">Expected Return <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" value="{{ $checkout->expected_return ?? '' }}" readonly></div>
-                <div class="col-md-4"><label class="form-label">Return Condition <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <div class="col-md-4"><label class="form-label">Checked Out <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" class="form-control" value="{{ $checkout->checkout_date ?? '' }}" readonly></div>
+                <div class="col-md-4"><label class="form-label">Expected Return <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" class="form-control" value="{{ $checkout->expected_return ?? '' }}" readonly></div>
+                <div class="col-md-4"><label class="form-label">Return Condition <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                     <select name="return_condition" class="form-select" required><option value="good">{{ __('Good') }}</option><option value="fair">{{ __('Fair') }}</option><option value="damaged">{{ __('Damaged') }}</option><option value="missing_pages">{{ __('Missing Pages') }}</option></select>
                 </div>
             </div>
-            <div class="mb-3"><label class="form-label">Return Notes <span class="badge bg-danger ms-1">Required</span></label><textarea name="return_notes" class="form-control" rows="2"></textarea></div>
-            <div class="form-check mb-3"><input type="checkbox" name="confirm_return" class="form-check-input" id="confirmReturn" required><label class="form-check-label" for="confirmReturn">I confirm this item has been physically returned and inspected <span class="badge bg-secondary ms-1">Optional</span></label></div>
-            <button type="submit" class="btn atom-btn-white"><i class="fas fa-check-double me-1"></i>Verify Return</button>
+            <div class="mb-3"><label class="form-label">Return Notes <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><textarea name="return_notes" class="form-control" rows="2"></textarea></div>
+            <div class="form-check mb-3"><input type="checkbox" name="confirm_return" class="form-check-input" id="confirmReturn" required><label class="form-check-label" for="confirmReturn">I confirm this item has been physically returned and inspected <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
+            <button type="submit" class="btn atom-btn-white"><i class="fas fa-check-double me-1"></i>{{ __('Verify Return') }}</button>
             <a href="{{ route('research.retrievalQueue') }}" class="btn atom-btn-white">Cancel</a>
         </form>
     </div>

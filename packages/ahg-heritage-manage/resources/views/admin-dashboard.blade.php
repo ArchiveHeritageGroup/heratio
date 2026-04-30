@@ -24,7 +24,7 @@
             <div class="card-body text-center">
               <div class="mb-2"><i class="fas fa-users fa-2x text-primary"></i></div>
               <h3 class="mb-1">{{ number_format($totalUsers) }}</h3>
-              <small class="text-muted">Total Users</small>
+              <small class="text-muted">{{ __('Total Users') }}</small>
             </div>
           </div>
         </div>
@@ -33,7 +33,7 @@
             <div class="card-body text-center">
               <div class="mb-2"><i class="fas fa-user-check fa-2x text-success"></i></div>
               <h3 class="mb-1">{{ number_format($activeUsers) }}</h3>
-              <small class="text-muted">Active Users (30d)</small>
+              <small class="text-muted">{{ __('Active Users (30d)') }}</small>
             </div>
           </div>
         </div>
@@ -42,7 +42,7 @@
             <div class="card-body text-center">
               <div class="mb-2"><i class="fas fa-user-plus fa-2x text-info"></i></div>
               <h3 class="mb-1">{{ number_format($newThisMonth) }}</h3>
-              <small class="text-muted">New This Month</small>
+              <small class="text-muted">{{ __('New This Month') }}</small>
             </div>
           </div>
         </div>
@@ -51,7 +51,7 @@
             <div class="card-body text-center">
               <div class="mb-2"><i class="fas fa-bell fa-2x text-{{ $activeAlerts > 0 ? 'danger' : 'secondary' }}"></i></div>
               <h3 class="mb-1">{{ number_format($activeAlerts) }}</h3>
-              <small class="text-muted">Active Alerts</small>
+              <small class="text-muted">{{ __('Active Alerts') }}</small>
             </div>
           </div>
         </div>
@@ -65,7 +65,7 @@
             <div class="card-body text-center">
               <div class="mb-2"><i class="fas fa-landmark fa-2x text-dark"></i></div>
               <h3 class="mb-1">{{ number_format($totalAssets) }}</h3>
-              <small class="text-muted">Heritage Assets</small>
+              <small class="text-muted">{{ __('Heritage Assets') }}</small>
             </div>
           </div>
         </div>
@@ -74,7 +74,7 @@
             <div class="card-body text-center">
               <div class="mb-2"><i class="fas fa-check-circle fa-2x text-success"></i></div>
               <h3 class="mb-1">{{ number_format($recognisedAssets) }}</h3>
-              <small class="text-muted">Recognised</small>
+              <small class="text-muted">{{ __('Recognised') }}</small>
             </div>
           </div>
         </div>
@@ -83,7 +83,7 @@
             <div class="card-body text-center">
               <div class="mb-2"><i class="fas fa-hourglass-half fa-2x text-warning"></i></div>
               <h3 class="mb-1">{{ number_format($pendingAssets) }}</h3>
-              <small class="text-muted">Pending</small>
+              <small class="text-muted">{{ __('Pending') }}</small>
             </div>
           </div>
         </div>
@@ -92,7 +92,7 @@
             <div class="card-body text-center">
               <div class="mb-2"><i class="fas fa-coins fa-2x text-info"></i></div>
               <h3 class="mb-1">R{{ number_format($totalAssetValue, 2) }}</h3>
-              <small class="text-muted">Total Carrying Value</small>
+              <small class="text-muted">{{ __('Total Carrying Value') }}</small>
             </div>
           </div>
         </div>
@@ -150,16 +150,16 @@
             <div class="card-body">
               <div class="d-grid gap-2">
                 <a href="{{ route('heritage.admin-access-requests') }}" class="btn btn-outline-primary text-start">
-                  <i class="fas fa-key me-2"></i>Review Access Requests
+                  <i class="fas fa-key me-2"></i>{{ __('Review Access Requests') }}
                 </a>
                 <a href="{{ route('heritage.custodian-batch') }}" class="btn btn-outline-primary text-start">
-                  <i class="fas fa-layer-group me-2"></i>Create Batch Operation
+                  <i class="fas fa-layer-group me-2"></i>{{ __('Create Batch Operation') }}
                 </a>
                 <a href="{{ route('heritage.analytics-alerts') }}" class="btn btn-outline-primary text-start">
-                  <i class="fas fa-bell me-2"></i>View System Alerts
+                  <i class="fas fa-bell me-2"></i>{{ __('View System Alerts') }}
                 </a>
                 <a href="{{ route('heritage.landing') }}" class="btn btn-outline-secondary text-start" target="_blank">
-                  <i class="fas fa-eye me-2"></i>Preview Landing Page
+                  <i class="fas fa-eye me-2"></i>{{ __('Preview Landing Page') }}
                 </a>
               </div>
             </div>
@@ -211,7 +211,7 @@
                 @if($activeAlerts > 0)
                   <span class="badge bg-warning text-dark">{{ number_format($activeAlerts) }}</span>
                 @else
-                  <span class="badge bg-success">None</span>
+                  <span class="badge bg-success">{{ __('None') }}</span>
                 @endif
               </td>
             </tr>

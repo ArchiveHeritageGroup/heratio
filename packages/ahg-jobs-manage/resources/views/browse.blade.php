@@ -86,19 +86,19 @@
 
     <div class="d-flex flex-wrap gap-2 ms-auto">
       <a href="{{ route('job.browse', array_merge(request()->query(), [])) }}" class="btn btn-outline-secondary btn-sm" title="{{ __('Refresh') }}">
-        <i class="fas fa-sync-alt"></i> Refresh
+        <i class="fas fa-sync-alt"></i> {{ __('Refresh') }}
       </a>
       <button type="button" class="btn btn-outline-secondary btn-sm" id="auto-refresh-toggle" title="{{ __('Toggle auto refresh') }}">
         <i class="fas fa-sync"></i> Auto refresh: <span id="auto-refresh-label">off</span>
       </button>
       @if(Route::has('job.export-csv'))
         <a href="{{ route('job.export-csv') }}" class="btn btn-outline-secondary btn-sm" title="{{ __('Export CSV') }}">
-          <i class="fas fa-download"></i> Export CSV
+          <i class="fas fa-download"></i> {{ __('Export CSV') }}
         </a>
       @endif
       @if(($stats['completed'] ?? 0) + ($stats['error'] ?? 0) > 0 && Route::has('job.clear-inactive'))
         <a href="{{ route('job.clear-inactive') }}" class="btn btn-outline-danger btn-sm" title="{{ __('Clear inactive jobs') }}">
-          <i class="fas fa-trash-alt"></i> Clear inactive
+          <i class="fas fa-trash-alt"></i> {{ __('Clear inactive') }}
         </a>
       @endif
     </div>
@@ -126,11 +126,11 @@
               <td>{{ $job['name'] ?: '[Unknown]' }}</td>
               <td>
                 @if($job['status_id'] == 184)
-                  <span class="badge bg-success">Completed</span>
+                  <span class="badge bg-success">{{ __('Completed') }}</span>
                 @elseif($job['status_id'] == 185)
-                  <span class="badge bg-danger">Error</span>
+                  <span class="badge bg-danger">{{ __('Error') }}</span>
                 @else
-                  <span class="badge bg-primary">In progress</span>
+                  <span class="badge bg-primary">{{ __('In progress') }}</span>
                 @endif
               </td>
               <td>{{ $job['user_name'] ?: ($job['username'] ?? 'System') }}</td>

@@ -36,11 +36,11 @@
                 <div class="row text-center">
                     <div class="col-6">
                         <span class="h4 text-warning">{{ $dsarStats['pending'] ?? 0 }}</span>
-                        <small class="d-block">Pending</small>
+                        <small class="d-block">{{ __('Pending') }}</small>
                     </div>
                     <div class="col-6">
                         <span class="h4 text-danger">{{ $dsarStats['overdue'] ?? 0 }}</span>
-                        <small class="d-block">Overdue</small>
+                        <small class="d-block">{{ __('Overdue') }}</small>
                     </div>
                 </div>
             </div>
@@ -60,11 +60,11 @@
                 <div class="row">
                     <div class="col-6">
                         <span class="h4 text-danger">{{ $breachStats['open'] ?? 0 }}</span>
-                        <small class="d-block">Open</small>
+                        <small class="d-block">{{ __('Open') }}</small>
                     </div>
                     <div class="col-6">
                         <span class="h4 text-success">{{ $breachStats['closed'] ?? 0 }}</span>
-                        <small class="d-block">Closed</small>
+                        <small class="d-block">{{ __('Closed') }}</small>
                     </div>
                 </div>
             </div>
@@ -113,9 +113,9 @@
             <div class="card-header"><h5 class="mb-0"><i class="fas fa-clock me-2"></i>{{ __('Key Deadlines') }}</h5></div>
             <div class="card-body">
                 <ul class="list-unstyled mb-0">
-                    <li class="mb-2"><i class="fas fa-user-clock text-warning me-2"></i><strong>DSAR:</strong> 30 days (POPIA S25)</li>
-                    <li class="mb-2"><i class="fas fa-bell text-danger me-2"></i><strong>Breach:</strong> 72 hours to regulator (POPIA S22)</li>
-                    <li><i class="fas fa-balance-scale text-info me-2"></i><strong>Regulator:</strong> <a href="https://www.justice.gov.za/inforeg/" target="_blank">justice.gov.za/inforeg</a></li>
+                    <li class="mb-2"><i class="fas fa-user-clock text-warning me-2"></i><strong>{{ __('DSAR:') }}</strong> 30 days (POPIA S25)</li>
+                    <li class="mb-2"><i class="fas fa-bell text-danger me-2"></i><strong>{{ __('Breach:') }}</strong> 72 hours to regulator (POPIA S22)</li>
+                    <li><i class="fas fa-balance-scale text-info me-2"></i><strong>{{ __('Regulator:') }}</strong> <a href="https://www.justice.gov.za/inforeg/" target="_blank">justice.gov.za/inforeg</a></li>
                 </ul>
             </div>
         </div>

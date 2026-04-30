@@ -11,7 +11,7 @@
       <p class="text-muted mb-0">Manage your personal dashboards</p>
     </div>
     <a href="{{ route('landing-page.myDashboard.create') }}" class="btn btn-primary">
-      <i class="bi bi-plus-lg"></i> Create Dashboard
+      <i class="bi bi-plus-lg"></i> {{ __('Create Dashboard') }}
     </a>
   </div>
 
@@ -21,7 +21,7 @@
       <h3 class="mt-3 text-muted">{{ __('No Dashboards Yet') }}</h3>
       <p class="text-muted">Create your first personal dashboard to get started</p>
       <a href="{{ route('landing-page.myDashboard.create') }}" class="btn btn-primary btn-lg mt-2">
-        <i class="bi bi-plus-lg"></i> Create Dashboard
+        <i class="bi bi-plus-lg"></i> {{ __('Create Dashboard') }}
       </a>
     </div>
   @else
@@ -36,7 +36,7 @@
                 </h5>
                 <div>
                   @if ($page->is_default ?? false)
-                    <span class="badge bg-primary">Default</span>
+                    <span class="badge bg-primary">{{ __('Default') }}</span>
                   @endif
                 </div>
               </div>

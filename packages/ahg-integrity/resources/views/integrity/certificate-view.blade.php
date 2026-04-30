@@ -16,7 +16,7 @@
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
     <h5 class="mb-0">{{ __('Certificate of Destruction') }}</h5>
-    <button class="btn btn-sm btn-light d-print-none" onclick="window.print()"><i class="fas fa-print me-1"></i>Print</button>
+    <button class="btn btn-sm btn-light d-print-none" onclick="window.print()"><i class="fas fa-print me-1"></i>{{ __('Print') }}</button>
   </div>
   <div class="card-body">
     <div class="text-center mb-4">
@@ -26,22 +26,22 @@
 
     <table class="table table-bordered">
       <tbody>
-        <tr><td style="width:200px;background:#f5f5f5;"><strong>Certificate Number</strong></td><td><code>{{ $cert->certificate_number }}</code></td></tr>
-        <tr><td style="background:#f5f5f5;"><strong>Information Object</strong></td><td><a href="{{ url('/informationobject/show/' . $cert->information_object_id) }}">{{ $cert->io_title ?? 'Unknown' }}</a> (ID: {{ $cert->information_object_id }})</td></tr>
-        <tr><td style="background:#f5f5f5;"><strong>Repository</strong></td><td>{{ $cert->repository_name ?? '-' }}</td></tr>
-        <tr><td style="background:#f5f5f5;"><strong>Destruction Date</strong></td><td>{{ $cert->destruction_date }}</td></tr>
-        <tr><td style="background:#f5f5f5;"><strong>Method of Destruction</strong></td><td>{{ ucfirst(str_replace('_', ' ', $cert->destruction_method)) }}</td></tr>
-        <tr><td style="background:#f5f5f5;"><strong>Authorized By</strong></td><td>{{ $cert->authorized_by }}</td></tr>
+        <tr><td style="width:200px;background:#f5f5f5;"><strong>{{ __('Certificate Number') }}</strong></td><td><code>{{ $cert->certificate_number }}</code></td></tr>
+        <tr><td style="background:#f5f5f5;"><strong>{{ __('Information Object') }}</strong></td><td><a href="{{ url('/informationobject/show/' . $cert->information_object_id) }}">{{ $cert->io_title ?? 'Unknown' }}</a> (ID: {{ $cert->information_object_id }})</td></tr>
+        <tr><td style="background:#f5f5f5;"><strong>{{ __('Repository') }}</strong></td><td>{{ $cert->repository_name ?? '-' }}</td></tr>
+        <tr><td style="background:#f5f5f5;"><strong>{{ __('Destruction Date') }}</strong></td><td>{{ $cert->destruction_date }}</td></tr>
+        <tr><td style="background:#f5f5f5;"><strong>{{ __('Method of Destruction') }}</strong></td><td>{{ ucfirst(str_replace('_', ' ', $cert->destruction_method)) }}</td></tr>
+        <tr><td style="background:#f5f5f5;"><strong>{{ __('Authorized By') }}</strong></td><td>{{ $cert->authorized_by }}</td></tr>
         @if($cert->witness)
-        <tr><td style="background:#f5f5f5;"><strong>Witness</strong></td><td>{{ $cert->witness }}</td></tr>
+        <tr><td style="background:#f5f5f5;"><strong>{{ __('Witness') }}</strong></td><td>{{ $cert->witness }}</td></tr>
         @endif
         @if($cert->content_hash)
-        <tr><td style="background:#f5f5f5;"><strong>Content Hash</strong></td><td><code class="small" style="word-break:break-all;">{{ $cert->content_hash }}</code></td></tr>
+        <tr><td style="background:#f5f5f5;"><strong>{{ __('Content Hash') }}</strong></td><td><code class="small" style="word-break:break-all;">{{ $cert->content_hash }}</code></td></tr>
         @endif
         @if($cert->disposition_queue_id)
-        <tr><td style="background:#f5f5f5;"><strong>Disposition Queue</strong></td><td>#{{ $cert->disposition_queue_id }}</td></tr>
+        <tr><td style="background:#f5f5f5;"><strong>{{ __('Disposition Queue') }}</strong></td><td>#{{ $cert->disposition_queue_id }}</td></tr>
         @endif
-        <tr><td style="background:#f5f5f5;"><strong>Created</strong></td><td>{{ $cert->created_at }}</td></tr>
+        <tr><td style="background:#f5f5f5;"><strong>{{ __('Created') }}</strong></td><td>{{ $cert->created_at }}</td></tr>
       </tbody>
     </table>
 
@@ -61,6 +61,6 @@
 </div>
 
 <div class="mt-3 d-print-none">
-  <a href="{{ route('integrity.certificates') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Certificates</a>
+  <a href="{{ route('integrity.certificates') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Certificates') }}</a>
 </div>
 @endsection

@@ -12,7 +12,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0"><i class="fas fa-magic me-2"></i> {{ $isEdit ? 'Edit rule #' . $rule->id : 'New classification rule' }}</h1>
-  <a href="{{ route('records.classification.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Back to rules</a>
+  <a href="{{ route('records.classification.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to rules') }}</a>
 </div>
 
 @if($errors->any())<div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif
@@ -103,7 +103,7 @@
       <form method="POST" action="{{ route('records.classification.destroy', $rule->id) }}" class="d-inline" onsubmit="return confirm('Delete this rule? Its rm_classification_log entries are kept for audit.');">
         @csrf
         @method('DELETE')
-        <button type="submit" class="btn btn-outline-danger"><i class="fas fa-trash me-1"></i>Delete</button>
+        <button type="submit" class="btn btn-outline-danger"><i class="fas fa-trash me-1"></i>{{ __('Delete') }}</button>
       </form>
     @endif
   </div>

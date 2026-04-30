@@ -20,14 +20,14 @@
             No results found
           @endif
         </h1>
-        <span class="small text-muted">DOIs</span>
+        <span class="small text-muted">{{ __('DOIs') }}</span>
       </div>
       <div class="d-flex gap-2">
         <a href="{{ route('doi.index') }}" class="btn btn-sm btn-outline-secondary">
-          <i class="fas fa-arrow-left me-1"></i> Dashboard
+          <i class="fas fa-arrow-left me-1"></i> {{ __('Dashboard') }}
         </a>
         <a href="{{ route('doi.report') }}?format=csv&status={{ $currentStatus }}" class="btn btn-sm btn-outline-secondary">
-          <i class="fas fa-download me-1"></i> Export CSV
+          <i class="fas fa-download me-1"></i> {{ __('Export CSV') }}
         </a>
       </div>
     </div>
@@ -89,13 +89,13 @@
                 </td>
                 <td>
                   @if($doi['status'] === 'findable')
-                    <span class="badge bg-success">Findable</span>
+                    <span class="badge bg-success">{{ __('Findable') }}</span>
                   @elseif($doi['status'] === 'registered')
-                    <span class="badge bg-info">Registered</span>
+                    <span class="badge bg-info">{{ __('Registered') }}</span>
                   @elseif($doi['status'] === 'deleted')
-                    <span class="badge bg-danger">Deleted</span>
+                    <span class="badge bg-danger">{{ __('Deleted') }}</span>
                   @else
-                    <span class="badge bg-secondary">Draft</span>
+                    <span class="badge bg-secondary">{{ __('Draft') }}</span>
                   @endif
                 </td>
                 <td>{{ $doi['minted_at'] ? \Carbon\Carbon::parse($doi['minted_at'])->format('Y-m-d') : '-' }}</td>

@@ -25,12 +25,12 @@
 {{-- Wizard Progress --}}
 <div class="mb-4">
     <div class="d-flex justify-content-between text-center">
-        <div class="flex-fill"><span class="badge bg-primary rounded-pill">1</span><br><small class="fw-bold">Configure</small></div>
-        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">2</span><br><small class="text-muted">Upload</small></div>
-        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">3</span><br><small class="text-muted">Map</small></div>
-        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">4</span><br><small class="text-muted">Validate</small></div>
-        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">5</span><br><small class="text-muted">Preview</small></div>
-        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">6</span><br><small class="text-muted">Commit</small></div>
+        <div class="flex-fill"><span class="badge bg-primary rounded-pill">1</span><br><small class="fw-bold">{{ __('Configure') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">2</span><br><small class="text-muted">{{ __('Upload') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">3</span><br><small class="text-muted">{{ __('Map') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">4</span><br><small class="text-muted">{{ __('Validate') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">5</span><br><small class="text-muted">{{ __('Preview') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">6</span><br><small class="text-muted">{{ __('Commit') }}</small></div>
     </div>
     <div class="progress mt-2" style="height:4px;">
         <div class="progress-bar" style="width:8%"></div>
@@ -73,7 +73,7 @@
                                 <i class="fas fa-clipboard-list me-1"></i>Accessions
                             </label>
                         </div>
-                        <small class="text-muted">Choose whether to import archival descriptions or accession records</small>
+                        <small class="text-muted">{{ __('Choose whether to import archival descriptions or accession records') }}</small>
                     </div>
 
                     <div class="row" id="sector-standard-row">
@@ -211,28 +211,28 @@
                         <input class="form-check-input" type="checkbox" id="process_virus_scan" name="process_virus_scan" value="1" @checked($session->process_virus_scan ?? true)>
                         <label class="form-check-label" for="process_virus_scan"><i class="fas fa-shield-virus text-danger me-1"></i>Virus Scan</label>
                     </div>
-                    <small class="text-muted d-block ms-4">ClamAV malware scan</small>
+                    <small class="text-muted d-block ms-4">{{ __('ClamAV malware scan') }}</small>
                 </div>
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_ocr" name="process_ocr" value="1" @checked($session->process_ocr ?? false)>
                         <label class="form-check-label" for="process_ocr"><i class="fas fa-file-alt text-primary me-1"></i>OCR</label>
                     </div>
-                    <small class="text-muted d-block ms-4">Tesseract text extraction</small>
+                    <small class="text-muted d-block ms-4">{{ __('Tesseract text extraction') }}</small>
                 </div>
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_ner" name="process_ner" value="1" @checked($session->process_ner ?? false)>
                         <label class="form-check-label" for="process_ner"><i class="fas fa-tags text-success me-1"></i>NER</label>
                     </div>
-                    <small class="text-muted d-block ms-4">Named entity extraction</small>
+                    <small class="text-muted d-block ms-4">{{ __('Named entity extraction') }}</small>
                 </div>
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_summarize" name="process_summarize" value="1" @checked($session->process_summarize ?? false)>
                         <label class="form-check-label" for="process_summarize"><i class="fas fa-compress-alt text-warning me-1"></i>Summarize</label>
                     </div>
-                    <small class="text-muted d-block ms-4">Auto-generate summaries</small>
+                    <small class="text-muted d-block ms-4">{{ __('Auto-generate summaries') }}</small>
                 </div>
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
@@ -246,21 +246,21 @@
                         <input class="form-check-input" type="checkbox" id="process_format_id" name="process_format_id" value="1" @checked($session->process_format_id ?? false)>
                         <label class="form-check-label" for="process_format_id"><i class="fas fa-fingerprint text-secondary me-1"></i>Format ID</label>
                     </div>
-                    <small class="text-muted d-block ms-4">Siegfried PRONOM identification</small>
+                    <small class="text-muted d-block ms-4">{{ __('Siegfried PRONOM identification') }}</small>
                 </div>
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_face_detect" name="process_face_detect" value="1" @checked($session->process_face_detect ?? false)>
                         <label class="form-check-label" for="process_face_detect"><i class="fas fa-user-circle text-dark me-1"></i>Face Detection</label>
                     </div>
-                    <small class="text-muted d-block ms-4">Detect & match faces</small>
+                    <small class="text-muted d-block ms-4">{{ __('Detect & match faces') }}</small>
                 </div>
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_translate" name="process_translate" value="1" @checked($session->process_translate ?? false)>
                         <label class="form-check-label" for="process_translate"><i class="fas fa-language text-primary me-1"></i>Translate</label>
                     </div>
-                    <small class="text-muted d-block ms-4">Argos offline translation</small>
+                    <small class="text-muted d-block ms-4">{{ __('Argos offline translation') }}</small>
                 </div>
             </div>
         </div>
@@ -268,7 +268,7 @@
 
     <div class="d-flex justify-content-between">
         <a href="{{ route('ingest.index') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+            <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}
         </a>
         <button type="submit" class="btn atom-btn-white">
             Next: Upload Files <i class="fas fa-arrow-right ms-1"></i>

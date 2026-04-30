@@ -43,11 +43,11 @@
       <i class="fas fa-3x fa-columns me-3 text-primary" aria-hidden="true"></i>
       <div>
         <h1 class="mb-0">{{ __('Field Mappings') }}</h1>
-        <span class="small text-muted">These fields map display elements to existing database tables and columns</span>
+        <span class="small text-muted">{{ __('These fields map display elements to existing database tables and columns') }}</span>
       </div>
     </div>
     <a href="{{ route('glam.index') }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left me-1"></i> Back
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
     </a>
   </div>
 

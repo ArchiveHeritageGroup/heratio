@@ -10,9 +10,9 @@
       <dt class="col-sm-3">Title</dt><dd class="col-sm-9">{{ $record->title ?? $record->agreement_number ?? 'Untitled' }}</dd>
       <dt class="col-sm-3">Status</dt><dd class="col-sm-9">{{ ucfirst($record->status ?? 'draft') }}</dd>
     </dl>
-    <p class="text-danger"><strong>This action cannot be undone.</strong> All related documents, linked records, and reminders will also be deleted.</p>
+    <p class="text-danger"><strong>{{ __('This action cannot be undone.') }}</strong> All related documents, linked records, and reminders will also be deleted.</p>
     <form method="POST" action="{{ route('donor.agreement.delete', $record->id) }}">@csrf @method('DELETE')
-      <div class="d-flex gap-2"><button type="submit" class="btn btn-danger"><i class="fas fa-trash me-1"></i> Delete</button><a href="{{ route('donor.agreement.view', $record->id) }}" class="btn atom-btn-white"><i class="fas fa-times me-1"></i> Cancel</a></div>
+      <div class="d-flex gap-2"><button type="submit" class="btn btn-danger"><i class="fas fa-trash me-1"></i> {{ __('Delete') }}</button><a href="{{ route('donor.agreement.view', $record->id) }}" class="btn atom-btn-white"><i class="fas fa-times me-1"></i> {{ __('Cancel') }}</a></div>
     </form>
   </div></div>
 @endsection

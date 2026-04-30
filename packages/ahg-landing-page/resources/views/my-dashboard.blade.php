@@ -8,10 +8,10 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h1 class="h4 mb-1">{{ e($page->name) }}</h1>
-      <small class="text-muted">Your personal dashboard</small>
+      <small class="text-muted">{{ __('Your personal dashboard') }}</small>
     </div>
     <a href="{{ route('landing-page.myDashboard.list') }}" class="btn btn-outline-primary btn-sm">
-      <i class="bi bi-pencil"></i> Customize Dashboard
+      <i class="bi bi-pencil"></i> {{ __('Customize Dashboard') }}
     </a>
   </div>
 </div>
@@ -142,7 +142,7 @@
   <h3 class="mt-3 text-muted">{{ __('Your Dashboard is Empty') }}</h3>
   <p class="text-muted">Add blocks to customize your personal dashboard</p>
   <a href="{{ route('landing-page.myDashboard.list') }}" class="btn btn-primary btn-lg mt-2">
-    <i class="bi bi-pencil"></i> Customize Dashboard
+    <i class="bi bi-pencil"></i> {{ __('Customize Dashboard') }}
   </a>
 </div>
 @endif

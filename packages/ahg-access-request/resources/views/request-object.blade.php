@@ -32,12 +32,12 @@
                         <input type="hidden" name="object_slug" value="{{ $slug }}">
 
                         <div class="mb-3">
-                            <label for="reason" class="form-label">Reason for Access <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                            <label for="reason" class="form-label">Reason for Access <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <textarea class="form-control" id="reason" name="reason" rows="4" required>{{ old('reason') }}</textarea>
                         </div>
 
                         <div class="mb-3">
-                            <label for="access_type" class="form-label">Access Type <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label for="access_type" class="form-label">Access Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="access_type" name="access_type">
                                 <option value="view">{{ __('View only') }}</option>
                                 <option value="download">{{ __('Download') }}</option>
@@ -48,7 +48,7 @@
                         <div class="d-flex justify-content-between">
                             <a href="{{ url()->previous() }}" class="atom-btn-white">Cancel</a>
                             <button type="submit" class="atom-btn-white">
-                                <i class="fas fa-paper-plane me-1"></i>Submit Request
+                                <i class="fas fa-paper-plane me-1"></i>{{ __('Submit Request') }}
                             </button>
                         </div>
                     </form>

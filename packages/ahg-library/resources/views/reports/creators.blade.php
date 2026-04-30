@@ -6,14 +6,14 @@
 <div class="sidebar-content">
   <h4>{{ __('Library Reports') }}</h4>
   <ul class="list-unstyled">
-    <li><a href="{{ route('library.report-catalogue') }}"><i class="fas fa-book me-2"></i>Catalogue</a></li>
-    <li><a href="{{ route('library.report-creators') }}"><i class="fas fa-user-edit me-2"></i>Creators</a></li>
-    <li><a href="{{ route('library.report-subjects') }}"><i class="fas fa-tags me-2"></i>Subjects</a></li>
-    <li><a href="{{ route('library.report-publishers') }}"><i class="fas fa-building me-2"></i>Publishers</a></li>
-    <li><a href="{{ route('library.report-call-numbers') }}"><i class="fas fa-sort-alpha-down me-2"></i>Call Numbers</a></li>
+    <li><a href="{{ route('library.report-catalogue') }}"><i class="fas fa-book me-2"></i>{{ __('Catalogue') }}</a></li>
+    <li><a href="{{ route('library.report-creators') }}"><i class="fas fa-user-edit me-2"></i>{{ __('Creators') }}</a></li>
+    <li><a href="{{ route('library.report-subjects') }}"><i class="fas fa-tags me-2"></i>{{ __('Subjects') }}</a></li>
+    <li><a href="{{ route('library.report-publishers') }}"><i class="fas fa-building me-2"></i>{{ __('Publishers') }}</a></li>
+    <li><a href="{{ route('library.report-call-numbers') }}"><i class="fas fa-sort-alpha-down me-2"></i>{{ __('Call Numbers') }}</a></li>
   </ul>
   <hr>
-  <a href="{{ route('library.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a>
+  <a href="{{ route('library.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a>
 </div>
 @endsection
 @section('title-block')<h1><i class="fas fa-user-edit me-2"></i>Creators/Authors</h1>@endsection

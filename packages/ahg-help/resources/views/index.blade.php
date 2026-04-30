@@ -36,7 +36,7 @@
           </div>
           <div class="col-md-4 text-md-end mt-2 mt-md-0">
             <a href="https://docs.theahg.co.za" target="_blank" rel="noopener" class="btn atom-btn-white">
-              <i class="fas fa-external-link-alt me-1"></i>Open Documentation
+              <i class="fas fa-external-link-alt me-1"></i>{{ __('Open Documentation') }}
             </a>
           </div>
         </div>

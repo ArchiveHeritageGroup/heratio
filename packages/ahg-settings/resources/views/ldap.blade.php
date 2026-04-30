@@ -19,19 +19,19 @@
           <div id="ldap-collapse" class="accordion-collapse collapse show">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Host <span class="badge bg-danger ms-1">Required</span></label>
+                <label class="form-label">Host <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <input type="text" name="settings[ldapHost]" class="form-control" value="{{ $settings['ldapHost'] ?? '' }}" placeholder="{{ __('ldap.example.com') }}">
               </div>
               <div class="mb-3">
-                <label class="form-label">Port <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Port <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="number" name="settings[ldapPort]" class="form-control" value="{{ $settings['ldapPort'] ?? '389' }}" style="max-width:200px;">
               </div>
               <div class="mb-3">
-                <label class="form-label">Base DN <span class="badge bg-danger ms-1">Required</span></label>
+                <label class="form-label">Base DN <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <input type="text" name="settings[ldapBaseDn]" class="form-control" value="{{ $settings['ldapBaseDn'] ?? '' }}" placeholder="{{ __('dc=example,dc=com') }}">
               </div>
               <div class="mb-3">
-                <label class="form-label">Bind Lookup Attribute <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Bind Lookup Attribute <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="settings[ldapBindAttribute]" class="form-control" value="{{ $settings['ldapBindAttribute'] ?? 'uid' }}">
               </div>
             </div>

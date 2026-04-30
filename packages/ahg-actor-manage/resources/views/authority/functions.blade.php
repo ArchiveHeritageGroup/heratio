@@ -21,9 +21,9 @@
 
 <div class="card mb-3">
   <div class="card-header d-flex justify-content-between" style="background: var(--ahg-primary); color: #fff;">
-    <span><i class="fas fa-sitemap me-1"></i>ISDF Function Links</span>
+    <span><i class="fas fa-sitemap me-1"></i>{{ __('ISDF Function Links') }}</span>
     <button class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#addFunctionModal">
-      <i class="fas fa-plus me-1"></i>Add
+      <i class="fas fa-plus me-1"></i>{{ __('Add') }}
     </button>
   </div>
   <div class="card-body p-0">
@@ -115,7 +115,7 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
         <button type="button" class="btn atom-btn-white" id="btn-save-func">
-          <i class="fas fa-save me-1"></i>Save
+          <i class="fas fa-save me-1"></i>{{ __('Save') }}
         </button>
       </div>
     </div>

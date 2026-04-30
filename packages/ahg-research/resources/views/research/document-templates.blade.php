@@ -16,7 +16,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">{{ __('Document Templates') }}</h1>
-    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#newTemplateModal"><i class="fas fa-plus me-1"></i> New Template</button>
+    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#newTemplateModal"><i class="fas fa-plus me-1"></i> {{ __('New Template') }}</button>
 </div>
 
 @if(empty($templates))
@@ -58,11 +58,11 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Name * <span class="badge bg-danger ms-1">Required</span></label>
+                        <label class="form-label">Name * <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <input type="text" name="name" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Document Type * <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Document Type * <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select name="document_type" class="form-select">
                             <option value="research_report">{{ __('Research Report') }}</option>
                             <option value="finding_aid">{{ __('Finding Aid') }}</option>
@@ -72,11 +72,11 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Description <span class="badge bg-danger ms-1">Required</span></label>
+                        <label class="form-label">Description <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <textarea name="description" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Fields (JSON) <span class="badge bg-danger ms-1">Required</span></label>
+                        <label class="form-label">Fields (JSON) <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <textarea name="fields_json" class="form-control font-monospace" rows="4" placeholder='[{"name": "title", "type": "text", "required": true}]'></textarea>
                     </div>
                 </div>
@@ -103,11 +103,11 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Name * <span class="badge bg-danger ms-1">Required</span></label>
+                        <label class="form-label">Name * <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <input type="text" name="name" id="editTemplateName" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Document Type * <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Document Type * <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select name="document_type" id="editTemplateType" class="form-select">
                             <option value="research_report">{{ __('Research Report') }}</option>
                             <option value="finding_aid">{{ __('Finding Aid') }}</option>
@@ -117,11 +117,11 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <textarea name="description" id="editTemplateDescription" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Fields (JSON) <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Fields (JSON) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <textarea name="fields_json" id="editTemplateFields" class="form-control font-monospace" rows="4"></textarea>
                     </div>
                 </div>

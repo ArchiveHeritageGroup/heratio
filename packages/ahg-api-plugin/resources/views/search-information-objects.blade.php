@@ -13,7 +13,7 @@
           <input type="text" name="q" class="form-control" value="{{ e($query ?? '') }}" placeholder="{{ __('Search by title, identifier, or scope...') }}" autofocus>
         </div>
         <div class="col-md-2">
-          <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i> Search</button>
+          <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i> {{ __('Search') }}</button>
         </div>
       </form>
     </div>

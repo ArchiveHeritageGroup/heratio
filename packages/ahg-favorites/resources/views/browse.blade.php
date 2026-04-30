@@ -35,20 +35,20 @@
     @if($totalCount > 0)
       <div class="dropdown">
         <button class="btn atom-btn-white dropdown-toggle" data-bs-toggle="dropdown">
-          <i class="fas fa-download me-1"></i>Export
+          <i class="fas fa-download me-1"></i>{{ __('Export') }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
           <li><a class="dropdown-item" href="{{ route('favorites.export.csv', request()->query()) }}"><i class="fas fa-file-csv me-2 text-success"></i>CSV</a></li>
           <li><a class="dropdown-item" href="{{ route('favorites.export.json', request()->query()) }}"><i class="fas fa-file-code me-2 text-warning"></i>JSON</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="{{ route('favorites.export.csv', array_merge(request()->query(), ['format' => 'print'])) }}" target="_blank"><i class="fas fa-print me-2"></i>Print</a></li>
+          <li><a class="dropdown-item" href="{{ route('favorites.export.csv', array_merge(request()->query(), ['format' => 'print'])) }}" target="_blank"><i class="fas fa-print me-2"></i>{{ __('Print') }}</a></li>
         </ul>
       </div>
     @endif
 
     {{-- Import --}}
     <button class="btn atom-btn-white" data-bs-toggle="modal" data-bs-target="#importModal">
-      <i class="fas fa-upload me-1"></i>Import
+      <i class="fas fa-upload me-1"></i>{{ __('Import') }}
     </button>
 
     {{-- View Toggle --}}
@@ -66,7 +66,7 @@
       <form method="post" action="{{ route('favorites.clear') }}" onsubmit="return confirm('Are you sure you want to clear all favorites?');">
         @csrf
         <button type="submit" class="btn atom-btn-white btn-sm">
-          <i class="fas fa-trash-alt me-1"></i>Clear All
+          <i class="fas fa-trash-alt me-1"></i>{{ __('Clear All') }}
         </button>
       </form>
     @endif
@@ -78,20 +78,20 @@
   <div class="col-lg-3 col-md-4">
     <div class="card mb-3">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <span><i class="fas fa-folder me-1"></i> Folders</span>
+        <span><i class="fas fa-folder me-1"></i> {{ __('Folders') }}</span>
         <button class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#newFolderModal"><i class="fas fa-plus"></i></button>
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('favorites.browse') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center{{ empty($params['folder_id']) && empty($params['unfiled']) ? ' active' : '' }}">
-          <span><i class="fas fa-heart me-2"></i>All Favorites</span>
+          <span><i class="fas fa-heart me-2"></i>{{ __('All Favorites') }}</span>
           <span class="badge bg-primary rounded-pill">{{ $totalCount }}</span>
         </a>
         <a href="{{ route('favorites.browse', ['unfiled' => 1]) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center{{ !empty($params['unfiled']) ? ' active' : '' }}">
-          <span><i class="fas fa-inbox me-2"></i>Unfiled</span>
+          <span><i class="fas fa-inbox me-2"></i>{{ __('Unfiled') }}</span>
           <span class="badge bg-secondary rounded-pill">{{ $unfiledCount }}</span>
         </a>
         @if(!empty($folders) && count($folders) > 0)
-          <li class="list-group-item px-3 py-1 bg-light"><small class="text-muted text-uppercase">My Folders</small></li>
+          <li class="list-group-item px-3 py-1 bg-light"><small class="text-muted text-uppercase">{{ __('My Folders') }}</small></li>
           @foreach($folders as $folder)
             <a href="{{ route('favorites.browse', ['folder_id' => $folder->id]) }}"
                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center{{ ($params['folder_id'] ?? '') == $folder->id ? ' active' : '' }}">
@@ -123,25 +123,25 @@
             @endif
             <div class="d-flex gap-1 flex-wrap">
               <button type="button" class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#editFolderModal">
-                <i class="fas fa-edit"></i> Edit
+                <i class="fas fa-edit"></i> {{ __('Edit') }}
               </button>
               @if(empty($activeFolder->share_token))
                 <form method="post" action="{{ route('favorites.folder.share', $activeFolder->id) }}" class="d-inline">
                   @csrf
                   <button type="submit" class="btn btn-sm atom-btn-white">
-                    <i class="fas fa-share-alt"></i> Share
+                    <i class="fas fa-share-alt"></i> {{ __('Share') }}
                   </button>
                 </form>
               @else
                 <button type="button" class="btn btn-sm atom-btn-white text-white" data-bs-toggle="modal" data-bs-target="#shareInfoModal">
-                  <i class="fas fa-share-alt"></i> Shared
+                  <i class="fas fa-share-alt"></i> {{ __('Shared') }}
                 </button>
               @endif
               <form method="post" action="{{ route('favorites.folder.delete', $activeFolder->id) }}" class="d-inline"
                     onsubmit="return confirm('Delete this folder? Items will be moved to Unfiled.');">
                 @csrf
                 <button type="submit" class="btn btn-sm atom-btn-outline-danger">
-                  <i class="fas fa-trash"></i> Delete
+                  <i class="fas fa-trash"></i> {{ __('Delete') }}
                 </button>
               </form>
             </div>
@@ -188,7 +188,7 @@
           <span id="selectedCount" class="text-muted small me-2">0 selected</span>
           <button type="submit" name="action" value="remove" class="btn btn-sm atom-btn-outline-danger"
                   onclick="return confirm('Remove selected favorites?');">
-            <i class="fas fa-trash me-1"></i>Remove Selected
+            <i class="fas fa-trash me-1"></i>{{ __('Remove Selected') }}
           </button>
           @if(!empty($folders) && count($folders) > 0)
             <div class="input-group input-group-sm" style="max-width: 250px;">
@@ -200,7 +200,7 @@
                 @endforeach
               </select>
               <button type="submit" name="action" value="move" class="btn btn-sm atom-btn-white">
-                <i class="fas fa-folder"></i> Move
+                <i class="fas fa-folder"></i> {{ __('Move') }}
               </button>
             </div>
           @endif
@@ -338,7 +338,7 @@
                     <input type="text" class="form-control notes-input" id="notes-input-{{ $item->id }}"
                            placeholder="{{ __('Add a note...') }}" value="{{ e($item->notes ?? '') }}">
                     <button class="btn atom-btn-white notes-save" data-fav-id="{{ $item->id }}" type="button">
-                      <i class="fas fa-save"></i> Save
+                      <i class="fas fa-save"></i> {{ __('Save') }}
                     </button>
                   </div>
                 </td>
@@ -363,12 +363,12 @@
       <div class="modal-content">
         <div class="modal-header"><h5 class="modal-title"><i class="fas fa-folder-plus me-2"></i>New Folder</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
-          <div class="mb-3"><label class="form-label">Folder Name <span class="badge bg-danger ms-1">Required</span></label><input type="text" name="name" class="form-control" required maxlength="255"></div>
-          <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="description" class="form-control" rows="2"></textarea></div>
-          <div class="mb-3"><label class="form-label">Color <span class="badge bg-secondary ms-1">Optional</span></label><input type="color" name="color" class="form-control form-control-color" value="#0d6efd"></div>
+          <div class="mb-3"><label class="form-label">Folder Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" class="form-control" required maxlength="255"></div>
+          <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="description" class="form-control" rows="2"></textarea></div>
+          <div class="mb-3"><label class="form-label">Color <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="color" name="color" class="form-control form-control-color" value="#0d6efd"></div>
           @if(!empty($folders) && count($folders) > 0)
             <div class="mb-3">
-              <label class="form-label">Parent Folder <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label">Parent Folder <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select class="form-select" name="parent_id">
                 <option value="">{{ __('None (top level)') }}</option>
                 @foreach($folders as $f)
@@ -380,7 +380,7 @@
             </div>
           @endif
         </div>
-        <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-folder-plus me-1"></i>Create Folder</button></div>
+        <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-folder-plus me-1"></i>{{ __('Create Folder') }}</button></div>
       </div>
     </form>
   </div>
@@ -395,11 +395,11 @@
       <div class="modal-content">
         <div class="modal-header"><h5 class="modal-title"><i class="fas fa-upload me-2"></i>Import Favorites</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
-          <div class="mb-3"><label class="form-label">Upload CSV <span class="badge bg-secondary ms-1">Optional</span></label><input type="file" name="file" class="form-control" accept=".csv,.txt"><small class="text-muted">CSV must contain a "slug" or "reference_code" column.</small></div>
+          <div class="mb-3"><label class="form-label">Upload CSV <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="file" name="file" class="form-control" accept=".csv,.txt"><small class="text-muted">{{ __('CSV must contain a "slug" or "reference_code" column.') }}</small></div>
           <div class="text-center text-muted my-2">&mdash; or &mdash;</div>
-          <div class="mb-3"><label class="form-label">Paste Slugs <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="slugs" class="form-control" rows="4" placeholder="{{ __('One slug per line, or comma-separated...') }}"></textarea></div>
+          <div class="mb-3"><label class="form-label">Paste Slugs <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="slugs" class="form-control" rows="4" placeholder="{{ __('One slug per line, or comma-separated...') }}"></textarea></div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-upload me-1"></i>Import</button></div>
+        <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-upload me-1"></i>{{ __('Import') }}</button></div>
       </div>
     </form>
   </div>
@@ -414,10 +414,10 @@
       <div class="modal-content">
         <div class="modal-header"><h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Folder</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
-          <div class="mb-3"><label class="form-label">Folder Name <span class="badge bg-danger ms-1">Required</span></label><input type="text" name="name" class="form-control" value="{{ e($activeFolder->name) }}" required maxlength="255"></div>
-          <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="description" class="form-control" rows="2">{{ e($activeFolder->description ?? '') }}</textarea></div>
+          <div class="mb-3"><label class="form-label">Folder Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" class="form-control" value="{{ e($activeFolder->name) }}" required maxlength="255"></div>
+          <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="description" class="form-control" rows="2">{{ e($activeFolder->description ?? '') }}</textarea></div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save Changes</button></div>
+        <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ __('Save Changes') }}</button></div>
       </div>
     </form>
   </div>
@@ -430,7 +430,7 @@
       <div class="modal-header"><h5 class="modal-title"><i class="fas fa-share-alt me-2"></i>Folder is Shared</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Share Link <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label">Share Link <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <div class="input-group">
             <input type="text" class="form-control" readonly value="{{ url('/favorites/shared/' . $activeFolder->share_token) }}">
             <button type="button" class="btn atom-btn-white" onclick="navigator.clipboard.writeText(this.previousElementSibling.value); this.innerHTML='<i class=\'fas fa-check\'></i>';">
@@ -446,7 +446,7 @@
         <form action="{{ route('favorites.folder.revoke', $activeFolder->id) }}" method="post" class="d-inline">
           @csrf
           <button type="submit" class="btn atom-btn-outline-danger" onclick="return confirm('Revoke sharing? The link will no longer work.');">
-            <i class="fas fa-ban me-1"></i>Revoke Sharing
+            <i class="fas fa-ban me-1"></i>{{ __('Revoke Sharing') }}
           </button>
         </form>
         <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Close') }}</button>
@@ -468,13 +468,13 @@
       <label class="dropdown-item">
         <input type="checkbox" class="form-check-input me-2 col-toggle" data-col="col-dates" checked>
         Dates
-       <span class="badge bg-secondary ms-1">Optional</span></label>
+       <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
     </li>
     <li>
       <label class="dropdown-item">
         <input type="checkbox" class="form-check-input me-2 col-toggle" data-col="col-repository" checked>
         Repository
-       <span class="badge bg-secondary ms-1">Optional</span></label>
+       <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
     </li>
   </ul>
 </div>

@@ -21,9 +21,9 @@
             <dt class="col-sm-4">Status</dt>
             <dd class="col-sm-8">
                 @if($researcher->status === 'approved')
-                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Active</span>
+                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>{{ __('Active') }}</span>
                 @elseif($researcher->status === 'expired')
-                    <span class="badge bg-danger"><i class="fas fa-exclamation-circle me-1"></i>Expired</span>
+                    <span class="badge bg-danger"><i class="fas fa-exclamation-circle me-1"></i>{{ __('Expired') }}</span>
                 @else
                     <span class="badge bg-secondary">{{ ucfirst($researcher->status) }}</span>
                 @endif
@@ -42,7 +42,7 @@
                         <small class="text-muted">({{ \Carbon\Carbon::parse($researcher->expires_at)->diffForHumans() }})</small>
                     @endif
                 @else
-                    <span class="text-muted">Not set</span>
+                    <span class="text-muted">{{ __('Not set') }}</span>
                 @endif
             </dd>
         </dl>
@@ -56,11 +56,11 @@
         <form method="POST">
             @csrf
             <div class="mb-3">
-                <label class="form-label">Reason for Renewal <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Reason for Renewal <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea class="form-control" name="reason" rows="4" placeholder="{{ __('Please describe why you need to renew your researcher access (e.g., ongoing research project, continued study...)') }}"></textarea>
                 <div class="form-text">Providing a reason helps administrators process your request faster.</div>
             </div>
-            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-paper-plane me-1"></i>Submit Renewal Request</button>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-paper-plane me-1"></i>{{ __('Submit Renewal Request') }}</button>
         </form>
     </div>
 </div>

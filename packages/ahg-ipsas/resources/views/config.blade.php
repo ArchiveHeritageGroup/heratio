@@ -58,12 +58,12 @@
                                 <option value="grap" {{ 'grap' === ($config['accounting_standard'] ?? '') ? 'selected' : '' }}>{{ __('GRAP (South Africa)') }}</option>
                                 <option value="gaap" {{ 'gaap' === ($config['accounting_standard'] ?? '') ? 'selected' : '' }}>{{ __('GAAP') }}</option>
                             </select>
-                            <small class="text-muted">IPSAS is the international baseline; other frameworks are jurisdictional overlays.</small>
+                            <small class="text-muted">{{ __('IPSAS is the international baseline; other frameworks are jurisdictional overlays.') }}</small>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Default Currency') }}</label>
                             <input type="text" name="default_currency" class="form-control" maxlength="3" value="{{ $config['default_currency'] ?? '' }}" placeholder="{{ __('ISO 4217 code (e.g. USD, EUR, GBP, ZAR)') }}">
-                            <small class="text-muted">Three-letter ISO 4217 code. Leave blank to show amounts without a currency prefix.</small>
+                            <small class="text-muted">{{ __('Three-letter ISO 4217 code. Leave blank to show amounts without a currency prefix.') }}</small>
                         </div>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                                 <option value="straight_line" {{ 'straight_line' === ($config['depreciation_policy'] ?? '') ? 'selected' : '' }}>{{ __('Straight Line') }}</option>
                                 <option value="reducing_balance" {{ 'reducing_balance' === ($config['depreciation_policy'] ?? '') ? 'selected' : '' }}>{{ __('Reducing Balance') }}</option>
                             </select>
-                            <small class="text-muted">Heritage assets typically not depreciated under IPSAS 17</small>
+                            <small class="text-muted">{{ __('Heritage assets typically not depreciated under IPSAS 17') }}</small>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Valuation Frequency (Years)') }}</label>
@@ -112,7 +112,7 @@
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Impairment Threshold (%)') }}</label>
                             <input type="number" name="impairment_threshold_percent" class="form-control" min="0" max="100" value="{{ $config['impairment_threshold_percent'] ?? 10 }}">
-                            <small class="text-muted">Threshold for IPSAS 21 impairment recognition</small>
+                            <small class="text-muted">{{ __('Threshold for IPSAS 21 impairment recognition') }}</small>
                         </div>
                     </div>
                 </div>
@@ -143,7 +143,7 @@
             </div>
             <div class="card">
                 <div class="card-body d-grid gap-2">
-                    <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>Save Configuration</button>
+                    <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>{{ __('Save Configuration') }}</button>
                     <a href="{{ route('ipsas.index') }}" class="btn btn-outline-secondary">Cancel</a>
                 </div>
             </div>

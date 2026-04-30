@@ -19,7 +19,7 @@ $classificationIcon = $classification->classificationIcon ?? $classification->ic
 @endphp
 <div class="alert {{ $alertClass }} d-flex align-items-center mb-3 py-2" role="alert">
   <div class="flex-grow-1">
-    <strong>Security Classification:</strong>
+    <strong>{{ __('Security Classification:') }}</strong>
     <span class="badge {{ $badgeClass }} ms-2">
       <i class="fas {{ $classificationIcon }} me-1"></i>
       {{ $classificationName }}

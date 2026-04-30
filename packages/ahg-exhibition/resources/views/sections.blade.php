@@ -35,7 +35,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1>{{ __('Exhibition Sections') }}</h1>
       <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSectionModal">
-        <i class="fas fa-plus"></i> Add Section
+        <i class="fas fa-plus"></i> {{ __('Add Section') }}
       </button>
     </div>
 
@@ -46,7 +46,7 @@
           <h5>{{ __('No sections created yet') }}</h5>
           <p class="text-muted">Organize your exhibition by creating sections or galleries.</p>
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSectionModal">
-            <i class="fas fa-plus"></i> Create First Section
+            <i class="fas fa-plus"></i> {{ __('Create First Section') }}
           </button>
         </div>
       </div>
@@ -68,19 +68,19 @@
                   <p class="small text-muted mb-2">{{ $sec->description }}</p>
                 @endif
                 @if(!empty($sec->gallery_name))
-                  <p class="small mb-1"><i class="fas fa-map-marker me-1"></i> <strong>Gallery:</strong> {{ $sec->gallery_name }}</p>
+                  <p class="small mb-1"><i class="fas fa-map-marker me-1"></i> <strong>{{ __('Gallery:') }}</strong> {{ $sec->gallery_name }}</p>
                 @endif
                 @if(!empty($sec->theme))
-                  <p class="small mb-1"><i class="fas fa-tag me-1"></i> <strong>Theme:</strong> {{ $sec->theme }}</p>
+                  <p class="small mb-1"><i class="fas fa-tag me-1"></i> <strong>{{ __('Theme:') }}</strong> {{ $sec->theme }}</p>
                 @endif
-                <p class="small mb-0"><i class="fas fa-archive me-1"></i> <strong>Objects:</strong> {{ $sec->object_count ?? 0 }}</p>
+                <p class="small mb-0"><i class="fas fa-archive me-1"></i> <strong>{{ __('Objects:') }}</strong> {{ $sec->object_count ?? 0 }}</p>
               </div>
               <div class="card-footer bg-transparent">
                 <div class="btn-group btn-group-sm w-100">
                   <a href="{{ route('exhibition.objects', ['id' => $exId]) }}?section={{ $sec->id ?? '' }}" class="btn btn-outline-primary">
-                    <i class="fas fa-archive"></i> Objects
+                    <i class="fas fa-archive"></i> {{ __('Objects') }}
                   </a>
-                  <button type="button" class="btn btn-outline-secondary"><i class="fas fa-edit"></i> Edit</button>
+                  <button type="button" class="btn btn-outline-secondary"><i class="fas fa-edit"></i> {{ __('Edit') }}</button>
                   <button type="button" class="btn btn-outline-danger"><i class="fas fa-trash"></i></button>
                 </div>
               </div>
@@ -110,7 +110,7 @@
         <h5 class="mb-0">{{ __('Tips') }}</h5>
       </div>
       <div class="card-body">
-        <p class="small text-muted mb-2"><strong>Sections</strong> help organize your exhibition into logical groupings or physical spaces.</p>
+        <p class="small text-muted mb-2"><strong>{{ __('Sections') }}</strong> help organize your exhibition into logical groupings or physical spaces.</p>
         <ul class="small text-muted mb-0">
           <li>Drag sections to reorder them</li>
           <li>Assign objects to sections for better organization</li>

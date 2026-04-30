@@ -10,7 +10,7 @@
             <p class="text-muted">Organize and group related IIIF manifests into collections for easy browsing and discovery.</p>
             @auth
             <a href="{{ route('iiif-collection.create', ['parent_id' => $parentId]) }}" class="btn atom-btn-outline-success w-100">
-                <i class="fas fa-plus me-2"></i>Create Collection
+                <i class="fas fa-plus me-2"></i>{{ __('Create Collection') }}
             </a>
             @endauth
         </div>

@@ -14,7 +14,7 @@
       <div>
         <i class="fas fa-filter me-2"></i>Filtered to: <strong>{{ e($filterIo->title ?? 'Object #' . $filterObjectId) }}</strong>
       </div>
-      <a href="{{ route('io.ai.review') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-times me-1"></i>Clear Filter</a>
+      <a href="{{ route('io.ai.review') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-times me-1"></i>{{ __('Clear Filter') }}</a>
     </div>
   @endif
 
@@ -75,7 +75,7 @@
                 <td>
                   <div class="btn-group btn-group-sm">
                     <button class="btn atom-btn-white" onclick="reviewObject({{ $obj->id }})" title="{{ __('Review pending entities') }}">
-                      <i class="fas fa-eye me-1"></i>Review
+                      <i class="fas fa-eye me-1"></i>{{ __('Review') }}
                     </button>
                     @if(($obj->has_pdf ?? false) && ($obj->approved_count ?? 0) > 0)
                       <a href="{{ route('io.ai.extract', ['id' => $obj->id]) }}"
@@ -113,15 +113,15 @@
       <div class="modal-footer">
         <div class="me-auto">
           <button class="btn atom-btn-outline-success btn-sm me-1" onclick="document.querySelectorAll('.action-select').forEach(function(s){ for(var i=0;i<s.options.length;i++){ if(s.options[i].value==='create'||s.options[i].value.indexOf('link_')===0){s.selectedIndex=i;break;} } }); alert('All set to Create/Link')">
-            <i class="fas fa-check-double me-1"></i>Create All
+            <i class="fas fa-check-double me-1"></i>{{ __('Create All') }}
           </button>
           <button class="btn atom-btn-outline-danger btn-sm" onclick="document.querySelectorAll('.action-select').forEach(function(s){ for(var i=0;i<s.options.length;i++){ if(s.options[i].value==='reject'){s.selectedIndex=i;break;} } }); alert('All set to Reject')">
-            <i class="fas fa-times me-1"></i>Reject All
+            <i class="fas fa-times me-1"></i>{{ __('Reject All') }}
           </button>
         </div>
         <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
         <button type="button" class="btn atom-btn-outline-success" onclick="saveAllDecisions()">
-          <i class="fas fa-save me-1"></i>Save All Decisions
+          <i class="fas fa-save me-1"></i>{{ __('Save All Decisions') }}
         </button>
       </div>
     </div>

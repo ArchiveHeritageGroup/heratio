@@ -29,14 +29,14 @@
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">Package Details</div>
                 <div class="card-body">
                   <div class="mb-3">
-                    <label class="form-label">Package Name <span class="badge bg-danger ms-1">Required</span></label>
+                    <label class="form-label">Package Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                     <input type="text" name="name" class="form-control" required
                            value="{{ old('name', $package->name ?? '') }}"
                            placeholder="{{ __('e.g., Annual Reports 2024 SIP') }}">
                   </div>
 
                   <div class="mb-3">
-                    <label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <textarea name="description" class="form-control" rows="3"
                               placeholder="{{ __('Brief description of package contents') }}">{{ old('description', $package->description ?? '') }}</textarea>
                   </div>
@@ -44,7 +44,7 @@
                   @if(!($package ?? null))
                   <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Package Type <span class="badge bg-danger ms-1">Required</span></label>
+                        <label class="form-label">Package Type <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <select name="package_type" class="form-select" required>
                             <option value="">{{ __('Select type...') }}</option>
                             <option value="SIP" {{ old('package_type') == 'SIP' ? 'selected' : '' }}>{{ __('SIP - Submission Information Package') }}</option>
@@ -54,7 +54,7 @@
                         <div class="form-text">SIP for ingest, AIP for storage, DIP for access</div>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Package Format <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Package Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select name="package_format" class="form-select">
                             <option value="bagit" selected>{{ __('BagIt (Recommended)') }}</option>
                             <option value="zip">{{ __('ZIP Archive') }}</option>
@@ -64,7 +64,7 @@
                   </div>
 
                   <div class="mb-3">
-                    <label class="form-label">Checksum Algorithm <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-label">Checksum Algorithm <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <select name="manifest_algorithm" class="form-select">
                         <option value="sha256" selected>{{ __('SHA-256 (Recommended)') }}</option>
                         <option value="sha512">{{ __('SHA-512') }}</option>
@@ -75,11 +75,11 @@
                   @else
                   <div class="row mb-3">
                     <div class="col-md-6">
-                        <label class="form-label">Package Type <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Package Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="text" class="form-control" disabled value="{{ strtoupper($package->package_type) }}">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label class="form-label">Status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="text" class="form-control" disabled value="{{ ucfirst($package->status) }}">
                     </div>
                   </div>
@@ -88,21 +88,21 @@
                   <hr>
 
                   <div class="mb-3">
-                    <label class="form-label">Originator <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-label">Originator <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="text" name="originator" class="form-control"
                            value="{{ old('originator', $package->originator ?? '') }}"
                            placeholder="{{ __('Organization creating this package') }}">
                   </div>
 
                   <div class="mb-3">
-                    <label class="form-label">Submission Agreement <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-label">Submission Agreement <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="text" name="submission_agreement" class="form-control"
                            value="{{ old('submission_agreement', $package->submission_agreement ?? '') }}"
                            placeholder="{{ __('Reference to submission agreement') }}">
                   </div>
 
                   <div class="mb-3">
-                    <label class="form-label">Retention Period <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-label">Retention Period <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="text" name="retention_period" class="form-control"
                            value="{{ old('retention_period', $package->retention_period ?? '') }}"
                            placeholder="{{ __('e.g., Permanent, 10 years, etc.') }}">
@@ -112,7 +112,7 @@
 
               <div class="d-flex justify-content-between">
                 <a href="{{ route('preservation.packages') }}" class="btn atom-btn-white">
-                    <i class="fas fa-times me-1"></i>Cancel
+                    <i class="fas fa-times me-1"></i>{{ __('Cancel') }}
                 </a>
                 <button type="submit" class="btn atom-btn-white">
                     <i class="fas fa-save me-1"></i>{{ ($package ?? null) ? 'Save Changes' : 'Create Package' }}
@@ -124,7 +124,7 @@
             {{-- Add Objects Section --}}
             <div class="card mt-4">
                 <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-                    <span><i class="fas fa-file-import me-2"></i>Package Objects</span>
+                    <span><i class="fas fa-file-import me-2"></i>{{ __('Package Objects') }}</span>
                     <span class="badge bg-light text-dark">{{ count($package->objects ?? []) }} objects</span>
                 </div>
                 <div class="card-body">
@@ -133,7 +133,7 @@
                         <div class="input-group">
                             <input type="number" id="objectIdInput" class="form-control" placeholder="{{ __('Enter digital object ID') }}">
                             <button type="button" class="btn atom-btn-white" onclick="addObject()">
-                                <i class="fas fa-plus me-1"></i>Add
+                                <i class="fas fa-plus me-1"></i>{{ __('Add') }}
                             </button>
                         </div>
                         <div class="form-text">Enter the ID of a digital object to add to this package</div>
@@ -220,46 +220,46 @@
                 <div class="card-body">
                     @if($package->status === 'draft' && ($package->object_count ?? 0) > 0)
                     <button type="button" class="btn atom-btn-outline-success w-100 mb-2" onclick="if(confirm('Build the package?')) alert('Build initiated.')">
-                        <i class="fas fa-hammer me-1"></i>Build Package
+                        <i class="fas fa-hammer me-1"></i>{{ __('Build Package') }}
                     </button>
                     @endif
 
                     @if(($package->status ?? '') === 'complete' || ($package->status ?? '') === 'built')
                     <button type="button" class="btn atom-btn-white w-100 mb-2" onclick="if(confirm('Validate package?')) alert('Validation initiated.')">
-                        <i class="fas fa-check-circle me-1"></i>Validate Package
+                        <i class="fas fa-check-circle me-1"></i>{{ __('Validate Package') }}
                     </button>
                     @endif
 
                     @if(in_array($package->status ?? '', ['complete', 'built', 'validated']))
                     <button type="button" class="btn atom-btn-white w-100 mb-2" onclick="alert('Export initiated.')">
-                        <i class="fas fa-box-open me-1"></i>Export Package
+                        <i class="fas fa-box-open me-1"></i>{{ __('Export Package') }}
                     </button>
                     @endif
 
                     @if($package->export_path ?? null)
                     <a href="#" class="btn atom-btn-white w-100 mb-2">
-                        <i class="fas fa-download me-1"></i>Download Export
+                        <i class="fas fa-download me-1"></i>{{ __('Download Export') }}
                     </a>
                     @endif
 
                     @if(strtolower($package->package_type ?? '') === 'sip' && in_array($package->status ?? '', ['validated', 'exported']))
                     <hr>
                     <button type="button" class="btn atom-btn-white w-100" onclick="alert('AIP conversion initiated.')">
-                        <i class="fas fa-arrow-right me-1"></i>Convert to AIP
+                        <i class="fas fa-arrow-right me-1"></i>{{ __('Convert to AIP') }}
                     </button>
                     @endif
 
                     @if(strtolower($package->package_type ?? '') === 'aip' && in_array($package->status ?? '', ['validated', 'exported']))
                     <hr>
                     <button type="button" class="btn atom-btn-white w-100" onclick="alert('DIP creation initiated.')">
-                        <i class="fas fa-arrow-right me-1"></i>Create DIP
+                        <i class="fas fa-arrow-right me-1"></i>{{ __('Create DIP') }}
                     </button>
                     @endif
 
                     @if(($package->status ?? '') === 'draft')
                     <hr>
                     <button type="button" class="btn btn-outline-danger w-100" onclick="if(confirm('Delete this package?')) alert('Delete initiated.')">
-                        <i class="fas fa-trash me-1"></i>Delete Package
+                        <i class="fas fa-trash me-1"></i>{{ __('Delete Package') }}
                     </button>
                     @endif
                 </div>

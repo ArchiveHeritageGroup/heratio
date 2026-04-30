@@ -152,7 +152,7 @@
     <!-- Back to Landing -->
     <div class="mt-4">
         <a href="{{ url('/heritage') }}" class="btn atom-btn-white w-100">
-            <i class="fas fa-home me-2"></i> Back to Home
+            <i class="fas fa-home me-2"></i> {{ __('Back to Home') }}
         </a>
     </div>
 

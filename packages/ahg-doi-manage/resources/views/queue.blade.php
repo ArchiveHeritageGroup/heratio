@@ -20,11 +20,11 @@
             No queue items
           @endif
         </h1>
-        <span class="small text-muted">DOI Queue</span>
+        <span class="small text-muted">{{ __('DOI Queue') }}</span>
       </div>
       <div class="ms-auto">
         <a href="{{ route('doi.index') }}" class="btn btn-sm btn-outline-secondary">
-          <i class="fas fa-arrow-left me-1"></i> Dashboard
+          <i class="fas fa-arrow-left me-1"></i> {{ __('Dashboard') }}
         </a>
       </div>
     </div>
@@ -75,7 +75,7 @@
     {{-- CLI Command Help --}}
     <div class="alert alert-info">
       <i class="fas fa-terminal me-2"></i>
-      <strong>Process queue via CLI:</strong>
+      <strong>{{ __('Process queue via CLI:') }}</strong>
       <code class="ms-2">php artisan doi:process-queue</code>
     </div>
 
@@ -131,24 +131,24 @@
                 </td>
                 <td>
                   @if($item['action'] === 'mint')
-                    <span class="badge bg-primary">Mint</span>
+                    <span class="badge bg-primary">{{ __('Mint') }}</span>
                   @elseif($item['action'] === 'update')
-                    <span class="badge bg-info">Update</span>
+                    <span class="badge bg-info">{{ __('Update') }}</span>
                   @elseif($item['action'] === 'delete')
-                    <span class="badge bg-danger">Delete</span>
+                    <span class="badge bg-danger">{{ __('Delete') }}</span>
                   @else
                     <span class="badge bg-secondary">{{ $item['action'] }}</span>
                   @endif
                 </td>
                 <td>
                   @if($item['status'] === 'pending')
-                    <span class="badge bg-warning text-dark">Pending</span>
+                    <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
                   @elseif($item['status'] === 'processing')
-                    <span class="badge bg-primary">Processing</span>
+                    <span class="badge bg-primary">{{ __('Processing') }}</span>
                   @elseif($item['status'] === 'completed')
-                    <span class="badge bg-success">Completed</span>
+                    <span class="badge bg-success">{{ __('Completed') }}</span>
                   @elseif($item['status'] === 'failed')
-                    <span class="badge bg-danger">Failed</span>
+                    <span class="badge bg-danger">{{ __('Failed') }}</span>
                   @else
                     <span class="badge bg-secondary">{{ $item['status'] }}</span>
                   @endif

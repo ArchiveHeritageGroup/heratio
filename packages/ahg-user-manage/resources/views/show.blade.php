@@ -49,7 +49,7 @@
         <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Active') }}</h3>
         <div class="col-9 p-2">
           @if($user->active)
-            <span class="badge bg-success">Yes</span>
+            <span class="badge bg-success">{{ __('Yes') }}</span>
           @else
             <span class="badge bg-danger">No</span>
           @endif
@@ -259,7 +259,7 @@
                 @php $expired = strtotime($clearance->expires_at) < time(); @endphp
                 <span class="{{ $expired ? 'text-danger fw-bold' : '' }}">
                   {{ \Carbon\Carbon::parse($clearance->expires_at)->format('Y-m-d') }}
-                  @if($expired)<span class="badge bg-danger ms-1">Expired</span>@endif
+                  @if($expired)<span class="badge bg-danger ms-1">{{ __('Expired') }}</span>@endif
                 </span>
               </div>
             </div>

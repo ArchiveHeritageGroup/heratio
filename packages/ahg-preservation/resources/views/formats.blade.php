@@ -44,16 +44,16 @@
                                 <td>
                                     @switch($format->risk_level)
                                         @case('critical')
-                                            <span class="badge bg-danger">Critical</span>
+                                            <span class="badge bg-danger">{{ __('Critical') }}</span>
                                             @break
                                         @case('high')
-                                            <span class="badge bg-warning text-dark">High</span>
+                                            <span class="badge bg-warning text-dark">{{ __('High') }}</span>
                                             @break
                                         @case('medium')
-                                            <span class="badge bg-info">Medium</span>
+                                            <span class="badge bg-info">{{ __('Medium') }}</span>
                                             @break
                                         @case('low')
-                                            <span class="badge bg-success">Low</span>
+                                            <span class="badge bg-success">{{ __('Low') }}</span>
                                             @break
                                         @default
                                             <span class="badge bg-secondary">{{ ucfirst($format->risk_level ?? 'unknown') }}</span>

@@ -32,14 +32,14 @@
     </div>
     <div class="d-flex gap-2">
       <a href="{{ route('ahgmarketplace.seller-listing-create') }}" class="btn btn-success">
-        <i class="fas fa-plus me-1"></i> New listing
+        <i class="fas fa-plus me-1"></i> {{ __('New listing') }}
       </a>
       <a href="{{ route('ahgmarketplace.seller-profile') }}" class="btn btn-outline-primary">
-        <i class="fas fa-user me-1"></i> Edit profile
+        <i class="fas fa-user me-1"></i> {{ __('Edit profile') }}
       </a>
       @if($seller->slug)
         <a href="{{ route('ahgmarketplace.seller', ['slug' => $seller->slug]) }}" class="btn btn-outline-secondary" target="_blank">
-          <i class="fas fa-external-link-alt me-1"></i> Public profile
+          <i class="fas fa-external-link-alt me-1"></i> {{ __('Public profile') }}
         </a>
       @endif
     </div>
@@ -135,25 +135,25 @@
           <i class="fas fa-handshake me-1"></i> Offers ({{ $stats['pending_offers'] }} pending)
         </a>
         <a href="{{ route('ahgmarketplace.seller-transactions') }}" class="btn btn-outline-primary btn-sm">
-          <i class="fas fa-receipt me-1"></i> Transactions
+          <i class="fas fa-receipt me-1"></i> {{ __('Transactions') }}
         </a>
         <a href="{{ route('ahgmarketplace.seller-enquiries') }}" class="btn btn-outline-primary btn-sm">
           <i class="fas fa-envelope me-1"></i> Enquiries ({{ $stats['total_enquiries'] }})
         </a>
         <a href="{{ route('ahgmarketplace.seller-collections') }}" class="btn btn-outline-primary btn-sm">
-          <i class="fas fa-layer-group me-1"></i> Collections
+          <i class="fas fa-layer-group me-1"></i> {{ __('Collections') }}
         </a>
         <a href="{{ route('ahgmarketplace.seller-artists') }}" class="btn btn-outline-primary btn-sm">
-          <i class="fas fa-palette me-1"></i> Artists
+          <i class="fas fa-palette me-1"></i> {{ __('Artists') }}
         </a>
         <a href="{{ route('ahgmarketplace.my-licences') }}" class="btn btn-outline-primary btn-sm">
-          <i class="fas fa-file-contract me-1"></i> My Licences
+          <i class="fas fa-file-contract me-1"></i> {{ __('My Licences') }}
         </a>
         <a href="{{ route('ahgmarketplace.seller-payouts') }}" class="btn btn-outline-primary btn-sm">
-          <i class="fas fa-money-check-alt me-1"></i> Payouts
+          <i class="fas fa-money-check-alt me-1"></i> {{ __('Payouts') }}
         </a>
         <a href="{{ route('ahgmarketplace.seller-analytics') }}" class="btn btn-outline-primary btn-sm">
-          <i class="fas fa-chart-line me-1"></i> Analytics
+          <i class="fas fa-chart-line me-1"></i> {{ __('Analytics') }}
         </a>
         <a href="{{ route('ahgmarketplace.seller-reviews') }}" class="btn btn-outline-primary btn-sm">
           <i class="fas fa-star me-1"></i> Reviews ({{ $seller->rating_count }})
@@ -168,7 +168,7 @@
     <div class="col-lg-7">
       <div class="card h-100">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <span class="fw-bold"><i class="fas fa-list me-1"></i> Recent listings</span>
+          <span class="fw-bold"><i class="fas fa-list me-1"></i> {{ __('Recent listings') }}</span>
           <a href="{{ route('ahgmarketplace.seller-listings') }}" class="small">View all &raquo;</a>
         </div>
         @if(count($recentListings))
@@ -259,7 +259,7 @@
     <div class="col-lg-5">
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <span class="fw-bold"><i class="fas fa-handshake me-1"></i> Recent offers</span>
+          <span class="fw-bold"><i class="fas fa-handshake me-1"></i> {{ __('Recent offers') }}</span>
           <a href="{{ route('ahgmarketplace.seller-offers') }}" class="small">View all &raquo;</a>
         </div>
         @if(count($recentOffers))
@@ -287,7 +287,7 @@
 
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <span class="fw-bold"><i class="fas fa-receipt me-1"></i> Recent transactions</span>
+          <span class="fw-bold"><i class="fas fa-receipt me-1"></i> {{ __('Recent transactions') }}</span>
           <a href="{{ route('ahgmarketplace.seller-transactions') }}" class="small">View all &raquo;</a>
         </div>
         @if(count($recentTransactions))

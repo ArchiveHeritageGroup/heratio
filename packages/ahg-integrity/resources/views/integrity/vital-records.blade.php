@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-star me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Vital Records') }}</h1><span class="small text-muted">Critical records requiring periodic review</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Vital Records') }}</h1><span class="small text-muted">{{ __('Critical records requiring periodic review') }}</span></div>
   </div>
 @endsection
 @section('content')
@@ -35,7 +35,7 @@
             <label for="review_cycle_days" class="form-label">{{ __('Review Cycle (days)') }}</label>
             <input type="number" class="form-control" id="review_cycle_days" name="review_cycle_days" required min="1" max="3650" value="365">
           </div>
-          <button type="submit" class="btn atom-btn-white"><i class="fas fa-star me-1"></i>Flag as Vital</button>
+          <button type="submit" class="btn atom-btn-white"><i class="fas fa-star me-1"></i>{{ __('Flag as Vital') }}</button>
         </form>
       </div>
     </div>
@@ -46,14 +46,14 @@
         <div class="row text-center">
           <div class="col-md-4">
             <h3 class="mb-0">{{ $total }}</h3>
-            <small class="text-muted">Active Vital Records</small>
+            <small class="text-muted">{{ __('Active Vital Records') }}</small>
           </div>
           <div class="col-md-4">
             <h3 class="mb-0 {{ $overdueCount > 0 ? 'text-danger' : '' }}">{{ $overdueCount }}</h3>
-            <small class="text-muted">Overdue Reviews</small>
+            <small class="text-muted">{{ __('Overdue Reviews') }}</small>
           </div>
           <div class="col-md-4">
-            <a href="{{ route('integrity.vital-records.overdue') }}" class="btn btn-outline-danger btn-sm mt-2"><i class="fas fa-exclamation-triangle me-1"></i>View Overdue</a>
+            <a href="{{ route('integrity.vital-records.overdue') }}" class="btn btn-outline-danger btn-sm mt-2"><i class="fas fa-exclamation-triangle me-1"></i>{{ __('View Overdue') }}</a>
           </div>
         </div>
       </div>
@@ -71,7 +71,7 @@
             </select>
           </div>
           <div class="col-md-4">
-            <button type="submit" class="btn atom-btn-white w-100"><i class="fas fa-filter me-1"></i>Filter</button>
+            <button type="submit" class="btn atom-btn-white w-100"><i class="fas fa-filter me-1"></i>{{ __('Filter') }}</button>
           </div>
         </form>
       </div>
@@ -140,5 +140,5 @@
   </div>
 </div>
 
-<div class="mt-3"><a href="{{ route('integrity.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Dashboard</a></div>
+<div class="mt-3"><a href="{{ route('integrity.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}</a></div>
 @endsection

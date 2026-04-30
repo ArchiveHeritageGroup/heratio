@@ -29,9 +29,9 @@
 <div class="alert alert-danger d-flex justify-content-between align-items-center mb-4">
   <div>
     <i class="fas fa-exclamation-circle me-2"></i>
-    <strong>Your researcher registration has expired.</strong> Please request a renewal to continue using research features.
+    <strong>{{ __('Your researcher registration has expired.') }}</strong> Please request a renewal to continue using research features.
   </div>
-  <a href="{{ route('research.register') }}" class="btn btn-danger"><i class="fas fa-sync-alt me-1"></i>Request Renewal</a>
+  <a href="{{ route('research.register') }}" class="btn btn-danger"><i class="fas fa-sync-alt me-1"></i>{{ __('Request Renewal') }}</a>
 </div>
 @elseif($isExpiringSoon)
 <div class="alert alert-warning d-flex justify-content-between align-items-center mb-4">
@@ -39,18 +39,18 @@
     <i class="fas fa-clock me-2"></i>
     <strong>Your registration expires on {{ date('M j, Y', strtotime($expiresAt)) }}</strong>
   </div>
-  <a href="{{ route('research.register') }}" class="btn btn-warning"><i class="fas fa-sync-alt me-1"></i>Request Renewal</a>
+  <a href="{{ route('research.register') }}" class="btn btn-warning"><i class="fas fa-sync-alt me-1"></i>{{ __('Request Renewal') }}</a>
 </div>
 @elseif($status === 'rejected')
 <div class="alert alert-danger d-flex justify-content-between align-items-center mb-4">
   <div>
     <i class="fas fa-times-circle me-2"></i>
-    <strong>Your registration was rejected.</strong>
+    <strong>{{ __('Your registration was rejected.') }}</strong>
     @if($researcher->rejection_reason ?? false)
       <br><small>Reason: {{ e($researcher->rejection_reason) }}</small>
     @endif
   </div>
-  <a href="{{ route('research.register') }}" class="btn btn-primary"><i class="fas fa-redo me-1"></i>Re-apply</a>
+  <a href="{{ route('research.register') }}" class="btn btn-primary"><i class="fas fa-redo me-1"></i>{{ __('Re-apply') }}</a>
 </div>
 @endif
 
@@ -70,11 +70,11 @@
         </small>
       </div>
       <div class="col-md-6 text-md-end mt-2 mt-md-0">
-        <a href="{{ route('research.profile') }}" class="btn btn-outline-secondary btn-sm me-1"><i class="fas fa-user-edit me-1"></i>Edit Profile</a>
+        <a href="{{ route('research.profile') }}" class="btn btn-outline-secondary btn-sm me-1"><i class="fas fa-user-edit me-1"></i>{{ __('Edit Profile') }}</a>
         @if($canUseFeatures)
-          <a href="{{ route('research.book') }}" class="btn btn-primary btn-sm"><i class="fas fa-calendar-plus me-1"></i>Book Reading Room</a>
+          <a href="{{ route('research.book') }}" class="btn btn-primary btn-sm"><i class="fas fa-calendar-plus me-1"></i>{{ __('Book Reading Room') }}</a>
         @else
-          <button class="btn btn-secondary btn-sm" disabled><i class="fas fa-calendar-plus me-1"></i>Book Reading Room</button>
+          <button class="btn btn-secondary btn-sm" disabled><i class="fas fa-calendar-plus me-1"></i>{{ __('Book Reading Room') }}</button>
         @endif
       </div>
     </div>
@@ -87,7 +87,7 @@
     <div class="card text-center h-100 border-primary">
       <div class="card-body py-3">
         <h3 class="text-primary mb-0">{{ number_format($stats['total_collections'] ?? 0) }}</h3>
-        <small class="text-muted">Evidence Sets</small>
+        <small class="text-muted">{{ __('Evidence Sets') }}</small>
       </div>
     </div>
   </div>
@@ -95,7 +95,7 @@
     <div class="card text-center h-100 border-success">
       <div class="card-body py-3">
         <h3 class="text-success mb-0">{{ number_format($stats['total_items'] ?? 0) }}</h3>
-        <small class="text-muted">Saved Items</small>
+        <small class="text-muted">{{ __('Saved Items') }}</small>
       </div>
     </div>
   </div>
@@ -103,7 +103,7 @@
     <div class="card text-center h-100 border-info">
       <div class="card-body py-3">
         <h3 class="text-info mb-0">{{ number_format($stats['total_saved_searches'] ?? 0) }}</h3>
-        <small class="text-muted">Saved Searches</small>
+        <small class="text-muted">{{ __('Saved Searches') }}</small>
       </div>
     </div>
   </div>
@@ -111,7 +111,7 @@
     <div class="card text-center h-100 border-warning">
       <div class="card-body py-3">
         <h3 class="text-warning mb-0">{{ number_format($stats['total_bookings'] ?? 0) }}</h3>
-        <small class="text-muted">Total Visits</small>
+        <small class="text-muted">{{ __('Total Visits') }}</small>
       </div>
     </div>
   </div>
@@ -135,7 +135,7 @@
   <div class="col-md-4 mb-4">
     <div class="card mb-4">
       <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
-        <span><i class="fas fa-calendar-check me-2"></i>Upcoming Visits</span>
+        <span><i class="fas fa-calendar-check me-2"></i>{{ __('Upcoming Visits') }}</span>
         @if($canUseFeatures)
           <a href="{{ route('research.book') }}" class="btn btn-sm btn-light py-0"><i class="fas fa-plus"></i></a>
         @endif
@@ -191,7 +191,7 @@
   <div class="col-md-4 mb-4">
     <div class="card h-100">
       <div class="card-header bg-success text-white d-flex justify-content-between align-items-center py-2">
-        <span><i class="fas fa-layer-group me-2"></i>Evidence Sets</span>
+        <span><i class="fas fa-layer-group me-2"></i>{{ __('Evidence Sets') }}</span>
         @if($canUseFeatures)
           <button type="button" class="btn btn-sm btn-light py-0" data-bs-toggle="modal" data-bs-target="#newCollectionModal"><i class="fas fa-plus"></i></button>
         @endif
@@ -230,7 +230,7 @@
   <div class="col-md-4 mb-4">
     <div class="card mb-4">
       <div class="card-header bg-info text-white d-flex justify-content-between align-items-center py-2">
-        <span><i class="fas fa-search me-2"></i>Saved Searches</span>
+        <span><i class="fas fa-search me-2"></i>{{ __('Saved Searches') }}</span>
         <a href="{{ route('research.savedSearches') }}" class="btn btn-sm btn-light py-0"><i class="fas fa-cog"></i></a>
       </div>
       @if(!empty($savedSearches) && count($savedSearches) > 0)
@@ -254,7 +254,7 @@
 
     <div class="card">
       <div class="card-header bg-warning d-flex justify-content-between align-items-center py-2">
-        <span><i class="fas fa-sticky-note me-2"></i>My Notes</span>
+        <span><i class="fas fa-sticky-note me-2"></i>{{ __('My Notes') }}</span>
         <a href="{{ route('research.annotations') }}" class="btn btn-sm btn-light py-0"><i class="fas fa-list"></i></a>
       </div>
       @if(!empty($annotations) && count($annotations) > 0)
@@ -313,7 +313,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-          <button type="submit" class="btn btn-success"><i class="fas fa-plus me-1"></i>Create</button>
+          <button type="submit" class="btn btn-success"><i class="fas fa-plus me-1"></i>{{ __('Create') }}</button>
         </div>
       </form>
     </div>

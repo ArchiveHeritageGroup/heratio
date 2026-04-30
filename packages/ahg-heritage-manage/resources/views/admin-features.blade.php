@@ -33,15 +33,15 @@
                 <td>
                   <strong>{{ $feature->feature_name ?? $feature->feature_code }}</strong>
                   @if(!empty($feature->config_json))
-                  <br><small class="text-muted">Has configuration</small>
+                  <br><small class="text-muted">{{ __('Has configuration') }}</small>
                   @endif
                 </td>
                 <td><code>{{ $feature->feature_code }}</code></td>
                 <td class="text-center">
                   @if($feature->is_enabled)
-                  <span class="badge bg-success">Enabled</span>
+                  <span class="badge bg-success">{{ __('Enabled') }}</span>
                   @else
-                  <span class="badge bg-secondary">Disabled</span>
+                  <span class="badge bg-secondary">{{ __('Disabled') }}</span>
                   @endif
                 </td>
                 <td class="text-center">

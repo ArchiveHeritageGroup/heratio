@@ -218,7 +218,7 @@
             <div class="col-9 p-2">
               <span class="text-primary">{{ $contact->contact_person }}</span>
               @if($contact->primary_contact)
-                <span class="badge bg-secondary ms-1">Primary contact</span>
+                <span class="badge bg-secondary ms-1">{{ __('Primary contact') }}</span>
               @endif
             </div>
           </div>

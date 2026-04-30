@@ -9,7 +9,7 @@
             <i class="bi bi-input-cursor-text"></i>
             {{ $definition ? 'Edit Field: ' . $definition->field_label : 'Add Custom Field' }}
         </h2>
-        <a href="{{ route('customFields.index') }}" class="atom-btn-white"><i class="bi bi-arrow-left"></i> Back to List</a>
+        <a href="{{ route('customFields.index') }}" class="atom-btn-white"><i class="bi bi-arrow-left"></i> {{ __('Back to List') }}</a>
     </div>
 
     <div class="card">

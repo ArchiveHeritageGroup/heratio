@@ -17,15 +17,15 @@
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-info-circle me-2"></i>Dropdown Details</div>
         <div class="card-body">
           <div class="mb-3">
-            <label class="form-label">Name <span class="badge bg-danger ms-1">Required</span></label>
+            <label class="form-label">Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <input type="text" name="name" class="form-control" value="{{ $dropdown->name ?? '' }}" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Slug <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Slug <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="slug" class="form-control" value="{{ $dropdown->slug ?? '' }}" placeholder="{{ __('Auto-generated from name') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea name="description" class="form-control" rows="2">{{ $dropdown->description ?? '' }}</textarea>
           </div>
         </div>
@@ -33,8 +33,8 @@
 
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-          <span><i class="fas fa-list-ol me-2"></i>Values</span>
-          <button type="button" class="btn btn-sm atom-btn-white" id="add-value-btn"><i class="fas fa-plus me-1"></i>Add Value</button>
+          <span><i class="fas fa-list-ol me-2"></i>{{ __('Values') }}</span>
+          <button type="button" class="btn btn-sm atom-btn-white" id="add-value-btn"><i class="fas fa-plus me-1"></i>{{ __('Add Value') }}</button>
         </div>
         <div class="card-body">
           <div id="dropdown-values">
@@ -48,7 +48,7 @@
         </div>
       </div>
 
-      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
+      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
       <a href="{{ route('settings.dropdown.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
     </form>
   </div>

@@ -16,7 +16,7 @@
   </div>
   <div class="card-footer py-2">
     <a href="/explorer" class="btn btn-sm btn-outline-success w-100">
-      <i class="fas fa-project-diagram me-1"></i>View in Graph Explorer
+      <i class="fas fa-project-diagram me-1"></i>{{ __('View in Graph Explorer') }}
     </a>
   </div>
 </section>

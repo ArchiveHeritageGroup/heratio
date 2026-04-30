@@ -26,10 +26,10 @@
 
 <div class="mb-3 no-print">
     <button type="button" class="btn btn-primary" onclick="window.print()">
-        <i class="fas fa-print me-1"></i>Print All Labels
+        <i class="fas fa-print me-1"></i>{{ __('Print All Labels') }}
     </button>
     <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
-        <i class="fas fa-arrow-left me-1"></i>Back
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}
     </button>
 </div>
 

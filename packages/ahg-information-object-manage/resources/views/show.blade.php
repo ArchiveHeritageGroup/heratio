@@ -68,23 +68,23 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('io.provenance', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-project-diagram me-1"></i> Provenance
+          <i class="fas fa-project-diagram me-1"></i> {{ __('Provenance') }}
         </a>
         <a href="{{ route('io.condition', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-clipboard-check me-1"></i> Condition assessment
+          <i class="fas fa-clipboard-check me-1"></i> {{ __('Condition assessment') }}
         </a>
         @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgSpectrumPlugin'))
         <a href="{{ route('io.spectrum', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-chart-bar me-1"></i> Spectrum data
+          <i class="fas fa-chart-bar me-1"></i> {{ __('Spectrum data') }}
         </a>
         @endif
         @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgHeritageAccountingPlugin'))
         <a href="{{ route('io.heritage', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-landmark me-1"></i> Heritage Assets
+          <i class="fas fa-landmark me-1"></i> {{ __('Heritage Assets') }}
         </a>
         @endif
         <a href="{{ route('io.research.citation', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-quote-left me-1"></i> Cite this Record
+          <i class="fas fa-quote-left me-1"></i> {{ __('Cite this Record') }}
         </a>
       </div>
     </div>
@@ -98,7 +98,7 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('io.preservation', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-box-open me-1"></i> Preservation packages
+          <i class="fas fa-box-open me-1"></i> {{ __('Preservation packages') }}
         </a>
       </div>
     </div>
@@ -113,23 +113,23 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#describeModal">
-          <i class="fas fa-eye me-1"></i> Describe Object/Image
+          <i class="fas fa-eye me-1"></i> {{ __('Describe Object/Image') }}
         </a>
         <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#nerModal">
-          <i class="fas fa-brain me-1"></i> Extract Entities (NER)
+          <i class="fas fa-brain me-1"></i> {{ __('Extract Entities (NER)') }}
         </a>
         <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#summaryModal">
-          <i class="fas fa-file-alt me-1"></i> Generate Summary
+          <i class="fas fa-file-alt me-1"></i> {{ __('Generate Summary') }}
         </a>
         <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#translateModal">
-          <i class="fas fa-language me-1"></i> Translate
+          <i class="fas fa-language me-1"></i> {{ __('Translate') }}
         </a>
         <a href="{{ route('io.ai.review') }}?object_id={{ $io->id }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-list-check me-1"></i> NER Review
+          <i class="fas fa-list-check me-1"></i> {{ __('NER Review') }}
         </a>
         @if(isset($nerEntityCount) && $nerEntityCount > 0)
           <a href="{{ route('io.ai.extract', $io->id) }}#entities" class="list-group-item list-group-item-action small d-flex justify-content-between align-items-center">
-            <span><i class="fas fa-file-pdf me-1"></i> View PDF Entities</span>
+            <span><i class="fas fa-file-pdf me-1"></i> {{ __('View PDF Entities') }}</span>
             <span class="badge bg-success rounded-pill">{{ $nerEntityCount }}</span>
           </a>
         @endif
@@ -188,15 +188,15 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('io.privacy.scan', $io->id) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-search me-1"></i> Scan for PII
+          <i class="fas fa-search me-1"></i> {{ __('Scan for PII') }}
         </a>
         @if(isset($digitalObjects) && $digitalObjects['master'])
           <a href="{{ route('io.privacy.redaction', $io->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-eraser me-1"></i> Visual Redaction
+            <i class="fas fa-eraser me-1"></i> {{ __('Visual Redaction') }}
           </a>
         @endif
         <a href="{{ route('io.privacy.dashboard') }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-clipboard-check me-1"></i> Privacy Dashboard
+          <i class="fas fa-clipboard-check me-1"></i> {{ __('Privacy Dashboard') }}
         </a>
       </div>
     </div>
@@ -217,13 +217,13 @@
       </div>
       <div class="card-body py-2">
         @if($hasExtRights)
-          <span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>Extended rights applied</span>
+          <span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>{{ __('Extended rights applied') }}</span>
         @endif
         @if($activeEmbargoSidebar)
-          <span class="badge bg-danger me-1"><i class="fas fa-ban me-1"></i>Under embargo</span>
+          <span class="badge bg-danger me-1"><i class="fas fa-ban me-1"></i>{{ __('Under embargo') }}</span>
         @endif
         @if(!$hasExtRights && !$activeEmbargoSidebar)
-          <span class="badge bg-secondary"><i class="fas fa-info-circle me-1"></i>No extended rights or embargo</span>
+          <span class="badge bg-secondary"><i class="fas fa-info-circle me-1"></i>{{ __('No extended rights or embargo') }}</span>
         @endif
       </div>
       <div class="list-group list-group-flush">
@@ -234,7 +234,7 @@
         @endif
         @if(\Illuminate\Support\Facades\Route::has('io.rights.export'))
           <a href="{{ route('io.rights.export', $io->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-download me-1"></i> Export rights (JSON-LD)
+            <i class="fas fa-download me-1"></i> {{ __('Export rights (JSON-LD)') }}
           </a>
         @endif
       </div>
@@ -249,16 +249,16 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('io.research.assessment', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-clipboard-check me-1"></i> Source Assessment
+          <i class="fas fa-clipboard-check me-1"></i> {{ __('Source Assessment') }}
         </a>
         <a href="{{ route('io.research.annotations', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-highlighter me-1"></i> Annotation Studio
+          <i class="fas fa-highlighter me-1"></i> {{ __('Annotation Studio') }}
         </a>
         <a href="{{ route('io.research.trust', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-star-half-alt me-1"></i> Trust Score
+          <i class="fas fa-star-half-alt me-1"></i> {{ __('Trust Score') }}
         </a>
         <a href="{{ route('io.research.dashboard') }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-graduation-cap me-1"></i> Research Dashboard
+          <i class="fas fa-graduation-cap me-1"></i> {{ __('Research Dashboard') }}
         </a>
       </div>
     </div>
@@ -327,7 +327,7 @@
     <div class="dropdown d-inline-block mb-3 translation-links">
       <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" id="translation-links-button" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fas fa-globe-europe me-1" aria-hidden="true"></i>
-        Other languages available
+        {{ __('Other languages available') }}
       </button>
       <ul class="dropdown-menu mt-2" aria-labelledby="translation-links-button">
         @foreach($translationLinks as $code => $translation)
@@ -1305,7 +1305,7 @@
     <section id="rightsArea" class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
         <a class="text-decoration-none text-white" href="#rights-collapse">
-          <i class="fas fa-copyright me-2"></i>Rights & Access
+          <i class="fas fa-copyright me-2"></i>{{ __('Rights & Access') }}
         </a>
         @auth
           <a href="{{ route('informationobject.edit', $io->slug) }}#rights-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;"><i class="fas fa-pencil-alt"></i></a>
@@ -1316,7 +1316,7 @@
         @if($embargoData)
           <div class="alert alert-danger d-flex align-items-center mb-3">
             <i class="fas fa-ban me-2 fa-lg"></i>
-            <div><strong>Under Embargo</strong> — {{ ucfirst($embargoData->embargo_type ?? 'full') }} embargo since {{ $embargoData->start_date }}
+            <div><strong>{{ __('Under Embargo') }}</strong> — {{ ucfirst($embargoData->embargo_type ?? 'full') }} embargo since {{ $embargoData->start_date }}
               @if($embargoData->end_date) until {{ $embargoData->end_date }} @else (no end date) @endif
             </div>
           </div>
@@ -1354,7 +1354,7 @@
         </dl>
 
         @if($tkLabels->isNotEmpty())
-          <div class="mt-2"><strong class="small text-muted">Traditional Knowledge Labels</strong>
+          <div class="mt-2"><strong class="small text-muted">{{ __('Traditional Knowledge Labels') }}</strong>
             <div class="d-flex flex-wrap gap-1 mt-1">@foreach($tkLabels as $tk)<span class="badge bg-dark">{{ $tk->label_name ?? $tk->label_code ?? '' }}</span>@endforeach</div>
           </div>
         @endif
@@ -1430,7 +1430,7 @@
         @auth
           <div class="mt-2">
             <a href="{{ route('io.provenance', $io->slug) }}" class="btn btn-sm atom-btn-white">
-              <i class="fas fa-edit me-1"></i>Edit provenance chain
+              <i class="fas fa-edit me-1"></i>{{ __('Edit provenance chain') }}
             </a>
           </div>
         @endauth
@@ -1874,19 +1874,19 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('informationobject.reports', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-print me-1"></i> Reports
+          <i class="fas fa-print me-1"></i> {{ __('Reports') }}
         </a>
         @if(isset($hasChildren) && $hasChildren)
           <a href="{{ route('informationobject.inventory', $io->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-list-alt me-1"></i> Inventory
+            <i class="fas fa-list-alt me-1"></i> {{ __('Inventory') }}
           </a>
         @endif
         <a href="{{ route('informationobject.browse', ['collection' => $collectionRootId, 'topLod' => 0]) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-list me-1"></i> Browse as list
+          <i class="fas fa-list me-1"></i> {{ __('Browse as list') }}
         </a>
         @if(isset($digitalObjects) && $digitalObjects['master'])
           <a href="{{ route('informationobject.browse', ['collection' => $collectionRootId, 'topLod' => 0, 'view' => 'card', 'onlyMedia' => 1]) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-image me-1"></i> Browse digital objects
+            <i class="fas fa-image me-1"></i> {{ __('Browse digital objects') }}
           </a>
         @endif
       </div>
@@ -1917,7 +1917,7 @@
         </div>
         <div class="list-group list-group-flush">
           <a href="{{ route('ahgmarketplace.seller-listing-create', ['io' => $io->id]) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-tag me-1"></i> Add to marketplace
+            <i class="fas fa-tag me-1"></i> {{ __('Add to marketplace') }}
           </a>
         </div>
       </div>
@@ -1947,7 +1947,7 @@
                 <span class="badge bg-{{ $al->loan_type === 'out' ? 'info' : 'warning' }}">{{ $al->loan_type === 'out' ? 'Out' : 'In' }}</span>
               </div>
               <small>{{ $al->partner_institution }}</small>
-              @if($isOverdue)<span class="badge bg-danger ms-1"><i class="fas fa-exclamation-triangle"></i> Overdue</span>@endif
+              @if($isOverdue)<span class="badge bg-danger ms-1"><i class="fas fa-exclamation-triangle"></i> {{ __('Overdue') }}</span>@endif
             </a>
           @endforeach
         </div>
@@ -1962,26 +1962,26 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('informationobject.export.dc', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-code me-1"></i> Dublin Core 1.1 XML
+          <i class="fas fa-code me-1"></i> {{ __('Dublin Core 1.1 XML') }}
         </a>
         <a href="{{ route('informationobject.export.ead', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-code me-1"></i> EAD 2002 XML
+          <i class="fas fa-code me-1"></i> {{ __('EAD 2002 XML') }}
         </a>
         <a href="{{ route('informationobject.export.ead3', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-code me-1"></i> EAD3 1.1 XML
+          <i class="fas fa-code me-1"></i> {{ __('EAD3 1.1 XML') }}
         </a>
         <a href="{{ route('informationobject.export.ead4', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-code me-1"></i> EAD 4 XML
+          <i class="fas fa-code me-1"></i> {{ __('EAD 4 XML') }}
         </a>
         <a href="{{ route('informationobject.export.mods', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-code me-1"></i> MODS 3.5 XML
+          <i class="fas fa-code me-1"></i> {{ __('MODS 3.5 XML') }}
         </a>
         <a href="{{ route('informationobject.export.rico', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-code me-1"></i> RiC-O JSON-LD
+          <i class="fas fa-code me-1"></i> {{ __('RiC-O JSON-LD') }}
         </a>
         @auth
           <a href="{{ route('informationobject.export.csv', $io->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-file-csv me-1"></i> Export CSV
+            <i class="fas fa-file-csv me-1"></i> {{ __('Export CSV') }}
           </a>
         @endauth
       </div>
@@ -1996,23 +1996,23 @@
         <div class="list-group list-group-flush">
           @if(isset($findingAid) && $findingAid)
             <a href="{{ route('informationobject.findingaid.download', $io->slug) }}" class="list-group-item list-group-item-action small">
-              <i class="fas fa-download me-1"></i> Download
+              <i class="fas fa-download me-1"></i> {{ __('Download') }}
             </a>
             <a href="{{ route('informationobject.findingaid.generate', $io->slug) }}" class="list-group-item list-group-item-action small">
-              <i class="fas fa-sync-alt me-1"></i> Regenerate
+              <i class="fas fa-sync-alt me-1"></i> {{ __('Regenerate') }}
             </a>
             <form action="{{ route('informationobject.findingaid.delete', $io->slug) }}" method="POST" class="d-inline">
               @csrf
               <button type="submit" class="list-group-item list-group-item-action small text-danger border-0 text-start w-100" onclick="return confirm('{{ __('Are you sure you want to delete this finding aid?') }}')">
-                <i class="fas fa-trash me-1"></i> Delete
+                <i class="fas fa-trash me-1"></i> {{ __('Delete') }}
               </button>
             </form>
           @else
             <a href="{{ route('informationobject.findingaid.generate', $io->slug) }}" class="list-group-item list-group-item-action small">
-              <i class="fas fa-file-alt me-1"></i> Generate
+              <i class="fas fa-file-alt me-1"></i> {{ __('Generate') }}
             </a>
             <a href="{{ route('informationobject.findingaid.upload.form', $io->slug) }}" class="list-group-item list-group-item-action small">
-              <i class="fas fa-upload me-1"></i> Upload
+              <i class="fas fa-upload me-1"></i> {{ __('Upload') }}
             </a>
           @endif
         </div>
@@ -2029,7 +2029,7 @@
           <form action="{{ route('informationobject.calculateDates', $io->slug) }}" method="POST" class="d-inline">
             @csrf
             <button type="submit" class="list-group-item list-group-item-action small border-0 text-start w-100" title="Click 'Calculate dates' to recalculate the start and end dates of a parent-level description. A job runs in the background, accounting for the earliest and most recent dates across all the child descriptions. The results display in the Start and End fields of the edit page.">
-              <i class="fas fa-calendar me-1"></i> Calculate dates
+              <i class="fas fa-calendar me-1"></i> {{ __('Calculate dates') }}
             </button>
           </form>
           <span class="list-group-item small text-muted">
@@ -2162,13 +2162,13 @@
         </div>
         <div class="list-group list-group-flush">
           <a href="{{ route('ric.explorer') }}?id={{ $io->id }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-project-diagram me-1"></i> Graph Explorer
+            <i class="fas fa-project-diagram me-1"></i> {{ __('Graph Explorer') }}
           </a>
           <a href="{{ route('ric.export-jsonld') }}?id={{ $io->id }}" class="list-group-item list-group-item-action small" target="_blank">
-            <i class="fas fa-code me-1"></i> JSON-LD Export
+            <i class="fas fa-code me-1"></i> {{ __('JSON-LD Export') }}
           </a>
           <a href="{{ route('ric.explorer') }}?id={{ $io->id }}&view=timeline" class="list-group-item list-group-item-action small">
-            <i class="fas fa-clock me-1"></i> Timeline
+            <i class="fas fa-clock me-1"></i> {{ __('Timeline') }}
           </a>
         </div>
       </div>
@@ -2193,16 +2193,16 @@
 
         <div class="text-center mb-3">
           <button type="button" class="btn btn-primary btn-lg" id="describeBtn">
-            <i class="fas fa-eye me-2"></i>Describe Object
+            <i class="fas fa-eye me-2"></i>{{ __('Describe Object') }}
           </button>
         </div>
 
         <div id="describeResults" style="display:none">
           <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-              <span><i class="fas fa-file-alt me-1"></i>AI Description</span>
+              <span><i class="fas fa-file-alt me-1"></i>{{ __('AI Description') }}</span>
               <button type="button" class="btn btn-sm btn-light" id="describeApproveBtn" style="display:none">
-                <i class="fas fa-check me-1"></i>Approve & Save
+                <i class="fas fa-check me-1"></i>{{ __('Approve & Save') }}
               </button>
             </div>
             <div class="card-body" id="describeResultsBody"></div>
@@ -2315,7 +2315,7 @@
         {{-- Extract button --}}
         <div class="text-center mb-3" id="nerExtractSection">
           <button type="button" class="btn btn-primary btn-lg" id="nerExtractBtn">
-            <i class="fas fa-brain me-2"></i>Extract Entities
+            <i class="fas fa-brain me-2"></i>{{ __('Extract Entities') }}
           </button>
         </div>
 
@@ -2325,10 +2325,10 @@
             <span class="text-muted small" id="nerResultsMeta"></span>
             <div class="d-flex gap-1" id="nerActionBtns" style="display:none">
               <a href="{{ route('io.ai.review') }}?object_id={{ $io->id }}" class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-list-check me-1"></i>Review & Link
+                <i class="fas fa-list-check me-1"></i>{{ __('Review & Link') }}
               </a>
               <button type="button" class="btn btn-success btn-sm" id="nerApproveBtn">
-                <i class="fas fa-check me-1"></i>Approve All
+                <i class="fas fa-check me-1"></i>{{ __('Approve All') }}
               </button>
             </div>
           </div>
@@ -2337,7 +2337,7 @@
       </div>
       <div class="modal-footer">
         <a href="{{ route('io.ai.review') }}" class="btn btn-outline-primary btn-sm" id="nerFooterReview" style="display:none">
-          <i class="fas fa-list-check me-1"></i>Review & Link
+          <i class="fas fa-list-check me-1"></i>{{ __('Review & Link') }}
         </a>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
       </div>
@@ -2439,7 +2439,7 @@
       </div>
       <div class="modal-footer">
         <a href="{{ route('io.ai.summarize', $io->id) }}" class="btn btn-sm atom-btn-white" target="_blank">
-          <i class="fas fa-external-link-alt me-1"></i>Open Full Page
+          <i class="fas fa-external-link-alt me-1"></i>{{ __('Open Full Page') }}
         </a>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
       </div>
@@ -2504,57 +2504,57 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
         <ul class="dropdown-menu mb-2">
           <li>
             <a class="dropdown-item" href="{{ route('informationobject.rename', $io->slug) }}">
-              <i class="fas fa-i-cursor me-2"></i>Rename
+              <i class="fas fa-i-cursor me-2"></i>{{ __('Rename') }}
             </a>
           </li>
           <li><hr class="dropdown-divider"></li>
           <li>
             <a class="dropdown-item" href="{{ route('informationobject.edit', ['slug' => $io->slug, 'storage' => 1]) }}">
-              <i class="fas fa-box me-2"></i>Link physical storage
+              <i class="fas fa-box me-2"></i>{{ __('Link physical storage') }}
             </a>
           </li>
           <li><hr class="dropdown-divider"></li>
           @if(isset($digitalObjects) && $digitalObjects['master'])
             <li>
               <a class="dropdown-item" href="{{ route('io.digitalobject.show', $digitalObjects['master']->id) }}">
-                <i class="fas fa-photo-video me-2"></i>Edit digital object
+                <i class="fas fa-photo-video me-2"></i>{{ __('Edit digital object') }}
               </a>
             </li>
           @else
             <li>
               <a class="dropdown-item" href="{{ route('informationobject.edit', ['slug' => $io->slug, 'upload' => 1]) }}">
-                <i class="fas fa-link me-2"></i>Link digital object
+                <i class="fas fa-link me-2"></i>{{ __('Link digital object') }}
               </a>
             </li>
           @endif
           <li>
             <a class="dropdown-item" href="{{ route('io.multiFileUpload', $io->slug) }}">
-              <i class="fas fa-file-import me-2"></i>Import digital objects
+              <i class="fas fa-file-import me-2"></i>{{ __('Import digital objects') }}
             </a>
           </li>
           <li>
             <a class="dropdown-item" href="{{ url('/' . $io->slug . '/right/edit') }}">
-              <i class="fas fa-balance-scale me-2"></i>Create new rights
+              <i class="fas fa-balance-scale me-2"></i>{{ __('Create new rights') }}
             </a>
           </li>
           @if(isset($hasChildren) && $hasChildren)
             <li>
               <a class="dropdown-item" href="{{ url('/' . $io->slug . '/right/manage') }}">
-                <i class="fas fa-sitemap me-2"></i>Manage rights inheritance
+                <i class="fas fa-sitemap me-2"></i>{{ __('Manage rights inheritance') }}
               </a>
             </li>
           @endif
           <li><hr class="dropdown-divider"></li>
           <li>
             <a class="dropdown-item" href="{{ route('io.showUpdateStatus', $io->slug ?? '') }}">
-              <i class="fas fa-eye me-2"></i>Update publication status
+              <i class="fas fa-eye me-2"></i>{{ __('Update publication status') }}
             </a>
           </li>
           {{-- Modification history: only show if audit logging is enabled --}}
           @if(isset($auditLogEnabled) && $auditLogEnabled)
           <li>
             <a class="dropdown-item" href="{{ route('audit.browse', ['type' => 'QubitInformationObject', 'id' => $io->id ?? '']) }}">
-              <i class="fas fa-history me-2"></i>Modification history
+              <i class="fas fa-history me-2"></i>{{ __('Modification history') }}
             </a>
           </li>
           @endif
@@ -2563,7 +2563,7 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
               <li><hr class="dropdown-divider"></li>
               <li>
                 <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#translateModal">
-                  <i class="fas fa-language me-2"></i>Translate this record
+                  <i class="fas fa-language me-2"></i>{{ __('Translate this record') }}
                 </a>
               </li>
             @endif
@@ -2573,7 +2573,7 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
     </li>
     <li>
       <a href="{{ route('informationobject.print', $io->slug) }}" class="btn atom-btn-outline-light" target="_blank">
-        <i class="fas fa-print me-1"></i>Print
+        <i class="fas fa-print me-1"></i>{{ __('Print') }}
       </a>
     </li>
   </ul>
@@ -2604,7 +2604,7 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header bg-secondary text-white">
-          <h5 class="modal-title"><i class="fas fa-language me-2"></i>Translate Record <span class="badge bg-light text-dark ms-2 translate-step-badge">Step 1: Select Fields</span></h5>
+          <h5 class="modal-title"><i class="fas fa-language me-2"></i>Translate Record <span class="badge bg-light text-dark ms-2 translate-step-badge">{{ __('Step 1: Select Fields') }}</span></h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body" style="max-height:75vh;overflow-y:auto;">
@@ -2635,7 +2635,7 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
             </div>
             <hr>
             <div class="d-flex justify-content-between mb-2">
-              <span class="fw-bold">Fields to Translate</span>
+              <span class="fw-bold">{{ __('Fields to Translate') }}</span>
               <div><button type="button" class="btn btn-sm btn-outline-secondary" id="translateSelectAll">{{ __('Select All') }}</button> <button type="button" class="btn btn-sm btn-outline-secondary" id="translateDeselectAll">{{ __('Deselect All') }}</button></div>
             </div>
             <div class="row">
@@ -2654,20 +2654,20 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
           </div>
           {{-- Step 2 --}}
           <div id="translate-step2" style="display:none;">
-            <div class="alert alert-warning py-2 mb-3"><i class="fas fa-eye me-1"></i><strong>Review Translations</strong> — Edit if needed, then click "Approve & Save".</div>
+            <div class="alert alert-warning py-2 mb-3"><i class="fas fa-eye me-1"></i><strong>{{ __('Review Translations') }}</strong> — Edit if needed, then click "Approve & Save".</div>
             <div id="translatePreview"></div>
           </div>
           <div class="mt-3"><div class="alert py-2 mb-0" id="translateStatus" style="display:none;"></div></div>
         </div>
         <div class="modal-footer">
           <div id="translateStep1Btns">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Close</button>
-            <button type="button" class="btn btn-primary" id="translateRunBtn"><i class="fas fa-language me-1"></i>Translate</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>{{ __('Close') }}</button>
+            <button type="button" class="btn btn-primary" id="translateRunBtn"><i class="fas fa-language me-1"></i>{{ __('Translate') }}</button>
           </div>
           <div id="translateStep2Btns" style="display:none;">
-            <button type="button" class="btn btn-outline-secondary" id="translateBackBtn"><i class="fas fa-arrow-left me-1"></i>Back</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Cancel</button>
-            <button type="button" class="btn btn-success" id="translateApproveBtn"><i class="fas fa-check me-1"></i>Approve & Save</button>
+            <button type="button" class="btn btn-outline-secondary" id="translateBackBtn"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>{{ __('Cancel') }}</button>
+            <button type="button" class="btn btn-success" id="translateApproveBtn"><i class="fas fa-check me-1"></i>{{ __('Approve & Save') }}</button>
           </div>
         </div>
       </div>

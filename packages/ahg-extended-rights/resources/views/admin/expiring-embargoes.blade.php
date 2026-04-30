@@ -42,7 +42,7 @@
             <td><strong>{{ $emb->days_remaining ?? '' }}</strong></td>
             <td>
               @if($emb->auto_release ?? false)
-                <span class="badge bg-success">Yes</span>
+                <span class="badge bg-success">{{ __('Yes') }}</span>
               @else
                 <span class="badge bg-secondary">No</span>
               @endif
@@ -52,7 +52,7 @@
               <form method="POST" action="{{ route('ext-rights-admin.embargo-lift', ['id' => $emb->id]) }}" class="d-inline"
                     onsubmit="return confirm('Lift this embargo?')">
                 @csrf
-                <button class="btn btn-sm btn-outline-success"><i class="fas fa-unlock"></i> Lift</button>
+                <button class="btn btn-sm btn-outline-success"><i class="fas fa-unlock"></i> {{ __('Lift') }}</button>
               </form>
               <form method="POST" action="{{ route('ext-rights-admin.embargo-extend', ['id' => $emb->id]) }}" class="d-inline">
                 @csrf

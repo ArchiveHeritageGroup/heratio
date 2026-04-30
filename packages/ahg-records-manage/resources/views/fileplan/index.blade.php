@@ -7,10 +7,10 @@
     <h1 class="mb-0">{{ __('File Plan') }}</h1>
     <div>
         <a href="{{ route('records.fileplan.import') }}" class="btn btn-outline-primary btn-sm me-1">
-            <i class="fas fa-file-import"></i> Import File Plan
+            <i class="fas fa-file-import"></i> {{ __('Import File Plan') }}
         </a>
         <a href="{{ route('records.fileplan.create') }}" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus"></i> Create Node
+            <i class="fas fa-plus"></i> {{ __('Create Node') }}
         </a>
     </div>
 </div>
@@ -22,7 +22,7 @@
         <div class="card text-center">
             <div class="card-body py-2">
                 <div class="fs-4 fw-bold">{{ number_format($stats['total_nodes']) }}</div>
-                <small class="text-muted">Total Nodes</small>
+                <small class="text-muted">{{ __('Total Nodes') }}</small>
             </div>
         </div>
     </div>
@@ -30,7 +30,7 @@
         <div class="card text-center">
             <div class="card-body py-2">
                 <div class="fs-4 fw-bold">{{ count($stats['by_department']) }}</div>
-                <small class="text-muted">Departments</small>
+                <small class="text-muted">{{ __('Departments') }}</small>
             </div>
         </div>
     </div>
@@ -38,7 +38,7 @@
         <div class="card text-center">
             <div class="card-body py-2">
                 <div class="fs-4 fw-bold">{{ number_format($stats['linked_records']) }}</div>
-                <small class="text-muted">Linked Records</small>
+                <small class="text-muted">{{ __('Linked Records') }}</small>
             </div>
         </div>
     </div>
@@ -46,7 +46,7 @@
         <div class="card text-center">
             <div class="card-body py-2">
                 <div class="fs-4 fw-bold">{{ count($stats['by_type']) }}</div>
-                <small class="text-muted">Node Types</small>
+                <small class="text-muted">{{ __('Node Types') }}</small>
             </div>
         </div>
     </div>

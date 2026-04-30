@@ -58,18 +58,18 @@
       <p class="text-muted mb-0">
         {{ strtoupper($model->format ?? '') }} &bull; {{ number_format(($model->file_size ?? 0) / 1048576, 2) }} MB
         @if(!empty($model->ar_enabled))
-          <span class="badge bg-success ms-2"><i class="fas fa-mobile-alt me-1"></i>AR Ready</span>
+          <span class="badge bg-success ms-2"><i class="fas fa-mobile-alt me-1"></i>{{ __('AR Ready') }}</span>
         @endif
       </p>
     </div>
     <div>
       @auth
         <a href="{{ route('admin.3d-models.edit', $model->id) }}" class="btn atom-btn-white">
-          <i class="fas fa-edit me-1"></i>Edit Settings
+          <i class="fas fa-edit me-1"></i>{{ __('Edit Settings') }}
         </a>
       @endauth
       <a href="{{ route('admin.3d-models.index') }}" class="btn atom-btn-white ms-1">
-        <i class="fas fa-list me-1"></i>All Models
+        <i class="fas fa-list me-1"></i>{{ __('All Models') }}
       </a>
     </div>
   </div>
@@ -122,7 +122,7 @@
                 @endif
                 @if(!empty($hotspot->link_url))
                   <a href="{{ $hotspot->link_url }}" target="{{ $hotspot->link_target ?? '_blank' }}" class="btn btn-sm atom-btn-secondary mt-1">
-                    <i class="fas fa-external-link-alt"></i> Learn More
+                    <i class="fas fa-external-link-alt"></i> {{ __('Learn More') }}
                   </a>
                 @endif
               </div>
@@ -132,7 +132,7 @@
           {{-- AR Button --}}
           @if(!empty($model->ar_enabled))
             <button slot="ar-button" class="ar-button">
-              <i class="fas fa-cube"></i> View in AR
+              <i class="fas fa-cube"></i> {{ __('View in AR') }}
             </button>
           @endif
 
@@ -183,7 +183,7 @@
             @endif
             <tr>
               <th>{{ __('AR Enabled') }}</th>
-              <td>{!! !empty($model->ar_enabled) ? '<span class="text-success">Yes</span>' : '<span class="text-muted">No</span>' !!}</td>
+              <td>{!! !empty($model->ar_enabled) ? '<span class="text-success">{{ __('Yes') }}</span>' : '<span class="text-muted">No</span>' !!}</td>
             </tr>
             <tr><th>{{ __('Uploaded') }}</th><td>{{ !empty($model->created_at) ? \Carbon\Carbon::parse($model->created_at)->format('M j, Y') : '-' }}</td></tr>
           </table>
@@ -232,10 +232,10 @@
         <input type="text" class="form-control" id="manifest-url" readonly
                value="{{ url('/iiif/3d/' . $model->id . '/manifest.json') }}">
         <button class="btn atom-btn-white" type="button" onclick="copyManifestUrl()">
-          <i class="fas fa-copy"></i> Copy
+          <i class="fas fa-copy"></i> {{ __('Copy') }}
         </button>
         <a href="{{ url('/iiif/3d/' . $model->id . '/manifest.json') }}" target="_blank" class="btn atom-btn-white">
-          <i class="fas fa-external-link-alt"></i> View
+          <i class="fas fa-external-link-alt"></i> {{ __('View') }}
         </a>
       </div>
     </div>

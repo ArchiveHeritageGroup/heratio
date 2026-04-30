@@ -25,7 +25,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgcdpa.breach-create') }}" class="btn btn-danger">
-                <i class="fas fa-plus me-1"></i> Report Breach
+                <i class="fas fa-plus me-1"></i> {{ __('Report Breach') }}
             </a>
         </div>
     </div>
@@ -80,7 +80,7 @@
                                             {{ $breach->potraz_notified_date ? date('Y-m-d', strtotime($breach->potraz_notified_date)) : '' }}
                                         </span>
                                     @else
-                                        <span class="text-danger"><i class="fas fa-times"></i> Not Yet</span>
+                                        <span class="text-danger"><i class="fas fa-times"></i> {{ __('Not Yet') }}</span>
                                     @endif
                                 </td>
                                 <td>

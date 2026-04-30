@@ -95,8 +95,8 @@
 
                         <div class="alert alert-secondary py-2 mb-3">
                             <i class="fas fa-lightbulb me-1 text-warning"></i>
-                            <strong>Tip:</strong> For bulk imports with metadata mapping, validation, and CSV support, use the
-                            <a href="{{ route('ingest.index') }}"><i class="fas fa-file-import me-1"></i>Data Ingest</a> tool instead.
+                            <strong>{{ __('Tip:') }}</strong> For bulk imports with metadata mapping, validation, and CSV support, use the
+                            <a href="{{ route('ingest.index') }}"><i class="fas fa-file-import me-1"></i>{{ __('Data Ingest') }}</a> tool instead.
                         </div>
 
                         <h3 class="fs-6 mb-2">{{ __('Digital objects') }}</h3>

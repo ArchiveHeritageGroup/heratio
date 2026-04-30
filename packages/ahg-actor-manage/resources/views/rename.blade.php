@@ -72,7 +72,7 @@
                   Update filename                </label>
               </div>
               <div class="mb-3">
-                <label for="filename" class="form-label">Filename <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="filename" class="form-label">Filename <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" id="filename" name="filename" value="{{ old('filename', $digitalObject->name) }}">
                 <div class="form-text">Do not use any special characters or spaces in the filename - only lower case alphanumeric characters (a-z, 0-9) and dashes (-) will be saved. Other characters will be stripped out or replaced. Editing the filename will not automatically update the other fields.</div>
               </div>

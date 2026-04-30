@@ -6,7 +6,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-layer-group"></i> Workflow Queues</h1>
-    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('Dashboard') }}</a>
   </div>
 
   @if(count($queues) === 0)
@@ -23,7 +23,7 @@
                   {{ $queue->name }}
                 </h5>
                 @if(!$queue->is_active)
-                  <span class="badge bg-secondary">Inactive</span>
+                  <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                 @endif
               </div>
 
@@ -34,15 +34,15 @@
               <div class="row text-center">
                 <div class="col-4">
                   <h4 class="mb-0 text-primary">{{ $queue->task_count }}</h4>
-                  <small class="text-muted">Active</small>
+                  <small class="text-muted">{{ __('Active') }}</small>
                 </div>
                 <div class="col-4">
                   <h4 class="mb-0 text-danger">{{ $queue->overdue_count }}</h4>
-                  <small class="text-muted">Overdue</small>
+                  <small class="text-muted">{{ __('Overdue') }}</small>
                 </div>
                 <div class="col-4">
                   <h4 class="mb-0 text-info">{{ $queue->sla_days ?? '-' }}</h4>
-                  <small class="text-muted">SLA Days</small>
+                  <small class="text-muted">{{ __('SLA Days') }}</small>
                 </div>
               </div>
             </div>

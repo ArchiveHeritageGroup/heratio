@@ -18,7 +18,7 @@ if ($style === 'large') {
       <button type="submit" class="btn btn-primary">
         <i class="bi bi-search"></i>
         @if ($style !== 'minimal')
-          <span class="d-none d-md-inline ms-1">Search</span>
+          <span class="d-none d-md-inline ms-1">{{ __('Search') }}</span>
         @endif
       </button>
     </div>
@@ -26,7 +26,7 @@ if ($style === 'large') {
     @if ($showAdvanced)
       <div class="text-{{ $style === 'large' ? 'center' : 'end' }} mt-2">
         <a href="{{ route('search.advanced') }}" class="small">
-          <i class="bi bi-sliders"></i> Advanced search
+          <i class="bi bi-sliders"></i> {{ __('Advanced search') }}
         </a>
       </div>
     @endif

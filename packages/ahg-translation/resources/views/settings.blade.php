@@ -22,7 +22,7 @@
           <div class="mb-3">
             <label class="form-label">{{ __('MT endpoint') }}</label>
             <input class="form-control" name="endpoint" value="{{ $endpoint }}" />
-            <small class="form-text text-muted">Example: http://192.168.0.112:5004/ai/v1/translate</small>
+            <small class="form-text text-muted">{{ __('Example: http://192.168.0.112:5004/ai/v1/translate') }}</small>
           </div>
 
           <div class="mb-3">

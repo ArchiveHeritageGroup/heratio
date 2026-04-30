@@ -11,10 +11,10 @@
         </div>
         <div>
             <a href="{{ route('federation.peers') }}" class="atom-btn-white me-2">
-                <i class="bi bi-hdd-network me-1"></i>Manage Peers
+                <i class="bi bi-hdd-network me-1"></i>{{ __('Manage Peers') }}
             </a>
             <a href="{{ route('federation.harvest') }}" class="atom-btn-white">
-                <i class="bi bi-cloud-download me-1"></i>Harvest
+                <i class="bi bi-cloud-download me-1"></i>{{ __('Harvest') }}
             </a>
         </div>
     </div>
@@ -74,9 +74,9 @@
                                     <td><code>{{ $peer->base_url ?? '' }}</code></td>
                                     <td>
                                         @if(($peer->is_active ?? false))
-                                            <span class="badge bg-success">Active</span>
+                                            <span class="badge bg-success">{{ __('Active') }}</span>
                                         @else
-                                            <span class="badge bg-secondary">Inactive</span>
+                                            <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                                         @endif
                                     </td>
                                     <td>{{ $peer->last_harvest_at ?? 'Never' }}</td>

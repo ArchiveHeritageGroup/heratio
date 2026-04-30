@@ -35,12 +35,12 @@
         No results found
       @endif
     </h1>
-    <span class="small text-muted">GLAM Browser</span>
+    <span class="small text-muted">{{ __('GLAM Browser') }}</span>
   </div>
   <button type="button" class="btn atom-btn-white ms-3" id="openSemanticSearchBtn" data-bs-toggle="modal" data-bs-target="#semanticSearchModal">
     <i class="fas fa-brain me-1"></i>
-    <span class="d-none d-md-inline">Semantic Search</span>
-    <span class="d-md-none">Search</span>
+    <span class="d-none d-md-inline">{{ __('Semantic Search') }}</span>
+    <span class="d-md-none">{{ __('Search') }}</span>
   </button>
 </div>
 
@@ -70,7 +70,7 @@
 @endphp
 @if($hasActiveFilters)
   <div class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 bg-light border rounded">
-    <span class="small fw-bold text-muted me-1"><i class="fas fa-filter me-1"></i> Active:</span>
+    <span class="small fw-bold text-muted me-1"><i class="fas fa-filter me-1"></i> {{ __('Active:') }}</span>
 
     @if(!empty($queryFilter))
       <a href="{{ glamBrowseUrl($fp, [], ['query', 'semantic']) }}" class="badge bg-dark text-decoration-none">
@@ -140,7 +140,7 @@
     @endif
 
     <a href="{{ route('glam.browse') }}" class="badge bg-outline-secondary border text-dark text-decoration-none ms-1" title="{{ __('Clear all filters') }}">
-      <i class="fas fa-times-circle me-1"></i> Clear all
+      <i class="fas fa-times-circle me-1"></i> {{ __('Clear all') }}
     </a>
   </div>
 @endif
@@ -187,10 +187,10 @@
     <div class="d-flex align-items-start">
       <i class="fas fa-brain fa-lg me-2 mt-1"></i>
       <div class="flex-grow-1">
-        <strong>AI-powered discovery mode</strong>
+        <strong>{{ __('AI-powered discovery mode') }}</strong>
         @if(!empty($discoveryMeta['synonyms']))
           <div class="mt-1 small">
-            <i class="fas fa-exchange-alt me-1"></i> <strong>Synonyms:</strong>
+            <i class="fas fa-exchange-alt me-1"></i> <strong>{{ __('Synonyms:') }}</strong>
             @foreach($discoveryMeta['synonyms'] as $syn)
               <span class="badge bg-light text-dark border me-1">{{ $syn }}</span>
             @endforeach
@@ -198,7 +198,7 @@
         @endif
         @if(!empty($discoveryMeta['entities']))
           <div class="mt-1 small">
-            <i class="fas fa-tag me-1"></i> <strong>Entities:</strong>
+            <i class="fas fa-tag me-1"></i> <strong>{{ __('Entities:') }}</strong>
             @foreach($discoveryMeta['entities'] as $ent)
               <span class="badge bg-light text-dark border me-1">{{ $ent }}</span>
             @endforeach
@@ -206,7 +206,7 @@
         @endif
         @if(!empty($discoveryMeta['expanded_query']))
           <div class="mt-1 small">
-            <i class="fas fa-expand-arrows-alt me-1"></i> <strong>Expanded:</strong>
+            <i class="fas fa-expand-arrows-alt me-1"></i> <strong>{{ __('Expanded:') }}</strong>
             <em>{{ e($discoveryMeta['expanded_query']) }}</em>
           </div>
         @endif
@@ -231,7 +231,7 @@
 
   {{-- Print --}}
   <a href="{{ route('glam.print', array_filter($fp)) }}" target="_blank" class="btn atom-btn-outline-success btn-sm">
-    <i class="fas fa-print"></i> Print
+    <i class="fas fa-print"></i> {{ __('Print') }}
   </a>
 
   {{-- CSV Export --}}
@@ -293,13 +293,13 @@
       <li>
         <a class="dropdown-item {{ ($sortDir ?? 'asc') === 'asc' ? 'active' : '' }}"
            href="{{ glamBrowseUrl($fp, ['sortDir' => 'asc', 'dir' => 'asc']) }}">
-          <i class="fas fa-sort-amount-up-alt me-1"></i> Ascending
+          <i class="fas fa-sort-amount-up-alt me-1"></i> {{ __('Ascending') }}
         </a>
       </li>
       <li>
         <a class="dropdown-item {{ ($sortDir ?? 'asc') === 'desc' ? 'active' : '' }}"
            href="{{ glamBrowseUrl($fp, ['sortDir' => 'desc', 'dir' => 'desc']) }}">
-          <i class="fas fa-sort-amount-down me-1"></i> Descending
+          <i class="fas fa-sort-amount-down me-1"></i> {{ __('Descending') }}
         </a>
       </li>
     </ul>
@@ -314,11 +314,11 @@
     </span>
     @if(empty($hasDigital))
       <a href="{{ glamBrowseUrl($fp, ['hasDigital' => 1]) }}" class="btn atom-btn-outline-success btn-sm">
-        <i class="fas fa-image"></i> With digital objects
+        <i class="fas fa-image"></i> {{ __('With digital objects') }}
       </a>
     @else
       <a href="{{ glamBrowseUrl($fp, [], ['hasDigital']) }}" class="btn atom-btn-outline-success btn-sm">
-        <i class="fas fa-times me-1"></i> Showing digital only
+        <i class="fas fa-times me-1"></i> {{ __('Showing digital only') }}
       </a>
     @endif
   </div>
@@ -341,7 +341,7 @@
         <thead>
           <tr>
             <th class="col-thumb">
-              <span class="d-none d-md-inline">Image</span>
+              <span class="d-none d-md-inline">{{ __('Image') }}</span>
               <div class="resize-handle"></div>
             </th>
             <th>
@@ -422,7 +422,7 @@
                   <a href="{{ $objUrl }}" class="btn btn-sm atom-btn-white" title="{{ __('View') }}">
                     <i class="fas fa-eye"></i>
                   </a>
-                  <button class="btn atom-btn-outline-success btn-sm clipboard" data-clipboard-slug="{{ $objSlug }}" data-clipboard-type="informationObject" data-title="Add to clipboard" data-alt-title="Remove from clipboard" title="{{ __('Add to clipboard') }}" aria-label="{{ __('Add to clipboard') }}"><i class="fas fa-paperclip"></i></button>
+                  <button class="btn atom-btn-outline-success btn-sm clipboard" data-clipboard-slug="{{ $objSlug }}" data-clipboard-type="informationObject" data-title="{{ __('Add to clipboard') }}" data-alt-title="{{ __('Remove from clipboard') }}" title="{{ __('Add to clipboard') }}" aria-label="{{ __('Add to clipboard') }}"><i class="fas fa-paperclip"></i></button>
                 </div>
               </td>
             </tr>
@@ -519,7 +519,7 @@
                     @endif
                   </div>
                   <a href="{{ $objUrl }}" class="btn btn-sm atom-btn-white" title="{{ __('View') }}">
-                    <i class="fas fa-eye me-1"></i> View
+                    <i class="fas fa-eye me-1"></i> {{ __('View') }}
                   </a>
                 </div>
 
@@ -671,7 +671,7 @@
             </div>
             <div class="col-md-1 d-flex flex-column align-items-center justify-content-center border-start gap-1">
               <a href="{{ $objUrl }}" class="btn atom-btn-outline-success btn-sm" aria-label="{{ __('View') }}"><i class="fas fa-eye"></i></a>
-              <button class="btn atom-btn-outline-success btn-sm clipboard" data-clipboard-slug="{{ $objSlug }}" data-clipboard-type="informationObject" data-title="Add to clipboard" data-alt-title="Remove from clipboard" title="{{ __('Add to clipboard') }}" aria-label="{{ __('Add to clipboard') }}"><i class="fas fa-paperclip"></i></button>
+              <button class="btn atom-btn-outline-success btn-sm clipboard" data-clipboard-slug="{{ $objSlug }}" data-clipboard-type="informationObject" data-title="{{ __('Add to clipboard') }}" data-alt-title="{{ __('Remove from clipboard') }}" title="{{ __('Add to clipboard') }}" aria-label="{{ __('Add to clipboard') }}"><i class="fas fa-paperclip"></i></button>
             </div>
           </div>
           {{-- Discovery metadata footer --}}

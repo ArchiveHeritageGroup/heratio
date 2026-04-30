@@ -25,7 +25,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-user-plus text-primary me-2"></i>Invite Collaborator</h1>
-    <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back</a>
+    <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
 </div>
 
 <div class="row">
@@ -47,7 +47,7 @@
                             <option value="editor">{{ __('Editor') }}</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-paper-plane me-1"></i>Invite</button>
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-paper-plane me-1"></i>{{ __('Invite') }}</button>
                 </form>
             </div>
         </div>

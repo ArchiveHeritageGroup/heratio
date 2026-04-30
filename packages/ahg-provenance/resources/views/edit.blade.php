@@ -22,10 +22,10 @@
                 <p class="text-muted mb-0">{{ $resource->title ?? $resource->slug }}</p>
             </div>
             <div>
-                <a href="{{ route('informationobject.show', $resource->slug) }}" class="btn btn-outline-primary me-2"><i class="bi bi-arrow-left me-1"></i>Back to Record</a>
+                <a href="{{ route('informationobject.show', $resource->slug) }}" class="btn btn-outline-primary me-2"><i class="bi bi-arrow-left me-1"></i>{{ __('Back to Record') }}</a>
                 <a href="{{ route('provenance.view', $resource->slug) }}" class="btn btn-outline-secondary me-2">Cancel</a>
                 <button type="submit" class="btn btn-success">
-                    <i class="bi bi-check-lg me-1"></i> Save Provenance
+                    <i class="bi bi-check-lg me-1"></i> {{ __('Save Provenance') }}
                 </button>
             </div>
         </div>
@@ -45,7 +45,7 @@
                         <div class="mb-3">
                             <label class="form-label">{{ __('Provenance Statement') }}</label>
                             <textarea name="provenance_summary" class="form-control" rows="4" placeholder="{{ __("Enter a human-readable summary of the item's provenance...") }}">{{ $record->provenance_summary ?? $record->summary_i18n ?? '' }}</textarea>
-                            <small class="text-muted">This summary will be displayed publicly. Leave blank to auto-generate from events.</small>
+                            <small class="text-muted">{{ __('This summary will be displayed publicly. Leave blank to auto-generate from events.') }}</small>
                         </div>
                     </div>
                 </div>
@@ -100,7 +100,7 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h6 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>Chain of Custody Events</h6>
                         <button type="button" class="btn btn-sm btn-success" id="addEventBtn">
-                            <i class="bi bi-plus-lg me-1"></i> Add Event
+                            <i class="bi bi-plus-lg me-1"></i> {{ __('Add Event') }}
                         </button>
                     </div>
                     <div class="card-body" id="eventsContainer">
@@ -202,7 +202,7 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h6 class="mb-0"><i class="bi bi-file-earmark me-2"></i>Supporting Documents</h6>
                         <button type="button" class="btn btn-sm btn-success" id="addDocumentBtn">
-                            <i class="bi bi-plus me-1"></i>Add Document
+                            <i class="bi bi-plus me-1"></i>{{ __('Add Document') }}
                         </button>
                     </div>
                     <div class="card-body">
@@ -219,9 +219,9 @@
                                 </div>
                                 <div>
                                     @if($doc->file_path)
-                                    <a href="{{ $doc->file_path }}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="bi bi-download"></i> View</a>
+                                    <a href="{{ $doc->file_path }}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="bi bi-download"></i> {{ __('View') }}</a>
                                     @endif
-                                    <button type="button" class="btn btn-sm btn-outline-danger delete-doc-btn" data-doc-id="{{ $doc->id }}"><i class="bi bi-trash"></i> Delete</button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger delete-doc-btn" data-doc-id="{{ $doc->id }}"><i class="bi bi-trash"></i> {{ __('Delete') }}</button>
                                 </div>
                             </div>
                             @endforeach

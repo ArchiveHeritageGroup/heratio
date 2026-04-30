@@ -26,7 +26,7 @@
         <div id="dummySaleStage1">
           <div class="text-center py-3">
             <div class="spinner-border text-primary mb-3" role="status">
-              <span class="visually-hidden">Processing&hellip;</span>
+              <span class="visually-hidden">{{ __('Processing&hellip;') }}</span>
             </div>
             <p class="mb-0">Placing your order&hellip;</p>
           </div>
@@ -54,7 +54,7 @@
               <dd class="col-7" id="dummySaleListingIdRow" style="display:none;"><code id="dummySaleListingId"></code></dd>
 
               <dt class="col-5 text-muted">Amount</dt>
-              <dd class="col-7"><strong id="dummySaleAmount">ZAR 6,500.00</strong></dd>
+              <dd class="col-7"><strong id="dummySaleAmount">{{ __('ZAR 6,500.00') }}</strong></dd>
 
               <dt class="col-5 text-muted">Transaction</dt>
               <dd class="col-7"><code id="dummySaleTxn">TXN-DEMO-0001</code></dd>

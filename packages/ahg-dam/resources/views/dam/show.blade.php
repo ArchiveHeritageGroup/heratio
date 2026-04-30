@@ -30,14 +30,14 @@
     </div>
     <div class="list-group list-group-flush">
       <a href="{{ route('dam.dashboard') }}" class="list-group-item list-group-item-action small">
-        <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+        <i class="fas fa-tachometer-alt me-1"></i> {{ __('Dashboard') }}
       </a>
       <a href="{{ route('dam.browse') }}" class="list-group-item list-group-item-action small">
-        <i class="fas fa-search me-1"></i> Browse all assets
+        <i class="fas fa-search me-1"></i> {{ __('Browse all assets') }}
       </a>
       @auth
         <a href="{{ route('dam.create') }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-plus me-1"></i> Create new asset
+          <i class="fas fa-plus me-1"></i> {{ __('Create new asset') }}
         </a>
       @endauth
     </div>
@@ -312,7 +312,7 @@
     <ul class="actions mb-3 nav gap-2">
       <li>
         <a class="btn atom-btn-outline-light" href="{{ route('dam.edit', $asset->slug) }}">
-          <i class="fas fa-pencil-alt me-1"></i>Edit
+          <i class="fas fa-pencil-alt me-1"></i>{{ __('Edit') }}
         </a>
       </li>
       <li>
@@ -320,18 +320,18 @@
               onsubmit="return confirm('Are you sure you want to delete this DAM asset?');">
           @csrf
           <button type="submit" class="btn atom-btn-outline-light">
-            <i class="fas fa-trash me-1"></i>Delete
+            <i class="fas fa-trash me-1"></i>{{ __('Delete') }}
           </button>
         </form>
       </li>
       <li>
         <a class="btn atom-btn-outline-success" href="{{ route('dam.create') }}">
-          <i class="fas fa-plus me-1"></i>Add new
+          <i class="fas fa-plus me-1"></i>{{ __('Add new') }}
         </a>
       </li>
       <li>
         <a class="btn atom-btn-outline-light" href="{{ route('ahgmarketplace.seller-listing-create', ['io' => $asset->id]) }}">
-          <i class="fas fa-store me-1"></i>Add to marketplace
+          <i class="fas fa-store me-1"></i>{{ __('Add to marketplace') }}
         </a>
       </li>
     </ul>

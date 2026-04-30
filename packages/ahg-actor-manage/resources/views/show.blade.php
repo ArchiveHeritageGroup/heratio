@@ -61,7 +61,7 @@
           @if($relatedResourcesPage < $relatedResourcesLastPage)
             <a href="{{ request()->fullUrlWithQuery(['creator_page' => $relatedResourcesPage + 1]) }}#creators" class="btn btn-sm btn-outline-secondary">Next &raquo;</a>
           @else
-            <span class="btn btn-sm btn-outline-secondary disabled">Next &raquo;</span>
+            <span class="btn btn-sm btn-outline-secondary disabled">{{ __('Next &raquo;') }}</span>
           @endif
         </div>
       @endif
@@ -99,7 +99,7 @@
           @if($subjectOfResourcesPage < $subjectOfResourcesLastPage)
             <a href="{{ request()->fullUrlWithQuery(['subject_page' => $subjectOfResourcesPage + 1]) }}#subjects" class="btn btn-sm btn-outline-secondary">Next &raquo;</a>
           @else
-            <span class="btn btn-sm btn-outline-secondary disabled">Next &raquo;</span>
+            <span class="btn btn-sm btn-outline-secondary disabled">{{ __('Next &raquo;') }}</span>
           @endif
         </div>
       @endif
@@ -317,7 +317,7 @@
         <hr class="my-3">
       @endif
       <div class="p-2">
-        @if($contact->primary_contact) <span class="badge bg-success mb-1">Primary</span> @endif
+        @if($contact->primary_contact) <span class="badge bg-success mb-1">{{ __('Primary') }}</span> @endif
         @if($contact->contact_person) <div>{{ $contact->contact_person }}</div> @endif
         @if($contact->street_address) <div>{{ $contact->street_address }}</div> @endif
         @if($contact->city || $contact->region || $contact->postal_code)
@@ -391,7 +391,7 @@
             <br><small class="text-muted">{{ $eid->label }}</small>
           @endif
           @if($eid->is_verified)
-            <span class="badge bg-success ms-1" title="Verified{{ $eid->verified_at ? ' on ' . $eid->verified_at : '' }}"><i class="fas fa-check"></i> Verified</span>
+            <span class="badge bg-success ms-1" title="Verified{{ $eid->verified_at ? ' on ' . $eid->verified_at : '' }}"><i class="fas fa-check"></i> {{ __('Verified') }}</span>
           @endif
         </div>
       </div>
@@ -633,7 +633,7 @@
       <li><a class="btn atom-btn-outline-danger" href="{{ route('actor.confirmDelete', $actor->slug) }}">Delete</a></li>
       @endif
       <li><a class="btn atom-btn-outline-light" href="{{ route('actor.add') }}">Add new</a></li>
-      <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}?rename=1"><i class="fas fa-i-cursor me-1"></i>Rename</a></li>
+      <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}?rename=1"><i class="fas fa-i-cursor me-1"></i>{{ __('Rename') }}</a></li>
       <li>
         <div class="dropup">
           <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">

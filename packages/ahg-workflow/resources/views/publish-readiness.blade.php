@@ -6,7 +6,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-clipboard-check"></i> Publish Readiness</h1>
-    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('Dashboard') }}</a>
   </div>
 
   <div class="card mb-4">
@@ -19,19 +19,19 @@
         <div class="col-md-4">
           <div class="border rounded p-3">
             <h3 class="text-success mb-0">{{ $evaluation['summary']['pass'] }}</h3>
-            <small class="text-muted">Passed</small>
+            <small class="text-muted">{{ __('Passed') }}</small>
           </div>
         </div>
         <div class="col-md-4">
           <div class="border rounded p-3">
             <h3 class="text-danger mb-0">{{ $evaluation['summary']['fail'] }}</h3>
-            <small class="text-muted">Failed</small>
+            <small class="text-muted">{{ __('Failed') }}</small>
           </div>
         </div>
         <div class="col-md-4">
           <div class="border rounded p-3">
             <h3 class="text-warning mb-0">{{ $evaluation['summary']['warning'] }}</h3>
-            <small class="text-muted">Warnings</small>
+            <small class="text-muted">{{ __('Warnings') }}</small>
           </div>
         </div>
       </div>
@@ -39,14 +39,14 @@
       {{-- Overall verdict --}}
       @if($evaluation['summary']['fail'] === 0)
         <div class="alert alert-success">
-          <i class="fas fa-check-circle"></i> <strong>Ready to publish.</strong> All gate rules passed.
+          <i class="fas fa-check-circle"></i> <strong>{{ __('Ready to publish.') }}</strong> All gate rules passed.
           @if($evaluation['summary']['warning'] > 0)
             There {{ $evaluation['summary']['warning'] === 1 ? 'is' : 'are' }} {{ $evaluation['summary']['warning'] }} warning(s) to review.
           @endif
         </div>
       @else
         <div class="alert alert-danger">
-          <i class="fas fa-times-circle"></i> <strong>Not ready to publish.</strong>
+          <i class="fas fa-times-circle"></i> <strong>{{ __('Not ready to publish.') }}</strong>
           {{ $evaluation['summary']['fail'] }} blocker(s) must be resolved before publishing.
         </div>
       @endif
@@ -71,20 +71,20 @@
                 <tr>
                   <td>
                     @if($result->status === 'pass')
-                      <span class="badge bg-success"><i class="fas fa-check"></i> Pass</span>
+                      <span class="badge bg-success"><i class="fas fa-check"></i> {{ __('Pass') }}</span>
                     @elseif($result->status === 'fail')
-                      <span class="badge bg-danger"><i class="fas fa-times"></i> Fail</span>
+                      <span class="badge bg-danger"><i class="fas fa-times"></i> {{ __('Fail') }}</span>
                     @else
-                      <span class="badge bg-warning text-dark"><i class="fas fa-exclamation"></i> Warning</span>
+                      <span class="badge bg-warning text-dark"><i class="fas fa-exclamation"></i> {{ __('Warning') }}</span>
                     @endif
                   </td>
                   <td>{{ $result->rule_name }}</td>
                   <td><span class="badge bg-secondary">{{ str_replace('_', ' ', ucfirst($result->rule_type)) }}</span></td>
                   <td>
                     @if($result->severity === 'blocker')
-                      <span class="badge bg-danger">Blocker</span>
+                      <span class="badge bg-danger">{{ __('Blocker') }}</span>
                     @else
-                      <span class="badge bg-warning text-dark">Warning</span>
+                      <span class="badge bg-warning text-dark">{{ __('Warning') }}</span>
                     @endif
                   </td>
                   <td>

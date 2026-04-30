@@ -6,7 +6,7 @@
 @section('title-block')
   <div class="multiline-header d-flex flex-column mb-3">
     <h1 class="mb-0">{{ $resource->title ?? $resource->slug }}</h1>
-    <span class="small">Rights</span>
+    <span class="small">{{ __('Rights') }}</span>
   </div>
 @endsection
 
@@ -14,10 +14,10 @@
   @auth
   <div class="mb-3">
     <a href="{{ route('ext-rights.add', $resource->slug) }}" class="btn btn-primary">
-      <i class="fas fa-plus me-1"></i>Add Rights
+      <i class="fas fa-plus me-1"></i>{{ __('Add Rights') }}
     </a>
     <a href="{{ route('ext-rights.edit-embargo', $resource->slug) }}" class="btn btn-outline-warning">
-      <i class="fas fa-clock me-1"></i>Add Embargo
+      <i class="fas fa-clock me-1"></i>{{ __('Add Embargo') }}
     </a>
   </div>
   @endauth
@@ -32,9 +32,9 @@
     </div>
     <div class="card-body">
       @if($accessCheck['accessible'] ?? true)
-        <p class="text-success mb-0"><strong>This item is accessible.</strong></p>
+        <p class="text-success mb-0"><strong>{{ __('This item is accessible.') }}</strong></p>
       @else
-        <p class="text-warning mb-2"><strong>Access to this item may be restricted.</strong></p>
+        <p class="text-warning mb-2"><strong>{{ __('Access to this item may be restricted.') }}</strong></p>
         @if(!empty($accessCheck['restrictions']))
           <ul class="mb-0">
             @foreach($accessCheck['restrictions'] as $restriction)
@@ -50,7 +50,7 @@
 
       @if($accessCheck['rights_statement'] ?? null)
       <div class="mt-3">
-        <strong>Rights Statement:</strong>
+        <strong>{{ __('Rights Statement:') }}</strong>
         <a href="{{ $accessCheck['rights_statement']['uri'] }}" target="_blank" class="ms-2">
           {{ $accessCheck['rights_statement']['name'] }}
           <i class="fas fa-external-link-alt ms-1"></i>
@@ -60,7 +60,7 @@
 
       @if($accessCheck['cc_license'] ?? null)
       <div class="mt-2">
-        <strong>License:</strong>
+        <strong>{{ __('License:') }}</strong>
         <a href="{{ $accessCheck['cc_license']['uri'] }}" target="_blank" class="ms-2">
           @if($accessCheck['cc_license']['badge_url'] ?? null)
           <img src="{{ $accessCheck['cc_license']['badge_url'] }}" alt="{{ $accessCheck['cc_license']['name'] }}" height="31">
@@ -99,7 +99,7 @@
               <span class="badge bg-warning text-dark ms-2">{{ $daysLeft }} days remaining</span>
             @endif
           @else
-            <span class="text-danger">Indefinite</span>
+            <span class="text-danger">{{ __('Indefinite') }}</span>
           @endif
         </dd>
 

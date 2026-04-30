@@ -47,7 +47,7 @@
                         <dt class="col-sm-4">{{ __('Purpose') }}</dt>
                         <dd class="col-sm-8">{{ $consent->purpose }}</dd>
                         <dt class="col-sm-4">{{ __('Consent Given') }}</dt>
-                        <dd class="col-sm-8">{!! ($consent->consent_given ?? 0) ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' !!}</dd>
+                        <dd class="col-sm-8">{!! ($consent->consent_given ?? 0) ? '<span class="badge bg-success">{{ __('Yes') }}</span>' : '<span class="badge bg-danger">No</span>' !!}</dd>
                         <dt class="col-sm-4">{{ __('Consent Method') }}</dt>
                         <dd class="col-sm-8">{{ ucfirst($consent->consent_method ?? 'form') }}</dd>
                         <dt class="col-sm-4">{{ __('Consent Date') }}</dt>

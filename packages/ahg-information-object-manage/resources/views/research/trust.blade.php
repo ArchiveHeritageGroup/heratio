@@ -28,8 +28,8 @@
         </p>
     </div>
     <div class="d-flex gap-2">
-        <a href="{{ route('io.research.assessment', $io->slug) }}" class="btn btn-outline-primary"><i class="fas fa-clipboard-check me-1"></i>Assess Source</a>
-        <a href="{{ route('research.evidence-viewer', ['object_id' => $io->id]) }}" class="btn btn-outline-secondary"><i class="fas fa-search me-1"></i>Evidence Viewer</a>
+        <a href="{{ route('io.research.assessment', $io->slug) }}" class="btn btn-outline-primary"><i class="fas fa-clipboard-check me-1"></i>{{ __('Assess Source') }}</a>
+        <a href="{{ route('research.evidence-viewer', ['object_id' => $io->id]) }}" class="btn btn-outline-secondary"><i class="fas fa-search me-1"></i>{{ __('Evidence Viewer') }}</a>
     </div>
 </div>
 
@@ -50,7 +50,7 @@
                     </div>
                 </div>
                 <h5 class="text-{{ $scoreColor }}">{{ $scoreLabel }}</h5>
-                <small class="text-muted">Composite score out of 100</small>
+                <small class="text-muted">{{ __('Composite score out of 100') }}</small>
             </div>
         </div>
     </div>
@@ -113,35 +113,35 @@
     <div class="card-body">
         <div class="row">
             <div class="col-md-3">
-                <strong>Source Type</strong><br>
+                <strong>{{ __('Source Type') }}</strong><br>
                 @php
                     $typeBadge = match($assessment->source_type) { 'primary' => 'success', 'secondary' => 'info', 'tertiary' => 'secondary', default => 'dark' };
                 @endphp
                 <span class="badge bg-{{ $typeBadge }} fs-6">{{ ucfirst($assessment->source_type) }}</span>
             </div>
             <div class="col-md-3">
-                <strong>Form</strong><br>
+                <strong>{{ __('Form') }}</strong><br>
                 {{ ucfirst(str_replace('_', ' ', $assessment->source_form ?? 'original')) }}
             </div>
             <div class="col-md-3">
-                <strong>Completeness</strong><br>
+                <strong>{{ __('Completeness') }}</strong><br>
                 {{ ucfirst(str_replace('_', ' ', $assessment->completeness ?? 'unknown')) }}
             </div>
             <div class="col-md-3">
-                <strong>Assessed by</strong><br>
+                <strong>{{ __('Assessed by') }}</strong><br>
                 {{ e(($assessment->assessor_first_name ?? '') . ' ' . ($assessment->assessor_last_name ?? '')) }}
                 <br><small class="text-muted">{{ $assessment->assessed_at ? date('M j, Y H:i', strtotime($assessment->assessed_at)) : '' }}</small>
             </div>
         </div>
         @if($assessment->rationale)
             <div class="mt-3">
-                <strong>Rationale</strong>
+                <strong>{{ __('Rationale') }}</strong>
                 <p class="mb-0">{!! nl2br(e($assessment->rationale)) !!}</p>
             </div>
         @endif
         @if($assessment->bias_context)
             <div class="mt-2">
-                <strong>Bias Context</strong>
+                <strong>{{ __('Bias Context') }}</strong>
                 <p class="text-muted mb-0">{!! nl2br(e($assessment->bias_context)) !!}</p>
             </div>
         @endif

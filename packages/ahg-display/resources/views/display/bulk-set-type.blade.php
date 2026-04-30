@@ -43,11 +43,11 @@
       <i class="fas fa-3x fa-tags me-3 text-primary" aria-hidden="true"></i>
       <div>
         <h1 class="mb-0">{{ __('Bulk Set Object Types') }}</h1>
-        <span class="small text-muted">Assign a collection type to all objects in a collection</span>
+        <span class="small text-muted">{{ __('Assign a collection type to all objects in a collection') }}</span>
       </div>
     </div>
     <a href="{{ route('glam.index') }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left me-1"></i> Back
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
     </a>
   </div>
 
@@ -68,7 +68,7 @@
 
             {{-- Collection select --}}
             <div class="mb-4">
-              <label class="form-label"><strong>Top-Level Collection</strong> <span class="badge bg-danger ms-1">Required</span></label>
+              <label class="form-label"><strong>{{ __('Top-Level Collection') }}</strong> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="collection_id" id="collection_id" class="form-select" required>
                 <option value="">{{ __('Select collection...') }}</option>
                 @if(!empty($collections))
@@ -79,7 +79,7 @@
                   @endforeach
                 @endif
               </select>
-              <small class="text-muted">This will set the type for this collection and ALL descendants</small>
+              <small class="text-muted">{{ __('This will set the type for this collection and ALL descendants') }}</small>
               @error('collection_id')
                 <div class="invalid-feedback d-block">{{ $message }}</div>
               @enderror
@@ -87,7 +87,7 @@
 
             {{-- Type radio buttons --}}
             <div class="mb-4">
-              <label class="form-label"><strong>Object Type</strong> <span class="badge bg-danger ms-1">Required</span></label>
+              <label class="form-label"><strong>{{ __('Object Type') }}</strong> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               @if(!empty($collectionTypes) && count($collectionTypes))
                 <div class="row">
                   @foreach($collectionTypes as $type)
@@ -124,7 +124,7 @@
             <div class="d-flex justify-content-between">
               <a href="{{ route('glam.index') }}" class="btn atom-btn-white">Cancel</a>
               <button type="submit" class="btn atom-btn-outline-success" onclick="return confirm('This will update ALL objects in this collection. Continue?')">
-                <i class="fas fa-save me-1"></i> Apply to Collection
+                <i class="fas fa-save me-1"></i> {{ __('Apply to Collection') }}
               </button>
             </div>
           </form>
@@ -141,12 +141,12 @@
         <div class="card-body">
           <p>Object types determine how records are displayed:</p>
           <ul class="small">
-            <li><strong>Archive:</strong> ISAD(G) hierarchical view</li>
-            <li><strong>Museum:</strong> Spectrum object records</li>
-            <li><strong>Gallery:</strong> Artwork/artist focus</li>
-            <li><strong>Book Collection:</strong> Bibliographic view</li>
-            <li><strong>Photo Archive:</strong> Visual grid/lightbox</li>
-            <li><strong>Audiovisual:</strong> Media player focus</li>
+            <li><strong>{{ __('Archive:') }}</strong> ISAD(G) hierarchical view</li>
+            <li><strong>{{ __('Museum:') }}</strong> Spectrum object records</li>
+            <li><strong>{{ __('Gallery:') }}</strong> Artwork/artist focus</li>
+            <li><strong>{{ __('Book Collection:') }}</strong> Bibliographic view</li>
+            <li><strong>{{ __('Photo Archive:') }}</strong> Visual grid/lightbox</li>
+            <li><strong>{{ __('Audiovisual:') }}</strong> Media player focus</li>
           </ul>
           <p class="text-muted small mb-0">
             Types are inherited by children. Setting a type on a fonds will apply to all series, files, and items within.

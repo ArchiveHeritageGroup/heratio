@@ -8,7 +8,7 @@
     <i class="fas fa-3x fa-upload me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Upload File') }}</h1>
-      <span class="small text-muted">Data Migration</span>
+      <span class="small text-muted">{{ __('Data Migration') }}</span>
     </div>
   </div>
 
@@ -48,10 +48,10 @@
       <h5 class="mb-0"><i class="fas fa-cloud-upload-alt"></i> Data Migration Tool</h5>
       <div>
         <a href="{{ route('data-migration.batch-export') }}" class="btn btn-sm btn-outline-light me-2">
-          <i class="fas fa-download me-1"></i>Batch Export
+          <i class="fas fa-download me-1"></i>{{ __('Batch Export') }}
         </a>
         <a href="{{ route('data-migration.jobs') }}" class="btn btn-sm btn-outline-light">
-          <i class="fas fa-tasks me-1"></i>View Jobs
+          <i class="fas fa-tasks me-1"></i>{{ __('View Jobs') }}
         </a>
       </div>
     </div>
@@ -68,7 +68,7 @@
             <div id="dropText">
               <p class="mb-2"><i class="fas fa-file-upload" style="font-size: 3rem;"></i></p>
               <p class="mb-2">Drag & drop file here or <a href="#" onclick="document.getElementById('importFile').click(); return false;">browse</a></p>
-              <small class="text-muted">Supported: CSV, Excel (XLS/XLSX), XML, JSON, OPEX, PAX, ZIP</small>
+              <small class="text-muted">{{ __('Supported: CSV, Excel (XLS/XLSX), XML, JSON, OPEX, PAX, ZIP') }}</small>
             </div>
             <div id="fileInfo" class="d-none">
               <p class="mb-1"><strong id="fileName"></strong></p>
@@ -88,7 +88,7 @@
               <select name="sheet_index" id="sheetSelect" class="form-select">
                 <option value="0">{{ __('Loading sheets...') }}</option>
               </select>
-              <small class="text-muted">Select which sheet to import</small>
+              <small class="text-muted">{{ __('Select which sheet to import') }}</small>
             </div>
 
             {{-- Header Row Option --}}
@@ -130,7 +130,7 @@
           <h6 class="text-primary"><span class="badge bg-primary me-2">2b</span>Digital Objects Location (Optional)</h6>
           <div class="alert alert-info small py-2 mb-3">
             <i class="fas fa-info-circle me-1"></i>
-            <strong>Note:</strong> Digital objects must be pre-uploaded to the server via FTP/SFTP before import.
+            <strong>{{ __('Note:') }}</strong> Digital objects must be pre-uploaded to the server via FTP/SFTP before import.
             The browser cannot access files on your local PC for security reasons.
           </div>
           <div class="row g-3">
@@ -157,12 +157,12 @@
               <label class="form-label">{{ __('Custom Server Path') }}</label>
               <input type="text" name="custom_digital_path" id="customDigitalPath" class="form-control"
                      placeholder="{{ config('heratio.uploads_path', storage_path('app/uploads')) }}/myfiles/">
-              <small class="text-muted">Full server path where digital objects are stored</small>
+              <small class="text-muted">{{ __('Full server path where digital objects are stored') }}</small>
             </div>
           </div>
           <div class="mt-2">
             <small class="text-muted">
-              <i class="fab fa-windows me-1"></i><strong>Windows users:</strong> Use WinSCP, FileZilla, or similar to upload files to the server first.
+              <i class="fab fa-windows me-1"></i><strong>{{ __('Windows users:') }}</strong> Use WinSCP, FileZilla, or similar to upload files to the server first.
             </small>
           </div>
         </div>
@@ -208,7 +208,7 @@
                   <i class="fas fa-folder-open"></i>
                 </button>
               </div>
-              <small class="text-muted">For Preservica: point to extracted export folder</small>
+              <small class="text-muted">{{ __('For Preservica: point to extracted export folder') }}</small>
             </div>
           </div>
         </div>
@@ -242,7 +242,7 @@
                   <option value="{{ $mapping['id'] }}">{{ htmlspecialchars($mapping['name']) }} ({{ $mapping['field_count'] ?? count(json_decode($mapping['field_mappings'] ?? '{}', true)) }} fields)</option>
                 @endforeach
               </select>
-              <small class="text-muted">Pre-load field mappings from a saved template</small>
+              <small class="text-muted">{{ __('Pre-load field mappings from a saved template') }}</small>
             </div>
           </div>
         </div>
@@ -258,9 +258,9 @@
                 <option value="replace" {{ old('import_type') === 'replace' ? 'selected' : '' }}>{{ __('Delete and replace') }}</option>
               </select>
               <div class="form-text">
-                <strong>Create new:</strong> All rows create new records.<br>
-                <strong>Match and update:</strong> Match by identifier/name and update existing records.<br>
-                <strong>Delete and replace:</strong> Delete matched records and re-create from CSV.
+                <strong>{{ __('Create new:') }}</strong> All rows create new records.<br>
+                <strong>{{ __('Match and update:') }}</strong> Match by identifier/name and update existing records.<br>
+                <strong>{{ __('Delete and replace:') }}</strong> Delete matched records and re-create from CSV.
               </div>
               @error('import_type')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -278,14 +278,14 @@
               <tbody id="previewBody"></tbody>
             </table>
           </div>
-          <small class="text-muted">Showing first 5 rows</small>
+          <small class="text-muted">{{ __('Showing first 5 rows') }}</small>
         </div>
 
         {{-- Submit --}}
         <div class="d-flex justify-content-between">
           <a href="{{ route('data-migration.index') }}" class="btn btn btn-outline-secondary">Cancel</a>
           <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
-            <i class="fas fa-arrow-right me-1"></i>Continue to Field Mapping
+            <i class="fas fa-arrow-right me-1"></i>{{ __('Continue to Field Mapping') }}
           </button>
         </div>
       </form>

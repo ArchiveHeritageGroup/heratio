@@ -13,7 +13,7 @@
       <div class="card-body">
         <form method="get" action="{{ route('reports.select') }}">
           <div class="mb-3">
-            <label class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="objectType" class="form-select">
               <option value="accession">{{ __('Accession') }}</option>
               <option value="informationObject">{{ __('Archival Description') }}</option>
@@ -23,7 +23,7 @@
               <option value="repository">{{ __('Repository / Archival Institution') }}</option>
             </select>
           </div>
-          <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-check me-1"></i>Select</button>
+          <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-check me-1"></i>{{ __('Select') }}</button>
         </form>
       </div>
     </div>

@@ -20,10 +20,10 @@
 
 <!-- Stats bar -->
 <div class="row mb-4">
-    <div class="col-md-3"><div class="card text-center"><div class="card-body py-2"><div class="fs-4 fw-bold text-warning">{{ (int) ($stats['pending'] ?? 0) }}</div><small class="text-muted">Pending</small></div></div></div>
-    <div class="col-md-3"><div class="card text-center"><div class="card-body py-2"><div class="fs-4 fw-bold text-success">{{ (int) ($stats['accepted'] ?? 0) }}</div><small class="text-muted">Accepted</small></div></div></div>
-    <div class="col-md-3"><div class="card text-center"><div class="card-body py-2"><div class="fs-4 fw-bold text-danger">{{ (int) ($stats['rejected'] ?? 0) }}</div><small class="text-muted">Rejected</small></div></div></div>
-    <div class="col-md-3"><div class="card text-center"><div class="card-body py-2"><div class="fs-4 fw-bold text-info">{{ ($stats['avg_confidence'] ?? null) !== null ? number_format((float)$stats['avg_confidence'] * 100, 1) . '%' : '-' }}</div><small class="text-muted">Avg Confidence</small></div></div></div>
+    <div class="col-md-3"><div class="card text-center"><div class="card-body py-2"><div class="fs-4 fw-bold text-warning">{{ (int) ($stats['pending'] ?? 0) }}</div><small class="text-muted">{{ __('Pending') }}</small></div></div></div>
+    <div class="col-md-3"><div class="card text-center"><div class="card-body py-2"><div class="fs-4 fw-bold text-success">{{ (int) ($stats['accepted'] ?? 0) }}</div><small class="text-muted">{{ __('Accepted') }}</small></div></div></div>
+    <div class="col-md-3"><div class="card text-center"><div class="card-body py-2"><div class="fs-4 fw-bold text-danger">{{ (int) ($stats['rejected'] ?? 0) }}</div><small class="text-muted">{{ __('Rejected') }}</small></div></div></div>
+    <div class="col-md-3"><div class="card text-center"><div class="card-body py-2"><div class="fs-4 fw-bold text-info">{{ ($stats['avg_confidence'] ?? null) !== null ? number_format((float)$stats['avg_confidence'] * 100, 1) . '%' : '-' }}</div><small class="text-muted">{{ __('Avg Confidence') }}</small></div></div></div>
 </div>
 
 <!-- Filter bar -->
@@ -135,8 +135,8 @@
 </div>
 
 <div class="d-flex gap-2 mt-3">
-    <button class="btn btn-success" id="bulkAccept"><i class="fas fa-check-double me-1"></i>Bulk Accept Selected</button>
-    <button class="btn btn-danger" id="bulkReject"><i class="fas fa-times-circle me-1"></i>Bulk Reject Selected</button>
+    <button class="btn btn-success" id="bulkAccept"><i class="fas fa-check-double me-1"></i>{{ __('Bulk Accept Selected') }}</button>
+    <button class="btn btn-danger" id="bulkReject"><i class="fas fa-times-circle me-1"></i>{{ __('Bulk Reject Selected') }}</button>
 </div>
 @endif
 

@@ -32,7 +32,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('forms.builder', ['id' => $template->id ?? 0]) }}" class="btn btn-outline-primary">
-                <i class="fas fa-edit me-1"></i> Back to Builder
+                <i class="fas fa-edit me-1"></i> {{ __('Back to Builder') }}
             </a>
         </div>
     </div>
@@ -132,7 +132,7 @@
 
                             <div class="mt-4">
                                 <button type="button" class="btn btn-primary" disabled>
-                                    <i class="fas fa-save me-1"></i> Save (Preview Only)
+                                    <i class="fas fa-save me-1"></i> {{ __('Save (Preview Only)') }}
                                 </button>
                                 <button type="button" class="btn btn-outline-secondary" disabled>
                                     {{ __('Cancel') }}
@@ -150,18 +150,18 @@
                     <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Template Info</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Name:</strong> {{ $template->name ?? '' }}</p>
-                    <p><strong>Type:</strong> <span class="badge bg-info">{{ $template->form_type ?? '' }}</span></p>
-                    <p><strong>Fields:</strong> {{ $fields->count() }}</p>
-                    <p><strong>Status:</strong>
+                    <p><strong>{{ __('Name:') }}</strong> {{ $template->name ?? '' }}</p>
+                    <p><strong>{{ __('Type:') }}</strong> <span class="badge bg-info">{{ $template->form_type ?? '' }}</span></p>
+                    <p><strong>{{ __('Fields:') }}</strong> {{ $fields->count() }}</p>
+                    <p><strong>{{ __('Status:') }}</strong>
                         @if(!empty($template->is_active))
-                            <span class="badge bg-success">Active</span>
+                            <span class="badge bg-success">{{ __('Active') }}</span>
                         @else
-                            <span class="badge bg-warning">Inactive</span>
+                            <span class="badge bg-warning">{{ __('Inactive') }}</span>
                         @endif
                     </p>
                     @if(!empty($template->description))
-                        <p><strong>Description:</strong><br>{{ $template->description }}</p>
+                        <p><strong>{{ __('Description:') }}</strong><br>{{ $template->description }}</p>
                     @endif
                 </div>
             </div>

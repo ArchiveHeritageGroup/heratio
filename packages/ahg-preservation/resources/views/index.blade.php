@@ -85,33 +85,33 @@
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <div class="d-flex flex-wrap gap-1">
                 <a href="{{ route('preservation.identification') }}" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-fingerprint me-1"></i>Format ID
+                    <i class="fas fa-fingerprint me-1"></i>{{ __('Format ID') }}
                 </a>
                 <a href="{{ route('preservation.fixity-log') }}" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-check-double me-1"></i>Fixity Log
+                    <i class="fas fa-check-double me-1"></i>{{ __('Fixity Log') }}
                 </a>
                 <a href="{{ route('preservation.events') }}" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-history me-1"></i>Events
+                    <i class="fas fa-history me-1"></i>{{ __('Events') }}
                 </a>
                 <a href="{{ route('preservation.formats') }}" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-file-code me-1"></i>Format Registry
+                    <i class="fas fa-file-code me-1"></i>{{ __('Format Registry') }}
                 </a>
                 <a href="{{ route('preservation.scheduler') }}" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-clock me-1"></i>Scheduler
+                    <i class="fas fa-clock me-1"></i>{{ __('Scheduler') }}
                 </a>
             </div>
             <div class="d-flex flex-wrap gap-1">
                 <a href="{{ route('preservation.packages') }}" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-box me-1"></i>OAIS Packages
+                    <i class="fas fa-box me-1"></i>{{ __('OAIS Packages') }}
                 </a>
                 <a href="{{ route('preservation.virus-scan') }}" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-shield-virus me-1"></i>Virus Scan
+                    <i class="fas fa-shield-virus me-1"></i>{{ __('Virus Scan') }}
                 </a>
                 <a href="{{ route('preservation.conversion') }}" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-sync-alt me-1"></i>Conversion
+                    <i class="fas fa-sync-alt me-1"></i>{{ __('Conversion') }}
                 </a>
                 <a href="{{ route('preservation.backup') }}" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-database me-1"></i>Backup
+                    <i class="fas fa-database me-1"></i>{{ __('Backup') }}
                 </a>
             </div>
         </div>
@@ -121,7 +121,7 @@
             <div class="col-md-6">
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center" >
-                        <span><i class="fas fa-fingerprint me-2"></i>Recent Fixity Checks</span>
+                        <span><i class="fas fa-fingerprint me-2"></i>{{ __('Recent Fixity Checks') }}</span>
                         <a href="{{ route('preservation.fixity-log') }}" class="btn btn-sm btn-outline-secondary">View All</a>
                     </div>
                     <div class="card-body p-0">
@@ -148,9 +148,9 @@
                                         </td>
                                         <td>
                                             @if($check->status === 'pass')
-                                                <span class="badge bg-success">Pass</span>
+                                                <span class="badge bg-success">{{ __('Pass') }}</span>
                                             @elseif($check->status === 'fail')
-                                                <span class="badge bg-danger">Fail</span>
+                                                <span class="badge bg-danger">{{ __('Fail') }}</span>
                                             @else
                                                 <span class="badge bg-warning text-dark">{{ ucfirst($check->status) }}</span>
                                             @endif
@@ -171,7 +171,7 @@
             <div class="col-md-6">
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center" >
-                        <span><i class="fas fa-history me-2"></i>Recent PREMIS Events</span>
+                        <span><i class="fas fa-history me-2"></i>{{ __('Recent PREMIS Events') }}</span>
                         <a href="{{ route('preservation.events') }}" class="btn btn-sm btn-outline-secondary">View All</a>
                     </div>
                     <div class="card-body p-0">
@@ -194,9 +194,9 @@
                                         <td><small>{{ $event->file_name ?? 'N/A' }}</small></td>
                                         <td>
                                             @if($event->event_outcome === 'success')
-                                                <span class="badge bg-success">Success</span>
+                                                <span class="badge bg-success">{{ __('Success') }}</span>
                                             @elseif($event->event_outcome === 'failure')
-                                                <span class="badge bg-danger">Failure</span>
+                                                <span class="badge bg-danger">{{ __('Failure') }}</span>
                                             @else
                                                 <span class="badge bg-warning text-dark">{{ ucfirst($event->event_outcome ?? 'unknown') }}</span>
                                             @endif
@@ -241,9 +241,9 @@
                                 <td><small>{{ $format->mime_type ?? '-' }}</small></td>
                                 <td>
                                     @if($format->risk_level === 'critical')
-                                        <span class="badge bg-danger">Critical</span>
+                                        <span class="badge bg-danger">{{ __('Critical') }}</span>
                                     @else
-                                        <span class="badge bg-warning text-dark">High</span>
+                                        <span class="badge bg-warning text-dark">{{ __('High') }}</span>
                                     @endif
                                 </td>
                                 <td><small>{{ $format->preservation_action ?? '-' }}</small></td>

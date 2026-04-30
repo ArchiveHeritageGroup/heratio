@@ -112,9 +112,9 @@
 
   {{-- Quick Links --}}
   <div class="d-flex gap-2">
-    <a href="{{ route('security-clearance.audit-index') }}" class="btn btn-outline-primary"><i class="fas fa-list"></i> Full Log</a>
-    <a href="{{ route('security-clearance.audit-export') }}" class="btn btn-outline-secondary"><i class="fas fa-download"></i> Export CSV</a>
-    <a href="{{ route('security-clearance.audit-object-access') }}" class="btn btn-outline-info"><i class="fas fa-folder-open"></i> Object Access</a>
+    <a href="{{ route('security-clearance.audit-index') }}" class="btn btn-outline-primary"><i class="fas fa-list"></i> {{ __('Full Log') }}</a>
+    <a href="{{ route('security-clearance.audit-export') }}" class="btn btn-outline-secondary"><i class="fas fa-download"></i> {{ __('Export CSV') }}</a>
+    <a href="{{ route('security-clearance.audit-object-access') }}" class="btn btn-outline-info"><i class="fas fa-folder-open"></i> {{ __('Object Access') }}</a>
   </div>
 </div>
 @endsection

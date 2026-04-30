@@ -20,7 +20,7 @@
         <div class="card-body">
             <form method="get" class="row g-3 align-items-end">
                 <div class="col-auto">
-                    <label for="peer_id" class="form-label">Filter by Peer <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label for="peer_id" class="form-label">Filter by Peer <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <select class="form-select" id="peer_id" name="peer_id">
                         <option value="">{{ __('All peers') }}</option>
                         @foreach($peers as $peer)
@@ -62,9 +62,9 @@
                                     <td>{{ $log->completed_at ?? 'In progress' }}</td>
                                     <td>
                                         @if(($log->status ?? '') === 'completed')
-                                            <span class="badge bg-success">Completed</span>
+                                            <span class="badge bg-success">{{ __('Completed') }}</span>
                                         @elseif(($log->status ?? '') === 'failed')
-                                            <span class="badge bg-danger">Failed</span>
+                                            <span class="badge bg-danger">{{ __('Failed') }}</span>
                                         @else
                                             <span class="badge bg-info">{{ $log->status ?? 'Unknown' }}</span>
                                         @endif

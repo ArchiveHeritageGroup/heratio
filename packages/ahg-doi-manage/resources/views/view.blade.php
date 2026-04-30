@@ -14,11 +14,11 @@
       <i class="fas fa-3x fa-fingerprint me-3" aria-hidden="true"></i>
       <div class="d-flex flex-column">
         <h1 class="mb-0">{{ $doi->doi }}</h1>
-        <span class="small text-muted">DOI Details</span>
+        <span class="small text-muted">{{ __('DOI Details') }}</span>
       </div>
       <div class="ms-auto">
         <a href="{{ route('doi.browse') }}" class="btn btn-sm atom-btn-white">
-          <i class="fas fa-arrow-left me-1"></i> Back to Browse
+          <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Browse') }}
         </a>
       </div>
     </div>
@@ -70,13 +70,13 @@
                   <th>{{ __('Status') }}</th>
                   <td>
                     @if($doi->status === 'findable')
-                      <span class="badge bg-success">Findable</span>
+                      <span class="badge bg-success">{{ __('Findable') }}</span>
                     @elseif($doi->status === 'registered')
-                      <span class="badge bg-info">Registered</span>
+                      <span class="badge bg-info">{{ __('Registered') }}</span>
                     @elseif($doi->status === 'deleted')
-                      <span class="badge bg-danger">Deleted</span>
+                      <span class="badge bg-danger">{{ __('Deleted') }}</span>
                     @else
-                      <span class="badge bg-secondary">Draft</span>
+                      <span class="badge bg-secondary">{{ __('Draft') }}</span>
                     @endif
                   </td>
                 </tr>
@@ -170,20 +170,20 @@
           <div class="card-body">
             <div class="d-grid gap-2">
               <a href="{{ route('doi.view', $doi->id) }}?verify=1" class="btn atom-btn-white">
-                <i class="fas fa-check-circle me-1"></i> Verify Resolution
+                <i class="fas fa-check-circle me-1"></i> {{ __('Verify Resolution') }}
               </a>
 
               @if($doi->status !== 'deleted')
                 <a href="{{ route('doi.view', $doi->id) }}?sync=1" class="btn atom-btn-white">
-                  <i class="fas fa-sync me-1"></i> Sync Metadata
+                  <i class="fas fa-sync me-1"></i> {{ __('Sync Metadata') }}
                 </a>
                 <a href="{{ route('doi.view', $doi->id) }}?deactivate=1" class="btn atom-btn-outline-danger"
                    onclick="return confirm('Are you sure you want to deactivate this DOI?');">
-                  <i class="fas fa-ban me-1"></i> Deactivate DOI
+                  <i class="fas fa-ban me-1"></i> {{ __('Deactivate DOI') }}
                 </a>
               @else
                 <a href="{{ route('doi.view', $doi->id) }}?reactivate=1" class="btn atom-btn-outline-success">
-                  <i class="fas fa-redo me-1"></i> Reactivate DOI
+                  <i class="fas fa-redo me-1"></i> {{ __('Reactivate DOI') }}
                 </a>
               @endif
             </div>
@@ -202,13 +202,13 @@
               </li>
               <li class="mb-2">
                 <a href="https://api.datacite.org/dois/{{ urlencode($doi->doi) }}" target="_blank">
-                  <i class="fas fa-code me-1"></i> DataCite API record
+                  <i class="fas fa-code me-1"></i> {{ __('DataCite API record') }}
                 </a>
               </li>
               @if($doi->information_object_id)
                 <li>
                   <a href="{{ route('informationobject.show', $doi->information_object_id) }}">
-                    <i class="fas fa-file-alt me-1"></i> View record
+                    <i class="fas fa-file-alt me-1"></i> {{ __('View record') }}
                   </a>
                 </li>
               @endif

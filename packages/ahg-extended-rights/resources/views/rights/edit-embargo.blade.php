@@ -44,7 +44,7 @@
         <div class="col-md-6 mb-3">
           <label class="form-label">{{ __('End Date') }}</label>
           <input type="date" name="end_date" class="form-control" value="{{ old('end_date', $embargo->end_date ?? '') }}">
-          <small class="form-text text-muted">Leave empty for indefinite embargo</small>
+          <small class="form-text text-muted">{{ __('Leave empty for indefinite embargo') }}</small>
         </div>
       </div>
       <div class="mb-3">
@@ -67,7 +67,7 @@
 
   <section class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
     <a href="{{ route('ext-rights.index', $resource->slug) }}" class="btn atom-btn-outline-light">Cancel</a>
-    <button type="submit" class="btn atom-btn-outline-light"><i class="fas fa-save me-1"></i>Save Embargo</button>
+    <button type="submit" class="btn atom-btn-outline-light"><i class="fas fa-save me-1"></i>{{ __('Save Embargo') }}</button>
   </section>
 </form>
 
@@ -81,7 +81,7 @@
     <form action="{{ route('ext-rights.release-embargo', [$resource->slug, $embargo->id]) }}" method="post"
           onsubmit="return confirm('Are you sure you want to release this embargo?');">
       @csrf
-      <button type="submit" class="btn btn-danger"><i class="fas fa-unlock me-1"></i>Release Now</button>
+      <button type="submit" class="btn btn-danger"><i class="fas fa-unlock me-1"></i>{{ __('Release Now') }}</button>
     </form>
   </div>
 </div>

@@ -29,9 +29,9 @@
     <div class="col-md-6">
       <!-- Rights Statement -->
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>Rights Statement</strong></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>{{ __('Rights Statement') }}</strong></div>
         <div class="card-body">
-          <label for="rights_statement_id" class="form-label">Rights Statement <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="rights_statement_id" class="form-label">Rights Statement <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="rights_statement_id" id="rights_statement_id" class="form-select">
             <option value="">-- None --</option>
             @foreach($rightsStatements ?? [] as $rs)
@@ -46,9 +46,9 @@
 
       <!-- Creative Commons -->
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>Creative Commons License</strong></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>{{ __('Creative Commons License') }}</strong></div>
         <div class="card-body">
-          <label for="cc_license_id" class="form-label">Creative Commons License <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="cc_license_id" class="form-label">Creative Commons License <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="cc_license_id" id="cc_license_id" class="form-select">
             <option value="">-- None --</option>
             @foreach($ccLicenses ?? [] as $cc)
@@ -63,9 +63,9 @@
 
       <!-- Rights Holder (Donor) -->
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>Rights Holder (Donor)</strong></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>{{ __('Rights Holder (Donor)') }}</strong></div>
         <div class="card-body">
-          <label for="rights_holder_id" class="form-label">Rights Holder <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="rights_holder_id" class="form-label">Rights Holder <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="rights_holder_id" id="rights_holder_id" class="form-select" placeholder="{{ __('Type to search...') }}">
             <option value="">-- None --</option>
             @if(isset($donors) && count($donors) > 0)
@@ -80,30 +80,30 @@
               @endforeach
             @endif
           </select>
-          <small class="text-muted">Select the donor who holds the rights to this material.</small>
+          <small class="text-muted">{{ __('Select the donor who holds the rights to this material.') }}</small>
         </div>
       </div>
 
       <!-- I18n fields: copyright_notice, usage_conditions, rights_note -->
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>Rights Details</strong></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>{{ __('Rights Details') }}</strong></div>
         <div class="card-body">
           @php
             $primaryExtended = isset($extendedRights) ? $extendedRights->firstWhere('is_primary', 1) : null;
           @endphp
 
           <div class="mb-3">
-            <label for="copyright_notice" class="form-label">Copyright Notice <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="copyright_notice" class="form-label">Copyright Notice <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea name="copyright_notice" id="copyright_notice" class="form-control" rows="2">{{ old('copyright_notice', $primaryExtended->copyright_notice ?? '') }}</textarea>
           </div>
 
           <div class="mb-3">
-            <label for="usage_conditions" class="form-label">Usage Conditions <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="usage_conditions" class="form-label">Usage Conditions <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea name="usage_conditions" id="usage_conditions" class="form-control" rows="2">{{ old('usage_conditions', $primaryExtended->usage_conditions ?? '') }}</textarea>
           </div>
 
           <div class="mb-3">
-            <label for="rights_note" class="form-label">Rights Note <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="rights_note" class="form-label">Rights Note <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea name="rights_note" id="rights_note" class="form-control" rows="3">{{ old('rights_note', $primaryExtended->rights_note ?? '') }}</textarea>
           </div>
         </div>
@@ -113,9 +113,9 @@
     <div class="col-md-6">
       <!-- TK Labels -->
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>TK Labels</strong></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>{{ __('TK Labels') }}</strong></div>
         <div class="card-body">
-          <label class="form-label">TK Labels <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label">TK Labels <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           @php
             $selectedTkLabels = $currentRights->tk_labels ?? [];
             if (!is_array($selectedTkLabels)) {
@@ -129,7 +129,7 @@
                      @if(in_array($tk->id, $selectedTkLabels)) checked @endif>
               <label class="form-check-label" for="tk_{{ $tk->id }}">
                 {{ $tk->name ?? $tk->code }}
-               <span class="badge bg-secondary ms-1">Required</span></label>
+               <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
             </div>
           @endforeach
         </div>
@@ -139,7 +139,7 @@
 
   <div class="mb-4">
     <button type="submit" class="btn atom-btn-outline-success">
-      <i class="fas fa-save"></i> Save Rights
+      <i class="fas fa-save"></i> {{ __('Save Rights') }}
     </button>
     <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn atom-btn-white">
       Cancel

@@ -18,7 +18,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0"><i class="fas fa-brain text-primary"></i> AI Services Settings</h1>
   <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">
-    <i class="fas fa-arrow-left me-1"></i>Back to AHG Settings
+    <i class="fas fa-arrow-left me-1"></i>{{ __('Back to AHG Settings') }}
   </a>
 </div>
 
@@ -38,14 +38,14 @@
             <input class="form-check-input" type="radio" name="processing_mode" id="mode_hybrid" value="hybrid"
               {{ ($settings['processing_mode'] ?? 'job') === 'hybrid' ? 'checked' : '' }}>
             <label class="form-check-label" for="mode_hybrid">
-              <strong>Hybrid</strong> - Interactive for small docs, background for large
+              <strong>{{ __('Hybrid') }}</strong> - Interactive for small docs, background for large
             </label>
           </div>
           <div class="form-check">
             <input class="form-check-input" type="radio" name="processing_mode" id="mode_job" value="job"
               {{ ($settings['processing_mode'] ?? 'job') === 'job' ? 'checked' : '' }}>
             <label class="form-check-label" for="mode_job">
-              <strong>Background Job</strong> - Always queue (recommended for production)
+              <strong>{{ __('Background Job') }}</strong> - Always queue (recommended for production)
             </label>
           </div>
         </div>
@@ -56,11 +56,11 @@
         <div class="col-sm-6">
           <input type="text" class="form-control" name="api_url"
             value="{{ $settings['api_url'] ?? '' }}">
-          <small class="text-muted">URL of the AI service (e.g., http://localhost:5004/ai/v1)</small>
+          <small class="text-muted">{{ __('URL of the AI service (e.g., http://localhost:5004/ai/v1)') }}</small>
         </div>
         <div class="col-sm-3">
           <button type="button" class="btn btn-outline-info" onclick="testConnection()">
-            <i class="fas fa-plug me-1"></i>Test Connection
+            <i class="fas fa-plug me-1"></i>{{ __('Test Connection') }}
           </button>
         </div>
       </div>
@@ -73,7 +73,7 @@
         </div>
         <div class="col-sm-3">
           <button type="button" class="btn btn-outline-secondary btn-sm" onclick="togglePassword()">
-            <i class="fas fa-eye"></i> Show
+            <i class="fas fa-eye"></i> {{ __('Show') }}
           </button>
         </div>
       </div>
@@ -104,7 +104,7 @@
           </div>
         </div>
         <div class="col-sm-9">
-          <small class="text-muted">Extract people, organizations, places, and dates from records</small>
+          <small class="text-muted">{{ __('Extract people, organizations, places, and dates from records') }}</small>
         </div>
       </div>
 
@@ -118,7 +118,7 @@
           </div>
         </div>
         <div class="col-sm-9">
-          <small class="text-muted">Automatically queue NER job when documents are uploaded</small>
+          <small class="text-muted">{{ __('Automatically queue NER job when documents are uploaded') }}</small>
         </div>
       </div>
 
@@ -166,7 +166,7 @@
           </div>
         </div>
         <div class="col-sm-9">
-          <small class="text-muted">Generate summaries from document content</small>
+          <small class="text-muted">{{ __('Generate summaries from document content') }}</small>
         </div>
       </div>
 
@@ -180,7 +180,7 @@
               </option>
             @endforeach
           </select>
-          <small class="text-muted">Which ISAD(G) field to populate with the generated summary</small>
+          <small class="text-muted">{{ __('Which ISAD(G) field to populate with the generated summary') }}</small>
         </div>
       </div>
 
@@ -188,20 +188,20 @@
         <label class="col-sm-3 col-form-label">{{ __('Summary Length') }}</label>
         <div class="col-sm-3">
           <div class="input-group">
-            <span class="input-group-text">Min</span>
+            <span class="input-group-text">{{ __('Min') }}</span>
             <input type="number" class="form-control" name="summarizer_min_length" min="50" max="500"
               value="{{ $settings['summarizer_min_length'] ?? '100' }}">
           </div>
         </div>
         <div class="col-sm-3">
           <div class="input-group">
-            <span class="input-group-text">Max</span>
+            <span class="input-group-text">{{ __('Max') }}</span>
             <input type="number" class="form-control" name="summarizer_max_length" min="100" max="2000"
               value="{{ $settings['summarizer_max_length'] ?? '500' }}">
           </div>
         </div>
         <div class="col-sm-3">
-          <small class="text-muted">Characters</small>
+          <small class="text-muted">{{ __('Characters') }}</small>
         </div>
       </div>
     </div>
@@ -223,7 +223,7 @@
           </div>
         </div>
         <div class="col-sm-9">
-          <small class="text-muted">Check spelling in metadata fields</small>
+          <small class="text-muted">{{ __('Check spelling in metadata fields') }}</small>
         </div>
       </div>
 
@@ -272,7 +272,7 @@
           </div>
         </div>
         <div class="col-sm-9">
-          <small class="text-muted">Translate record metadata using OPUS-MT (offline, on-premise)</small>
+          <small class="text-muted">{{ __('Translate record metadata using OPUS-MT (offline, on-premise)') }}</small>
         </div>
       </div>
 
@@ -281,11 +281,11 @@
         <div class="col-sm-6">
           <input type="text" class="form-control" name="mt_endpoint"
             value="{{ $settings['mt_endpoint'] ?? 'http://127.0.0.1:5100/translate' }}">
-          <small class="text-muted">OPUS-MT translation server URL</small>
+          <small class="text-muted">{{ __('OPUS-MT translation server URL') }}</small>
         </div>
         <div class="col-sm-3">
           <button type="button" class="btn btn-outline-info" onclick="testTranslation()">
-            <i class="fas fa-plug me-1"></i>Test
+            <i class="fas fa-plug me-1"></i>{{ __('Test') }}
           </button>
         </div>
       </div>
@@ -357,7 +357,7 @@
               DAM (Digital Asset Management)
             </option>
           </select>
-          <small class="text-muted">Select your institution type to see relevant fields</small>
+          <small class="text-muted">{{ __('Select your institution type to see relevant fields') }}</small>
         </div>
       </div>
 
@@ -418,14 +418,14 @@
             <input class="form-check-input" type="radio" name="translation_mode" id="mode_review" value="review"
               {{ ($settings['translation_mode'] ?? 'review') === 'review' ? 'checked' : '' }}>
             <label class="form-check-label" for="mode_review">
-              <strong>Review First</strong> - Save as draft for review before applying
+              <strong>{{ __('Review First') }}</strong> - Save as draft for review before applying
             </label>
           </div>
           <div class="form-check">
             <input class="form-check-input" type="radio" name="translation_mode" id="mode_auto" value="auto"
               {{ ($settings['translation_mode'] ?? 'review') === 'auto' ? 'checked' : '' }}>
             <label class="form-check-label" for="mode_auto">
-              <strong>Auto Apply</strong> - Immediately save translations to target language
+              <strong>{{ __('Auto Apply') }}</strong> - Immediately save translations to target language
             </label>
           </div>
         </div>
@@ -441,7 +441,7 @@
           </div>
         </div>
         <div class="col-sm-9">
-          <small class="text-muted">If target language field already has text, overwrite it with translation</small>
+          <small class="text-muted">{{ __('If target language field already has text, overwrite it with translation') }}</small>
         </div>
       </div>
 
@@ -455,9 +455,9 @@
 
       <div class="alert alert-info mb-0">
         <i class="fas fa-info-circle me-2"></i>
-        <strong>Supported Languages:</strong> All 11 South African official languages (Afrikaans, Zulu, Xhosa, Sotho, Tswana, Swati, Venda, Tsonga, Ndebele),
+        <strong>{{ __('Supported Languages:') }}</strong> All 11 South African official languages (Afrikaans, Zulu, Xhosa, Sotho, Tswana, Swati, Venda, Tsonga, Ndebele),
         plus Swahili, Yoruba, Igbo, Hausa, Amharic, Dutch, French, German, Spanish, Portuguese, Arabic, and more.
-        <br><small>OPUS-MT runs locally - no data leaves your server. Models download automatically on first use (~300-500MB each).</small>
+        <br><small>{{ __('OPUS-MT runs locally - no data leaves your server. Models download automatically on first use (~300-500MB each).') }}</small>
       </div>
     </div>
   </div>
@@ -473,7 +473,7 @@
         @if($qdrantStatus['service'])
           <div class="alert alert-success py-2">
             <i class="fas fa-check-circle me-1"></i>
-            <strong>Qdrant is running</strong>
+            <strong>{{ __('Qdrant is running') }}</strong>
             @if($qdrantStatus['version'])
               &mdash; v{{ $qdrantStatus['version'] }}
             @endif
@@ -505,7 +505,7 @@
         @else
           <div class="alert alert-danger py-2">
             <i class="fas fa-exclamation-triangle me-1"></i>
-            <strong>Qdrant is not running.</strong>
+            <strong>{{ __('Qdrant is not running.') }}</strong>
             Start it with: <code>docker start qdrant</code>
           </div>
         @endif
@@ -541,7 +541,7 @@
       </div>
       <div class="alert alert-light border mt-3">
         <i class="fas fa-info-circle me-1 text-primary"></i>
-        <strong>Indexing:</strong> Run the Qdrant indexer from the CLI or cron. See
+        <strong>{{ __('Indexing:') }}</strong> Run the Qdrant indexer from the CLI or cron. See
         @if(\Route::has('settings.cron-jobs'))
           <a href="{{ route('settings.cron-jobs') }}">Cron Jobs</a>
         @else
@@ -555,10 +555,10 @@
   {{-- ── Save Button ───────────────────────────────────────────────── --}}
   <div class="d-flex justify-content-end gap-2 mb-4">
     <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">
-      <i class="fas fa-times me-1"></i>Cancel
+      <i class="fas fa-times me-1"></i>{{ __('Cancel') }}
     </a>
     <button type="submit" class="btn btn-primary btn-lg">
-      <i class="fas fa-save me-1"></i>Save Settings
+      <i class="fas fa-save me-1"></i>{{ __('Save Settings') }}
     </button>
   </div>
 

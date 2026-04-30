@@ -37,7 +37,7 @@ $layout = $params['layout'] ?? 'card';
                         @if(!empty($params['object_type']) || !empty($params['media_type']))
                         <div class="mt-3">
                             <a href="{{ route('displaySearch.search') }}" class="btn btn-outline-secondary btn-sm w-100">
-                                <i class="fas fa-times me-1"></i>Clear All Filters
+                                <i class="fas fa-times me-1"></i>{{ __('Clear All Filters') }}
                             </a>
                         </div>
                         @endif

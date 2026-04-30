@@ -73,7 +73,7 @@
       <label class="form-check-label" for="applyToChildren">{{ __('Apply to all child records (inheritance)') }}</label>
     </div>
 
-    <button type="submit" class="btn btn-primary"><i class="fas fa-lock"></i> Apply Classification</button>
+    <button type="submit" class="btn btn-primary"><i class="fas fa-lock"></i> {{ __('Apply Classification') }}</button>
     <a href="{{ route('security-clearance.dashboard') }}" class="btn btn-secondary">Cancel</a>
   </form>
 </div>

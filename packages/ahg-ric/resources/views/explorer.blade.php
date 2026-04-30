@@ -12,7 +12,7 @@
     <i class="fas fa-3x fa-project-diagram me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('RiC Explorer') }}</h1>
-      <span class="small text-muted">Records in Contexts &mdash; Graph Visualization</span>
+      <span class="small text-muted">{{ __('Records in Contexts &mdash; Graph Visualization') }}</span>
     </div>
   </div>
 
@@ -31,14 +31,14 @@
         <div class="col-md-4 text-end mt-2 mt-md-0">
           <div class="btn-group btn-group-sm">
             <a href="#" class="btn atom-btn-secondary" id="ric-back-to-record-btn" style="display:none">
-              <i class="fas fa-arrow-left me-1"></i> Back to Record
+              <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Record') }}
             </a>
             <button type="button" class="btn atom-btn-secondary" id="ric-load-overview-btn">
-              <i class="fas fa-globe me-1"></i> Overview
+              <i class="fas fa-globe me-1"></i> {{ __('Overview') }}
             </button>
             <button type="button" class="btn atom-btn-secondary ric-view-btn active" data-view="2d">2D</button>
             <button type="button" class="btn atom-btn-secondary ric-view-btn" data-view="3d">3D</button>
-            <button type="button" class="btn atom-btn-secondary ric-view-btn" data-view="timeline"><i class="fas fa-stream me-1"></i>Timeline</button>
+            <button type="button" class="btn atom-btn-secondary ric-view-btn" data-view="timeline"><i class="fas fa-stream me-1"></i>{{ __('Timeline') }}</button>
             <button type="button" class="btn atom-btn-secondary" id="ric-fullscreen-btn" title="{{ __('Fullscreen') }}">
               <i class="fas fa-expand"></i>
             </button>
@@ -51,7 +51,7 @@
   {{-- Graph Container --}}
   <div class="card mb-3 ric-explorer-page">
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-      <span><i class="fas fa-project-diagram me-1"></i> Graph View</span>
+      <span><i class="fas fa-project-diagram me-1"></i> {{ __('Graph View') }}</span>
       <span id="ric-node-count" class="badge bg-light text-dark">0 nodes</span>
     </div>
     <div class="card-body p-0">
@@ -85,7 +85,7 @@
   {{-- Node Info Panel --}}
   <div id="ric-node-info" class="card mb-3" style="display:none;">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <i class="fas fa-info-circle me-1"></i> <span id="ric-node-info-title">Node Details</span>
+      <i class="fas fa-info-circle me-1"></i> <span id="ric-node-info-title">{{ __('Node Details') }}</span>
     </div>
     <div class="card-body ric-node-info" id="ric-node-info-body"></div>
   </div>
@@ -93,10 +93,10 @@
   {{-- Back to Dashboard --}}
   <div class="mb-3">
     <a href="{{ route('ric.index') }}" class="btn atom-btn-secondary">
-      <i class="fas fa-arrow-left me-1"></i> Back to RiC Dashboard
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back to RiC Dashboard') }}
     </a>
     <a href="{{ route('ric.semantic-search') }}" class="btn atom-btn-secondary">
-      <i class="fas fa-brain me-1"></i> Semantic Search
+      <i class="fas fa-brain me-1"></i> {{ __('Semantic Search') }}
     </a>
   </div>
 
@@ -145,7 +145,7 @@
         <div class="modal-footer" style="border-color:#444;">
           <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="button" class="btn btn-sm btn-success" id="ric-create-submit" onclick="submitCreateEntity()">
-            <i class="fas fa-plus me-1"></i>Create Entity
+            <i class="fas fa-plus me-1"></i>{{ __('Create Entity') }}
           </button>
         </div>
       </div>
@@ -160,7 +160,7 @@
         <button type="button" class="btn btn-light ric-fs-view-btn" data-view="3d">3D</button>
       </div>
       <button type="button" class="btn btn-danger btn-sm ms-2" id="ric-close-fullscreen">
-        <i class="fas fa-times"></i> Close
+        <i class="fas fa-times"></i> {{ __('Close') }}
       </button>
     </div>
     <div id="ric-fullscreen-graph" style="width:100%; height:100%;"></div>

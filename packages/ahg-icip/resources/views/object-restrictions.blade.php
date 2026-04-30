@@ -47,7 +47,7 @@
                   <i class="bi bi-lock-fill me-2"></i>
                   <strong>{{ $restrictionTypes[$restriction->restriction_type] ?? ucwords(str_replace('_', ' ', $restriction->restriction_type)) }}</strong>
                   @if(!empty($restriction->override_security_clearance))
-                    <span class="badge bg-dark ms-2">Overrides Security Clearance</span>
+                    <span class="badge bg-dark ms-2">{{ __('Overrides Security Clearance') }}</span>
                   @endif
 
                   @if($restriction->restriction_type === 'custom' && !empty($restriction->custom_restriction_text))
@@ -135,8 +135,8 @@
               <div class="form-check">
                 <input type="checkbox" name="override_security_clearance" value="1" class="form-check-input" id="overrideSecurity" checked>
                 <label class="form-check-label" for="overrideSecurity">
-                  <strong>Override Security Clearance</strong>
-                  <br><small class="text-muted">ICIP restriction takes precedence over standard access controls</small>
+                  <strong>{{ __('Override Security Clearance') }}</strong>
+                  <br><small class="text-muted">{{ __('ICIP restriction takes precedence over standard access controls') }}</small>
                 </label>
               </div>
             </div>
@@ -147,7 +147,7 @@
             </div>
 
             <button type="submit" class="btn btn-danger">
-              <i class="bi bi-lock me-1"></i> Add Restriction
+              <i class="bi bi-lock me-1"></i> {{ __('Add Restriction') }}
             </button>
           </form>
         </div>

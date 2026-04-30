@@ -11,12 +11,12 @@
     <form method="POST" action="{{ route('admin.ai.htr.doBatch') }}" enctype="multipart/form-data">
       @csrf
       <div class="mb-3">
-        <label class="form-label">Upload Files <span class="badge bg-secondary ms-1">Required</span></label>
+        <label class="form-label">Upload Files <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
         <input type="file" name="files[]" class="form-control" multiple accept="image/*,.pdf" required>
         <div class="form-text">Select multiple images or PDFs for batch processing.</div>
       </div>
       <div class="mb-3">
-        <label class="form-label">Output Format <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label class="form-label">Output Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <select name="format" class="form-select" style="max-width:200px">
           <option value="csv">CSV</option>
           <option value="json">JSON</option>
@@ -24,7 +24,7 @@
         </select>
       </div>
       <div class="progress mb-3 d-none" id="batch-progress"><div class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%"></div></div>
-      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-play me-1"></i>Start Batch</button>
+      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-play me-1"></i>{{ __('Start Batch') }}</button>
       <a href="{{ route('admin.ai.htr.dashboard') }}" class="btn atom-btn-white ms-2">Cancel</a>
     </form>
   </div>
@@ -54,7 +54,7 @@
   </div>
   @if(isset($batchResults['job_id']))
   <div class="card-footer">
-    <a href="{{ route('admin.ai.htr.download', [$batchResults['job_id'], 'csv']) }}" class="btn atom-btn-outline-success"><i class="fas fa-download me-1"></i>Download All</a>
+    <a href="{{ route('admin.ai.htr.download', [$batchResults['job_id'], 'csv']) }}" class="btn atom-btn-outline-success"><i class="fas fa-download me-1"></i>{{ __('Download All') }}</a>
   </div>
   @endif
 </div>

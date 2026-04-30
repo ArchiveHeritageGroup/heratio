@@ -35,7 +35,7 @@
                   {{ (1 == $permissions[$key]->grantDeny) ? 'checked' : '' }}
                   value="{{ \AhgCore\Services\AclService::GRANT }}">
                 <label class="form-check-label" for="acl_grant_[{{ $permissions[$key]->id }}]">
-                  {{ __('Grant') }} <span class="badge bg-secondary ms-1">Required</span>
+                  {{ __('Grant') }} <span class="badge bg-secondary ms-1">{{ __('Required') }}</span>
                 </label>
               </div>
               <div class="form-check form-check-inline">
@@ -47,7 +47,7 @@
                   {{ (0 == $permissions[$key]->grantDeny) ? 'checked' : '' }}
                   value="{{ \AhgCore\Services\AclService::DENY }}">
                 <label class="form-check-label" for="acl_deny_[{{ $permissions[$key]->id }}]">
-                  {{ __('Deny') }} <span class="badge bg-secondary ms-1">Required</span>
+                  {{ __('Deny') }} <span class="badge bg-secondary ms-1">{{ __('Required') }}</span>
                 </label>
               </div>
               <div class="form-check form-check-inline">
@@ -58,7 +58,7 @@
                   id="acl_inherit_[{{ $permissions[$key]->id }}]"
                   value="{{ \AhgCore\Services\AclService::INHERIT }}">
                 <label class="form-check-label" for="acl_inherit_[{{ $permissions[$key]->id }}]">
-                  {{ __('Inherit') }} <span class="badge bg-secondary ms-1">Required</span>
+                  {{ __('Inherit') }} <span class="badge bg-secondary ms-1">{{ __('Required') }}</span>
                 </label>
               </div>
             @else
@@ -72,7 +72,7 @@
                 <label
                   class="form-check-label"
                   for="acl_grant_[{{ $key }}_{{ $object->slug }}]">
-                  {{ __('Grant') }} <span class="badge bg-secondary ms-1">Required</span>
+                  {{ __('Grant') }} <span class="badge bg-secondary ms-1">{{ __('Required') }}</span>
                 </label>
               </div>
               <div class="form-check form-check-inline">
@@ -85,7 +85,7 @@
                 <label
                   class="form-check-label"
                   for="acl_deny_[{{ $key }}_{{ $object->slug }}]">
-                  {{ __('Deny') }} <span class="badge bg-secondary ms-1">Required</span>
+                  {{ __('Deny') }} <span class="badge bg-secondary ms-1">{{ __('Required') }}</span>
                 </label>
               </div>
               <div class="form-check form-check-inline">
@@ -99,7 +99,7 @@
                 <label
                   class="form-check-label"
                   for="acl_inherit_[{{ $key }}_{{ $object->slug }}]">
-                  {{ __('Inherit') }} <span class="badge bg-secondary ms-1">Required</span>
+                  {{ __('Inherit') }} <span class="badge bg-secondary ms-1">{{ __('Required') }}</span>
                 </label>
               </div>
             @endif

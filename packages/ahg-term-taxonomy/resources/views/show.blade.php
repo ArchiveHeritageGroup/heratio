@@ -241,17 +241,17 @@
             <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Hierarchical terms') }}</h3>
             <div class="col-9 p-2">
               @if($broaderTerm)
-                <div class="mb-1">{{ $term->name }}: <strong>BT</strong> <a href="{{ route('term.show', $broaderTerm->slug) }}">{{ $broaderTerm->name }}</a></div>
+                <div class="mb-1">{{ $term->name }}: <strong>{{ __('BT') }}</strong> <a href="{{ route('term.show', $broaderTerm->slug) }}">{{ $broaderTerm->name }}</a></div>
               @endif
               @foreach($narrowerTerms as $nt)
-                <div class="mb-1">{{ $term->name }}: <strong>NT</strong> <a href="{{ route('term.show', $nt->slug) }}">{{ $nt->name }}</a></div>
+                <div class="mb-1">{{ $term->name }}: <strong>{{ __('NT') }}</strong> <a href="{{ route('term.show', $nt->slug) }}">{{ $nt->name }}</a></div>
               @endforeach
             </div>
           </div>
           @if(!empty($useFor))
             <div class="field row g-0">
               <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Equivalent terms') }}</h3>
-              <div class="col-9 p-2">@foreach($useFor as $uf)<div class="mb-1">{{ $term->name }}: <strong>UF</strong> {{ $uf }}</div>@endforeach</div>
+              <div class="col-9 p-2">@foreach($useFor as $uf)<div class="mb-1">{{ $term->name }}: <strong>{{ __('UF') }}</strong> {{ $uf }}</div>@endforeach</div>
             </div>
           @endif
           @if($converseTerm)
@@ -263,7 +263,7 @@
           @if($associatedTerms->isNotEmpty())
             <div class="field row g-0">
               <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Associated terms') }}</h3>
-              <div class="col-9 p-2">@foreach($associatedTerms as $rt)<div class="mb-1">{{ $term->name }}: <strong>RT</strong> <a href="{{ route('term.show', $rt->slug) }}">{{ $rt->name }}</a></div>@endforeach</div>
+              <div class="col-9 p-2">@foreach($associatedTerms as $rt)<div class="mb-1">{{ $term->name }}: <strong>{{ __('RT') }}</strong> <a href="{{ route('term.show', $rt->slug) }}">{{ $rt->name }}</a></div>@endforeach</div>
             </div>
           @endif
         </div>
@@ -317,8 +317,8 @@
         <div class="d-flex flex-wrap gap-2 mb-2">
           @php $removeParams = request()->except(['onlyDirect', 'page']); @endphp
           <a href="{{ route('term.show', array_merge(['slug' => $term->slug], $removeParams)) }}" class="btn btn-sm atom-btn-white filter-tag d-flex align-items-center">
-            <span class="visually-hidden">Remove filter:</span>
-            <span class="text-truncate">Only results directly related</span>
+            <span class="visually-hidden">{{ __('Remove filter:') }}</span>
+            <span class="text-truncate">{{ __('Only results directly related') }}</span>
             <i class="fas fa-times ms-2"></i>
           </a>
         </div>
@@ -326,7 +326,7 @@
         <div class="d-grid d-sm-flex gap-2 align-items-center p-3 border-bottom mb-2">
           {{ number_format($directCount) }} results directly related
           <a class="btn btn-sm atom-btn-white ms-auto text-wrap" href="{{ request()->fullUrlWithQuery(['onlyDirect' => 1, 'page' => 1]) }}">
-            <i class="fas fa-search me-1"></i>Exclude narrower terms
+            <i class="fas fa-search me-1"></i>{{ __('Exclude narrower terms') }}
           </a>
         </div>
       @endif

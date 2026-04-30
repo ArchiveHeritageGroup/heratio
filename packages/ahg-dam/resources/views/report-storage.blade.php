@@ -10,7 +10,7 @@
   @endphp
   <div class="alert alert-primary">
     <strong>{{ damFmtBytes($storage['total'] ?? 0) }}</strong><br>
-    <small>Total Storage Used</small>
+    <small>{{ __('Total Storage Used') }}</small>
   </div>
   @if(($storage['orphaned'] ?? 0) > 0)
   <div class="alert alert-warning">
@@ -18,7 +18,7 @@
   </div>
   @endif
   <hr>
-  <a href="{{ route('dam.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>Back</a>
+  <a href="{{ route('dam.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back') }}</a>
 </div>
 @endsection
 @section('title-block')<h1><i class="fas fa-hdd me-2"></i>Storage Report</h1>@endsection

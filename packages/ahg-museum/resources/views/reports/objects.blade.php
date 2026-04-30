@@ -6,15 +6,15 @@
 <div class="sidebar-content">
   <h4>{{ __('Museum Reports') }}</h4>
   <ul class="list-unstyled">
-    <li><a href="{{ route('museum.report-objects') }}"><i class="fas fa-cube me-2"></i>Objects</a></li>
-    <li><a href="{{ route('museum.report-creators') }}"><i class="fas fa-user-edit me-2"></i>Creators</a></li>
-    <li><a href="{{ route('museum.report-condition') }}"><i class="fas fa-heartbeat me-2"></i>Condition</a></li>
-    <li><a href="{{ route('museum.report-provenance') }}"><i class="fas fa-history me-2"></i>Provenance</a></li>
-    <li><a href="{{ route('museum.report-style-period') }}"><i class="fas fa-theater-masks me-2"></i>Style & Period</a></li>
-    <li><a href="{{ route('museum.report-materials') }}"><i class="fas fa-layer-group me-2"></i>Materials</a></li>
+    <li><a href="{{ route('museum.report-objects') }}"><i class="fas fa-cube me-2"></i>{{ __('Objects') }}</a></li>
+    <li><a href="{{ route('museum.report-creators') }}"><i class="fas fa-user-edit me-2"></i>{{ __('Creators') }}</a></li>
+    <li><a href="{{ route('museum.report-condition') }}"><i class="fas fa-heartbeat me-2"></i>{{ __('Condition') }}</a></li>
+    <li><a href="{{ route('museum.report-provenance') }}"><i class="fas fa-history me-2"></i>{{ __('Provenance') }}</a></li>
+    <li><a href="{{ route('museum.report-style-period') }}"><i class="fas fa-theater-masks me-2"></i>{{ __('Style & Period') }}</a></li>
+    <li><a href="{{ route('museum.report-materials') }}"><i class="fas fa-layer-group me-2"></i>{{ __('Materials') }}</a></li>
   </ul>
   <hr>
-  <a href="{{ route('museum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a>
+  <a href="{{ route('museum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a>
 </div>
 @endsection
 @section('title-block')<h1><i class="fas fa-cube me-2"></i>Objects Report</h1>@endsection

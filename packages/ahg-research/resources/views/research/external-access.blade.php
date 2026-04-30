@@ -40,13 +40,13 @@
             <div class="card-header"><h6 class="mb-0">{{ __('Create Shared Link') }}</h6></div>
             <div class="card-body">
                 <form method="POST">@csrf
-                    <div class="mb-3"><label class="form-label">Resource <span class="badge bg-danger ms-1">Required</span></label><select name="resource_id" class="form-select" required><option value="">-- Select --</option>
+                    <div class="mb-3"><label class="form-label">Resource <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><select name="resource_id" class="form-select" required><option value="">-- Select --</option>
                         @foreach($resources ?? [] as $res)<option value="{{ $res->id }}">{{ e($res->title ?? '') }}</option>@endforeach
                     </select></div>
-                    <div class="mb-3"><label class="form-label">Access Type <span class="badge bg-secondary ms-1">Optional</span></label><select name="access_type" class="form-select"><option value="view">{{ __('View Only') }}</option><option value="download">{{ __('Download') }}</option><option value="annotate">{{ __('Annotate') }}</option></select></div>
-                    <div class="mb-3"><label class="form-label">Expires <span class="badge bg-secondary ms-1">Optional</span></label><input type="datetime-local" name="expires_at" class="form-control"></div>
-                    <div class="mb-3"><label class="form-label">Password (optional) <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="password" class="form-control"></div>
-                    <button type="submit" class="btn atom-btn-white w-100"><i class="fas fa-link me-1"></i>Create Link</button>
+                    <div class="mb-3"><label class="form-label">Access Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="access_type" class="form-select"><option value="view">{{ __('View Only') }}</option><option value="download">{{ __('Download') }}</option><option value="annotate">{{ __('Annotate') }}</option></select></div>
+                    <div class="mb-3"><label class="form-label">Expires <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="datetime-local" name="expires_at" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label">Password (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="password" class="form-control"></div>
+                    <button type="submit" class="btn atom-btn-white w-100"><i class="fas fa-link me-1"></i>{{ __('Create Link') }}</button>
                 </form>
             </div>
         </div>

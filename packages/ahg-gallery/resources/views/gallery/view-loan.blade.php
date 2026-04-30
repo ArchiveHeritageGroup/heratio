@@ -18,5 +18,5 @@
 @if($loan->conditions ?? null)<h6>{{ __('Conditions') }}</h6><p>{!! nl2br(e($loan->conditions)) !!}</p>@endif
 @if($loan->notes ?? null)<h6>{{ __('Notes') }}</h6><p>{!! nl2br(e($loan->notes)) !!}</p>@endif
 </div></div>
-<div class="mt-3"><a href="{{ route('gallery.loans') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Loans</a></div>
+<div class="mt-3"><a href="{{ route('gallery.loans') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Loans') }}</a></div>
 @endsection

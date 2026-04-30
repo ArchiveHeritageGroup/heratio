@@ -36,7 +36,7 @@
         </div>
         <div>
             <button onclick="window.print()" style="padding:8px 16px; background:#dc3545; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:0.9rem;">
-                <i class="fas fa-print"></i> Print / Save as PDF
+                <i class="fas fa-print"></i> {{ __('Print / Save as PDF') }}
             </button>
         </div>
     </div>
@@ -73,43 +73,43 @@
         </div>
 
         @if($item->identifier)
-        <div class="field"><span class="field-label">Identifier:</span> <span class="field-value">{{ e($item->identifier) }}</span></div>
+        <div class="field"><span class="field-label">{{ __('Identifier:') }}</span> <span class="field-value">{{ e($item->identifier) }}</span></div>
         @endif
 
         @if($item->repository_name)
-        <div class="field"><span class="field-label">Repository:</span> <span class="field-value">{{ e($item->repository_name) }}</span></div>
+        <div class="field"><span class="field-label">{{ __('Repository:') }}</span> <span class="field-value">{{ e($item->repository_name) }}</span></div>
         @endif
 
         @if($item->scope_and_content)
-        <div class="field"><span class="field-label">Scope and Content:</span><br><span class="field-value">{{ e($item->scope_and_content) }}</span></div>
+        <div class="field"><span class="field-label">{{ __('Scope and Content:') }}</span><br><span class="field-value">{{ e($item->scope_and_content) }}</span></div>
         @endif
 
         @if($item->extent_and_medium)
-        <div class="field"><span class="field-label">Extent and Medium:</span><br><span class="field-value">{{ e($item->extent_and_medium) }}</span></div>
+        <div class="field"><span class="field-label">{{ __('Extent and Medium:') }}</span><br><span class="field-value">{{ e($item->extent_and_medium) }}</span></div>
         @endif
 
         @if($item->archival_history)
-        <div class="field"><span class="field-label">Archival History:</span><br><span class="field-value">{{ e($item->archival_history) }}</span></div>
+        <div class="field"><span class="field-label">{{ __('Archival History:') }}</span><br><span class="field-value">{{ e($item->archival_history) }}</span></div>
         @endif
 
         @if($item->arrangement)
-        <div class="field"><span class="field-label">Arrangement:</span><br><span class="field-value">{{ e($item->arrangement) }}</span></div>
+        <div class="field"><span class="field-label">{{ __('Arrangement:') }}</span><br><span class="field-value">{{ e($item->arrangement) }}</span></div>
         @endif
 
         @if($item->access_conditions)
-        <div class="field"><span class="field-label">Access Conditions:</span><br><span class="field-value">{{ e($item->access_conditions) }}</span></div>
+        <div class="field"><span class="field-label">{{ __('Access Conditions:') }}</span><br><span class="field-value">{{ e($item->access_conditions) }}</span></div>
         @endif
 
         @if($item->reproduction_conditions)
-        <div class="field"><span class="field-label">Reproduction Conditions:</span><br><span class="field-value">{{ e($item->reproduction_conditions) }}</span></div>
+        <div class="field"><span class="field-label">{{ __('Reproduction Conditions:') }}</span><br><span class="field-value">{{ e($item->reproduction_conditions) }}</span></div>
         @endif
 
         @if($item->physical_characteristics)
-        <div class="field"><span class="field-label">Physical Characteristics:</span><br><span class="field-value">{{ e($item->physical_characteristics) }}</span></div>
+        <div class="field"><span class="field-label">{{ __('Physical Characteristics:') }}</span><br><span class="field-value">{{ e($item->physical_characteristics) }}</span></div>
         @endif
 
         @if($item->researcher_notes)
-        <div class="researcher-note"><strong>Research Notes:</strong> {{ e($item->researcher_notes) }}</div>
+        <div class="researcher-note"><strong>{{ __('Research Notes:') }}</strong> {{ e($item->researcher_notes) }}</div>
         @endif
     </div>
     @endforeach

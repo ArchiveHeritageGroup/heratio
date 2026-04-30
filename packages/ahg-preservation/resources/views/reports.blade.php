@@ -120,14 +120,14 @@
                                     @if($item->verified_at ?? null)
                                         <small class="text-warning">{{ $item->verified_at }}</small>
                                     @else
-                                        <span class="badge bg-danger">Never verified</span>
+                                        <span class="badge bg-danger">{{ __('Never verified') }}</span>
                                     @endif
                                 </td>
                                 <td>
                                     @if(($item->verification_status ?? '') === 'verified')
-                                        <span class="badge bg-success">Verified</span>
+                                        <span class="badge bg-success">{{ __('Verified') }}</span>
                                     @elseif(($item->verification_status ?? '') === 'failed')
-                                        <span class="badge bg-danger">Failed</span>
+                                        <span class="badge bg-danger">{{ __('Failed') }}</span>
                                     @else
                                         <span class="badge bg-secondary">{{ ucfirst($item->verification_status ?? 'pending') }}</span>
                                     @endif
@@ -173,9 +173,9 @@
                                 <td><code>{{ $item->puid ?? '-' }}</code></td>
                                 <td>
                                     @if(($item->risk_level ?? '') === 'critical')
-                                        <span class="badge bg-danger">Critical</span>
+                                        <span class="badge bg-danger">{{ __('Critical') }}</span>
                                     @else
-                                        <span class="badge bg-warning text-dark">High</span>
+                                        <span class="badge bg-warning text-dark">{{ __('High') }}</span>
                                     @endif
                                 </td>
                                 <td><small>{{ $item->preservation_action ?? '-' }}</small></td>

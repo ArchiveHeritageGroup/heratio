@@ -6,7 +6,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-history"></i> Workflow Activity Log</h1>
-    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('Dashboard') }}</a>
   </div>
 
   @if(count($history) === 0)
@@ -43,22 +43,22 @@
                   <td>
                     @switch($entry->action)
                       @case('approved')
-                        <span class="badge bg-success">Approved</span>
+                        <span class="badge bg-success">{{ __('Approved') }}</span>
                         @break
                       @case('rejected')
-                        <span class="badge bg-danger">Rejected</span>
+                        <span class="badge bg-danger">{{ __('Rejected') }}</span>
                         @break
                       @case('claimed')
-                        <span class="badge bg-info">Claimed</span>
+                        <span class="badge bg-info">{{ __('Claimed') }}</span>
                         @break
                       @case('released')
-                        <span class="badge bg-warning text-dark">Released</span>
+                        <span class="badge bg-warning text-dark">{{ __('Released') }}</span>
                         @break
                       @case('started')
-                        <span class="badge bg-primary">Started</span>
+                        <span class="badge bg-primary">{{ __('Started') }}</span>
                         @break
                       @case('created')
-                        <span class="badge bg-secondary">Created</span>
+                        <span class="badge bg-secondary">{{ __('Created') }}</span>
                         @break
                       @default
                         <span class="badge bg-secondary">{{ ucfirst($entry->action) }}</span>

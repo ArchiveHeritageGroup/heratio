@@ -32,7 +32,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgnaz.permits') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i> Back
+                <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
             </a>
         </div>
     </div>
@@ -102,10 +102,10 @@
                     <form method="post">
                         @csrf
                         <button type="submit" name="form_action" value="approve" class="btn btn-success me-2">
-                            <i class="fas fa-check me-1"></i> Approve
+                            <i class="fas fa-check me-1"></i> {{ __('Approve') }}
                         </button>
                         <button type="submit" name="form_action" value="reject" class="btn btn-danger">
-                            <i class="fas fa-times me-1"></i> Reject
+                            <i class="fas fa-times me-1"></i> {{ __('Reject') }}
                         </button>
                     </form>
                 </div>
@@ -132,9 +132,9 @@
             <div class="card">
                 <div class="card-header"><h5 class="mb-0">{{ __('Record') }}</h5></div>
                 <div class="card-body">
-                    <p class="mb-1"><strong>Created:</strong> @if(!empty($permit->created_at)){{ \Carbon\Carbon::parse($permit->created_at)->format('j M Y') }}@endif</p>
+                    <p class="mb-1"><strong>{{ __('Created:') }}</strong> @if(!empty($permit->created_at)){{ \Carbon\Carbon::parse($permit->created_at)->format('j M Y') }}@endif</p>
                     @if(!empty($permit->approved_date))
-                    <p class="mb-0"><strong>Approved:</strong> {{ \Carbon\Carbon::parse($permit->approved_date)->format('j M Y') }}</p>
+                    <p class="mb-0"><strong>{{ __('Approved:') }}</strong> {{ \Carbon\Carbon::parse($permit->approved_date)->format('j M Y') }}</p>
                     @endif
                 </div>
             </div>

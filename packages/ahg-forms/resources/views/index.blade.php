@@ -11,10 +11,10 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('forms.template.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i> New Template
+                <i class="fas fa-plus me-1"></i> {{ __('New Template') }}
             </a>
             <a href="{{ route('forms.library') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-upload me-1"></i> Import
+                <i class="fas fa-upload me-1"></i> {{ __('Import') }}
             </a>
         </div>
     </div>
@@ -119,10 +119,10 @@
                                 <td>
                                     <strong>{{ e($template->name) }}</strong>
                                     @if(!empty($template->is_system))
-                                        <span class="badge bg-secondary">System</span>
+                                        <span class="badge bg-secondary">{{ __('System') }}</span>
                                     @endif
                                     @if(!empty($template->is_default))
-                                        <span class="badge bg-primary">Default</span>
+                                        <span class="badge bg-primary">{{ __('Default') }}</span>
                                     @endif
                                     @if($template->description)
                                         <br><small class="text-muted">{{ e($template->description) }}</small>
@@ -134,9 +134,9 @@
                                 <td>{{ $fieldCount }}</td>
                                 <td>
                                     @if(!empty($template->is_active))
-                                        <span class="badge bg-success">Active</span>
+                                        <span class="badge bg-success">{{ __('Active') }}</span>
                                     @else
-                                        <span class="badge bg-warning">Inactive</span>
+                                        <span class="badge bg-warning">{{ __('Inactive') }}</span>
                                     @endif
                                 </td>
                                 <td>

@@ -30,13 +30,13 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h2">
             <a href="{{ route('semantic-search.index') }}" class="text-decoration-none text-muted">
-                <i class="fas fa-brain me-2"></i>Semantic Search
+                <i class="fas fa-brain me-2"></i>{{ __('Semantic Search') }}
             </a>
             <i class="fas fa-chevron-right mx-2 small text-muted"></i>
             Terms
         </h1>
         <a href="{{ route('semantic-search.term.add') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-1"></i>Add Term
+            <i class="fas fa-plus me-1"></i>{{ __('Add Term') }}
         </a>
     </div>
 
@@ -61,7 +61,7 @@
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <button type="submit" class="btn btn-secondary w-100">
-                        <i class="fas fa-filter me-1"></i>Filter
+                        <i class="fas fa-filter me-1"></i>{{ __('Filter') }}
                     </button>
                 </div>
             </form>
@@ -125,7 +125,7 @@
                                     No terms found
                                     <br>
                                     <a href="{{ route('semantic-search.term.add') }}" class="btn btn-primary mt-3">
-                                        <i class="fas fa-plus me-1"></i>Add your first term
+                                        <i class="fas fa-plus me-1"></i>{{ __('Add your first term') }}
                                     </a>
                                 </td>
                             </tr>

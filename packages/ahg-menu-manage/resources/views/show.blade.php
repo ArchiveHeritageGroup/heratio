@@ -8,15 +8,15 @@
     <i class="fas fa-3x fa-bars me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column flex-grow-1">
       <h1 class="mb-0">{{ $menu->label ?: $menu->name ?: 'Menu #' . $menu->id }}</h1>
-      <span class="small text-muted">Menu item details</span>
+      <span class="small text-muted">{{ __('Menu item details') }}</span>
     </div>
     <div class="d-flex gap-2">
       <a href="{{ route('menu.edit', $menu->id) }}" class="btn atom-btn-white">
-        <i class="fas fa-pencil-alt me-1"></i> Edit
+        <i class="fas fa-pencil-alt me-1"></i> {{ __('Edit') }}
       </a>
       @if(!$menu->isProtected)
         <a href="{{ route('menu.confirmDelete', $menu->id) }}" class="btn atom-btn-outline-danger">
-          <i class="fas fa-trash me-1"></i> Delete
+          <i class="fas fa-trash me-1"></i> {{ __('Delete') }}
         </a>
       @endif
     </div>
@@ -124,7 +124,7 @@
 
   <div>
     <a href="{{ route('menu.browse') }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left me-1"></i> Back to menus
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back to menus') }}
     </a>
   </div>
 @endsection

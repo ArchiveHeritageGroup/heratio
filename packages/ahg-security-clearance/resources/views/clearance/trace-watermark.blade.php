@@ -25,7 +25,7 @@
             </div>
           </div>
           <div class="col-md-6 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary mb-3"><i class="fas fa-search"></i> Trace</button>
+            <button type="submit" class="btn btn-primary mb-3"><i class="fas fa-search"></i> {{ __('Trace') }}</button>
           </div>
         </div>
       </form>

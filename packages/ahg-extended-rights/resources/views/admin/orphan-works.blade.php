@@ -11,7 +11,7 @@
   <div class="d-flex justify-content-between align-items-center">
     <h1 class="mb-0"><i class="fas fa-search me-2"></i>Orphan Works Due Diligence</h1>
     <a href="{{ route('ext-rights-admin.orphan-work-new') }}" class="btn btn-sm btn-primary">
-      <i class="fas fa-plus me-1"></i> New Search
+      <i class="fas fa-plus me-1"></i> {{ __('New Search') }}
     </a>
   </div>
 @endsection

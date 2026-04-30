@@ -8,7 +8,7 @@
   <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
     <h5 class="mb-0">{{ __('System Status') }}</h5>
     <a href="{{ route('metadata-extraction.index') }}" class="btn atom-btn-white btn-sm">
-      <i class="bi bi-arrow-left me-1"></i>Back
+      <i class="bi bi-arrow-left me-1"></i>{{ __('Back') }}
     </a>
   </div>
   <div class="card-body">
@@ -22,10 +22,10 @@
             <th class="w-50">{{ __('ExifTool') }}</th>
             <td>
               @if($exifToolAvailable)
-                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Installed</span>
+                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>{{ __('Installed') }}</span>
                 <code class="ms-2">{{ $exifToolVersion }}</code>
               @else
-                <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Not installed</span>
+                <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>{{ __('Not installed') }}</span>
               @endif
             </td>
           </tr>
@@ -33,10 +33,10 @@
             <th>{{ __('ffprobe') }}</th>
             <td>
               @if($ffprobeAvailable)
-                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Installed</span>
+                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>{{ __('Installed') }}</span>
                 <code class="ms-2">{{ $ffprobeVersion }}</code>
               @else
-                <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Not installed</span>
+                <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>{{ __('Not installed') }}</span>
               @endif
             </td>
           </tr>
@@ -44,9 +44,9 @@
             <th>{{ __('pdfinfo') }}</th>
             <td>
               @if($pdfinfoAvailable)
-                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Installed</span>
+                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>{{ __('Installed') }}</span>
               @else
-                <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Not installed</span>
+                <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>{{ __('Not installed') }}</span>
               @endif
             </td>
           </tr>
@@ -131,9 +131,9 @@
                 <td>{{ number_format($item->count) }}</td>
                 <td>
                   @if(in_array($item->mime_type, $supportedTypes))
-                    <span class="badge bg-success">Yes</span>
+                    <span class="badge bg-success">{{ __('Yes') }}</span>
                   @else
-                    <span class="badge bg-secondary">Limited</span>
+                    <span class="badge bg-secondary">{{ __('Limited') }}</span>
                   @endif
                 </td>
               </tr>

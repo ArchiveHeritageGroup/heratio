@@ -5,7 +5,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="fas fa-clipboard-check me-2"></i>PII Review Queue</h1>
         <a href="{{ route('ahgprivacy.pii-scan') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-1"></i>Back to Scanner
+            <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Scanner') }}
         </a>
     </div>
 
@@ -46,9 +46,9 @@
                         <tr id="entity-row-{{ $entity->id }}">
                             <td>
                                 @if($entity->status === 'flagged')
-                                    <span class="badge bg-danger"><i class="fas fa-flag me-1"></i>Flagged</span>
+                                    <span class="badge bg-danger"><i class="fas fa-flag me-1"></i>{{ __('Flagged') }}</span>
                                 @else
-                                    <span class="badge bg-warning text-dark">Pending</span>
+                                    <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
                                 @endif
                             </td>
                             <td>
@@ -78,7 +78,7 @@ $typeBadges = [
                                     {{ $displayType }}
                                 </span>
                                 @if($isIsad)
-                                <br><small class="text-muted">ISAD Access Point</small>
+                                <br><small class="text-muted">{{ __('ISAD Access Point') }}</small>
                                 @endif
                             </td>
                             <td>
@@ -134,15 +134,15 @@ $conf = round($entity->confidence * 100);
             <div class="row">
                 <div class="col-md-4">
                     <span class="badge bg-success me-2"><i class="fas fa-check"></i></span>
-                    <strong>Approve</strong> - Not sensitive PII, can remain visible
+                    <strong>{{ __('Approve') }}</strong> - Not sensitive PII, can remain visible
                 </div>
                 <div class="col-md-4">
                     <span class="badge bg-warning text-dark me-2"><i class="fas fa-eraser"></i></span>
-                    <strong>Redact</strong> - Is PII, should be masked/restricted in metadata and PDFs
+                    <strong>{{ __('Redact') }}</strong> - Is PII, should be masked/restricted in metadata and PDFs
                 </div>
                 <div class="col-md-4">
                     <span class="badge bg-danger me-2"><i class="fas fa-times"></i></span>
-                    <strong>Reject</strong> - False positive, not actually PII
+                    <strong>{{ __('Reject') }}</strong> - False positive, not actually PII
                 </div>
             </div>
         </div>
@@ -154,21 +154,21 @@ $conf = round($entity->confidence * 100);
             <h6><i class="fas fa-tags me-2"></i>Entity Sources</h6>
             <div class="row">
                 <div class="col-md-6">
-                    <p class="mb-2"><strong>Extracted Entities (NER/Regex)</strong></p>
-                    <span class="badge bg-info me-1">PERSON</span>
-                    <span class="badge bg-secondary me-1">ORG</span>
-                    <span class="badge bg-secondary me-1">GPE</span>
-                    <span class="badge bg-danger me-1">SA_ID</span>
-                    <span class="badge bg-warning text-dark me-1">EMAIL</span>
-                    <small class="d-block text-muted mt-1">Extracted from metadata text fields and PDF content</small>
+                    <p class="mb-2"><strong>{{ __('Extracted Entities (NER/Regex)') }}</strong></p>
+                    <span class="badge bg-info me-1">{{ __('PERSON') }}</span>
+                    <span class="badge bg-secondary me-1">{{ __('ORG') }}</span>
+                    <span class="badge bg-secondary me-1">{{ __('GPE') }}</span>
+                    <span class="badge bg-danger me-1">{{ __('SA_ID') }}</span>
+                    <span class="badge bg-warning text-dark me-1">{{ __('EMAIL') }}</span>
+                    <small class="d-block text-muted mt-1">{{ __('Extracted from metadata text fields and PDF content') }}</small>
                 </div>
                 <div class="col-md-6">
-                    <p class="mb-2"><strong>ISAD Access Points</strong></p>
-                    <span class="badge me-1" style="background-color: #6f42c1;"><i class="fas fa-tag me-1"></i>SUBJECT</span>
-                    <span class="badge me-1" style="background-color: #6f42c1;"><i class="fas fa-tag me-1"></i>PLACE</span>
-                    <span class="badge me-1" style="background-color: #6f42c1;"><i class="fas fa-tag me-1"></i>NAME</span>
-                    <span class="badge me-1" style="background-color: #6f42c1;"><i class="fas fa-tag me-1"></i>DATE</span>
-                    <small class="d-block text-muted mt-1">From Subject, Place, Name, and Date access point fields</small>
+                    <p class="mb-2"><strong>{{ __('ISAD Access Points') }}</strong></p>
+                    <span class="badge me-1" style="background-color: #6f42c1;"><i class="fas fa-tag me-1"></i>{{ __('SUBJECT') }}</span>
+                    <span class="badge me-1" style="background-color: #6f42c1;"><i class="fas fa-tag me-1"></i>{{ __('PLACE') }}</span>
+                    <span class="badge me-1" style="background-color: #6f42c1;"><i class="fas fa-tag me-1"></i>{{ __('NAME') }}</span>
+                    <span class="badge me-1" style="background-color: #6f42c1;"><i class="fas fa-tag me-1"></i>{{ __('DATE') }}</span>
+                    <small class="d-block text-muted mt-1">{{ __('From Subject, Place, Name, and Date access point fields') }}</small>
                 </div>
             </div>
         </div>

@@ -31,7 +31,7 @@
     @if($currentClassification ?? null)
       <hr class="my-2">
       <small>
-        <strong>Current Classification:</strong>
+        <strong>{{ __('Current Classification:') }}</strong>
         <span class="badge" style="background-color: {{ $currentClassification->classificationColor ?? $currentClassification->color ?? '#666' }};">
           {{ $currentClassification->classificationName ?? $currentClassification->name ?? '' }}
         </span>

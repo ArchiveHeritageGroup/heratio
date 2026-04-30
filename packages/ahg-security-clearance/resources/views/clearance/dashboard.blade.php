@@ -13,7 +13,7 @@
         <div class="card-body">
           <h5 class="card-title">{{ __('Pending Requests') }}</h5>
           <h2>{{ $statistics['pending_requests'] ?? 0 }}</h2>
-          <small>Awaiting review</small>
+          <small>{{ __('Awaiting review') }}</small>
         </div>
       </div>
     </div>
@@ -22,7 +22,7 @@
         <div class="card-body">
           <h5 class="card-title">{{ __('Expiring Clearances') }}</h5>
           <h2>{{ $statistics['expiring_clearances'] ?? 0 }}</h2>
-          <small>Within 30 days</small>
+          <small>{{ __('Within 30 days') }}</small>
         </div>
       </div>
     </div>
@@ -31,7 +31,7 @@
         <div class="card-body">
           <h5 class="card-title">{{ __('Recent Denials') }}</h5>
           <h2>{{ $statistics['recent_denials'] ?? 0 }}</h2>
-          <small>Last 7 days</small>
+          <small>{{ __('Last 7 days') }}</small>
         </div>
       </div>
     </div>
@@ -40,7 +40,7 @@
         <div class="card-body">
           <h5 class="card-title">{{ __('Reviews Due') }}</h5>
           <h2>{{ $statistics['reviews_due'] ?? 0 }}</h2>
-          <small>Declassifications</small>
+          <small>{{ __('Declassifications') }}</small>
         </div>
       </div>
     </div>
@@ -147,9 +147,9 @@
             <td>{{ $exp->days_remaining ?? '' }}</td>
             <td>
               @if(($exp->renewal_status ?? 'none') === 'pending')
-                <span class="badge bg-info">Pending</span>
+                <span class="badge bg-info">{{ __('Pending') }}</span>
               @else
-                <span class="badge bg-secondary">Not Requested</span>
+                <span class="badge bg-secondary">{{ __('Not Requested') }}</span>
               @endif
             </td>
             <td>
@@ -196,22 +196,22 @@
       <div class="row">
         <div class="col-md-3">
           <a href="{{ route('security-clearance.index') }}" class="btn btn-outline-primary btn-block mb-2 w-100">
-            <i class="fas fa-users"></i> Manage Clearances
+            <i class="fas fa-users"></i> {{ __('Manage Clearances') }}
           </a>
         </div>
         <div class="col-md-3">
           <a href="{{ route('security-clearance.compartments') }}" class="btn btn-outline-secondary btn-block mb-2 w-100">
-            <i class="fas fa-project-diagram"></i> Compartments
+            <i class="fas fa-project-diagram"></i> {{ __('Compartments') }}
           </a>
         </div>
         <div class="col-md-3">
           <a href="{{ route('security-clearance.audit-dashboard') }}" class="btn btn-outline-info btn-block mb-2 w-100">
-            <i class="fas fa-history"></i> Audit Log
+            <i class="fas fa-history"></i> {{ __('Audit Log') }}
           </a>
         </div>
         <div class="col-md-3">
           <a href="{{ route('security-clearance.report') }}" class="btn btn-outline-success btn-block mb-2 w-100">
-            <i class="fas fa-chart-bar"></i> Reports
+            <i class="fas fa-chart-bar"></i> {{ __('Reports') }}
           </a>
         </div>
       </div>

@@ -39,7 +39,7 @@
       </div>
       <button type="submit" class="btn btn-primary btn-sm w-100 mb-2">{{ __('Search') }}</button>
       <button type="button" onclick="exportTableToCSV()" class="btn btn-outline-secondary btn-sm w-100">
-        <i class="fas fa-download me-1"></i>Export CSV
+        <i class="fas fa-download me-1"></i>{{ __('Export CSV') }}
       </button>
     </form>
   </div>
@@ -50,7 +50,7 @@
 <h1>{{ __('Browse Repository Report') }}</h1>
 <div class="mb-3">
   <a href="{{ route('reports.dashboard') }}" class="btn btn-outline-secondary btn-sm">
-    <i class="fas fa-arrow-left me-1"></i>Back to Reports
+    <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Reports') }}
   </a>
 </div>
 @endsection
@@ -62,7 +62,7 @@
   </div>
 
   <div class="mb-3" style="font-size:0.85rem">
-    <strong>Show/Hide Columns:</strong><br>
+    <strong>{{ __('Show/Hide Columns:') }}</strong><br>
     @php
     $columns = ['Identifier','Name','Desc Status','Desc Detail','Desc ID','Geocultural','Collecting','Buildings','Holdings','Finding Aids','Opening Times','Access','Disabled Access','Research','Reproduction','Public Facilities','Institution ID','Rules','Sources','Revision','Created'];
     @endphp

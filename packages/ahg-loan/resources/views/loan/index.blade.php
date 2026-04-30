@@ -92,7 +92,7 @@
 
             {{-- Filter + Clear buttons --}}
             <div class="col-auto">
-              <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter me-1"></i>Filter</button>
+              <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter me-1"></i>{{ __('Filter') }}</button>
               <a href="{{ route('loan.index', array_filter(['sector' => request('sector'), 'object_id' => request('object_id')])) }}" class="btn btn-sm btn-outline-secondary">Clear</a>
             </div>
 
@@ -101,11 +101,11 @@
               <div class="btn-group">
                 <a href="{{ route('loan.create', array_filter(['type' => 'out', 'sector' => request('sector'), 'object_id' => request('object_id')])) }}"
                    class="btn btn-sm btn-success">
-                  <i class="fas fa-plus me-1"></i>New Loan Out
+                  <i class="fas fa-plus me-1"></i>{{ __('New Loan Out') }}
                 </a>
                 <a href="{{ route('loan.create', array_filter(['type' => 'in', 'sector' => request('sector'), 'object_id' => request('object_id')])) }}"
                    class="btn btn-sm btn-info">
-                  <i class="fas fa-plus me-1"></i>New Loan In
+                  <i class="fas fa-plus me-1"></i>{{ __('New Loan In') }}
                 </a>
               </div>
             </div>
@@ -165,9 +165,9 @@
                       </td>
                       <td>
                         @if($loan->loan_type === 'out')
-                          <span class="badge bg-warning text-dark"><i class="fas fa-arrow-right me-1"></i>Out</span>
+                          <span class="badge bg-warning text-dark"><i class="fas fa-arrow-right me-1"></i>{{ __('Out') }}</span>
                         @else
-                          <span class="badge bg-info"><i class="fas fa-arrow-left me-1"></i>In</span>
+                          <span class="badge bg-info"><i class="fas fa-arrow-left me-1"></i>{{ __('In') }}</span>
                         @endif
                       </td>
                       <td>{{ $loan->partner_institution }}</td>
@@ -177,7 +177,7 @@
                           {{ ucwords(str_replace('_', ' ', $loan->status)) }}
                         </span>
                         @if($isOverdue)
-                          <span class="badge bg-danger ms-1"><i class="fas fa-exclamation-triangle me-1"></i>Overdue</span>
+                          <span class="badge bg-danger ms-1"><i class="fas fa-exclamation-triangle me-1"></i>{{ __('Overdue') }}</span>
                         @endif
                       </td>
                       <td>{{ $loan->end_date ? \Carbon\Carbon::parse($loan->end_date)->format('Y-m-d') : '-' }}</td>
@@ -233,15 +233,15 @@
             <span class="fw-bold">{{ number_format($stats['total']) }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between">
-            <span class="text-warning">Active Loans Out</span>
+            <span class="text-warning">{{ __('Active Loans Out') }}</span>
             <span class="fw-bold text-warning">{{ number_format($stats['active_out']) }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between">
-            <span class="text-info">Active Loans In</span>
+            <span class="text-info">{{ __('Active Loans In') }}</span>
             <span class="fw-bold text-info">{{ number_format($stats['active_in']) }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between">
-            <span class="text-danger">Overdue</span>
+            <span class="text-danger">{{ __('Overdue') }}</span>
             <span class="fw-bold text-danger">{{ number_format($stats['overdue']) }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between">
@@ -251,7 +251,7 @@
         </ul>
         @if($stats['total_insurance_value'] > 0)
           <div class="card-body border-top">
-            <small class="text-muted">Total Insurance Value</small>
+            <small class="text-muted">{{ __('Total Insurance Value') }}</small>
             <div class="fw-bold">R {{ number_format($stats['total_insurance_value'], 2) }}</div>
           </div>
         @endif
@@ -313,15 +313,15 @@
         <div class="list-group list-group-flush">
           <a href="{{ route('loan.create', array_filter(['type' => 'out', 'sector' => request('sector'), 'object_id' => request('object_id')])) }}"
              class="list-group-item list-group-item-action">
-            <i class="fas fa-arrow-right text-success me-2"></i> New Loan Out
+            <i class="fas fa-arrow-right text-success me-2"></i> {{ __('New Loan Out') }}
           </a>
           <a href="{{ route('loan.create', array_filter(['type' => 'in', 'sector' => request('sector'), 'object_id' => request('object_id')])) }}"
              class="list-group-item list-group-item-action">
-            <i class="fas fa-arrow-left text-info me-2"></i> New Loan In
+            <i class="fas fa-arrow-left text-info me-2"></i> {{ __('New Loan In') }}
           </a>
           @if(\Illuminate\Support\Facades\Route::has('exhibition.index'))
             <a href="{{ route('exhibition.index') }}" class="list-group-item list-group-item-action">
-              <i class="fas fa-university text-primary me-2"></i> View Exhibitions
+              <i class="fas fa-university text-primary me-2"></i> {{ __('View Exhibitions') }}
             </a>
           @endif
         </div>

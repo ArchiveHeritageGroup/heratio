@@ -14,29 +14,29 @@
   <div class="card-body">
     <div class="row">
       <div class="col-md-4 mb-3">
-        <label for="class_ref" class="form-label">Class Reference <span class="badge bg-secondary ms-1">Required</span></label>
+        <label for="class_ref" class="form-label">Class Reference <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
         <input type="text" name="class_ref" id="class_ref" class="form-control" value="{{ old('class_ref') }}" required>
         @error('class_ref')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
       </div>
       <div class="col-md-8 mb-3">
-        <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">Required</span></label>
+        <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
         <input type="text" name="title" id="title" class="form-control" value="{{ old('title') }}" required>
         @error('title')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
       </div>
       <div class="col-12 mb-3">
-        <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <textarea name="description" id="description" class="form-control" rows="3">{{ old('description') }}</textarea>
       </div>
       <div class="col-md-3 mb-3">
-        <label for="retention_period_years" class="form-label">Retention Years <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="retention_period_years" class="form-label">Retention Years <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="number" name="retention_period_years" id="retention_period_years" class="form-control" min="0" value="{{ old('retention_period_years') }}">
       </div>
       <div class="col-md-3 mb-3">
-        <label for="retention_period_months" class="form-label">Retention Months <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="retention_period_months" class="form-label">Retention Months <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="number" name="retention_period_months" id="retention_period_months" class="form-control" min="0" max="11" value="{{ old('retention_period_months') }}">
       </div>
       <div class="col-md-3 mb-3">
-        <label for="retention_trigger" class="form-label">Trigger <span class="badge bg-secondary ms-1">Required</span></label>
+        <label for="retention_trigger" class="form-label">Trigger <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
         <select name="retention_trigger" id="retention_trigger" class="form-select">
           <option value="creation_date" {{ old('retention_trigger') === 'creation_date' ? 'selected' : '' }}>{{ __('Creation Date') }}</option>
           <option value="last_modified" {{ old('retention_trigger') === 'last_modified' ? 'selected' : '' }}>{{ __('Last Modified') }}</option>
@@ -46,7 +46,7 @@
         </select>
       </div>
       <div class="col-md-3 mb-3">
-        <label for="disposal_action" class="form-label">Disposal Action <span class="badge bg-secondary ms-1">Required</span></label>
+        <label for="disposal_action" class="form-label">Disposal Action <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
         <select name="disposal_action" id="disposal_action" class="form-select" required>
           <option value="">-- Select --</option>
           <option value="destroy" {{ old('disposal_action') === 'destroy' ? 'selected' : '' }}>{{ __('Destroy') }}</option>
@@ -58,11 +58,11 @@
         @error('disposal_action')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
       </div>
       <div class="col-12 mb-3">
-        <label for="citation" class="form-label">Legal Citation <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="citation" class="form-label">Legal Citation <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <textarea name="citation" id="citation" class="form-control" rows="2">{{ old('citation') }}</textarea>
       </div>
       <div class="col-md-3 mb-3">
-        <label for="sort_order" class="form-label">Sort Order <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="sort_order" class="form-label">Sort Order <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="number" name="sort_order" id="sort_order" class="form-control" min="0" value="{{ old('sort_order', 0) }}">
       </div>
       <div class="col-md-4 mb-3 d-flex align-items-end">

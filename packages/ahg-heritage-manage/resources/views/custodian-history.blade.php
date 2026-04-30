@@ -27,10 +27,10 @@ $total = $historyData['total'] ?? 0;
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-body">
         <form method="get" class="row g-3">
-          <div class="col-md-4"><label class="form-label">Search <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="search" value="{{ request('search','') }}" placeholder="{{ __('User, object, or action...') }}"></div>
-          <div class="col-md-3"><label class="form-label">From Date <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" class="form-control" name="date_from" value="{{ request('date_from','') }}"></div>
-          <div class="col-md-3"><label class="form-label">To Date <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" class="form-control" name="date_to" value="{{ request('date_to','') }}"></div>
-          <div class="col-md-2 d-flex align-items-end"><button type="submit" class="btn atom-btn-secondary w-100"><i class="fas fa-search me-1"></i>Filter</button></div>
+          <div class="col-md-4"><label class="form-label">Search <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" class="form-control" name="search" value="{{ request('search','') }}" placeholder="{{ __('User, object, or action...') }}"></div>
+          <div class="col-md-3"><label class="form-label">From Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" class="form-control" name="date_from" value="{{ request('date_from','') }}"></div>
+          <div class="col-md-3"><label class="form-label">To Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" class="form-control" name="date_to" value="{{ request('date_to','') }}"></div>
+          <div class="col-md-2 d-flex align-items-end"><button type="submit" class="btn atom-btn-secondary w-100"><i class="fas fa-search me-1"></i>{{ __('Filter') }}</button></div>
         </form>
       </div>
     </div>

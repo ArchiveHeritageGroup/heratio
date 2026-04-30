@@ -20,7 +20,7 @@
         </div>
         <div class="col-md-4 text-md-end mt-3 mt-md-0">
           <a href="{{ route('research.publicRegister') }}" class="btn atom-btn-white btn-lg">
-            <i class="fas fa-user-plus me-2"></i>Register Now
+            <i class="fas fa-user-plus me-2"></i>{{ __('Register Now') }}
           </a>
           <div class="mt-2">
             <small><a href="{{ route('login') }}">Already have an account? Login</a></small>
@@ -39,7 +39,7 @@
             <p class="mb-0">You need to complete your researcher registration to book reading room visits.</p>
           </div>
           <div class="col-md-4 text-md-end mt-3 mt-md-0">
-            <a href="{{ route('researcher.register') }}" class="btn atom-btn-white"><i class="fas fa-edit me-2"></i>Complete Registration</a>
+            <a href="{{ route('researcher.register') }}" class="btn atom-btn-white"><i class="fas fa-edit me-2"></i>{{ __('Complete Registration') }}</a>
           </div>
         </div>
       </div>
@@ -55,7 +55,7 @@
             <h4><i class="fas fa-exclamation-circle me-2"></i>Registration Expired</h4>
             <p class="mb-0">Your researcher registration has expired. Please request a renewal to continue.</p>
           </div>
-          <a href="{{ route('research.renewal') }}" class="btn atom-atom-btn-outline-danger"><i class="fas fa-sync-alt me-1"></i>Request Renewal</a>
+          <a href="{{ route('research.renewal') }}" class="btn atom-atom-btn-outline-danger"><i class="fas fa-sync-alt me-1"></i>{{ __('Request Renewal') }}</a>
         </div>
       </div>
     @elseif(($researcher->status ?? '') === 'rejected')
@@ -70,7 +70,7 @@
               @endif
             </p>
           </div>
-          <a href="{{ route('researcher.register') }}" class="btn atom-atom-btn-outline-success"><i class="fas fa-redo me-1"></i>Re-apply</a>
+          <a href="{{ route('researcher.register') }}" class="btn atom-atom-btn-outline-success"><i class="fas fa-redo me-1"></i>{{ __('Re-apply') }}</a>
         </div>
       </div>
     @elseif(($researcher->status ?? '') === 'approved')
@@ -83,8 +83,8 @@
               <p class="text-muted mb-0">{{ e($researcher->institution ?? 'Independent Researcher') }}</p>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
-              <a href="{{ route('research.book') }}" class="btn atom-btn-white"><i class="fas fa-calendar-plus me-2"></i>Book Visit</a>
-              <a href="{{ route('research.profile') }}" class="btn atom-btn-white"><i class="fas fa-user me-2"></i>My Profile</a>
+              <a href="{{ route('research.book') }}" class="btn atom-btn-white"><i class="fas fa-calendar-plus me-2"></i>{{ __('Book Visit') }}</a>
+              <a href="{{ route('research.profile') }}" class="btn atom-btn-white"><i class="fas fa-user me-2"></i>{{ __('My Profile') }}</a>
             </div>
           </div>
         </div>
@@ -98,10 +98,10 @@
       <div class="row mb-4">
         <div class="col">
           <div class="d-flex flex-wrap gap-2">
-            <a href="{{ route('research.book') }}" class="btn atom-btn-white"><i class="fas fa-calendar-plus me-1"></i>Book Visit</a>
-            <a href="{{ route('research.journal.create') }}" class="btn atom-atom-btn-outline-success"><i class="fas fa-pen-fancy me-1"></i>New Journal Entry</a>
-            <a href="{{ route('research.reports') }}" class="btn atom-btn-white"><i class="fas fa-file-alt me-1"></i>New Report</a>
-            <a href="{{ route('research.annotations') }}" class="btn atom-btn-white"><i class="fas fa-sticky-note me-1"></i>My Notes</a>
+            <a href="{{ route('research.book') }}" class="btn atom-btn-white"><i class="fas fa-calendar-plus me-1"></i>{{ __('Book Visit') }}</a>
+            <a href="{{ route('research.journal.create') }}" class="btn atom-atom-btn-outline-success"><i class="fas fa-pen-fancy me-1"></i>{{ __('New Journal Entry') }}</a>
+            <a href="{{ route('research.reports') }}" class="btn atom-btn-white"><i class="fas fa-file-alt me-1"></i>{{ __('New Report') }}</a>
+            <a href="{{ route('research.annotations') }}" class="btn atom-btn-white"><i class="fas fa-sticky-note me-1"></i>{{ __('My Notes') }}</a>
           </div>
         </div>
       </div>
@@ -109,38 +109,38 @@
       {{-- Knowledge Platform --}}
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <span><i class="fas fa-brain me-2"></i>Knowledge Platform</span>
+          <span><i class="fas fa-brain me-2"></i>{{ __('Knowledge Platform') }}</span>
         </div>
         <div class="card-body">
           <div class="row g-2">
             <div class="col-md-3 col-6">
               <a href="{{ route('research.annotations') }}" class="btn atom-btn-white w-100 py-2 text-start">
-                <i class="fas fa-highlighter me-1"></i> Annotations
+                <i class="fas fa-highlighter me-1"></i> {{ __('Annotations') }}
               </a>
             </div>
             <div class="col-md-3 col-6">
               <a href="{{ route('research.savedSearches') }}" class="btn atom-btn-white w-100 py-2 text-start">
-                <i class="fas fa-search me-1"></i> Saved Searches
+                <i class="fas fa-search me-1"></i> {{ __('Saved Searches') }}
               </a>
             </div>
             <div class="col-md-3 col-6">
               <a href="{{ route('research.validationQueue') }}" class="btn atom-atom-btn-outline-success w-100 py-2 text-start">
-                <i class="fas fa-check-double me-1"></i> Validation Queue
+                <i class="fas fa-check-double me-1"></i> {{ __('Validation Queue') }}
               </a>
             </div>
             <div class="col-md-3 col-6">
               <a href="{{ route('research.entityResolution') }}" class="btn atom-btn-white w-100 py-2 text-start">
-                <i class="fas fa-object-group me-1"></i> Entity Resolution
+                <i class="fas fa-object-group me-1"></i> {{ __('Entity Resolution') }}
               </a>
             </div>
             <div class="col-md-3 col-6">
               <a href="{{ route('research.odrlPolicies') }}" class="btn atom-btn-white w-100 py-2 text-start">
-                <i class="fas fa-balance-scale me-1"></i> ODRL Policies
+                <i class="fas fa-balance-scale me-1"></i> {{ __('ODRL Policies') }}
               </a>
             </div>
             <div class="col-md-3 col-6">
               <a href="{{ route('research.documentTemplates') }}" class="btn btn-outline-dark w-100 py-2 text-start">
-                <i class="fas fa-file-alt me-1"></i> Doc Templates
+                <i class="fas fa-file-alt me-1"></i> {{ __('Doc Templates') }}
               </a>
             </div>
           </div>
@@ -218,7 +218,7 @@
   {{-- Today's Schedule --}}
   <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <span><i class="fas fa-calendar-day me-2"></i>Today's Schedule</span>
+      <span><i class="fas fa-calendar-day me-2"></i>{{ __("Today's Schedule") }}</span>
       @auth
         <a href="{{ route('research.bookings') }}" class="btn btn-sm atom-btn-white">View All</a>
       @endauth
@@ -258,7 +258,7 @@
     @if(count($recentActivity ?? []) > 0)
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <span><i class="fas fa-stream me-2"></i>Recent Activity</span>
+          <span><i class="fas fa-stream me-2"></i>{{ __('Recent Activity') }}</span>
         </div>
         <ul class="list-group list-group-flush">
           @foreach(collect($recentActivity)->take(5) as $activity)
@@ -283,7 +283,7 @@
     @if(!empty($recentNotes))
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <span><i class="fas fa-sticky-note me-2 text-warning"></i>Recent Notes</span>
+          <span><i class="fas fa-sticky-note me-2 text-warning"></i>{{ __('Recent Notes') }}</span>
           <a href="{{ route('research.annotations') }}" class="btn btn-sm atom-btn-white">All Notes</a>
         </div>
         <ul class="list-group list-group-flush">
@@ -306,7 +306,7 @@
     @if(!empty($searchAlerts))
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <span><i class="fas fa-search me-2 text-info"></i>Saved Search Alerts</span>
+          <span><i class="fas fa-search me-2 text-info"></i>{{ __('Saved Search Alerts') }}</span>
           <a href="{{ route('research.savedSearches') }}" class="btn btn-sm atom-btn-white">View All</a>
         </div>
         <ul class="list-group list-group-flush">
@@ -347,7 +347,7 @@
     @if(isset($researcher) && ($researcher->status ?? '') === 'approved')
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <span><i class="fas fa-journal-whills me-2"></i>Recent Journal Entries</span>
+          <span><i class="fas fa-journal-whills me-2"></i>{{ __('Recent Journal Entries') }}</span>
           <a href="{{ route('research.journal') }}" class="btn btn-sm atom-btn-white">View All</a>
         </div>
         <div class="card-body">

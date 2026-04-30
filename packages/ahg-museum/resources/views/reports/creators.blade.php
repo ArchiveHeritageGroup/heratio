@@ -2,7 +2,7 @@
 @extends('theme::layouts.2col')
 @section('title', 'Creators Report')
 @section('body-class', 'museum-reports creators')
-@section('sidebar')<div class="sidebar-content"><a href="{{ route('museum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a></div>@endsection
+@section('sidebar')<div class="sidebar-content"><a href="{{ route('museum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a></div>@endsection
 @section('title-block')<h1><i class="fas fa-user-edit me-2"></i>Creators Report</h1>@endsection
 @section('content')
 <div class="alert alert-info"><strong>{{ count($creators) }}</strong> creators found</div>

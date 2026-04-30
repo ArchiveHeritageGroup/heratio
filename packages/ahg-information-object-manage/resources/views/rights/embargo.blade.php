@@ -17,7 +17,7 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label for="embargo_type" class="form-label">Embargo Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+          <label for="embargo_type" class="form-label">Embargo Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <select name="embargo_type" id="embargo_type" class="form-select" required>
             <option value="full">{{ __('Full - Hide completely') }}</option>
             <option value="metadata_only">{{ __('Metadata Only - Hide digital objects') }}</option>
@@ -29,36 +29,36 @@
 
       <div class="row">
         <div class="col-md-4 mb-3">
-          <label for="start_date" class="form-label">Start Date <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+          <label for="start_date" class="form-label">Start Date <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <input type="date" name="start_date" id="start_date" class="form-control" required value="{{ date('Y-m-d') }}">
         </div>
         <div class="col-md-4 mb-3">
-          <label for="end_date" class="form-label">End Date <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="end_date" class="form-label">End Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="date" name="end_date" id="end_date" class="form-control">
-          <small class="text-muted">Leave blank for perpetual embargo</small>
+          <small class="text-muted">{{ __('Leave blank for perpetual embargo') }}</small>
         </div>
         <div class="col-md-4 mb-3 d-flex align-items-end">
           <div class="form-check">
             <input class="form-check-input" type="checkbox" name="is_perpetual" value="1" id="is_perpetual">
             <label class="form-check-label" for="is_perpetual">
               Perpetual (no end date)
-             <span class="badge bg-secondary ms-1">Recommended</span></label>
+             <span class="badge bg-secondary ms-1">{{ __('Recommended') }}</span></label>
           </div>
         </div>
       </div>
 
       <div class="mb-3">
-        <label for="reason" class="form-label">Reason <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="reason" class="form-label">Reason <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" name="reason" id="reason" class="form-control" placeholder="{{ __('e.g., Donor restriction, Privacy concerns, Legal hold') }}">
       </div>
 
       <div class="mb-3">
-        <label for="public_message" class="form-label">Public Message <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="public_message" class="form-label">Public Message <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <textarea name="public_message" id="public_message" class="form-control" rows="2" placeholder="{{ __('Message displayed to users when they encounter this embargo') }}"></textarea>
       </div>
 
       <div class="mb-3">
-        <label for="notes" class="form-label">Internal Notes <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="notes" class="form-label">Internal Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <textarea name="notes" id="notes" class="form-control" rows="3"></textarea>
       </div>
     </div>
@@ -77,7 +77,7 @@
         <div class="form-check mb-3">
           <input class="form-check-input" type="checkbox" name="apply_to_children" value="1" id="apply_to_children">
           <label class="form-check-label" for="apply_to_children">
-            <strong>Apply to all descendants</strong>
+            <strong>{{ __('Apply to all descendants') }}</strong>
             <span class="badge bg-info ms-2">{{ $descendantCount }} {{ $descendantCount === 1 ? 'record' : 'records' }}</span>
           </label>
           <div class="form-text text-muted">
@@ -106,12 +106,12 @@
         <input class="form-check-input" type="checkbox" name="notify_on_expiry" value="1" id="notify_on_expiry" checked>
         <label class="form-check-label" for="notify_on_expiry">
           Send notification before expiry
-         <span class="badge bg-secondary ms-1">Optional</span></label>
+         <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
       </div>
 
       <div class="row">
         <div class="col-md-4">
-          <label for="notify_days_before" class="form-label">Notify days before expiry <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="notify_days_before" class="form-label">Notify days before expiry <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="number" name="notify_days_before" id="notify_days_before" class="form-control" value="30" min="1" max="365">
         </div>
       </div>
@@ -123,7 +123,7 @@
       Cancel
     </a>
     <button type="submit" class="btn atom-btn-outline-danger">
-      <i class="fas fa-lock"></i> Create Embargo
+      <i class="fas fa-lock"></i> {{ __('Create Embargo') }}
     </button>
   </div>
 

@@ -14,14 +14,14 @@
       <form action="{{ route('settings.cron-seed') }}" method="POST" class="d-inline">
         @csrf
         <button type="submit" class="btn btn-sm atom-btn-white" title="{{ __('Add missing default entries') }}">
-          <i class="fas fa-seedling me-1"></i>Seed Defaults
+          <i class="fas fa-seedling me-1"></i>{{ __('Seed Defaults') }}
         </button>
       </form>
       <form action="{{ route('settings.cron-seed') }}" method="POST" class="d-inline ms-1">
         @csrf
         <input type="hidden" name="reset" value="1">
         <button type="submit" class="btn btn-sm atom-btn-white" onclick="return confirm('Reset ALL schedules to defaults? Custom changes will be overwritten.')" title="{{ __('Overwrite all to defaults') }}">
-          <i class="fas fa-undo me-1"></i>Reset All
+          <i class="fas fa-undo me-1"></i>{{ __('Reset All') }}
         </button>
       </form>
     </div>
@@ -37,7 +37,7 @@
         <div class="card text-center border-0 bg-light">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-primary">{{ $stats->total }}</div>
-            <small class="text-muted">Total Jobs</small>
+            <small class="text-muted">{{ __('Total Jobs') }}</small>
           </div>
         </div>
       </div>
@@ -45,7 +45,7 @@
         <div class="card text-center border-0 bg-light">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-success">{{ $stats->enabled }}</div>
-            <small class="text-muted">Enabled</small>
+            <small class="text-muted">{{ __('Enabled') }}</small>
           </div>
         </div>
       </div>
@@ -53,7 +53,7 @@
         <div class="card text-center border-0 bg-light">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-secondary">{{ $stats->disabled }}</div>
-            <small class="text-muted">Disabled</small>
+            <small class="text-muted">{{ __('Disabled') }}</small>
           </div>
         </div>
       </div>
@@ -61,7 +61,7 @@
         <div class="card text-center border-0 bg-light">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-danger">{{ $stats->failed_24h }}</div>
-            <small class="text-muted">Failed (24h)</small>
+            <small class="text-muted">{{ __('Failed (24h)') }}</small>
           </div>
         </div>
       </div>
@@ -132,11 +132,11 @@
                     @if($job->last_run_status === 'success')
                       <span class="badge bg-success">OK</span>
                     @elseif($job->last_run_status === 'failed')
-                      <span class="badge bg-danger">Failed</span>
+                      <span class="badge bg-danger">{{ __('Failed') }}</span>
                     @elseif($job->last_run_status === 'running')
-                      <span class="badge bg-info"><i class="fas fa-spinner fa-spin me-1"></i>Running</span>
+                      <span class="badge bg-info"><i class="fas fa-spinner fa-spin me-1"></i>{{ __('Running') }}</span>
                     @else
-                      <span class="badge bg-secondary">Never</span>
+                      <span class="badge bg-secondary">{{ __('Never') }}</span>
                     @endif
                   </td>
 
@@ -203,26 +203,26 @@
                         </div>
                         <div class="modal-body">
                           <div class="mb-3">
-                            <label class="form-label fw-bold">Command <span class="badge bg-danger ms-1">Required</span></label>
+                            <label class="form-label fw-bold">Command <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <input type="text" class="form-control" value="{{ $job->artisan_command }}" disabled>
                           </div>
                           <div class="mb-3">
-                            <label class="form-label fw-bold">Cron Expression <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-label fw-bold">Cron Expression <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <input type="text" name="cron_expression" class="form-control font-monospace" value="{{ $job->cron_expression }}" required>
                             <small class="text-muted">e.g. <code>*/5 * * * *</code> = every 5 min, <code>0 2 * * *</code> = daily 2am</small>
                           </div>
                           <div class="mb-3">
-                            <label class="form-label fw-bold">Timeout (minutes) <span class="badge bg-danger ms-1">Required</span></label>
+                            <label class="form-label fw-bold">Timeout (minutes) <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <input type="number" name="timeout_minutes" class="form-control" value="{{ $job->timeout_minutes }}" min="1" max="1440" required>
                           </div>
                           <div class="mb-3">
                             <div class="form-check">
                               <input class="form-check-input" type="checkbox" name="notify_on_failure" id="notify-{{ $job->id }}" {{ $job->notify_on_failure ? 'checked' : '' }}>
-                              <label class="form-check-label" for="notify-{{ $job->id }}">Notify on failure <span class="badge bg-secondary ms-1">Optional</span></label>
+                              <label class="form-check-label" for="notify-{{ $job->id }}">Notify on failure <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             </div>
                           </div>
                           <div class="mb-3">
-                            <label class="form-label fw-bold">Notification Email <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-label fw-bold">Notification Email <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <input type="email" name="notify_email" class="form-control" value="{{ $job->notify_email }}" placeholder="{{ __('admin@example.com') }}">
                           </div>
                           <div class="row text-muted small">

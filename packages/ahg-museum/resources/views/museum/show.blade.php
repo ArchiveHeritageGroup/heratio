@@ -67,23 +67,23 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('io.provenance', $museum->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-project-diagram me-1"></i> Provenance
+          <i class="fas fa-project-diagram me-1"></i> {{ __('Provenance') }}
         </a>
         <a href="{{ route('io.condition', $museum->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-clipboard-check me-1"></i> Condition assessment
+          <i class="fas fa-clipboard-check me-1"></i> {{ __('Condition assessment') }}
         </a>
         @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgSpectrumPlugin'))
         <a href="{{ route('io.spectrum', $museum->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-chart-bar me-1"></i> Spectrum data
+          <i class="fas fa-chart-bar me-1"></i> {{ __('Spectrum data') }}
         </a>
         @endif
         @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgHeritageAccountingPlugin'))
         <a href="{{ route('io.heritage', $museum->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-landmark me-1"></i> Heritage Assets
+          <i class="fas fa-landmark me-1"></i> {{ __('Heritage Assets') }}
         </a>
         @endif
         <a href="{{ route('io.research.citation', $museum->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-quote-left me-1"></i> Cite this Record
+          <i class="fas fa-quote-left me-1"></i> {{ __('Cite this Record') }}
         </a>
       </div>
     </div>
@@ -97,7 +97,7 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('io.preservation', $museum->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-box-open me-1"></i> Preservation packages
+          <i class="fas fa-box-open me-1"></i> {{ __('Preservation packages') }}
         </a>
       </div>
     </div>
@@ -111,19 +111,19 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#describeModal">
-          <i class="fas fa-eye me-1"></i> Describe Object/Image
+          <i class="fas fa-eye me-1"></i> {{ __('Describe Object/Image') }}
         </a>
         <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#nerModal">
-          <i class="fas fa-brain me-1"></i> Extract Entities (NER)
+          <i class="fas fa-brain me-1"></i> {{ __('Extract Entities (NER)') }}
         </a>
         <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#summaryModal">
-          <i class="fas fa-file-alt me-1"></i> Generate Summary
+          <i class="fas fa-file-alt me-1"></i> {{ __('Generate Summary') }}
         </a>
         <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#ahgTranslateModal-{{ $museum->id }}">
-          <i class="fas fa-language me-1"></i> Translate
+          <i class="fas fa-language me-1"></i> {{ __('Translate') }}
         </a>
         <a href="{{ route('io.ai.review') }}?object_id={{ $museum->id }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-list-check me-1"></i> NER Review
+          <i class="fas fa-list-check me-1"></i> {{ __('NER Review') }}
         </a>
       </div>
     </div>
@@ -137,15 +137,15 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('io.privacy.scan', $museum->id) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-search me-1"></i> Scan for PII
+          <i class="fas fa-search me-1"></i> {{ __('Scan for PII') }}
         </a>
         @if(isset($digitalObjects) && $digitalObjects['master'])
           <a href="{{ route('io.privacy.redaction', $museum->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-eraser me-1"></i> Visual Redaction
+            <i class="fas fa-eraser me-1"></i> {{ __('Visual Redaction') }}
           </a>
         @endif
         <a href="{{ route('io.privacy.dashboard') }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-clipboard-check me-1"></i> Privacy Dashboard
+          <i class="fas fa-clipboard-check me-1"></i> {{ __('Privacy Dashboard') }}
         </a>
       </div>
     </div>
@@ -165,13 +165,13 @@
       </div>
       <div class="card-body py-2">
         @if($hasExtRights)
-          <span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>Extended rights applied</span>
+          <span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>{{ __('Extended rights applied') }}</span>
         @endif
         @if($activeEmbargoSidebar)
-          <span class="badge bg-danger me-1"><i class="fas fa-ban me-1"></i>Under embargo</span>
+          <span class="badge bg-danger me-1"><i class="fas fa-ban me-1"></i>{{ __('Under embargo') }}</span>
         @endif
         @if(!$hasExtRights && !$activeEmbargoSidebar)
-          <span class="badge bg-secondary"><i class="fas fa-info-circle me-1"></i>No extended rights or embargo</span>
+          <span class="badge bg-secondary"><i class="fas fa-info-circle me-1"></i>{{ __('No extended rights or embargo') }}</span>
         @endif
       </div>
       <div class="list-group list-group-flush">
@@ -182,7 +182,7 @@
         @endif
         @if(\Illuminate\Support\Facades\Route::has('io.rights.export'))
           <a href="{{ route('io.rights.export', $museum->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-download me-1"></i> Export rights (JSON-LD)
+            <i class="fas fa-download me-1"></i> {{ __('Export rights (JSON-LD)') }}
           </a>
         @endif
       </div>
@@ -196,16 +196,16 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('io.research.assessment', $museum->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-clipboard-check me-1"></i> Source Assessment
+          <i class="fas fa-clipboard-check me-1"></i> {{ __('Source Assessment') }}
         </a>
         <a href="{{ route('io.research.annotations', $museum->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-highlighter me-1"></i> Annotation Studio
+          <i class="fas fa-highlighter me-1"></i> {{ __('Annotation Studio') }}
         </a>
         <a href="{{ route('io.research.trust', $museum->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-star-half-alt me-1"></i> Trust Score
+          <i class="fas fa-star-half-alt me-1"></i> {{ __('Trust Score') }}
         </a>
         <a href="{{ route('io.research.dashboard') }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-graduation-cap me-1"></i> Research Dashboard
+          <i class="fas fa-graduation-cap me-1"></i> {{ __('Research Dashboard') }}
         </a>
       </div>
     </div>
@@ -273,7 +273,7 @@
     <div class="dropdown d-inline-block mb-3 translation-links">
       <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" id="translation-links-button" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fas fa-globe-europe me-1" aria-hidden="true"></i>
-        Other languages available
+        {{ __('Other languages available') }}
       </button>
       <ul class="dropdown-menu mt-2" aria-labelledby="translation-links-button">
         @foreach($translationLinks as $code => $translation)
@@ -1463,44 +1463,44 @@
           @if(\Illuminate\Support\Facades\Route::has('informationobject.rename'))
           <li>
             <a class="dropdown-item" href="{{ route('informationobject.rename', $museum->slug) }}">
-              <i class="fas fa-i-cursor me-2"></i>Rename
+              <i class="fas fa-i-cursor me-2"></i>{{ __('Rename') }}
             </a>
           </li>
           <li><hr class="dropdown-divider"></li>
           @endif
           <li>
             <a class="dropdown-item" href="{{ route('museum.edit', ['slug' => $museum->slug, 'storage' => 1]) }}">
-              <i class="fas fa-box me-2"></i>Link physical storage
+              <i class="fas fa-box me-2"></i>{{ __('Link physical storage') }}
             </a>
           </li>
           <li><hr class="dropdown-divider"></li>
           @if(isset($digitalObjects) && ($digitalObjects['master'] ?? null))
             <li>
               <a class="dropdown-item" href="{{ route('io.digitalobject.show', $digitalObjects['master']->id) }}">
-                <i class="fas fa-photo-video me-2"></i>Edit digital object
+                <i class="fas fa-photo-video me-2"></i>{{ __('Edit digital object') }}
               </a>
             </li>
           @else
             <li>
               <a class="dropdown-item" href="{{ route('museum.edit', ['slug' => $museum->slug, 'upload' => 1]) }}">
-                <i class="fas fa-link me-2"></i>Link digital object
+                <i class="fas fa-link me-2"></i>{{ __('Link digital object') }}
               </a>
             </li>
           @endif
           <li>
             <a class="dropdown-item" href="{{ route('museum.multi-upload', $museum->slug) }}">
-              <i class="fas fa-file-import me-2"></i>Import digital objects
+              <i class="fas fa-file-import me-2"></i>{{ __('Import digital objects') }}
             </a>
           </li>
           <li>
             <a class="dropdown-item" href="{{ url('/' . $museum->slug . '/right/edit') }}">
-              <i class="fas fa-balance-scale me-2"></i>Create new rights
+              <i class="fas fa-balance-scale me-2"></i>{{ __('Create new rights') }}
             </a>
           </li>
           @if(isset($hasChildren) && $hasChildren)
             <li>
               <a class="dropdown-item" href="{{ url('/' . $museum->slug . '/right/manage') }}">
-                <i class="fas fa-sitemap me-2"></i>Manage rights inheritance
+                <i class="fas fa-sitemap me-2"></i>{{ __('Manage rights inheritance') }}
               </a>
             </li>
           @endif
@@ -1508,14 +1508,14 @@
           <li><hr class="dropdown-divider"></li>
           <li>
             <a class="dropdown-item" href="{{ route('io.showUpdateStatus', $museum->slug) }}">
-              <i class="fas fa-eye me-2"></i>Update publication status
+              <i class="fas fa-eye me-2"></i>{{ __('Update publication status') }}
             </a>
           </li>
           @endif
           @if(isset($auditLogEnabled) && $auditLogEnabled)
           <li>
             <a class="dropdown-item" href="{{ route('audit.browse', ['type' => 'QubitInformationObject', 'id' => $museum->id]) }}">
-              <i class="fas fa-history me-2"></i>Modification history
+              <i class="fas fa-history me-2"></i>{{ __('Modification history') }}
             </a>
           </li>
           @endif
@@ -1524,7 +1524,7 @@
               <li><hr class="dropdown-divider"></li>
               <li>
                 <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateModal-{{ $museum->id }}">
-                  <i class="fas fa-language me-2"></i>Translate this record
+                  <i class="fas fa-language me-2"></i>{{ __('Translate this record') }}
                 </a>
               </li>
             @endif
@@ -1537,7 +1537,7 @@
     @if(\Illuminate\Support\Facades\Route::has('informationobject.print'))
     <li>
       <a href="{{ route('informationobject.print', $museum->slug) }}" class="btn atom-btn-outline-light" target="_blank">
-        <i class="fas fa-print me-1"></i>Print
+        <i class="fas fa-print me-1"></i>{{ __('Print') }}
       </a>
     </li>
     @endif

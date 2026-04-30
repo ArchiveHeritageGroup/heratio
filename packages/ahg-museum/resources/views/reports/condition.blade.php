@@ -2,7 +2,7 @@
 @extends('theme::layouts.2col')
 @section('title', 'Condition Report')
 @section('body-class', 'museum-reports condition')
-@section('sidebar')<div class="sidebar-content"><a href="{{ route('museum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a></div>@endsection
+@section('sidebar')<div class="sidebar-content"><a href="{{ route('museum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a></div>@endsection
 @section('title-block')<h1><i class="fas fa-heartbeat me-2"></i>Condition Report</h1>@endsection
 @section('content')
 <div class="alert alert-info"><strong>{{ count($records) }}</strong> condition records found</div>

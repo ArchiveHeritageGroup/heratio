@@ -51,10 +51,10 @@ $statusColors = [
         </h1>
         <div>
             <a href="{{ route('ahgvendor.edit-transaction', ['id' => $transaction->id]) }}" class="btn btn-primary">
-                <i class="fas fa-edit me-1"></i>Edit
+                <i class="fas fa-edit me-1"></i>{{ __('Edit') }}
             </a>
             <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#statusModal">
-                <i class="fas fa-sync me-1"></i>Update Status
+                <i class="fas fa-sync me-1"></i>{{ __('Update Status') }}
             </button>
         </div>
     </div>
@@ -84,7 +84,7 @@ $statusColors = [
                         </div>
                     </div>
                     @if (!empty($transaction->description))
-                    <div class="mt-3"><strong>Description:</strong><p class="mb-0">{!! nl2br(e($transaction->description)) !!}</p></div>
+                    <div class="mt-3"><strong>{{ __('Description:') }}</strong><p class="mb-0">{!! nl2br(e($transaction->description)) !!}</p></div>
                     @endif
                 </div>
             </div>
@@ -92,7 +92,7 @@ $statusColors = [
             {{-- GLAM/DAM Items --}}
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-archive me-2"></i>GLAM/DAM Items</span>
+                    <span><i class="fas fa-archive me-2"></i>{{ __('GLAM/DAM Items') }}</span>
                 </div>
                 <div class="card-body p-0">
                     @php $itemCount = $items ? (is_array($items) ? count($items) : $items->count()) : 0; @endphp

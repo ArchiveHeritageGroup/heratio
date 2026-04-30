@@ -8,7 +8,7 @@
     <i class="fas fa-3x fa-tasks me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Migration Jobs') }}</h1>
-      <span class="small text-muted">Track import and export operations</span>
+      <span class="small text-muted">{{ __('Track import and export operations') }}</span>
     </div>
   </div>
 
@@ -21,10 +21,10 @@
 
   <div class="d-flex gap-2 mb-3">
     <a href="{{ route('data-migration.upload') }}" class="btn btn-primary">
-      <i class="fas fa-upload"></i> New Import
+      <i class="fas fa-upload"></i> {{ __('New Import') }}
     </a>
     <a href="{{ route('data-migration.index') }}" class="btn btn btn-outline-secondary">
-      <i class="fas fa-arrow-left"></i> Dashboard
+      <i class="fas fa-arrow-left"></i> {{ __('Dashboard') }}
     </a>
   </div>
 
@@ -63,13 +63,13 @@
                   <td><span class="badge bg-info">{{ $job['target_type'] }}</span></td>
                   <td>
                     @if($job['status'] === 'completed')
-                      <span class="badge bg-success">Completed</span>
+                      <span class="badge bg-success">{{ __('Completed') }}</span>
                     @elseif($job['status'] === 'failed')
-                      <span class="badge bg-danger">Failed</span>
+                      <span class="badge bg-danger">{{ __('Failed') }}</span>
                     @elseif($job['status'] === 'processing')
-                      <span class="badge bg-info">Processing</span>
+                      <span class="badge bg-info">{{ __('Processing') }}</span>
                     @else
-                      <span class="badge bg-warning text-dark">Pending</span>
+                      <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
                     @endif
                   </td>
                   <td>

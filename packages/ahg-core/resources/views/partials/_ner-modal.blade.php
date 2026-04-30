@@ -13,14 +13,14 @@
       </div>
       <div class="modal-body">
         <p class="text-muted small mb-3">Extract persons, organizations, places, dates from <strong>{{ $objectTitle ?? 'this record' }}</strong></p>
-        <div class="text-center mb-3"><button type="button" class="btn btn-primary btn-lg" id="nerExtractBtn"><i class="fas fa-brain me-2"></i>Extract Entities</button></div>
+        <div class="text-center mb-3"><button type="button" class="btn btn-primary btn-lg" id="nerExtractBtn"><i class="fas fa-brain me-2"></i>{{ __('Extract Entities') }}</button></div>
         <div id="nerResults" style="display:none">
           <span class="text-muted small" id="nerResultsMeta"></span>
           <div id="nerResultsBody" class="mt-2"></div>
         </div>
       </div>
       <div class="modal-footer">
-        <a href="{{ route('io.ai.review') }}?object_id={{ $objectId }}" class="btn btn-outline-primary btn-sm" id="nerFooterReview" style="display:none"><i class="fas fa-list-check me-1"></i>Review</a>
+        <a href="{{ route('io.ai.review') }}?object_id={{ $objectId }}" class="btn btn-outline-primary btn-sm" id="nerFooterReview" style="display:none"><i class="fas fa-list-check me-1"></i>{{ __('Review') }}</a>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
       </div>
     </div>

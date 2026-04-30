@@ -24,7 +24,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgnaz.transfer-create') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i> New Transfer
+                <i class="fas fa-plus me-1"></i> {{ __('New Transfer') }}
             </a>
         </div>
     </div>
@@ -79,7 +79,7 @@
                                 <td>
                                     {{ $transfer->proposed_date ?? '-' }}
                                     @if ($isOverdue)
-                                        <span class="badge bg-danger">OVERDUE</span>
+                                        <span class="badge bg-danger">{{ __('OVERDUE') }}</span>
                                     @endif
                                 </td>
                                 <td>
@@ -92,7 +92,7 @@
                                 </td>
                                 <td>
                                     @if ($transfer->contains_restricted)
-                                        <span class="badge bg-danger"><i class="fas fa-lock"></i> Yes</span>
+                                        <span class="badge bg-danger"><i class="fas fa-lock"></i> {{ __('Yes') }}</span>
                                     @else
                                         <span class="text-muted">No</span>
                                     @endif

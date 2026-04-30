@@ -20,7 +20,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">{{ __('AI Extraction Jobs') }}</h1>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createJobModal"><i class="fas fa-robot me-1"></i> New Job</button>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createJobModal"><i class="fas fa-robot me-1"></i> {{ __('New Job') }}</button>
 </div>
 
 {{-- Status filter --}}
@@ -100,7 +100,7 @@
                     <div class="mb-3">
                         <label class="form-label">Collection <span class="text-danger">*</span></label>
                         <select id="jobCollectionSelect" name="collection_id" required></select>
-                        <small class="text-muted">Search for a collection to extract from.</small>
+                        <small class="text-muted">{{ __('Search for a collection to extract from.') }}</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">{{ __('Extraction Type') }}</label>
@@ -125,7 +125,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-robot me-1"></i>Create Job</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-robot me-1"></i>{{ __('Create Job') }}</button>
                 </div>
             </div>
         </form>

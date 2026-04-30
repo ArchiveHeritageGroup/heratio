@@ -36,7 +36,7 @@
         </h5>
         @if($canEdit)
             <a href="{{ route('ext-rights.add', $slug) }}" class="btn btn-sm btn-light">
-                <i class="fas fa-plus me-1"></i>Add rights
+                <i class="fas fa-plus me-1"></i>{{ __('Add rights') }}
             </a>
         @endif
     </div>
@@ -45,7 +45,7 @@
         @if(!($extAccessCheck['accessible'] ?? true))
             <div class="alert alert-warning">
                 <i class="fas fa-exclamation-triangle me-2"></i>
-                <strong>Access Restricted</strong>
+                <strong>{{ __('Access Restricted') }}</strong>
                 @if(!empty($extAccessCheck['restrictions']))
                 <ul class="mb-0 mt-2">
                     @foreach($extAccessCheck['restrictions'] as $restriction)
@@ -65,19 +65,19 @@
                     <div class="flex-grow-1">
                         <h6 class="alert-heading mb-1">{{ __('Under Embargo') }}</h6>
                         <p class="mb-1">
-                            <strong>Type:</strong>
+                            <strong>{{ __('Type:') }}</strong>
                             {{ ucwords(str_replace('_', ' ', $extEmbargo->embargo_type ?? '')) }}
                         </p>
                         <p class="mb-1">
-                            <strong>Reason:</strong>
+                            <strong>{{ __('Reason:') }}</strong>
                             {{ ucwords(str_replace('_', ' ', $extEmbargo->reason ?? '')) }}
                         </p>
                         @if($extEmbargo->end_date)
                             <p class="mb-0">
-                                <strong>Until:</strong>
+                                <strong>{{ __('Until:') }}</strong>
                                 {{ \Carbon\Carbon::parse($extEmbargo->end_date)->format('j F Y') }}
                                 @if($extEmbargo->auto_release ?? false)
-                                    <span class="badge bg-info ms-2">Auto-release</span>
+                                    <span class="badge bg-info ms-2">{{ __('Auto-release') }}</span>
                                 @endif
                             </p>
                         @else
@@ -86,7 +86,7 @@
                         @if($canEdit)
                             <div class="mt-2">
                                 <a href="{{ route('ext-rights.edit-embargo', $slug) }}" class="btn btn-sm btn-outline-light">
-                                    <i class="fas fa-edit me-1"></i>Edit
+                                    <i class="fas fa-edit me-1"></i>{{ __('Edit') }}
                                 </a>
                             </div>
                         @endif
@@ -108,7 +108,7 @@
                 </div>
                 @if($canEdit)
                     <a href="{{ route('ext-rights.tk-labels', $slug) }}" class="btn btn-sm btn-link p-0 mt-1">
-                        <i class="fas fa-edit me-1"></i>Manage TK Labels
+                        <i class="fas fa-edit me-1"></i>{{ __('Manage TK Labels') }}
                     </a>
                 @endif
             </div>
@@ -120,7 +120,7 @@
                     <i class="fas fa-search me-2"></i>Orphan Work
                 </h6>
                 <p class="mb-1">
-                    <strong>Status:</strong>
+                    <strong>{{ __('Status:') }}</strong>
                     @php
                         $owColor = match($extOrphanWork->status ?? '') {
                             'in_progress' => 'warning', 'completed' => 'success', 'rights_holder_found' => 'info', default => 'secondary'

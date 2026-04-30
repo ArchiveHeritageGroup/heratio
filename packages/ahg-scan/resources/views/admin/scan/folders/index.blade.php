@@ -20,10 +20,10 @@
     <p class="text-muted mb-0">Directories that Heratio watches for new scan files. Each folder is backed by a persistent ingest session.</p>
     <div>
         <a href="{{ route('scan.dashboard') }}" class="btn btn-outline-secondary me-2">
-            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+            <i class="fas fa-tachometer-alt me-1"></i>{{ __('Dashboard') }}
         </a>
         <a href="{{ route('scan.folders.create') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-plus me-1"></i>New watched folder
+            <i class="fas fa-plus me-1"></i>{{ __('New watched folder') }}
         </a>
     </div>
 </div>
@@ -35,7 +35,7 @@
             <h5 class="text-muted">{{ __('No watched folders') }}</h5>
             <p class="text-muted">Create a watched folder to auto-ingest scanned material.</p>
             <a href="{{ route('scan.folders.create') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-plus me-1"></i>New watched folder
+                <i class="fas fa-plus me-1"></i>{{ __('New watched folder') }}
             </a>
         </div>
     </div>
@@ -68,7 +68,7 @@
                         @if($f->enabled)
                             <span class="badge bg-success">On</span>
                         @else
-                            <span class="badge bg-secondary">Off</span>
+                            <span class="badge bg-secondary">{{ __('Off') }}</span>
                         @endif
                     </td>
                     <td><small class="text-muted">{{ $f->last_scanned_at ?? 'never' }}</small></td>

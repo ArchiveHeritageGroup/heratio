@@ -73,7 +73,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Discussions</h5>
                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#newDiscussionModal">
-                    <i class="fas fa-plus me-1"></i> New Discussion
+                    <i class="fas fa-plus me-1"></i> {{ __('New Discussion') }}
                 </button>
             </div>
             <div class="card-body p-0">
@@ -95,7 +95,7 @@
                                     </div>
                                     <div class="d-flex align-items-center gap-1">
                                         @if($disc->is_resolved ?? false)
-                                            <span class="badge bg-success">Resolved</span>
+                                            <span class="badge bg-success">{{ __('Resolved') }}</span>
                                         @endif
                                         <button class="btn btn-sm btn-outline-secondary edit-disc-btn"
                                             data-id="{{ (int) $disc->id }}"
@@ -128,7 +128,7 @@
                 <h5 class="mb-0"><i class="fas fa-folder-open me-2"></i>Shared Resources</h5>
                 @if(in_array($myRole, ['owner', 'admin', 'editor']))
                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addResourceModal">
-                    <i class="fas fa-plus me-1"></i> Add Resource
+                    <i class="fas fa-plus me-1"></i> {{ __('Add Resource') }}
                 </button>
                 @endif
             </div>
@@ -192,7 +192,7 @@
                 <li class="list-group-item">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>{{ e($owner->name) }} <i class="fas fa-crown text-warning ms-1" title="{{ __('Owner') }}"></i></div>
-                        <span class="badge bg-warning text-dark">Owner</span>
+                        <span class="badge bg-warning text-dark">{{ __('Owner') }}</span>
                     </div>
                 </li>
                 @endif
@@ -233,8 +233,8 @@
         <div class="card">
             <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>About</h6></div>
             <div class="card-body">
-                <p class="mb-2"><strong>Created:</strong> {{ date('M j, Y', strtotime($workspace->created_at)) }}</p>
-                <p class="mb-0"><strong>Your role:</strong> {{ ucfirst($myRole) }}</p>
+                <p class="mb-2"><strong>{{ __('Created:') }}</strong> {{ date('M j, Y', strtotime($workspace->created_at)) }}</p>
+                <p class="mb-0"><strong>{{ __('Your role:') }}</strong> {{ ucfirst($myRole) }}</p>
             </div>
         </div>
     </div>
@@ -319,7 +319,7 @@
                     <div class="mb-3">
                         <label class="form-label">{{ __('Search Researcher *') }}</label>
                         <select id="inviteResearcherSearch"></select>
-                        <small class="text-muted">Type name or email of a registered researcher</small>
+                        <small class="text-muted">{{ __('Type name or email of a registered researcher') }}</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">{{ __('Role') }}</label>

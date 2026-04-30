@@ -8,7 +8,7 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-project-diagram me-1"></i> RiC Sync Dashboard</h1>
     <a href="{{ route('ric.explorer') }}" target="_blank" class="btn btn-outline-info btn-sm">
-      <i class="fas fa-external-link-alt"></i> RiC Explorer
+      <i class="fas fa-external-link-alt"></i> {{ __('RiC Explorer') }}
     </a>
   </div>
 
@@ -157,26 +157,26 @@
         </div>
         <div class="card-body">
           <button type="button" class="btn btn-success w-100 mb-2" onclick="runManualSync()" id="sync-btn" disabled title="{{ __('Checking sync configuration...') }}">
-            <i class="fas fa-sync-alt"></i> Sync to Fuseki
+            <i class="fas fa-sync-alt"></i> {{ __('Sync to Fuseki') }}
           </button>
           <div id="sync-readiness" class="small text-muted mb-2"><i class="fas fa-spinner fa-spin"></i> Checking configuration…</div>
           <div id="sync-status" class="mb-2" style="display:none;"></div>
           <hr>
           <button type="button" class="btn btn-outline-primary w-100 mb-2" onclick="runIntegrityCheck()">
-            <i class="fas fa-check-circle"></i> Run Integrity Check
+            <i class="fas fa-check-circle"></i> {{ __('Run Integrity Check') }}
           </button>
           <button type="button" class="btn btn-outline-warning w-100 mb-2" onclick="previewCleanup()">
-            <i class="fas fa-search"></i> Preview Cleanup
+            <i class="fas fa-search"></i> {{ __('Preview Cleanup') }}
           </button>
           <button type="button" class="btn btn-outline-danger w-100 mb-2" onclick="executeCleanup()" id="cleanup-btn" disabled>
-            <i class="fas fa-trash"></i> Execute Cleanup
+            <i class="fas fa-trash"></i> {{ __('Execute Cleanup') }}
           </button>
           <hr>
           <button type="button" class="btn btn-outline-info w-100 mb-2" onclick="runShaclValidation()" id="shacl-btn">
-            <i class="fas fa-shield-alt"></i> SHACL Validate
+            <i class="fas fa-shield-alt"></i> {{ __('SHACL Validate') }}
           </button>
           <a href="{{ route('ric.logs') }}" class="btn btn-outline-secondary w-100">
-            <i class="fas fa-list"></i> View Logs
+            <i class="fas fa-list"></i> {{ __('View Logs') }}
           </a>
         </div>
       </div>

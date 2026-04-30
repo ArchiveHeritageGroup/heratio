@@ -21,7 +21,7 @@
           <div>
             <label for="acl-autocomplete-{{ $entityType }}" class="form-label">
               {{ __('%1% name', ['%1%' => $label]) }}
-             <span class="badge bg-secondary ms-1">Optional</span></label>
+             <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select
               name="acl-autocomplete-{{ $entityType }}"
               id="acl-autocomplete-{{ $entityType }}"
@@ -68,7 +68,7 @@
                 value="{{ \AhgCore\Services\AclService::GRANT }}">
               <label class="form-check-label" for="acl_grant_[{{ $key }}_{objectId}]">
                 {{ __('Grant') }}
-               <span class="badge bg-secondary ms-1">Optional</span></label>
+               <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
             <div class="form-check form-check-inline">
               <input
@@ -79,7 +79,7 @@
                 value="{{ \AhgCore\Services\AclService::DENY }}">
               <label class="form-check-label" for="acl_deny_[{{ $key }}_{objectId}]">
                 {{ __('Deny') }}
-               <span class="badge bg-secondary ms-1">Optional</span></label>
+               <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
             <div class="form-check form-check-inline">
               <input
@@ -91,7 +91,7 @@
                 value="{{ \AhgCore\Services\AclService::INHERIT }}">
               <label class="form-check-label" for="acl_inherit_[{{ $key }}_{objectId}]">
                 {{ __('Inherit') }}
-               <span class="badge bg-secondary ms-1">Optional</span></label>
+               <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
           </td>
         </tr>

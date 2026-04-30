@@ -14,10 +14,10 @@
         </div>
         <div class="list-group list-group-flush">
           <a href="{{ route('informationobject.show', $io->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-arrow-left me-1"></i> Back to description
+            <i class="fas fa-arrow-left me-1"></i> {{ __('Back to description') }}
           </a>
           <a href="{{ route('informationobject.reports', $io->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-chart-bar me-1"></i> Back to reports
+            <i class="fas fa-chart-bar me-1"></i> {{ __('Back to reports') }}
           </a>
         </div>
       </div>
@@ -28,7 +28,7 @@
         </div>
         <div class="card-body">
           <button onclick="window.print()" class="btn atom-btn-white btn-sm w-100 mb-2">
-            <i class="fas fa-print me-1"></i> Print
+            <i class="fas fa-print me-1"></i> {{ __('Print') }}
           </button>
         </div>
       </div>
@@ -85,7 +85,7 @@
         @if(count($items) > 0)
           <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-              <span>Physical Storage Locations</span>
+              <span>{{ __('Physical Storage Locations') }}</span>
               <span class="badge bg-primary">{{ count($items) }}</span>
             </div>
             <div class="table-responsive">

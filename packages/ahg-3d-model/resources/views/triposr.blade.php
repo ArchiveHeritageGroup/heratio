@@ -21,10 +21,10 @@
     </div>
     <div>
       <a href="{{ route('admin.3d-models.settings') }}" class="btn atom-btn-white me-2">
-        <i class="fas fa-arrow-left me-1"></i>Back to 3D Settings
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back to 3D Settings') }}
       </a>
       <a href="{{ route('admin.3d-models.index') }}" class="btn atom-btn-white">
-        <i class="fas fa-cubes me-1"></i>View Models
+        <i class="fas fa-cubes me-1"></i>{{ __('View Models') }}
       </a>
     </div>
   </div>
@@ -41,21 +41,21 @@
     <div class="d-flex align-items-center justify-content-between">
       <div>
         <i class="fas {{ $isOnline ? 'fa-check-circle' : 'fa-times-circle' }} me-2"></i>
-        <strong>TripoSR Service:</strong>
+        <strong>{{ __('TripoSR Service:') }}</strong>
         @if($isOnline)
           Online - {{ $health['device'] ?? 'unknown' }} ({{ $health['mode'] ?? 'local' }} mode)
           @if($health['cuda_available'] ?? false)
-            <span class="badge bg-success ms-2">CUDA Available</span>
+            <span class="badge bg-success ms-2">{{ __('CUDA Available') }}</span>
           @endif
           @if($health['model_loaded'] ?? false)
-            <span class="badge bg-info ms-2">Model Loaded</span>
+            <span class="badge bg-info ms-2">{{ __('Model Loaded') }}</span>
           @endif
         @else
           Offline - {{ $health['message'] ?? 'Service not responding' }}
         @endif
       </div>
       @if($isOnline && ($health['remote_configured'] ?? false))
-        <span class="badge bg-primary">Remote GPU Configured</span>
+        <span class="badge bg-primary">{{ __('Remote GPU Configured') }}</span>
       @endif
     </div>
   </div>
@@ -66,7 +66,7 @@
       <div class="card text-center mb-4">
         <div class="card-body">
           <div class="display-6" style="color:var(--ahg-primary);">{{ number_format($stats['total_jobs'] ?? 0) }}</div>
-          <small class="text-muted">Total Jobs</small>
+          <small class="text-muted">{{ __('Total Jobs') }}</small>
         </div>
       </div>
     </div>
@@ -74,7 +74,7 @@
       <div class="card text-center mb-4">
         <div class="card-body">
           <div class="display-6 text-success">{{ number_format($stats['completed'] ?? 0) }}</div>
-          <small class="text-muted">Completed</small>
+          <small class="text-muted">{{ __('Completed') }}</small>
         </div>
       </div>
     </div>
@@ -82,7 +82,7 @@
       <div class="card text-center mb-4">
         <div class="card-body">
           <div class="display-6 text-danger">{{ number_format($stats['failed'] ?? 0) }}</div>
-          <small class="text-muted">Failed</small>
+          <small class="text-muted">{{ __('Failed') }}</small>
         </div>
       </div>
     </div>
@@ -90,7 +90,7 @@
       <div class="card text-center mb-4">
         <div class="card-body">
           <div class="display-6 text-warning">{{ number_format($stats['pending'] ?? 0) }}</div>
-          <small class="text-muted">Pending</small>
+          <small class="text-muted">{{ __('Pending') }}</small>
         </div>
       </div>
     </div>
@@ -112,14 +112,14 @@
                   <input class="form-check-input" type="checkbox" id="triposr_enabled" name="triposr_enabled" value="1"
                          {{ isTripoSettingEnabled3d($settings, 'triposr_enabled') ? 'checked' : '' }}>
                   <label class="form-check-label" for="triposr_enabled">
-                    <strong>Enable TripoSR</strong> <span class="badge bg-secondary ms-1">Optional</span>
-                    <br><small class="text-muted">Allow image-to-3D generation</small>
+                    <strong>{{ __('Enable TripoSR') }}</strong> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                    <br><small class="text-muted">{{ __('Allow image-to-3D generation') }}</small>
                   </label>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Local API URL <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Local API URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" class="form-control" name="triposr_api_url"
                          value="{{ e(getTripoSetting3d($settings, 'triposr_api_url', 'http://127.0.0.1:5050')) }}">
                   <div class="form-text">Default: http://127.0.0.1:5050</div>
@@ -132,7 +132,7 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Processing Mode <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Processing Mode <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="triposr_mode" id="triposr_mode">
                     <option value="local" {{ getTripoSetting3d($settings, 'triposr_mode', 'local') == 'local' ? 'selected' : '' }}>
                       Local Processing (CPU/GPU)
@@ -146,7 +146,7 @@
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Timeout (seconds) <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Timeout (seconds) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" name="triposr_timeout"
                          value="{{ getTripoSetting3d($settings, 'triposr_timeout', '300') }}"
                          min="60" max="600">
@@ -171,7 +171,7 @@
             <div class="row">
               <div class="col-md-8">
                 <div class="mb-3">
-                  <label class="form-label">Remote Server URL <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Remote Server URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="url" class="form-control" name="triposr_remote_url"
                          value="{{ e(getTripoSetting3d($settings, 'triposr_remote_url')) }}"
                          placeholder="{{ __('https://gpu-server.example.com:5050') }}">
@@ -180,7 +180,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">API Key <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">API Key <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   @php $apiKey = getTripoSetting3d($settings, 'triposr_remote_api_key'); @endphp
                   <input type="password" class="form-control" name="triposr_remote_api_key"
                          value="{{ $apiKey ? '***' : '' }}" placeholder="{{ __('Optional API key') }}">
@@ -202,14 +202,14 @@
                   <input class="form-check-input" type="checkbox" id="triposr_remove_bg" name="triposr_remove_bg" value="1"
                          {{ getTripoSetting3d($settings, 'triposr_remove_bg', '1') === '1' ? 'checked' : '' }}>
                   <label class="form-check-label" for="triposr_remove_bg">
-                    <strong>Remove Background</strong> <span class="badge bg-secondary ms-1">Optional</span>
-                    <br><small class="text-muted">Auto-remove image background</small>
+                    <strong>{{ __('Remove Background') }}</strong> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                    <br><small class="text-muted">{{ __('Auto-remove image background') }}</small>
                   </label>
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Foreground Ratio <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Foreground Ratio <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" name="triposr_foreground_ratio"
                          value="{{ getTripoSetting3d($settings, 'triposr_foreground_ratio', '0.85') }}"
                          min="0.5" max="1" step="0.05">
@@ -218,7 +218,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Mesh Resolution <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Mesh Resolution <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="triposr_mc_resolution">
                     <option value="128" {{ getTripoSetting3d($settings, 'triposr_mc_resolution', '256') == '128' ? 'selected' : '' }}>
                       128 - Fast (lower quality)
@@ -238,8 +238,8 @@
               <input class="form-check-input" type="checkbox" id="triposr_bake_texture" name="triposr_bake_texture" value="1"
                      {{ isTripoSettingEnabled3d($settings, 'triposr_bake_texture') ? 'checked' : '' }}>
               <label class="form-check-label" for="triposr_bake_texture">
-                <strong>Bake Texture</strong> <span class="badge bg-secondary ms-1">Optional</span>
-                <br><small class="text-muted">Export as OBJ with texture map instead of GLB with vertex colors</small>
+                <strong>{{ __('Bake Texture') }}</strong> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                <br><small class="text-muted">{{ __('Export as OBJ with texture map instead of GLB with vertex colors') }}</small>
               </label>
             </div>
           </div>
@@ -294,16 +294,16 @@
           </div>
           <div class="card-body">
             <div class="small">
-              <p class="mb-2"><strong>Generate model:</strong></p>
+              <p class="mb-2"><strong>{{ __('Generate model:') }}</strong></p>
               <code class="d-block mb-3">php artisan triposr:generate --image=/path/image.jpg</code>
 
-              <p class="mb-2"><strong>With object link:</strong></p>
+              <p class="mb-2"><strong>{{ __('With object link:') }}</strong></p>
               <code class="d-block mb-3">php artisan triposr:generate --image=/path/image.jpg --object-id=123 --import</code>
 
-              <p class="mb-2"><strong>Check health:</strong></p>
+              <p class="mb-2"><strong>{{ __('Check health:') }}</strong></p>
               <code class="d-block mb-3">php artisan triposr:health</code>
 
-              <p class="mb-2"><strong>View statistics:</strong></p>
+              <p class="mb-2"><strong>{{ __('View statistics:') }}</strong></p>
               <code class="d-block">php artisan triposr:generate --stats</code>
             </div>
           </div>
@@ -316,10 +316,10 @@
           </div>
           <div class="list-group list-group-flush">
             <a href="https://github.com/VAST-AI-Research/TripoSR" target="_blank" class="list-group-item list-group-item-action">
-              <i class="fas fa-external-link-alt me-2"></i>TripoSR GitHub
+              <i class="fas fa-external-link-alt me-2"></i>{{ __('TripoSR GitHub') }}
             </a>
             <a href="https://huggingface.co/stabilityai/TripoSR" target="_blank" class="list-group-item list-group-item-action">
-              <i class="fas fa-external-link-alt me-2"></i>Model on HuggingFace
+              <i class="fas fa-external-link-alt me-2"></i>{{ __('Model on HuggingFace') }}
             </a>
           </div>
         </div>
@@ -330,7 +330,7 @@
 
     <div class="d-flex justify-content-end">
       <button type="submit" class="btn atom-btn-white">
-        <i class="fas fa-save me-1"></i>Save Settings
+        <i class="fas fa-save me-1"></i>{{ __('Save Settings') }}
       </button>
     </div>
   </form>

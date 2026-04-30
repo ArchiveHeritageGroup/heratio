@@ -31,50 +31,50 @@
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[accession_mask_enabled]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[accession_mask_enabled]" value="1" id="accession_mask_enabled" {{ ($settings['accession_mask_enabled'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="accession_mask_enabled">Accession mask enabled <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-check-label" for="accession_mask_enabled">Accession mask enabled <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
               <div class="mb-3">
-                <label class="form-label">Accession mask <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Accession mask <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="settings[accession_mask]" class="form-control" value="{{ e($settings['accession_mask'] ?? '') }}">
                 <small class="text-muted">e.g. %Y-%m-%d/#</small>
               </div>
               <div class="mb-3">
-                <label class="form-label">Accession counter <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Accession counter <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="number" name="settings[accession_counter]" class="form-control" value="{{ e($settings['accession_counter'] ?? '0') }}">
               </div>
 
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[identifier_mask_enabled]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[identifier_mask_enabled]" value="1" id="identifier_mask_enabled" {{ ($settings['identifier_mask_enabled'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="identifier_mask_enabled">Identifier mask enabled <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-check-label" for="identifier_mask_enabled">Identifier mask enabled <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
               <div class="mb-3">
-                <label class="form-label">Identifier mask <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Identifier mask <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="settings[identifier_mask]" class="form-control" value="{{ e($settings['identifier_mask'] ?? '') }}">
               </div>
               <div class="mb-3">
-                <label class="form-label">Identifier counter <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Identifier counter <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="number" name="settings[identifier_counter]" class="form-control" value="{{ e($settings['identifier_counter'] ?? '0') }}">
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Reference code separator <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Reference code separator <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="settings[separator_character]" class="form-control" value="{{ e($settings['separator_character'] ?? '-') }}" maxlength="5">
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[inherit_code_informationobject]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[inherit_code_informationobject]" value="1" id="inherit_code_io" {{ ($settings['inherit_code_informationobject'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="inherit_code_io">Inherit reference code (information object) <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-check-label" for="inherit_code_io">Inherit reference code (information object) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[inherit_code_dc_xml]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[inherit_code_dc_xml]" value="1" id="inherit_code_dc" {{ ($settings['inherit_code_dc_xml'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="inherit_code_dc">Inherit reference code (DC XML) <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-check-label" for="inherit_code_dc">Inherit reference code (DC XML) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[prevent_duplicate_actor_identifiers]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[prevent_duplicate_actor_identifiers]" value="1" id="prevent_dup" {{ ($settings['prevent_duplicate_actor_identifiers'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="prevent_dup">Prevent duplicate authority record identifiers <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-check-label" for="prevent_dup">Prevent duplicate authority record identifiers <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
             </div>
           </div>

@@ -8,14 +8,14 @@
     <i class="fas fa-3x fa-shield-alt me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Integrity Check') }}</h1>
-      <span class="small text-muted">Digital object verification and integrity monitoring</span>
+      <span class="small text-muted">{{ __('Digital object verification and integrity monitoring') }}</span>
     </div>
   </div>
 
   @if(!$configured)
     <div class="alert alert-warning mb-4">
       <i class="fas fa-exclamation-triangle me-1"></i>
-      <strong>Not configured.</strong>
+      <strong>{{ __('Not configured.') }}</strong>
       The integrity check system has not been set up yet. The required database tables
       (<code>integrity_run</code>, <code>integrity_dead_letter</code>) do not exist.
       Please run the integrity module migration to enable this feature.
@@ -85,7 +85,7 @@
   {{-- Repository filter --}}
   <div class="d-flex flex-wrap gap-2 mb-3">
     <div class="d-flex align-items-center gap-2">
-      <label for="repository_filter" class="form-label mb-0 fw-bold">Filter by repository: <span class="badge bg-secondary ms-1">Optional</span></label>
+      <label for="repository_filter" class="form-label mb-0 fw-bold">Filter by repository: <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
       <select id="repository_filter" class="form-select form-select-sm" style="width: auto; min-width: 200px;">
         <option value="">{{ __('All repositories') }}</option>
         @foreach($repositories as $repo)
@@ -97,19 +97,19 @@
 
   {{-- Quick Actions --}}
   <div class="d-flex flex-wrap gap-2 mb-4">
-    <a href="{{ url('/integrity/schedules') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-clock me-1"></i>Schedules</a>
-    <a href="{{ url('/integrity/ledger') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-clipboard-list me-1"></i>Ledger</a>
+    <a href="{{ url('/integrity/schedules') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-clock me-1"></i>{{ __('Schedules') }}</a>
+    <a href="{{ url('/integrity/ledger') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-clipboard-list me-1"></i>{{ __('Ledger') }}</a>
     <a href="{{ url('/integrity/dead-letters') }}" class="btn btn-sm atom-btn-white">
       <i class="fas fa-exclamation-circle me-1"></i>Dead Letters
       @if($stats['open_dead_letters'] > 0)
         <span class="badge bg-danger ms-1">{{ number_format($stats['open_dead_letters']) }}</span>
       @endif
     </a>
-    <a href="{{ url('/integrity/policies') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-cogs me-1"></i>Policies</a>
-    <a href="{{ url('/integrity/holds') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-lock me-1"></i>Holds</a>
-    <a href="{{ url('/integrity/alerts') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-bell me-1"></i>Alerts</a>
-    <a href="{{ url('/integrity/export') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-download me-1"></i>Export</a>
-    <a href="{{ url('/integrity/report') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-chart-bar me-1"></i>Report</a>
+    <a href="{{ url('/integrity/policies') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-cogs me-1"></i>{{ __('Policies') }}</a>
+    <a href="{{ url('/integrity/holds') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-lock me-1"></i>{{ __('Holds') }}</a>
+    <a href="{{ url('/integrity/alerts') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-bell me-1"></i>{{ __('Alerts') }}</a>
+    <a href="{{ url('/integrity/export') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-download me-1"></i>{{ __('Export') }}</a>
+    <a href="{{ url('/integrity/report') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-chart-bar me-1"></i>{{ __('Report') }}</a>
   </div>
 
   {{-- Recent Verification Runs --}}
@@ -141,15 +141,15 @@
                   <td>{{ $run->schedule_name ?? $run->schedule_id ?? 'Manual' }}</td>
                   <td>
                     @if($run->status === 'passed')
-                      <span class="badge bg-success">Passed</span>
+                      <span class="badge bg-success">{{ __('Passed') }}</span>
                     @elseif($run->status === 'failed')
-                      <span class="badge bg-danger">Failed</span>
+                      <span class="badge bg-danger">{{ __('Failed') }}</span>
                     @elseif($run->status === 'running')
-                      <span class="badge bg-primary">Running</span>
+                      <span class="badge bg-primary">{{ __('Running') }}</span>
                     @elseif($run->status === 'queued')
-                      <span class="badge bg-warning text-dark">Queued</span>
+                      <span class="badge bg-warning text-dark">{{ __('Queued') }}</span>
                     @elseif($run->status === 'partial')
-                      <span class="badge bg-info">Partial</span>
+                      <span class="badge bg-info">{{ __('Partial') }}</span>
                     @else
                       <span class="badge bg-secondary">{{ ucfirst($run->status ?? 'Unknown') }}</span>
                     @endif

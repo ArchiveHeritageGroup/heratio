@@ -11,7 +11,7 @@
         <a href="{{ route('digitalobject.edit', ['slug' => $resource->slug]) }}"
            class="btn btn-outline-primary btn-sm">
             <i class="fas fa-upload me-1"></i>
-            Upload
+            {{ __('Upload') }}
         </a>
 
         <!-- TIFF to PDF Merge Button -->

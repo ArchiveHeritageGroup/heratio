@@ -9,12 +9,12 @@
            aria-label="{{ $label ?? 'Search' }}">
     <button class="btn btn-sm atom-btn-white" type="submit">
       <i class="fas fa-search" aria-hidden="true"></i>
-      <span class="visually-hidden">Search</span>
+      <span class="visually-hidden">{{ __('Search') }}</span>
     </button>
     @if(request('subquery'))
       <a href="{{ request()->fullUrlWithoutQuery('subquery') }}" class="btn btn-sm atom-btn-white" title="{{ __('Clear search') }}" role="button">
         <i class="fas fa-undo" aria-hidden="true"></i>
-        <span class="visually-hidden">Reset search</span>
+        <span class="visually-hidden">{{ __('Reset search') }}</span>
       </a>
     @endif
   </div>

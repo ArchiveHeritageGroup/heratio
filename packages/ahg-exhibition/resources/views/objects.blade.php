@@ -36,7 +36,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1>{{ __('Exhibition Objects') }}</h1>
       <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addObjectModal">
-        <i class="fas fa-plus"></i> Add Object
+        <i class="fas fa-plus"></i> {{ __('Add Object') }}
       </button>
     </div>
 
@@ -47,7 +47,7 @@
           <h5>{{ __('No objects added yet') }}</h5>
           <p class="text-muted">Add objects from the collection to this exhibition.</p>
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addObjectModal">
-            <i class="fas fa-plus"></i> Add First Object
+            <i class="fas fa-plus"></i> {{ __('Add First Object') }}
           </button>
         </div>
       </div>
@@ -56,7 +56,7 @@
         <div class="card mb-3">
           <div class="card-body py-2">
             <div class="d-flex align-items-center gap-2 flex-wrap">
-              <span class="small text-muted">Filter by section:</span>
+              <span class="small text-muted">{{ __('Filter by section:') }}</span>
               <a href="?" class="btn btn-sm {{ empty($currentSection) ? 'btn-primary' : 'btn-outline-primary' }}">All</a>
               @foreach($sections as $section)
                 @php $sec = (object) $section; @endphp
@@ -113,12 +113,12 @@
                     @if(!empty($obj->display_position))
                       {{ $obj->display_position }}
                     @else
-                      <span class="text-muted">Not assigned</span>
+                      <span class="text-muted">{{ __('Not assigned') }}</span>
                     @endif
                   </td>
                   <td>
                     @if(!empty($obj->requires_loan))
-                      <span class="badge bg-warning text-dark">Loan required</span>
+                      <span class="badge bg-warning text-dark">{{ __('Loan required') }}</span>
                       @if(!empty($obj->lender_institution))
                         <br><small class="text-muted">{{ $obj->lender_institution }}</small>
                       @endif
@@ -194,10 +194,10 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('exhibition.objectList', ['id' => $exId]) }}" class="list-group-item list-group-item-action">
-          <i class="fas fa-file-text me-2"></i> Generate Object List
+          <i class="fas fa-file-text me-2"></i> {{ __('Generate Object List') }}
         </a>
         <a href="{{ route('exhibition.sections', ['id' => $exId]) }}" class="list-group-item list-group-item-action">
-          <i class="fas fa-th-large me-2"></i> Manage Sections
+          <i class="fas fa-th-large me-2"></i> {{ __('Manage Sections') }}
         </a>
       </div>
     </div>

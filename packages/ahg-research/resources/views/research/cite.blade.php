@@ -43,7 +43,7 @@
         @foreach($styles as $style)
         <div class="mb-4">
             <label class="form-label fw-bold">
-                <i class="fas fa-bookmark me-1"></i>{{ $styleLabels[$style] ?? ucfirst($style) }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                <i class="fas fa-bookmark me-1"></i>{{ $styleLabels[$style] ?? ucfirst($style) }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             @if(isset($citations[$style]) && !isset($citations[$style]['error']))
             <div class="input-group">
                 <textarea class="form-control" rows="3" readonly id="citation-{{ $style }}">{{ $citations[$style]['citation'] ?? '' }}</textarea>

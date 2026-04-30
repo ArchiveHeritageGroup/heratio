@@ -20,7 +20,7 @@
       <p class="text-muted mb-0">Configure global settings for 3D model viewing</p>
     </div>
     <a href="{{ route('admin.3d-models.index') }}" class="btn atom-btn-white">
-      <i class="fas fa-cubes me-1"></i>View All Models
+      <i class="fas fa-cubes me-1"></i>{{ __('View All Models') }}
     </a>
   </div>
 
@@ -37,7 +37,7 @@
       <div class="card text-center">
         <div class="card-body">
           <div class="display-6" style="color:var(--ahg-primary);">{{ number_format($stats['total_models'] ?? 0) }}</div>
-          <small class="text-muted">Total Models</small>
+          <small class="text-muted">{{ __('Total Models') }}</small>
         </div>
       </div>
     </div>
@@ -45,7 +45,7 @@
       <div class="card text-center">
         <div class="card-body">
           <div class="display-6 text-success">{{ number_format($stats['ar_enabled_models'] ?? 0) }}</div>
-          <small class="text-muted">AR Enabled</small>
+          <small class="text-muted">{{ __('AR Enabled') }}</small>
         </div>
       </div>
     </div>
@@ -53,7 +53,7 @@
       <div class="card text-center">
         <div class="card-body">
           <div class="display-6 text-info">{{ number_format($stats['total_hotspots'] ?? 0) }}</div>
-          <small class="text-muted">Hotspots</small>
+          <small class="text-muted">{{ __('Hotspots') }}</small>
         </div>
       </div>
     </div>
@@ -61,7 +61,7 @@
       <div class="card text-center">
         <div class="card-body">
           <div class="display-6 text-secondary">{{ number_format($stats['total_views'] ?? 0) }}</div>
-          <small class="text-muted">Views</small>
+          <small class="text-muted">{{ __('Views') }}</small>
         </div>
       </div>
     </div>
@@ -69,7 +69,7 @@
       <div class="card text-center">
         <div class="card-body">
           <div class="display-6 text-warning">{{ number_format($stats['total_ar_views'] ?? 0) }}</div>
-          <small class="text-muted">AR Views</small>
+          <small class="text-muted">{{ __('AR Views') }}</small>
         </div>
       </div>
     </div>
@@ -77,7 +77,7 @@
       <div class="card text-center">
         <div class="card-body">
           <div class="display-6 text-dark">{{ number_format(($stats['storage_used'] ?? 0) / 1048576, 1) }}</div>
-          <small class="text-muted">MB Used</small>
+          <small class="text-muted">{{ __('MB Used') }}</small>
         </div>
       </div>
     </div>
@@ -96,7 +96,7 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Default Viewer <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Default Viewer <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="default_viewer">
                     <option value="model-viewer" {{ getSetting3d($settings, 'default_viewer') == 'model-viewer' ? 'selected' : '' }}>
                       Model Viewer (Google WebXR)
@@ -110,7 +110,7 @@
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Default Background Color <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Default Background Color <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <div class="input-group">
                     <input type="color" class="form-control form-control-color" id="bg_picker"
                            value="{{ getSetting3d($settings, 'default_background', '#f5f5f5') }}"
@@ -125,7 +125,7 @@
             <div class="row">
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Default Exposure <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Default Exposure <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" name="default_exposure"
                          value="{{ getSetting3d($settings, 'default_exposure', '1.0') }}"
                          min="0" max="2" step="0.1">
@@ -133,7 +133,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Default Shadow Intensity <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Default Shadow Intensity <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" name="default_shadow_intensity"
                          value="{{ getSetting3d($settings, 'default_shadow_intensity', '1.0') }}"
                          min="0" max="2" step="0.1">
@@ -141,7 +141,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Rotation Speed (deg/sec) <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Rotation Speed (deg/sec) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" name="rotation_speed"
                          value="{{ getSetting3d($settings, 'rotation_speed', '30') }}"
                          min="0" max="360">
@@ -154,14 +154,14 @@
                 <div class="form-check mb-2">
                   <input class="form-check-input" type="checkbox" id="enable_auto_rotate" name="enable_auto_rotate" value="1"
                          {{ isSettingEnabled3d($settings, 'enable_auto_rotate') ? 'checked' : '' }}>
-                  <label class="form-check-label" for="enable_auto_rotate">Enable Auto-Rotate by Default <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-check-label" for="enable_auto_rotate">Enable Auto-Rotate by Default <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-check mb-2">
                   <input class="form-check-input" type="checkbox" id="enable_fullscreen" name="enable_fullscreen" value="1"
                          {{ isSettingEnabled3d($settings, 'enable_fullscreen') ? 'checked' : '' }}>
-                  <label class="form-check-label" for="enable_fullscreen">Enable Fullscreen Button <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-check-label" for="enable_fullscreen">Enable Fullscreen Button <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 </div>
               </div>
             </div>
@@ -178,8 +178,8 @@
               <input class="form-check-input" type="checkbox" id="enable_ar" name="enable_ar" value="1"
                      {{ isSettingEnabled3d($settings, 'enable_ar') ? 'checked' : '' }}>
               <label class="form-check-label" for="enable_ar">
-                <strong>Enable AR Viewing</strong> <span class="badge bg-secondary ms-1">Optional</span>
-                <br><small class="text-muted">Allow users to view 3D models in augmented reality on supported devices (iOS Safari, Chrome for Android)</small>
+                <strong>{{ __('Enable AR Viewing') }}</strong> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                <br><small class="text-muted">{{ __('Allow users to view 3D models in augmented reality on supported devices (iOS Safari, Chrome for Android)') }}</small>
               </label>
             </div>
             <div class="alert alert-info small mb-0">
@@ -203,7 +203,7 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Maximum File Size (MB) <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Maximum File Size (MB) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" name="max_file_size_mb"
                          value="{{ getSetting3d($settings, 'max_file_size_mb', '100') }}"
                          min="1" max="500">
@@ -212,7 +212,7 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Allowed Formats <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label">Allowed Formats <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               @php
                 $allowedFormats = json_decode(getSetting3d($settings, 'allowed_formats', '["glb","gltf","usdz"]'), true) ?: [];
                 $allFormats = ['glb', 'gltf', 'usdz', 'obj', 'stl', 'ply'];
@@ -236,8 +236,8 @@
               <input class="form-check-input" type="checkbox" id="enable_download" name="enable_download" value="1"
                      {{ isSettingEnabled3d($settings, 'enable_download') ? 'checked' : '' }}>
               <label class="form-check-label" for="enable_download">
-                Allow Model Downloads <span class="badge bg-secondary ms-1">Optional</span>
-                <br><small class="text-muted">Let users download 3D model files</small>
+                Allow Model Downloads <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                <br><small class="text-muted">{{ __('Let users download 3D model files') }}</small>
               </label>
             </div>
           </div>
@@ -253,8 +253,8 @@
               <input class="form-check-input" type="checkbox" id="enable_annotations" name="enable_annotations" value="1"
                      {{ isSettingEnabled3d($settings, 'enable_annotations') ? 'checked' : '' }}>
               <label class="form-check-label" for="enable_annotations">
-                <strong>Enable 3D Hotspots</strong> <span class="badge bg-secondary ms-1">Optional</span>
-                <br><small class="text-muted">Allow adding clickable annotation points on 3D models</small>
+                <strong>{{ __('Enable 3D Hotspots') }}</strong> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                <br><small class="text-muted">{{ __('Allow adding clickable annotation points on 3D models') }}</small>
               </label>
             </div>
           </div>
@@ -269,10 +269,10 @@
             <div class="form-check mb-3">
               <input class="form-check-input" type="checkbox" id="watermark_enabled" name="watermark_enabled" value="1"
                      {{ isSettingEnabled3d($settings, 'watermark_enabled') ? 'checked' : '' }}>
-              <label class="form-check-label" for="watermark_enabled"><strong>Enable Watermark</strong> <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-check-label" for="watermark_enabled"><strong>{{ __('Enable Watermark') }}</strong> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
             <div class="mb-3">
-              <label class="form-label">Watermark Text <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label">Watermark Text <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" class="form-control" name="watermark_text"
                      value="{{ e(getSetting3d($settings, 'watermark_text', 'The Archive and Heritage Group')) }}">
             </div>
@@ -285,7 +285,7 @@
         @endphp
         <div class="card mb-4">
           <div class="card-header fw-semibold d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff;">
-            <span><i class="fas fa-magic me-2"></i>TripoSR - Image to 3D</span>
+            <span><i class="fas fa-magic me-2"></i>{{ __('TripoSR - Image to 3D') }}</span>
             <span class="badge {{ $triposrOnline ? 'bg-success' : 'bg-danger' }}">
               {{ $triposrOnline ? 'Online' : 'Offline' }}
             </span>
@@ -298,11 +298,11 @@
             @if($triposrOnline)
               <div class="alert alert-success small mb-3">
                 <i class="fas fa-check-circle me-1"></i>
-                <strong>API Status:</strong> Online |
-                <strong>Device:</strong> {{ $triposrHealth['device'] ?? 'unknown' }} |
-                <strong>Mode:</strong> {{ $triposrHealth['mode'] ?? 'unknown' }}
+                <strong>{{ __('API Status:') }}</strong> Online |
+                <strong>{{ __('Device:') }}</strong> {{ $triposrHealth['device'] ?? 'unknown' }} |
+                <strong>{{ __('Mode:') }}</strong> {{ $triposrHealth['mode'] ?? 'unknown' }}
                 @if($triposrHealth['cuda_available'] ?? false)
-                  | <strong>CUDA:</strong> Available
+                  | <strong>{{ __('CUDA:') }}</strong> Available
                 @endif
               </div>
             @else
@@ -317,27 +317,27 @@
                 <div class="form-check mb-3">
                   <input class="form-check-input" type="checkbox" id="triposr_enabled" name="triposr_enabled" value="1"
                          {{ isSettingEnabled3d($settings, 'triposr_enabled') ? 'checked' : '' }}>
-                  <label class="form-check-label" for="triposr_enabled"><strong>Enable TripoSR</strong> <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-check-label" for="triposr_enabled"><strong>{{ __('Enable TripoSR') }}</strong> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <div class="form-text">Required for 2D-to-3D model generation. Calls the TripoSR API on each request.</div>
                 </div>
                 <div class="form-check mb-3">
                   <input type="hidden" name="enable_2d_to_3d_user_button" value="0">
                   <input class="form-check-input" type="checkbox" id="enable_2d_to_3d_user_button" name="enable_2d_to_3d_user_button" value="1"
                          {{ isSettingEnabled3d($settings, 'enable_2d_to_3d_user_button') ? 'checked' : '' }}>
-                  <label class="form-check-label" for="enable_2d_to_3d_user_button"><strong>Show "Generate 3D" button on IO show pages</strong></label>
+                  <label class="form-check-label" for="enable_2d_to_3d_user_button"><strong>{{ __('Show "Generate 3D" button on IO show pages') }}</strong></label>
                   <div class="form-text">When checked, authenticated users see a "Generate 3D model" button on each IO that has an image but no 3D model yet. Disable to keep TripoSR cron-only.</div>
                 </div>
                 <div class="form-check mb-3">
                   <input type="hidden" name="triposr_demo_mode" value="0">
                   <input class="form-check-input" type="checkbox" id="triposr_demo_mode" name="triposr_demo_mode" value="1"
                          {{ isSettingEnabled3d($settings, 'triposr_demo_mode') ? 'checked' : '' }}>
-                  <label class="form-check-label" for="triposr_demo_mode"><strong>Demo placeholder fallback</strong></label>
+                  <label class="form-check-label" for="triposr_demo_mode"><strong>{{ __('Demo placeholder fallback') }}</strong></label>
                   <div class="form-text">When the TripoSR API is unreachable (server down, GPU contention, etc.), serve a bundled placeholder cube instead of failing. Useful for demos while the AI backend is being deployed.</div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Processing Mode <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Processing Mode <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="triposr_mode" id="triposr_mode">
                     <option value="local" {{ getSetting3d($settings, 'triposr_mode', 'local') == 'local' ? 'selected' : '' }}>
                       Local (CPU/GPU)
@@ -358,7 +358,7 @@
               <div class="row">
                 <div class="col-md-8">
                   <div class="mb-3">
-                    <label class="form-label">Remote GPU Server URL <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-label">Remote GPU Server URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="url" class="form-control" name="triposr_remote_url"
                            value="{{ e(getSetting3d($settings, 'triposr_remote_url')) }}"
                            placeholder="{{ __('https://gpu-server.example.com:5050') }}">
@@ -366,7 +366,7 @@
                 </div>
                 <div class="col-md-4">
                   <div class="mb-3">
-                    <label class="form-label">API Key <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-label">API Key <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     @php $apiKey = getSetting3d($settings, 'triposr_remote_api_key'); @endphp
                     <input type="password" class="form-control" name="triposr_remote_api_key"
                            value="{{ $apiKey ? '***' : '' }}" placeholder="{{ __('API key') }}">
@@ -383,12 +383,12 @@
                 <div class="form-check mb-3">
                   <input class="form-check-input" type="checkbox" id="triposr_remove_bg" name="triposr_remove_bg" value="1"
                          {{ getSetting3d($settings, 'triposr_remove_bg', '1') === '1' ? 'checked' : '' }}>
-                  <label class="form-check-label" for="triposr_remove_bg">Remove Background <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-check-label" for="triposr_remove_bg">Remove Background <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Foreground Ratio <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Foreground Ratio <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" name="triposr_foreground_ratio"
                          value="{{ getSetting3d($settings, 'triposr_foreground_ratio', '0.85') }}"
                          min="0.5" max="1" step="0.05">
@@ -396,7 +396,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Resolution <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Resolution <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="triposr_mc_resolution">
                     <option value="128" {{ getSetting3d($settings, 'triposr_mc_resolution', '256') == '128' ? 'selected' : '' }}>128 (Fast)</option>
                     <option value="256" {{ getSetting3d($settings, 'triposr_mc_resolution', '256') == '256' ? 'selected' : '' }}>256 (Balanced)</option>
@@ -411,12 +411,12 @@
                 <div class="form-check mb-3">
                   <input class="form-check-input" type="checkbox" id="triposr_bake_texture" name="triposr_bake_texture" value="1"
                          {{ isSettingEnabled3d($settings, 'triposr_bake_texture') ? 'checked' : '' }}>
-                  <label class="form-check-label" for="triposr_bake_texture">Bake Texture (OBJ output) <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-check-label" for="triposr_bake_texture">Bake Texture (OBJ output) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Timeout (seconds) <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Timeout (seconds) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" name="triposr_timeout"
                          value="{{ getSetting3d($settings, 'triposr_timeout', '300') }}"
                          min="60" max="600">
@@ -424,7 +424,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Local API URL <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label">Local API URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" class="form-control" name="triposr_api_url"
                          value="{{ e(getSetting3d($settings, 'triposr_api_url', 'http://127.0.0.1:5050')) }}">
                 </div>
@@ -432,7 +432,7 @@
             </div>
 
             <div class="text-muted small">
-              <strong>CLI:</strong> <code>php artisan triposr:generate --image=/path/to/image.jpg</code>
+              <strong>{{ __('CLI:') }}</strong> <code>php artisan triposr:generate --image=/path/to/image.jpg</code>
             </div>
           </div>
         </div>
@@ -460,16 +460,16 @@
           </div>
           <div class="list-group list-group-flush">
             <a href="{{ route('admin.3d-models.index') }}" class="list-group-item list-group-item-action">
-              <i class="fas fa-cubes me-2"></i>View All 3D Models
+              <i class="fas fa-cubes me-2"></i>{{ __('View All 3D Models') }}
             </a>
             <a href="{{ route('admin.3d-models.triposr') }}" class="list-group-item list-group-item-action">
-              <i class="fas fa-magic me-2"></i>TripoSR Settings
+              <i class="fas fa-magic me-2"></i>{{ __('TripoSR Settings') }}
             </a>
             <a href="https://modelviewer.dev/" target="_blank" class="list-group-item list-group-item-action">
-              <i class="fas fa-external-link-alt me-2"></i>Model Viewer Documentation
+              <i class="fas fa-external-link-alt me-2"></i>{{ __('Model Viewer Documentation') }}
             </a>
             <a href="https://iiif.io/api/3d/" target="_blank" class="list-group-item list-group-item-action">
-              <i class="fas fa-external-link-alt me-2"></i>IIIF 3D Specification
+              <i class="fas fa-external-link-alt me-2"></i>{{ __('IIIF 3D Specification') }}
             </a>
           </div>
         </div>
@@ -480,7 +480,7 @@
 
     <div class="d-flex justify-content-end">
       <button type="submit" class="btn atom-btn-white">
-        <i class="fas fa-save me-1"></i>Save Settings
+        <i class="fas fa-save me-1"></i>{{ __('Save Settings') }}
       </button>
     </div>
   </form>

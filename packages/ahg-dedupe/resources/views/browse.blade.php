@@ -14,11 +14,11 @@
           No results found
         @endif
       </h1>
-      <span class="small text-muted">Duplicate Detection</span>
+      <span class="small text-muted">{{ __('Duplicate Detection') }}</span>
     </div>
     <div class="ms-auto">
       <a href="{{ route('dedupe.index') }}" class="btn btn-outline-secondary">
-        <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+        <i class="fas fa-tachometer-alt me-1"></i> {{ __('Dashboard') }}
       </a>
     </div>
   </div>
@@ -26,7 +26,7 @@
   {{-- Filters --}}
   <form method="GET" action="{{ route('dedupe.browse') }}" class="row g-2 mb-4 align-items-end">
     <div class="col-auto">
-      <label class="form-label small mb-1">Status <span class="badge bg-secondary ms-1">Optional</span></label>
+      <label class="form-label small mb-1">Status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
       <select name="status" class="form-select form-select-sm">
         <option value="">{{ __('All statuses') }}</option>
         @foreach(['pending', 'confirmed', 'merged', 'dismissed'] as $opt)
@@ -35,7 +35,7 @@
       </select>
     </div>
     <div class="col-auto">
-      <label class="form-label small mb-1">Detection Method <span class="badge bg-secondary ms-1">Optional</span></label>
+      <label class="form-label small mb-1">Detection Method <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
       <select name="method" class="form-select form-select-sm">
         <option value="">{{ __('All methods') }}</option>
         @foreach($methods as $m)
@@ -44,7 +44,7 @@
       </select>
     </div>
     <div class="col-auto">
-      <label class="form-label small mb-1">Min Score <span class="badge bg-secondary ms-1">Optional</span></label>
+      <label class="form-label small mb-1">Min Score <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
       <select name="min_score" class="form-select form-select-sm">
         <option value="">{{ __('Any') }}</option>
         @foreach([50, 60, 70, 75, 80, 85, 90, 95] as $s)
@@ -54,7 +54,7 @@
     </div>
     <div class="col-auto">
       <button type="submit" class="btn atom-btn-outline-light btn-sm">
-        <i class="fas fa-filter me-1"></i> Filter
+        <i class="fas fa-filter me-1"></i> {{ __('Filter') }}
       </button>
       <a href="{{ route('dedupe.browse') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
     </div>
@@ -66,10 +66,10 @@
         <span><strong>{{ number_format($pager->getNbResults()) }}</strong> duplicate pairs found</span>
         <div class="btn-group btn-group-sm">
           <button type="button" class="btn btn-outline-light" id="selectAll">
-            <i class="fas fa-check-square me-1"></i> Select All
+            <i class="fas fa-check-square me-1"></i> {{ __('Select All') }}
           </button>
           <button type="button" class="btn btn-outline-light" id="dismissSelected" disabled>
-            <i class="fas fa-times me-1"></i> Dismiss Selected
+            <i class="fas fa-times me-1"></i> {{ __('Dismiss Selected') }}
           </button>
         </div>
       </div>

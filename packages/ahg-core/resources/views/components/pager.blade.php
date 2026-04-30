@@ -11,7 +11,7 @@
       {{-- Previous --}}
       @if($pager->getPage() <= 1)
         <li class="page-item disabled">
-          <span class="page-link">Previous</span>
+          <span class="page-link">{{ __('Previous') }}</span>
         </li>
       @else
         <li class="page-item">
@@ -46,7 +46,7 @@
       {{-- Next --}}
       @if($pager->getPage() >= $pager->getLastPage())
         <li class="page-item disabled">
-          <span class="page-link">Next</span>
+          <span class="page-link">{{ __('Next') }}</span>
         </li>
       @else
         <li class="page-item">

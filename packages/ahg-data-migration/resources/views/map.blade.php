@@ -8,7 +8,7 @@
     <i class="fas fa-3x fa-project-diagram me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Field Mapping') }}</h1>
-      <span class="small text-muted">Map source columns to target fields</span>
+      <span class="small text-muted">{{ __('Map source columns to target fields') }}</span>
     </div>
   </div>
 
@@ -61,10 +61,10 @@
       <h5 class="mb-0"><i class="fas fa-columns"></i> Column Mapping</h5>
       <div class="d-flex gap-2">
         <button type="button" class="btn btn-sm atom-btn-outline-success" id="autoMapBtn" title="{{ __('Auto-map columns by name matching') }}">
-          <i class="fas fa-magic"></i> Auto Map
+          <i class="fas fa-magic"></i> {{ __('Auto Map') }}
         </button>
         <button type="button" class="btn btn-sm atom-btn-white" id="clearMapBtn">
-          <i class="fas fa-eraser"></i> Clear All
+          <i class="fas fa-eraser"></i> {{ __('Clear All') }}
         </button>
       </div>
     </div>
@@ -140,16 +140,16 @@
     <div class="card-body">
       <div class="row mb-3">
         <div class="col-md-4">
-          <label for="mappingName" class="form-label">Mapping Name <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="mappingName" class="form-label">Mapping Name <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="text" class="form-control" id="mappingName" placeholder="{{ __('e.g. ISAD CSV Import') }}">
         </div>
         <div class="col-md-3">
-          <label for="mappingCategory" class="form-label">Category <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="mappingCategory" class="form-label">Category <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="text" class="form-control" id="mappingCategory" value="Custom" placeholder="{{ __('Category') }}">
         </div>
         <div class="col-md-3 d-flex align-items-end">
           <button type="button" class="btn atom-btn-white" id="saveMappingBtn">
-            <i class="fas fa-save"></i> Save Mapping
+            <i class="fas fa-save"></i> {{ __('Save Mapping') }}
           </button>
         </div>
       </div>
@@ -160,7 +160,7 @@
         <form method="GET" action="{{ route('data-migration.preview') }}" id="previewForm" class="d-inline">
           <input type="hidden" name="mapping" id="previewMappingInput" value="{}">
           <button type="submit" class="btn atom-btn-white">
-            <i class="fas fa-eye"></i> Preview Transformed Data
+            <i class="fas fa-eye"></i> {{ __('Preview Transformed Data') }}
           </button>
         </form>
 
@@ -169,12 +169,12 @@
           <input type="hidden" name="mapping" id="executeMappingInput" value="{}">
           <input type="hidden" name="name" id="executeJobName" value="">
           <button type="submit" class="btn atom-btn-outline-success">
-            <i class="fas fa-play"></i> Execute Import
+            <i class="fas fa-play"></i> {{ __('Execute Import') }}
           </button>
         </form>
 
         <a href="{{ route('data-migration.upload') }}" class="btn atom-btn-white">
-          <i class="fas fa-arrow-left"></i> Back to Upload
+          <i class="fas fa-arrow-left"></i> {{ __('Back to Upload') }}
         </a>
       </div>
     </div>

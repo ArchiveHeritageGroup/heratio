@@ -10,7 +10,7 @@
       'action' => route('reports.taxonomy'),
       'extraFilters' => '
         <div class="mb-3">
-          <label class="form-label">Sort <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label">Sort <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="sort" class="form-select form-select-sm">
             <option value="nameUp"' . (($params['sort'] ?? 'nameUp') === 'nameUp' ? ' selected' : '') . '>{{ __('Name A-Z') }}</option>
             <option value="nameDown"' . (($params['sort'] ?? '') === 'nameDown' ? ' selected' : '') . '>{{ __('Name Z-A') }}</option>

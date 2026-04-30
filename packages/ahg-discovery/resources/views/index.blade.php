@@ -9,7 +9,7 @@
     <i class="fas fa-3x fa-compass me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Discover') }}</h1>
-      <span class="text-muted">Search across collections using natural language</span>
+      <span class="text-muted">{{ __('Search across collections using natural language') }}</span>
     </div>
   </div>
 
@@ -32,7 +32,7 @@
             <option value="repository" {{ ($type ?? '') === 'repository' ? 'selected' : '' }}>{{ __('Repositories') }}</option>
           </select>
           <button id="discovery-search-btn" class="btn btn-primary px-4" type="submit">
-            <i class="fas fa-search me-1"></i> Discover
+            <i class="fas fa-search me-1"></i> {{ __('Discover') }}
           </button>
         </div>
       </form>
@@ -45,13 +45,13 @@
         <small class="text-muted me-1"><i class="fas fa-sliders-h me-1"></i>Search mode:</small>
         <div class="btn-group btn-group-sm" role="group" id="discovery-mode-group">
           <button type="button" class="btn btn-outline-primary active" data-mode="standard" title="{{ __('Keyword search') }}">
-            <i class="fas fa-search me-1"></i>Standard
+            <i class="fas fa-search me-1"></i>{{ __('Standard') }}
           </button>
           <button type="button" class="btn btn-outline-primary" data-mode="semantic" title="{{ __('Standard + NER entity matching') }}">
-            <i class="fas fa-brain me-1"></i>Semantic
+            <i class="fas fa-brain me-1"></i>{{ __('Semantic') }}
           </button>
           <button type="button" class="btn btn-outline-primary" data-mode="vector" title="{{ __('Standard + Semantic + vector similarity') }}">
-            <i class="fas fa-project-diagram me-1"></i>Vector
+            <i class="fas fa-project-diagram me-1"></i>{{ __('Vector') }}
           </button>
         </div>
       </div>
@@ -87,7 +87,7 @@
   {{-- Loading Spinner --}}
   <div id="discovery-loading" class="text-center py-5 d-none">
     <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Searching...</span>
+      <span class="visually-hidden">{{ __('Searching...') }}</span>
     </div>
     <p class="text-muted mt-3">Searching across collections...</p>
   </div>

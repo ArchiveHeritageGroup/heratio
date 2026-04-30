@@ -3,7 +3,7 @@
 @section('body-class', 'gallery dashboard')
 @section('title-block')
   <h1 class="mb-0"><i class="fas fa-palette me-2"></i>Gallery Management</h1>
-  <span class="small text-muted">Manage artwork and gallery items using CCO cataloguing standards</span>
+  <span class="small text-muted">{{ __('Manage artwork and gallery items using CCO cataloguing standards') }}</span>
 @endsection
 @section('content')
 @php
@@ -75,29 +75,29 @@
       <div class="card-body">
         {{-- PSIS-cloned buttons --}}
         <a href="{{ route('gallery.create') }}" class="btn btn-primary w-100 mb-2">
-          <i class="fas fa-plus me-2"></i>Add new gallery item
+          <i class="fas fa-plus me-2"></i>{{ __('Add new gallery item') }}
         </a>
         <a href="{{ route('gallery.browse') }}" class="btn btn-outline-primary w-100 mb-2">
-          <i class="fas fa-list me-2"></i>Browse all items
+          <i class="fas fa-list me-2"></i>{{ __('Browse all items') }}
         </a>
         <a href="{{ route('glam.search') }}?displayStandard=gallery" class="btn btn-outline-secondary w-100 mb-2">
-          <i class="fas fa-search me-2"></i>Advanced search
+          <i class="fas fa-search me-2"></i>{{ __('Advanced search') }}
         </a>
         <a href="{{ route('gallery-reports.index') }}" class="btn btn-outline-success w-100 mb-2">
-          <i class="fas fa-chart-bar me-2"></i>Gallery Reports
+          <i class="fas fa-chart-bar me-2"></i>{{ __('Gallery Reports') }}
         </a>
         {{-- Heratio-only buttons (kept) --}}
         <a href="{{ route('gallery.artists') }}" class="btn btn-outline-info w-100 mb-2">
-          <i class="fas fa-user me-2"></i>Artists
+          <i class="fas fa-user me-2"></i>{{ __('Artists') }}
         </a>
         <a href="{{ route('gallery.loans') }}" class="btn btn-outline-info w-100 mb-2">
-          <i class="fas fa-exchange-alt me-2"></i>Loans
+          <i class="fas fa-exchange-alt me-2"></i>{{ __('Loans') }}
         </a>
         <a href="{{ route('gallery.valuations') }}" class="btn btn-outline-info w-100 mb-2">
-          <i class="fas fa-coins me-2"></i>Valuations
+          <i class="fas fa-coins me-2"></i>{{ __('Valuations') }}
         </a>
         <a href="{{ route('gallery.venues') }}" class="btn btn-outline-info w-100">
-          <i class="fas fa-building me-2"></i>Venues
+          <i class="fas fa-building me-2"></i>{{ __('Venues') }}
         </a>
       </div>
     </div>

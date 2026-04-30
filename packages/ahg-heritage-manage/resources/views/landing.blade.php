@@ -26,11 +26,11 @@
              style="top: 1rem; right: 1rem; z-index: 5;">
             <a href="{{ url('/marketplace/browse') }}"
                class="btn btn-warning btn-sm fw-semibold shadow-sm">
-                <i class="fas fa-shopping-bag me-1"></i> Browse &amp; Buy
+                <i class="fas fa-shopping-bag me-1"></i> {{ __('Browse &amp; Buy') }}
             </a>
             <a href="{{ url('/marketplace/register') }}"
                class="btn btn-light btn-sm fw-semibold shadow-sm">
-                <i class="fas fa-tag me-1"></i> Sell
+                <i class="fas fa-tag me-1"></i> {{ __('Sell') }}
             </a>
         </div>
         @endif
@@ -76,7 +76,7 @@
             <!-- Suggested Searches -->
             @if(!empty($suggestedSearches))
             <div class="heritage-suggested-searches">
-                <span>Try:</span>
+                <span>{{ __('Try:') }}</span>
                 @foreach($suggestedSearches as $search)
                 <a href="{{ url('/heritage/search') }}?q={{ urlencode($search) }}">
                     {{ $search }}
@@ -88,7 +88,7 @@
 
         <!-- Scroll Indicator -->
         <a href="#heritage-explore" class="heritage-scroll-indicator">
-            <span>Explore</span>
+            <span>{{ __('Explore') }}</span>
             <i class="fas fa-chevron-down"></i>
         </a>
     </section>
@@ -133,22 +133,22 @@
             @else
                 {{-- Fallback if no categories in DB --}}
                 <a href="{{ url('/heritage/timeline') }}" class="heritage-explore-btn">
-                    <i class="fas fa-clock"></i> Time
+                    <i class="fas fa-clock"></i> {{ __('Time') }}
                 </a>
                 <a href="{{ url('/heritage/explore') }}?category=place" class="heritage-explore-btn">
-                    <i class="fas fa-map-marker-alt"></i> Place
+                    <i class="fas fa-map-marker-alt"></i> {{ __('Place') }}
                 </a>
                 <a href="{{ url('/heritage/creators') }}" class="heritage-explore-btn">
-                    <i class="fas fa-users"></i> People
+                    <i class="fas fa-users"></i> {{ __('People') }}
                 </a>
                 <a href="{{ url('/heritage/explore') }}?category=theme" class="heritage-explore-btn">
-                    <i class="fas fa-tag"></i> Theme
+                    <i class="fas fa-tag"></i> {{ __('Theme') }}
                 </a>
                 <a href="{{ url('/heritage/explore') }}?category=format" class="heritage-explore-btn">
-                    <i class="fas fa-layer-group"></i> Format
+                    <i class="fas fa-layer-group"></i> {{ __('Format') }}
                 </a>
                 <a href="{{ url('/heritage/trending') }}" class="heritage-explore-btn">
-                    <i class="fas fa-chart-line"></i> Trending
+                    <i class="fas fa-chart-line"></i> {{ __('Trending') }}
                 </a>
             @endif
         </div>

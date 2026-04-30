@@ -24,7 +24,7 @@
     <a href="{{ route('gallery-reports.exhibitions') }}" class="btn btn-outline-secondary btn-sm w-100 mt-2">Clear</a>
   </form>
   <hr>
-  <a href="{{ route('gallery-reports.index') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a>
+  <a href="{{ route('gallery-reports.index') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a>
 </div>
 @endsection
 

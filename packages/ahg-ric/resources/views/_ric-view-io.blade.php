@@ -139,7 +139,7 @@
             <a href="{{ url('/' . $creator->slug) }}" class="list-group-item list-group-item-action">
               <i class="fas fa-user-circle text-danger me-1"></i>
               {{ $creator->name }}
-              <span class="badge bg-secondary float-end">Agent</span>
+              <span class="badge bg-secondary float-end">{{ __('Agent') }}</span>
             </a>
           @endforeach
         </div>
@@ -253,7 +253,7 @@
             @endforeach
             @auth
               <a href="{{ route('io.provenance', $io->slug) }}" class="btn btn-sm atom-btn-white mt-1">
-                <i class="fas fa-edit me-1"></i>Edit provenance
+                <i class="fas fa-edit me-1"></i>{{ __('Edit provenance') }}
               </a>
             @endauth
           </div>

@@ -23,7 +23,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('forms.index') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i> Back
+                <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
             </a>
         </div>
     </div>
@@ -40,7 +40,7 @@
                         <h5 class="card-title">
                             {{ $item['name'] ?? '' }}
                             @if(!empty($item['installed']))
-                                <span class="badge bg-success">Installed</span>
+                                <span class="badge bg-success">{{ __('Installed') }}</span>
                             @endif
                         </h5>
                         <p class="card-text text-muted">{{ $item['description'] ?? '' }}</p>
@@ -52,10 +52,10 @@
                     </div>
                     <div class="card-footer bg-transparent">
                         @if(!empty($item['installed']))
-                            <span class="text-success"><i class="fas fa-check me-1"></i>Already installed</span>
+                            <span class="text-success"><i class="fas fa-check me-1"></i>{{ __('Already installed') }}</span>
                         @else
                             <button type="button" class="btn btn-primary btn-sm" disabled title="{{ __('Library install not yet available') }}">
-                                <i class="fas fa-download me-1"></i> Install
+                                <i class="fas fa-download me-1"></i> {{ __('Install') }}
                             </button>
                         @endif
                     </div>

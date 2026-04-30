@@ -12,7 +12,7 @@
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between">
           <h5 class="mb-0">{{ __('Query') }}</h5>
-          <button class="btn btn-sm btn-primary" id="runQuery"><i class="fas fa-play"></i> Run</button>
+          <button class="btn btn-sm btn-primary" id="runQuery"><i class="fas fa-play"></i> {{ __('Run') }}</button>
         </div>
         <div class="card-body p-0">
           <textarea id="queryEditor" class="form-control" rows="15" style="font-family: monospace; font-size: 0.85em; border: none; resize: vertical;">{

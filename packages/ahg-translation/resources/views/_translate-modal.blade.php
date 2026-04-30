@@ -59,7 +59,7 @@
 @endphp
 
 <a href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateModal-{{ $objectId }}">
-  <i class="bi bi-translate me-1"></i>Translate
+  <i class="bi bi-translate me-1"></i>{{ __('Translate') }}
 </a>
 
 <div class="modal fade"
@@ -72,7 +72,7 @@
       <div class="modal-header bg-secondary text-white">
         <h5 class="modal-title">
           <i class="fas fa-language me-2"></i>Translate Record
-          <span class="ahg-step-indicator badge bg-light text-dark ms-2">Step 1: Select Fields</span>
+          <span class="ahg-step-indicator badge bg-light text-dark ms-2">{{ __('Step 1: Select Fields') }}</span>
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
       </div>
@@ -93,7 +93,7 @@
                   <option value="{{ $c }}" {{ $c === $userCulture ? 'selected' : '' }}>{{ $cLabel }}</option>
                 @endforeach
               </select>
-              <small class="text-muted">Culture where text is stored</small>
+              <small class="text-muted">{{ __('Culture where text is stored') }}</small>
             </div>
             <div class="col-md-4">
               <label class="form-label fw-bold">{{ __('Source Language') }}</label>
@@ -102,7 +102,7 @@
                   <option value="{{ $code }}" {{ $code === $userCulture ? 'selected' : '' }}>{{ $name }}</option>
                 @endforeach
               </select>
-              <small class="text-muted">Actual language of the text</small>
+              <small class="text-muted">{{ __('Actual language of the text') }}</small>
             </div>
             <div class="col-md-4">
               <label class="form-label fw-bold">{{ __('Target Language') }}</label>
@@ -120,21 +120,21 @@
                 <input class="form-check-input ahg-save-culture" type="checkbox" id="ahg-save-culture-{{ $objectId }}" {{ $saveCultureDefault ? 'checked' : '' }}>
                 <label class="form-check-label fw-bold" for="ahg-save-culture-{{ $objectId }}">{{ __('Save with culture code') }}</label>
               </div>
-              <small class="text-muted">Saves translation in target language's culture</small>
+              <small class="text-muted">{{ __("Saves translation in target language's culture") }}</small>
             </div>
             <div class="col-md-6">
               <div class="form-check form-switch">
                 <input class="form-check-input ahg-overwrite" type="checkbox" id="ahg-overwrite-{{ $objectId }}" {{ $overwriteDefault ? 'checked' : '' }}>
                 <label class="form-check-label fw-bold" for="ahg-overwrite-{{ $objectId }}">{{ __('Overwrite existing') }}</label>
               </div>
-              <small class="text-muted">Overwrite if target field already has content</small>
+              <small class="text-muted">{{ __('Overwrite if target field already has content') }}</small>
             </div>
           </div>
 
           <hr>
 
           <div class="mb-2">
-            <span class="fw-bold">Fields to Translate</span>
+            <span class="fw-bold">{{ __('Fields to Translate') }}</span>
             <div class="float-end">
               <button type="button" class="btn btn-sm btn-outline-secondary ahg-select-all">{{ __('Select All') }}</button>
               <button type="button" class="btn btn-sm btn-outline-secondary ahg-deselect-all">{{ __('Deselect All') }}</button>
@@ -169,7 +169,7 @@
         <div class="ahg-step-2" style="display:none;">
           <div class="alert alert-warning py-2 mb-3">
             <i class="fas fa-eye me-1"></i>
-            <strong>Review Translations</strong> - Edit if needed, then click "Approve &amp; Save" to apply.
+            <strong>{{ __('Review Translations') }}</strong> - Edit if needed, then click "Approve &amp; Save" to apply.
           </div>
           <div class="ahg-translations-preview"></div>
         </div>
@@ -183,21 +183,21 @@
       <div class="modal-footer">
         <div class="ahg-step-1-buttons">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            <i class="fas fa-times me-1"></i>Close
+            <i class="fas fa-times me-1"></i>{{ __('Close') }}
           </button>
           <button type="button" class="btn btn-primary ahg-translate-run">
-            <i class="fas fa-language me-1"></i>Translate
+            <i class="fas fa-language me-1"></i>{{ __('Translate') }}
           </button>
         </div>
         <div class="ahg-step-2-buttons" style="display:none;">
           <button type="button" class="btn btn-outline-secondary ahg-back-to-step1">
-            <i class="fas fa-arrow-left me-1"></i>Back
+            <i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}
           </button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            <i class="fas fa-times me-1"></i>Cancel
+            <i class="fas fa-times me-1"></i>{{ __('Cancel') }}
           </button>
           <button type="button" class="btn btn-success ahg-approve-save">
-            <i class="fas fa-check me-1"></i>Approve &amp; Save
+            <i class="fas fa-check me-1"></i>{{ __('Approve &amp; Save') }}
           </button>
         </div>
       </div>

@@ -38,14 +38,14 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="name" class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                            <label for="name" class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <input type="text" class="form-control" id="name" name="name"
                                    value="{{ $peer->name ?? old('name', '') }}" required>
                             <div class="form-text">A descriptive name for this peer repository</div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="base_url" class="form-label">OAI-PMH Base URL <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                            <label for="base_url" class="form-label">OAI-PMH Base URL <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <input type="url" class="form-control" id="base_url" name="base_url"
                                    value="{{ $peer->base_url ?? old('base_url', '') }}" required
                                    placeholder="{{ __('https://example.com/oai') }}">
@@ -53,7 +53,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="metadata_prefix" class="form-label">Metadata Prefix <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label for="metadata_prefix" class="form-label">Metadata Prefix <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="metadata_prefix" name="metadata_prefix">
                                 <option value="oai_dc" {{ ($peer->metadata_prefix ?? '') === 'oai_dc' ? 'selected' : '' }}>oai_dc (Dublin Core)</option>
                                 <option value="oai_ead" {{ ($peer->metadata_prefix ?? '') === 'oai_ead' ? 'selected' : '' }}>oai_ead (EAD)</option>
@@ -64,7 +64,7 @@
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1"
                                    {{ ($peer->is_active ?? true) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="is_active">Active <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-check-label" for="is_active">Active <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         </div>
                     </div>
                 </div>
@@ -75,14 +75,14 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="set_spec" class="form-label">Set Spec (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label for="set_spec" class="form-label">Set Spec (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <input type="text" class="form-control" id="set_spec" name="set_spec"
                                    value="{{ $peer->set_spec ?? old('set_spec', '') }}">
                             <div class="form-text">Restrict harvesting to a specific OAI set</div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="harvest_interval" class="form-label">Harvest Interval (hours) <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label for="harvest_interval" class="form-label">Harvest Interval (hours) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <input type="number" class="form-control" id="harvest_interval" name="harvest_interval"
                                    value="{{ $peer->harvest_interval ?? old('harvest_interval', 24) }}" min="1">
                         </div>

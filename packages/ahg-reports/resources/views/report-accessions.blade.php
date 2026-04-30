@@ -13,7 +13,7 @@
 <section class="card mb-3">
   <div class="card-body">
     <a href="{{ route('reports.dashboard') }}" class="btn btn-outline-secondary btn-sm w-100 mb-3">
-      <i class="fas fa-arrow-left me-1"></i>Back to Reports
+      <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Reports') }}
     </a>
   </div>
 </section>
@@ -46,7 +46,7 @@
       </div>
       <button type="submit" class="btn btn-primary btn-sm w-100 mb-2">{{ __('Search') }}</button>
       <button type="button" onclick="exportTableToCSV()" class="btn btn-outline-secondary btn-sm w-100">
-        <i class="fas fa-download me-1"></i>Export CSV
+        <i class="fas fa-download me-1"></i>{{ __('Export CSV') }}
       </button>
     </form>
   </div>
@@ -62,7 +62,7 @@
   <div class="alert alert-info">Found {{ number_format($total) }} results</div>
 
   <div class="mb-3" style="font-size:0.85rem">
-    <strong>Show/Hide Columns:</strong><br>
+    <strong>{{ __('Show/Hide Columns:') }}</strong><br>
     @php $columns = ['Identifier','Title','Accession Date','Acquisition Type','Resource Type','Processing Status','Culture','Created']; @endphp
     @foreach($columns as $i => $col)
       <label><input type="checkbox" onclick="toggleColumn({{ $i }})" checked> {{ $col }}</label>

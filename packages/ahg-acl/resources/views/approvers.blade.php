@@ -16,7 +16,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="fas fa-user-check me-2"></i> Access Request Approvers</h2>
     <a href="{{ route('acl.groups') }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left me-1"></i> Back to ACL
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back to ACL') }}
     </a>
   </div>
 
@@ -79,7 +79,7 @@
                         </span>
                         <small class="text-muted ms-1">({{ $approver->clearance_code ?? '' }})</small>
                       @else
-                        <span class="text-muted">None</span>
+                        <span class="text-muted">{{ __('None') }}</span>
                       @endif
                     </td>
                     <td>
@@ -97,7 +97,7 @@
                             onsubmit="return confirm('Are you sure you want to remove this approver?');">
                         @csrf
                         <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="{{ __('Remove approver') }}">
-                          <i class="fas fa-user-minus me-1"></i> Remove
+                          <i class="fas fa-user-minus me-1"></i> {{ __('Remove') }}
                         </button>
                       </form>
                     </td>
@@ -125,7 +125,7 @@
             @csrf
 
             <div class="mb-3">
-              <label for="approver_user_id" class="form-label">User <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="approver_user_id" class="form-label">User <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="user_id" id="approver_user_id" class="form-select" required>
                 <option value="">-- Select User --</option>
                 @foreach($availableUsers as $user)
@@ -136,7 +136,7 @@
 
             <div class="row mb-3">
               <div class="col-6">
-                <label for="min_classification_level" class="form-label">Min Level <span class="badge bg-danger ms-1">Required</span></label>
+                <label for="min_classification_level" class="form-label">Min Level <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <select name="min_classification_level" id="min_classification_level" class="form-select" required>
                   @foreach($classifications as $cls)
                     <option value="{{ $cls->level }}">{{ $cls->level }} - {{ $cls->name }}</option>
@@ -144,7 +144,7 @@
                 </select>
               </div>
               <div class="col-6">
-                <label for="max_classification_level" class="form-label">Max Level <span class="badge bg-danger ms-1">Required</span></label>
+                <label for="max_classification_level" class="form-label">Max Level <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <select name="max_classification_level" id="max_classification_level" class="form-select" required>
                   @foreach($classifications as $cls)
                     <option value="{{ $cls->level }}" @if($loop->last) selected @endif>{{ $cls->level }} - {{ $cls->name }}</option>
@@ -156,11 +156,11 @@
             <div class="mb-3 form-check">
               <input type="hidden" name="email_notifications" value="0">
               <input type="checkbox" class="form-check-input" name="email_notifications" id="email_notifications" value="1" checked>
-              <label class="form-check-label" for="email_notifications">Email Notifications <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-check-label" for="email_notifications">Email Notifications <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
 
             <button type="submit" class="btn atom-btn-outline-success w-100">
-              <i class="fas fa-user-plus me-1"></i> Add Approver
+              <i class="fas fa-user-plus me-1"></i> {{ __('Add Approver') }}
             </button>
           </form>
         </div>

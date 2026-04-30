@@ -35,7 +35,7 @@
           <div class="col-md-6 mb-3">
             <label for="title" class="form-label">
               Title
-              <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+              <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror"
                    value="{{ old('title', $asset->title ?? '') }}">
             @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -44,7 +44,7 @@
           <div class="col-md-6 mb-3">
             <label for="identifier" class="form-label">
               Identifier / Reference code
-              <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+              <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <input type="text" name="identifier" id="identifier" class="form-control @error('identifier') is-invalid @enderror"
                    value="{{ old('identifier', $asset->identifier ?? '') }}" placeholder="{{ __('e.g., DAM-2024-001') }}">
             @error('identifier') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -54,7 +54,7 @@
 
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label for="parent_id" class="form-label">Parent Collection <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="parent_id" class="form-label">Parent Collection <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select class="form-select" id="parent_id" name="parent_id">
               <option value="1">-- Top level (no parent) --</option>
               @foreach($formChoices['parents'] ?? [] as $p)
@@ -63,7 +63,7 @@
             </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label for="repository_id" class="form-label">Parent collection (Repository) <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="repository_id" class="form-label">Parent collection (Repository) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="repository_id" id="repository_id" class="form-select">
               <option value="">-- Select repository --</option>
               @foreach($formChoices['repositories'] as $repo)
@@ -73,7 +73,7 @@
             <div class="form-text text-muted small">The repository that holds this asset.</div>
           </div>
           <div class="col-md-4 mb-3">
-            <label for="level_of_description_id" class="form-label">Level of description <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="level_of_description_id" class="form-label">Level of description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="level_of_description_id" id="level_of_description_id" class="form-select">
               <option value="">-- Select --</option>
               @foreach($formChoices['levels'] as $level)
@@ -86,12 +86,12 @@
 
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="extent_and_medium" class="form-label">Extent and medium <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="extent_and_medium" class="form-label">Extent and medium <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea name="extent_and_medium" id="extent_and_medium" class="form-control" rows="2">{{ old('extent_and_medium', $asset->extent_and_medium ?? '') }}</textarea>
             <div class="form-text text-muted small">File format, size, dimensions.</div>
           </div>
           <div class="col-md-6 mb-3">
-            <label for="scope_and_content" class="form-label">Scope and content <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="scope_and_content" class="form-label">Scope and content <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea name="scope_and_content" id="scope_and_content" class="form-control" rows="2">{{ old('scope_and_content', $asset->scope_and_content ?? '') }}</textarea>
             <div class="form-text text-muted small">A description of the intellectual content and document types represented in this asset.</div>
           </div>
@@ -106,7 +106,7 @@
       </div>
       <div class="card-body">
         <div class="mb-3">
-          <label for="asset_type" class="form-label">Asset type <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="asset_type" class="form-label">Asset type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="asset_type" id="asset_type" class="form-select">
             <option value="">-- Select asset type --</option>
             <optgroup label="Image">
@@ -137,14 +137,14 @@
         </div>
 
         <div class="mb-3">
-          <label for="genre" class="form-label">Genre <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="genre" class="form-label">Genre <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="text" name="genre" id="genre" class="form-control"
                  value="{{ old('genre', $asset->genre ?? '') }}" placeholder="{{ __('e.g., Documentary, Portrait') }}">
           <div class="form-text text-muted small">The genre or category of the content.</div>
         </div>
 
         <div class="mb-3 field-video field-audio" style="display:none;">
-          <label for="color_type" class="form-label">Color type <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="color_type" class="form-label">Color type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="color_type" id="color_type" class="form-select">
             <option value="">-- Select --</option>
             <option value="Color" @selected(old('color_type', $asset->color_type ?? '') === 'Color')>Color</option>
@@ -165,7 +165,7 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
-            <label for="duration_minutes" class="form-label">Running Time <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="duration_minutes" class="form-label">Running Time <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="number" name="duration_minutes" id="duration_minutes" class="form-control" min="1"
                      value="{{ old('duration_minutes', $asset->duration_minutes ?? '') }}">
@@ -173,12 +173,12 @@
             </div>
           </div>
           <div class="col-md-5 mb-3">
-            <label for="production_company" class="form-label">Production company <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="production_company" class="form-label">Production company <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="production_company" id="production_company" class="form-control"
                    value="{{ old('production_company', $asset->production_company ?? '') }}" placeholder="{{ __('e.g., African Film Productions') }}">
           </div>
           <div class="col-md-4 mb-3">
-            <label for="distributor" class="form-label">Distributor / Broadcaster <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="distributor" class="form-label">Distributor / Broadcaster <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="distributor" id="distributor" class="form-control"
                    value="{{ old('distributor', $asset->distributor ?? '') }}">
           </div>
@@ -186,27 +186,27 @@
 
         <div class="row">
           <div class="col-md-3 mb-3">
-            <label for="broadcast_date" class="form-label">Broadcast / Release Date <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="broadcast_date" class="form-label">Broadcast / Release Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="broadcast_date" id="broadcast_date" class="form-control"
                    value="{{ old('broadcast_date', $asset->broadcast_date ?? '') }}" placeholder="{{ __('e.g., 1954') }}">
           </div>
           <div class="col-md-3 mb-3">
-            <label for="production_country" class="form-label">Production Country <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="production_country" class="form-label">Production Country <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="production_country" id="production_country" class="form-control"
                    value="{{ old('production_country', $asset->production_country ?? '') }}" placeholder="{{ __('e.g., South Africa') }}">
           </div>
           <div class="col-md-2 mb-3">
-            <label for="production_country_code" class="form-label">Country Code <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="production_country_code" class="form-label">Country Code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="production_country_code" id="production_country_code" class="form-control" maxlength="3"
                    value="{{ old('production_country_code', $asset->production_country_code ?? '') }}" placeholder="{{ __('ZAF') }}">
           </div>
           <div class="col-md-2 mb-3">
-            <label for="season_number" class="form-label">Season <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="season_number" class="form-label">Season <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="number" name="season_number" id="season_number" class="form-control"
                    value="{{ old('season_number', $asset->season_number ?? '') }}">
           </div>
           <div class="col-md-2 mb-3">
-            <label for="episode_number" class="form-label">Episode <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="episode_number" class="form-label">Episode <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="number" name="episode_number" id="episode_number" class="form-control"
                    value="{{ old('episode_number', $asset->episode_number ?? '') }}">
           </div>
@@ -214,12 +214,12 @@
 
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="series_title" class="form-label">Series title <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="series_title" class="form-label">Series title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="series_title" id="series_title" class="form-control"
                    value="{{ old('series_title', $asset->series_title ?? '') }}">
           </div>
           <div class="col-md-6 mb-3">
-            <label for="awards" class="form-label">Awards / Recognition <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="awards" class="form-label">Awards / Recognition <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="awards" id="awards_input" class="form-control"
                    value="{{ old('awards', $asset->awards ?? '') }}" placeholder="{{ __('e.g., Nominated for Golden Calf Award') }}">
           </div>
@@ -264,7 +264,7 @@
           @endif
         </div>
         <button type="button" class="btn atom-btn-white btn-sm mt-2" id="add-credit">
-          <i class="fas fa-plus"></i> Add Credit
+          <i class="fas fa-plus"></i> {{ __('Add Credit') }}
         </button>
       </div>
     </div>
@@ -277,13 +277,13 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="audio_language" class="form-label">Audio language(s) <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="audio_language" class="form-label">Audio language(s) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="audio_language" id="audio_language" class="form-control"
                    value="{{ old('audio_language', $asset->audio_language ?? '') }}">
             <div class="form-text text-muted small">The language(s) of the audio track, comma-separated.</div>
           </div>
           <div class="col-md-6 mb-3">
-            <label for="subtitle_language" class="form-label">Subtitle language(s) <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="subtitle_language" class="form-label">Subtitle language(s) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="subtitle_language" id="subtitle_language" class="form-control"
                    value="{{ old('subtitle_language', $asset->subtitle_language ?? '') }}">
             <div class="form-text text-muted small">The language(s) of available subtitles, comma-separated.</div>
@@ -302,13 +302,13 @@
         <div class="card-body">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="iptc_creator" class="form-label">Creator / Photographer <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_creator" class="form-label">Creator / Photographer <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_creator" id="iptc_creator" class="form-control"
                      value="{{ old('creator', $asset->creator ?? '') }}">
               <div class="form-text text-muted small">The person or organisation that created the asset.</div>
             </div>
             <div class="col-md-6 mb-3">
-              <label for="iptc_creator_job_title" class="form-label">Job title <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_creator_job_title" class="form-label">Job title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_creator_job_title" id="iptc_creator_job_title" class="form-control"
                      value="{{ old('creator_job_title', $asset->creator_job_title ?? '') }}">
               <div class="form-text text-muted small">The job title of the creator.</div>
@@ -317,19 +317,19 @@
 
           <div class="row">
             <div class="col-md-4 mb-3">
-              <label for="iptc_creator_email" class="form-label">Email <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_creator_email" class="form-label">Email <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="email" name="iptc_creator_email" id="iptc_creator_email" class="form-control"
                      value="{{ old('creator_email', $asset->creator_email ?? '') }}">
               <div class="form-text text-muted small">Contact email address for the creator.</div>
             </div>
             <div class="col-md-4 mb-3">
-              <label for="iptc_creator_phone" class="form-label">Phone <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_creator_phone" class="form-label">Phone <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_creator_phone" id="iptc_creator_phone" class="form-control"
                      value="{{ old('creator_phone', $asset->creator_phone ?? '') }}">
               <div class="form-text text-muted small">Contact phone number for the creator.</div>
             </div>
             <div class="col-md-4 mb-3">
-              <label for="iptc_creator_website" class="form-label">Website <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_creator_website" class="form-label">Website <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_creator_website" id="iptc_creator_website" class="form-control"
                      value="{{ old('creator_website', $asset->creator_website ?? '') }}">
               <div class="form-text text-muted small">Website URL for the creator.</div>
@@ -338,13 +338,13 @@
 
           <div class="row">
             <div class="col-md-4 mb-3">
-              <label for="iptc_creator_city" class="form-label">City <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_creator_city" class="form-label">City <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_creator_city" id="iptc_creator_city" class="form-control"
                      value="{{ old('creator_city', $asset->creator_city ?? '') }}">
               <div class="form-text text-muted small">The city where the creator is located.</div>
             </div>
             <div class="col-md-8 mb-3">
-              <label for="iptc_creator_address" class="form-label">Address <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_creator_address" class="form-label">Address <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_creator_address" id="iptc_creator_address" class="form-control"
                      value="{{ old('creator_address', $asset->creator_address ?? '') }}">
               <div class="form-text text-muted small">Street address of the creator.</div>
@@ -363,7 +363,7 @@
       <div class="collapse" id="iptcContentCollapse">
         <div class="card-body">
           <div class="mb-3">
-            <label for="iptc_headline" class="form-label">Headline <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="iptc_headline" class="form-label">Headline <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="iptc_headline" id="iptc_headline" class="form-control"
                    value="{{ old('headline', $asset->headline ?? '') }}">
             <div class="form-text text-muted small">A brief synopsis or summary of the content.</div>
@@ -372,13 +372,13 @@
 
 
           <div class="mb-3">
-            <label for="iptc_caption" class="form-label">Caption / Description <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="iptc_caption" class="form-label">Caption / Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea name="iptc_caption" id="iptc_caption" class="form-control" rows="3">{{ old('caption', $asset->caption ?? '') }}</textarea>
             <div class="form-text text-muted small">A textual description of the content.</div>
           </div>
 
           <div class="mb-3">
-            <label for="iptc_keywords" class="form-label">Keywords <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="iptc_keywords" class="form-label">Keywords <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="iptc_keywords" id="iptc_keywords" class="form-control"
                    value="{{ old('keywords', $asset->keywords ?? '') }}" placeholder="{{ __('Comma-separated') }}">
             <div class="form-text text-muted small">Keywords or tags describing the content, comma-separated.</div>
@@ -386,13 +386,13 @@
 
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="iptc_subject_code" class="form-label">IPTC Subject Code <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_subject_code" class="form-label">IPTC Subject Code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_subject_code" id="iptc_subject_code" class="form-control"
                      value="{{ old('iptc_subject_code', $asset->iptc_subject_code ?? '') }}">
               <div class="form-text text-muted small">IPTC subject reference code for categorisation.</div>
             </div>
             <div class="col-md-6 mb-3">
-              <label for="iptc_intellectual_genre" class="form-label">Intellectual genre <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_intellectual_genre" class="form-label">Intellectual genre <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_intellectual_genre" id="iptc_intellectual_genre" class="form-control"
                      value="{{ old('intellectual_genre', $asset->intellectual_genre ?? '') }}">
               <div class="form-text text-muted small">The intellectual genre of the content (e.g., Feature, Actuality).</div>
@@ -400,7 +400,7 @@
           </div>
 
           <div class="mb-3">
-            <label for="iptc_persons_shown" class="form-label">Persons shown <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="iptc_persons_shown" class="form-label">Persons shown <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="iptc_persons_shown" id="iptc_persons_shown" class="form-control"
                    value="{{ old('persons_shown', $asset->persons_shown ?? '') }}">
             <div class="form-text text-muted small">Names of persons depicted in the content.</div>
@@ -418,7 +418,7 @@
       <div class="collapse" id="iptcLocationCollapse">
         <div class="card-body">
           <div class="mb-3">
-            <label for="iptc_date_created" class="form-label">Date created <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="iptc_date_created" class="form-label">Date created <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="iptc_date_created" id="iptc_date_created" class="form-control"
                    value="{{ old('date_created', $asset->iptc_date_created ?? '') }}">
             <div class="form-text text-muted small">The date the intellectual content was created.</div>
@@ -426,19 +426,19 @@
 
           <div class="row">
             <div class="col-md-4 mb-3">
-              <label for="iptc_city" class="form-label">City <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_city" class="form-label">City <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_city" id="iptc_city" class="form-control"
                      value="{{ old('city', $asset->city ?? '') }}">
               <div class="form-text text-muted small">The city where the content was created or depicts.</div>
             </div>
             <div class="col-md-4 mb-3">
-              <label for="iptc_state_province" class="form-label">State / Province <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_state_province" class="form-label">State / Province <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_state_province" id="iptc_state_province" class="form-control"
                      value="{{ old('state_province', $asset->state_province ?? '') }}">
               <div class="form-text text-muted small">The state or province of the location.</div>
             </div>
             <div class="col-md-4 mb-3">
-              <label for="iptc_sublocation" class="form-label">Sublocation <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_sublocation" class="form-label">Sublocation <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_sublocation" id="iptc_sublocation" class="form-control"
                      value="{{ old('sublocation', $asset->sublocation ?? '') }}">
               <div class="form-text text-muted small">A more specific location within the city.</div>
@@ -447,13 +447,13 @@
 
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="iptc_country" class="form-label">Country <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_country" class="form-label">Country <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_country" id="iptc_country" class="form-control"
                      value="{{ old('country', $asset->country ?? '') }}">
               <div class="form-text text-muted small">The country name of the location depicted.</div>
             </div>
             <div class="col-md-6 mb-3">
-              <label for="iptc_country_code" class="form-label">Country code <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_country_code" class="form-label">Country code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_country_code" id="iptc_country_code" class="form-control" maxlength="10"
                      value="{{ old('country_code', $asset->country_code ?? '') }}" placeholder="{{ __('ISO 3166-1 alpha-3') }}">
               <div class="form-text text-muted small">ISO 3166-1 country code (e.g., ZAF, GBR, USA).</div>
@@ -474,13 +474,13 @@
         <div class="card-body">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="iptc_credit_line" class="form-label">Credit line <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="iptc_credit_line" class="form-label">Credit line <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" name="iptc_credit_line" id="iptc_credit_line" class="form-control"
                      value="{{ old('credit_line', $asset->credit_line ?? '') }}">
               <div class="form-text text-muted small">The credit line required when reproducing this asset.</div>
             </div>
             <div class="col-md-6 mb-3">
-              <label for="iptc_source" class="form-label">Source <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_source" class="form-label">Source <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_source" id="iptc_source" class="form-control"
                      value="{{ old('source', $asset->source ?? '') }}">
               <div class="form-text text-muted small">The original owner or provider of the asset.</div>
@@ -488,21 +488,21 @@
           </div>
 
           <div class="mb-3">
-            <label for="iptc_copyright_notice" class="form-label">Copyright notice <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="iptc_copyright_notice" class="form-label">Copyright notice <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="iptc_copyright_notice" id="iptc_copyright_notice" class="form-control"
                    value="{{ old('copyright_notice', $asset->copyright_notice ?? '') }}" placeholder="{{ __('&copy; 2024 Photographer Name') }}">
             <div class="form-text text-muted small">The copyright notice text (e.g., &copy; Year Name).</div>
           </div>
 
           <div class="mb-3">
-            <label for="iptc_rights_usage_terms" class="form-label">Rights usage terms <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="iptc_rights_usage_terms" class="form-label">Rights usage terms <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea name="iptc_rights_usage_terms" id="iptc_rights_usage_terms" class="form-control" rows="2">{{ old('rights_usage_terms', $asset->rights_usage_terms ?? '') }}</textarea>
             <div class="form-text text-muted small">Free-text instructions on how the asset can be used legally.</div>
           </div>
 
           <div class="row">
             <div class="col-md-4 mb-3">
-              <label for="iptc_license_type" class="form-label">License type <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_license_type" class="form-label">License type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="iptc_license_type" id="iptc_license_type" class="form-select">
                 <option value="">-- Select --</option>
                 @foreach([
@@ -524,13 +524,13 @@
               <div class="form-text text-muted small">The type of license governing use of this asset.</div>
             </div>
             <div class="col-md-4 mb-3">
-              <label for="iptc_license_url" class="form-label">License URL <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_license_url" class="form-label">License URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_license_url" id="iptc_license_url" class="form-control"
                      value="{{ old('license_url', $asset->license_url ?? '') }}">
               <div class="form-text text-muted small">URL to the full license text.</div>
             </div>
             <div class="col-md-4 mb-3">
-              <label for="iptc_license_expiry" class="form-label">License expiry <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_license_expiry" class="form-label">License expiry <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="date" name="iptc_license_expiry" id="iptc_license_expiry" class="form-control"
                      value="{{ old('license_expiry', $asset->license_expiry ?? '') }}">
               <div class="form-text text-muted small">The date when the current license expires.</div>
@@ -551,7 +551,7 @@
           <div class="row">
             <div class="col-md-6">
               <div class="mb-3">
-                <label for="iptc_model_release_status" class="form-label">Model release status <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="iptc_model_release_status" class="form-label">Model release status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="iptc_model_release_status" id="iptc_model_release_status" class="form-select">
                   <option value="">-- Select --</option>
                   @foreach([
@@ -566,7 +566,7 @@
                 <div class="form-text text-muted small">The status of model releases for persons depicted.</div>
               </div>
               <div class="mb-3">
-                <label for="iptc_model_release_id" class="form-label">Model release ID <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="iptc_model_release_id" class="form-label">Model release ID <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="iptc_model_release_id" id="iptc_model_release_id" class="form-control"
                        value="{{ old('model_release_id', $asset->model_release_id ?? '') }}">
                 <div class="form-text text-muted small">Identifier of the model release document.</div>
@@ -574,7 +574,7 @@
             </div>
             <div class="col-md-6">
               <div class="mb-3">
-                <label for="iptc_property_release_status" class="form-label">Property release status <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="iptc_property_release_status" class="form-label">Property release status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="iptc_property_release_status" id="iptc_property_release_status" class="form-select">
                   <option value="">-- Select --</option>
                   @foreach([
@@ -589,7 +589,7 @@
                 <div class="form-text text-muted small">The status of property releases for depicted properties.</div>
               </div>
               <div class="mb-3">
-                <label for="iptc_property_release_id" class="form-label">Property release ID <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="iptc_property_release_id" class="form-label">Property release ID <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="iptc_property_release_id" id="iptc_property_release_id" class="form-control"
                        value="{{ old('property_release_id', $asset->property_release_id ?? '') }}">
                 <div class="form-text text-muted small">Identifier of the property release document.</div>
@@ -610,13 +610,13 @@
         <div class="card-body">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="iptc_artwork_title" class="form-label">Artwork title <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_artwork_title" class="form-label">Artwork title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_artwork_title" id="iptc_artwork_title" class="form-control"
                      value="{{ old('artwork_title', $asset->artwork_title ?? '') }}">
               <div class="form-text text-muted small">The title of the depicted artwork or object.</div>
             </div>
             <div class="col-md-6 mb-3">
-              <label for="iptc_artwork_creator" class="form-label">Artwork creator <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_artwork_creator" class="form-label">Artwork creator <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_artwork_creator" id="iptc_artwork_creator" class="form-control"
                      value="{{ old('artwork_creator', $asset->artwork_creator ?? '') }}">
               <div class="form-text text-muted small">The creator of the depicted artwork or object.</div>
@@ -624,19 +624,19 @@
           </div>
           <div class="row">
             <div class="col-md-4 mb-3">
-              <label for="iptc_artwork_date" class="form-label">Artwork date <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_artwork_date" class="form-label">Artwork date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_artwork_date" id="iptc_artwork_date" class="form-control"
                      value="{{ old('artwork_date', $asset->artwork_date ?? '') }}" placeholder="{{ __('e.g., 1889') }}">
               <div class="form-text text-muted small">The date the artwork or object was created.</div>
             </div>
             <div class="col-md-4 mb-3">
-              <label for="iptc_artwork_source" class="form-label">Artwork source <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_artwork_source" class="form-label">Artwork source <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_artwork_source" id="iptc_artwork_source" class="form-control"
                      value="{{ old('artwork_source', $asset->artwork_source ?? '') }}">
               <div class="form-text text-muted small">The institution or collection holding the artwork.</div>
             </div>
             <div class="col-md-4 mb-3">
-              <label for="iptc_artwork_copyright" class="form-label">Artwork copyright <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_artwork_copyright" class="form-label">Artwork copyright <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_artwork_copyright" id="iptc_artwork_copyright" class="form-control"
                      value="{{ old('artwork_copyright', $asset->artwork_copyright ?? '') }}">
               <div class="form-text text-muted small">Copyright notice for the depicted artwork or object.</div>
@@ -656,13 +656,13 @@
         <div class="card-body">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="iptc_title" class="form-label">Title (IPTC Object Name) <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_title" class="form-label">Title (IPTC Object Name) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_title" id="iptc_title" class="form-control"
                      value="{{ old('iptc_title', $asset->iptc_title ?? '') }}">
               <div class="form-text text-muted small">The IPTC Object Name, a shorthand reference for the asset.</div>
             </div>
             <div class="col-md-6 mb-3">
-              <label for="iptc_job_id" class="form-label">Job / Assignment ID <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="iptc_job_id" class="form-label">Job / Assignment ID <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="iptc_job_id" id="iptc_job_id" class="form-control"
                      value="{{ old('job_id', $asset->job_id ?? '') }}">
               <div class="form-text text-muted small">The job or assignment identifier for tracking purposes.</div>
@@ -670,7 +670,7 @@
           </div>
 
           <div class="mb-3">
-            <label for="iptc_instructions" class="form-label">Special instructions <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="iptc_instructions" class="form-label">Special instructions <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea name="iptc_instructions" id="iptc_instructions" class="form-control" rows="2">{{ old('instructions', $asset->instructions ?? '') }}</textarea>
             <div class="form-text text-muted small">Any special instructions regarding the use of this asset.</div>
           </div>
@@ -691,11 +691,11 @@
             <input type="hidden" name="version_id[]" value="{{ $v->id }}">
             <div class="row mb-2">
               <div class="col-md-4">
-                <label class="form-label small">Title <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control form-control-sm" name="version_title[]" value="{{ $v->title }}" placeholder="{{ __('e.g., Kuddes van die veld') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Type <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select class="form-select form-select-sm" name="version_type[]">
                   <option value="language" @selected($v->version_type === 'language')>Language</option>
                   <option value="format" @selected($v->version_type === 'format')>Format</option>
@@ -706,21 +706,21 @@
                 </select>
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Language <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Language <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control form-control-sm" name="version_language[]" value="{{ $v->language_name }}" placeholder="{{ __('Afrikaans') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label small">ISO Code <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">ISO Code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control form-control-sm" name="version_language_code[]" value="{{ $v->language_code }}" maxlength="3" placeholder="{{ __('afr') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Year <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Year <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control form-control-sm" name="version_year[]" value="{{ $v->year }}" placeholder="1954">
               </div>
             </div>
             <div class="row">
               <div class="col-md-11">
-                <label class="form-label small">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control form-control-sm" name="version_notes[]" value="{{ $v->notes }}" placeholder="{{ __('Additional information about this version') }}">
               </div>
               <div class="col-md-1 d-flex align-items-end">
@@ -731,7 +731,7 @@
           @endforeach
         </div>
         <button type="button" class="btn btn-sm atom-btn-white" id="addVersionBtn">
-          <i class="fas fa-plus"></i> Add Version
+          <i class="fas fa-plus"></i> {{ __('Add Version') }}
         </button>
       </div>
     </div>
@@ -749,7 +749,7 @@
             <input type="hidden" name="holding_id[]" value="{{ $h->id }}">
             <div class="row mb-2">
               <div class="col-md-2">
-                <label class="form-label small">Format <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select class="form-select form-select-sm" name="holding_format[]">
                   <optgroup label="Film">
                     <option value="35mm" @selected($h->format_type === '35mm')>35mm</option>
@@ -784,25 +784,25 @@
                 </select>
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Format Details <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Format Details <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control form-control-sm" name="holding_format_details[]" value="{{ $h->format_details }}" placeholder="{{ __('Color, sound, ratio') }}">
               </div>
               <div class="col-md-3">
-                <label class="form-label small">Institution <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Institution <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control form-control-sm" name="holding_institution[]" value="{{ $h->holding_institution }}" placeholder="{{ __('e.g., NFVSA, WCPLS') }}">
               </div>
               <div class="col-md-3">
-                <label class="form-label small">Location <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Location <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control form-control-sm" name="holding_location[]" value="{{ $h->holding_location }}" placeholder="{{ __('Department/vault') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Accession # <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Accession # <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control form-control-sm" name="holding_accession[]" value="{{ $h->accession_number }}" placeholder="{{ __('Ref number') }}">
               </div>
             </div>
             <div class="row mb-2">
               <div class="col-md-2">
-                <label class="form-label small">Condition <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Condition <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select class="form-select form-select-sm" name="holding_condition[]">
                   <option value="unknown" @selected($h->condition_status === 'unknown')>Unknown</option>
                   <option value="excellent" @selected($h->condition_status === 'excellent')>Excellent</option>
@@ -813,7 +813,7 @@
                 </select>
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Access <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Access <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select class="form-select form-select-sm" name="holding_access[]">
                   <option value="unknown" @selected($h->access_status === 'unknown')>Unknown</option>
                   <option value="available" @selected($h->access_status === 'available')>Available</option>
@@ -825,28 +825,28 @@
                 </select>
               </div>
               <div class="col-md-3">
-                <label class="form-label small">Access URL <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Access URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="url" class="form-control form-control-sm" name="holding_url[]" value="{{ $h->access_url }}" placeholder="{{ __('Streaming/download URL') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Verified Date <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Verified Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="date" class="form-control form-control-sm" name="holding_verified[]" value="{{ $h->verified_date }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Primary <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Primary <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div class="form-check mt-1">
                   <input type="checkbox" class="form-check-input" name="holding_primary[]" value="{{ $h->id }}" @checked($h->is_primary)>
-                  <label class="form-check-label small">Primary copy <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-check-label small">Primary copy <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="col-md-6">
-                <label class="form-label small">Access Notes <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Access Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control form-control-sm" name="holding_access_notes[]" value="{{ $h->access_notes }}" placeholder="{{ __('How to request, viewing conditions') }}">
               </div>
               <div class="col-md-5">
-                <label class="form-label small">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control form-control-sm" name="holding_notes[]" value="{{ $h->notes }}" placeholder="{{ __('Additional notes') }}">
               </div>
               <div class="col-md-1 d-flex align-items-end">
@@ -857,7 +857,7 @@
           @endforeach
         </div>
         <button type="button" class="btn btn-sm atom-btn-white" id="addHoldingBtn">
-          <i class="fas fa-plus"></i> Add Holding
+          <i class="fas fa-plus"></i> {{ __('Add Holding') }}
         </button>
       </div>
     </div>
@@ -875,7 +875,7 @@
             <input type="hidden" name="link_id[]" value="{{ $l->id }}">
             <div class="row mb-2">
               <div class="col-md-2">
-                <label class="form-label small">Type <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select class="form-select form-select-sm" name="link_type[]">
                   <optgroup label="South African">
                     <option value="ESAT" @selected($l->link_type === 'ESAT')>ESAT</option>
@@ -909,19 +909,19 @@
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label small">URL <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="url" class="form-control form-control-sm" name="link_url[]" value="{{ $l->url }}" placeholder="{{ __('https://...') }}">
               </div>
               <div class="col-md-3">
-                <label class="form-label small">Title <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control form-control-sm" name="link_title[]" value="{{ $l->title }}" placeholder="{{ __('Link display text') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Verified <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Verified <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="date" class="form-control form-control-sm" name="link_verified[]" value="{{ $l->verified_date }}">
               </div>
               <div class="col-md-1">
-                <label class="form-label small">Primary <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Primary <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div class="form-check mt-1">
                   <input type="checkbox" class="form-check-input" name="link_primary[]" value="{{ $l->id }}" @checked($l->is_primary)>
                 </div>
@@ -929,15 +929,15 @@
             </div>
             <div class="row">
               <div class="col-md-2">
-                <label class="form-label small">Person <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Person <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control form-control-sm" name="link_person[]" value="{{ $l->person_name }}" placeholder="{{ __('e.g., Donald Swanson') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Role <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Role <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control form-control-sm" name="link_role[]" value="{{ $l->person_role }}" placeholder="{{ __('Director, Actor') }}">
               </div>
               <div class="col-md-7">
-                <label class="form-label small">Description <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control form-control-sm" name="link_description[]" value="{{ $l->description }}" placeholder="{{ __('What this link provides') }}">
               </div>
               <div class="col-md-1 d-flex align-items-end">
@@ -948,7 +948,7 @@
           @endforeach
         </div>
         <button type="button" class="btn btn-sm atom-btn-white" id="addLinkBtn">
-          <i class="fas fa-plus"></i> Add Link
+          <i class="fas fa-plus"></i> {{ __('Add Link') }}
         </button>
       </div>
     </div>

@@ -43,7 +43,7 @@ $badges = $profile['badges'] ?? [];
       </div>
       <div class="card-body p-0">
         @if(empty($contributions))
-        <div class="text-center text-muted py-5"><i class="fas fa-inbox display-1 mb-3 d-block"></i><p class="mb-3">No contributions yet.</p><a href="{{ route('heritage.search') }}" class="btn atom-btn-secondary"><i class="fas fa-search me-1"></i>Browse Collection</a></div>
+        <div class="text-center text-muted py-5"><i class="fas fa-inbox display-1 mb-3 d-block"></i><p class="mb-3">No contributions yet.</p><a href="{{ route('heritage.search') }}" class="btn atom-btn-secondary"><i class="fas fa-search me-1"></i>{{ __('Browse Collection') }}</a></div>
         @else
         <div class="list-group list-group-flush">
           @foreach($contributions as $contrib)
@@ -67,7 +67,7 @@ $badges = $profile['badges'] ?? [];
               elseif(!empty($content['tags'])) echo 'Tags: '.e(implode(', ',$content['tags']));
               @endphp
             </div>
-            @if(!empty($contrib['review_notes']))<div class="alert alert-{{ $contrib['status']==='approved'?'success':'danger' }} py-2 small mb-0"><strong>Reviewer:</strong> {{ $contrib['review_notes'] }}</div>@endif
+            @if(!empty($contrib['review_notes']))<div class="alert alert-{{ $contrib['status']==='approved'?'success':'danger' }} py-2 small mb-0"><strong>{{ __('Reviewer:') }}</strong> {{ $contrib['review_notes'] }}</div>@endif
           </div>
           @endforeach
         </div>

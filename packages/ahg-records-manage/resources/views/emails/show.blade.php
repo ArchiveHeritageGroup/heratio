@@ -13,7 +13,7 @@
     <i class="fas fa-envelope me-2"></i>{{ \Illuminate\Support\Str::limit($email->subject ?: '[No subject]', 80) }}
     <span class="badge bg-{{ $email->status === 'declared' ? 'success' : ($email->status === 'classified' ? 'info text-dark' : 'warning text-dark') }} ms-2">{{ $email->status }}</span>
   </h1>
-  <a href="{{ route('records.emails.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-list me-1"></i>Queue</a>
+  <a href="{{ route('records.emails.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-list me-1"></i>{{ __('Queue') }}</a>
 </div>
 
 @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
@@ -71,7 +71,7 @@
               @foreach($disposalClasses as $dc)<option value="{{ $dc->id }}" @selected($email->disposal_class_id == $dc->id)>{{ $dc->class_ref }} — {{ $dc->title }}</option>@endforeach
             </select>
           </div>
-          <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-tags me-1"></i>Save classification</button>
+          <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-tags me-1"></i>{{ __('Save classification') }}</button>
         </form>
       </div>
     </div>
@@ -83,7 +83,7 @@
         <p>Declares this email as an <code>information_object</code>. The record becomes part of the archival catalogue and the disposal class (if classified) is applied. The <em>Declare</em> action is irreversible without admin intervention.</p>
         <form method="POST" action="{{ route('records.emails.declare', $email->id) }}" onsubmit="return confirm('Declare this email as a record? It will become part of the archival catalogue.');">
           @csrf
-          <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-flag me-1"></i>Declare as record</button>
+          <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-flag me-1"></i>{{ __('Declare as record') }}</button>
         </form>
       </div>
     </div>

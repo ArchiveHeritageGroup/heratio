@@ -27,7 +27,7 @@
                 <div class="row mb-3">
                   <label class="col-11 col-form-label">
                     {{ $lang->name ?? $lang->value ?? '?' }}
-                    <code class="ms-1">{{ $lang->name }}</code> <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <code class="ms-1">{{ $lang->name }}</code> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <div class="col-1 px-2 text-end">
                     @if(isset($lang->deleteable) && $lang->deleteable)
                       <button type="submit" name="action" value="delete" class="btn atom-btn-white btn-sm" onclick="document.getElementById('delete_id').value='{{ $lang->id }}'">
@@ -43,7 +43,7 @@
               <hr>
 
               <div class="mb-3">
-                <label class="form-label">Add language <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Add language <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div class="input-group" style="max-width:300px;">
                   <input type="text" name="languageCode" class="form-control" placeholder="{{ __('e.g. fr, de, af') }}" pattern="[a-z]{2,3}">
                   <button type="submit" name="action" value="add" class="btn atom-btn-outline-success">{{ __('Add') }}</button>

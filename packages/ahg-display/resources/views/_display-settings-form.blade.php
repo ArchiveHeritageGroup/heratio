@@ -90,7 +90,7 @@ $moduleLabels = [
                                 data-module="@php echo $module; @endphp"
                                 data-bs-toggle="modal" 
                                 data-bs-target="#editDisplayModal">
-                            <i class="bi bi-pencil me-1"></i> Edit Settings
+                            <i class="bi bi-pencil me-1"></i> {{ __('Edit Settings') }}
                         </button>
                     </div>
                 </div>
@@ -102,20 +102,20 @@ $moduleLabels = [
     <div class="d-flex justify-content-between align-items-center border-top pt-3">
         <div class="btn-group">
             <button type="button" class="btn btn-outline-primary btn-sm" id="setAllToList">
-                <i class="bi bi-list-ul me-1"></i> All to List
+                <i class="bi bi-list-ul me-1"></i> {{ __('All to List') }}
             </button>
             <button type="button" class="btn btn-outline-primary btn-sm" id="setAllToGrid">
-                <i class="bi bi-grid-3x3-gap me-1"></i> All to Grid
+                <i class="bi bi-grid-3x3-gap me-1"></i> {{ __('All to Grid') }}
             </button>
         </div>
         
         <div>
             <button type="button" class="btn btn-outline-secondary btn-sm" id="viewAuditLog"
                     data-bs-toggle="modal" data-bs-target="#auditLogModal">
-                <i class="bi bi-clock-history me-1"></i> View Changes
+                <i class="bi bi-clock-history me-1"></i> {{ __('View Changes') }}
             </button>
             <button type="button" class="btn btn-outline-danger btn-sm" id="resetAllDefaults">
-                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset All
+                <i class="bi bi-arrow-counterclockwise me-1"></i> {{ __('Reset All') }}
             </button>
         </div>
     </div>
@@ -139,7 +139,7 @@ $moduleLabels = [
                     <div class="row g-3">
                         <!-- Default Display Mode -->
                         <div class="col-md-6">
-                            <label class="form-label">{{ __('Default Display Mode') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-label">{{ __('Default Display Mode') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <div class="btn-group-vertical w-100" id="editModeGroup">
                                 @php foreach ($allModes as $mode => $info): @endphp
                                     <input type="radio" class="btn-check" name="display_mode" 
@@ -148,14 +148,14 @@ $moduleLabels = [
                                            for="edit_mode_@php echo $mode; @endphp">
                                         <i class="bi @php echo $info['icon']; @endphp me-2"></i>
                                         @php echo $info['name']; @endphp
-                                     <span class="badge bg-secondary ms-1">Required</span></label>
+                                     <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
                                 @php endforeach; @endphp
                             </div>
                         </div>
                         
                         <!-- Available Modes -->
                         <div class="col-md-6">
-                            <label class="form-label">{{ __('Available Modes') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-label">{{ __('Available Modes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <p class="text-muted small">Select which modes users can choose from</p>
                             
                             @php foreach ($allModes as $mode => $info): @endphp
@@ -165,7 +165,7 @@ $moduleLabels = [
                                            id="edit_avail_@php echo $mode; @endphp">
                                     <label class="form-check-label" for="edit_avail_@php echo $mode; @endphp">
                                         <i class="bi @php echo $info['icon']; @endphp me-1"></i>
-                                        @php echo $info['name']; @endphp <span class="badge bg-secondary ms-1">Optional</span>
+                                        @php echo $info['name']; @endphp <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                                     </label>
                                 </div>
                             @php endforeach; @endphp
@@ -173,7 +173,7 @@ $moduleLabels = [
                         
                         <!-- Items Per Page -->
                         <div class="col-md-4">
-                            <label class="form-label">{{ __('Items Per Page') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-label">{{ __('Items Per Page') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select name="items_per_page" id="editItemsPerPage" class="form-select">
                                 <option value="10">10</option>
                                 <option value="20">20</option>
@@ -185,7 +185,7 @@ $moduleLabels = [
                         
                         <!-- Card Size -->
                         <div class="col-md-4">
-                            <label class="form-label">{{ __('Card Size') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-label">{{ __('Card Size') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select name="card_size" id="editCardSize" class="form-select">
                                 <option value="small">{{ __('Small') }}</option>
                                 <option value="medium">{{ __('Medium') }}</option>
@@ -195,7 +195,7 @@ $moduleLabels = [
                         
                         <!-- Sort Default -->
                         <div class="col-md-4">
-                            <label class="form-label">{{ __('Default Sort') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-label">{{ __('Default Sort') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select name="sort_field" id="editSortField" class="form-select">
                                 <option value="updated_at">{{ __('Last Updated') }}</option>
                                 <option value="created_at">{{ __('Date Created') }}</option>
@@ -214,7 +214,7 @@ $moduleLabels = [
                                                 <input type="checkbox" class="form-check-input" 
                                                        name="show_thumbnails" id="editShowThumbnails" value="1">
                                                 <label class="form-check-label" for="editShowThumbnails">
-                                                    Show Thumbnails <span class="badge bg-secondary ms-1">Optional</span>
+                                                    Show Thumbnails <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                                                 </label>
                                             </div>
                                         </div>
@@ -223,7 +223,7 @@ $moduleLabels = [
                                                 <input type="checkbox" class="form-check-input" 
                                                        name="show_descriptions" id="editShowDescriptions" value="1">
                                                 <label class="form-check-label" for="editShowDescriptions">
-                                                    Show Descriptions <span class="badge bg-secondary ms-1">Optional</span>
+                                                    Show Descriptions <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                                                 </label>
                                             </div>
                                         </div>
@@ -232,7 +232,7 @@ $moduleLabels = [
                                                 <input type="checkbox" class="form-check-input" 
                                                        name="allow_user_override" id="editAllowOverride" value="1">
                                                 <label class="form-check-label" for="editAllowOverride">
-                                                    Allow User Override <span class="badge bg-secondary ms-1">Optional</span>
+                                                    Allow User Override <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                                                 </label>
                                             </div>
                                         </div>
@@ -245,11 +245,11 @@ $moduleLabels = [
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-warning" id="resetModuleBtn">
-                    <i class="bi bi-arrow-counterclockwise me-1"></i> Reset to Default
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> {{ __('Reset to Default') }}
                 </button>
                 <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                 <button type="button" class="btn atom-btn-white" id="saveDisplaySettings">
-                    <i class="bi bi-save me-1"></i> Save Settings
+                    <i class="bi bi-save me-1"></i> {{ __('Save Settings') }}
                 </button>
             </div>
         </div>
@@ -271,7 +271,7 @@ $moduleLabels = [
                 <div id="auditLogContent">
                     <div class="text-center py-4">
                         <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                            <span class="visually-hidden">{{ __('Loading...') }}</span>
                         </div>
                     </div>
                 </div>

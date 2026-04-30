@@ -22,7 +22,7 @@
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="fas fa-broadcast-tower me-2"></i>Webhook Management</h5>
         <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createWebhookModal">
-          <i class="fas fa-plus me-1"></i>Create Webhook
+          <i class="fas fa-plus me-1"></i>{{ __('Create Webhook') }}
         </button>
       </div>
       <div class="card-body">
@@ -54,9 +54,9 @@
                   </td>
                   <td>
                     @if($webhook->is_active ?? false)
-                      <span class="badge bg-success">Active</span>
+                      <span class="badge bg-success">{{ __('Active') }}</span>
                     @else
-                      <span class="badge bg-secondary">Inactive</span>
+                      <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                     @endif
                   </td>
                   <td>{{ $webhook->delivery_count ?? 0 }}</td>
@@ -75,7 +75,7 @@
     </div>
 
     <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">
-      <i class="fas fa-arrow-left me-1"></i>Back to Settings
+      <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}
     </a>
 
 {{-- Create Webhook Modal --}}

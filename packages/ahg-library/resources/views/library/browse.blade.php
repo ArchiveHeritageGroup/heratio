@@ -14,7 +14,7 @@
           No results found
         @endif
       </h1>
-      <span class="small text-muted">Library items</span>
+      <span class="small text-muted">{{ __('Library items') }}</span>
     </div>
   </div>
 
@@ -135,7 +135,7 @@
                         data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="library"
                         title="{{ __('Add to clipboard') }}">
                   <i class="fas fa-paperclip" aria-hidden="true"></i>
-                  <span class="visually-hidden">Add to clipboard</span>
+                  <span class="visually-hidden">{{ __('Add to clipboard') }}</span>
                 </button>
               </td>
             </tr>
@@ -151,10 +151,10 @@
   @auth
     <section class="actions mb-3 nav gap-2">
       <a href="{{ route('library.create') }}" class="btn atom-btn-outline-light">
-        <i class="fas fa-plus me-1"></i>Add new
+        <i class="fas fa-plus me-1"></i>{{ __('Add new') }}
       </a>
       <a href="{{ route('library.reports') }}" class="btn atom-btn-outline-light ms-2">
-        <i class="fas fa-chart-bar me-1"></i>Library Reports
+        <i class="fas fa-chart-bar me-1"></i>{{ __('Library Reports') }}
       </a>
     </section>
   @endauth

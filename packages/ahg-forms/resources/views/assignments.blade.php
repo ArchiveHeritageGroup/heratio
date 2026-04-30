@@ -16,10 +16,10 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('forms.assignment.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i> New Assignment
+                <i class="fas fa-plus me-1"></i> {{ __('New Assignment') }}
             </a>
             <a href="{{ route('forms.index') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i> Back
+                <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
             </a>
         </div>
     </div>
@@ -56,14 +56,14 @@
                                     @if (!empty($assignment->repository_name))
                                         {{ $assignment->repository_name }}
                                     @else
-                                        <span class="text-muted">All repositories</span>
+                                        <span class="text-muted">{{ __('All repositories') }}</span>
                                     @endif
                                 </td>
                                 <td>
                                     @if (!empty($assignment->level_name))
                                         {{ $assignment->level_name }}
                                     @else
-                                        <span class="text-muted">All levels</span>
+                                        <span class="text-muted">{{ __('All levels') }}</span>
                                     @endif
                                 </td>
                                 <td>

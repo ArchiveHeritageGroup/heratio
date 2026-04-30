@@ -24,7 +24,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgcdpa.request-create') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i> New Request
+                <i class="fas fa-plus me-1"></i> {{ __('New Request') }}
             </a>
         </div>
     </div>

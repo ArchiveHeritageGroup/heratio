@@ -8,18 +8,18 @@
     <i class="fas fa-3x fa-compress-arrows-alt me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Merge Duplicate Records') }}</h1>
-      <span class="small text-muted">Duplicate Detection</span>
+      <span class="small text-muted">{{ __('Duplicate Detection') }}</span>
     </div>
     <div class="ms-auto d-flex gap-2">
       <a href="{{ route('dedupe.compare', $duplicate->id) }}" class="btn atom-btn-white">
-        <i class="fas fa-columns me-1"></i> Back to Compare
+        <i class="fas fa-columns me-1"></i> {{ __('Back to Compare') }}
       </a>
     </div>
   </div>
 
 <div class="alert alert-warning">
     <i class="fas fa-exclamation-triangle me-2"></i>
-    <strong>Warning:</strong> Merging records is permanent. The secondary record will be archived and its digital objects and child records transferred to the primary record.
+    <strong>{{ __('Warning:') }}</strong> Merging records is permanent. The secondary record will be archived and its digital objects and child records transferred to the primary record.
   </div>
 
   <form method="post" action="{{ route('dedupe.merge.execute', $duplicate->id) }}" id="mergeForm">
@@ -33,18 +33,18 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-4">
-            <strong>Similarity Score:</strong>
+            <strong>{{ __('Similarity Score:') }}</strong>
             @php $score = (float) $duplicate->similarity_score; @endphp
             <span class="badge {{ $score >= 90 ? 'bg-danger' : ($score >= 75 ? 'bg-warning text-dark' : 'bg-info text-dark') }}">
               {{ number_format($score, 1) }}%
             </span>
           </div>
           <div class="col-md-4">
-            <strong>Detection Method:</strong>
+            <strong>{{ __('Detection Method:') }}</strong>
             {{ ucwords(str_replace('_', ' ', $duplicate->detection_method)) }}
           </div>
           <div class="col-md-4">
-            <strong>Detected:</strong>
+            <strong>{{ __('Detected:') }}</strong>
             {{ $duplicate->detected_at ? \Carbon\Carbon::parse($duplicate->detected_at)->format('M j, Y H:i') : '-' }}
           </div>
         </div>
@@ -67,24 +67,24 @@
                   <input class="form-check-input" type="radio" name="primary_id"
                          value="{{ $recordA->id ?? '' }}" id="primaryA" checked>
                   <label class="form-check-label fw-bold" for="primaryA">
-                    Record A (Keep This) <span class="badge bg-secondary ms-1">Required</span>
+                    Record A (Keep This) <span class="badge bg-secondary ms-1">{{ __('Required') }}</span>
                   </label>
                 </div>
               </div>
               <div class="card-body">
                 @if($recordA)
                   <h5>{{ $recordA->title ?? 'Untitled' }}</h5>
-                  <p class="text-muted mb-2"><strong>Identifier:</strong> {{ $recordA->identifier ?? 'N/A' }}</p>
-                  <p class="text-muted mb-2"><strong>Level:</strong> {{ $recordA->level_of_description ?? 'N/A' }}</p>
-                  <p class="text-muted mb-0"><strong>Repository:</strong> {{ $recordA->repository_name ?? 'N/A' }}</p>
+                  <p class="text-muted mb-2"><strong>{{ __('Identifier:') }}</strong> {{ $recordA->identifier ?? 'N/A' }}</p>
+                  <p class="text-muted mb-2"><strong>{{ __('Level:') }}</strong> {{ $recordA->level_of_description ?? 'N/A' }}</p>
+                  <p class="text-muted mb-0"><strong>{{ __('Repository:') }}</strong> {{ $recordA->repository_name ?? 'N/A' }}</p>
                 @else
-                  <span class="text-danger">Record not found</span>
+                  <span class="text-danger">{{ __('Record not found') }}</span>
                 @endif
               </div>
               <div class="card-footer bg-light">
                 @if($recordA)
                   <a href="{{ route('informationobject.show', $recordA->id) }}" target="_blank" class="btn btn-sm atom-btn-white">
-                    <i class="fas fa-external-link-alt me-1"></i> View Record
+                    <i class="fas fa-external-link-alt me-1"></i> {{ __('View Record') }}
                   </a>
                 @endif
               </div>
@@ -98,24 +98,24 @@
                   <input class="form-check-input" type="radio" name="primary_id"
                          value="{{ $recordB->id ?? '' }}" id="primaryB">
                   <label class="form-check-label fw-bold" for="primaryB">
-                    Record B (Keep This) <span class="badge bg-secondary ms-1">Required</span>
+                    Record B (Keep This) <span class="badge bg-secondary ms-1">{{ __('Required') }}</span>
                   </label>
                 </div>
               </div>
               <div class="card-body">
                 @if($recordB)
                   <h5>{{ $recordB->title ?? 'Untitled' }}</h5>
-                  <p class="text-muted mb-2"><strong>Identifier:</strong> {{ $recordB->identifier ?? 'N/A' }}</p>
-                  <p class="text-muted mb-2"><strong>Level:</strong> {{ $recordB->level_of_description ?? 'N/A' }}</p>
-                  <p class="text-muted mb-0"><strong>Repository:</strong> {{ $recordB->repository_name ?? 'N/A' }}</p>
+                  <p class="text-muted mb-2"><strong>{{ __('Identifier:') }}</strong> {{ $recordB->identifier ?? 'N/A' }}</p>
+                  <p class="text-muted mb-2"><strong>{{ __('Level:') }}</strong> {{ $recordB->level_of_description ?? 'N/A' }}</p>
+                  <p class="text-muted mb-0"><strong>{{ __('Repository:') }}</strong> {{ $recordB->repository_name ?? 'N/A' }}</p>
                 @else
-                  <span class="text-danger">Record not found</span>
+                  <span class="text-danger">{{ __('Record not found') }}</span>
                 @endif
               </div>
               <div class="card-footer bg-light">
                 @if($recordB)
                   <a href="{{ route('informationobject.show', $recordB->id) }}" target="_blank" class="btn btn-sm atom-btn-white">
-                    <i class="fas fa-external-link-alt me-1"></i> View Record
+                    <i class="fas fa-external-link-alt me-1"></i> {{ __('View Record') }}
                   </a>
                 @endif
               </div>
@@ -166,16 +166,16 @@
         <div class="form-check mb-3">
           <input class="form-check-input" type="checkbox" id="confirmMerge" required>
           <label class="form-check-label" for="confirmMerge">
-            I understand that this action is permanent and cannot be undone. <span class="badge bg-secondary ms-1">Required</span>
+            I understand that this action is permanent and cannot be undone. <span class="badge bg-secondary ms-1">{{ __('Required') }}</span>
           </label>
         </div>
 
         <div class="d-flex gap-2">
           <button type="submit" class="btn atom-btn-outline-danger" id="mergeBtn" disabled>
-            <i class="fas fa-compress-arrows-alt me-1"></i> Merge Records
+            <i class="fas fa-compress-arrows-alt me-1"></i> {{ __('Merge Records') }}
           </button>
           <a href="{{ route('dedupe.compare', $duplicate->id) }}" class="btn atom-btn-white">
-            <i class="fas fa-columns me-1"></i> Back to Compare
+            <i class="fas fa-columns me-1"></i> {{ __('Back to Compare') }}
           </a>
           <a href="{{ route('dedupe.browse') }}" class="btn atom-btn-white">Cancel</a>
         </div>

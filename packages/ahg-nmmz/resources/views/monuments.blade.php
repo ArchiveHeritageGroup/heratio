@@ -34,7 +34,7 @@
     </div>
     <div class="col-auto">
       <a href="{{ route('nmmz.monument.create') }}" class="btn btn-primary">
-        <i class="fas fa-plus me-1"></i> Register Monument
+        <i class="fas fa-plus me-1"></i> {{ __('Register Monument') }}
       </a>
     </div>
   </div>

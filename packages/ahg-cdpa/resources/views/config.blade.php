@@ -89,25 +89,25 @@
                                 <label class="form-label">{{ __('Data Subject Request Response (days)') }}</label>
                                 <input type="number" name="response_deadline_days" class="form-control"
                                        value="{{ $cfgGet('response_deadline_days', 30) }}" min="1" max="90">
-                                <small class="text-muted">CDPA requires response within 30 days</small>
+                                <small class="text-muted">{{ __('CDPA requires response within 30 days') }}</small>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">{{ __('Breach Notification (hours)') }}</label>
                                 <input type="number" name="breach_notification_hours" class="form-control"
                                        value="{{ $cfgGet('breach_notification_hours', 72) }}" min="1" max="168">
-                                <small class="text-muted">CDPA requires notification within 72 hours</small>
+                                <small class="text-muted">{{ __('CDPA requires notification within 72 hours') }}</small>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">{{ __('License Renewal Reminder (days)') }}</label>
                                 <input type="number" name="license_reminder_days" class="form-control"
                                        value="{{ $cfgGet('license_reminder_days', 90) }}" min="7" max="365">
-                                <small class="text-muted">Days before expiry to show warning</small>
+                                <small class="text-muted">{{ __('Days before expiry to show warning') }}</small>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">{{ __('DPIA Review Period (months)') }}</label>
                                 <input type="number" name="dpia_review_months" class="form-control"
                                        value="{{ $cfgGet('dpia_review_months', 12) }}" min="1" max="36">
-                                <small class="text-muted">Recommended review frequency</small>
+                                <small class="text-muted">{{ __('Recommended review frequency') }}</small>
                             </div>
                         </div>
                     </div>
@@ -118,7 +118,7 @@
                 <div class="card mb-4">
                     <div class="card-body d-grid">
                         <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-save me-2"></i>Save Configuration
+                            <i class="fas fa-save me-2"></i>{{ __('Save Configuration') }}
                         </button>
                     </div>
                 </div>
@@ -127,12 +127,12 @@
                     <div class="card-header"><h5 class="mb-0">{{ __('CDPA Key Requirements') }}</h5></div>
                     <div class="card-body small">
                         <ul class="mb-0">
-                            <li><strong>Registration:</strong> Register with the regulator</li>
-                            <li><strong>DPO:</strong> Appoint Data Protection Officer</li>
-                            <li><strong>ROPA:</strong> Maintain processing records</li>
-                            <li><strong>Rights:</strong> Respond to data subject requests</li>
-                            <li><strong>Breaches:</strong> Report within 72 hours</li>
-                            <li><strong>DPIA:</strong> Assess high-risk processing</li>
+                            <li><strong>{{ __('Registration:') }}</strong> Register with the regulator</li>
+                            <li><strong>{{ __('DPO:') }}</strong> Appoint Data Protection Officer</li>
+                            <li><strong>{{ __('ROPA:') }}</strong> Maintain processing records</li>
+                            <li><strong>{{ __('Rights:') }}</strong> Respond to data subject requests</li>
+                            <li><strong>{{ __('Breaches:') }}</strong> Report within 72 hours</li>
+                            <li><strong>{{ __('DPIA:') }}</strong> Assess high-risk processing</li>
                         </ul>
                     </div>
                 </div>
@@ -141,12 +141,12 @@
                     <div class="card-header"><h5 class="mb-0">{{ __('About') }}</h5></div>
                     <div class="card-body">
                         <p class="small text-muted mb-2">
-                            <strong>CDPA Module</strong><br>
+                            <strong>{{ __('CDPA Module') }}</strong><br>
                             Consumer / Cyber Data Protection Act compliance module (per-jurisdiction).
                         </p>
                         <p class="small text-muted mb-0">
-                            <strong>Version:</strong> 1.0.0<br>
-                            <strong>Author:</strong> The Archive and Heritage Group
+                            <strong>{{ __('Version:') }}</strong> 1.0.0<br>
+                            <strong>{{ __('Author:') }}</strong> The Archive and Heritage Group
                         </p>
                     </div>
                 </div>

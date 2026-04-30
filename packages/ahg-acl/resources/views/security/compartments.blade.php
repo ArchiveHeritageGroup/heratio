@@ -8,7 +8,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-project-diagram me-2"></i>Security Compartments</h1>
     <a href="{{ route('acl.security-dashboard') }}" class="btn btn-primary">
-        <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}
     </a>
 </div>
 

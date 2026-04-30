@@ -38,7 +38,7 @@
     @endif
     <li>
       <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#newCollectionModal" data-object-id="{{ $objectId ?? 0 }}">
-        <i class="fas fa-plus me-2 text-success"></i>New Collection...
+        <i class="fas fa-plus me-2 text-success"></i>{{ __('New Collection...') }}
       </a>
     </li>
   </ul>

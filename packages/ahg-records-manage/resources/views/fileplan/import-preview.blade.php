@@ -13,7 +13,7 @@
         <div class="card text-center">
             <div class="card-body py-2">
                 <div class="fs-4 fw-bold">{{ $totalRows }}</div>
-                <small class="text-muted">Total Rows</small>
+                <small class="text-muted">{{ __('Total Rows') }}</small>
             </div>
         </div>
     </div>
@@ -21,7 +21,7 @@
         <div class="card text-center">
             <div class="card-body py-2">
                 <div class="fs-4 fw-bold">{{ $maxDepth + 1 }}</div>
-                <small class="text-muted">Levels Deep</small>
+                <small class="text-muted">{{ __('Levels Deep') }}</small>
             </div>
         </div>
     </div>
@@ -29,7 +29,7 @@
         <div class="card text-center">
             <div class="card-body py-2">
                 <div class="fs-4 fw-bold">{{ count($validationErrors) }}</div>
-                <small class="text-muted">Warnings</small>
+                <small class="text-muted">{{ __('Warnings') }}</small>
             </div>
         </div>
     </div>

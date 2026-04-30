@@ -17,7 +17,7 @@
             {{ __('Display Mode Settings') }}
         </h5>
         <div>
-            <span class="badge bg-primary me-2">Global</span>
+            <span class="badge bg-primary me-2">{{ __('Global') }}</span>
             <i class="bi bi-chevron-down collapse-icon"></i>
         </div>
     </div>

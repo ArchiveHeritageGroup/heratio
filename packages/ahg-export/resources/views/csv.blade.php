@@ -37,13 +37,13 @@
                             <option value="{{ $level->id }}">{{ e($level->name) }}</option>
                         @endforeach
                     </select>
-                    <small class="text-muted">Hold Ctrl/Cmd to select multiple. Leave empty for all levels.</small>
+                    <small class="text-muted">{{ __('Hold Ctrl/Cmd to select multiple. Leave empty for all levels.') }}</small>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">{{ __('Parent Record Slug (Optional)') }}</label>
                     <input type="text" name="parent_slug" class="form-control" placeholder="{{ __('e.g. my-fonds-123') }}">
-                    <small class="text-muted">Export only descendants of this record.</small>
+                    <small class="text-muted">{{ __('Export only descendants of this record.') }}</small>
                 </div>
 
                 <div class="mb-3 form-check">
@@ -57,10 +57,10 @@
 
                 <div class="d-flex justify-content-between">
                     <a href="{{ route('export.index') }}" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left me-1"></i>Back
+                        <i class="bi bi-arrow-left me-1"></i>{{ __('Back') }}
                     </a>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-download me-1"></i>Export CSV
+                        <i class="bi bi-download me-1"></i>{{ __('Export CSV') }}
                     </button>
                 </div>
 

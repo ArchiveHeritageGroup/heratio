@@ -71,7 +71,7 @@
 
         <section class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
           <a href="{{ route('ext-rights-admin.orphan-works') }}" class="btn atom-btn-outline-light">Cancel</a>
-          <button type="submit" class="btn atom-btn-outline-light"><i class="fas fa-save me-1"></i>Save</button>
+          <button type="submit" class="btn atom-btn-outline-light"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
         </section>
       </form>
 
@@ -81,7 +81,7 @@
         <div class="card-header d-flex justify-content-between align-items-center" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
           <h5 class="mb-0">{{ __('Search Steps') }}</h5>
           <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#addStepModal">
-            <i class="fas fa-plus me-1"></i>Add Step
+            <i class="fas fa-plus me-1"></i>{{ __('Add Step') }}
           </button>
         </div>
         <div class="card-body p-0">
@@ -98,19 +98,19 @@
                   <br><small>{{ $step->source_name }}</small>
                   @if($step->source_url)
                     <br><a href="{{ $step->source_url }}" target="_blank" class="small">
-                      <i class="fas fa-external-link-alt"></i> Link
+                      <i class="fas fa-external-link-alt"></i> {{ __('Link') }}
                     </a>
                   @endif
                 </td>
                 <td>{{ $step->search_terms ?: '-' }}</td>
                 <td>
                   @if($step->results_found)
-                    <span class="badge bg-success">Found</span>
+                    <span class="badge bg-success">{{ __('Found') }}</span>
                     @if($step->results_description)
                       <br><small>{{ $step->results_description }}</small>
                     @endif
                   @else
-                    <span class="badge bg-secondary">No results</span>
+                    <span class="badge bg-secondary">{{ __('No results') }}</span>
                   @endif
                 </td>
               </tr>
@@ -155,12 +155,12 @@
           <a href="{{ route('ext-rights-admin.complete-orphan-search', $orphanWork->id) }}"
              class="btn btn-success btn-sm w-100 mb-2"
              onclick="return confirm('Mark search as complete (no rights holder found)?');">
-            <i class="fas fa-check me-1"></i>Complete Search
+            <i class="fas fa-check me-1"></i>{{ __('Complete Search') }}
           </a>
           <a href="{{ route('ext-rights-admin.complete-orphan-search', ['id' => $orphanWork->id, 'rights_holder_found' => 1]) }}"
              class="btn btn-info btn-sm w-100"
              onclick="return confirm('Mark as rights holder found?');">
-            <i class="fas fa-user-check me-1"></i>Rights Holder Found
+            <i class="fas fa-user-check me-1"></i>{{ __('Rights Holder Found') }}
           </a>
           @endif
         </div>

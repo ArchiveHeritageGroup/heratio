@@ -43,18 +43,18 @@
                                 <td><span class="badge bg-secondary">{{ $target->target_type }}</span></td>
                                 <td>
                                     @if($target->is_active)
-                                        <span class="badge bg-success"><i class="fas fa-check-circle"></i> Active</span>
+                                        <span class="badge bg-success"><i class="fas fa-check-circle"></i> {{ __('Active') }}</span>
                                     @else
-                                        <span class="badge bg-secondary"><i class="fas fa-pause-circle"></i> Inactive</span>
+                                        <span class="badge bg-secondary"><i class="fas fa-pause-circle"></i> {{ __('Inactive') }}</span>
                                     @endif
                                 </td>
                                 <td><code class="small">{{ $target->sync_schedule ?? '-' }}</code></td>
                                 <td class="text-nowrap"><small>{{ $target->last_sync_at ?? 'Never' }}</small></td>
                                 <td>
                                     @if($target->last_sync_status === 'success')
-                                        <span class="badge bg-success">Success</span>
+                                        <span class="badge bg-success">{{ __('Success') }}</span>
                                     @elseif($target->last_sync_status === 'failed')
-                                        <span class="badge bg-danger">Failed</span>
+                                        <span class="badge bg-danger">{{ __('Failed') }}</span>
                                     @elseif($target->last_sync_status)
                                         <span class="badge bg-secondary">{{ ucfirst($target->last_sync_status) }}</span>
                                     @else
@@ -103,9 +103,9 @@
                                     @if($log->status === 'completed' || $log->status === 'success')
                                         <span class="badge bg-success">{{ ucfirst($log->status) }}</span>
                                     @elseif($log->status === 'failed')
-                                        <span class="badge bg-danger">Failed</span>
+                                        <span class="badge bg-danger">{{ __('Failed') }}</span>
                                     @elseif($log->status === 'running')
-                                        <span class="badge bg-info">Running</span>
+                                        <span class="badge bg-info">{{ __('Running') }}</span>
                                     @else
                                         <span class="badge bg-secondary">{{ ucfirst($log->status) }}</span>
                                     @endif
@@ -175,7 +175,7 @@
                                     @elseif($v->status === 'invalid' || $v->status === 'failed')
                                         <span class="badge bg-danger"><i class="fas fa-times"></i> {{ ucfirst($v->status) }}</span>
                                     @elseif($v->status === 'partial')
-                                        <span class="badge bg-warning text-dark"><i class="fas fa-exclamation"></i> Partial</span>
+                                        <span class="badge bg-warning text-dark"><i class="fas fa-exclamation"></i> {{ __('Partial') }}</span>
                                     @else
                                         <span class="badge bg-secondary">{{ ucfirst($v->status) }}</span>
                                     @endif

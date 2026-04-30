@@ -15,11 +15,11 @@
       <div class="card mb-3">
         <div class="card-header"><h5 class="mb-0"><i class="fas fa-user"></i> User Information</h5></div>
         <div class="card-body">
-          <p><strong>Name:</strong> {{ e($targetUser->authorized_form_of_name ?? $targetUser->username ?? '') }}</p>
-          <p><strong>Email:</strong> {{ e($targetUser->email ?? '') }}</p>
-          <p><strong>Active:</strong>
+          <p><strong>{{ __('Name:') }}</strong> {{ e($targetUser->authorized_form_of_name ?? $targetUser->username ?? '') }}</p>
+          <p><strong>{{ __('Email:') }}</strong> {{ e($targetUser->email ?? '') }}</p>
+          <p><strong>{{ __('Active:') }}</strong>
             @if(($targetUser->active ?? 1))
-              <span class="badge bg-success">Yes</span>
+              <span class="badge bg-success">{{ __('Yes') }}</span>
             @else
               <span class="badge bg-danger">No</span>
             @endif
@@ -32,12 +32,12 @@
         <div class="card-header"><h5 class="mb-0"><i class="fas fa-shield-alt"></i> Current Clearance</h5></div>
         <div class="card-body">
           @if($clearance)
-            <p><strong>Level:</strong> <span class="badge" style="background-color: {{ $clearance->color ?? '#666' }}">{{ e($clearance->classification_name ?? 'Unknown') }}</span></p>
-            <p><strong>Granted:</strong> {{ $clearance->granted_at ?? '' }}</p>
-            <p><strong>Expires:</strong> {{ $clearance->expires_at ?? 'Never' }}</p>
-            <p><strong>Granted By:</strong> {{ e($clearance->granted_by_name ?? '') }}</p>
+            <p><strong>{{ __('Level:') }}</strong> <span class="badge" style="background-color: {{ $clearance->color ?? '#666' }}">{{ e($clearance->classification_name ?? 'Unknown') }}</span></p>
+            <p><strong>{{ __('Granted:') }}</strong> {{ $clearance->granted_at ?? '' }}</p>
+            <p><strong>{{ __('Expires:') }}</strong> {{ $clearance->expires_at ?? 'Never' }}</p>
+            <p><strong>{{ __('Granted By:') }}</strong> {{ e($clearance->granted_by_name ?? '') }}</p>
             @if(!empty($clearance->notes))
-              <p><strong>Notes:</strong> {{ e($clearance->notes) }}</p>
+              <p><strong>{{ __('Notes:') }}</strong> {{ e($clearance->notes) }}</p>
             @endif
           @else
             <p class="text-muted">No clearance granted.</p>
@@ -98,7 +98,7 @@
                         onsubmit="return confirm('Revoke this access grant?')">
                     @csrf
                     <input type="hidden" name="user_id" value="{{ $targetUser->id }}">
-                    <button class="btn btn-sm btn-outline-danger"><i class="fas fa-times"></i> Revoke</button>
+                    <button class="btn btn-sm btn-outline-danger"><i class="fas fa-times"></i> {{ __('Revoke') }}</button>
                   </form>
                 </td>
               </tr>
@@ -144,7 +144,7 @@
           <form method="POST" action="{{ route('security-clearance.remove-2fa', ['id' => $targetUser->id]) }}"
                 onsubmit="return confirm('Remove 2FA for this user?')">
             @csrf
-            <button class="btn btn-sm btn-outline-danger"><i class="fas fa-times-circle"></i> Remove 2FA</button>
+            <button class="btn btn-sm btn-outline-danger"><i class="fas fa-times-circle"></i> {{ __('Remove 2FA') }}</button>
           </form>
         </div>
       </div>

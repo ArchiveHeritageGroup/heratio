@@ -2,7 +2,7 @@
 @extends('theme::layouts.2col')
 @section('title', '3D Files Report')
 @section('body-class', 'admin three-d-reports digital-objects')
-@section('sidebar')<div class="sidebar-content"><a href="{{ route('iiif.three-d-reports.index') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>Back</a></div>@endsection
+@section('sidebar')<div class="sidebar-content"><a href="{{ route('iiif.three-d-reports.index') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back') }}</a></div>@endsection
 @section('title-block')<h1><i class="fas fa-file me-2"></i>3D Files Report</h1>@endsection
 @section('content')
 <div class="alert alert-info"><strong>{{ count($items) }}</strong> 3D files found</div>

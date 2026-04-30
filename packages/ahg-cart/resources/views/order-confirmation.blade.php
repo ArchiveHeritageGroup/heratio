@@ -30,18 +30,18 @@
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">Order Details</div>
       <div class="card-body">
-        <p><strong>Status:</strong>
+        <p><strong>{{ __('Status:') }}</strong>
           @php $badge = match($order->status) { 'paid' => 'bg-success', 'completed' => 'bg-info', 'cancelled' => 'bg-danger', default => 'bg-warning' }; @endphp
           <span class="badge {{ $badge }}">{{ ucfirst($order->status) }}</span>
         </p>
-        <p><strong>Date:</strong> {{ \Carbon\Carbon::parse($order->created_at)->format('Y-m-d H:i') }}</p>
-        <p><strong>Customer:</strong> {{ $order->customer_name }}</p>
-        <p><strong>Email:</strong> {{ $order->customer_email }}</p>
+        <p><strong>{{ __('Date:') }}</strong> {{ \Carbon\Carbon::parse($order->created_at)->format('Y-m-d H:i') }}</p>
+        <p><strong>{{ __('Customer:') }}</strong> {{ $order->customer_name }}</p>
+        <p><strong>{{ __('Email:') }}</strong> {{ $order->customer_email }}</p>
         <hr>
-        <div class="d-flex justify-content-between"><span>Subtotal</span><span>{{ number_format($order->subtotal, 2) }}</span></div>
-        <div class="d-flex justify-content-between text-muted"><span>VAT</span><span>{{ number_format($order->vat_amount, 2) }}</span></div>
+        <div class="d-flex justify-content-between"><span>{{ __('Subtotal') }}</span><span>{{ number_format($order->subtotal, 2) }}</span></div>
+        <div class="d-flex justify-content-between text-muted"><span>{{ __('VAT') }}</span><span>{{ number_format($order->vat_amount, 2) }}</span></div>
         <hr>
-        <div class="d-flex justify-content-between fw-bold"><span>Total</span><span>{{ $order->currency }} {{ number_format($order->total, 2) }}</span></div>
+        <div class="d-flex justify-content-between fw-bold"><span>{{ __('Total') }}</span><span>{{ $order->currency }} {{ number_format($order->total, 2) }}</span></div>
       </div>
     </div>
   </div>

@@ -13,13 +13,13 @@
     @if ($hasLegalHold)
         <div class="alert alert-warning">
             <i class="fas fa-exclamation-triangle"></i>
-            <strong>Warning:</strong> This information object is currently under an active legal hold. Disposal cannot be initiated.
+            <strong>{{ __('Warning:') }}</strong> This information object is currently under an active legal hold. Disposal cannot be initiated.
         </div>
     @endif
 
     <div class="card">
         <div class="card-header">
-            <strong>Information Object:</strong> {{ $io->title ?? 'Untitled (IO #' . $io->id . ')' }}
+            <strong>{{ __('Information Object:') }}</strong> {{ $io->title ?? 'Untitled (IO #' . $io->id . ')' }}
         </div>
         <div class="card-body">
             <form method="POST" action="{{ route('records.disposal.initiate.store') }}">

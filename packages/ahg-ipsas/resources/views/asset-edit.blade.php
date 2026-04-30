@@ -104,7 +104,7 @@
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-body d-grid gap-2">
-                    <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>Save Changes</button>
+                    <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>{{ __('Save Changes') }}</button>
                     <a href="{{ route('ipsas.asset.view', ['id' => $asset->id ?? 0]) }}" class="btn btn-outline-secondary">Cancel</a>
                 </div>
             </div>

@@ -17,7 +17,7 @@
       <div class="card-body py-2 small">
         <p class="text-muted mb-2">Record a condition assessment manually without AI. Fill in the condition grade, damages, and recommendations based on physical inspection.</p>
         <a href="{{ route('admin.ai.condition.browse') }}" class="btn btn-sm btn-outline-secondary w-100">
-          <i class="fas fa-arrow-left me-1"></i>Back to Browse
+          <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Browse') }}
         </a>
       </div>
     </div>
@@ -65,7 +65,7 @@
         <label class="form-label">{{ __('Damages') }}</label>
         <div id="damagesContainer"></div>
         <button type="button" class="btn btn-sm btn-outline-success mt-2" id="addDamageBtn">
-          <i class="fas fa-plus me-1"></i>Add Damage
+          <i class="fas fa-plus me-1"></i>{{ __('Add Damage') }}
         </button>
       </div>
 
@@ -86,7 +86,7 @@
       <div id="submitAlert" style="display:none"></div>
 
       <button type="submit" class="btn btn-primary w-100" id="submitBtn">
-        <i class="fas fa-save me-1"></i>Save Assessment
+        <i class="fas fa-save me-1"></i>{{ __('Save Assessment') }}
       </button>
     </form>
   </div>

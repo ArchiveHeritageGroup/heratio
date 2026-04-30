@@ -27,24 +27,24 @@
           <div id="collapseSecurity" class="accordion-collapse collapse show" data-bs-parent="#settingsAccordion">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Limit admin IP addresses <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Limit admin IP addresses <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="limit_admin_ip" class="form-control" value="{{ e($settings['limit_admin_ip']) }}">
-                <small class="text-muted">Comma-separated list of IPs allowed to access admin pages. Leave blank to allow all.</small>
+                <small class="text-muted">{{ __('Comma-separated list of IPs allowed to access admin pages. Leave blank to allow all.') }}</small>
               </div>
               <div class="mb-3">
-                <label class="form-label">Require SSL for admin <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Require SSL for admin <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="require_ssl_admin" class="form-select">
                   <option value="0" {{ $settings['require_ssl_admin'] == '0' ? 'selected' : '' }}>{{ __('No') }}</option>
                   <option value="1" {{ $settings['require_ssl_admin'] == '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
                 </select>
               </div>
               <div class="mb-3">
-                <label class="form-label">Require strong passwords <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Require strong passwords <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="require_strong_passwords" class="form-select">
                   <option value="0" {{ $settings['require_strong_passwords'] == '0' ? 'selected' : '' }}>{{ __('No') }}</option>
                   <option value="1" {{ $settings['require_strong_passwords'] == '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
                 </select>
-                <small class="text-muted">Minimum 8 characters with upper, lower, digit, and symbol</small>
+                <small class="text-muted">{{ __('Minimum 8 characters with upper, lower, digit, and symbol') }}</small>
               </div>
             </div>
           </div>

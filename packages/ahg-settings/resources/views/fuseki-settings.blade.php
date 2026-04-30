@@ -52,7 +52,7 @@
           <div class="col-md-4">
             <label class="form-label">&nbsp;</label>
             <button type="button" class="btn btn-outline-secondary d-block w-100" id="test-fuseki-btn" disabled>
-              <i class="fas fa-plug me-1"></i>Test Connection
+              <i class="fas fa-plug me-1"></i>{{ __('Test Connection') }}
             </button>
           </div>
           <div class="col-md-6">
@@ -82,7 +82,7 @@
                      name="fuseki_sync_enabled" value="1"
                      {{ ($settings['fuseki_sync_enabled'] ?? '1') === '1' || ($settings['fuseki_sync_enabled'] ?? '') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="fuseki_sync_enabled">
-                <strong>Enable Automatic Sync</strong>
+                <strong>{{ __('Enable Automatic Sync') }}</strong>
               </label>
             </div>
             <div class="form-text">Master switch for all RIC sync operations</div>
@@ -93,7 +93,7 @@
                      name="fuseki_queue_enabled" value="1"
                      {{ ($settings['fuseki_queue_enabled'] ?? '1') === '1' || ($settings['fuseki_queue_enabled'] ?? '') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="fuseki_queue_enabled">
-                <strong>Use Async Queue</strong>
+                <strong>{{ __('Use Async Queue') }}</strong>
               </label>
             </div>
             <div class="form-text">Queue sync operations for background processing</div>
@@ -171,17 +171,17 @@
         <div class="d-flex flex-wrap gap-2">
           @if(\Route::has('ric.index'))
             <a href="{{ route('ric.index') }}" class="btn btn-outline-primary">
-              <i class="fas fa-tachometer-alt me-1"></i>RIC Dashboard
+              <i class="fas fa-tachometer-alt me-1"></i>{{ __('RIC Dashboard') }}
             </a>
           @endif
           <a href="https://www.ica.org/standards/RiC/ontology" target="_blank" class="btn btn-outline-info">
-            <i class="fas fa-book me-1"></i>RiC-O Reference
+            <i class="fas fa-book me-1"></i>{{ __('RiC-O Reference') }}
           </a>
           @php
             $fusekiAdmin = preg_replace('#/[^/]+$#', '/', $settings['fuseki_endpoint'] ?? config('ric.fuseki_endpoint', 'http://localhost:3030/ric'));
           @endphp
           <a href="{{ e($fusekiAdmin) }}" target="_blank" class="btn btn-outline-secondary">
-            <i class="fas fa-database me-1"></i>Fuseki Admin
+            <i class="fas fa-database me-1"></i>{{ __('Fuseki Admin') }}
           </a>
         </div>
       </div>
@@ -190,10 +190,10 @@
     {{-- Save --}}
     <div class="d-flex justify-content-between align-items-center">
       <a href="{{ route('settings.index') }}" class="btn btn-link text-secondary">
-        <i class="fas fa-arrow-left me-1"></i>Back to Settings
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}
       </a>
       <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save me-1"></i>Save
+        <i class="fas fa-save me-1"></i>{{ __('Save') }}
       </button>
     </div>
   </form>

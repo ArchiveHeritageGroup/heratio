@@ -42,12 +42,12 @@
 {{-- Wizard Progress --}}
 <div class="mb-4">
     <div class="d-flex justify-content-between text-center">
-        <div class="flex-fill"><span class="badge bg-success rounded-pill">1</span><br><small class="text-muted">Configure</small></div>
-        <div class="flex-fill"><span class="badge bg-success rounded-pill">2</span><br><small class="text-muted">Upload</small></div>
-        <div class="flex-fill"><span class="badge bg-success rounded-pill">3</span><br><small class="text-muted">Map</small></div>
-        <div class="flex-fill"><span class="badge bg-primary rounded-pill">4</span><br><small class="fw-bold">Validate</small></div>
-        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">5</span><br><small class="text-muted">Preview</small></div>
-        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">6</span><br><small class="text-muted">Commit</small></div>
+        <div class="flex-fill"><span class="badge bg-success rounded-pill">1</span><br><small class="text-muted">{{ __('Configure') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-success rounded-pill">2</span><br><small class="text-muted">{{ __('Upload') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-success rounded-pill">3</span><br><small class="text-muted">{{ __('Map') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-primary rounded-pill">4</span><br><small class="fw-bold">{{ __('Validate') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">5</span><br><small class="text-muted">{{ __('Preview') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">6</span><br><small class="text-muted">{{ __('Commit') }}</small></div>
     </div>
     <div class="progress mt-2" style="height: 4px;">
         <div class="progress-bar" style="width: 58%"></div>
@@ -60,7 +60,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <h3 class="mb-0">{{ $stats['total'] ?? 0 }}</h3>
-                <small class="text-muted">Total Rows</small>
+                <small class="text-muted">{{ __('Total Rows') }}</small>
             </div>
         </div>
     </div>
@@ -68,7 +68,7 @@
         <div class="card text-center border-success">
             <div class="card-body">
                 <h3 class="mb-0 text-success">{{ $stats['valid'] ?? 0 }}</h3>
-                <small class="text-muted">Valid</small>
+                <small class="text-muted">{{ __('Valid') }}</small>
             </div>
         </div>
     </div>
@@ -76,7 +76,7 @@
         <div class="card text-center border-warning">
             <div class="card-body">
                 <h3 class="mb-0 text-warning">{{ $stats['warnings'] ?? 0 }}</h3>
-                <small class="text-muted">Warnings</small>
+                <small class="text-muted">{{ __('Warnings') }}</small>
             </div>
         </div>
     </div>
@@ -84,7 +84,7 @@
         <div class="card text-center border-danger">
             <div class="card-body">
                 <h3 class="mb-0 text-danger">{{ $stats['errors'] ?? 0 }}</h3>
-                <small class="text-muted">Errors</small>
+                <small class="text-muted">{{ __('Errors') }}</small>
             </div>
         </div>
     </div>
@@ -114,11 +114,11 @@
                             <td><strong>#{{ $err->row_number ?? '' }}</strong></td>
                             <td>
                                 @if(($err->severity ?? '') === 'error')
-                                    <span class="badge bg-danger">Error</span>
+                                    <span class="badge bg-danger">{{ __('Error') }}</span>
                                 @elseif(($err->severity ?? '') === 'warning')
-                                    <span class="badge bg-warning text-dark">Warning</span>
+                                    <span class="badge bg-warning text-dark">{{ __('Warning') }}</span>
                                 @else
-                                    <span class="badge bg-info">Info</span>
+                                    <span class="badge bg-info">{{ __('Info') }}</span>
                                 @endif
                             </td>
                             <td><code>{{ $err->field_name ?? '' }}</code></td>
@@ -129,7 +129,7 @@
                                         <button type="button" class="btn btn-outline-primary btn-fix"
                                                 data-row="{{ $err->row_number ?? '' }}"
                                                 data-field="{{ $err->field_name }}">
-                                            <i class="fas fa-edit"></i> Fix
+                                            <i class="fas fa-edit"></i> {{ __('Fix') }}
                                         </button>
                                     @endif
                                     <form method="post" action="{{ route('ingest.validate', ['id' => $session->id ?? 0]) }}" class="d-inline">
@@ -137,7 +137,7 @@
                                         <input type="hidden" name="form_action" value="exclude">
                                         <input type="hidden" name="row_number" value="{{ $err->row_number ?? '' }}">
                                         <button type="submit" class="btn btn-outline-danger btn-sm">
-                                            <i class="fas fa-times"></i> Exclude
+                                            <i class="fas fa-times"></i> {{ __('Exclude') }}
                                         </button>
                                     </form>
                                 </div>
@@ -191,14 +191,14 @@
 
 <div class="d-flex justify-content-between">
     <a href="{{ route('ingest.map', ['id' => $session->id ?? 0]) }}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-1"></i>Back to Mapping
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Mapping') }}
     </a>
     <div>
         <form method="post" action="{{ route('ingest.validate', ['id' => $session->id ?? 0]) }}" class="d-inline">
             @csrf
             <input type="hidden" name="form_action" value="validate">
             <button type="submit" class="btn btn-outline-secondary me-2">
-                <i class="fas fa-sync me-1"></i>Re-validate
+                <i class="fas fa-sync me-1"></i>{{ __('Re-validate') }}
             </button>
         </form>
         <form method="post" action="{{ route('ingest.validate', ['id' => $session->id ?? 0]) }}" class="d-inline">

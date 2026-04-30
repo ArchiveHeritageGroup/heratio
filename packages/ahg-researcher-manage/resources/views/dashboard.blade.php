@@ -15,10 +15,10 @@
     </div>
     <div>
       <a href="{{ route('researcher.import') }}" class="btn btn-outline-primary me-2">
-        <i class="bi bi-file-earmark-arrow-up me-1"></i>Import Exchange
+        <i class="bi bi-file-earmark-arrow-up me-1"></i>{{ __('Import Exchange') }}
       </a>
       <a href="{{ route('researcher.submissions') }}" class="btn btn-success">
-        <i class="bi bi-plus-lg me-1"></i>New Submission
+        <i class="bi bi-plus-lg me-1"></i>{{ __('New Submission') }}
       </a>
     </div>
   </div>
@@ -37,7 +37,7 @@
       <div class="card text-center border-primary h-100">
         <div class="card-body py-3">
           <h3 class="mb-0 text-primary">{{ $stats['total'] }}</h3>
-          <small class="text-muted">Total</small>
+          <small class="text-muted">{{ __('Total') }}</small>
         </div>
       </div>
     </div>
@@ -45,7 +45,7 @@
       <div class="card text-center border-secondary h-100">
         <div class="card-body py-3">
           <h3 class="mb-0 text-secondary">{{ $stats['draft'] }}</h3>
-          <small class="text-muted">Draft</small>
+          <small class="text-muted">{{ __('Draft') }}</small>
         </div>
       </div>
     </div>
@@ -53,7 +53,7 @@
       <div class="card text-center border-warning h-100">
         <div class="card-body py-3">
           <h3 class="mb-0 text-warning">{{ $stats['pending'] }}</h3>
-          <small class="text-muted">Pending Review</small>
+          <small class="text-muted">{{ __('Pending Review') }}</small>
         </div>
       </div>
     </div>
@@ -61,7 +61,7 @@
       <div class="card text-center border-success h-100">
         <div class="card-body py-3">
           <h3 class="mb-0 text-success">{{ $stats['approved'] }}</h3>
-          <small class="text-muted">Approved</small>
+          <small class="text-muted">{{ __('Approved') }}</small>
         </div>
       </div>
     </div>
@@ -69,7 +69,7 @@
       <div class="card text-center border-info h-100">
         <div class="card-body py-3">
           <h3 class="mb-0 text-info">{{ $stats['published'] }}</h3>
-          <small class="text-muted">Published</small>
+          <small class="text-muted">{{ __('Published') }}</small>
         </div>
       </div>
     </div>
@@ -77,7 +77,7 @@
       <div class="card text-center border-danger h-100">
         <div class="card-body py-3">
           <h3 class="mb-0 text-danger">{{ $stats['returned'] + $stats['rejected'] }}</h3>
-          <small class="text-muted">Returned / Rejected</small>
+          <small class="text-muted">{{ __('Returned / Rejected') }}</small>
         </div>
       </div>
     </div>
@@ -123,9 +123,9 @@
                     </td>
                     <td>
                       @if($sub->source_type === 'offline')
-                        <span class="badge bg-secondary"><i class="bi bi-hdd me-1"></i>Offline</span>
+                        <span class="badge bg-secondary"><i class="bi bi-hdd me-1"></i>{{ __('Offline') }}</span>
                       @else
-                        <span class="badge bg-primary"><i class="bi bi-cloud me-1"></i>Online</span>
+                        <span class="badge bg-primary"><i class="bi bi-cloud me-1"></i>{{ __('Online') }}</span>
                       @endif
                     </td>
                     <td>{{ $sub->total_items }}</td>
@@ -169,7 +169,7 @@
           <span class="badge bg-{{ $researcherProfile->status === 'approved' ? 'success' : 'warning' }} ms-1">{{ ucfirst($researcherProfile->status) }}</span>
           <div class="mt-2">
             <a href="{{ route('research.dashboard') }}" class="btn btn-sm btn-outline-info w-100">
-              <i class="bi bi-folder-open me-1"></i>My Research Workspace
+              <i class="bi bi-folder-open me-1"></i>{{ __('My Research Workspace') }}
             </a>
           </div>
         </div>
@@ -262,7 +262,7 @@
           <i class="bi bi-person-plus" style="font-size: 1.5rem;"></i>
           <p class="small mt-2 mb-2">Register as a researcher to link your research workspace.</p>
           <a href="{{ route('research.publicRegister') }}" class="btn btn-sm btn-outline-success">
-            <i class="bi bi-person-plus me-1"></i>Register
+            <i class="bi bi-person-plus me-1"></i>{{ __('Register') }}
           </a>
         </div>
       </div>

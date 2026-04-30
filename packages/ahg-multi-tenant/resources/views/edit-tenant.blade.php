@@ -32,7 +32,7 @@
           Edit Tenant: {{ $tenant->name ?? '' }}
         </h1>
         <a href="{{ route('tenant.index') }}" class="btn btn-outline-secondary">
-          <i class="fas fa-arrow-left me-2"></i>Back to List
+          <i class="fas fa-arrow-left me-2"></i>{{ __('Back to List') }}
         </a>
       </div>
 
@@ -71,7 +71,7 @@
                 <div class="mb-3">
                   <label for="code" class="form-label">{{ __('Code') }}</label>
                   <input type="text" class="form-control" id="code" name="code" value="{{ $tenant->code ?? '' }}" pattern="[a-z0-9-]+" maxlength="50">
-                  <small class="form-text text-muted">Lowercase letters, numbers, and hyphens only</small>
+                  <small class="form-text text-muted">{{ __('Lowercase letters, numbers, and hyphens only') }}</small>
                 </div>
 
                 <div class="row">
@@ -129,7 +129,7 @@
               </div>
               <div class="card-footer">
                 <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-save me-2"></i>Save Changes
+                  <i class="fas fa-save me-2"></i>{{ __('Save Changes') }}
                 </button>
               </div>
             </div>
@@ -186,10 +186,10 @@
             </div>
             <div class="card-footer">
               <a href="{{ route('tenant.users', ['tenantId' => $tenant->id ?? 0]) }}" class="btn btn-sm btn-outline-info">
-                <i class="fas fa-users me-1"></i>Manage Users
+                <i class="fas fa-users me-1"></i>{{ __('Manage Users') }}
               </a>
               <a href="{{ route('tenant.branding', ['tenantId' => $tenant->id ?? 0]) }}" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-palette me-1"></i>Branding
+                <i class="fas fa-palette me-1"></i>{{ __('Branding') }}
               </a>
             </div>
           </div>

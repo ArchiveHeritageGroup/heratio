@@ -16,7 +16,7 @@
     <p class="lead">Are you sure you want to clear all extended rights from this record?</p>
 
     <div class="alert alert-info">
-      <strong>The following rights will be removed:</strong>
+      <strong>{{ __('The following rights will be removed:') }}</strong>
       <ul class="mb-0 mt-2">
         @if(($currentRights->rights_statement ?? null))
           <li><i class="fas fa-balance-scale me-1"></i>Rights Statement: {{ $currentRights->rights_statement->name ?? '' }}</li>
@@ -41,8 +41,8 @@
     <form method="post" action="{{ route('extended-rights.clear.store', $resource->slug ?? '') }}">
       @csrf
       <div class="d-flex gap-2">
-        <button type="submit" class="btn atom-btn-outline-danger"><i class="fas fa-eraser me-2"></i>Yes, clear all rights</button>
-        <a href="{{ url()->previous() }}" class="btn atom-btn-outline-light"><i class="fas fa-times me-2"></i>Cancel</a>
+        <button type="submit" class="btn atom-btn-outline-danger"><i class="fas fa-eraser me-2"></i>{{ __('Yes, clear all rights') }}</button>
+        <a href="{{ url()->previous() }}" class="btn atom-btn-outline-light"><i class="fas fa-times me-2"></i>{{ __('Cancel') }}</a>
       </div>
     </form>
   </div>

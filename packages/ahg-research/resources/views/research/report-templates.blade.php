@@ -21,8 +21,8 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-layer-group text-primary me-2"></i>Report Templates</h1>
     <div>
-        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createTemplateModal"><i class="fas fa-plus me-1"></i>New Template</button>
-        <a href="{{ route('research.reports') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back</a>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createTemplateModal"><i class="fas fa-plus me-1"></i>{{ __('New Template') }}</button>
+        <a href="{{ route('research.reports') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
     </div>
 </div>
 
@@ -33,7 +33,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">
                     {{ e($tpl->name) }}
-                    @if($tpl->is_system)<span class="badge bg-info ms-2">System</span>@endif
+                    @if($tpl->is_system)<span class="badge bg-info ms-2">{{ __('System') }}</span>@endif
                 </h6>
                 <div class="d-flex gap-1">
                     <button class="btn btn-sm btn-outline-secondary edit-tpl-btn"
@@ -57,7 +57,7 @@
                 @if($tpl->description)
                     <p class="text-muted small mb-2">{{ e($tpl->description) }}</p>
                 @endif
-                <strong class="small">Sections:</strong>
+                <strong class="small">{{ __('Sections:') }}</strong>
                 @php $sections = json_decode($tpl->sections_config ?? '[]', true) ?: []; @endphp
                 @if(!empty($sections))
                     <ol class="small mb-0 ps-3 mt-1">
@@ -70,7 +70,7 @@
                         @endforeach
                     </ol>
                 @else
-                    <small class="text-muted">No sections (blank template)</small>
+                    <small class="text-muted">{{ __('No sections (blank template)') }}</small>
                 @endif
             </div>
             <div class="card-footer small text-muted">
@@ -99,7 +99,7 @@ bibliography') }}"></textarea>
             <small class="text-muted">Format: <code>type:Title</code> — Types: text, heading, title_page, toc, bibliography, collection_list, annotation_list</small>
         </div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Create</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>{{ __('Create') }}</button></div>
     </form>
 </div></div></div>
 
@@ -116,7 +116,7 @@ bibliography') }}"></textarea>
             <small class="text-muted">Format: <code>type:Title</code></small>
         </div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button></div>
     </form>
 </div></div></div>
 

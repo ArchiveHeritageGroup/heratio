@@ -33,7 +33,7 @@
         </div>
         <div class="col-md-6 text-end">
             <a href="{{ route('jobs.export-csv') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-download"></i> Export CSV
+                <i class="bi bi-download"></i> {{ __('Export CSV') }}
             </a>
         </div>
     </div>
@@ -44,7 +44,7 @@
             <div class="card bg-primary text-white">
                 <div class="card-body text-center">
                     <h3 class="mb-0">{{ $stats['total'] ?? 0 }}</h3>
-                    <small>Total</small>
+                    <small>{{ __('Total') }}</small>
                 </div>
             </div>
         </div>
@@ -52,7 +52,7 @@
             <div class="card bg-warning text-dark">
                 <div class="card-body text-center">
                     <h3 class="mb-0">{{ $stats['pending'] ?? 0 }}</h3>
-                    <small>Pending</small>
+                    <small>{{ __('Pending') }}</small>
                 </div>
             </div>
         </div>
@@ -60,7 +60,7 @@
             <div class="card bg-info text-white">
                 <div class="card-body text-center">
                     <h3 class="mb-0">{{ $stats['running'] ?? 0 }}</h3>
-                    <small>Running</small>
+                    <small>{{ __('Running') }}</small>
                 </div>
             </div>
         </div>
@@ -68,7 +68,7 @@
             <div class="card bg-success text-white">
                 <div class="card-body text-center">
                     <h3 class="mb-0">{{ $stats['completed'] ?? 0 }}</h3>
-                    <small>Completed</small>
+                    <small>{{ __('Completed') }}</small>
                 </div>
             </div>
         </div>
@@ -76,7 +76,7 @@
             <div class="card bg-danger text-white">
                 <div class="card-body text-center">
                     <h3 class="mb-0">{{ $stats['failed'] ?? 0 }}</h3>
-                    <small>Failed</small>
+                    <small>{{ __('Failed') }}</small>
                 </div>
             </div>
         </div>
@@ -84,7 +84,7 @@
             <div class="card bg-secondary text-white">
                 <div class="card-body text-center">
                     <h3 class="mb-0">{{ $stats['cancelled'] ?? 0 }}</h3>
-                    <small>Cancelled</small>
+                    <small>{{ __('Cancelled') }}</small>
                 </div>
             </div>
         </div>
@@ -118,7 +118,7 @@
                     <form action="{{ route('jobs.clear-inactive') }}" method="POST" class="d-inline">
                         @csrf
                         <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Clear all inactive jobs older than 30 days?')">
-                            <i class="bi bi-trash"></i> Clear Old Jobs
+                            <i class="bi bi-trash"></i> {{ __('Clear Old Jobs') }}
                         </button>
                     </form>
                 </div>
@@ -152,22 +152,22 @@
                             <td>
                                 @switch($job['status_id'] ?? null)
                                     @case(183)
-                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
                                         @break
                                     @case(182)
-                                        <span class="badge bg-primary">Running</span>
+                                        <span class="badge bg-primary">{{ __('Running') }}</span>
                                         @break
                                     @case(184)
-                                        <span class="badge bg-success">Completed</span>
+                                        <span class="badge bg-success">{{ __('Completed') }}</span>
                                         @break
                                     @case(185)
-                                        <span class="badge bg-danger">Failed</span>
+                                        <span class="badge bg-danger">{{ __('Failed') }}</span>
                                         @break
                                     @case(186)
-                                        <span class="badge bg-secondary">Cancelled</span>
+                                        <span class="badge bg-secondary">{{ __('Cancelled') }}</span>
                                         @break
                                     @default
-                                        <span class="badge bg-light text-dark">Unknown</span>
+                                        <span class="badge bg-light text-dark">{{ __('Unknown') }}</span>
                                 @endswitch
                             </td>
                             <td>{{ $job['created_at'] ?? '-' }}</td>

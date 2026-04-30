@@ -53,7 +53,7 @@ if (empty($access['classification']) && empty($access['restrictions']) && empty(
         @if($access['level'] === 'metadata_only')
             <span class="badge bg-info text-dark">
                 <i class="fas fa-file-alt me-1"></i>
-                Metadata Only
+                {{ __('Metadata Only') }}
             </span>
         @endif
 
@@ -63,7 +63,7 @@ if (empty($access['classification']) && empty($access['restrictions']) && empty(
 @if(!$access['granted'])
 <div class="alert alert-danger">
     <i class="fas fa-exclamation-triangle me-2"></i>
-    <strong>Access Restricted:</strong>
+    <strong>{{ __('Access Restricted:') }}</strong>
     @php $messages = [];
     foreach ($access['reasons'] as $reason) {
         switch ($reason) {

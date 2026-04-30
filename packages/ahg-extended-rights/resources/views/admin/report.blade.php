@@ -20,7 +20,7 @@
     </h1>
     @if(($type ?? 'summary') !== 'summary')
     <a href="{{ route('ext-rights-admin.report', ['type' => $type, 'export' => 'csv']) }}" class="btn btn-outline-success btn-sm">
-      <i class="fas fa-file-csv me-1"></i>Export CSV
+      <i class="fas fa-file-csv me-1"></i>{{ __('Export CSV') }}
     </a>
     @endif
   </div>

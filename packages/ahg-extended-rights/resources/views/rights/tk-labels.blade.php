@@ -6,7 +6,7 @@
 @section('title-block')
   <div class="multiline-header d-flex flex-column mb-3">
     <h1 class="mb-0">{{ $resource->title ?? $resource->slug }}</h1>
-    <span class="small">Traditional Knowledge Labels</span>
+    <span class="small">{{ __('Traditional Knowledge Labels') }}</span>
   </div>
 @endsection
 
@@ -80,7 +80,7 @@
           <label class="form-label">{{ __('Cultural Note') }}</label>
           <textarea name="cultural_note" class="form-control" rows="2"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Assign Label</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>{{ __('Assign Label') }}</button>
       </form>
     </div>
   </div>

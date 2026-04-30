@@ -13,7 +13,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('doi.index') }}" class="btn atom-btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i> Dashboard
+                <i class="fas fa-arrow-left me-1"></i> {{ __('Dashboard') }}
             </a>
         </div>
     </div>
@@ -39,10 +39,10 @@
                 <h5 class="mb-0">{{ __('Records Without DOIs') }}</h5>
                 <div>
                     <button type="button" id="doi-select-all" class="btn btn-sm atom-btn-outline-secondary">
-                        <i class="fas fa-check-square me-1"></i> Select All
+                        <i class="fas fa-check-square me-1"></i> {{ __('Select All') }}
                     </button>
                     <button type="button" id="doi-deselect-all" class="btn btn-sm atom-btn-outline-secondary">
-                        <i class="fas fa-square me-1"></i> Deselect All
+                        <i class="fas fa-square me-1"></i> {{ __('Deselect All') }}
                     </button>
                 </div>
             </div>
@@ -101,7 +101,7 @@
                         </div>
                         <div class="col-auto">
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-plus me-1"></i> Queue Selected for Minting
+                                <i class="fas fa-plus me-1"></i> {{ __('Queue Selected for Minting') }}
                             </button>
                         </div>
                     </div>

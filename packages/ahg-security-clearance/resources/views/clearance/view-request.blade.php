@@ -82,7 +82,7 @@
               <label class="form-label">{{ __('Notes') }}</label>
               <textarea name="notes" class="form-control" rows="2"></textarea>
             </div>
-            <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Approve</button>
+            <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> {{ __('Approve') }}</button>
           </form>
         </div>
       </div>
@@ -96,7 +96,7 @@
               <label class="form-label">{{ __('Reason for Denial') }}</label>
               <textarea name="reason" class="form-control" rows="2" required></textarea>
             </div>
-            <button type="submit" class="btn btn-danger"><i class="fas fa-times"></i> Deny</button>
+            <button type="submit" class="btn btn-danger"><i class="fas fa-times"></i> {{ __('Deny') }}</button>
           </form>
         </div>
       </div>

@@ -26,7 +26,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="bi bi-file-earmark-check me-2"></i>Consent Records</h1>
     <a href="{{ route('ahgicip.consent-edit') }}" class="btn btn-primary">
-      <i class="bi bi-plus-circle me-1"></i> Add Consent Record
+      <i class="bi bi-plus-circle me-1"></i> {{ __('Add Consent Record') }}
     </a>
   </div>
 
@@ -56,7 +56,7 @@
           </select>
         </div>
         <div class="col-md-3">
-          <button type="submit" class="btn btn-outline-primary me-2"><i class="bi bi-search"></i> Filter</button>
+          <button type="submit" class="btn btn-outline-primary me-2"><i class="bi bi-search"></i> {{ __('Filter') }}</button>
           <a href="{{ route('ahgicip.consent-list') }}" class="btn btn-outline-secondary">Reset</a>
         </div>
       </form>

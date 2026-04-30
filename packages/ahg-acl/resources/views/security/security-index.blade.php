@@ -35,7 +35,7 @@
           <div class="card bg-primary text-white">
             <div class="card-body text-center">
               <h2 class="mb-0">{{ $stats['total_users'] ?? 0 }}</h2>
-              <small>Total Users</small>
+              <small>{{ __('Total Users') }}</small>
             </div>
           </div>
         </div>
@@ -43,7 +43,7 @@
           <div class="card bg-success text-white">
             <div class="card-body text-center">
               <h2 class="mb-0">{{ $stats['with_clearance'] ?? 0 }}</h2>
-              <small>With Clearance</small>
+              <small>{{ __('With Clearance') }}</small>
             </div>
           </div>
         </div>
@@ -51,7 +51,7 @@
           <div class="card bg-danger text-white">
             <div class="card-body text-center">
               <h2 class="mb-0">{{ $stats['top_secret'] ?? 0 }}</h2>
-              <small>Secret+ Level</small>
+              <small>{{ __('Secret+ Level') }}</small>
             </div>
           </div>
         </div>
@@ -61,7 +61,7 @@
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
           <h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>User Security Clearances</h5>
           <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#bulkGrantModal">
-            <i class="fas fa-users me-1"></i> Bulk Grant
+            <i class="fas fa-users me-1"></i> {{ __('Bulk Grant') }}
           </button>
         </div>
         <div class="card-body p-0">
@@ -96,7 +96,7 @@
                       <strong>{{ e($user->username) }}</strong>
                       <br><small class="text-muted">{{ e($user->email) }}</small>
                       @if(!($user->active ?? true))
-                        <span class="badge bg-secondary">Inactive</span>
+                        <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                       @endif
                     </td>
                     <td>
@@ -106,7 +106,7 @@
                         </span>
                         <br><small class="text-muted">Level {{ $user->classification_level }}</small>
                       @else
-                        <span class="badge bg-secondary">No Clearance</span>
+                        <span class="badge bg-secondary">{{ __('No Clearance') }}</span>
                       @endif
                     </td>
                     <td>
@@ -122,7 +122,7 @@
                           {{ date('M j, Y', strtotime($user->expires_at)) }}
                         </span>
                       @else
-                        <span class="text-muted">Never</span>
+                        <span class="text-muted">{{ __('Never') }}</span>
                       @endif
                     </td>
                     <td>
@@ -206,7 +206,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="submit" class="btn btn-success">
-            <i class="fas fa-check me-1"></i> Grant Clearance
+            <i class="fas fa-check me-1"></i> {{ __('Grant Clearance') }}
           </button>
         </div>
       </form>
@@ -253,7 +253,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="submit" class="btn btn-primary" id="bulkGrantBtn" disabled>
-            <i class="fas fa-check me-1"></i> Grant to Selected
+            <i class="fas fa-check me-1"></i> {{ __('Grant to Selected') }}
           </button>
         </div>
       </form>

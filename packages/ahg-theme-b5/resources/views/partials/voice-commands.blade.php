@@ -40,28 +40,28 @@
 
         <h6><i class="bi bi-signpost-2 me-1"></i>Navigation</h6>
         <ul class="voice-cmd-list">
-          <li><span class="voice-cmd-phrase">"go home"</span><span class="voice-cmd-desc">Go to homepage</span></li>
-          <li><span class="voice-cmd-phrase">"browse / go to browse"</span><span class="voice-cmd-desc">Browse archival records</span></li>
-          <li><span class="voice-cmd-phrase">"go to admin"</span><span class="voice-cmd-desc">Go to admin panel</span></li>
-          <li><span class="voice-cmd-phrase">"go to settings"</span><span class="voice-cmd-desc">Go to settings</span></li>
-          <li><span class="voice-cmd-phrase">"go to clipboard"</span><span class="voice-cmd-desc">Go to clipboard</span></li>
-          <li><span class="voice-cmd-phrase">"go back"</span><span class="voice-cmd-desc">Go back</span></li>
-          <li><span class="voice-cmd-phrase">"next page"</span><span class="voice-cmd-desc">Next page</span></li>
-          <li><span class="voice-cmd-phrase">"previous page"</span><span class="voice-cmd-desc">Previous page</span></li>
-          <li><span class="voice-cmd-phrase">"search for [term]"</span><span class="voice-cmd-desc">Search for a term</span></li>
-          <li><span class="voice-cmd-phrase">"go to donors"</span><span class="voice-cmd-desc">Browse donors</span></li>
-          <li><span class="voice-cmd-phrase">"go to research / reading room"</span><span class="voice-cmd-desc">Go to research / reading room</span></li>
-          <li><span class="voice-cmd-phrase">"go to authorities"</span><span class="voice-cmd-desc">Browse authority records</span></li>
-          <li><span class="voice-cmd-phrase">"go to places"</span><span class="voice-cmd-desc">Browse places</span></li>
-          <li><span class="voice-cmd-phrase">"go to subjects"</span><span class="voice-cmd-desc">Browse subjects</span></li>
-          <li><span class="voice-cmd-phrase">"go to digital objects"</span><span class="voice-cmd-desc">Browse digital objects</span></li>
-          <li><span class="voice-cmd-phrase">"go to accessions"</span><span class="voice-cmd-desc">Browse accessions</span></li>
-          <li><span class="voice-cmd-phrase">"go to repositories"</span><span class="voice-cmd-desc">Browse repositories</span></li>
-          <li><span class="voice-cmd-phrase">"browse archive"</span><span class="voice-cmd-desc">Browse archive records</span></li>
-          <li><span class="voice-cmd-phrase">"browse library"</span><span class="voice-cmd-desc">Browse library records</span></li>
-          <li><span class="voice-cmd-phrase">"browse museum"</span><span class="voice-cmd-desc">Browse museum records</span></li>
-          <li><span class="voice-cmd-phrase">"browse gallery"</span><span class="voice-cmd-desc">Browse gallery records</span></li>
-          <li><span class="voice-cmd-phrase">"browse dam / browse photos"</span><span class="voice-cmd-desc">Browse DAM/photo records</span></li>
+          <li><span class="voice-cmd-phrase">"go home"</span><span class="voice-cmd-desc">{{ __('Go to homepage') }}</span></li>
+          <li><span class="voice-cmd-phrase">"browse / go to browse"</span><span class="voice-cmd-desc">{{ __('Browse archival records') }}</span></li>
+          <li><span class="voice-cmd-phrase">"go to admin"</span><span class="voice-cmd-desc">{{ __('Go to admin panel') }}</span></li>
+          <li><span class="voice-cmd-phrase">"go to settings"</span><span class="voice-cmd-desc">{{ __('Go to settings') }}</span></li>
+          <li><span class="voice-cmd-phrase">"go to clipboard"</span><span class="voice-cmd-desc">{{ __('Go to clipboard') }}</span></li>
+          <li><span class="voice-cmd-phrase">"go back"</span><span class="voice-cmd-desc">{{ __('Go back') }}</span></li>
+          <li><span class="voice-cmd-phrase">"next page"</span><span class="voice-cmd-desc">{{ __('Next page') }}</span></li>
+          <li><span class="voice-cmd-phrase">"previous page"</span><span class="voice-cmd-desc">{{ __('Previous page') }}</span></li>
+          <li><span class="voice-cmd-phrase">"search for [term]"</span><span class="voice-cmd-desc">{{ __('Search for a term') }}</span></li>
+          <li><span class="voice-cmd-phrase">"go to donors"</span><span class="voice-cmd-desc">{{ __('Browse donors') }}</span></li>
+          <li><span class="voice-cmd-phrase">"go to research / reading room"</span><span class="voice-cmd-desc">{{ __('Go to research / reading room') }}</span></li>
+          <li><span class="voice-cmd-phrase">"go to authorities"</span><span class="voice-cmd-desc">{{ __('Browse authority records') }}</span></li>
+          <li><span class="voice-cmd-phrase">"go to places"</span><span class="voice-cmd-desc">{{ __('Browse places') }}</span></li>
+          <li><span class="voice-cmd-phrase">"go to subjects"</span><span class="voice-cmd-desc">{{ __('Browse subjects') }}</span></li>
+          <li><span class="voice-cmd-phrase">"go to digital objects"</span><span class="voice-cmd-desc">{{ __('Browse digital objects') }}</span></li>
+          <li><span class="voice-cmd-phrase">"go to accessions"</span><span class="voice-cmd-desc">{{ __('Browse accessions') }}</span></li>
+          <li><span class="voice-cmd-phrase">"go to repositories"</span><span class="voice-cmd-desc">{{ __('Browse repositories') }}</span></li>
+          <li><span class="voice-cmd-phrase">"browse archive"</span><span class="voice-cmd-desc">{{ __('Browse archive records') }}</span></li>
+          <li><span class="voice-cmd-phrase">"browse library"</span><span class="voice-cmd-desc">{{ __('Browse library records') }}</span></li>
+          <li><span class="voice-cmd-phrase">"browse museum"</span><span class="voice-cmd-desc">{{ __('Browse museum records') }}</span></li>
+          <li><span class="voice-cmd-phrase">"browse gallery"</span><span class="voice-cmd-desc">{{ __('Browse gallery records') }}</span></li>
+          <li><span class="voice-cmd-phrase">"browse dam / browse photos"</span><span class="voice-cmd-desc">{{ __('Browse DAM/photo records') }}</span></li>
         </ul>
 
         <h6><i class="bi bi-pencil me-1"></i>Actions (Edit)</h6>
@@ -143,18 +143,18 @@
 
         <h6><i class="bi bi-universal-access me-1"></i>Accessibility</h6>
         <ul class="voice-cmd-list">
-          <li><span class="voice-cmd-phrase">"where am I"</span><span class="voice-cmd-desc">Announce current page and available actions</span></li>
-          <li><span class="voice-cmd-phrase">"how many results"</span><span class="voice-cmd-desc">Announce the number of results on browse pages</span></li>
-          <li><span class="voice-cmd-phrase">"disable voice / voice off"</span><span class="voice-cmd-desc">Disable voice commands until re-enabled</span></li>
-          <li><span class="voice-cmd-phrase">"enable voice / voice on"</span><span class="voice-cmd-desc">Re-enable voice commands</span></li>
+          <li><span class="voice-cmd-phrase">"where am I"</span><span class="voice-cmd-desc">{{ __('Announce current page and available actions') }}</span></li>
+          <li><span class="voice-cmd-phrase">"how many results"</span><span class="voice-cmd-desc">{{ __('Announce the number of results on browse pages') }}</span></li>
+          <li><span class="voice-cmd-phrase">"disable voice / voice off"</span><span class="voice-cmd-desc">{{ __('Disable voice commands until re-enabled') }}</span></li>
+          <li><span class="voice-cmd-phrase">"enable voice / voice on"</span><span class="voice-cmd-desc">{{ __('Re-enable voice commands') }}</span></li>
         </ul>
 
         <h6><i class="bi bi-question-circle me-1"></i>Help</h6>
         <ul class="voice-cmd-list">
-          <li><span class="voice-cmd-phrase">"help / show commands"</span><span class="voice-cmd-desc">Show this help modal</span></li>
-          <li><span class="voice-cmd-phrase">"list commands / list sections"</span><span class="voice-cmd-desc">Read available sections aloud, then say a section name</span></li>
-          <li><span class="voice-cmd-phrase">"navigation / edit / view / browse / global / dictation"</span><span class="voice-cmd-desc">Read commands for that section</span></li>
-          <li><span class="voice-cmd-phrase">"read all commands"</span><span class="voice-cmd-desc">Read every command aloud (say &quot;stop&quot; to stop)</span></li>
+          <li><span class="voice-cmd-phrase">"help / show commands"</span><span class="voice-cmd-desc">{{ __('Show this help modal') }}</span></li>
+          <li><span class="voice-cmd-phrase">"list commands / list sections"</span><span class="voice-cmd-desc">{{ __('Read available sections aloud, then say a section name') }}</span></li>
+          <li><span class="voice-cmd-phrase">"navigation / edit / view / browse / global / dictation"</span><span class="voice-cmd-desc">{{ __('Read commands for that section') }}</span></li>
+          <li><span class="voice-cmd-phrase">"read all commands"</span><span class="voice-cmd-desc">{{ __('Read every command aloud (say &quot;stop&quot; to stop)') }}</span></li>
         </ul>
       </div>
       <div class="modal-footer">

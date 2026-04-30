@@ -27,13 +27,13 @@
         <h1 class="h2"><i class="fas fa-truck me-2"></i>Vendor Management</h1>
         <div>
             <a href="{{ route('ahgvendor.list') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-building me-1"></i>All Vendors
+                <i class="fas fa-building me-1"></i>{{ __('All Vendors') }}
             </a>
             <a href="{{ route('ahgvendor.transactions') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-exchange-alt me-1"></i>All Transactions
+                <i class="fas fa-exchange-alt me-1"></i>{{ __('All Transactions') }}
             </a>
             <a href="{{ route('ahgvendor.add') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i>Add Vendor
+                <i class="fas fa-plus me-1"></i>{{ __('Add Vendor') }}
             </a>
         </div>
     </div>
@@ -176,9 +176,9 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-history me-2"></i>Recent Active Transactions</span>
+                    <span><i class="fas fa-history me-2"></i>{{ __('Recent Active Transactions') }}</span>
                     <a href="{{ route('ahgvendor.add-transaction') }}" class="btn btn-sm btn-primary">
-                        <i class="fas fa-plus me-1"></i>New Transaction
+                        <i class="fas fa-plus me-1"></i>{{ __('New Transaction') }}
                     </a>
                 </div>
                 <div class="card-body p-0">
@@ -215,7 +215,7 @@
                                         @if ($trans->expected_return_date)
                                             {{ \Carbon\Carbon::parse($trans->expected_return_date)->format('j M Y') }}
                                         @else
-                                            <span class="text-muted">Not set</span>
+                                            <span class="text-muted">{{ __('Not set') }}</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -281,13 +281,13 @@
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a href="{{ route('ahgvendor.add') }}" class="btn btn-outline-primary">
-                            <i class="fas fa-building me-2"></i>Add New Vendor
+                            <i class="fas fa-building me-2"></i>{{ __('Add New Vendor') }}
                         </a>
                         <a href="{{ route('ahgvendor.add-transaction') }}" class="btn btn-outline-success">
-                            <i class="fas fa-plus me-2"></i>Create Transaction
+                            <i class="fas fa-plus me-2"></i>{{ __('Create Transaction') }}
                         </a>
                         <a href="{{ route('ahgvendor.transactions', ['overdue' => 1]) }}" class="btn btn-outline-danger">
-                            <i class="fas fa-exclamation-triangle me-2"></i>View Overdue Items
+                            <i class="fas fa-exclamation-triangle me-2"></i>{{ __('View Overdue Items') }}
                         </a>
                     </div>
                 </div>

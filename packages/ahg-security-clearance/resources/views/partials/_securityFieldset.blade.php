@@ -8,7 +8,7 @@
         @if(!empty($currentClassification))
           <span class="badge ms-2" style="background-color: {{ $currentClassification->color ?? '#666' }}">{{ e($currentClassification->name ?? '') }}</span>
         @else
-          <span class="badge bg-secondary ms-2">Public</span>
+          <span class="badge bg-secondary ms-2">{{ __('Public') }}</span>
         @endif
       </button>
     </h2>
@@ -32,7 +32,7 @@
         </div>
         @if(!empty($objectId))
           <a href="{{ route('security-clearance.classify', ['id' => $objectId]) }}" class="btn btn-sm btn-outline-primary">
-            <i class="fas fa-lock"></i> Full Classification
+            <i class="fas fa-lock"></i> {{ __('Full Classification') }}
           </a>
         @endif
       </div>

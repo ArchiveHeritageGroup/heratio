@@ -26,7 +26,7 @@ $branding = (array) ($branding ?? []);
         <div class="card-body">
           <div class="row">
             <div class="col-md-4 mb-3">
-              <label for="primary_color" class="form-label">Primary Color <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="primary_color" class="form-label">Primary Color <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="input-group">
                 <input type="color" class="form-control form-control-color" id="primary_color_picker"
                        value="{{ $branding['primary_color'] ?? '#0d6efd' }}"
@@ -36,7 +36,7 @@ $branding = (array) ($branding ?? []);
               </div>
             </div>
             <div class="col-md-4 mb-3">
-              <label for="secondary_color" class="form-label">Secondary Color <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="secondary_color" class="form-label">Secondary Color <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="input-group">
                 <input type="color" class="form-control form-control-color" id="secondary_color_picker"
                        value="{{ $branding['secondary_color'] ?? '#6c757d' }}"
@@ -46,7 +46,7 @@ $branding = (array) ($branding ?? []);
               </div>
             </div>
             <div class="col-md-4 mb-3">
-              <label for="accent_color" class="form-label">Accent Color <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="accent_color" class="form-label">Accent Color <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="input-group">
                 <input type="color" class="form-control form-control-color" id="accent_color_picker"
                        value="{{ $branding['accent_color'] ?? '#198754' }}"
@@ -64,13 +64,13 @@ $branding = (array) ($branding ?? []);
         <div class="card-body">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="logo_path" class="form-label">Logo URL <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="logo_path" class="form-label">Logo URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" class="form-control" id="logo_path" name="logo_path"
                      value="{{ $branding['logo_path'] ?? '' }}" placeholder="{{ __('/uploads/logo.png') }}">
               <div class="form-text">Path to main logo image.</div>
             </div>
             <div class="col-md-6 mb-3">
-              <label for="favicon_path" class="form-label">Favicon URL <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="favicon_path" class="form-label">Favicon URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" class="form-control" id="favicon_path" name="favicon_path"
                      value="{{ $branding['favicon_path'] ?? '' }}" placeholder="{{ __('/uploads/favicon.ico') }}">
               <div class="form-text">Path to favicon image.</div>
@@ -83,12 +83,12 @@ $branding = (array) ($branding ?? []);
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Text') }}</h5></div>
         <div class="card-body">
           <div class="mb-3">
-            <label for="banner_text" class="form-label">Banner Text <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="banner_text" class="form-label">Banner Text <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control" id="banner_text" name="banner_text"
                    value="{{ $branding['banner_text'] ?? '' }}" placeholder="{{ __('Optional announcement banner') }}">
           </div>
           <div class="mb-3">
-            <label for="footer_text" class="form-label">Footer Text <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="footer_text" class="form-label">Footer Text <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea class="form-control" id="footer_text" name="footer_text" rows="2">{{ $branding['footer_text'] ?? '' }}</textarea>
           </div>
         </div>
@@ -100,19 +100,19 @@ $branding = (array) ($branding ?? []);
           @php $socialLinks = $branding['social_links'] ?? []; @endphp
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="social_facebook" class="form-label"><i class="fab fa-facebook me-2"></i>Facebook <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="social_facebook" class="form-label"><i class="fab fa-facebook me-2"></i>Facebook <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="url" class="form-control" id="social_facebook" name="social_facebook" value="{{ $socialLinks['facebook'] ?? '' }}">
             </div>
             <div class="col-md-6 mb-3">
-              <label for="social_twitter" class="form-label"><i class="fab fa-twitter me-2"></i>Twitter/X <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="social_twitter" class="form-label"><i class="fab fa-twitter me-2"></i>Twitter/X <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="url" class="form-control" id="social_twitter" name="social_twitter" value="{{ $socialLinks['twitter'] ?? '' }}">
             </div>
             <div class="col-md-6 mb-3">
-              <label for="social_instagram" class="form-label"><i class="fab fa-instagram me-2"></i>Instagram <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="social_instagram" class="form-label"><i class="fab fa-instagram me-2"></i>Instagram <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="url" class="form-control" id="social_instagram" name="social_instagram" value="{{ $socialLinks['instagram'] ?? '' }}">
             </div>
             <div class="col-md-6 mb-3">
-              <label for="social_linkedin" class="form-label"><i class="fab fa-linkedin me-2"></i>LinkedIn <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="social_linkedin" class="form-label"><i class="fab fa-linkedin me-2"></i>LinkedIn <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="url" class="form-control" id="social_linkedin" name="social_linkedin" value="{{ $socialLinks['linkedin'] ?? '' }}">
             </div>
           </div>
@@ -130,7 +130,7 @@ $branding = (array) ($branding ?? []);
 
       <div class="d-flex justify-content-end gap-2">
         <a href="{{ route('heritage.admin') }}" class="btn atom-btn-white">Cancel</a>
-        <button type="submit" class="btn atom-btn-secondary"><i class="fas fa-check me-2"></i>Save Branding</button>
+        <button type="submit" class="btn atom-btn-secondary"><i class="fas fa-check me-2"></i>{{ __('Save Branding') }}</button>
       </div>
     </form>
   </div>

@@ -20,7 +20,7 @@
       <div class="card bg-success text-white">
         <div class="card-body text-center">
           <h2 class="mb-0">{{ $s->pii_scans_completed ?? 0 }}</h2>
-          <small>PII Scans Completed</small>
+          <small>{{ __('PII Scans Completed') }}</small>
         </div>
       </div>
     </div>
@@ -28,7 +28,7 @@
       <div class="card bg-warning text-dark">
         <div class="card-body text-center">
           <h2 class="mb-0">{{ $s->pii_detections ?? 0 }}</h2>
-          <small>PII Detections</small>
+          <small>{{ __('PII Detections') }}</small>
         </div>
       </div>
     </div>
@@ -36,7 +36,7 @@
       <div class="card bg-info text-white">
         <div class="card-body text-center">
           <h2 class="mb-0">{{ $s->redaction_applied ?? 0 }}</h2>
-          <small>Redactions Applied</small>
+          <small>{{ __('Redactions Applied') }}</small>
         </div>
       </div>
     </div>
@@ -44,7 +44,7 @@
       <div class="card bg-secondary text-white">
         <div class="card-body text-center">
           <h2 class="mb-0">{{ $s->redaction_pending ?? 0 }}</h2>
-          <small>Redactions Pending</small>
+          <small>{{ __('Redactions Pending') }}</small>
         </div>
       </div>
     </div>
@@ -57,7 +57,7 @@
       <div class="card border-0 shadow-sm">
         <div class="card-body text-center">
           <h3 class="mb-0 text-primary">{{ $s->dsar_total ?? 0 }}</h3>
-          <small class="text-muted">Total</small>
+          <small class="text-muted">{{ __('Total') }}</small>
         </div>
       </div>
     </div>
@@ -65,7 +65,7 @@
       <div class="card border-0 shadow-sm">
         <div class="card-body text-center">
           <h3 class="mb-0 text-warning">{{ $s->dsar_pending ?? 0 }}</h3>
-          <small class="text-muted">Pending</small>
+          <small class="text-muted">{{ __('Pending') }}</small>
         </div>
       </div>
     </div>
@@ -73,7 +73,7 @@
       <div class="card border-0 shadow-sm">
         <div class="card-body text-center">
           <h3 class="mb-0 text-info">{{ $s->dsar_in_progress ?? 0 }}</h3>
-          <small class="text-muted">In Progress</small>
+          <small class="text-muted">{{ __('In Progress') }}</small>
         </div>
       </div>
     </div>
@@ -81,7 +81,7 @@
       <div class="card border-0 shadow-sm">
         <div class="card-body text-center">
           <h3 class="mb-0 text-success">{{ $s->dsar_completed ?? 0 }}</h3>
-          <small class="text-muted">Completed</small>
+          <small class="text-muted">{{ __('Completed') }}</small>
         </div>
       </div>
     </div>
@@ -89,7 +89,7 @@
       <div class="card border-0 shadow-sm">
         <div class="card-body text-center">
           <h3 class="mb-0 text-danger">{{ $s->dsar_overdue ?? 0 }}</h3>
-          <small class="text-muted">Overdue</small>
+          <small class="text-muted">{{ __('Overdue') }}</small>
         </div>
       </div>
     </div>
@@ -104,7 +104,7 @@
           <div class="card border-0 shadow-sm">
             <div class="card-body text-center">
               <h3 class="mb-0 text-primary">{{ $s->breach_total ?? 0 }}</h3>
-              <small class="text-muted">Total</small>
+              <small class="text-muted">{{ __('Total') }}</small>
             </div>
           </div>
         </div>
@@ -112,7 +112,7 @@
           <div class="card border-0 shadow-sm">
             <div class="card-body text-center">
               <h3 class="mb-0 text-warning">{{ $s->breach_open ?? 0 }}</h3>
-              <small class="text-muted">Open</small>
+              <small class="text-muted">{{ __('Open') }}</small>
             </div>
           </div>
         </div>
@@ -120,7 +120,7 @@
           <div class="card border-0 shadow-sm">
             <div class="card-body text-center">
               <h3 class="mb-0 text-danger">{{ $s->breach_critical ?? 0 }}</h3>
-              <small class="text-muted">Critical</small>
+              <small class="text-muted">{{ __('Critical') }}</small>
             </div>
           </div>
         </div>
@@ -134,7 +134,7 @@
           <div class="card border-0 shadow-sm">
             <div class="card-body text-center">
               <h3 class="mb-0 text-primary">{{ $s->processing_total ?? 0 }}</h3>
-              <small class="text-muted">Total</small>
+              <small class="text-muted">{{ __('Total') }}</small>
             </div>
           </div>
         </div>
@@ -142,7 +142,7 @@
           <div class="card border-0 shadow-sm">
             <div class="card-body text-center">
               <h3 class="mb-0 text-success">{{ $s->processing_active ?? 0 }}</h3>
-              <small class="text-muted">Active</small>
+              <small class="text-muted">{{ __('Active') }}</small>
             </div>
           </div>
         </div>
@@ -150,7 +150,7 @@
           <div class="card border-0 shadow-sm">
             <div class="card-body text-center">
               <h3 class="mb-0 text-warning">{{ $s->processing_review_due ?? 0 }}</h3>
-              <small class="text-muted">Review Due</small>
+              <small class="text-muted">{{ __('Review Due') }}</small>
             </div>
           </div>
         </div>
@@ -167,11 +167,11 @@
         <div class="card-body">
           <p>Under applicable data protection laws, you have the following rights regarding your personal information:</p>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item"><i class="fas fa-eye text-primary me-2"></i><strong>Right of Access</strong> — Request access to your personal information</li>
-            <li class="list-group-item"><i class="fas fa-edit text-primary me-2"></i><strong>Right to Rectification</strong> — Request correction of inaccurate information</li>
-            <li class="list-group-item"><i class="fas fa-trash text-primary me-2"></i><strong>Right to Erasure</strong> — Request deletion of your personal information</li>
-            <li class="list-group-item"><i class="fas fa-hand-paper text-primary me-2"></i><strong>Right to Object</strong> — Object to processing of your information</li>
-            <li class="list-group-item"><i class="fas fa-exchange-alt text-primary me-2"></i><strong>Right to Portability</strong> — Receive your data in a portable format</li>
+            <li class="list-group-item"><i class="fas fa-eye text-primary me-2"></i><strong>{{ __('Right of Access') }}</strong> — Request access to your personal information</li>
+            <li class="list-group-item"><i class="fas fa-edit text-primary me-2"></i><strong>{{ __('Right to Rectification') }}</strong> — Request correction of inaccurate information</li>
+            <li class="list-group-item"><i class="fas fa-trash text-primary me-2"></i><strong>{{ __('Right to Erasure') }}</strong> — Request deletion of your personal information</li>
+            <li class="list-group-item"><i class="fas fa-hand-paper text-primary me-2"></i><strong>{{ __('Right to Object') }}</strong> — Object to processing of your information</li>
+            <li class="list-group-item"><i class="fas fa-exchange-alt text-primary me-2"></i><strong>{{ __('Right to Portability') }}</strong> — Receive your data in a portable format</li>
           </ul>
         </div>
       </div>
@@ -198,9 +198,9 @@
       <div class="card mb-4 border-primary">
         <div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Take Action</h5></div>
         <div class="card-body d-grid gap-3">
-          <a href="{{ url('/privacy/dsar-request') }}" class="btn btn-primary btn-lg"><i class="fas fa-file-alt me-2"></i>Submit Data Request</a>
-          <a href="{{ url('/privacy/complaint') }}" class="btn btn-warning btn-lg"><i class="fas fa-exclamation-circle me-2"></i>Lodge Complaint</a>
-          <a href="{{ url('/privacy/dsar-status') }}" class="btn btn-outline-secondary btn-lg"><i class="fas fa-search me-2"></i>Check Request Status</a>
+          <a href="{{ url('/privacy/dsar-request') }}" class="btn btn-primary btn-lg"><i class="fas fa-file-alt me-2"></i>{{ __('Submit Data Request') }}</a>
+          <a href="{{ url('/privacy/complaint') }}" class="btn btn-warning btn-lg"><i class="fas fa-exclamation-circle me-2"></i>{{ __('Lodge Complaint') }}</a>
+          <a href="{{ url('/privacy/dsar-status') }}" class="btn btn-outline-secondary btn-lg"><i class="fas fa-search me-2"></i>{{ __('Check Request Status') }}</a>
         </div>
       </div>
 
@@ -208,10 +208,10 @@
       <div class="card mb-4">
         <div class="card-header"><h5 class="mb-0"><i class="fas fa-list me-2"></i>Request Types</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item d-flex justify-content-between align-items-center">Access Request <span class="badge bg-primary rounded-pill">DSAR</span></li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">Correction Request <span class="badge bg-info rounded-pill">DSAR</span></li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">Deletion Request <span class="badge bg-danger rounded-pill">DSAR</span></li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">Privacy Complaint <span class="badge bg-warning text-dark rounded-pill">Complaint</span></li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">Access Request <span class="badge bg-primary rounded-pill">{{ __('DSAR') }}</span></li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">Correction Request <span class="badge bg-info rounded-pill">{{ __('DSAR') }}</span></li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">Deletion Request <span class="badge bg-danger rounded-pill">{{ __('DSAR') }}</span></li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">Privacy Complaint <span class="badge bg-warning text-dark rounded-pill">{{ __('Complaint') }}</span></li>
         </ul>
       </div>
 

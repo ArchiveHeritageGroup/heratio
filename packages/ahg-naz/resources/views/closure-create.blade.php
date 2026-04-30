@@ -39,7 +39,7 @@
                         <div class="col-12">
                             <label class="form-label">Information Object ID <span class="text-danger">*</span></label>
                             <input type="number" name="information_object_id" class="form-control" required>
-                            <small class="text-muted">Enter the archival description record ID</small>
+                            <small class="text-muted">{{ __('Enter the archival description record ID') }}</small>
                         </div>
                     </div>
                 </div>
@@ -90,7 +90,7 @@
             </div>
             <div class="card">
                 <div class="card-body d-grid gap-2">
-                    <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>Create Closure</button>
+                    <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>{{ __('Create Closure') }}</button>
                     <a href="{{ route('ahgnaz.closures') }}" class="btn btn-outline-secondary">Cancel</a>
                 </div>
             </div>

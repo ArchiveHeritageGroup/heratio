@@ -35,7 +35,7 @@
                     <option value="disputed">{{ __('Dispute') }}</option>
                     <option value="retracted">{{ __('Retract') }}</option>
                 </select>
-                <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-check-double me-1"></i>Apply to Selected</button>
+                <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-check-double me-1"></i>{{ __('Apply to Selected') }}</button>
             </div>
         </div>
     </div>

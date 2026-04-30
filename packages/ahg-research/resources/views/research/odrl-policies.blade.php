@@ -16,7 +16,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">{{ __('ODRL Policies') }}</h1>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPolicyModal"><i class="fas fa-plus me-1"></i>Create Policy</button>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPolicyModal"><i class="fas fa-plus me-1"></i>{{ __('Create Policy') }}</button>
 </div>
 
 <!-- Filter bar -->
@@ -24,7 +24,7 @@
     <div class="card-body py-2">
         <form method="get" class="row g-2 align-items-end">
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Target Type <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label form-label-sm mb-0">Target Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="filter_target_type" class="form-select form-select-sm">
                     <option value="">{{ __('All') }}</option>
                     @foreach(['archival_description', 'collection', 'project', 'snapshot', 'annotation', 'assertion'] as $tt)
@@ -33,7 +33,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Policy Type <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label form-label-sm mb-0">Policy Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="filter_policy_type" class="form-select form-select-sm">
                     <option value="">{{ __('All') }}</option>
                     <option value="permission" {{ request('filter_policy_type') === 'permission' ? 'selected' : '' }}>{{ __('Permission') }}</option>
@@ -42,7 +42,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Action Type <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label form-label-sm mb-0">Action Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="filter_action_type" class="form-select form-select-sm">
                     <option value="">{{ __('All') }}</option>
                     @foreach(['use', 'reproduce', 'distribute', 'modify', 'archive', 'display'] as $at)
@@ -95,7 +95,7 @@
                             <small class="d-block text-muted"><strong>{{ $label }}:</strong> {{ $val }}</small>
                         @endforeach
                     @else
-                        <small class="text-muted">None</small>
+                        <small class="text-muted">{{ __('None') }}</small>
                     @endif
                 </td>
                 <td><small>{{ $p->created_at ?? '' }}</small></td>
@@ -156,7 +156,7 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Target Type * <span class="badge bg-danger ms-1">Required</span></label>
+            <label class="form-label">Target Type * <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <select name="target_type" id="policy-target-type" class="form-select" required>
               <option value="">{{ __('Select...') }}</option>
               <option value="archival_description">{{ __('Archival Description') }}</option>
@@ -169,12 +169,12 @@
           </div>
           <input type="hidden" name="target_id" id="target-id-hidden" required>
           <div class="mb-3" id="target-id-wrapper" style="display:none;">
-            <label class="form-label" id="target-id-label">Target * <span class="badge bg-danger ms-1">Required</span></label>
+            <label class="form-label" id="target-id-label">Target * <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <select id="target-id-tomselect" placeholder="{{ __('Select a target type first...') }}"></select>
-            <small class="text-muted" id="target-id-hint">Select a target type above to search</small>
+            <small class="text-muted" id="target-id-hint">{{ __('Select a target type above to search') }}</small>
           </div>
           <div class="mb-3">
-            <label class="form-label">Policy Type * <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Policy Type * <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="policy_type" class="form-select">
               <option value="permission">{{ __('Permission') }}</option>
               <option value="prohibition">{{ __('Prohibition') }}</option>
@@ -182,7 +182,7 @@
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Action Type * <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Action Type * <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="action_type" class="form-select">
               <option value="use">{{ __('Use') }}</option>
               <option value="reproduce">{{ __('Reproduce') }}</option>
@@ -193,12 +193,12 @@
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Constraints <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Constraints <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           </div>
           <div class="mb-3">
             <label class="form-label small">{{ __('Restrict to Researchers') }}</label>
             <select id="constraint-researchers" multiple placeholder="{{ __('Search researchers...') }}"></select>
-            <small class="text-muted">Leave empty to apply to all researchers</small>
+            <small class="text-muted">{{ __('Leave empty to apply to all researchers') }}</small>
           </div>
           <div class="row mb-3">
             <div class="col-md-6">

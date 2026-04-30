@@ -11,7 +11,7 @@
     </div>
     <div>
       <a href="{{ route('admin.3d-models.settings') }}" class="btn atom-btn-white">
-        <i class="fas fa-cog me-1"></i>Settings
+        <i class="fas fa-cog me-1"></i>{{ __('Settings') }}
       </a>
     </div>
   </div>
@@ -55,7 +55,7 @@
                   <strong>{{ $m->model_title ?: ($m->original_filename ?? '') }}</strong>
                 </a>
                 @if(!empty($m->is_primary))
-                  <span class="badge bg-primary ms-1">Primary</span>
+                  <span class="badge bg-primary ms-1">{{ __('Primary') }}</span>
                 @endif
                 @if(!empty($m->ar_enabled))
                   <span class="badge bg-success ms-1">AR</span>
@@ -78,9 +78,9 @@
               </td>
               <td>
                 @if(!empty($m->is_public))
-                  <span class="text-success"><i class="fas fa-check-circle"></i> Public</span>
+                  <span class="text-success"><i class="fas fa-check-circle"></i> {{ __('Public') }}</span>
                 @else
-                  <span class="text-warning"><i class="fas fa-eye-slash"></i> Hidden</span>
+                  <span class="text-warning"><i class="fas fa-eye-slash"></i> {{ __('Hidden') }}</span>
                 @endif
               </td>
               <td>

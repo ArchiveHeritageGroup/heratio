@@ -89,7 +89,7 @@ $allModes = [
                                 <div class="row g-3">
                                     <!-- Display Mode -->
                                     <div class="col-md-6">
-                                        <label class="form-label">{{ __('Display Mode') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                                        <label class="form-label">{{ __('Display Mode') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                         <div class="btn-group d-flex" role="group">
                                             @php foreach ($availableModes as $mode => $meta): @endphp
                                                 <input type="radio" class="btn-check" 
@@ -102,14 +102,14 @@ $allModes = [
                                                        title="{{ __("@php echo $meta['description']; @endphp") }}">
                                                     <i class="bi @php echo $meta['icon']; @endphp"></i>
                                                     <span class="d-none d-lg-inline ms-1">@php echo $meta['name']; @endphp</span>
-                                                 <span class="badge bg-secondary ms-1">Required</span></label>
+                                                 <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
                                             @php endforeach; @endphp
                                         </div>
                                     </div>
                                     
                                     <!-- Items Per Page -->
                                     <div class="col-md-3">
-                                        <label class="form-label">{{ __('Items Per Page') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                                        <label class="form-label">{{ __('Items Per Page') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                         <select name="items_per_page" class="form-select">
                                             @php foreach ([10, 20, 30, 50, 100] as $count): @endphp
                                                 <option value="@php echo $count; @endphp"
@@ -122,7 +122,7 @@ $allModes = [
                                     
                                     <!-- Card Size -->
                                     <div class="col-md-3">
-                                        <label class="form-label">{{ __('Card Size') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                                        <label class="form-label">{{ __('Card Size') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                         <select name="card_size" class="form-select">
                                             <option value="small" @php echo ($settings['card_size'] ?? 'medium') === 'small' ? 'selected' : ''; @endphp>{{ __('Small') }}</option>
                                             <option value="medium" @php echo ($settings['card_size'] ?? 'medium') === 'medium' ? 'selected' : ''; @endphp>{{ __('Medium') }}</option>
@@ -138,7 +138,7 @@ $allModes = [
                                                    id="thumb_@php echo $module; @endphp"
                                                    @php echo ($settings['show_thumbnails'] ?? 1) ? 'checked' : ''; @endphp>
                                             <label class="form-check-label" for="thumb_@php echo $module; @endphp">
-                                                Show thumbnails <span class="badge bg-secondary ms-1">Optional</span>
+                                                Show thumbnails <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                                             </label>
                                         </div>
                                         
@@ -148,7 +148,7 @@ $allModes = [
                                                    id="desc_@php echo $module; @endphp"
                                                    @php echo ($settings['show_descriptions'] ?? 1) ? 'checked' : ''; @endphp>
                                             <label class="form-check-label" for="desc_@php echo $module; @endphp">
-                                                Show descriptions <span class="badge bg-secondary ms-1">Optional</span>
+                                                Show descriptions <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                                             </label>
                                         </div>
                                     </div>
@@ -158,7 +158,7 @@ $allModes = [
                                         @if($hasCustom)
                                             <button type="button" class="btn btn-outline-secondary btn-sm reset-pref-btn">
                                                 <i class="bi bi-arrow-counterclockwise me-1"></i>
-                                                Reset to Default
+                                                {{ __('Reset to Default') }}
                                             </button>
                                         @else
                                             <span></span>
@@ -166,7 +166,7 @@ $allModes = [
                                         
                                         <button type="submit" class="btn atom-btn-white btn-sm">
                                             <i class="bi bi-save me-1"></i>
-                                            Save Preference
+                                            {{ __('Save Preference') }}
                                         </button>
                                     </div>
                                 </div>

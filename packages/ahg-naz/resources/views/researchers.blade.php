@@ -36,7 +36,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgnaz.researcher-create') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i> Register Researcher
+                <i class="fas fa-plus me-1"></i> {{ __('Register Researcher') }}
             </a>
         </div>
     </div>

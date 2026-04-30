@@ -22,7 +22,7 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0"><i class="fas fa-shield-alt me-2"></i>OCAP® Compliance Dashboard</h1>
     <a href="{{ route('ahgicip.ocap-settings') }}" class="btn btn-sm btn-outline-secondary">
-      <i class="fas fa-cog me-1"></i>Settings
+      <i class="fas fa-cog me-1"></i>{{ __('Settings') }}
     </a>
   </div>
 
@@ -56,7 +56,7 @@
 
   {{-- Per-principle breakdown --}}
   <div class="card mb-4">
-    <div class="card-header bg-light"><strong>Per-principle breakdown</strong></div>
+    <div class="card-header bg-light"><strong>{{ __('Per-principle breakdown') }}</strong></div>
     <div class="card-body">
       <div class="table-responsive">
         <table class="table table-sm mb-0">
@@ -82,7 +82,7 @@
 
   {{-- Records --}}
   <div class="card">
-    <div class="card-header bg-light"><strong>Records with ICIP signal</strong> ({{ count($rollup) }})</div>
+    <div class="card-header bg-light"><strong>{{ __('Records with ICIP signal') }}</strong> ({{ count($rollup) }})</div>
     <div class="table-responsive">
       <table class="table table-hover table-sm mb-0">
         <thead class="table-light">

@@ -17,10 +17,10 @@
         <div class="card-body">
           @if($clearance)
             <p><span class="badge" style="background-color: {{ $clearance->color ?? '#666' }}; font-size: 1.1em;">{{ e($clearance->classification_name ?? '') }}</span></p>
-            <p><strong>Granted:</strong> {{ $clearance->granted_at ?? '' }}</p>
-            <p><strong>Expires:</strong> {{ $clearance->expires_at ?? 'Never' }}</p>
+            <p><strong>{{ __('Granted:') }}</strong> {{ $clearance->granted_at ?? '' }}</p>
+            <p><strong>{{ __('Expires:') }}</strong> {{ $clearance->expires_at ?? 'Never' }}</p>
             @if(!empty($clearance->notes))
-              <p><strong>Notes:</strong> {{ e($clearance->notes) }}</p>
+              <p><strong>{{ __('Notes:') }}</strong> {{ e($clearance->notes) }}</p>
             @endif
           @else
             <p class="text-muted">No clearance assigned.</p>

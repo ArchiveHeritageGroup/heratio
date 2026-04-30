@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-shield-alt me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Place Legal Hold') }}</h1><span class="small text-muted">Digital object integrity management</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Place Legal Hold') }}</h1><span class="small text-muted">{{ __('Digital object integrity management') }}</span></div>
   </div>
 @endsection
 @section('content')
@@ -45,14 +45,14 @@
       </div>
 
       <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-success"><i class="fas fa-lock me-1"></i>Place Hold</button>
+        <button type="submit" class="btn btn-success"><i class="fas fa-lock me-1"></i>{{ __('Place Hold') }}</button>
         <a href="{{ route('integrity.holds') }}" class="btn atom-btn-white">Cancel</a>
       </div>
     </form>
   </div>
 </div>
 
-<div class="mt-3"><a href="{{ route('integrity.holds') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Holds</a></div>
+<div class="mt-3"><a href="{{ route('integrity.holds') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Holds') }}</a></div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

@@ -10,14 +10,14 @@
       <i class="bi bi-file-earmark-text me-2"></i>Extracted Text
     </h5>
     <a href="{{ route('pdf-tools.index') }}" class="btn atom-btn-white btn-sm">
-      <i class="bi bi-arrow-left me-1"></i>Back
+      <i class="bi bi-arrow-left me-1"></i>{{ __('Back') }}
     </a>
   </div>
   <div class="card-body">
 
     {{-- Source Info --}}
     <div class="mb-3">
-      <strong>Source:</strong> {{ e($filename) }}
+      <strong>{{ __('Source:') }}</strong> {{ e($filename) }}
       <span class="badge bg-info ms-2">{{ number_format(strlen($extractedText)) }} characters</span>
       <span class="badge bg-secondary">{{ number_format(str_word_count($extractedText)) }} words</span>
     </div>
@@ -25,7 +25,7 @@
     {{-- Copy Button --}}
     <div class="mb-3">
       <button type="button" class="btn atom-btn-white btn-sm" id="copyBtn">
-        <i class="bi bi-clipboard me-1"></i>Copy to Clipboard
+        <i class="bi bi-clipboard me-1"></i>{{ __('Copy to Clipboard') }}
       </button>
     </div>
 

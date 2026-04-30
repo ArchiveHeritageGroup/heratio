@@ -30,9 +30,9 @@
           @endforeach
         </select>
       </div>
-      <button type="submit" class="btn btn-primary btn-sm w-100 mb-2"><i class="fas fa-search me-1"></i>Search</button>
+      <button type="submit" class="btn btn-primary btn-sm w-100 mb-2"><i class="fas fa-search me-1"></i>{{ __('Search') }}</button>
       <button type="button" onclick="exportTableToCSV()" class="btn btn-success btn-sm w-100">
-        <i class="fas fa-download me-1"></i>Export CSV
+        <i class="fas fa-download me-1"></i>{{ __('Export CSV') }}
       </button>
     </form>
   </div>
@@ -42,7 +42,7 @@
 @section('title-block')
 <div class="d-flex justify-content-between align-items-center">
   <h1>{{ __('Browse Donor Report') }}</h1>
-  <a href="{{ route('reports.dashboard') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back</a>
+  <a href="{{ route('reports.dashboard') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
 </div>
 @endsection
 

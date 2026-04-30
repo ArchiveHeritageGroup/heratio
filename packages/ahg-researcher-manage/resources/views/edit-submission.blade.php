@@ -29,17 +29,17 @@
           <form method="post">
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+              <label class="form-label fw-bold">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" name="title" class="form-control" required value="@php echo htmlspecialchars($submission->title) @endphp">
             </div>
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Description <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label fw-bold">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea name="description" class="form-control" rows="3">@php echo htmlspecialchars($submission->description ?? '') @endphp</textarea>
             </div>
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Target Repository <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label fw-bold">Target Repository <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="repository_id" class="form-select">
                 <option value="">-- Select repository --</option>
                 @php foreach ($repositories as $repo): @endphp
@@ -52,7 +52,7 @@
 
             @if(!empty($projects))
             <div class="mb-3">
-              <label class="form-label fw-bold">Linked Research Project <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label fw-bold">Linked Research Project <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="project_id" class="form-select">
                 <option value="">-- None --</option>
                 @php foreach ($projects as $proj): @endphp
@@ -61,16 +61,16 @@
                   </option>
                 @php endforeach @endphp
               </select>
-              <small class="text-muted">Link this submission to an existing research project.</small>
+              <small class="text-muted">{{ __('Link this submission to an existing research project.') }}</small>
             </div>
             @endif
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Parent Record (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label fw-bold">Parent Record (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="hidden" name="parent_object_id" id="parentObjectId" value="@php echo $submission->parent_object_id ?? '' @endphp">
               <input type="text" class="form-control" id="parentSearch" placeholder="{{ __('Type to search for a parent record...') }}" autocomplete="off"
                      value="@php echo htmlspecialchars($parentTitle) @endphp">
-              <small class="text-muted">Place this submission under an existing archival record. Leave blank for root level.</small>
+              <small class="text-muted">{{ __('Place this submission under an existing archival record. Leave blank for root level.') }}</small>
               <div id="parentResults" class="list-group mt-1" style="display:none; position:absolute; z-index:999; max-height:200px; overflow-y:auto;"></div>
             </div>
 
@@ -78,10 +78,10 @@
 
             <div class="d-flex justify-content-between">
               <a href="{{ route('researcher.viewSubmission', ['id' => $submission->id]) }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i>Cancel
+                <i class="bi bi-arrow-left me-1"></i>{{ __('Cancel') }}
               </a>
               <button type="submit" class="btn atom-btn-white">
-                <i class="bi bi-check-lg me-1"></i>Save Changes
+                <i class="bi bi-check-lg me-1"></i>{{ __('Save Changes') }}
               </button>
             </div>
 

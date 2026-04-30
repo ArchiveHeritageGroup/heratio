@@ -6,7 +6,7 @@
 <div class="container-fluid py-4">
     <div class="mb-3">
         <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            <i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}
         </a>
     </div>
 
@@ -26,10 +26,10 @@
                     <p class="text-muted">Export archival descriptions in various formats.</p>
                     <div class="d-grid gap-2">
                         <a href="{{ route('export.archival', ['format' => 'ead']) }}" class="atom-btn-white">
-                            <i class="fas fa-code me-1"></i>EAD 2002
+                            <i class="fas fa-code me-1"></i>{{ __('EAD 2002') }}
                         </a>
                         <a href="{{ route('export.archival', ['format' => 'dc']) }}" class="atom-btn-white">
-                            <i class="fas fa-file-code me-1"></i>Dublin Core
+                            <i class="fas fa-file-code me-1"></i>{{ __('Dublin Core') }}
                         </a>
                         <a href="{{ route('export.archival', ['format' => 'csv']) }}" class="atom-btn-white">
                             <i class="fas fa-file-csv me-1"></i>CSV
@@ -48,7 +48,7 @@
                     <p class="text-muted">Export authority records (people, organizations, families).</p>
                     <div class="d-grid gap-2">
                         <a href="{{ route('export.authority', ['format' => 'eac']) }}" class="atom-btn-white">
-                            <i class="fas fa-code me-1"></i>EAC-CPF
+                            <i class="fas fa-code me-1"></i>{{ __('EAC-CPF') }}
                         </a>
                         <a href="{{ route('export.authority', ['format' => 'csv']) }}" class="atom-btn-white">
                             <i class="fas fa-file-csv me-1"></i>CSV
@@ -85,7 +85,7 @@
                     <p class="text-muted">Export accession records to CSV. Compatible with ingest wizard re-import.</p>
                     <div class="d-grid gap-2">
                         <a href="{{ route('export.accessionCsv') }}" class="atom-btn-white">
-                            <i class="fas fa-file-csv me-1"></i>Accession CSV
+                            <i class="fas fa-file-csv me-1"></i>{{ __('Accession CSV') }}
                         </a>
                     </div>
                 </div>

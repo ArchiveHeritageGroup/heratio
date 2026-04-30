@@ -6,7 +6,7 @@
   <div class="card"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-edit me-2"></i>Edit Agreement</div>
   <div class="card-body"><form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">@csrf
     @include('ahg-donor-manage::_agreement-form')
-    <div class="d-flex gap-2 mt-3"><button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i> Save</button><a href="{{ route('donor.agreement.view', $record->id) }}" class="btn atom-btn-white"><i class="fas fa-times me-1"></i> Cancel</a></div>
+    <div class="d-flex gap-2 mt-3"><button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i> {{ __('Save') }}</button><a href="{{ route('donor.agreement.view', $record->id) }}" class="btn atom-btn-white"><i class="fas fa-times me-1"></i> {{ __('Cancel') }}</a></div>
   </form></div></div>
 
   @if($documents->isNotEmpty())

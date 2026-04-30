@@ -103,10 +103,10 @@
 
           <div class="d-flex justify-content-between">
             <a href="{{ route('ahgmetadataexport.index') }}" class="btn btn-secondary">
-              <i class="fa fa-arrow-left"></i> Back
+              <i class="fa fa-arrow-left"></i> {{ __('Back') }}
             </a>
             <button type="submit" class="btn btn-primary">
-              <i class="fa fa-download"></i> Export as ZIP
+              <i class="fa fa-download"></i> {{ __('Export as ZIP') }}
             </button>
           </div>
         </form>

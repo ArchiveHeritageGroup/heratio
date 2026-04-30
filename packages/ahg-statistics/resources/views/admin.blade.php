@@ -44,7 +44,7 @@
                         <div class="mb-3">
                             <label for="retention_days" class="form-label">{{ __('Retention Period (days)') }}</label>
                             <input type="number" class="form-control" id="retention_days" name="retention_days" value="{{ $config['retention_days'] ?? 90 }}" min="1">
-                            <small class="form-text text-muted">Raw events older than this will be deleted. Aggregated data is kept forever.</small>
+                            <small class="form-text text-muted">{{ __('Raw events older than this will be deleted. Aggregated data is kept forever.') }}</small>
                         </div>
 
                         <hr>
@@ -60,7 +60,7 @@
                         <div class="mb-3">
                             <label for="geoip_database_path" class="form-label">{{ __('GeoIP Database Path') }}</label>
                             <input type="text" class="form-control" id="geoip_database_path" name="geoip_database_path" value="{{ $config['geoip_database_path'] ?? '' }}">
-                            <small class="form-text text-muted">Path to MaxMind GeoLite2-City.mmdb database</small>
+                            <small class="form-text text-muted">{{ __('Path to MaxMind GeoLite2-City.mmdb database') }}</small>
                         </div>
 
                         <hr>
@@ -78,7 +78,7 @@
                                 <input class="form-check-input" type="checkbox" id="anonymize_ip" name="anonymize_ip" value="1" {{ !empty($config['anonymize_ip']) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="anonymize_ip">{{ __('Anonymize IP Addresses') }}</label>
                             </div>
-                            <small class="form-text text-muted">Store hashed IPs instead of raw IP addresses</small>
+                            <small class="form-text text-muted">{{ __('Store hashed IPs instead of raw IP addresses') }}</small>
                         </div>
 
                         <div class="mb-3">
@@ -89,7 +89,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-1"></i>Save Settings
+                            <i class="fas fa-save me-1"></i>{{ __('Save Settings') }}
                         </button>
                     </form>
                 </div>
@@ -99,7 +99,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">{{ __('Bot Filtering') }}</h5>
                     <a href="{{ route('statistics.bots') }}" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-robot me-1"></i>Manage Bot List
+                        <i class="fas fa-robot me-1"></i>{{ __('Manage Bot List') }}
                     </a>
                 </div>
                 <div class="card-body">
@@ -116,15 +116,15 @@
                 </div>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex justify-content-between">
-                        <span>Raw Events</span>
+                        <span>{{ __('Raw Events') }}</span>
                         <strong>{{ number_format($dbStats['raw_events'] ?? 0) }}</strong>
                     </li>
                     <li class="list-group-item d-flex justify-content-between">
-                        <span>Daily Aggregates</span>
+                        <span>{{ __('Daily Aggregates') }}</span>
                         <strong>{{ number_format($dbStats['daily_aggregates'] ?? 0) }}</strong>
                     </li>
                     <li class="list-group-item d-flex justify-content-between">
-                        <span>Monthly Aggregates</span>
+                        <span>{{ __('Monthly Aggregates') }}</span>
                         <strong>{{ number_format($dbStats['monthly_aggregates'] ?? 0) }}</strong>
                     </li>
                 </ul>

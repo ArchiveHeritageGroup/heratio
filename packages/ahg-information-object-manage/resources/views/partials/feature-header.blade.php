@@ -14,7 +14,7 @@
   </div>
   @if(isset($io))
     <a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left me-1"></i> Back
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
     </a>
   @endif
 </div>

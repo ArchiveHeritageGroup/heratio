@@ -20,7 +20,7 @@
     <i class="fas fa-clipboard-check me-2"></i> {{ $assessment->assessment_ref }}
     <span class="badge bg-{{ $assessment->status === 'finalised' ? 'success' : 'warning text-dark' }} ms-2">{{ $assessment->status }}</span>
   </h1>
-  <a href="{{ route('records.compliance.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-list me-1"></i>All assessments</a>
+  <a href="{{ route('records.compliance.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-list me-1"></i>{{ __('All assessments') }}</a>
 </div>
 
 @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
@@ -52,7 +52,7 @@
         @if($assessment->status !== 'finalised')
           <form method="POST" action="{{ route('records.compliance.run-checks', $assessment->id) }}" class="mt-3">
             @csrf
-            <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-redo me-1"></i>Re-run checks</button>
+            <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-redo me-1"></i>{{ __('Re-run checks') }}</button>
           </form>
         @endif
       </div>
@@ -70,9 +70,9 @@
     @forelse($checks as $c)
       <tr>
         <td>
-          @if($c['status'] === 'pass') <span class="badge bg-success">PASS</span>
-          @elseif($c['status'] === 'warn') <span class="badge bg-warning text-dark">WARN</span>
-          @elseif($c['status'] === 'fail') <span class="badge bg-danger">FAIL</span>
+          @if($c['status'] === 'pass') <span class="badge bg-success">{{ __('PASS') }}</span>
+          @elseif($c['status'] === 'warn') <span class="badge bg-warning text-dark">{{ __('WARN') }}</span>
+          @elseif($c['status'] === 'fail') <span class="badge bg-danger">{{ __('FAIL') }}</span>
           @else <span class="badge bg-secondary">N/A</span>
           @endif
         </td>
@@ -110,7 +110,7 @@
           <input type="text" name="signed_off_by" class="form-control form-control-sm" placeholder="{{ __('e.g. Jane Doe, Records Manager') }}" required>
         </div>
         <div class="col-md-6">
-          <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Finalise this assessment? This locks the score and findings.');"><i class="fas fa-stamp me-1"></i>Finalise</button>
+          <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Finalise this assessment? This locks the score and findings.');"><i class="fas fa-stamp me-1"></i>{{ __('Finalise') }}</button>
         </div>
       </form>
     </div>

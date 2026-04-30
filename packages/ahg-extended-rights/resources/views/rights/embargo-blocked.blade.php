@@ -45,12 +45,12 @@
               <form method="POST" action="{{ route('ext-rights.request-access') }}" class="d-inline">
                 @csrf
                 <input type="hidden" name="object_id" value="{{ $objectId ?? '' }}">
-                <button class="btn btn-primary"><i class="fas fa-key"></i> Request Access</button>
+                <button class="btn btn-primary"><i class="fas fa-key"></i> {{ __('Request Access') }}</button>
               </form>
               @endif
             @endauth
-            <a href="{{ url()->previous() }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Go Back</a>
-            <a href="/" class="btn btn-outline-secondary"><i class="fas fa-home"></i> Home</a>
+            <a href="{{ url()->previous() }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> {{ __('Go Back') }}</a>
+            <a href="/" class="btn btn-outline-secondary"><i class="fas fa-home"></i> {{ __('Home') }}</a>
           </div>
         </div>
       </div>

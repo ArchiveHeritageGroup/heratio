@@ -13,10 +13,10 @@
 
 @section('content')
 <div class="row g-3 mb-4">
-  <div class="col-md-3"><div class="card text-center"><div class="card-body py-3"><h3 class="mb-0">{{ number_format($stats['total_objects'] ?? 0) }}</h3><small class="text-muted">Total Objects</small></div></div></div>
-  <div class="col-md-3"><div class="card text-center border-success"><div class="card-body py-3"><h3 class="text-success mb-0">{{ number_format($stats['with_rights'] ?? 0) }}</h3><small class="text-muted">With Rights</small></div></div></div>
-  <div class="col-md-3"><div class="card text-center border-warning"><div class="card-body py-3"><h3 class="text-warning mb-0">{{ number_format($stats['without_rights'] ?? 0) }}</h3><small class="text-muted">Without Rights</small></div></div></div>
-  <div class="col-md-3"><div class="card text-center border-info"><div class="card-body py-3"><h3 class="text-info mb-0">{{ $stats['coverage_pct'] ?? 0 }}%</h3><small class="text-muted">Coverage</small></div></div></div>
+  <div class="col-md-3"><div class="card text-center"><div class="card-body py-3"><h3 class="mb-0">{{ number_format($stats['total_objects'] ?? 0) }}</h3><small class="text-muted">{{ __('Total Objects') }}</small></div></div></div>
+  <div class="col-md-3"><div class="card text-center border-success"><div class="card-body py-3"><h3 class="text-success mb-0">{{ number_format($stats['with_rights'] ?? 0) }}</h3><small class="text-muted">{{ __('With Rights') }}</small></div></div></div>
+  <div class="col-md-3"><div class="card text-center border-warning"><div class="card-body py-3"><h3 class="text-warning mb-0">{{ number_format($stats['without_rights'] ?? 0) }}</h3><small class="text-muted">{{ __('Without Rights') }}</small></div></div></div>
+  <div class="col-md-3"><div class="card text-center border-info"><div class="card-body py-3"><h3 class="text-info mb-0">{{ $stats['coverage_pct'] ?? 0 }}%</h3><small class="text-muted">{{ __('Coverage') }}</small></div></div></div>
 </div>
 
 @if(isset($byBasis) && count($byBasis) > 0)

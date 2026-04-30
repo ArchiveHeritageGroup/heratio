@@ -61,10 +61,10 @@
             </small>
             <div class="btn-group btn-group-sm">
                 <button type="submit" name="action" value="retry" class="btn btn-outline-primary" data-confirm="Retry selected files?">
-                    <i class="fas fa-redo me-1"></i>Retry selected
+                    <i class="fas fa-redo me-1"></i>{{ __('Retry selected') }}
                 </button>
                 <button type="submit" name="action" value="discard" class="btn btn-outline-danger" data-confirm="Discard selected files?">
-                    <i class="fas fa-ban me-1"></i>Discard selected
+                    <i class="fas fa-ban me-1"></i>{{ __('Discard selected') }}
                 </button>
             </div>
         </div>

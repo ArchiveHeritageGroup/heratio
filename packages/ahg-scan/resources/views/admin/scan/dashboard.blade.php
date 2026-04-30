@@ -19,10 +19,10 @@
     <p class="text-muted mb-0">Live view of watched folders and the ingest pipeline.</p>
     <div>
         <a href="{{ route('scan.folders.index') }}" class="btn btn-outline-secondary me-2">
-            <i class="fas fa-folder-open me-1"></i>Watched folders
+            <i class="fas fa-folder-open me-1"></i>{{ __('Watched folders') }}
         </a>
         <a href="{{ route('scan.inbox.index') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-inbox me-1"></i>Inbox
+            <i class="fas fa-inbox me-1"></i>{{ __('Inbox') }}
         </a>
     </div>
 </div>
@@ -87,7 +87,7 @@
                 <tr>
                     <td><code>{{ $f->code }}</code></td>
                     <td><a href="{{ route('scan.inbox.index', ['folder' => $f->code]) }}">{{ $f->label }}</a></td>
-                    <td>@if($f->enabled)<span class="badge bg-success">On</span>@else<span class="badge bg-secondary">Off</span>@endif</td>
+                    <td>@if($f->enabled)<span class="badge bg-success">On</span>@else<span class="badge bg-secondary">{{ __('Off') }}</span>@endif</td>
                     <td>{{ number_format($f->pending ?? 0) }}</td>
                     <td>{{ number_format($f->failed ?? 0) }}</td>
                     <td>{{ number_format($f->done ?? 0) }}</td>

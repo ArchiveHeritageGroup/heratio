@@ -50,7 +50,7 @@
                 <p class="card-text small text-muted">{{ $stmt->description ?? $stmt->definition ?? '' }}</p>
                 @if($stmt->uri ?? null)
                 <a href="{{ $stmt->uri }}" target="_blank" class="btn btn-sm btn-outline-secondary">
-                  <i class="fas fa-external-link-alt me-1"></i>View Statement
+                  <i class="fas fa-external-link-alt me-1"></i>{{ __('View Statement') }}
                 </a>
                 @endif
               </div>
@@ -92,17 +92,17 @@
                   <p class="card-text small text-muted mb-2">{{ $license->human_readable ?? '' }}</p>
                   <div class="small">
                     @if($license->allows_commercial ?? false)
-                      <span class="badge bg-success me-1">Commercial OK</span>
+                      <span class="badge bg-success me-1">{{ __('Commercial OK') }}</span>
                     @else
-                      <span class="badge bg-warning text-dark me-1">Non-Commercial</span>
+                      <span class="badge bg-warning text-dark me-1">{{ __('Non-Commercial') }}</span>
                     @endif
                     @if($license->allows_derivatives ?? false)
-                      <span class="badge bg-info me-1">Derivatives OK</span>
+                      <span class="badge bg-info me-1">{{ __('Derivatives OK') }}</span>
                     @else
-                      <span class="badge bg-danger me-1">No Derivatives</span>
+                      <span class="badge bg-danger me-1">{{ __('No Derivatives') }}</span>
                     @endif
                     @if($license->requires_share_alike ?? false)
-                      <span class="badge bg-primary">Share Alike</span>
+                      <span class="badge bg-primary">{{ __('Share Alike') }}</span>
                     @endif
                   </div>
                 </div>
@@ -111,7 +111,7 @@
             <div class="card-footer bg-transparent">
               @if($license->uri ?? null)
               <a href="{{ $license->uri }}" target="_blank" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-external-link-alt me-1"></i>View License
+                <i class="fas fa-external-link-alt me-1"></i>{{ __('View License') }}
               </a>
               @endif
             </div>
@@ -130,9 +130,9 @@
     <div class="card-body">
       <h6>{{ __('When to use Rights Statements:') }}</h6>
       <ul>
-        <li><strong>In Copyright statements</strong> - For works that are still under copyright protection</li>
-        <li><strong>No Copyright statements</strong> - For works in the public domain or with specific use restrictions</li>
-        <li><strong>Other statements</strong> - When copyright status is unclear or not yet evaluated</li>
+        <li><strong>{{ __('In Copyright statements') }}</strong> - For works that are still under copyright protection</li>
+        <li><strong>{{ __('No Copyright statements') }}</strong> - For works in the public domain or with specific use restrictions</li>
+        <li><strong>{{ __('Other statements') }}</strong> - When copyright status is unclear or not yet evaluated</li>
       </ul>
 
       <h6>{{ __('When to use Creative Commons:') }}</h6>
@@ -144,7 +144,7 @@
 
       <div class="alert alert-info mb-0">
         <i class="fas fa-info-circle me-2"></i>
-        <strong>Note:</strong> Rights Statements describe the copyright status of a work.
+        <strong>{{ __('Note:') }}</strong> Rights Statements describe the copyright status of a work.
         Creative Commons licenses are applied by the rights holder to grant permissions.
         They serve different purposes and may be used together.
       </div>

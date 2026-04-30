@@ -26,11 +26,11 @@
     <div>
         <div class="btn-group me-2">
             <a href="{{ route('ingest.template', 'archive') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-download me-1"></i>CSV Template
+                <i class="fas fa-download me-1"></i>{{ __('CSV Template') }}
             </a>
         </div>
         <a href="{{ route('ingest.configure') }}" class="btn btn btn-outline-secondary">
-            <i class="fas fa-plus me-1"></i>New Ingest
+            <i class="fas fa-plus me-1"></i>{{ __('New Ingest') }}
         </a>
     </div>
 </div>
@@ -42,7 +42,7 @@
             <h5 class="text-muted">{{ __('No ingest sessions yet') }}</h5>
             <p class="text-muted">Start a new ingest to batch-import records and digital objects</p>
             <a href="{{ route('ingest.configure') }}" class="btn btn btn-outline-secondary">
-                <i class="fas fa-plus me-1"></i>New Ingest
+                <i class="fas fa-plus me-1"></i>{{ __('New Ingest') }}
             </a>
         </div>
     </div>

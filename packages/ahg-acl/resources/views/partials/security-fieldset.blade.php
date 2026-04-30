@@ -63,7 +63,7 @@ if (isset($resource) && ($resource->id ?? null)) {
             </option>
           @endforeach
         </select>
-        <small class="text-muted">Security classification watermarks override all other watermarks.</small>
+        <small class="text-muted">{{ __('Security classification watermarks override all other watermarks.') }}</small>
       </div>
 
       <div id="classification-details" style="{{ $currentClassification ? '' : 'display: none;' }}">
@@ -163,7 +163,7 @@ if (isset($resource) && ($resource->id ?? null)) {
         <div class="card bg-light mb-3">
           <div class="card-body">
             <h6 class="card-title">{{ __('Upload NEW Custom Watermark') }}</h6>
-            <small class="text-muted d-block mb-2">Leave empty to keep existing selection above</small>
+            <small class="text-muted d-block mb-2">{{ __('Leave empty to keep existing selection above') }}</small>
 
             <div class="mb-2">
               <label for="new_watermark_name" class="form-label">{{ __('Watermark Name') }}</label>
@@ -175,7 +175,7 @@ if (isset($resource) && ($resource->id ?? null)) {
               <label for="new_watermark_file" class="form-label">{{ __('Watermark Image') }}</label>
               <input type="file" class="form-control form-control-sm" id="new_watermark_file" name="new_watermark_file"
                      accept="image/png,image/gif">
-              <small class="text-muted">PNG or GIF with transparency recommended</small>
+              <small class="text-muted">{{ __('PNG or GIF with transparency recommended') }}</small>
             </div>
 
             <div class="row">
@@ -213,10 +213,10 @@ if (isset($resource) && ($resource->id ?? null)) {
           <div class="form-check">
             <input class="form-check-input" type="checkbox" id="regenerate_derivatives" name="regenerate_derivatives" value="1">
             <label class="form-check-label" for="regenerate_derivatives">
-              <strong>Regenerate derivatives with new watermark</strong>
+              <strong>{{ __('Regenerate derivatives with new watermark') }}</strong>
             </label>
           </div>
-          <small class="text-muted">Check this to apply the new watermark to existing images. This may take a moment.</small>
+          <small class="text-muted">{{ __('Check this to apply the new watermark to existing images. This may take a moment.') }}</small>
         </div>
         @endif
 

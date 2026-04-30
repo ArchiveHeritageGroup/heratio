@@ -103,23 +103,23 @@
                 <style>
                   #uploadLimit_value { width: 6em }
                 </style>
-                <label for="uploadLimit_type">{{ __('Set the upload limit for this :type', ['type' => strtolower($repoLabel)]) }} <span class="badge bg-danger ms-1">Required</span></label>
+                <label for="uploadLimit_type">{{ __('Set the upload limit for this :type', ['type' => strtolower($repoLabel)]) }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="uploadLimit[type]" id="uploadLimit_type_disabled" value="disabled"{{ ('disabled' === $quotaType) ? ' checked' : '' }}>
                   <label class="form-check-label" for="uploadLimit_type_disabled">
-                    {{ __('Disable uploads') }} <span class="badge bg-secondary ms-1">Optional</span>
+                    {{ __('Disable uploads') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                   </label>
                 </div>
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="uploadLimit[type]" id="uploadLimit_type_limited" value="limited"{{ ('limited' === $quotaType) ? ' checked' : '' }}>
                   <label class="form-check-label" for="uploadLimit_type_limited">
-                    {!! __('Limit uploads to :input GB', ['input' => '<input class="form-control form-control-sm d-inline" id="uploadLimit_value" type="number" step="any" name="uploadLimit[value]" value="' . (($uploadLimit > 0) ? $uploadLimit : '') . '" />']) !!} <span class="badge bg-secondary ms-1">Optional</span>
+                    {!! __('Limit uploads to :input GB', ['input' => '<input class="form-control form-control-sm d-inline" id="uploadLimit_value" type="number" step="any" name="uploadLimit[value]" value="' . (($uploadLimit > 0) ? $uploadLimit : '') . '" />']) !!} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                   </label>
                 </div>
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="uploadLimit[type]" id="uploadLimit_type_unlimited" value="unlimited"{{ ('unlimited' === $quotaType) ? ' checked' : '' }}>
                   <label class="form-check-label" for="uploadLimit_type_unlimited">
-                    {{ __('Allow unlimited uploads') }} <span class="badge bg-secondary ms-1">Optional</span>
+                    {{ __('Allow unlimited uploads') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                   </label>
                 </div>
               </div>

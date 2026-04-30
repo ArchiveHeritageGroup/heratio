@@ -35,10 +35,10 @@
             $occupancyPct = $activeSeats > 0 ? round(($occupiedSeats / $activeSeats) * 100) : 0;
         @endphp
         <div class="row">
-            <div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body text-center py-2"><h4 class="mb-0">{{ $totalSeats }}</h4><small>Total Seats</small></div></div></div>
-            <div class="col-md-3"><div class="card bg-success text-white"><div class="card-body text-center py-2"><h4 class="mb-0">{{ $availableSeats }}</h4><small>Available</small></div></div></div>
-            <div class="col-md-3"><div class="card bg-warning text-dark"><div class="card-body text-center py-2"><h4 class="mb-0">{{ $occupiedSeats }}</h4><small>Occupied</small></div></div></div>
-            <div class="col-md-3"><div class="card bg-info text-white"><div class="card-body text-center py-2"><h4 class="mb-0">{{ $occupancyPct }}%</h4><small>Occupancy</small></div></div></div>
+            <div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body text-center py-2"><h4 class="mb-0">{{ $totalSeats }}</h4><small>{{ __('Total Seats') }}</small></div></div></div>
+            <div class="col-md-3"><div class="card bg-success text-white"><div class="card-body text-center py-2"><h4 class="mb-0">{{ $availableSeats }}</h4><small>{{ __('Available') }}</small></div></div></div>
+            <div class="col-md-3"><div class="card bg-warning text-dark"><div class="card-body text-center py-2"><h4 class="mb-0">{{ $occupiedSeats }}</h4><small>{{ __('Occupied') }}</small></div></div></div>
+            <div class="col-md-3"><div class="card bg-info text-white"><div class="card-body text-center py-2"><h4 class="mb-0">{{ $occupancyPct }}%</h4><small>{{ __('Occupancy') }}</small></div></div></div>
         </div>
     </div>
     @endif
@@ -51,7 +51,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Seats in {{ e($currentRoom->name) }}</h5>
-                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addSeatModal"><i class="fas fa-plus me-1"></i>Add Seat</button>
+                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addSeatModal"><i class="fas fa-plus me-1"></i>{{ __('Add Seat') }}</button>
             </div>
             <div class="card-body p-0">
                 @if(count($seats) > 0)
@@ -120,7 +120,7 @@
                     <div class="mb-3">
                         <label class="form-label">{{ __('Pattern *') }}</label>
                         <input type="text" name="pattern" class="form-control" placeholder="{{ __('e.g. A1-A10 or 1-20') }}" required>
-                        <small class="text-muted">Examples: A1-A10, 1-20, B1-B5</small>
+                        <small class="text-muted">{{ __('Examples: A1-A10, 1-20, B1-B5') }}</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">{{ __('Seat Type') }}</label>
@@ -134,7 +134,7 @@
                         <label class="form-label">{{ __('Zone') }}</label>
                         <input type="text" name="zone" class="form-control" placeholder="{{ __('e.g. Main Hall') }}">
                     </div>
-                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-plus-circle me-1"></i>Create Seats</button>
+                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-plus-circle me-1"></i>{{ __('Create Seats') }}</button>
                 </form>
             </div>
         </div>
@@ -146,7 +146,7 @@
                         <li class="mb-1"><span class="badge bg-secondary">{{ $st->code }}</span> {{ $st->label }}</li>
                     @endforeach
                 </ul>
-                <a href="{{ route('dropdown.index') }}?taxonomy=seat_type" class="btn btn-sm btn-outline-secondary mt-2 w-100"><i class="fas fa-cog me-1"></i>Manage in Dropdown Manager</a>
+                <a href="{{ route('dropdown.index') }}?taxonomy=seat_type" class="btn btn-sm btn-outline-secondary mt-2 w-100"><i class="fas fa-cog me-1"></i>{{ __('Manage in Dropdown Manager') }}</a>
             </div>
         </div>
     </div>
@@ -200,7 +200,7 @@
     <div class="modal-body">
         <div class="mb-3"><label class="form-label">{{ __('Researcher *') }}</label><select id="assignResearcherSearch" name="researcher_id" required></select></div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-success"><i class="fas fa-user-plus me-1"></i>Assign</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-success"><i class="fas fa-user-plus me-1"></i>{{ __('Assign') }}</button></div>
     </form>
 </div></div></div>
 

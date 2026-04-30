@@ -29,7 +29,7 @@
         <p class="text-muted">No contact information available for this authority record.</p>
         <p>
           <a href="{{ route('actor.edit', $actor->slug ?? '') }}" class="btn btn-outline-primary">
-            <i class="fas fa-edit me-1"></i>Edit actor record to add contacts
+            <i class="fas fa-edit me-1"></i>{{ __('Edit actor record to add contacts') }}
           </a>
         </p>
       @else

@@ -12,7 +12,7 @@
     </h5>
     <div>
       <a href="{{ route('metadata-extraction.index') }}" class="btn atom-btn-white btn-sm">
-        <i class="bi bi-arrow-left me-1"></i>Back to List
+        <i class="bi bi-arrow-left me-1"></i>{{ __('Back to List') }}
       </a>
     </div>
   </div>
@@ -65,11 +65,11 @@
         <h6>{{ __('Actions') }}</h6>
         <div class="d-flex gap-2 flex-wrap">
           <button type="button" class="btn atom-btn-outline-success btn-sm" id="extractBtn">
-            <i class="bi bi-download me-1"></i>Extract Metadata
+            <i class="bi bi-download me-1"></i>{{ __('Extract Metadata') }}
           </button>
           @if($metadata->count() > 0)
             <button type="button" class="btn atom-btn-outline-danger btn-sm" id="deleteBtn">
-              <i class="bi bi-trash me-1"></i>Delete Metadata
+              <i class="bi bi-trash me-1"></i>{{ __('Delete Metadata') }}
             </button>
           @endif
         </div>

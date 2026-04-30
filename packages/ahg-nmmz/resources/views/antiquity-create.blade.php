@@ -69,7 +69,7 @@
             <div class="col-md-6">
               <label class="form-label">{{ __('Estimated Age (Years)') }}</label>
               <input type="number" name="estimated_age_years" class="form-control" min="100" placeholder="{{ __('Minimum 100 years') }}">
-              <small class="text-muted">Must be over 100 years to qualify as antiquity</small>
+              <small class="text-muted">{{ __('Must be over 100 years to qualify as antiquity') }}</small>
             </div>
             <div class="col-md-6">
               <label class="form-label">{{ __('Dimensions') }}</label>
@@ -127,7 +127,7 @@
       <div class="card">
         <div class="card-body d-grid gap-2">
           <button type="submit" class="btn btn-primary btn-lg">
-            <i class="fas fa-save me-2"></i>Register Antiquity
+            <i class="fas fa-save me-2"></i>{{ __('Register Antiquity') }}
           </button>
           <a href="{{ route('nmmz.antiquities') }}" class="btn btn-outline-secondary">Cancel</a>
         </div>

@@ -59,7 +59,7 @@
               <td>
                 <a href="{{ route('actor.dedup.compare', ['id' => $pair['actor_a_id'], 'secondary_id' => $pair['actor_b_id']]) }}"
                    class="btn btn-sm atom-btn-white">
-                  <i class="fas fa-columns me-1"></i>Compare
+                  <i class="fas fa-columns me-1"></i>{{ __('Compare') }}
                 </a>
               </td>
             </tr>

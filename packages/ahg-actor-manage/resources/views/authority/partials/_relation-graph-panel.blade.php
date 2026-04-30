@@ -9,7 +9,7 @@ if (!$actorId) return;
 
 <div class="card mb-3 authority-graph-panel">
   <div class="card-header py-2 d-flex justify-content-between" style="background: var(--ahg-primary); color: #fff;">
-    <span><i class="fas fa-project-diagram me-1"></i>Relationship Graph</span>
+    <span><i class="fas fa-project-diagram me-1"></i>{{ __('Relationship Graph') }}</span>
     <div>
       <select id="graph-depth" class="form-select form-select-sm d-inline-block" style="width:auto">
         <option value="1">{{ __('Depth 1') }}</option>

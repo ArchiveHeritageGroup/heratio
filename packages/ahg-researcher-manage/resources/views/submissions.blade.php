@@ -15,18 +15,18 @@
             No results found
           @endif
         </h1>
-        <span class="small text-muted">Researcher Submissions</span>
+        <span class="small text-muted">{{ __('Researcher Submissions') }}</span>
       </div>
     </div>
     <div class="d-flex gap-2">
       <a href="{{ route('researcher.dashboard') }}" class="btn atom-btn-white">
-        <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+        <i class="fas fa-tachometer-alt me-1"></i> {{ __('Dashboard') }}
       </a>
       <a href="{{ route('researcher.import') }}" class="btn atom-btn-white">
-        <i class="fas fa-file-import me-1"></i> Import Exchange
+        <i class="fas fa-file-import me-1"></i> {{ __('Import Exchange') }}
       </a>
       <a href="{{ route('researcher.new-submission') }}" class="btn btn-success">
-        <i class="fas fa-plus me-1"></i> New Submission
+        <i class="fas fa-plus me-1"></i> {{ __('New Submission') }}
       </a>
     </div>
   </div>
@@ -72,9 +72,9 @@
               @endif
               <td>
                 @if($sub['source_type'] === 'online')
-                  <span class="badge bg-info">Online</span>
+                  <span class="badge bg-info">{{ __('Online') }}</span>
                 @else
-                  <span class="badge bg-secondary">Offline</span>
+                  <span class="badge bg-secondary">{{ __('Offline') }}</span>
                 @endif
               </td>
               <td>{{ number_format($sub['total_items'] ?? 0) }}</td>
@@ -82,25 +82,25 @@
               <td>
                 @switch($sub['status'])
                   @case('draft')
-                    <span class="badge bg-secondary">Draft</span>
+                    <span class="badge bg-secondary">{{ __('Draft') }}</span>
                     @break
                   @case('submitted')
-                    <span class="badge bg-warning text-dark">Submitted</span>
+                    <span class="badge bg-warning text-dark">{{ __('Submitted') }}</span>
                     @break
                   @case('under_review')
-                    <span class="badge bg-info">Under Review</span>
+                    <span class="badge bg-info">{{ __('Under Review') }}</span>
                     @break
                   @case('approved')
-                    <span class="badge bg-success">Approved</span>
+                    <span class="badge bg-success">{{ __('Approved') }}</span>
                     @break
                   @case('published')
-                    <span class="badge bg-primary">Published</span>
+                    <span class="badge bg-primary">{{ __('Published') }}</span>
                     @break
                   @case('returned')
-                    <span class="badge bg-danger">Returned</span>
+                    <span class="badge bg-danger">{{ __('Returned') }}</span>
                     @break
                   @case('rejected')
-                    <span class="badge bg-dark">Rejected</span>
+                    <span class="badge bg-dark">{{ __('Rejected') }}</span>
                     @break
                   @default
                     <span class="badge bg-light text-dark">{{ $sub['status'] }}</span>

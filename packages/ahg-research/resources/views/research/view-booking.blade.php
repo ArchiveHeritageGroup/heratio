@@ -135,25 +135,25 @@
         @if(($booking->status ?? '') === 'pending')
           <form action="{{ route('research.bookings.confirm', $booking->id) }}" method="POST" class="d-inline">
             @csrf
-            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-check me-1"></i>Confirm</button>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-check me-1"></i>{{ __('Confirm') }}</button>
           </form>
         @endif
 
         @if(($booking->status ?? '') === 'confirmed')
           <form action="{{ route('research.bookings.checkIn', $booking->id) }}" method="POST" class="d-inline">
             @csrf
-            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-sign-in-alt me-1"></i>Check In</button>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-sign-in-alt me-1"></i>{{ __('Check In') }}</button>
           </form>
           <form action="{{ route('research.bookings.noShow', $booking->id) }}" method="POST" class="d-inline">
             @csrf
-            <button type="submit" class="btn atom-btn-white"><i class="fas fa-user-slash me-1"></i>No Show</button>
+            <button type="submit" class="btn atom-btn-white"><i class="fas fa-user-slash me-1"></i>{{ __('No Show') }}</button>
           </form>
         @endif
 
         @if(($booking->status ?? '') === 'checked_in')
           <form action="{{ route('research.bookings.checkOut', $booking->id) }}" method="POST" class="d-inline">
             @csrf
-            <button type="submit" class="btn atom-btn-white"><i class="fas fa-sign-out-alt me-1"></i>Check Out</button>
+            <button type="submit" class="btn atom-btn-white"><i class="fas fa-sign-out-alt me-1"></i>{{ __('Check Out') }}</button>
           </form>
         @endif
       @endif
@@ -162,13 +162,13 @@
         <form action="{{ route('research.bookings.cancel', $booking->id) }}" method="POST" class="d-inline">
           @csrf
           <button type="submit" class="btn atom-btn-outline-danger" onclick="return confirm('Are you sure you want to cancel this booking?')">
-            <i class="fas fa-times me-1"></i>Cancel
+            <i class="fas fa-times me-1"></i>{{ __('Cancel') }}
           </button>
         </form>
       @endif
 
       <a href="{{ route('research.bookings') }}" class="btn atom-btn-white">
-        <i class="fas fa-arrow-left me-1"></i>Back
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}
       </a>
     </div>
   </div>

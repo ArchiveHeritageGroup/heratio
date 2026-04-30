@@ -3,7 +3,7 @@
 @if(!empty($rightsHolder) || !empty($provenance))
 <div class="provenance-display mb-2">
   @if(!empty($rightsHolder))
-    <p class="mb-1"><strong>Rights Holder:</strong>
+    <p class="mb-1"><strong>{{ __('Rights Holder:') }}</strong>
       @if(!empty($rightsHolder->slug))
         <a href="/{{ $rightsHolder->slug }}">{{ e($rightsHolder->authorized_form_of_name ?? '') }}</a>
       @else
@@ -15,7 +15,7 @@
     </p>
   @endif
   @if(!empty($provenance))
-    <p class="mb-1"><strong>Provenance:</strong> {{ e($provenance) }}</p>
+    <p class="mb-1"><strong>{{ __('Provenance:') }}</strong> {{ e($provenance) }}</p>
   @endif
 </div>
 @endif

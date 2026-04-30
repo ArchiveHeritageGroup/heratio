@@ -17,9 +17,9 @@
 @if($ioId > 0)
 <section class="card mt-3" id="ahg-find-similar">
   <div class="card-header bg-light d-flex justify-content-between align-items-center">
-    <span><i class="fas fa-magnifying-glass me-1"></i> Find Similar Records</span>
+    <span><i class="fas fa-magnifying-glass me-1"></i> {{ __('Find Similar Records') }}</span>
     <button type="button" id="ahg-find-similar-trigger" class="btn btn-sm btn-outline-primary">
-      <i class="fas fa-bolt"></i> Run
+      <i class="fas fa-bolt"></i> {{ __('Run') }}
     </button>
   </div>
   <div class="card-body small" id="ahg-find-similar-body">

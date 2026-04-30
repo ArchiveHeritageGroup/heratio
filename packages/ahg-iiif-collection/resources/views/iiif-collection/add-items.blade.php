@@ -8,7 +8,7 @@
         </div>
         <div class="card-body">
             <a href="{{ route('iiif-collection.view', $collection->id) }}" class="btn atom-btn-white w-100">
-                <i class="fas fa-arrow-left me-2"></i>Back to Collection
+                <i class="fas fa-arrow-left me-2"></i>{{ __('Back to Collection') }}
             </a>
         </div>
     </div>
@@ -21,15 +21,15 @@
             <form method="POST" action="{{ route('iiif-collection.add-items', $collection->id) }}">
                 @csrf
                 <div class="mb-3">
-                    <label class="form-label">Manifest URI <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-label">Manifest URI <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="url" class="form-control form-control-sm" name="manifest_uri" placeholder="{{ __('https://...') }}">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Label <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-label">Label <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="text" class="form-control form-control-sm" name="label">
                 </div>
                 <button type="submit" class="btn btn-sm atom-btn-outline-success w-100">
-                    <i class="fas fa-plus me-2"></i>Add External
+                    <i class="fas fa-plus me-2"></i>{{ __('Add External') }}
                 </button>
             </form>
         </div>
@@ -52,7 +52,7 @@
             <form method="POST" id="addItemsForm" action="{{ route('iiif-collection.add-items', $collection->id) }}">
                 @csrf
                 <div class="mb-3">
-                    <label class="form-label">Search for objects <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-label">Search for objects <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="text" class="form-control" id="objectSearchInput"
                            placeholder="{{ __('Type to search by title or identifier...') }}"
                            autocomplete="off">
@@ -60,14 +60,14 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Selected Items <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-label">Selected Items <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <div id="selectedItems" class="border rounded p-2" style="min-height: 50px;">
-                        <span class="text-muted" id="noSelection">No items selected</span>
+                        <span class="text-muted" id="noSelection">{{ __('No items selected') }}</span>
                     </div>
                 </div>
 
                 <button type="submit" class="btn atom-btn-outline-success btn-lg" id="addBtn" disabled>
-                    <i class="fas fa-plus me-2"></i>Add Selected Items to Collection
+                    <i class="fas fa-plus me-2"></i>{{ __('Add Selected Items to Collection') }}
                 </button>
             </form>
         </div>

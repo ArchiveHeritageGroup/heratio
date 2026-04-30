@@ -25,7 +25,7 @@
                         @csrf
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Export Format <span class="badge bg-secondary ms-1">Optional</span></label>
+                                <label class="form-label">Export Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <select name="format" class="form-select">
                                     <option value="csv">CSV</option>
                                 </select>
@@ -33,7 +33,7 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Limit <span class="badge bg-secondary ms-1">Optional</span></label>
+                                <label class="form-label">Limit <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <select name="limit" class="form-select">
                                     <option value="0">{{ __('No limit (all records)') }}</option>
                                     <option value="50">50 records</option>
@@ -47,10 +47,10 @@
 
                         <div class="d-flex justify-content-between align-items-center">
                             <a href="{{ route('export.index') }}" class="atom-btn-white">
-                                <i class="bi bi-arrow-left me-1"></i>Back
+                                <i class="bi bi-arrow-left me-1"></i>{{ __('Back') }}
                             </a>
                             <button type="submit" class="atom-btn-white">
-                                <i class="bi bi-download me-1"></i>Export
+                                <i class="bi bi-download me-1"></i>{{ __('Export') }}
                             </button>
                         </div>
                     </form>

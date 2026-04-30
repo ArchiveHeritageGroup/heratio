@@ -53,10 +53,10 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('ipsas.reports') }}" class="btn btn-outline-primary">
-                <i class="fas fa-file-alt me-1"></i> Reports
+                <i class="fas fa-file-alt me-1"></i> {{ __('Reports') }}
             </a>
             <a href="{{ route('ipsas.config') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-cog me-1"></i> Settings
+                <i class="fas fa-cog me-1"></i> {{ __('Settings') }}
             </a>
         </div>
     </div>
@@ -103,7 +103,7 @@
                 <div class="card-body text-center">
                     <h3>${{ number_format($statsValues['insured'] ?? 0, 0) }}</h3>
                     <p class="text-muted mb-0">Insured Value</p>
-                    <small class="text-muted">Total insurance coverage</small>
+                    <small class="text-muted">{{ __('Total insurance coverage') }}</small>
                 </div>
             </div>
         </div>
@@ -112,7 +112,7 @@
                 <div class="card-body text-center">
                     <h3>{{ $statsInsurance['expiring_soon'] ?? 0 }}</h3>
                     <p class="text-muted mb-0">Insurance Expiring</p>
-                    <small class="text-warning">Within 30 days</small>
+                    <small class="text-warning">{{ __('Within 30 days') }}</small>
                 </div>
             </div>
         </div>
@@ -131,14 +131,14 @@
                         <span class="badge bg-primary float-end">{{ $statsAssets['total'] ?? 0 }}</span>
                     </a>
                     <a href="{{ route('ipsas.asset.create') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-plus me-2"></i> Add New Asset
+                        <i class="fas fa-plus me-2"></i> {{ __('Add New Asset') }}
                     </a>
                     <a href="{{ route('ipsas.valuations') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-calculator me-2"></i> Valuations
                         <span class="badge bg-info float-end">{{ $statsRecentValuations }} this year</span>
                     </a>
                     <a href="{{ route('ipsas.impairments') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-chart-line me-2"></i> Impairment Reviews
+                        <i class="fas fa-chart-line me-2"></i> {{ __('Impairment Reviews') }}
                     </a>
                     <a href="{{ route('ipsas.insurance') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-shield-alt me-2"></i> Insurance Policies
@@ -147,7 +147,7 @@
                         @endif
                     </a>
                     <a href="{{ route('ipsas.financialYear') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-calendar-alt me-2"></i> Financial Year Summary
+                        <i class="fas fa-calendar-alt me-2"></i> {{ __('Financial Year Summary') }}
                     </a>
                 </div>
             </div>
@@ -315,15 +315,15 @@
                     <h6><i class="fas fa-book me-2"></i>IPSAS Reference</h6>
                     <div class="row">
                         <div class="col-md-4">
-                            <strong>IPSAS 17:</strong>
+                            <strong>{{ __('IPSAS 17:') }}</strong>
                             <p class="mb-0 small text-muted">Property, Plant & Equipment - heritage asset guidance</p>
                         </div>
                         <div class="col-md-4">
-                            <strong>Valuation Policy:</strong>
+                            <strong>{{ __('Valuation Policy:') }}</strong>
                             <p class="mb-0 small text-muted">Fair value revaluations every {{ $config['valuation_frequency_years'] ?? 5 }} years</p>
                         </div>
                         <div class="col-md-4">
-                            <strong>Current Standard:</strong>
+                            <strong>{{ __('Current Standard:') }}</strong>
                             <p class="mb-0 small text-muted">{{ $config['accounting_standard'] ?? 'IPSAS' }} - {{ $config['organization_name'] ?? 'Not configured' }}</p>
                         </div>
                     </div>

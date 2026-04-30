@@ -16,9 +16,9 @@ $history = (array)($itemData['history'] ?? []);
     <div class="card border-0 shadow-sm mt-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">{{ __('Item Info') }}</h6></div>
       <div class="card-body">
-        <small class="text-muted d-block mb-2">Reference Code</small><p class="mb-3">{{ $item->identifier ?? '-' }}</p>
-        <small class="text-muted d-block mb-2">Level</small><p class="mb-3">{{ $item->level_of_description ?? '-' }}</p>
-        <small class="text-muted d-block mb-2">Created</small><p class="mb-0">{{ date('M d, Y', strtotime($item->created_at)) }}</p>
+        <small class="text-muted d-block mb-2">{{ __('Reference Code') }}</small><p class="mb-3">{{ $item->identifier ?? '-' }}</p>
+        <small class="text-muted d-block mb-2">{{ __('Level') }}</small><p class="mb-3">{{ $item->level_of_description ?? '-' }}</p>
+        <small class="text-muted d-block mb-2">{{ __('Created') }}</small><p class="mb-0">{{ date('M d, Y', strtotime($item->created_at)) }}</p>
       </div>
     </div>
     @endif
@@ -50,8 +50,8 @@ $history = (array)($itemData['history'] ?? []);
       @endforeach
 
       <div class="d-flex justify-content-between">
-        <a href="{{ route('heritage.custodian') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Cancel</a>
-        <div><button type="submit" name="form_action" value="save" class="btn atom-btn-secondary"><i class="fas fa-check me-2"></i>Save Changes</button><button type="submit" name="form_action" value="save_continue" class="btn atom-btn-white ms-2">{{ __('Save & Continue') }}</button></div>
+        <a href="{{ route('heritage.custodian') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Cancel') }}</a>
+        <div><button type="submit" name="form_action" value="save" class="btn atom-btn-secondary"><i class="fas fa-check me-2"></i>{{ __('Save Changes') }}</button><button type="submit" name="form_action" value="save_continue" class="btn atom-btn-white ms-2">{{ __('Save & Continue') }}</button></div>
       </div>
     </form>
     @endif

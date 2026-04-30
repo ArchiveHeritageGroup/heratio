@@ -68,7 +68,7 @@
           <div class="pdf-wrapper">
             <div class="pdf-toolbar mb-2 d-flex justify-content-between align-items-center">
               <span class="badge bg-danger">
-                <i class="fas fa-file-pdf me-1"></i>PDF Document
+                <i class="fas fa-file-pdf me-1"></i>{{ __('PDF Document') }}
               </span>
               <div class="btn-group btn-group-sm">
                 <a href="{{ $masterUrl }}" target="_blank" class="btn atom-btn-white" title="{{ __('Open in new tab') }}">
@@ -106,7 +106,7 @@
           </div>
           @auth
             <a href="{{ $masterUrl }}" download class="btn btn-sm atom-btn-white">
-              <i class="fas fa-download me-1"></i>Download video
+              <i class="fas fa-download me-1"></i>{{ __('Download video') }}
             </a>
           @endauth
         </div>
@@ -152,7 +152,7 @@
               10s <i class="fas fa-forward"></i>
             </button>
             <div class="ms-3 d-flex align-items-center gap-1">
-              <span class="text-white small">Speed:</span>
+              <span class="text-white small">{{ __('Speed:') }}</span>
               <select id="{{ $audioPlayerId }}-speed" class="form-select form-select-sm" style="width:70px;background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.2);">
                 <option value="0.5">0.5x</option>
                 <option value="0.75">0.75x</option>
@@ -179,7 +179,7 @@
             </div>
             @auth
               <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-light">
-                <i class="fas fa-download me-1"></i>Download
+                <i class="fas fa-download me-1"></i>{{ __('Download') }}
               </a>
             @endauth
           </div>
@@ -249,7 +249,7 @@
               <span class="badge bg-secondary">{{ $masterObj->name ?? '3D Model' }}</span>
               <span class="badge bg-info">{{ strtoupper($modelExt) }}</span>
               @if($turntableMp4)
-                <span class="badge bg-dark"><i class="fas fa-video me-1"></i>Turntable MP4</span>
+                <span class="badge bg-dark"><i class="fas fa-video me-1"></i>{{ __('Turntable MP4') }}</span>
               @endif
             </div>
 
@@ -276,7 +276,7 @@
               <div id="{{ $modelViewerId }}-container" style="width: 100%; height: 400px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 8px; position: relative;">
                 <canvas id="{{ $modelViewerId }}-canvas" style="width:100%;height:100%;border-radius:8px;"></canvas>
                 <div id="{{ $modelViewerId }}-loading" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;">
-                  <i class="fas fa-spinner fa-spin fa-2x"></i><br><small>Loading 3D model...</small>
+                  <i class="fas fa-spinner fa-spin fa-2x"></i><br><small>{{ __('Loading 3D model...') }}</small>
                 </div>
               </div>
               <script type="importmap">
@@ -358,7 +358,7 @@
 
             <div id="{{ $modelViewerId }}-error" class="alert alert-danger mt-2 d-none" style="max-width:500px;">
               <i class="fas fa-exclamation-triangle me-1"></i>
-              <span>Failed to load 3D model.</span>
+              <span>{{ __('Failed to load 3D model.') }}</span>
               <br><small class="text-muted">File: {{ $masterObj->name ?? 'Unknown' }}</small>
             </div>
             <small class="text-muted mt-2">
@@ -366,7 +366,7 @@
             </small>
             <div class="mt-2 d-flex gap-2">
               <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-download me-1"></i>Download Original
+                <i class="fas fa-download me-1"></i>{{ __('Download Original') }}
               </a>
             </div>
           </div>
@@ -399,7 +399,7 @@
                   <i class="fas fa-redo me-1"></i>Double-click to reset
                 </small>
                 <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-light">
-                  <i class="fas fa-download me-1"></i>Download
+                  <i class="fas fa-download me-1"></i>{{ __('Download') }}
                 </a>
               </div>
             </div>
@@ -492,13 +492,13 @@
         <div class="d-flex justify-content-between align-items-center mb-2" style="position:relative;z-index:10;">
           <div class="btn-group btn-group-sm" role="group">
             <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white {{ $vType === 'openseadragon' ? 'active' : '' }}" title="{{ __('OpenSeadragon Deep Zoom') }}">
-              <i class="fas fa-search-plus me-1"></i>Deep Zoom
+              <i class="fas fa-search-plus me-1"></i>{{ __('Deep Zoom') }}
             </button>
             <button id="btn-mirador-{{ $viewerId }}" class="btn atom-btn-white {{ $vType === 'mirador' ? 'active' : '' }}" title="{{ __('Mirador IIIF Viewer') }}">
-              <i class="fas fa-columns me-1"></i>Mirador
+              <i class="fas fa-columns me-1"></i>{{ __('Mirador') }}
             </button>
             <button id="btn-img-{{ $viewerId }}" class="btn atom-btn-white {{ in_array($vType, ['single', 'carousel']) ? 'active' : '' }}" title="{{ __('Simple image') }}">
-              <i class="fas fa-image me-1"></i>Image
+              <i class="fas fa-image me-1"></i>{{ __('Image') }}
             </button>
           </div>
           <div class="btn-group btn-group-sm">
@@ -560,11 +560,11 @@
             @if($vShowControls && count($carouselSlides) > 1)
               <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ $viewerId }}" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
+                <span class="visually-hidden">{{ __('Previous') }}</span>
               </button>
               <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ $viewerId }}" data-bs-slide="next">
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
+                <span class="visually-hidden">{{ __('Next') }}</span>
               </button>
             @endif
           </div>
@@ -619,7 +619,7 @@
           <p class="text-muted">{{ $masterObj->name ?? 'Digital object' }}</p>
           @auth
             <a href="{{ $masterUrl }}" download class="btn atom-btn-white">
-              <i class="fas fa-download me-1"></i>Download file
+              <i class="fas fa-download me-1"></i>{{ __('Download file') }}
             </a>
           @endauth
         </div>
@@ -651,7 +651,7 @@
         @if($mediaMetadata)
           <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#media-info-collapse" aria-expanded="false" style="background:var(--ahg-primary);color:#fff">
-              <span><i class="fas fa-info-circle me-2"></i>Media Information</span>
+              <span><i class="fas fa-info-circle me-2"></i>{{ __('Media Information') }}</span>
               <span class="badge bg-{{ $doMediaType === 'audio' ? 'info' : 'primary' }}">
                 {{ ucfirst($doMediaType) }}{{ $mediaMetadata->format ? ' - ' . strtoupper($mediaMetadata->format) : '' }}
               </span>
@@ -692,7 +692,7 @@
             <div class="card-body text-center py-4">
               <i class="fas fa-music fa-2x text-muted mb-3 d-block"></i>
               <p class="text-muted mb-3">Media metadata has not been extracted yet.</p>
-              <button class="btn atom-btn-white" id="extract-btn-{{ $doId }}" data-action="extract" data-do-id="{{ $doId }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-magic me-1"></i>Extract Metadata</button>
+              <button class="btn atom-btn-white" id="extract-btn-{{ $doId }}" data-action="extract" data-do-id="{{ $doId }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-magic me-1"></i>{{ __('Extract Metadata') }}</button>
             </div>
           </div>
           @endauth
@@ -705,10 +705,10 @@
           @endphp
           <div class="card mb-3" id="transcription-panel-{{ $doId }}">
             <div class="card-header d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#transcription-collapse" aria-expanded="false" style="background:var(--ahg-primary);color:#fff">
-              <span><i class="fas fa-file-alt me-2"></i>Transcription</span>
+              <span><i class="fas fa-file-alt me-2"></i>{{ __('Transcription') }}</span>
               <div class="btn-group btn-group-sm" onclick="event.stopPropagation();">
-                <a href="/media/transcription/{{ $doId }}/vtt" class="btn atom-btn-white" title="{{ __('Download VTT') }}"><i class="fas fa-closed-captioning"></i> VTT</a>
-                <a href="/media/transcription/{{ $doId }}/srt" class="btn atom-btn-white" title="{{ __('Download SRT') }}"><i class="fas fa-file-video"></i> SRT</a>
+                <a href="/media/transcription/{{ $doId }}/vtt" class="btn atom-btn-white" title="{{ __('Download VTT') }}"><i class="fas fa-closed-captioning"></i> {{ __('VTT') }}</a>
+                <a href="/media/transcription/{{ $doId }}/srt" class="btn atom-btn-white" title="{{ __('Download SRT') }}"><i class="fas fa-file-video"></i> {{ __('SRT') }}</a>
                 @auth
                 <button class="btn atom-btn-white" title="{{ __('Re-transcribe') }}" data-action="retranscribe" data-do-id="{{ $doId }}" data-lang="{{ $transcription->language ?? 'en' }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-redo"></i></button>
                 @endauth
@@ -746,8 +746,8 @@
             {{-- View toggle --}}
             <div class="card-footer py-2">
               <div class="btn-group btn-group-sm">
-                <button class="btn atom-btn-white active" id="btn-text-{{ $doId }}"><i class="fas fa-align-left"></i> Full Text</button>
-                <button class="btn atom-btn-white" id="btn-segments-{{ $doId }}"><i class="fas fa-list"></i> Timed Segments</button>
+                <button class="btn atom-btn-white active" id="btn-text-{{ $doId }}"><i class="fas fa-align-left"></i> {{ __('Full Text') }}</button>
+                <button class="btn atom-btn-white" id="btn-segments-{{ $doId }}"><i class="fas fa-list"></i> {{ __('Timed Segments') }}</button>
               </div>
             </div>
             </div>{{-- /collapse --}}
@@ -760,7 +760,7 @@
               <i class="fas fa-microphone fa-2x text-muted mb-3 d-block"></i>
               <p class="text-muted mb-3">This {{ $doMediaType }} has not been transcribed yet.</p>
               <div class="d-flex justify-content-center gap-2 flex-wrap">
-                <button class="btn atom-btn-white" data-action="transcribe" data-do-id="{{ $doId }}" data-lang="en" data-csrf="{{ csrf_token() }}"><i class="fas fa-language me-1"></i>Transcribe (English)</button>
+                <button class="btn atom-btn-white" data-action="transcribe" data-do-id="{{ $doId }}" data-lang="en" data-csrf="{{ csrf_token() }}"><i class="fas fa-language me-1"></i>{{ __('Transcribe (English)') }}</button>
                 <button class="btn atom-btn-white" data-action="transcribe" data-do-id="{{ $doId }}" data-lang="af" data-csrf="{{ csrf_token() }}">{{ __('Afrikaans') }}</button>
               </div>
             </div>
@@ -772,7 +772,7 @@
         @if($snippets->isNotEmpty())
           <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-              <span><i class="fas fa-cut me-2"></i>Snippets</span>
+              <span><i class="fas fa-cut me-2"></i>{{ __('Snippets') }}</span>
               <span class="badge bg-secondary">{{ $snippets->count() }}</span>
             </div>
             <div class="list-group list-group-flush">
@@ -796,7 +796,7 @@
         @auth
         <div class="mb-3">
           <button class="btn btn-sm atom-btn-white" id="create-snippet-btn" onclick="document.getElementById('snippet-form').style.display=document.getElementById('snippet-form').style.display==='none'?'block':'none';">
-            <i class="fas fa-cut me-1"></i>Create Snippet
+            <i class="fas fa-cut me-1"></i>{{ __('Create Snippet') }}
           </button>
           <div id="snippet-form" style="display:none;" class="card mt-2">
             <div class="card-body">
@@ -808,12 +808,12 @@
               </div>
               <div class="mt-2 d-flex gap-2">
                 <button class="btn btn-sm atom-btn-white" onclick="var p=document.querySelector('audio,video');p&&(document.getElementById('snippet-start').value=p.currentTime.toFixed(1))">
-                  <i class="fas fa-sign-in-alt"></i> Mark IN
+                  <i class="fas fa-sign-in-alt"></i> {{ __('Mark IN') }}
                 </button>
                 <button class="btn btn-sm atom-btn-white" onclick="var p=document.querySelector('audio,video');p&&(document.getElementById('snippet-end').value=p.currentTime.toFixed(1))">
-                  <i class="fas fa-sign-out-alt"></i> Mark OUT
+                  <i class="fas fa-sign-out-alt"></i> {{ __('Mark OUT') }}
                 </button>
-                <button class="btn atom-btn-outline-light btn-sm" data-action="save-snippet" data-do-id="{{ $doId }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-save me-1"></i>Save Snippet</button>
+                <button class="btn atom-btn-outline-light btn-sm" data-action="save-snippet" data-do-id="{{ $doId }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-save me-1"></i>{{ __('Save Snippet') }}</button>
               </div>
             </div>
           </div>
@@ -830,7 +830,7 @@
         @if($hasTiffDigitalObject)
           <div class="text-center my-2">
             <a href="{{ route('tiffpdfmerge.create') }}?io_id={{ $io->id }}" class="btn atom-btn-white btn-sm">
-              <i class="fas fa-file-pdf me-1"></i> Merge to PDF
+              <i class="fas fa-file-pdf me-1"></i> {{ __('Merge to PDF') }}
             </a>
           </div>
         @endif

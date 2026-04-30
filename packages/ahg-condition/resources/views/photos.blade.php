@@ -55,7 +55,7 @@
       <div class="mb-3">
         @if($objectSlug)
           <a href="{{ url('/'.$objectSlug) }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-1"></i> Back
+            <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
           </a>
         @endif
       </div>
@@ -105,7 +105,7 @@
         </div>
 
         <button type="submit" class="btn btn-success" id="upload-btn">
-          <i class="fas fa-upload me-1"></i> Upload Photo
+          <i class="fas fa-upload me-1"></i> {{ __('Upload Photo') }}
         </button>
       </form>
     </div>

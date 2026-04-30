@@ -20,7 +20,7 @@
 <div class="row">
     <div class="col-md-8">
         <div class="card mb-3">
-            <div class="card-header"><strong>File</strong></div>
+            <div class="card-header"><strong>{{ __('File') }}</strong></div>
             <div class="card-body">
                 <dl class="row mb-0">
                     <dt class="col-sm-4">Original name</dt><dd class="col-sm-8">{{ $file->original_name }}</dd>
@@ -36,7 +36,7 @@
 
         @if($file->resolved_io_id)
         <div class="card mb-3">
-            <div class="card-header"><strong>Resulting information object</strong></div>
+            <div class="card-header"><strong>{{ __('Resulting information object') }}</strong></div>
             <div class="card-body">
                 <dl class="row mb-0">
                     <dt class="col-sm-4">IO #</dt><dd class="col-sm-8">{{ $file->resolved_io_id }}</dd>
@@ -54,7 +54,7 @@
 
         @if($file->error_message)
         <div class="card mb-3 border-danger">
-            <div class="card-header bg-danger text-white"><strong>Last error</strong></div>
+            <div class="card-header bg-danger text-white"><strong>{{ __('Last error') }}</strong></div>
             <div class="card-body">
                 <pre class="mb-0" style="white-space: pre-wrap">{{ $file->error_message }}</pre>
             </div>
@@ -64,7 +64,7 @@
 
     <div class="col-md-4">
         <div class="card mb-3">
-            <div class="card-header"><strong>Status</strong></div>
+            <div class="card-header"><strong>{{ __('Status') }}</strong></div>
             <div class="card-body">
                 @php $colors = ['pending'=>'secondary','processing'=>'primary','done'=>'success','failed'=>'danger','duplicate'=>'warning','quarantined'=>'warning']; @endphp
                 <p><span class="badge bg-{{ $colors[$file->status] ?? 'secondary' }} fs-6">{{ $file->status }}</span></p>
@@ -78,13 +78,13 @@
         </div>
 
         <div class="card">
-            <div class="card-header"><strong>Actions</strong></div>
+            <div class="card-header"><strong>{{ __('Actions') }}</strong></div>
             <div class="card-body d-grid gap-2">
                 @if(in_array($file->status, ['failed', 'pending']))
                     <form method="POST" action="{{ route('scan.inbox.retry', $file->id) }}">
                         @csrf
                         <button class="btn btn-outline-primary w-100">
-                            <i class="fas fa-redo me-1"></i>Retry now
+                            <i class="fas fa-redo me-1"></i>{{ __('Retry now') }}
                         </button>
                     </form>
                 @endif
@@ -92,7 +92,7 @@
                     <form method="POST" action="{{ route('scan.inbox.restore', $file->id) }}" onsubmit="return confirm('Restore this file from quarantine and re-dispatch for ingest?')">
                         @csrf
                         <button class="btn btn-outline-warning w-100">
-                            <i class="fas fa-box-open me-1"></i>Restore from quarantine
+                            <i class="fas fa-box-open me-1"></i>{{ __('Restore from quarantine') }}
                         </button>
                     </form>
                 @endif
@@ -100,7 +100,7 @@
                     <form method="POST" action="{{ route('scan.inbox.releaseRights', $file->id) }}" onsubmit="return confirm('Confirm rights have been reviewed and resume the pipeline for this file?')">
                         @csrf
                         <button class="btn btn-success w-100">
-                            <i class="fas fa-user-shield me-1"></i>Release rights + resume
+                            <i class="fas fa-user-shield me-1"></i>{{ __('Release rights + resume') }}
                         </button>
                     </form>
                 @endif
@@ -108,7 +108,7 @@
                     <form method="POST" action="{{ route('scan.inbox.discard', $file->id) }}" onsubmit="return confirm('Discard this file?')">
                         @csrf
                         <button class="btn btn-outline-danger w-100">
-                            <i class="fas fa-ban me-1"></i>Discard
+                            <i class="fas fa-ban me-1"></i>{{ __('Discard') }}
                         </button>
                     </form>
                 @endif

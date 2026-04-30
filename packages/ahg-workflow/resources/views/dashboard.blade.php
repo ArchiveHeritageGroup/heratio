@@ -7,7 +7,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 mb-0"><i class="fas fa-tasks me-2" aria-hidden="true"></i>Workflow Dashboard</h1>
     <a href="{{ route('workflow.admin') }}" class="btn btn-outline-primary">
-      <i class="fas fa-cog me-1" aria-hidden="true"></i>Manage Workflows
+      <i class="fas fa-cog me-1" aria-hidden="true"></i>{{ __('Manage Workflows') }}
     </a>
   </div>
 

@@ -12,8 +12,8 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="mb-0">{{ $objectTitle ?? '' }}</h4>
     <div class="btn-group btn-group-sm">
-      @if($objectSlug ?? null)<a href="{{ route('informationobject.show', $objectSlug) }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Back to Record</a>@endif
-      <a href="{{ $manifestUrl ?? '#' }}" class="btn btn-outline-info" target="_blank"><i class="fas fa-file-code me-1"></i>Manifest JSON</a>
+      @if($objectSlug ?? null)<a href="{{ route('informationobject.show', $objectSlug) }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Record') }}</a>@endif
+      <a href="{{ $manifestUrl ?? '#' }}" class="btn btn-outline-info" target="_blank"><i class="fas fa-file-code me-1"></i>{{ __('Manifest JSON') }}</a>
     </div>
   </div>
   <div id="iiif-viewer"></div>

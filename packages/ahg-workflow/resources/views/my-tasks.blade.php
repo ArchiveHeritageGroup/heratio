@@ -7,7 +7,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 mb-0"><i class="fas fa-clipboard-list me-2" aria-hidden="true"></i>My Tasks</h1>
     <a href="{{ route('workflow.dashboard') }}" class="btn btn-outline-secondary">
-      <i class="fas fa-arrow-left me-1" aria-hidden="true"></i>Dashboard
+      <i class="fas fa-arrow-left me-1" aria-hidden="true"></i>{{ __('Dashboard') }}
     </a>
   </div>
 
@@ -60,22 +60,22 @@
                   </td>
                   <td>
                     @if($task->status === 'claimed')
-                      <span class="badge bg-info">Claimed</span>
+                      <span class="badge bg-info">{{ __('Claimed') }}</span>
                     @elseif($task->status === 'in_progress')
-                      <span class="badge bg-primary">In Progress</span>
+                      <span class="badge bg-primary">{{ __('In Progress') }}</span>
                     @elseif($task->status === 'completed')
-                      <span class="badge bg-success">Completed</span>
+                      <span class="badge bg-success">{{ __('Completed') }}</span>
                     @else
-                      <span class="badge bg-warning text-dark">Pending</span>
+                      <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
                     @endif
                   </td>
                   <td>
                     @if($task->priority === 'high')
-                      <span class="badge bg-danger">High</span>
+                      <span class="badge bg-danger">{{ __('High') }}</span>
                     @elseif($task->priority === 'low')
-                      <span class="badge bg-secondary">Low</span>
+                      <span class="badge bg-secondary">{{ __('Low') }}</span>
                     @else
-                      <span class="badge bg-primary">Normal</span>
+                      <span class="badge bg-primary">{{ __('Normal') }}</span>
                     @endif
                   </td>
                   <td>
@@ -91,11 +91,11 @@
                   </td>
                   <td>
                     @if($task->decision === 'approved')
-                      <span class="badge bg-success">Approved</span>
+                      <span class="badge bg-success">{{ __('Approved') }}</span>
                     @elseif($task->decision === 'rejected')
-                      <span class="badge bg-danger">Rejected</span>
+                      <span class="badge bg-danger">{{ __('Rejected') }}</span>
                     @else
-                      <span class="badge bg-secondary">Pending</span>
+                      <span class="badge bg-secondary">{{ __('Pending') }}</span>
                     @endif
                   </td>
                   <td>

@@ -41,12 +41,12 @@
 {{-- Wizard Progress --}}
 <div class="mb-4">
     <div class="d-flex justify-content-between text-center">
-        <div class="flex-fill"><span class="badge bg-success rounded-pill">1</span><br><small class="text-muted">Configure</small></div>
-        <div class="flex-fill"><span class="badge bg-success rounded-pill">2</span><br><small class="text-muted">Upload</small></div>
-        <div class="flex-fill"><span class="badge bg-primary rounded-pill">3</span><br><small class="fw-bold">Map</small></div>
-        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">4</span><br><small class="text-muted">Validate</small></div>
-        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">5</span><br><small class="text-muted">Preview</small></div>
-        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">6</span><br><small class="text-muted">Commit</small></div>
+        <div class="flex-fill"><span class="badge bg-success rounded-pill">1</span><br><small class="text-muted">{{ __('Configure') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-success rounded-pill">2</span><br><small class="text-muted">{{ __('Upload') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-primary rounded-pill">3</span><br><small class="fw-bold">{{ __('Map') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">4</span><br><small class="text-muted">{{ __('Validate') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">5</span><br><small class="text-muted">{{ __('Preview') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">6</span><br><small class="text-muted">{{ __('Commit') }}</small></div>
     </div>
     <div class="progress mt-2" style="height: 4px;">
         <div class="progress-bar" style="width: 42%"></div>
@@ -76,7 +76,7 @@
                     <div class="form-check mb-2">
                         <input class="form-check-input" type="checkbox" id="enable_counter" name="metadata[_enable_counter]" value="1">
                         <label class="form-check-label" for="enable_counter">
-                            <strong>Add sequential counter to identifiers</strong>
+                            <strong>{{ __('Add sequential counter to identifiers') }}</strong>
                         </label>
                     </div>
                     <div id="counter-options" style="display:none;">
@@ -181,7 +181,7 @@
 
     <div class="d-flex justify-content-between">
         <a href="{{ route('ingest.upload', ['id' => $session->id ?? 0]) }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-1"></i>Back
+            <i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}
         </a>
         <button type="submit" class="btn btn-primary">
             Apply Metadata &amp; Validate <i class="fas fa-arrow-right ms-1"></i>
@@ -314,7 +314,7 @@
                         <option value="legacyId">{{ __('Match by legacyId') }}</option>
                         <option value="title">{{ __('Match by title') }}</option>
                     </select>
-                    <small class="text-muted">How to match digital objects from ZIP to CSV rows</small>
+                    <small class="text-muted">{{ __('How to match digital objects from ZIP to CSV rows') }}</small>
                 </div>
             </div>
 
@@ -323,11 +323,11 @@
                     <h6>{{ __('Legend') }}</h6>
                     <div class="d-flex align-items-center mb-1">
                         <span class="d-inline-block me-2 rounded" style="width:16px;height:16px;background:rgba(25,135,84,0.1);border:1px solid rgba(25,135,84,0.3)"></span>
-                        <small>Mapped (auto or manual)</small>
+                        <small>{{ __('Mapped (auto or manual)') }}</small>
                     </div>
                     <div class="d-flex align-items-center">
                         <span class="d-inline-block me-2 rounded" style="width:16px;height:16px;background:rgba(220,53,69,0.1);border:1px solid rgba(220,53,69,0.3)"></span>
-                        <small>Unmapped (needs attention)</small>
+                        <small>{{ __('Unmapped (needs attention)') }}</small>
                     </div>
                 </div>
             </div>
@@ -336,7 +336,7 @@
 
     <div class="d-flex justify-content-between">
         <a href="{{ route('ingest.upload', ['id' => $session->id ?? 0]) }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-1"></i>Back
+            <i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}
         </a>
         <button type="submit" class="btn btn-primary">
             Save Mappings &amp; Validate <i class="fas fa-arrow-right ms-1"></i>

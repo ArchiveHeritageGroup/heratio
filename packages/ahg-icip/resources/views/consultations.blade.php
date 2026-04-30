@@ -26,7 +26,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="bi bi-chat-dots me-2"></i>Consultation Log</h1>
     <a href="{{ route('ahgicip.consultation-edit') }}" class="btn btn-primary">
-      <i class="bi bi-plus-circle me-1"></i> Log Consultation
+      <i class="bi bi-plus-circle me-1"></i> {{ __('Log Consultation') }}
     </a>
   </div>
 
@@ -65,7 +65,7 @@
           </select>
         </div>
         <div class="col-md-4">
-          <button type="submit" class="btn btn-outline-primary me-2"><i class="bi bi-search"></i> Filter</button>
+          <button type="submit" class="btn btn-outline-primary me-2"><i class="bi bi-search"></i> {{ __('Filter') }}</button>
           <a href="{{ route('ahgicip.consultations') }}" class="btn btn-outline-secondary">Reset</a>
         </div>
       </form>

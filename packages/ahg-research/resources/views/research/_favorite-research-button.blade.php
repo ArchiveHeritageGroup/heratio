@@ -32,7 +32,7 @@
     @if(!$isFav)
     <button type="button" class="btn btn-sm btn-outline-danger dropdown-toggle dropdown-toggle-split"
             id="{{ $uid }}-dd" data-bs-toggle="dropdown" aria-expanded="false" title="{{ __('Choose folder') }}">
-        <span class="visually-hidden">Choose folder</span>
+        <span class="visually-hidden">{{ __('Choose folder') }}</span>
     </button>
     <ul class="dropdown-menu dropdown-menu-end" id="{{ $uid }}-menu" style="min-width:200px;">
         <li><h6 class="dropdown-header"><i class="fas fa-folder me-1"></i>Add to folder</h6></li>

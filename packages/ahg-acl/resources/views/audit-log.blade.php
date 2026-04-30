@@ -144,7 +144,7 @@
                       <div class="modal-body">
                         <pre class="bg-light p-3 rounded small">{{ is_string($log->details) ? $log->details : json_encode($log->details, JSON_PRETTY_PRINT) }}</pre>
                         @if($log->user_agent)
-                          <hr><small class="text-muted">User Agent</small>
+                          <hr><small class="text-muted">{{ __('User Agent') }}</small>
                           <div><code class="small">{{ $log->user_agent }}</code></div>
                         @endif
                       </div>

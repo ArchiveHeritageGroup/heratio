@@ -19,7 +19,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h2">
             <a href="{{ route('semantic-search.index') }}" class="text-decoration-none text-muted">
-                <i class="fas fa-brain me-2"></i>Semantic Search
+                <i class="fas fa-brain me-2"></i>{{ __('Semantic Search') }}
             </a>
             <i class="fas fa-chevron-right mx-2 small text-muted"></i>
             <a href="{{ route('semantic-search.terms') }}" class="text-decoration-none text-muted">
@@ -91,10 +91,10 @@
 
                 <div class="d-flex justify-content-end gap-2">
                     <a href="{{ route('semantic-search.terms') }}" class="btn btn-secondary">
-                        <i class="fas fa-times me-1"></i>Cancel
+                        <i class="fas fa-times me-1"></i>{{ __('Cancel') }}
                     </a>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-1"></i>Save Term
+                        <i class="fas fa-save me-1"></i>{{ __('Save Term') }}
                     </button>
                 </div>
             </form>

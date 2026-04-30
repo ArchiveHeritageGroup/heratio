@@ -84,7 +84,7 @@
   <div class="accordion-item">
     <h2 class="accordion-header">
       <button class="accordion-button {{ $showAdvanced ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#glamAdvancedSearchPanel" aria-expanded="{{ $showAdvanced ? 'true' : 'false' }}">
-        <i class="fas fa-sliders-h me-2"></i>Advanced search options
+        <i class="fas fa-sliders-h me-2"></i>{{ __('Advanced search options') }}
       </button>
     </h2>
     <div id="glamAdvancedSearchPanel" class="accordion-collapse collapse {{ $showAdvanced ? 'show' : '' }}">
@@ -93,14 +93,14 @@
 
           {{-- Sector Quick Filter Buttons --}}
           <div class="mb-4">
-            <label class="form-label fw-bold"><i class="fas fa-layer-group me-1"></i>Search in sector <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label fw-bold"><i class="fas fa-layer-group me-1"></i>Search in sector <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="d-flex flex-wrap gap-2">
-              <a href="{{ url('/glam/browse?showAdvanced=1') }}" class="btn {{ empty($currentType) ? 'atom-btn-white' : 'atom-btn-white' }}"><i class="fas fa-globe me-1"></i>All</a>
-              <a href="{{ url('/glam/browse?type=archive&showAdvanced=1') }}" class="btn {{ $currentType === 'archive' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}"><i class="fas fa-archive me-1"></i>Archive</a>
-              <a href="{{ url('/glam/browse?type=library&showAdvanced=1') }}" class="btn {{ $currentType === 'library' ? 'atom-btn-white text-white' : 'atom-btn-white' }}"><i class="fas fa-book me-1"></i>Library</a>
-              <a href="{{ url('/glam/browse?type=museum&showAdvanced=1') }}" class="btn {{ $currentType === 'museum' ? 'atom-btn-white' : 'atom-btn-white' }}"><i class="fas fa-landmark me-1"></i>Museum</a>
-              <a href="{{ url('/glam/browse?type=gallery&showAdvanced=1') }}" class="btn {{ $currentType === 'gallery' ? 'atom-btn-outline-danger' : 'atom-btn-outline-danger' }}"><i class="fas fa-palette me-1"></i>Gallery</a>
-              <a href="{{ url('/glam/browse?type=dam&showAdvanced=1') }}" class="btn {{ $currentType === 'dam' ? 'atom-btn-white' : 'atom-btn-white' }}"><i class="fas fa-images me-1"></i>Photos</a>
+              <a href="{{ url('/glam/browse?showAdvanced=1') }}" class="btn {{ empty($currentType) ? 'atom-btn-white' : 'atom-btn-white' }}"><i class="fas fa-globe me-1"></i>{{ __('All') }}</a>
+              <a href="{{ url('/glam/browse?type=archive&showAdvanced=1') }}" class="btn {{ $currentType === 'archive' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}"><i class="fas fa-archive me-1"></i>{{ __('Archive') }}</a>
+              <a href="{{ url('/glam/browse?type=library&showAdvanced=1') }}" class="btn {{ $currentType === 'library' ? 'atom-btn-white text-white' : 'atom-btn-white' }}"><i class="fas fa-book me-1"></i>{{ __('Library') }}</a>
+              <a href="{{ url('/glam/browse?type=museum&showAdvanced=1') }}" class="btn {{ $currentType === 'museum' ? 'atom-btn-white' : 'atom-btn-white' }}"><i class="fas fa-landmark me-1"></i>{{ __('Museum') }}</a>
+              <a href="{{ url('/glam/browse?type=gallery&showAdvanced=1') }}" class="btn {{ $currentType === 'gallery' ? 'atom-btn-outline-danger' : 'atom-btn-outline-danger' }}"><i class="fas fa-palette me-1"></i>{{ __('Gallery') }}</a>
+              <a href="{{ url('/glam/browse?type=dam&showAdvanced=1') }}" class="btn {{ $currentType === 'dam' ? 'atom-btn-white' : 'atom-btn-white' }}"><i class="fas fa-images me-1"></i>{{ __('Photos') }}</a>
             </div>
           </div>
 
@@ -117,40 +117,40 @@
             {{-- Basic Tab --}}
             <div class="tab-pane fade show active" id="adv-basic">
               <div class="row g-3">
-                <div class="col-md-6"><label class="form-label small fw-bold">Any field <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="query" class="form-control" value="{{ $params['query'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Title <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="title" class="form-control" value="{{ $params['title'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Identifier <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="identifier" class="form-control" value="{{ $params['identifier'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Reference code <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="referenceCode" class="form-control" value="{{ $params['referenceCode'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Any field <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="query" class="form-control" value="{{ $params['query'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="title" class="form-control" value="{{ $params['title'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Identifier <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="identifier" class="form-control" value="{{ $params['identifier'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Reference code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="referenceCode" class="form-control" value="{{ $params['referenceCode'] ?? '' }}"></div>
               </div>
             </div>
 
             {{-- Content Tab --}}
             <div class="tab-pane fade" id="adv-content">
               <div class="row g-3">
-                <div class="col-md-6"><label class="form-label small fw-bold">Scope and content <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="scopeAndContent" class="form-control" value="{{ $params['scopeAndContent'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Extent and medium <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="extentAndMedium" class="form-control" value="{{ $params['extentAndMedium'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Archival history <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="archivalHistory" class="form-control" value="{{ $params['archivalHistory'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Acquisition <span class="badge bg-warning ms-1">Recommended</span></label><input type="text" name="acquisition" class="form-control" value="{{ $params['acquisition'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Scope and content <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="scopeAndContent" class="form-control" value="{{ $params['scopeAndContent'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Extent and medium <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="extentAndMedium" class="form-control" value="{{ $params['extentAndMedium'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Archival history <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="archivalHistory" class="form-control" value="{{ $params['archivalHistory'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Acquisition <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label><input type="text" name="acquisition" class="form-control" value="{{ $params['acquisition'] ?? '' }}"></div>
               </div>
             </div>
 
             {{-- Access Points Tab --}}
             <div class="tab-pane fade" id="adv-access">
               <div class="row g-3">
-                <div class="col-md-6"><label class="form-label small fw-bold">Creator <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="creatorSearch" class="form-control" value="{{ $params['creatorSearch'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Subject <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="subjectSearch" class="form-control" value="{{ $params['subjectSearch'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Place <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="placeSearch" class="form-control" value="{{ $params['placeSearch'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Genre <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="genreSearch" class="form-control" value="{{ $params['genreSearch'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Creator <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="creatorSearch" class="form-control" value="{{ $params['creatorSearch'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Subject <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="subjectSearch" class="form-control" value="{{ $params['subjectSearch'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Place <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="placeSearch" class="form-control" value="{{ $params['placeSearch'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Genre <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="genreSearch" class="form-control" value="{{ $params['genreSearch'] ?? '' }}"></div>
               </div>
             </div>
 
             {{-- Dates Tab --}}
             <div class="tab-pane fade" id="adv-dates">
               <div class="row g-3">
-                <div class="col-md-4"><label class="form-label small fw-bold">Date from <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" name="startDate" class="form-control" value="{{ $params['startDate'] ?? '' }}"></div>
-                <div class="col-md-4"><label class="form-label small fw-bold">Date to <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" name="endDate" class="form-control" value="{{ $params['endDate'] ?? '' }}"></div>
+                <div class="col-md-4"><label class="form-label small fw-bold">Date from <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="startDate" class="form-control" value="{{ $params['startDate'] ?? '' }}"></div>
+                <div class="col-md-4"><label class="form-label small fw-bold">Date to <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="endDate" class="form-control" value="{{ $params['endDate'] ?? '' }}"></div>
                 <div class="col-md-4">
-                  <label class="form-label small fw-bold">Date matching <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label small fw-bold">Date matching <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select name="rangeType" class="form-select">
                     <option value="inclusive" {{ ($params['rangeType'] ?? '') === 'inclusive' ? 'selected' : '' }}>{{ __('Overlapping') }}</option>
                     <option value="exact" {{ ($params['rangeType'] ?? '') === 'exact' ? 'selected' : '' }}>{{ __('Exact') }}</option>
@@ -163,7 +163,7 @@
             <div class="tab-pane fade" id="adv-filters">
               {{-- Search specific field --}}
               <div class="mb-3 p-3 bg-light rounded">
-                <label class="form-label small fw-bold"><i class="fas fa-search me-1"></i>Search specific field <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label small fw-bold"><i class="fas fa-search me-1"></i>Search specific field <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div id="field-search-rows">
                   <div class="input-group mb-2 field-search-row">
                     <select class="form-select field-select" style="max-width: 200px;" onchange="this.nextElementSibling.name = this.value">
@@ -176,13 +176,13 @@
                   </div>
                 </div>
                 <button type="button" class="btn btn-sm atom-btn-white mt-1" id="add-field-search-btn">
-                  <i class="fas fa-plus me-1"></i>Add criterion
+                  <i class="fas fa-plus me-1"></i>{{ __('Add criterion') }}
                 </button>
               </div>
 
               <div class="row g-3">
                 <div class="col-md-4">
-                  <label class="form-label small fw-bold">Sector <span class="badge bg-warning ms-1">Recommended</span></label>
+                  <label class="form-label small fw-bold">Sector <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
                   <select name="type" class="form-select" id="sector-filter-select">
                     <option value="">{{ __('All sectors') }}</option>
                     <option value="archive" {{ $currentType === 'archive' ? 'selected' : '' }}>{{ __('Archive') }}</option>
@@ -193,7 +193,7 @@
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label small fw-bold">Level of description <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label small fw-bold">Level of description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   @php
                     // If a sector is active and has levels configured in Settings > Levels, use those; otherwise show all
                     $activeLevels = ($currentType && !empty($levelsBySectorMap[$currentType]))
@@ -209,7 +209,7 @@
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label small fw-bold">Repository <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label small fw-bold">Repository <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select name="repo" id="repo-select">
                     <option value="">{{ __('Any repository') }}</option>
                     @foreach($repositories as $repo)
@@ -218,7 +218,7 @@
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label small fw-bold">Digital objects <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label small fw-bold">Digital objects <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select name="hasDigital" class="form-select">
                     <option value="">{{ __('Any') }}</option>
                     <option value="1" {{ ($params['hasDigital'] ?? '') === '1' ? 'selected' : '' }}>{{ __('With digital objects') }}</option>
@@ -228,11 +228,11 @@
                 <div class="col-12">
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="topLevel" id="topLevel-all" value="0" {{ ($params['topLevel'] ?? '0') === '0' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="topLevel-all">All descriptions <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-check-label" for="topLevel-all">All descriptions <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="topLevel" id="topLevel-top" value="1" {{ ($params['topLevel'] ?? '') === '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="topLevel-top">Top-level only <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-check-label" for="topLevel-top">Top-level only <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 </div>
               </div>
@@ -242,8 +242,8 @@
           <input type="hidden" name="showAdvanced" value="1">
 
           <div class="d-flex gap-2 justify-content-end mt-4 pt-3 border-top">
-            <a href="{{ url('/glam/browse') }}" class="btn atom-btn-white"><i class="fas fa-undo me-1"></i>Reset</a>
-            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-search me-1"></i>Search</button>
+            <a href="{{ url('/glam/browse') }}" class="btn atom-btn-white"><i class="fas fa-undo me-1"></i>{{ __('Reset') }}</a>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-search me-1"></i>{{ __('Search') }}</button>
           </div>
         </form>
       </div>
@@ -268,7 +268,7 @@
   @endif
   @if(!empty(request()->query()))
     <button type="button" class="btn btn-sm atom-btn-outline-success py-0 px-2" data-bs-toggle="modal" data-bs-target="#saveGlamSearchModal">
-      <i class="fas fa-bookmark me-1"></i>Save Search
+      <i class="fas fa-bookmark me-1"></i>{{ __('Save Search') }}
     </button>
   @endif
 </div>
@@ -295,20 +295,20 @@
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Name * <span class="badge bg-danger ms-1">Required</span></label>
+          <label class="form-label">Name * <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <input type="text" id="glam-save-search-name" class="form-control" required>
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="glam-save-search-public">
-          <label class="form-check-label" for="glam-save-search-public"><i class="fas fa-link me-1"></i>Make public (shareable link) <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-check-label" for="glam-save-search-public"><i class="fas fa-link me-1"></i>Make public (shareable link) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="glam-save-search-global">
-          <label class="form-check-label" for="glam-save-search-global"><i class="fas fa-globe me-1"></i>Global (visible to all users) <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-check-label" for="glam-save-search-global"><i class="fas fa-globe me-1"></i>Global (visible to all users) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         </div>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" id="glam-save-search-notify">
-          <label class="form-check-label" for="glam-save-search-notify">Notify me of new results <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-check-label" for="glam-save-search-notify">Notify me of new results <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         </div>
       </div>
       <div class="modal-footer">

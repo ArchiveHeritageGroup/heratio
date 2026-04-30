@@ -6,16 +6,16 @@
 <div class="sidebar-content">
   <h4>{{ __('Spectrum Reports') }}</h4>
   <ul class="list-unstyled">
-    <li><a href="{{ route('ahgspectrum.report-object-entry') }}"><i class="fas fa-sign-in-alt me-2"></i>Object Entry</a></li>
-    <li><a href="{{ route('ahgspectrum.report-loans') }}"><i class="fas fa-exchange-alt me-2"></i>Loans</a></li>
-    <li><a href="{{ route('ahgspectrum.report-acquisitions') }}"><i class="fas fa-hand-holding me-2"></i>Acquisitions</a></li>
-    <li><a href="{{ route('ahgspectrum.report-movements') }}"><i class="fas fa-truck me-2"></i>Movements</a></li>
-    <li><a href="{{ route('ahgspectrum.report-conditions') }}"><i class="fas fa-heartbeat me-2"></i>Condition Checks</a></li>
-    <li><a href="{{ route('ahgspectrum.report-conservation') }}"><i class="fas fa-tools me-2"></i>Conservation</a></li>
-    <li><a href="{{ route('ahgspectrum.report-valuations') }}"><i class="fas fa-dollar-sign me-2"></i>Valuations</a></li>
+    <li><a href="{{ route('ahgspectrum.report-object-entry') }}"><i class="fas fa-sign-in-alt me-2"></i>{{ __('Object Entry') }}</a></li>
+    <li><a href="{{ route('ahgspectrum.report-loans') }}"><i class="fas fa-exchange-alt me-2"></i>{{ __('Loans') }}</a></li>
+    <li><a href="{{ route('ahgspectrum.report-acquisitions') }}"><i class="fas fa-hand-holding me-2"></i>{{ __('Acquisitions') }}</a></li>
+    <li><a href="{{ route('ahgspectrum.report-movements') }}"><i class="fas fa-truck me-2"></i>{{ __('Movements') }}</a></li>
+    <li><a href="{{ route('ahgspectrum.report-conditions') }}"><i class="fas fa-heartbeat me-2"></i>{{ __('Condition Checks') }}</a></li>
+    <li><a href="{{ route('ahgspectrum.report-conservation') }}"><i class="fas fa-tools me-2"></i>{{ __('Conservation') }}</a></li>
+    <li><a href="{{ route('ahgspectrum.report-valuations') }}"><i class="fas fa-dollar-sign me-2"></i>{{ __('Valuations') }}</a></li>
   </ul>
   <hr>
-  <a href="{{ route('reports.dashboard') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a>
+  <a href="{{ route('reports.dashboard') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a>
 </div>
 @endsection
 @section('title-block')<h1><i class="fas fa-clipboard-list me-2"></i>Spectrum Reports Dashboard</h1>@endsection
@@ -32,13 +32,13 @@
       <div class="card h-100">
         <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Procedure Summary</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item d-flex justify-content-between"><span>Object Entry</span><span class="badge bg-primary">{{ $stats['objectEntry'] ?? 0 }}</span></li>
-          <li class="list-group-item d-flex justify-content-between"><span>Object Exit</span><span class="badge bg-secondary">{{ $stats['objectExit'] ?? 0 }}</span></li>
-          <li class="list-group-item d-flex justify-content-between"><span>Loans In</span><span class="badge bg-success">{{ $stats['loanIn'] ?? 0 }}</span></li>
-          <li class="list-group-item d-flex justify-content-between"><span>Loans Out</span><span class="badge bg-info">{{ $stats['loanOut'] ?? 0 }}</span></li>
-          <li class="list-group-item d-flex justify-content-between"><span>Movements</span><span class="badge bg-warning">{{ $stats['movement'] ?? 0 }}</span></li>
-          <li class="list-group-item d-flex justify-content-between"><span>Conservation</span><span class="badge bg-danger">{{ $stats['conservation'] ?? 0 }}</span></li>
-          <li class="list-group-item d-flex justify-content-between"><span>Deaccession</span><span class="badge bg-dark">{{ $stats['deaccession'] ?? 0 }}</span></li>
+          <li class="list-group-item d-flex justify-content-between"><span>{{ __('Object Entry') }}</span><span class="badge bg-primary">{{ $stats['objectEntry'] ?? 0 }}</span></li>
+          <li class="list-group-item d-flex justify-content-between"><span>{{ __('Object Exit') }}</span><span class="badge bg-secondary">{{ $stats['objectExit'] ?? 0 }}</span></li>
+          <li class="list-group-item d-flex justify-content-between"><span>{{ __('Loans In') }}</span><span class="badge bg-success">{{ $stats['loanIn'] ?? 0 }}</span></li>
+          <li class="list-group-item d-flex justify-content-between"><span>{{ __('Loans Out') }}</span><span class="badge bg-info">{{ $stats['loanOut'] ?? 0 }}</span></li>
+          <li class="list-group-item d-flex justify-content-between"><span>{{ __('Movements') }}</span><span class="badge bg-warning">{{ $stats['movement'] ?? 0 }}</span></li>
+          <li class="list-group-item d-flex justify-content-between"><span>{{ __('Conservation') }}</span><span class="badge bg-danger">{{ $stats['conservation'] ?? 0 }}</span></li>
+          <li class="list-group-item d-flex justify-content-between"><span>{{ __('Deaccession') }}</span><span class="badge bg-dark">{{ $stats['deaccession'] ?? 0 }}</span></li>
         </ul>
       </div>
     </div>

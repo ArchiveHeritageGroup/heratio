@@ -34,7 +34,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1>{{ __('Storylines &amp; Narratives') }}</h1>
       <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addStorylineModal">
-        <i class="fas fa-plus"></i> Create Storyline
+        <i class="fas fa-plus"></i> {{ __('Create Storyline') }}
       </button>
     </div>
 
@@ -45,7 +45,7 @@
           <h5>{{ __('No storylines created yet') }}</h5>
           <p class="text-muted">Create narrative journeys through your exhibition with storylines.</p>
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStorylineModal">
-            <i class="fas fa-plus"></i> Create First Storyline
+            <i class="fas fa-plus"></i> {{ __('Create First Storyline') }}
           </button>
         </div>
       </div>
@@ -62,7 +62,7 @@
             </div>
             <div class="btn-group btn-group-sm">
               <a href="{{ route('exhibition.storyline', ['exhibitionId' => $exId, 'storylineId' => $sl->id ?? 0]) }}" class="btn btn-outline-primary">
-                <i class="fas fa-eye"></i> View
+                <i class="fas fa-eye"></i> {{ __('View') }}
               </a>
               <button type="button" class="btn btn-outline-secondary"><i class="fas fa-edit"></i></button>
               <button type="button" class="btn btn-outline-danger"><i class="fas fa-trash"></i></button>
@@ -115,13 +115,13 @@
       </div>
       <div class="card-body">
         <ul class="list-unstyled small mb-0">
-          <li class="mb-2"><strong>General</strong> - Default visitor tour</li>
-          <li class="mb-2"><strong>Guided Tour</strong> - For docent-led visits</li>
-          <li class="mb-2"><strong>Self-Guided</strong> - Independent visitor path</li>
-          <li class="mb-2"><strong>Educational</strong> - School groups and learning</li>
-          <li class="mb-2"><strong>Accessible</strong> - Accessibility-focused route</li>
-          <li class="mb-2"><strong>Highlights</strong> - Quick overview tour</li>
-          <li><strong>Thematic</strong> - Topic-specific journey</li>
+          <li class="mb-2"><strong>{{ __('General') }}</strong> - Default visitor tour</li>
+          <li class="mb-2"><strong>{{ __('Guided Tour') }}</strong> - For docent-led visits</li>
+          <li class="mb-2"><strong>{{ __('Self-Guided') }}</strong> - Independent visitor path</li>
+          <li class="mb-2"><strong>{{ __('Educational') }}</strong> - School groups and learning</li>
+          <li class="mb-2"><strong>{{ __('Accessible') }}</strong> - Accessibility-focused route</li>
+          <li class="mb-2"><strong>{{ __('Highlights') }}</strong> - Quick overview tour</li>
+          <li><strong>{{ __('Thematic') }}</strong> - Topic-specific journey</li>
         </ul>
       </div>
     </div>
@@ -131,7 +131,7 @@
         <h5 class="mb-0">{{ __('Tips') }}</h5>
       </div>
       <div class="card-body">
-        <p class="small text-muted mb-2"><strong>Storylines</strong> create narrative paths through your exhibition.</p>
+        <p class="small text-muted mb-2"><strong>{{ __('Storylines') }}</strong> create narrative paths through your exhibition.</p>
         <ul class="small text-muted mb-0">
           <li>Add stops to guide visitors</li>
           <li>Link stops to specific objects</li>

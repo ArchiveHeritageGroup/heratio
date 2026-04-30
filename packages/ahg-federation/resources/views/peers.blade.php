@@ -15,7 +15,7 @@
             <h4 class="mb-0"><i class="bi bi-hdd-network me-2"></i>Federation Peers</h4>
         </div>
         <a href="{{ route('federation.addPeer') }}" class="atom-btn-white">
-            <i class="bi bi-plus-circle me-1"></i>Add Peer
+            <i class="bi bi-plus-circle me-1"></i>{{ __('Add Peer') }}
         </a>
     </div>
 
@@ -49,9 +49,9 @@
                                     <td>{{ $peer->metadata_prefix ?? 'oai_dc' }}</td>
                                     <td>
                                         @if(($peer->is_active ?? false))
-                                            <span class="badge bg-success">Active</span>
+                                            <span class="badge bg-success">{{ __('Active') }}</span>
                                         @else
-                                            <span class="badge bg-secondary">Inactive</span>
+                                            <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                                         @endif
                                     </td>
                                     <td>{{ $peer->record_count ?? 0 }}</td>

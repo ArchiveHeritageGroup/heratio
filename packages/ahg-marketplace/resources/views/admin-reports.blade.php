@@ -47,7 +47,7 @@
       <div class="card-body py-3">
         <i class="fas fa-coins text-success mb-1 d-block" style="font-size: 1.5rem;"></i>
         <div class="h4 mb-0">ZAR {{ number_format($totalRevenue, 2) }}</div>
-        <small class="text-muted">Total Revenue</small>
+        <small class="text-muted">{{ __('Total Revenue') }}</small>
       </div>
     </div>
   </div>
@@ -56,7 +56,7 @@
       <div class="card-body py-3">
         <i class="fas fa-percentage text-primary mb-1 d-block" style="font-size: 1.5rem;"></i>
         <div class="h4 mb-0">ZAR {{ number_format($totalCommission, 2) }}</div>
-        <small class="text-muted">Total Commission</small>
+        <small class="text-muted">{{ __('Total Commission') }}</small>
       </div>
     </div>
   </div>
@@ -65,7 +65,7 @@
       <div class="card-body py-3">
         <i class="fas fa-wallet text-warning mb-1 d-block" style="font-size: 1.5rem;"></i>
         <div class="h4 mb-0">ZAR {{ number_format($netSellerPayouts, 2) }}</div>
-        <small class="text-muted">Net Seller Payouts</small>
+        <small class="text-muted">{{ __('Net Seller Payouts') }}</small>
       </div>
     </div>
   </div>
@@ -74,7 +74,7 @@
       <div class="card-body py-3">
         <i class="fas fa-receipt text-info mb-1 d-block" style="font-size: 1.5rem;"></i>
         <div class="h4 mb-0">{{ number_format($txnCount) }}</div>
-        <small class="text-muted">Transaction Count</small>
+        <small class="text-muted">{{ __('Transaction Count') }}</small>
       </div>
     </div>
   </div>

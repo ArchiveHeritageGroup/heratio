@@ -114,7 +114,7 @@
             </div>
           </div>
         </div>
-        <button type="button" class="btn btn-sm atom-btn-white mt-1" id="add-damage"><i class="fas fa-plus me-1"></i>Add Damage</button>
+        <button type="button" class="btn btn-sm atom-btn-white mt-1" id="add-damage"><i class="fas fa-plus me-1"></i>{{ __('Add Damage') }}</button>
       </div>
     </div>
 
@@ -153,7 +153,7 @@
     </div>
 
     <div class="d-flex gap-2">
-      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save Condition Report</button>
+      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ __('Save Condition Report') }}</button>
       <a href="{{ route('io.condition', $io->slug) }}" class="btn atom-btn-white">Cancel</a>
     </div>
 

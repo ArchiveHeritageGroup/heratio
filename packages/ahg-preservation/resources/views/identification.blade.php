@@ -25,18 +25,18 @@
             @if($siegfriedAvailable)
                 <div class="row">
                     <div class="col-md-4">
-                        <strong>Status:</strong> <span class="badge bg-success">Available</span>
+                        <strong>{{ __('Status:') }}</strong> <span class="badge bg-success">{{ __('Available') }}</span>
                     </div>
                     <div class="col-md-4">
-                        <strong>Version:</strong> {{ $siegfriedVersion['version'] ?? 'Unknown' }}
+                        <strong>{{ __('Version:') }}</strong> {{ $siegfriedVersion['version'] ?? 'Unknown' }}
                     </div>
                     <div class="col-md-4">
-                        <strong>Signature Date:</strong> {{ $siegfriedVersion['signature_date'] ?? 'Unknown' }}
+                        <strong>{{ __('Signature Date:') }}</strong> {{ $siegfriedVersion['signature_date'] ?? 'Unknown' }}
                     </div>
                 </div>
             @else
                 <div class="alert alert-danger mb-0">
-                    <strong>Siegfried is not installed.</strong>
+                    <strong>{{ __('Siegfried is not installed.') }}</strong>
                     <p class="mb-0 mt-2">Install with:</p>
                     <code>curl -sL "https://github.com/richardlehane/siegfried/releases/download/v1.11.1/siegfried_1.11.1-1_amd64.deb" -o /tmp/sf.deb && sudo dpkg -i /tmp/sf.deb</code>
                 </div>
@@ -46,12 +46,12 @@
 
     {{-- Stats --}}
     <div class="row mb-4">
-      <div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body text-center"><h3>{{ number_format($stats['total'] ?? 0) }}</h3><small>Total Objects</small></div></div></div>
-      <div class="col-md-3"><div class="card bg-success text-white"><div class="card-body text-center"><h3>{{ number_format($stats['identified'] ?? 0) }}</h3><small>Identified</small></div></div></div>
-      <div class="col-md-3"><div class="card bg-warning text-dark"><div class="card-body text-center"><h3>{{ number_format($stats['unidentified'] ?? 0) }}</h3><small>Unidentified</small></div></div></div>
+      <div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body text-center"><h3>{{ number_format($stats['total'] ?? 0) }}</h3><small>{{ __('Total Objects') }}</small></div></div></div>
+      <div class="col-md-3"><div class="card bg-success text-white"><div class="card-body text-center"><h3>{{ number_format($stats['identified'] ?? 0) }}</h3><small>{{ __('Identified') }}</small></div></div></div>
+      <div class="col-md-3"><div class="card bg-warning text-dark"><div class="card-body text-center"><h3>{{ number_format($stats['unidentified'] ?? 0) }}</h3><small>{{ __('Unidentified') }}</small></div></div></div>
       <div class="col-md-3"><div class="card bg-info text-white"><div class="card-body text-center">
           @php $coveragePct = ($stats['total'] ?? 0) > 0 ? round(($stats['identified'] ?? 0) / $stats['total'] * 100, 1) : 0; @endphp
-          <h3>{{ $coveragePct }}%</h3><small>Coverage</small>
+          <h3>{{ $coveragePct }}%</h3><small>{{ __('Coverage') }}</small>
       </div></div></div>
     </div>
 
@@ -66,19 +66,19 @@
                     @php $byConfidence = $byConfidence ?? []; @endphp
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-check-double text-success"></i> Certain</span>
+                            <span><i class="fas fa-check-double text-success"></i> {{ __('Certain') }}</span>
                             <span class="badge bg-success">{{ $byConfidence['certain'] ?? 0 }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-check text-primary"></i> High</span>
+                            <span><i class="fas fa-check text-primary"></i> {{ __('High') }}</span>
                             <span class="badge bg-primary">{{ $byConfidence['high'] ?? 0 }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-minus text-warning"></i> Medium</span>
+                            <span><i class="fas fa-minus text-warning"></i> {{ __('Medium') }}</span>
                             <span class="badge bg-warning text-dark">{{ $byConfidence['medium'] ?? 0 }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-question text-danger"></i> Low</span>
+                            <span><i class="fas fa-question text-danger"></i> {{ __('Low') }}</span>
                             <span class="badge bg-danger">{{ $byConfidence['low'] ?? 0 }}</span>
                         </li>
                     </ul>
@@ -96,19 +96,19 @@
                     @php $formatsByRisk = $formatsByRisk ?? []; @endphp
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-circle text-success"></i> Low Risk</span>
+                            <span><i class="fas fa-circle text-success"></i> {{ __('Low Risk') }}</span>
                             <span class="badge bg-success">{{ $formatsByRisk['low'] ?? 0 }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-circle text-warning"></i> Medium Risk</span>
+                            <span><i class="fas fa-circle text-warning"></i> {{ __('Medium Risk') }}</span>
                             <span class="badge bg-warning text-dark">{{ $formatsByRisk['medium'] ?? 0 }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-circle text-danger"></i> High Risk</span>
+                            <span><i class="fas fa-circle text-danger"></i> {{ __('High Risk') }}</span>
                             <span class="badge bg-danger">{{ $formatsByRisk['high'] ?? 0 }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-exclamation-triangle text-dark"></i> Critical Risk</span>
+                            <span><i class="fas fa-exclamation-triangle text-dark"></i> {{ __('Critical Risk') }}</span>
                             <span class="badge bg-dark">{{ $formatsByRisk['critical'] ?? 0 }}</span>
                         </li>
                     </ul>
@@ -128,12 +128,12 @@
                         <h2 class="{{ $withWarnings > 0 ? 'text-warning' : 'text-success' }}">
                             {{ $withWarnings }}
                         </h2>
-                        <small class="text-muted">Objects with identification warnings</small>
+                        <small class="text-muted">{{ __('Objects with identification warnings') }}</small>
                     </div>
                     @php $warningsList = $identificationsWithWarnings ?? []; @endphp
                     @if(!empty($warningsList))
                         <hr>
-                        <small class="text-muted">Recent warnings:</small>
+                        <small class="text-muted">{{ __('Recent warnings:') }}</small>
                         <ul class="list-unstyled small mt-2">
                             @foreach(array_slice((array)$warningsList, 0, 3) as $item)
                                 <li class="text-truncate" title="{{ $item->warning ?? '' }}">

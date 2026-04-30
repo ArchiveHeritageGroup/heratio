@@ -13,7 +13,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <span class="text-muted">{{ count($rooms) }} reading room(s)</span>
     <a href="{{ route('research.editRoom') }}" class="btn btn-primary">
-        <i class="fas fa-plus me-1"></i>Add Reading Room
+        <i class="fas fa-plus me-1"></i>{{ __('Add Reading Room') }}
     </a>
 </div>
 
@@ -26,9 +26,9 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <h5 class="card-title">{{ e($room->name) }}</h5>
                     @if(!empty($room->is_active))
-                        <span class="badge bg-success">Active</span>
+                        <span class="badge bg-success">{{ __('Active') }}</span>
                     @else
-                        <span class="badge bg-secondary">Inactive</span>
+                        <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                     @endif
                 </div>
                 @if(!empty($room->description))
@@ -56,7 +56,7 @@
             </div>
             <div class="card-footer bg-transparent">
                 <a href="{{ route('research.editRoom', ['id' => $room->id]) }}" class="btn btn-sm btn-outline-primary">
-                    <i class="fas fa-edit me-1"></i>Edit
+                    <i class="fas fa-edit me-1"></i>{{ __('Edit') }}
                 </a>
             </div>
         </div>

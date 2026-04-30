@@ -32,7 +32,7 @@
         </div>
         @if(!empty($object->slug))
             <a href="{{ url('/'.$object->slug) }}" class="btn btn-outline-primary" target="_blank">
-                <i class="fas fa-external-link-alt me-1"></i>View Record
+                <i class="fas fa-external-link-alt me-1"></i>{{ __('View Record') }}
             </a>
         @endif
     </div>

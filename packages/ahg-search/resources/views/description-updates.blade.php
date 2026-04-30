@@ -23,7 +23,7 @@
       <div class="row g-3">
         {{-- Entity type --}}
         <div class="col-md-3">
-          <label for="className" class="form-label">Entity type <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="className" class="form-label">Entity type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="className" id="className" class="form-select">
             @foreach($entityTypes as $value => $label)
               <option value="{{ $value }}" {{ $className === $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -33,53 +33,53 @@
 
         {{-- Date start --}}
         <div class="col-md-2">
-          <label for="dateStart" class="form-label">Date start <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="dateStart" class="form-label">Date start <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="date" name="dateStart" id="dateStart" class="form-control" value="{{ $dateStart }}">
         </div>
 
         {{-- Date end --}}
         <div class="col-md-2">
-          <label for="dateEnd" class="form-label">Date end <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="dateEnd" class="form-label">Date end <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="date" name="dateEnd" id="dateEnd" class="form-control" value="{{ $dateEnd }}">
         </div>
 
         {{-- Date of --}}
         <div class="col-md-2">
-          <label class="form-label">Date of <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label">Date of <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <div>
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="radio" name="dateOf" id="dateOfCreated" value="created" {{ $dateOf === 'created' ? 'checked' : '' }}>
-              <label class="form-check-label" for="dateOfCreated">Created <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-check-label" for="dateOfCreated">Created <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="radio" name="dateOf" id="dateOfUpdated" value="updated" {{ $dateOf === 'updated' ? 'checked' : '' }}>
-              <label class="form-check-label" for="dateOfUpdated">Updated <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-check-label" for="dateOfUpdated">Updated <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
           </div>
         </div>
 
         {{-- Publication status --}}
         <div class="col-md-3">
-          <label class="form-label">Publication status <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label">Publication status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <div>
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="radio" name="publicationStatus" id="pubAll" value="" {{ $publicationStatus === '' ? 'checked' : '' }}>
-              <label class="form-check-label" for="pubAll">All <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-check-label" for="pubAll">All <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="radio" name="publicationStatus" id="pubPublished" value="published" {{ $publicationStatus === 'published' ? 'checked' : '' }}>
-              <label class="form-check-label" for="pubPublished">Published <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-check-label" for="pubPublished">Published <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="radio" name="publicationStatus" id="pubDraft" value="draft" {{ $publicationStatus === 'draft' ? 'checked' : '' }}>
-              <label class="form-check-label" for="pubDraft">Draft <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-check-label" for="pubDraft">Draft <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
           </div>
         </div>
 
         {{-- User --}}
         <div class="col-md-3">
-          <label for="user" class="form-label">User <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="user" class="form-label">User <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="user" id="user" class="form-select">
             <option value="">{{ __('All users') }}</option>
             @foreach($users as $userId => $displayName)

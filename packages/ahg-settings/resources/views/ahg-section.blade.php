@@ -91,7 +91,7 @@
                              name="settings[{{ $key }}]" id="setting-{{ $key }}" value="1"
                              {{ in_array($val, ['1', 'true', 'yes']) ? 'checked' : '' }}>
                       <label class="form-check-label" for="setting-{{ $key }}">
-                        {{ $label }} <span class="badge bg-secondary ms-1">Optional</span>
+                        {{ $label }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                       </label>
                     </div>
                     @if($setting->description)
@@ -102,7 +102,7 @@
                 @elseif($isSelect)
                   {{-- Select dropdown --}}
                   <div class="mb-3">
-                    <label for="setting-{{ $key }}" class="form-label fw-semibold">{{ $label }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label for="setting-{{ $key }}" class="form-label fw-semibold">{{ $label }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <select name="settings[{{ $key }}]" id="setting-{{ $key }}" class="form-select">
                       @foreach($selectFields[$key] as $optVal => $optLabel)
                         <option value="{{ $optVal }}" {{ $val === (string) $optVal ? 'selected' : '' }}>{{ $optLabel }}</option>
@@ -116,7 +116,7 @@
                 @elseif($isColor)
                   {{-- Color picker --}}
                   <div class="mb-3">
-                    <label for="setting-{{ $key }}" class="form-label fw-semibold">{{ $label }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label for="setting-{{ $key }}" class="form-label fw-semibold">{{ $label }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <div class="input-group" style="max-width: 300px;">
                       <input type="color" class="form-control form-control-color" id="setting-{{ $key }}-picker"
                              value="{{ $val ?: '#000000' }}"
@@ -133,7 +133,7 @@
                 @elseif($isPassword)
                   {{-- Password field --}}
                   <div class="mb-3">
-                    <label for="setting-{{ $key }}" class="form-label fw-semibold">{{ $label }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label for="setting-{{ $key }}" class="form-label fw-semibold">{{ $label }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <div class="input-group" style="max-width: 500px;">
                       <input type="password" class="form-control" name="settings[{{ $key }}]" id="setting-{{ $key }}"
                              value="{{ e($val) }}" autocomplete="off">
@@ -150,7 +150,7 @@
                 @elseif($isTextarea)
                   {{-- Textarea --}}
                   <div class="mb-3">
-                    <label for="setting-{{ $key }}" class="form-label fw-semibold">{{ $label }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label for="setting-{{ $key }}" class="form-label fw-semibold">{{ $label }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <textarea name="settings[{{ $key }}]" id="setting-{{ $key }}" class="form-control font-monospace"
                               rows="8">{{ e($val) }}</textarea>
                     @if($setting->description)
@@ -161,7 +161,7 @@
                 @elseif($isNumeric)
                   {{-- Number input --}}
                   <div class="mb-3">
-                    <label for="setting-{{ $key }}" class="form-label fw-semibold">{{ $label }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label for="setting-{{ $key }}" class="form-label fw-semibold">{{ $label }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="number" class="form-control" name="settings[{{ $key }}]" id="setting-{{ $key }}"
                            value="{{ e($val) }}" style="max-width: 300px;">
                     @if($setting->description)
@@ -172,7 +172,7 @@
                 @else
                   {{-- Default text input --}}
                   <div class="mb-3">
-                    <label for="setting-{{ $key }}" class="form-label fw-semibold">{{ $label }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label for="setting-{{ $key }}" class="form-label fw-semibold">{{ $label }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="text" class="form-control" name="settings[{{ $key }}]" id="setting-{{ $key }}"
                            value="{{ e($val) }}">
                     @if($setting->description)
@@ -185,7 +185,7 @@
           </div>
 
           <div class="d-flex gap-2">
-            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
             <a href="{{ route('settings.index') }}" class="btn atom-btn-white">Back</a>
           </div>
         </form>

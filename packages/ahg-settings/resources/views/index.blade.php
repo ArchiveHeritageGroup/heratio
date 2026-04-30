@@ -253,14 +253,14 @@
       <div class="row align-items-center">
         <div class="col-md-8">
           <p class="mb-0">
-            <strong>Create multi-page PDF documents from images</strong><br>
+            <strong>{{ __('Create multi-page PDF documents from images') }}</strong><br>
             <small class="text-muted">Upload multiple TIFF, JPEG, or PNG files and merge them into a single PDF/A archival document. Jobs run in the background and can be attached directly to archival records.</small>
           </p>
         </div>
         <div class="col-md-4 text-end">
           @if(\Route::has('preservation.tiffpdfmerge.index'))
             <a href="{{ route('preservation.tiffpdfmerge.index') }}" class="btn btn-primary btn-lg">
-              <i class="fas fa-file-pdf me-1"></i> Create PDF
+              <i class="fas fa-file-pdf me-1"></i> {{ __('Create PDF') }}
             </a>
           @endif
         </div>

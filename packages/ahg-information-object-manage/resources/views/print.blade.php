@@ -12,7 +12,7 @@
   {{-- Breadcrumb / hierarchy context --}}
   @if(!empty($breadcrumbs))
     <div style="font-size: 10pt; color: #666; margin-bottom: 12px;">
-      <strong>Part of:</strong>
+      <strong>{{ __('Part of:') }}</strong>
       @foreach($breadcrumbs as $bc)
         {{ $bc->title ?? '[Untitled]' }}@if(!$loop->last) &raquo; @endif
       @endforeach

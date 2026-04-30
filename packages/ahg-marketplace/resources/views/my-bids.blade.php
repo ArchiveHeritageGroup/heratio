@@ -50,13 +50,13 @@
                 <td class="text-center">
                   @if($w->payment_status === 'paid')
                     <a href="{{ route('ahgmarketplace.my-purchases') }}" class="btn btn-sm btn-outline-success">
-                      <i class="fas fa-receipt me-1"></i> View receipt
+                      <i class="fas fa-receipt me-1"></i> {{ __('View receipt') }}
                     </a>
                   @else
                     <form method="POST" action="{{ route('ahgmarketplace.checkout-win', ['auctionId' => $w->auction_id]) }}" class="d-inline">
                       @csrf
                       <button type="submit" class="btn btn-sm btn-success">
-                        <i class="fas fa-credit-card me-1"></i> Pay now
+                        <i class="fas fa-credit-card me-1"></i> {{ __('Pay now') }}
                       </button>
                     </form>
                   @endif

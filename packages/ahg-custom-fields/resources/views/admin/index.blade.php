@@ -7,8 +7,8 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2><i class="bi bi-input-cursor-text"></i> Custom Fields</h2>
         <div>
-            <a href="{{ route('customFields.export') }}" class="atom-btn-white me-2"><i class="bi bi-download me-1"></i>Export</a>
-            <a href="{{ route('customFields.add') }}" class="atom-btn-white"><i class="bi bi-plus me-1"></i>Add Field</a>
+            <a href="{{ route('customFields.export') }}" class="atom-btn-white me-2"><i class="bi bi-download me-1"></i>{{ __('Export') }}</a>
+            <a href="{{ route('customFields.add') }}" class="atom-btn-white"><i class="bi bi-plus me-1"></i>{{ __('Add Field') }}</a>
         </div>
     </div>
 
@@ -48,16 +48,16 @@
                                     <td>{{ $def->field_type ?? '' }}</td>
                                     <td>
                                         @if($def->is_required ?? false)
-                                            <span class="badge bg-warning text-dark">Yes</span>
+                                            <span class="badge bg-warning text-dark">{{ __('Yes') }}</span>
                                         @else
                                             <span class="text-muted">No</span>
                                         @endif
                                     </td>
                                     <td>
                                         @if($def->is_active ?? true)
-                                            <span class="badge bg-success">Active</span>
+                                            <span class="badge bg-success">{{ __('Active') }}</span>
                                         @else
-                                            <span class="badge bg-secondary">Inactive</span>
+                                            <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                                         @endif
                                     </td>
                                     <td>

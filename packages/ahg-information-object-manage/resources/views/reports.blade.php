@@ -14,7 +14,7 @@
         </div>
         <div class="list-group list-group-flush">
           <a href="{{ route('informationobject.show', $io->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-arrow-left me-1"></i> Back to description
+            <i class="fas fa-arrow-left me-1"></i> {{ __('Back to description') }}
           </a>
         </div>
       </div>
@@ -53,7 +53,7 @@
                 <form action="{{ route('informationobject.reports', $io->slug) }}" method="POST">
                   @csrf
                   <div class="mb-3">
-                    <label for="report" class="form-label">Select new report to generate: <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label for="report" class="form-label">Select new report to generate: <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <select name="report" id="report" class="form-select">
                       @foreach($reportTypes as $key => $label)
                         <option value="{{ $key }}">{{ $label }}</option>

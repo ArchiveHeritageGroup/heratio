@@ -165,11 +165,11 @@
       <div class="card-body">
         <h6>{{ __('Exhibition Types') }}</h6>
         <ul class="small">
-          <li><strong>Permanent</strong> - Long-term display, rarely changes</li>
-          <li><strong>Temporary</strong> - Fixed duration, typically 3-12 months</li>
-          <li><strong>Traveling</strong> - Moves between venues</li>
-          <li><strong>Online</strong> - Virtual/digital exhibition</li>
-          <li><strong>Pop-up</strong> - Short-term, often &lt; 1 month</li>
+          <li><strong>{{ __('Permanent') }}</strong> - Long-term display, rarely changes</li>
+          <li><strong>{{ __('Temporary') }}</strong> - Fixed duration, typically 3-12 months</li>
+          <li><strong>{{ __('Traveling') }}</strong> - Moves between venues</li>
+          <li><strong>{{ __('Online') }}</strong> - Virtual/digital exhibition</li>
+          <li><strong>{{ __('Pop-up') }}</strong> - Short-term, often &lt; 1 month</li>
         </ul>
 
         <h6 class="mt-3">{{ __('After Creating') }}</h6>

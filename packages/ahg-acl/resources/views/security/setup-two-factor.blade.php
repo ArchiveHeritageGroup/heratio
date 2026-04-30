@@ -56,7 +56,7 @@
               </div>
               <div class="d-grid">
                 <button type="submit" class="btn btn-success btn-lg">
-                  <i class="fas fa-check-circle"></i> Confirm & Activate
+                  <i class="fas fa-check-circle"></i> {{ __('Confirm & Activate') }}
                 </button>
               </div>
             </div>

@@ -42,11 +42,11 @@
       <i class="fas fa-3x fa-layer-group me-3 text-primary" aria-hidden="true"></i>
       <div>
         <h1 class="mb-0">{{ __('Display Profiles') }}</h1>
-        <span class="small text-muted">Configure how objects are displayed in different domains</span>
+        <span class="small text-muted">{{ __('Configure how objects are displayed in different domains') }}</span>
       </div>
     </div>
     <a href="{{ route('glam.index') }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left me-1"></i> Back
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
     </a>
   </div>
 
@@ -87,7 +87,7 @@
                     <th class="text-muted">{{ __('Default:') }}</th>
                     <td>
                       @if(!empty($profile->is_default))
-                        <span class="badge bg-success">Yes</span>
+                        <span class="badge bg-success">{{ __('Yes') }}</span>
                       @else
                         <span class="badge bg-secondary">No</span>
                       @endif

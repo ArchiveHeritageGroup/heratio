@@ -126,8 +126,8 @@
     </div>
 
     <div class="d-flex justify-content-between">
-      <a href="{{ route('settings.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back to Settings</a>
-      <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Settings</button>
+      <a href="{{ route('settings.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}</a>
+      <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save Settings') }}</button>
     </div>
   </form>
 @endsection

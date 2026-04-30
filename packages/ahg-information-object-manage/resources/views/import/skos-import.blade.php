@@ -34,7 +34,7 @@
         <div id="import-collapse" class="accordion-collapse collapse show" aria-labelledby="import-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label class="form-label" for="taxonomy-select">Taxonomy <span class="badge bg-danger ms-1">Required</span></label>
+              <label class="form-label" for="taxonomy-select">Taxonomy <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select class="form-select" name="taxonomy" id="taxonomy-select" required>
                 <option value="">-- Select a taxonomy --</option>
                 @foreach($taxonomies as $taxonomy)
@@ -54,12 +54,12 @@
         <div id="select-collapse" class="accordion-collapse collapse show" aria-labelledby="select-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="file-input" class="form-label">Select a file to import <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="file-input" class="form-label">Select a file to import <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input class="form-control" type="file" id="file-input" name="file" accept=".xml,.rdf,.skos">
             </div>
 
             <div class="mb-3">
-              <label for="url-input" class="form-label">Or a remote resource <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="url-input" class="form-label">Or a remote resource <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input class="form-control" type="text" id="url-input" name="url" placeholder="{{ __('https://') }}" value="{{ old('url') }}">
             </div>
           </div>

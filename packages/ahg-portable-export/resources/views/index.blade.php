@@ -8,10 +8,10 @@
 
   <div class="d-flex mb-3">
     <a href="{{ url('/admin') }}" class="btn btn-outline-secondary btn-sm me-2">
-      <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Dashboard') }}
     </a>
     <a href="{{ route('portable-export.import') }}" class="btn btn-outline-success btn-sm">
-      <i class="fas fa-file-import me-1"></i>Import Archive
+      <i class="fas fa-file-import me-1"></i>{{ __('Import Archive') }}
     </a>
   </div>
 
@@ -115,17 +115,17 @@
                 <input type="radio" class="btn-check" name="mode" id="mode-viewer" value="read_only" checked>
                 <label class="btn btn-outline-primary" for="mode-viewer">
                   <i class="fas fa-eye me-1"></i>Viewer Export
-                  <br><small class="fw-normal">HTML viewer for offline browsing</small>
+                  <br><small class="fw-normal">{{ __('HTML viewer for offline browsing') }}</small>
                 </label>
                 <input type="radio" class="btn-check" name="mode" id="mode-editable" value="editable">
                 <label class="btn btn-outline-primary" for="mode-editable">
                   <i class="fas fa-pen me-1"></i>Editable Export
-                  <br><small class="fw-normal">Viewer with notes + file import</small>
+                  <br><small class="fw-normal">{{ __('Viewer with notes + file import') }}</small>
                 </label>
                 <input type="radio" class="btn-check" name="mode" id="mode-archive" value="archive">
                 <label class="btn btn-outline-success" for="mode-archive">
                   <i class="fas fa-archive me-1"></i>Archive Export
-                  <br><small class="fw-normal">Re-importable JSON + digital objects</small>
+                  <br><small class="fw-normal">{{ __('Re-importable JSON + digital objects') }}</small>
                 </label>
               </div>
             </div>
@@ -169,7 +169,7 @@
           <div id="estimate-panel" style="display:none;" class="mb-4">
             <div class="d-flex align-items-center mb-2">
               <button type="button" class="btn btn-outline-info btn-sm" id="btn-estimate">
-                <i class="fas fa-calculator me-1"></i>Estimate Export Size
+                <i class="fas fa-calculator me-1"></i>{{ __('Estimate Export Size') }}
               </button>
               <span id="estimate-spinner" class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
             </div>
@@ -194,7 +194,7 @@
                       <input class="form-check-input" type="checkbox" id="inc-objects" name="include_objects" value="1" checked>
                       <label class="form-check-label fw-bold" for="inc-objects"><i class="fas fa-file-image me-1"></i>Digital Objects</label>
                     </div>
-                    <small class="text-muted">Include digital object files in the export package.</small>
+                    <small class="text-muted">{{ __('Include digital object files in the export package.') }}</small>
                   </div>
                 </div>
               </div>
@@ -205,7 +205,7 @@
                       <input class="form-check-input" type="checkbox" id="inc-thumbs" name="include_thumbnails" value="1" checked>
                       <label class="form-check-label fw-bold" for="inc-thumbs"><i class="fas fa-image me-1"></i>Thumbnails</label>
                     </div>
-                    <small class="text-muted">Small thumbnail images for browse views.</small>
+                    <small class="text-muted">{{ __('Small thumbnail images for browse views.') }}</small>
                   </div>
                 </div>
               </div>
@@ -216,7 +216,7 @@
                       <input class="form-check-input" type="checkbox" id="inc-refs" name="include_references" value="1" checked>
                       <label class="form-check-label fw-bold" for="inc-refs"><i class="fas fa-images me-1"></i>Reference Images</label>
                     </div>
-                    <small class="text-muted">Medium-resolution images for detail views.</small>
+                    <small class="text-muted">{{ __('Medium-resolution images for detail views.') }}</small>
                   </div>
                 </div>
               </div>
@@ -227,7 +227,7 @@
                       <input class="form-check-input" type="checkbox" id="inc-masters" name="include_masters" value="0">
                       <label class="form-check-label fw-bold" for="inc-masters"><i class="fas fa-file-archive me-1"></i>Master Files</label>
                     </div>
-                    <small class="text-muted">Full-resolution master files. Warning: can significantly increase export size.</small>
+                    <small class="text-muted">{{ __('Full-resolution master files. Warning: can significantly increase export size.') }}</small>
                   </div>
                 </div>
               </div>
@@ -236,7 +236,7 @@
 
           <div class="d-flex justify-content-between mt-4">
             <button type="button" class="btn btn-outline-secondary wizard-prev" data-prev="1">
-              <i class="fas fa-arrow-left me-1"></i> Back
+              <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
             </button>
             <button type="button" class="btn btn-primary wizard-next" data-next="3">
               Next: Configure <i class="fas fa-arrow-right ms-1"></i>
@@ -283,7 +283,7 @@
 
           <div class="d-flex justify-content-between mt-4">
             <button type="button" class="btn btn-outline-secondary wizard-prev" data-prev="2">
-              <i class="fas fa-arrow-left me-1"></i> Back
+              <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
             </button>
             <button type="button" class="btn btn-primary wizard-next" data-next="4">
               Next: Review &amp; Generate <i class="fas fa-arrow-right ms-1"></i>
@@ -314,10 +314,10 @@
 
           <div class="d-flex justify-content-between mt-4">
             <button type="button" class="btn btn-outline-secondary wizard-prev" data-prev="3">
-              <i class="fas fa-arrow-left me-1"></i> Back
+              <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
             </button>
             <button type="submit" class="btn btn-success btn-lg" id="btn-start-export">
-              <i class="fas fa-play-circle me-1"></i> Start Export
+              <i class="fas fa-play-circle me-1"></i> {{ __('Start Export') }}
             </button>
           </div>
         </div>
@@ -341,7 +341,7 @@
           <i class="fas fa-check-circle me-1"></i>
           <span id="result-message"></span>
           <a id="result-download" href="#" class="btn btn-sm btn-success ms-2">
-            <i class="fas fa-download me-1"></i>Download ZIP
+            <i class="fas fa-download me-1"></i>{{ __('Download ZIP') }}
           </a>
         </div>
       </div>

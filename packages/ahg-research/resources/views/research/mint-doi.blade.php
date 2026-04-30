@@ -25,7 +25,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-stamp text-primary me-2"></i>Mint DOI</h1>
-    <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back</a>
+    <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
 </div>
 
 {{-- DOI Status --}}
@@ -34,7 +34,7 @@
     <div class="card-body">
         @if(!empty($currentDoi))
             <div class="alert alert-success mb-0">
-                <strong>DOI:</strong> <a href="https://doi.org/{{ e($currentDoi) }}" target="_blank" rel="noopener">{{ e($currentDoi) }}</a>
+                <strong>{{ __('DOI:') }}</strong> <a href="https://doi.org/{{ e($currentDoi) }}" target="_blank" rel="noopener">{{ e($currentDoi) }}</a>
                 @if(!empty($doiMintedAt))
                     <br><small class="text-muted">Minted on: {{ e($doiMintedAt) }}</small>
                 @endif

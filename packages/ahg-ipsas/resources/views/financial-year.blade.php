@@ -156,7 +156,7 @@
                                 <td class="text-end text-danger">-{{ $defaultCurrency }} {{ number_format($summary['impairments'] ?? 0, 2) }}</td>
                             </tr>
                             <tr class="table-active">
-                                <td><strong>Closing Balance</strong></td>
+                                <td><strong>{{ __('Closing Balance') }}</strong></td>
                                 <td class="text-end"><strong>{{ $defaultCurrency }} {{ number_format($summary['closing_balance'] ?? $summary['total_value'] ?? 0, 2) }}</strong></td>
                             </tr>
                         </tbody>

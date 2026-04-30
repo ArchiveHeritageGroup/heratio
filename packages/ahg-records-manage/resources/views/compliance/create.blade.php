@@ -10,7 +10,7 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0"><i class="fas fa-plus me-2"></i> New Compliance Assessment</h1>
-  <a href="{{ route('records.compliance.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Back</a>
+  <a href="{{ route('records.compliance.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
 </div>
 
 @if($errors->any())<div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif
@@ -46,7 +46,7 @@
     <input type="date" name="period_end" class="form-control" value="{{ old('period_end') }}">
   </div>
   <div class="col-12">
-    <button type="submit" class="btn btn-primary"><i class="fas fa-play me-1"></i>Create + run checks</button>
+    <button type="submit" class="btn btn-primary"><i class="fas fa-play me-1"></i>{{ __('Create + run checks') }}</button>
     <a href="{{ route('records.compliance.index') }}" class="btn btn-outline-secondary">Cancel</a>
   </div>
 </form>

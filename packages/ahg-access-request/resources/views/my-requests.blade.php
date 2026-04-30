@@ -23,7 +23,7 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4><i class="fas fa-list me-2"></i>My Access Requests</h4>
                 <a href="{{ route('accessRequest.create') }}" class="atom-btn-white">
-                    <i class="fas fa-plus me-1"></i>New Request
+                    <i class="fas fa-plus me-1"></i>{{ __('New Request') }}
                 </a>
             </div>
 
@@ -55,13 +55,13 @@
                                             <td>{{ $req->request_type ?? 'N/A' }}</td>
                                             <td>
                                                 @if($req->status === 'approved')
-                                                    <span class="badge bg-success">Approved</span>
+                                                    <span class="badge bg-success">{{ __('Approved') }}</span>
                                                 @elseif($req->status === 'denied')
-                                                    <span class="badge bg-danger">Denied</span>
+                                                    <span class="badge bg-danger">{{ __('Denied') }}</span>
                                                 @elseif($req->status === 'cancelled')
-                                                    <span class="badge bg-secondary">Cancelled</span>
+                                                    <span class="badge bg-secondary">{{ __('Cancelled') }}</span>
                                                 @else
-                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                    <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
                                                 @endif
                                             </td>
                                             <td>{{ $req->created_at ?? '' }}</td>

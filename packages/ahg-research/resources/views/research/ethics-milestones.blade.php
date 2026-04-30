@@ -26,8 +26,8 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-balance-scale text-primary me-2"></i>Ethics Milestones</h1>
     <div class="d-flex gap-2">
-        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addMilestoneModal"><i class="fas fa-plus me-1"></i>Add Milestone</button>
-        <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back</a>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addMilestoneModal"><i class="fas fa-plus me-1"></i>{{ __('Add Milestone') }}</button>
+        <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
     </div>
 </div>
 

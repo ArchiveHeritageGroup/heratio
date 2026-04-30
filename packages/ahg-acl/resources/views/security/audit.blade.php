@@ -62,7 +62,7 @@
 <div class="mb-3">
   <a href="{{ route('acl.security-report') }}?export=csv&date_from={{ urlencode($filters['date_from'] ?? '') }}&date_to={{ urlencode($filters['date_to'] ?? '') }}"
      class="btn btn-success">
-    <i class="fas fa-download"></i> Export CSV
+    <i class="fas fa-download"></i> {{ __('Export CSV') }}
   </a>
 </div>
 
@@ -101,9 +101,9 @@
           </td>
           <td>
             @if($log->access_granted ?? false)
-              <span class="badge bg-success">Granted</span>
+              <span class="badge bg-success">{{ __('Granted') }}</span>
             @else
-              <span class="badge bg-danger">Denied</span>
+              <span class="badge bg-danger">{{ __('Denied') }}</span>
               @if($log->denial_reason ?? null)
                 <br><small class="text-muted">{{ e($log->denial_reason) }}</small>
               @endif

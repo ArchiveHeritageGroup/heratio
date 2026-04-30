@@ -65,10 +65,10 @@
                 @if($masterUrl)
                 <div class="card-footer text-center">
                     <a href="{{ $masterUrl }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-external-link-alt me-1"></i>View Original
+                        <i class="fas fa-external-link-alt me-1"></i>{{ __('View Original') }}
                     </a>
                     <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-download me-1"></i>Download
+                        <i class="fas fa-download me-1"></i>{{ __('Download') }}
                     </a>
                 </div>
                 @endif
@@ -132,9 +132,9 @@
                             </div>
                             @endif
                             <div class="col">
-                                <p class="mb-1"><strong>Filename:</strong> {{ e($referenceImage->name) }}</p>
-                                <p class="mb-2"><strong>Filesize:</strong> {{ \AhgCore\Services\DigitalObjectService::formatFileSize($referenceImage->byte_size) }}</p>
-                                <a href="{{ $refUrl }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-external-link-alt me-1"></i>View</a>
+                                <p class="mb-1"><strong>{{ __('Filename:') }}</strong> {{ e($referenceImage->name) }}</p>
+                                <p class="mb-2"><strong>{{ __('Filesize:') }}</strong> {{ \AhgCore\Services\DigitalObjectService::formatFileSize($referenceImage->byte_size) }}</p>
+                                <a href="{{ $refUrl }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-external-link-alt me-1"></i>{{ __('View') }}</a>
                             </div>
                         </div>
                     @else
@@ -158,9 +158,9 @@
                             </div>
                             @endif
                             <div class="col">
-                                <p class="mb-1"><strong>Filename:</strong> {{ e($thumbnailImage->name) }}</p>
-                                <p class="mb-2"><strong>Filesize:</strong> {{ \AhgCore\Services\DigitalObjectService::formatFileSize($thumbnailImage->byte_size) }}</p>
-                                <a href="{{ $thumbUrl }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-external-link-alt me-1"></i>View</a>
+                                <p class="mb-1"><strong>{{ __('Filename:') }}</strong> {{ e($thumbnailImage->name) }}</p>
+                                <p class="mb-2"><strong>{{ __('Filesize:') }}</strong> {{ \AhgCore\Services\DigitalObjectService::formatFileSize($thumbnailImage->byte_size) }}</p>
+                                <a href="{{ $thumbUrl }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-external-link-alt me-1"></i>{{ __('View') }}</a>
                             </div>
                         </div>
                     @else
@@ -204,7 +204,7 @@
             <div class="card">
                 <div class="card-body text-center">
                     <a href="{{ url('/' . $ioSlug) }}" class="btn btn-outline-primary">
-                        <i class="fas fa-arrow-left me-2"></i>Back to record
+                        <i class="fas fa-arrow-left me-2"></i>{{ __('Back to record') }}
                     </a>
                 </div>
             </div>

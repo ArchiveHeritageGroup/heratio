@@ -13,8 +13,8 @@
     <div class="card-body">
         <form method="POST">
             @csrf
-            <div class="mb-3"><label class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="title" value="{{ e($entry->title ?? '') }}"></div>
-            <div class="mb-3"><label class="form-label">Content <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="content" rows="10">{!! e($entry->content ?? '') !!}</textarea></div>
+            <div class="mb-3"><label class="form-label">Title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" class="form-control" name="title" value="{{ e($entry->title ?? '') }}"></div>
+            <div class="mb-3"><label class="form-label">Content <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea class="form-control" name="content" rows="10">{!! e($entry->content ?? '') !!}</textarea></div>
             <div class="row">
                 <div class="col-md-4">
                     <div class="mb-3">
@@ -71,9 +71,9 @@
             </div>
             @endif
             <div class="d-flex gap-2">
-                <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save Changes</button>
+                <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ __('Save Changes') }}</button>
                 <a href="{{ route('research.journal') }}" class="btn atom-btn-white">Back to Journal</a>
-                <button type="submit" name="form_action" value="delete" class="btn atom-btn-outline-danger ms-auto" onclick="return confirm('Delete this entry?')"><i class="fas fa-trash me-1"></i>Delete</button>
+                <button type="submit" name="form_action" value="delete" class="btn atom-btn-outline-danger ms-auto" onclick="return confirm('Delete this entry?')"><i class="fas fa-trash me-1"></i>{{ __('Delete') }}</button>
             </div>
         </form>
     </div>

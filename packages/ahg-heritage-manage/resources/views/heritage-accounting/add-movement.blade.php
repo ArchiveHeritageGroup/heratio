@@ -22,7 +22,7 @@
         <div class="card-body">
           @foreach($fields ?? [] as $field)
           <div class="mb-3">
-            <label class="form-label">{{ $field['label'] }} <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">{{ $field['label'] }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             @if(($field['type'] ?? 'text') === 'select')
               <select name="{{ $field['name'] }}" class="form-select">
                 @foreach($field['options'] ?? [] as $val => $label)
@@ -39,18 +39,18 @@
 
           @if(empty($fields))
           <div class="row">
-            <div class="col-md-6 mb-3"><label class="form-label">Name <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="name" class="form-control" value="{{ old('name', $asset->name ?? '') }}"></div>
-            <div class="col-md-6 mb-3"><label class="form-label">Reference <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="reference" class="form-control" value="{{ old('reference', $asset->reference ?? '') }}"></div>
-            <div class="col-md-6 mb-3"><label class="form-label">Amount <span class="badge bg-secondary ms-1">Optional</span></label><input type="number" step="0.01" name="amount" class="form-control" value="{{ old('amount', $asset->amount ?? '') }}"></div>
-            <div class="col-md-6 mb-3"><label class="form-label">Date <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" name="date" class="form-control" value="{{ old('date', $asset->date ?? '') }}"></div>
-            <div class="col-12 mb-3"><label class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="notes" class="form-control" rows="3">{{ old('notes', $asset->notes ?? '') }}</textarea></div>
+            <div class="col-md-6 mb-3"><label class="form-label">Name <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="name" class="form-control" value="{{ old('name', $asset->name ?? '') }}"></div>
+            <div class="col-md-6 mb-3"><label class="form-label">Reference <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="reference" class="form-control" value="{{ old('reference', $asset->reference ?? '') }}"></div>
+            <div class="col-md-6 mb-3"><label class="form-label">Amount <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="number" step="0.01" name="amount" class="form-control" value="{{ old('amount', $asset->amount ?? '') }}"></div>
+            <div class="col-md-6 mb-3"><label class="form-label">Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="date" class="form-control" value="{{ old('date', $asset->date ?? '') }}"></div>
+            <div class="col-12 mb-3"><label class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="notes" class="form-control" rows="3">{{ old('notes', $asset->notes ?? '') }}</textarea></div>
           </div>
           @endif
         </div>
       </div>
 
       <div class="d-flex gap-2">
-        <button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>Save</button>
+        <button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
         <a href="{{ route('heritage.accounting.browse') }}" class="btn atom-btn-white">Cancel</a>
       </div>
     </form>

@@ -47,7 +47,7 @@
               <td>{{ e($booking->room_name ?? '-') }}</td>
               <td>
                 <a href="{{ route('research.viewBooking', $booking->id) }}" class="btn btn-sm btn-primary">
-                  <i class="fas fa-eye me-1"></i>Review
+                  <i class="fas fa-eye me-1"></i>{{ __('Review') }}
                 </a>
                 <form action="{{ route('research.bookings.confirm', $booking->id) }}" method="POST" class="d-inline">
                   @csrf
@@ -73,7 +73,7 @@
   {{-- Upcoming Confirmed --}}
   <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <span><i class="fas fa-calendar-check me-2"></i>Upcoming Confirmed Bookings</span>
+      <span><i class="fas fa-calendar-check me-2"></i>{{ __('Upcoming Confirmed Bookings') }}</span>
     </div>
     <div class="table-responsive">
       <table class="table table-hover mb-0">
@@ -99,7 +99,7 @@
                 <td>
                   {{ e($booking->date ?? $booking->booking_date ?? '') }}
                   @if($isToday)
-                    <span class="badge bg-info">Today</span>
+                    <span class="badge bg-info">{{ __('Today') }}</span>
                   @endif
                 </td>
                 <td>{{ substr($booking->start_time ?? '', 0, 5) }} - {{ substr($booking->end_time ?? '', 0, 5) }}</td>
@@ -113,7 +113,7 @@
                   @if(!empty($booking->checked_in_at))
                     <span class="badge bg-success"><i class="fas fa-check me-1"></i>{{ date('H:i', strtotime($booking->checked_in_at)) }}</span>
                   @else
-                    <span class="badge bg-secondary">Not yet</span>
+                    <span class="badge bg-secondary">{{ __('Not yet') }}</span>
                   @endif
                 </td>
                 <td>

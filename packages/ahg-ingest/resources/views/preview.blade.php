@@ -75,12 +75,12 @@
 {{-- Wizard Progress --}}
 <div class="mb-4">
     <div class="d-flex justify-content-between text-center">
-        <div class="flex-fill"><span class="badge bg-success rounded-pill">1</span><br><small class="text-muted">Configure</small></div>
-        <div class="flex-fill"><span class="badge bg-success rounded-pill">2</span><br><small class="text-muted">Upload</small></div>
-        <div class="flex-fill"><span class="badge bg-success rounded-pill">3</span><br><small class="text-muted">Map</small></div>
-        <div class="flex-fill"><span class="badge bg-success rounded-pill">4</span><br><small class="text-muted">Validate</small></div>
-        <div class="flex-fill"><span class="badge bg-primary rounded-pill">5</span><br><small class="fw-bold">Preview</small></div>
-        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">6</span><br><small class="text-muted">Commit</small></div>
+        <div class="flex-fill"><span class="badge bg-success rounded-pill">1</span><br><small class="text-muted">{{ __('Configure') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-success rounded-pill">2</span><br><small class="text-muted">{{ __('Upload') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-success rounded-pill">3</span><br><small class="text-muted">{{ __('Map') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-success rounded-pill">4</span><br><small class="text-muted">{{ __('Validate') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-primary rounded-pill">5</span><br><small class="fw-bold">{{ __('Preview') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">6</span><br><small class="text-muted">{{ __('Commit') }}</small></div>
     </div>
     <div class="progress mt-2" style="height: 4px;">
         <div class="progress-bar" style="width: 75%"></div>
@@ -93,7 +93,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <h3 class="mb-0">{{ $rowCount }}</h3>
-                <small class="text-muted">Records to create</small>
+                <small class="text-muted">{{ __('Records to create') }}</small>
             </div>
         </div>
     </div>
@@ -101,7 +101,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <h3 class="mb-0">{{ $doCount }}</h3>
-                <small class="text-muted">Digital objects</small>
+                <small class="text-muted">{{ __('Digital objects') }}</small>
             </div>
         </div>
     </div>
@@ -122,7 +122,7 @@
             <div class="card-header d-flex justify-content-between">
                 <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>Hierarchy Preview</h5>
                 <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-expand-all">
-                    <i class="fas fa-expand-alt me-1"></i>Expand All
+                    <i class="fas fa-expand-alt me-1"></i>{{ __('Expand All') }}
                 </button>
             </div>
             <div class="card-body" style="max-height: 500px; overflow-y: auto;">
@@ -154,13 +154,13 @@
             <div class="card-body">
                 @if(!empty($session->output_generate_sip))
                     <div class="d-flex justify-content-between mb-2">
-                        <span>SIP Package</span>
+                        <span>{{ __('SIP Package') }}</span>
                         <span class="badge bg-secondary">{{ $rowCount }} objects</span>
                     </div>
                 @endif
                 @if(!empty($session->output_generate_dip))
                     <div class="d-flex justify-content-between">
-                        <span>DIP Package</span>
+                        <span>{{ __('DIP Package') }}</span>
                         <span class="badge bg-secondary">{{ $rowCount }} objects</span>
                     </div>
                 @endif
@@ -175,14 +175,14 @@
         @csrf
         <input type="hidden" name="form_action" value="back">
         <button type="submit" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-1"></i>Back to Validation
+            <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Validation') }}
         </button>
     </form>
     <div>
         <a href="{{ route('ingest.index') }}"
            class="btn btn-outline-danger me-2"
            onclick="return confirm('Cancel this ingest?')">
-            <i class="fas fa-times me-1"></i>Cancel
+            <i class="fas fa-times me-1"></i>{{ __('Cancel') }}
         </a>
         <form method="post" action="{{ route('ingest.preview', ['id' => $session->id ?? 0]) }}" class="d-inline">
             @csrf

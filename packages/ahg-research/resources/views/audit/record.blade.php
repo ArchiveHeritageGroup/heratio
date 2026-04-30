@@ -30,5 +30,5 @@
     </div>
   @endforeach
 @endif
-<a href="{{ route('audit.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back</a>
+<a href="{{ route('audit.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
 @endsection

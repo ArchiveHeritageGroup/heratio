@@ -19,7 +19,7 @@
       <h5><i class="fa fa-exclamation-triangle me-2"></i>FTP/SFTP Not Configured</h5>
       <p class="mb-2">Please configure the FTP/SFTP connection settings before using this page.</p>
       <a href="{{ url('/admin/settings/ftp') }}" class="btn atom-btn-white">
-        <i class="fa fa-cog me-1"></i>Configure FTP Settings
+        <i class="fa fa-cog me-1"></i>{{ __('Configure FTP Settings') }}
       </a>
     </div>
   @else
@@ -73,7 +73,7 @@
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fa fa-folder-open me-2"></i>Remote Files</h5>
         <button type="button" class="btn btn-sm atom-btn-white" id="refresh-btn">
-          <i class="fa fa-sync-alt me-1"></i>Refresh
+          <i class="fa fa-sync-alt me-1"></i>{{ __('Refresh') }}
         </button>
       </div>
       <div class="card-body">

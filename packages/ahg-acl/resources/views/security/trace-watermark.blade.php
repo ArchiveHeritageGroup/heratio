@@ -18,7 +18,7 @@
         </div>
         <div class="col-md-4">
           <button type="submit" class="btn btn-primary w-100">
-            <i class="fas fa-search"></i> Trace
+            <i class="fas fa-search"></i> {{ __('Trace') }}
           </button>
         </div>
       </div>

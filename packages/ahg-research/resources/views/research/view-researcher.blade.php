@@ -136,14 +136,14 @@
         <form action="{{ route('research.researchers.approve', $researcher->id) }}" method="POST" class="d-inline">
           @csrf
           <button type="submit" class="btn atom-btn-outline-success">
-            <i class="fas fa-check me-1"></i>Approve
+            <i class="fas fa-check me-1"></i>{{ __('Approve') }}
           </button>
         </form>
       @endif
 
       @if(in_array($researcher->status ?? '', ['approved', 'pending']))
         <button type="button" class="btn atom-btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
-          <i class="fas fa-times me-1"></i>Reject
+          <i class="fas fa-times me-1"></i>{{ __('Reject') }}
         </button>
       @endif
 
@@ -151,7 +151,7 @@
         <form action="{{ route('research.researchers.suspend', $researcher->id) }}" method="POST" class="d-inline">
           @csrf
           <button type="submit" class="btn atom-btn-white">
-            <i class="fas fa-ban me-1"></i>Suspend
+            <i class="fas fa-ban me-1"></i>{{ __('Suspend') }}
           </button>
         </form>
       @endif
@@ -160,7 +160,7 @@
         <form action="{{ route('research.researchers.approve', $researcher->id) }}" method="POST" class="d-inline">
           @csrf
           <button type="submit" class="btn atom-btn-outline-success">
-            <i class="fas fa-redo me-1"></i>Re-approve
+            <i class="fas fa-redo me-1"></i>{{ __('Re-approve') }}
           </button>
         </form>
       @endif
@@ -168,12 +168,12 @@
       <form action="{{ route('research.resetPassword', $researcher->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Generate a new password for this user? They will need to use the new password to log in.')">
         @csrf
         <button type="submit" class="btn btn-outline-secondary">
-          <i class="fas fa-key me-1"></i>Reset Password
+          <i class="fas fa-key me-1"></i>{{ __('Reset Password') }}
         </button>
       </form>
 
       <a href="{{ route('research.researchers') }}" class="btn atom-btn-white">
-        <i class="fas fa-arrow-left me-1"></i>Back to List
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back to List') }}
       </a>
     </div>
   </div>
@@ -190,14 +190,14 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="rejection_reason" class="form-label">Reason for Rejection <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="rejection_reason" class="form-label">Reason for Rejection <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <textarea name="rejection_reason" id="rejection_reason" class="form-control" rows="4" required></textarea>
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
             <button type="submit" class="btn atom-btn-outline-danger">
-              <i class="fas fa-times me-1"></i>Reject
+              <i class="fas fa-times me-1"></i>{{ __('Reject') }}
             </button>
           </div>
         </form>

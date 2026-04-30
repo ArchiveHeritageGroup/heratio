@@ -8,7 +8,7 @@
     <i class="fas fa-3x fa-exchange-alt me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Data Migration') }}</h1>
-      <span class="small text-muted">Import, export, and manage field mappings</span>
+      <span class="small text-muted">{{ __('Import, export, and manage field mappings') }}</span>
     </div>
   </div>
 
@@ -28,25 +28,25 @@
   {{-- Action buttons — btn btn-outline-secondary matching AtoM --}}
   <div class="d-flex flex-wrap gap-2 mb-4">
     <a href="{{ route('data-migration.upload') }}" class="btn btn-outline-secondary">
-      <i class="fas fa-upload"></i> New Import
+      <i class="fas fa-upload"></i> {{ __('New Import') }}
     </a>
     <a href="{{ route('data-migration.batch-export') }}" class="btn btn-outline-secondary">
-      <i class="fas fa-download"></i> Batch Export
+      <i class="fas fa-download"></i> {{ __('Batch Export') }}
     </a>
     <a href="{{ route('data-migration.jobs') }}" class="btn btn-outline-secondary">
-      <i class="fas fa-tasks"></i> All Jobs
+      <i class="fas fa-tasks"></i> {{ __('All Jobs') }}
     </a>
     <a href="{{ route('data-migration.export') }}" class="btn btn-outline-secondary">
-      <i class="fas fa-file-export"></i> Export Records
+      <i class="fas fa-file-export"></i> {{ __('Export Records') }}
     </a>
     <a href="{{ route('data-migration.preservica-import') }}" class="btn btn-outline-secondary">
-      <i class="fas fa-cloud-upload-alt"></i> Preservica Import
+      <i class="fas fa-cloud-upload-alt"></i> {{ __('Preservica Import') }}
     </a>
     <a href="{{ route('data-migration.preservica-export') }}" class="btn btn-outline-secondary">
-      <i class="fas fa-cloud-download-alt"></i> Preservica Export
+      <i class="fas fa-cloud-download-alt"></i> {{ __('Preservica Export') }}
     </a>
     <a href="{{ route('data-migration.import-results') }}" class="btn btn-outline-secondary">
-      <i class="fas fa-list-alt"></i> Import Results
+      <i class="fas fa-list-alt"></i> {{ __('Import Results') }}
     </a>
   </div>
 
@@ -108,7 +108,7 @@
         @if(count($mappings) > 0)
           <div class="card-footer text-end">
             <label for="importMappingFile" class="btn btn-outline-secondary mb-0" style="cursor:pointer">
-              <i class="fas fa-file-import"></i> Import Mapping File <span class="badge bg-secondary ms-1">Optional</span>
+              <i class="fas fa-file-import"></i> Import Mapping File <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
             </label>
             <form method="POST" action="{{ route('data-migration.import-mapping') }}"
                   enctype="multipart/form-data" class="d-inline">

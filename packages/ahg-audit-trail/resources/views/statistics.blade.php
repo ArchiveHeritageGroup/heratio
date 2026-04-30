@@ -149,6 +149,6 @@
   </div>
 
   <a href="{{ route('audit.browse') }}" class="btn btn-outline-secondary">
-    <i class="fas fa-arrow-left me-1"></i> Back to Audit Trail
+    <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Audit Trail') }}
   </a>
 @endsection

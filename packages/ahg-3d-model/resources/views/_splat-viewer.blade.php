@@ -22,7 +22,7 @@
        style="width:100%; height:{{ $height }}; background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius:8px; position:relative;">
     <div class="d-flex flex-column align-items-center justify-content-center h-100 text-white" id="{{ $viewerId }}-loading">
       <div class="spinner-border text-primary mb-3" role="status"></div>
-      <span>Loading Gaussian Splat...</span>
+      <span>{{ __('Loading Gaussian Splat...') }}</span>
     </div>
   </div>
 

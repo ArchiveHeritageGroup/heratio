@@ -7,7 +7,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3">{{ __('Disposal History') }}</h1>
         <a href="{{ route('records.disposal.queue') }}" class="btn btn-outline-secondary btn-sm">
-            <i class="fas fa-list"></i> Back to Queue
+            <i class="fas fa-list"></i> {{ __('Back to Queue') }}
         </a>
     </div>
 

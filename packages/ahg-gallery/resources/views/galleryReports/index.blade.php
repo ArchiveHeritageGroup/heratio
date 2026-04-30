@@ -13,11 +13,11 @@
 <div class="sidebar-content">
   <h4>{{ __('Gallery Reports') }}</h4>
   <ul class="list-unstyled">
-    <li><a href="{{ route('gallery-reports.exhibitions') }}"><i class="fas fa-images me-2"></i>Exhibitions</a></li>
-    <li><a href="{{ route('gallery-reports.loans') }}"><i class="fas fa-exchange-alt me-2"></i>Loans</a></li>
-    <li><a href="{{ route('gallery-reports.valuations') }}"><i class="fas fa-coins me-2"></i>Valuations</a></li>
-    <li><a href="{{ route('gallery-reports.facility-reports') }}"><i class="fas fa-building me-2"></i>Facility Reports</a></li>
-    <li><a href="{{ route('gallery-reports.spaces') }}"><i class="fas fa-th-large me-2"></i>Spaces</a></li>
+    <li><a href="{{ route('gallery-reports.exhibitions') }}"><i class="fas fa-images me-2"></i>{{ __('Exhibitions') }}</a></li>
+    <li><a href="{{ route('gallery-reports.loans') }}"><i class="fas fa-exchange-alt me-2"></i>{{ __('Loans') }}</a></li>
+    <li><a href="{{ route('gallery-reports.valuations') }}"><i class="fas fa-coins me-2"></i>{{ __('Valuations') }}</a></li>
+    <li><a href="{{ route('gallery-reports.facility-reports') }}"><i class="fas fa-building me-2"></i>{{ __('Facility Reports') }}</a></li>
+    <li><a href="{{ route('gallery-reports.spaces') }}"><i class="fas fa-th-large me-2"></i>{{ __('Spaces') }}</a></li>
   </ul>
 </div>
 @endsection
@@ -73,15 +73,15 @@
           <div class="row text-center">
             <div class="col-4">
               <h3>{{ number_format($stats['artists']['total'] ?? 0) }}</h3>
-              <small class="text-muted">Total</small>
+              <small class="text-muted">{{ __('Total') }}</small>
             </div>
             <div class="col-4">
               <h3>{{ number_format($stats['artists']['represented'] ?? 0) }}</h3>
-              <small class="text-muted">Represented</small>
+              <small class="text-muted">{{ __('Represented') }}</small>
             </div>
             <div class="col-4">
               <h3>{{ number_format($stats['artists']['active'] ?? 0) }}</h3>
-              <small class="text-muted">Active</small>
+              <small class="text-muted">{{ __('Active') }}</small>
             </div>
           </div>
         </div>
@@ -96,19 +96,19 @@
           <div class="row text-center">
             <div class="col-3">
               <h3>{{ number_format($stats['loans']['total'] ?? 0) }}</h3>
-              <small class="text-muted">Total</small>
+              <small class="text-muted">{{ __('Total') }}</small>
             </div>
             <div class="col-3">
               <h3>{{ number_format($stats['loans']['active'] ?? 0) }}</h3>
-              <small class="text-muted">Active</small>
+              <small class="text-muted">{{ __('Active') }}</small>
             </div>
             <div class="col-3">
               <h3>{{ number_format($stats['loans']['incoming'] ?? 0) }}</h3>
-              <small class="text-muted">Incoming</small>
+              <small class="text-muted">{{ __('Incoming') }}</small>
             </div>
             <div class="col-3">
               <h3>{{ number_format($stats['loans']['outgoing'] ?? 0) }}</h3>
-              <small class="text-muted">Outgoing</small>
+              <small class="text-muted">{{ __('Outgoing') }}</small>
             </div>
           </div>
           @if(($stats['loans']['pending'] ?? 0) > 0)
@@ -135,23 +135,23 @@
           <div class="row text-center">
             <div class="col-md-3">
               <h3>{{ number_format($stats['valuations']['total'] ?? 0) }}</h3>
-              <small class="text-muted">Total Records</small>
+              <small class="text-muted">{{ __('Total Records') }}</small>
             </div>
             <div class="col-md-3">
               <h3>{{ number_format($stats['valuations']['current'] ?? 0) }}</h3>
-              <small class="text-muted">Current</small>
+              <small class="text-muted">{{ __('Current') }}</small>
             </div>
             <div class="col-md-3">
               <h3>R {{ number_format($stats['valuations']['totalValue'] ?? $stats['valuations']['total_value'] ?? 0, 2) }}</h3>
-              <small class="text-muted">Total Value</small>
+              <small class="text-muted">{{ __('Total Value') }}</small>
             </div>
             <div class="col-md-3">
               @if(($stats['valuations']['expiringSoon'] ?? $stats['valuations']['expiring_soon'] ?? 0) > 0)
               <h3 class="text-danger">{{ number_format($stats['valuations']['expiringSoon'] ?? $stats['valuations']['expiring_soon'] ?? 0) }}</h3>
-              <small class="text-danger">Expiring Soon</small>
+              <small class="text-danger">{{ __('Expiring Soon') }}</small>
               @else
               <h3 class="text-success">0</h3>
-              <small class="text-muted">Expiring Soon</small>
+              <small class="text-muted">{{ __('Expiring Soon') }}</small>
               @endif
             </div>
           </div>

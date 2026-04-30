@@ -54,7 +54,7 @@
 
       <div class="d-grid gap-2">
         <a href="{{ route('reports.browse', ['action' => 'search']) }}" class="btn btn-sm atom-btn-white">
-          <i class="fas fa-search me-1"></i>Search
+          <i class="fas fa-search me-1"></i>{{ __('Search') }}
         </a>
       </div>
 
@@ -63,13 +63,13 @@
 
   <div class="list-group mb-3">
     <a href="{{ route('reports.browse', ['export' => 'strongrooms']) }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-file-export me-2 text-muted"></i>Strongrooms Export
+      <i class="fas fa-file-export me-2 text-muted"></i>{{ __('Strongrooms Export') }}
     </a>
     <a href="{{ url('/physicalobject/browse?booked_out=1') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-sign-out-alt me-2 text-muted"></i>Booked Out
+      <i class="fas fa-sign-out-alt me-2 text-muted"></i>{{ __('Booked Out') }}
     </a>
     <a href="{{ route('reports.browse-publish') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-eye me-2 text-muted"></i>Publish
+      <i class="fas fa-eye me-2 text-muted"></i>{{ __('Publish') }}
     </a>
   </div>
 
@@ -128,37 +128,37 @@
   </div>
   <div class="list-group list-group-flush">
     <a href="{{ route('reports.dashboard') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-tachometer-alt me-2" style="width:18px"></i>Dashboard
+      <i class="fas fa-tachometer-alt me-2" style="width:18px"></i>{{ __('Dashboard') }}
     </a>
     <a href="{{ route('reports.descriptions') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-file-alt me-2" style="width:18px"></i>Descriptions
+      <i class="fas fa-file-alt me-2" style="width:18px"></i>{{ __('Descriptions') }}
     </a>
     <a href="{{ route('reports.authorities') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-user me-2" style="width:18px"></i>Authority Records
+      <i class="fas fa-user me-2" style="width:18px"></i>{{ __('Authority Records') }}
     </a>
     <a href="{{ route('reports.repositories') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-university me-2" style="width:18px"></i>Repositories
+      <i class="fas fa-university me-2" style="width:18px"></i>{{ __('Repositories') }}
     </a>
     <a href="{{ route('reports.accessions') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-inbox me-2" style="width:18px"></i>Accessions
+      <i class="fas fa-inbox me-2" style="width:18px"></i>{{ __('Accessions') }}
     </a>
     <a href="{{ route('reports.donors') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-hand-holding-heart me-2" style="width:18px"></i>Donors
+      <i class="fas fa-hand-holding-heart me-2" style="width:18px"></i>{{ __('Donors') }}
     </a>
     <a href="{{ route('reports.storage') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-box me-2" style="width:18px"></i>Physical Storage
+      <i class="fas fa-box me-2" style="width:18px"></i>{{ __('Physical Storage') }}
     </a>
     <a href="{{ route('reports.taxonomy') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-tags me-2" style="width:18px"></i>Taxonomies
+      <i class="fas fa-tags me-2" style="width:18px"></i>{{ __('Taxonomies') }}
     </a>
     <a href="{{ route('reports.recent') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-clock me-2" style="width:18px"></i>Recent Updates
+      <i class="fas fa-clock me-2" style="width:18px"></i>{{ __('Recent Updates') }}
     </a>
     <a href="{{ route('reports.spatial') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-map-marker-alt me-2" style="width:18px"></i>Spatial Analysis
+      <i class="fas fa-map-marker-alt me-2" style="width:18px"></i>{{ __('Spatial Analysis') }}
     </a>
     <a href="{{ route('reports.activity') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-history me-2" style="width:18px"></i>User Activity
+      <i class="fas fa-history me-2" style="width:18px"></i>{{ __('User Activity') }}
     </a>
   </div>
 </div>
@@ -169,25 +169,25 @@
   </div>
   <div class="list-group list-group-flush">
     <a href="{{ route('reports.audit.actor') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-user me-2" style="width:18px"></i>Audit Actors
+      <i class="fas fa-user me-2" style="width:18px"></i>{{ __('Audit Actors') }}
     </a>
     <a href="{{ route('reports.audit.description') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-file-alt me-2" style="width:18px"></i>Audit Descriptions
+      <i class="fas fa-file-alt me-2" style="width:18px"></i>{{ __('Audit Descriptions') }}
     </a>
     <a href="{{ route('reports.audit.donor') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-hand-holding-heart me-2" style="width:18px"></i>Audit Donors
+      <i class="fas fa-hand-holding-heart me-2" style="width:18px"></i>{{ __('Audit Donors') }}
     </a>
     <a href="{{ route('reports.audit.permissions') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-key me-2" style="width:18px"></i>Audit Permissions
+      <i class="fas fa-key me-2" style="width:18px"></i>{{ __('Audit Permissions') }}
     </a>
     <a href="{{ route('reports.audit.physical-storage') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-box me-2" style="width:18px"></i>Audit Physical Storage
+      <i class="fas fa-box me-2" style="width:18px"></i>{{ __('Audit Physical Storage') }}
     </a>
     <a href="{{ route('reports.audit.repository') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-university me-2" style="width:18px"></i>Audit Repository
+      <i class="fas fa-university me-2" style="width:18px"></i>{{ __('Audit Repository') }}
     </a>
     <a href="{{ route('reports.audit.taxonomy') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-tags me-2" style="width:18px"></i>Audit Taxonomy
+      <i class="fas fa-tags me-2" style="width:18px"></i>{{ __('Audit Taxonomy') }}
     </a>
   </div>
 </div>
@@ -198,48 +198,48 @@
   </div>
   <div class="list-group list-group-flush">
     <a href="{{ route('reports.select') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-file-export me-2" style="width:18px"></i>Report Select
+      <i class="fas fa-file-export me-2" style="width:18px"></i>{{ __('Report Select') }}
     </a>
     <a href="{{ route('reports.report') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-chart-bar me-2" style="width:18px"></i>Generic Report
+      <i class="fas fa-chart-bar me-2" style="width:18px"></i>{{ __('Generic Report') }}
     </a>
     @if(Route::has('reports.builder.index'))
     <a href="{{ route('reports.builder.index') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-tools me-2" style="width:18px"></i>Report Builder
+      <i class="fas fa-tools me-2" style="width:18px"></i>{{ __('Report Builder') }}
     </a>
     @endif
     <a href="{{ route('reports.report-access') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-shield-alt me-2" style="width:18px"></i>Access Report
+      <i class="fas fa-shield-alt me-2" style="width:18px"></i>{{ __('Access Report') }}
     </a>
     <a href="{{ route('reports.report-accession') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-inbox me-2" style="width:18px"></i>Accession Report
+      <i class="fas fa-inbox me-2" style="width:18px"></i>{{ __('Accession Report') }}
     </a>
     <a href="{{ route('reports.report-authority-record') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-users me-2" style="width:18px"></i>Authority Record Report
+      <i class="fas fa-users me-2" style="width:18px"></i>{{ __('Authority Record Report') }}
     </a>
     <a href="{{ route('reports.report-donor') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-hand-holding-heart me-2" style="width:18px"></i>Donor Report
+      <i class="fas fa-hand-holding-heart me-2" style="width:18px"></i>{{ __('Donor Report') }}
     </a>
     <a href="{{ route('reports.report-information-object') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-archive me-2" style="width:18px"></i>Information Object Report
+      <i class="fas fa-archive me-2" style="width:18px"></i>{{ __('Information Object Report') }}
     </a>
     <a href="{{ route('reports.report-physical-storage') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-boxes me-2" style="width:18px"></i>Physical Storage Report
+      <i class="fas fa-boxes me-2" style="width:18px"></i>{{ __('Physical Storage Report') }}
     </a>
     <a href="{{ route('reports.report-repository') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-building me-2" style="width:18px"></i>Repository Report
+      <i class="fas fa-building me-2" style="width:18px"></i>{{ __('Repository Report') }}
     </a>
     <a href="{{ route('reports.report-spatial-analysis') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-map-marker-alt me-2" style="width:18px"></i>Spatial Analysis Report
+      <i class="fas fa-map-marker-alt me-2" style="width:18px"></i>{{ __('Spatial Analysis Report') }}
     </a>
     <a href="{{ route('reports.report-taxonomy-audit') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-tags me-2" style="width:18px"></i>Taxonomy Audit Report
+      <i class="fas fa-tags me-2" style="width:18px"></i>{{ __('Taxonomy Audit Report') }}
     </a>
     <a href="{{ route('reports.report-updates') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-sync me-2" style="width:18px"></i>Updates Report
+      <i class="fas fa-sync me-2" style="width:18px"></i>{{ __('Updates Report') }}
     </a>
     <a href="{{ route('reports.report-user') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-user-clock me-2" style="width:18px"></i>User Report
+      <i class="fas fa-user-clock me-2" style="width:18px"></i>{{ __('User Report') }}
     </a>
   </div>
 </div>

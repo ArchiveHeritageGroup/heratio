@@ -15,19 +15,19 @@
       </div>
       <div class="card-body">
         <p>
-          <strong>Title:</strong>
+          <strong>{{ __('Title:') }}</strong>
           {{ e($object->title ?? 'Untitled') }}
         </p>
         @if($object->identifier ?? null)
         <p>
-          <strong>Identifier:</strong>
+          <strong>{{ __('Identifier:') }}</strong>
           {{ e($object->identifier) }}
         </p>
         @endif
 
         @if($classification ?? null)
         <p>
-          <strong>Classification:</strong>
+          <strong>{{ __('Classification:') }}</strong>
           <span class="badge" style="background-color: {{ $classification->color ?? '#666' }}">
             <i class="fas {{ $classification->icon ?? 'fa-lock' }}"></i>
             {{ e($classification->name ?? '') }}
@@ -39,7 +39,7 @@
 
     @if($userClearance ?? null)
     <div class="alert alert-info">
-      <strong>Your Current Clearance:</strong>
+      <strong>{{ __('Your Current Clearance:') }}</strong>
       <span class="badge" style="background-color: {{ $userClearance->color ?? '#666' }}">
         {{ e($userClearance->name ?? '') }}
       </span>
@@ -104,7 +104,7 @@
 
           <div class="d-grid gap-2">
             <button type="submit" class="btn btn-primary btn-lg">
-              <i class="fas fa-paper-plane"></i> Submit Request
+              <i class="fas fa-paper-plane"></i> {{ __('Submit Request') }}
             </button>
             <a href="{{ route('security.my-requests') }}" class="btn btn-outline-secondary">
               View My Requests

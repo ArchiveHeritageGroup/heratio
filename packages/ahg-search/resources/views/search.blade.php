@@ -18,7 +18,7 @@
           Search
         @endif
       </h1>
-      <span class="small text-muted">Search archival descriptions</span>
+      <span class="small text-muted">{{ __('Search archival descriptions') }}</span>
     </div>
   </div>
 
@@ -59,11 +59,11 @@
       >
       <button class="btn atom-btn-outline-success" type="submit">
         <i class="fas fa-search" aria-hidden="true"></i>
-        Search
+        {{ __('Search') }}
       </button>
       <a href="{{ route('search.advanced') }}{{ $query ? '?q=' . urlencode($query) : '' }}" class="btn atom-btn-white" title="{{ __('Advanced search') }}">
         <i class="fas fa-sliders-h" aria-hidden="true"></i>
-        Advanced
+        {{ __('Advanced') }}
       </a>
     </div>
   </form>
@@ -71,7 +71,7 @@
   {{-- Active filter tags --}}
   @if(!empty($activeFilters))
     <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
-      <span class="text-muted small me-1">Filters:</span>
+      <span class="text-muted small me-1">{{ __('Filters:') }}</span>
       @foreach($activeFilters as $filter)
         @php
           $removeParams = request()->except([$filter['param'], 'page']);
@@ -94,7 +94,7 @@
 
         {{-- Sort picker --}}
         <div class="card mb-3">
-          <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>Sort by</strong></div>
+          <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>{{ __('Sort by') }}</strong></div>
           <div class="card-body py-2">
             @php
               $sortOptions = [
@@ -119,7 +119,7 @@
         {{-- Repository facet --}}
         @if(!empty($aggregations['repositories']))
           <div class="card mb-3">
-            <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>Repository</strong></div>
+            <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>{{ __('Repository') }}</strong></div>
             <ul class="list-group list-group-flush">
               @foreach($aggregations['repositories'] as $bucket)
                 @php
@@ -143,7 +143,7 @@
         {{-- Level of description facet --}}
         @if(!empty($aggregations['levels']))
           <div class="card mb-3">
-            <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>Level of description</strong></div>
+            <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>{{ __('Level of description') }}</strong></div>
             <ul class="list-group list-group-flush">
               @foreach($aggregations['levels'] as $bucket)
                 @php
@@ -167,7 +167,7 @@
         {{-- Media type facet --}}
         @if(!empty($aggregations['mediaTypes']))
           <div class="card mb-3">
-            <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>Media type</strong></div>
+            <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>{{ __('Media type') }}</strong></div>
             <ul class="list-group list-group-flush">
               @foreach($aggregations['mediaTypes'] as $bucket)
                 @php
@@ -191,7 +191,7 @@
         {{-- Digital object presence facet --}}
         @if(!empty($aggregations['hasDigitalObject']))
           <div class="card mb-3">
-            <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>Digital object</strong></div>
+            <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>{{ __('Digital object') }}</strong></div>
             <ul class="list-group list-group-flush">
               @foreach($aggregations['hasDigitalObject'] as $bucket)
                 @php

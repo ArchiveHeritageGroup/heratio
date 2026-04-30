@@ -33,7 +33,7 @@
       <div class="card bg-warning text-dark">
         <div class="card-body text-center">
           <h2 class="mb-0">{{ $stats['pending'] }}</h2>
-          <small>Pending</small>
+          <small>{{ __('Pending') }}</small>
         </div>
       </div>
     </div>
@@ -41,7 +41,7 @@
       <div class="card bg-success text-white">
         <div class="card-body text-center">
           <h2 class="mb-0">{{ $stats['approved_today'] }}</h2>
-          <small>Approved Today</small>
+          <small>{{ __('Approved Today') }}</small>
         </div>
       </div>
     </div>
@@ -49,7 +49,7 @@
       <div class="card bg-danger text-white">
         <div class="card-body text-center">
           <h2 class="mb-0">{{ $stats['denied_today'] }}</h2>
-          <small>Denied Today</small>
+          <small>{{ __('Denied Today') }}</small>
         </div>
       </div>
     </div>
@@ -57,7 +57,7 @@
       <div class="card bg-info text-white">
         <div class="card-body text-center">
           <h2 class="mb-0">{{ $stats['total_this_month'] }}</h2>
-          <small>This Month</small>
+          <small>{{ __('This Month') }}</small>
         </div>
       </div>
     </div>
@@ -143,13 +143,13 @@
                             <div class="modal-body text-start">
                               <p>Approve access request from <strong>{{ e($req->user_name ?? $req->username ?? '') }}</strong>?</p>
                               <div class="mb-3">
-                                <label for="approve_notes_{{ $req->id }}" class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
+                                <label for="approve_notes_{{ $req->id }}" class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <textarea name="notes" id="approve_notes_{{ $req->id }}" class="form-control" rows="3"></textarea>
                               </div>
                             </div>
                             <div class="modal-footer">
                               <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                              <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-check me-1"></i> Approve</button>
+                              <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-check me-1"></i> {{ __('Approve') }}</button>
                             </div>
                           </form>
                         </div>
@@ -170,13 +170,13 @@
                             <div class="modal-body text-start">
                               <p>Deny access request from <strong>{{ e($req->user_name ?? $req->username ?? '') }}</strong>?</p>
                               <div class="mb-3">
-                                <label for="deny_notes_{{ $req->id }}" class="form-label">Reason for denial <span class="badge bg-danger ms-1">Required</span></label>
+                                <label for="deny_notes_{{ $req->id }}" class="form-label">Reason for denial <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                                 <textarea name="notes" id="deny_notes_{{ $req->id }}" class="form-control" rows="3"></textarea>
                               </div>
                             </div>
                             <div class="modal-footer">
                               <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                              <button type="submit" class="btn atom-btn-outline-danger"><i class="fas fa-times me-1"></i> Deny</button>
+                              <button type="submit" class="btn atom-btn-outline-danger"><i class="fas fa-times me-1"></i> {{ __('Deny') }}</button>
                             </div>
                           </form>
                         </div>

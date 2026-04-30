@@ -28,7 +28,7 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-6">
-          <p class="mb-1"><strong>Current Clearance Level:</strong></p>
+          <p class="mb-1"><strong>{{ __('Current Clearance Level:') }}</strong></p>
           @if($currentClearance)
             <span class="badge fs-6" style="background-color:{{ $currentClearance->color ?? '#6c757d' }};">
               {{ e($currentClearance->classification_name) }}
@@ -37,12 +37,12 @@
               Granted: {{ $currentClearance->granted_at ? \Carbon\Carbon::parse($currentClearance->granted_at)->format('M j, Y') : '-' }}
             </small>
           @else
-            <span class="badge bg-secondary fs-6">No Clearance</span>
+            <span class="badge bg-secondary fs-6">{{ __('No Clearance') }}</span>
           @endif
         </div>
         <div class="col-md-6 text-md-end">
           <a href="{{ route('accessRequest.create') }}" class="btn atom-btn-white">
-            <i class="fas fa-arrow-up me-1"></i> Request Higher Clearance
+            <i class="fas fa-arrow-up me-1"></i> {{ __('Request Higher Clearance') }}
           </a>
         </div>
       </div>
@@ -77,7 +77,7 @@
                     @if($grant->include_descendants ?? false)
                       <span class="badge bg-info">+ Children</span>
                     @else
-                      <span class="badge bg-light text-dark">Single</span>
+                      <span class="badge bg-light text-dark">{{ __('Single') }}</span>
                     @endif
                   </td>
                   <td>
@@ -99,7 +99,7 @@
                         {{ \Carbon\Carbon::parse($grant->expires_at)->format('M j, Y') }}
                       </span>
                     @else
-                      <span class="text-muted">Never</span>
+                      <span class="text-muted">{{ __('Never') }}</span>
                     @endif
                   </td>
                 </tr>

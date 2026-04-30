@@ -15,7 +15,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="mb-0"><i class="bi bi-bar-chart-steps me-2"></i>Provenance Timeline</h4>
         <a href="{{ route('provenance.view', $resource->slug) }}" class="atom-btn-white">
-            <i class="bi bi-arrow-left me-1"></i>Back to Provenance
+            <i class="bi bi-arrow-left me-1"></i>{{ __('Back to Provenance') }}
         </a>
     </div>
 
@@ -34,7 +34,7 @@
                                         <small class="text-muted">{{ $item['date'] }}</small>
                                     </div>
                                     @if($item['agent'])
-                                        <p class="mb-1"><small><strong>Agent:</strong> {{ $item['agent'] }}</small></p>
+                                        <p class="mb-1"><small><strong>{{ __('Agent:') }}</strong> {{ $item['agent'] }}</small></p>
                                     @endif
                                     @if($item['description'])
                                         <p class="mb-0 text-muted">{{ $item['description'] }}</p>

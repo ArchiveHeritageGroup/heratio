@@ -48,9 +48,9 @@
                                 <td><code>{{ $log->algorithm }}</code></td>
                                 <td>
                                     @if($log->status === 'pass')
-                                        <span class="badge bg-success"><i class="fas fa-check"></i> Pass</span>
+                                        <span class="badge bg-success"><i class="fas fa-check"></i> {{ __('Pass') }}</span>
                                     @else
-                                        <span class="badge bg-danger"><i class="fas fa-times"></i> Fail</span>
+                                        <span class="badge bg-danger"><i class="fas fa-times"></i> {{ __('Fail') }}</span>
                                     @endif
                                 </td>
                                 <td><code class="small">{{ Str::limit($log->expected_value, 16) }}</code></td>

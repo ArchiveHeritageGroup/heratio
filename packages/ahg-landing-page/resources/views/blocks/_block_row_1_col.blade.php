@@ -38,7 +38,7 @@ if (!$isEditorMode && empty($col1Blocks)) {
     </div>
   @elseif ($isEditorMode)
     <div class="empty-column-preview text-center text-muted py-4 bg-light rounded border border-dashed">
-      <small>Add content to this row</small>
+      <small>{{ __('Add content to this row') }}</small>
     </div>
   @endif
 </div>

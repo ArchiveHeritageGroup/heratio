@@ -43,7 +43,7 @@
   <div class="d-flex justify-content-between mb-2">
     @if($previousLoan ?? null)
       <a href="{{ route('loan.show', $previousLoan->id) }}" class="btn btn-sm atom-btn-white">
-        <i class="fas fa-chevron-left me-1"></i>Previous
+        <i class="fas fa-chevron-left me-1"></i>{{ __('Previous') }}
       </a>
     @else
       <span></span>
@@ -66,9 +66,9 @@
           {{ ucwords(str_replace('_', ' ', $loan->status)) }}
         </span>
         @if($loan->loan_type === 'out')
-          <span class="badge bg-info ms-1 fs-6"><i class="fas fa-arrow-right me-1"></i>Outgoing</span>
+          <span class="badge bg-info ms-1 fs-6"><i class="fas fa-arrow-right me-1"></i>{{ __('Outgoing') }}</span>
         @else
-          <span class="badge bg-warning text-dark ms-1 fs-6"><i class="fas fa-arrow-left me-1"></i>Incoming</span>
+          <span class="badge bg-warning text-dark ms-1 fs-6"><i class="fas fa-arrow-left me-1"></i>{{ __('Incoming') }}</span>
         @endif
       </h1>
       @if($loan->title)
@@ -79,13 +79,13 @@
     @auth
       <div class="d-flex gap-2 flex-wrap justify-content-end">
         <a href="{{ route('loan.edit', $loan->id) }}" class="btn btn-sm atom-btn-white">
-          <i class="fas fa-edit me-1"></i>Edit
+          <i class="fas fa-edit me-1"></i>{{ __('Edit') }}
         </a>
 
         @if(count($validTransitions))
           <div class="dropdown">
             <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown">
-              <i class="fas fa-exchange-alt me-1"></i>Change Status
+              <i class="fas fa-exchange-alt me-1"></i>{{ __('Change Status') }}
             </button>
             <ul class="dropdown-menu">
               @foreach($validTransitions as $nextStatus)
@@ -104,13 +104,13 @@
 
         @if(in_array($loan->status, ['on_loan','dispatched','in_transit','received']))
           <button type="button" class="btn btn-sm atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#extendModal">
-            <i class="fas fa-calendar-plus me-1"></i>Extend
+            <i class="fas fa-calendar-plus me-1"></i>{{ __('Extend') }}
           </button>
         @endif
 
         @if($loan->status === 'return_requested')
           <button type="button" class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#returnModal">
-            <i class="fas fa-undo me-1"></i>Record Return
+            <i class="fas fa-undo me-1"></i>{{ __('Record Return') }}
           </button>
         @endif
 
@@ -119,7 +119,7 @@
                 onsubmit="return confirm('Are you sure you want to delete this loan?');" class="d-inline">
             @csrf
             <button type="submit" class="btn btn-sm atom-btn-outline-danger">
-              <i class="fas fa-trash me-1"></i>Delete
+              <i class="fas fa-trash me-1"></i>{{ __('Delete') }}
             </button>
           </form>
         @endif
@@ -134,7 +134,7 @@
   @if($isOverdue)
     <div class="alert alert-danger">
       <i class="fas fa-exclamation-triangle me-2"></i>
-      <strong>This loan is overdue!</strong> The end date was {{ \Carbon\Carbon::parse($loan->end_date)->format('Y-m-d') }}.
+      <strong>{{ __('This loan is overdue!') }}</strong> The end date was {{ \Carbon\Carbon::parse($loan->end_date)->format('Y-m-d') }}.
     </div>
   @endif
 
@@ -213,7 +213,7 @@
               <div class="col-sm-7">
                 {{ \Carbon\Carbon::parse($loan->end_date)->format('Y-m-d') }}
                 @if($isOverdue)
-                  <span class="badge bg-danger ms-1">Overdue</span>
+                  <span class="badge bg-danger ms-1">{{ __('Overdue') }}</span>
                 @endif
               </div>
             </div>
@@ -335,7 +335,7 @@
             <input type="text" name="special_requirements" class="form-control form-control-sm" placeholder="{{ __('Special requirements') }}">
           </div>
           <div class="col-md-2">
-            <button type="submit" class="btn btn-sm atom-btn-outline-success w-100"><i class="fas fa-plus me-1"></i>Add Object</button>
+            <button type="submit" class="btn btn-sm atom-btn-outline-success w-100"><i class="fas fa-plus me-1"></i>{{ __('Add Object') }}</button>
           </div>
         </form>
       @endauth
@@ -424,7 +424,7 @@
             </select>
           </div>
           <div class="col-md-2">
-            <button type="submit" class="btn btn-sm atom-btn-white w-100 text-white"><i class="fas fa-upload me-1"></i>Upload</button>
+            <button type="submit" class="btn btn-sm atom-btn-white w-100 text-white"><i class="fas fa-upload me-1"></i>{{ __('Upload') }}</button>
           </div>
         </form>
       @endauth
@@ -616,19 +616,19 @@
           <div class="border rounded p-3 mb-3">
             <div class="row">
               <div class="col-md-6">
-                <strong>Type:</strong> {{ ucfirst($shipment->shipment_type) }}<br>
-                <strong>Courier:</strong> {{ $shipment->courier_name ?: '-' }}<br>
-                <strong>Tracking #:</strong> {{ $shipment->tracking_number ?: '-' }}<br>
-                <strong>Status:</strong>
+                <strong>{{ __('Type:') }}</strong> {{ ucfirst($shipment->shipment_type) }}<br>
+                <strong>{{ __('Courier:') }}</strong> {{ $shipment->courier_name ?: '-' }}<br>
+                <strong>{{ __('Tracking #:') }}</strong> {{ $shipment->tracking_number ?: '-' }}<br>
+                <strong>{{ __('Status:') }}</strong>
                 <span class="badge bg-{{ $shipment->status === 'delivered' ? 'success' : ($shipment->status === 'in_transit' ? 'primary' : 'secondary') }}">
                   {{ ucfirst(str_replace('_', ' ', $shipment->status)) }}
                 </span>
               </div>
               <div class="col-md-6">
-                <strong>Scheduled Pickup:</strong> {{ $shipment->scheduled_pickup ? \Carbon\Carbon::parse($shipment->scheduled_pickup)->format('Y-m-d H:i') : '-' }}<br>
-                <strong>Actual Pickup:</strong> {{ $shipment->actual_pickup ? \Carbon\Carbon::parse($shipment->actual_pickup)->format('Y-m-d H:i') : '-' }}<br>
-                <strong>Scheduled Delivery:</strong> {{ $shipment->scheduled_delivery ? \Carbon\Carbon::parse($shipment->scheduled_delivery)->format('Y-m-d H:i') : '-' }}<br>
-                <strong>Total Cost:</strong> {{ $shipment->total_cost ? ($shipment->cost_currency ?? 'ZAR') . ' ' . number_format($shipment->total_cost, 2) : '-' }}
+                <strong>{{ __('Scheduled Pickup:') }}</strong> {{ $shipment->scheduled_pickup ? \Carbon\Carbon::parse($shipment->scheduled_pickup)->format('Y-m-d H:i') : '-' }}<br>
+                <strong>{{ __('Actual Pickup:') }}</strong> {{ $shipment->actual_pickup ? \Carbon\Carbon::parse($shipment->actual_pickup)->format('Y-m-d H:i') : '-' }}<br>
+                <strong>{{ __('Scheduled Delivery:') }}</strong> {{ $shipment->scheduled_delivery ? \Carbon\Carbon::parse($shipment->scheduled_delivery)->format('Y-m-d H:i') : '-' }}<br>
+                <strong>{{ __('Total Cost:') }}</strong> {{ $shipment->total_cost ? ($shipment->cost_currency ?? 'ZAR') . ' ' . number_format($shipment->total_cost, 2) : '-' }}
               </div>
             </div>
             @if(count($shipment->events))
@@ -683,10 +683,10 @@
                   <td>{{ $cost->invoice_number ?: '-' }}</td>
                   <td>
                     @if($cost->paid)
-                      <span class="badge bg-success">Paid</span>
+                      <span class="badge bg-success">{{ __('Paid') }}</span>
                       @if($cost->paid_date) {{ $cost->paid_date }} @endif
                     @else
-                      <span class="badge bg-warning text-dark">Unpaid</span>
+                      <span class="badge bg-warning text-dark">{{ __('Unpaid') }}</span>
                     @endif
                   </td>
                   <td>{{ $cost->paid_by ? ucfirst($cost->paid_by) : '-' }}</td>
@@ -763,7 +763,7 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="transition-comment" class="form-label">Comment (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="transition-comment" class="form-label">Comment (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea name="comment" id="transition-comment" class="form-control" rows="3" placeholder="{{ __('Reason for status change...') }}"></textarea>
             </div>
           </div>
@@ -788,12 +788,12 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="extend-date" class="form-label">New End Date <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="extend-date" class="form-label">New End Date <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="date" name="new_end_date" id="extend-date" class="form-control" required
                      value="{{ $loan->end_date ? \Carbon\Carbon::parse($loan->end_date)->addMonths(3)->format('Y-m-d') : '' }}">
             </div>
             <div class="mb-3">
-              <label for="extend-reason" class="form-label">Reason <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="extend-reason" class="form-label">Reason <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <textarea name="reason" id="extend-reason" class="form-control" rows="3" required placeholder="{{ __('Reason for extension...') }}"></textarea>
             </div>
           </div>
@@ -818,12 +818,12 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="return-date" class="form-label">Return Date <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="return-date" class="form-label">Return Date <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="date" name="return_date" id="return-date" class="form-control" required
                      value="{{ now()->format('Y-m-d') }}">
             </div>
             <div class="mb-3">
-              <label for="return-notes" class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="return-notes" class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea name="notes" id="return-notes" class="form-control" rows="3" placeholder="{{ __('Return notes...') }}"></textarea>
             </div>
           </div>

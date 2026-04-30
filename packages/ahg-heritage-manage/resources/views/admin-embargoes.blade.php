@@ -17,11 +17,11 @@ $expiringEmbargoes = $expiringEmbargoes ?? [];
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">{{ __('Statistics') }}</h6></div>
       <div class="card-body">
         <div class="d-flex justify-content-between mb-2">
-          <span>Active</span>
+          <span>{{ __('Active') }}</span>
           <span class="badge bg-danger">{{ $stats['active'] ?? 0 }}</span>
         </div>
         <div class="d-flex justify-content-between">
-          <span>Expiring Soon</span>
+          <span>{{ __('Expiring Soon') }}</span>
           <span class="badge bg-warning">{{ $stats['expiring_soon'] ?? 0 }}</span>
         </div>
       </div>

@@ -10,7 +10,7 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0"><i class="fas fa-upload me-2"></i> Capture an Email</h1>
-  <a href="{{ route('records.emails.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Back to queue</a>
+  <a href="{{ route('records.emails.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to queue') }}</a>
 </div>
 
 @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
@@ -26,7 +26,7 @@
             <input type="file" name="eml_file" class="form-control" accept=".eml,message/rfc822" required>
             <div class="form-text small">Up to 50 MB. The original file is preserved verbatim under <code>{{ rtrim(config('heratio.storage_path', '/storage'), '/') }}/rm/email-capture/</code>.</div>
           </div>
-          <button type="submit" class="btn btn-primary"><i class="fas fa-upload me-1"></i>Capture</button>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-upload me-1"></i>{{ __('Capture') }}</button>
         </form>
       </div>
     </div>

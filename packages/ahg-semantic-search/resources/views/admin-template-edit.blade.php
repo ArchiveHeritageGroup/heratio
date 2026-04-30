@@ -139,10 +139,10 @@
 
   <div class="d-flex justify-content-between">
     <a href="{{ route('semantic-search.admin.templates') }}" class="btn btn-secondary">
-      <i class="fa fa-arrow-left me-1"></i>Cancel
+      <i class="fa fa-arrow-left me-1"></i>{{ __('Cancel') }}
     </a>
     <button type="submit" class="btn btn-primary">
-      <i class="fa fa-save me-1"></i>Save Template
+      <i class="fa fa-save me-1"></i>{{ __('Save Template') }}
     </button>
   </div>
 </form>

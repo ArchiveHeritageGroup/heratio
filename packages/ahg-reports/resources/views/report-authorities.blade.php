@@ -48,7 +48,7 @@
       </div>
       <button type="submit" class="btn btn-primary btn-sm w-100 mb-2">{{ __('Search') }}</button>
       <button type="button" onclick="exportTableToCSV()" class="btn btn-outline-secondary btn-sm w-100">
-        <i class="fas fa-download me-1"></i>Export CSV
+        <i class="fas fa-download me-1"></i>{{ __('Export CSV') }}
       </button>
     </form>
   </div>
@@ -59,7 +59,7 @@
 <h1>{{ __('Browse Authority Record/Actor Report') }}</h1>
 <div class="mb-3">
   <a href="{{ route('reports.dashboard') }}" class="btn btn-outline-secondary btn-sm">
-    <i class="fas fa-arrow-left me-1"></i>Back to Reports
+    <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Reports') }}
   </a>
 </div>
 @endsection

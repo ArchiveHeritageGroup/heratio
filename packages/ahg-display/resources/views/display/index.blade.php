@@ -53,7 +53,7 @@
       <i class="fas fa-3x fa-desktop me-3 text-primary" aria-hidden="true"></i>
       <div>
         <h1 class="mb-0">{{ __('Display Configuration') }}</h1>
-        <span class="small text-muted">Manage display profiles, levels, fields, and collection types</span>
+        <span class="small text-muted">{{ __('Manage display profiles, levels, fields, and collection types') }}</span>
       </div>
     </div>
   </div>
@@ -130,7 +130,7 @@
                     <div>
                       <span class="text-muted small me-2">{{ ucfirst($profile->layout ?? 'list') }}</span>
                       @if(!empty($profile->is_default))
-                        <span class="badge bg-success">Default</span>
+                        <span class="badge bg-success">{{ __('Default') }}</span>
                       @endif
                     </div>
                   </div>
@@ -182,19 +182,19 @@
         </div>
         <div class="list-group list-group-flush">
           <a href="{{ route('glam.profiles') }}" class="list-group-item list-group-item-action">
-            <i class="fas fa-palette me-2"></i> Display Profiles
+            <i class="fas fa-palette me-2"></i> {{ __('Display Profiles') }}
           </a>
           <a href="{{ route('glam.levels') }}" class="list-group-item list-group-item-action">
-            <i class="fas fa-layer-group me-2"></i> Levels of Description
+            <i class="fas fa-layer-group me-2"></i> {{ __('Levels of Description') }}
           </a>
           <a href="{{ route('glam.fields') }}" class="list-group-item list-group-item-action">
-            <i class="fas fa-list me-2"></i> Field Mappings
+            <i class="fas fa-list me-2"></i> {{ __('Field Mappings') }}
           </a>
           <a href="{{ route('glam.bulk.set.type') }}" class="list-group-item list-group-item-action">
-            <i class="fas fa-tags me-2"></i> Bulk Set Object Types
+            <i class="fas fa-tags me-2"></i> {{ __('Bulk Set Object Types') }}
           </a>
           <a href="{{ route('glam.browse.settings') }}" class="list-group-item list-group-item-action">
-            <i class="fas fa-cog me-2"></i> Browse Settings
+            <i class="fas fa-cog me-2"></i> {{ __('Browse Settings') }}
           </a>
         </div>
       </div>

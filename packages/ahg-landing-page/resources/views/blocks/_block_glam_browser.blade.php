@@ -16,7 +16,7 @@ $showSidebar = $config['show_sidebar'] ?? true;
   <!-- Loading state -->
   <div class="glam-browser-loading text-center py-5">
     <div class="spinner-border text-success mb-3" role="status">
-      <span class="visually-hidden">Loading...</span>
+      <span class="visually-hidden">{{ __('Loading...') }}</span>
     </div>
     <p class="text-muted">Loading collections...</p>
   </div>

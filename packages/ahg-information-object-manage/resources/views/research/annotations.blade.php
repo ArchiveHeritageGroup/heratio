@@ -13,6 +13,6 @@
   </div>
 
   <button class="btn atom-btn-outline-success" onclick="alert('Annotation creation form — migration in progress'); return false;">
-    <i class="fas fa-plus me-1"></i> Add annotation
+    <i class="fas fa-plus me-1"></i> {{ __('Add annotation') }}
   </button>
 @endsection

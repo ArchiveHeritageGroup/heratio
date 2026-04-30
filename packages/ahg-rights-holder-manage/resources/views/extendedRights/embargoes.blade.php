@@ -40,12 +40,12 @@
                 @if(!empty($embargo->end_date))
                   {{ $embargo->end_date }}
                 @else
-                  <span class="text-muted">Indefinite</span>
+                  <span class="text-muted">{{ __('Indefinite') }}</span>
                 @endif
               </td>
               <td>
                 <a href="{{ route('extended-rights.lift-embargo', $embargo->id) }}" class="btn btn-sm atom-btn-white" onclick="return confirm('Are you sure you want to lift this embargo?');">
-                  <i class="fas fa-unlock"></i> Lift
+                  <i class="fas fa-unlock"></i> {{ __('Lift') }}
                 </a>
               </td>
             </tr>
@@ -59,6 +59,6 @@
 </div>
 
 <div class="mt-3">
-  <a href="{{ route('extended-rights.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Back to Extended Rights</a>
+  <a href="{{ route('extended-rights.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('Back to Extended Rights') }}</a>
 </div>
 @endsection

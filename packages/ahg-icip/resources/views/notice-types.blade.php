@@ -73,13 +73,13 @@
                     <td><i class="bi {{ $severityIcon }} me-1"></i>{{ $type->name }}</td>
                     <td><span class="badge {{ $severityClass }}">{{ ucfirst($type->severity) }}</span></td>
                     <td>
-                      @if($type->requires_acknowledgement)<span class="badge bg-secondary" title="{{ __('Requires Acknowledgement') }}">ACK</span>@endif
-                      @if($type->blocks_access)<span class="badge bg-dark" title="{{ __('Blocks Access') }}">BLOCK</span>@endif
-                      @if($type->display_public)<span class="badge bg-light text-dark" title="{{ __('Shown to Public') }}">PUB</span>@endif
+                      @if($type->requires_acknowledgement)<span class="badge bg-secondary" title="{{ __('Requires Acknowledgement') }}">{{ __('ACK') }}</span>@endif
+                      @if($type->blocks_access)<span class="badge bg-dark" title="{{ __('Blocks Access') }}">{{ __('BLOCK') }}</span>@endif
+                      @if($type->display_public)<span class="badge bg-light text-dark" title="{{ __('Shown to Public') }}">{{ __('PUB') }}</span>@endif
                     </td>
                     <td>
-                      @if($type->is_active)<span class="badge bg-success">Active</span>
-                      @else<span class="badge bg-secondary">Inactive</span>@endif
+                      @if($type->is_active)<span class="badge bg-success">{{ __('Active') }}</span>
+                      @else<span class="badge bg-secondary">{{ __('Inactive') }}</span>@endif
                     </td>
                     <td>
                       <form method="post" class="d-inline">
@@ -138,7 +138,7 @@
                   <input type="checkbox" name="requires_acknowledgement" value="1" class="form-check-input" id="reqAck">
                   <label class="form-check-label" for="reqAck">
                     Requires Acknowledgement
-                    <br><small class="text-muted">User must acknowledge before viewing</small>
+                    <br><small class="text-muted">{{ __('User must acknowledge before viewing') }}</small>
                   </label>
                 </div>
               </div>
@@ -147,7 +147,7 @@
                   <input type="checkbox" name="blocks_access" value="1" class="form-check-input" id="blockAccess">
                   <label class="form-check-label" for="blockAccess">
                     Blocks Access
-                    <br><small class="text-muted">Prevents viewing until acknowledged</small>
+                    <br><small class="text-muted">{{ __('Prevents viewing until acknowledged') }}</small>
                   </label>
                 </div>
               </div>
@@ -171,7 +171,7 @@
               <input type="number" name="display_order" class="form-control" value="100" style="max-width: 100px;">
             </div>
             <button type="submit" class="btn btn-primary">
-              <i class="bi bi-plus-circle me-1"></i> Add Notice Type
+              <i class="bi bi-plus-circle me-1"></i> {{ __('Add Notice Type') }}
             </button>
           </form>
         </div>
@@ -182,17 +182,17 @@
       <div class="card">
         <div class="card-header"><h5 class="mb-0">{{ __('Legend') }}</h5></div>
         <div class="card-body small">
-          <p><strong>Severity Levels:</strong></p>
+          <p><strong>{{ __('Severity Levels:') }}</strong></p>
           <ul>
-            <li><span class="badge bg-info">Info</span> - General information</li>
-            <li><span class="badge bg-warning text-dark">Warning</span> - Cultural sensitivity</li>
-            <li><span class="badge bg-danger">Critical</span> - Restricted content</li>
+            <li><span class="badge bg-info">{{ __('Info') }}</span> - General information</li>
+            <li><span class="badge bg-warning text-dark">{{ __('Warning') }}</span> - Cultural sensitivity</li>
+            <li><span class="badge bg-danger">{{ __('Critical') }}</span> - Restricted content</li>
           </ul>
-          <p><strong>Options:</strong></p>
+          <p><strong>{{ __('Options:') }}</strong></p>
           <ul>
-            <li><span class="badge bg-secondary">ACK</span> - Requires user acknowledgement</li>
-            <li><span class="badge bg-dark">BLOCK</span> - Blocks access until acknowledged</li>
-            <li><span class="badge bg-light text-dark">PUB</span> - Visible to public users</li>
+            <li><span class="badge bg-secondary">{{ __('ACK') }}</span> - Requires user acknowledgement</li>
+            <li><span class="badge bg-dark">{{ __('BLOCK') }}</span> - Blocks access until acknowledged</li>
+            <li><span class="badge bg-light text-dark">{{ __('PUB') }}</span> - Visible to public users</li>
           </ul>
         </div>
       </div>

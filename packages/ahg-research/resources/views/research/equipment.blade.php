@@ -47,7 +47,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Equipment in {{ e($currentRoom->name) }}</h5>
-                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addEquipmentModal"><i class="fas fa-plus me-1"></i>Add Equipment</button>
+                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addEquipmentModal"><i class="fas fa-plus me-1"></i>{{ __('Add Equipment') }}</button>
             </div>
             <div class="card-body p-0">
                 @if(!empty($equipment))
@@ -70,7 +70,7 @@
                                     @php $cc = ['excellent'=>'success','good'=>'primary','fair'=>'warning','needs_repair'=>'danger','out_of_service'=>'dark']; @endphp
                                     <span class="badge bg-{{ $cc[$item->condition_status ?? ''] ?? 'secondary' }}">{{ $equipmentConditions[$item->condition_status ?? ''] ?? ucfirst(str_replace('_', ' ', $item->condition_status ?? 'unknown')) }}</span>
                                 </td>
-                                <td>{!! ($item->is_available ?? 1) ? '<span class="badge bg-success">Available</span>' : '<span class="badge bg-danger">Unavailable</span>' !!}</td>
+                                <td>{!! ($item->is_available ?? 1) ? '<span class="badge bg-success">{{ __('Available') }}</span>' : '<span class="badge bg-danger">{{ __('Unavailable') }}</span>' !!}</td>
                                 <td>
                                     <button type="button" class="btn btn-sm btn-outline-primary" onclick='editEquipment(@json($item))' title="{{ __('Edit') }}"><i class="fas fa-edit"></i></button>
                                     <button type="button" class="btn btn-sm btn-outline-info" onclick="logMaintenance({{ $item->id }})" title="{{ __('Log Maintenance') }}"><i class="fas fa-wrench"></i></button>
@@ -98,7 +98,7 @@
                         <li class="mb-1"><span class="badge bg-secondary">{{ $code }}</span> {{ $label }}</li>
                     @endforeach
                 </ul>
-                <a href="{{ route('dropdown.index') }}?taxonomy=equipment_type" class="btn btn-sm btn-outline-secondary mt-2 w-100"><i class="fas fa-cog me-1"></i>Manage in Dropdown Manager</a>
+                <a href="{{ route('dropdown.index') }}?taxonomy=equipment_type" class="btn btn-sm btn-outline-secondary mt-2 w-100"><i class="fas fa-cog me-1"></i>{{ __('Manage in Dropdown Manager') }}</a>
             </div>
         </div>
     </div>

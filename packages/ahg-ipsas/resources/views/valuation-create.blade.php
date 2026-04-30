@@ -38,7 +38,7 @@
             @if($asset)
             <input type="hidden" name="asset_id" value="{{ $asset->id }}">
             <div class="alert alert-info">
-                <strong>Asset:</strong> {{ $asset->title ?? '' }}
+                <strong>{{ __('Asset:') }}</strong> {{ $asset->title ?? '' }}
                 ({{ $asset->asset_number ?? '' }})
             </div>
             @else
@@ -141,7 +141,7 @@
             </div>
             <div class="card">
                 <div class="card-body d-grid gap-2">
-                    <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>Record Valuation</button>
+                    <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>{{ __('Record Valuation') }}</button>
                     <a href="{{ route('ipsas.valuations') }}" class="btn btn-outline-secondary">Cancel</a>
                 </div>
             </div>

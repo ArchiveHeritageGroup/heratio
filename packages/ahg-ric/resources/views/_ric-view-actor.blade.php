@@ -174,13 +174,13 @@
         </div>
         <div class="card-body">
           <a href="{{ route('ric.explorer') }}?id={{ $actor->id }}" class="btn btn-sm btn-outline-success w-100 mb-2 text-start">
-            <i class="fas fa-project-diagram me-1"></i> Graph Explorer
+            <i class="fas fa-project-diagram me-1"></i> {{ __('Graph Explorer') }}
           </a>
           <a href="{{ route('ric.export-jsonld') }}?id={{ $actor->id }}" class="btn btn-sm btn-outline-info w-100 mb-2 text-start" target="_blank">
-            <i class="fas fa-code me-1"></i> JSON-LD Export
+            <i class="fas fa-code me-1"></i> {{ __('JSON-LD Export') }}
           </a>
           <a href="{{ route('ric.explorer') }}?id={{ $actor->id }}&view=timeline" class="btn btn-sm btn-outline-secondary w-100 text-start">
-            <i class="fas fa-clock me-1"></i> Timeline
+            <i class="fas fa-clock me-1"></i> {{ __('Timeline') }}
           </a>
         </div>
       </div>

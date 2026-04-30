@@ -79,7 +79,7 @@
         <div class="card bg-light">
           <div class="card-body text-center">
             <h3 class="mb-0">{{ number_format($pdfStats['total_pdfs']) }}</h3>
-            <small class="text-muted">Total PDFs</small>
+            <small class="text-muted">{{ __('Total PDFs') }}</small>
           </div>
         </div>
       </div>
@@ -87,7 +87,7 @@
         <div class="card bg-light">
           <div class="card-body text-center">
             <h3 class="mb-0">{{ number_format($pdfStats['extracted_count']) }}</h3>
-            <small class="text-muted">Text Extracted</small>
+            <small class="text-muted">{{ __('Text Extracted') }}</small>
           </div>
         </div>
       </div>
@@ -95,7 +95,7 @@
         <div class="card bg-light">
           <div class="card-body text-center">
             <h3 class="mb-0">{{ number_format($pdfStats['remaining_count']) }}</h3>
-            <small class="text-muted">Remaining</small>
+            <small class="text-muted">{{ __('Remaining') }}</small>
           </div>
         </div>
       </div>
@@ -108,7 +108,7 @@
     <div class="d-flex gap-3 flex-wrap">
       @if($imageMagickAvailable)
         <a href="{{ route('pdf-tools.merge') }}" class="btn atom-btn-white">
-          <i class="bi bi-files me-1"></i>Merge Files to PDF
+          <i class="bi bi-files me-1"></i>{{ __('Merge Files to PDF') }}
         </a>
       @endif
 
@@ -116,14 +116,14 @@
         <form action="{{ route('pdf-tools.batchExtractText') }}" method="POST" class="d-inline">
           @csrf
           <button type="submit" class="btn atom-btn-outline-success" onclick="return confirm('Run batch text extraction on up to 50 PDFs?')">
-            <i class="bi bi-lightning me-1"></i>Batch Extract Text
+            <i class="bi bi-lightning me-1"></i>{{ __('Batch Extract Text') }}
           </button>
         </form>
       @endif
 
       @if($pdftotextAvailable)
         <button type="button" class="btn atom-btn-white" data-bs-toggle="modal" data-bs-target="#extractTextModal">
-          <i class="bi bi-file-earmark-text me-1"></i>Extract Text from PDF
+          <i class="bi bi-file-earmark-text me-1"></i>{{ __('Extract Text from PDF') }}
         </button>
       @endif
     </div>
@@ -155,13 +155,13 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Upload PDF File <span class="badge bg-danger ms-1">Required</span></label>
+            <label class="form-label">Upload PDF File <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <input type="file" class="form-control" name="pdf_file" accept=".pdf" required>
             <div class="form-text">Maximum 100 MB</div>
           </div>
           <div class="text-muted small">OR</div>
           <div class="mb-3 mt-2">
-            <label class="form-label">Digital Object ID <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Digital Object ID <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="number" class="form-control" name="digital_object_id" placeholder="{{ __('Enter digital object ID') }}">
             <div class="form-text">Extract text from an existing PDF in the repository</div>
           </div>
@@ -169,7 +169,7 @@
         <div class="modal-footer">
           <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="submit" class="btn atom-btn-outline-success">
-            <i class="bi bi-file-earmark-text me-1"></i>Extract Text
+            <i class="bi bi-file-earmark-text me-1"></i>{{ __('Extract Text') }}
           </button>
         </div>
       </form>

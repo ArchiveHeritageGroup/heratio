@@ -21,8 +21,8 @@
       <div class="card-body">
         <table class="table table-sm">
           <tr><th width="150">{{ __('Status') }}</th><td>
-            @if(($job->status ?? '') === 'completed') <span class="badge bg-success">Completed</span>
-            @elseif(($job->status ?? '') === 'failed') <span class="badge bg-danger">Failed</span>
+            @if(($job->status ?? '') === 'completed') <span class="badge bg-success">{{ __('Completed') }}</span>
+            @elseif(($job->status ?? '') === 'failed') <span class="badge bg-danger">{{ __('Failed') }}</span>
             @else <span class="badge bg-info">{{ ucfirst($job->status ?? 'pending') }}</span> @endif
           </td></tr>
           <tr><th>{{ __('Output Format') }}</th><td>{{ strtoupper($job->output_format ?? '-') }}</td></tr>
@@ -33,7 +33,7 @@
         </table>
 
         @if(($job->status ?? '') === 'completed' && ($job->output_path ?? null))
-        <a href="{{ $job->output_path }}" class="btn atom-btn-white"><i class="fas fa-download me-1"></i>Download Output</a>
+        <a href="{{ $job->output_path }}" class="btn atom-btn-white"><i class="fas fa-download me-1"></i>{{ __('Download Output') }}</a>
         @endif
       </div>
     </div>

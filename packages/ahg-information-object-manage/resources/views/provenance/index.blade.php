@@ -17,7 +17,7 @@
   {{-- Back button --}}
   <div class="provenance-navigation mb-4">
     <a href="{{ route('informationobject.show', $io->slug) }}" class="btn btn-outline-primary">
-      <i class="fas fa-arrow-left me-1"></i> Back to Archival Description
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Archival Description') }}
     </a>
   </div>
 
@@ -195,10 +195,10 @@
     @auth
       <div class="provenance-actions mt-3">
         <button class="btn btn-primary" id="add-entry">
-          <i class="fas fa-plus"></i> Add Provenance Entry
+          <i class="fas fa-plus"></i> {{ __('Add Provenance Entry') }}
         </button>
         <a href="{{ route('io.provenance.exportCsv', $io->slug) }}" class="btn btn-secondary">
-          <i class="fas fa-download"></i> Export CSV
+          <i class="fas fa-download"></i> {{ __('Export CSV') }}
         </a>
       </div>
     @endauth

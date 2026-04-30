@@ -8,25 +8,25 @@
       <div class="col-md-3">
         <div class="border rounded p-3">
           <h4 class="mb-0">{{ $mergeStats['pending'] ?? 0 }}</h4>
-          <small class="text-muted">Pending</small>
+          <small class="text-muted">{{ __('Pending') }}</small>
         </div>
       </div>
       <div class="col-md-3">
         <div class="border rounded p-3">
           <h4 class="mb-0 text-primary">{{ $mergeStats['processing'] ?? 0 }}</h4>
-          <small class="text-muted">Processing</small>
+          <small class="text-muted">{{ __('Processing') }}</small>
         </div>
       </div>
       <div class="col-md-3">
         <div class="border rounded p-3">
           <h4 class="mb-0 text-success">{{ $mergeStats['completed'] ?? 0 }}</h4>
-          <small class="text-muted">Completed</small>
+          <small class="text-muted">{{ __('Completed') }}</small>
         </div>
       </div>
       <div class="col-md-3">
         <div class="border rounded p-3">
           <h4 class="mb-0 text-danger">{{ $mergeStats['failed'] ?? 0 }}</h4>
-          <small class="text-muted">Failed</small>
+          <small class="text-muted">{{ __('Failed') }}</small>
         </div>
       </div>
     </div>

@@ -16,7 +16,7 @@
     @if($totalCount > 0)
       <form method="post" action="{{ route('cart.clear') }}" class="d-inline">
         @csrf
-        <button type="submit" class="btn atom-btn-outline-danger btn-sm" onclick="return confirm('Clear all items?')"><i class="fas fa-trash me-1"></i>Clear cart</button>
+        <button type="submit" class="btn atom-btn-outline-danger btn-sm" onclick="return confirm('Clear all items?')"><i class="fas fa-trash me-1"></i>{{ __('Clear cart') }}</button>
       </form>
     @endif
   </div>
@@ -85,7 +85,7 @@
     </div>
     <div class="card-footer d-flex justify-content-between align-items-center">
       <a href="{{ url('/marketplace/browse') }}" class="btn btn-outline-secondary btn-sm">
-        <i class="fas fa-arrow-left me-1"></i> Continue browsing marketplace
+        <i class="fas fa-arrow-left me-1"></i> {{ __('Continue browsing marketplace') }}
       </a>
       @if($ecommerceEnabled)
         <form method="post" action="{{ route('cart.marketplace-checkout') }}">
@@ -103,7 +103,7 @@
                   data-dummy-price="{{ (string) $marketplaceCart['subtotal'] }}"
                   data-dummy-currency="{{ $marketplaceCart['currency'] }}"
                   data-demo-submit="#demo-checkout-form">
-            <i class="fas fa-flask me-1"></i> Demo Sale (e-commerce disabled)
+            <i class="fas fa-flask me-1"></i> {{ __('Demo Sale (e-commerce disabled)') }}
           </button>
         </form>
       @endif
@@ -164,8 +164,8 @@
   </div>
 
   <div class="d-flex justify-content-between">
-    <a href="{{ url('/informationobject/browse') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Continue browsing</a>
-    <a href="{{ route('cart.checkout') }}" class="btn atom-btn-white"><i class="fas fa-credit-card me-1"></i>Proceed to checkout</a>
+    <a href="{{ url('/informationobject/browse') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Continue browsing') }}</a>
+    <a href="{{ route('cart.checkout') }}" class="btn atom-btn-white"><i class="fas fa-credit-card me-1"></i>{{ __('Proceed to checkout') }}</a>
   </div>
 @endif
 

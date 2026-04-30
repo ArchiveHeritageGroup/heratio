@@ -34,7 +34,7 @@
             <span class="badge bg-{{ $__al->loan_type === 'out' ? 'info' : 'warning' }}">{{ $__al->loan_type === 'out' ? 'Out' : 'In' }}</span>
           </div>
           <small>{{ $__al->partner_institution }}</small>
-          @if($__isOverdue)<span class="badge bg-danger ms-1"><i class="fas fa-exclamation-triangle"></i> Overdue</span>@endif
+          @if($__isOverdue)<span class="badge bg-danger ms-1"><i class="fas fa-exclamation-triangle"></i> {{ __('Overdue') }}</span>@endif
         </a>
       @endforeach
     </div>
@@ -82,9 +82,9 @@
       <i class="fas fa-copyright me-1"></i> Rights
     </div>
     <div class="card-body py-2">
-      @if($__hasExtRights)<span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>Extended rights</span>@endif
-      @if($__activeEmbargo)<span class="badge bg-danger me-1"><i class="fas fa-ban me-1"></i>Embargo</span>@endif
-      @if(!$__hasExtRights && !$__activeEmbargo)<span class="badge bg-secondary">No rights/embargo</span>@endif
+      @if($__hasExtRights)<span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>{{ __('Extended rights') }}</span>@endif
+      @if($__activeEmbargo)<span class="badge bg-danger me-1"><i class="fas fa-ban me-1"></i>{{ __('Embargo') }}</span>@endif
+      @if(!$__hasExtRights && !$__activeEmbargo)<span class="badge bg-secondary">{{ __('No rights/embargo') }}</span>@endif
     </div>
     <div class="list-group list-group-flush">
       <a href="{{ route('io.rights.extended', $__slug) }}" class="list-group-item list-group-item-action small">
@@ -92,15 +92,15 @@
       </a>
       @if($__activeEmbargo)
         <a href="{{ route('io.rights.embargo', $__slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-edit me-1"></i> Edit embargo
+          <i class="fas fa-edit me-1"></i> {{ __('Edit embargo') }}
         </a>
       @else
         <a href="{{ route('io.rights.embargo', $__slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-lock me-1"></i> Add embargo
+          <i class="fas fa-lock me-1"></i> {{ __('Add embargo') }}
         </a>
       @endif
       <a href="{{ route('io.rights.export', $__slug) }}" class="list-group-item list-group-item-action small">
-        <i class="fas fa-download me-1"></i> Export rights (JSON-LD)
+        <i class="fas fa-download me-1"></i> {{ __('Export rights (JSON-LD)') }}
       </a>
     </div>
   </div>
@@ -116,10 +116,10 @@
     </div>
     <div class="list-group list-group-flush">
       <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#nerModal">
-        <i class="fas fa-brain me-2"></i> Extract Entities
+        <i class="fas fa-brain me-2"></i> {{ __('Extract Entities') }}
       </a>
       <a href="{{ route('io.ai.review') }}?object_id={{ $__objId }}" class="list-group-item list-group-item-action small">
-        <i class="fas fa-list-check me-2"></i> Review Dashboard
+        <i class="fas fa-list-check me-2"></i> {{ __('Review Dashboard') }}
       </a>
     </div>
   </div>
@@ -134,22 +134,22 @@
     </div>
     <div class="list-group list-group-flush">
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.dc'))
-        <a href="{{ route('informationobject.export.dc', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> Dublin Core XML</a>
+        <a href="{{ route('informationobject.export.dc', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> {{ __('Dublin Core XML') }}</a>
       @endif
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.ead'))
-        <a href="{{ route('informationobject.export.ead', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> EAD 2002 XML</a>
+        <a href="{{ route('informationobject.export.ead', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> {{ __('EAD 2002 XML') }}</a>
       @endif
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.ead3'))
-        <a href="{{ route('informationobject.export.ead3', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> EAD3 XML</a>
+        <a href="{{ route('informationobject.export.ead3', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> {{ __('EAD3 XML') }}</a>
       @endif
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.ead4'))
-        <a href="{{ route('informationobject.export.ead4', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> EAD 4 XML</a>
+        <a href="{{ route('informationobject.export.ead4', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> {{ __('EAD 4 XML') }}</a>
       @endif
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.mods'))
-        <a href="{{ route('informationobject.export.mods', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> MODS XML</a>
+        <a href="{{ route('informationobject.export.mods', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> {{ __('MODS XML') }}</a>
       @endif
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.rico'))
-        <a href="{{ route('informationobject.export.rico', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> RiC-O JSON-LD</a>
+        <a href="{{ route('informationobject.export.rico', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> {{ __('RiC-O JSON-LD') }}</a>
       @endif
       @auth
         @if(\Illuminate\Support\Facades\Route::has('informationobject.export.csv'))

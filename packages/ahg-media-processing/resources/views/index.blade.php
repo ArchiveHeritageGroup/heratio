@@ -8,7 +8,7 @@
     <h1 class="mb-0"><i class="fas fa-photo-video"></i> Media Processing</h1>
     <div>
       <a href="{{ route('media-processing.watermark-settings') }}" class="btn atom-btn-white">
-        <i class="fas fa-stamp"></i> Watermark Settings
+        <i class="fas fa-stamp"></i> {{ __('Watermark Settings') }}
       </a>
     </div>
   </div>
@@ -119,9 +119,9 @@
             <button type="submit" class="btn atom-btn-outline-success w-100"
               {{ $stats['missing_thumbnails'] == 0 && $stats['missing_references'] == 0 ? 'disabled' : '' }}
               onclick="return confirm('Regenerate missing derivatives for up to 100 objects? This may take a while.')">
-              <i class="fas fa-sync-alt"></i> Regenerate All Missing
+              <i class="fas fa-sync-alt"></i> {{ __('Regenerate All Missing') }}
             </button>
-            <small class="text-muted d-block mt-1">Process up to 100 objects missing thumbnails or references</small>
+            <small class="text-muted d-block mt-1">{{ __('Process up to 100 objects missing thumbnails or references') }}</small>
           </form>
         </div>
         <div class="col-md-4">
@@ -132,7 +132,7 @@
             <button type="submit" class="btn atom-btn-outline-success w-100"
               {{ $stats['missing_thumbnails'] == 0 ? 'disabled' : '' }}
               onclick="return confirm('Regenerate missing thumbnails for up to 100 objects?')">
-              <i class="fas fa-th-large"></i> Regenerate Thumbnails
+              <i class="fas fa-th-large"></i> {{ __('Regenerate Thumbnails') }}
             </button>
             <small class="text-muted d-block mt-1">{{ number_format($stats['missing_thumbnails']) }} masters missing thumbnails</small>
           </form>
@@ -145,7 +145,7 @@
             <button type="submit" class="btn atom-btn-white w-100 text-white"
               {{ $stats['missing_references'] == 0 ? 'disabled' : '' }}
               onclick="return confirm('Regenerate missing reference images for up to 100 objects?')">
-              <i class="fas fa-expand"></i> Regenerate References
+              <i class="fas fa-expand"></i> {{ __('Regenerate References') }}
             </button>
             <small class="text-muted d-block mt-1">{{ number_format($stats['missing_references']) }} masters missing references</small>
           </form>
@@ -186,7 +186,7 @@
                     {{ \Illuminate\Support\Str::limit($master->object_title ?? 'Untitled', 40) }}
                   </a>
                 @else
-                  <span class="text-muted">No linked object</span>
+                  <span class="text-muted">{{ __('No linked object') }}</span>
                 @endif
               </td>
               <td><small>{{ \Illuminate\Support\Str::limit($master->name, 30) }}</small></td>

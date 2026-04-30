@@ -13,7 +13,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <a href="{{ route('physicalobject.box-list', ['slug' => $storage->slug]) }}" class="text-reset">
       <i class="fas fa-3x fa-print me-3" aria-hidden="true"></i>
-      <span class="visually-hidden">Print</span>
+      <span class="visually-hidden">{{ __('Print') }}</span>
     </a>
     <div class="d-flex flex-column">
       <h1 class="mb-0" aria-describedby="heading-label">{{ $storage->name ?? '[Untitled]' }}</h1>
@@ -153,15 +153,15 @@
               <div class="row mb-3">
                 <div class="col-md-4 text-center">
                   <h3 class="mb-0">{{ $total }}</h3>
-                  <small class="text-muted">Total</small>
+                  <small class="text-muted">{{ __('Total') }}</small>
                 </div>
                 <div class="col-md-4 text-center">
                   <h3 class="mb-0 text-primary">{{ $used }}</h3>
-                  <small class="text-muted">Used</small>
+                  <small class="text-muted">{{ __('Used') }}</small>
                 </div>
                 <div class="col-md-4 text-center">
                   <h3 class="mb-0 text-success">{{ $available }}</h3>
-                  <small class="text-muted">Available</small>
+                  <small class="text-muted">{{ __('Available') }}</small>
                 </div>
               </div>
               <div class="progress mb-2" style="height:25px">
@@ -185,15 +185,15 @@
               <div class="row mb-3">
                 <div class="col-md-4 text-center">
                   <h3 class="mb-0">{{ number_format($totalLm, 2) }}</h3>
-                  <small class="text-muted">Total</small>
+                  <small class="text-muted">{{ __('Total') }}</small>
                 </div>
                 <div class="col-md-4 text-center">
                   <h3 class="mb-0 text-primary">{{ number_format($usedLm, 2) }}</h3>
-                  <small class="text-muted">Used</small>
+                  <small class="text-muted">{{ __('Used') }}</small>
                 </div>
                 <div class="col-md-4 text-center">
                   <h3 class="mb-0 text-success">{{ number_format($availableLm, 2) }}</h3>
-                  <small class="text-muted">Available</small>
+                  <small class="text-muted">{{ __('Available') }}</small>
                 </div>
               </div>
               <div class="progress" style="height:25px">
@@ -216,7 +216,7 @@
             <dl class="row mb-0">
               @if(!empty($extendedData['climate_controlled']))
                 <dt class="col-sm-4">Climate Controlled</dt>
-                <dd class="col-sm-8"><span class="badge bg-info">Yes</span></dd>
+                <dd class="col-sm-8"><span class="badge bg-info">{{ __('Yes') }}</span></dd>
               @endif
 
               @if(!empty($extendedData['temperature_min']) || !empty($extendedData['temperature_max']))
@@ -290,14 +290,14 @@
         </div>
         <div class="card-body">
           <a href="{{ route('physicalobject.edit', $storage->slug) }}" class="btn atom-btn-outline-success w-100 mb-2">
-            <i class="fas fa-edit me-1"></i>Edit
+            <i class="fas fa-edit me-1"></i>{{ __('Edit') }}
           </a>
           <a href="{{ route('physicalobject.browse') }}" class="btn atom-btn-outline-light w-100 mb-2">
-            <i class="fas fa-list me-1"></i>Browse storage locations
+            <i class="fas fa-list me-1"></i>{{ __('Browse storage locations') }}
           </a>
           @if($isAdmin)
           <a href="{{ route('physicalobject.confirmDelete', $storage->slug) }}" class="btn atom-btn-outline-danger w-100">
-            <i class="fas fa-trash me-1"></i>Delete
+            <i class="fas fa-trash me-1"></i>{{ __('Delete') }}
           </a>
           @endif
         </div>
@@ -390,7 +390,7 @@
     @if(auth()->user()->is_admin)
     <li><a href="{{ route('physicalobject.confirmDelete', $storage->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
     @endif
-    <li><a href="{{ route('physicalobject.browse') }}" class="btn atom-btn-outline-light"><i class="fas fa-list me-1"></i>Browse</a></li>
+    <li><a href="{{ route('physicalobject.browse') }}" class="btn atom-btn-outline-light"><i class="fas fa-list me-1"></i>{{ __('Browse') }}</a></li>
   </ul>
   @endauth
 

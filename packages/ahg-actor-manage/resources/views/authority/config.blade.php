@@ -162,7 +162,7 @@
 
   <div class="mb-3">
     <button type="submit" class="btn atom-btn-white">
-      <i class="fas fa-save me-1"></i>Save configuration
+      <i class="fas fa-save me-1"></i>{{ __('Save configuration') }}
     </button>
     <a href="{{ route('actor.dashboard') }}" class="btn btn-outline-secondary ms-2">
       Cancel

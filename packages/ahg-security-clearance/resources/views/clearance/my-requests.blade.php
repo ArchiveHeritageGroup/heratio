@@ -11,8 +11,8 @@
   <div class="card mb-4">
     <div class="card-header"><h5 class="mb-0"><i class="fas fa-shield-alt"></i> My Clearance</h5></div>
     <div class="card-body">
-      <p><strong>Level:</strong> <span class="badge" style="background-color: {{ $currentClearance->color ?? '#666' }}">{{ e($currentClearance->classification_name ?? 'None') }}</span></p>
-      <p><strong>Expires:</strong> {{ $currentClearance->expires_at ?? 'Never' }}</p>
+      <p><strong>{{ __('Level:') }}</strong> <span class="badge" style="background-color: {{ $currentClearance->color ?? '#666' }}">{{ e($currentClearance->classification_name ?? 'None') }}</span></p>
+      <p><strong>{{ __('Expires:') }}</strong> {{ $currentClearance->expires_at ?? 'Never' }}</p>
     </div>
   </div>
   @endif

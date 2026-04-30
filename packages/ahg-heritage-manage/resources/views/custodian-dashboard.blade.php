@@ -49,7 +49,7 @@
               <h6 class="card-title">{{ __('Batch Operations') }}</h6>
               <p class="card-text text-muted small">Run bulk updates, imports, and exports across collections</p>
               <a href="{{ route('heritage.custodian-batch') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-play me-1"></i> Launch
+                <i class="fas fa-play me-1"></i> {{ __('Launch') }}
               </a>
             </div>
           </div>
@@ -61,7 +61,7 @@
               <h6 class="card-title">{{ __('Audit Trail') }}</h6>
               <p class="card-text text-muted small">Review detailed change logs and user actions</p>
               <a href="{{ route('audit.browse') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-search me-1"></i> View
+                <i class="fas fa-search me-1"></i> {{ __('View') }}
               </a>
             </div>
           </div>
@@ -73,7 +73,7 @@
               <h6 class="card-title">{{ __('Access Requests') }}</h6>
               <p class="card-text text-muted small">Manage pending access and permission requests</p>
               <a href="{{ route('acl.access-requests') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-clipboard-list me-1"></i> Review
+                <i class="fas fa-clipboard-list me-1"></i> {{ __('Review') }}
               </a>
             </div>
           </div>
@@ -115,7 +115,7 @@
             </div>
             <hr class="my-3">
             <div class="d-flex justify-content-between align-items-center">
-              <strong>Total Actions</strong>
+              <strong>{{ __('Total Actions') }}</strong>
               <span class="badge bg-primary fs-6 py-2 px-3">{{ number_format($activityByCategory->sum('total')) }}</span>
             </div>
           @else
@@ -207,7 +207,7 @@
                       @if($entry->username)
                         <strong>{{ $entry->username }}</strong>
                       @else
-                        <span class="text-muted">Anonymous</span>
+                        <span class="text-muted">{{ __('Anonymous') }}</span>
                       @endif
                       @if($entry->entity_title)
                         <span class="text-muted mx-1">&mdash;</span>

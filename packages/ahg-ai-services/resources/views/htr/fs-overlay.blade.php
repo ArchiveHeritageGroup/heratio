@@ -35,11 +35,11 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
     <h1 class="mb-0"><i class="fas fa-layer-group me-2"></i>FS Overlay Annotate</h1>
-    <span class="small text-muted">Position field labels on document images — drag boxes to correct locations</span>
+    <span class="small text-muted">{{ __('Position field labels on document images — drag boxes to correct locations') }}</span>
   </div>
   <div class="btn-group btn-group-sm">
-    <a href="{{ route('admin.ai.htr.bulkAnnotate') }}" class="btn atom-btn-white"><i class="fas fa-th me-1"></i>Bulk Annotate</a>
-    <a href="{{ route('admin.ai.htr.annotate') }}" class="btn atom-btn-white"><i class="fas fa-pencil-alt me-1"></i>Manual</a>
+    <a href="{{ route('admin.ai.htr.bulkAnnotate') }}" class="btn atom-btn-white"><i class="fas fa-th me-1"></i>{{ __('Bulk Annotate') }}</a>
+    <a href="{{ route('admin.ai.htr.annotate') }}" class="btn atom-btn-white"><i class="fas fa-pencil-alt me-1"></i>{{ __('Manual') }}</a>
   </div>
 </div>
 
@@ -66,7 +66,7 @@
       <div class="col-md-2">
         <label class="form-label small fw-bold">&nbsp;</label>
         <button id="ba-load-btn" class="btn btn-sm atom-btn-outline-success w-100" onclick="loadBulkData()">
-          <i class="fas fa-upload me-1"></i>Load
+          <i class="fas fa-upload me-1"></i>{{ __('Load') }}
         </button>
       </div>
     </div>
@@ -79,10 +79,10 @@
   <div class="col-md-8">
     <div class="card">
       <div class="card-header py-1 d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <span id="ba-image-name" class="small">No image loaded</span>
+        <span id="ba-image-name" class="small">{{ __('No image loaded') }}</span>
         <span>
           <span id="ba-counter" class="badge bg-light text-dark me-2">0/0</span>
-          <span id="ba-auto-status" class="ba-auto-badge d-none">AUTO</span>
+          <span id="ba-auto-status" class="ba-auto-badge d-none">{{ __('AUTO') }}</span>
           <div class="btn-group btn-group-sm me-2">
             <button class="btn btn-light" id="ba-tool-hand" title="{{ __('Pan (H)') }}" onclick="baSetTool('hand')"><i class="fas fa-hand-paper"></i></button>
             <button class="btn btn-light" id="ba-tool-draw" title="{{ __('Draw (R)') }}" onclick="baSetTool('draw')"><i class="fas fa-vector-square"></i></button>
@@ -98,7 +98,7 @@
       </div>
     </div>
     <div class="d-flex justify-content-between mt-2">
-      <button class="btn btn-sm atom-btn-white" onclick="baPrev()" id="ba-prev-btn" disabled><i class="fas fa-arrow-left me-1"></i>Previous</button>
+      <button class="btn btn-sm atom-btn-white" onclick="baPrev()" id="ba-prev-btn" disabled><i class="fas fa-arrow-left me-1"></i>{{ __('Previous') }}</button>
       <div>
         <div class="form-check form-switch d-inline-block me-1" style="vertical-align:middle">
           <input class="form-check-input" type="checkbox" id="ba-auto-detect" checked style="cursor:pointer">
@@ -108,17 +108,17 @@
           <input class="form-check-input" type="checkbox" id="ba-auto-recog" onchange="baToggleAutoRecog(this.checked)" style="cursor:pointer">
           <label class="form-check-label small" for="ba-auto-recog" style="cursor:pointer">{{ __('Auto') }}</label>
         </div>
-        <button class="btn btn-sm btn-outline-success" onclick="baDonutPrefill()" id="ba-donut-btn" title="{{ __('Donut: pre-fill ILM fields from document image') }}"><i class="fas fa-file-invoice me-1"></i>Donut</button>
-        <button class="btn btn-sm btn-outline-danger" onclick="baRecognise()" id="ba-recognise-btn" title="{{ __('HTR: recognise text in drawn boxes') }}"><i class="fas fa-brain me-1"></i>Recognise</button>
-        <button class="btn btn-sm btn-outline-info" onclick="ocrAndPlace(images[imgIdx]); redraw();" title="{{ __('OCR the form to detect printed labels') }}"><i class="fas fa-eye me-1"></i>Detect labels</button>
-        <button class="btn btn-sm btn-outline-secondary" onclick="baStartCropDraw()" id="ba-crop-draw-btn" title="{{ __('Draw crop rectangle') }}"><i class="fas fa-crop-alt me-1"></i>Mark area</button>
-        <button class="btn btn-sm btn-outline-dark d-none" onclick="baDoCrop()" id="ba-crop-do-btn" title="{{ __('Crop to marked area') }}"><i class="fas fa-cut me-1"></i>Crop now</button>
-        <button class="btn btn-sm btn-outline-primary" onclick="baAutoPlace()" id="ba-autoplace-btn" title="{{ __('Re-apply saved positions') }}"><i class="fas fa-magic me-1"></i>Auto-place</button>
-        <button class="btn btn-sm btn-outline-secondary" onclick="baResetPositions()" title="{{ __('Clear saved positions') }}"><i class="fas fa-undo me-1"></i>Reset</button>
-        <button class="btn btn-sm btn-outline-warning" onclick="baMigrateToServer()" id="ba-migrate-btn" title="{{ __('Push browser positions to server') }}"><i class="fas fa-cloud-upload-alt me-1"></i>Sync to server</button>
-        <button class="btn btn-sm atom-btn-white" onclick="baSkip()"><i class="fas fa-forward me-1"></i>Skip</button>
+        <button class="btn btn-sm btn-outline-success" onclick="baDonutPrefill()" id="ba-donut-btn" title="{{ __('Donut: pre-fill ILM fields from document image') }}"><i class="fas fa-file-invoice me-1"></i>{{ __('Donut') }}</button>
+        <button class="btn btn-sm btn-outline-danger" onclick="baRecognise()" id="ba-recognise-btn" title="{{ __('HTR: recognise text in drawn boxes') }}"><i class="fas fa-brain me-1"></i>{{ __('Recognise') }}</button>
+        <button class="btn btn-sm btn-outline-info" onclick="ocrAndPlace(images[imgIdx]); redraw();" title="{{ __('OCR the form to detect printed labels') }}"><i class="fas fa-eye me-1"></i>{{ __('Detect labels') }}</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="baStartCropDraw()" id="ba-crop-draw-btn" title="{{ __('Draw crop rectangle') }}"><i class="fas fa-crop-alt me-1"></i>{{ __('Mark area') }}</button>
+        <button class="btn btn-sm btn-outline-dark d-none" onclick="baDoCrop()" id="ba-crop-do-btn" title="{{ __('Crop to marked area') }}"><i class="fas fa-cut me-1"></i>{{ __('Crop now') }}</button>
+        <button class="btn btn-sm btn-outline-primary" onclick="baAutoPlace()" id="ba-autoplace-btn" title="{{ __('Re-apply saved positions') }}"><i class="fas fa-magic me-1"></i>{{ __('Auto-place') }}</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="baResetPositions()" title="{{ __('Clear saved positions') }}"><i class="fas fa-undo me-1"></i>{{ __('Reset') }}</button>
+        <button class="btn btn-sm btn-outline-warning" onclick="baMigrateToServer()" id="ba-migrate-btn" title="{{ __('Push browser positions to server') }}"><i class="fas fa-cloud-upload-alt me-1"></i>{{ __('Sync to server') }}</button>
+        <button class="btn btn-sm atom-btn-white" onclick="baSkip()"><i class="fas fa-forward me-1"></i>{{ __('Skip') }}</button>
       </div>
-      <button class="btn btn-sm atom-btn-outline-success" onclick="baSaveAndNext()" id="ba-save-btn" disabled><i class="fas fa-save me-1"></i>Save & Next</button>
+      <button class="btn btn-sm atom-btn-outline-success" onclick="baSaveAndNext()" id="ba-save-btn" disabled><i class="fas fa-save me-1"></i>{{ __('Save & Next') }}</button>
     </div>
   </div>
 
@@ -126,7 +126,7 @@
   <div class="col-md-4">
     <div class="card">
       <div class="card-header py-1" style="background:var(--ahg-primary);color:#fff">
-        <span class="small">Fields — drag boxes to position on image</span>
+        <span class="small">{{ __('Fields — drag boxes to position on image') }}</span>
       </div>
       <div class="card-body p-2 ba-sidebar" id="ba-fields"></div>
     </div>
@@ -140,19 +140,19 @@
     {{-- Session stats --}}
     <div class="card mt-3">
       <div class="card-header py-1" style="background:var(--ahg-primary);color:#fff">
-        <span class="small">Session</span>
+        <span class="small">{{ __('Session') }}</span>
       </div>
       <div class="card-body p-2">
         <div class="d-flex justify-content-between">
-          <span>Images done</span>
+          <span>{{ __('Images done') }}</span>
           <span class="badge bg-success" id="ba-done-count">0</span>
         </div>
         <div class="d-flex justify-content-between mt-1">
-          <span>Remaining</span>
+          <span>{{ __('Remaining') }}</span>
           <span class="badge bg-warning text-dark" id="ba-remaining-count">0</span>
         </div>
         <div class="d-flex justify-content-between mt-1">
-          <span>Fields annotated</span>
+          <span>{{ __('Fields annotated') }}</span>
           <span class="badge bg-primary" id="ba-fields-count">0</span>
         </div>
       </div>
@@ -161,7 +161,7 @@
     {{-- Donut ILM extraction results --}}
     <div class="card mt-3" id="ba-donut-card" style="display:none">
       <div class="card-header py-1" style="background:#2e7d32;color:#fff">
-        <span class="small"><i class="fas fa-file-invoice me-1"></i>Donut ILM</span>
+        <span class="small"><i class="fas fa-file-invoice me-1"></i>{{ __('Donut ILM') }}</span>
         <span class="badge bg-light text-dark float-end" id="ba-donut-conf"></span>
       </div>
       <div class="card-body p-2">

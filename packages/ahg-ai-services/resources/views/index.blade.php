@@ -7,7 +7,7 @@
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h1 class="mb-0"><i class="fas fa-brain"></i> AI Services</h1>
     <a href="{{ route('admin.ai.config') }}" class="btn atom-btn-white">
-      <i class="fas fa-cog"></i> Configuration
+      <i class="fas fa-cog"></i> {{ __('Configuration') }}
     </a>
   </div>
   <p class="text-muted mb-4">LLM integration, NER, summarization, translation, and spellcheck services</p>
@@ -20,11 +20,11 @@
         <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
           <strong>{{ $name }}</strong>
           @if(($health['status'] ?? '') === 'ok')
-            <span class="badge bg-success"><i class="fas fa-check-circle"></i> Online</span>
+            <span class="badge bg-success"><i class="fas fa-check-circle"></i> {{ __('Online') }}</span>
           @elseif(($health['status'] ?? '') === 'configured')
-            <span class="badge bg-info"><i class="fas fa-key"></i> Configured</span>
+            <span class="badge bg-info"><i class="fas fa-key"></i> {{ __('Configured') }}</span>
           @else
-            <span class="badge bg-danger"><i class="fas fa-times-circle"></i> Error</span>
+            <span class="badge bg-danger"><i class="fas fa-times-circle"></i> {{ __('Error') }}</span>
           @endif
         </div>
         <div class="card-body">
@@ -78,14 +78,14 @@
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <strong><i class="fas fa-server"></i> AI API</strong>
           @if(($apiHealth['status'] ?? '') === 'ok' || ($apiHealth['status'] ?? '') === 'healthy')
-            <span class="badge bg-success float-end">Online</span>
+            <span class="badge bg-success float-end">{{ __('Online') }}</span>
           @else
-            <span class="badge bg-warning float-end">Offline</span>
+            <span class="badge bg-warning float-end">{{ __('Offline') }}</span>
           @endif
         </div>
         <div class="card-body small">
           @php $apiUrl = $generalSettings->firstWhere('setting_key', 'api_url'); @endphp
-          <p class="mb-1"><strong>URL:</strong> {{ $apiUrl->setting_value ?? 'Not configured' }}</p>
+          <p class="mb-1"><strong>{{ __('URL:') }}</strong> {{ $apiUrl->setting_value ?? 'Not configured' }}</p>
           @if(!empty($apiHealth['services']))
             @foreach($apiHealth['services'] as $svc => $status)
               <span class="badge {{ $status ? 'bg-success' : 'bg-secondary' }} me-1">{{ $svc }}</span>
@@ -163,7 +163,7 @@
           <p class="small">Handwritten Text Recognition for SA vital records — death certificates, church registers, narrative documents. Extract, batch process, annotate, and fine-tune models.</p>
         </div>
         <div class="card-footer">
-          <a href="{{ route('admin.ai.htr.dashboard') }}" class="btn atom-btn-white w-100"><i class="fas fa-arrow-right me-1"></i>Open HTR Dashboard</a>
+          <a href="{{ route('admin.ai.htr.dashboard') }}" class="btn atom-btn-white w-100"><i class="fas fa-arrow-right me-1"></i>{{ __('Open HTR Dashboard') }}</a>
         </div>
       </div>
     </div>
@@ -176,7 +176,7 @@
           <p class="small">End-to-end document image understanding for FamilySearch ILM field extraction. Classifies document type and extracts typed metadata (record type, event year, event place).</p>
         </div>
         <div class="card-footer">
-          <a href="{{ route('admin.ai.donut.dashboard') }}" class="btn atom-btn-white w-100"><i class="fas fa-arrow-right me-1"></i>Open Donut Dashboard</a>
+          <a href="{{ route('admin.ai.donut.dashboard') }}" class="btn atom-btn-white w-100"><i class="fas fa-arrow-right me-1"></i>{{ __('Open Donut Dashboard') }}</a>
         </div>
       </div>
     </div>
@@ -189,12 +189,12 @@
     </div>
     <div class="card-body">
       <div class="mb-3">
-        <label for="aiTestInput" class="form-label">Input Text <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="aiTestInput" class="form-label">Input Text <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <textarea class="form-control" id="aiTestInput" rows="4" placeholder="{{ __('Enter text to test AI services...') }}">The National Archives of South Africa in Pretoria holds the records of Jan van Riebeeck from 1652. The Dutch East India Company (VOC) established a refreshment station at the Cape of Good Hope on 6 April 1652.</textarea>
       </div>
 
       <div class="mb-3">
-        <label for="aiTargetLang" class="form-label">Target Language (for translation) <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="aiTargetLang" class="form-label">Target Language (for translation) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <select class="form-select form-select-sm w-auto d-inline-block" id="aiTargetLang">
           <option value="af">{{ __('Afrikaans') }}</option>
           <option value="fr">{{ __('French') }}</option>
@@ -209,19 +209,19 @@
 
       <div class="btn-group flex-wrap" role="group">
         <button type="button" class="btn atom-btn-white" onclick="aiTest('summarize')">
-          <i class="fas fa-compress-alt"></i> Summarize
+          <i class="fas fa-compress-alt"></i> {{ __('Summarize') }}
         </button>
         <button type="button" class="btn atom-btn-white" onclick="aiTest('translate')">
-          <i class="fas fa-language"></i> Translate
+          <i class="fas fa-language"></i> {{ __('Translate') }}
         </button>
         <button type="button" class="btn atom-btn-outline-success" onclick="aiTest('entities')">
-          <i class="fas fa-diagram-project"></i> Extract Entities
+          <i class="fas fa-diagram-project"></i> {{ __('Extract Entities') }}
         </button>
         <button type="button" class="btn atom-btn-white" onclick="aiTest('suggest')">
-          <i class="fas fa-lightbulb"></i> Suggest Description
+          <i class="fas fa-lightbulb"></i> {{ __('Suggest Description') }}
         </button>
         <button type="button" class="btn atom-btn-white" onclick="aiTest('spellcheck')">
-          <i class="fas fa-spell-check"></i> Spellcheck
+          <i class="fas fa-spell-check"></i> {{ __('Spellcheck') }}
         </button>
       </div>
 
@@ -229,13 +229,13 @@
       <div id="aiTestResults" class="mt-3" style="display:none;">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-            <strong id="aiResultLabel">Results</strong>
+            <strong id="aiResultLabel">{{ __('Results') }}</strong>
             <span id="aiResultTime" class="badge bg-secondary"></span>
           </div>
           <div class="card-body">
             <div id="aiResultSpinner" class="text-center py-3" style="display:none;">
               <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Processing...</span>
+                <span class="visually-hidden">{{ __('Processing...') }}</span>
               </div>
               <p class="text-muted mt-2">Processing request...</p>
             </div>
@@ -251,7 +251,7 @@
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <strong><i class="fas fa-cogs"></i> LLM Configurations</strong>
       <a href="{{ route('admin.ai.config') }}" class="btn btn-sm atom-btn-white">
-        <i class="fas fa-plus"></i> Manage
+        <i class="fas fa-plus"></i> {{ __('Manage') }}
       </a>
     </div>
     <div class="card-body p-0">
@@ -274,14 +274,14 @@
             <td><code>{{ $cfg->model }}</code></td>
             <td>
               @if($cfg->is_active)
-                <span class="badge bg-success">Active</span>
+                <span class="badge bg-success">{{ __('Active') }}</span>
               @else
-                <span class="badge bg-warning">Inactive</span>
+                <span class="badge bg-warning">{{ __('Inactive') }}</span>
               @endif
             </td>
             <td>
               @if($cfg->is_default)
-                <span class="badge bg-primary">Default</span>
+                <span class="badge bg-primary">{{ __('Default') }}</span>
               @endif
             </td>
             <td class="small text-muted text-truncate" style="max-width:200px;" title="{{ $cfg->endpoint_url }}">

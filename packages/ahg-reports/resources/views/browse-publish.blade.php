@@ -8,7 +8,7 @@
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1><i class="fas fa-eye me-2"></i>Publish Preservation</h1>
-      <a href="{{ route('reports.browse') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back</a>
+      <a href="{{ route('reports.browse') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
     </div>
 
     <div class="card">

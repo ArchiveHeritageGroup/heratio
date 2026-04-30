@@ -19,7 +19,7 @@
         </p>
         <noscript>
           <p>
-            <strong>Notice:</strong> JavaScript is required for this step.
+            <strong>{{ __('Notice:') }}</strong> JavaScript is required for this step.
             Please enable JavaScript in your browser and try again.
           </p>
         </noscript>

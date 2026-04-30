@@ -33,7 +33,7 @@
     </div>
     <div class="col-auto">
       <a href="{{ route('nmmz.permits') }}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-1"></i> Back to Permits
+        <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Permits') }}
       </a>
     </div>
   </div>
@@ -144,7 +144,7 @@
                 <textarea name="conditions" class="form-control" rows="3"></textarea>
               </div>
               <button type="submit" name="action_type" value="approve" class="btn btn-success w-100 mb-2">
-                <i class="fas fa-check me-1"></i> Approve
+                <i class="fas fa-check me-1"></i> {{ __('Approve') }}
               </button>
 
               <hr>
@@ -154,7 +154,7 @@
                 <textarea name="rejection_reason" class="form-control" rows="3"></textarea>
               </div>
               <button type="submit" name="action_type" value="reject" class="btn btn-danger w-100">
-                <i class="fas fa-times me-1"></i> Reject
+                <i class="fas fa-times me-1"></i> {{ __('Reject') }}
               </button>
             </form>
           </div>
@@ -165,11 +165,11 @@
         <div class="card-header"><h5 class="mb-0">{{ __('Record Info') }}</h5></div>
         <div class="card-body">
           <small class="text-muted">
-            <p class="mb-1"><strong>Applied:</strong> {{ $permit->created_at ? \Carbon\Carbon::parse($permit->created_at)->format('j M Y H:i') : '-' }}</p>
+            <p class="mb-1"><strong>{{ __('Applied:') }}</strong> {{ $permit->created_at ? \Carbon\Carbon::parse($permit->created_at)->format('j M Y H:i') : '-' }}</p>
             @if(!empty($permit->review_date))
-              <p class="mb-1"><strong>Reviewed:</strong> {{ \Carbon\Carbon::parse($permit->review_date)->format('j M Y') }}</p>
+              <p class="mb-1"><strong>{{ __('Reviewed:') }}</strong> {{ \Carbon\Carbon::parse($permit->review_date)->format('j M Y') }}</p>
             @endif
-            <p class="mb-0"><strong>Updated:</strong> {{ $permit->updated_at ? \Carbon\Carbon::parse($permit->updated_at)->format('j M Y H:i') : '-' }}</p>
+            <p class="mb-0"><strong>{{ __('Updated:') }}</strong> {{ $permit->updated_at ? \Carbon\Carbon::parse($permit->updated_at)->format('j M Y H:i') : '-' }}</p>
           </small>
         </div>
       </div>

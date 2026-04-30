@@ -10,7 +10,7 @@
                     <p>{{ $provenance['record']->summary }}</p>
                 @endif
                 @if($provenance['record']->acquisition_method ?? false)
-                    <p><strong>Acquisition:</strong> {{ $provenance['record']->acquisition_method }}</p>
+                    <p><strong>{{ __('Acquisition:') }}</strong> {{ $provenance['record']->acquisition_method }}</p>
                 @endif
             @endif
             @if(isset($provenance['events']) && $provenance['events']->count())

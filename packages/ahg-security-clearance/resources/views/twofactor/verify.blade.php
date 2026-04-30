@@ -43,7 +43,7 @@
 
           <div class="text-center">
             <button type="button" class="btn btn-sm btn-outline-secondary" id="sendEmailBtn">
-              <i class="fas fa-envelope"></i> Send code via email
+              <i class="fas fa-envelope"></i> {{ __('Send code via email') }}
             </button>
             <div id="emailResult" class="mt-2 small"></div>
           </div>

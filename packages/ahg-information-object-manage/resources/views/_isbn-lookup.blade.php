@@ -25,7 +25,7 @@ $resourceId = isset($resource) && $resource->id ? $resource->id : '';
             <div class="col-md-8">
                 <label for="isbnLookupInput" class="form-label">
                     {{ __('ISBN-10 or ISBN-13') }}
-                 <span class="badge bg-secondary ms-1">Optional</span></label>
+                 <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" 
                        id="isbnLookupInput" 
                        class="form-control" 

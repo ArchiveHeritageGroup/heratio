@@ -7,12 +7,12 @@
   <h4>{{ __('3D Reports') }}</h4>
   <ul class="list-unstyled">
     <li><a href="{{ route('iiif.three-d-reports.models') }}"><i class="fas fa-cube me-2"></i>3D Models</a></li>
-    <li><a href="{{ route('iiif.three-d-reports.hotspots') }}"><i class="fas fa-map-pin me-2"></i>Hotspots</a></li>
-    <li><a href="{{ route('iiif.three-d-reports.thumbnails') }}"><i class="fas fa-image me-2"></i>Thumbnails</a></li>
+    <li><a href="{{ route('iiif.three-d-reports.hotspots') }}"><i class="fas fa-map-pin me-2"></i>{{ __('Hotspots') }}</a></li>
+    <li><a href="{{ route('iiif.three-d-reports.thumbnails') }}"><i class="fas fa-image me-2"></i>{{ __('Thumbnails') }}</a></li>
     <li><a href="{{ route('iiif.three-d-reports.digital-objects') }}"><i class="fas fa-file me-2"></i>3D Files</a></li>
   </ul>
   <hr>
-  <a href="{{ route('iiif.three-d-reports.index') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a>
+  <a href="{{ route('iiif.three-d-reports.index') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a>
 </div>
 @endsection
 @section('title-block')<h1><i class="fas fa-cube me-2"></i>3D Models Report</h1>@endsection

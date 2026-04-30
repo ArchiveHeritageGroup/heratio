@@ -106,7 +106,7 @@
             <div class="card">
                 <div class="card-body d-grid gap-2">
                     <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-save me-2"></i>Save DPO
+                        <i class="fas fa-save me-2"></i>{{ __('Save DPO') }}
                     </button>
                     <a href="{{ route('ahgcdpa.dpo') }}" class="btn btn-outline-secondary">
                         Cancel

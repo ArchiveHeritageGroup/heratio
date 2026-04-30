@@ -7,8 +7,8 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-running me-2"></i>RiC Activities</h1>
     <div class="d-flex gap-2">
-        <a href="{{ route('ric.entities.create', ['activities']) }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Create Activity</a>
-        <a href="{{ route('ric.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> RiC Dashboard</a>
+        <a href="{{ route('ric.entities.create', ['activities']) }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> {{ __('Create Activity') }}</a>
+        <a href="{{ route('ric.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> {{ __('RiC Dashboard') }}</a>
     </div>
 </div>
 

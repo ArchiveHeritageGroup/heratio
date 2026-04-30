@@ -38,7 +38,7 @@
       </div>
 
       <button type="submit" class="btn btn-warning">
-        <i class="fas fa-divide me-1"></i>Create Split Request
+        <i class="fas fa-divide me-1"></i>{{ __('Create Split Request') }}
       </button>
       <a href="{{ route('actor.dashboard') }}" class="btn atom-btn-white ms-2">
         Cancel

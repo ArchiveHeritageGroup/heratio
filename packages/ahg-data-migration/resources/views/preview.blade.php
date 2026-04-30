@@ -8,7 +8,7 @@
     <i class="fas fa-3x fa-eye me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Import Preview') }}</h1>
-      <span class="small text-muted">Review transformed data before importing</span>
+      <span class="small text-muted">{{ __('Review transformed data before importing') }}</span>
     </div>
   </div>
 
@@ -65,7 +65,7 @@
 
   <div class="d-flex flex-wrap gap-2">
     <a href="{{ route('data-migration.map') }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left"></i> Back to Mapping
+      <i class="fas fa-arrow-left"></i> {{ __('Back to Mapping') }}
     </a>
     @if(count($transformedRows) > 0)
       <form method="POST" action="{{ route('data-migration.execute') }}" class="d-inline" onsubmit="return confirm('Are you sure you want to execute this import?')">

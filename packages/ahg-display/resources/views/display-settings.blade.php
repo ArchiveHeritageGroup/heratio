@@ -38,7 +38,7 @@ $moduleLabels = [
             <i class="bi bi-display me-2"></i>
             {{ __('Display Mode Settings') }}
         </h5>
-        <span class="badge bg-info">Global Defaults</span>
+        <span class="badge bg-info">{{ __('Global Defaults') }}</span>
     </div>
     
     <div class="card-body">
@@ -102,7 +102,7 @@ $moduleLabels = [
                                                 <label class="form-check-label"
                                                        for="mode_@php echo $module; @endphp_@php echo $mode; @endphp"
                                                        title="{{ __("@php echo $meta['name']; @endphp") }}">
-                                                    <i class="bi @php echo $meta['icon']; @endphp"></i> <span class="badge bg-secondary ms-1">Optional</span>
+                                                    <i class="bi @php echo $meta['icon']; @endphp"></i> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                                                 </label>
                                             </div>
                                         @php endforeach; @endphp
@@ -130,7 +130,7 @@ $moduleLabels = [
                                                id="thumb_@php echo $module; @endphp"
                                                @php echo ($setting['show_thumbnails'] ?? 1) ? 'checked' : ''; @endphp>
                                         <label class="form-check-label small" for="thumb_@php echo $module; @endphp">
-                                            Thumbnails <span class="badge bg-secondary ms-1">Optional</span>
+                                            Thumbnails <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                                         </label>
                                     </div>
                                     
@@ -142,7 +142,7 @@ $moduleLabels = [
                                                id="override_@php echo $module; @endphp"
                                                @php echo ($setting['allow_user_override'] ?? 1) ? 'checked' : ''; @endphp>
                                         <label class="form-check-label small" for="override_@php echo $module; @endphp">
-                                            Allow user override <span class="badge bg-secondary ms-1">Optional</span>
+                                            Allow user override <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                                         </label>
                                     </div>
                                 </td>
@@ -151,7 +151,7 @@ $moduleLabels = [
                                     <button type="button" 
                                             class="btn btn-outline-secondary btn-sm save-module-btn"
                                             data-module="@php echo $module; @endphp">
-                                        <i class="bi bi-check"></i> Save
+                                        <i class="bi bi-check"></i> {{ __('Save') }}
                                     </button>
                                     <button type="button" 
                                             class="btn btn-outline-warning btn-sm reset-module-btn"
@@ -169,12 +169,12 @@ $moduleLabels = [
             <div class="d-flex justify-content-between mt-4">
                 <button type="button" class="btn btn-outline-danger" id="resetAllBtn">
                     <i class="bi bi-arrow-counterclockwise me-1"></i>
-                    Reset All to Defaults
+                    {{ __('Reset All to Defaults') }}
                 </button>
                 
                 <button type="submit" class="btn atom-btn-white" id="saveAllBtn">
                     <i class="bi bi-save me-1"></i>
-                    Save All Settings
+                    {{ __('Save All Settings') }}
                 </button>
             </div>
         </form>

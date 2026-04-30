@@ -25,7 +25,7 @@
                         @csrf
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Export Format <span class="badge bg-secondary ms-1">Optional</span></label>
+                                <label class="form-label">Export Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <select name="format" class="form-select">
                                     <option value="eac">{{ __('EAC-CPF (XML)') }}</option>
                                     <option value="csv">CSV</option>
@@ -34,7 +34,7 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Entity Type <span class="badge bg-secondary ms-1">Optional</span></label>
+                                <label class="form-label">Entity Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <select name="entity_type_id" class="form-select">
                                     <option value="">{{ __('All types') }}</option>
                                 </select>
@@ -43,7 +43,7 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Limit <span class="badge bg-secondary ms-1">Optional</span></label>
+                                <label class="form-label">Limit <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <select name="limit" class="form-select">
                                     <option value="0">{{ __('No limit (all records)') }}</option>
                                     <option value="100">100 records</option>
@@ -58,10 +58,10 @@
 
                         <div class="d-flex justify-content-between align-items-center">
                             <a href="{{ route('export.index') }}" class="atom-btn-white">
-                                <i class="bi bi-arrow-left me-1"></i>Back
+                                <i class="bi bi-arrow-left me-1"></i>{{ __('Back') }}
                             </a>
                             <button type="submit" class="atom-btn-white">
-                                <i class="bi bi-download me-1"></i>Export
+                                <i class="bi bi-download me-1"></i>{{ __('Export') }}
                             </button>
                         </div>
                     </form>
@@ -87,7 +87,7 @@
                     <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>About EAC-CPF</h6>
                 </div>
                 <div class="card-body small">
-                    <p><strong>EAC-CPF</strong> (Encoded Archival Context - Corporate Bodies, Persons, and Families) is an XML standard for encoding contextual information about the creators of archival materials.</p>
+                    <p><strong>{{ __('EAC-CPF') }}</strong> (Encoded Archival Context - Corporate Bodies, Persons, and Families) is an XML standard for encoding contextual information about the creators of archival materials.</p>
                     <p class="mb-0">Use this format for exchanging authority records with other archival systems or for backup purposes.</p>
                 </div>
             </div>

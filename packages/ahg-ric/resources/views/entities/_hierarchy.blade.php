@@ -17,7 +17,7 @@
     <div class="border rounded p-3 bg-light">
         {{-- Parent --}}
         <div class="mb-2">
-            <small class="text-muted fw-bold d-block mb-1">Parent (isPartOf)</small>
+            <small class="text-muted fw-bold d-block mb-1">{{ __('Parent (isPartOf)') }}</small>
             @if($parent)
                 <span class="badge bg-secondary me-1">{{ $parent->type }}</span>
                 @php $parentSlug = $typeSlugMap[$parent->type] ?? null; @endphp
@@ -27,9 +27,9 @@
                     {{ $parent->name }}
                 @endif
             @else
-                <span class="text-muted fst-italic">No parent</span>
+                <span class="text-muted fst-italic">{{ __('No parent') }}</span>
                 <button type="button" class="btn btn-outline-primary btn-sm ms-2 ric-hierarchy-add" data-direction="parent" data-relation="has_part">
-                    <i class="fas fa-level-up-alt"></i> Set Parent
+                    <i class="fas fa-level-up-alt"></i> {{ __('Set Parent') }}
                 </button>
             @endif
         </div>
@@ -60,10 +60,10 @@
                     @endforeach
                 </ul>
             @else
-                <span class="text-muted fst-italic ps-3">No children</span>
+                <span class="text-muted fst-italic ps-3">{{ __('No children') }}</span>
             @endif
             <button type="button" class="btn btn-outline-success btn-sm mt-1 ric-hierarchy-add" data-direction="child" data-relation="has_part">
-                <i class="fas fa-plus"></i> Add Child
+                <i class="fas fa-plus"></i> {{ __('Add Child') }}
             </button>
         </div>
 
@@ -107,7 +107,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                <button type="button" class="btn btn-primary" id="ricHierarchySaveBtn"><i class="fas fa-link"></i> Link</button>
+                <button type="button" class="btn btn-primary" id="ricHierarchySaveBtn"><i class="fas fa-link"></i> {{ __('Link') }}</button>
             </div>
         </div>
     </div>

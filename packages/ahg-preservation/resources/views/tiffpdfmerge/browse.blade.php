@@ -8,7 +8,7 @@
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1><i class="fas fa-list me-2"></i>TIFF/PDF Merge Jobs</h1>
-      <a href="{{ route('preservation.tiffpdfmerge.index') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-plus me-1"></i>New Merge</a>
+      <a href="{{ route('preservation.tiffpdfmerge.index') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-plus me-1"></i>{{ __('New Merge') }}</a>
     </div>
 
     <div class="card">
@@ -23,9 +23,9 @@
               <tr>
                 <td>{{ $job->id }}</td>
                 <td>
-                  @if($job->status === 'completed') <span class="badge bg-success">Completed</span>
-                  @elseif($job->status === 'processing') <span class="badge bg-info">Processing</span>
-                  @elseif($job->status === 'failed') <span class="badge bg-danger">Failed</span>
+                  @if($job->status === 'completed') <span class="badge bg-success">{{ __('Completed') }}</span>
+                  @elseif($job->status === 'processing') <span class="badge bg-info">{{ __('Processing') }}</span>
+                  @elseif($job->status === 'failed') <span class="badge bg-danger">{{ __('Failed') }}</span>
                   @else <span class="badge bg-warning text-dark">{{ ucfirst($job->status ?? 'pending') }}</span> @endif
                 </td>
                 <td>{{ strtoupper($job->output_format ?? '-') }}</td>

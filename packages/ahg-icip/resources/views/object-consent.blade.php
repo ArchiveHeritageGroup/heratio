@@ -150,7 +150,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary">
-              <i class="bi bi-plus-circle me-1"></i> Add Consent Record
+              <i class="bi bi-plus-circle me-1"></i> {{ __('Add Consent Record') }}
             </button>
           </form>
         </div>

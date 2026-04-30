@@ -23,7 +23,7 @@
         <div class="card text-center">
             <div class="card-body py-2">
                 <div class="fs-4 fw-bold">{{ $session->imported_nodes }}</div>
-                <small class="text-muted">Imported</small>
+                <small class="text-muted">{{ __('Imported') }}</small>
             </div>
         </div>
     </div>
@@ -31,7 +31,7 @@
         <div class="card text-center">
             <div class="card-body py-2">
                 <div class="fs-4 fw-bold">{{ $session->total_nodes }}</div>
-                <small class="text-muted">Total Rows</small>
+                <small class="text-muted">{{ __('Total Rows') }}</small>
             </div>
         </div>
     </div>
@@ -39,7 +39,7 @@
         <div class="card text-center">
             <div class="card-body py-2">
                 <div class="fs-4 fw-bold">{{ $session->linked_records }}</div>
-                <small class="text-muted">Linked Records</small>
+                <small class="text-muted">{{ __('Linked Records') }}</small>
             </div>
         </div>
     </div>

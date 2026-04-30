@@ -7,11 +7,11 @@
     <div class="d-grid gap-2">
       @if(Route::has('settings.ahg'))
         <a href="{{ route('settings.ahg', 'fuseki') }}" class="btn btn-outline-primary">
-          <i class="fas fa-cog"></i> RIC/Fuseki Settings
+          <i class="fas fa-cog"></i> {{ __('RIC/Fuseki Settings') }}
         </a>
       @endif
       <a href="https://www.ica.org/standards/RiC/ontology" target="_blank" class="btn btn-outline-info">
-        <i class="fas fa-book"></i> RiC-O Ontology Reference
+        <i class="fas fa-book"></i> {{ __('RiC-O Ontology Reference') }}
       </a>
       @php
         $fusekiConfig = \Illuminate\Support\Facades\DB::table('ahg_settings')
@@ -22,13 +22,13 @@
         $fusekiAdmin = preg_replace('#/[^/]+$#', '/', $fusekiEndpoint);
       @endphp
       <a href="{{ $fusekiAdmin }}" target="_blank" class="btn btn-outline-dark">
-        <i class="fas fa-database"></i> Fuseki Admin
+        <i class="fas fa-database"></i> {{ __('Fuseki Admin') }}
       </a>
       <a href="https://ric.theahg.co.za/explorer" target="_blank" class="btn btn-outline-success">
-        <i class="fas fa-project-diagram"></i> RIC Explorer
+        <i class="fas fa-project-diagram"></i> {{ __('RIC Explorer') }}
       </a>
       <a href="{{ route('ric.semantic-search') }}" class="btn btn-outline-secondary">
-        <i class="fas fa-search"></i> Semantic Search
+        <i class="fas fa-search"></i> {{ __('Semantic Search') }}
       </a>
     </div>
   </div>

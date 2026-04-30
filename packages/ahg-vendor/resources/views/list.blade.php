@@ -27,10 +27,10 @@
         <h1 class="h2"><i class="fas fa-building me-2"></i>Vendors</h1>
         <div>
             <a href="{{ route('ahgvendor.index') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                <i class="fas fa-tachometer-alt me-1"></i>{{ __('Dashboard') }}
             </a>
             <a href="{{ route('ahgvendor.add') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i>Add Vendor
+                <i class="fas fa-plus me-1"></i>{{ __('Add Vendor') }}
             </a>
         </div>
     </div>
@@ -133,7 +133,7 @@
                                         {{ $expired ? 'Expired' : 'Valid' }}
                                     </span>
                                 @else
-                                    <span class="badge bg-secondary">None</span>
+                                    <span class="badge bg-secondary">{{ __('None') }}</span>
                                 @endif
                             </td>
                             <td>
@@ -176,7 +176,7 @@
                 <i class="fas fa-building fa-3x mb-3"></i>
                 <p>No vendors found matching your criteria</p>
                 <a href="{{ route('ahgvendor.add') }}" class="btn btn-primary">
-                    <i class="fas fa-plus me-1"></i>Add First Vendor
+                    <i class="fas fa-plus me-1"></i>{{ __('Add First Vendor') }}
                 </a>
             </div>
             @endif
@@ -199,12 +199,12 @@
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to delete vendor <strong id="deleteVendorName"></strong>?</p>
-                <p class="text-danger mb-0"><small>This action cannot be undone. All associated data will be permanently removed.</small></p>
+                <p class="text-danger mb-0"><small>{{ __('This action cannot be undone. All associated data will be permanently removed.') }}</small></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                 <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
-                    <i class="fas fa-trash me-1"></i>Delete Vendor
+                    <i class="fas fa-trash me-1"></i>{{ __('Delete Vendor') }}
                 </button>
             </div>
         </div>

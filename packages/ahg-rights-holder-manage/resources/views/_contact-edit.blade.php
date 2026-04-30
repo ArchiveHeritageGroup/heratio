@@ -15,7 +15,7 @@
         <tr>
           <th class="w-80">{{ __('Contact person') }}</th>
           <th class="w-20">{{ __('Primary') }}</th>
-          <th><span class="visually-hidden">Actions</span></th>
+          <th><span class="visually-hidden">{{ __('Actions') }}</span></th>
         </tr>
       </thead>
       <tbody>
@@ -26,11 +26,11 @@
             <td class="text-nowrap">
               <button type="button" class="btn atom-btn-white btn-sm me-1 edit-contact-row" data-index="{{ $index }}">
                 <i class="fas fa-fw fa-pencil-alt" aria-hidden="true"></i>
-                <span class="visually-hidden">Edit row</span>
+                <span class="visually-hidden">{{ __('Edit row') }}</span>
               </button>
               <button type="button" class="btn atom-btn-white btn-sm delete-contact-row" data-index="{{ $index }}">
                 <i class="fas fa-fw fa-times" aria-hidden="true"></i>
-                <span class="visually-hidden">Delete row</span>
+                <span class="visually-hidden">{{ __('Delete row') }}</span>
               </button>
             </td>
             {{-- Hidden fields for this contact --}}
@@ -59,7 +59,7 @@
           <td colspan="3">
             <button type="button" class="btn atom-btn-white" id="add-contact-row">
               <i class="fas fa-plus me-1" aria-hidden="true"></i>
-              Add new
+              {{ __('Add new') }}
             </button>
           </td>
         </tr>
@@ -77,7 +77,7 @@
             Related contact information
           </h4>
           <button type="button" class="btn-close" data-bs-dismiss="modal">
-            <span class="visually-hidden">Close</span>
+            <span class="visually-hidden">{{ __('Close') }}</span>
           </button>
         </div>
 
@@ -116,30 +116,30 @@
             {{-- Main tab --}}
             <div class="tab-pane fade show active" id="pills-main" role="tabpanel" aria-labelledby="pills-main-tab">
               <div class="mb-3">
-                <label for="modal-primaryContact" class="form-label">Primary contact <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="modal-primaryContact" class="form-label">Primary contact <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div class="form-check">
                   <input type="checkbox" class="form-check-input" id="modal-primaryContact" value="1">
                   <label class="form-check-label" for="modal-primaryContact">{{ __('Yes') }}</label>
                 </div>
               </div>
               <div class="mb-3">
-                <label for="modal-contactPerson" class="form-label">Contact person <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="modal-contactPerson" class="form-label">Contact person <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" id="modal-contactPerson">
               </div>
               <div class="mb-3">
-                <label for="modal-telephone" class="form-label">Phone <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="modal-telephone" class="form-label">Phone <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" id="modal-telephone">
               </div>
               <div class="mb-3">
-                <label for="modal-fax" class="form-label">Fax <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="modal-fax" class="form-label">Fax <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" id="modal-fax">
               </div>
               <div class="mb-3">
-                <label for="modal-email" class="form-label">Email <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="modal-email" class="form-label">Email <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="email" class="form-control" id="modal-email">
               </div>
               <div class="mb-3">
-                <label for="modal-website" class="form-label">URL <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="modal-website" class="form-label">URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="url" class="form-control" id="modal-website">
               </div>
             </div>
@@ -147,31 +147,31 @@
             {{-- Physical location tab --}}
             <div class="tab-pane fade" id="pills-phys" role="tabpanel" aria-labelledby="pills-phys-tab">
               <div class="mb-3">
-                <label for="modal-streetAddress" class="form-label">Street address <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="modal-streetAddress" class="form-label">Street address <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea class="form-control" id="modal-streetAddress" rows="2"></textarea>
               </div>
               <div class="mb-3">
-                <label for="modal-region" class="form-label">Region/province <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="modal-region" class="form-label">Region/province <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" id="modal-region">
               </div>
               <div class="mb-3">
-                <label for="modal-countryCode" class="form-label">Country <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="modal-countryCode" class="form-label">Country <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" id="modal-countryCode" placeholder="{{ __('e.g. ZA, US, GB') }}">
               </div>
               <div class="mb-3">
-                <label for="modal-postalCode" class="form-label">Postal code <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="modal-postalCode" class="form-label">Postal code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" id="modal-postalCode">
               </div>
               <div class="mb-3">
-                <label for="modal-city" class="form-label">City <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="modal-city" class="form-label">City <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" id="modal-city">
               </div>
               <div class="mb-3">
-                <label for="modal-latitude" class="form-label">Latitude <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="modal-latitude" class="form-label">Latitude <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" id="modal-latitude">
               </div>
               <div class="mb-3">
-                <label for="modal-longitude" class="form-label">Longitude <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="modal-longitude" class="form-label">Longitude <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" id="modal-longitude">
               </div>
             </div>
@@ -179,11 +179,11 @@
             {{-- Other details tab --}}
             <div class="tab-pane fade" id="pills-other" role="tabpanel" aria-labelledby="pills-other-tab">
               <div class="mb-3">
-                <label for="modal-contactType" class="form-label">Contact type <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="modal-contactType" class="form-label">Contact type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" id="modal-contactType">
               </div>
               <div class="mb-3">
-                <label for="modal-note" class="form-label">Note <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="modal-note" class="form-label">Note <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea class="form-control" id="modal-note" rows="2"></textarea>
               </div>
             </div>

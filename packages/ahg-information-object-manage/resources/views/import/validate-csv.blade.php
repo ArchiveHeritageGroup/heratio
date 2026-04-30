@@ -29,7 +29,7 @@
         <div id="options-collapse" class="accordion-collapse collapse show" aria-labelledby="options-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label class="form-label" for="object-type-select">Type <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label" for="object-type-select">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select class="form-select" name="objectType" id="object-type-select">
                 <option value="informationObject" {{ (isset($objectType) && $objectType === 'informationObject') ? 'selected' : '' }}>{{ config('app.ui_label_informationobject', 'Archival description') }}</option>
                 <option value="accession" {{ (isset($objectType) && $objectType === 'accession') ? 'selected' : '' }}>{{ __('Accession') }}</option>
@@ -51,7 +51,7 @@
         <div id="select-collapse" class="accordion-collapse collapse show" aria-labelledby="select-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="file-input" class="form-label">Select a CSV file to validate <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="file-input" class="form-label">Select a CSV file to validate <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input class="form-control" type="file" id="file-input" name="file" accept=".csv">
             </div>
           </div>
@@ -111,11 +111,11 @@
                   <td><code>{{ $result['column'] }}</code></td>
                   <td>
                     @if($result['status'] === 'valid')
-                      <span class="badge bg-success">Valid</span>
+                      <span class="badge bg-success">{{ __('Valid') }}</span>
                     @elseif($result['status'] === 'invalid')
-                      <span class="badge bg-danger">Invalid</span>
+                      <span class="badge bg-danger">{{ __('Invalid') }}</span>
                     @elseif($result['status'] === 'missing')
-                      <span class="badge bg-warning text-dark">Missing</span>
+                      <span class="badge bg-warning text-dark">{{ __('Missing') }}</span>
                     @endif
                   </td>
                   <td>{{ $result['message'] }}</td>

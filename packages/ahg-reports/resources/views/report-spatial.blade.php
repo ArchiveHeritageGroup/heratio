@@ -177,13 +177,13 @@ Khoi</textarea>
             <div class="card-body">
               <div class="d-grid gap-2">
                 <button type="submit" name="preview" value="1" class="btn btn-outline-primary">
-                  <i class="bi bi-eye me-1"></i> Preview (10 records)
+                  <i class="bi bi-eye me-1"></i> {{ __('Preview (10 records)') }}
                 </button>
                 <button type="submit" name="export" value="1" class="btn btn-primary">
-                  <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export CSV
+                  <i class="bi bi-file-earmark-spreadsheet me-1"></i> {{ __('Export CSV') }}
                 </button>
                 <button type="submit" name="export" value="1" formaction="{{ route('reports.spatial') }}?format=json" class="btn btn-outline-secondary">
-                  <i class="bi bi-filetype-json me-1"></i> Export JSON
+                  <i class="bi bi-filetype-json me-1"></i> {{ __('Export JSON') }}
                 </button>
               </div>
             </div>
@@ -214,15 +214,15 @@ Khoi</textarea>
               <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>Help</h6>
             </div>
             <div class="card-body small">
-              <p><strong>Use Case:</strong> Overlay site locations onto geological maps to investigate relationships between surface geology and rock art traditions.</p>
-              <p><strong>Coordinate Sources:</strong></p>
+              <p><strong>{{ __('Use Case:') }}</strong> Overlay site locations onto geological maps to investigate relationships between surface geology and rock art traditions.</p>
+              <p><strong>{{ __('Coordinate Sources:') }}</strong></p>
               <ul class="mb-2">
-                <li><strong>Property Table:</strong> Custom fields stored in the property table</li>
-                <li><strong>NMMZ Site:</strong> Archaeological site records with GPS</li>
-                <li><strong>DAM Metadata:</strong> GPS extracted from image EXIF</li>
-                <li><strong>Contact Info:</strong> Repository location coordinates</li>
+                <li><strong>{{ __('Property Table:') }}</strong> Custom fields stored in the property table</li>
+                <li><strong>{{ __('NMMZ Site:') }}</strong> Archaeological site records with GPS</li>
+                <li><strong>{{ __('DAM Metadata:') }}</strong> GPS extracted from image EXIF</li>
+                <li><strong>{{ __('Contact Info:') }}</strong> Repository location coordinates</li>
               </ul>
-              <p class="mb-0"><strong>Note:</strong> Records can be both painted AND engraved if they have subjects matching both term lists.</p>
+              <p class="mb-0"><strong>{{ __('Note:') }}</strong> Records can be both painted AND engraved if they have subjects matching both term lists.</p>
             </div>
           </div>
         </div>

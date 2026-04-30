@@ -107,7 +107,7 @@
                 {{-- GLAM Items --}}
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-archive me-2"></i>GLAM/DAM Items</span>
+                        <span><i class="fas fa-archive me-2"></i>{{ __('GLAM/DAM Items') }}</span>
                     </div>
                     <div class="card-body">
                         <div class="alert alert-info mb-3">
@@ -195,10 +195,10 @@
                     <div class="card-body">
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-save me-2"></i>Create Transaction
+                                <i class="fas fa-save me-2"></i>{{ __('Create Transaction') }}
                             </button>
                             <a href="{{ route('ahgvendor.transactions') }}" class="btn btn-secondary">
-                                <i class="fas fa-times me-2"></i>Cancel
+                                <i class="fas fa-times me-2"></i>{{ __('Cancel') }}
                             </a>
                         </div>
                     </div>

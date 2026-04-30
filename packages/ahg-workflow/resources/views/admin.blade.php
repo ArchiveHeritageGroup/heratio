@@ -8,10 +8,10 @@
     <h1 class="h3 mb-0"><i class="fas fa-cog me-2"></i>Workflow Administration</h1>
     <div>
       <a href="{{ route('workflow.admin.create') }}" class="btn atom-btn-outline-success">
-        <i class="fas fa-plus me-1"></i>Create Workflow
+        <i class="fas fa-plus me-1"></i>{{ __('Create Workflow') }}
       </a>
       <a href="{{ route('workflow.dashboard') }}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-1"></i>Dashboard
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Dashboard') }}
       </a>
     </div>
   </div>
@@ -29,13 +29,13 @@
                  name="workflow_required_for_publish" value="1"
                  {{ ($workflowRequiredForPublish ?? false) ? 'checked' : '' }}>
           <label class="form-check-label" for="workflow-required-publish">
-            <strong>Require workflow approval before publishing</strong>
+            <strong>{{ __('Require workflow approval before publishing') }}</strong>
           </label>
         </div>
         <p class="text-muted small mt-1 mb-3">
           When enabled, items cannot be published without a completed workflow approval. Users will be prompted to start a workflow instead.
         </p>
-        <button type="submit" class="btn btn-sm atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save Settings</button>
+        <button type="submit" class="btn btn-sm atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ __('Save Settings') }}</button>
       </form>
     </div>
   </div>
@@ -67,7 +67,7 @@
                   <td>
                     <a href="{{ route('workflow.admin.edit', $wf->id) }}">{{ $wf->name }}</a>
                     @if($wf->is_default)
-                      <span class="badge bg-primary">Default</span>
+                      <span class="badge bg-primary">{{ __('Default') }}</span>
                     @endif
                   </td>
                   <td><span class="badge bg-secondary">{{ ucfirst($wf->scope_type) }}</span></td>
@@ -77,9 +77,9 @@
                   <td><span class="badge bg-warning text-dark">{{ $wf->active_task_count }}</span></td>
                   <td>
                     @if($wf->is_active)
-                      <span class="badge bg-success">Active</span>
+                      <span class="badge bg-success">{{ __('Active') }}</span>
                     @else
-                      <span class="badge bg-secondary">Inactive</span>
+                      <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                     @endif
                   </td>
                   <td>

@@ -268,7 +268,7 @@
     <div class="d-flex flex-wrap gap-2 mb-2">
       @foreach($filterTags as $tag)
         <a href="{{ $tag['removeUrl'] ?? '#' }}" class="btn btn-sm atom-btn-white filter-tag d-flex">
-          <span class="visually-hidden">Remove filter:</span>
+          <span class="visually-hidden">{{ __('Remove filter:') }}</span>
           <span class="text-truncate d-inline-block">{{ $tag['label'] ?? '' }}</span>
           <i aria-hidden="true" class="fas fa-times ms-2 align-self-center"></i>
         </a>
@@ -492,17 +492,17 @@
         <a href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'list'])) }}"
            class="btn btn-sm {{ $displayMode === 'list' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Compact table/list view') }}">
           <i class="fas fa-list" aria-hidden="true"></i>
-          <span class="visually-hidden">List</span>
+          <span class="visually-hidden">{{ __('List') }}</span>
         </a>
         <a href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'grid'])) }}"
            class="btn btn-sm {{ $displayMode === 'grid' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Thumbnail grid with cards') }}">
           <i class="fas fa-th" aria-hidden="true"></i>
-          <span class="visually-hidden">Grid</span>
+          <span class="visually-hidden">{{ __('Grid') }}</span>
         </a>
         <a href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'tree'])) }}"
            class="btn btn-sm {{ $displayMode === 'tree' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Tree/hierarchy view') }}">
           <i class="fas fa-sitemap" aria-hidden="true"></i>
-          <span class="visually-hidden">Tree</span>
+          <span class="visually-hidden">{{ __('Tree') }}</span>
         </a>
       </div>
 
@@ -547,9 +547,9 @@
                 </a>
                 <button class="btn atom-btn-white ms-auto active-primary clipboard"
                         data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="actor"
-                        data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard">
+                        data-tooltip="true" data-title="{{ __('Add to clipboard') }}" data-alt-title="{{ __('Remove from clipboard') }}">
                   <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
-                  <span class="visually-hidden">Add to clipboard</span>
+                  <span class="visually-hidden">{{ __('Add to clipboard') }}</span>
                 </button>
               </div>
               <div class="d-flex flex-column gap-2">

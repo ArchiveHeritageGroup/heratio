@@ -96,11 +96,11 @@
   </div>
   <div class="card-body">
     <div class="row text-center">
-      <div class="col"><h3>{{ number_format($stats->total_objects ?? 0) }}</h3><small class="text-muted">Total Objects</small></div>
-      <div class="col"><h3>{{ number_format($stats->with_rights_statement ?? 0) }}</h3><small class="text-muted">With Rights Statement</small></div>
-      <div class="col"><h3>{{ number_format($stats->with_creative_commons ?? 0) }}</h3><small class="text-muted">With CC License</small></div>
-      <div class="col"><h3>{{ number_format($stats->with_tk_labels ?? 0) }}</h3><small class="text-muted">With TK Labels</small></div>
-      <div class="col"><h3>{{ number_format($stats->active_embargoes ?? 0) }}</h3><small class="text-muted">Active Embargoes</small></div>
+      <div class="col"><h3>{{ number_format($stats->total_objects ?? 0) }}</h3><small class="text-muted">{{ __('Total Objects') }}</small></div>
+      <div class="col"><h3>{{ number_format($stats->with_rights_statement ?? 0) }}</h3><small class="text-muted">{{ __('With Rights Statement') }}</small></div>
+      <div class="col"><h3>{{ number_format($stats->with_creative_commons ?? 0) }}</h3><small class="text-muted">{{ __('With CC License') }}</small></div>
+      <div class="col"><h3>{{ number_format($stats->with_tk_labels ?? 0) }}</h3><small class="text-muted">{{ __('With TK Labels') }}</small></div>
+      <div class="col"><h3>{{ number_format($stats->active_embargoes ?? 0) }}</h3><small class="text-muted">{{ __('Active Embargoes') }}</small></div>
     </div>
   </div>
 </div>
@@ -112,8 +112,8 @@
     <h5 class="mb-0">{{ __('Administration') }}</h5>
   </div>
   <div class="card-body">
-    <a href="{{ route('extended-rights.batch') }}" class="btn atom-btn-white"><i class="fas fa-layer-group"></i> Batch Assign Rights</a>
-    <a href="{{ route('extended-rights.embargoes') }}" class="btn atom-btn-white"><i class="fas fa-lock"></i> Manage Embargoes</a>
+    <a href="{{ route('extended-rights.batch') }}" class="btn atom-btn-white"><i class="fas fa-layer-group"></i> {{ __('Batch Assign Rights') }}</a>
+    <a href="{{ route('extended-rights.embargoes') }}" class="btn atom-btn-white"><i class="fas fa-lock"></i> {{ __('Manage Embargoes') }}</a>
   </div>
 </div>
 @endauth

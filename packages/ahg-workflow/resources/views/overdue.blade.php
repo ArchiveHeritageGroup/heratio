@@ -6,7 +6,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-exclamation-triangle text-danger"></i> Overdue Tasks</h1>
-    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('Dashboard') }}</a>
   </div>
 
   @if(count($tasks) === 0)
@@ -59,11 +59,11 @@
                   </td>
                   <td>
                     @if($task->status === 'claimed')
-                      <span class="badge bg-info">Claimed</span>
+                      <span class="badge bg-info">{{ __('Claimed') }}</span>
                     @elseif($task->status === 'in_progress')
-                      <span class="badge bg-primary">In Progress</span>
+                      <span class="badge bg-primary">{{ __('In Progress') }}</span>
                     @else
-                      <span class="badge bg-warning text-dark">Pending</span>
+                      <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
                     @endif
                   </td>
                   <td>

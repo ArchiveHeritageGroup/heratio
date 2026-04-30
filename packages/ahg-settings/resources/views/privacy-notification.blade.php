@@ -24,21 +24,21 @@
           <div id="privacy-collapse" class="accordion-collapse collapse" aria-labelledby="privacy-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Display Privacy Notification on first visit to site <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Display Privacy Notification on first visit to site <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[privacy_notification_enabled]" id="privacy_no" value="0" {{ $settings['privacy_notification_enabled'] != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="privacy_no">No <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-check-label" for="privacy_no">No <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[privacy_notification_enabled]" id="privacy_yes" value="1" {{ $settings['privacy_notification_enabled'] == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="privacy_yes">Yes <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-check-label" for="privacy_yes">Yes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 </div>
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Privacy Notification Message <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Privacy Notification Message <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea name="settings[privacy_notification]" class="form-control" rows="5">{{ e($settings['privacy_notification']) }}</textarea>
               </div>
             </div>

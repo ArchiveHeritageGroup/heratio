@@ -17,37 +17,37 @@
   <div class="card-body">
     <div class="row">
       <div class="col-md-4 mb-3">
-        <label for="schedule_ref" class="form-label">Schedule Reference <span class="badge bg-secondary ms-1">Required</span></label>
+        <label for="schedule_ref" class="form-label">Schedule Reference <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
         <input type="text" name="schedule_ref" id="schedule_ref" class="form-control" value="{{ old('schedule_ref', $schedule->schedule_ref) }}" required>
         @error('schedule_ref')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
       </div>
       <div class="col-md-8 mb-3">
-        <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">Required</span></label>
+        <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
         <input type="text" name="title" id="title" class="form-control" value="{{ old('title', $schedule->title) }}" required>
         @error('title')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
       </div>
       <div class="col-12 mb-3">
-        <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <textarea name="description" id="description" class="form-control" rows="3">{{ old('description', $schedule->description) }}</textarea>
       </div>
       <div class="col-md-6 mb-3">
-        <label for="authority" class="form-label">Authority <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="authority" class="form-label">Authority <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" name="authority" id="authority" class="form-control" value="{{ old('authority', $schedule->authority) }}">
       </div>
       <div class="col-md-6 mb-3">
-        <label for="jurisdiction" class="form-label">Jurisdiction <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="jurisdiction" class="form-label">Jurisdiction <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" name="jurisdiction" id="jurisdiction" class="form-control" value="{{ old('jurisdiction', $schedule->jurisdiction) }}">
       </div>
       <div class="col-md-4 mb-3">
-        <label for="effective_date" class="form-label">Effective Date <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="effective_date" class="form-label">Effective Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="date" name="effective_date" id="effective_date" class="form-control" value="{{ old('effective_date', $schedule->effective_date) }}">
       </div>
       <div class="col-md-4 mb-3">
-        <label for="review_date" class="form-label">Review Date <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="review_date" class="form-label">Review Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="date" name="review_date" id="review_date" class="form-control" value="{{ old('review_date', $schedule->review_date) }}">
       </div>
       <div class="col-md-4 mb-3">
-        <label for="expiry_date" class="form-label">Expiry Date <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label for="expiry_date" class="form-label">Expiry Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="date" name="expiry_date" id="expiry_date" class="form-control" value="{{ old('expiry_date', $schedule->expiry_date) }}">
       </div>
     </div>

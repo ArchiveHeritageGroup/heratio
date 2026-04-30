@@ -23,7 +23,7 @@
     @if($isOwner)
     <div class="d-flex gap-2">
         <a href="{{ route('research.viewProject', $project->id) }}?action=edit" class="btn btn-outline-primary btn-sm">
-            <i class="fas fa-edit me-1"></i>Edit
+            <i class="fas fa-edit me-1"></i>{{ __('Edit') }}
         </a>
     </div>
     @endif
@@ -86,7 +86,7 @@
                 <h5 class="mb-0"><i class="fas fa-flag me-2"></i>Milestones</h5>
                 @if($isOwner)
                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#milestone-add-form">
-                    <i class="fas fa-plus me-1"></i> Add
+                    <i class="fas fa-plus me-1"></i> {{ __('Add') }}
                 </button>
                 @endif
             </div>
@@ -114,7 +114,7 @@
                             <div class="mb-2">
                                 <textarea name="milestone_description" class="form-control form-control-sm" rows="2" placeholder="{{ __('Description (optional)') }}"></textarea>
                             </div>
-                            <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-save me-1"></i> Save Milestone</button>
+                            <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-save me-1"></i> {{ __('Save Milestone') }}</button>
                         </form>
                     </div>
                 </div>
@@ -228,7 +228,7 @@
                 <h5 class="mb-0">{{ __('Linked Resources') }}</h5>
                 @if($isOwner)
                 <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#addResourceForm">
-                    <i class="fas fa-plus me-1"></i>Link Resource
+                    <i class="fas fa-plus me-1"></i>{{ __('Link Resource') }}
                 </button>
                 @endif
             </div>
@@ -261,7 +261,7 @@
                                 <input type="text" name="resource_notes" class="form-control form-control-sm" placeholder="{{ __('Optional notes...') }}">
                             </div>
                             <div class="col-12">
-                                <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-link me-1"></i>Link</button>
+                                <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-link me-1"></i>{{ __('Link') }}</button>
                             </div>
                         </div>
                     </form>
@@ -322,7 +322,7 @@
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Reports</h5>
-                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#newProjectReportModal"><i class="fas fa-plus me-1"></i>New Report</button>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#newProjectReportModal"><i class="fas fa-plus me-1"></i>{{ __('New Report') }}</button>
             </div>
             <div class="card-body p-0">
                 @if(!empty($reports))
@@ -358,12 +358,12 @@
         <div class="card mb-4">
             <div class="card-header bg-primary text-white"><h6 class="mb-0"><i class="fas fa-brain me-2"></i>Analysis Tools</h6></div>
             <div class="list-group list-group-flush">
-                <a href="{{ url('/research/knowledge-graph/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-project-diagram me-2 text-primary"></i>Knowledge Graph</a>
-                <a href="{{ url('/research/assertions/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-quote-right me-2 text-success"></i>Assertions</a>
-                <a href="{{ url('/research/hypotheses/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-lightbulb me-2 text-warning"></i>Hypotheses</a>
-                <a href="{{ url('/research/extraction-jobs/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-robot me-2 text-info"></i>AI Extraction</a>
-                <a href="{{ url('/research/snapshots/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-camera me-2 text-secondary"></i>Snapshots</a>
-                <a href="{{ url('/research/assertion-batch-review/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-tasks me-2 text-danger"></i>Batch Review</a>
+                <a href="{{ url('/research/knowledge-graph/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-project-diagram me-2 text-primary"></i>{{ __('Knowledge Graph') }}</a>
+                <a href="{{ url('/research/assertions/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-quote-right me-2 text-success"></i>{{ __('Assertions') }}</a>
+                <a href="{{ url('/research/hypotheses/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-lightbulb me-2 text-warning"></i>{{ __('Hypotheses') }}</a>
+                <a href="{{ url('/research/extraction-jobs/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-robot me-2 text-info"></i>{{ __('AI Extraction') }}</a>
+                <a href="{{ url('/research/snapshots/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-camera me-2 text-secondary"></i>{{ __('Snapshots') }}</a>
+                <a href="{{ url('/research/assertion-batch-review/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-tasks me-2 text-danger"></i>{{ __('Batch Review') }}</a>
             </div>
         </div>
 
@@ -371,9 +371,9 @@
         <div class="card mb-4">
             <div class="card-header bg-info text-white"><h6 class="mb-0"><i class="fas fa-chart-area me-2"></i>Visualization</h6></div>
             <div class="list-group list-group-flush">
-                <a href="{{ url('/research/timeline/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-stream me-2 text-primary"></i>Timeline Builder</a>
-                <a href="{{ url('/research/map/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-map-marked-alt me-2 text-success"></i>Map Builder</a>
-                <a href="{{ url('/research/network-graph/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-share-alt me-2 text-warning"></i>Network Graph</a>
+                <a href="{{ url('/research/timeline/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-stream me-2 text-primary"></i>{{ __('Timeline Builder') }}</a>
+                <a href="{{ url('/research/map/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-map-marked-alt me-2 text-success"></i>{{ __('Map Builder') }}</a>
+                <a href="{{ url('/research/network-graph/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-share-alt me-2 text-warning"></i>{{ __('Network Graph') }}</a>
             </div>
         </div>
 
@@ -382,11 +382,11 @@
             <div class="card-header bg-success text-white"><h6 class="mb-0"><i class="fas fa-file-export me-2"></i>Research Output</h6></div>
             <div class="list-group list-group-flush">
                 <a href="{{ route('research.reports', ['project_id' => $project->id]) }}" class="list-group-item list-group-item-action"><i class="fas fa-file-alt me-2 text-dark"></i>Reports ({{ count($reports ?? []) }})</a>
-                <a href="{{ url('/research/ro-crate/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-box me-2 text-primary"></i>RO-Crate Package</a>
-                <a href="{{ url('/research/reproducibility/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-redo me-2 text-info"></i>Reproducibility Pack</a>
-                <a href="{{ url('/research/doi/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-link me-2 text-success"></i>DOI Minting</a>
-                <a href="{{ url('/research/ethics-milestones/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-balance-scale me-2 text-warning"></i>Ethics Milestones</a>
-                <a href="{{ url('/research/compliance/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-shield-alt me-2 text-danger"></i>Compliance Dashboard</a>
+                <a href="{{ url('/research/ro-crate/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-box me-2 text-primary"></i>{{ __('RO-Crate Package') }}</a>
+                <a href="{{ url('/research/reproducibility/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-redo me-2 text-info"></i>{{ __('Reproducibility Pack') }}</a>
+                <a href="{{ url('/research/doi/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-link me-2 text-success"></i>{{ __('DOI Minting') }}</a>
+                <a href="{{ url('/research/ethics-milestones/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-balance-scale me-2 text-warning"></i>{{ __('Ethics Milestones') }}</a>
+                <a href="{{ url('/research/compliance/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-shield-alt me-2 text-danger"></i>{{ __('Compliance Dashboard') }}</a>
             </div>
         </div>
 
@@ -478,10 +478,10 @@
                     <option value="source_analysis">{{ __('Source Analysis') }}</option>
                     <option value="finding_aid">{{ __('Finding Aid') }}</option>
                 </select>
-                <small class="text-muted">Template sections will be auto-created.</small>
+                <small class="text-muted">{{ __('Template sections will be auto-created.') }}</small>
             </div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Create Report</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>{{ __('Create Report') }}</button></div>
     </form>
 </div>
 </div>

@@ -23,7 +23,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('forms.templates') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i> Back
+                <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
             </a>
         </div>
     </div>
@@ -53,7 +53,7 @@
                         <option value="deaccession">{{ __('Deaccession') }}</option>
                         <option value="rights">{{ __('Rights') }}</option>
                     </select>
-                    <small class="text-muted">The type of record this form will be used for</small>
+                    <small class="text-muted">{{ __('The type of record this form will be used for') }}</small>
                 </div>
 
                 <div class="mb-3">
@@ -72,7 +72,7 @@
                         Cancel
                     </a>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i> Create Template
+                        <i class="fas fa-plus me-1"></i> {{ __('Create Template') }}
                     </button>
                 </div>
             </form>

@@ -55,13 +55,13 @@
         <div class="alert {{ $keyExists ? 'alert-success' : 'alert-warning' }} mb-3">
           <i class="fas {{ $keyExists ? 'fa-check-circle' : 'fa-exclamation-triangle' }} me-2"></i>
           @if ($keyExists)
-            <strong>Encryption key found</strong>
+            <strong>{{ __('Encryption key found') }}</strong>
             <span class="ms-2 text-muted">Path: <code>{{ $keyPath }}</code> | Permissions: <code>{{ $keyPerms }}</code> | Algorithm: <code>{{ $algoName }}</code></span>
             @if ($keyPerms !== '0600')
               <br><small class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Permissions should be 0600 for security.</small>
             @endif
           @else
-            <strong>No encryption key found</strong>
+            <strong>{{ __('No encryption key found') }}</strong>
             <br><small>Generate with: <code>php artisan encryption:key --generate</code></small>
           @endif
         </div>
@@ -177,7 +177,7 @@
 
         <div class="alert alert-secondary mt-3 mb-0">
           <i class="fas fa-terminal me-2"></i>
-          <strong>CLI Commands</strong>
+          <strong>{{ __('CLI Commands') }}</strong>
           <br><code>php artisan encryption:encrypt-fields --category=contact_details</code> -- Encrypt a category
           <br><code>php artisan encryption:encrypt-fields --category=contact_details --reverse</code> -- Decrypt a category
           <br><code>php artisan encryption:encrypt-fields --list</code> -- Show category status
@@ -196,8 +196,8 @@
         <ul class="mb-0">
           <li><strong>POPIA</strong> -- Protection of Personal Information Act (South Africa), Section 19</li>
           <li><strong>GDPR</strong> -- General Data Protection Regulation (EU), Article 32</li>
-          <li><strong>CCPA</strong> -- California Consumer Privacy Act, reasonable security measures</li>
-          <li><strong>NARSSA</strong> -- National Archives and Record Service of South Africa</li>
+          <li><strong>{{ __('CCPA') }}</strong> -- California Consumer Privacy Act, reasonable security measures</li>
+          <li><strong>{{ __('NARSSA') }}</strong> -- National Archives and Record Service of South Africa</li>
           <li><strong>PAIA</strong> -- Promotion of Access to Information Act, secure record keeping</li>
         </ul>
       </div>
@@ -206,10 +206,10 @@
     {{-- Save --}}
     <div class="d-flex justify-content-between align-items-center">
       <a href="{{ route('settings.index') }}" class="btn btn-link text-secondary">
-        <i class="fas fa-arrow-left me-1"></i>Back to Settings
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}
       </a>
       <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save me-1"></i>Save
+        <i class="fas fa-save me-1"></i>{{ __('Save') }}
       </button>
     </div>
   </form>

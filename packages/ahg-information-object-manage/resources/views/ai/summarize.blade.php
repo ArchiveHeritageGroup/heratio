@@ -25,6 +25,6 @@
   </div>
 
   <button class="btn atom-btn-outline-success" id="generate-summary-btn" data-object-id="{{ $io->id }}">
-    <i class="fas fa-magic me-1"></i> Generate summary
+    <i class="fas fa-magic me-1"></i> {{ __('Generate summary') }}
   </button>
 @endsection

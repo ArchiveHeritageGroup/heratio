@@ -12,7 +12,7 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h1 class="mb-0"><i class="fas fa-history"></i> PREMIS Events</h1>
             <a href="{{ route('preservation.index') }}" class="btn atom-btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i> Dashboard
+                <i class="fas fa-arrow-left me-1"></i> {{ __('Dashboard') }}
             </a>
         </div>
         <p class="text-muted mb-3">Preservation metadata events (PREMIS standard)</p>
@@ -63,11 +63,11 @@
                                 <td><small>{{ $event->file_name ?? 'N/A' }}</small></td>
                                 <td>
                                     @if($event->event_outcome === 'success')
-                                        <span class="badge bg-success">Success</span>
+                                        <span class="badge bg-success">{{ __('Success') }}</span>
                                     @elseif($event->event_outcome === 'failure')
-                                        <span class="badge bg-danger">Failure</span>
+                                        <span class="badge bg-danger">{{ __('Failure') }}</span>
                                     @elseif($event->event_outcome === 'warning')
-                                        <span class="badge bg-warning text-dark">Warning</span>
+                                        <span class="badge bg-warning text-dark">{{ __('Warning') }}</span>
                                     @else
                                         <span class="badge bg-info">{{ ucfirst($event->event_outcome ?? 'unknown') }}</span>
                                     @endif

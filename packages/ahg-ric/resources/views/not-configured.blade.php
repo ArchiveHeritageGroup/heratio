@@ -8,13 +8,13 @@
     <i class="fas fa-3x fa-project-diagram me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('RiC Dashboard') }}</h1>
-      <span class="small text-muted">Records in Contexts</span>
+      <span class="small text-muted">{{ __('Records in Contexts') }}</span>
     </div>
   </div>
 
   <div class="alert alert-warning">
     <i class="fas fa-exclamation-triangle me-2"></i>
-    <strong>RiC tables not configured.</strong>
+    <strong>{{ __('RiC tables not configured.') }}</strong>
     The required database tables for the RiC module have not been created yet.
     Please run the RiC migration to set up the following tables:
     <ul class="mt-2 mb-0">

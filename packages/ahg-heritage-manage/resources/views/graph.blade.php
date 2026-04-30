@@ -9,7 +9,7 @@
       <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb mb-2"><li class="breadcrumb-item"><a href="{{ route('heritage.landing') }}">Heritage</a></li><li class="breadcrumb-item active">Knowledge Graph</li></ol></nav>
       <div class="d-flex justify-content-between align-items-center">
         <h1 class="h2 mb-0">{{ __('Entity Relationship Graph') }}</h1>
-        <div class="btn-group"><a href="{{ route('heritage.search') }}" class="btn atom-btn-white"><i class="fas fa-search me-1"></i>Search</a><a href="{{ route('heritage.explore') }}" class="btn atom-btn-white"><i class="fas fa-compass me-1"></i>Explore</a></div>
+        <div class="btn-group"><a href="{{ route('heritage.search') }}" class="btn atom-btn-white"><i class="fas fa-search me-1"></i>{{ __('Search') }}</a><a href="{{ route('heritage.explore') }}" class="btn atom-btn-white"><i class="fas fa-compass me-1"></i>{{ __('Explore') }}</a></div>
       </div>
     </div></div>
 
@@ -21,7 +21,7 @@
           <div class="col-auto"><input type="text" id="graph-search" class="form-control form-control-sm" placeholder="{{ __('Search entities...') }}" style="width:180px"></div>
           <div class="col-auto"><label class="form-label mb-0 small text-muted">{{ __('Min occurrences:') }}</label></div>
           <div class="col-auto"><input type="number" id="min-occurrences" class="form-control form-control-sm" value="1" min="1" max="100" style="width:70px"></div>
-          <div class="col-auto"><button id="refresh-graph" class="btn btn-sm atom-btn-secondary"><i class="fas fa-sync-alt"></i> Refresh</button></div>
+          <div class="col-auto"><button id="refresh-graph" class="btn btn-sm atom-btn-secondary"><i class="fas fa-sync-alt"></i> {{ __('Refresh') }}</button></div>
         </div></div></div>
       </div>
       <div class="col-md-4">
@@ -37,9 +37,9 @@
       <div class="col-md-8">
         <div class="card shadow-sm"><div class="card-body p-0 position-relative"><div id="graph-container" style="height:600px;width:100%"></div><div id="graph-loading" class="position-absolute top-50 start-50 translate-middle" style="display:none"><div class="spinner-border" style="color:var(--ahg-primary)"></div></div></div></div>
         <div class="card shadow-sm mt-3"><div class="card-body py-2"><div class="row text-center small">
-          <div class="col"><span class="text-muted">Nodes:</span> <strong id="stat-nodes">{{ number_format($stats['total_nodes'] ?? 0) }}</strong></div>
-          <div class="col"><span class="text-muted">Edges:</span> <strong id="stat-edges">{{ number_format($stats['total_edges'] ?? 0) }}</strong></div>
-          <div class="col"><span class="text-muted">Avg connections:</span> <strong id="stat-avg">{{ number_format($stats['avg_connections_per_node'] ?? 0, 1) }}</strong></div>
+          <div class="col"><span class="text-muted">{{ __('Nodes:') }}</span> <strong id="stat-nodes">{{ number_format($stats['total_nodes'] ?? 0) }}</strong></div>
+          <div class="col"><span class="text-muted">{{ __('Edges:') }}</span> <strong id="stat-edges">{{ number_format($stats['total_edges'] ?? 0) }}</strong></div>
+          <div class="col"><span class="text-muted">{{ __('Avg connections:') }}</span> <strong id="stat-avg">{{ number_format($stats['avg_connections_per_node'] ?? 0, 1) }}</strong></div>
         </div></div></div>
       </div>
       <div class="col-md-4">

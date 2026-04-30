@@ -6,10 +6,10 @@
 <div class="card"><div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Queue Status') }}</h5></div>
 <div class="card-body">
   <div class="row text-center mb-4">
-    <div class="col-md-3"><h3>{{ $stats['pending'] ?? 0 }}</h3><small class="text-muted">Pending</small></div>
-    <div class="col-md-3"><h3 class="text-primary">{{ $stats['processing'] ?? 0 }}</h3><small class="text-muted">Processing</small></div>
-    <div class="col-md-3"><h3 class="text-success">{{ $stats['completed'] ?? 0 }}</h3><small class="text-muted">Completed</small></div>
-    <div class="col-md-3"><h3 class="text-danger">{{ $stats['failed'] ?? 0 }}</h3><small class="text-muted">Failed</small></div>
+    <div class="col-md-3"><h3>{{ $stats['pending'] ?? 0 }}</h3><small class="text-muted">{{ __('Pending') }}</small></div>
+    <div class="col-md-3"><h3 class="text-primary">{{ $stats['processing'] ?? 0 }}</h3><small class="text-muted">{{ __('Processing') }}</small></div>
+    <div class="col-md-3"><h3 class="text-success">{{ $stats['completed'] ?? 0 }}</h3><small class="text-muted">{{ __('Completed') }}</small></div>
+    <div class="col-md-3"><h3 class="text-danger">{{ $stats['failed'] ?? 0 }}</h3><small class="text-muted">{{ __('Failed') }}</small></div>
   </div>
   @if(isset($jobs) && count($jobs) > 0)
   <table class="table table-striped"><thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><th>{{ __('Object') }}</th><th>{{ __('Type') }}</th><th>{{ __('Status') }}</th><th>{{ __('Created') }}</th></tr></thead>

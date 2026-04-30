@@ -22,7 +22,7 @@
             </div>
             <div class="col-md-2"><label class="form-label small">{{ __('From') }}</label><input type="date" class="form-control form-control-sm" name="date_from" value="{{ $dateFrom ?? '' }}"></div>
             <div class="col-md-2"><label class="form-label small">{{ __('To') }}</label><input type="date" class="form-control form-control-sm" name="date_to" value="{{ $dateTo ?? '' }}"></div>
-            <div class="col-md-2"><button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-filter me-1"></i>Filter</button></div>
+            <div class="col-md-2"><button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-filter me-1"></i>{{ __('Filter') }}</button></div>
             @if(($typeFilter ?? '') || ($dateFrom ?? '') || ($dateTo ?? ''))
                 <div class="col-md-2"><a href="{{ route('research.activities') }}" class="btn btn-outline-secondary btn-sm w-100">Clear</a></div>
             @endif

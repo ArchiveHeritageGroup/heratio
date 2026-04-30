@@ -12,7 +12,7 @@
       <h1 class="mb-0" aria-describedby="heading-label">
         Showing <span id="clipboard-result-count">{{ count($details) }}</span> results
       </h1>
-      <span class="small" id="heading-label">Clipboard</span>
+      <span class="small" id="heading-label">{{ __('Clipboard') }}</span>
     </div>
   </div>
 
@@ -80,7 +80,7 @@
                     <span class="badge bg-info">{{ config('app.ui_label_repository', 'Archival institution') }}</span>
                     @break
                   @case('accession')
-                    <span class="badge bg-warning text-dark">Accession</span>
+                    <span class="badge bg-warning text-dark">{{ __('Accession') }}</span>
                     @break
                 @endswitch
               </td>
@@ -110,12 +110,12 @@
       </li>
       <li>
         <button class="btn atom-btn-outline-light" id="clipboard-save-btn">
-          <i class="fas fa-save me-1"></i> Save
+          <i class="fas fa-save me-1"></i> {{ __('Save') }}
         </button>
       </li>
       <li>
         <a href="{{ route('clipboard.export.csv') }}" class="btn atom-btn-outline-light">
-          <i class="fas fa-file-csv me-1"></i> Export CSV
+          <i class="fas fa-file-csv me-1"></i> {{ __('Export CSV') }}
         </a>
       </li>
     </ul>
@@ -124,7 +124,7 @@
   {{-- Counts summary --}}
   <div class="card mb-3">
     <div class="card-body small">
-      <strong>Clipboard summary:</strong>
+      <strong>{{ __('Clipboard summary:') }}</strong>
       {{ config('app.ui_label_informationobject', 'Archival description') }}s: {{ $counts['informationObject'] ?? 0 }} |
       {{ config('app.ui_label_actor', 'Authority record') }}s: {{ $counts['actor'] ?? 0 }} |
       {{ config('app.ui_label_repository', 'Archival institution') }}s: {{ $counts['repository'] ?? 0 }} |

@@ -26,7 +26,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgnaz.closure-create') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i> Add Closure
+                <i class="fas fa-plus me-1"></i> {{ __('Add Closure') }}
             </a>
         </div>
     </div>
@@ -91,10 +91,10 @@
                                     @if ($closure->end_date)
                                         {{ $closure->end_date }}
                                         @if ($closure->status === 'active' && $isExpired)
-                                            <span class="badge bg-danger">PAST DUE</span>
+                                            <span class="badge bg-danger">{{ __('PAST DUE') }}</span>
                                         @endif
                                     @else
-                                        <span class="text-muted">Indefinite</span>
+                                        <span class="text-muted">{{ __('Indefinite') }}</span>
                                     @endif
                                 </td>
                                 <td>{{ $closure->years ?? '-' }}</td>

@@ -9,7 +9,7 @@
 @endphp
 
 <div class="mb-3 i18n-form-field">
-  <label class="form-label">{{ $fieldLabel }} <span class="badge bg-secondary ms-1">Optional</span></label>
+  <label class="form-label">{{ $fieldLabel }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
   @if(count($cultures) > 1)
     <ul class="nav nav-tabs nav-tabs-sm mb-2">
       @foreach($cultures as $i => $culture)

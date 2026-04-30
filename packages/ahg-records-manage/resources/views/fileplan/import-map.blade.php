@@ -59,9 +59,9 @@
                             </td>
                             <td>
                                 @if($fieldInfo['required'])
-                                    <span class="badge bg-danger">Required</span>
+                                    <span class="badge bg-danger">{{ __('Required') }}</span>
                                 @else
-                                    <span class="badge bg-secondary">Optional</span>
+                                    <span class="badge bg-secondary">{{ __('Optional') }}</span>
                                 @endif
                             </td>
                         </tr>

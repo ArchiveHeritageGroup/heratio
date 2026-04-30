@@ -79,5 +79,5 @@
     @endif
 </div>
 
-<a href="{{ route('research.snapshots', $project->id) }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Back to Snapshots</a>
+<a href="{{ route('research.snapshots', $project->id) }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Snapshots') }}</a>
 @endsection

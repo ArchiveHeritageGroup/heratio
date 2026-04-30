@@ -38,7 +38,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('ipsas.asset.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i> Add Asset
+                <i class="fas fa-plus me-1"></i> {{ __('Add Asset') }}
             </a>
         </div>
     </div>

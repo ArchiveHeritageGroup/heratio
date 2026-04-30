@@ -8,7 +8,7 @@
     <i class="fas fa-3x fa-check-circle me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Import Results') }}</h1>
-      <span class="small text-muted">Summary of the completed import operation</span>
+      <span class="small text-muted">{{ __('Summary of the completed import operation') }}</span>
     </div>
   </div>
 
@@ -97,9 +97,9 @@
               <th>{{ __('Status') }}</th>
               <td>
                 @if($job['status'] === 'completed')
-                  <span class="badge bg-success">Completed</span>
+                  <span class="badge bg-success">{{ __('Completed') }}</span>
                 @elseif($job['status'] === 'failed')
-                  <span class="badge bg-danger">Failed</span>
+                  <span class="badge bg-danger">{{ __('Failed') }}</span>
                 @else
                   <span class="badge bg-warning text-dark">{{ ucfirst($job['status']) }}</span>
                 @endif
@@ -146,13 +146,13 @@
 
   <div class="d-flex flex-wrap gap-2">
     <a href="{{ route('data-migration.upload') }}" class="btn atom-btn-outline-success">
-      <i class="fas fa-upload"></i> New Import
+      <i class="fas fa-upload"></i> {{ __('New Import') }}
     </a>
     <a href="{{ route('data-migration.jobs') }}" class="btn atom-btn-white">
-      <i class="fas fa-tasks"></i> View All Jobs
+      <i class="fas fa-tasks"></i> {{ __('View All Jobs') }}
     </a>
     <a href="{{ route('data-migration.index') }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left"></i> Dashboard
+      <i class="fas fa-arrow-left"></i> {{ __('Dashboard') }}
     </a>
   </div>
 @endsection

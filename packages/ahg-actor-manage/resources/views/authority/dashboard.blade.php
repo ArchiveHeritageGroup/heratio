@@ -28,7 +28,7 @@
     <div class="card text-center border-primary">
       <div class="card-body">
         <h3 class="mb-0">{{ number_format($totalActors) }}</h3>
-        <small class="text-muted">Total Actors</small>
+        <small class="text-muted">{{ __('Total Actors') }}</small>
       </div>
     </div>
   </div>
@@ -36,7 +36,7 @@
     <div class="card text-center border-info">
       <div class="card-body">
         <h3 class="mb-0">{{ number_format($totalScored) }}</h3>
-        <small class="text-muted">Scored</small>
+        <small class="text-muted">{{ __('Scored') }}</small>
       </div>
     </div>
   </div>
@@ -44,7 +44,7 @@
     <div class="card text-center border-warning">
       <div class="card-body">
         <h3 class="mb-0">{{ number_format($unscored) }}</h3>
-        <small class="text-muted">Unscored</small>
+        <small class="text-muted">{{ __('Unscored') }}</small>
       </div>
     </div>
   </div>
@@ -52,7 +52,7 @@
     <div class="card text-center border-success">
       <div class="card-body">
         <h3 class="mb-0">{{ $avgScore }}%</h3>
-        <small class="text-muted">Average Score</small>
+        <small class="text-muted">{{ __('Average Score') }}</small>
       </div>
     </div>
   </div>
@@ -125,27 +125,27 @@
     <div class="row g-2">
       <div class="col-auto">
         <a href="{{ route('actor.workqueue') }}" class="btn atom-btn-white">
-          <i class="fas fa-tasks me-1"></i>Workqueue
+          <i class="fas fa-tasks me-1"></i>{{ __('Workqueue') }}
         </a>
       </div>
       <div class="col-auto">
         <a href="{{ route('actor.dedup') }}" class="btn atom-btn-white">
-          <i class="fas fa-clone me-1"></i>Deduplication
+          <i class="fas fa-clone me-1"></i>{{ __('Deduplication') }}
         </a>
       </div>
       <div class="col-auto">
         <a href="{{ route('actor.ner') }}" class="btn atom-btn-white">
-          <i class="fas fa-robot me-1"></i>NER Pipeline
+          <i class="fas fa-robot me-1"></i>{{ __('NER Pipeline') }}
         </a>
       </div>
       <div class="col-auto">
         <a href="{{ route('actor.function.browse') }}" class="btn atom-btn-white">
-          <i class="fas fa-sitemap me-1"></i>Functions Browse
+          <i class="fas fa-sitemap me-1"></i>{{ __('Functions Browse') }}
         </a>
       </div>
       <div class="col-auto">
         <a href="{{ route('actor.config') }}" class="btn atom-btn-white">
-          <i class="fas fa-cog me-1"></i>Configuration
+          <i class="fas fa-cog me-1"></i>{{ __('Configuration') }}
         </a>
       </div>
     </div>

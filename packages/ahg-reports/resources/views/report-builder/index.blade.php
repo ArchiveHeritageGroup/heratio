@@ -9,8 +9,8 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1><i class="fas fa-wrench me-2"></i>Report Builder</h1>
       <div>
-        <a href="{{ route('reports.builder.create') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-plus me-1"></i>Create New Report</a>
-        <a href="{{ route('reports.builder.templates') }}" class="btn atom-btn-white btn-sm ms-1"><i class="fas fa-copy me-1"></i>From Template</a>
+        <a href="{{ route('reports.builder.create') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-plus me-1"></i>{{ __('Create New Report') }}</a>
+        <a href="{{ route('reports.builder.templates') }}" class="btn atom-btn-white btn-sm ms-1"><i class="fas fa-copy me-1"></i>{{ __('From Template') }}</a>
       </div>
     </div>
 
@@ -53,15 +53,15 @@
                 <span class="badge {{ $statusClass }}">{{ ucfirst(str_replace('_',' ',$report->status ?? 'draft')) }}</span>
               </td>
               <td>
-                @if($report->is_public ?? false) <span class="badge bg-success"><i class="fas fa-globe me-1"></i>Public</span>
-                @elseif($report->is_shared ?? false) <span class="badge bg-info"><i class="fas fa-users me-1"></i>Shared</span>
-                @else <span class="badge bg-secondary"><i class="fas fa-lock me-1"></i>Private</span> @endif
+                @if($report->is_public ?? false) <span class="badge bg-success"><i class="fas fa-globe me-1"></i>{{ __('Public') }}</span>
+                @elseif($report->is_shared ?? false) <span class="badge bg-info"><i class="fas fa-users me-1"></i>{{ __('Shared') }}</span>
+                @else <span class="badge bg-secondary"><i class="fas fa-lock me-1"></i>{{ __('Private') }}</span> @endif
               </td>
               <td><small class="text-muted">{{ isset($report->updated_at) ? \Carbon\Carbon::parse($report->updated_at)->format('Y-m-d H:i') : '-' }}</small></td>
               <td>
                 <div class="btn-group btn-group-sm">
-                  <a href="{{ route('reports.builder.preview', $report->id) }}" class="btn btn-outline-primary" title="{{ __('View') }}"><i class="fas fa-eye me-1"></i>View</a>
-                  <a href="{{ route('reports.builder.edit', $report->id) }}" class="btn btn-outline-secondary" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt me-1"></i>Edit</a>
+                  <a href="{{ route('reports.builder.preview', $report->id) }}" class="btn btn-outline-primary" title="{{ __('View') }}"><i class="fas fa-eye me-1"></i>{{ __('View') }}</a>
+                  <a href="{{ route('reports.builder.edit', $report->id) }}" class="btn btn-outline-secondary" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt me-1"></i>{{ __('Edit') }}</a>
                 </div>
               </td>
             </tr>
@@ -73,7 +73,7 @@
     @empty
     <div class="card"><div class="card-body text-center text-muted py-5">
       <i class="fas fa-inbox fa-3x mb-3 d-block"></i>No custom reports yet.
-      <br><a href="{{ route('reports.builder.create') }}" class="btn atom-btn-white mt-3"><i class="fas fa-plus me-1"></i>Create Your First Report</a>
+      <br><a href="{{ route('reports.builder.create') }}" class="btn atom-btn-white mt-3"><i class="fas fa-plus me-1"></i>{{ __('Create Your First Report') }}</a>
     </div></div>
     @endforelse
   </div>

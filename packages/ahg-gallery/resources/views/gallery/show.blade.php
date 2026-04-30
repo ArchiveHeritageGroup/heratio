@@ -15,10 +15,10 @@
     
     <div class="list-group list-group-flush">
       <a href="{{ route('gallery.browse') }}" class="list-group-item list-group-item-action small">
-        <i class="fas fa-th me-1"></i> Browse artworks
+        <i class="fas fa-th me-1"></i> {{ __('Browse artworks') }}
       </a>
       <a href="{{ route('gallery.artists') }}" class="list-group-item list-group-item-action small">
-        <i class="fas fa-users me-1"></i> Browse artists
+        <i class="fas fa-users me-1"></i> {{ __('Browse artists') }}
       </a>
     
   
@@ -56,29 +56,29 @@
 
       <div class="list-group list-group-flush">
         <a href="{{ route('gallery.edit', $artwork->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-pencil-alt me-1"></i> Edit
+          <i class="fas fa-pencil-alt me-1"></i> {{ __('Edit') }}
         </a>
         <form action="{{ route('gallery.destroy', $artwork->slug) }}" method="POST"
               onsubmit="return confirm('Are you sure you want to delete this artwork?');">
           @csrf
           <button type="submit" class="list-group-item list-group-item-action small text-danger border-0 w-100 text-start">
-            <i class="fas fa-trash me-1"></i> Delete
+            <i class="fas fa-trash me-1"></i> {{ __('Delete') }}
           </button>
         </form>
         @if(!empty($digitalObjects['reference']) || !empty($digitalObjects['thumbnail']))
           <a href="{{ url('/' . $artwork->slug . '/digitalobject/edit') }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-edit me-1"></i> Edit digital object
+            <i class="fas fa-edit me-1"></i> {{ __('Edit digital object') }}
           </a>
           <a href="{{ url('/' . $artwork->slug . '/digitalobject/delete') }}" class="list-group-item list-group-item-action small text-danger">
-            <i class="fas fa-times-circle me-1"></i> Delete digital object
+            <i class="fas fa-times-circle me-1"></i> {{ __('Delete digital object') }}
           </a>
         @else
           <a href="{{ url('/' . $artwork->slug . '/object/addDigitalObject') }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-upload me-1"></i> Add digital object
+            <i class="fas fa-upload me-1"></i> {{ __('Add digital object') }}
           </a>
         @endif
         <a href="{{ url('/' . $artwork->slug . '/right/edit') }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-gavel me-1"></i> Edit rights
+          <i class="fas fa-gavel me-1"></i> {{ __('Edit rights') }}
         </a>
 
 
@@ -91,34 +91,34 @@
       @if($marketplaceListing ?? null)
         <div class="card-body p-2 small">
           @if($marketplaceListing->price_on_request)
-            <div><span class="text-muted">Price:</span> <strong>On request</strong></div>
+            <div><span class="text-muted">{{ __('Price:') }}</span> <strong>{{ __('On request') }}</strong></div>
           @elseif($marketplaceListing->price !== null)
-            <div><span class="text-muted">Price:</span>
+            <div><span class="text-muted">{{ __('Price:') }}</span>
               <strong>{{ $marketplaceListing->currency ?: 'ZAR' }} {{ number_format((float) $marketplaceListing->price, 2) }}</strong>
             </div>
           @else
             <div class="text-muted fst-italic">Price not set</div>
           @endif
-          <div><span class="text-muted">Type:</span> {{ str_replace('_', ' ', $marketplaceListing->listing_type) }}</div>
-          <div><span class="text-muted">Status:</span> <span class="badge bg-secondary">{{ $marketplaceListing->status }}</span></div>
+          <div><span class="text-muted">{{ __('Type:') }}</span> {{ str_replace('_', ' ', $marketplaceListing->listing_type) }}</div>
+          <div><span class="text-muted">{{ __('Status:') }}</span> <span class="badge bg-secondary">{{ $marketplaceListing->status }}</span></div>
         </div>
         <div class="list-group list-group-flush">
           <a href="{{ route('ahgmarketplace.seller-listing-edit', ['id' => $marketplaceListing->id]) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-edit me-1"></i> Edit listing &amp; price
+            <i class="fas fa-edit me-1"></i> {{ __('Edit listing &amp; price') }}
           </a>
           <a href="{{ route('ahgmarketplace.seller-listing-images', ['id' => $marketplaceListing->id]) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-images me-1"></i> Manage images
+            <i class="fas fa-images me-1"></i> {{ __('Manage images') }}
           </a>
           @if($marketplaceListing->status === 'published')
             <a href="{{ route('ahgmarketplace.listing', ['slug' => $marketplaceListing->slug]) }}" class="list-group-item list-group-item-action small" target="_blank">
-              <i class="fas fa-external-link-alt me-1"></i> View public listing
+              <i class="fas fa-external-link-alt me-1"></i> {{ __('View public listing') }}
             </a>
           @endif
         </div>
       @else
         <div class="list-group list-group-flush">
           <a href="{{ route('ahgmarketplace.seller-listing-create', ['io' => $artwork->id]) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-tag me-1"></i> Add to marketplace &amp; set price
+            <i class="fas fa-tag me-1"></i> {{ __('Add to marketplace &amp; set price') }}
           </a>
         </div>
       @endif

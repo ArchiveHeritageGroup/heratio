@@ -35,9 +35,9 @@
           <th>{{ __('Non-Genealogical') }}</th>
           <td>
             @if($result['non_genealogical'] ?? false)
-              <span class="badge bg-secondary">Yes</span>
+              <span class="badge bg-secondary">{{ __('Yes') }}</span>
             @else
-              <span class="badge bg-success">No (genealogical)</span>
+              <span class="badge bg-success">{{ __('No (genealogical)') }}</span>
             @endif
           </td>
         </tr>
@@ -45,7 +45,7 @@
           <th>{{ __('Needs Review') }}</th>
           <td>
             @if($result['needs_review'] ?? true)
-              <span class="badge bg-warning text-dark">Yes</span>
+              <span class="badge bg-warning text-dark">{{ __('Yes') }}</span>
             @else
               <span class="badge bg-success">No</span>
             @endif
@@ -55,8 +55,8 @@
     </table>
   </div>
   <div class="card-footer">
-    <a href="{{ route('admin.ai.donut.download', $jobId) }}" class="btn atom-btn-outline-success btn-sm"><i class="fas fa-download me-1"></i>Download JSON</a>
-    <a href="{{ route('admin.ai.donut.extract') }}" class="btn atom-btn-white btn-sm ms-2"><i class="fas fa-redo me-1"></i>Extract Another</a>
+    <a href="{{ route('admin.ai.donut.download', $jobId) }}" class="btn atom-btn-outline-success btn-sm"><i class="fas fa-download me-1"></i>{{ __('Download JSON') }}</a>
+    <a href="{{ route('admin.ai.donut.extract') }}" class="btn atom-btn-white btn-sm ms-2"><i class="fas fa-redo me-1"></i>{{ __('Extract Another') }}</a>
   </div>
 </div>
 

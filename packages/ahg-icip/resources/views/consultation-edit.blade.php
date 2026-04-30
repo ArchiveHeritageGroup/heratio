@@ -32,7 +32,7 @@
   @if($object)
     <div class="alert alert-info">
       <i class="bi bi-archive me-2"></i>
-      <strong>Record:</strong>
+      <strong>{{ __('Record:') }}</strong>
       <a href="{{ url('/'.$object->slug) }}">{{ $object->title ?? $object->identifier ?? 'Untitled' }}</a>
     </div>
   @endif

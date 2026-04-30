@@ -31,7 +31,7 @@
           <td><span class="badge {{ $ready ? 'bg-success' : ($count > 0 ? 'bg-info' : 'bg-warning') }}">{{ $ready ? 'Ready' : ($count > 0 ? $count . ' / 50' : 'Need 50') }}</span></td>
         </tr>
       @endforeach
-      <tr class="table-light"><td><strong>Total</strong></td><td><strong>{{ $totalAnnotations }}</strong></td><td></td><td></td></tr>
+      <tr class="table-light"><td><strong>{{ __('Total') }}</strong></td><td><strong>{{ $totalAnnotations }}</strong></td><td></td><td></td></tr>
       </tbody>
     </table>
   </div>
@@ -47,11 +47,11 @@
 
 <div class="d-flex gap-2">
   <form method="POST" action="{{ route('admin.ai.htr.startTraining') }}">@csrf
-    <button type="submit" class="btn atom-btn-outline-success" {{ $canTrain ? '' : 'disabled' }}><i class="fas fa-play me-1"></i>Start Fine-tuning</button>
+    <button type="submit" class="btn atom-btn-outline-success" {{ $canTrain ? '' : 'disabled' }}><i class="fas fa-play me-1"></i>{{ __('Start Fine-tuning') }}</button>
   </form>
-  <a href="{{ route('admin.ai.htr.annotate') }}" class="btn atom-btn-white"><i class="fas fa-pen me-1"></i>Annotate</a>
-  <a href="{{ route('admin.ai.htr.bulkAnnotate') }}" class="btn atom-btn-white"><i class="fas fa-magic me-1"></i>Bulk Annotate</a>
-  <a href="{{ route('admin.ai.htr.fsOverlay') }}" class="btn atom-btn-white"><i class="fas fa-layer-group me-1"></i>FS Overlay</a>
+  <a href="{{ route('admin.ai.htr.annotate') }}" class="btn atom-btn-white"><i class="fas fa-pen me-1"></i>{{ __('Annotate') }}</a>
+  <a href="{{ route('admin.ai.htr.bulkAnnotate') }}" class="btn atom-btn-white"><i class="fas fa-magic me-1"></i>{{ __('Bulk Annotate') }}</a>
+  <a href="{{ route('admin.ai.htr.fsOverlay') }}" class="btn atom-btn-white"><i class="fas fa-layer-group me-1"></i>{{ __('FS Overlay') }}</a>
 </div>
 @endsection
 

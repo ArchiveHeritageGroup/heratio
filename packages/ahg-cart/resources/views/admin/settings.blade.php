@@ -22,17 +22,17 @@
 <ul class="nav nav-tabs mb-4" id="ecommerceTabs" role="tablist">
   <li class="nav-item">
     <button class="nav-link {{ ($activeTab ?? 'general') === 'general' ? 'active' : '' }}" data-bs-toggle="tab" data-bs-target="#general" type="button">
-      <i class="fas fa-cog me-1"></i>General
+      <i class="fas fa-cog me-1"></i>{{ __('General') }}
     </button>
   </li>
   <li class="nav-item">
     <button class="nav-link {{ ($activeTab ?? '') === 'payment' ? 'active' : '' }}" data-bs-toggle="tab" data-bs-target="#payment" type="button">
-      <i class="fas fa-credit-card me-1"></i>Payment
+      <i class="fas fa-credit-card me-1"></i>{{ __('Payment') }}
     </button>
   </li>
   <li class="nav-item">
     <button class="nav-link {{ ($activeTab ?? '') === 'pricing' ? 'active' : '' }}" data-bs-toggle="tab" data-bs-target="#pricing" type="button">
-      <i class="fas fa-tags me-1"></i>Pricing
+      <i class="fas fa-tags me-1"></i>{{ __('Pricing') }}
     </button>
   </li>
 </ul>
@@ -58,10 +58,10 @@
                   <input type="checkbox" class="form-check-input" id="is_enabled" name="is_enabled" value="1"
                          {{ ($settings->is_enabled ?? 0) ? 'checked' : '' }}>
                   <label class="form-check-label" for="is_enabled">
-                    <strong>Enable E-Commerce Mode</strong>
+                    <strong>{{ __('Enable E-Commerce Mode') }}</strong>
                   </label>
                 </div>
-                <small class="text-muted">When disabled, cart will use standard Request to Publish workflow.</small>
+                <small class="text-muted">{{ __('When disabled, cart will use standard Request to Publish workflow.') }}</small>
               </div>
 
               <div class="mb-3">
@@ -92,7 +92,7 @@
                 <input type="email" name="admin_notification_email" class="form-control"
                        value="{{ e($settings->admin_notification_email ?? '') }}"
                        placeholder="{{ __('orders@example.com') }}">
-                <small class="text-muted">Receive order notifications at this email.</small>
+                <small class="text-muted">{{ __('Receive order notifications at this email.') }}</small>
               </div>
 
               <div class="mb-3">
@@ -104,7 +104,7 @@
         </div>
         <div class="card-footer d-flex justify-content-between align-items-center">
           <button type="submit" class="btn btn-primary">
-            <i class="fas fa-save me-2"></i>Save Settings
+            <i class="fas fa-save me-2"></i>{{ __('Save Settings') }}
           </button>
           @unless($settings->is_enabled ?? 0)
             <button type="button" class="btn btn-outline-warning"
@@ -112,7 +112,7 @@
                     data-dummy-title="Sample marketplace listing"
                     data-dummy-price="6500.00"
                     data-dummy-currency="{{ $settings->currency ?? 'ZAR' }}">
-              <i class="fas fa-flask me-1"></i> Preview dummy sale
+              <i class="fas fa-flask me-1"></i> {{ __('Preview dummy sale') }}
             </button>
           @endunless
         </div>
@@ -164,7 +164,7 @@
                 <label class="form-label">{{ __('Passphrase') }}</label>
                 <input type="password" name="payfast_passphrase" class="form-control"
                        value="{{ e($settings->payfast_passphrase ?? '') }}">
-                <small class="text-muted">Optional but recommended for security.</small>
+                <small class="text-muted">{{ __('Optional but recommended for security.') }}</small>
               </div>
             </div>
 
@@ -175,15 +175,15 @@
                   <input type="checkbox" class="form-check-input" id="payfast_sandbox" name="payfast_sandbox" value="1"
                          {{ ($settings->payfast_sandbox ?? 1) ? 'checked' : '' }}>
                   <label class="form-check-label" for="payfast_sandbox">
-                    <strong>Sandbox Mode (Testing)</strong>
+                    <strong>{{ __('Sandbox Mode (Testing)') }}</strong>
                   </label>
                 </div>
-                <small class="text-muted">Enable for testing. Disable for live payments.</small>
+                <small class="text-muted">{{ __('Enable for testing. Disable for live payments.') }}</small>
               </div>
 
               <div class="alert alert-warning mt-4">
                 <i class="fas fa-exclamation-triangle me-2"></i>
-                <strong>ITN URL</strong><br>
+                <strong>{{ __('ITN URL') }}</strong><br>
                 Configure this URL in your PayFast dashboard:<br>
                 <code>{{ config('app.url') }}/cart/payment/notify</code>
               </div>
@@ -193,7 +193,7 @@
         </div>
         <div class="card-footer">
           <button type="submit" class="btn btn-success">
-            <i class="fas fa-save me-2"></i>Save Payment Settings
+            <i class="fas fa-save me-2"></i>{{ __('Save Payment Settings') }}
           </button>
         </div>
       </div>
@@ -236,9 +236,9 @@
                     </td>
                     <td>
                       @if($pt->is_digital ?? false)
-                        <span class="badge bg-info"><i class="fas fa-download me-1"></i>Digital</span>
+                        <span class="badge bg-info"><i class="fas fa-download me-1"></i>{{ __('Digital') }}</span>
                       @else
-                        <span class="badge bg-secondary"><i class="fas fa-print me-1"></i>Physical</span>
+                        <span class="badge bg-secondary"><i class="fas fa-print me-1"></i>{{ __('Physical') }}</span>
                       @endif
                     </td>
                     <td class="text-center">
@@ -258,7 +258,7 @@
         </div>
         <div class="card-footer">
           <button type="submit" class="btn btn-warning">
-            <i class="fas fa-save me-2"></i>Save Pricing
+            <i class="fas fa-save me-2"></i>{{ __('Save Pricing') }}
           </button>
         </div>
       </div>
@@ -269,10 +269,10 @@
 
 <div class="mt-4">
   <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">
-    <i class="fas fa-arrow-left me-2"></i>Back to Admin
+    <i class="fas fa-arrow-left me-2"></i>{{ __('Back to Admin') }}
   </a>
   <a href="{{ route('cart.admin.orders') }}" class="btn btn-outline-primary ms-2">
-    <i class="fas fa-list me-2"></i>View Orders
+    <i class="fas fa-list me-2"></i>{{ __('View Orders') }}
   </a>
 </div>
 

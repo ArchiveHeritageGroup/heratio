@@ -8,7 +8,7 @@
     <i class="fas fa-3x fa-clipboard-check me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ $job['name'] ?: 'Job #' . $job['id'] }}</h1>
-      <span class="small text-muted">Migration Job Details</span>
+      <span class="small text-muted">{{ __('Migration Job Details') }}</span>
     </div>
   </div>
 
@@ -25,13 +25,13 @@
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Progress</h5>
       @if($job['status'] === 'completed')
-        <span class="badge bg-success fs-6">Completed</span>
+        <span class="badge bg-success fs-6">{{ __('Completed') }}</span>
       @elseif($job['status'] === 'failed')
-        <span class="badge bg-danger fs-6">Failed</span>
+        <span class="badge bg-danger fs-6">{{ __('Failed') }}</span>
       @elseif($job['status'] === 'processing')
-        <span class="badge bg-info fs-6">Processing</span>
+        <span class="badge bg-info fs-6">{{ __('Processing') }}</span>
       @else
-        <span class="badge bg-warning text-dark fs-6">Pending</span>
+        <span class="badge bg-warning text-dark fs-6">{{ __('Pending') }}</span>
       @endif
     </div>
     <div class="card-body">
@@ -168,10 +168,10 @@
 
   <div class="d-flex gap-2">
     <a href="{{ route('data-migration.jobs') }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left"></i> Back to Jobs
+      <i class="fas fa-arrow-left"></i> {{ __('Back to Jobs') }}
     </a>
     <a href="{{ route('data-migration.index') }}" class="btn atom-btn-white">
-      <i class="fas fa-home"></i> Dashboard
+      <i class="fas fa-home"></i> {{ __('Dashboard') }}
     </a>
   </div>
 @endsection

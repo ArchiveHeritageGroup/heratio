@@ -120,6 +120,6 @@
 
   <div class="d-flex justify-content-end gap-2 mt-3">
     <a href="{{ $cancelUrl }}" class="btn btn-outline-secondary">Cancel</a>
-    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button>
+    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
   </div>
 </form>

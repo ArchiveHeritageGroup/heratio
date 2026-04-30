@@ -26,14 +26,14 @@
             <td>{{ $userCounts[$comp->id] ?? 0 }}</td>
             <td>
               @if($comp->active ?? 1)
-                <span class="badge bg-success">Active</span>
+                <span class="badge bg-success">{{ __('Active') }}</span>
               @else
-                <span class="badge bg-secondary">Inactive</span>
+                <span class="badge bg-secondary">{{ __('Inactive') }}</span>
               @endif
             </td>
             <td>
               <a href="{{ route('security-clearance.compartment-access', ['compartment_id' => $comp->id]) }}" class="btn btn-sm btn-outline-primary">
-                <i class="fas fa-users"></i> Manage Access
+                <i class="fas fa-users"></i> {{ __('Manage Access') }}
               </a>
             </td>
           </tr>

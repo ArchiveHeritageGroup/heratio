@@ -50,7 +50,7 @@
           {{-- Search field selector --}}
           <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
             <i class="fas fa-cog" aria-hidden="true"></i>
-            <span class="visually-hidden">Search options</span>
+            <span class="visually-hidden">{{ __('Search options') }}</span>
           </button>
           <div class="dropdown-menu mt-2">
             <div class="px-3 py-2">
@@ -74,13 +74,13 @@
           @if(request('subquery'))
             <a href="{{ route('term.browse', ['taxonomy' => $taxonomyId]) }}" class="btn btn-sm atom-btn-white d-flex align-items-center" role="button">
               <i class="fas fa-undo" aria-hidden="true"></i>
-              <span class="visually-hidden">Reset search</span>
+              <span class="visually-hidden">{{ __('Reset search') }}</span>
             </a>
           @endif
           {{-- Search submit --}}
           <button class="btn btn-sm atom-btn-white" type="submit">
             <i class="fas fa-search" aria-hidden="true"></i>
-            <span class="visually-hidden">Search</span>
+            <span class="visually-hidden">{{ __('Search') }}</span>
           </button>
         </div>
       </form>
@@ -105,8 +105,8 @@
             Direction: {{ $activeDir === 'desc' ? 'Descending' : 'Ascending' }}
           </button>
           <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortdir-button">
-            <li><a class="dropdown-item {{ $activeDir === 'asc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'asc', 'page' => 1]) }}"><i class="fas fa-sort-alpha-down me-1"></i>Ascending</a></li>
-            <li><a class="dropdown-item {{ $activeDir === 'desc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'desc', 'page' => 1]) }}"><i class="fas fa-sort-alpha-up me-1"></i>Descending</a></li>
+            <li><a class="dropdown-item {{ $activeDir === 'asc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'asc', 'page' => 1]) }}"><i class="fas fa-sort-alpha-down me-1"></i>{{ __('Ascending') }}</a></li>
+            <li><a class="dropdown-item {{ $activeDir === 'desc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'desc', 'page' => 1]) }}"><i class="fas fa-sort-alpha-up me-1"></i>{{ __('Descending') }}</a></li>
           </ul>
         </div>
       </div>

@@ -38,15 +38,15 @@
               <h6><i class="fas fa-file-code me-1"></i>Format Information</h6>
               <p class="mb-1"><strong>{{ $formatInfo->format_name ?? '' }}</strong></p>
               <p class="mb-1">Risk: <strong>{{ ucfirst($formatInfo->risk_level ?? 'unknown') }}</strong></p>
-              @if($formatInfo->is_preservation_format ?? false) <span class="badge bg-success">Preservation Format</span> @endif
+              @if($formatInfo->is_preservation_format ?? false) <span class="badge bg-success">{{ __('Preservation Format') }}</span> @endif
             </div>
             @endif
             <div class="d-grid gap-2">
               <button class="btn atom-btn-white" onclick="if(confirm('Generate checksums?')){window.location='{{ route('preservation.api.checksum.generate', $digitalObject->id ?? 0) }}'}">
-                <i class="fas fa-sync me-1"></i>Regenerate Checksums
+                <i class="fas fa-sync me-1"></i>{{ __('Regenerate Checksums') }}
               </button>
               <button class="btn btn-outline-primary" onclick="if(confirm('Verify fixity?')){window.location='{{ route('preservation.api.fixity.verify', $digitalObject->id ?? 0) }}'}">
-                <i class="fas fa-check-circle me-1"></i>Verify Fixity Now
+                <i class="fas fa-check-circle me-1"></i>{{ __('Verify Fixity Now') }}
               </button>
             </div>
           </div>
@@ -68,9 +68,9 @@
                 <td><code class="small">{{ $cs->checksum_value ?? $cs->value ?? '' }}</code></td>
                 <td>
                     @if(($cs->verification_status ?? '') === 'verified' || ($cs->verification_status ?? '') === 'valid')
-                        <span class="badge bg-success">Valid</span>
+                        <span class="badge bg-success">{{ __('Valid') }}</span>
                     @elseif(($cs->verification_status ?? '') === 'failed' || ($cs->verification_status ?? '') === 'invalid')
-                        <span class="badge bg-danger">Invalid</span>
+                        <span class="badge bg-danger">{{ __('Invalid') }}</span>
                     @else
                         <span class="badge bg-secondary">{{ ucfirst($cs->verification_status ?? 'pending') }}</span>
                     @endif
@@ -101,9 +101,9 @@
                             <td>{{ strtoupper($check->algorithm ?? '') }}</td>
                             <td>
                                 @if($check->status === 'pass')
-                                    <span class="badge bg-success"><i class="fas fa-check"></i> Pass</span>
+                                    <span class="badge bg-success"><i class="fas fa-check"></i> {{ __('Pass') }}</span>
                                 @elseif($check->status === 'fail')
-                                    <span class="badge bg-danger"><i class="fas fa-times"></i> Fail</span>
+                                    <span class="badge bg-danger"><i class="fas fa-times"></i> {{ __('Fail') }}</span>
                                 @else
                                     <span class="badge bg-warning text-dark">{{ ucfirst($check->status ?? '') }}</span>
                                 @endif
@@ -143,8 +143,8 @@
                 <td><small>{{ $event->event_datetime ?? '' }}</small></td>
                 <td><span class="badge bg-secondary">{{ $event->event_type ?? '' }}</span></td>
                 <td>
-                  @if(($event->event_outcome ?? '') === 'success') <span class="badge bg-success">Success</span>
-                  @elseif(($event->event_outcome ?? '') === 'failure') <span class="badge bg-danger">Failure</span>
+                  @if(($event->event_outcome ?? '') === 'success') <span class="badge bg-success">{{ __('Success') }}</span>
+                  @elseif(($event->event_outcome ?? '') === 'failure') <span class="badge bg-danger">{{ __('Failure') }}</span>
                   @else <span class="badge bg-warning text-dark">{{ ucfirst($event->event_outcome ?? 'unknown') }}</span> @endif
                 </td>
                 <td><small class="text-muted">{{ Str::limit($event->event_detail ?? '', 80) }}</small></td>

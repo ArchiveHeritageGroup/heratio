@@ -79,7 +79,7 @@
               <input class="form-check-input" type="checkbox" id="authority_completeness_auto_recalc"
                      name="settings[authority_completeness_auto_recalc]" value="true"
                      {{ ($settings['authority_completeness_auto_recalc'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="authority_completeness_auto_recalc"><strong>Auto-Recalculate Completeness</strong></label>
+              <label class="form-check-label" for="authority_completeness_auto_recalc"><strong>{{ __('Auto-Recalculate Completeness') }}</strong></label>
             </div>
             <div class="form-text">Automatically recalculate completeness scores when the CLI scan runs.</div>
           </div>
@@ -88,7 +88,7 @@
               <input class="form-check-input" type="checkbox" id="authority_hide_stubs_from_public"
                      name="settings[authority_hide_stubs_from_public]" value="true"
                      {{ ($settings['authority_hide_stubs_from_public'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="authority_hide_stubs_from_public"><strong>Hide Stubs from Public</strong></label>
+              <label class="form-check-label" for="authority_hide_stubs_from_public"><strong>{{ __('Hide Stubs from Public') }}</strong></label>
             </div>
             <div class="form-text">Hide stub-level authority records from public browse and search results.</div>
           </div>
@@ -107,12 +107,12 @@
               <input class="form-check-input" type="checkbox" id="authority_ner_auto_stub_enabled"
                      name="settings[authority_ner_auto_stub_enabled]" value="true"
                      {{ ($settings['authority_ner_auto_stub_enabled'] ?? 'false') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="authority_ner_auto_stub_enabled"><strong>Auto-Create Stubs</strong></label>
+              <label class="form-check-label" for="authority_ner_auto_stub_enabled"><strong>{{ __('Auto-Create Stubs') }}</strong></label>
             </div>
             <div class="form-text">Automatically create authority record stubs from NER entities above the confidence threshold.</div>
           </div>
           <div class="col-md-6">
-            <label for="authority_ner_auto_stub_threshold" class="form-label"><strong>Confidence Threshold</strong></label>
+            <label for="authority_ner_auto_stub_threshold" class="form-label"><strong>{{ __('Confidence Threshold') }}</strong></label>
             <input type="number" class="form-control" id="authority_ner_auto_stub_threshold"
                    name="settings[authority_ner_auto_stub_threshold]"
                    value="{{ $settings['authority_ner_auto_stub_threshold'] ?? '0.85' }}"
@@ -133,12 +133,12 @@
               <input class="form-check-input" type="checkbox" id="authority_merge_require_approval"
                      name="settings[authority_merge_require_approval]" value="true"
                      {{ ($settings['authority_merge_require_approval'] ?? 'false') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="authority_merge_require_approval"><strong>Require Approval for Merge</strong></label>
+              <label class="form-check-label" for="authority_merge_require_approval"><strong>{{ __('Require Approval for Merge') }}</strong></label>
             </div>
             <div class="form-text">Require workflow approval before merging authority records. Requires ahgWorkflowPlugin.</div>
           </div>
           <div class="col-md-6">
-            <label for="authority_dedup_threshold" class="form-label"><strong>Dedup Similarity Threshold</strong></label>
+            <label for="authority_dedup_threshold" class="form-label"><strong>{{ __('Dedup Similarity Threshold') }}</strong></label>
             <input type="number" class="form-control" id="authority_dedup_threshold"
                    name="settings[authority_dedup_threshold]"
                    value="{{ $settings['authority_dedup_threshold'] ?? '0.80' }}"
@@ -159,7 +159,7 @@
               <input class="form-check-input" type="checkbox" id="authority_function_linking_enabled"
                      name="settings[authority_function_linking_enabled]" value="true"
                      {{ ($settings['authority_function_linking_enabled'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="authority_function_linking_enabled"><strong>Function Linking</strong></label>
+              <label class="form-check-label" for="authority_function_linking_enabled"><strong>{{ __('Function Linking') }}</strong></label>
             </div>
             <div class="form-text">Enable structured actor-to-function linking (ISDF). Requires ahgFunctionManagePlugin.</div>
           </div>
@@ -168,8 +168,8 @@
     </div>
 
     <div class="d-flex justify-content-between">
-      <a href="{{ route('settings.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back to Settings</a>
-      <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Settings</button>
+      <a href="{{ route('settings.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}</a>
+      <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save Settings') }}</button>
     </div>
   </form>
 @endsection

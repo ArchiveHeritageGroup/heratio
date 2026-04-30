@@ -5,7 +5,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="fas fa-user-shield me-2"></i>PII Detection Scanner</h1>
         <a href="{{ route('ahgprivacy.index') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+            <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}
         </a>
     </div>
 
@@ -80,7 +80,7 @@
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-play me-1"></i>Start Scan
+                            <i class="fas fa-play me-1"></i>{{ __('Start Scan') }}
                         </button>
                     </form>
                 </div>
@@ -131,7 +131,7 @@ $badges = [
                         <i class="fas fa-tasks me-1"></i>Review Pending ({{ $stats['pending_review'] }})
                     </a>
                     <a href="{{ route('ahgprivacy.ropa-list') }}" class="btn btn-outline-secondary w-100">
-                        <i class="fas fa-database me-1"></i>Data Inventory
+                        <i class="fas fa-database me-1"></i>{{ __('Data Inventory') }}
                     </a>
                 </div>
             </div>
@@ -175,7 +175,7 @@ $badges = [
                                     </td>
                                     <td>
                                         <a href="{{ route('ahgprivacy.pii-scan-object', ['id' => $obj->object_id]) }}" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-eye"></i> View
+                                            <i class="fas fa-eye"></i> {{ __('View') }}
                                         </a>
                                     </td>
                                 </tr>
@@ -200,28 +200,28 @@ $badges = [
                 <div class="col-md-4">
                     <h6 class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>High Risk</h6>
                     <ul class="list-unstyled small">
-                        <li><strong>SA_ID</strong> - South African ID Numbers</li>
-                        <li><strong>NG_NIN</strong> - Nigerian National ID</li>
-                        <li><strong>PASSPORT</strong> - Passport Numbers</li>
-                        <li><strong>BANK_ACCOUNT</strong> - Bank Account Numbers</li>
-                        <li><strong>TAX_NUMBER</strong> - Tax Reference Numbers</li>
+                        <li><strong>{{ __('SA_ID') }}</strong> - South African ID Numbers</li>
+                        <li><strong>{{ __('NG_NIN') }}</strong> - Nigerian National ID</li>
+                        <li><strong>{{ __('PASSPORT') }}</strong> - Passport Numbers</li>
+                        <li><strong>{{ __('BANK_ACCOUNT') }}</strong> - Bank Account Numbers</li>
+                        <li><strong>{{ __('TAX_NUMBER') }}</strong> - Tax Reference Numbers</li>
                     </ul>
                 </div>
                 <div class="col-md-4">
                     <h6 class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Medium Risk</h6>
                     <ul class="list-unstyled small">
-                        <li><strong>PERSON</strong> - Names (via NER)</li>
-                        <li><strong>EMAIL</strong> - Email Addresses</li>
-                        <li><strong>PHONE_SA</strong> - SA Phone Numbers</li>
-                        <li><strong>PHONE_INTL</strong> - International Phones</li>
+                        <li><strong>{{ __('PERSON') }}</strong> - Names (via NER)</li>
+                        <li><strong>{{ __('EMAIL') }}</strong> - Email Addresses</li>
+                        <li><strong>{{ __('PHONE_SA') }}</strong> - SA Phone Numbers</li>
+                        <li><strong>{{ __('PHONE_INTL') }}</strong> - International Phones</li>
                     </ul>
                 </div>
                 <div class="col-md-4">
                     <h6 class="text-secondary"><i class="fas fa-info-circle me-1"></i>Low Risk</h6>
                     <ul class="list-unstyled small">
-                        <li><strong>ORG</strong> - Organizations (via NER)</li>
-                        <li><strong>GPE</strong> - Places (via NER)</li>
-                        <li><strong>DATE</strong> - Dates (via NER)</li>
+                        <li><strong>{{ __('ORG') }}</strong> - Organizations (via NER)</li>
+                        <li><strong>{{ __('GPE') }}</strong> - Places (via NER)</li>
+                        <li><strong>{{ __('DATE') }}</strong> - Dates (via NER)</li>
                     </ul>
                 </div>
             </div>

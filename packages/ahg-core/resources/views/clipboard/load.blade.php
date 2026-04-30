@@ -28,12 +28,12 @@
         <div id="load-collapse" class="accordion-collapse collapse show" aria-labelledby="load-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="clipboardPassword" class="form-label">Clipboard ID <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="clipboardPassword" class="form-label">Clipboard ID <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" class="form-control" id="clipboardPassword" name="clipboardPassword"
                      required placeholder="{{ __('Enter 7-digit clipboard ID') }}">
             </div>
             <div class="mb-3">
-              <label for="mode" class="form-label">Action <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="mode" class="form-label">Action <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select class="form-select" id="mode" name="mode">
                 <option value="merge" selected>{{ __('Merge saved clipboard with existing clipboard results') }}</option>
                 <option value="replace">{{ __('Replace existing clipboard results with saved clipboard') }}</option>

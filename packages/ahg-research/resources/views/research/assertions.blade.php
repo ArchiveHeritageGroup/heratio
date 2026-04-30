@@ -26,8 +26,8 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-gavel text-primary me-2"></i>Assertions</h1>
     <div class="d-flex gap-2">
-        <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#createAssertionForm"><i class="fas fa-plus me-1"></i>Create Assertion</button>
-        <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back</a>
+        <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#createAssertionForm"><i class="fas fa-plus me-1"></i>{{ __('Create Assertion') }}</button>
+        <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
     </div>
 </div>
 
@@ -54,7 +54,7 @@
                 </select>
             </div>
             <div class="col-md-4">
-                <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter me-1"></i>Filter</button>
+                <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter me-1"></i>{{ __('Filter') }}</button>
                 <a href="{{ request()->url() }}" class="btn btn-sm btn-outline-secondary">Clear</a>
             </div>
         </form>
@@ -99,7 +99,7 @@
                         <input type="range" name="confidence" class="form-range" min="0" max="100" value="50" oninput="document.getElementById('confidenceValue').textContent=this.value">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-check me-1"></i>Create</button>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-check me-1"></i>{{ __('Create') }}</button>
             </form>
         </div>
     </div>

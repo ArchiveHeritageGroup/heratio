@@ -6,7 +6,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-inbox"></i> Task Pool</h1>
-    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('Dashboard') }}</a>
   </div>
 
 <p class="text-muted">Tasks available for claiming. Claim a task to assign it to yourself.</p>
@@ -42,11 +42,11 @@
                   </td>
                   <td>
                     @if($task->priority === 'high')
-                      <span class="badge bg-danger">High</span>
+                      <span class="badge bg-danger">{{ __('High') }}</span>
                     @elseif($task->priority === 'low')
-                      <span class="badge bg-secondary">Low</span>
+                      <span class="badge bg-secondary">{{ __('Low') }}</span>
                     @else
-                      <span class="badge bg-primary">Normal</span>
+                      <span class="badge bg-primary">{{ __('Normal') }}</span>
                     @endif
                   </td>
                   <td>
@@ -64,7 +64,7 @@
                   <td>
                     <form action="{{ route('workflow.task.claim', $task->id) }}" method="POST" class="d-inline">
                       @csrf
-                      <button type="submit" class="btn btn-sm atom-btn-outline-success"><i class="fas fa-hand-paper"></i> Claim</button>
+                      <button type="submit" class="btn btn-sm atom-btn-outline-success"><i class="fas fa-hand-paper"></i> {{ __('Claim') }}</button>
                     </form>
                   </td>
                 </tr>

@@ -256,7 +256,7 @@
                     </div>
 
                     <button type="button" class="btn btn-sm btn-outline-secondary" id="addGrantedRight">
-                        <i class="fas fa-plus me-1"></i>Add act
+                        <i class="fas fa-plus me-1"></i>{{ __('Add act') }}
                     </button>
                 </div>
             </div>
@@ -267,7 +267,7 @@
     {{-- Form Actions --}}
     <section class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
       <a href="{{ route('ext-rights.index', $resource->slug) }}" class="btn atom-btn-outline-light">Cancel</a>
-      <button type="submit" class="btn atom-btn-outline-light"><i class="fas fa-save me-1"></i>Save</button>
+      <button type="submit" class="btn atom-btn-outline-light"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
     </section>
 </form>
 @endsection

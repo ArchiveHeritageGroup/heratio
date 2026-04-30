@@ -31,7 +31,7 @@
               <input type="number" name="object_id" class="form-control" required
                      value="{{ old('object_id', $embargo->object_id ?? request('object_id', '')) }}"
                      {{ isset($embargo) ? 'readonly' : '' }}>
-              <small class="form-text text-muted">Enter the ID of the information object to embargo</small>
+              <small class="form-text text-muted">{{ __('Enter the ID of the information object to embargo') }}</small>
             </div>
           </div>
         </div>
@@ -75,7 +75,7 @@
                 <label class="form-label">{{ __('End Date') }}</label>
                 <input type="date" name="end_date" class="form-control"
                        value="{{ old('end_date', $embargo->end_date ?? '') }}">
-                <small class="form-text text-muted">Leave empty for indefinite embargo</small>
+                <small class="form-text text-muted">{{ __('Leave empty for indefinite embargo') }}</small>
               </div>
             </div>
 
@@ -133,7 +133,7 @@
                 <label class="form-label">{{ __('Notification Emails') }}</label>
                 <input type="text" name="notify_emails" class="form-control" placeholder="{{ __('email1@example.com, email2@example.com') }}"
                        value="{{ old('notify_emails', isset($embargo->notify_emails) ? implode(', ', json_decode($embargo->notify_emails, true) ?? []) : '') }}">
-                <small class="form-text text-muted">Comma-separated list of emails</small>
+                <small class="form-text text-muted">{{ __('Comma-separated list of emails') }}</small>
               </div>
             </div>
           </div>
@@ -202,7 +202,7 @@
     <section class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
       <a href="{{ route('ext-rights-admin.embargoes') }}" class="btn atom-btn-outline-light">Cancel</a>
       <button type="submit" class="btn atom-btn-outline-light">
-        <i class="fas fa-save me-1"></i>Save Embargo
+        <i class="fas fa-save me-1"></i>{{ __('Save Embargo') }}
       </button>
     </section>
   </form>

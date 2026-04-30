@@ -35,7 +35,7 @@
     {{-- Hamburger toggle --}}
     <button class="navbar-toggler atom-btn-secondary my-2 me-1 px-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false">
       <i class="fas fa-2x fa-fw fa-bars" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ __('Toggle navigation') }}" aria-hidden="true"></i>
-      <span class="visually-hidden">Toggle navigation</span>
+      <span class="visually-hidden">{{ __('Toggle navigation') }}</span>
     </button>
 
     <div class="collapse navbar-collapse flex-wrap justify-content-end me-1" id="navbar-content">
@@ -54,18 +54,18 @@
             <li class="nav-item dropdown d-flex flex-column">
               <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="ric-tools-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-2x fa-fw fa-sitemap px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="{{ __('RiC Tools') }}" aria-hidden="true"></i>
-                <span class="d-lg-none mx-1" aria-hidden="true">RiC Tools</span>
-                <span class="visually-hidden">RiC Tools</span>
+                <span class="d-lg-none mx-1" aria-hidden="true">{{ __('RiC Tools') }}</span>
+                <span class="visually-hidden">{{ __('RiC Tools') }}</span>
               </a>
               <ul class="dropdown-menu dropdown-menu-end mb-2" aria-labelledby="ric-tools-menu">
                 <li><h6 class="dropdown-header">{{ __('RiC Tools') }}</h6></li>
-                <li><a class="dropdown-item" href="{{ url('/admin/ric') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
-                <li><a class="dropdown-item" href="{{ url('/admin/ric/sync-status') }}"><i class="fas fa-sync me-2"></i>Sync Status</a></li>
-                <li><a class="dropdown-item" href="{{ url('/admin/ric/queue') }}"><i class="fas fa-tasks me-2"></i>Queue</a></li>
-                <li><a class="dropdown-item" href="{{ url('/admin/ric/logs') }}"><i class="fas fa-history me-2"></i>Sync Logs</a></li>
+                <li><a class="dropdown-item" href="{{ url('/admin/ric') }}"><i class="fas fa-tachometer-alt me-2"></i>{{ __('Dashboard') }}</a></li>
+                <li><a class="dropdown-item" href="{{ url('/admin/ric/sync-status') }}"><i class="fas fa-sync me-2"></i>{{ __('Sync Status') }}</a></li>
+                <li><a class="dropdown-item" href="{{ url('/admin/ric/queue') }}"><i class="fas fa-tasks me-2"></i>{{ __('Queue') }}</a></li>
+                <li><a class="dropdown-item" href="{{ url('/admin/ric/logs') }}"><i class="fas fa-history me-2"></i>{{ __('Sync Logs') }}</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="{{ url('/admin/ahg-settings/section/?section=fuseki') }}"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                <li><a class="dropdown-item" href="https://www.ica.org/standards/RiC/ontology" target="_blank"><i class="fas fa-book me-2"></i>RiC-O Reference</a></li>
+                <li><a class="dropdown-item" href="{{ url('/admin/ahg-settings/section/?section=fuseki') }}"><i class="fas fa-cog me-2"></i>{{ __('Settings') }}</a></li>
+                <li><a class="dropdown-item" href="https://www.ica.org/standards/RiC/ontology" target="_blank"><i class="fas fa-book me-2"></i>{{ __('RiC-O Reference') }}</a></li>
               </ul>
             </li>
           @endif
@@ -74,8 +74,8 @@
           <li class="nav-item d-flex flex-column">
             <a class="nav-link d-flex align-items-center p-0" href="{{ url('/help') }}" id="help-center-menu">
               <i class="fas fa-2x fa-fw fa-question-circle px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="{{ __('Help Center') }}" aria-hidden="true"></i>
-              <span class="d-lg-none mx-1" aria-hidden="true">Help Center</span>
-              <span class="visually-hidden">Help Center</span>
+              <span class="d-lg-none mx-1" aria-hidden="true">{{ __('Help Center') }}</span>
+              <span class="visually-hidden">{{ __('Help Center') }}</span>
             </a>
           </li>
 
@@ -100,7 +100,7 @@
                     {{ $spectrumBellCount > 99 ? '99+' : $spectrumBellCount }}
                   </span>
                 @endif
-                <span class="d-lg-none mx-1" aria-hidden="true">My Tasks</span>
+                <span class="d-lg-none mx-1" aria-hidden="true">{{ __('My Tasks') }}</span>
                 <span class="visually-hidden">My Tasks{{ $spectrumBellCount > 0 ? ' (' . $spectrumBellCount . ' pending)' : '' }}</span>
               </a>
             </li>

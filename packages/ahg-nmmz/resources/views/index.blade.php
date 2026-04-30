@@ -45,10 +45,10 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('nmmz.reports') }}" class="btn btn-outline-primary">
-                <i class="fas fa-file-alt me-1"></i> Reports
+                <i class="fas fa-file-alt me-1"></i> {{ __('Reports') }}
             </a>
             <a href="{{ route('nmmz.config') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-cog me-1"></i> Settings
+                <i class="fas fa-cog me-1"></i> {{ __('Settings') }}
             </a>
         </div>
     </div>
@@ -138,7 +138,7 @@
                         @endif
                     </a>
                     <a href="{{ route('nmmz.sites') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-map-marker-alt me-2"></i> Archaeological Sites
+                        <i class="fas fa-map-marker-alt me-2"></i> {{ __('Archaeological Sites') }}
                     </a>
                     <a href="{{ route('nmmz.hia') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-clipboard-check me-2"></i> Heritage Impact Assessments
@@ -203,7 +203,7 @@
                                             </a>
                                             <br><small class="text-muted">{{ $p->applicant_name ?? '' }}</small>
                                         </div>
-                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
                                     </div>
                                 </li>
                             @endforeach

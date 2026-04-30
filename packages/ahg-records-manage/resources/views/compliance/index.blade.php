@@ -11,8 +11,8 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0"><i class="fas fa-clipboard-check me-2"></i> Compliance Assessments</h1>
   <div>
-    <a href="{{ route('records.compliance.create') }}" class="btn btn-sm btn-success"><i class="fas fa-plus me-1"></i>New assessment</a>
-    <a href="{{ route('records.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Records dashboard</a>
+    <a href="{{ route('records.compliance.create') }}" class="btn btn-sm btn-success"><i class="fas fa-plus me-1"></i>{{ __('New assessment') }}</a>
+    <a href="{{ route('records.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Records dashboard') }}</a>
   </div>
 </div>
 
@@ -70,7 +70,7 @@
         <td class="text-end"><a href="{{ route('records.compliance.show', $a->id) }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-arrow-right"></i></a></td>
       </tr>
     @empty
-      <tr><td colspan="7" class="text-center text-muted py-4">No assessments yet. Click <strong>New assessment</strong> to run the first one.</td></tr>
+      <tr><td colspan="7" class="text-center text-muted py-4">No assessments yet. Click <strong>{{ __('New assessment') }}</strong> to run the first one.</td></tr>
     @endforelse
     </tbody>
   </table>

@@ -13,10 +13,10 @@
     <h4>{{ __('3D Reports') }}</h4>
     <ul class="list-unstyled">
         <li><a href="{{ route('iiif.three-d-reports.models') }}"><i class="fas fa-cube me-2"></i>3D Models</a></li>
-        <li><a href="{{ route('iiif.three-d-reports.hotspots') }}"><i class="fas fa-map-pin me-2"></i>Hotspots</a></li>
-        <li><a href="{{ route('iiif.three-d-reports.thumbnails') }}"><i class="fas fa-image me-2"></i>Thumbnails</a></li>
+        <li><a href="{{ route('iiif.three-d-reports.hotspots') }}"><i class="fas fa-map-pin me-2"></i>{{ __('Hotspots') }}</a></li>
+        <li><a href="{{ route('iiif.three-d-reports.thumbnails') }}"><i class="fas fa-image me-2"></i>{{ __('Thumbnails') }}</a></li>
         <li><a href="{{ route('iiif.three-d-reports.digital-objects') }}"><i class="fas fa-file me-2"></i>3D Files</a></li>
-        <li><a href="{{ route('iiif.three-d-reports.settings') }}"><i class="fas fa-cog me-2"></i>Viewer Settings</a></li>
+        <li><a href="{{ route('iiif.three-d-reports.settings') }}"><i class="fas fa-cog me-2"></i>{{ __('Viewer Settings') }}</a></li>
     </ul>
 </div>
 @endsection
@@ -101,15 +101,15 @@ if (!function_exists('threeDFmtBytes')) {
                 </div>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex justify-content-between">
-                        <span><i class="fas fa-image me-2 text-success"></i>With Thumbnails</span>
+                        <span><i class="fas fa-image me-2 text-success"></i>{{ __('With Thumbnails') }}</span>
                         <span class="badge bg-success">{{ $stats['withThumbnails'] ?? 0 }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between">
-                        <span><i class="fas fa-photo-video me-2 text-info"></i>With Posters</span>
+                        <span><i class="fas fa-photo-video me-2 text-info"></i>{{ __('With Posters') }}</span>
                         <span class="badge bg-info">{{ $stats['withPosters'] ?? 0 }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between">
-                        <span><i class="fas fa-mobile-alt me-2 text-warning"></i>AR Enabled</span>
+                        <span><i class="fas fa-mobile-alt me-2 text-warning"></i>{{ __('AR Enabled') }}</span>
                         <span class="badge bg-warning">{{ $stats['arEnabled'] ?? 0 }}</span>
                     </li>
                 </ul>

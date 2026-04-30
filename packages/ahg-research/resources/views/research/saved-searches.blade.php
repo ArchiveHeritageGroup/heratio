@@ -54,10 +54,10 @@
                         @if(isset($s->last_result_count) && $s->last_result_count !== null)
                             <span class="badge bg-secondary">{{ (int) $s->last_result_count }} results</span>
                         @else
-                            <small class="text-muted">No snapshot</small>
+                            <small class="text-muted">{{ __('No snapshot') }}</small>
                         @endif
                     </td>
-                    <td>{!! ($s->alert_enabled ?? 0) ? '<span class="badge bg-success">On</span>' : '<span class="badge bg-secondary">Off</span>' !!}</td>
+                    <td>{!! ($s->alert_enabled ?? 0) ? '<span class="badge bg-success">On</span>' : '<span class="badge bg-secondary">{{ __('Off') }}</span>' !!}</td>
                     <td><small>{{ date('Y-m-d', strtotime($s->created_at)) }}</small></td>
                     <td>
                         <div class="btn-group btn-group-sm">
@@ -109,7 +109,7 @@
                     <input type="text" name="description" class="form-control form-control-sm" placeholder="{{ __('Optional') }}">
                 </div>
                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-sm btn-primary w-100"><i class="fas fa-save me-1"></i>Save</button>
+                    <button type="submit" class="btn btn-sm btn-primary w-100"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
                 </div>
             </div>
         </form>

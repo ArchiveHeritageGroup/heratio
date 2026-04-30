@@ -13,7 +13,7 @@
     <i class="fas fa-3x fa-file-import me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('RDF Import') }}</h1>
-      <small class="text-muted">Parse Turtle / JSON-LD / RDF-XML and create archival descriptions or actors. Dry-run first; commit only when the mapping looks right.</small>
+      <small class="text-muted">{{ __('Parse Turtle / JSON-LD / RDF-XML and create archival descriptions or actors. Dry-run first; commit only when the mapping looks right.') }}</small>
     </div>
   </div>
 
@@ -26,7 +26,7 @@
 
   <form method="POST" action="{{ route('ric.import.run') }}" enctype="multipart/form-data" class="card mb-4">
     @csrf
-    <div class="card-header bg-light"><strong>Source</strong></div>
+    <div class="card-header bg-light"><strong>{{ __('Source') }}</strong></div>
     <div class="card-body">
       <div class="row g-3">
         <div class="col-md-3">
@@ -51,7 +51,7 @@
             <input class="form-check-input" type="checkbox" name="commit" value="1" id="commit"
                    {{ old('commit') === '1' ? 'checked' : '' }}>
             <label class="form-check-label" for="commit">
-              <strong>Commit:</strong> create rows in the database
+              <strong>{{ __('Commit:') }}</strong> create rows in the database
               (leave unchecked for a dry-run)
             </label>
           </div>
@@ -59,17 +59,17 @@
       </div>
     </div>
     <div class="card-footer text-end">
-      <button type="submit" class="btn btn-primary"><i class="fas fa-play me-1"></i>Parse</button>
+      <button type="submit" class="btn btn-primary"><i class="fas fa-play me-1"></i>{{ __('Parse') }}</button>
     </div>
   </form>
 
   @if($result)
     <div class="card mb-3">
-      <div class="card-header bg-light"><strong>Dry-run summary</strong> — {{ ucfirst($result['format']) }}</div>
+      <div class="card-header bg-light"><strong>{{ __('Dry-run summary') }}</strong> — {{ ucfirst($result['format']) }}</div>
       <div class="card-body">
         <div class="row g-3">
-          <div class="col-md-3"><div class="border rounded p-2 text-center"><div class="h4 mb-0">{{ number_format($result['triples']) }}</div><small class="text-muted">Triples</small></div></div>
-          <div class="col-md-3"><div class="border rounded p-2 text-center"><div class="h4 mb-0">{{ number_format($result['subjects']) }}</div><small class="text-muted">Subjects</small></div></div>
+          <div class="col-md-3"><div class="border rounded p-2 text-center"><div class="h4 mb-0">{{ number_format($result['triples']) }}</div><small class="text-muted">{{ __('Triples') }}</small></div></div>
+          <div class="col-md-3"><div class="border rounded p-2 text-center"><div class="h4 mb-0">{{ number_format($result['subjects']) }}</div><small class="text-muted">{{ __('Subjects') }}</small></div></div>
           <div class="col-md-3"><div class="border rounded p-2 text-center"><div class="h4 mb-0 text-success">{{ number_format($result['would_create']['information_object']) }}</div><small class="text-muted">→ Records</small></div></div>
           <div class="col-md-3"><div class="border rounded p-2 text-center"><div class="h4 mb-0 text-info">{{ number_format($result['would_create']['actor']) }}</div><small class="text-muted">→ Actors</small></div></div>
         </div>
@@ -86,7 +86,7 @@
     <div class="row g-3">
       <div class="col-md-6">
         <div class="card mb-3">
-          <div class="card-header bg-success text-white"><strong>Mapped predicates</strong></div>
+          <div class="card-header bg-success text-white"><strong>{{ __('Mapped predicates') }}</strong></div>
           <div class="table-responsive"><table class="table table-sm mb-0">
             <thead><tr><th>{{ __('Predicate') }}</th><th class="text-end">{{ __('Count') }}</th></tr></thead>
             <tbody>
@@ -101,7 +101,7 @@
       </div>
       <div class="col-md-6">
         <div class="card mb-3">
-          <div class="card-header bg-warning"><strong>Unmapped predicates</strong></div>
+          <div class="card-header bg-warning"><strong>{{ __('Unmapped predicates') }}</strong></div>
           <div class="table-responsive"><table class="table table-sm mb-0">
             <thead><tr><th>{{ __('Predicate') }}</th><th class="text-end">{{ __('Count') }}</th></tr></thead>
             <tbody>
@@ -129,7 +129,7 @@
 
     @if(!empty($result['sample']))
       <div class="card mb-3">
-        <div class="card-header bg-light"><strong>Sample subjects</strong></div>
+        <div class="card-header bg-light"><strong>{{ __('Sample subjects') }}</strong></div>
         <ul class="list-group list-group-flush">
           @foreach($result['sample'] as $s)
             <li class="list-group-item">
@@ -164,7 +164,7 @@
 
   @if($sparqlEnabled)
     <div class="card mb-3">
-      <div class="card-header bg-light"><strong>SPARQL endpoint (read-only)</strong></div>
+      <div class="card-header bg-light"><strong>{{ __('SPARQL endpoint (read-only)') }}</strong></div>
       <div class="card-body">
         <p class="mb-2 text-muted">Federated clients can query Heratio's RiC graph via the proxy below. SELECT / ASK / CONSTRUCT / DESCRIBE only.</p>
         <pre class="bg-dark text-light p-2 rounded small mb-0"><code>GET {{ url('/api/sparql') }}?query=…</code></pre>

@@ -6,7 +6,7 @@
   <div class="card-body">
     @foreach($sectionSettings ?? [] as $setting)
       <div class="mb-3">
-        <label class="form-label fw-semibold">{{ ucfirst(str_replace('_', ' ', $setting->setting_key)) }} <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label class="form-label fw-semibold">{{ ucfirst(str_replace('_', ' ', $setting->setting_key)) }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         @if($setting->setting_type === 'boolean')
           <div class="form-check form-switch">
             <input type="hidden" name="settings[{{ $setting->setting_key }}]" value="0">

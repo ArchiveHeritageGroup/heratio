@@ -6,7 +6,7 @@
     <i class="fas fa-3x fa-cloud-download-alt me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Preservica Export') }}</h1>
-      <span class="small text-muted">Data Migration — Preservica</span>
+      <span class="small text-muted">{{ __('Data Migration — Preservica') }}</span>
     </div>
   </div>
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
@@ -24,7 +24,7 @@
         @csrf
         <div class="mb-3">
           <label for="preservica_url" class="form-label fw-bold">
-            Preservica URL <span class="badge bg-danger ms-1">Required</span>
+            Preservica URL <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
           </label>
           <input type="url" class="form-control" id="preservica_url" name="preservica_url"
                  placeholder="{{ __('https://your-institution.preservica.com') }}"
@@ -32,20 +32,20 @@
         </div>
         <div class="mb-3">
           <label for="preservica_user" class="form-label fw-bold">
-            Username <span class="badge bg-danger ms-1">Required</span>
+            Username <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
           </label>
           <input type="text" class="form-control" id="preservica_user" name="preservica_user"
                  value="{{ old('preservica_user') }}" required>
         </div>
         <div class="mb-3">
           <label for="preservica_pass" class="form-label fw-bold">
-            Password <span class="badge bg-danger ms-1">Required</span>
+            Password <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
           </label>
           <input type="password" class="form-control" id="preservica_pass" name="preservica_pass" required>
         </div>
         <div class="mb-3">
           <label for="source_repository" class="form-label fw-bold">
-            Source Repository <span class="badge bg-warning text-dark ms-1">Recommended</span>
+            Source Repository <span class="badge bg-warning text-dark ms-1">{{ __('Recommended') }}</span>
           </label>
           <select class="form-select" id="source_repository" name="source_repository">
             <option value="">-- All repositories --</option>
@@ -56,7 +56,7 @@
         </div>
         <div class="d-flex gap-2">
           <button type="submit" class="atom-btn-outline-success">
-            <i class="fas fa-sync"></i> Start Export
+            <i class="fas fa-sync"></i> {{ __('Start Export') }}
           </button>
           <a href="{{ route('data-migration.index') }}" class="atom-btn-white">Cancel</a>
         </div>

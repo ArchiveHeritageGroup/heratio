@@ -48,7 +48,7 @@
 
             @if('csv' == $type)
               <div class="mb-3">
-                <label class="form-label" for="object-type-select">{{ __('Type') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label" for="object-type-select">{{ __('Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select class="form-select" name="objectType" id="object-type-select">
                   <option value="informationObject">{{ config('app.ui_label_informationobject', __('Archival description')) }}</option>
                   <option value="accession">{{ config('app.ui_label_accession', __('Accession')) }}</option>
@@ -63,7 +63,7 @@
             @if('csv' != $type)
               <p class="alert alert-info text-center">{{ __('If you are importing a SKOS file to a taxonomy other than subjects, please go to the %1%', ['%1%' => '<a class="alert-link" href="/sfSkosPlugin/import">' . __('SKOS import page') . '</a>']) }}</p>
               <div class="mb-3">
-                <label for="object-type-select" class="form-label">{{ __('Type') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="object-type-select" class="form-label">{{ __('Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select class="form-select" name="objectType" id="object-type-select">
                   <option value="ead">{{ __('EAD 2002') }}</option>
                   <option value="eac-cpf">{{ __('EAC CPF') }}</option>
@@ -77,7 +77,7 @@
 
               @if('csv' == $type)
                 <div class="mb-3">
-                  <label class="form-label" for="update-type-select">{{ __('Update behaviours') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label" for="update-type-select">{{ __('Update behaviours') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="updateType" id="update-type-select">
                     <option value="import-as-new">{{ __('Ignore matches and create new records on import') }}</option>
                     <option value="match-and-update">{{ __('Update matches ignoring blank fields in CSV') }}</option>
@@ -88,7 +88,7 @@
 
               @if('csv' != $type)
                 <div class="mb-3">
-                  <label class="form-label" for="update-type-select">{{ __('Update behaviours') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label" for="update-type-select">{{ __('Update behaviours') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="updateType" id="update-type-select">
                     <option value="import-as-new">{{ __('Ignore matches and import as new') }}</option>
                     <option value="delete-and-replace">{{ __('Delete matches and replace with imports') }}</option>
@@ -101,7 +101,7 @@
                   <div class="panel-body">
                     <div class="mb-3 form-check">
                       <input class="form-check-input" name="skipUnmatched" id="skip-unmatched-input" type="checkbox"/>
-                      <label class="form-check-label" for="skip-unmatched-input">{{ __('Skip unmatched records') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                      <label class="form-check-label" for="skip-unmatched-input">{{ __('Skip unmatched records') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     </div>
 
                     <div class="criteria">
@@ -131,7 +131,7 @@
                   <div class="panel-body">
                     <div class="mb-3 form-check">
                       <input class="form-check-input" name="skipMatched" id="skip-matched-input" type="checkbox"/>
-                      <label class="form-check-label" for="skip-matched-input">{{ __('Skip matched records') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                      <label class="form-check-label" for="skip-matched-input">{{ __('Skip matched records') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     </div>
                   </div>
                 </div>
@@ -140,13 +140,13 @@
 
             <div class="mb-3 form-check" id="noIndex">
               <input class="form-check-input" name="noIndex" id="no-index-input" type="checkbox"/>
-              <label class="form-check-label" for="no-index-input">{{ __('Do not index imported items') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-check-label" for="no-index-input">{{ __('Do not index imported items') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
 
             @if('csv' == $type && config('app.csv_transform_script_name'))
               <div class="mb-3 form-check">
                 <input class="form-check-input" name="doCsvTransform" id="do-csv-transform-input" type="checkbox"/>
-                <label class="form-check-label" for="do-csv-transform-input" aria-described-by="do-csv-transform-help">{{ __('Include transformation script') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-check-label" for="do-csv-transform-input" aria-described-by="do-csv-transform-help">{{ __('Include transformation script') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div class="form-text" id="do-csv-transform-help">{{ __(config('app.csv_transform_script_name')) }}</div>
               </div>
             @endif
@@ -163,7 +163,7 @@
         <div id="file-collapse" class="accordion-collapse collapse show" aria-labelledby="file-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="import-file" class="form-label">{{ __('Select a file to import') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="import-file" class="form-label">{{ __('Select a file to import') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input class="form-control" type="file" id="import-file" name="file">
             </div>
           </div>

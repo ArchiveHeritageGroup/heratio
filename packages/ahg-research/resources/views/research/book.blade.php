@@ -46,7 +46,7 @@
                            class="form-check-input" {{ old('room_id') == $room->id ? 'checked' : '' }} required>
                     <label for="room_{{ $room->id }}" class="form-check-label">
                       <strong>{{ e($room->name) }}</strong>
-                     <span class="badge bg-secondary ms-1">Required</span></label>
+                     <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
                   </div>
                   @if($room->description ?? false)
                     <small class="text-muted d-block mt-1">{{ e($room->description) }}</small>
@@ -77,15 +77,15 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label for="date" class="form-label">Date <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+            <label for="date" class="form-label">Date <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <input type="date" name="date" id="date" class="form-control" value="{{ old('date') }}" min="{{ date('Y-m-d') }}" required>
           </div>
           <div class="col-md-4 mb-3">
-            <label for="start_time" class="form-label">Start Time <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+            <label for="start_time" class="form-label">Start Time <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <input type="time" name="start_time" id="start_time" class="form-control" value="{{ old('start_time') }}" required>
           </div>
           <div class="col-md-4 mb-3">
-            <label for="end_time" class="form-label">End Time <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+            <label for="end_time" class="form-label">End Time <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <input type="time" name="end_time" id="end_time" class="form-control" value="{{ old('end_time') }}" required>
           </div>
         </div>
@@ -97,11 +97,11 @@
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-clipboard me-2"></i>Purpose</div>
       <div class="card-body">
         <div class="mb-3">
-          <label for="purpose" class="form-label">Purpose of Visit <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+          <label for="purpose" class="form-label">Purpose of Visit <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <textarea name="purpose" id="purpose" class="form-control" rows="3" required>{{ old('purpose') }}</textarea>
         </div>
         <div class="mb-3">
-          <label for="notes" class="form-label">Additional Notes <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="notes" class="form-label">Additional Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <textarea name="notes" id="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
         </div>
       </div>
@@ -113,14 +113,14 @@
       <div class="card-body">
         <p class="text-muted small">Search and select archival materials you would like to have prepared for your visit.</p>
         <select id="material-select" name="materials[]" multiple placeholder="{{ __('Type to search records...') }}"></select>
-        <small class="text-muted d-block mt-2">Start typing a title, identifier or reference number to search.</small>
+        <small class="text-muted d-block mt-2">{{ __('Start typing a title, identifier or reference number to search.') }}</small>
       </div>
     </div>
 
     <div class="d-flex justify-content-end">
       <a href="{{ route('research.dashboard') }}" class="btn atom-btn-white me-2">Cancel</a>
       <button type="submit" class="btn atom-btn-outline-success">
-        <i class="fas fa-calendar-check me-1"></i>Submit Booking
+        <i class="fas fa-calendar-check me-1"></i>{{ __('Submit Booking') }}
       </button>
     </div>
   </form>

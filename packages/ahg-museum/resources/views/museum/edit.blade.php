@@ -11,19 +11,19 @@
     <h4>{{ __('Object Template') }}</h4>
     <div class="template-list">
       <a href="javascript:void(0)" data-template="general" class="template-option active">
-        <i class="fas fa-cube"></i> <span>General</span>
+        <i class="fas fa-cube"></i> <span>{{ __('General') }}</span>
       </a>
       <a href="javascript:void(0)" data-template="painting" class="template-option">
-        <i class="fas fa-palette"></i> <span>Painting</span>
+        <i class="fas fa-palette"></i> <span>{{ __('Painting') }}</span>
       </a>
       <a href="javascript:void(0)" data-template="sculpture" class="template-option">
-        <i class="fas fa-monument"></i> <span>Sculpture</span>
+        <i class="fas fa-monument"></i> <span>{{ __('Sculpture') }}</span>
       </a>
       <a href="javascript:void(0)" data-template="photograph" class="template-option">
-        <i class="fas fa-camera"></i> <span>Photograph</span>
+        <i class="fas fa-camera"></i> <span>{{ __('Photograph') }}</span>
       </a>
       <a href="javascript:void(0)" data-template="textile" class="template-option">
-        <i class="fas fa-scroll"></i> <span>Textile</span>
+        <i class="fas fa-scroll"></i> <span>{{ __('Textile') }}</span>
       </a>
     </div>
   </section>
@@ -45,7 +45,7 @@
     <h4>{{ __('CCO Reference') }}</h4>
     <p class="small">This form follows the Cataloguing Cultural Objects (CCO) standard.</p>
     <a href="http://cco.vrafoundation.org/" target="_blank" class="btn btn-sm btn-cco-guide">
-      <i class="fas fa-external-link-alt"></i> CCO Guide
+      <i class="fas fa-external-link-alt"></i> {{ __('CCO Guide') }}
     </a>
   </section>
 
@@ -53,9 +53,9 @@
   <section id="field-legend" class="sidebar-section">
     <h4>{{ __('Field Legend') }}</h4>
     <ul class="legend-list">
-      <li><span class="badge badge-required">Required</span> Must be completed</li>
-      <li><span class="badge badge-recommended">Recommended</span> Should be completed</li>
-      <li><span class="badge badge-optional">Optional</span> Complete if applicable</li>
+      <li><span class="badge badge-required">{{ __('Required') }}</span> Must be completed</li>
+      <li><span class="badge badge-recommended">{{ __('Recommended') }}</span> Should be completed</li>
+      <li><span class="badge badge-optional">{{ __('Optional') }}</span> Complete if applicable</li>
     </ul>
   </section>
 
@@ -66,7 +66,7 @@
 
   <h1 class="multiline">
     CCO Cataloguing
-    <span class="sub">Museum Object</span>
+    <span class="sub">{{ __('Museum Object') }}</span>
   </h1>
 
   @if(session('error'))
@@ -98,7 +98,7 @@
         <h2 class="accordion-header" id="headingIdentification">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIdentification" aria-expanded="true" aria-controls="collapseIdentification">
             Object/Work
-            <span class="cco-chapter">CCO Chapter 2</span>
+            <span class="cco-chapter">{{ __('CCO Chapter 2') }}</span>
           </button>
         </h2>
         <div id="collapseIdentification" class="accordion-collapse collapse show" aria-labelledby="headingIdentification" data-bs-parent="#museumAccordion">
@@ -113,9 +113,9 @@
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
-                  <span class="badge badge-required">Required</span>
+                  <span class="badge badge-required">{{ __('Required') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">2.1</span>
-                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_OBJECT_TYPES</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> {{ __('AAT_OBJECT_TYPES') }}</span>
                 </span>
                 <button type="button" class="btn-help" data-field="work_type" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
@@ -139,7 +139,7 @@
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
-                  <span class="badge badge-required">Required</span>
+                  <span class="badge badge-required">{{ __('Required') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">2.3</span>
                 </span>
                 <button type="button" class="btn-help" data-field="object_number" title="{{ __('Help') }}">
@@ -151,7 +151,7 @@
                   <input type="text" class="form-control" id="object_number" name="object_number"
                          value="{{ old('object_number', $museum->object_number ?? '') }}">
                   <button class="btn atom-btn-white" type="button" id="btn-generate-identifier">
-                    <i class="fas fa-sync-alt"></i> Generate identifier
+                    <i class="fas fa-sync-alt"></i> {{ __('Generate identifier') }}
                   </button>
                 </div>
               </div>
@@ -171,7 +171,7 @@
         <h2 class="accordion-header" id="headingTitle">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTitle" aria-expanded="false" aria-controls="collapseTitle">
             Titles/Names
-            <span class="cco-chapter">CCO Chapter 3</span>
+            <span class="cco-chapter">{{ __('CCO Chapter 3') }}</span>
           </button>
         </h2>
         <div id="collapseTitle" class="accordion-collapse collapse" aria-labelledby="headingTitle" data-bs-parent="#museumAccordion">
@@ -186,7 +186,7 @@
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
-                  <span class="badge badge-required">Required</span>
+                  <span class="badge badge-required">{{ __('Required') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">3.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="title" title="{{ __('Help') }}">
@@ -215,9 +215,9 @@
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
-                  <span class="badge badge-required">Required</span>
+                  <span class="badge badge-required">{{ __('Required') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">3.1.1</span>
-                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> CCO_TITLE_TYPES</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> {{ __('CCO_TITLE_TYPES') }}</span>
                 </span>
                 <button type="button" class="btn-help" data-field="title_type" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
@@ -251,7 +251,7 @@
         <h2 class="accordion-header" id="headingCreation">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreation" aria-expanded="false" aria-controls="collapseCreation">
             Creation
-            <span class="cco-chapter">CCO Chapter 4</span>
+            <span class="cco-chapter">{{ __('CCO Chapter 4') }}</span>
           </button>
         </h2>
         <div id="collapseCreation" class="accordion-collapse collapse" aria-labelledby="headingCreation" data-bs-parent="#museumAccordion">
@@ -266,7 +266,7 @@
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
-                  <span class="badge badge-required">Required</span>
+                  <span class="badge badge-required">{{ __('Required') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="creator_display" title="{{ __('Help') }}">
@@ -292,7 +292,7 @@
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
-                  <span class="badge badge-required">Required</span>
+                  <span class="badge badge-required">{{ __('Required') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.1</span>
                   <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> ULAN</span>
                 </span>
@@ -323,9 +323,9 @@
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
-                  <span class="badge badge-required">Required</span>
+                  <span class="badge badge-required">{{ __('Required') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.1.1</span>
-                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_CREATOR_ROLES</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> {{ __('AAT_CREATOR_ROLES') }}</span>
                 </span>
                 <button type="button" class="btn-help" data-field="creator_role" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
@@ -347,9 +347,9 @@
               <div class="field-header">
                 <label for="attribution_qualifier">{{ __('Attribution qualifier') }}</label>
                 <span class="field-badges">
-                  <span class="badge badge-recommended">Recommended</span>
+                  <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.1.2</span>
-                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> CCO_ATTRIBUTION</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> {{ __('CCO_ATTRIBUTION') }}</span>
                 </span>
                 <button type="button" class="btn-help" data-field="attribution_qualifier" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
@@ -384,7 +384,7 @@
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
-                  <span class="badge badge-required">Required</span>
+                  <span class="badge badge-required">{{ __('Required') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.2</span>
                 </span>
                 <button type="button" class="btn-help" data-field="creation_date_display" title="{{ __('Help') }}">
@@ -409,7 +409,7 @@
                   <div class="field-header">
                     <label for="creation_date_earliest">{{ __('Creation date (earliest)') }}</label>
                     <span class="field-badges">
-                      <span class="badge badge-recommended">Recommended</span>
+                      <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                       <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.2.1</span>
                     </span>
                     <button type="button" class="btn-help" data-field="creation_date_earliest" title="{{ __('Help') }}">
@@ -432,7 +432,7 @@
                   <div class="field-header">
                     <label for="creation_date_latest">{{ __('Creation date (latest)') }}</label>
                     <span class="field-badges">
-                      <span class="badge badge-recommended">Recommended</span>
+                      <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                       <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.2.2</span>
                     </span>
                     <button type="button" class="btn-help" data-field="creation_date_latest" title="{{ __('Help') }}">
@@ -457,7 +457,7 @@
               <div class="field-header">
                 <label for="creation_place">{{ __('Place of creation') }}</label>
                 <span class="field-badges">
-                  <span class="badge badge-recommended">Recommended</span>
+                  <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.3</span>
                   <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> TGN</span>
                 </span>
@@ -481,9 +481,9 @@
               <div class="field-header">
                 <label for="culture">{{ __('Culture/People') }}</label>
                 <span class="field-badges">
-                  <span class="badge badge-optional">Optional</span>
+                  <span class="badge badge-optional">{{ __('Optional') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">4.4</span>
-                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_CULTURES</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> {{ __('AAT_CULTURES') }}</span>
                 </span>
                 <button type="button" class="btn-help" data-field="culture" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
@@ -509,7 +509,7 @@
         <h2 class="accordion-header" id="headingStyles">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStyles" aria-expanded="false" aria-controls="collapseStyles">
             Styles/Periods
-            <span class="cco-chapter">CCO Chapter 5</span>
+            <span class="cco-chapter">{{ __('CCO Chapter 5') }}</span>
           </button>
         </h2>
         <div id="collapseStyles" class="accordion-collapse collapse" aria-labelledby="headingStyles" data-bs-parent="#museumAccordion">
@@ -521,9 +521,9 @@
               <div class="field-header">
                 <label for="style">{{ __('Style') }}</label>
                 <span class="field-badges">
-                  <span class="badge badge-recommended">Recommended</span>
+                  <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">5.1</span>
-                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_STYLES</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> {{ __('AAT_STYLES') }}</span>
                 </span>
                 <button type="button" class="btn-help" data-field="style" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
@@ -545,9 +545,9 @@
               <div class="field-header">
                 <label for="period">{{ __('Period') }}</label>
                 <span class="field-badges">
-                  <span class="badge badge-optional">Optional</span>
+                  <span class="badge badge-optional">{{ __('Optional') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">5.2</span>
-                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_PERIODS</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> {{ __('AAT_PERIODS') }}</span>
                 </span>
                 <button type="button" class="btn-help" data-field="period" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
@@ -573,7 +573,7 @@
         <h2 class="accordion-header" id="headingMeasurements">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMeasurements" aria-expanded="false" aria-controls="collapseMeasurements">
             Measurements
-            <span class="cco-chapter">CCO Chapter 6</span>
+            <span class="cco-chapter">{{ __('CCO Chapter 6') }}</span>
           </button>
         </h2>
         <div id="collapseMeasurements" class="accordion-collapse collapse" aria-labelledby="headingMeasurements" data-bs-parent="#museumAccordion">
@@ -588,7 +588,7 @@
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
-                  <span class="badge badge-required">Required</span>
+                  <span class="badge badge-required">{{ __('Required') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">6.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="dimensions_display" title="{{ __('Help') }}">
@@ -613,7 +613,7 @@
                   <div class="field-header">
                     <label for="height_value">{{ __('Height') }}</label>
                     <span class="field-badges">
-                      <span class="badge badge-recommended">Recommended</span>
+                      <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                       <span class="badge badge-cco" title="{{ __('CCO Reference') }}">6.2</span>
                     </span>
                     <button type="button" class="btn-help" data-field="height_value" title="{{ __('Help') }}">
@@ -636,7 +636,7 @@
                   <div class="field-header">
                     <label for="width_value">{{ __('Width') }}</label>
                     <span class="field-badges">
-                      <span class="badge badge-recommended">Recommended</span>
+                      <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                       <span class="badge badge-cco" title="{{ __('CCO Reference') }}">6.2</span>
                     </span>
                     <button type="button" class="btn-help" data-field="width_value" title="{{ __('Help') }}">
@@ -659,7 +659,7 @@
                   <div class="field-header">
                     <label for="depth_value">{{ __('Depth') }}</label>
                     <span class="field-badges">
-                      <span class="badge badge-optional">Optional</span>
+                      <span class="badge badge-optional">{{ __('Optional') }}</span>
                       <span class="badge badge-cco" title="{{ __('CCO Reference') }}">6.2</span>
                     </span>
                     <button type="button" class="btn-help" data-field="depth_value" title="{{ __('Help') }}">
@@ -688,7 +688,7 @@
         <h2 class="accordion-header" id="headingMaterials">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMaterials" aria-expanded="false" aria-controls="collapseMaterials">
             Materials/Techniques
-            <span class="cco-chapter">CCO Chapter 7</span>
+            <span class="cco-chapter">{{ __('CCO Chapter 7') }}</span>
           </button>
         </h2>
         <div id="collapseMaterials" class="accordion-collapse collapse" aria-labelledby="headingMaterials" data-bs-parent="#museumAccordion">
@@ -703,7 +703,7 @@
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
-                  <span class="badge badge-required">Required</span>
+                  <span class="badge badge-required">{{ __('Required') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">7.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="materials_display" title="{{ __('Help') }}">
@@ -726,9 +726,9 @@
               <div class="field-header">
                 <label for="materials">{{ __('Materials (Indexed)') }}</label>
                 <span class="field-badges">
-                  <span class="badge badge-recommended">Recommended</span>
+                  <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">7.1.1</span>
-                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_MATERIALS</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> {{ __('AAT_MATERIALS') }}</span>
                 </span>
                 <button type="button" class="btn-help" data-field="materials" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
@@ -749,9 +749,9 @@
               <div class="field-header">
                 <label for="techniques">{{ __('Techniques') }}</label>
                 <span class="field-badges">
-                  <span class="badge badge-recommended">Recommended</span>
+                  <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">7.2</span>
-                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_TECHNIQUES</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> {{ __('AAT_TECHNIQUES') }}</span>
                 </span>
                 <button type="button" class="btn-help" data-field="techniques" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
@@ -775,9 +775,9 @@
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
-                  <span class="badge badge-required">Required</span>
+                  <span class="badge badge-required">{{ __('Required') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">7.3</span>
-                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_SUPPORTS</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> {{ __('AAT_SUPPORTS') }}</span>
                 </span>
                 <button type="button" class="btn-help" data-field="support" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
@@ -803,7 +803,7 @@
         <h2 class="accordion-header" id="headingSubject">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSubject" aria-expanded="false" aria-controls="collapseSubject">
             Subject Matter
-            <span class="cco-chapter">CCO Chapter 8</span>
+            <span class="cco-chapter">{{ __('CCO Chapter 8') }}</span>
           </button>
         </h2>
         <div id="collapseSubject" class="accordion-collapse collapse" aria-labelledby="headingSubject" data-bs-parent="#museumAccordion">
@@ -815,7 +815,7 @@
               <div class="field-header">
                 <label for="subject_display">{{ __('Subject (Display)') }}</label>
                 <span class="field-badges">
-                  <span class="badge badge-recommended">Recommended</span>
+                  <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">8.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="subject_display" title="{{ __('Help') }}">
@@ -837,9 +837,9 @@
               <div class="field-header">
                 <label for="subjects_depicted">{{ __('Subjects depicted') }}</label>
                 <span class="field-badges">
-                  <span class="badge badge-recommended">Recommended</span>
+                  <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">8.2</span>
-                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> AAT_SUBJECTS</span>
+                  <span class="badge badge-vocab" title="{{ __('Controlled Vocabulary') }}"><i class="fa fa-book"></i> {{ __('AAT_SUBJECTS') }}</span>
                 </span>
                 <button type="button" class="btn-help" data-field="subjects_depicted" title="{{ __('Help') }}">
                   <i class="fa fa-question-circle"></i>
@@ -865,7 +865,7 @@
         <h2 class="accordion-header" id="headingInscriptions">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInscriptions" aria-expanded="false" aria-controls="collapseInscriptions">
             Inscriptions
-            <span class="cco-chapter">CCO Chapter 9</span>
+            <span class="cco-chapter">{{ __('CCO Chapter 9') }}</span>
           </button>
         </h2>
         <div id="collapseInscriptions" class="accordion-collapse collapse" aria-labelledby="headingInscriptions" data-bs-parent="#museumAccordion">
@@ -877,7 +877,7 @@
               <div class="field-header">
                 <label for="inscriptions">{{ __('Inscriptions') }}</label>
                 <span class="field-badges">
-                  <span class="badge badge-optional">Optional</span>
+                  <span class="badge badge-optional">{{ __('Optional') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">9.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="inscriptions" title="{{ __('Help') }}">
@@ -899,7 +899,7 @@
               <div class="field-header">
                 <label for="signature">{{ __('Signature') }}</label>
                 <span class="field-badges">
-                  <span class="badge badge-recommended">Recommended</span>
+                  <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">9.2</span>
                 </span>
                 <button type="button" class="btn-help" data-field="signature" title="{{ __('Help') }}">
@@ -925,7 +925,7 @@
         <h2 class="accordion-header" id="headingDescription">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription" aria-expanded="false" aria-controls="collapseDescription">
             Description
-            <span class="cco-chapter">CCO Chapter 11</span>
+            <span class="cco-chapter">{{ __('CCO Chapter 11') }}</span>
           </button>
         </h2>
         <div id="collapseDescription" class="accordion-collapse collapse" aria-labelledby="headingDescription" data-bs-parent="#museumAccordion">
@@ -937,7 +937,7 @@
               <div class="field-header">
                 <label for="description">{{ __('Description') }}</label>
                 <span class="field-badges">
-                  <span class="badge badge-recommended">Recommended</span>
+                  <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">11.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="description" title="{{ __('Help') }}">
@@ -963,7 +963,7 @@
         <h2 class="accordion-header" id="headingCondition">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCondition" aria-expanded="false" aria-controls="collapseCondition">
             Condition
-            <span class="cco-chapter">CCO Chapter 12</span>
+            <span class="cco-chapter">{{ __('CCO Chapter 12') }}</span>
           </button>
         </h2>
         <div id="collapseCondition" class="accordion-collapse collapse" aria-labelledby="headingCondition" data-bs-parent="#museumAccordion">
@@ -975,7 +975,7 @@
               <div class="field-header">
                 <label for="condition_summary">{{ __('Condition summary') }}</label>
                 <span class="field-badges">
-                  <span class="badge badge-recommended">Recommended</span>
+                  <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">12.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="condition_summary" title="{{ __('Help') }}">
@@ -1006,7 +1006,7 @@
         <h2 class="accordion-header" id="headingProvenance">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProvenance" aria-expanded="false" aria-controls="collapseProvenance">
             Current Location
-            <span class="cco-chapter">CCO Chapter 13</span>
+            <span class="cco-chapter">{{ __('CCO Chapter 13') }}</span>
           </button>
         </h2>
         <div id="collapseProvenance" class="accordion-collapse collapse" aria-labelledby="headingProvenance" data-bs-parent="#museumAccordion">
@@ -1021,7 +1021,7 @@
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
-                  <span class="badge badge-required">Required</span>
+                  <span class="badge badge-required">{{ __('Required') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">13.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="repository" title="{{ __('Help') }}">
@@ -1048,7 +1048,7 @@
               <div class="field-header">
                 <label for="location_within_repository">{{ __('Location') }}</label>
                 <span class="field-badges">
-                  <span class="badge badge-recommended">Recommended</span>
+                  <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">13.2</span>
                 </span>
                 <button type="button" class="btn-help" data-field="location_within_repository" title="{{ __('Help') }}">
@@ -1071,7 +1071,7 @@
               <div class="field-header">
                 <label for="credit_line">{{ __('Credit line') }}</label>
                 <span class="field-badges">
-                  <span class="badge badge-recommended">Recommended</span>
+                  <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">13.3</span>
                 </span>
                 <button type="button" class="btn-help" data-field="credit_line" title="{{ __('Help') }}">
@@ -1098,7 +1098,7 @@
         <h2 class="accordion-header" id="headingRelated">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRelated" aria-expanded="false" aria-controls="collapseRelated">
             Related Works
-            <span class="cco-chapter">CCO Chapter 14</span>
+            <span class="cco-chapter">{{ __('CCO Chapter 14') }}</span>
           </button>
         </h2>
         <div id="collapseRelated" class="accordion-collapse collapse" aria-labelledby="headingRelated" data-bs-parent="#museumAccordion">
@@ -1113,7 +1113,7 @@
         <h2 class="accordion-header" id="headingCataloging">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCataloging" aria-expanded="false" aria-controls="collapseCataloging">
             Rights
-            <span class="cco-chapter">CCO Chapter 15</span>
+            <span class="cco-chapter">{{ __('CCO Chapter 15') }}</span>
           </button>
         </h2>
         <div id="collapseCataloging" class="accordion-collapse collapse" aria-labelledby="headingCataloging" data-bs-parent="#museumAccordion">
@@ -1125,7 +1125,7 @@
               <div class="field-header">
                 <label for="rights_statement">{{ __('Rights statement') }}</label>
                 <span class="field-badges">
-                  <span class="badge badge-recommended">Recommended</span>
+                  <span class="badge badge-recommended">{{ __('Recommended') }}</span>
                   <span class="badge badge-cco" title="{{ __('CCO Reference') }}">15.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="rights_statement" title="{{ __('Help') }}">
@@ -1157,7 +1157,7 @@
                   aria-expanded="false" aria-controls="collapse-physical-location"
                   style="background-color: var(--ahg-primary, #005837) !important; color: #fff !important;">
             Item Physical Location
-            <span class="cco-chapter">Storage &amp; Access</span>
+            <span class="cco-chapter">{{ __('Storage &amp; Access') }}</span>
           </button>
         </h2>
         <div id="collapse-physical-location" class="accordion-collapse collapse" aria-labelledby="heading-physical-location">
@@ -1172,7 +1172,7 @@
                     <option value="{{ $poId }}" @selected(old('item_physical_object_id', $itemLocation['physical_object_id'] ?? '') == $poId)>{{ $poName }}</option>
                   @endforeach
                 </select>
-                <small class="form-text text-muted">Link to a physical storage container</small>
+                <small class="form-text text-muted">{{ __('Link to a physical storage container') }}</small>
               </div>
               <div class="col-md-6">
                 <label class="form-label">{{ __('Item barcode') }}</label>
@@ -1270,7 +1270,7 @@
                   aria-expanded="false" aria-controls="collapse-watermark"
                   style="background-color: var(--ahg-primary, #005837) !important; color: #fff !important;">
             Watermark Settings
-            <span class="cco-chapter">Digital Protection</span>
+            <span class="cco-chapter">{{ __('Digital Protection') }}</span>
           </button>
         </h2>
         <div id="collapse-watermark" class="accordion-collapse collapse" aria-labelledby="heading-watermark">
@@ -1283,7 +1283,7 @@
                        {{ old('watermark_enabled', $watermarkSetting->watermark_enabled ?? 0) ? 'checked' : '' }}
                        style="width: 3em; height: 1.5em;">
                 <label class="form-check-label" for="watermark_enabled" style="margin-left: 10px;">
-                  <strong>Enable watermark for this object</strong>
+                  <strong>{{ __('Enable watermark for this object') }}</strong>
                 </label>
               </div>
             </div>
@@ -1293,7 +1293,7 @@
               <div class="cco-field">
                 <div class="field-header">
                   <label for="watermark_type_id">{{ __('System Watermark') }}</label>
-                  <span class="field-badges"><span class="badge badge-optional">Optional</span></span>
+                  <span class="field-badges"><span class="badge badge-optional">{{ __('Optional') }}</span></span>
                 </div>
                 <div class="field-input">
                   <select name="watermark_type_id" id="watermark_type_id" class="form-select">
@@ -1309,7 +1309,7 @@
               <div class="cco-field">
                 <div class="field-header">
                   <label for="custom_watermark_id">{{ __('Or use Custom Watermark') }}</label>
-                  <span class="field-badges"><span class="badge badge-optional">Optional</span></span>
+                  <span class="field-badges"><span class="badge badge-optional">{{ __('Optional') }}</span></span>
                 </div>
                 <div class="field-input">
                   <select name="custom_watermark_id" id="custom_watermark_id" class="form-select">
@@ -1327,7 +1327,7 @@
               <div class="cco-field" style="background: #fff3cd; border-left-color: #ffc107;">
                 <div class="field-header">
                   <label>{{ __('Upload NEW Custom Watermark') }}</label>
-                  <span class="field-badges"><span class="badge badge-optional">Optional</span></span>
+                  <span class="field-badges"><span class="badge badge-optional">{{ __('Optional') }}</span></span>
                 </div>
                 <p class="text-muted small">Leave empty to keep existing selection above</p>
 
@@ -1379,7 +1379,7 @@
                   <input class="form-check-input" type="checkbox" id="regenerate_watermark"
                          name="regenerate_watermark" value="1">
                   <label class="form-check-label" for="regenerate_watermark">
-                    <strong>Regenerate derivatives with new watermark</strong>
+                    <strong>{{ __('Regenerate derivatives with new watermark') }}</strong>
                   </label>
                   <div class="form-text">Check this to apply the new watermark to existing images. This may take a moment.</div>
                 </div>
@@ -1427,7 +1427,7 @@
                       <option value="{{ $dsId }}" @selected(old('displayStandard', $currentDisplayStandard ?? '') == $dsId)>{{ $dsName }}</option>
                     @endforeach
                   </select>
-                  <small class="form-text text-muted">Select the display standard for this record</small>
+                  <small class="form-text text-muted">{{ __('Select the display standard for this record') }}</small>
                 </div>
 
                 <div class="mb-3">

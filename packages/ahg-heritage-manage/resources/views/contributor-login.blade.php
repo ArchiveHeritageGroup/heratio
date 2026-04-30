@@ -26,18 +26,18 @@
             <label for="password" class="form-label">{{ __('Password') }}</label>
             <div class="input-group"><span class="input-group-text"><i class="fas fa-lock"></i></span><input type="password" class="form-control" id="password" name="password" required placeholder="{{ __('Your password') }}"></div>
           </div>
-          <div class="d-grid gap-2 mb-3"><button type="submit" class="btn atom-btn-secondary btn-lg"><i class="fas fa-sign-in-alt me-2"></i>Sign In</button></div>
+          <div class="d-grid gap-2 mb-3"><button type="submit" class="btn atom-btn-secondary btn-lg"><i class="fas fa-sign-in-alt me-2"></i>{{ __('Sign In') }}</button></div>
         </form>
 
         <hr class="my-4">
         <div class="text-center">
           <p class="mb-2">Don't have an account?</p>
-          <a href="{{ route('heritage.contributor-register') }}" class="btn atom-btn-white"><i class="fas fa-user-plus me-2"></i>Create Account</a>
+          <a href="{{ route('heritage.contributor-register') }}" class="btn atom-btn-white"><i class="fas fa-user-plus me-2"></i>{{ __('Create Account') }}</a>
         </div>
       </div>
     </div>
     <div class="text-center mt-4">
-      <a href="{{ route('heritage.landing') }}" class="text-muted text-decoration-none"><i class="fas fa-arrow-left me-1"></i>Back to Heritage Portal</a>
+      <a href="{{ route('heritage.landing') }}" class="text-muted text-decoration-none"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Heritage Portal') }}</a>
     </div>
   </div>
 </div>

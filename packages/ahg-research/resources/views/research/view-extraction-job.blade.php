@@ -29,12 +29,12 @@
 @endif
 <div class="card"><div class="card-header"><h6 class="mb-0">{{ __('Actions') }}</h6></div><div class="card-body d-flex flex-column gap-2">
     @if(($job->status ?? '') === 'completed')
-    <a href="#" class="btn btn-outline-primary btn-sm"><i class="fas fa-download me-1"></i>Export Results</a>
+    <a href="#" class="btn btn-outline-primary btn-sm"><i class="fas fa-download me-1"></i>{{ __('Export Results') }}</a>
     @endif
     @if(in_array($job->status ?? '', ['running', 'queued']))
-    <form method="POST" onsubmit="return confirm('Cancel this job?')">@csrf <input type="hidden" name="action" value="cancel"><button class="btn btn-outline-danger btn-sm w-100"><i class="fas fa-stop me-1"></i>Cancel Job</button></form>
+    <form method="POST" onsubmit="return confirm('Cancel this job?')">@csrf <input type="hidden" name="action" value="cancel"><button class="btn btn-outline-danger btn-sm w-100"><i class="fas fa-stop me-1"></i>{{ __('Cancel Job') }}</button></form>
     @endif
-    <a href="{{ url()->previous() }}" class="btn atom-btn-white btn-sm"><i class="fas fa-arrow-left me-1"></i>Back</a>
+    <a href="{{ url()->previous() }}" class="btn atom-btn-white btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
 </div></div>
 </div></div>
 @endsection

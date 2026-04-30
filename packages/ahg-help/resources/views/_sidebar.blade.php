@@ -23,12 +23,12 @@
   <ul class="nav flex-column small">
     <li class="nav-item">
       <a class="nav-link py-1" href="{{ route('help.index') }}">
-        <i class="fas fa-home me-1"></i>Help Home
+        <i class="fas fa-home me-1"></i>{{ __('Help Home') }}
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link py-1" href="{{ route('help.article', 'user-manual') }}">
-        <i class="fas fa-book me-1"></i>User Manual
+        <i class="fas fa-book me-1"></i>{{ __('User Manual') }}
       </a>
     </li>
   </ul>

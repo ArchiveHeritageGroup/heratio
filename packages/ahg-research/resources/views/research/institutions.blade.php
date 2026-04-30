@@ -11,7 +11,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-university text-primary me-2"></i>Partner Institutions</h1>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#institutionModal"><i class="fas fa-plus me-1"></i>Add Institution</button>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#institutionModal"><i class="fas fa-plus me-1"></i>{{ __('Add Institution') }}</button>
 </div>
 
 @if(!empty($institutions))
@@ -43,7 +43,7 @@
                         <span class="text-muted">-</span>
                     @endif
                 </td>
-                <td>{!! ($inst->is_active ?? 1) ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>' !!}</td>
+                <td>{!! ($inst->is_active ?? 1) ? '<span class="badge bg-success">{{ __('Active') }}</span>' : '<span class="badge bg-secondary">{{ __('Inactive') }}</span>' !!}</td>
                 <td class="text-end">
                     <button class="btn btn-sm btn-outline-primary edit-inst-btn" data-inst='{!! json_encode($inst, JSON_HEX_APOS | JSON_HEX_QUOT) !!}' title="{{ __('Edit') }}"><i class="fas fa-edit"></i></button>
                     <form method="POST" class="d-inline" onsubmit="return confirm('Delete this institution?')">
@@ -63,7 +63,7 @@
     <i class="fas fa-university fa-4x text-muted mb-3 opacity-50"></i>
     <h4 class="text-muted">{{ __('No partner institutions yet') }}</h4>
     <p class="text-muted">Add partner institutions to enable cross-institutional research sharing.</p>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#institutionModal"><i class="fas fa-plus me-1"></i>Add First Institution</button>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#institutionModal"><i class="fas fa-plus me-1"></i>{{ __('Add First Institution') }}</button>
 </div>
 @endif
 
@@ -86,7 +86,7 @@
             </div>
             <div class="form-check"><input type="checkbox" name="is_active" id="instActive" class="form-check-input" value="1" checked><label class="form-check-label" for="instActive">{{ __('Active') }}</label></div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary" id="instSubmitBtn"><i class="fas fa-plus me-1"></i>Add</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary" id="instSubmitBtn"><i class="fas fa-plus me-1"></i>{{ __('Add') }}</button></div>
     </form>
 </div></div></div>
 

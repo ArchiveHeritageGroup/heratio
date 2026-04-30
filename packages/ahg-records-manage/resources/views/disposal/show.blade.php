@@ -23,7 +23,7 @@
                 <div class="col-md-6">
                     <h5>{{ $action->io_title ?? 'Untitled (IO #' . $action->information_object_id . ')' }}</h5>
                     <p class="mb-1">
-                        <strong>Action Type:</strong>
+                        <strong>{{ __('Action Type:') }}</strong>
                         @php
                             $typeLabels = [
                                 'destroy' => 'Destroy',
@@ -43,7 +43,7 @@
                         <span class="badge bg-{{ $typeBadges[$action->action_type] ?? 'secondary' }}">{{ $typeLabels[$action->action_type] ?? $action->action_type }}</span>
                     </p>
                     <p class="mb-1">
-                        <strong>Status:</strong>
+                        <strong>{{ __('Status:') }}</strong>
                         @php
                             $statusBadges = [
                                 'pending' => 'secondary',
@@ -59,7 +59,7 @@
                         <span class="badge bg-{{ $statusBadges[$action->status] ?? 'secondary' }}">{{ ucfirst($action->status) }}</span>
                     </p>
                     @if ($action->transfer_destination)
-                        <p class="mb-1"><strong>Transfer Destination:</strong> {{ $action->transfer_destination }}</p>
+                        <p class="mb-1"><strong>{{ __('Transfer Destination:') }}</strong> {{ $action->transfer_destination }}</p>
                     @endif
                 </div>
                 <div class="col-md-6 text-md-end">
@@ -75,7 +75,7 @@
 
     {{-- Approval Stepper --}}
     <div class="card mb-3">
-        <div class="card-header"><strong>Approval Workflow</strong></div>
+        <div class="card-header"><strong>{{ __('Approval Workflow') }}</strong></div>
         <div class="card-body">
             <div class="row">
                 {{-- Step 1: Initiated --}}
@@ -169,7 +169,7 @@
                                 <br><small class="text-muted">{{ $action->legal_cleared_by_name ?? '' }}</small>
                             @elseif ($action->status === 'approved')
                                 @if ($action->has_active_hold)
-                                    <br><small class="text-danger">Active legal hold prevents clearance</small>
+                                    <br><small class="text-danger">{{ __('Active legal hold prevents clearance') }}</small>
                                 @else
                                     <br>
                                     <form method="POST" action="{{ route('records.disposal.clearLegal', $action->id) }}" class="mt-2">
@@ -218,7 +218,7 @@
     {{-- Actions --}}
     @if (!in_array($action->status, ['executed', 'cancelled', 'rejected', 'retained']))
         <div class="card mb-3">
-            <div class="card-header"><strong>Actions</strong></div>
+            <div class="card-header"><strong>{{ __('Actions') }}</strong></div>
             <div class="card-body">
                 <div class="d-flex gap-2 flex-wrap">
                     @if (in_array($action->status, ['pending', 'recommended', 'approved', 'cleared']))
@@ -239,7 +239,7 @@
     {{-- Notes --}}
     @if ($action->notes)
         <div class="card mb-3">
-            <div class="card-header"><strong>Notes</strong></div>
+            <div class="card-header"><strong>{{ __('Notes') }}</strong></div>
             <div class="card-body">
                 <pre class="mb-0" style="white-space: pre-wrap;">{{ $action->notes }}</pre>
             </div>
@@ -249,15 +249,15 @@
     {{-- Verification Button --}}
     @if ($action->status === 'executed' && $action->action_type === 'destroy')
         <div class="card mb-3">
-            <div class="card-header"><strong>DoD 5015.2 Verification</strong></div>
+            <div class="card-header"><strong>{{ __('DoD 5015.2 Verification') }}</strong></div>
             <div class="card-body">
                 @if ($action->verification_status)
                     <p>
-                        <strong>Last Verification:</strong>
+                        <strong>{{ __('Last Verification:') }}</strong>
                         @if ($action->verification_status === 'verified')
-                            <span class="badge bg-success">VERIFIED</span>
+                            <span class="badge bg-success">{{ __('VERIFIED') }}</span>
                         @else
-                            <span class="badge bg-danger">FAILED</span>
+                            <span class="badge bg-danger">{{ __('FAILED') }}</span>
                         @endif
                         @if ($action->verified_at)
                             <small class="text-muted">{{ \Carbon\Carbon::parse($action->verified_at)->format('Y-m-d H:i') }}</small>
@@ -274,7 +274,7 @@
     {{-- Timeline --}}
     @if (count($timeline) > 0)
         <div class="card mb-3">
-            <div class="card-header"><strong>Timeline</strong></div>
+            <div class="card-header"><strong>{{ __('Timeline') }}</strong></div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
                     @foreach ($timeline as $entry)

@@ -11,10 +11,10 @@
 <div class="sidebar-content">
   <h4>{{ __('DAM Reports') }}</h4>
   <ul class="list-unstyled">
-    <li><a href="{{ route('dam.reports.assets') }}"><i class="fas fa-file me-2"></i>Assets</a></li>
-    <li><a href="{{ route('dam.reports.metadata') }}"><i class="fas fa-info-circle me-2"></i>Metadata</a></li>
-    <li><a href="{{ route('dam.reports.iptc') }}"><i class="fas fa-camera me-2"></i>IPTC Data</a></li>
-    <li><a href="{{ route('dam.reports.storage') }}"><i class="fas fa-hdd me-2"></i>Storage</a></li>
+    <li><a href="{{ route('dam.reports.assets') }}"><i class="fas fa-file me-2"></i>{{ __('Assets') }}</a></li>
+    <li><a href="{{ route('dam.reports.metadata') }}"><i class="fas fa-info-circle me-2"></i>{{ __('Metadata') }}</a></li>
+    <li><a href="{{ route('dam.reports.iptc') }}"><i class="fas fa-camera me-2"></i>{{ __('IPTC Data') }}</a></li>
+    <li><a href="{{ route('dam.reports.storage') }}"><i class="fas fa-hdd me-2"></i>{{ __('Storage') }}</a></li>
   </ul>
 </div>
 @endsection
@@ -63,9 +63,9 @@ if (!function_exists('damFormatBytes')) {
       <div class="card h-100">
         <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Metadata Coverage</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item d-flex justify-content-between align-items-center"><span><i class="fas fa-info-circle me-2 text-muted"></i>With Extracted Metadata</span><span class="badge bg-success">{{ $stats['withMetadata'] ?? 0 }}</span></li>
-          <li class="list-group-item d-flex justify-content-between align-items-center"><span><i class="fas fa-camera me-2 text-muted"></i>With IPTC Data</span><span class="badge bg-info">{{ $stats['withIptc'] ?? 0 }}</span></li>
-          <li class="list-group-item d-flex justify-content-between align-items-center"><span><i class="fas fa-map-marker-alt me-2 text-muted"></i>With GPS Coordinates</span><span class="badge bg-warning">{{ $stats['withGps'] ?? 0 }}</span></li>
+          <li class="list-group-item d-flex justify-content-between align-items-center"><span><i class="fas fa-info-circle me-2 text-muted"></i>{{ __('With Extracted Metadata') }}</span><span class="badge bg-success">{{ $stats['withMetadata'] ?? 0 }}</span></li>
+          <li class="list-group-item d-flex justify-content-between align-items-center"><span><i class="fas fa-camera me-2 text-muted"></i>{{ __('With IPTC Data') }}</span><span class="badge bg-info">{{ $stats['withIptc'] ?? 0 }}</span></li>
+          <li class="list-group-item d-flex justify-content-between align-items-center"><span><i class="fas fa-map-marker-alt me-2 text-muted"></i>{{ __('With GPS Coordinates') }}</span><span class="badge bg-warning">{{ $stats['withGps'] ?? 0 }}</span></li>
         </ul>
         <div class="card-footer"><a href="{{ route('dam.reports.assets') }}" class="btn btn-primary btn-sm w-100">View All Assets</a></div>
       </div>

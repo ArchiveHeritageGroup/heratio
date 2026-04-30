@@ -18,10 +18,10 @@
         </div>
         <div>
             <a href="{{ route('provenance.timeline', $resource->slug) }}" class="atom-btn-white me-2">
-                <i class="bi bi-bar-chart-steps me-1"></i>Timeline
+                <i class="bi bi-bar-chart-steps me-1"></i>{{ __('Timeline') }}
             </a>
             <a href="{{ route('provenance.edit', $resource->slug) }}" class="atom-btn-white">
-                <i class="bi bi-pencil me-1"></i>Edit
+                <i class="bi bi-pencil me-1"></i>{{ __('Edit') }}
             </a>
         </div>
     </div>
@@ -39,13 +39,13 @@
                 </div>
                 <div class="card-body">
                     @if($event->agent_name ?? false)
-                        <p><strong>Agent:</strong> {{ $event->agent_name }}</p>
+                        <p><strong>{{ __('Agent:') }}</strong> {{ $event->agent_name }}</p>
                     @endif
                     @if($event->description ?? false)
                         <p>{{ $event->description }}</p>
                     @endif
                     @if($event->location ?? false)
-                        <p><strong>Location:</strong> {{ $event->location }}</p>
+                        <p><strong>{{ __('Location:') }}</strong> {{ $event->location }}</p>
                     @endif
                 </div>
             </div>

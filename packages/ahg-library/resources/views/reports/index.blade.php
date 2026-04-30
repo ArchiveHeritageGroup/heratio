@@ -13,14 +13,14 @@
 <div class="sidebar-content">
   <h4>{{ __('Library Reports') }}</h4>
   <ul class="list-unstyled">
-    <li><a href="{{ route('library.report-catalogue') }}"><i class="fas fa-book me-2"></i>Catalogue</a></li>
-    <li><a href="{{ route('library.report-creators') }}"><i class="fas fa-user-edit me-2"></i>Creators</a></li>
-    <li><a href="{{ route('library.report-subjects') }}"><i class="fas fa-tags me-2"></i>Subjects</a></li>
-    <li><a href="{{ route('library.report-publishers') }}"><i class="fas fa-building me-2"></i>Publishers</a></li>
-    <li><a href="{{ route('library.report-call-numbers') }}"><i class="fas fa-sort-alpha-down me-2"></i>Call Numbers</a></li>
+    <li><a href="{{ route('library.report-catalogue') }}"><i class="fas fa-book me-2"></i>{{ __('Catalogue') }}</a></li>
+    <li><a href="{{ route('library.report-creators') }}"><i class="fas fa-user-edit me-2"></i>{{ __('Creators') }}</a></li>
+    <li><a href="{{ route('library.report-subjects') }}"><i class="fas fa-tags me-2"></i>{{ __('Subjects') }}</a></li>
+    <li><a href="{{ route('library.report-publishers') }}"><i class="fas fa-building me-2"></i>{{ __('Publishers') }}</a></li>
+    <li><a href="{{ route('library.report-call-numbers') }}"><i class="fas fa-sort-alpha-down me-2"></i>{{ __('Call Numbers') }}</a></li>
   </ul>
   <hr>
-  <a href="{{ Route::has('library.browse') ? route('library.browse') : url('/library') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>Back to Library</a>
+  <a href="{{ Route::has('library.browse') ? route('library.browse') : url('/library') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Library') }}</a>
 </div>
 @endsection
 
@@ -98,15 +98,15 @@
         </div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span><i class="fas fa-user-edit me-2 text-muted"></i>Unique Creators</span>
+            <span><i class="fas fa-user-edit me-2 text-muted"></i>{{ __('Unique Creators') }}</span>
             <span class="badge bg-success rounded-pill">{{ $stats['creators'] ?? 0 }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span><i class="fas fa-tags me-2 text-muted"></i>Unique Subjects</span>
+            <span><i class="fas fa-tags me-2 text-muted"></i>{{ __('Unique Subjects') }}</span>
             <span class="badge bg-info rounded-pill">{{ $stats['subjects'] ?? 0 }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span><i class="fas fa-plus-circle me-2 text-muted"></i>Added (30 days)</span>
+            <span><i class="fas fa-plus-circle me-2 text-muted"></i>{{ __('Added (30 days)') }}</span>
             <span class="badge bg-warning rounded-pill">{{ $stats['recentlyAdded'] ?? 0 }}</span>
           </li>
         </ul>

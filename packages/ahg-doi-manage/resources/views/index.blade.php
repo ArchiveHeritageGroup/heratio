@@ -16,32 +16,32 @@
       <i class="fas fa-3x fa-fingerprint me-3" aria-hidden="true"></i>
       <div class="d-flex flex-column flex-grow-1">
         <h1 class="mb-0">{{ __('DOI Management') }}</h1>
-        <span class="small text-muted">DataCite Integration Dashboard</span>
+        <span class="small text-muted">{{ __('DataCite Integration Dashboard') }}</span>
       </div>
       <div class="d-flex gap-2">
         <div class="btn-group">
           <a href="{{ route('doi.report') }}?format=csv" class="btn btn-outline-secondary btn-sm" title="{{ __('Export CSV') }}">
-            <i class="fas fa-file-csv me-1"></i> Export
+            <i class="fas fa-file-csv me-1"></i> {{ __('Export') }}
           </a>
           <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
-            <span class="visually-hidden">Toggle Dropdown</span>
+            <span class="visually-hidden">{{ __('Toggle Dropdown') }}</span>
           </button>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{{ route('doi.report') }}?format=csv"><i class="fas fa-file-csv me-2"></i>Export as CSV</a></li>
-            <li><a class="dropdown-item" href="{{ route('doi.report') }}?format=json"><i class="fas fa-file-code me-2"></i>Export as JSON</a></li>
+            <li><a class="dropdown-item" href="{{ route('doi.report') }}?format=csv"><i class="fas fa-file-csv me-2"></i>{{ __('Export as CSV') }}</a></li>
+            <li><a class="dropdown-item" href="{{ route('doi.report') }}?format=json"><i class="fas fa-file-code me-2"></i>{{ __('Export as JSON') }}</a></li>
           </ul>
         </div>
         <form action="{{ route('doi.sync') }}" method="POST" class="d-inline">
           @csrf
           <button type="submit" class="btn btn-outline-secondary btn-sm">
-            <i class="fas fa-sync me-1"></i> Bulk Sync
+            <i class="fas fa-sync me-1"></i> {{ __('Bulk Sync') }}
           </button>
         </form>
         <a href="{{ route('doi.batch-mint') }}" class="btn btn-primary btn-sm">
-          <i class="fas fa-plus me-1"></i> Batch Mint
+          <i class="fas fa-plus me-1"></i> {{ __('Batch Mint') }}
         </a>
         <a href="{{ route('doi.config') }}" class="btn btn-outline-secondary btn-sm">
-          <i class="fas fa-cog me-1"></i> Configuration
+          <i class="fas fa-cog me-1"></i> {{ __('Configuration') }}
         </a>
       </div>
     </div>
@@ -168,21 +168,21 @@
                 <td>{{ $doi['record_title'] ?: '[Untitled]' }}</td>
                 <td>
                   @if($doi['status'] === 'findable')
-                    <span class="badge bg-success">Findable</span>
+                    <span class="badge bg-success">{{ __('Findable') }}</span>
                   @elseif($doi['status'] === 'registered')
-                    <span class="badge bg-info">Registered</span>
+                    <span class="badge bg-info">{{ __('Registered') }}</span>
                   @elseif($doi['status'] === 'failed')
-                    <span class="badge bg-danger">Failed</span>
+                    <span class="badge bg-danger">{{ __('Failed') }}</span>
                   @elseif($doi['status'] === 'deleted')
-                    <span class="badge bg-danger">Deleted</span>
+                    <span class="badge bg-danger">{{ __('Deleted') }}</span>
                   @else
-                    <span class="badge bg-secondary">Draft</span>
+                    <span class="badge bg-secondary">{{ __('Draft') }}</span>
                   @endif
                 </td>
                 <td>{{ $doi['minted_at'] ? \Carbon\Carbon::parse($doi['minted_at'])->format('Y-m-d H:i') : '-' }}</td>
                 <td class="text-end">
                   <a href="{{ route('doi.view', $doi['id']) }}" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-eye"></i> View
+                    <i class="fas fa-eye"></i> {{ __('View') }}
                   </a>
                 </td>
               </tr>

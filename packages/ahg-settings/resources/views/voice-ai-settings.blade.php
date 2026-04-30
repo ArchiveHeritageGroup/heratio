@@ -42,7 +42,7 @@
                      name="settings[voice_enabled]" value="true"
                      {{ ($settings['voice_enabled'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="voice_enabled">
-                <strong>Enable Voice Commands</strong>
+                <strong>{{ __('Enable Voice Commands') }}</strong>
               </label>
             </div>
             <div class="form-text">Allow users to navigate and control the application using voice commands.</div>
@@ -92,7 +92,7 @@
                      name="settings[voice_continuous_listening]" value="true"
                      {{ ($settings['voice_continuous_listening'] ?? 'false') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="voice_continuous_listening">
-                <strong>Continuous Listening</strong>
+                <strong>{{ __('Continuous Listening') }}</strong>
               </label>
             </div>
             <div class="form-text">Keep microphone active after each command (no need to re-activate).</div>
@@ -103,7 +103,7 @@
                      name="settings[voice_show_floating_btn]" value="true"
                      {{ ($settings['voice_show_floating_btn'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="voice_show_floating_btn">
-                <strong>Show Floating Mic Button</strong>
+                <strong>{{ __('Show Floating Mic Button') }}</strong>
               </label>
             </div>
             <div class="form-text">Display a floating microphone button on all pages for quick voice activation.</div>
@@ -117,7 +117,7 @@
                      name="settings[voice_hover_read_enabled]" value="true"
                      {{ ($settings['voice_hover_read_enabled'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="voice_hover_read_enabled">
-                <strong>Mouseover Read-Aloud</strong>
+                <strong>{{ __('Mouseover Read-Aloud') }}</strong>
               </label>
             </div>
             <div class="form-text">Read button and link text aloud when hovering with the mouse (when voice mode is active).</div>
@@ -213,7 +213,7 @@
                      name="settings[voice_audit_ai_calls]" value="true"
                      {{ ($settings['voice_audit_ai_calls'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="voice_audit_ai_calls">
-                <strong>Audit AI Calls</strong>
+                <strong>{{ __('Audit AI Calls') }}</strong>
               </label>
             </div>
             <div class="form-text">Log all AI image description requests to the audit trail.</div>
@@ -225,10 +225,10 @@
     {{-- Save --}}
     <div class="d-flex justify-content-between align-items-center">
       <a href="{{ route('settings.index') }}" class="btn btn-link text-secondary">
-        <i class="fas fa-arrow-left me-1"></i>Back to Settings
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}
       </a>
       <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save me-1"></i>Save
+        <i class="fas fa-save me-1"></i>{{ __('Save') }}
       </button>
     </div>
   </form>

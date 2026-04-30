@@ -43,7 +43,7 @@
                             <div>
                                 <h6 class="mb-0 text-white-50">{{ __('SIPs') }}</h6>
                                 <h2 class="mb-0">{{ number_format($sipCount) }}</h2>
-                                <small>Submission</small>
+                                <small>{{ __('Submission') }}</small>
                             </div>
                             <i class="fas fa-arrow-circle-right fa-2x opacity-50"></i>
                         </div>
@@ -57,7 +57,7 @@
                             <div>
                                 <h6 class="mb-0 text-white-50">{{ __('AIPs') }}</h6>
                                 <h2 class="mb-0">{{ number_format($aipCount) }}</h2>
-                                <small>Archival</small>
+                                <small>{{ __('Archival') }}</small>
                             </div>
                             <i class="fas fa-archive fa-2x opacity-50"></i>
                         </div>
@@ -71,7 +71,7 @@
                             <div>
                                 <h6 class="mb-0">{{ __('DIPs') }}</h6>
                                 <h2 class="mb-0">{{ number_format($dipCount) }}</h2>
-                                <small>Dissemination</small>
+                                <small>{{ __('Dissemination') }}</small>
                             </div>
                             <i class="fas fa-share-square fa-2x opacity-50"></i>
                         </div>
@@ -89,7 +89,7 @@
                 <a href="{{ route('preservation.packages', ['type' => 'DIP']) }}" class="btn btn-sm {{ $type === 'DIP' ? 'atom-btn-outline-success' : 'atom-btn-white' }}">DIP</a>
             </div>
             <a href="{{ route('preservation.package-edit', 0) }}" class="btn btn-sm atom-btn-white">
-                <i class="fas fa-plus me-1"></i>Create Package
+                <i class="fas fa-plus me-1"></i>{{ __('Create Package') }}
             </a>
         </div>
 
@@ -119,11 +119,11 @@
                                 <td>{{ Str::limit($pkg->name, 40) }}</td>
                                 <td>
                                     @if(strtoupper($pkg->package_type) === 'SIP')
-                                        <span class="badge bg-info">SIP</span>
+                                        <span class="badge bg-info">{{ __('SIP') }}</span>
                                     @elseif(strtoupper($pkg->package_type) === 'AIP')
-                                        <span class="badge bg-success">AIP</span>
+                                        <span class="badge bg-success">{{ __('AIP') }}</span>
                                     @elseif(strtoupper($pkg->package_type) === 'DIP')
-                                        <span class="badge bg-warning text-dark">DIP</span>
+                                        <span class="badge bg-warning text-dark">{{ __('DIP') }}</span>
                                     @else
                                         <span class="badge bg-secondary">{{ $pkg->package_type }}</span>
                                     @endif
@@ -131,20 +131,20 @@
                                 <td>
                                     @switch($pkg->status)
                                         @case('draft')
-                                            <span class="badge bg-secondary">Draft</span>
+                                            <span class="badge bg-secondary">{{ __('Draft') }}</span>
                                             @break
                                         @case('building')
-                                            <span class="badge bg-info">Building</span>
+                                            <span class="badge bg-info">{{ __('Building') }}</span>
                                             @break
                                         @case('built')
                                         @case('complete')
                                             <span class="badge bg-primary">{{ ucfirst($pkg->status) }}</span>
                                             @break
                                         @case('validated')
-                                            <span class="badge bg-success">Validated</span>
+                                            <span class="badge bg-success">{{ __('Validated') }}</span>
                                             @break
                                         @case('exported')
-                                            <span class="badge bg-dark">Exported</span>
+                                            <span class="badge bg-dark">{{ __('Exported') }}</span>
                                             @break
                                         @case('failed')
                                         @case('error')

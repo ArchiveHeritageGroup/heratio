@@ -14,18 +14,18 @@
       <i class="fas fa-3x fa-chart-bar me-3" aria-hidden="true"></i>
       <div class="d-flex flex-column flex-grow-1">
         <h1 class="mb-0">{{ __('DOI Reports') }}</h1>
-        <span class="small text-muted">Statistics and Analytics</span>
+        <span class="small text-muted">{{ __('Statistics and Analytics') }}</span>
       </div>
       <div class="d-flex gap-2">
         <a href="{{ route('doi.index') }}" class="btn btn-sm atom-btn-white">
-          <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+          <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Dashboard') }}
         </a>
         <div class="btn-group">
           <a href="{{ route('doi.report') }}?format=csv" class="btn btn-sm atom-btn-white">
-            <i class="fas fa-file-csv me-1"></i> Export CSV
+            <i class="fas fa-file-csv me-1"></i> {{ __('Export CSV') }}
           </a>
           <a href="{{ route('doi.report') }}?format=json" class="btn btn-sm atom-btn-white">
-            <i class="fas fa-file-code me-1"></i> Export JSON
+            <i class="fas fa-file-code me-1"></i> {{ __('Export JSON') }}
           </a>
         </div>
       </div>
@@ -181,14 +181,14 @@
       <div class="card-body">
         <form method="get" action="{{ route('doi.report') }}" class="row g-3">
           <div class="col-md-3">
-            <label class="form-label">Format <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="format" class="form-select">
               <option value="csv">CSV</option>
               <option value="json">JSON</option>
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="status" class="form-select">
               <option value="">{{ __('All Statuses') }}</option>
               <option value="findable">{{ __('Findable') }}</option>
@@ -198,16 +198,16 @@
             </select>
           </div>
           <div class="col-md-2">
-            <label class="form-label">From Date <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">From Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="from_date" class="form-control">
           </div>
           <div class="col-md-2">
-            <label class="form-label">To Date <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">To Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="to_date" class="form-control">
           </div>
           <div class="col-md-2 d-flex align-items-end">
             <button type="submit" class="btn atom-btn-outline-success w-100">
-              <i class="fas fa-download me-1"></i> Export
+              <i class="fas fa-download me-1"></i> {{ __('Export') }}
             </button>
           </div>
         </form>

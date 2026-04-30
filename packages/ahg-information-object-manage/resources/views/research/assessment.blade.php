@@ -59,7 +59,7 @@
                         <label class="form-label">{{ __('Bias Context') }}</label>
                         <textarea name="bias_context" class="form-control" rows="2">{{ e($assessment->bias_context ?? '') }}</textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Assessment</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save Assessment') }}</button>
                 </form>
             </div>
         </div>
@@ -68,7 +68,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">{{ __('Quality Metrics') }}</h5>
                 @auth
-                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addMetricModal"><i class="fas fa-plus me-1"></i>Add Metric</button>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addMetricModal"><i class="fas fa-plus me-1"></i>{{ __('Add Metric') }}</button>
                 @endauth
             </div>
             <div class="card-body p-0">
@@ -133,7 +133,7 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Add</button></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>{{ __('Add') }}</button></div>
             </form>
         </div></div></div>
         @endauth
@@ -154,9 +154,9 @@
             <div class="card-body small text-muted">
                 <p>Source assessment evaluates the reliability and authenticity of archival sources for research purposes.</p>
                 <ul class="mb-0">
-                    <li><strong>Primary</strong> — created at the time of the event</li>
-                    <li><strong>Secondary</strong> — created after the event using primary sources</li>
-                    <li><strong>Tertiary</strong> — compilations of primary and secondary sources</li>
+                    <li><strong>{{ __('Primary') }}</strong> — created at the time of the event</li>
+                    <li><strong>{{ __('Secondary') }}</strong> — created after the event using primary sources</li>
+                    <li><strong>{{ __('Tertiary') }}</strong> — compilations of primary and secondary sources</li>
                 </ul>
             </div>
         </div>

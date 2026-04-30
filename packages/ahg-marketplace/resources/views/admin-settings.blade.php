@@ -100,7 +100,7 @@
 
     <div class="text-end mb-4">
       <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save me-1"></i> Save All Settings
+        <i class="fas fa-save me-1"></i> {{ __('Save All Settings') }}
       </button>
     </div>
   </form>
@@ -108,11 +108,11 @@
 
 <div class="mt-4">
   <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">
-    <i class="fas fa-arrow-left me-2"></i>Back to Admin
+    <i class="fas fa-arrow-left me-2"></i>{{ __('Back to Admin') }}
   </a>
   @if(Route::has('ahgmarketplace.admin-dashboard'))
   <a href="{{ route('ahgmarketplace.admin-dashboard') }}" class="btn btn-outline-primary ms-2">
-    <i class="fas fa-tachometer-alt me-2"></i>Marketplace Dashboard
+    <i class="fas fa-tachometer-alt me-2"></i>{{ __('Marketplace Dashboard') }}
   </a>
   @endif
 </div>

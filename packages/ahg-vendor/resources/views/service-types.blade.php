@@ -34,10 +34,10 @@
         <h1><i class="fas fa-tags me-2"></i>Service Types</h1>
         <div>
             <a href="{{ route('ahgvendor.index') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}
             </a>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addServiceTypeModal">
-                <i class="fas fa-plus me-1"></i>Add Service Type
+                <i class="fas fa-plus me-1"></i>{{ __('Add Service Type') }}
             </button>
         </div>
     </div>
@@ -64,9 +64,9 @@
                         <td>{{ e($type->description ?? '-') }}</td>
                         <td>
                             @if ($type->is_active ?? true)
-                                <span class="badge bg-success">Active</span>
+                                <span class="badge bg-success">{{ __('Active') }}</span>
                             @else
-                                <span class="badge bg-secondary">Inactive</span>
+                                <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                             @endif
                         </td>
                         <td class="text-end">
@@ -94,7 +94,7 @@
                 <i class="fas fa-tags display-4 mb-3 d-block"></i>
                 <p>No service types defined yet.</p>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addServiceTypeModal">
-                    <i class="fas fa-plus me-1"></i>Add First Service Type
+                    <i class="fas fa-plus me-1"></i>{{ __('Add First Service Type') }}
                 </button>
             </div>
             @endif
@@ -185,7 +185,7 @@
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to delete the service type "<strong id="deleteTypeName"></strong>"?</p>
-                    <p class="text-danger mb-0"><small>This action cannot be undone. Transactions using this type will not be affected.</small></p>
+                    <p class="text-danger mb-0"><small>{{ __('This action cannot be undone. Transactions using this type will not be affected.') }}</small></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>

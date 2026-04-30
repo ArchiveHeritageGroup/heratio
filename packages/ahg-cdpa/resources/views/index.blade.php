@@ -71,10 +71,10 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgcdpa.reports') }}" class="btn atom-btn-outline-primary">
-                <i class="fas fa-file-alt me-1"></i> Reports
+                <i class="fas fa-file-alt me-1"></i> {{ __('Reports') }}
             </a>
             <a href="{{ route('ahgcdpa.config') }}" class="btn atom-btn-outline-secondary">
-                <i class="fas fa-cog me-1"></i> Settings
+                <i class="fas fa-cog me-1"></i> {{ __('Settings') }}
             </a>
         </div>
     </div>
@@ -113,7 +113,7 @@
                     @if (($stats['requests_overdue'] ?? 0) > 0)
                         <small class="text-danger">{{ $stats['requests_overdue'] }} overdue</small>
                     @else
-                        <small class="text-success">None overdue</small>
+                        <small class="text-success">{{ __('None overdue') }}</small>
                     @endif
                 </div>
             </div>
@@ -148,13 +148,13 @@
                     <a href="{{ route('ahgcdpa.license') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-id-card me-2"></i> Controller License
                         @if (!$license)
-                            <span class="badge bg-danger float-end">Required</span>
+                            <span class="badge bg-danger float-end">{{ __('Required') }}</span>
                         @endif
                     </a>
                     <a href="{{ route('ahgcdpa.dpo') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-user-shield me-2"></i> Data Protection Officer
                         @if (!$dpo)
-                            <span class="badge bg-danger float-end">Required</span>
+                            <span class="badge bg-danger float-end">{{ __('Required') }}</span>
                         @endif
                     </a>
                     <a href="{{ route('ahgcdpa.requests') }}" class="list-group-item list-group-item-action">
@@ -164,7 +164,7 @@
                         @endif
                     </a>
                     <a href="{{ route('ahgcdpa.processing') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-cogs me-2"></i> Processing Register
+                        <i class="fas fa-cogs me-2"></i> {{ __('Processing Register') }}
                     </a>
                     <a href="{{ route('ahgcdpa.dpia') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-clipboard-check me-2"></i> DPIA
@@ -173,7 +173,7 @@
                         @endif
                     </a>
                     <a href="{{ route('ahgcdpa.consent') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-check-circle me-2"></i> Consent Management
+                        <i class="fas fa-check-circle me-2"></i> {{ __('Consent Management') }}
                     </a>
                     <a href="{{ route('ahgcdpa.breaches') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-exclamation-triangle me-2"></i> Breach Register

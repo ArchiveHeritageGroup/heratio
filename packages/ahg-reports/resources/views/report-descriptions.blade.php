@@ -65,7 +65,7 @@
 <h1>{{ __('Browse Archival Description') }}</h1>
 <div class="mb-3">
   <a href="{{ route('reports.dashboard') }}" class="btn btn-outline-secondary btn-sm">
-    <i class="fas fa-arrow-left me-1"></i>Back to Reports
+    <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Reports') }}
   </a>
 </div>
 @endsection
@@ -77,7 +77,7 @@
   </div>
 
   <div class="mb-3" style="font-size:0.85rem">
-    <strong>Show/Hide Columns:</strong><br>
+    <strong>{{ __('Show/Hide Columns:') }}</strong><br>
     @php
     $columns = ['Identifier','Title','Alt Title','Extent','Archival History','Acquisition','Scope','Appraisal','Accruals','Arrangement','Access','Reproduction','Physical','Finding Aids','Originals','Copies','Related','Institution','Rules','Sources','Revision','Culture','Repository','Created'];
     @endphp

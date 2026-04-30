@@ -92,13 +92,13 @@
         {{-- Action Buttons --}}
         <div class="mb-3">
             <a class="btn btn-outline-secondary" href="/{{ e($slug) }}">
-                <i class="fas fa-arrow-left me-1"></i>Back to record
+                <i class="fas fa-arrow-left me-1"></i>{{ __('Back to record') }}
             </a>
             <button type="button" class="btn btn-primary" onclick="window.print()">
-                <i class="fas fa-print me-1"></i>Print Label
+                <i class="fas fa-print me-1"></i>{{ __('Print Label') }}
             </button>
             <button type="button" class="btn btn-secondary" onclick="downloadLabel()">
-                <i class="fas fa-download me-1"></i>Download PNG
+                <i class="fas fa-download me-1"></i>{{ __('Download PNG') }}
             </button>
         </div>
     </div>

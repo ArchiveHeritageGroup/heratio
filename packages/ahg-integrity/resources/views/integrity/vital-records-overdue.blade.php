@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-exclamation-triangle text-danger me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Overdue Vital Record Reviews') }}</h1><span class="small text-muted">Records past their scheduled review date</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Overdue Vital Record Reviews') }}</h1><span class="small text-muted">{{ __('Records past their scheduled review date') }}</span></div>
   </div>
 @endsection
 @section('content')
@@ -45,7 +45,7 @@
           <td>
             <form method="POST" action="{{ route('integrity.vital-records.review', $rec->id) }}">
               @csrf
-              <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-check me-1"></i>Mark Reviewed</button>
+              <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-check me-1"></i>{{ __('Mark Reviewed') }}</button>
             </form>
           </td>
         </tr>
@@ -59,7 +59,7 @@
 </div>
 
 <div class="mt-3">
-  <a href="{{ route('integrity.vital-records') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Vital Records</a>
-  <a href="{{ route('integrity.index') }}" class="btn atom-btn-white ms-2"><i class="fas fa-shield-alt me-1"></i>Dashboard</a>
+  <a href="{{ route('integrity.vital-records') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Vital Records') }}</a>
+  <a href="{{ route('integrity.index') }}" class="btn atom-btn-white ms-2"><i class="fas fa-shield-alt me-1"></i>{{ __('Dashboard') }}</a>
 </div>
 @endsection

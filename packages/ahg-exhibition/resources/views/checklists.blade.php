@@ -61,7 +61,7 @@
       <h1>{{ __('Exhibition Checklists') }}</h1>
       <div class="btn-group">
         <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">
-          <i class="fas fa-plus"></i> Create Checklist
+          <i class="fas fa-plus"></i> {{ __('Create Checklist') }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
           @forelse($templates as $template)
@@ -77,7 +77,7 @@
               </form>
             </li>
           @empty
-            <li><span class="dropdown-item text-muted">No templates available</span></li>
+            <li><span class="dropdown-item text-muted">{{ __('No templates available') }}</span></li>
           @endforelse
         </ul>
       </div>
@@ -163,7 +163,7 @@
           </div>
           <div class="card-footer bg-transparent">
             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addItemModal" data-checklist-id="{{ $cl->id ?? '' }}" data-checklist-name="{{ $cl->name ?? '' }}">
-              <i class="fas fa-plus"></i> Add Item
+              <i class="fas fa-plus"></i> {{ __('Add Item') }}
             </button>
           </div>
         </div>
@@ -227,11 +227,11 @@
       </div>
       <div class="card-body">
         <ul class="list-unstyled small mb-0">
-          <li class="mb-1"><strong>Planning</strong> - Pre-exhibition tasks</li>
-          <li class="mb-1"><strong>Installation</strong> - Setup tasks</li>
-          <li class="mb-1"><strong>Opening</strong> - Launch preparation</li>
-          <li class="mb-1"><strong>Operation</strong> - During exhibition</li>
-          <li><strong>Closing</strong> - Deinstallation tasks</li>
+          <li class="mb-1"><strong>{{ __('Planning') }}</strong> - Pre-exhibition tasks</li>
+          <li class="mb-1"><strong>{{ __('Installation') }}</strong> - Setup tasks</li>
+          <li class="mb-1"><strong>{{ __('Opening') }}</strong> - Launch preparation</li>
+          <li class="mb-1"><strong>{{ __('Operation') }}</strong> - During exhibition</li>
+          <li><strong>{{ __('Closing') }}</strong> - Deinstallation tasks</li>
         </ul>
       </div>
     </div>

@@ -16,5 +16,5 @@
 </dl></div></div>
 @if($venue->notes ?? null)<h6>{{ __('Notes') }}</h6><p>{!! nl2br(e($venue->notes)) !!}</p>@endif
 </div></div>
-<div class="mt-3"><a href="{{ route('gallery.venues') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Venues</a></div>
+<div class="mt-3"><a href="{{ route('gallery.venues') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Venues') }}</a></div>
 @endsection

@@ -25,7 +25,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-users text-primary me-2"></i>Collaborators</h1>
-    <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back</a>
+    <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
 </div>
 
 <div class="card">
@@ -62,7 +62,7 @@
                                 <button class="btn btn-sm btn-outline-danger"><i class="fas fa-times"></i></button>
                             </form>
                             @else
-                            <span class="badge bg-primary">Owner</span>
+                            <span class="badge bg-primary">{{ __('Owner') }}</span>
                             @endif
                         </td>
                     </tr>

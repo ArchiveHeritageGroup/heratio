@@ -8,23 +8,23 @@
 
 <div class="row mb-4">
   <div class="col-md-2">
-    <div class="card text-center bg-light"><div class="card-body py-2"><h4 class="mb-0 text-primary">{{ number_format($stats['total'] ?? 0) }}</h4><small class="text-muted">Total</small></div></div>
+    <div class="card text-center bg-light"><div class="card-body py-2"><h4 class="mb-0 text-primary">{{ number_format($stats['total'] ?? 0) }}</h4><small class="text-muted">{{ __('Total') }}</small></div></div>
   </div>
   <div class="col-md-2">
-    <div class="card text-center bg-light"><div class="card-body py-2"><h4 class="mb-0 text-info">{{ number_format($stats['today'] ?? 0) }}</h4><small class="text-muted">Today</small></div></div>
+    <div class="card text-center bg-light"><div class="card-body py-2"><h4 class="mb-0 text-info">{{ number_format($stats['today'] ?? 0) }}</h4><small class="text-muted">{{ __('Today') }}</small></div></div>
   </div>
   <div class="col-md-2">
-    <div class="card text-center bg-light"><div class="card-body py-2"><h4 class="mb-0 text-success">{{ number_format($stats['creates'] ?? 0) }}</h4><small class="text-muted">Creates</small></div></div>
+    <div class="card text-center bg-light"><div class="card-body py-2"><h4 class="mb-0 text-success">{{ number_format($stats['creates'] ?? 0) }}</h4><small class="text-muted">{{ __('Creates') }}</small></div></div>
   </div>
   <div class="col-md-2">
-    <div class="card text-center bg-light"><div class="card-body py-2"><h4 class="mb-0 text-warning">{{ number_format($stats['updates'] ?? 0) }}</h4><small class="text-muted">Updates</small></div></div>
+    <div class="card text-center bg-light"><div class="card-body py-2"><h4 class="mb-0 text-warning">{{ number_format($stats['updates'] ?? 0) }}</h4><small class="text-muted">{{ __('Updates') }}</small></div></div>
   </div>
   <div class="col-md-2">
-    <div class="card text-center bg-light"><div class="card-body py-2"><h4 class="mb-0 text-danger">{{ number_format($stats['deletes'] ?? 0) }}</h4><small class="text-muted">Deletes</small></div></div>
+    <div class="card text-center bg-light"><div class="card-body py-2"><h4 class="mb-0 text-danger">{{ number_format($stats['deletes'] ?? 0) }}</h4><small class="text-muted">{{ __('Deletes') }}</small></div></div>
   </div>
   <div class="col-md-2">
     <a href="{{ route('audit.index', array_merge(request()->only(['table','from_date','to_date']), ['export' => 'csv'])) }}" class="btn btn-outline-secondary w-100 h-100 d-flex align-items-center justify-content-center">
-      <i class="fas fa-download me-1"></i>Export CSV
+      <i class="fas fa-download me-1"></i>{{ __('Export CSV') }}
     </a>
   </div>
 </div>
@@ -34,7 +34,7 @@
   <div class="card-body">
     <form method="get" class="row g-3">
       <div class="col-md-2">
-        <label class="form-label">Table <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label class="form-label">Table <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <select name="table" class="form-select form-select-sm">
           <option value="">{{ __('All Tables') }}</option>
           @foreach($tables ?? [] as $table)
@@ -43,7 +43,7 @@
         </select>
       </div>
       <div class="col-md-2">
-        <label class="form-label">Action <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label class="form-label">Action <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <select name="form_action" class="form-select form-select-sm">
           <option value="">{{ __('All Actions') }}</option>
           <option value="create" {{ request('form_action') === 'create' ? 'selected' : '' }}>{{ __('Create') }}</option>
@@ -52,19 +52,19 @@
         </select>
       </div>
       <div class="col-md-2">
-        <label class="form-label">From Date <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label class="form-label">From Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="date" name="from_date" class="form-control form-control-sm" value="{{ request('from_date') }}">
       </div>
       <div class="col-md-2">
-        <label class="form-label">To Date <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label class="form-label">To Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="date" name="to_date" class="form-control form-control-sm" value="{{ request('to_date') }}">
       </div>
       <div class="col-md-2">
-        <label class="form-label">Search <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label class="form-label">Search <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" name="q" class="form-control form-control-sm" value="{{ request('q') }}" placeholder="{{ __('Search...') }}">
       </div>
       <div class="col-md-2 d-flex align-items-end">
-        <button type="submit" class="btn atom-btn-white btn-sm me-2"><i class="fas fa-search"></i> Filter</button>
+        <button type="submit" class="btn atom-btn-white btn-sm me-2"><i class="fas fa-search"></i> {{ __('Filter') }}</button>
         <a href="{{ route('audit.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></a>
       </div>
     </form>
@@ -73,7 +73,7 @@
 
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center">
-    <span><i class="fas fa-list me-2"></i>Audit Log</span>
+    <span><i class="fas fa-list me-2"></i>{{ __('Audit Log') }}</span>
     <span class="badge bg-secondary">{{ number_format($totalCount ?? 0) }} entries</span>
   </div>
   <div class="card-body p-0">
@@ -136,6 +136,6 @@
 </div>
 
 <div class="mt-3">
-  <a href="{{ route('settings.ahgSettings') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Settings</a>
+  <a href="{{ route('settings.ahgSettings') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}</a>
 </div>
 @endsection

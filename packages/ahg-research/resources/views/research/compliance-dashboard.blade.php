@@ -25,7 +25,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-shield-alt text-primary me-2"></i>Compliance Dashboard</h1>
-    <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back</a>
+    <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
 </div>
 
 {{-- 4 summary cards --}}
@@ -146,7 +146,7 @@
                 <span class="badge bg-{{ match($level) { 'high' => 'danger', 'medium' => 'warning', 'low' => 'success', default => 'secondary' } }} me-2 mb-2">{{ ucfirst($level) }}: {{ $count }}</span>
             @endforeach
         @else
-            <span class="text-muted small">No sensitivity data available.</span>
+            <span class="text-muted small">{{ __('No sensitivity data available.') }}</span>
         @endif
     </div>
 </div>

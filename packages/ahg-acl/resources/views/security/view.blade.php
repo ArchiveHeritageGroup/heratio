@@ -56,11 +56,11 @@
                   {{ e($clearance->classification_name ?? $clearance->name ?? '') }}
                 </span>
                 @if($isExpired)
-                  <br><span class="badge bg-danger fs-6 mb-2">EXPIRED</span>
+                  <br><span class="badge bg-danger fs-6 mb-2">{{ __('EXPIRED') }}</span>
                 @endif
                 <p class="small text-muted mb-0">Level {{ $clearance->level ?? 0 }}</p>
               @else
-                <span class="badge bg-secondary fs-5">No Clearance</span>
+                <span class="badge bg-secondary fs-5">{{ __('No Clearance') }}</span>
               @endif
             </div>
             <div class="card-footer">
@@ -79,11 +79,11 @@
               </div>
               <ul class="list-group list-group-flush">
                 <li class="list-group-item d-flex justify-content-between">
-                  <span>Granted:</span>
+                  <span>{{ __('Granted:') }}</span>
                   <strong>{{ ($clearance->granted_at ?? null) ? date('M j, Y', strtotime($clearance->granted_at)) : '-' }}</strong>
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
-                  <span>Expires:</span>
+                  <span>{{ __('Expires:') }}</span>
                   <strong class="{{ !empty($clearance->is_expired) ? 'text-danger' : '' }}">
                     {{ ($clearance->expires_at ?? null) ? date('M j, Y', strtotime($clearance->expires_at)) : 'Never' }}
                     @if(!empty($clearance->is_expired)) (Expired)@endif
@@ -137,7 +137,7 @@
                             @if($grant->include_descendants ?? false)
                               <span class="badge bg-info">+ Children</span>
                             @else
-                              <span class="badge bg-light text-dark">Single</span>
+                              <span class="badge bg-light text-dark">{{ __('Single') }}</span>
                             @endif
                           </td>
                           <td>
@@ -250,7 +250,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="submit" class="btn btn-success">
-            <i class="fas fa-check me-1"></i> Save Changes
+            <i class="fas fa-check me-1"></i> {{ __('Save Changes') }}
           </button>
         </div>
       </form>

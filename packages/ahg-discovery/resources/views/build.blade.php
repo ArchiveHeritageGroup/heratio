@@ -19,7 +19,7 @@
             </nav>
         </div>
         <a href="{{ route('ahgdiscovery.pageindex') }}" class="btn btn-outline-secondary btn-sm">
-            <i class="fas fa-arrow-left me-1"></i> Back to PageIndex
+            <i class="fas fa-arrow-left me-1"></i> {{ __('Back to PageIndex') }}
         </a>
     </div>
 
@@ -42,7 +42,7 @@
                         @elseif ($objectType === 'pdf')
                             <span class="badge bg-info">PDF</span>
                         @elseif ($objectType === 'rico')
-                            <span class="badge bg-warning text-dark">RiC-O</span>
+                            <span class="badge bg-warning text-dark">{{ __('RiC-O') }}</span>
                         @endif
                         Object ID: {{ $objectId }}
                     </p>
@@ -52,22 +52,22 @@
                     @if ($status)
                         @if ($status['status'] === 'ready')
                             <span class="badge bg-success fs-6">
-                                <i class="fas fa-check-circle me-1"></i> Ready
+                                <i class="fas fa-check-circle me-1"></i> {{ __('Ready') }}
                             </span>
                         @elseif ($status['status'] === 'building')
                             <span class="badge bg-warning text-dark fs-6">
-                                <i class="fas fa-spinner fa-spin me-1"></i> Building
+                                <i class="fas fa-spinner fa-spin me-1"></i> {{ __('Building') }}
                             </span>
                         @elseif ($status['status'] === 'error')
                             <span class="badge bg-danger fs-6">
-                                <i class="fas fa-exclamation-triangle me-1"></i> Error
+                                <i class="fas fa-exclamation-triangle me-1"></i> {{ __('Error') }}
                             </span>
                         @else
                             <span class="badge bg-secondary fs-6">{{ $status['status'] }}</span>
                         @endif
                     @else
                         <span class="badge bg-secondary fs-6">
-                            <i class="fas fa-clock me-1"></i> Not indexed
+                            <i class="fas fa-clock me-1"></i> {{ __('Not indexed') }}
                         </span>
                     @endif
                 </div>
@@ -111,7 +111,7 @@
     @if ($status && $status['status'] === 'error' && !empty($status['error_message']))
     <div class="alert alert-danger mb-4">
         <i class="fas fa-exclamation-triangle me-1"></i>
-        <strong>Error:</strong> {{ $status['error_message'] }}
+        <strong>{{ __('Error:') }}</strong> {{ $status['error_message'] }}
     </div>
     @endif
 
@@ -129,10 +129,10 @@
     @if ($status && $status['status'] === 'ready' && $tree)
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <span><i class="fas fa-sitemap me-1"></i> Tree Structure</span>
+            <span><i class="fas fa-sitemap me-1"></i> {{ __('Tree Structure') }}</span>
             <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
                     data-bs-target="#tree-collapse" aria-expanded="false" aria-controls="tree-collapse">
-                <i class="fas fa-chevron-down me-1"></i> Toggle
+                <i class="fas fa-chevron-down me-1"></i> {{ __('Toggle') }}
             </button>
         </div>
         <div class="collapse" id="tree-collapse">

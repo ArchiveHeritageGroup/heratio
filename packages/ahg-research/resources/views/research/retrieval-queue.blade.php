@@ -55,7 +55,7 @@
             @if(request('status'))
                 <a href="{{ route('research.retrievalQueue') }}" class="btn btn-sm btn-outline-secondary me-1">Show All</a>
             @endif
-            <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.print()"><i class="fas fa-print me-1"></i>Print List</button>
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.print()"><i class="fas fa-print me-1"></i>{{ __('Print List') }}</button>
         </div>
     </div>
     <div class="card-body p-0">
@@ -153,10 +153,10 @@
                         </div>
                         <div class="col-md-5">
                             <div class="d-flex flex-wrap gap-1">
-                                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-check me-1"></i>Update Selected</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" id="printSelectedBtn"><i class="fas fa-print me-1"></i>Print</button>
-                                <button type="button" class="btn btn-outline-warning btn-sm" id="batchCheckoutBtn"><i class="fas fa-arrow-right-from-bracket me-1"></i>Checkout</button>
-                                <button type="button" class="btn btn-outline-success btn-sm" id="batchReturnBtn"><i class="fas fa-undo me-1"></i>Return</button>
+                                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-check me-1"></i>{{ __('Update Selected') }}</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="printSelectedBtn"><i class="fas fa-print me-1"></i>{{ __('Print') }}</button>
+                                <button type="button" class="btn btn-outline-warning btn-sm" id="batchCheckoutBtn"><i class="fas fa-arrow-right-from-bracket me-1"></i>{{ __('Checkout') }}</button>
+                                <button type="button" class="btn btn-outline-success btn-sm" id="batchReturnBtn"><i class="fas fa-undo me-1"></i>{{ __('Return') }}</button>
                             </div>
                         </div>
                     </div>

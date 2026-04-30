@@ -36,7 +36,7 @@
 
             {{-- Taxonomy --}}
             <div class="mb-3">
-              <label for="taxonomy_id" class="form-label">Taxonomy <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="taxonomy_id" class="form-label">Taxonomy <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               @if($term || $selectedTaxonomyId)
                 {{-- Pre-selected taxonomy: show name, keep ID hidden --}}
                 <input type="text" class="form-control" value="{{ $taxonomyName ?? '' }}" disabled>
@@ -54,7 +54,7 @@
 
             {{-- Name --}}
             <div class="mb-3">
-              <label for="name" class="form-label">Name <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="name" class="form-label">Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" name="name" id="name" class="form-control" required
                      value="{{ old('name', $term->name ?? '') }}"
                      @if($term && ($term->is_protected ?? false)) disabled @endif>
@@ -62,14 +62,14 @@
 
             {{-- Use for --}}
             <div class="mb-3">
-              <label for="use_for" class="form-label">Use for <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="use_for" class="form-label">Use for <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="use_for" id="use_for" class="form-control"
                      value="{{ old('use_for', $useFor ?? '') }}">
             </div>
 
             {{-- Code --}}
             <div class="mb-3">
-              <label for="code" class="form-label">Code <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="code" class="form-label">Code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="code" id="code" class="form-control"
                      value="{{ old('code', $term->code ?? '') }}">
             </div>
@@ -81,7 +81,7 @@
                 <thead class="table-light">
                   <tr>
                     <th id="scopeNotes-content-head" class="w-100">{{ __('Content') }}</th>
-                    <th><span class="visually-hidden">Delete</span></th>
+                    <th><span class="visually-hidden">{{ __('Delete') }}</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -93,7 +93,7 @@
                     <td>
                       <button type="button" class="btn atom-btn-white remove-scopenote-row">
                         <i class="fas fa-times" aria-hidden="true"></i>
-                        <span class="visually-hidden">Delete row</span>
+                        <span class="visually-hidden">{{ __('Delete row') }}</span>
                       </button>
                     </td>
                   </tr>
@@ -102,7 +102,7 @@
                   <tr>
                     <td colspan="2">
                       <button type="button" class="btn atom-btn-white" id="add-scopenote-row">
-                        <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
+                        <i class="fas fa-plus me-1" aria-hidden="true"></i>{{ __('Add new') }}
                       </button>
                     </td>
                   </tr>
@@ -117,7 +117,7 @@
                 <thead class="table-light">
                   <tr>
                     <th id="sourceNotes-content-head" class="w-100">{{ __('Content') }}</th>
-                    <th><span class="visually-hidden">Delete</span></th>
+                    <th><span class="visually-hidden">{{ __('Delete') }}</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -129,7 +129,7 @@
                     <td>
                       <button type="button" class="btn atom-btn-white remove-sourcenote-row">
                         <i class="fas fa-times" aria-hidden="true"></i>
-                        <span class="visually-hidden">Delete row</span>
+                        <span class="visually-hidden">{{ __('Delete row') }}</span>
                       </button>
                     </td>
                   </tr>
@@ -138,7 +138,7 @@
                   <tr>
                     <td colspan="2">
                       <button type="button" class="btn atom-btn-white" id="add-sourcenote-row">
-                        <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
+                        <i class="fas fa-plus me-1" aria-hidden="true"></i>{{ __('Add new') }}
                       </button>
                     </td>
                   </tr>
@@ -153,7 +153,7 @@
                 <thead class="table-light">
                   <tr>
                     <th id="displayNotes-content-head" class="w-100">{{ __('Content') }}</th>
-                    <th><span class="visually-hidden">Delete</span></th>
+                    <th><span class="visually-hidden">{{ __('Delete') }}</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -165,7 +165,7 @@
                     <td>
                       <button type="button" class="btn atom-btn-white remove-displaynote-row">
                         <i class="fas fa-times" aria-hidden="true"></i>
-                        <span class="visually-hidden">Delete row</span>
+                        <span class="visually-hidden">{{ __('Delete row') }}</span>
                       </button>
                     </td>
                   </tr>
@@ -174,7 +174,7 @@
                   <tr>
                     <td colspan="2">
                       <button type="button" class="btn atom-btn-white" id="add-displaynote-row">
-                        <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
+                        <i class="fas fa-plus me-1" aria-hidden="true"></i>{{ __('Add new') }}
                       </button>
                     </td>
                   </tr>
@@ -198,14 +198,14 @@
 
             {{-- Broad term (parent) --}}
             <div class="mb-3">
-              <label for="parent_id" class="form-label">Broad term <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="parent_id" class="form-label">Broad term <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="parent_id" id="parent_id" class="form-control"
                      value="{{ old('parent_id', $parentTerm->name ?? '') }}" placeholder="{{ __('Type to search terms...') }}" autocomplete="off">
             </div>
 
             {{-- Related term(s) --}}
             <div class="mb-3">
-              <label for="related_terms" class="form-label">Related term(s) <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="related_terms" class="form-label">Related term(s) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="related_terms" id="related_terms" class="form-control"
                      value="{{ old('related_terms', $relatedTerms ?? '') }}" placeholder="{{ __('Type to search terms...') }}" autocomplete="off">
             </div>
@@ -214,7 +214,7 @@
             <div class="row">
               <div class="col-md-9">
                 <div class="mb-3">
-                  <label for="converse_term" class="form-label">Converse term <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label for="converse_term" class="form-label">Converse term <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" name="converse_term" id="converse_term" class="form-control"
                          value="{{ old('converse_term', $converseTerm->name ?? '') }}" placeholder="{{ __('Type to search terms...') }}" autocomplete="off">
                 </div>
@@ -224,7 +224,7 @@
                   <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="self_reciprocal" id="self_reciprocal" value="1"
                            @checked(old('self_reciprocal', ($converseTerm && $term && $converseTerm->id == $term->id) ? 1 : 0))>
-                    <label class="form-check-label" for="self_reciprocal">Self-reciprocal <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-check-label" for="self_reciprocal">Self-reciprocal <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 </div>
               </div>
@@ -232,7 +232,7 @@
 
             {{-- Add new narrow terms --}}
             <div class="mb-3">
-              <label for="narrow_terms" class="form-label">Add new narrow terms <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="narrow_terms" class="form-label">Add new narrow terms <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea name="narrow_terms" id="narrow_terms" class="form-control" rows="2">{{ old('narrow_terms', '') }}</textarea>
             </div>
 

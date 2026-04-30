@@ -13,10 +13,10 @@
 
 <!-- Stats -->
 <div class="row mb-3">
-    <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4>{{ $stats['total'] ?? 0 }}</h4><small>Total</small></div></div></div>
-    <div class="col-md-3"><div class="card bg-warning"><div class="card-body text-center"><h4>{{ $stats['pending'] ?? 0 }}</h4><small>Pending</small></div></div></div>
-    <div class="col-md-3"><div class="card bg-danger text-white"><div class="card-body text-center"><h4>{{ $stats['overdue'] ?? 0 }}</h4><small>Overdue</small></div></div></div>
-    <div class="col-md-3"><div class="card bg-success text-white"><div class="card-body text-center"><h4>{{ $stats['completed'] ?? 0 }}</h4><small>Completed</small></div></div></div>
+    <div class="col-md-3"><div class="card bg-light"><div class="card-body text-center"><h4>{{ $stats['total'] ?? 0 }}</h4><small>{{ __('Total') }}</small></div></div></div>
+    <div class="col-md-3"><div class="card bg-warning"><div class="card-body text-center"><h4>{{ $stats['pending'] ?? 0 }}</h4><small>{{ __('Pending') }}</small></div></div></div>
+    <div class="col-md-3"><div class="card bg-danger text-white"><div class="card-body text-center"><h4>{{ $stats['overdue'] ?? 0 }}</h4><small>{{ __('Overdue') }}</small></div></div></div>
+    <div class="col-md-3"><div class="card bg-success text-white"><div class="card-body text-center"><h4>{{ $stats['completed'] ?? 0 }}</h4><small>{{ __('Completed') }}</small></div></div></div>
 </div>
 
 <div class="card">
@@ -36,7 +36,7 @@
                         <td>{{ $r->received_date ?? '' }}</td>
                         <td>
                             {{ $r->deadline_date ?? '' }}
-                            @if($isOverdue)<span class="badge bg-danger">OVERDUE</span>@endif
+                            @if($isOverdue)<span class="badge bg-danger">{{ __('OVERDUE') }}</span>@endif
                         </td>
                         <td>
                             @php

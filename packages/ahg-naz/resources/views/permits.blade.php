@@ -25,7 +25,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgnaz.permit-create') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i> New Application
+                <i class="fas fa-plus me-1"></i> {{ __('New Application') }}
             </a>
         </div>
     </div>
@@ -92,7 +92,7 @@
                                 <td>
                                     {{ $permit->end_date }}
                                     @if ($isExpiring)
-                                        <span class="badge bg-warning text-dark">Expiring</span>
+                                        <span class="badge bg-warning text-dark">{{ __('Expiring') }}</span>
                                     @endif
                                 </td>
                                 <td>
@@ -104,7 +104,7 @@
                                             <i class="fas fa-times-circle text-danger" title="{{ __('Unpaid') }}"></i>
                                         @endif
                                     @else
-                                        <span class="text-muted">Free</span>
+                                        <span class="text-muted">{{ __('Free') }}</span>
                                     @endif
                                 </td>
                                 <td>

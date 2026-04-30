@@ -13,7 +13,7 @@
     </h4>
     @auth
       <a href="{{ $resource ? route('admin.3d-models.upload', $resource->id ?? 0) : route('admin.3d-models.browse') }}" class="btn btn-sm atom-btn-white">
-        <i class="fas fa-plus me-1"></i>Add 3D Model
+        <i class="fas fa-plus me-1"></i>{{ __('Add 3D Model') }}
       </a>
     @endauth
   </div>
@@ -50,7 +50,7 @@
           >
             @if(!empty($model->ar_enabled))
               <button slot="ar-button" style="position:absolute;bottom:16px;left:16px;padding:8px 16px;border:none;border-radius:8px;background:var(--ahg-primary,#1a73e8);color:white;font-weight:500;cursor:pointer;">
-                <i class="fas fa-cube"></i> View in AR
+                <i class="fas fa-cube"></i> {{ __('View in AR') }}
               </button>
             @endif
           </model-viewer>
@@ -63,13 +63,13 @@
         {{ strtoupper($model->format ?? 'GLB') }} &bull;
         {{ number_format(($model->file_size ?? 0) / 1048576, 2) }} MB
         @if(!empty($model->ar_enabled) && !$isSplat)
-          &bull; <span class="badge bg-success"><i class="fas fa-mobile-alt me-1"></i>AR Ready</span>
+          &bull; <span class="badge bg-success"><i class="fas fa-mobile-alt me-1"></i>{{ __('AR Ready') }}</span>
         @endif
       </small>
       @auth
         <div class="mt-1">
           <a href="{{ route('admin.3d-models.edit', $model->id) }}" class="btn btn-sm atom-btn-white">
-            <i class="fas fa-cog me-1"></i>Settings
+            <i class="fas fa-cog me-1"></i>{{ __('Settings') }}
           </a>
         </div>
       @endauth
@@ -84,7 +84,7 @@
                   data-bs-target="#model3d-tab-{{ $model->id }}" type="button" role="tab">
             {{ $model->model_title ?: ($model->original_filename ?? 'Model ' . ($index + 1)) }}
             @if(!empty($model->is_primary))
-              <span class="badge bg-primary ms-1">Primary</span>
+              <span class="badge bg-primary ms-1">{{ __('Primary') }}</span>
             @endif
           </button>
         </li>

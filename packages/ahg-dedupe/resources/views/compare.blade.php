@@ -22,11 +22,11 @@
     <div class="ms-auto d-flex gap-2">
       @if($duplicate->status !== 'merged')
         <a href="{{ route('dedupe.merge', $duplicate->id) }}" class="btn atom-btn-outline-success">
-          <i class="fas fa-compress-arrows-alt me-1"></i> Merge Records
+          <i class="fas fa-compress-arrows-alt me-1"></i> {{ __('Merge Records') }}
         </a>
       @endif
       <a href="{{ route('dedupe.browse') }}" class="btn atom-btn-white">
-        <i class="fas fa-arrow-left me-1"></i> Back
+        <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
       </a>
     </div>
   </div>
@@ -36,10 +36,10 @@
     <div class="col-md-6">
       <div class="card">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <strong>Record A</strong>
+          <strong>{{ __('Record A') }}</strong>
           @if($recordA)
             <a href="{{ route('informationobject.show', $recordA->id) }}" class="text-white float-end">
-              <i class="fas fa-external-link-alt"></i> View
+              <i class="fas fa-external-link-alt"></i> {{ __('View') }}
             </a>
           @endif
         </div>
@@ -56,10 +56,10 @@
     <div class="col-md-6">
       <div class="card">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <strong>Record B</strong>
+          <strong>{{ __('Record B') }}</strong>
           @if($recordB)
             <a href="{{ route('informationobject.show', $recordB->id) }}" class="text-white float-end">
-              <i class="fas fa-external-link-alt"></i> View
+              <i class="fas fa-external-link-alt"></i> {{ __('View') }}
             </a>
           @endif
         </div>
@@ -77,7 +77,7 @@
 
   {{-- Field comparison table --}}
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>Field Comparison</strong></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>{{ __('Field Comparison') }}</strong></div>
     <div class="card-body p-0">
       <div class="table-responsive">
         <table class="table table-bordered mb-0">
@@ -122,22 +122,22 @@
   <div class="alert alert-info mb-4">
     <div class="row">
       <div class="col-md-3">
-        <strong>Similarity Score:</strong>
+        <strong>{{ __('Similarity Score:') }}</strong>
         <span class="badge {{ $badgeClass }} fs-6">{{ number_format($score, 1) }}%</span>
       </div>
       <div class="col-md-3">
-        <strong>Detection Method:</strong>
+        <strong>{{ __('Detection Method:') }}</strong>
         {{ ucwords(str_replace('_', ' ', $duplicate->detection_method)) }}
       </div>
       <div class="col-md-3">
-        <strong>Status:</strong>
+        <strong>{{ __('Status:') }}</strong>
         @php
           $statusColors = ['pending' => 'bg-warning text-dark', 'confirmed' => 'bg-info', 'dismissed' => 'bg-secondary', 'merged' => 'bg-success'];
         @endphp
         <span class="badge {{ $statusColors[$duplicate->status] ?? 'bg-secondary' }}">{{ $duplicate->status }}</span>
       </div>
       <div class="col-md-3">
-        <strong>Detected:</strong>
+        <strong>{{ __('Detected:') }}</strong>
         {{ $duplicate->detected_at ? \Carbon\Carbon::parse($duplicate->detected_at)->format('M j, Y H:i') : '-' }}
       </div>
     </div>
@@ -146,9 +146,9 @@
   {{-- Field Comparison Legend --}}
   <div class="alert alert-secondary mb-4">
     <i class="fas fa-info-circle me-2"></i>
-    <strong>Legend:</strong>
-    <span class="badge bg-success">Green rows</span> indicate matching values.
-    <span class="badge bg-warning text-dark">Yellow rows</span> indicate differing values between records.
+    <strong>{{ __('Legend:') }}</strong>
+    <span class="badge bg-success">{{ __('Green rows') }}</span> indicate matching values.
+    <span class="badge bg-warning text-dark">{{ __('Yellow rows') }}</span> indicate differing values between records.
   </div>
 
   {{-- Detection Details --}}
@@ -165,10 +165,10 @@
   @if($duplicate->status === 'pending')
     <div class="d-flex gap-2">
       <button type="button" class="btn atom-btn-outline-danger" id="btn-confirm-duplicate">
-        <i class="fas fa-check me-1"></i> Confirm Duplicate
+        <i class="fas fa-check me-1"></i> {{ __('Confirm Duplicate') }}
       </button>
       <button type="button" class="btn atom-btn-white" id="btn-dismiss-duplicate">
-        <i class="fas fa-times me-1"></i> Dismiss
+        <i class="fas fa-times me-1"></i> {{ __('Dismiss') }}
       </button>
     </div>
   @else

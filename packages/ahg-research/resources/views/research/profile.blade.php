@@ -78,7 +78,7 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-2 mb-3">
-            <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="title" id="title" class="form-select">
               <option value="">-- Select --</option>
               @foreach(['Mr', 'Mrs', 'Ms', 'Dr', 'Prof'] as $t)
@@ -87,22 +87,22 @@
             </select>
           </div>
           <div class="col-md-5 mb-3">
-            <label for="first_name" class="form-label">First Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+            <label for="first_name" class="form-label">First Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <input type="text" name="first_name" id="first_name" class="form-control" value="{{ old('first_name', $researcher->first_name ?? '') }}" required>
           </div>
           <div class="col-md-5 mb-3">
-            <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+            <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <input type="text" name="last_name" id="last_name" class="form-control" value="{{ old('last_name', $researcher->last_name ?? '') }}" required>
           </div>
         </div>
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label">Email <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Email <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="email" class="form-control" value="{{ e($researcher->email ?? '') }}" disabled>
-            <small class="text-muted">Contact an administrator to change your email.</small>
+            <small class="text-muted">{{ __('Contact an administrator to change your email.') }}</small>
           </div>
           <div class="col-md-6 mb-3">
-            <label for="phone" class="form-label">Phone <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="phone" class="form-label">Phone <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="phone" id="phone" class="form-control" value="{{ old('phone', $researcher->phone ?? '') }}">
           </div>
         </div>
@@ -115,7 +115,7 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label class="form-label">ID Type <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">ID Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             @if($themeData['isAdmin'] ?? false)
               <select name="id_type" class="form-select">
                 <option value="">-- Select --</option>
@@ -128,7 +128,7 @@
             @endif
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">ID Number <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">ID Number <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             @if($themeData['isAdmin'] ?? false)
               <input type="text" name="id_number" class="form-control" value="{{ old('id_number', $researcher->id_number ?? '') }}">
             @else
@@ -136,12 +136,12 @@
             @endif
           </div>
           <div class="col-md-4 mb-3">
-            <label for="student_id" class="form-label">Student ID <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="student_id" class="form-label">Student ID <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="student_id" id="student_id" class="form-control" value="{{ old('student_id', $researcher->student_id ?? '') }}">
           </div>
         </div>
         @if(!($themeData['isAdmin'] ?? false))
-          <small class="text-muted">ID type and number cannot be changed. Contact an administrator if corrections are needed.</small>
+          <small class="text-muted">{{ __('ID type and number cannot be changed. Contact an administrator if corrections are needed.') }}</small>
         @endif
       </div>
     </div>
@@ -152,7 +152,7 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label for="affiliation_type" class="form-label">Affiliation Type <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="affiliation_type" class="form-label">Affiliation Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="affiliation_type" id="affiliation_type" class="form-select">
               <option value="">-- Select --</option>
               @foreach(['academic', 'government', 'independent', 'corporate', 'student', 'other'] as $type)
@@ -161,21 +161,21 @@
             </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label for="institution" class="form-label">Institution <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="institution" class="form-label">Institution <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="institution" id="institution" class="form-control" value="{{ old('institution', $researcher->institution ?? '') }}">
           </div>
           <div class="col-md-4 mb-3">
-            <label for="department" class="form-label">Department <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="department" class="form-label">Department <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="department" id="department" class="form-control" value="{{ old('department', $researcher->department ?? '') }}">
           </div>
         </div>
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="position" class="form-label">Position <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="position" class="form-label">Position <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="position" id="position" class="form-control" value="{{ old('position', $researcher->position ?? '') }}">
           </div>
           <div class="col-md-6 mb-3">
-            <label for="orcid_id" class="form-label">ORCID iD <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="orcid_id" class="form-label">ORCID iD <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="orcid_id" id="orcid_id" class="form-control" value="{{ old('orcid_id', $researcher->orcid_id ?? '') }}" placeholder="0000-0000-0000-0000">
           </div>
         </div>
@@ -187,11 +187,11 @@
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-microscope me-2"></i>Research</div>
       <div class="card-body">
         <div class="mb-3">
-          <label for="research_interests" class="form-label">Research Interests <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="research_interests" class="form-label">Research Interests <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <textarea name="research_interests" id="research_interests" class="form-control" rows="4">{{ old('research_interests', $researcher->research_interests ?? '') }}</textarea>
         </div>
         <div class="mb-3">
-          <label for="current_project" class="form-label">Current Project <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="current_project" class="form-label">Current Project <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <textarea name="current_project" id="current_project" class="form-control" rows="4">{{ old('current_project', $researcher->current_project ?? '') }}</textarea>
         </div>
       </div>
@@ -200,7 +200,7 @@
     <div class="d-flex justify-content-end">
       <a href="{{ route('research.dashboard') }}" class="btn atom-btn-white me-2">Cancel</a>
       <button type="submit" class="btn atom-btn-outline-success">
-        <i class="fas fa-save me-1"></i>Update Profile
+        <i class="fas fa-save me-1"></i>{{ __('Update Profile') }}
       </button>
     </div>
   </form>
@@ -247,7 +247,7 @@
       <div class="card-header bg-dark text-white"><h6 class="mb-0"><i class="fas fa-key me-2"></i>API Access</h6></div>
       <div class="card-body">
         <p class="small text-muted mb-2">Access your research data programmatically via REST API.</p>
-        <a href="{{ url('/research/apiKeys') }}" class="btn btn-sm btn-outline-dark w-100"><i class="fas fa-key me-1"></i>Manage API Keys</a>
+        <a href="{{ url('/research/apiKeys') }}" class="btn btn-sm btn-outline-dark w-100"><i class="fas fa-key me-1"></i>{{ __('Manage API Keys') }}</a>
       </div>
     </div>
     @endif
@@ -256,10 +256,10 @@
     <div class="card">
       <div class="card-header bg-secondary text-white"><h6 class="mb-0"><i class="fas fa-link me-2"></i>Quick Links</h6></div>
       <ul class="list-group list-group-flush">
-        <li class="list-group-item"><a href="{{ route('research.projects') }}"><i class="fas fa-project-diagram me-2"></i>My Projects</a></li>
-        <li class="list-group-item"><a href="{{ route('research.bibliographies') }}"><i class="fas fa-book me-2"></i>Bibliographies</a></li>
-        <li class="list-group-item"><a href="{{ route('research.workspaces') }}"><i class="fas fa-users-cog me-2"></i>Workspaces</a></li>
-        <li class="list-group-item"><a href="{{ route('research.reproductions') }}"><i class="fas fa-copy me-2"></i>Reproduction Requests</a></li>
+        <li class="list-group-item"><a href="{{ route('research.projects') }}"><i class="fas fa-project-diagram me-2"></i>{{ __('My Projects') }}</a></li>
+        <li class="list-group-item"><a href="{{ route('research.bibliographies') }}"><i class="fas fa-book me-2"></i>{{ __('Bibliographies') }}</a></li>
+        <li class="list-group-item"><a href="{{ route('research.workspaces') }}"><i class="fas fa-users-cog me-2"></i>{{ __('Workspaces') }}</a></li>
+        <li class="list-group-item"><a href="{{ route('research.reproductions') }}"><i class="fas fa-copy me-2"></i>{{ __('Reproduction Requests') }}</a></li>
       </ul>
     </div>
   </div>

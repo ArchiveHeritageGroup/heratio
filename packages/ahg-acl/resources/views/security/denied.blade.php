@@ -19,7 +19,7 @@
 
           @if($classification ?? null)
           <p class="mt-3">
-            <strong>Required Classification:</strong>
+            <strong>{{ __('Required Classification:') }}</strong>
             <span class="badge" style="background-color: {{ $classification->color ?? '#666' }}">
               {{ e($classification->name ?? '') }}
             </span>
@@ -37,18 +37,18 @@
           <div class="d-grid gap-2">
             @if(!empty($accessResult['requires_2fa']))
             <a href="{{ route('acl.two-factor', ['return' => urlencode(request()->getRequestUri())]) }}" class="btn btn-warning">
-              <i class="fas fa-shield-alt"></i> Verify 2FA
+              <i class="fas fa-shield-alt"></i> {{ __('Verify 2FA') }}
             </a>
             @endif
 
             @if(!empty($accessResult['requires_request']))
             <a href="{{ route('acl.access-request', ['id' => $resource->id ?? 0]) }}" class="btn btn-primary">
-              <i class="fas fa-key"></i> Request Access
+              <i class="fas fa-key"></i> {{ __('Request Access') }}
             </a>
             @endif
 
             <a href="javascript:history.back()" class="btn btn-secondary">
-              <i class="fas fa-arrow-left"></i> Go Back
+              <i class="fas fa-arrow-left"></i> {{ __('Go Back') }}
             </a>
           </div>
         </div>

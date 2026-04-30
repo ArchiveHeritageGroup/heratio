@@ -74,7 +74,7 @@
           <div class="mb-3">
             <label class="form-label">{{ __('Days Open') }}</label>
             <input type="text" name="days_open" class="form-control" value="{{ e($room->days_open ?? 'Mon,Tue,Wed,Thu,Fri') }}" placeholder="{{ __('Mon,Tue,Wed,Thu,Fri') }}">
-            <small class="text-muted">Comma-separated list of days</small>
+            <small class="text-muted">{{ __('Comma-separated list of days') }}</small>
           </div>
 
           <h5 class="mb-3 mt-4 border-bottom pb-2">{{ __('Additional Information') }}</h5>
@@ -97,17 +97,17 @@
                 <div class="col-md-4">
                   <label class="form-label">{{ __('Advance Booking (days)') }}</label>
                   <input type="number" name="advance_booking_days" class="form-control" value="{{ $room->advance_booking_days ?? 14 }}" min="1" max="90">
-                  <small class="text-muted">How far in advance</small>
+                  <small class="text-muted">{{ __('How far in advance') }}</small>
                 </div>
                 <div class="col-md-4">
                   <label class="form-label">{{ __('Max Hours per Booking') }}</label>
                   <input type="number" name="max_booking_hours" class="form-control" value="{{ $room->max_booking_hours ?? 4 }}" min="1" max="12">
-                  <small class="text-muted">Maximum duration</small>
+                  <small class="text-muted">{{ __('Maximum duration') }}</small>
                 </div>
                 <div class="col-md-4">
                   <label class="form-label">{{ __('Cancellation Notice (hrs)') }}</label>
                   <input type="number" name="cancellation_hours" class="form-control" value="{{ $room->cancellation_hours ?? 24 }}" min="0" max="72">
-                  <small class="text-muted">Required notice</small>
+                  <small class="text-muted">{{ __('Required notice') }}</small>
                 </div>
               </div>
             </div>
@@ -118,7 +118,7 @@
       <hr>
 
       <div class="d-flex justify-content-between">
-        <a href="{{ route('research.rooms') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Cancel</a>
+        <a href="{{ route('research.rooms') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Cancel') }}</a>
         <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ $isNew ? 'Create Room' : 'Save Changes' }}</button>
       </div>
     </form>

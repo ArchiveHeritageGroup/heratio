@@ -7,7 +7,7 @@
 
   <div class="multiline-header d-flex flex-column mb-3">
     <h1 class="mb-0"><i class="fas fa-warehouse me-2"></i>{{ $io->title ?? '[Untitled]' }}</h1>
-    <span class="small text-muted">Link Physical Storage</span>
+    <span class="small text-muted">{{ __('Link Physical Storage') }}</span>
   </div>
 
   @if(session('success'))
@@ -91,7 +91,7 @@
                   @if($po->po_status && $po->po_status !== 'active')
                     <span class="badge bg-{{ $po->po_status === 'full' ? 'danger' : 'warning' }}">{{ ucfirst($po->po_status) }}</span>
                   @else
-                    <span class="badge bg-success">Active</span>
+                    <span class="badge bg-success">{{ __('Active') }}</span>
                   @endif
                   @if($po->climate_controlled)<span class="badge bg-info ms-1"><i class="fas fa-thermometer-half"></i></span>@endif
                   @if($po->security_level)<span class="badge bg-dark ms-1"><i class="fas fa-lock"></i> {{ $po->security_level }}</span>@endif
@@ -126,7 +126,7 @@
     <div class="accordion-item">
       <h2 class="accordion-header">
         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#linkExisting" aria-expanded="true">
-          <i class="fas fa-link me-2"></i>Link existing container
+          <i class="fas fa-link me-2"></i>{{ __('Link existing container') }}
         </button>
       </h2>
       <div id="linkExisting" class="accordion-collapse collapse show" data-bs-parent="#addContainerAccordion">
@@ -143,7 +143,7 @@
                 <div id="container-results" class="list-group mt-1" style="position:absolute;z-index:1000;max-height:200px;overflow-y:auto;display:none;"></div>
               </div>
               <div class="col-md-4">
-                <button type="submit" class="btn atom-btn-outline-success w-100"><i class="fas fa-link me-1"></i>Link</button>
+                <button type="submit" class="btn atom-btn-outline-success w-100"><i class="fas fa-link me-1"></i>{{ __('Link') }}</button>
               </div>
             </div>
           </form>
@@ -155,7 +155,7 @@
     <div class="accordion-item">
       <h2 class="accordion-header">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#createNew">
-          <i class="fas fa-plus me-2"></i>Or, create a new container
+          <i class="fas fa-plus me-2"></i>{{ __('Or, create a new container') }}
         </button>
       </h2>
       <div id="createNew" class="accordion-collapse collapse" data-bs-parent="#addContainerAccordion">
@@ -259,7 +259,7 @@
               </div>
             </div>
 
-            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Create & Link</button>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>{{ __('Create & Link') }}</button>
           </form>
         </div>
       </div>

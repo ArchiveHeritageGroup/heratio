@@ -14,7 +14,7 @@
           No results found
         @endif
       </h1>
-      <span class="small text-muted">RiC Sync Status</span>
+      <span class="small text-muted">{{ __('RiC Sync Status') }}</span>
     </div>
   </div>
 
@@ -92,7 +92,7 @@
 
   <div class="mt-3">
     <a href="{{ route('ric.index') }}" class="btn btn-sm btn-outline-secondary">
-      <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Dashboard') }}
     </a>
   </div>
 @endsection

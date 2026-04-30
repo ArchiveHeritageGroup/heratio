@@ -9,7 +9,7 @@
 
 @section('sidebar')
 <div class="sidebar-content">
-  <a href="{{ route('gallery-reports.index') }}" class="btn btn-outline-primary btn-sm w-100 mb-3"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a>
+  <a href="{{ route('gallery-reports.index') }}" class="btn btn-outline-primary btn-sm w-100 mb-3"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a>
 </div>
 @endsection
 

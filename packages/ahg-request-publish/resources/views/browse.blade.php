@@ -75,7 +75,7 @@
     <div class="card-body border-bottom py-2">
       <div class="d-flex flex-wrap gap-2 justify-content-end">
         <div class="btn-group btn-group-sm" role="group" aria-label="{{ __('Sort options') }}">
-          <span class="btn atom-btn-white disabled">Sort by:</span>
+          <span class="btn atom-btn-white disabled">{{ __('Sort by:') }}</span>
           <a href="{{ route('request-publish.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'nameUp'])) }}"
              class="btn atom-btn-white {{ $sort === 'nameUp' ? 'active' : '' }}">
             Name <i class="fas fa-arrow-up"></i>
@@ -187,7 +187,7 @@
                                   type="button" data-bs-toggle="collapse"
                                   data-bs-target="#collapse-{{ $row['id'] }}"
                                   aria-expanded="false" aria-controls="collapse-{{ $row['id'] }}">
-                            <i class="fas fa-chevron-down me-1"></i> Details
+                            <i class="fas fa-chevron-down me-1"></i> {{ __('Details') }}
                           </button>
                         </h2>
                         <div id="collapse-{{ $row['id'] }}" class="accordion-collapse collapse"
@@ -196,15 +196,15 @@
                           <div class="accordion-body bg-light py-2 px-3">
                             <div class="row">
                               <div class="col-md-4">
-                                <label class="form-label text-muted small fw-semibold mb-0">Motivation <span class="badge bg-secondary ms-1">Optional</span></label>
+                                <label class="form-label text-muted small fw-semibold mb-0">Motivation <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <p class="small mb-2">{{ $row['rtp_motivation'] ?: '-' }}</p>
                               </div>
                               <div class="col-md-4">
-                                <label class="form-label text-muted small fw-semibold mb-0">Planned Use <span class="badge bg-secondary ms-1">Optional</span></label>
+                                <label class="form-label text-muted small fw-semibold mb-0">Planned Use <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <p class="small mb-2">{{ $row['rtp_planned_use'] ?: '-' }}</p>
                               </div>
                               <div class="col-md-4">
-                                <label class="form-label text-muted small fw-semibold mb-0">Admin Notes <span class="badge bg-secondary ms-1">Optional</span></label>
+                                <label class="form-label text-muted small fw-semibold mb-0">Admin Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <p class="small mb-2">{{ $row['rtp_admin_notes'] ?: '-' }}</p>
                               </div>
                             </div>

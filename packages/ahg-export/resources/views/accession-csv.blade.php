@@ -26,7 +26,7 @@
                     <form method="post" action="{{ route('export.accessionCsv.post') }}">
                         @csrf
                         <div class="mb-3">
-                            <label for="repository_id" class="form-label">Repository (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label for="repository_id" class="form-label">Repository (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="repository_id" name="repository_id">
                                 <option value="">-- All repositories --</option>
                                 @foreach($repositories as $repo)
@@ -37,17 +37,17 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="date_from" class="form-label">Acquisition Date From <span class="badge bg-secondary ms-1">Optional</span></label>
+                                <label for="date_from" class="form-label">Acquisition Date From <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <input type="date" class="form-control" id="date_from" name="date_from">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="date_to" class="form-label">Acquisition Date To <span class="badge bg-secondary ms-1">Optional</span></label>
+                                <label for="date_to" class="form-label">Acquisition Date To <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <input type="date" class="form-control" id="date_to" name="date_to">
                             </div>
                         </div>
 
                         <button type="submit" class="atom-btn-white">
-                            <i class="fas fa-download me-1"></i>Download CSV
+                            <i class="fas fa-download me-1"></i>{{ __('Download CSV') }}
                         </button>
                     </form>
                 </div>
@@ -60,7 +60,7 @@
                     <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Summary</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Total accessions:</strong> {{ number_format($accessionCount) }}</p>
+                    <p><strong>{{ __('Total accessions:') }}</strong> {{ number_format($accessionCount) }}</p>
                     <hr>
                     <h6>{{ __('Exported Columns') }}</h6>
                     <small class="text-muted">

@@ -22,7 +22,7 @@
     @if($folder->id) @method('PUT') @endif
 
     <div class="card mb-3">
-        <div class="card-header"><strong>Folder</strong></div>
+        <div class="card-header"><strong>{{ __('Folder') }}</strong></div>
         <div class="card-body">
             <div class="mb-3">
                 <label class="form-label">Code <span class="text-danger">*</span></label>
@@ -72,7 +72,7 @@
     </div>
 
     <div class="card mb-3">
-        <div class="card-header"><strong>Destination + descriptive standard</strong></div>
+        <div class="card-header"><strong>{{ __('Destination + descriptive standard') }}</strong></div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -113,32 +113,32 @@
     </div>
 
     <div class="card mb-3">
-        <div class="card-header"><strong>Processing</strong></div>
+        <div class="card-header"><strong>{{ __('Processing') }}</strong></div>
         <div class="card-body">
             <div class="form-check form-switch mb-3">
                 <input type="hidden" name="auto_commit" value="0">
                 <input type="checkbox" name="auto_commit" value="1" class="form-check-input" id="ac" {{ old('auto_commit', $folder->auto_commit ?? 1) ? 'checked' : '' }}>
-                <label class="form-check-label" for="ac"><strong>Auto-commit</strong> — process files automatically without human approval (default on)</label>
+                <label class="form-check-label" for="ac"><strong>{{ __('Auto-commit') }}</strong> — process files automatically without human approval (default on)</label>
             </div>
             <div class="form-check form-switch mb-3">
                 <input type="hidden" name="output_create_authorities" value="0">
                 <input type="checkbox" name="output_create_authorities" value="1" class="form-check-input" id="oca" {{ old('output_create_authorities', $folder->output_create_authorities ?? 1) ? 'checked' : '' }}>
-                <label class="form-check-label" for="oca"><strong>Auto-create authorities</strong> — when a sidecar names a new creator/artist that doesn't exist, create a draft actor record (default on). Turn off to skip files with unknown creators instead.</label>
+                <label class="form-check-label" for="oca"><strong>{{ __('Auto-create authorities') }}</strong> — when a sidecar names a new creator/artist that doesn't exist, create a draft actor record (default on). Turn off to skip files with unknown creators instead.</label>
             </div>
             <div class="form-check form-switch mb-3">
                 <input type="hidden" name="spectrum_auto_enter" value="0">
                 <input type="checkbox" name="spectrum_auto_enter" value="1" class="form-check-input" id="sae" {{ old('spectrum_auto_enter', $folder->spectrum_auto_enter ?? 0) ? 'checked' : '' }}>
-                <label class="form-check-label" for="sae"><strong>Spectrum auto-entry</strong> — for museum-sector scans, automatically create a Spectrum object-entry + acquisition record and enter the configured workflow (default off).</label>
+                <label class="form-check-label" for="sae"><strong>{{ __('Spectrum auto-entry') }}</strong> — for museum-sector scans, automatically create a Spectrum object-entry + acquisition record and enter the configured workflow (default off).</label>
             </div>
 
             @if($folder->id && !empty($folder->ingest_session_id ?? null))
                 <div class="alert alert-info d-flex align-items-center justify-content-between mb-0">
                     <div>
-                        <strong>Derivatives, virus scan, OCR, SIP/AIP/DIP</strong> are configured on this folder's ingest session.
+                        <strong>{{ __('Derivatives, virus scan, OCR, SIP/AIP/DIP') }}</strong> are configured on this folder's ingest session.
                         The scanner pipeline honours those settings.
                     </div>
                     <a href="{{ url('/ingest/configure/' . $folder->ingest_session_id) }}" class="btn btn-sm btn-outline-primary ms-3">
-                        <i class="fas fa-sliders-h me-1"></i>Configure processing
+                        <i class="fas fa-sliders-h me-1"></i>{{ __('Configure processing') }}
                     </a>
                 </div>
             @else
@@ -152,7 +152,7 @@
     </div>
 
     <div class="card mb-3">
-        <div class="card-header"><strong>Notifications</strong></div>
+        <div class="card-header"><strong>{{ __('Notifications') }}</strong></div>
         <div class="card-body">
             <div class="form-check form-switch mb-3">
                 <input type="hidden" name="notify_on_failure" value="0">
@@ -168,7 +168,7 @@
     </div>
 
     <div class="card mb-3">
-        <div class="card-header"><strong>Disposition</strong></div>
+        <div class="card-header"><strong>{{ __('Disposition') }}</strong></div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6 mb-3">

@@ -29,7 +29,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('forms.preview', ['id' => $template->id ?? 0]) }}" class="btn btn-outline-info">
-                <i class="fas fa-eye me-1"></i> Preview
+                <i class="fas fa-eye me-1"></i> {{ __('Preview') }}
             </a>
         </div>
     </div>
@@ -187,7 +187,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-save me-1"></i> Save Field
+                            <i class="fas fa-save me-1"></i> {{ __('Save Field') }}
                         </button>
                     </form>
                 </div>

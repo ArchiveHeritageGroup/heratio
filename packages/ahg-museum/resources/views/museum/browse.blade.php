@@ -14,7 +14,7 @@
           No results found
         @endif
       </h1>
-      <span class="small text-muted">Museum objects</span>
+      <span class="small text-muted">{{ __('Museum objects') }}</span>
     </div>
   </div>
 
@@ -83,7 +83,7 @@
   @auth
     <div class="mb-3">
       <a href="{{ route('museum.create') }}" class="btn atom-btn-outline-light">
-        <i class="fas fa-plus me-1"></i> Add new
+        <i class="fas fa-plus me-1"></i> {{ __('Add new') }}
       </a>
     </div>
   @endauth

@@ -19,7 +19,7 @@
     <h1><i class="fas fa-file-alt text-primary me-2"></i>{{ e($report->title) }}</h1>
     <div class="d-flex gap-2">
         <div class="dropdown">
-            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="fas fa-file-export me-1"></i>Export</button>
+            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="fas fa-file-export me-1"></i>{{ __('Export') }}</button>
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{{ route('research.viewReport', $report->id) }}?export=pdf"><i class="fas fa-file-pdf me-2 text-danger"></i>PDF</a></li>
             </ul>
@@ -96,7 +96,7 @@
                         <div class="mb-2"><input type="text" name="title" class="form-control form-control-sm" value="{{ e($section->title ?? '') }}" placeholder="{{ __('Section title...') }}"></div>
                         <div class="mb-2"><textarea name="content" class="form-control" rows="10">{{ e($section->content ?? '') }}</textarea></div>
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-save me-1"></i>Save</button>
+                            <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
                             <button type="button" class="btn btn-sm btn-secondary cancel-edit-btn" data-id="{{ $section->id }}">Cancel</button>
                         </div>
                     </form>
@@ -149,7 +149,7 @@
                                 </select>
                             </div>
                             <div class="col-md-5"><label class="form-label small">{{ __('Title') }}</label><input type="text" name="title" class="form-control form-control-sm" placeholder="{{ __('Section title...') }}"></div>
-                            <div class="col-md-3"><button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="fas fa-plus me-1"></i>Add</button></div>
+                            <div class="col-md-3"><button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="fas fa-plus me-1"></i>{{ __('Add') }}</button></div>
                         </form>
                     </div>
                     <div class="tab-pane fade" id="addFromTemplate">
@@ -167,7 +167,7 @@
                                         <option value="finding_aid">{{ __('Finding Aid') }}</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4"><button type="submit" class="btn btn-sm btn-outline-success w-100"><i class="fas fa-layer-group me-1"></i>Load Sections</button></div>
+                                <div class="col-md-4"><button type="submit" class="btn btn-sm btn-outline-success w-100"><i class="fas fa-layer-group me-1"></i>{{ __('Load Sections') }}</button></div>
                             </div>
                         </form>
                     </div>
@@ -181,7 +181,7 @@
                                 <div class="col-auto"><div class="form-check"><input type="checkbox" name="section_types[]" value="{{ $tk }}" class="form-check-input" id="multi_{{ $tk }}"><label class="form-check-label small" for="multi_{{ $tk }}">{{ $tl }}</label></div></div>
                                 @endforeach
                             </div>
-                            <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus-circle me-1"></i>Add Selected</button>
+                            <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus-circle me-1"></i>{{ __('Add Selected') }}</button>
                         </form>
                     </div>
                 </div>
@@ -194,10 +194,10 @@
         <div class="card mb-4">
             <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Report Info</h6></div>
             <ul class="list-group list-group-flush">
-                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Author</span><span>{{ e(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) }}</span></li>
-                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Created</span><span>{{ date('M j, Y', strtotime($report->created_at)) }}</span></li>
-                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Updated</span><span>{{ date('M j, Y H:i', strtotime($report->updated_at)) }}</span></li>
-                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Sections</span><span class="badge bg-primary">{{ count($report->sections) }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">{{ __('Author') }}</span><span>{{ e(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">{{ __('Created') }}</span><span>{{ date('M j, Y', strtotime($report->created_at)) }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">{{ __('Updated') }}</span><span>{{ date('M j, Y H:i', strtotime($report->updated_at)) }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">{{ __('Sections') }}</span><span class="badge bg-primary">{{ count($report->sections) }}</span></li>
             </ul>
         </div>
 
@@ -209,7 +209,7 @@
                 <form method="POST" onsubmit="return confirm('Are you sure? This cannot be undone.')">
                     @csrf
                     <input type="hidden" name="form_action" value="delete_report">
-                    <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash me-1"></i>Delete Report</button>
+                    <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash me-1"></i>{{ __('Delete Report') }}</button>
                 </form>
             </div>
         </div>

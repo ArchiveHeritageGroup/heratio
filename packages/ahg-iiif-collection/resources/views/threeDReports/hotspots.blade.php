@@ -2,7 +2,7 @@
 @extends('theme::layouts.2col')
 @section('title', 'Hotspots Report')
 @section('body-class', 'admin three-d-reports hotspots')
-@section('sidebar')<div class="sidebar-content"><a href="{{ route('iiif.three-d-reports.index') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>Back</a></div>@endsection
+@section('sidebar')<div class="sidebar-content"><a href="{{ route('iiif.three-d-reports.index') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back') }}</a></div>@endsection
 @section('title-block')<h1><i class="fas fa-map-pin me-2"></i>Hotspots Report</h1>@endsection
 @section('content')
 <div class="alert alert-info"><strong>{{ count($items) }}</strong> hotspots found</div>

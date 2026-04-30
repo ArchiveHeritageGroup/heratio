@@ -91,7 +91,7 @@ $categories = [
                 </li>
                 @endforeach
             @else
-                <li class="list-group-item text-muted text-center"><small>No templates</small></li>
+                <li class="list-group-item text-muted text-center"><small>{{ __('No templates') }}</small></li>
             @endif
             </ul>
         </div>
@@ -130,12 +130,12 @@ $categories = [
                     <div class="mb-3">
                         <label class="form-label">{{ __('Word Document (.docx) *') }}</label>
                         <input type="file" name="template_file" class="form-control" accept=".docx,.doc" required>
-                        <small class="text-muted">Upload a .docx file</small>
+                        <small class="text-muted">{{ __('Upload a .docx file') }}</small>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-upload me-1"></i>Upload</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-upload me-1"></i>{{ __('Upload') }}</button>
                 </div>
             </form>
         </div>
@@ -163,7 +163,7 @@ $categories = [
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                    <button type="submit" class="btn btn-warning"><i class="fas fa-sync me-1"></i>Replace</button>
+                    <button type="submit" class="btn btn-warning"><i class="fas fa-sync me-1"></i>{{ __('Replace') }}</button>
                 </div>
             </form>
         </div>

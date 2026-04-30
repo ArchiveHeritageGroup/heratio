@@ -62,9 +62,9 @@
   {{-- Bulk Grant --}}
   <div class="mb-3">
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#bulkGrantForm">
-      <i class="fas fa-users-cog"></i> Bulk Grant
+      <i class="fas fa-users-cog"></i> {{ __('Bulk Grant') }}
     </button>
-    <a href="{{ route('security-clearance.dashboard') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="{{ route('security-clearance.dashboard') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-tachometer-alt"></i> {{ __('Dashboard') }}</a>
   </div>
 
   <div class="collapse mb-3" id="bulkGrantForm">
@@ -122,7 +122,7 @@
               @if(!empty($user->clearance_name))
                 <span class="badge" style="background-color: {{ $user->clearance_color ?? '#666' }}">{{ e($user->clearance_name) }}</span>
               @else
-                <span class="badge bg-secondary">None</span>
+                <span class="badge bg-secondary">{{ __('None') }}</span>
               @endif
             </td>
             <td>{{ e($user->granted_by_name ?? '') }}</td>

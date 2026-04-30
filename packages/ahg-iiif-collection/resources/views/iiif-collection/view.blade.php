@@ -122,24 +122,24 @@ foreach ($collection->items as $item) {
         </div>
         <div class="card-body">
             <a href="{{ route('iiif-collection.manifest', $collection->slug) }}" class="btn atom-btn-white w-100 mb-2" target="_blank">
-                <i class="fas fa-code me-2"></i>View IIIF JSON
+                <i class="fas fa-code me-2"></i>{{ __('View IIIF JSON') }}
             </a>
             @auth
             <a href="{{ route('iiif-collection.add-items', $collection->id) }}" class="btn atom-btn-outline-success w-100 mb-2">
-                <i class="fas fa-plus me-2"></i>Add Items
+                <i class="fas fa-plus me-2"></i>{{ __('Add Items') }}
             </a>
             <a href="{{ route('iiif-collection.edit', $collection->id) }}" class="btn atom-btn-white w-100 mb-2">
-                <i class="fas fa-edit me-2"></i>Edit Collection
+                <i class="fas fa-edit me-2"></i>{{ __('Edit Collection') }}
             </a>
             <a href="{{ route('iiif-collection.create', ['parent_id' => $collection->id]) }}" class="btn atom-btn-outline-success w-100 mb-2">
-                <i class="fas fa-folder-plus me-2"></i>Create Subcollection
+                <i class="fas fa-folder-plus me-2"></i>{{ __('Create Subcollection') }}
             </a>
             <hr>
             <form method="POST" action="{{ route('iiif-collection.destroy', $collection->id) }}" onsubmit="return confirm('Are you sure you want to delete this collection?')">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn atom-btn-outline-danger w-100">
-                    <i class="fas fa-trash me-2"></i>Delete Collection
+                    <i class="fas fa-trash me-2"></i>{{ __('Delete Collection') }}
                 </button>
             </form>
             @endauth
@@ -169,9 +169,9 @@ foreach ($collection->items as $item) {
                 <dt>Visibility</dt>
                 <dd>
                     @if($collection->is_public)
-                    <span class="badge bg-success">Public</span>
+                    <span class="badge bg-success">{{ __('Public') }}</span>
                     @else
-                    <span class="badge bg-warning">Private</span>
+                    <span class="badge bg-warning">{{ __('Private') }}</span>
                     @endif
                 </dd>
 
@@ -211,15 +211,15 @@ foreach ($collection->items as $item) {
     @endif
 
     @if($collection->attribution)
-    <p class="text-muted"><strong>Attribution:</strong> {{ e($collection->attribution) }}</p>
+    <p class="text-muted"><strong>{{ __('Attribution:') }}</strong> {{ e($collection->attribution) }}</p>
     @endif
 
     @if($warningCount > 0)
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
         <i class="fas fa-exclamation-triangle me-2"></i>
-        <strong>Display Warning:</strong>
+        <strong>{{ __('Display Warning:') }}</strong>
         {{ $warningCount }} item(s) will not display in carousels/galleries.
-        <small class="d-block mt-1">Audio/video files need thumbnails, and only image files can be displayed directly.</small>
+        <small class="d-block mt-1">{{ __('Audio/video files need thumbnails, and only image files can be displayed directly.') }}</small>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
     @endif
@@ -311,9 +311,9 @@ foreach ($collection->items as $item) {
                             <td><code>{{ e($item->identifier ?: '-') }}</code></td>
                             <td>
                                 @if($item->item_type === 'collection')
-                                <span class="badge bg-info">Collection</span>
+                                <span class="badge bg-info">{{ __('Collection') }}</span>
                                 @else
-                                <span class="badge bg-primary">Manifest</span>
+                                <span class="badge bg-primary">{{ __('Manifest') }}</span>
                                 @endif
                             </td>
                             <td>
@@ -336,21 +336,21 @@ foreach ($collection->items as $item) {
                             <td>
                                 @if($item->manifest_uri)
                                     <span class="badge bg-info" title="{{ __('External manifest') }}">
-                                        <i class="fas fa-check me-1"></i>External
+                                        <i class="fas fa-check me-1"></i>{{ __('External') }}
                                     </span>
                                 @elseif($status)
                                     @if($status['displayable'])
                                         <span class="badge bg-success" title="{{ $status['has_reference'] ? 'Reference image' : ($status['has_thumbnail'] ? 'Thumbnail' : 'IIIF compatible') }}">
-                                            <i class="fas fa-check me-1"></i>OK
+                                            <i class="fas fa-check me-1"></i>{{ __('OK') }}
                                         </span>
                                     @else
                                         <span class="badge bg-warning text-dark" title="{{ e($status['warning']) }}">
-                                            <i class="fas fa-exclamation-triangle me-1"></i>No preview
+                                            <i class="fas fa-exclamation-triangle me-1"></i>{{ __('No preview') }}
                                         </span>
                                     @endif
                                 @else
                                     <span class="badge bg-danger" title="{{ __('No digital object') }}">
-                                        <i class="fas fa-times me-1"></i>Missing
+                                        <i class="fas fa-times me-1"></i>{{ __('Missing') }}
                                     </span>
                                 @endif
                             </td>

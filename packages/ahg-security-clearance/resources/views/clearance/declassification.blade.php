@@ -64,7 +64,7 @@
       </div>
     </div>
 
-    <button type="submit" class="btn btn-success"><i class="fas fa-unlock"></i> Declassify</button>
+    <button type="submit" class="btn btn-success"><i class="fas fa-unlock"></i> {{ __('Declassify') }}</button>
     <a href="{{ route('security-clearance.dashboard') }}" class="btn btn-secondary">Cancel</a>
   </form>
 </div>

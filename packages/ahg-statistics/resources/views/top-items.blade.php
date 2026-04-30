@@ -28,7 +28,7 @@
             <i class="fas fa-trophy me-2"></i>Top {{ $eventType === 'view' ? 'Viewed' : 'Downloaded' }} Items
         </h1>
         <a href="{{ route('statistics.export', ['type' => 'top_items', 'start' => $startDate, 'end' => $endDate]) }}" class="btn btn-outline-secondary">
-            <i class="fas fa-download me-1"></i>Export CSV
+            <i class="fas fa-download me-1"></i>{{ __('Export CSV') }}
         </a>
     </div>
 
@@ -64,12 +64,12 @@
     <ul class="nav nav-tabs mb-4">
         <li class="nav-item">
             <a class="nav-link {{ $eventType === 'view' ? 'active' : '' }}" href="{{ route('statistics.topItems', ['type' => 'view', 'start' => $startDate, 'end' => $endDate, 'limit' => $limit]) }}">
-                <i class="fas fa-eye me-1"></i>Views
+                <i class="fas fa-eye me-1"></i>{{ __('Views') }}
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link {{ $eventType === 'download' ? 'active' : '' }}" href="{{ route('statistics.topItems', ['type' => 'download', 'start' => $startDate, 'end' => $endDate, 'limit' => $limit]) }}">
-                <i class="fas fa-download me-1"></i>Downloads
+                <i class="fas fa-download me-1"></i>{{ __('Downloads') }}
             </a>
         </li>
     </ul>

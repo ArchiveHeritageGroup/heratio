@@ -8,7 +8,7 @@
     <i class="fas fa-3x fa-exchange-alt me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Global search/replace') }}</h1>
-      <span class="small text-muted">Find and replace text across archival description fields</span>
+      <span class="small text-muted">{{ __('Find and replace text across archival description fields') }}</span>
     </div>
   </div>
 
@@ -21,7 +21,7 @@
       <div class="row g-3">
         {{-- Column --}}
         <div class="col-md-4">
-          <label for="column" class="form-label">Column <span class="badge bg-danger ms-1">Required</span></label>
+          <label for="column" class="form-label">Column <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <select name="column" id="column" class="form-select" required>
             <option value="">-- Select a field --</option>
             @foreach($columns as $value => $label)
@@ -35,7 +35,7 @@
 
         {{-- Pattern --}}
         <div class="col-md-4">
-          <label for="pattern" class="form-label">Search pattern <span class="badge bg-danger ms-1">Required</span></label>
+          <label for="pattern" class="form-label">Search pattern <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <input type="text" name="pattern" id="pattern" class="form-control" value="{{ old('pattern', $pattern ?? '') }}" required>
           @error('pattern')
             <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -44,7 +44,7 @@
 
         {{-- Replacement --}}
         <div class="col-md-4">
-          <label for="replacement" class="form-label">Replacement <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="replacement" class="form-label">Replacement <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="text" name="replacement" id="replacement" class="form-control" value="{{ old('replacement', $replacement ?? '') }}">
         </div>
 
@@ -52,17 +52,17 @@
         <div class="col-md-4">
           <div class="form-check mt-2">
             <input class="form-check-input" type="checkbox" name="caseSensitive" id="caseSensitive" value="1" {{ old('caseSensitive', $caseSensitive ?? true) ? 'checked' : '' }}>
-            <label class="form-check-label" for="caseSensitive">Case sensitive <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-check-label" for="caseSensitive">Case sensitive <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           </div>
         </div>
 
         {{-- Submit --}}
         <div class="col-12">
           <button type="submit" class="btn atom-btn-outline-success">
-            <i class="fas fa-search" aria-hidden="true"></i> Preview
+            <i class="fas fa-search" aria-hidden="true"></i> {{ __('Preview') }}
           </button>
           <a href="{{ route('search.globalReplace') }}" class="btn atom-btn-white ms-2">
-            <i class="fas fa-undo" aria-hidden="true"></i> Reset
+            <i class="fas fa-undo" aria-hidden="true"></i> {{ __('Reset') }}
           </a>
         </div>
       </div>
@@ -74,7 +74,7 @@
     @if($results->count() > 0)
       <div class="alert alert-warning">
         <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
-        <strong>Warning:</strong> This will permanently modify <strong>{{ number_format($count) }}</strong> record(s). This action cannot be undone!
+        <strong>{{ __('Warning:') }}</strong> This will permanently modify <strong>{{ number_format($count) }}</strong> record(s). This action cannot be undone!
       </div>
 
       <table class="table table-bordered table-striped table-hover mb-4">
@@ -126,7 +126,7 @@
             <i class="fas fa-check" aria-hidden="true"></i> Confirm replacement ({{ number_format($count) }} records)
           </button>
           <a href="{{ route('search.globalReplace') }}" class="btn atom-btn-white">
-            <i class="fas fa-times" aria-hidden="true"></i> Cancel
+            <i class="fas fa-times" aria-hidden="true"></i> {{ __('Cancel') }}
           </a>
         </div>
       </form>

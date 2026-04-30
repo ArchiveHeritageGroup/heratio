@@ -20,10 +20,10 @@
         <h1 class="h3 mb-0"><i class="fas fa-chart-bar me-2"></i>Usage Statistics</h1>
         <div class="d-flex gap-2">
             <a href="{{ route('statistics.export', ['type' => 'views', 'start' => $startDate, 'end' => $endDate]) }}" class="btn btn-outline-secondary">
-                <i class="fas fa-download me-1"></i>Export CSV
+                <i class="fas fa-download me-1"></i>{{ __('Export CSV') }}
             </a>
             <a href="{{ route('statistics.admin') }}" class="btn btn-outline-primary">
-                <i class="fas fa-cog me-1"></i>Settings
+                <i class="fas fa-cog me-1"></i>{{ __('Settings') }}
             </a>
         </div>
     </div>

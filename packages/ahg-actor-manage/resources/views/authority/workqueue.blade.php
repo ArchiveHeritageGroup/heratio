@@ -57,7 +57,7 @@
       </div>
       <div class="col-auto">
         <button type="submit" class="btn btn-sm atom-btn-white">
-          <i class="fas fa-filter me-1"></i>Filter
+          <i class="fas fa-filter me-1"></i>{{ __('Filter') }}
         </button>
       </div>
     </form>
@@ -110,7 +110,7 @@
                 @if ($item->assigned_to)
                   <small class="text-muted">#{{ $item->assigned_to }}</small>
                 @else
-                  <small class="text-muted">Unassigned</small>
+                  <small class="text-muted">{{ __('Unassigned') }}</small>
                 @endif
               </td>
               <td>

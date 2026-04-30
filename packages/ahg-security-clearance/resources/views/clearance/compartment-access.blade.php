@@ -28,7 +28,7 @@
             <td>{{ $grant->expires_at ?? 'Never' }}</td>
             <td>
               <a href="{{ route('security-clearance.view', ['id' => $grant->user_id ?? 0]) }}" class="btn btn-sm btn-outline-primary">
-                <i class="fas fa-user"></i> View User
+                <i class="fas fa-user"></i> {{ __('View User') }}
               </a>
             </td>
           </tr>

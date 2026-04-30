@@ -11,7 +11,7 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0"><i class="fas fa-eye me-2"></i> Review Queue</h1>
-  <a href="{{ route('records.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Records dashboard</a>
+  <a href="{{ route('records.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Records dashboard') }}</a>
 </div>
 
 <p class="text-muted small">
@@ -24,19 +24,19 @@
 
 <div class="row g-2 mb-3">
   <div class="col"><div class="card border-warning"><div class="card-body py-2">
-    <small class="text-muted">Pending</small>
+    <small class="text-muted">{{ __('Pending') }}</small>
     <h4 class="mb-0">{{ $counts['pending'] }}</h4>
   </div></div></div>
   <div class="col"><div class="card border-danger"><div class="card-body py-2">
-    <small class="text-muted">Overdue</small>
+    <small class="text-muted">{{ __('Overdue') }}</small>
     <h4 class="mb-0 text-danger">{{ $counts['overdue'] }}</h4>
   </div></div></div>
   <div class="col"><div class="card border-info"><div class="card-body py-2">
-    <small class="text-muted">Due in 30 days</small>
+    <small class="text-muted">{{ __('Due in 30 days') }}</small>
     <h4 class="mb-0">{{ $counts['due_30d'] }}</h4>
   </div></div></div>
   <div class="col"><div class="card border-success"><div class="card-body py-2">
-    <small class="text-muted">Completed</small>
+    <small class="text-muted">{{ __('Completed') }}</small>
     <h4 class="mb-0 text-success">{{ $counts['completed'] }}</h4>
   </div></div></div>
 </div>
@@ -60,7 +60,7 @@
     <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control form-control-sm" placeholder="...">
   </div>
   <div class="col-md-3">
-    <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter me-1"></i>Filter</button>
+    <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter me-1"></i>{{ __('Filter') }}</button>
     <a href="{{ route('records.reviews.index') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
   </div>
 </form>

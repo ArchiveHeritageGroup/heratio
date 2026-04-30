@@ -23,8 +23,8 @@
     </span>
   </h1>
   <div>
-    <a href="{{ route('records.reviews.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-list me-1"></i>Queue</a>
-    <a href="{{ route('records.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Records dashboard</a>
+    <a href="{{ route('records.reviews.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-list me-1"></i>{{ __('Queue') }}</a>
+    <a href="{{ route('records.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Records dashboard') }}</a>
   </div>
 </div>
 
@@ -110,7 +110,7 @@
               <input type="date" name="next_review_due_date" class="form-control">
               <div class="form-text small">Optional. If retaining, schedule the next look at this record.</div>
             </div>
-            <button type="submit" class="btn btn-primary"><i class="fas fa-check me-1"></i>Submit decision</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-check me-1"></i>{{ __('Submit decision') }}</button>
           </form>
         </div>
       </div>

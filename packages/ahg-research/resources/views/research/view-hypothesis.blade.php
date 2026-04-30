@@ -24,7 +24,7 @@
 <div class="card"><div class="card-header"><h6 class="mb-0">{{ __('Update Status') }}</h6></div><div class="card-body">
     <form method="POST">@csrf <input type="hidden" name="hypothesis_id" value="{{ $hypothesis->id ?? 0 }}">
         <select name="status" class="form-select mb-2">@foreach(['proposed','testing','confirmed','refuted'] as $s)<option value="{{ $s }}" {{ ($hypothesis->status ?? '') === $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>@endforeach</select>
-        <button type="submit" class="btn atom-btn-white btn-sm w-100"><i class="fas fa-save me-1"></i>Update</button>
+        <button type="submit" class="btn atom-btn-white btn-sm w-100"><i class="fas fa-save me-1"></i>{{ __('Update') }}</button>
     </form>
 </div></div>
 </div></div>

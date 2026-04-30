@@ -8,7 +8,7 @@
   <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
     <h5 class="mb-0">{{ __('Merge Files to PDF') }}</h5>
     <a href="{{ route('pdf-tools.index') }}" class="btn atom-btn-white btn-sm">
-      <i class="bi bi-arrow-left me-1"></i>Back
+      <i class="bi bi-arrow-left me-1"></i>{{ __('Back') }}
     </a>
   </div>
   <div class="card-body">
@@ -20,7 +20,7 @@
     @if(!$imageMagickAvailable)
       <div class="alert alert-danger">
         <i class="bi bi-exclamation-triangle me-2"></i>
-        <strong>ImageMagick Not Available</strong>
+        <strong>{{ __('ImageMagick Not Available') }}</strong>
         <p class="mb-0 mt-2">ImageMagick is required for file merging. Install with: <code>sudo apt install imagemagick</code></p>
       </div>
     @else
@@ -30,7 +30,7 @@
 
       {{-- File Upload --}}
       <div class="mb-4">
-        <label class="form-label fw-bold">Files to Merge <span class="badge bg-danger ms-1">Required</span></label>
+        <label class="form-label fw-bold">Files to Merge <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
         <input type="file" class="form-control" name="files[]" multiple required
                accept=".{{ implode(',.', $formats) }},.pdf"
                id="fileInput">
@@ -49,7 +49,7 @@
 
       {{-- Selected Files Preview --}}
       <div class="mb-4 d-none" id="fileList">
-        <label class="form-label fw-bold">Selected Files <span class="badge bg-secondary ms-1">Optional</span></label>
+        <label class="form-label fw-bold">Selected Files <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <ul class="list-group list-group-flush" id="fileListItems"></ul>
       </div>
 
@@ -59,7 +59,7 @@
       <div class="row g-4">
         {{-- Quality --}}
         <div class="col-md-6">
-          <label class="form-label fw-bold" for="quality">Quality <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label fw-bold" for="quality">Quality <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <div class="d-flex align-items-center gap-3">
             <input type="range" class="form-range flex-grow-1" id="quality" name="quality"
                    min="0" max="100" value="90" step="5">
@@ -70,7 +70,7 @@
 
         {{-- DPI --}}
         <div class="col-md-6">
-          <label class="form-label fw-bold" for="dpi">DPI (Resolution) <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label fw-bold" for="dpi">DPI (Resolution) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="number" class="form-control" id="dpi" name="dpi"
                  min="72" max="600" value="150" step="1">
           <div class="form-text">Output resolution in dots per inch (72-600)</div>
@@ -82,7 +82,7 @@
 
         {{-- Page Size --}}
         <div class="col-md-6">
-          <label class="form-label fw-bold" for="page_size">Page Size <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label fw-bold" for="page_size">Page Size <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select class="form-select" id="page_size" name="page_size">
             @foreach($pageSizes as $size)
               <option value="{{ $size }}" {{ $size === 'a4' ? 'selected' : '' }}>
@@ -94,18 +94,18 @@
 
         {{-- Orientation --}}
         <div class="col-md-6">
-          <label class="form-label fw-bold">Orientation <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label fw-bold">Orientation <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <div class="d-flex gap-3 mt-1">
             <div class="form-check">
               <input class="form-check-input" type="radio" name="orientation" id="orientPortrait" value="portrait" checked>
               <label class="form-check-label" for="orientPortrait">
-                <i class="bi bi-phone me-1"></i>Portrait <span class="badge bg-secondary ms-1">Optional</span>
+                <i class="bi bi-phone me-1"></i>Portrait <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
               </label>
             </div>
             <div class="form-check">
               <input class="form-check-input" type="radio" name="orientation" id="orientLandscape" value="landscape">
               <label class="form-check-label" for="orientLandscape">
-                <i class="bi bi-phone-landscape me-1"></i>Landscape <span class="badge bg-secondary ms-1">Optional</span>
+                <i class="bi bi-phone-landscape me-1"></i>Landscape <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
               </label>
             </div>
           </div>
@@ -117,7 +117,7 @@
             <input class="form-check-input" type="checkbox" id="pdfa" name="pdfa" value="1"
                    {{ !$ghostscriptAvailable ? 'disabled' : '' }}>
             <label class="form-check-label fw-bold" for="pdfa">
-              Generate PDF/A <span class="badge bg-secondary ms-1">Optional</span>
+              Generate PDF/A <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
             </label>
           </div>
           @if(!$ghostscriptAvailable)
@@ -129,7 +129,7 @@
 
         {{-- PDF/A Version --}}
         <div class="col-md-6" id="pdfaVersionGroup" style="display: none;">
-          <label class="form-label fw-bold" for="pdfa_version">PDF/A Version <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label fw-bold" for="pdfa_version">PDF/A Version <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select class="form-select" id="pdfa_version" name="pdfa_version">
             @foreach($pdfaVersions as $ver)
               <option value="{{ $ver }}" {{ $ver === '2b' ? 'selected' : '' }}>
@@ -145,7 +145,7 @@
       {{-- Submit --}}
       <div class="d-flex gap-2">
         <button type="submit" class="btn atom-btn-outline-success" id="mergeBtn">
-          <i class="bi bi-files me-1"></i>Merge to PDF
+          <i class="bi bi-files me-1"></i>{{ __('Merge to PDF') }}
         </button>
         <a href="{{ route('pdf-tools.index') }}" class="btn atom-btn-white">Cancel</a>
       </div>

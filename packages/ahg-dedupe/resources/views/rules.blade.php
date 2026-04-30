@@ -15,14 +15,14 @@
     <i class="fas fa-3x fa-cog me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Detection Rules') }}</h1>
-      <span class="small text-muted">Duplicate Detection</span>
+      <span class="small text-muted">{{ __('Duplicate Detection') }}</span>
     </div>
     <div class="ms-auto d-flex gap-2">
       <a href="{{ route('dedupe.rule.create') }}" class="btn btn-primary">
-        <i class="fas fa-plus me-1"></i> Add Rule
+        <i class="fas fa-plus me-1"></i> {{ __('Add Rule') }}
       </a>
       <a href="{{ route('dedupe.index') }}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-1"></i> Dashboard
+        <i class="fas fa-arrow-left me-1"></i> {{ __('Dashboard') }}
       </a>
     </div>
   </div>
@@ -64,19 +64,19 @@
                     @if(!empty($rule->repository_name))
                       <small>{{ $rule->repository_name }}</small>
                     @else
-                      <span class="badge bg-info">Global</span>
+                      <span class="badge bg-info">{{ __('Global') }}</span>
                     @endif
                   </td>
                   <td class="text-center">
                     @if($rule->is_enabled)
-                      <span class="badge bg-success">Enabled</span>
+                      <span class="badge bg-success">{{ __('Enabled') }}</span>
                     @else
-                      <span class="badge bg-secondary">Disabled</span>
+                      <span class="badge bg-secondary">{{ __('Disabled') }}</span>
                     @endif
                   </td>
                   <td class="text-center">
                     @if($rule->is_blocking)
-                      <span class="badge bg-danger">Blocking</span>
+                      <span class="badge bg-danger">{{ __('Blocking') }}</span>
                     @else
                       <span class="badge bg-light text-dark">No</span>
                     @endif
@@ -110,21 +110,21 @@
         <div class="col-md-6">
           <h6>{{ __('Rule Types') }}</h6>
           <ul class="list-unstyled">
-            <li><strong>Title Similarity:</strong> Compares titles using Levenshtein distance</li>
-            <li><strong>Identifier Exact:</strong> Matches identical identifiers</li>
-            <li><strong>Identifier Fuzzy:</strong> Matches similar identifiers (Jaro-Winkler)</li>
-            <li><strong>Date + Creator:</strong> Matches records with same date range and creator</li>
-            <li><strong>Checksum:</strong> Matches identical files by hash</li>
-            <li><strong>Combined:</strong> Weighted combination of multiple factors</li>
+            <li><strong>{{ __('Title Similarity:') }}</strong> Compares titles using Levenshtein distance</li>
+            <li><strong>{{ __('Identifier Exact:') }}</strong> Matches identical identifiers</li>
+            <li><strong>{{ __('Identifier Fuzzy:') }}</strong> Matches similar identifiers (Jaro-Winkler)</li>
+            <li><strong>{{ __('Date + Creator:') }}</strong> Matches records with same date range and creator</li>
+            <li><strong>{{ __('Checksum:') }}</strong> Matches identical files by hash</li>
+            <li><strong>{{ __('Combined:') }}</strong> Weighted combination of multiple factors</li>
           </ul>
         </div>
         <div class="col-md-6">
           <h6>{{ __('Settings') }}</h6>
           <ul class="list-unstyled">
-            <li><strong>Priority:</strong> Higher priority rules run first</li>
-            <li><strong>Threshold:</strong> Minimum similarity score to flag as duplicate</li>
-            <li><strong>Blocking:</strong> If enabled, prevents saving when duplicate found</li>
-            <li><strong>Repository:</strong> Apply rule only to specific repository, or globally</li>
+            <li><strong>{{ __('Priority:') }}</strong> Higher priority rules run first</li>
+            <li><strong>{{ __('Threshold:') }}</strong> Minimum similarity score to flag as duplicate</li>
+            <li><strong>{{ __('Blocking:') }}</strong> If enabled, prevents saving when duplicate found</li>
+            <li><strong>{{ __('Repository:') }}</strong> Apply rule only to specific repository, or globally</li>
           </ul>
         </div>
       </div>

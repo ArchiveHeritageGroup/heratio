@@ -24,7 +24,7 @@ $total = $jobData['total'] ?? 0;
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1><i class="fas fa-layer-group me-2"></i>Batch Operations</h1>
-      <a href="{{ route('heritage.custodian') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back</a>
+      <a href="{{ route('heritage.custodian') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
     </div>
 
     <div class="card border-0 shadow-sm">

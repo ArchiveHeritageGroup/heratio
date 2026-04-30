@@ -30,7 +30,7 @@ $pages = $userData['pages'] ?? 1;
               @endforeach
             </select>
           </div>
-          <div class="col-md-3"><button type="submit" class="btn atom-btn-secondary w-100"><i class="fas fa-search me-2"></i>Search</button></div>
+          <div class="col-md-3"><button type="submit" class="btn atom-btn-secondary w-100"><i class="fas fa-search me-2"></i>{{ __('Search') }}</button></div>
         </form>
       </div>
     </div>
@@ -51,8 +51,8 @@ $pages = $userData['pages'] ?? 1;
               <tr>
                 <td><strong>{{ $user->username ?? 'N/A' }}</strong></td>
                 <td>{{ $user->email ?? '' }}</td>
-                <td>@if($user->trust_name)<span class="badge bg-info">{{ $user->trust_name }}</span>@else<span class="badge bg-secondary">None</span>@endif</td>
-                <td>@if($user->active)<span class="badge bg-success">Active</span>@else<span class="badge bg-secondary">Inactive</span>@endif</td>
+                <td>@if($user->trust_name)<span class="badge bg-info">{{ $user->trust_name }}</span>@else<span class="badge bg-secondary">{{ __('None') }}</span>@endif</td>
+                <td>@if($user->active)<span class="badge bg-success">{{ __('Active') }}</span>@else<span class="badge bg-secondary">{{ __('Inactive') }}</span>@endif</td>
                 <td><small class="text-muted">{{ date('Y-m-d', strtotime($user->created_at)) }}</small></td>
                 <td class="text-end">
                   <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#trustModal" data-user-id="{{ $user->id }}" data-username="{{ $user->username }}"><i class="fas fa-shield-alt"></i></button>
@@ -87,15 +87,15 @@ $pages = $userData['pages'] ?? 1;
             <input type="hidden" name="user_id" id="modal_user_id">
             <p>Assigning trust level to: <strong id="modal_username"></strong></p>
             <div class="mb-3">
-              <label for="trust_level_id" class="form-label">Trust Level <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="trust_level_id" class="form-label">Trust Level <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select class="form-select" name="trust_level_id" id="trust_level_id" required>
                 @foreach($trustLevels ?? [] as $level)
                 <option value="{{ $level->id }}">{{ $level->name }} (Level {{ $level->level }})</option>
                 @endforeach
               </select>
             </div>
-            <div class="mb-3"><label for="expires_at" class="form-label">Expires At <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" class="form-control" name="expires_at" id="expires_at"></div>
-            <div class="mb-3"><label for="notes" class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="notes" id="notes" rows="2"></textarea></div>
+            <div class="mb-3"><label for="expires_at" class="form-label">Expires At <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" class="form-control" name="expires_at" id="expires_at"></div>
+            <div class="mb-3"><label for="notes" class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea class="form-control" name="notes" id="notes" rows="2"></textarea></div>
           </div>
           <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn atom-btn-secondary">{{ __('Assign Trust Level') }}</button></div>
         </form>

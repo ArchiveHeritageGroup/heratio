@@ -33,20 +33,20 @@
         <div id="basicInfo-collapse" class="accordion-collapse collapse show">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="username" class="form-label">Username <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="username" class="form-label">Username <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" name="username" id="username" class="form-control" required autocomplete="off"
                      value="{{ old('username', $user->username ?? '') }}">
             </div>
 
             <div class="mb-3">
-              <label for="email" class="form-label">Email <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="email" class="form-label">Email <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="email" name="email" id="email" class="form-control" required autocomplete="off"
                      value="{{ old('email', $user->email ?? '') }}">
             </div>
 
             @if($user)
               <div class="mb-3">
-                <label for="current_password" class="form-label">Current password <span class="badge bg-warning ms-1">Required to change password</span></label>
+                <label for="current_password" class="form-label">Current password <span class="badge bg-warning ms-1">{{ __('Required to change password') }}</span></label>
                 <input type="password" name="current_password" id="current_password" class="form-control" autocomplete="current-password">
                 <div class="form-text">Enter your current password to confirm identity before changing the password.</div>
               </div>
@@ -57,7 +57,7 @@
                 <label for="password" class="form-label">
                   Password
                   @if(!$user)<span class="text-danger">*</span>@endif
-                 <span class="badge bg-danger ms-1">Required</span></label>
+                 <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <input type="password" name="password" id="password" class="form-control"
                        {{ $user ? '' : 'required' }} autocomplete="new-password">
                 <div class="progress mt-1" style="height: 5px;" id="passwordStrengthBar">
@@ -68,14 +68,14 @@
                 </div>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="confirm_password" class="form-label">Confirm password <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="confirm_password" class="form-label">Confirm password <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="password" name="confirm_password" id="confirm_password" class="form-control" autocomplete="new-password">
                 <div class="form-text" id="passwordMatchText"></div>
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="active" class="form-label">Active <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="active" class="form-label">Active <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="active" id="active" class="form-select">
                 <option value="1" {{ old('active', $user ? $user->active : 1) == 1 ? 'selected' : '' }}>Active</option>
                 <option value="0" {{ old('active', $user ? $user->active : 1) == 0 ? 'selected' : '' }}>Inactive</option>
@@ -93,7 +93,7 @@
         <div id="profile-collapse" class="accordion-collapse collapse show">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="authorized_form_of_name" class="form-label">Authorized form of name <span class="badge bg-warning ms-1">Recommended</span></label>
+              <label for="authorized_form_of_name" class="form-label">Authorized form of name <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
               <input type="text" name="authorized_form_of_name" id="authorized_form_of_name" class="form-control"
                      value="{{ old('authorized_form_of_name', $user->authorized_form_of_name ?? '') }}">
               <div class="form-text">Display name for this user (from actor record).</div>
@@ -112,36 +112,36 @@
           <div class="accordion-body">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="contact_telephone" class="form-label">Telephone <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="contact_telephone" class="form-label">Telephone <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="contact_telephone" id="contact_telephone" class="form-control"
                        value="{{ old('contact_telephone', $contact->telephone ?? '') }}">
               </div>
               <div class="col-md-6 mb-3">
-                <label for="contact_fax" class="form-label">Fax <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="contact_fax" class="form-label">Fax <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="contact_fax" id="contact_fax" class="form-control"
                        value="{{ old('contact_fax', $contact->fax ?? '') }}">
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="contact_street_address" class="form-label">Street address <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="contact_street_address" class="form-label">Street address <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="contact_street_address" id="contact_street_address" class="form-control"
                      value="{{ old('contact_street_address', $contact->street_address ?? '') }}">
             </div>
 
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label for="contact_city" class="form-label">City <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="contact_city" class="form-label">City <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="contact_city" id="contact_city" class="form-control"
                        value="{{ old('contact_city', $contact->city ?? '') }}">
               </div>
               <div class="col-md-4 mb-3">
-                <label for="contact_region" class="form-label">Region/province <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="contact_region" class="form-label">Region/province <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="contact_region" id="contact_region" class="form-control"
                        value="{{ old('contact_region', $contact->region ?? '') }}">
               </div>
               <div class="col-md-4 mb-3">
-                <label for="contact_postal_code" class="form-label">Postal code <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="contact_postal_code" class="form-label">Postal code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="contact_postal_code" id="contact_postal_code" class="form-control"
                        value="{{ old('contact_postal_code', $contact->postal_code ?? '') }}">
               </div>
@@ -149,19 +149,19 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="contact_country_code" class="form-label">Country <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="contact_country_code" class="form-label">Country <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="contact_country_code" id="contact_country_code" class="form-control"
                        value="{{ old('contact_country_code', $contact->country_code ?? '') }}">
               </div>
               <div class="col-md-6 mb-3">
-                <label for="contact_website" class="form-label">Website <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="contact_website" class="form-label">Website <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="url" name="contact_website" id="contact_website" class="form-control"
                        value="{{ old('contact_website', $contact->website ?? '') }}">
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="contact_note" class="form-label">Note <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="contact_note" class="form-label">Note <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea name="contact_note" id="contact_note" class="form-control" rows="2">{{ old('contact_note', $contact->contact_note ?? '') }}</textarea>
             </div>
           </div>
@@ -183,7 +183,7 @@
             @endphp
 
             <div class="mb-3">
-              <label for="groups" class="form-label">User groups <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="groups" class="form-label">User groups <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="groups[]" id="groups" class="form-select" multiple size="{{ min(max(count($assignableGroups), 3), 8) }}">
                 @foreach($assignableGroups as $group)
                   <option value="{{ $group->id }}" {{ in_array((int) $group->id, old('groups', $currentGroupIds)) ? 'selected' : '' }}>
@@ -214,7 +214,7 @@
 
             @if(!empty($availableLanguages))
               <div class="mb-3">
-                <label for="translate" class="form-label">Translate <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="translate" class="form-label">Translate <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="translate[]" id="translate" class="form-select" multiple size="{{ min(max(count($availableLanguages), 3), 8) }}">
                   @foreach($availableLanguages as $lang)
                     <option value="{{ $lang }}" {{ in_array($lang, old('translate', $currentTranslate)) ? 'selected' : '' }}>
@@ -260,7 +260,7 @@
                 REST API access key
                 @if($restApiKey)
                   <code class="ms-2">{{ $restApiKey }}</code>
-                @endif <span class="badge bg-secondary ms-1">Optional</span></label>
+                @endif <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="restApiKey" id="restApiKey" class="form-select">
                 <option value="">-- Select action --</option>
                 <option value="generate">(Re)generate API key</option>
@@ -276,7 +276,7 @@
                 OAI-PMH API access key
                 @if($oaiApiKey)
                   <code class="ms-2">{{ $oaiApiKey }}</code>
-                @endif <span class="badge bg-secondary ms-1">Optional</span></label>
+                @endif <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="oaiApiKey" id="oaiApiKey" class="form-select">
                 <option value="">-- Select action --</option>
                 <option value="generate">(Re)generate API key</option>

@@ -21,11 +21,11 @@
     </div>
     <div>
       <a href="{{ route('io.provenance', $io->slug) }}" class="btn atom-btn-white me-2">
-        <i class="bi bi-arrow-left me-1"></i>Back to Provenance
+        <i class="bi bi-arrow-left me-1"></i>{{ __('Back to Provenance') }}
       </a>
       @auth
       <a href="{{ route('io.provenance', $io->slug) }}" class="btn atom-btn-white">
-        <i class="bi bi-pencil me-1"></i> Edit Provenance
+        <i class="bi bi-pencil me-1"></i> {{ __('Edit Provenance') }}
       </a>
       @endauth
     </div>
@@ -45,14 +45,14 @@
       </div>
       <div class="mt-3">
         <div class="d-flex flex-wrap gap-2">
-          <span class="badge" style="background-color: #4caf50;">Creation</span>
-          <span class="badge" style="background-color: #2196f3;">Sale/Purchase</span>
-          <span class="badge" style="background-color: #9c27b0;">Gift/Donation</span>
-          <span class="badge" style="background-color: #ff9800;">Inheritance</span>
-          <span class="badge" style="background-color: #f44336;">Auction</span>
-          <span class="badge" style="background-color: #607d8b;">Transfer</span>
-          <span class="badge" style="background-color: #795548;">Loan</span>
-          <span class="badge" style="background-color: #9e9e9e;">Other</span>
+          <span class="badge" style="background-color: #4caf50;">{{ __('Creation') }}</span>
+          <span class="badge" style="background-color: #2196f3;">{{ __('Sale/Purchase') }}</span>
+          <span class="badge" style="background-color: #9c27b0;">{{ __('Gift/Donation') }}</span>
+          <span class="badge" style="background-color: #ff9800;">{{ __('Inheritance') }}</span>
+          <span class="badge" style="background-color: #f44336;">{{ __('Auction') }}</span>
+          <span class="badge" style="background-color: #607d8b;">{{ __('Transfer') }}</span>
+          <span class="badge" style="background-color: #795548;">{{ __('Loan') }}</span>
+          <span class="badge" style="background-color: #9e9e9e;">{{ __('Other') }}</span>
         </div>
       </div>
     </div>

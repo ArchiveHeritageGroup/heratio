@@ -8,11 +8,11 @@
     <i class="fas fa-3x fa-cog me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('DOI Configuration') }}</h1>
-      <span class="small text-muted">DataCite Integration Settings</span>
+      <span class="small text-muted">{{ __('DataCite Integration Settings') }}</span>
     </div>
     <div class="ms-auto">
       <a href="{{ route('doi.index') }}" class="btn btn-sm btn-outline-secondary">
-        <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+        <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Dashboard') }}
       </a>
     </div>
   </div>
@@ -51,7 +51,7 @@
           <div class="card-header fw-bold" >DataCite API Credentials</div>
           <div class="card-body">
             <div class="row mb-3">
-              <label for="datacite_repository_id" class="col-sm-3 col-form-label">Repository ID <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="datacite_repository_id" class="col-sm-3 col-form-label">Repository ID <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 <input type="text" class="form-control" id="datacite_repository_id" name="datacite_repository_id"
                        value="{{ old('datacite_repository_id', $settings['datacite_repository_id'] ?? '') }}"
@@ -61,7 +61,7 @@
             </div>
 
             <div class="row mb-3">
-              <label for="datacite_prefix" class="col-sm-3 col-form-label">DOI Prefix <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="datacite_prefix" class="col-sm-3 col-form-label">DOI Prefix <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 <input type="text" class="form-control" id="datacite_prefix" name="datacite_prefix"
                        value="{{ old('datacite_prefix', $settings['datacite_prefix'] ?? '') }}"
@@ -71,7 +71,7 @@
             </div>
 
             <div class="row mb-3">
-              <label for="datacite_password" class="col-sm-3 col-form-label">Password <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="datacite_password" class="col-sm-3 col-form-label">Password <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 <input type="password" class="form-control" id="datacite_password" name="datacite_password"
                        value="{{ old('datacite_password', $settings['datacite_password'] ?? '') }}">
@@ -80,7 +80,7 @@
             </div>
 
             <div class="row mb-3">
-              <label for="datacite_url" class="col-sm-3 col-form-label">API URL <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="datacite_url" class="col-sm-3 col-form-label">API URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 <select class="form-select" id="datacite_url" name="datacite_url">
                   <option value="https://api.datacite.org" {{ (old('datacite_url', $settings['datacite_url'] ?? '') === 'https://api.datacite.org') ? 'selected' : '' }}>
@@ -94,7 +94,7 @@
             </div>
 
             <div class="row mb-3">
-              <label for="datacite_environment" class="col-sm-3 col-form-label">Environment <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="datacite_environment" class="col-sm-3 col-form-label">Environment <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 <select class="form-select" id="datacite_environment" name="datacite_environment">
                   <option value="test" {{ (old('datacite_environment', $settings['datacite_environment'] ?? '') === 'test') ? 'selected' : '' }}>
@@ -111,7 +111,7 @@
             <div class="row">
               <div class="col-sm-9 offset-sm-3">
                 <button type="button" id="test-connection" class="btn btn-outline-secondary">
-                  <i class="fas fa-plug me-1"></i> Test Connection
+                  <i class="fas fa-plug me-1"></i> {{ __('Test Connection') }}
                 </button>
                 <span id="connection-result" class="ms-2"></span>
               </div>
@@ -124,20 +124,20 @@
           <div class="card-header fw-bold" >Minting Settings</div>
           <div class="card-body">
             <div class="row mb-3">
-              <label for="auto_mint" class="col-sm-3 col-form-label">Auto-mint DOIs <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="auto_mint" class="col-sm-3 col-form-label">Auto-mint DOIs <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 <div class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" name="auto_mint" value="1" id="auto_mint"
                          {{ (old('auto_mint', $settings['auto_mint'] ?? '0') === '1') ? 'checked' : '' }}>
                   <label class="form-check-label" for="auto_mint">
                     Auto-mint DOIs when records are published
-                   <span class="badge bg-secondary ms-1">Optional</span></label>
+                   <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 </div>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label class="col-sm-3 col-form-label">Auto-mint levels <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="col-sm-3 col-form-label">Auto-mint levels <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 @php
                   $autoMintLevels = json_decode($settings['auto_mint_levels'] ?? '[]', true) ?: [];
@@ -150,7 +150,7 @@
                            {{ in_array($level, $autoMintLevels) ? 'checked' : '' }}>
                     <label class="form-check-label" for="level_{{ strtolower($level) }}">
                       {{ $level }}
-                     <span class="badge bg-secondary ms-1">Optional</span></label>
+                     <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 @endforeach
                 <div class="form-text">Only auto-mint for these levels of description</div>
@@ -164,7 +164,7 @@
                          {{ (old('require_digital_object', $settings['require_digital_object'] ?? '0') === '1') ? 'checked' : '' }}>
                   <label class="form-check-label" for="require_digital_object">
                     Only auto-mint if record has a digital object
-                   <span class="badge bg-secondary ms-1">Optional</span></label>
+                   <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 </div>
               </div>
             </div>
@@ -176,7 +176,7 @@
           <div class="card-header fw-bold" >Metadata Defaults</div>
           <div class="card-body">
             <div class="row mb-3">
-              <label for="default_publisher" class="col-sm-3 col-form-label">Default Publisher <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="default_publisher" class="col-sm-3 col-form-label">Default Publisher <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 <input type="text" class="form-control" id="default_publisher" name="default_publisher"
                        value="{{ old('default_publisher', $settings['default_publisher'] ?? '') }}"
@@ -186,7 +186,7 @@
             </div>
 
             <div class="row mb-3">
-              <label for="default_resource_type" class="col-sm-3 col-form-label">Default Resource Type <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="default_resource_type" class="col-sm-3 col-form-label">Default Resource Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 @php
                   $resourceTypes = [
@@ -211,7 +211,7 @@
             </div>
 
             <div class="row mb-3">
-              <label for="suffix_pattern" class="col-sm-3 col-form-label">DOI Suffix Pattern <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="suffix_pattern" class="col-sm-3 col-form-label">DOI Suffix Pattern <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 <input type="text" class="form-control" id="suffix_pattern" name="suffix_pattern"
                        value="{{ old('suffix_pattern', $settings['suffix_pattern'] ?? '{repository_code}/{year}/{object_id}') }}">
@@ -251,7 +251,7 @@
           <div class="card-body">
             <div class="d-grid">
               <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save me-1"></i> Save Configuration
+                <i class="fas fa-save me-1"></i> {{ __('Save Configuration') }}
               </button>
             </div>
           </div>

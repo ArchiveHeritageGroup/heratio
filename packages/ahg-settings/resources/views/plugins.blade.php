@@ -13,7 +13,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0"><i class="fas fa-puzzle-piece"></i> Plugin Management</h1>
   <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">
-    <i class="fas fa-arrow-left me-1"></i>Back to AHG Settings
+    <i class="fas fa-arrow-left me-1"></i>{{ __('Back to AHG Settings') }}
   </a>
 </div>
 
@@ -42,8 +42,8 @@
         <strong><i class="fas fa-toggle-on me-2"></i>Status</strong>
         <div class="btn-group btn-group-sm ms-2" role="group">
           <button type="button" class="btn btn-outline-primary active" data-status="all">{{ __('All') }}</button>
-          <button type="button" class="btn btn-outline-success" data-status="enabled"><i class="fas fa-check me-1"></i>Enabled</button>
-          <button type="button" class="btn btn-outline-secondary" data-status="disabled"><i class="fas fa-times me-1"></i>Disabled</button>
+          <button type="button" class="btn btn-outline-success" data-status="enabled"><i class="fas fa-check me-1"></i>{{ __('Enabled') }}</button>
+          <button type="button" class="btn btn-outline-secondary" data-status="disabled"><i class="fas fa-times me-1"></i>{{ __('Disabled') }}</button>
         </div>
       </div>
       <div class="col-auto ms-auto">
@@ -139,7 +139,7 @@
           @endif
           @if($__helpRow)
             <a href="{{ url('/help/article/' . $__helpRow->slug) }}" class="text-decoration-none" title="{{ e($__helpRow->title) }}">
-              <i class="fas fa-book-open me-1"></i>Help
+              <i class="fas fa-book-open me-1"></i>{{ __('Help') }}
             </a>
           @endif
         </div>
@@ -149,19 +149,19 @@
           @csrf
           <input type="hidden" name="plugin_name" value="{{ e($plugin->name) }}">
           @if($plugin->is_core)
-            <span class="badge bg-primary"><i class="fas fa-shield-alt me-1"></i>Core</span>
+            <span class="badge bg-primary"><i class="fas fa-shield-alt me-1"></i>{{ __('Core') }}</span>
           @elseif($plugin->is_locked)
-            <span class="badge bg-secondary"><i class="fas fa-lock me-1"></i>Locked</span>
+            <span class="badge bg-secondary"><i class="fas fa-lock me-1"></i>{{ __('Locked') }}</span>
           @elseif($isEnabled)
             <button type="submit" name="plugin_action" value="disable"
                     class="btn btn-sm btn-outline-danger btn-plugin-disable"
                     data-plugin-name="{{ e($plugin->name) }}">
-              <i class="fas fa-power-off me-1"></i>Disable
+              <i class="fas fa-power-off me-1"></i>{{ __('Disable') }}
             </button>
           @else
             <button type="submit" name="plugin_action" value="enable"
                     class="btn btn-sm btn-success">
-              <i class="fas fa-check me-1"></i>Enable
+              <i class="fas fa-check me-1"></i>{{ __('Enable') }}
             </button>
           @endif
         </form>

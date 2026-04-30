@@ -16,7 +16,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-project-diagram me-2"></i>My Projects</h1>
     <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createProjectModal">
-      <i class="fas fa-plus me-1"></i>New Project
+      <i class="fas fa-plus me-1"></i>{{ __('New Project') }}
     </button>
   </div>
 
@@ -88,37 +88,37 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="proj_title" class="form-label">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="proj_title" class="form-label">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" name="title" id="proj_title" class="form-control" required>
             </div>
             <div class="mb-3">
-              <label for="proj_description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="proj_description" class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea name="description" id="proj_description" class="form-control" rows="3"></textarea>
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="proj_type" class="form-label">Project Type <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="proj_type" class="form-label">Project Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="project_type" id="proj_type" class="form-control" placeholder="{{ __('e.g. thesis, dissertation, article') }}">
               </div>
               <div class="col-md-6 mb-3">
-                <label for="proj_institution" class="form-label">Institution <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="proj_institution" class="form-label">Institution <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="institution" id="proj_institution" class="form-control">
               </div>
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="proj_start" class="form-label">Start Date <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="proj_start" class="form-label">Start Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="date" name="start_date" id="proj_start" class="form-control">
               </div>
               <div class="col-md-6 mb-3">
-                <label for="proj_end" class="form-label">End Date <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="proj_end" class="form-label">End Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="date" name="end_date" id="proj_end" class="form-control">
               </div>
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Create</button>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>{{ __('Create') }}</button>
           </div>
         </form>
       </div>

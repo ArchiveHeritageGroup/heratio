@@ -32,9 +32,9 @@
       <div class="card-body">
         <p class="mb-2">AHG Central is a cloud service provided by The Archive and Heritage Group that enhances your instance with:</p>
         <ul class="mb-3">
-          <li><strong>Shared NER Training</strong> - Contribute and benefit from a community-trained Named Entity Recognition model</li>
-          <li><strong>Future AI Services</strong> - Access to upcoming cloud-based AI features</li>
-          <li><strong>Usage Analytics</strong> - Optional aggregate statistics to improve the platform</li>
+          <li><strong>{{ __('Shared NER Training') }}</strong> - Contribute and benefit from a community-trained Named Entity Recognition model</li>
+          <li><strong>{{ __('Future AI Services') }}</strong> - Access to upcoming cloud-based AI features</li>
+          <li><strong>{{ __('Usage Analytics') }}</strong> - Optional aggregate statistics to improve the platform</li>
         </ul>
         <p class="text-muted small mb-0"><i class="fas fa-info-circle me-1"></i>Note: This is separate from local AI services configured in the AI Services settings. Local AI services run on your own infrastructure while AHG Central is a cloud service.</p>
       </div>
@@ -88,7 +88,7 @@
         <div class="card-body">
           <p class="mb-3">Test the connection to AHG Central before saving your settings.</p>
           <button type="submit" name="action" value="test" class="btn btn-info">
-            <i class="fas fa-plug me-1"></i> Test Connection
+            <i class="fas fa-plug me-1"></i> {{ __('Test Connection') }}
           </button>
         </div>
       </div>
@@ -117,9 +117,9 @@
                 <td>{!! $value ?: '<em class="text-muted">Not set</em>' !!}</td>
                 <td>
                   @if($value)
-                    <span class="badge bg-warning">Will be overridden by database settings</span>
+                    <span class="badge bg-warning">{{ __('Will be overridden by database settings') }}</span>
                   @else
-                    <span class="badge bg-secondary">Not set</span>
+                    <span class="badge bg-secondary">{{ __('Not set') }}</span>
                   @endif
                 </td>
               </tr>
@@ -131,7 +131,7 @@
 
       <div class="actions">
         <button type="submit" class="btn btn-primary">
-          <i class="fas fa-save me-1"></i> Save Settings
+          <i class="fas fa-save me-1"></i> {{ __('Save Settings') }}
         </button>
         <a href="{{ route('settings.index') }}" class="btn btn-secondary">
           Cancel

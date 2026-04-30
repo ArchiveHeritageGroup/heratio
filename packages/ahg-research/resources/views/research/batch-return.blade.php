@@ -47,7 +47,7 @@
             </table>
         </div>
         <div class="card-footer">
-            <button type="submit" class="btn atom-btn-white"><i class="fas fa-undo me-1"></i>Return Selected</button>
+            <button type="submit" class="btn atom-btn-white"><i class="fas fa-undo me-1"></i>{{ __('Return Selected') }}</button>
             <a href="{{ route('research.retrievalQueue') }}" class="btn atom-btn-white">Cancel</a>
         </div>
     </div>

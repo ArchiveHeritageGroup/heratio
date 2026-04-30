@@ -8,7 +8,7 @@
   </div>
   <div class="card"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-edit me-2"></i>Sector Export</div>
   <div class="card-body"><form method="POST" action="{{ $formAction ?? '#' }}">@csrf
-    <div class="mb-3"><label class="form-label">Sector <span class="badge bg-secondary ms-1">Required</span></label><input type="text" class="form-control" name="sector"></div><div class="mb-3"><label class="form-label">Format <span class="badge bg-secondary ms-1">Required</span></label><select class="form-select" name="format"><option value="csv">CSV</option><option value="xml">XML</option></select></div>
-    <div class="d-flex gap-2 mt-3"><button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i> Save</button><a href="{{ url()->previous() }}" class="btn atom-btn-white"><i class="fas fa-times me-1"></i> Cancel</a></div>
+    <div class="mb-3"><label class="form-label">Sector <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label><input type="text" class="form-control" name="sector"></div><div class="mb-3"><label class="form-label">Format <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label><select class="form-select" name="format"><option value="csv">CSV</option><option value="xml">XML</option></select></div>
+    <div class="d-flex gap-2 mt-3"><button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i> {{ __('Save') }}</button><a href="{{ url()->previous() }}" class="btn atom-btn-white"><i class="fas fa-times me-1"></i> {{ __('Cancel') }}</a></div>
   </form></div></div>
 @endsection

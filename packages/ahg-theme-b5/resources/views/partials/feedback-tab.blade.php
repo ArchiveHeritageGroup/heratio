@@ -1,7 +1,7 @@
 {{-- Floating Favorites Tab — left edge, above Feedback --}}
 @auth
 <a href="{{ route('favorites.browse') }}" id="favorites-tab-btn" title="{{ __('My Favorites') }}">
-  <i class="fas fa-heart me-1"></i>Favorites
+  <i class="fas fa-heart me-1"></i>{{ __('Favorites') }}
 </a>
 <style>
   #favorites-tab-btn {
@@ -40,7 +40,7 @@
 <div id="feedback-tab-wrap">
   {{-- The tab button --}}
   <button id="feedback-tab-btn" type="button" aria-label="{{ __('Give feedback') }}" title="{{ __('Feedback') }}">
-    <i class="fas fa-comment-alt me-1"></i>Feedback
+    <i class="fas fa-comment-alt me-1"></i>{{ __('Feedback') }}
   </button>
   <button id="feedback-tab-dismiss" type="button" class="d-none" aria-label="{{ __('Hide feedback') }}" title="{{ __('Hide feedback tab') }}">
     <i class="fas fa-chevron-left"></i>
@@ -93,12 +93,12 @@
       </div>
 
       <button type="submit" class="btn btn-sm atom-btn-outline-success w-100">
-        <i class="fas fa-paper-plane me-1"></i>Send Feedback
+        <i class="fas fa-paper-plane me-1"></i>{{ __('Send Feedback') }}
       </button>
 
       <div id="feedback-success" class="d-none text-center mt-2">
         <i class="fas fa-check-circle text-success fa-2x mb-1 d-block"></i>
-        <span class="small text-muted">Thank you for your feedback!</span>
+        <span class="small text-muted">{{ __('Thank you for your feedback!') }}</span>
       </div>
     </form>
   </div>

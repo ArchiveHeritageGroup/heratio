@@ -44,7 +44,7 @@
     <div class="mb-3"><label class="form-label">{{ __('Technical Characteristics') }}</label><textarea name="technical_characteristics" class="form-control" rows="3">{{ $entity->technical_characteristics ?? '' }}</textarea></div>
     <div class="mb-3"><label class="form-label">{{ __('Production Technical Characteristics') }}</label><textarea name="production_technical_characteristics" class="form-control" rows="3">{{ $entity->production_technical_characteristics ?? '' }}</textarea><div class="form-text">Equipment/process used to produce this instantiation (scanner, camera, OCR tool, etc.).</div></div>
     <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> {{ __('Save') }}</button>
         @if($entity)<a href="{{ route('ric.entities.show', ['instantiations', $entity->slug]) }}" class="btn btn-secondary">Cancel</a>@endif
     </div>
 </form>

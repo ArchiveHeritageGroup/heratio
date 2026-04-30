@@ -12,7 +12,7 @@
       <div class="card border-danger">
         <div class="card-body text-center py-2">
           <div class="h4 mb-0 text-danger">{{ number_format($openCount) }}</div>
-          <small class="text-muted">Open</small>
+          <small class="text-muted">{{ __('Open') }}</small>
         </div>
       </div>
     </div>
@@ -20,7 +20,7 @@
       <div class="card border-success">
         <div class="card-body text-center py-2">
           <div class="h4 mb-0 text-success">{{ number_format($resolvedCount) }}</div>
-          <small class="text-muted">Resolved</small>
+          <small class="text-muted">{{ __('Resolved') }}</small>
         </div>
       </div>
     </div>
@@ -28,7 +28,7 @@
       <div class="card border-warning">
         <div class="card-body text-center py-2">
           <div class="h4 mb-0 text-warning">{{ number_format($unreadCount) }}</div>
-          <small class="text-muted">Unread</small>
+          <small class="text-muted">{{ __('Unread') }}</small>
         </div>
       </div>
     </div>
@@ -36,7 +36,7 @@
       <div class="card">
         <div class="card-body text-center py-2">
           <div class="h4 mb-0">{{ number_format($todayCount) }}</div>
-          <small class="text-muted">Today</small>
+          <small class="text-muted">{{ __('Today') }}</small>
         </div>
       </div>
     </div>
@@ -45,14 +45,14 @@
         @csrf
         <input type="hidden" name="mark_read" value="1">
         <button type="submit" class="btn btn-sm btn-outline-secondary" {{ $unreadCount === 0 ? 'disabled' : '' }}>
-          <i class="fas fa-eye me-1"></i>Mark All Read
+          <i class="fas fa-eye me-1"></i>{{ __('Mark All Read') }}
         </button>
       </form>
       <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
         @csrf
         <input type="hidden" name="resolve_all" value="1">
         <button type="submit" class="btn btn-sm btn-outline-success" {{ $openCount === 0 ? 'disabled' : '' }} onclick="return confirm('Resolve all open errors?')">
-          <i class="fas fa-check-double me-1"></i>Resolve All
+          <i class="fas fa-check-double me-1"></i>{{ __('Resolve All') }}
         </button>
       </form>
       <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
@@ -60,7 +60,7 @@
         <input type="hidden" name="clear_old" value="1">
         <input type="hidden" name="clear_days" value="30">
         <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete logs older than 30 days?')">
-          <i class="fas fa-trash me-1"></i>Clear 30d+
+          <i class="fas fa-trash me-1"></i>{{ __('Clear 30d+') }}
         </button>
       </form>
     </div>
@@ -92,7 +92,7 @@
         </div>
         <div class="col-auto">
           <button type="submit" class="btn btn-sm btn-primary">
-            <i class="fas fa-search me-1"></i>Filter
+            <i class="fas fa-search me-1"></i>{{ __('Filter') }}
           </button>
           <a href="{{ route('settings.error-log') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
         </div>
@@ -127,11 +127,11 @@
               </td>
               <td>
                 @if($entry->resolved_at)
-                  <span class="badge bg-success">FIXED</span>
+                  <span class="badge bg-success">{{ __('FIXED') }}</span>
                 @elseif($entry->level === 'fatal')
-                  <span class="badge bg-danger">FATAL</span>
+                  <span class="badge bg-danger">{{ __('FATAL') }}</span>
                 @elseif($entry->level === 'error')
-                  <span class="badge bg-warning text-dark">ERROR</span>
+                  <span class="badge bg-warning text-dark">{{ __('ERROR') }}</span>
                 @else
                   <span class="badge bg-secondary">{{ strtoupper($entry->level) }}</span>
                 @endif
@@ -243,7 +243,7 @@
 
   <div class="mt-3">
     <a href="{{ route('settings.index') }}" class="btn btn-secondary">
-      <i class="fas fa-arrow-left me-1"></i>Back to Settings
+      <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}
     </a>
   </div>
 @endsection

@@ -52,10 +52,10 @@
 
           <div class="d-flex gap-2 justify-content-center mt-3">
             <a href="{{ route('ahgmarketplace.my-purchases') }}" class="btn btn-primary">
-              <i class="fas fa-receipt me-1"></i> My purchases
+              <i class="fas fa-receipt me-1"></i> {{ __('My purchases') }}
             </a>
             <a href="{{ route('ahgmarketplace.browse') }}" class="btn btn-outline-secondary">
-              <i class="fas fa-shopping-bag me-1"></i> Continue browsing
+              <i class="fas fa-shopping-bag me-1"></i> {{ __('Continue browsing') }}
             </a>
           </div>
         </div>

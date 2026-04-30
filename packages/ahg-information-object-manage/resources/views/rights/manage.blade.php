@@ -46,7 +46,7 @@
     <div class="accordion-item mb-3">
       <h2 class="accordion-header">
         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#sectionExtended">
-          <i class="fas fa-balance-scale me-2"></i> Rights Statement & Licensing
+          <i class="fas fa-balance-scale me-2"></i> {{ __('Rights Statement & Licensing') }}
         </button>
       </h2>
       <div id="sectionExtended" class="accordion-collapse collapse show" data-bs-parent="#rightsAccordion">
@@ -157,7 +157,7 @@
     <div class="accordion-item mb-3">
       <h2 class="accordion-header">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sectionPremis">
-          <i class="fas fa-gavel me-2"></i> Rights Basis (PREMIS)
+          <i class="fas fa-gavel me-2"></i> {{ __('Rights Basis (PREMIS)') }}
         </button>
       </h2>
       <div id="sectionPremis" class="accordion-collapse collapse" data-bs-parent="#rightsAccordion">
@@ -294,7 +294,7 @@
     <div class="accordion-item mb-3">
       <h2 class="accordion-header">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sectionGranted">
-          <i class="fas fa-check-circle me-2"></i> Granted Rights
+          <i class="fas fa-check-circle me-2"></i> {{ __('Granted Rights') }}
         </button>
       </h2>
       <div id="sectionGranted" class="accordion-collapse collapse" data-bs-parent="#rightsAccordion">
@@ -312,7 +312,7 @@
               <div class="granted-row" data-index="{{ $idx }}">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                   <strong>Granted Right #{{ $idx + 1 }}</strong>
-                  <button type="button" class="btn btn-sm btn-outline-danger remove-granted"><i class="fas fa-times"></i> Remove</button>
+                  <button type="button" class="btn btn-sm btn-outline-danger remove-granted"><i class="fas fa-times"></i> {{ __('Remove') }}</button>
                 </div>
                 <div class="row">
                   <div class="col-md-3 mb-2">
@@ -352,7 +352,7 @@
           </div>
 
           <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="addGrantedBtn">
-            <i class="fas fa-plus me-1"></i> Add Granted Right
+            <i class="fas fa-plus me-1"></i> {{ __('Add Granted Right') }}
           </button>
         </div>
       </div>
@@ -366,7 +366,7 @@
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sectionEmbargo">
           <i class="fas fa-lock me-2"></i> Embargo
           @if($embargo)
-            <span class="badge bg-danger ms-2">Active</span>
+            <span class="badge bg-danger ms-2">{{ __('Active') }}</span>
           @endif
         </button>
       </h2>
@@ -379,13 +379,13 @@
               Type: <strong>{{ ucfirst($embargo->embargo_type) }}</strong> |
               Since: <strong>{{ $embargo->start_date }}</strong>
               @if($embargo->end_date) | Until: <strong>{{ $embargo->end_date }}</strong> @endif
-              @if($embargo->is_perpetual) | <span class="badge bg-dark">Perpetual</span> @endif
+              @if($embargo->is_perpetual) | <span class="badge bg-dark">{{ __('Perpetual') }}</span> @endif
               <br>
               @if($embargo->reason) Reason: {{ $embargo->reason }} @endif
             </div>
 
             <div class="card border-danger mb-3">
-              <div class="card-header bg-danger text-white"><strong>Lift Embargo</strong></div>
+              <div class="card-header bg-danger text-white"><strong>{{ __('Lift Embargo') }}</strong></div>
               <div class="card-body">
                 <input type="hidden" name="lift_embargo_id" value="" id="liftEmbargoId">
                 <div class="mb-3">
@@ -394,7 +394,7 @@
                 </div>
                 <button type="button" class="btn btn-danger" id="liftEmbargoBtn"
                         onclick="if(confirm('Are you sure you want to lift this embargo?')){document.getElementById('liftEmbargoId').value='{{ $embargo->id }}';document.getElementById('rightsForm').submit();}">
-                  <i class="fas fa-unlock me-1"></i> Lift Embargo
+                  <i class="fas fa-unlock me-1"></i> {{ __('Lift Embargo') }}
                 </button>
               </div>
             </div>
@@ -461,7 +461,7 @@
   {{-- Bottom bar --}}
   <div class="d-flex gap-2 mt-4 mb-5">
     <button type="submit" class="btn atom-btn-outline-success">
-      <i class="fas fa-save me-1"></i> Save
+      <i class="fas fa-save me-1"></i> {{ __('Save') }}
     </button>
     <a href="{{ url('/' . $io->slug) }}" class="btn atom-btn-white">Cancel</a>
   </div>

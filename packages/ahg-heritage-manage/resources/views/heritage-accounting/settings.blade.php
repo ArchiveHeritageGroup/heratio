@@ -9,7 +9,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1><i class="fas fa-cog me-2"></i>Accounting Settings</h1>
       @if(Route::has('heritage.accounting.add'))
-      <a href="{{ route('heritage.accounting.add') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-plus me-1"></i>Add Asset</a>
+      <a href="{{ route('heritage.accounting.add') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-plus me-1"></i>{{ __('Add Asset') }}</a>
       @endif
     </div>
     <p class="text-muted">Configure heritage asset accounting settings.</p>

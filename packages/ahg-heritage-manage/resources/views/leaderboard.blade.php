@@ -14,12 +14,12 @@ $period = $period ?? '';
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Community Stats</h6></div>
       <div class="card-body">
-        <div class="d-flex justify-content-between mb-2"><span>Total Contributions</span><strong>{{ number_format($stats['total'] ?? 0) }}</strong></div>
-        <div class="d-flex justify-content-between mb-2"><span>Approved</span><strong class="text-success">{{ number_format($stats['approved'] ?? 0) }}</strong></div>
-        <div class="d-flex justify-content-between mb-2"><span>Pending Review</span><strong class="text-warning">{{ number_format($stats['pending'] ?? 0) }}</strong></div>
+        <div class="d-flex justify-content-between mb-2"><span>{{ __('Total Contributions') }}</span><strong>{{ number_format($stats['total'] ?? 0) }}</strong></div>
+        <div class="d-flex justify-content-between mb-2"><span>{{ __('Approved') }}</span><strong class="text-success">{{ number_format($stats['approved'] ?? 0) }}</strong></div>
+        <div class="d-flex justify-content-between mb-2"><span>{{ __('Pending Review') }}</span><strong class="text-warning">{{ number_format($stats['pending'] ?? 0) }}</strong></div>
         <hr>
-        <div class="d-flex justify-content-between mb-2"><span>This Week</span><strong style="color:var(--ahg-primary)">{{ number_format($stats['this_week'] ?? 0) }}</strong></div>
-        <div class="d-flex justify-content-between"><span>This Month</span><strong class="text-info">{{ number_format($stats['this_month'] ?? 0) }}</strong></div>
+        <div class="d-flex justify-content-between mb-2"><span>{{ __('This Week') }}</span><strong style="color:var(--ahg-primary)">{{ number_format($stats['this_week'] ?? 0) }}</strong></div>
+        <div class="d-flex justify-content-between"><span>{{ __('This Month') }}</span><strong class="text-info">{{ number_format($stats['this_month'] ?? 0) }}</strong></div>
       </div>
     </div>
     @if(!empty($stats['by_type']))
@@ -47,7 +47,7 @@ $period = $period ?? '';
       </div>
       <div class="card-body p-0">
         @if(empty($leaderboard))
-        <div class="text-center text-muted py-5"><i class="fas fa-users display-1 mb-3 d-block"></i><p>No contributors yet. Be the first!</p><a href="{{ route('heritage.contributor-register') }}" class="btn atom-btn-secondary"><i class="fas fa-user-plus me-1"></i>Join Now</a></div>
+        <div class="text-center text-muted py-5"><i class="fas fa-users display-1 mb-3 d-block"></i><p>No contributors yet. Be the first!</p><a href="{{ route('heritage.contributor-register') }}" class="btn atom-btn-secondary"><i class="fas fa-user-plus me-1"></i>{{ __('Join Now') }}</a></div>
         @else
         <div class="table-responsive">
           <table class="table table-hover mb-0">
@@ -72,7 +72,7 @@ $period = $period ?? '';
 
     <div class="text-center mt-4">
       <p class="text-muted mb-3">Help preserve our heritage and earn recognition!</p>
-      <a href="{{ route('heritage.search') }}" class="btn atom-btn-secondary btn-lg"><i class="fas fa-search me-2"></i>Find Items to Contribute</a>
+      <a href="{{ route('heritage.search') }}" class="btn atom-btn-secondary btn-lg"><i class="fas fa-search me-2"></i>{{ __('Find Items to Contribute') }}</a>
     </div>
   </div>
 </div>

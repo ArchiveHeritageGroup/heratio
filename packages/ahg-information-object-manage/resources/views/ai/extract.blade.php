@@ -19,14 +19,14 @@
   {{-- Extract Button --}}
   <div class="ner-extract-section mb-3">
     <button type="button" class="btn atom-btn-white w-100" id="nerExtractBtn" onclick="extractEntities({{ $io->id }})">
-      <i class="bi bi-cpu me-1"></i>Extract Entities (NER)
+      <i class="bi bi-cpu me-1"></i>{{ __('Extract Entities (NER)') }}
     </button>
 
     {{-- Results Container (hidden by default) --}}
     <div id="nerResults" class="mt-3" style="display: none;">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-          <span><i class="bi bi-list-check me-1"></i>Extracted Entities</span>
+          <span><i class="bi bi-list-check me-1"></i>{{ __('Extracted Entities') }}</span>
           <button class="btn btn-sm atom-btn-outline-success" onclick="approveAll()">{{ __('Approve All') }}</button>
         </div>
         <div class="card-body" id="nerResultsBody"></div>

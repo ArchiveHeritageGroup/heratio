@@ -14,7 +14,7 @@
           No results found
         @endif
       </h1>
-      <span class="small text-muted">Gallery artists</span>
+      <span class="small text-muted">{{ __('Gallery artists') }}</span>
     </div>
   </div>
 
@@ -32,7 +32,7 @@
 
       @auth
         <a href="{{ route('gallery.artists.create') }}" class="btn btn-sm atom-btn-outline-success">
-          <i class="fas fa-plus me-1"></i> Add new
+          <i class="fas fa-plus me-1"></i> {{ __('Add new') }}
         </a>
       @endauth
     </div>

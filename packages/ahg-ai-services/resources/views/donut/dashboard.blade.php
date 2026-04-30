@@ -11,16 +11,16 @@
   <div class="card-header" style="background: var(--ahg-primary); color: white;"><i class="fas fa-server me-2"></i>Service Status</div>
   <div class="card-body">
     <div class="row">
-      <div class="col-md-3"><strong>Status:</strong> <span class="badge bg-success">Online</span></div>
-      <div class="col-md-3"><strong>Version:</strong> {{ $health['version'] ?? '0.1.0' }}</div>
-      <div class="col-md-3"><strong>Model Ready:</strong>
+      <div class="col-md-3"><strong>{{ __('Status:') }}</strong> <span class="badge bg-success">{{ __('Online') }}</span></div>
+      <div class="col-md-3"><strong>{{ __('Version:') }}</strong> {{ $health['version'] ?? '0.1.0' }}</div>
+      <div class="col-md-3"><strong>{{ __('Model Ready:') }}</strong>
         @if($health['model_ready'] ?? false)
-          <span class="badge bg-success">Yes</span>
+          <span class="badge bg-success">{{ __('Yes') }}</span>
         @else
-          <span class="badge bg-warning text-dark">Not trained yet</span>
+          <span class="badge bg-warning text-dark">{{ __('Not trained yet') }}</span>
         @endif
       </div>
-      <div class="col-md-3"><strong>Annotations:</strong> {{ $health['total_annotations'] ?? 0 }}</div>
+      <div class="col-md-3"><strong>{{ __('Annotations:') }}</strong> {{ $health['total_annotations'] ?? 0 }}</div>
     </div>
   </div>
 </div>
@@ -33,14 +33,14 @@
     <div class="card h-100">
       <div class="card-header" style="background: var(--ahg-primary); color: white;"><i class="fas fa-file-import me-2"></i>Extract ILM Fields</div>
       <div class="card-body"><p>Upload a document image and extract FamilySearch ILM fields (record type, event year, event place) using Donut.</p></div>
-      <div class="card-footer"><a href="{{ route('admin.ai.donut.extract') }}" class="btn atom-btn-white w-100"><i class="fas fa-upload me-1"></i>Extract</a></div>
+      <div class="card-footer"><a href="{{ route('admin.ai.donut.extract') }}" class="btn atom-btn-white w-100"><i class="fas fa-upload me-1"></i>{{ __('Extract') }}</a></div>
     </div>
   </div>
   <div class="col-md-4 mb-4">
     <div class="card h-100">
       <div class="card-header" style="background: var(--ahg-primary); color: white;"><i class="fas fa-layer-group me-2"></i>Batch Extract</div>
       <div class="card-body"><p>Process multiple document images at once for bulk ILM field extraction.</p></div>
-      <div class="card-footer"><a href="{{ route('admin.ai.donut.batch') }}" class="btn atom-btn-white w-100"><i class="fas fa-tasks me-1"></i>Batch</a></div>
+      <div class="card-footer"><a href="{{ route('admin.ai.donut.batch') }}" class="btn atom-btn-white w-100"><i class="fas fa-tasks me-1"></i>{{ __('Batch') }}</a></div>
     </div>
   </div>
   <div class="col-md-4 mb-4">
@@ -56,7 +56,7 @@
             <tr class="fw-bold"><td>Total</td><td class="text-end">{{ $training['total'] ?? 0 }}</td></tr>
           </table>
           @if($training['model_exists'] ?? false)
-            <span class="badge bg-success mt-2">Model trained</span>
+            <span class="badge bg-success mt-2">{{ __('Model trained') }}</span>
           @endif
         @endif
       </div>
@@ -88,9 +88,9 @@
       <div class="col-md-6">
         <h5>{{ __('Combined Pipeline (Donut + HTR)') }}</h5>
         <ol>
-          <li><strong>Donut</strong> classifies document type and extracts typed metadata fields</li>
-          <li><strong>TrOCR (HTR)</strong> reads handwritten genealogical content</li>
-          <li><strong>ILM Formatter</strong> combines both into FamilySearch ILM output</li>
+          <li><strong>{{ __('Donut') }}</strong> classifies document type and extracts typed metadata fields</li>
+          <li><strong>{{ __('TrOCR (HTR)') }}</strong> reads handwritten genealogical content</li>
+          <li><strong>{{ __('ILM Formatter') }}</strong> combines both into FamilySearch ILM output</li>
         </ol>
         <p class="text-muted">Use <a href="{{ route('admin.ai.htr.extract') }}">HTR Extract</a> for the full combined pipeline.</p>
       </div>

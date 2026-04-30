@@ -1,7 +1,7 @@
 {{-- User Clearance Badge Component - Migrated from AtoM: ahgSecurityClearancePlugin/modules/securityClearance/templates/_userBadge.php --}}
 @if(!($clearance ?? null))
   <span class="badge bg-secondary security-badge" title="{{ __('No clearance') }}">
-    <i class="fa fa-user"></i> No Clearance
+    <i class="fa fa-user"></i> {{ __('No Clearance') }}
   </span>
 @else
   @php

@@ -36,7 +36,7 @@
           <input class="form-check-input" type="checkbox" id="tts_enabled"
                  name="tts[all][enabled]" value="1"
                  {{ ($settings['all']['enabled'] ?? '1') === '1' ? 'checked' : '' }}>
-          <label class="form-check-label" for="tts_enabled"><strong>Enable Text-to-Speech</strong></label>
+          <label class="form-check-label" for="tts_enabled"><strong>{{ __('Enable Text-to-Speech') }}</strong></label>
         </div>
         <div class="form-text">Show the read-aloud button on record detail pages.</div>
       </div>
@@ -144,7 +144,7 @@
   </div>
 
   <div class="d-flex gap-2">
-    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button>
+    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
     <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">Cancel</a>
   </div>
 </form>

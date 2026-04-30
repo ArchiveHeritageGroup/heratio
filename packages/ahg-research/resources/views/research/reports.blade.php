@@ -16,8 +16,8 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1><i class="fas fa-file-alt text-primary me-2"></i>Research Reports</h1>
-    <a href="{{ route('research.reportTemplates') }}" class="btn btn-outline-secondary btn-sm me-1"><i class="fas fa-layer-group me-1"></i>Templates</a>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newReportModal"><i class="fas fa-plus me-1"></i>New Report</button>
+    <a href="{{ route('research.reportTemplates') }}" class="btn btn-outline-secondary btn-sm me-1"><i class="fas fa-layer-group me-1"></i>{{ __('Templates') }}</a>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newReportModal"><i class="fas fa-plus me-1"></i>{{ __('New Report') }}</button>
 </div>
 
 {{-- Status Tabs --}}
@@ -61,7 +61,7 @@
                     @if($report->project_title ?? null)
                         <small>{{ e($report->project_title) }}</small>
                     @else
-                        <small class="text-muted">None</small>
+                        <small class="text-muted">{{ __('None') }}</small>
                     @endif
                 </td>
                 <td>
@@ -86,7 +86,7 @@
     <i class="fas fa-file-alt fa-4x text-muted mb-3 opacity-50"></i>
     <h4 class="text-muted">{{ __('No reports yet') }}</h4>
     <p class="text-muted">Create a report to document your research findings.</p>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newReportModal"><i class="fas fa-plus me-1"></i>Create First Report</button>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newReportModal"><i class="fas fa-plus me-1"></i>{{ __('Create First Report') }}</button>
 </div>
 @endif
 
@@ -146,12 +146,12 @@
                         <option value="{{ $p->id }}">{{ e($p->title) }}</option>
                     @endforeach
                 </select>
-                <small class="form-text">Link to a project to auto-populate data.</small>
+                <small class="form-text">{{ __('Link to a project to auto-populate data.') }}</small>
             </div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-            <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Create Report</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>{{ __('Create Report') }}</button>
         </div>
     </form>
 </div>

@@ -10,25 +10,25 @@
         @csrf
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Output Format <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Output Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="output_format" class="form-select">
               <option value="pdf">PDF</option>
               <option value="tiff">{{ __('Multi-page TIFF') }}</option>
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Source Files <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Source Files <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="file" name="files[]" class="form-control" multiple accept=".tif,.tiff,.pdf,.jpg,.jpeg,.png">
             <div class="form-text">Select TIFF, PDF, or image files to merge.</div>
           </div>
           <div class="mb-3">
-            <label class="form-label">Output Filename <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Output Filename <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="output_filename" class="form-control" placeholder="{{ __('merged-output') }}">
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-          <button type="submit" class="btn atom-btn-white"><i class="fas fa-cogs me-1"></i>Start Merge</button>
+          <button type="submit" class="btn atom-btn-white"><i class="fas fa-cogs me-1"></i>{{ __('Start Merge') }}</button>
         </div>
       </form>
     </div>

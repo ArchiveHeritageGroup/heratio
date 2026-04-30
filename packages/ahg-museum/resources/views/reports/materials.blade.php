@@ -2,7 +2,7 @@
 @extends('theme::layouts.2col')
 @section('title', 'Materials Report')
 @section('body-class', 'museum-reports materials')
-@section('sidebar')<div class="sidebar-content"><a href="{{ route('museum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>Back</a></div>@endsection
+@section('sidebar')<div class="sidebar-content"><a href="{{ route('museum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back') }}</a></div>@endsection
 @section('title-block')<h1><i class="fas fa-layer-group me-2"></i>Materials Report</h1>@endsection
 @section('content')
 <div class="alert alert-info"><strong>{{ count($records) }}</strong> records with materials/techniques</div>

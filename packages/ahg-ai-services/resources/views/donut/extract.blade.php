@@ -14,11 +14,11 @@
     <form method="POST" action="{{ route('admin.ai.donut.doExtract') }}" enctype="multipart/form-data">
       @csrf
       <div class="mb-3">
-        <label class="form-label">Document Image <span class="badge bg-secondary ms-1">Required</span></label>
+        <label class="form-label">Document Image <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
         <input type="file" name="file" class="form-control" accept="image/*,.pdf" required>
         <div class="form-text">Accepted: JPG, PNG, TIFF, PDF (max 20MB)</div>
       </div>
-      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-magic me-1"></i>Extract ILM Fields</button>
+      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-magic me-1"></i>{{ __('Extract ILM Fields') }}</button>
       <a href="{{ route('admin.ai.donut.dashboard') }}" class="btn atom-btn-white ms-2">Cancel</a>
     </form>
   </div>

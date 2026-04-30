@@ -28,7 +28,7 @@
     <div class="card text-center border-info">
       <div class="card-body">
         <h3>{{ number_format($stats['pending_entities'] ?? 0) }}</h3>
-        <small class="text-muted">Pending Entities</small>
+        <small class="text-muted">{{ __('Pending Entities') }}</small>
       </div>
     </div>
   </div>
@@ -36,7 +36,7 @@
     <div class="card text-center border-warning">
       <div class="card-body">
         <h3>{{ isset($byStatus['stub']) ? $byStatus['stub']->count : 0 }}</h3>
-        <small class="text-muted">Stubs</small>
+        <small class="text-muted">{{ __('Stubs') }}</small>
       </div>
     </div>
   </div>
@@ -44,7 +44,7 @@
     <div class="card text-center border-success">
       <div class="card-body">
         <h3>{{ isset($byStatus['promoted']) ? $byStatus['promoted']->count : 0 }}</h3>
-        <small class="text-muted">Promoted</small>
+        <small class="text-muted">{{ __('Promoted') }}</small>
       </div>
     </div>
   </div>
@@ -52,7 +52,7 @@
     <div class="card text-center border-danger">
       <div class="card-body">
         <h3>{{ isset($byStatus['rejected']) ? $byStatus['rejected']->count : 0 }}</h3>
-        <small class="text-muted">Rejected</small>
+        <small class="text-muted">{{ __('Rejected') }}</small>
       </div>
     </div>
   </div>
@@ -87,7 +87,7 @@
               <td><small>{{ e($entity->source_title ?? '') }}</small></td>
               <td>
                 <button class="btn btn-sm btn-success btn-create-stub" data-id="{{ $entity->id }}">
-                  <i class="fas fa-user-plus me-1"></i>Create Stub
+                  <i class="fas fa-user-plus me-1"></i>{{ __('Create Stub') }}
                 </button>
               </td>
             </tr>

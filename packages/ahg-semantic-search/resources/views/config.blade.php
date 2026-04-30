@@ -16,7 +16,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h2">
             <a href="{{ route('semantic-search.index') }}" class="text-decoration-none text-muted">
-                <i class="fas fa-brain me-2"></i>Semantic Search
+                <i class="fas fa-brain me-2"></i>{{ __('Semantic Search') }}
             </a>
             <i class="fas fa-chevron-right mx-2 small text-muted"></i>
             Settings
@@ -46,7 +46,7 @@
                                    name="semantic_search_enabled" value="1"
                                    {{ ($config['semantic_search_enabled'] ?? '0') == '1' || ($config['semantic_search_enabled'] ?? '') === 'true' ? 'checked' : '' }}>
                             <label class="form-check-label" for="semantic_search_enabled">
-                                <strong>Enable Semantic Search</strong>
+                                <strong>{{ __('Enable Semantic Search') }}</strong>
                             </label>
                             <div class="form-text">When enabled, search queries will be expanded with synonyms.</div>
                         </div>
@@ -187,7 +187,7 @@
                                     <label class="form-label">{{ __('Export Synonyms') }}</label>
                                     <div>
                                         <button type="button" class="btn btn-outline-primary sync-btn" data-type="elasticsearch">
-                                            <i class="fas fa-file-export me-1"></i>Export to Elasticsearch
+                                            <i class="fas fa-file-export me-1"></i>{{ __('Export to Elasticsearch') }}
                                         </button>
                                     </div>
                                     <div class="form-text">Generate synonyms file for Elasticsearch. Requires ES restart to apply.</div>
@@ -197,7 +197,7 @@
 
                         <div class="alert alert-info mb-0">
                             <i class="fas fa-info-circle me-2"></i>
-                            <strong>Note:</strong>
+                            <strong>{{ __('Note:') }}</strong>
                             After exporting synonyms, you need to restart Elasticsearch for changes to take effect. Add the synonyms filter to your index settings.
                         </div>
                     </div>
@@ -207,10 +207,10 @@
 
         <div class="d-flex justify-content-end gap-2">
             <a href="{{ route('semantic-search.index') }}" class="btn btn-secondary">
-                <i class="fas fa-times me-1"></i>Cancel
+                <i class="fas fa-times me-1"></i>{{ __('Cancel') }}
             </a>
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save me-1"></i>Save Settings
+                <i class="fas fa-save me-1"></i>{{ __('Save Settings') }}
             </button>
         </div>
     </form>

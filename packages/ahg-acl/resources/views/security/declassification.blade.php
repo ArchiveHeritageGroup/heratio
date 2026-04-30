@@ -40,7 +40,7 @@
               <input type="hidden" name="new_classification_id" value="{{ $dec->to_classification_id ?? '' }}">
               <input type="hidden" name="reason" value="Scheduled declassification">
               <button type="submit" class="btn btn-sm btn-success">
-                <i class="fas fa-check"></i> Process
+                <i class="fas fa-check"></i> {{ __('Process') }}
               </button>
             </form>
             <a href="{{ route('acl.object-view', ['id' => $dec->object_id]) }}" class="btn btn-sm btn-outline-secondary">

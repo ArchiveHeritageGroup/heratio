@@ -48,7 +48,7 @@
                 <label class="form-label">{{ __('Minimum Age for Antiquity (Years)') }}</label>
                 <input type="number" name="antiquity_age_years" class="form-control"
                        value="{{ $config['antiquity_age_years'] ?? '100' }}" min="1">
-                <small class="text-muted">Objects older than this are classified as antiquities</small>
+                <small class="text-muted">{{ __('Objects older than this are classified as antiquities') }}</small>
               </div>
             </div>
           </div>
@@ -100,7 +100,7 @@
         <div class="card mb-4">
           <div class="card-body d-grid">
             <button type="submit" class="btn btn-primary btn-lg">
-              <i class="fas fa-save me-2"></i>Save Configuration
+              <i class="fas fa-save me-2"></i>{{ __('Save Configuration') }}
             </button>
           </div>
         </div>
@@ -109,11 +109,11 @@
           <div class="card-header"><h5 class="mb-0">{{ __('About') }}</h5></div>
           <div class="card-body">
             <p class="small text-muted mb-2">
-              <strong>NMMZ Plugin</strong><br>
+              <strong>{{ __('NMMZ Plugin') }}</strong><br>
               Jurisdictional compliance module for national museums and monuments regulations.
             </p>
             <p class="small text-muted mb-0">
-              <strong>Version:</strong> 1.0.0
+              <strong>{{ __('Version:') }}</strong> 1.0.0
             </p>
           </div>
         </div>

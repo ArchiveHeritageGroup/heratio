@@ -14,10 +14,10 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0"><i class="fas fa-pen-square me-2"></i>ILM Annotate</h1>
   <div class="d-flex gap-2">
-    <a href="{{ route('admin.ai.htr.sources') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-database me-1"></i>Sources</a>
-    <a href="{{ route('admin.ai.htr.bulkAnnotate') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-magic me-1"></i>Bulk Annotate</a>
-    <a href="{{ route('admin.ai.htr.fsOverlay') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-layer-group me-1"></i>FS Overlay</a>
-    <a href="{{ route('admin.ai.htr.training') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-graduation-cap me-1"></i>Training</a>
+    <a href="{{ route('admin.ai.htr.sources') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-database me-1"></i>{{ __('Sources') }}</a>
+    <a href="{{ route('admin.ai.htr.bulkAnnotate') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-magic me-1"></i>{{ __('Bulk Annotate') }}</a>
+    <a href="{{ route('admin.ai.htr.fsOverlay') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-layer-group me-1"></i>{{ __('FS Overlay') }}</a>
+    <a href="{{ route('admin.ai.htr.training') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-graduation-cap me-1"></i>{{ __('Training') }}</a>
   </div>
 </div>
 
@@ -43,7 +43,7 @@
             <option value="">— Custom path —</option>
           </select>
           <input type="text" id="folder-custom" class="form-control form-control-sm" placeholder="{{ __('or type path here') }}">
-          <button class="btn atom-btn-outline-success" id="btn-folder-load"><i class="fas fa-folder-open me-1"></i>Load</button>
+          <button class="btn atom-btn-outline-success" id="btn-folder-load"><i class="fas fa-folder-open me-1"></i>{{ __('Load') }}</button>
         </div>
       </div>
       <div class="col-auto" id="folder-nav" style="display:none;">
@@ -106,14 +106,14 @@
       </div>
       <div class="col-auto border-start ps-2" id="row-split-tools" style="display:none;">
         <div class="btn-group btn-group-sm">
-          <button class="btn atom-btn-white" id="btn-auto-rows" title="{{ __('Auto-detect rows') }}"><i class="fas fa-grip-lines me-1"></i>Auto Rows</button>
+          <button class="btn atom-btn-white" id="btn-auto-rows" title="{{ __('Auto-detect rows') }}"><i class="fas fa-grip-lines me-1"></i>{{ __('Auto Rows') }}</button>
           <input type="number" class="form-control form-control-sm" id="row-count" value="7" min="1" max="20" style="width:50px;" title="{{ __('Number of rows') }}">
-          <button class="btn atom-btn-white" id="btn-split-go" title="{{ __('Split into row images') }}"><i class="fas fa-cut me-1"></i>Split &amp; Annotate</button>
+          <button class="btn atom-btn-white" id="btn-split-go" title="{{ __('Split into row images') }}"><i class="fas fa-cut me-1"></i>{{ __('Split &amp; Annotate') }}</button>
         </div>
       </div>
       <div class="col-auto ms-auto">
-        <button class="btn atom-btn-white btn-sm" id="btn-skip" disabled title="{{ __('Skip — move to rework folder') }}"><i class="fas fa-forward me-1"></i>Skip</button>
-        <button class="btn atom-btn-outline-success btn-sm" id="btn-save" disabled><i class="fas fa-save me-1"></i>Save</button>
+        <button class="btn atom-btn-white btn-sm" id="btn-skip" disabled title="{{ __('Skip — move to rework folder') }}"><i class="fas fa-forward me-1"></i>{{ __('Skip') }}</button>
+        <button class="btn atom-btn-outline-success btn-sm" id="btn-save" disabled><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
       </div>
     </div>
   </div>
@@ -122,13 +122,13 @@
 {{-- Non-genealogical bar (hidden by default) --}}
 <div class="alert alert-warning mb-3 py-2" id="ng-bar" style="display:none;">
   <div class="d-flex align-items-center gap-3">
-    <strong>Non-genealogical type:</strong>
+    <strong>{{ __('Non-genealogical type:') }}</strong>
     <select id="ng-type" class="form-select form-select-sm" style="width:auto;">
       <option value="135026">{{ __('Administrative Image') }}</option>
       <option value="135165">{{ __('No Extractable Data') }}</option>
       <option value="135784">{{ __('No Genealogical Data') }}</option>
     </select>
-    <span class="small text-muted">No field boxes needed — just save.</span>
+    <span class="small text-muted">{{ __('No field boxes needed — just save.') }}</span>
   </div>
 </div>
 
@@ -141,13 +141,13 @@
           <div>
             <i class="fas fa-image fa-3x mb-3 d-block"></i>
             <p class="mb-1">Load a server folder or upload an image</p>
-            <p class="small mb-0">Box 1 = <strong>Event Year</strong> | Box 2 = <strong>Event Place</strong> | Record Type = document level</p>
+            <p class="small mb-0">Box 1 = <strong>{{ __('Event Year') }}</strong> | Box 2 = <strong>{{ __('Event Place') }}</strong> | Record Type = document level</p>
           </div>
         </div>
         <canvas id="cvs" style="display:none; cursor:grab;"></canvas>
       </div>
     </div>
-    <small class="text-muted" id="info">No image</small>
+    <small class="text-muted" id="info">{{ __('No image') }}</small>
   </div>
 
   {{-- Right panel --}}
@@ -200,9 +200,9 @@
       </div>
       <div class="card-body py-2">
         <div class="d-flex gap-3 small">
-          <span><strong>A:</strong> <span id="cnt-a">0</span></span>
-          <span><strong>B:</strong> <span id="cnt-b">0</span></span>
-          <span><strong>C:</strong> <span id="cnt-c">0</span></span>
+          <span><strong>{{ __('A:') }}</strong> <span id="cnt-a">0</span></span>
+          <span><strong>{{ __('B:') }}</strong> <span id="cnt-b">0</span></span>
+          <span><strong>{{ __('C:') }}</strong> <span id="cnt-c">0</span></span>
         </div>
       </div>
     </div>
@@ -215,24 +215,24 @@
       <div class="card-body py-2 small">
         <div class="fw-bold mb-1">Type A — Single Form (Death Cert):</div>
         <ol class="mb-2 ps-3" style="line-height:1.7;">
-          <li>Select <strong>server folder</strong> → click <strong>Load</strong></li>
-          <li>Set <strong>Record Type</strong> (top-right)</li>
+          <li>Select <strong>server folder</strong> → click <strong>{{ __('Load') }}</strong></li>
+          <li>Set <strong>{{ __('Record Type') }}</strong> (top-right)</li>
           <li>Press <strong>R</strong> → draw box around <strong>event year</strong> → type year</li>
           <li>Press <strong>R</strong> → draw box around <strong>event place</strong> → type place</li>
-          <li>Press <strong>Enter</strong> to save → auto-advances</li>
+          <li>Press <strong>{{ __('Enter') }}</strong> to save → auto-advances</li>
         </ol>
         <div class="fw-bold mb-1">Type B — Register (Multiple Records):</div>
         <ol class="mb-2 ps-3" style="line-height:1.7;">
-          <li>Select <strong>Type B — Register</strong> from Doc Type</li>
-          <li>Load image → click <strong>Auto Rows</strong> (set row count first)</li>
+          <li>Select <strong>{{ __('Type B — Register') }}</strong> from Doc Type</li>
+          <li>Load image → click <strong>{{ __('Auto Rows') }}</strong> (set row count first)</li>
           <li>Use <strong>V</strong> to drag/resize row boxes to fit entries</li>
-          <li><strong>Delete</strong> empty rows, <strong>R</strong> to add missed ones</li>
-          <li>Click <strong>Split &amp; Annotate</strong> → crops each row</li>
+          <li><strong>{{ __('Delete') }}</strong> empty rows, <strong>R</strong> to add missed ones</li>
+          <li>Click <strong>{{ __('Split &amp; Annotate') }}</strong> → crops each row</li>
           <li>Switches to Type A → annotate each row (year + place)</li>
         </ol>
         <hr class="my-1">
         <div class="text-muted" style="font-size:.7rem;">
-          <strong>Keys:</strong> H=pan, R=draw, V=select/move, Space=hold-to-pan, +/-=zoom, Tab=cycle, Del=delete, Ctrl+Z=undo
+          <strong>{{ __('Keys:') }}</strong> H=pan, R=draw, V=select/move, Space=hold-to-pan, +/-=zoom, Tab=cycle, Del=delete, Ctrl+Z=undo
         </div>
       </div>
     </div>

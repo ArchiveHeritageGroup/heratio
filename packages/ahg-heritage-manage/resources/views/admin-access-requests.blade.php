@@ -20,15 +20,15 @@ $pages = $requestData['pages'] ?? 1;
       </div>
       <div class="card-body">
         <div class="d-flex justify-content-between mb-2">
-          <span>Pending</span>
+          <span>{{ __('Pending') }}</span>
           <span class="badge bg-warning">{{ $stats['pending'] ?? 0 }}</span>
         </div>
         <div class="d-flex justify-content-between mb-2">
-          <span>This Month</span>
+          <span>{{ __('This Month') }}</span>
           <span class="badge bg-info">{{ $stats['this_month'] ?? 0 }}</span>
         </div>
         <div class="d-flex justify-content-between">
-          <span>Approval Rate</span>
+          <span>{{ __('Approval Rate') }}</span>
           <span class="badge bg-success">{{ $stats['approval_rate'] ?? 0 }}%</span>
         </div>
       </div>
@@ -68,7 +68,7 @@ $pages = $requestData['pages'] ?? 1;
                 </small>
               </div>
               <div class="col-md-3">
-                <small class="text-muted">Purpose:</small><br>
+                <small class="text-muted">{{ __('Purpose:') }}</small><br>
                 {{ $request->purpose_name ?? $request->purpose_text ?? 'Not specified' }}
               </div>
               <div class="col-md-2">
@@ -87,7 +87,7 @@ $pages = $requestData['pages'] ?? 1;
             </div>
             @if($request->justification)
             <div class="mt-2">
-              <small><strong>Justification:</strong> {{ $request->justification }}</small>
+              <small><strong>{{ __('Justification:') }}</strong> {{ $request->justification }}</small>
             </div>
             @endif
           </div>
@@ -111,12 +111,12 @@ $pages = $requestData['pages'] ?? 1;
               <input type="hidden" name="request_id" id="approve_request_id">
               <input type="hidden" name="decision" value="approve">
               <div class="mb-3">
-                <label for="valid_until" class="form-label">Access Valid Until <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="valid_until" class="form-label">Access Valid Until <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="date" class="form-control" name="valid_until" id="valid_until"
                        value="{{ date('Y-m-d', strtotime('+90 days')) }}">
               </div>
               <div class="mb-3">
-                <label for="approve_notes" class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="approve_notes" class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea class="form-control" name="notes" id="approve_notes" rows="2"></textarea>
               </div>
             </div>
@@ -143,7 +143,7 @@ $pages = $requestData['pages'] ?? 1;
               <input type="hidden" name="request_id" id="deny_request_id">
               <input type="hidden" name="decision" value="deny">
               <div class="mb-3">
-                <label for="deny_notes" class="form-label">Reason for Denial <span class="badge bg-danger ms-1">Required</span></label>
+                <label for="deny_notes" class="form-label">Reason for Denial <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <textarea class="form-control" name="notes" id="deny_notes" rows="3" required></textarea>
               </div>
             </div>

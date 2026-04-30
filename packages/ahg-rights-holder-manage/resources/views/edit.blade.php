@@ -42,7 +42,7 @@
               <label for="authorized_form_of_name" class="form-label">
                 Authorized form of name
                 <span class="form-required text-danger" title="{{ __('This is a mandatory element.') }}">*</span>
-                <span class="badge bg-danger ms-1">Required</span>
+                <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
               </label>
               <input type="text" name="authorized_form_of_name" id="authorized_form_of_name"
                      class="form-control" required

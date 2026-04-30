@@ -9,7 +9,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1><i class="fas fa-user me-2"></i>Audit Actor / Authority Record</h1>
       <div>
-        <a href="{{ route('reports.dashboard') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back</a>
+        <a href="{{ route('reports.dashboard') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
       </div>
     </div>
 
@@ -23,15 +23,15 @@
       <div class="card-body">
         <form method="get" class="row g-3">
           <div class="col-md-3">
-            <label class="form-label">Date Start <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Date Start <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="dateStart" class="form-control form-control-sm" value="{{ request('dateStart') }}">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Date End <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Date End <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="dateEnd" class="form-control form-control-sm" value="{{ request('dateEnd') }}">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Per Page <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Per Page <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="limit" class="form-select form-select-sm">
               <option value="25" {{ request('limit',25)==25?'selected':'' }}>25</option>
               <option value="50" {{ request('limit')==50?'selected':'' }}>50</option>
@@ -39,7 +39,7 @@
             </select>
           </div>
           <div class="col-md-3 d-flex align-items-end">
-            <button type="submit" class="btn atom-btn-white btn-sm"><i class="fas fa-search me-1"></i>Search</button>
+            <button type="submit" class="btn atom-btn-white btn-sm"><i class="fas fa-search me-1"></i>{{ __('Search') }}</button>
           </div>
         </form>
       </div>
@@ -68,11 +68,11 @@
                 <td>{{ $item->username ?? '' }}</td>
                 <td>
                   @if(($item->action ?? '') === 'insert')
-                    <span class="badge bg-success">Insert</span>
+                    <span class="badge bg-success">{{ __('Insert') }}</span>
                   @elseif(($item->action ?? '') === 'update')
-                    <span class="badge bg-warning text-dark">Update</span>
+                    <span class="badge bg-warning text-dark">{{ __('Update') }}</span>
                   @elseif(($item->action ?? '') === 'delete')
-                    <span class="badge bg-danger">Delete</span>
+                    <span class="badge bg-danger">{{ __('Delete') }}</span>
                   @else
                     <span class="badge bg-secondary">{{ ucfirst($item->action ?? '-') }}</span>
                   @endif

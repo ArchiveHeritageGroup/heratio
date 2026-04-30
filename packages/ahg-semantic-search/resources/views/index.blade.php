@@ -17,7 +17,7 @@
         <h1 class="h2"><i class="fas fa-brain me-2"></i>Semantic Search</h1>
         <div class="d-flex gap-2">
             <a href="{{ route('semantic-search.config') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-cog me-1"></i>Settings
+                <i class="fas fa-cog me-1"></i>{{ __('Settings') }}
             </a>
         </div>
     </div>
@@ -158,22 +158,22 @@
                     <div class="row g-2">
                         <div class="col-6">
                             <button class="btn btn-outline-primary w-100 sync-btn" data-type="local">
-                                <i class="fas fa-file-import me-1"></i>Import Local
+                                <i class="fas fa-file-import me-1"></i>{{ __('Import Local') }}
                             </button>
                         </div>
                         <div class="col-6">
                             <button class="btn btn-outline-info w-100 sync-btn" data-type="wordnet">
-                                <i class="fas fa-cloud-download-alt me-1"></i>Sync WordNet
+                                <i class="fas fa-cloud-download-alt me-1"></i>{{ __('Sync WordNet') }}
                             </button>
                         </div>
                         <div class="col-6">
                             <button class="btn btn-outline-success w-100 sync-btn" data-type="elasticsearch">
-                                <i class="fas fa-file-export me-1"></i>Export to ES
+                                <i class="fas fa-file-export me-1"></i>{{ __('Export to ES') }}
                             </button>
                         </div>
                         <div class="col-6">
                             <a href="{{ route('semantic-search.term.add') }}" class="btn btn-outline-secondary w-100">
-                                <i class="fas fa-plus me-1"></i>Add Term
+                                <i class="fas fa-plus me-1"></i>{{ __('Add Term') }}
                             </a>
                         </div>
                     </div>
@@ -193,7 +193,7 @@
                     <div class="input-group mb-3">
                         <input type="text" id="test-query" class="form-control" placeholder="{{ __('Enter a search term...') }}">
                         <button class="btn btn-primary" type="button" id="test-expand-btn">
-                            <i class="fas fa-search me-1"></i>Expand
+                            <i class="fas fa-search me-1"></i>{{ __('Expand') }}
                         </button>
                     </div>
                     <div id="expansion-result" style="display: none;">

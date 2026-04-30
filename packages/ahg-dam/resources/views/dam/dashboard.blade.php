@@ -15,7 +15,7 @@
     <i class="fas fa-images fa-2x text-danger me-3" aria-hidden="true"></i>
     <div>
       <h1 class="mb-0">{{ __('Digital Asset Management') }}</h1>
-      <span class="small text-muted">Photo archive and DAM</span>
+      <span class="small text-muted">{{ __('Photo archive and DAM') }}</span>
     </div>
   </div>
 @endsection
@@ -29,19 +29,19 @@
 
   <div class="list-group mb-3">
     <a href="{{ route('dam.create') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-plus text-success me-2"></i>Create new asset
+      <i class="fas fa-plus text-success me-2"></i>{{ __('Create new asset') }}
     </a>
     <a href="{{ route('dam.bulk-create') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-upload text-primary me-2"></i>Bulk upload
+      <i class="fas fa-upload text-primary me-2"></i>{{ __('Bulk upload') }}
     </a>
     <a href="{{ route('dam.browse') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-search text-info me-2"></i>Browse all assets
+      <i class="fas fa-search text-info me-2"></i>{{ __('Browse all assets') }}
     </a>
     <a href="{{ route('dam.browse') }}?hasDigital=1" class="list-group-item list-group-item-action">
-      <i class="fas fa-image text-warning me-2"></i>With digital objects
+      <i class="fas fa-image text-warning me-2"></i>{{ __('With digital objects') }}
     </a>
     <a href="{{ route('dam.reports') }}" class="list-group-item list-group-item-action">
-      <i class="fas fa-chart-bar text-info me-2"></i>DAM Reports
+      <i class="fas fa-chart-bar text-info me-2"></i>{{ __('DAM Reports') }}
     </a>
   </div>
 
@@ -53,10 +53,10 @@
 
   <div class="list-group mb-3">
     <a href="#" class="list-group-item list-group-item-action">
-      <i class="fas fa-file-contract text-warning me-2"></i>Manage Loans
+      <i class="fas fa-file-contract text-warning me-2"></i>{{ __('Manage Loans') }}
     </a>
     <a href="#" class="list-group-item list-group-item-action">
-      <i class="fas fa-plus text-success me-2"></i>New Loan Out
+      <i class="fas fa-plus text-success me-2"></i>{{ __('New Loan Out') }}
     </a>
   </div>
 @endsection
@@ -70,7 +70,7 @@
           <div class="d-flex justify-content-between">
             <div>
               <h4 class="mb-0">{{ number_format($stats['totalAssets'] ?? 0) }}</h4>
-              <small>Total DAM Assets</small>
+              <small>{{ __('Total DAM Assets') }}</small>
             </div>
             <i class="fas fa-images fa-2x opacity-50"></i>
           </div>
@@ -83,7 +83,7 @@
           <div class="d-flex justify-content-between">
             <div>
               <h4 class="mb-0">{{ number_format($stats['withDigitalObjects'] ?? 0) }}</h4>
-              <small>With Digital Files</small>
+              <small>{{ __('With Digital Files') }}</small>
             </div>
             <i class="fas fa-file-image fa-2x opacity-50"></i>
           </div>
@@ -96,7 +96,7 @@
           <div class="d-flex justify-content-between">
             <div>
               <h4 class="mb-0">{{ ($stats['totalAssets'] ?? 0) > 0 ? round((($stats['withDigitalObjects'] ?? 0) / $stats['totalAssets']) * 100) : 0 }}%</h4>
-              <small>Digitized</small>
+              <small>{{ __('Digitized') }}</small>
             </div>
             <i class="fas fa-chart-pie fa-2x opacity-50"></i>
           </div>
@@ -114,17 +114,17 @@
       <div class="row">
         <div class="col-md-4 mb-2">
           <a href="{{ route('dam.create') }}" class="btn btn-success btn-lg w-100">
-            <i class="fas fa-plus me-2"></i>New Asset
+            <i class="fas fa-plus me-2"></i>{{ __('New Asset') }}
           </a>
         </div>
         <div class="col-md-4 mb-2">
           <a href="{{ route('dam.bulk-create') }}" class="btn btn-primary btn-lg w-100">
-            <i class="fas fa-upload me-2"></i>Bulk Upload
+            <i class="fas fa-upload me-2"></i>{{ __('Bulk Upload') }}
           </a>
         </div>
         <div class="col-md-4 mb-2">
           <a href="{{ route('dam.browse') }}" class="btn btn-info btn-lg w-100">
-            <i class="fas fa-search me-2"></i>Browse All
+            <i class="fas fa-search me-2"></i>{{ __('Browse All') }}
           </a>
         </div>
       </div>
@@ -175,7 +175,7 @@
   {{-- Recent Assets --}}
   <div class="card">
     <div class="card-header bg-light d-flex justify-content-between align-items-center">
-      <span><i class="fas fa-clock"></i> Recent Assets</span>
+      <span><i class="fas fa-clock"></i> {{ __('Recent Assets') }}</span>
       <a href="{{ route('dam.browse') }}?sort=date&dir=desc" class="btn btn-sm btn-outline-secondary">View all</a>
     </div>
     <div class="card-body p-0">
@@ -184,7 +184,7 @@
           <i class="fas fa-inbox fa-3x mb-3"></i>
           <p>No DAM assets yet</p>
           <a href="{{ route('dam.create') }}" class="btn btn-success">
-            <i class="fas fa-plus"></i> Create your first asset
+            <i class="fas fa-plus"></i> {{ __('Create your first asset') }}
           </a>
         </div>
       @else

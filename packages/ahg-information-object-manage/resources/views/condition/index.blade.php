@@ -16,11 +16,11 @@
   {{-- Action bar --}}
   <div class="d-flex justify-content-between align-items-center mb-4">
     <a href="{{ route('informationobject.show', ['slug' => $io->slug ?? $io->id]) }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left me-1"></i> Back
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
     </a>
     @auth
       <a href="{{ route('io.condition.create', ['slug' => $io->slug ?? $io->id]) }}" class="btn atom-btn-outline-success">
-        <i class="fas fa-plus me-1"></i> New Condition Report
+        <i class="fas fa-plus me-1"></i> {{ __('New Condition Report') }}
       </a>
     @endauth
   </div>
@@ -38,11 +38,11 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-3">
-            <strong>Date</strong>
+            <strong>{{ __('Date') }}</strong>
             <p>{{ $latestCondition->check_date ?? '—' }}</p>
           </div>
           <div class="col-md-3">
-            <strong>Status</strong>
+            <strong>{{ __('Status') }}</strong>
             <p>
               @php
                 $status = strtolower(trim($latestCondition->condition_rating ?? ''));
@@ -60,19 +60,19 @@
             </p>
           </div>
           <div class="col-md-3">
-            <strong>Assessor</strong>
+            <strong>{{ __('Assessor') }}</strong>
             <p>{{ $latestCondition->assessor && $latestCondition->assessor !== 'System' ? $latestCondition->assessor : 'N/A' }}</p>
           </div>
           <div class="col-md-3">
-            <strong>Photos</strong>
+            <strong>{{ __('Photos') }}</strong>
             <p>
               @if(($latestCondition->source ?? '') === 'spectrum')
                 <a href="{{ route('io.condition.spectrum.show', ['id' => $latestCondition->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-primary">
-                  <i class="fas fa-images me-1"></i> View Photos
+                  <i class="fas fa-images me-1"></i> {{ __('View Photos') }}
                 </a>
               @else
                 <a href="{{ route('io.condition.show', ['id' => $latestCondition->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-primary">
-                  <i class="fas fa-images me-1"></i> View Photos
+                  <i class="fas fa-images me-1"></i> {{ __('View Photos') }}
                 </a>
               @endif
             </p>
@@ -81,7 +81,7 @@
         @if($latestCondition->notes ?? false)
           <div class="row mt-2">
             <div class="col-12">
-              <strong>Notes</strong>
+              <strong>{{ __('Notes') }}</strong>
               <p>{{ $latestCondition->notes }}</p>
             </div>
           </div>
@@ -93,7 +93,7 @@
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0 d-flex justify-content-between align-items-center">
-          <span><i class="fas fa-history me-2"></i> Condition History</span>
+          <span><i class="fas fa-history me-2"></i> {{ __('Condition History') }}</span>
           <span class="badge bg-light text-dark">{{ $checks->count() }}</span>
         </h5>
       </div>
@@ -135,14 +135,14 @@
                   <td class="text-end">
                     @if(($check->source ?? '') === 'spectrum')
                       <a href="{{ route('io.condition.spectrum.show', ['id' => $check->id ?? 0]) }}" class="btn btn-sm btn-outline-primary" title="{{ __('View Report') }}">
-                        <i class="fas fa-eye me-1"></i>View
+                        <i class="fas fa-eye me-1"></i>{{ __('View') }}
                       </a>
                       <a href="{{ route('io.condition.spectrum.show', ['id' => $check->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-secondary" title="{{ __('View Photos') }}">
                         <i class="fas fa-images"></i>
                       </a>
                     @else
                       <a href="{{ route('io.condition.show', ['id' => $check->id ?? 0]) }}" class="btn btn-sm btn-outline-primary" title="{{ __('View Report') }}">
-                        <i class="fas fa-eye me-1"></i>View
+                        <i class="fas fa-eye me-1"></i>{{ __('View') }}
                       </a>
                       <a href="{{ route('io.condition.show', ['id' => $check->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-secondary" title="{{ __('View Photos') }}">
                         <i class="fas fa-images"></i>
@@ -170,7 +170,7 @@
       </p>
       @auth
         <a href="{{ route('io.condition.create', ['slug' => $io->slug ?? $io->id]) }}" class="btn atom-btn-outline-success btn-lg">
-          <i class="fas fa-plus me-1"></i> Create First Condition Report
+          <i class="fas fa-plus me-1"></i> {{ __('Create First Condition Report') }}
         </a>
       @endauth
     </div>

@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-file-signature me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Record Declarations') }}</h1><span class="small text-muted">Formal record declaration workflow</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Record Declarations') }}</h1><span class="small text-muted">{{ __('Formal record declaration workflow') }}</span></div>
   </div>
 @endsection
 @section('content')
@@ -27,7 +27,7 @@
             <label for="information_object_id" class="form-label">{{ __('Information Object ID') }}</label>
             <input type="number" class="form-control" id="information_object_id" name="information_object_id" required min="1" placeholder="{{ __('Enter IO ID') }}">
           </div>
-          <button type="submit" class="btn atom-btn-white"><i class="fas fa-file-signature me-1"></i>Submit Declaration</button>
+          <button type="submit" class="btn atom-btn-white"><i class="fas fa-file-signature me-1"></i>{{ __('Submit Declaration') }}</button>
         </form>
       </div>
     </div>
@@ -41,15 +41,15 @@
         <div class="row text-center">
           <div class="col-md-4">
             <h3 class="mb-0">{{ count($pending) }}</h3>
-            <small class="text-muted">Pending Approval</small>
+            <small class="text-muted">{{ __('Pending Approval') }}</small>
           </div>
           <div class="col-md-4">
             <h3 class="mb-0">{{ collect($declarations)->where('status', 'declared')->count() }}</h3>
-            <small class="text-muted">Declared</small>
+            <small class="text-muted">{{ __('Declared') }}</small>
           </div>
           <div class="col-md-4">
             <h3 class="mb-0">{{ $total }}</h3>
-            <small class="text-muted">Total</small>
+            <small class="text-muted">{{ __('Total') }}</small>
           </div>
         </div>
       </div>
@@ -84,7 +84,7 @@
               <td>
                 <form method="POST" action="{{ route('integrity.declarations.approve', $p->information_object_id) }}" class="d-inline">
                   @csrf
-                  <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve this declaration?')"><i class="fas fa-check me-1"></i>Approve</button>
+                  <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve this declaration?')"><i class="fas fa-check me-1"></i>{{ __('Approve') }}</button>
                 </form>
               </td>
             </tr>
@@ -116,9 +116,9 @@
               <td>{{ $d->io_title ?? '-' }}</td>
               <td>
                 @if($d->status === 'declared')
-                  <span class="badge bg-success">Declared</span>
+                  <span class="badge bg-success">{{ __('Declared') }}</span>
                 @elseif($d->status === 'pending_approval')
-                  <span class="badge bg-warning text-dark">Pending</span>
+                  <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
                 @else
                   <span class="badge bg-secondary">{{ ucfirst($d->status) }}</span>
                 @endif
@@ -147,5 +147,5 @@
   </div>
 </div>
 
-<div class="mt-3"><a href="{{ route('integrity.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Dashboard</a></div>
+<div class="mt-3"><a href="{{ route('integrity.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}</a></div>
 @endsection

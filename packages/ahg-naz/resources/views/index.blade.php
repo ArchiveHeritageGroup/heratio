@@ -20,10 +20,10 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgnaz.reports') }}" class="btn atom-btn-outline-primary">
-                <i class="fas fa-file-alt me-1"></i> Reports
+                <i class="fas fa-file-alt me-1"></i> {{ __('Reports') }}
             </a>
             <a href="{{ route('ahgnaz.config') }}" class="btn atom-btn-outline-secondary">
-                <i class="fas fa-cog me-1"></i> Settings
+                <i class="fas fa-cog me-1"></i> {{ __('Settings') }}
             </a>
         </div>
     </div>
@@ -66,7 +66,7 @@
                     @if ($stats['permits']['pending'] > 0)
                         <small class="text-warning">{{ $stats['permits']['pending'] }} pending approval</small>
                     @else
-                        <small class="text-muted">Research permits</small>
+                        <small class="text-muted">{{ __('Research permits') }}</small>
                     @endif
                 </div>
             </div>
@@ -111,7 +111,7 @@
                         @endif
                     </a>
                     <a href="{{ route('ahgnaz.researchers') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-users me-2"></i> Researcher Registry
+                        <i class="fas fa-users me-2"></i> {{ __('Researcher Registry') }}
                     </a>
                     <a href="{{ route('ahgnaz.schedules') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-calendar-alt me-2"></i> Records Schedules
@@ -258,15 +258,15 @@
                     <h6><i class="fas fa-gavel me-2"></i>Key Legislation Reference</h6>
                     <div class="row">
                         <div class="col-md-4">
-                            <strong>Section 10 &mdash; Closure Period:</strong>
+                            <strong>{{ __('Section 10 &mdash; Closure Period:') }}</strong>
                             <p class="mb-0 small text-muted">Records closed for {{ $config['closure_period_years'] }} years from date of creation</p>
                         </div>
                         <div class="col-md-4">
-                            <strong>Research Permit Fees:</strong>
+                            <strong>{{ __('Research Permit Fees:') }}</strong>
                             <p class="mb-0 small text-muted">Foreign researchers: US${{ $config['foreign_permit_fee_usd'] }}</p>
                         </div>
                         <div class="col-md-4">
-                            <strong>Permit Validity:</strong>
+                            <strong>{{ __('Permit Validity:') }}</strong>
                             <p class="mb-0 small text-muted">{{ $config['permit_validity_months'] }} months from approval</p>
                         </div>
                     </div>

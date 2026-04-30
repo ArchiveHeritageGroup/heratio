@@ -39,7 +39,7 @@
     <form method="post" action="{{ route('favorites.import') }}">
       @csrf
       <input type="hidden" name="slugs" value="{{ $items->pluck('slug')->implode("\n") }}">
-      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-heart me-1"></i>Copy to My Favorites</button>
+      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-heart me-1"></i>{{ __('Copy to My Favorites') }}</button>
     </form>
   </div>
 @else

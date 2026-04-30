@@ -120,7 +120,7 @@
     </div>
     <div class="list-group list-group-flush">
       <a href="{{ route('library.browse', ['material_type' => $item->material_type]) }}" class="list-group-item list-group-item-action small">
-        <i class="fas fa-filter me-1"></i> Same material type
+        <i class="fas fa-filter me-1"></i> {{ __('Same material type') }}
       </a>
     </div>
   </div>
@@ -135,26 +135,26 @@
       <div class="list-group list-group-flush">
         @if($item->openlibrary_url)
           <a href="{{ $item->openlibrary_url }}" target="_blank" class="list-group-item list-group-item-action small">
-            <i class="fas fa-book-open me-1"></i> OpenLibrary
+            <i class="fas fa-book-open me-1"></i> {{ __('OpenLibrary') }}
           </a>
         @elseif($item->openlibrary_id)
           <a href="https://openlibrary.org/works/{{ $item->openlibrary_id }}" target="_blank" class="list-group-item list-group-item-action small">
-            <i class="fas fa-book-open me-1"></i> OpenLibrary
+            <i class="fas fa-book-open me-1"></i> {{ __('OpenLibrary') }}
           </a>
         @endif
         @if($item->goodreads_id)
           <a href="https://www.goodreads.com/book/show/{{ $item->goodreads_id }}" target="_blank" class="list-group-item list-group-item-action small">
-            <i class="fas fa-star me-1"></i> Goodreads
+            <i class="fas fa-star me-1"></i> {{ __('Goodreads') }}
           </a>
         @endif
         @if($item->librarything_id)
           <a href="https://www.librarything.com/work/{{ $item->librarything_id }}" target="_blank" class="list-group-item list-group-item-action small">
-            <i class="fas fa-bookmark me-1"></i> LibraryThing
+            <i class="fas fa-bookmark me-1"></i> {{ __('LibraryThing') }}
           </a>
         @endif
         @if($item->ebook_preview_url)
           <a href="{{ $item->ebook_preview_url }}" target="_blank" class="list-group-item list-group-item-action small">
-            <i class="fas fa-book-reader me-1"></i> E-book preview
+            <i class="fas fa-book-reader me-1"></i> {{ __('E-book preview') }}
           </a>
         @endif
       </div>
@@ -170,27 +170,27 @@
       <div class="list-group list-group-flush">
         @if(\Illuminate\Support\Facades\Route::has('io.condition'))
           <a href="{{ route('io.condition', $item->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-clipboard-check me-2"></i>Condition assessment
+            <i class="fas fa-clipboard-check me-2"></i>{{ __('Condition assessment') }}
           </a>
         @endif
         @if(\Illuminate\Support\Facades\Route::has('io.spectrum'))
           <a href="{{ route('io.spectrum', $item->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-layer-group me-2"></i>Spectrum data
+            <i class="fas fa-layer-group me-2"></i>{{ __('Spectrum data') }}
           </a>
         @endif
         @if(\Illuminate\Support\Facades\Route::has('ahgspectrum.workflow'))
           <a href="{{ route('ahgspectrum.workflow') }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-tasks me-2"></i>Workflow Status
+            <i class="fas fa-tasks me-2"></i>{{ __('Workflow Status') }}
           </a>
         @endif
         @if(\Illuminate\Support\Facades\Route::has('provenance.view'))
           <a href="{{ route('provenance.view', $item->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-sitemap me-2"></i>Provenance
+            <i class="fas fa-sitemap me-2"></i>{{ __('Provenance') }}
           </a>
         @endif
         @if(\Illuminate\Support\Facades\Route::has('research.cite'))
           <a href="{{ route('research.cite', $item->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-quote-left me-2"></i>Cite this Record
+            <i class="fas fa-quote-left me-2"></i>{{ __('Cite this Record') }}
           </a>
         @endif
       </div>
@@ -206,10 +206,10 @@
         </div>
         <div class="list-group list-group-flush">
           <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#nerModal">
-            <i class="fas fa-brain me-2"></i> Extract Entities
+            <i class="fas fa-brain me-2"></i> {{ __('Extract Entities') }}
           </a>
           <a href="{{ route('io.ai.review') }}?object_id={{ $item->id }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-list-check me-2"></i> Review Dashboard
+            <i class="fas fa-list-check me-2"></i> {{ __('Review Dashboard') }}
           </a>
         </div>
       </div>
@@ -232,13 +232,13 @@
     {{-- Status badges --}}
     <div class="card-body py-2">
       @if($hasExtRights)
-        <span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>Extended rights applied</span>
+        <span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>{{ __('Extended rights applied') }}</span>
       @endif
       @if($activeEmbargo)
-        <span class="badge bg-danger me-1"><i class="fas fa-ban me-1"></i>Under embargo</span>
+        <span class="badge bg-danger me-1"><i class="fas fa-ban me-1"></i>{{ __('Under embargo') }}</span>
       @endif
       @if(!$hasExtRights && !$activeEmbargo)
-        <span class="badge bg-secondary"><i class="fas fa-info-circle me-1"></i>No extended rights or embargo</span>
+        <span class="badge bg-secondary"><i class="fas fa-info-circle me-1"></i>{{ __('No extended rights or embargo') }}</span>
       @endif
     </div>
     <div class="list-group list-group-flush">
@@ -249,7 +249,7 @@
       @endif
       @if(\Illuminate\Support\Facades\Route::has('io.rights.export'))
         <a href="{{ route('io.rights.export', $item->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-download me-1"></i> Export rights (JSON-LD)
+          <i class="fas fa-download me-1"></i> {{ __('Export rights (JSON-LD)') }}
         </a>
       @endif
     </div>
@@ -299,7 +299,7 @@
     <div class="digital-object-viewer text-center mb-4 p-3 border rounded" style="background:#f8f9fa;">
       @if($isPdf)
         <div class="pdf-toolbar mb-2 d-flex justify-content-between align-items-center">
-          <span class="badge bg-danger"><i class="fas fa-file-pdf me-1"></i>PDF Document</span>
+          <span class="badge bg-danger"><i class="fas fa-file-pdf me-1"></i>{{ __('PDF Document') }}</span>
           <div class="btn-group btn-group-sm">
             <a href="{{ $masterUrl }}" target="_blank" class="btn atom-btn-white" title="{{ __('Open in new tab') }}"><i class="fas fa-external-link-alt"></i></a>
             <a href="{{ $masterUrl }}" download class="btn atom-btn-white" title="{{ __('Download PDF') }}"><i class="fas fa-download"></i></a>
@@ -314,13 +314,13 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
           <div class="btn-group btn-group-sm" role="group">
             <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white active" title="{{ __('OpenSeadragon Deep Zoom') }}">
-              <i class="fas fa-search-plus me-1"></i>Deep Zoom
+              <i class="fas fa-search-plus me-1"></i>{{ __('Deep Zoom') }}
             </button>
             <button id="btn-mirador-{{ $viewerId }}" class="btn atom-btn-white" title="{{ __('Mirador IIIF Viewer') }}">
-              <i class="fas fa-columns me-1"></i>Mirador
+              <i class="fas fa-columns me-1"></i>{{ __('Mirador') }}
             </button>
             <button id="btn-img-{{ $viewerId }}" class="btn atom-btn-white" title="{{ __('Simple image') }}">
-              <i class="fas fa-image me-1"></i>Image
+              <i class="fas fa-image me-1"></i>{{ __('Image') }}
             </button>
           </div>
           <div class="btn-group btn-group-sm">
@@ -348,7 +348,7 @@
         <div class="py-3">
           <i class="fas fa-file fa-3x text-muted mb-2 d-block"></i>
           <p class="text-muted mb-1">{{ $masterObj->name ?? 'Digital object' }}</p>
-          @auth <a href="{{ $masterUrl }}" download class="btn btn-sm atom-btn-white"><i class="fas fa-download me-1"></i>Download</a> @endauth
+          @auth <a href="{{ $masterUrl }}" download class="btn btn-sm atom-btn-white"><i class="fas fa-download me-1"></i>{{ __('Download') }}</a> @endauth
         </div>
       @endif
     </div>
@@ -757,7 +757,7 @@
         <div class="alert alert-danger d-flex align-items-center mb-3">
           <i class="fas fa-ban me-2 fa-lg"></i>
           <div>
-            <strong>Under Embargo</strong> — {{ ucfirst($embargo->embargo_type ?? 'full') }} embargo since {{ $embargo->start_date }}
+            <strong>{{ __('Under Embargo') }}</strong> — {{ ucfirst($embargo->embargo_type ?? 'full') }} embargo since {{ $embargo->start_date }}
             @if($embargo->end_date) until {{ $embargo->end_date }} @else (no end date) @endif
           </div>
         </div>
@@ -848,7 +848,7 @@
       {{-- TK Labels (extended only) --}}
       @if($tkLabels->isNotEmpty())
         <div class="mt-2">
-          <strong class="small text-muted">Traditional Knowledge Labels</strong>
+          <strong class="small text-muted">{{ __('Traditional Knowledge Labels') }}</strong>
           <div class="d-flex flex-wrap gap-1 mt-1">
             @foreach($tkLabels as $tk)
               <span class="badge bg-dark">{{ $tk->label_name ?? $tk->label_code ?? '' }}</span>
@@ -887,7 +887,7 @@
       @auth
         <div class="mt-3 d-flex flex-wrap gap-2">
           <a href="{{ route('io.rights.manage', $item->slug) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-copyright me-1"></i>{{ ($premisRights->isNotEmpty() || $extRights || $embargo) ? 'Edit' : 'Add' }} rights</a>
-          <a href="{{ route('io.rights.export', $item->slug) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-download me-1"></i>Export (JSON-LD)</a>
+          <a href="{{ route('io.rights.export', $item->slug) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-download me-1"></i>{{ __('Export (JSON-LD)') }}</a>
         </div>
       @endauth
     </div>
@@ -955,7 +955,7 @@
             <div class="pdf-wrapper">
               <div class="pdf-toolbar mb-2 d-flex justify-content-between align-items-center">
                 <span class="badge bg-danger">
-                  <i class="fas fa-file-pdf me-1"></i>PDF Document
+                  <i class="fas fa-file-pdf me-1"></i>{{ __('PDF Document') }}
                 </span>
                 <div class="btn-group btn-group-sm">
                   <a href="{{ $masterUrl }}" target="_blank" class="btn atom-btn-white" title="{{ __('Open in new tab') }}">
@@ -992,7 +992,7 @@
             </div>
             @auth
               <a href="{{ $masterUrl }}" download class="btn btn-sm atom-btn-white">
-                <i class="fas fa-download me-1"></i>Download video
+                <i class="fas fa-download me-1"></i>{{ __('Download video') }}
               </a>
             @endauth
           </div>
@@ -1032,7 +1032,7 @@
                 10s <i class="fas fa-forward"></i>
               </button>
               <div class="ms-3 d-flex align-items-center gap-1">
-                <span class="text-white small">Speed:</span>
+                <span class="text-white small">{{ __('Speed:') }}</span>
                 <select id="{{ $audioPlayerId }}-speed" class="form-select form-select-sm" style="width:70px;background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.2);">
                   <option value="0.5">0.5x</option>
                   <option value="0.75">0.75x</option>
@@ -1057,7 +1057,7 @@
               </div>
               @auth
                 <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-light">
-                  <i class="fas fa-download me-1"></i>Download
+                  <i class="fas fa-download me-1"></i>{{ __('Download') }}
                 </a>
               @endauth
             </div>
@@ -1125,7 +1125,7 @@
               </small>
               <div class="mt-2 d-flex gap-2">
                 <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-secondary">
-                  <i class="fas fa-download me-1"></i>Download Original
+                  <i class="fas fa-download me-1"></i>{{ __('Download Original') }}
                 </a>
               </div>
             </div>
@@ -1138,13 +1138,13 @@
           <div class="d-flex justify-content-between align-items-center mb-2">
             <div class="btn-group btn-group-sm" role="group">
               <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white active" title="{{ __('OpenSeadragon Deep Zoom') }}">
-                <i class="fas fa-search-plus me-1"></i>Deep Zoom
+                <i class="fas fa-search-plus me-1"></i>{{ __('Deep Zoom') }}
               </button>
               <button id="btn-mirador-{{ $viewerId }}" class="btn atom-btn-white" title="{{ __('Mirador IIIF Viewer') }}">
-                <i class="fas fa-columns me-1"></i>Mirador
+                <i class="fas fa-columns me-1"></i>{{ __('Mirador') }}
               </button>
               <button id="btn-img-{{ $viewerId }}" class="btn atom-btn-white" title="{{ __('Simple image') }}">
-                <i class="fas fa-image me-1"></i>Image
+                <i class="fas fa-image me-1"></i>{{ __('Image') }}
               </button>
             </div>
             <div class="btn-group btn-group-sm">
@@ -1185,7 +1185,7 @@
             <p class="text-muted">{{ $masterObj->name ?? 'Digital object' }}</p>
             @auth
               <a href="{{ $masterUrl }}" download class="btn atom-btn-white">
-                <i class="fas fa-download me-1"></i>Download file
+                <i class="fas fa-download me-1"></i>{{ __('Download file') }}
               </a>
             @endauth
           </div>
@@ -1351,7 +1351,7 @@
             <small class="text-muted">{{ $loan->partner_institution }}</small>
             <div class="mt-1">
               <span class="badge bg-{{ $isOverdue ? 'danger' : 'success' }} me-1">{{ ucwords(str_replace('_', ' ', $loan->status)) }}</span>
-              @if($isOverdue)<span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i>Overdue</span>@endif
+              @if($isOverdue)<span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i>{{ __('Overdue') }}</span>@endif
               @if($loan->end_date)<small class="text-muted ms-1">Due: {{ $loan->end_date }}</small>@endif
             </div>
           </a>
@@ -1368,7 +1368,7 @@
     <div class="card-body">
       @if($parentItem ?? null)
         <a href="{{ route('library.show', $parentItem->slug) }}" class="btn btn-outline-secondary w-100 mb-2">
-          <i class="fas fa-level-up-alt me-2"></i>Parent record
+          <i class="fas fa-level-up-alt me-2"></i>{{ __('Parent record') }}
         </a>
       @endif
       @if(($childCount ?? 0) > 0)
@@ -1497,7 +1497,7 @@
       </div>
       <div class="card-body">
         <a href="{{ $item->ebook_preview_url }}" target="_blank" class="btn btn-outline-primary w-100">
-          <i class="fas fa-book-reader me-2"></i>Preview on Archive.org
+          <i class="fas fa-book-reader me-2"></i>{{ __('Preview on Archive.org') }}
         </a>
       </div>
     </section>
@@ -1512,19 +1512,19 @@
       <div class="card-body">
         @if($item->openlibrary_url)
           <a href="{{ $item->openlibrary_url }}" target="_blank" class="btn btn-outline-secondary w-100 mb-2">
-            <i class="fas fa-book me-2"></i>Open Library
+            <i class="fas fa-book me-2"></i>{{ __('Open Library') }}
           </a>
         @endif
 
         @if($item->goodreads_id)
           <a href="https://www.goodreads.com/book/show/{{ $item->goodreads_id }}" target="_blank" class="btn btn-outline-secondary w-100 mb-2">
-            <i class="fas fa-star me-2"></i>Goodreads
+            <i class="fas fa-star me-2"></i>{{ __('Goodreads') }}
           </a>
         @endif
 
         @if($item->librarything_id)
           <a href="https://www.librarything.com/work/{{ $item->librarything_id }}" target="_blank" class="btn btn-outline-secondary w-100">
-            <i class="fas fa-bookmark me-2"></i>LibraryThing
+            <i class="fas fa-bookmark me-2"></i>{{ __('LibraryThing') }}
           </a>
         @endif
       </div>
@@ -1586,7 +1586,7 @@
             </a>
             @if($provRecord)
               <a href="{{ route('provenance.view', $item->slug) }}" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-clock me-1"></i>View Full Timeline
+                <i class="fas fa-clock me-1"></i>{{ __('View Full Timeline') }}
               </a>
             @endif
           </div>
@@ -1604,38 +1604,38 @@
     <div class="list-group list-group-flush">
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.dc'))
         <a href="{{ route('informationobject.export.dc', $item->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-code me-1"></i> Dublin Core 1.1 XML
+          <i class="fas fa-code me-1"></i> {{ __('Dublin Core 1.1 XML') }}
         </a>
       @endif
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.ead'))
         <a href="{{ route('informationobject.export.ead', $item->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-code me-1"></i> EAD 2002 XML
+          <i class="fas fa-code me-1"></i> {{ __('EAD 2002 XML') }}
         </a>
       @endif
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.ead3'))
         <a href="{{ route('informationobject.export.ead3', $item->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-code me-1"></i> EAD3 1.1 XML
+          <i class="fas fa-code me-1"></i> {{ __('EAD3 1.1 XML') }}
         </a>
       @endif
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.ead4'))
         <a href="{{ route('informationobject.export.ead4', $item->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-code me-1"></i> EAD 4 XML
+          <i class="fas fa-code me-1"></i> {{ __('EAD 4 XML') }}
         </a>
       @endif
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.mods'))
         <a href="{{ route('informationobject.export.mods', $item->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-code me-1"></i> MODS 3.5 XML
+          <i class="fas fa-code me-1"></i> {{ __('MODS 3.5 XML') }}
         </a>
       @endif
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.rico'))
         <a href="{{ route('informationobject.export.rico', $item->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-code me-1"></i> RiC-O JSON-LD
+          <i class="fas fa-code me-1"></i> {{ __('RiC-O JSON-LD') }}
         </a>
       @endif
       @auth
         @if(\Illuminate\Support\Facades\Route::has('informationobject.export.csv'))
           <a href="{{ route('informationobject.export.csv', $item->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-file-csv me-1"></i> Export CSV
+            <i class="fas fa-file-csv me-1"></i> {{ __('Export CSV') }}
           </a>
         @endif
       @endauth
@@ -1649,7 +1649,7 @@
     </div>
     <div class="list-group list-group-flush">
       <a href="javascript:window.print();" class="list-group-item list-group-item-action small">
-        <i class="fas fa-print me-1"></i> Print this page
+        <i class="fas fa-print me-1"></i> {{ __('Print this page') }}
       </a>
     </div>
   </div>
@@ -1677,43 +1677,43 @@
     <li><a href="{{ route('library.rename', $item->slug) }}" class="btn atom-btn-outline-light">Rename</a></li>
     @if($hasDigitalObject)
       @php $doRecord = \Illuminate\Support\Facades\DB::table('digital_object')->where('object_id', $item->id)->first(); @endphp
-      <li><a href="{{ url('/digitalobject/' . ($doRecord->id ?? 0) . '/edit') }}" class="btn atom-btn-outline-light"><i class="fas fa-edit me-1"></i>Edit digital object</a></li>
+      <li><a href="{{ url('/digitalobject/' . ($doRecord->id ?? 0) . '/edit') }}" class="btn atom-btn-outline-light"><i class="fas fa-edit me-1"></i>{{ __('Edit digital object') }}</a></li>
     @else
-      <li><a href="{{ url('/informationobject/' . $item->slug . '/upload') }}" class="btn atom-btn-outline-light"><i class="fas fa-upload me-1"></i>Add digital object</a></li>
+      <li><a href="{{ url('/informationobject/' . $item->slug . '/upload') }}" class="btn atom-btn-outline-light"><i class="fas fa-upload me-1"></i>{{ __('Add digital object') }}</a></li>
     @endif
     @if(\Illuminate\Support\Facades\Route::has('io.showUpdateStatus'))
-      <li><a href="{{ route('io.showUpdateStatus', $item->slug) }}" class="btn atom-btn-outline-light"><i class="fas fa-eye me-1"></i>Publication status</a></li>
+      <li><a href="{{ route('io.showUpdateStatus', $item->slug) }}" class="btn atom-btn-outline-light"><i class="fas fa-eye me-1"></i>{{ __('Publication status') }}</a></li>
     @endif
     <li>
       <div class="dropdown d-inline-block">
         <button class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">{{ __('More') }}</button>
         <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="{{ route('library.browse') }}"><i class="fas fa-list me-2"></i>Browse library</a></li>
+          <li><a class="dropdown-item" href="{{ route('library.browse') }}"><i class="fas fa-list me-2"></i>{{ __('Browse library') }}</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="{{ route('physicalobject.link-to', $item->slug) }}"><i class="fas fa-box me-2"></i>Link physical storage</a></li>
+          <li><a class="dropdown-item" href="{{ route('physicalobject.link-to', $item->slug) }}"><i class="fas fa-box me-2"></i>{{ __('Link physical storage') }}</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="{{ route('io.rights.manage', $item->slug) }}"><i class="fas fa-copyright me-2"></i>Manage Rights</a></li>
+          <li><a class="dropdown-item" href="{{ route('io.rights.manage', $item->slug) }}"><i class="fas fa-copyright me-2"></i>{{ __('Manage Rights') }}</a></li>
           @if(\Illuminate\Support\Facades\Route::has('grap.show'))
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ route('grap.show', $item->slug) }}"><i class="fas fa-file-invoice me-2"></i>View GRAP data</a></li>
-            <li><a class="dropdown-item" href="{{ route('grap.edit', $item->slug) }}"><i class="fas fa-file-invoice me-2"></i>Edit GRAP data</a></li>
+            <li><a class="dropdown-item" href="{{ route('grap.show', $item->slug) }}"><i class="fas fa-file-invoice me-2"></i>{{ __('View GRAP data') }}</a></li>
+            <li><a class="dropdown-item" href="{{ route('grap.edit', $item->slug) }}"><i class="fas fa-file-invoice me-2"></i>{{ __('Edit GRAP data') }}</a></li>
           @endif
           @if(\Illuminate\Support\Facades\Route::has('io.spectrum'))
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ route('io.spectrum', $item->slug) }}"><i class="fas fa-layer-group me-2"></i>Spectrum data</a></li>
+            <li><a class="dropdown-item" href="{{ route('io.spectrum', $item->slug) }}"><i class="fas fa-layer-group me-2"></i>{{ __('Spectrum data') }}</a></li>
             @if(\Illuminate\Support\Facades\Route::has('ahgspectrum.workflow'))
-              <li><a class="dropdown-item" href="{{ route('ahgspectrum.workflow') }}"><i class="fas fa-tasks me-2"></i>Workflow Status</a></li>
+              <li><a class="dropdown-item" href="{{ route('ahgspectrum.workflow') }}"><i class="fas fa-tasks me-2"></i>{{ __('Workflow Status') }}</a></li>
             @endif
             @if(\Illuminate\Support\Facades\Route::has('spectrum.label'))
-              <li><a class="dropdown-item" href="{{ route('spectrum.label', $item->slug) }}"><i class="fas fa-barcode me-2"></i>Generate barcode label</a></li>
+              <li><a class="dropdown-item" href="{{ route('spectrum.label', $item->slug) }}"><i class="fas fa-barcode me-2"></i>{{ __('Generate barcode label') }}</a></li>
             @endif
           @endif
           @if(\Illuminate\Support\Facades\Route::has('provenance.view'))
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ route('provenance.view', $item->slug) }}"><i class="fas fa-sitemap me-2"></i>Provenance</a></li>
+            <li><a class="dropdown-item" href="{{ route('provenance.view', $item->slug) }}"><i class="fas fa-sitemap me-2"></i>{{ __('Provenance') }}</a></li>
           @endif
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="{{ url('/label/' . $item->slug) }}"><i class="fas fa-tag me-2"></i>Generate label</a></li>
+          <li><a class="dropdown-item" href="{{ url('/label/' . $item->slug) }}"><i class="fas fa-tag me-2"></i>{{ __('Generate label') }}</a></li>
         </ul>
       </div>
     </li>
@@ -1734,7 +1734,7 @@
           <p class="text-muted small mb-3">Named Entity Recognition — extract persons, organizations, places, dates from <strong>{{ $item->title ?? 'this record' }}</strong></p>
           <div class="text-center mb-3" id="nerExtractSection">
             <button type="button" class="btn btn-primary btn-lg" id="nerExtractBtn">
-              <i class="fas fa-brain me-2"></i>Extract Entities
+              <i class="fas fa-brain me-2"></i>{{ __('Extract Entities') }}
             </button>
           </div>
           <div id="nerResults" style="display:none">
@@ -1746,7 +1746,7 @@
         </div>
         <div class="modal-footer">
           <a href="{{ route('io.ai.review') }}?object_id={{ $item->id }}" class="btn btn-outline-primary btn-sm" id="nerFooterReview" style="display:none">
-            <i class="fas fa-list-check me-1"></i>Review & Link
+            <i class="fas fa-list-check me-1"></i>{{ __('Review & Link') }}
           </a>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
         </div>

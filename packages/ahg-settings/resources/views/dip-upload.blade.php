@@ -24,15 +24,15 @@
           <div id="dip-upload-collapse" class="accordion-collapse collapse" aria-labelledby="dip-upload-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Strip file extensions from information object names <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Strip file extensions from information object names <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[stripExtensions]" id="strip_no" value="0" {{ $settings['stripExtensions'] != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="strip_no">No <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-check-label" for="strip_no">No <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[stripExtensions]" id="strip_yes" value="1" {{ $settings['stripExtensions'] == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="strip_yes">Yes <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-check-label" for="strip_yes">Yes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 </div>
               </div>

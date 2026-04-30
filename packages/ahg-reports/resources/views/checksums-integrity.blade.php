@@ -19,7 +19,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('reports.dashboard') }}" class="btn atom-btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i> Dashboard
+                <i class="fas fa-arrow-left me-1"></i> {{ __('Dashboard') }}
             </a>
         </div>
     </div>
@@ -38,10 +38,10 @@
             </h5>
             <div>
                 <a href="{{ url('/tiff-pdf-merge/browse') }}" class="btn atom-btn-light btn-sm me-2">
-                    <i class="fas fa-list me-1"></i>View All
+                    <i class="fas fa-list me-1"></i>{{ __('View All') }}
                 </a>
                 <a href="{{ url('/tiff-pdf-merge') }}" class="btn atom-btn-light btn-sm">
-                    <i class="fas fa-plus me-1"></i>New Merge
+                    <i class="fas fa-plus me-1"></i>{{ __('New Merge') }}
                 </a>
             </div>
         </div>
@@ -51,37 +51,37 @@
                 <div class="col-md-2 col-sm-4 col-6">
                     <div class="border rounded p-3 text-center h-100">
                         <div class="fs-3 fw-bold text-primary">{{ $stats['total_jobs'] }}</div>
-                        <small class="text-muted">Total Jobs</small>
+                        <small class="text-muted">{{ __('Total Jobs') }}</small>
                     </div>
                 </div>
                 <div class="col-md-2 col-sm-4 col-6">
                     <div class="border rounded p-3 text-center h-100">
                         <div class="fs-3 fw-bold text-warning">{{ $stats['pending'] }}</div>
-                        <small class="text-muted">Pending</small>
+                        <small class="text-muted">{{ __('Pending') }}</small>
                     </div>
                 </div>
                 <div class="col-md-2 col-sm-4 col-6">
                     <div class="border rounded p-3 text-center h-100">
                         <div class="fs-3 fw-bold text-info">{{ $stats['queued'] + $stats['processing'] }}</div>
-                        <small class="text-muted">In Progress</small>
+                        <small class="text-muted">{{ __('In Progress') }}</small>
                     </div>
                 </div>
                 <div class="col-md-2 col-sm-4 col-6">
                     <div class="border rounded p-3 text-center h-100">
                         <div class="fs-3 fw-bold text-success">{{ $stats['completed'] }}</div>
-                        <small class="text-muted">Completed</small>
+                        <small class="text-muted">{{ __('Completed') }}</small>
                     </div>
                 </div>
                 <div class="col-md-2 col-sm-4 col-6">
                     <div class="border rounded p-3 text-center h-100">
                         <div class="fs-3 fw-bold text-danger">{{ $stats['failed'] }}</div>
-                        <small class="text-muted">Failed</small>
+                        <small class="text-muted">{{ __('Failed') }}</small>
                     </div>
                 </div>
                 <div class="col-md-2 col-sm-4 col-6">
                     <div class="border rounded p-3 text-center h-100">
                         <div class="fs-3 fw-bold text-secondary">{{ $stats['total_files'] }}</div>
-                        <small class="text-muted">Total Files</small>
+                        <small class="text-muted">{{ __('Total Files') }}</small>
                     </div>
                 </div>
             </div>
@@ -154,7 +154,7 @@
 
                 <div class="mt-3 text-center">
                     <a href="{{ url('/tiff-pdf-merge/browse') }}" class="btn atom-btn-outline-primary">
-                        <i class="fas fa-list me-1"></i>View All Jobs
+                        <i class="fas fa-list me-1"></i>{{ __('View All Jobs') }}
                     </a>
                 </div>
             @else
@@ -162,7 +162,7 @@
                     <i class="fas fa-inbox fa-3x mb-3"></i>
                     <p class="mb-3">No PDF merge jobs yet.</p>
                     <a href="{{ url('/tiff-pdf-merge') }}" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i>Create Your First PDF
+                        <i class="fas fa-plus me-1"></i>{{ __('Create Your First PDF') }}
                     </a>
                 </div>
             @endif

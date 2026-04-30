@@ -7,7 +7,7 @@
   <i class="fas fa-3x fa-database me-3" aria-hidden="true"></i>
   <div class="d-flex flex-column">
     <h1 class="mb-0">{{ __('Backup & Restore') }}</h1>
-    <span class="small text-muted">Manage database and file backups</span>
+    <span class="small text-muted">{{ __('Manage database and file backups') }}</span>
   </div>
 </div>
 
@@ -15,12 +15,12 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
     <a href="{{ route('backup.settings') }}" class="btn btn-outline-secondary">
-      <i class="fas fa-cog me-1"></i>Settings
+      <i class="fas fa-cog me-1"></i>{{ __('Settings') }}
     </a>
   </div>
   <div>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBackupModal">
-      <i class="fas fa-plus me-1"></i>Create Backup
+      <i class="fas fa-plus me-1"></i>{{ __('Create Backup') }}
     </button>
   </div>
 </div>
@@ -35,20 +35,20 @@
       </div>
       <div class="card-body">
         <ul class="list-unstyled mb-0">
-          <li><strong>Host:</strong> {{ $dbConfig['host'] ?? $dbConfig['unix_socket'] ?? 'localhost' }}</li>
-          <li><strong>Database:</strong> {{ $dbConfig['database'] ?? 'N/A' }}</li>
-          <li><strong>User:</strong> {{ $dbConfig['username'] ?? 'N/A' }}</li>
-          <li><strong>Port:</strong> {{ $dbConfig['port'] ?? 3306 }}</li>
+          <li><strong>{{ __('Host:') }}</strong> {{ $dbConfig['host'] ?? $dbConfig['unix_socket'] ?? 'localhost' }}</li>
+          <li><strong>{{ __('Database:') }}</strong> {{ $dbConfig['database'] ?? 'N/A' }}</li>
+          <li><strong>{{ __('User:') }}</strong> {{ $dbConfig['username'] ?? 'N/A' }}</li>
+          <li><strong>{{ __('Port:') }}</strong> {{ $dbConfig['port'] ?? 3306 }}</li>
         </ul>
         <hr>
         <button type="button" class="btn btn-sm btn-outline-primary" id="btn-test-connection" onclick="testConnection()">
-          <i class="fas fa-plug me-1"></i>Test Connection
+          <i class="fas fa-plug me-1"></i>{{ __('Test Connection') }}
         </button>
         <span id="connection-status" class="ms-2">
           @if($dbConnected)
-            <span class="text-success"><i class="fas fa-check"></i> Connected</span>
+            <span class="text-success"><i class="fas fa-check"></i> {{ __('Connected') }}</span>
           @else
-            <span class="text-danger"><i class="fas fa-times"></i> Disconnected</span>
+            <span class="text-danger"><i class="fas fa-times"></i> {{ __('Disconnected') }}</span>
           @endif
         </span>
       </div>
@@ -61,11 +61,11 @@
       </div>
       <div class="card-body">
         <ul class="list-unstyled mb-0">
-          <li><strong>Path:</strong> <code class="small">{{ $backupPath }}</code></li>
-          <li><strong>Backups:</strong> {{ $backupCount }}</li>
-          <li><strong>Total Size:</strong> {{ $totalSize }}</li>
-          <li><strong>Max Backups:</strong> {{ $maxBackups }}</li>
-          <li><strong>Retention:</strong> {{ $retentionDays }} days</li>
+          <li><strong>{{ __('Path:') }}</strong> <code class="small">{{ $backupPath }}</code></li>
+          <li><strong>{{ __('Backups:') }}</strong> {{ $backupCount }}</li>
+          <li><strong>{{ __('Total Size:') }}</strong> {{ $totalSize }}</li>
+          <li><strong>{{ __('Max Backups:') }}</strong> {{ $maxBackups }}</li>
+          <li><strong>{{ __('Retention:') }}</strong> {{ $retentionDays }} days</li>
         </ul>
       </div>
     </div>
@@ -78,13 +78,13 @@
       <div class="card-body">
         <div class="d-grid gap-2">
           <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#dbBackupModal">
-            <i class="fas fa-database me-1"></i>Database Only
+            <i class="fas fa-database me-1"></i>{{ __('Database Only') }}
           </button>
           <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#fullBackupModal">
-            <i class="fas fa-archive me-1"></i>Full Backup
+            <i class="fas fa-archive me-1"></i>{{ __('Full Backup') }}
           </button>
           <button type="button" class="btn btn-outline-info btn-sm" id="btn-incremental-backup">
-            <i class="fas fa-layer-group me-1"></i>Incremental Backup
+            <i class="fas fa-layer-group me-1"></i>{{ __('Incremental Backup') }}
           </button>
         </div>
       </div>
@@ -167,22 +167,22 @@
                     <td>
                       @switch($backup['type'])
                         @case('full')
-                          <span class="badge bg-success">Full</span>
+                          <span class="badge bg-success">{{ __('Full') }}</span>
                           @break
                         @case('database')
-                          <span class="badge bg-primary">Database</span>
+                          <span class="badge bg-primary">{{ __('Database') }}</span>
                           @break
                         @case('uploads')
-                          <span class="badge bg-info">Uploads</span>
+                          <span class="badge bg-info">{{ __('Uploads') }}</span>
                           @break
                         @case('plugins')
-                          <span class="badge bg-warning text-dark">Plugins</span>
+                          <span class="badge bg-warning text-dark">{{ __('Plugins') }}</span>
                           @break
                         @case('framework')
-                          <span class="badge bg-secondary">Framework</span>
+                          <span class="badge bg-secondary">{{ __('Framework') }}</span>
                           @break
                         @default
-                          <span class="badge bg-dark">Unknown</span>
+                          <span class="badge bg-dark">{{ __('Unknown') }}</span>
                       @endswitch
                     </td>
                     <td>
@@ -227,7 +227,7 @@
             <i class="fas fa-inbox fa-3x mb-3"></i>
             <p>No backups found</p>
             <button type="button" class="btn btn-primary btn-quick-backup" onclick="quickBackup('database')">
-              <i class="fas fa-plus me-1"></i>Create First Backup
+              <i class="fas fa-plus me-1"></i>{{ __('Create First Backup') }}
             </button>
           </div>
         @endif
@@ -276,14 +276,14 @@
           <div class="progress">
             <div class="progress-bar progress-bar-striped progress-bar-animated" id="backup-progress-bar" style="width: 100%"></div>
           </div>
-          <small class="text-muted mt-1 d-block" id="backup-status">Creating backup...</small>
+          <small class="text-muted mt-1 d-block" id="backup-status">{{ __('Creating backup...') }}</small>
         </div>
         <div id="backup-result" class="d-none"></div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
         <button type="button" class="btn btn-primary" id="btn-start-backup">
-          <i class="fas fa-play me-1"></i>Start Backup
+          <i class="fas fa-play me-1"></i>{{ __('Start Backup') }}
         </button>
       </div>
     </div>
@@ -329,13 +329,13 @@
           <div class="progress">
             <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: 100%"></div>
           </div>
-          <small class="text-muted mt-1 d-block">Creating backup...</small>
+          <small class="text-muted mt-1 d-block">{{ __('Creating backup...') }}</small>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
         <button type="button" class="btn btn-primary" id="btn-db-backup">
-          <i class="fas fa-play me-1"></i>Start Backup
+          <i class="fas fa-play me-1"></i>{{ __('Start Backup') }}
         </button>
       </div>
     </div>
@@ -386,13 +386,13 @@
           <div class="progress">
             <div class="progress-bar progress-bar-striped progress-bar-animated bg-dark" style="width: 100%"></div>
           </div>
-          <small class="text-muted mt-1 d-block">Creating backup...</small>
+          <small class="text-muted mt-1 d-block">{{ __('Creating backup...') }}</small>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
         <button type="button" class="btn btn-dark" id="btn-full-backup">
-          <i class="fas fa-play me-1"></i>Start Backup
+          <i class="fas fa-play me-1"></i>{{ __('Start Backup') }}
         </button>
       </div>
     </div>
@@ -470,7 +470,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-        <button type="button" class="btn btn-primary"><i class="fas fa-save me-1"></i>Create Schedule</button>
+        <button type="button" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Create Schedule') }}</button>
       </div>
     </div>
   </div>

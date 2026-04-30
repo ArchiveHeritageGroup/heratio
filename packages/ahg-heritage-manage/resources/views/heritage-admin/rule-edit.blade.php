@@ -20,11 +20,11 @@
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-pencil-alt me-2"></i>Edit Rule</div>
         <div class="card-body">
-          <div class="mb-3"><label class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="text" name="name" class="form-control" required value="{{ old('name', $item->name ?? '') }}"></div>
-          <div class="mb-3"><label class="form-label">Code <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="code" class="form-control" value="{{ old('code', $item->code ?? '') }}"></div>
-          <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="description" class="form-control" rows="3">{{ old('description', $item->description ?? '') }}</textarea></div>
+          <div class="mb-3"><label class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" class="form-control" required value="{{ old('name', $item->name ?? '') }}"></div>
+          <div class="mb-3"><label class="form-label">Code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="code" class="form-control" value="{{ old('code', $item->code ?? '') }}"></div>
+          <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="description" class="form-control" rows="3">{{ old('description', $item->description ?? '') }}</textarea></div>
           <div class="mb-3">
-            <label class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="is_active" class="form-select">
               <option value="1" {{ old('is_active', $item->is_active ?? 1) == 1 ? 'selected' : '' }}>Active</option>
               <option value="0" {{ old('is_active', $item->is_active ?? 1) == 0 ? 'selected' : '' }}>Inactive</option>
@@ -33,7 +33,7 @@
         </div>
       </div>
       <div class="d-flex gap-2">
-        <button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>Save</button>
+        <button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
         <a href="javascript:history.back()" class="btn atom-btn-white">Cancel</a>
       </div>
     </form>

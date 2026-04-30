@@ -4,21 +4,21 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-calendar-check me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Retention Schedules') }}</h1><span class="small text-muted">Records management — retention schedule administration</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Retention Schedules') }}</h1><span class="small text-muted">{{ __('Records management — retention schedule administration') }}</span></div>
   </div>
 @endsection
 @section('content')
 <div class="row mb-3">
-  <div class="col-md-3"><div class="card text-center"><div class="card-body py-2"><div class="fw-bold fs-4">{{ $stats['total_schedules'] ?? 0 }}</div><small class="text-muted">Total Schedules</small></div></div></div>
-  <div class="col-md-3"><div class="card text-center"><div class="card-body py-2"><div class="fw-bold fs-4 text-success">{{ $stats['active'] ?? 0 }}</div><small class="text-muted">Active</small></div></div></div>
-  <div class="col-md-3"><div class="card text-center"><div class="card-body py-2"><div class="fw-bold fs-4 text-secondary">{{ $stats['draft'] ?? 0 }}</div><small class="text-muted">Draft</small></div></div></div>
-  <div class="col-md-3"><div class="card text-center"><div class="card-body py-2"><div class="fw-bold fs-4">{{ $stats['total_classes'] ?? 0 }}</div><small class="text-muted">Disposal Classes</small></div></div></div>
+  <div class="col-md-3"><div class="card text-center"><div class="card-body py-2"><div class="fw-bold fs-4">{{ $stats['total_schedules'] ?? 0 }}</div><small class="text-muted">{{ __('Total Schedules') }}</small></div></div></div>
+  <div class="col-md-3"><div class="card text-center"><div class="card-body py-2"><div class="fw-bold fs-4 text-success">{{ $stats['active'] ?? 0 }}</div><small class="text-muted">{{ __('Active') }}</small></div></div></div>
+  <div class="col-md-3"><div class="card text-center"><div class="card-body py-2"><div class="fw-bold fs-4 text-secondary">{{ $stats['draft'] ?? 0 }}</div><small class="text-muted">{{ __('Draft') }}</small></div></div></div>
+  <div class="col-md-3"><div class="card text-center"><div class="card-body py-2"><div class="fw-bold fs-4">{{ $stats['total_classes'] ?? 0 }}</div><small class="text-muted">{{ __('Disposal Classes') }}</small></div></div></div>
 </div>
 
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
     <h5 class="mb-0">{{ __('Retention Schedules') }}</h5>
-    <a href="{{ route('records.schedules.create') }}" class="btn btn-sm btn-light"><i class="fas fa-plus me-1"></i>Create Schedule</a>
+    <a href="{{ route('records.schedules.create') }}" class="btn btn-sm btn-light"><i class="fas fa-plus me-1"></i>{{ __('Create Schedule') }}</a>
   </div>
   <div class="card-body pb-2">
     <form method="get" action="{{ route('records.schedules.index') }}" class="row g-2 mb-3">
@@ -43,7 +43,7 @@
         <input type="text" name="search" class="form-control form-control-sm" placeholder="{{ __('Search ref or title...') }}" value="{{ $filters['search'] ?? '' }}">
       </div>
       <div class="col-md-2">
-        <button type="submit" class="btn btn-sm atom-btn-white w-100"><i class="fas fa-filter me-1"></i>Filter</button>
+        <button type="submit" class="btn btn-sm atom-btn-white w-100"><i class="fas fa-filter me-1"></i>{{ __('Filter') }}</button>
       </div>
     </form>
   </div>
@@ -64,13 +64,13 @@
           <td>{{ $item->class_count ?? 0 }}</td>
           <td>
             @if($item->status === 'draft')
-              <span class="badge bg-secondary">Draft</span>
+              <span class="badge bg-secondary">{{ __('Draft') }}</span>
             @elseif($item->status === 'active')
-              <span class="badge bg-success">Active</span>
+              <span class="badge bg-success">{{ __('Active') }}</span>
             @elseif($item->status === 'superseded')
-              <span class="badge bg-warning text-dark">Superseded</span>
+              <span class="badge bg-warning text-dark">{{ __('Superseded') }}</span>
             @elseif($item->status === 'expired')
-              <span class="badge bg-danger">Expired</span>
+              <span class="badge bg-danger">{{ __('Expired') }}</span>
             @else
               <span class="badge bg-secondary">{{ ucfirst($item->status) }}</span>
             @endif

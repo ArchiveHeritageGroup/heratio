@@ -42,9 +42,9 @@
                                 <td class="text-nowrap"><small>{{ $policy->next_run_at ?? '-' }}</small></td>
                                 <td>
                                     @if($policy->is_active ?? false)
-                                        <span class="badge bg-success"><i class="fas fa-check-circle"></i> Active</span>
+                                        <span class="badge bg-success"><i class="fas fa-check-circle"></i> {{ __('Active') }}</span>
                                     @else
-                                        <span class="badge bg-secondary"><i class="fas fa-pause-circle"></i> Inactive</span>
+                                        <span class="badge bg-secondary"><i class="fas fa-pause-circle"></i> {{ __('Inactive') }}</span>
                                     @endif
                                 </td>
                             </tr>

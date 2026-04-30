@@ -49,14 +49,14 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1>{{ __('Exhibition Events') }}</h1>
       <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEventModal">
-        <i class="fas fa-plus"></i> Add Event
+        <i class="fas fa-plus"></i> {{ __('Add Event') }}
       </button>
     </div>
 
     <div class="card mb-3">
       <div class="card-body py-2">
         <div class="d-flex align-items-center gap-2">
-          <span class="small text-muted">Filter:</span>
+          <span class="small text-muted">{{ __('Filter:') }}</span>
           <a href="?" class="btn btn-sm {{ empty($filter) ? 'btn-primary' : 'btn-outline-primary' }}">All</a>
           <a href="?filter=upcoming" class="btn btn-sm {{ $filter == 'upcoming' ? 'btn-primary' : 'btn-outline-secondary' }}">Upcoming</a>
           <a href="?filter=past" class="btn btn-sm {{ $filter == 'past' ? 'btn-primary' : 'btn-outline-secondary' }}">Past</a>
@@ -71,7 +71,7 @@
           <h5>{{ __('No events scheduled') }}</h5>
           <p class="text-muted">Schedule events like openings, talks, workshops, and tours.</p>
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">
-            <i class="fas fa-plus"></i> Schedule First Event
+            <i class="fas fa-plus"></i> {{ __('Schedule First Event') }}
           </button>
         </div>
       </div>
@@ -105,9 +105,9 @@
                           <span class="badge bg-info ms-2 text-capitalize">{{ str_replace('_', ' ', $event->event_type) }}</span>
                         @endif
                         @if($isPast)
-                          <span class="badge bg-secondary ms-2">Past</span>
+                          <span class="badge bg-secondary ms-2">{{ __('Past') }}</span>
                         @elseif($isToday)
-                          <span class="badge bg-success ms-2">Today</span>
+                          <span class="badge bg-success ms-2">{{ __('Today') }}</span>
                         @endif
                       </p>
                     </div>
@@ -127,10 +127,10 @@
                       <span><i class="fas fa-users me-1"></i> Capacity: {{ $event->capacity }}</span>
                     @endif
                     @if(!empty($event->registration_required))
-                      <span class="text-warning"><i class="fas fa-ticket me-1"></i> Registration Required</span>
+                      <span class="text-warning"><i class="fas fa-ticket me-1"></i> {{ __('Registration Required') }}</span>
                     @endif
                     @if(!empty($event->is_free))
-                      <span class="text-success"><i class="fas fa-gift me-1"></i> Free</span>
+                      <span class="text-success"><i class="fas fa-gift me-1"></i> {{ __('Free') }}</span>
                     @elseif(!empty($event->ticket_price))
                       <span><i class="fas fa-money-bill me-1"></i> {{ number_format($event->ticket_price, 2) }}</span>
                     @endif
@@ -170,14 +170,14 @@
       </div>
       <div class="card-body">
         <ul class="list-unstyled small mb-0">
-          <li class="mb-1"><strong>Opening</strong> - Exhibition launch event</li>
-          <li class="mb-1"><strong>Closing</strong> - Final day celebration</li>
-          <li class="mb-1"><strong>Talk</strong> - Lectures and presentations</li>
-          <li class="mb-1"><strong>Tour</strong> - Guided tours</li>
-          <li class="mb-1"><strong>Workshop</strong> - Hands-on activities</li>
-          <li class="mb-1"><strong>Performance</strong> - Live performances</li>
-          <li class="mb-1"><strong>Private View</strong> - VIP or members</li>
-          <li><strong>Other</strong> - General events</li>
+          <li class="mb-1"><strong>{{ __('Opening') }}</strong> - Exhibition launch event</li>
+          <li class="mb-1"><strong>{{ __('Closing') }}</strong> - Final day celebration</li>
+          <li class="mb-1"><strong>{{ __('Talk') }}</strong> - Lectures and presentations</li>
+          <li class="mb-1"><strong>{{ __('Tour') }}</strong> - Guided tours</li>
+          <li class="mb-1"><strong>{{ __('Workshop') }}</strong> - Hands-on activities</li>
+          <li class="mb-1"><strong>{{ __('Performance') }}</strong> - Live performances</li>
+          <li class="mb-1"><strong>{{ __('Private View') }}</strong> - VIP or members</li>
+          <li><strong>{{ __('Other') }}</strong> - General events</li>
         </ul>
       </div>
     </div>
@@ -189,15 +189,15 @@
       <div class="card-body">
         <ul class="list-unstyled mb-0">
           <li class="d-flex justify-content-between mb-2">
-            <span>Total Events</span>
+            <span>{{ __('Total Events') }}</span>
             <strong>{{ is_countable($events) ? count($events) : 0 }}</strong>
           </li>
           <li class="d-flex justify-content-between mb-2">
-            <span>Upcoming</span>
+            <span>{{ __('Upcoming') }}</span>
             <strong>{{ $upcomingCount }}</strong>
           </li>
           <li class="d-flex justify-content-between">
-            <span>Past</span>
+            <span>{{ __('Past') }}</span>
             <strong>{{ $pastCount }}</strong>
           </li>
         </ul>

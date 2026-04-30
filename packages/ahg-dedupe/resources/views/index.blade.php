@@ -8,17 +8,17 @@
     <i class="fas fa-3x fa-clone me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Duplicate Detection') }}</h1>
-      <span class="small text-muted">Dashboard</span>
+      <span class="small text-muted">{{ __('Dashboard') }}</span>
     </div>
     <div class="ms-auto d-flex gap-2">
       <a href="{{ route('dedupe.scan') }}" class="btn btn-primary">
-        <i class="fas fa-search me-1"></i> New Scan
+        <i class="fas fa-search me-1"></i> {{ __('New Scan') }}
       </a>
       <a href="{{ route('dedupe.rules') }}" class="btn btn-outline-secondary">
-        <i class="fas fa-cog me-1"></i> Rules
+        <i class="fas fa-cog me-1"></i> {{ __('Rules') }}
       </a>
       <a href="{{ route('dedupe.browse') }}" class="btn btn-outline-secondary">
-        <i class="fas fa-list me-1"></i> Browse All
+        <i class="fas fa-list me-1"></i> {{ __('Browse All') }}
       </a>
     </div>
   </div>
@@ -80,7 +80,7 @@
     <div class="col-lg-8">
       <div class="card mb-4">
         <div class="card-header d-flex align-items-center" >
-          <strong>Pending Review</strong>
+          <strong>{{ __('Pending Review') }}</strong>
           <span class="badge bg-warning text-dark ms-2">{{ number_format($stats['pending']) }}</span>
           <a href="{{ route('dedupe.browse', ['status' => 'pending']) }}" class="ms-auto small">View all</a>
         </div>
@@ -147,7 +147,7 @@
     <div class="col-lg-4">
       {{-- Detection Methods --}}
       <div class="card mb-4">
-        <div class="card-header" ><strong>Detection Methods</strong></div>
+        <div class="card-header" ><strong>{{ __('Detection Methods') }}</strong></div>
         <ul class="list-group list-group-flush">
           @forelse($methodCounts as $mc)
             <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -162,18 +162,18 @@
 
       {{-- Recent Scans --}}
       <div class="card mb-4">
-        <div class="card-header" ><strong>Recent Scans</strong></div>
+        <div class="card-header" ><strong>{{ __('Recent Scans') }}</strong></div>
         <ul class="list-group list-group-flush">
           @forelse($recentScans as $scan)
             <li class="list-group-item">
               <div class="d-flex justify-content-between">
                 <span>
                   @if($scan->status === 'completed')
-                    <span class="badge bg-success">Completed</span>
+                    <span class="badge bg-success">{{ __('Completed') }}</span>
                   @elseif($scan->status === 'running')
-                    <span class="badge bg-primary">Running</span>
+                    <span class="badge bg-primary">{{ __('Running') }}</span>
                   @elseif($scan->status === 'failed')
-                    <span class="badge bg-danger">Failed</span>
+                    <span class="badge bg-danger">{{ __('Failed') }}</span>
                   @else
                     <span class="badge bg-secondary">{{ ucfirst($scan->status) }}</span>
                   @endif
@@ -197,22 +197,22 @@
 
       {{-- Quick Links --}}
       <div class="card mb-4">
-        <div class="card-header" ><strong>Quick Links</strong></div>
+        <div class="card-header" ><strong>{{ __('Quick Links') }}</strong></div>
         <div class="list-group list-group-flush">
           <a href="{{ route('dedupe.browse') }}" class="list-group-item list-group-item-action">
-            <i class="fas fa-list me-2"></i> Browse All Duplicates
+            <i class="fas fa-list me-2"></i> {{ __('Browse All Duplicates') }}
           </a>
           <a href="{{ route('dedupe.browse', ['status' => 'pending']) }}" class="list-group-item list-group-item-action">
-            <i class="fas fa-clock me-2"></i> Pending Review
+            <i class="fas fa-clock me-2"></i> {{ __('Pending Review') }}
           </a>
           <a href="{{ route('dedupe.browse', ['status' => 'confirmed']) }}" class="list-group-item list-group-item-action">
-            <i class="fas fa-check me-2"></i> Confirmed Duplicates
+            <i class="fas fa-check me-2"></i> {{ __('Confirmed Duplicates') }}
           </a>
           <a href="{{ route('dedupe.rules') }}" class="list-group-item list-group-item-action">
-            <i class="fas fa-cog me-2"></i> Detection Rules
+            <i class="fas fa-cog me-2"></i> {{ __('Detection Rules') }}
           </a>
           <a href="{{ route('dedupe.report') }}" class="list-group-item list-group-item-action">
-            <i class="fas fa-chart-bar me-2"></i> Report
+            <i class="fas fa-chart-bar me-2"></i> {{ __('Report') }}
           </a>
         </div>
       </div>

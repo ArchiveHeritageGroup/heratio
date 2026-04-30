@@ -8,20 +8,20 @@
     <i class="fas fa-3x fa-search-plus me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Advanced search') }}</h1>
-      <span class="small text-muted">Search archival descriptions with filters</span>
+      <span class="small text-muted">{{ __('Search archival descriptions with filters') }}</span>
     </div>
   </div>
 
   <form action="{{ route('search') }}" method="get">
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <strong>Search criteria</strong>
+        <strong>{{ __('Search criteria') }}</strong>
       </div>
       <div class="card-body">
 
         {{-- Text query --}}
         <div class="mb-3">
-          <label for="adv-query" class="form-label fw-semibold">Search terms <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="adv-query" class="form-label fw-semibold">Search terms <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input
             type="text"
             id="adv-query"
@@ -39,7 +39,7 @@
         <div class="row">
           {{-- Repository --}}
           <div class="col-md-6 mb-3">
-            <label for="adv-repository" class="form-label fw-semibold">Repository <span class="badge bg-warning ms-1">Recommended</span></label>
+            <label for="adv-repository" class="form-label fw-semibold">Repository <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
             <select id="adv-repository" name="repository" class="form-select">
               <option value="">-- Any repository --</option>
               @foreach($repositories as $id => $name)
@@ -50,7 +50,7 @@
 
           {{-- Level of description --}}
           <div class="col-md-6 mb-3">
-            <label for="adv-level" class="form-label fw-semibold">Level of description <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="adv-level" class="form-label fw-semibold">Level of description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select id="adv-level" name="level" class="form-select">
               <option value="">-- Any level --</option>
               @foreach($levels as $id => $name)
@@ -63,19 +63,19 @@
         <div class="row">
           {{-- Date from --}}
           <div class="col-md-3 mb-3">
-            <label for="adv-dateFrom" class="form-label fw-semibold">Date from <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="adv-dateFrom" class="form-label fw-semibold">Date from <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" id="adv-dateFrom" name="dateFrom" class="form-control">
           </div>
 
           {{-- Date to --}}
           <div class="col-md-3 mb-3">
-            <label for="adv-dateTo" class="form-label fw-semibold">Date to <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="adv-dateTo" class="form-label fw-semibold">Date to <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" id="adv-dateTo" name="dateTo" class="form-control">
           </div>
 
           {{-- Media type --}}
           <div class="col-md-3 mb-3">
-            <label for="adv-mediaType" class="form-label fw-semibold">Media type <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="adv-mediaType" class="form-label fw-semibold">Media type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select id="adv-mediaType" name="mediaType" class="form-select">
               <option value="">-- Any type --</option>
               @foreach($mediaTypes as $id => $name)
@@ -86,7 +86,7 @@
 
           {{-- Sort --}}
           <div class="col-md-3 mb-3">
-            <label for="adv-sort" class="form-label fw-semibold">Sort by <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="adv-sort" class="form-label fw-semibold">Sort by <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select id="adv-sort" name="sort" class="form-select">
               <option value="relevance" {{ $sort === 'relevance' ? 'selected' : '' }}>{{ __('Relevance') }}</option>
               <option value="titleAsc" {{ $sort === 'titleAsc' ? 'selected' : '' }}>{{ __('Title (A-Z)') }}</option>
@@ -103,7 +103,7 @@
         <div class="mb-3">
           <div class="form-check">
             <input type="checkbox" id="adv-hasDo" name="hasDigitalObject" value="1" class="form-check-input">
-            <label for="adv-hasDo" class="form-check-label">Only show descriptions with digital objects <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label for="adv-hasDo" class="form-check-label">Only show descriptions with digital objects <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           </div>
         </div>
 
@@ -112,15 +112,15 @@
       <div class="card-footer d-flex gap-2">
         <button type="submit" class="btn atom-btn-outline-success">
           <i class="fas fa-search" aria-hidden="true"></i>
-          Search
+          {{ __('Search') }}
         </button>
         <a href="{{ route('search.advanced') }}" class="btn atom-btn-white">
           <i class="fas fa-undo" aria-hidden="true"></i>
-          Reset
+          {{ __('Reset') }}
         </a>
         <a href="{{ route('search') }}" class="btn atom-btn-white ms-auto">
           <i class="fas fa-arrow-left" aria-hidden="true"></i>
-          Back to simple search
+          {{ __('Back to simple search') }}
         </a>
       </div>
     </div>

@@ -42,7 +42,7 @@
 
             @if($type === 'csv')
               <div class="mb-3">
-                <label class="form-label" for="object-type-select">Type <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label" for="object-type-select">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select class="form-select" name="objectType" id="object-type-select">
                   <option value="informationObject">{{ config('app.ui_label_informationobject', 'Archival description') }}</option>
                   <option value="accession">{{ __('Accession') }}</option>
@@ -56,7 +56,7 @@
 
             @if($type === 'xml')
               <div class="mb-3">
-                <label for="object-type-select" class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="object-type-select" class="form-label">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select class="form-select" name="objectType" id="object-type-select">
                   <option value="ead">{{ __('EAD 2002') }}</option>
                   <option value="eac-cpf">{{ __('EAC CPF') }}</option>
@@ -68,7 +68,7 @@
 
             @if($type === 'csv')
               <div class="mb-3">
-                <label class="form-label" for="update-type-select">Update behaviours <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label" for="update-type-select">Update behaviours <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select class="form-select" name="updateType" id="update-type-select">
                   <option value="import-as-new">{{ __('Ignore matches and create new records on import') }}</option>
                   <option value="match-and-update">{{ __('Update matches ignoring blank fields in CSV') }}</option>
@@ -77,7 +77,7 @@
               </div>
             @else
               <div class="mb-3">
-                <label class="form-label" for="update-type-select">Update behaviours <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label" for="update-type-select">Update behaviours <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select class="form-select" name="updateType" id="update-type-select">
                   <option value="import-as-new">{{ __('Ignore matches and import as new') }}</option>
                   <option value="delete-and-replace">{{ __('Delete matches and replace with imports') }}</option>
@@ -87,11 +87,11 @@
 
             <div class="mb-3 form-check">
               <input class="form-check-input" name="skipUnmatched" id="skip-unmatched-input" type="checkbox">
-              <label class="form-check-label" for="skip-unmatched-input">Skip unmatched records <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-check-label" for="skip-unmatched-input">Skip unmatched records <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
 
             <div class="mb-3">
-              <label class="form-label" for="collection-select">Limit matches to: <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label" for="collection-select">Limit matches to: <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select class="form-select" name="collection" id="collection-select">
                 <option value="">{{ __('Top-level description') }}</option>
                 @foreach($collections ?? [] as $coll)
@@ -102,12 +102,12 @@
 
             <div class="mb-3 form-check">
               <input class="form-check-input" name="skipMatched" id="skip-matched-input" type="checkbox">
-              <label class="form-check-label" for="skip-matched-input">Skip matched records <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-check-label" for="skip-matched-input">Skip matched records <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
 
             <div class="mb-3 form-check">
               <input class="form-check-input" name="noIndex" id="no-index-input" type="checkbox">
-              <label class="form-check-label" for="no-index-input">Do not index imported items <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-check-label" for="no-index-input">Do not index imported items <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
 
           </div>
@@ -123,7 +123,7 @@
         <div id="file-collapse" class="accordion-collapse collapse show">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="import-file" class="form-label">Select a file to import <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="import-file" class="form-label">Select a file to import <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input class="form-control" type="file" id="import-file" name="file"
                      accept="{{ $type === 'csv' ? '.csv' : '.xml' }}">
             </div>

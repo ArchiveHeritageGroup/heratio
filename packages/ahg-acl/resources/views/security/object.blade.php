@@ -67,10 +67,10 @@
               @if($classification->reviewDate ?? $classification->review_date ?? null)
                 {{ date('F j, Y', strtotime($classification->reviewDate ?? $classification->review_date)) }}
                 @if(strtotime($classification->reviewDate ?? $classification->review_date) <= time())
-                  <span class="badge bg-warning text-dark ms-1">Due</span>
+                  <span class="badge bg-warning text-dark ms-1">{{ __('Due') }}</span>
                 @endif
               @else
-                <span class="text-muted">Not set</span>
+                <span class="text-muted">{{ __('Not set') }}</span>
               @endif
             </p>
           </div>
@@ -80,7 +80,7 @@
               <p class="mb-0">
                 {{ date('F j, Y', strtotime($classification->declassifyDate ?? $classification->declassify_date)) }}
                 @if(strtotime($classification->declassifyDate ?? $classification->declassify_date) <= time())
-                  <span class="badge bg-info ms-1">Due</span>
+                  <span class="badge bg-info ms-1">{{ __('Due') }}</span>
                 @endif
               </p>
             </div>
@@ -105,7 +105,7 @@
         {{-- Declassify Button --}}
         <div class="border-top mt-3 pt-3">
           <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#declassifyModal">
-            <i class="fas fa-unlock me-1"></i>Remove Classification
+            <i class="fas fa-unlock me-1"></i>{{ __('Remove Classification') }}
           </button>
         </div>
 
@@ -115,7 +115,7 @@
           <h5>{{ __('This record is publicly accessible') }}</h5>
           <p class="text-muted">No security classification has been applied to this record.</p>
           <a href="{{ route('acl.classify', ['id' => $resource->id ?? 0]) }}" class="btn btn-primary">
-            <i class="fas fa-lock me-1"></i>Apply Classification
+            <i class="fas fa-lock me-1"></i>{{ __('Apply Classification') }}
           </a>
         </div>
       @endif
@@ -190,7 +190,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-          <button type="submit" class="btn btn-success"><i class="fas fa-unlock me-1"></i>Remove Classification</button>
+          <button type="submit" class="btn btn-success"><i class="fas fa-unlock me-1"></i>{{ __('Remove Classification') }}</button>
         </div>
       </form>
     </div>

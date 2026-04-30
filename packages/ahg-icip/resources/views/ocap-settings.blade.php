@@ -17,7 +17,7 @@
   <form method="POST" action="{{ route('ahgicip.ocap-settings') }}">
     @csrf
     <div class="card">
-      <div class="card-header bg-light"><strong>Per-market overlay</strong></div>
+      <div class="card-header bg-light"><strong>{{ __('Per-market overlay') }}</strong></div>
       <div class="card-body">
         <div class="form-check form-switch mb-3">
           <input type="hidden" name="ocap_enabled" value="0">

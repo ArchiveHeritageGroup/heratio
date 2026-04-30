@@ -24,7 +24,7 @@
                 <i class="fas {{ $clamAvAvailable ? 'fa-check-circle' : 'fa-exclamation-triangle' }} fa-2x me-3"></i>
                 <div class="flex-grow-1">
                     @if($clamAvAvailable)
-                        <strong>ClamAV is installed and available</strong>
+                        <strong>{{ __('ClamAV is installed and available') }}</strong>
                         @if($clamAvVersion)
                         <br><small class="text-muted">
                             Scanner: {{ $clamAvVersion['scanner'] ?? '' }} |
@@ -33,7 +33,7 @@
                         </small>
                         @endif
                     @else
-                        <strong>ClamAV is not installed</strong>
+                        <strong>{{ __('ClamAV is not installed') }}</strong>
                         <br><small>Install with: <code>sudo apt install clamav clamav-daemon && sudo freshclam</code></small>
                     @endif
                 </div>
@@ -151,11 +151,11 @@ php artisan preservation:virus-scan --limit=500</code></pre>
                                 <td><small>{{ $scan->scan_engine ?? '' }} {{ ($scan->engine_version ?? null) ? 'v' . $scan->engine_version : '' }}</small></td>
                                 <td>
                                     @if($scan->status === 'clean')
-                                        <span class="badge bg-success"><i class="fas fa-check"></i> Clean</span>
+                                        <span class="badge bg-success"><i class="fas fa-check"></i> {{ __('Clean') }}</span>
                                     @elseif($scan->status === 'infected')
-                                        <span class="badge bg-danger"><i class="fas fa-virus"></i> Infected</span>
+                                        <span class="badge bg-danger"><i class="fas fa-virus"></i> {{ __('Infected') }}</span>
                                     @elseif($scan->status === 'error')
-                                        <span class="badge bg-warning text-dark"><i class="fas fa-exclamation"></i> Error</span>
+                                        <span class="badge bg-warning text-dark"><i class="fas fa-exclamation"></i> {{ __('Error') }}</span>
                                     @else
                                         <span class="badge bg-secondary">{{ ucfirst($scan->status) }}</span>
                                     @endif
@@ -173,7 +173,7 @@ php artisan preservation:virus-scan --limit=500</code></pre>
                                 <td><small>{{ ($scan->duration_ms ?? null) ? $scan->duration_ms . 'ms' : '-' }}</small></td>
                                 <td>
                                     @if($scan->quarantined ?? false)
-                                        <span class="badge bg-danger"><i class="fas fa-lock"></i> Yes</span>
+                                        <span class="badge bg-danger"><i class="fas fa-lock"></i> {{ __('Yes') }}</span>
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif

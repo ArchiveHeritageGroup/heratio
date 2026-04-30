@@ -46,7 +46,7 @@
       <input type="hidden" name="information_object_id" value="{{ $ioId }}">
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label for="disposal_class_id" class="form-label">Disposal Class <span class="badge bg-secondary ms-1">Required</span></label>
+          <label for="disposal_class_id" class="form-label">Disposal Class <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
           <select name="disposal_class_id" id="disposal_class_id" class="form-select" required>
             <option value="">-- Select a disposal class --</option>
             @foreach($activeClasses as $cls)
@@ -57,7 +57,7 @@
           </select>
         </div>
         <div class="col-md-3 mb-3">
-          <label for="retention_start_date" class="form-label">Retention Start Date <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label for="retention_start_date" class="form-label">Retention Start Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="date" name="retention_start_date" id="retention_start_date" class="form-control" value="{{ $assignment->retention_start_date ?? '' }}">
         </div>
         <div class="col-md-3 mb-3 d-flex align-items-end">
@@ -68,5 +68,5 @@
   </div>
 </div>
 
-<div class="mt-3"><a href="{{ url()->previous() }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back</a></div>
+<div class="mt-3"><a href="{{ url()->previous() }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a></div>
 @endsection

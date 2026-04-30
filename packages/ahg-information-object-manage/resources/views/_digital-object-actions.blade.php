@@ -17,7 +17,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
         <a href="{{ route('digitalobject.edit', ['informationObject' => $resourceSlug]) }}"
            class="btn btn-outline-primary btn-sm">
             <i class="fas fa-upload me-1"></i>
-            Upload file
+            {{ __('Upload file') }}
         </a>
 
         <!-- TIFF to PDF Merge -->
@@ -27,7 +27,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                 data-bs-target="#tiffPdfMergeModal"
                 title="{{ __('Upload multiple TIFF/image files and merge into a single PDF/A document') }}">
             <i class="fas fa-layer-group me-1"></i>
-            Merge to PDF
+            {{ __('Merge to PDF') }}
         </button>
     </div>
 </div>
@@ -55,7 +55,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                 <!-- Settings Row -->
                 <div class="row mb-4">
                     <div class="col-md-4">
-                        <label for="tpmPdfStandard" class="form-label">PDF Standard <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label for="tpmPdfStandard" class="form-label">PDF Standard <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select id="tpmPdfStandard" class="form-select form-select-sm">
                             <option value="pdfa-2b" selected>{{ __('PDF/A-2b (Recommended)') }}</option>
                             <option value="pdfa-1b">{{ __('PDF/A-1b') }}</option>
@@ -64,7 +64,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label for="tpmDpi" class="form-label">Resolution (DPI) <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label for="tpmDpi" class="form-label">Resolution (DPI) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select id="tpmDpi" class="form-select form-select-sm">
                             <option value="150">150 DPI (Screen)</option>
                             <option value="300" selected>300 DPI (Print)</option>
@@ -73,7 +73,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label for="tpmQuality" class="form-label">Quality <span class="badge bg-secondary ms-1">Optional</span></label>
+                        <label for="tpmQuality" class="form-label">Quality <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select id="tpmQuality" class="form-select form-select-sm">
                             <option value="70">70% (Smaller file)</option>
                             <option value="85" selected>85% (Balanced)</option>
@@ -86,7 +86,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                 <!-- Drop Zone -->
                 <div id="tpmDropZone" class="border border-2 border-dashed rounded p-4 text-center mb-3 bg-light">
                     <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-2"></i>
-                    <p class="mb-1"><strong>Drag and drop images here</strong></p>
+                    <p class="mb-1"><strong>{{ __('Drag and drop images here') }}</strong></p>
                     <p class="text-muted small mb-2">or click to browse</p>
                     <p class="text-muted small mb-0">Supported: TIFF, JPEG, PNG, BMP, GIF</p>
                     <input type="file" id="tpmFileInput" class="d-none" multiple
@@ -96,7 +96,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                 <!-- Progress Bar -->
                 <div id="tpmProgressContainer" class="mb-3" style="display: none;">
                     <div class="d-flex justify-content-between mb-1">
-                        <small class="text-muted">Uploading...</small>
+                        <small class="text-muted">{{ __('Uploading...') }}</small>
                         <small id="tpmProgressText" class="text-muted"></small>
                     </div>
                     <div class="progress" style="height: 6px;">
@@ -127,17 +127,17 @@ $resourceSlug = $resource->slug ?? null; @endphp
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="tpmAttachToRecord" checked>
                     <label class="form-check-label" for="tpmAttachToRecord">
-                        Attach PDF to this record as digital object <span class="badge bg-secondary ms-1">Optional</span>
+                        Attach PDF to this record as digital object <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                     </label>
                 </div>
             </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i> Cancel
+                    <i class="fas fa-times me-1"></i> {{ __('Cancel') }}
                 </button>
                 <button type="button" class="btn atom-btn-white" id="tpmCreateBtn" disabled>
-                    <i class="fas fa-file-pdf me-1"></i> Create PDF
+                    <i class="fas fa-file-pdf me-1"></i> {{ __('Create PDF') }}
                 </button>
             </div>
         </div>

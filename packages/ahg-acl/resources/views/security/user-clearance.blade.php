@@ -9,7 +9,7 @@
 
 <div class="mb-3">
   <a href="{{ route('acl.security-index') }}" class="btn btn-sm btn-outline-secondary">
-    <i class="fas fa-arrow-left"></i> Back to Clearances
+    <i class="fas fa-arrow-left"></i> {{ __('Back to Clearances') }}
   </a>
 </div>
 
@@ -25,17 +25,17 @@
         <div class="row">
           <div class="col-md-6">
             <p>
-              <strong>Level:</strong><br>
+              <strong>{{ __('Level:') }}</strong><br>
               <span class="badge fs-5" style="background-color: {{ $clearance->color ?? '#666' }}">
                 {{ e($clearance->name ?? '') }}
               </span>
             </p>
             <p>
-              <strong>Granted:</strong><br>
+              <strong>{{ __('Granted:') }}</strong><br>
               {{ $clearance->granted_date ?? '' }}
             </p>
             <p>
-              <strong>Expires:</strong><br>
+              <strong>{{ __('Expires:') }}</strong><br>
               @if($clearance->expiry_date ?? null)
                 @php
                 $daysLeft = (strtotime($clearance->expiry_date) - time()) / 86400;
@@ -44,23 +44,23 @@
                 <span class="{{ $class }}">{{ $clearance->expiry_date }}</span>
                 ({{ round($daysLeft) }} days)
               @else
-                <span class="text-muted">No expiry</span>
+                <span class="text-muted">{{ __('No expiry') }}</span>
               @endif
             </p>
           </div>
           <div class="col-md-6">
             <p>
-              <strong>Vetting Reference:</strong><br>
+              <strong>{{ __('Vetting Reference:') }}</strong><br>
               {{ e($clearance->vetting_reference ?? '-') }}
             </p>
             <p>
-              <strong>Vetting Authority:</strong><br>
+              <strong>{{ __('Vetting Authority:') }}</strong><br>
               {{ e($clearance->vetting_authority ?? '-') }}
             </p>
             <p>
               <strong>2FA Verified:</strong><br>
               @if($clearance->two_factor_verified ?? false)
-                <span class="badge bg-success">Yes</span>
+                <span class="badge bg-success">{{ __('Yes') }}</span>
                 <small class="text-muted">({{ $clearance->two_factor_verified_at ?? '' }})</small>
               @else
                 <span class="badge bg-warning">No</span>
@@ -71,7 +71,7 @@
 
         @if(($clearance->renewal_status ?? '') === 'pending')
         <div class="alert alert-warning">
-          <strong>Renewal Requested:</strong> {{ $clearance->renewal_requested_date ?? '' }}
+          <strong>{{ __('Renewal Requested:') }}</strong> {{ $clearance->renewal_requested_date ?? '' }}
           <form action="{{ route('acl.set-clearance') }}" method="post" class="mt-2">
             @csrf
             <input type="hidden" name="user_id" value="{{ $targetUser->id }}">
@@ -251,10 +251,10 @@
         <h5 class="mb-0">{{ __('User Information') }}</h5>
       </div>
       <div class="card-body">
-        <p><strong>Username:</strong><br>{{ e($targetUser->username ?? '') }}</p>
-        <p><strong>Email:</strong><br>{{ e($targetUser->email ?? '') }}</p>
+        <p><strong>{{ __('Username:') }}</strong><br>{{ e($targetUser->username ?? '') }}</p>
+        <p><strong>{{ __('Email:') }}</strong><br>{{ e($targetUser->email ?? '') }}</p>
         <a href="{{ route('acl.user-security', ['id' => $targetUser->id]) }}" class="btn btn-sm btn-outline-info">
-          <i class="fas fa-history"></i> View Audit Log
+          <i class="fas fa-history"></i> {{ __('View Audit Log') }}
         </a>
       </div>
     </div>

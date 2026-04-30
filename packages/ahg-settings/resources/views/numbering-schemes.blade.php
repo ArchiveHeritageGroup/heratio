@@ -23,7 +23,7 @@
           <button type="submit" class="btn btn-sm atom-btn-white">{{ __('Filter') }}</button>
         </form>
       </div>
-      <a href="{{ route('settings.numbering-scheme-edit') }}" class="btn atom-btn-white"><i class="fas fa-plus me-1"></i>Add Scheme</a>
+      <a href="{{ route('settings.numbering-scheme-edit') }}" class="btn atom-btn-white"><i class="fas fa-plus me-1"></i>{{ __('Add Scheme') }}</a>
     </div>
 
     @if(empty($schemes))

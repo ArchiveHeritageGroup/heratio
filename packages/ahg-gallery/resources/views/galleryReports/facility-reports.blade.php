@@ -9,7 +9,7 @@
 
 @section('sidebar')
 <div class="sidebar-content">
-  <a href="{{ route('gallery-reports.index') }}" class="btn btn-outline-primary btn-sm w-100 mb-3"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a>
+  <a href="{{ route('gallery-reports.index') }}" class="btn btn-outline-primary btn-sm w-100 mb-3"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a>
 </div>
 @endsection
 
@@ -54,9 +54,9 @@
         </td>
         <td class="text-center">
           @if($r->approved ?? $r->is_approved ?? false)
-            <span class="badge bg-success">Yes</span>
+            <span class="badge bg-success">{{ __('Yes') }}</span>
           @else
-            <span class="badge bg-warning">Pending</span>
+            <span class="badge bg-warning">{{ __('Pending') }}</span>
           @endif
         </td>
       </tr>

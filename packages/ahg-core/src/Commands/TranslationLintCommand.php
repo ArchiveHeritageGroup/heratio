@@ -188,14 +188,23 @@ class TranslationLintCommand extends Command
         if (preg_match('/^[\d\s.,:\/+\-%]+$/', $text)) return true;
         // Single icon-only spans (Font Awesome, Bootstrap icon class names)
         if (preg_match('/^(fa|fas|far|fal|fab|bi|icon)[-\s]/i', $text)) return true;
-        // Already a Blade expression (defence-in-depth — patterns above filter {{)
+        // Already a Blade expression
         if (str_contains($text, '{{') || str_contains($text, '{!!')) return true;
-        // Heratio brand strings we don't translate
-        if (in_array($text, ['Heratio', 'AHG', 'OpenRiC', 'RiC', 'AtoM', 'Artefactual'], true)) return true;
-        // Already in the codebase translation set — likely wrapped via a sibling
-        // template that uses {{ __('...') }}. Keep flagged anyway only if the
-        // file count is non-zero so we get coverage data; skip pure duplicates.
-        if (isset($known[$text])) return false; // still flag — wrap improvement worth doing
+        // Already wrapped via inline @php echo __() pattern
+        if (str_contains($text, '@php') && str_contains($text, '__(')) return true;
+        // Brand strings, file formats, acronyms — proper nouns we don't translate
+        $properNouns = [
+            'Heratio', 'AHG', 'OpenRiC', 'RiC', 'AtoM', 'Artefactual', 'ICA',
+            'PDF', 'TIFF', 'JPEG', 'PNG', 'GIF', 'WAV', 'MP3', 'MP4', 'CSV',
+            'JSON', 'XML', 'HTML', 'YAML', 'TXT', 'ZIP', 'RDF', 'TTL', 'JSON-LD',
+            'URL', 'URI', 'UUID', 'API', 'OAI-PMH', 'EAD', 'EAD3', 'EAC', 'METS',
+            'MODS', 'MARC', 'PREMIS', 'IIIF', 'ISAD', 'ISAAR', 'ISDIAH', 'ISDF',
+            'CCO', 'CDWA', 'AAT', 'TGN', 'ULAN', 'LCSH', 'LCNAF', 'OAIS', 'SKOS',
+            'CIDOC', 'CRM', 'NER', 'PII', 'AI', 'OCR', 'TTS', 'GLAM', 'DAM',
+            'GLB', 'GLTF', 'STL', 'OBJ', 'FBX', 'GRAP', 'POPIA', 'PAIA', 'GDPR',
+            'NMMZ', 'NAZ', 'CDPA', 'IPSAS', 'SPARQL',
+        ];
+        if (in_array($text, $properNouns, true)) return true;
         return false;
     }
 

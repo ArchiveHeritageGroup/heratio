@@ -38,7 +38,7 @@
           Multi-Tenant Administration
         </h1>
         <a href="{{ route('tenant.create') }}" class="btn btn-primary">
-          <i class="fas fa-plus me-2"></i>Create Tenant
+          <i class="fas fa-plus me-2"></i>{{ __('Create Tenant') }}
         </a>
       </div>
 
@@ -62,7 +62,7 @@
           <div class="card bg-primary text-white">
             <div class="card-body text-center">
               <h3 class="mb-0">{{ $statistics['total'] ?? 0 }}</h3>
-              <small>Total Tenants</small>
+              <small>{{ __('Total Tenants') }}</small>
             </div>
           </div>
         </div>
@@ -70,7 +70,7 @@
           <div class="card bg-success text-white">
             <div class="card-body text-center">
               <h3 class="mb-0">{{ $statistics['active'] ?? 0 }}</h3>
-              <small>Active</small>
+              <small>{{ __('Active') }}</small>
             </div>
           </div>
         </div>
@@ -78,7 +78,7 @@
           <div class="card bg-info text-white">
             <div class="card-body text-center">
               <h3 class="mb-0">{{ $statistics['trial'] ?? 0 }}</h3>
-              <small>Trial</small>
+              <small>{{ __('Trial') }}</small>
             </div>
           </div>
         </div>
@@ -86,7 +86,7 @@
           <div class="card bg-danger text-white">
             <div class="card-body text-center">
               <h3 class="mb-0">{{ $statistics['suspended'] ?? 0 }}</h3>
-              <small>Suspended</small>
+              <small>{{ __('Suspended') }}</small>
             </div>
           </div>
         </div>
@@ -94,7 +94,7 @@
           <div class="card bg-warning text-dark">
             <div class="card-body text-center">
               <h3 class="mb-0">{{ $statistics['trial_expiring_soon'] ?? 0 }}</h3>
-              <small>Expiring Soon</small>
+              <small>{{ __('Expiring Soon') }}</small>
             </div>
           </div>
         </div>
@@ -102,7 +102,7 @@
           <div class="card bg-secondary text-white">
             <div class="card-body text-center">
               <h3 class="mb-0">{{ $statistics['trial_expired'] ?? 0 }}</h3>
-              <small>Expired</small>
+              <small>{{ __('Expired') }}</small>
             </div>
           </div>
         </div>
@@ -156,14 +156,14 @@
                   <td>
                     @php $status = $tenant->status ?? (isset($tenant->is_active) ? ($tenant->is_active ? 'active' : 'suspended') : 'active'); @endphp
                     @if($status === 'active')
-                      <span class="badge bg-success">Active</span>
+                      <span class="badge bg-success">{{ __('Active') }}</span>
                     @elseif($status === 'trial')
-                      <span class="badge bg-info">Trial</span>
+                      <span class="badge bg-info">{{ __('Trial') }}</span>
                       @if(!empty($tenant->trial_ends_at))
                         <br><small class="text-muted">Ends: {{ \Carbon\Carbon::parse($tenant->trial_ends_at)->format('M j, Y') }}</small>
                       @endif
                     @else
-                      <span class="badge bg-danger">Suspended</span>
+                      <span class="badge bg-danger">{{ __('Suspended') }}</span>
                       @if(!empty($tenant->suspended_reason))
                         <br><small class="text-muted" title="{{ $tenant->suspended_reason }}">
                           {{ \Illuminate\Support\Str::limit($tenant->suspended_reason, 30) }}
@@ -219,13 +219,13 @@
           <div class="card-body">
             <h6><i class="fas fa-info-circle me-2"></i> About Multi-Tenancy</h6>
             <ul class="mb-0 small">
-              <li><strong>Tenant:</strong> An organization or customer with their own settings, users, and access controls</li>
-              <li><strong>Status:</strong>
-                <span class="badge bg-success">Active</span> Full access |
-                <span class="badge bg-info">Trial</span> Limited time access |
-                <span class="badge bg-danger">Suspended</span> No access
+              <li><strong>{{ __('Tenant:') }}</strong> An organization or customer with their own settings, users, and access controls</li>
+              <li><strong>{{ __('Status:') }}</strong>
+                <span class="badge bg-success">{{ __('Active') }}</span> Full access |
+                <span class="badge bg-info">{{ __('Trial') }}</span> Limited time access |
+                <span class="badge bg-danger">{{ __('Suspended') }}</span> No access
               </li>
-              <li><strong>Roles:</strong> Owner &gt; Super User &gt; Editor &gt; Contributor &gt; Viewer</li>
+              <li><strong>{{ __('Roles:') }}</strong> Owner &gt; Super User &gt; Editor &gt; Contributor &gt; Viewer</li>
             </ul>
           </div>
         </div>

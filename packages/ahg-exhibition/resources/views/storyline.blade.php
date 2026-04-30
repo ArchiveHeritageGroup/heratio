@@ -48,7 +48,7 @@
         @endif
       </div>
       <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addStopModal">
-        <i class="fas fa-plus"></i> Add Stop
+        <i class="fas fa-plus"></i> {{ __('Add Stop') }}
       </button>
     </div>
 
@@ -67,7 +67,7 @@
           <h5>{{ __('No stops added yet') }}</h5>
           <p class="text-muted">Add stops to create a narrative journey through the exhibition.</p>
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStopModal">
-            <i class="fas fa-plus"></i> Add First Stop
+            <i class="fas fa-plus"></i> {{ __('Add First Stop') }}
           </button>
         </div>
       </div>
@@ -113,10 +113,10 @@
                       <span><i class="fas fa-clock me-1"></i> {{ floor($st->duration_seconds / 60) }}:{{ str_pad($st->duration_seconds % 60, 2, '0', STR_PAD_LEFT) }}</span>
                     @endif
                     @if(!empty($st->audio_url))
-                      <span><i class="fas fa-headphones me-1"></i> Audio</span>
+                      <span><i class="fas fa-headphones me-1"></i> {{ __('Audio') }}</span>
                     @endif
                     @if(!empty($st->video_url))
-                      <span><i class="fas fa-video me-1"></i> Video</span>
+                      <span><i class="fas fa-video me-1"></i> {{ __('Video') }}</span>
                     @endif
                   </div>
                 </div>
@@ -135,9 +135,9 @@
       </div>
       <div class="card-body">
         <ul class="list-unstyled mb-0">
-          <li class="mb-2"><strong>Stops:</strong> {{ count($stops) }}</li>
+          <li class="mb-2"><strong>{{ __('Stops:') }}</strong> {{ count($stops) }}</li>
           @if(!empty($storyline->duration_minutes))
-            <li class="mb-2"><strong>Est. Duration:</strong> {{ $storyline->duration_minutes }} min</li>
+            <li class="mb-2"><strong>{{ __('Est. Duration:') }}</strong> {{ $storyline->duration_minutes }} min</li>
           @endif
         </ul>
       </div>
@@ -149,7 +149,7 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('exhibition.storylines', ['id' => $exId]) }}" class="list-group-item list-group-item-action">
-          <i class="fas fa-arrow-left me-2"></i> Back to Storylines
+          <i class="fas fa-arrow-left me-2"></i> {{ __('Back to Storylines') }}
         </a>
       </div>
     </div>

@@ -24,8 +24,8 @@ $entityData = $entityData ?? (object)[];
               <div class="d-flex flex-wrap gap-2 mb-3">
                 <span class="badge fs-6" style="background-color:{{ $typeColors[$entityData->entity_type ?? ''] ?? '#999' }}">{{ ucfirst($entityData->entity_type ?? 'Unknown') }}</span>
                 <span class="badge bg-light text-dark fs-6"><i class="fas fa-file me-1"></i>{{ number_format($entityData->occurrence_count ?? 0) }} records</span>
-                @if(($entityData->confidence_avg ?? 0) >= 0.9)<span class="badge bg-success fs-6"><i class="fas fa-check-circle me-1"></i>High Confidence</span>
-                @elseif(($entityData->confidence_avg ?? 0) >= 0.7)<span class="badge bg-warning text-dark fs-6">Medium Confidence</span>@endif
+                @if(($entityData->confidence_avg ?? 0) >= 0.9)<span class="badge bg-success fs-6"><i class="fas fa-check-circle me-1"></i>{{ __('High Confidence') }}</span>
+                @elseif(($entityData->confidence_avg ?? 0) >= 0.7)<span class="badge bg-warning text-dark fs-6">{{ __('Medium Confidence') }}</span>@endif
               </div>
               @if(!empty($entityData->description))<p class="lead mb-0">{{ $entityData->description }}</p>@endif
             </div>
@@ -64,8 +64,8 @@ $entityData = $entityData ?? (object)[];
         <div class="card shadow-sm mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Actions') }}</h5></div>
           <div class="card-body d-grid gap-2">
-            <a href="{{ route('heritage.search', ['ner_'.($entityData->entity_type ?? '') => $entityData->canonical_value ?? '']) }}" class="btn atom-btn-secondary"><i class="fas fa-search me-1"></i>Search All Records</a>
-            <a href="{{ route('heritage.graph', ['focus'=>$entityData->id ?? '']) }}" class="btn atom-btn-white"><i class="fas fa-project-diagram me-1"></i>View in Graph</a>
+            <a href="{{ route('heritage.search', ['ner_'.($entityData->entity_type ?? '') => $entityData->canonical_value ?? '']) }}" class="btn atom-btn-secondary"><i class="fas fa-search me-1"></i>{{ __('Search All Records') }}</a>
+            <a href="{{ route('heritage.graph', ['focus'=>$entityData->id ?? '']) }}" class="btn atom-btn-white"><i class="fas fa-project-diagram me-1"></i>{{ __('View in Graph') }}</a>
           </div>
         </div>
         <div class="card shadow-sm mb-4">

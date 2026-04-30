@@ -188,12 +188,12 @@
         <a href="{{ route('informationobject.browse', array_merge($baseQuery, ['displayMode' => 'card'])) }}"
            class="btn btn-sm {{ $displayMode === 'card' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Card view with thumbnails') }}">
           <i class="fas fa-th" aria-hidden="true"></i>
-          <span class="visually-hidden">Card</span>
+          <span class="visually-hidden">{{ __('Card') }}</span>
         </a>
         <a href="{{ route('informationobject.browse', array_merge($baseQuery, ['displayMode' => 'table'])) }}"
            class="btn btn-sm {{ $displayMode === 'table' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Table view') }}">
           <i class="fas fa-list" aria-hidden="true"></i>
-          <span class="visually-hidden">Table</span>
+          <span class="visually-hidden">{{ __('Table') }}</span>
         </a>
       </div>
 
@@ -273,9 +273,9 @@
                   @endif
                   <button class="btn atom-btn-white ms-auto active-primary clipboard"
                           data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="informationobject"
-                          data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard">
+                          data-tooltip="true" data-title="{{ __('Add to clipboard') }}" data-alt-title="{{ __('Remove from clipboard') }}">
                     <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
-                    <span class="visually-hidden">Add to clipboard</span>
+                    <span class="visually-hidden">{{ __('Add to clipboard') }}</span>
                   </button>
                 </div>
                 @if(!empty($doc['scope_and_content']))
@@ -362,9 +362,9 @@
                 <td>
                   <button class="btn atom-btn-white ms-auto active-primary clipboard"
                           data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="informationobject"
-                          data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard">
+                          data-tooltip="true" data-title="{{ __('Add to clipboard') }}" data-alt-title="{{ __('Remove from clipboard') }}">
                     <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
-                    <span class="visually-hidden">Add to clipboard</span>
+                    <span class="visually-hidden">{{ __('Add to clipboard') }}</span>
                   </button>
                 </td>
               </tr>

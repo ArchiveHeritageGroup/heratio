@@ -40,7 +40,7 @@
                 <form method="post" action="{{ route('displaySearch.updateMapping') }}">
                     @csrf
                     <button type="submit" class="btn btn-warning">
-                        <i class="fas fa-plus me-1"></i> Add Display Fields to Mapping
+                        <i class="fas fa-plus me-1"></i> {{ __('Add Display Fields to Mapping') }}
                     </button>
                 </form>
                 @endif
@@ -73,11 +73,11 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary" {{ !($hasMapping ?? false) ? 'disabled' : '' }}>
-                        <i class="fas fa-sync me-1"></i> Start Reindex
+                        <i class="fas fa-sync me-1"></i> {{ __('Start Reindex') }}
                     </button>
 
                     @if(!($hasMapping ?? false))
-                    <small class="text-muted d-block mt-2">Update mapping first before reindexing.</small>
+                    <small class="text-muted d-block mt-2">{{ __('Update mapping first before reindexing.') }}</small>
                     @endif
                 </form>
             </div>
@@ -101,7 +101,7 @@
                 <hr>
 
                 <p class="small text-muted mb-0">
-                    <strong>When to reindex:</strong><br>
+                    <strong>{{ __('When to reindex:') }}</strong><br>
                     &bull; After bulk setting object types<br>
                     &bull; After changing display profiles<br>
                     &bull; After initial plugin installation

@@ -38,7 +38,7 @@
       </div>
 
       <a href="{{ route('feedback.general') }}" class="btn atom-btn-white w-100">
-        <i class="fas fa-plus me-1"></i> Add General Feedback
+        <i class="fas fa-plus me-1"></i> {{ __('Add General Feedback') }}
       </a>
     </div>
 
@@ -47,7 +47,7 @@
       {{-- Sort controls --}}
       <div class="d-flex flex-wrap gap-2 mb-3 justify-content-end">
         <div class="btn-group btn-group-sm" role="group" aria-label="{{ __('Sort options') }}">
-          <span class="btn atom-btn-white disabled">Sort by:</span>
+          <span class="btn atom-btn-white disabled">{{ __('Sort by:') }}</span>
           <a href="{{ route('feedback.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'nameUp'])) }}"
              class="btn atom-btn-white {{ $sort === 'nameUp' ? 'active' : '' }}">
             Name <i class="fas fa-arrow-up"></i>
@@ -100,8 +100,8 @@
                   // Status badge
                   $statusVal = $row['status'] ?? 'pending';
                   $statusBadge = $statusVal === 'completed'
-                      ? '<span class="badge bg-success">Completed</span>'
-                      : '<span class="badge bg-warning text-dark">Pending</span>';
+                      ? '<span class="badge bg-success">{{ __('Completed') }}</span>'
+                      : '<span class="badge bg-warning text-dark">{{ __('Pending') }}</span>';
                 @endphp
                 <tr>
                   <td class="text-muted">{{ $rowNum }}</td>

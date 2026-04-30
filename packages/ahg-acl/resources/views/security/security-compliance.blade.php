@@ -19,7 +19,7 @@
         <div class="card text-white bg-primary h-100">
             <div class="card-body">
                 <h4 class="mb-0">{{ $stats['classified_objects'] ?? 0 }}</h4>
-                <small>Classified Objects</small>
+                <small>{{ __('Classified Objects') }}</small>
             </div>
         </div>
     </div>
@@ -27,7 +27,7 @@
         <div class="card text-white bg-warning h-100">
             <div class="card-body">
                 <h4 class="mb-0">{{ $stats['pending_reviews'] ?? 0 }}</h4>
-                <small>Pending Reviews</small>
+                <small>{{ __('Pending Reviews') }}</small>
             </div>
         </div>
     </div>
@@ -35,7 +35,7 @@
         <div class="card text-white bg-success h-100">
             <div class="card-body">
                 <h4 class="mb-0">{{ $stats['cleared_users'] ?? 0 }}</h4>
-                <small>Cleared Users</small>
+                <small>{{ __('Cleared Users') }}</small>
             </div>
         </div>
     </div>
@@ -43,7 +43,7 @@
         <div class="card text-white bg-info h-100">
             <div class="card-body">
                 <h4 class="mb-0">{{ $stats['access_logs_today'] ?? 0 }}</h4>
-                <small>Access Logs Today</small>
+                <small>{{ __('Access Logs Today') }}</small>
             </div>
         </div>
     </div>

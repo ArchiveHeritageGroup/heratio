@@ -89,26 +89,26 @@ try {
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">{{ __('Name') }} * <span class="badge bg-danger ms-1">Required</span></label>
+          <label class="form-label">{{ __('Name') }} * <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <input type="text" id="save-search-name" class="form-control" required>
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="save-search-public">
           <label class="form-check-label" for="save-search-public">
             <i class="fa fa-link me-1"></i>{{ __('Make public (shareable link)') }}
-           <span class="badge bg-secondary ms-1">Optional</span></label>
+           <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         </div>
         @if($isAdmin)
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="save-search-global">
           <label class="form-check-label" for="save-search-global">
             <i class="fa fa-globe me-1"></i>{{ __('Global (visible to all users)') }}
-           <span class="badge bg-secondary ms-1">Optional</span></label>
+           <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         </div>
         @endif
         <div class="form-check">
           <input class="form-check-input" type="checkbox" id="save-search-notify">
-          <label class="form-check-label" for="save-search-notify">{{ __('Notify me of new results') }} <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-check-label" for="save-search-notify">{{ __('Notify me of new results') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         </div>
       </div>
       <div class="modal-footer">

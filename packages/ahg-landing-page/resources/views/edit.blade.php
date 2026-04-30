@@ -9,14 +9,14 @@
   <div class="builder-toolbar bg-dark text-white py-2 px-3 d-flex align-items-center justify-content-between sticky-top">
     <div class="d-flex align-items-center gap-3">
       <a href="{{ route('landing-page.list') }}" class="btn btn-outline-light btn-sm">
-        <i class="bi bi-arrow-left"></i> Back
+        <i class="bi bi-arrow-left"></i> {{ __('Back') }}
       </a>
       <h5 class="mb-0">{{ e($page->name) }}</h5>
       @if ($page->is_default)
-        <span class="badge bg-primary">Default</span>
+        <span class="badge bg-primary">{{ __('Default') }}</span>
       @endif
       @if (!$page->is_active)
-        <span class="badge bg-warning text-dark">Inactive</span>
+        <span class="badge bg-warning text-dark">{{ __('Inactive') }}</span>
       @endif
     </div>
 
@@ -47,7 +47,7 @@
               </li>
             @endforeach
           @else
-            <li><span class="dropdown-item text-muted">No versions yet</span></li>
+            <li><span class="dropdown-item text-muted">{{ __('No versions yet') }}</span></li>
           @endif
         </ul>
       </div>
@@ -145,7 +145,7 @@
     <div class="builder-config bg-light border-start" id="config-panel" style="width: 350px; display: none;">
       <div class="config-header border-bottom p-3 d-flex align-items-center justify-content-between">
         <h6 class="mb-0">
-          <i class="bi bi-sliders"></i> <span id="config-title">Block Settings</span>
+          <i class="bi bi-sliders"></i> <span id="config-title">{{ __('Block Settings') }}</span>
         </h6>
         <button type="button" class="btn-close" id="close-config"></button>
       </div>
@@ -214,7 +214,7 @@
         <h6>{{ __('Danger Zone') }}</h6>
         @if (!$page->is_default)
           <button type="button" class="btn btn-outline-danger btn-sm" id="btn-delete-page">
-            <i class="bi bi-trash"></i> Delete Page
+            <i class="bi bi-trash"></i> {{ __('Delete Page') }}
           </button>
         @else
           <p class="small text-muted">Default page cannot be deleted</p>

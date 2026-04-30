@@ -10,7 +10,7 @@
             <p class="card-text text-muted small">{{ $section['description'] ?? '' }}</p>
           </div>
           <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn atom-btn-white"><i class="fas fa-cog"></i> Configure</span>
+            <span class="btn atom-btn-white"><i class="fas fa-cog"></i> {{ __('Configure') }}</span>
           </div>
         </div>
       </a>

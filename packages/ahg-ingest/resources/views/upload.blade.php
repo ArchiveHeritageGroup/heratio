@@ -33,12 +33,12 @@
 {{-- Wizard Progress --}}
 <div class="mb-4">
     <div class="d-flex justify-content-between text-center">
-        <div class="flex-fill"><span class="badge bg-success rounded-pill">1</span><br><small class="text-muted">Configure</small></div>
-        <div class="flex-fill"><span class="badge bg-primary rounded-pill">2</span><br><small class="fw-bold">Upload</small></div>
-        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">3</span><br><small class="text-muted">Map</small></div>
-        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">4</span><br><small class="text-muted">Validate</small></div>
-        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">5</span><br><small class="text-muted">Preview</small></div>
-        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">6</span><br><small class="text-muted">Commit</small></div>
+        <div class="flex-fill"><span class="badge bg-success rounded-pill">1</span><br><small class="text-muted">{{ __('Configure') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-primary rounded-pill">2</span><br><small class="fw-bold">{{ __('Upload') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">3</span><br><small class="text-muted">{{ __('Map') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">4</span><br><small class="text-muted">{{ __('Validate') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">5</span><br><small class="text-muted">{{ __('Preview') }}</small></div>
+        <div class="flex-fill"><span class="badge bg-secondary rounded-pill">6</span><br><small class="text-muted">{{ __('Commit') }}</small></div>
     </div>
     <div class="progress mt-2" style="height: 4px;">
         <div class="progress-bar" style="width: 25%"></div>
@@ -67,7 +67,7 @@
                         <div id="drop-zone" class="border border-2 border-dashed rounded p-5 text-center mb-3">
                             <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
                             <p class="mb-1">Drag and drop file here, or click to browse</p>
-                            <small class="text-muted">Supported: CSV, ZIP (with CSV + digital objects), EAD XML</small>
+                            <small class="text-muted">{{ __('Supported: CSV, ZIP (with CSV + digital objects), EAD XML') }}</small>
                             <input type="file" class="form-control mt-3" id="ingest_file" name="ingest_file"
                                    accept=".csv,.zip,.xml,.ead">
                         </div>
@@ -80,14 +80,14 @@
                         <label for="directory_path" class="form-label">{{ __('Or enter a server directory path') }}</label>
                         <input type="text" class="form-control" id="directory_path" name="directory_path"
                                placeholder="{{ __('/path/to/files/on/server') }}">
-                        <small class="text-muted">For large batches, point to a directory on the server instead of uploading</small>
+                        <small class="text-muted">{{ __('For large batches, point to a directory on the server instead of uploading') }}</small>
                     </div>
                 </div>
             </div>
 
             <div class="d-flex justify-content-between">
                 <a href="{{ route('ingest.configure', ['id' => $session->id ?? 0]) }}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-1"></i>Back
+                    <i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}
                 </a>
                 <button type="submit" class="btn btn-primary" id="btn-upload">
                     Upload &amp; Continue <i class="fas fa-arrow-right ms-1"></i>
@@ -103,9 +103,9 @@
             </div>
             <div class="card-body">
                 <ul class="list-unstyled mb-0">
-                    <li><strong>Sector:</strong> {{ ucfirst($session->sector ?? '') }}</li>
-                    <li><strong>Standard:</strong> {{ strtoupper($session->standard ?? '') }}</li>
-                    <li><strong>Placement:</strong> {{ ucfirst(str_replace('_', ' ', $session->parent_placement ?? '')) }}</li>
+                    <li><strong>{{ __('Sector:') }}</strong> {{ ucfirst($session->sector ?? '') }}</li>
+                    <li><strong>{{ __('Standard:') }}</strong> {{ strtoupper($session->standard ?? '') }}</li>
+                    <li><strong>{{ __('Placement:') }}</strong> {{ ucfirst(str_replace('_', ' ', $session->parent_placement ?? '')) }}</li>
                 </ul>
             </div>
         </div>

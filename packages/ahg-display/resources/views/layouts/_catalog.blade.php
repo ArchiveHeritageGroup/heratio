@@ -50,7 +50,7 @@
             {{-- Provenance --}}
             @if(!empty($fields['context']['provenance']))
             <p class="catalog-provenance small text-muted">
-                <strong>Provenance:</strong> {{ Str::limit(strip_tags($fields['context']['provenance']['value']), 200) }}
+                <strong>{{ __('Provenance:') }}</strong> {{ Str::limit(strip_tags($fields['context']['provenance']['value']), 200) }}
             </p>
             @endif
         </div>

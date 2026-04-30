@@ -8,7 +8,7 @@
     <i class="fas fa-3x fa-cog me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ $job->name ?: 'Job #' . $job->id }}</h1>
-      <span class="small text-muted">Job details</span>
+      <span class="small text-muted">{{ __('Job details') }}</span>
     </div>
   </div>
 
@@ -65,7 +65,7 @@
               <th>{{ __('Download') }}</th>
               <td>
                 <a href="{{ $job->download_path }}" class="btn btn-sm atom-btn-white">
-                  <i class="fas fa-download me-1"></i> Download
+                  <i class="fas fa-download me-1"></i> {{ __('Download') }}
                 </a>
               </td>
             </tr>
@@ -101,7 +101,7 @@
 
   <div>
     <a href="{{ route('job.browse') }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left me-1"></i> Back to jobs
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back to jobs') }}
     </a>
   </div>
 @endsection

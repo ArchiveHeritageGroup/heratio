@@ -60,21 +60,21 @@
 
   <div class="check-meta">
     <div class="meta-item">
-      <span class="meta-label">Photo Type</span>
+      <span class="meta-label">{{ __('Photo Type') }}</span>
       <span class="meta-value"><span class="photo-type {{ $photo->photo_type ?? '' }}">{{ $photoTypes[$photo->photo_type ?? ''] ?? ($photo->photo_type ?? '') }}</span></span>
     </div>
     <div class="meta-item">
-      <span class="meta-label">Caption</span>
+      <span class="meta-label">{{ __('Caption') }}</span>
       <span class="meta-value">{{ $photo->caption ?? 'No caption' }}</span>
     </div>
     @if(!empty($photo->created_at))
     <div class="meta-item">
-      <span class="meta-label">Uploaded</span>
+      <span class="meta-label">{{ __('Uploaded') }}</span>
       <span class="meta-value">{{ \Carbon\Carbon::parse($photo->created_at)->format('j M Y H:i') }}</span>
     </div>
     @endif
     <div class="meta-item">
-      <span class="meta-label">Annotations</span>
+      <span class="meta-label">{{ __('Annotations') }}</span>
       <span class="meta-value">{{ count($annotations) }}</span>
     </div>
   </div>
@@ -84,7 +84,7 @@
   <div class="col">
     @if(!empty($photo->condition_check_id))
       <a href="{{ url('/condition/check/'.$photo->condition_check_id.'/photos') }}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-1"></i> Back to Photos
+        <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Photos') }}
       </a>
     @endif
   </div>
@@ -134,13 +134,13 @@
       </div>
       <div class="card-body">
         @if(!empty($photo->original_name))
-          <p><strong>Filename:</strong><br>{{ $photo->original_name }}</p>
+          <p><strong>{{ __('Filename:') }}</strong><br>{{ $photo->original_name }}</p>
         @endif
         @if(!empty($photo->file_size))
-          <p><strong>Size:</strong><br>{{ number_format($photo->file_size / 1024, 1) }} KB</p>
+          <p><strong>{{ __('Size:') }}</strong><br>{{ number_format($photo->file_size / 1024, 1) }} KB</p>
         @endif
         @if(!empty($photo->mime_type))
-          <p><strong>Type:</strong><br>{{ $photo->mime_type }}</p>
+          <p><strong>{{ __('Type:') }}</strong><br>{{ $photo->mime_type }}</p>
         @endif
       </div>
     </div>

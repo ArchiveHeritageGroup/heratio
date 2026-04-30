@@ -24,11 +24,11 @@
     <div class="list-group list-group-flush">
       @if(\Route::has('iiif-collection.index'))
       <a href="{{ route('iiif-collection.index') }}" class="list-group-item list-group-item-action">
-        <i class="fas fa-layer-group me-2"></i>Manage Collections
+        <i class="fas fa-layer-group me-2"></i>{{ __('Manage Collections') }}
       </a>
       @endif
       <a href="{{ url('/') }}" class="list-group-item list-group-item-action" target="_blank">
-        <i class="fas fa-home me-2"></i>View Homepage
+        <i class="fas fa-home me-2"></i>{{ __('View Homepage') }}
       </a>
     </div>
   </div>
@@ -61,7 +61,7 @@
             <div class="form-check form-switch mb-3">
               <input class="form-check-input" type="checkbox" name="homepage_collection_enabled" value="1" id="homepageEnabled"
                      {{ ($settings['homepage_collection_enabled'] ?? '1') === '1' ? 'checked' : '' }}>
-              <label class="form-check-label" for="homepageEnabled"><strong>Enable homepage carousel</strong></label>
+              <label class="form-check-label" for="homepageEnabled"><strong>{{ __('Enable homepage carousel') }}</strong></label>
             </div>
             <div class="mb-3">
               <label class="form-label">{{ __('Select Collection to Feature') }}</label>
@@ -236,8 +236,8 @@
     </div>
 
     <div class="d-flex gap-2">
-      <button type="submit" class="btn btn-success btn-lg"><i class="fas fa-save me-2"></i>Save Settings</button>
-      <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary btn-lg"><i class="fas fa-arrow-left me-2"></i>Back</a>
+      <button type="submit" class="btn btn-success btn-lg"><i class="fas fa-save me-2"></i>{{ __('Save Settings') }}</button>
+      <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary btn-lg"><i class="fas fa-arrow-left me-2"></i>{{ __('Back') }}</a>
     </div>
   </form>
 

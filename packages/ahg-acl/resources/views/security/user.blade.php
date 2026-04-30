@@ -49,7 +49,7 @@
                   <div class="d-flex align-items-center">
                     <i class="fas fa-info-circle fa-2x me-3"></i>
                     <div>
-                      <strong>Current Clearance:</strong>
+                      <strong>{{ __('Current Clearance:') }}</strong>
                       <span class="badge fs-6" style="background-color: {{ $clearance->classificationColor ?? $clearance->color ?? '#666' }};">
                         {{ $clearance->classificationName ?? $clearance->name ?? '' }}
                       </span>
@@ -118,7 +118,7 @@
                   <div>
                     @if($clearance ?? null)
                       <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#revokeModal">
-                        <i class="fas fa-times me-1"></i>Revoke Clearance
+                        <i class="fas fa-times me-1"></i>{{ __('Revoke Clearance') }}
                       </button>
                     @endif
                   </div>
@@ -142,12 +142,12 @@
               <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Classification Levels</h6>
             </div>
             <ul class="list-group list-group-flush">
-              <li class="list-group-item d-flex justify-content-between"><span class="badge bg-success">Public</span><small class="text-muted">Level 0</small></li>
-              <li class="list-group-item d-flex justify-content-between"><span class="badge bg-info">Internal</span><small class="text-muted">Level 1</small></li>
-              <li class="list-group-item d-flex justify-content-between"><span class="badge bg-warning text-dark">Restricted</span><small class="text-muted">Level 2</small></li>
-              <li class="list-group-item d-flex justify-content-between"><span class="badge" style="background-color:#fd7e14;color:white;">Confidential</span><small class="text-muted">Level 3</small></li>
-              <li class="list-group-item d-flex justify-content-between"><span class="badge bg-danger">Secret</span><small class="text-muted">Level 4</small></li>
-              <li class="list-group-item d-flex justify-content-between"><span class="badge" style="background-color:#6f42c1;color:white;">Top Secret</span><small class="text-muted">Level 5</small></li>
+              <li class="list-group-item d-flex justify-content-between"><span class="badge bg-success">{{ __('Public') }}</span><small class="text-muted">{{ __('Level 0') }}</small></li>
+              <li class="list-group-item d-flex justify-content-between"><span class="badge bg-info">{{ __('Internal') }}</span><small class="text-muted">{{ __('Level 1') }}</small></li>
+              <li class="list-group-item d-flex justify-content-between"><span class="badge bg-warning text-dark">{{ __('Restricted') }}</span><small class="text-muted">{{ __('Level 2') }}</small></li>
+              <li class="list-group-item d-flex justify-content-between"><span class="badge" style="background-color:#fd7e14;color:white;">{{ __('Confidential') }}</span><small class="text-muted">{{ __('Level 3') }}</small></li>
+              <li class="list-group-item d-flex justify-content-between"><span class="badge bg-danger">{{ __('Secret') }}</span><small class="text-muted">{{ __('Level 4') }}</small></li>
+              <li class="list-group-item d-flex justify-content-between"><span class="badge" style="background-color:#6f42c1;color:white;">{{ __('Top Secret') }}</span><small class="text-muted">{{ __('Level 5') }}</small></li>
             </ul>
           </div>
 

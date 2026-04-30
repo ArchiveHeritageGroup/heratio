@@ -47,10 +47,10 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
         </h1>
         <div>
             <a href="{{ route('ahgvendor.edit', ['slug' => $vendor->slug]) }}" class="btn btn-primary">
-                <i class="fas fa-edit me-1"></i>Edit
+                <i class="fas fa-edit me-1"></i>{{ __('Edit') }}
             </a>
             <a href="{{ route('ahgvendor.add-transaction', ['vendor' => $vendor->slug]) }}" class="btn btn-success">
-                <i class="fas fa-plus me-1"></i>New Transaction
+                <i class="fas fa-plus me-1"></i>{{ __('New Transaction') }}
             </a>
         </div>
     </div>
@@ -116,7 +116,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
 
                     @if ($vendor->street_address)
                     <div class="mt-3">
-                        <strong>Address:</strong><br>
+                        <strong>{{ __('Address:') }}</strong><br>
                         {!! nl2br(e($vendor->street_address)) !!}<br>
                         {{ e($vendor->city ?? '') }}@if (!empty($vendor->province)), {{ e($vendor->province) }}@endif
                         @if (!empty($vendor->postal_code)) {{ e($vendor->postal_code) }}@endif<br>
@@ -147,9 +147,9 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
             {{-- Contacts --}}
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-users me-2"></i>Contacts</span>
+                    <span><i class="fas fa-users me-2"></i>{{ __('Contacts') }}</span>
                     <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addContactModal">
-                        <i class="fas fa-plus me-1"></i>Add Contact
+                        <i class="fas fa-plus me-1"></i>{{ __('Add Contact') }}
                     </button>
                 </div>
                 <div class="card-body p-0">
@@ -182,7 +182,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                                     </td>
                                     <td>
                                         @if (!empty($contact->is_primary))
-                                        <span class="badge bg-success">Primary</span>
+                                        <span class="badge bg-success">{{ __('Primary') }}</span>
                                         @endif
                                     </td>
                                     <td>
@@ -210,7 +210,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
             {{-- Recent Transactions --}}
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-exchange-alt me-2"></i>Recent Transactions</span>
+                    <span><i class="fas fa-exchange-alt me-2"></i>{{ __('Recent Transactions') }}</span>
                     <a href="{{ route('ahgvendor.transactions', ['vendor_id' => $vendor->id]) }}" class="btn btn-sm btn-outline-primary">
                         View All
                     </a>
@@ -288,19 +288,19 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                     <div class="row text-center">
                         <div class="col-6 mb-3">
                             <div class="h3 mb-0">{{ $statsArr['total_transactions'] ?? 0 }}</div>
-                            <small class="text-muted">Total Transactions</small>
+                            <small class="text-muted">{{ __('Total Transactions') }}</small>
                         </div>
                         <div class="col-6 mb-3">
                             <div class="h3 mb-0">{{ $statsArr['active_transactions'] ?? 0 }}</div>
-                            <small class="text-muted">Active</small>
+                            <small class="text-muted">{{ __('Active') }}</small>
                         </div>
                         <div class="col-6">
                             <div class="h3 mb-0">R{{ number_format($statsArr['total_spent'] ?? 0, 0) }}</div>
-                            <small class="text-muted">Total Spent</small>
+                            <small class="text-muted">{{ __('Total Spent') }}</small>
                         </div>
                         <div class="col-6">
                             <div class="h3 mb-0">{{ $statsArr['avg_rating'] ?? '-' }}</div>
-                            <small class="text-muted">Avg Rating</small>
+                            <small class="text-muted">{{ __('Avg Rating') }}</small>
                         </div>
                     </div>
                 </div>
@@ -329,7 +329,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                                     @php $expired = strtotime($vendor->insurance_expiry_date) < time(); @endphp
                                     <span class="{{ $expired ? 'text-danger' : '' }}">
                                         {{ \Carbon\Carbon::parse($vendor->insurance_expiry_date)->format('j M Y') }}
-                                        @if ($expired)<span class="badge bg-danger ms-1">Expired</span>@endif
+                                        @if ($expired)<span class="badge bg-danger ms-1">{{ __('Expired') }}</span>@endif
                                     </span>
                                 @else - @endif
                             </td>

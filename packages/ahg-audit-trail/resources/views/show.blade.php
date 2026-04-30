@@ -8,7 +8,7 @@
     <i class="fas fa-3x fa-clipboard-check me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">Audit entry #{{ $entry->id }}</h1>
-      <span class="small text-muted">Audit trail details</span>
+      <span class="small text-muted">{{ __('Audit trail details') }}</span>
     </div>
   </div>
 
@@ -283,7 +283,7 @@
 
   <div>
     <a href="{{ route('audit.browse') }}" class="btn atom-btn-white">
-      <i class="fas fa-arrow-left me-1"></i> Back to audit trail
+      <i class="fas fa-arrow-left me-1"></i> {{ __('Back to audit trail') }}
     </a>
   </div>
 @endsection

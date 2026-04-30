@@ -38,14 +38,14 @@
     <div class="card-body small">
       @if($health)
         <div class="row">
-          <div class="col-md-3"><strong>Default model:</strong> <code>{{ $health['default_model'] ?? '—' }}</code></div>
-          <div class="col-md-3"><strong>Loaded:</strong> <code>{{ implode(', ', $health['loaded_models'] ?? []) ?: 'none' }}</code></div>
-          <div class="col-md-3"><strong>CUDA:</strong> {{ ($health['cuda'] ?? false) ? 'yes' : 'no' }}</div>
-          <div class="col-md-3"><strong>Low-VRAM mode:</strong> {{ ($health['low_vram_mode'] ?? false) ? 'yes' : 'no' }}</div>
+          <div class="col-md-3"><strong>{{ __('Default model:') }}</strong> <code>{{ $health['default_model'] ?? '—' }}</code></div>
+          <div class="col-md-3"><strong>{{ __('Loaded:') }}</strong> <code>{{ implode(', ', $health['loaded_models'] ?? []) ?: 'none' }}</code></div>
+          <div class="col-md-3"><strong>{{ __('CUDA:') }}</strong> {{ ($health['cuda'] ?? false) ? 'yes' : 'no' }}</div>
+          <div class="col-md-3"><strong>{{ __('Low-VRAM mode:') }}</strong> {{ ($health['low_vram_mode'] ?? false) ? 'yes' : 'no' }}</div>
         </div>
         @if(!empty($health['device']))
           <div class="mt-1">
-            <strong>GPU:</strong> {{ $health['device'] }}
+            <strong>{{ __('GPU:') }}</strong> {{ $health['device'] }}
             @if(!empty($health['vram_total_gb']))
               &middot; {{ $health['vram_free_gb'] }} GB free / {{ $health['vram_total_gb'] }} GB total
             @endif
@@ -66,7 +66,7 @@
       <div class="card text-center">
         <div class="card-body">
           <div class="display-6" style="color:var(--ahg-primary);">{{ number_format($stats['total']) }}</div>
-          <small class="text-muted">Animations generated</small>
+          <small class="text-muted">{{ __('Animations generated') }}</small>
         </div>
       </div>
     </div>
@@ -82,7 +82,7 @@
           <input type="hidden" name="ar_enabled" value="0">
           <input class="form-check-input" type="checkbox" id="ar_enabled" name="ar_enabled" value="1"
                  {{ is_ar_on($settings, 'ar_enabled') ? 'checked' : '' }}>
-          <label class="form-check-label" for="ar_enabled"><strong>Enable image animation</strong></label>
+          <label class="form-check-label" for="ar_enabled"><strong>{{ __('Enable image animation') }}</strong></label>
         </div>
         <div class="form-check form-switch">
           <input type="hidden" name="ar_user_button" value="0">
@@ -158,7 +158,7 @@
       </div>
     </div>
 
-    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save settings</button>
+    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save settings') }}</button>
   </form>
 
   @if($stats['recent']->count())

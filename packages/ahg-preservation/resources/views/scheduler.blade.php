@@ -12,7 +12,7 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h1 class="mb-0"><i class="fas fa-clock"></i> Workflow Scheduler</h1>
             <a href="{{ route('preservation.schedule-edit', 0) }}" class="btn btn-sm atom-btn-white">
-                <i class="fas fa-plus me-1"></i>New Schedule
+                <i class="fas fa-plus me-1"></i>{{ __('New Schedule') }}
             </a>
         </div>
         <p class="text-muted mb-3">Scheduled preservation workflows and their run history</p>
@@ -44,7 +44,7 @@
                 <div class="card bg-primary text-white">
                     <div class="card-body text-center">
                         <h3>{{ count($schedules) }}</h3>
-                        <small>Total Schedules</small>
+                        <small>{{ __('Total Schedules') }}</small>
                     </div>
                 </div>
             </div>
@@ -52,7 +52,7 @@
                 <div class="card bg-success text-white">
                     <div class="card-body text-center">
                         <h3>{{ $enabledCount }}</h3>
-                        <small>Enabled</small>
+                        <small>{{ __('Enabled') }}</small>
                     </div>
                 </div>
             </div>
@@ -61,7 +61,7 @@
                     <div class="card-body text-center">
                         @php $totalAllRuns = $schedules->sum('total_runs'); @endphp
                         <h3>{{ number_format($totalAllRuns) }}</h3>
-                        <small>Total Runs</small>
+                        <small>{{ __('Total Runs') }}</small>
                     </div>
                 </div>
             </div>
@@ -70,7 +70,7 @@
                     <div class="card-body text-center">
                         @php $totalAllProcessed = $schedules->sum('total_processed'); @endphp
                         <h3>{{ number_format($totalAllProcessed) }}</h3>
-                        <small>Total Processed</small>
+                        <small>{{ __('Total Processed') }}</small>
                     </div>
                 </div>
             </div>
@@ -122,19 +122,19 @@
                                         <td><small>{{ $schedule->timeout_minutes ? $schedule->timeout_minutes . 'min' : '-' }}</small></td>
                                         <td>
                                             @if($schedule->is_enabled)
-                                                <span class="badge bg-success"><i class="fas fa-check-circle"></i> Enabled</span>
+                                                <span class="badge bg-success"><i class="fas fa-check-circle"></i> {{ __('Enabled') }}</span>
                                             @else
-                                                <span class="badge bg-secondary"><i class="fas fa-pause-circle"></i> Disabled</span>
+                                                <span class="badge bg-secondary"><i class="fas fa-pause-circle"></i> {{ __('Disabled') }}</span>
                                             @endif
                                         </td>
                                         <td class="text-nowrap"><small>{{ $schedule->last_run_at ?? 'Never' }}</small></td>
                                         <td>
                                             @if($schedule->last_run_status === 'completed')
-                                                <span class="badge bg-success">Completed</span>
+                                                <span class="badge bg-success">{{ __('Completed') }}</span>
                                             @elseif($schedule->last_run_status === 'failed')
-                                                <span class="badge bg-danger">Failed</span>
+                                                <span class="badge bg-danger">{{ __('Failed') }}</span>
                                             @elseif($schedule->last_run_status === 'running')
-                                                <span class="badge bg-info">Running</span>
+                                                <span class="badge bg-info">{{ __('Running') }}</span>
                                             @elseif($schedule->last_run_status)
                                                 <span class="badge bg-secondary">{{ ucfirst($schedule->last_run_status) }}</span>
                                             @else

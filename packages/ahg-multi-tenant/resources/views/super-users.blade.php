@@ -124,7 +124,7 @@
 
       <div class="mt-2">
         <a href="{{ route('tenant.index') }}" class="btn btn-secondary">
-          <i class="fas fa-arrow-left me-1"></i> Back to Tenant Administration
+          <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Tenant Administration') }}
         </a>
       </div>
     </div>

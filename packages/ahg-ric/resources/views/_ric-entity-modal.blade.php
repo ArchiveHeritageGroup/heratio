@@ -127,7 +127,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                <button type="button" class="btn btn-primary" id="ricEntitySaveBtn"><i class="fas fa-save"></i> Create</button>
+                <button type="button" class="btn btn-primary" id="ricEntitySaveBtn"><i class="fas fa-save"></i> {{ __('Create') }}</button>
             </div>
         </div>
     </div>

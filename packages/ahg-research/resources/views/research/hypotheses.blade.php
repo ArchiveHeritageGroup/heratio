@@ -26,8 +26,8 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-lightbulb text-primary me-2"></i>Hypotheses</h1>
     <div class="d-flex gap-2">
-        <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#createHypothesisForm"><i class="fas fa-plus me-1"></i>New Hypothesis</button>
-        <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back</a>
+        <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#createHypothesisForm"><i class="fas fa-plus me-1"></i>{{ __('New Hypothesis') }}</button>
+        <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
     </div>
 </div>
 
@@ -47,7 +47,7 @@
                     <label class="form-label">{{ __('Tags') }}</label>
                     <input type="text" name="tags" class="form-control" placeholder="{{ __('Comma-separated tags') }}">
                 </div>
-                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-check me-1"></i>Create</button>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-check me-1"></i>{{ __('Create') }}</button>
             </form>
         </div>
     </div>

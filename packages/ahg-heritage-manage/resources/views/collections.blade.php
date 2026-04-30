@@ -19,7 +19,7 @@
         <div class="card h-100" @if($collection['background_color'] ?? false) style="border-left:4px solid {{ $collection['background_color'] }}" @endif>
           @if($collection['cover_image'] ?? false)
           <div class="card-img-top position-relative" style="height:{{ ($collection['is_featured'] ?? false) ? '250px' : '180px' }};background:url('{{ $collection['cover_image'] }}') center/cover;">
-            @if($collection['is_featured'] ?? false)<span class="position-absolute top-0 start-0 badge bg-warning text-dark m-2"><i class="fas fa-star me-1"></i>Featured</span>@endif
+            @if($collection['is_featured'] ?? false)<span class="position-absolute top-0 start-0 badge bg-warning text-dark m-2"><i class="fas fa-star me-1"></i>{{ __('Featured') }}</span>@endif
           </div>
           @endif
           <div class="card-body">

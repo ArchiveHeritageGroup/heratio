@@ -11,10 +11,10 @@
   </div>
   <div class="col-md-4 text-end">
     <a href="{{ route('acl.groups') }}" class="btn btn-outline-secondary me-1">
-      <i class="fas fa-arrow-left me-1"></i>Back to ACL
+      <i class="fas fa-arrow-left me-1"></i>{{ __('Back to ACL') }}
     </a>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#grantModal">
-      <i class="fas fa-plus me-1"></i>Grant New Clearance
+      <i class="fas fa-plus me-1"></i>{{ __('Grant New Clearance') }}
     </button>
   </div>
 </div>
@@ -25,7 +25,7 @@
     <div class="card bg-primary text-white">
       <div class="card-body text-center">
         <h2 class="mb-0">{{ $stats['total_users'] }}</h2>
-        <small>Total Users</small>
+        <small>{{ __('Total Users') }}</small>
       </div>
     </div>
   </div>
@@ -33,7 +33,7 @@
     <div class="card bg-success text-white">
       <div class="card-body text-center">
         <h2 class="mb-0">{{ $stats['with_clearance'] }}</h2>
-        <small>With Clearance</small>
+        <small>{{ __('With Clearance') }}</small>
       </div>
     </div>
   </div>
@@ -41,7 +41,7 @@
     <div class="card bg-danger text-white">
       <div class="card-body text-center">
         <h2 class="mb-0">{{ $stats['top_secret'] }}</h2>
-        <small>Secret+ Level</small>
+        <small>{{ __('Secret+ Level') }}</small>
       </div>
     </div>
   </div>
@@ -59,7 +59,7 @@
   <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
     <h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>User Security Clearances</h5>
     <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#bulkGrantModal">
-      <i class="fas fa-users me-1"></i> Bulk Grant
+      <i class="fas fa-users me-1"></i> {{ __('Bulk Grant') }}
     </button>
   </div>
   <div class="card-body p-0">
@@ -88,7 +88,7 @@
                 <strong>{{ $clr->user_display_name ?? $clr->username ?? '—' }}</strong><br>
                 <small class="text-muted">{{ $clr->email ?? '' }}</small>
                 @if(!$clr->active)
-                  <span class="badge bg-secondary ms-1">Inactive</span>
+                  <span class="badge bg-secondary ms-1">{{ __('Inactive') }}</span>
                 @endif
               </td>
               <td>
@@ -98,7 +98,7 @@
                   </span>
                   <br><small class="text-muted">Level {{ $clr->classification_level ?? '' }}</small>
                 @else
-                  <span class="badge bg-secondary">No Clearance</span>
+                  <span class="badge bg-secondary">{{ __('No Clearance') }}</span>
                 @endif
               </td>
               <td>{{ $clr->granted_by_name ?? '—' }}</td>
@@ -116,7 +116,7 @@
                     @endif
                   </span>
                 @else
-                  <span class="text-muted">Never</span>
+                  <span class="text-muted">{{ __('Never') }}</span>
                 @endif
               </td>
               <td class="text-center">
@@ -130,9 +130,9 @@
                 @if(!$clr->classification_id)
                   <span class="badge bg-secondary">—</span>
                 @elseif(($clr->renewal_status ?? '') === 'pending')
-                  <span class="badge bg-warning">Renewal Pending</span>
+                  <span class="badge bg-warning">{{ __('Renewal Pending') }}</span>
                 @else
-                  <span class="badge bg-success">Active</span>
+                  <span class="badge bg-success">{{ __('Active') }}</span>
                 @endif
               </td>
               <td class="text-end">
@@ -208,7 +208,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="submit" class="btn btn-primary" id="bulkGrantBtn" disabled>
-            <i class="fas fa-check me-1"></i> Grant to Selected
+            <i class="fas fa-check me-1"></i> {{ __('Grant to Selected') }}
           </button>
         </div>
       </form>
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="modal-body">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">User <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+              <label class="form-label">User <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="user_id" class="form-select" required>
                 <option value="">-- Select User --</option>
                 @foreach($users as $user)
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
               </select>
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Clearance Level <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+              <label class="form-label">Clearance Level <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="classification_id" class="form-select" required>
                 <option value="">-- Select Level --</option>
                 @foreach($classifications as $cls)
@@ -290,30 +290,30 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Granted Date <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label">Granted Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="date" name="granted_date" class="form-control" value="{{ date('Y-m-d') }}">
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Expiry Date <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label">Expiry Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="date" name="expiry_date" class="form-control">
             </div>
           </div>
           <div class="row">
             <div class="col-md-4 mb-3">
-              <label class="form-label">Vetting Reference <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label">Vetting Reference <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="vetting_reference" class="form-control">
             </div>
             <div class="col-md-4 mb-3">
-              <label class="form-label">Vetting Date <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label">Vetting Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="date" name="vetting_date" class="form-control">
             </div>
             <div class="col-md-4 mb-3">
-              <label class="form-label">Vetting Authority <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label">Vetting Authority <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="vetting_authority" class="form-control">
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea name="notes" class="form-control" rows="2"></textarea>
           </div>
         </div>

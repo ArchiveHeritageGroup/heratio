@@ -22,9 +22,9 @@
 {{-- Existing Identifiers --}}
 <div class="card mb-3">
   <div class="card-header d-flex justify-content-between" style="background: var(--ahg-primary); color: #fff;">
-    <span><i class="fas fa-external-link-alt me-1"></i>Linked Identifiers</span>
+    <span><i class="fas fa-external-link-alt me-1"></i>{{ __('Linked Identifiers') }}</span>
     <button type="button" class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#addIdentifierModal">
-      <i class="fas fa-plus me-1"></i>Add
+      <i class="fas fa-plus me-1"></i>{{ __('Add') }}
     </button>
   </div>
   <div class="card-body p-0">
@@ -60,10 +60,10 @@
               <td>{{ e($ident->label ?? '') }}</td>
               <td>
                 @if ($ident->is_verified)
-                  <span class="badge bg-success"><i class="fas fa-check"></i> Verified</span>
+                  <span class="badge bg-success"><i class="fas fa-check"></i> {{ __('Verified') }}</span>
                 @else
                   <button class="btn btn-sm btn-outline-success btn-verify" data-id="{{ $ident->id }}">
-                    <i class="fas fa-check"></i> Verify
+                    <i class="fas fa-check"></i> {{ __('Verify') }}
                   </button>
                 @endif
               </td>
@@ -92,7 +92,7 @@
       </div>
       <div class="col-auto">
         <button class="btn atom-btn-white" onclick="searchAuthority('wikidata')">
-          <i class="fas fa-globe me-1"></i>Wikidata
+          <i class="fas fa-globe me-1"></i>{{ __('Wikidata') }}
         </button>
       </div>
       <div class="col-auto">
@@ -155,7 +155,7 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
         <button type="button" class="btn atom-btn-white" id="btn-save-identifier">
-          <i class="fas fa-save me-1"></i>Save
+          <i class="fas fa-save me-1"></i>{{ __('Save') }}
         </button>
       </div>
     </div>

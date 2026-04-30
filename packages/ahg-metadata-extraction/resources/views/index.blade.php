@@ -9,13 +9,13 @@
     <h5 class="mb-0">{{ __('Digital Objects') }}</h5>
     <div>
       <a href="{{ route('metadata-extraction.status') }}" class="btn atom-btn-white btn-sm me-2">
-        <i class="bi bi-info-circle me-1"></i>Status
+        <i class="bi bi-info-circle me-1"></i>{{ __('Status') }}
       </a>
       @if($exifToolAvailable)
         <form action="{{ route('metadata-extraction.batchExtract') }}" method="POST" class="d-inline">
           @csrf
           <button type="submit" class="btn atom-btn-outline-light btn-sm" onclick="return confirm('Run batch extraction on up to 50 objects?')">
-            <i class="bi bi-lightning me-1"></i>Batch Extract
+            <i class="bi bi-lightning me-1"></i>{{ __('Batch Extract') }}
           </button>
         </form>
       @endif
@@ -49,7 +49,7 @@
     @if(!$exifToolAvailable)
       <div class="alert alert-warning">
         <i class="bi bi-exclamation-triangle me-2"></i>
-        <strong>ExifTool Not Available</strong>
+        <strong>{{ __('ExifTool Not Available') }}</strong>
         <p class="mb-0 mt-2">ExifTool is not installed on this system. Install it with: <code>sudo apt install exiftool</code></p>
       </div>
     @endif
@@ -58,7 +58,7 @@
     <form method="get" action="{{ route('metadata-extraction.index') }}" class="mb-4">
       <div class="row g-3">
         <div class="col-md-4">
-          <label class="form-label">MIME Type <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label">MIME Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="mime_type" class="form-select form-select-sm">
             <option value="">{{ __('All types') }}</option>
             @foreach($mimeTypes as $mime)
@@ -67,7 +67,7 @@
           </select>
         </div>
         <div class="col-md-4">
-          <label class="form-label">Has Metadata <span class="badge bg-secondary ms-1">Optional</span></label>
+          <label class="form-label">Has Metadata <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="extracted" class="form-select form-select-sm">
             <option value="">{{ __('All') }}</option>
             <option value="yes" {{ $filterExtracted === 'yes' ? 'selected' : '' }}>{{ __('Yes - has metadata') }}</option>
@@ -120,7 +120,7 @@
                   @if($obj->metadata_count > 0)
                     <span class="badge bg-success">{{ $obj->metadata_count }} fields</span>
                   @else
-                    <span class="badge bg-secondary">None</span>
+                    <span class="badge bg-secondary">{{ __('None') }}</span>
                   @endif
                 </td>
                 <td>

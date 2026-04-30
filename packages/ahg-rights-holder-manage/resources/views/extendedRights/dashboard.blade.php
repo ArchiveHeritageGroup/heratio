@@ -106,16 +106,16 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-3">
-          <a href="{{ route('extended-rights.batch') }}" class="btn atom-btn-white w-100 mb-2"><i class="fas fa-layer-group me-1"></i>Batch Assign Rights</a>
+          <a href="{{ route('extended-rights.batch') }}" class="btn atom-btn-white w-100 mb-2"><i class="fas fa-layer-group me-1"></i>{{ __('Batch Assign Rights') }}</a>
         </div>
         <div class="col-md-3">
-          <a href="{{ route('extended-rights.embargoes') }}" class="btn atom-btn-white w-100 mb-2"><i class="fas fa-lock me-1"></i>Manage Embargoes</a>
+          <a href="{{ route('extended-rights.embargoes') }}" class="btn atom-btn-white w-100 mb-2"><i class="fas fa-lock me-1"></i>{{ __('Manage Embargoes') }}</a>
         </div>
         <div class="col-md-3">
-          <a href="{{ route('extended-rights.export') }}" class="btn atom-btn-white w-100 mb-2"><i class="fas fa-download me-1"></i>Export Rights</a>
+          <a href="{{ route('extended-rights.export') }}" class="btn atom-btn-white w-100 mb-2"><i class="fas fa-download me-1"></i>{{ __('Export Rights') }}</a>
         </div>
         <div class="col-md-3">
-          <a href="{{ route('settings.index') }}" class="btn atom-btn-white w-100 mb-2"><i class="fas fa-arrow-left me-1"></i>Back to Settings</a>
+          <a href="{{ route('settings.index') }}" class="btn atom-btn-white w-100 mb-2"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}</a>
         </div>
       </div>
     </div>

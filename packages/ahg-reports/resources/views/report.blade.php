@@ -27,7 +27,7 @@
         <form method="get" class="row g-3">
           @if(isset($repositories))
           <div class="col-md-3">
-            <label class="form-label">Repository <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Repository <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="repository_id" class="form-select form-select-sm">
               <option value="">{{ __('All repositories') }}</option>
               @foreach($repositories ?? [] as $repo)
@@ -37,15 +37,15 @@
           </div>
           @endif
           <div class="col-md-2">
-            <label class="form-label">From <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">From <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
           </div>
           <div class="col-md-2">
-            <label class="form-label">To <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">To <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
           </div>
           <div class="col-md-2">
-            <label class="form-label">Per Page <span class="badge bg-secondary ms-1">Optional</span></label>
+            <label class="form-label">Per Page <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="limit" class="form-select form-select-sm">
               <option value="25" {{ request('limit',25)==25?'selected':'' }}>25</option>
               <option value="50" {{ request('limit')==50?'selected':'' }}>50</option>
@@ -53,7 +53,7 @@
             </select>
           </div>
           <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn atom-btn-white btn-sm"><i class="fas fa-filter me-1"></i>Filter</button>
+            <button type="submit" class="btn atom-btn-white btn-sm"><i class="fas fa-filter me-1"></i>{{ __('Filter') }}</button>
           </div>
         </form>
       </div>

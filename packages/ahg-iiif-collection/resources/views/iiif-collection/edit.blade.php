@@ -8,10 +8,10 @@
         </div>
         <div class="card-body">
             <a href="{{ route('iiif-collection.view', $collection->id) }}" class="btn atom-btn-white w-100 mb-2">
-                <i class="fas fa-eye me-2"></i>View Collection
+                <i class="fas fa-eye me-2"></i>{{ __('View Collection') }}
             </a>
             <a href="{{ route('iiif-collection.add-items', $collection->id) }}" class="btn atom-btn-outline-success w-100">
-                <i class="fas fa-plus me-2"></i>Add Items
+                <i class="fas fa-plus me-2"></i>{{ __('Add Items') }}
             </a>
         </div>
     </div>
@@ -37,13 +37,13 @@
                 <div class="row">
                     <div class="col-md-8">
                         <div class="mb-3">
-                            <label class="form-label" for="name">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                            <label class="form-label" for="name">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <input type="text" class="form-control" id="name" name="name" value="{{ e($collection->name) }}" required>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label class="form-label" for="parent_id">Parent Collection <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-label" for="parent_id">Parent Collection <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="parent_id" name="parent_id">
                                 <option value="">— None (Top Level) —</option>
                                 @foreach($allCollections as $col)
@@ -59,20 +59,20 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label" for="description">Description <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label class="form-label" for="description">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <textarea class="form-control" id="description" name="description" rows="3">{{ e($collection->description) }}</textarea>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label" for="attribution">Attribution <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-label" for="attribution">Attribution <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <input type="text" class="form-control" id="attribution" name="attribution" value="{{ e($collection->attribution) }}">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label" for="viewing_hint">Viewing Hint <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <label class="form-label" for="viewing_hint">Viewing Hint <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="viewing_hint" name="viewing_hint">
                                 <option value="individuals" {{ $collection->viewing_hint == 'individuals' ? 'selected' : '' }}>Individuals</option>
                                 <option value="paged" {{ $collection->viewing_hint == 'paged' ? 'selected' : '' }}>Paged</option>
@@ -89,7 +89,7 @@
                         <input class="form-check-input" type="checkbox" id="is_public" name="is_public" value="1" {{ $collection->is_public ? 'checked' : '' }}>
                         <label class="form-check-label" for="is_public">
                             Public
-                         <span class="badge bg-secondary ms-1">Optional</span></label>
+                         <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     </div>
                 </div>
             </div>
@@ -97,10 +97,10 @@
 
         <div class="d-flex gap-2">
             <button type="submit" class="btn atom-btn-outline-success">
-                <i class="fas fa-save me-2"></i>Save Changes
+                <i class="fas fa-save me-2"></i>{{ __('Save Changes') }}
             </button>
             <a href="{{ route('iiif-collection.view', $collection->id) }}" class="btn atom-btn-white">
-                <i class="fas fa-times me-2"></i>Cancel
+                <i class="fas fa-times me-2"></i>{{ __('Cancel') }}
             </a>
         </div>
     </form>

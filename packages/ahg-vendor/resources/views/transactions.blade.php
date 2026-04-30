@@ -27,10 +27,10 @@
         <h1 class="h2"><i class="fas fa-exchange-alt me-2"></i>Vendor Transactions</h1>
         <div>
             <a href="{{ route('ahgvendor.index') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                <i class="fas fa-tachometer-alt me-1"></i>{{ __('Dashboard') }}
             </a>
             <a href="{{ route('ahgvendor.add-transaction') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i>New Transaction
+                <i class="fas fa-plus me-1"></i>{{ __('New Transaction') }}
             </a>
         </div>
     </div>
@@ -128,7 +128,7 @@
                                     <strong>{{ e($trans->transaction_number) }}</strong>
                                 </a>
                                 @if ($isOverdue)
-                                <span class="badge bg-danger ms-1">Overdue</span>
+                                <span class="badge bg-danger ms-1">{{ __('Overdue') }}</span>
                                 @endif
                             </td>
                             <td>
@@ -176,7 +176,7 @@
                 <i class="fas fa-exchange-alt fa-3x mb-3"></i>
                 <p>No transactions found</p>
                 <a href="{{ route('ahgvendor.add-transaction') }}" class="btn btn-primary">
-                    <i class="fas fa-plus me-1"></i>Create First Transaction
+                    <i class="fas fa-plus me-1"></i>{{ __('Create First Transaction') }}
                 </a>
             </div>
             @endif

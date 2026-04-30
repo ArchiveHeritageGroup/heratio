@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-shield-alt me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Run Detail') }}</h1><span class="small text-muted">Digital object integrity management</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Run Detail') }}</h1><span class="small text-muted">{{ __('Digital object integrity management') }}</span></div>
   </div>
 @endsection
 @section('content')
@@ -25,5 +25,5 @@
 <div class="card-body p-0"><table class="table table-striped mb-0"><thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><th>{{ __('Object') }}</th><th>{{ __('Failure') }}</th><th>{{ __('Message') }}</th></tr></thead>
 <tbody>@foreach($failures as $f)<tr><td>#{{ $f->digital_object_id ?? '' }}</td><td>{{ $f->failure_type ?? '' }}</td><td>{{ $f->message ?? '' }}</td></tr>@endforeach</tbody></table></div></div>
 @endif
-<div class="mt-3"><a href="{{ route('integrity.runs') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Runs</a></div>
+<div class="mt-3"><a href="{{ route('integrity.runs') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Runs') }}</a></div>
 @endsection

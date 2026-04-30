@@ -21,7 +21,7 @@
   {{-- Print + Clipboard --}}
   <div class="d-flex gap-1 mb-3">
     <button class="btn btn-sm atom-btn-white" onclick="window.print()" title="{{ __('Print') }}">
-      <i class="fas fa-print me-1"></i>Print
+      <i class="fas fa-print me-1"></i>{{ __('Print') }}
     </button>
     @include('ahg-core::clipboard._button', ['slug' => $accession->slug, 'type' => 'accession'])
   </div>

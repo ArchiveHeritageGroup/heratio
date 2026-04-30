@@ -62,7 +62,7 @@
     <div class="card-footer text-end">
         <a href="{{ url('/taxonomy/browse') }}" class="btn atom-btn-outline-light">Cancel</a>
         <button type="submit" class="btn atom-btn-outline-success">
-            <i class="fas fa-upload me-1"></i>Import
+            <i class="fas fa-upload me-1"></i>{{ __('Import') }}
         </button>
     </div>
 </form>

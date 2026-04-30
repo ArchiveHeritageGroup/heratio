@@ -19,21 +19,21 @@
                 <i class="fas fa-external-link-alt"></i> <span class="small">OpenRiC</span>
             </a>
             <a href="{{ url('/admin/ric/validate/' . $recordType . '/' . $recordId) }}" class="ms-2 small text-decoration-none" title="{{ __('Run SHACL validation against the OpenRiC shape set') }}">
-                <i class="fas fa-check-double"></i> <span class="small">Validate</span>
+                <i class="fas fa-check-double"></i> <span class="small">{{ __('Validate') }}</span>
             </a>
         </h2>
         <div class="btn-group btn-group-sm">
             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ricEntityModal" onclick="ricSetEntityType('activity')">
-                <i class="fas fa-running"></i> Add Activity
+                <i class="fas fa-running"></i> {{ __('Add Activity') }}
             </button>
             <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#ricEntityModal" onclick="ricSetEntityType('place')">
-                <i class="fas fa-map-marker-alt"></i> Add Place
+                <i class="fas fa-map-marker-alt"></i> {{ __('Add Place') }}
             </button>
             <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#ricEntityModal" onclick="ricSetEntityType('rule')">
-                <i class="fas fa-gavel"></i> Add Rule
+                <i class="fas fa-gavel"></i> {{ __('Add Rule') }}
             </button>
             <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#ricEntityModal" onclick="ricSetEntityType('instantiation')">
-                <i class="fas fa-file-alt"></i> Add Instantiation
+                <i class="fas fa-file-alt"></i> {{ __('Add Instantiation') }}
             </button>
         </div>
     </div>

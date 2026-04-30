@@ -7,7 +7,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3">{{ __('Disposal Queue') }}</h1>
         <a href="{{ route('records.disposal.history') }}" class="btn btn-outline-secondary btn-sm">
-            <i class="fas fa-history"></i> View History
+            <i class="fas fa-history"></i> {{ __('View History') }}
         </a>
     </div>
 
@@ -17,7 +17,7 @@
             <div class="card text-center border-secondary">
                 <div class="card-body py-2">
                     <div class="h4 mb-0">{{ $stats['by_status']['pending'] ?? 0 }}</div>
-                    <small class="text-muted">Pending</small>
+                    <small class="text-muted">{{ __('Pending') }}</small>
                 </div>
             </div>
         </div>
@@ -25,7 +25,7 @@
             <div class="card text-center border-info">
                 <div class="card-body py-2">
                     <div class="h4 mb-0">{{ $stats['by_status']['recommended'] ?? 0 }}</div>
-                    <small class="text-muted">Recommended</small>
+                    <small class="text-muted">{{ __('Recommended') }}</small>
                 </div>
             </div>
         </div>
@@ -33,7 +33,7 @@
             <div class="card text-center border-primary">
                 <div class="card-body py-2">
                     <div class="h4 mb-0">{{ $stats['by_status']['approved'] ?? 0 }}</div>
-                    <small class="text-muted">Approved</small>
+                    <small class="text-muted">{{ __('Approved') }}</small>
                 </div>
             </div>
         </div>
@@ -41,7 +41,7 @@
             <div class="card text-center border-success">
                 <div class="card-body py-2">
                     <div class="h4 mb-0">{{ $stats['by_status']['cleared'] ?? 0 }}</div>
-                    <small class="text-muted">Cleared</small>
+                    <small class="text-muted">{{ __('Cleared') }}</small>
                 </div>
             </div>
         </div>
@@ -49,7 +49,7 @@
             <div class="card text-center border-dark">
                 <div class="card-body py-2">
                     <div class="h4 mb-0">{{ $stats['by_status']['executed'] ?? 0 }}</div>
-                    <small class="text-muted">Executed</small>
+                    <small class="text-muted">{{ __('Executed') }}</small>
                 </div>
             </div>
         </div>

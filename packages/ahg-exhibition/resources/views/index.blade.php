@@ -47,10 +47,10 @@
   <h1 class="h3 mb-0">{{ __('Exhibition Dashboard') }}</h1>
   <div class="btn-group">
     <a href="{{ route('exhibition.add') }}" class="btn btn-success btn-sm">
-      <i class="fas fa-plus me-1"></i> New Exhibition
+      <i class="fas fa-plus me-1"></i> {{ __('New Exhibition') }}
     </a>
     <a href="{{ route('exhibition.index') }}#all-exhibitions" class="btn btn-outline-secondary btn-sm">
-      <i class="fas fa-list me-1"></i> All Exhibitions
+      <i class="fas fa-list me-1"></i> {{ __('All Exhibitions') }}
     </a>
   </div>
 </div>
@@ -326,19 +326,19 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('exhibition.add') }}" class="list-group-item list-group-item-action">
-          <i class="fas fa-plus me-2 text-success"></i> Create New Exhibition
+          <i class="fas fa-plus me-2 text-success"></i> {{ __('Create New Exhibition') }}
         </a>
         <a href="{{ route('exhibition.index') }}#all-exhibitions" class="list-group-item list-group-item-action">
-          <i class="fas fa-list me-2 text-primary"></i> View All Exhibitions
+          <i class="fas fa-list me-2 text-primary"></i> {{ __('View All Exhibitions') }}
         </a>
         <a href="{{ route('museum.browse') }}" class="list-group-item list-group-item-action">
-          <i class="fas fa-archive me-2 text-secondary"></i> Object Registry
+          <i class="fas fa-archive me-2 text-secondary"></i> {{ __('Object Registry') }}
         </a>
         <a href="{{ route('loan.index') }}" class="list-group-item list-group-item-action">
-          <i class="fas fa-exchange-alt me-2 text-warning"></i> Manage Loans
+          <i class="fas fa-exchange-alt me-2 text-warning"></i> {{ __('Manage Loans') }}
         </a>
         <a href="{{ route('loan.create') }}" class="list-group-item list-group-item-action">
-          <i class="fas fa-arrow-right-from-bracket me-2 text-info"></i> New Loan Out
+          <i class="fas fa-arrow-right-from-bracket me-2 text-info"></i> {{ __('New Loan Out') }}
         </a>
       </div>
     </div>

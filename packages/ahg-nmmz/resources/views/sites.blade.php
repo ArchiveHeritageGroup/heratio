@@ -33,7 +33,7 @@
     </div>
     <div class="col-auto">
       <a href="{{ route('nmmz.site.create') }}" class="btn btn-primary">
-        <i class="fas fa-plus me-1"></i> Register Site
+        <i class="fas fa-plus me-1"></i> {{ __('Register Site') }}
       </a>
     </div>
   </div>

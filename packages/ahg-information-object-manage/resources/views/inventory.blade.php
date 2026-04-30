@@ -10,7 +10,7 @@
       <i class="fas fa-3x fa-list-alt me-3" aria-hidden="true"></i>
       <div class="d-flex flex-column">
         <h1 class="mb-0">{{ $io->title ?? 'Untitled' }}</h1>
-        <span class="small text-muted">Inventory list</span>
+        <span class="small text-muted">{{ __('Inventory list') }}</span>
       </div>
     </div>
     <div class="ms-auto">
