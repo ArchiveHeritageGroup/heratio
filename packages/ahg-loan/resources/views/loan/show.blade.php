@@ -29,7 +29,7 @@
       }
     }
   @endphp
-  <nav aria-label="breadcrumb" class="mb-2">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-2">
     <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item"><a href="{{ route('loan.index') }}">Loans</a></li>
       @if($backSlug)
@@ -146,7 +146,7 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-6">
-          <h6 class="border-bottom pb-2 mb-3">General Information</h6>
+          <h6 class="border-bottom pb-2 mb-3">{{ __('General Information') }}</h6>
 
           <div class="row mb-2">
             <div class="col-sm-5 fw-bold">Loan Number</div>
@@ -191,7 +191,7 @@
             </div>
           @endif
 
-          <h6 class="border-bottom pb-2 mb-3 mt-4">Dates</h6>
+          <h6 class="border-bottom pb-2 mb-3 mt-4">{{ __('Dates') }}</h6>
 
           @if($loan->request_date)
             <div class="row mb-2">
@@ -235,7 +235,7 @@
         </div>
 
         <div class="col-md-6">
-          <h6 class="border-bottom pb-2 mb-3">Partner Information</h6>
+          <h6 class="border-bottom pb-2 mb-3">{{ __('Partner Information') }}</h6>
 
           <div class="row mb-2">
             <div class="col-sm-5 fw-bold">Institution</div>
@@ -270,7 +270,7 @@
             </div>
           @endif
 
-          <h6 class="border-bottom pb-2 mb-3 mt-4">Insurance &amp; Fees</h6>
+          <h6 class="border-bottom pb-2 mb-3 mt-4">{{ __('Insurance &amp; Fees') }}</h6>
 
           @if($loan->insurance_type)
             <div class="row mb-2">
@@ -323,16 +323,16 @@
           <div class="col-md-5">
             <div class="input-group input-group-sm">
               <span class="input-group-text"><i class="fas fa-search"></i></span>
-              <input type="text" id="object-search" class="form-control" placeholder="Search objects by title or identifier..." autocomplete="off">
+              <input type="text" id="object-search" class="form-control" placeholder="{{ __('Search objects by title or identifier...') }}" autocomplete="off">
               <input type="hidden" name="object_id" id="object-id" required>
             </div>
             <div id="object-search-results" class="list-group position-absolute" style="z-index:1050; display:none; max-height:250px; overflow-y:auto;"></div>
           </div>
           <div class="col-md-2">
-            <input type="number" name="insurance_value" class="form-control form-control-sm" placeholder="Insurance value" step="0.01" min="0">
+            <input type="number" name="insurance_value" class="form-control form-control-sm" placeholder="{{ __('Insurance value') }}" step="0.01" min="0">
           </div>
           <div class="col-md-3">
-            <input type="text" name="special_requirements" class="form-control form-control-sm" placeholder="Special requirements">
+            <input type="text" name="special_requirements" class="form-control form-control-sm" placeholder="{{ __('Special requirements') }}">
           </div>
           <div class="col-md-2">
             <button type="submit" class="btn btn-sm atom-btn-outline-success w-100"><i class="fas fa-plus me-1"></i>Add Object</button>
@@ -345,13 +345,13 @@
           <table class="table table-bordered table-sm mb-0">
             <thead>
               <tr>
-                <th>Title</th>
-                <th>Identifier</th>
-                <th>Type</th>
-                <th>Insurance Value</th>
-                <th>Status</th>
-                <th>Special Requirements</th>
-                @auth <th class="text-center">Actions</th> @endauth
+                <th>{{ __('Title') }}</th>
+                <th>{{ __('Identifier') }}</th>
+                <th>{{ __('Type') }}</th>
+                <th>{{ __('Insurance Value') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Special Requirements') }}</th>
+                @auth <th class="text-center">{{ __('Actions') }}</th> @endauth
               </tr>
             </thead>
             <tbody>
@@ -380,7 +380,7 @@
                       <form method="POST" action="{{ route('loan.remove-object', [$loan->id, $obj->id]) }}"
                             onsubmit="return confirm('Remove this object from the loan?');" class="d-inline">
                         @csrf
-                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove">
+                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="{{ __('Remove') }}">
                           <i class="fas fa-times"></i>
                         </button>
                       </form>
@@ -411,16 +411,16 @@
           </div>
           <div class="col-md-3">
             <select name="document_type" class="form-select form-select-sm" required>
-              <option value="">Document type...</option>
-              <option value="agreement">Loan Agreement</option>
-              <option value="insurance">Insurance Certificate</option>
-              <option value="condition_report">Condition Report</option>
-              <option value="facility_report">Facility Report</option>
-              <option value="correspondence">Correspondence</option>
-              <option value="invoice">Invoice</option>
-              <option value="receipt">Receipt</option>
-              <option value="customs">Customs Document</option>
-              <option value="other">Other</option>
+              <option value="">{{ __('Document type...') }}</option>
+              <option value="agreement">{{ __('Loan Agreement') }}</option>
+              <option value="insurance">{{ __('Insurance Certificate') }}</option>
+              <option value="condition_report">{{ __('Condition Report') }}</option>
+              <option value="facility_report">{{ __('Facility Report') }}</option>
+              <option value="correspondence">{{ __('Correspondence') }}</option>
+              <option value="invoice">{{ __('Invoice') }}</option>
+              <option value="receipt">{{ __('Receipt') }}</option>
+              <option value="customs">{{ __('Customs Document') }}</option>
+              <option value="other">{{ __('Other') }}</option>
             </select>
           </div>
           <div class="col-md-2">
@@ -434,10 +434,10 @@
           <table class="table table-bordered table-sm mb-0">
             <thead>
               <tr>
-                <th>File Name</th>
-                <th>Type</th>
-                <th>Size</th>
-                <th>Uploaded</th>
+                <th>{{ __('File Name') }}</th>
+                <th>{{ __('Type') }}</th>
+                <th>{{ __('Size') }}</th>
+                <th>{{ __('Uploaded') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -477,11 +477,11 @@
           <table class="table table-bordered table-sm mb-0">
             <thead>
               <tr>
-                <th>Previous End Date</th>
-                <th>New End Date</th>
-                <th>Reason</th>
-                <th>Approved By</th>
-                <th>Date</th>
+                <th>{{ __('Previous End Date') }}</th>
+                <th>{{ __('New End Date') }}</th>
+                <th>{{ __('Reason') }}</th>
+                <th>{{ __('Approved By') }}</th>
+                <th>{{ __('Date') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -514,12 +514,12 @@
           <table class="table table-bordered table-sm mb-0">
             <thead>
               <tr>
-                <th>Type</th>
-                <th>Examination Date</th>
-                <th>Examiner</th>
-                <th>Overall Condition</th>
-                <th>Has Damage</th>
-                <th>Stable</th>
+                <th>{{ __('Type') }}</th>
+                <th>{{ __('Examination Date') }}</th>
+                <th>{{ __('Examiner') }}</th>
+                <th>{{ __('Overall Condition') }}</th>
+                <th>{{ __('Has Damage') }}</th>
+                <th>{{ __('Stable') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -562,13 +562,13 @@
           <table class="table table-bordered table-sm mb-0">
             <thead>
               <tr>
-                <th>Venue</th>
-                <th>Assessment Date</th>
-                <th>Climate Control</th>
-                <th>Security (24h / CCTV / Alarm)</th>
-                <th>Fire Suppression</th>
-                <th>Rating</th>
-                <th>Approved</th>
+                <th>{{ __('Venue') }}</th>
+                <th>{{ __('Assessment Date') }}</th>
+                <th>{{ __('Climate Control') }}</th>
+                <th>{{ __('Security (24h / CCTV / Alarm)') }}</th>
+                <th>{{ __('Fire Suppression') }}</th>
+                <th>{{ __('Rating') }}</th>
+                <th>{{ __('Approved') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -633,7 +633,7 @@
             </div>
             @if(count($shipment->events))
               <hr>
-              <h6>Tracking Events</h6>
+              <h6>{{ __('Tracking Events') }}</h6>
               <ul class="list-unstyled mb-0">
                 @foreach($shipment->events as $event)
                   <li class="mb-1">
@@ -662,13 +662,13 @@
           <table class="table table-bordered table-sm mb-0">
             <thead>
               <tr>
-                <th>Type</th>
-                <th>Description</th>
-                <th>Amount</th>
-                <th>Vendor</th>
-                <th>Invoice #</th>
-                <th>Paid</th>
-                <th>Paid By</th>
+                <th>{{ __('Type') }}</th>
+                <th>{{ __('Description') }}</th>
+                <th>{{ __('Amount') }}</th>
+                <th>{{ __('Vendor') }}</th>
+                <th>{{ __('Invoice #') }}</th>
+                <th>{{ __('Paid') }}</th>
+                <th>{{ __('Paid By') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -758,18 +758,18 @@
           @csrf
           <input type="hidden" name="new_status" id="transition-new-status">
           <div class="modal-header">
-            <h5 class="modal-title">Change Loan Status</h5>
+            <h5 class="modal-title">{{ __('Change Loan Status') }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <div class="mb-3">
               <label for="transition-comment" class="form-label">Comment (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
-              <textarea name="comment" id="transition-comment" class="form-control" rows="3" placeholder="Reason for status change..."></textarea>
+              <textarea name="comment" id="transition-comment" class="form-control" rows="3" placeholder="{{ __('Reason for status change...') }}"></textarea>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn atom-btn-outline-success">Confirm Transition</button>
+            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+            <button type="submit" class="btn atom-btn-outline-success">{{ __('Confirm Transition') }}</button>
           </div>
         </form>
       </div>
@@ -783,7 +783,7 @@
         <form method="POST" action="{{ route('loan.extend', $loan->id) }}">
           @csrf
           <div class="modal-header">
-            <h5 class="modal-title">Extend Loan</h5>
+            <h5 class="modal-title">{{ __('Extend Loan') }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
@@ -794,12 +794,12 @@
             </div>
             <div class="mb-3">
               <label for="extend-reason" class="form-label">Reason <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
-              <textarea name="reason" id="extend-reason" class="form-control" rows="3" required placeholder="Reason for extension..."></textarea>
+              <textarea name="reason" id="extend-reason" class="form-control" rows="3" required placeholder="{{ __('Reason for extension...') }}"></textarea>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn atom-btn-white">Extend Loan</button>
+            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+            <button type="submit" class="btn atom-btn-white">{{ __('Extend Loan') }}</button>
           </div>
         </form>
       </div>
@@ -813,7 +813,7 @@
         <form method="POST" action="{{ route('loan.return', $loan->id) }}">
           @csrf
           <div class="modal-header">
-            <h5 class="modal-title">Record Loan Return</h5>
+            <h5 class="modal-title">{{ __('Record Loan Return') }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
@@ -824,12 +824,12 @@
             </div>
             <div class="mb-3">
               <label for="return-notes" class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
-              <textarea name="notes" id="return-notes" class="form-control" rows="3" placeholder="Return notes..."></textarea>
+              <textarea name="notes" id="return-notes" class="form-control" rows="3" placeholder="{{ __('Return notes...') }}"></textarea>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn atom-btn-outline-success">Record Return</button>
+            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+            <button type="submit" class="btn atom-btn-outline-success">{{ __('Record Return') }}</button>
           </div>
         </form>
       </div>

@@ -301,31 +301,31 @@
         <div class="pdf-toolbar mb-2 d-flex justify-content-between align-items-center">
           <span class="badge bg-danger"><i class="fas fa-file-pdf me-1"></i>PDF Document</span>
           <div class="btn-group btn-group-sm">
-            <a href="{{ $masterUrl }}" target="_blank" class="btn atom-btn-white" title="Open in new tab"><i class="fas fa-external-link-alt"></i></a>
-            <a href="{{ $masterUrl }}" download class="btn atom-btn-white" title="Download PDF"><i class="fas fa-download"></i></a>
+            <a href="{{ $masterUrl }}" target="_blank" class="btn atom-btn-white" title="{{ __('Open in new tab') }}"><i class="fas fa-external-link-alt"></i></a>
+            <a href="{{ $masterUrl }}" download class="btn atom-btn-white" title="{{ __('Download PDF') }}"><i class="fas fa-download"></i></a>
           </div>
         </div>
         <div class="ratio" style="--bs-aspect-ratio: 75%;">
-          <iframe src="{{ $masterUrl }}" style="border:none;border-radius:8px;background:#525659;" title="PDF Viewer"></iframe>
+          <iframe src="{{ $masterUrl }}" style="border:none;border-radius:8px;background:#525659;" title="{{ __('PDF Viewer') }}"></iframe>
         </div>
       @elseif($masterMediaType === 'image' || in_array($masterMime, ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/tiff', 'image/svg+xml']))
         {{-- OpenSeadragon + Mirador resizable viewer --}}
         @php $viewerId = 'iiif-viewer-' . $item->id; $imgSrc = $masterUrl ?: $refUrl; @endphp
         <div class="d-flex justify-content-between align-items-center mb-2">
           <div class="btn-group btn-group-sm" role="group">
-            <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white active" title="OpenSeadragon Deep Zoom">
+            <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white active" title="{{ __('OpenSeadragon Deep Zoom') }}">
               <i class="fas fa-search-plus me-1"></i>Deep Zoom
             </button>
-            <button id="btn-mirador-{{ $viewerId }}" class="btn atom-btn-white" title="Mirador IIIF Viewer">
+            <button id="btn-mirador-{{ $viewerId }}" class="btn atom-btn-white" title="{{ __('Mirador IIIF Viewer') }}">
               <i class="fas fa-columns me-1"></i>Mirador
             </button>
-            <button id="btn-img-{{ $viewerId }}" class="btn atom-btn-white" title="Simple image">
+            <button id="btn-img-{{ $viewerId }}" class="btn atom-btn-white" title="{{ __('Simple image') }}">
               <i class="fas fa-image me-1"></i>Image
             </button>
           </div>
           <div class="btn-group btn-group-sm">
-            <a href="{{ $imgSrc }}" target="_blank" class="btn atom-btn-white" title="Open full size"><i class="fas fa-external-link-alt"></i></a>
-            <button id="btn-fs-{{ $viewerId }}" class="btn atom-btn-white" title="Fullscreen"><i class="fas fa-expand"></i></button>
+            <a href="{{ $imgSrc }}" target="_blank" class="btn atom-btn-white" title="{{ __('Open full size') }}"><i class="fas fa-external-link-alt"></i></a>
+            <button id="btn-fs-{{ $viewerId }}" class="btn atom-btn-white" title="{{ __('Fullscreen') }}"><i class="fas fa-expand"></i></button>
           </div>
         </div>
         <div id="osd-{{ $viewerId }}" style="width:100%;height:400px;background:#1a1a1a;border-radius:8px;"></div>
@@ -416,7 +416,7 @@
               <strong>{{ $creator->name ?? '[Unknown]' }}</strong>
               <span class="badge bg-secondary ms-2">{{ ucfirst($creator->role ?? 'Author') }}</span>
               @if(!empty($creator->authority_uri))
-                <a href="{{ $creator->authority_uri }}" target="_blank" class="ms-2" title="View authority record">
+                <a href="{{ $creator->authority_uri }}" target="_blank" class="ms-2" title="{{ __('View authority record') }}">
                   <i class="fas fa-external-link-alt"></i>
                 </a>
               @endif
@@ -641,17 +641,17 @@
       </div>
       <div class="card-body">
         @if(!empty($summary))
-          <h6>Summary</h6>
+          <h6>{{ __('Summary') }}</h6>
           <p>{!! nl2br(e($summary)) !!}</p>
         @endif
 
         @if(!empty($scopeAndContent))
-          <h6>Scope and content</h6>
+          <h6>{{ __('Scope and content') }}</h6>
           <p>{!! nl2br(e($scopeAndContent)) !!}</p>
         @endif
 
         @if(!empty($contentsNote))
-          <h6>Table of contents</h6>
+          <h6>{{ __('Table of contents') }}</h6>
           <p>{!! nl2br(e($contentsNote)) !!}</p>
         @endif
       </div>
@@ -861,9 +861,9 @@
       @php $allGranted = $premisRights->flatMap(fn($pr) => $pr->granted); @endphp
       @if($allGranted->isNotEmpty())
         <hr>
-        <h6 class="text-muted mb-2">Granted Rights</h6>
+        <h6 class="text-muted mb-2">{{ __('Granted Rights') }}</h6>
         <table class="table table-sm table-bordered mb-0">
-          <thead><tr class="table-light"><th>Act</th><th>Restriction</th><th>Start</th><th>End</th><th>Notes</th></tr></thead>
+          <thead><tr class="table-light"><th>{{ __('Act') }}</th><th>{{ __('Restriction') }}</th><th>{{ __('Start') }}</th><th>{{ __('End') }}</th><th>{{ __('Notes') }}</th></tr></thead>
           <tbody>
             @foreach($allGranted as $gr)
               <tr>
@@ -958,16 +958,16 @@
                   <i class="fas fa-file-pdf me-1"></i>PDF Document
                 </span>
                 <div class="btn-group btn-group-sm">
-                  <a href="{{ $masterUrl }}" target="_blank" class="btn atom-btn-white" title="Open in new tab">
+                  <a href="{{ $masterUrl }}" target="_blank" class="btn atom-btn-white" title="{{ __('Open in new tab') }}">
                     <i class="fas fa-external-link-alt"></i>
                   </a>
-                  <a href="{{ $masterUrl }}" download class="btn atom-btn-white" title="Download PDF">
+                  <a href="{{ $masterUrl }}" download class="btn atom-btn-white" title="{{ __('Download PDF') }}">
                     <i class="fas fa-download"></i>
                   </a>
                 </div>
               </div>
               <div class="ratio" style="--bs-aspect-ratio: 85%;">
-                <iframe src="{{ $masterUrl }}" style="border:none;border-radius:8px;background:#525659;" title="PDF Viewer"></iframe>
+                <iframe src="{{ $masterUrl }}" style="border:none;border-radius:8px;background:#525659;" title="{{ __('PDF Viewer') }}"></iframe>
               </div>
             </div>
           </div>
@@ -1022,13 +1022,13 @@
               <span id="{{ $audioPlayerId }}-duration">0:00</span>
             </div>
             <div class="d-flex align-items-center justify-content-center gap-2">
-              <button class="btn btn-sm btn-outline-light" id="{{ $audioPlayerId }}-back" title="Back 10s">
+              <button class="btn btn-sm btn-outline-light" id="{{ $audioPlayerId }}-back" title="{{ __('Back 10s') }}">
                 <i class="fas fa-backward"></i> 10s
               </button>
-              <button class="btn btn-lg btn-light rounded-circle" id="{{ $audioPlayerId }}-play" title="Play/Pause" style="width:50px;height:50px;">
+              <button class="btn btn-lg btn-light rounded-circle" id="{{ $audioPlayerId }}-play" title="{{ __('Play/Pause') }}" style="width:50px;height:50px;">
                 <i class="fas fa-play" id="{{ $audioPlayerId }}-play-icon"></i>
               </button>
-              <button class="btn btn-sm btn-outline-light" id="{{ $audioPlayerId }}-fwd" title="Forward 10s">
+              <button class="btn btn-sm btn-outline-light" id="{{ $audioPlayerId }}-fwd" title="{{ __('Forward 10s') }}">
                 10s <i class="fas fa-forward"></i>
               </button>
               <div class="ms-3 d-flex align-items-center gap-1">
@@ -1137,21 +1137,21 @@
 
           <div class="d-flex justify-content-between align-items-center mb-2">
             <div class="btn-group btn-group-sm" role="group">
-              <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white active" title="OpenSeadragon Deep Zoom">
+              <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white active" title="{{ __('OpenSeadragon Deep Zoom') }}">
                 <i class="fas fa-search-plus me-1"></i>Deep Zoom
               </button>
-              <button id="btn-mirador-{{ $viewerId }}" class="btn atom-btn-white" title="Mirador IIIF Viewer">
+              <button id="btn-mirador-{{ $viewerId }}" class="btn atom-btn-white" title="{{ __('Mirador IIIF Viewer') }}">
                 <i class="fas fa-columns me-1"></i>Mirador
               </button>
-              <button id="btn-img-{{ $viewerId }}" class="btn atom-btn-white" title="Simple image">
+              <button id="btn-img-{{ $viewerId }}" class="btn atom-btn-white" title="{{ __('Simple image') }}">
                 <i class="fas fa-image me-1"></i>Image
               </button>
             </div>
             <div class="btn-group btn-group-sm">
-              <a href="{{ $imgSrc }}" target="_blank" class="btn atom-btn-white" title="Open full size">
+              <a href="{{ $imgSrc }}" target="_blank" class="btn atom-btn-white" title="{{ __('Open full size') }}">
                 <i class="fas fa-external-link-alt"></i>
               </a>
-              <button id="btn-fs-{{ $viewerId }}" class="btn atom-btn-white" title="Fullscreen">
+              <button id="btn-fs-{{ $viewerId }}" class="btn atom-btn-white" title="{{ __('Fullscreen') }}">
                 <i class="fas fa-expand"></i>
               </button>
             </div>
@@ -1232,46 +1232,46 @@
     {{-- Clipboard --}}
     @include('ahg-core::clipboard._button', ['slug' => $item->slug, 'type' => 'informationObject', 'wide' => false])
     {{-- TTS --}}
-    <button type="button" class="btn btn-sm btn-outline-secondary" data-tts-action="toggle" data-tts-target="#tts-content-area" title="Read metadata aloud" data-bs-toggle="tooltip"><i class="fas fa-volume-up"></i></button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" data-tts-action="toggle" data-tts-target="#tts-content-area" title="{{ __('Read metadata aloud') }}" data-bs-toggle="tooltip"><i class="fas fa-volume-up"></i></button>
     {{-- TTS for PDF --}}
     @if($pdfDigitalObject)
-      <button type="button" class="btn btn-sm btn-outline-info" data-tts-action="read-pdf" data-tts-pdf-id="{{ $pdfDigitalObject->id }}" title="Read PDF content aloud" data-bs-toggle="tooltip"><i class="fas fa-file-pdf"></i></button>
+      <button type="button" class="btn btn-sm btn-outline-info" data-tts-action="read-pdf" data-tts-pdf-id="{{ $pdfDigitalObject->id }}" title="{{ __('Read PDF content aloud') }}" data-bs-toggle="tooltip"><i class="fas fa-file-pdf"></i></button>
     @endif
     {{-- Print --}}
-    <button type="button" class="btn btn-sm atom-btn-white" onclick="window.print();" title="Print this page" data-bs-toggle="tooltip">
+    <button type="button" class="btn btn-sm atom-btn-white" onclick="window.print();" title="{{ __('Print this page') }}" data-bs-toggle="tooltip">
       <i class="fas fa-print"></i>
     </button>
     {{-- Favorites --}}
     @auth
       @if($favoriteId)
-        <a href="{{ \Illuminate\Support\Facades\Route::has('favorites.remove') ? route('favorites.remove', $favoriteId) : url('/favorites/remove/' . $favoriteId) }}" class="btn btn-xs btn-outline-danger" title="Remove from Favorites" data-bs-toggle="tooltip"><i class="fas fa-heart-broken"></i></a>
+        <a href="{{ \Illuminate\Support\Facades\Route::has('favorites.remove') ? route('favorites.remove', $favoriteId) : url('/favorites/remove/' . $favoriteId) }}" class="btn btn-xs btn-outline-danger" title="{{ __('Remove from Favorites') }}" data-bs-toggle="tooltip"><i class="fas fa-heart-broken"></i></a>
       @else
-        <a href="{{ \Illuminate\Support\Facades\Route::has('favorites.add') ? route('favorites.add', $item->slug) : url('/favorites/add/' . $item->slug) }}" class="btn btn-xs btn-outline-danger" title="Add to Favorites" data-bs-toggle="tooltip"><i class="fas fa-heart"></i></a>
+        <a href="{{ \Illuminate\Support\Facades\Route::has('favorites.add') ? route('favorites.add', $item->slug) : url('/favorites/add/' . $item->slug) }}" class="btn btn-xs btn-outline-danger" title="{{ __('Add to Favorites') }}" data-bs-toggle="tooltip"><i class="fas fa-heart"></i></a>
       @endif
     @endauth
     {{-- Feedback --}}
     @if(\Illuminate\Support\Facades\Route::has('feedback.submit'))
-      <a href="{{ route('feedback.submit', $item->slug) }}" class="btn btn-xs btn-outline-secondary" title="Item Feedback" data-bs-toggle="tooltip"><i class="fas fa-comment"></i></a>
+      <a href="{{ route('feedback.submit', $item->slug) }}" class="btn btn-xs btn-outline-secondary" title="{{ __('Item Feedback') }}" data-bs-toggle="tooltip"><i class="fas fa-comment"></i></a>
     @endif
     {{-- Request to Publish --}}
     @if($hasDigitalObject && \Illuminate\Support\Facades\Route::has('request-to-publish.submit'))
-      <a href="{{ route('request-to-publish.submit', $item->slug) }}" class="btn btn-xs btn-outline-primary" title="Request to Publish" data-bs-toggle="tooltip"><i class="fas fa-paper-plane"></i></a>
+      <a href="{{ route('request-to-publish.submit', $item->slug) }}" class="btn btn-xs btn-outline-primary" title="{{ __('Request to Publish') }}" data-bs-toggle="tooltip"><i class="fas fa-paper-plane"></i></a>
     @endif
     {{-- Cart --}}
     @if($hasDigitalObject)
       @if($cartId)
-        <a href="{{ \Illuminate\Support\Facades\Route::has('cart.browse') ? route('cart.browse') : url('/cart') }}" class="btn btn-xs btn-outline-success" title="Go to Cart" data-bs-toggle="tooltip"><i class="fas fa-shopping-cart"></i></a>
+        <a href="{{ \Illuminate\Support\Facades\Route::has('cart.browse') ? route('cart.browse') : url('/cart') }}" class="btn btn-xs btn-outline-success" title="{{ __('Go to Cart') }}" data-bs-toggle="tooltip"><i class="fas fa-shopping-cart"></i></a>
       @else
-        <a href="{{ \Illuminate\Support\Facades\Route::has('cart.add') ? route('cart.add', $item->slug) : url('/cart/add/' . $item->slug) }}" class="btn btn-xs btn-outline-success" title="Add to Cart" data-bs-toggle="tooltip"><i class="fas fa-cart-plus"></i></a>
+        <a href="{{ \Illuminate\Support\Facades\Route::has('cart.add') ? route('cart.add', $item->slug) : url('/cart/add/' . $item->slug) }}" class="btn btn-xs btn-outline-success" title="{{ __('Add to Cart') }}" data-bs-toggle="tooltip"><i class="fas fa-cart-plus"></i></a>
       @endif
     @endif
     {{-- Loans --}}
     @auth
       @if(\Illuminate\Support\Facades\Route::has('loan.create'))
-        <a href="{{ route('loan.create', ['type' => 'out', 'sector' => 'library', 'object_id' => $item->id]) }}" class="btn btn-xs btn-outline-warning" title="New Loan" data-bs-toggle="tooltip"><i class="fas fa-hand-holding"></i></a>
+        <a href="{{ route('loan.create', ['type' => 'out', 'sector' => 'library', 'object_id' => $item->id]) }}" class="btn btn-xs btn-outline-warning" title="{{ __('New Loan') }}" data-bs-toggle="tooltip"><i class="fas fa-hand-holding"></i></a>
       @endif
       @if(\Illuminate\Support\Facades\Route::has('loan.index'))
-        <a href="{{ route('loan.index', ['sector' => 'library', 'object_id' => $item->id]) }}" class="btn btn-xs btn-outline-info" title="Manage Loans" data-bs-toggle="tooltip"><i class="fas fa-exchange-alt"></i></a>
+        <a href="{{ route('loan.index', ['sector' => 'library', 'object_id' => $item->id]) }}" class="btn btn-xs btn-outline-info" title="{{ __('Manage Loans') }}" data-bs-toggle="tooltip"><i class="fas fa-exchange-alt"></i></a>
       @endif
     @endauth
   </div>
@@ -1669,7 +1669,7 @@
       <form action="{{ route('library.destroy', $item->slug) }}" method="POST" class="d-inline"
             onsubmit="return confirm('Are you sure you want to delete this library item?');">
         @csrf
-        <button type="submit" class="btn atom-btn-outline-danger">Delete</button>
+        <button type="submit" class="btn atom-btn-outline-danger">{{ __('Delete') }}</button>
       </form>
     </li>
     <li><a href="{{ route('library.create') }}" class="btn atom-btn-outline-light">Add new</a></li>
@@ -1686,7 +1686,7 @@
     @endif
     <li>
       <div class="dropdown d-inline-block">
-        <button class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">More</button>
+        <button class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">{{ __('More') }}</button>
         <ul class="dropdown-menu">
           <li><a class="dropdown-item" href="{{ route('library.browse') }}"><i class="fas fa-list me-2"></i>Browse library</a></li>
           <li><hr class="dropdown-divider"></li>
@@ -1748,7 +1748,7 @@
           <a href="{{ route('io.ai.review') }}?object_id={{ $item->id }}" class="btn btn-outline-primary btn-sm" id="nerFooterReview" style="display:none">
             <i class="fas fa-list-check me-1"></i>Review & Link
           </a>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
         </div>
       </div>
     </div>

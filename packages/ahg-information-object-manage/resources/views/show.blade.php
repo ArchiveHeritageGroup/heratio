@@ -47,7 +47,7 @@
       <form action="{{ route('informationobject.browse') }}" method="GET">
         <input type="hidden" name="collection" value="{{ $io->id }}">
         <div class="input-group input-group-sm">
-          <input type="text" name="subquery" class="form-control" placeholder="Search...">
+          <input type="text" name="subquery" class="form-control" placeholder="{{ __('Search...') }}">
           <button class="btn atom-btn-white" type="submit">
             <i class="fas fa-search"></i>
           </button>
@@ -155,7 +155,7 @@
               @csrf
               <label class="form-label small mb-1">{{ __('Prompt (optional — used by CogVideoX/WAN, ignored by SVD)') }}</label>
               <textarea name="prompt" rows="2" class="form-control form-control-sm mb-2"
-                        placeholder="e.g. the elephant walks slowly forward, the egret on its back lifts off and flies right">{{ $aiDefaults['prompt'] }}</textarea>
+                        placeholder="{{ __('e.g. the elephant walks slowly forward, the egret on its back lifts off and flies right') }}">{{ $aiDefaults['prompt'] }}</textarea>
               <div class="row g-1 mb-2">
                 <div class="col-6">
                   <label class="form-label small mb-0">{{ __('Frames') }}</label>
@@ -163,7 +163,7 @@
                 </div>
                 <div class="col-6">
                   <label class="form-label small mb-0">{{ __('Motion') }}</label>
-                  <input type="number" name="motion_bucket_id" value="{{ $aiDefaults['motion_bucket_id'] }}" min="1" max="255" class="form-control form-control-sm" title="SVD motion strength 1–255">
+                  <input type="number" name="motion_bucket_id" value="{{ $aiDefaults['motion_bucket_id'] }}" min="1" max="255" class="form-control form-control-sm" title="{{ __('SVD motion strength 1–255') }}">
                 </div>
               </div>
               <button type="submit" class="btn btn-sm btn-primary w-100">
@@ -299,7 +299,7 @@
 
   {{-- Breadcrumb trail --}}
   @if($io->parent_id != 1 && !empty($breadcrumbs))
-    <nav aria-label="Hierarchy">
+    <nav aria-label="{{ __('Hierarchy') }}">
       <ol class="breadcrumb">
         @foreach($breadcrumbs as $crumb)
           <li class="breadcrumb-item">
@@ -440,13 +440,13 @@
       @if($isFavorited)
         <form method="POST" action="{{ route('favorites.remove', \Illuminate\Support\Facades\DB::table('favorites')->where('user_id', $userId)->where('archival_description_id', $io->id)->value('id')) }}" class="d-inline">
           @csrf
-          <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove from Favorites" data-bs-toggle="tooltip">
+          <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="{{ __('Remove from Favorites') }}" data-bs-toggle="tooltip">
             <i class="fas fa-heart-broken"></i>
           </button>
         </form>
       @else
         <a href="{{ route('favorites.add', $io->slug) }}"
-           class="btn btn-sm atom-btn-outline-danger" title="Add to Favorites" data-bs-toggle="tooltip">
+           class="btn btn-sm atom-btn-outline-danger" title="{{ __('Add to Favorites') }}" data-bs-toggle="tooltip">
           <i class="fas fa-heart"></i>
         </a>
       @endif
@@ -454,33 +454,33 @@
       {{-- Cart (only when ahgCartPlugin is enabled) --}}
       @if($cartEnabled && $hasDigitalObject)
         @if($inCart)
-          <a href="{{ route('cart.browse') }}" class="btn btn-sm atom-btn-outline-success" title="Go to Cart" data-bs-toggle="tooltip">
+          <a href="{{ route('cart.browse') }}" class="btn btn-sm atom-btn-outline-success" title="{{ __('Go to Cart') }}" data-bs-toggle="tooltip">
             <i class="fas fa-shopping-cart"></i>
           </a>
         @else
-          <a href="{{ route('cart.add', $io->slug) }}" class="btn btn-sm atom-btn-outline-success" title="Add to Cart" data-bs-toggle="tooltip">
+          <a href="{{ route('cart.add', $io->slug) }}" class="btn btn-sm atom-btn-outline-success" title="{{ __('Add to Cart') }}" data-bs-toggle="tooltip">
             <i class="fas fa-cart-plus"></i>
           </a>
         @endif
       @endif
 
       {{-- Feedback --}}
-      <a href="{{ url('/feedback/submit/' . $io->slug) }}" class="btn btn-sm atom-btn-white" title="Item Feedback" data-bs-toggle="tooltip">
+      <a href="{{ url('/feedback/submit/' . $io->slug) }}" class="btn btn-sm atom-btn-white" title="{{ __('Item Feedback') }}" data-bs-toggle="tooltip">
         <i class="fas fa-comment"></i>
       </a>
 
       {{-- Request to Publish (uses cart route — gated by cart plugin) --}}
       @if($cartEnabled && $hasDigitalObject)
-        <a href="{{ route('cart.add', $io->slug) }}" class="btn btn-sm atom-btn-white" title="Request to Publish" data-bs-toggle="tooltip">
+        <a href="{{ route('cart.add', $io->slug) }}" class="btn btn-sm atom-btn-white" title="{{ __('Request to Publish') }}" data-bs-toggle="tooltip">
           <i class="fas fa-paper-plane"></i>
         </a>
       @endif
 
       {{-- Loan: New + Manage --}}
-      <a href="{{ route('loan.create', ['object_id' => $io->id]) }}" class="btn btn-sm atom-btn-white" title="New Loan" data-bs-toggle="tooltip">
+      <a href="{{ route('loan.create', ['object_id' => $io->id]) }}" class="btn btn-sm atom-btn-white" title="{{ __('New Loan') }}" data-bs-toggle="tooltip">
         <i class="fas fa-hand-holding"></i>
       </a>
-      <a href="{{ route('loan.index', ['object_id' => $io->id]) }}" class="btn btn-sm atom-btn-white" title="Manage Loans" data-bs-toggle="tooltip">
+      <a href="{{ route('loan.index', ['object_id' => $io->id]) }}" class="btn btn-sm atom-btn-white" title="{{ __('Manage Loans') }}" data-bs-toggle="tooltip">
         <i class="fas fa-exchange-alt"></i>
       </a>
     @endauth
@@ -494,7 +494,7 @@
         Identity area
       </a>
       @auth
-        <a href="{{ route('informationobject.edit', $io->slug) }}#identity-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Identity area">
+        <a href="{{ route('informationobject.edit', $io->slug) }}#identity-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Identity area') }}">
           <i class="fas fa-pencil-alt"></i>
         </a>
       @endauth
@@ -503,35 +503,35 @@
 
       @if($io->identifier)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Reference code</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Reference code') }}</h3>
           <div class="col-9 p-2">{{ $io->identifier }}</div>
         </div>
       @endif
 
       @if($io->title)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Title</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Title') }}</h3>
           <div class="col-9 p-2">{{ $io->title }}</div>
         </div>
       @endif
 
       @if($io->alternate_title ?? null)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Alternate title</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Alternate title') }}</h3>
           <div class="col-9 p-2">{{ $io->alternate_title }}</div>
         </div>
       @endif
 
       @if($io->edition ?? null)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Edition</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Edition') }}</h3>
           <div class="col-9 p-2">{{ $io->edition }}</div>
         </div>
       @endif
 
       @if(isset($events) && $events->isNotEmpty())
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Date(s)</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Date(s)') }}</h3>
           <div class="col-9 p-2">
             <ul class="m-0 ms-1 ps-3">
               @foreach($events as $event)
@@ -552,14 +552,14 @@
 
       @if($levelName)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Level of description</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Level of description') }}</h3>
           <div class="col-9 p-2">{{ $levelName }}</div>
         </div>
       @endif
 
       @if($io->extent_and_medium)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Extent and medium</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Extent and medium') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->extent_and_medium)) !!}</div>
         </div>
       @endif
@@ -576,7 +576,7 @@
         Context area
       </a>
       @auth
-        <a href="{{ route('informationobject.edit', $io->slug) }}#context-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Context area">
+        <a href="{{ route('informationobject.edit', $io->slug) }}#context-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Context area') }}">
           <i class="fas fa-pencil-alt"></i>
         </a>
       @endauth
@@ -588,7 +588,7 @@
         <div class="creatorHistories">
           @foreach($creators as $creator)
             <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Name of creator(s)</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Name of creator(s)') }}</h3>
               <div class="col-9 p-2">
                 <a href="{{ route('actor.show', $creator->slug) }}">{{ $creator->name }}</a>
               </div>
@@ -596,7 +596,7 @@
 
             @if($creator->dates_of_existence)
               <div class="field text-break row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Dates of existence</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Dates of existence') }}</h3>
                 <div class="col-9 p-2">{{ $creator->dates_of_existence }}</div>
               </div>
             @endif
@@ -622,7 +622,7 @@
         <div class="relatedFunctions">
           @foreach($functionRelations as $item)
             <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related function</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Related function') }}</h3>
               <div class="col-9 p-2">
                 @if(isset($item->slug))
                   <a href="{{ route('function.show', $item->slug) }}">{{ $item->name ?? $item->title ?? '[Untitled]' }}</a>
@@ -638,7 +638,7 @@
       {{-- Repository --}}
       @if($repository)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Repository</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Repository') }}</h3>
           <div class="col-9 p-2">
             <a href="{{ route('repository.show', $repository->slug) }}">{{ $repository->name }}</a>
           </div>
@@ -648,7 +648,7 @@
       @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_archival_history'))
       @if($io->archival_history)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Archival history</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Archival history') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->archival_history)) !!}</div>
         </div>
       @endif
@@ -657,7 +657,7 @@
       @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_immediate_source'))
       @if($io->acquisition)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Immediate source of acquisition or transfer</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Immediate source of acquisition or transfer') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->acquisition)) !!}</div>
         </div>
       @endif
@@ -675,7 +675,7 @@
         Content and structure area
       </a>
       @auth
-        <a href="{{ route('informationobject.edit', $io->slug) }}#content-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Content and structure area">
+        <a href="{{ route('informationobject.edit', $io->slug) }}#content-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Content and structure area') }}">
           <i class="fas fa-pencil-alt"></i>
         </a>
       @endauth
@@ -684,7 +684,7 @@
 
       @if($io->scope_and_content)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Scope and content</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Scope and content') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->scope_and_content)) !!}</div>
         </div>
       @endif
@@ -692,7 +692,7 @@
       @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_appraisal_destruction'))
       @if($io->appraisal)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Appraisal, destruction and scheduling</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Appraisal, destruction and scheduling') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->appraisal)) !!}</div>
         </div>
       @endif
@@ -700,14 +700,14 @@
 
       @if($io->accruals)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Accruals</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Accruals') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->accruals)) !!}</div>
         </div>
       @endif
 
       @if($io->arrangement)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">System of arrangement</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('System of arrangement') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->arrangement)) !!}</div>
         </div>
       @endif
@@ -724,7 +724,7 @@
         Conditions of access and use area
       </a>
       @auth
-        <a href="{{ route('informationobject.edit', $io->slug) }}#conditions-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Conditions of access and use area">
+        <a href="{{ route('informationobject.edit', $io->slug) }}#conditions-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Conditions of access and use area') }}">
           <i class="fas fa-pencil-alt"></i>
         </a>
       @endauth
@@ -733,21 +733,21 @@
 
       @if($io->access_conditions)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Conditions governing access</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Conditions governing access') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->access_conditions)) !!}</div>
         </div>
       @endif
 
       @if($io->reproduction_conditions)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Conditions governing reproduction</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Conditions governing reproduction') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->reproduction_conditions)) !!}</div>
         </div>
       @endif
 
       @if(isset($languages) && $languages->isNotEmpty())
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Language of material</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Language of material') }}</h3>
           <div class="col-9 p-2">
             @foreach($languages as $lang)
               {{ $lang->name }}@if(!$loop->last), @endif
@@ -758,7 +758,7 @@
 
       @if(isset($scriptsOfMaterial) && $scriptsOfMaterial->isNotEmpty())
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Script of material</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Script of material') }}</h3>
           <div class="col-9 p-2">
             @foreach($scriptsOfMaterial as $script)
               {{ $script->name }}@if(!$loop->last), @endif
@@ -767,7 +767,7 @@
         </div>
       @elseif(isset($materialScripts) && (is_countable($materialScripts) ? count($materialScripts) > 0 : !empty($materialScripts)))
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Script of material</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Script of material') }}</h3>
           <div class="col-9 p-2">
             @foreach($materialScripts as $script)
               {{ $script }}@if(!$loop->last), @endif
@@ -779,7 +779,7 @@
       {{-- Language and script notes (note type_id 174) --}}
       @foreach($notes->where('type_id', 174) as $lnote)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Language and script notes</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Language and script notes') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($lnote->content)) !!}</div>
         </div>
       @endforeach
@@ -787,7 +787,7 @@
       @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_physical_condition'))
       @if($io->physical_characteristics)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Physical characteristics and technical requirements</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Physical characteristics and technical requirements') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->physical_characteristics)) !!}</div>
         </div>
       @endif
@@ -795,7 +795,7 @@
 
       @if($io->finding_aids)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Finding aids</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Finding aids') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->finding_aids)) !!}</div>
         </div>
       @endif
@@ -824,7 +824,7 @@
         Allied materials area
       </a>
       @auth
-        <a href="{{ route('informationobject.edit', $io->slug) }}#allied-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Allied materials area">
+        <a href="{{ route('informationobject.edit', $io->slug) }}#allied-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Allied materials area') }}">
           <i class="fas fa-pencil-alt"></i>
         </a>
       @endauth
@@ -833,21 +833,21 @@
 
       @if($io->location_of_originals)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Existence and location of originals</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Existence and location of originals') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->location_of_originals)) !!}</div>
         </div>
       @endif
 
       @if($io->location_of_copies)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Existence and location of copies</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Existence and location of copies') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->location_of_copies)) !!}</div>
         </div>
       @endif
 
       @if($io->related_units_of_description)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related units of description</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Related units of description') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->related_units_of_description)) !!}</div>
         </div>
       @endif
@@ -856,7 +856,7 @@
       @if(isset($relatedMaterialDescriptions) && $relatedMaterialDescriptions->isNotEmpty())
         <div class="relatedMaterialDescriptions">
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related descriptions</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Related descriptions') }}</h3>
             <div class="col-9 p-2">
               <ul class="m-0 ms-1 ps-3">
                 @foreach($relatedMaterialDescriptions as $relatedDesc)
@@ -876,7 +876,7 @@
       @if(isset($notes) && $notes->isNotEmpty())
         @foreach($notes->where('type_id', 120) as $note)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Publication note</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Publication note') }}</h3>
             <div class="col-9 p-2">{!! nl2br(e($note->content)) !!}</div>
           </div>
         @endforeach
@@ -894,7 +894,7 @@
         Notes area
       </a>
       @auth
-        <a href="{{ route('informationobject.edit', $io->slug) }}#notes-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Notes area">
+        <a href="{{ route('informationobject.edit', $io->slug) }}#notes-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Notes area') }}">
           <i class="fas fa-pencil-alt"></i>
         </a>
       @endauth
@@ -906,7 +906,7 @@
       @if(isset($notes) && $notes->isNotEmpty())
         @foreach($notes->where('type_id', 125) as $note)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Note</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Note') }}</h3>
             <div class="col-9 p-2">{!! nl2br(e($note->content)) !!}</div>
           </div>
         @endforeach
@@ -937,7 +937,7 @@
         Access points
       </a>
       @auth
-        <a href="{{ route('informationobject.edit', $io->slug) }}#access-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Access points">
+        <a href="{{ route('informationobject.edit', $io->slug) }}#access-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Access points') }}">
           <i class="fas fa-pencil-alt"></i>
         </a>
       @endauth
@@ -946,7 +946,7 @@
 
       @if(isset($subjects) && $subjects->isNotEmpty())
         <div class="field text-break row g-0 subjectAccessPoints">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Subject access points</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Subject access points') }}</h3>
           <div class="col-9 p-2">
             <ul class="m-0 ms-1 ps-3">
               @foreach($subjects as $subject)
@@ -965,7 +965,7 @@
 
       @if(isset($places) && $places->isNotEmpty())
         <div class="field text-break row g-0 placeAccessPoints">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Place access points</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Place access points') }}</h3>
           <div class="col-9 p-2">
             <ul class="m-0 ms-1 ps-3">
               @foreach($places as $place)
@@ -984,7 +984,7 @@
 
       @if(isset($nameAccessPoints) && $nameAccessPoints->isNotEmpty())
         <div class="field text-break row g-0 nameAccessPoints">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Name access points</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Name access points') }}</h3>
           <div class="col-9 p-2">
             <ul class="m-0 ms-1 ps-3">
               @foreach($nameAccessPoints as $nap)
@@ -1006,7 +1006,7 @@
 
       @if(isset($genres) && $genres->isNotEmpty())
         <div class="field text-break row g-0 genreAccessPoints">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Genre access points</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Genre access points') }}</h3>
           <div class="col-9 p-2">
             <ul class="m-0 ms-1 ps-3">
               @foreach($genres as $genre)
@@ -1035,7 +1035,7 @@
         Description control area
       </a>
       @auth
-        <a href="{{ route('informationobject.edit', $io->slug) }}#description-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Description control area">
+        <a href="{{ route('informationobject.edit', $io->slug) }}#description-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Description control area') }}">
           <i class="fas fa-pencil-alt"></i>
         </a>
       @endauth
@@ -1045,7 +1045,7 @@
       @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_description_identifier'))
       @if($io->description_identifier ?? null)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Description identifier</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Description identifier') }}</h3>
           <div class="col-9 p-2">{{ $io->description_identifier }}</div>
         </div>
       @endif
@@ -1054,7 +1054,7 @@
       @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_institution_identifier'))
       @if($io->institution_responsible_identifier ?? null)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Institution identifier</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Institution identifier') }}</h3>
           <div class="col-9 p-2">{{ $io->institution_responsible_identifier }}</div>
         </div>
       @endif
@@ -1063,7 +1063,7 @@
       @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_rules_conventions'))
       @if($io->rules ?? null)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rules and/or conventions used</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Rules and/or conventions used') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->rules)) !!}</div>
         </div>
       @endif
@@ -1072,7 +1072,7 @@
       @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_status'))
       @if(isset($descriptionStatusName) && $descriptionStatusName)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Status</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Status') }}</h3>
           <div class="col-9 p-2">{{ $descriptionStatusName }}</div>
         </div>
       @endif
@@ -1081,7 +1081,7 @@
       @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_level_of_detail'))
       @if(isset($descriptionDetailName) && $descriptionDetailName)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Level of detail</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Level of detail') }}</h3>
           <div class="col-9 p-2">{{ $descriptionDetailName }}</div>
         </div>
       @endif
@@ -1090,7 +1090,7 @@
       @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_dates'))
       @if($io->revision_history ?? null)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Dates of creation revision deletion</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Dates of creation revision deletion') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->revision_history)) !!}</div>
         </div>
       @endif
@@ -1099,7 +1099,7 @@
       @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_languages'))
       @if(isset($languagesOfDescription) && (is_countable($languagesOfDescription) ? count($languagesOfDescription) > 0 : !empty($languagesOfDescription)))
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Language(s)</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Language(s)') }}</h3>
           <div class="col-9 p-2">
             @foreach($languagesOfDescription as $lang)
               {{ $lang }}@if(!$loop->last), @endif
@@ -1112,7 +1112,7 @@
       @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_scripts'))
       @if(isset($scriptsOfDescription) && (is_countable($scriptsOfDescription) ? count($scriptsOfDescription) > 0 : !empty($scriptsOfDescription)))
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Script(s)</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Script(s)') }}</h3>
           <div class="col-9 p-2">
             @foreach($scriptsOfDescription as $script)
               {{ $script }}@if(!$loop->last), @endif
@@ -1125,7 +1125,7 @@
       @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_sources'))
       @if($io->sources ?? null)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Sources</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Sources') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->sources)) !!}</div>
         </div>
       @endif
@@ -1136,7 +1136,7 @@
       @if(isset($notes) && $notes->isNotEmpty())
         @foreach($notes->where('type_id', 124) as $note)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Archivist's note</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __("Archivist's note") }}</h3>
             <div class="col-9 p-2">{!! nl2br(e($note->content)) !!}</div>
           </div>
         @endforeach
@@ -1145,7 +1145,7 @@
 
       @if($io->source_standard ?? null)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Source standard</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Source standard') }}</h3>
           <div class="col-9 p-2">{{ $io->source_standard }}</div>
         </div>
       @endif
@@ -1168,9 +1168,9 @@
               aria-expanded="false"
               aria-controls="admin-collapse"
               style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-              Administration area
+              {{ __('Administration area') }}
             </button>
-            <a href="{{ route('informationobject.edit', $io->slug) }}#admin-collapse" class="position-absolute text-white opacity-75" style="font-size:.75rem;right:2.5rem;top:50%;transform:translateY(-50%);z-index:2;" title="Edit Administration area">
+            <a href="{{ route('informationobject.edit', $io->slug) }}#admin-collapse" class="position-absolute text-white opacity-75" style="font-size:.75rem;right:2.5rem;top:50%;transform:translateY(-50%);z-index:2;" title="{{ __('Edit Administration area') }}">
               <i class="fas fa-pencil-alt"></i>
             </a>
           </h2>
@@ -1182,7 +1182,7 @@
                   {{-- Source language --}}
                   @if(isset($sourceLanguageName) && $sourceLanguageName)
                     <div class="field text-break row g-0">
-                      <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">Source language</h3>
+                      <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">{{ __('Source language') }}</h3>
                       <div class="col-8 p-2">
                         @if($io->source_culture && $io->source_culture !== app()->getLocale())
                           <div class="default-translation">
@@ -1200,7 +1200,7 @@
                   {{-- Last updated --}}
                   @if($io->updated_at)
                     <div class="field text-break row g-0">
-                      <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">Last updated</h3>
+                      <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">{{ __('Last updated') }}</h3>
                       <div class="col-8 p-2">{{ \Carbon\Carbon::parse($io->updated_at)->format('j F Y') }}</div>
                     </div>
                   @endif
@@ -1208,7 +1208,7 @@
                   {{-- Source name (from keymap) --}}
                   @if(isset($keymapEntries) && $keymapEntries->isNotEmpty())
                     <div class="field text-break row g-0">
-                      <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">Source name</h3>
+                      <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">{{ __('Source name') }}</h3>
                       <div class="col-8 p-2">
                         @foreach($keymapEntries as $keymap)
                           <p class="mb-1">{{ $keymap->source_name }}</p>
@@ -1220,7 +1220,7 @@
                   {{-- Collection type --}}
                   @if(isset($collectionTypeName) && $collectionTypeName)
                     <div class="field text-break row g-0">
-                      <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">Collection type</h3>
+                      <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">{{ __('Collection type') }}</h3>
                       <div class="col-8 p-2">{{ $collectionTypeName }}</div>
                     </div>
                   @endif
@@ -1230,7 +1230,7 @@
                   {{-- Display standard (read-only on show, editable via edit page) --}}
                   @if(isset($displayStandardName) && $displayStandardName)
                     <div class="field text-break row g-0">
-                      <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">Display standard</h3>
+                      <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">{{ __('Display standard') }}</h3>
                       <div class="col-8 p-2">{{ $displayStandardName }}</div>
                     </div>
                   @endif
@@ -1361,9 +1361,9 @@
 
         @php $allGranted = $premisRights->flatMap(fn($pr) => $pr->granted); @endphp
         @if($allGranted->isNotEmpty())
-          <hr><h6 class="text-muted mb-2">Granted Rights</h6>
+          <hr><h6 class="text-muted mb-2">{{ __('Granted Rights') }}</h6>
           <table class="table table-sm table-bordered mb-0">
-            <thead><tr class="table-light"><th>Act</th><th>Restriction</th><th>Start</th><th>End</th><th>Notes</th></tr></thead>
+            <thead><tr class="table-light"><th>{{ __('Act') }}</th><th>{{ __('Restriction') }}</th><th>{{ __('Start') }}</th><th>{{ __('End') }}</th><th>{{ __('Notes') }}</th></tr></thead>
             <tbody>
               @foreach($allGranted as $gr)
                 <tr>
@@ -1458,9 +1458,9 @@
       <div id="digital-object-collapse">
 
           {{-- Master file --}}
-          <h4 class="h6 py-2 px-3 mb-0 border-bottom" style="background:#f5f5f5;">Master file</h4>
+          <h4 class="h6 py-2 px-3 mb-0 border-bottom" style="background:#f5f5f5;">{{ __('Master file') }}</h4>
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filename') }}</h3>
             <div class="col-9 p-2">
               @auth
                 <a href="{{ $doMasterUrl }}" target="_blank">{{ $doMaster->name }}</a>
@@ -1471,19 +1471,19 @@
           </div>
           @if($doMaster->media_type_id)
             <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Media type</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Media type') }}</h3>
               <div class="col-9 p-2">{{ ucfirst($doMediaTypeName) }}</div>
             </div>
           @endif
           @if($doMaster->mime_type)
             <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">MIME type</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('MIME type') }}</h3>
               <div class="col-9 p-2">{{ $doMaster->mime_type }}</div>
             </div>
           @endif
           @if($doMaster->byte_size)
             <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filesize</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filesize') }}</h3>
               <div class="col-9 p-2">
                 @if($doMaster->byte_size > 1048576)
                   {{ number_format($doMaster->byte_size / 1048576, 1) }} MB
@@ -1495,16 +1495,16 @@
           @endif
           @if($doMaster->checksum)
             <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Checksum</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Checksum') }}</h3>
               <div class="col-9 p-2"><code class="small">{{ $doMaster->checksum }}</code></div>
             </div>
           @endif
 
           {{-- Reference copy --}}
           @if($doReference)
-            <h4 class="h6 py-2 px-3 mb-0 border-bottom" style="background:#f5f5f5;">Reference copy</h4>
+            <h4 class="h6 py-2 px-3 mb-0 border-bottom" style="background:#f5f5f5;">{{ __('Reference copy') }}</h4>
             <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filename') }}</h3>
               <div class="col-9 p-2">
                 @auth
                   <a href="{{ $doRefUrl }}" target="_blank">{{ $doReference->name }}</a>
@@ -1515,13 +1515,13 @@
             </div>
             @if($doReference->mime_type)
               <div class="field text-break row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">MIME type</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('MIME type') }}</h3>
                 <div class="col-9 p-2">{{ $doReference->mime_type }}</div>
               </div>
             @endif
             @if($doReference->byte_size)
               <div class="field text-break row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filesize</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filesize') }}</h3>
                 <div class="col-9 p-2">
                   @if($doReference->byte_size > 1048576)
                     {{ number_format($doReference->byte_size / 1048576, 1) }} MB
@@ -1535,22 +1535,22 @@
 
           {{-- Thumbnail copy --}}
           @if($doThumbnail)
-            <h4 class="h6 py-2 px-3 mb-0 border-bottom" style="background:#f5f5f5;">Thumbnail copy</h4>
+            <h4 class="h6 py-2 px-3 mb-0 border-bottom" style="background:#f5f5f5;">{{ __('Thumbnail copy') }}</h4>
             <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filename') }}</h3>
               <div class="col-9 p-2">
                 <a href="{{ $doThumbUrl }}" target="_blank">{{ $doThumbnail->name }}</a>
               </div>
             </div>
             @if($doThumbnail->mime_type)
               <div class="field text-break row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">MIME type</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('MIME type') }}</h3>
                 <div class="col-9 p-2">{{ $doThumbnail->mime_type }}</div>
               </div>
             @endif
             @if($doThumbnail->byte_size)
               <div class="field text-break row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filesize</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filesize') }}</h3>
                 <div class="col-9 p-2">
                   @if($doThumbnail->byte_size > 1048576)
                     {{ number_format($doThumbnail->byte_size / 1048576, 1) }} MB
@@ -1576,7 +1576,7 @@
               Digital object ({{ $doRightsData['usageName'] }}) rights area
             </a>
             @if(isset($digitalObjects) && $digitalObjects['master'])
-              <a href="{{ route('io.digitalobject.show', $digitalObjects['master']->id) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit digital object">
+              <a href="{{ route('io.digitalobject.show', $digitalObjects['master']->id) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit digital object') }}">
                 <i class="fas fa-pencil-alt"></i>
               </a>
             @endif
@@ -1609,7 +1609,7 @@
         Accession area
       </a>
       @auth
-        <a href="{{ route('informationobject.edit', $io->slug) }}#accession-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Accession area">
+        <a href="{{ route('informationobject.edit', $io->slug) }}#accession-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Accession area') }}">
           <i class="fas fa-pencil-alt"></i>
         </a>
       @endauth
@@ -1618,7 +1618,7 @@
       @if(isset($accessions) && (is_countable($accessions) ? count($accessions) > 0 : !empty($accessions)))
         @foreach($accessions as $accession)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Accession</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Accession') }}</h3>
             <div class="col-9 p-2">
               @if(isset($accession->slug))
                 <a href="{{ route('accession.show', $accession->slug) }}">{{ $accession->identifier ?? $accession->name ?? '[Untitled]' }}</a>
@@ -2210,7 +2210,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
       </div>
     </div>
   </div>
@@ -2339,7 +2339,7 @@
         <a href="{{ route('io.ai.review') }}" class="btn btn-outline-primary btn-sm" id="nerFooterReview" style="display:none">
           <i class="fas fa-list-check me-1"></i>Review & Link
         </a>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
       </div>
     </div>
   </div>
@@ -2441,7 +2441,7 @@
         <a href="{{ route('io.ai.summarize', $io->id) }}" class="btn btn-sm atom-btn-white" target="_blank">
           <i class="fas fa-external-link-alt me-1"></i>Open Full Page
         </a>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
       </div>
     </div>
   </div>
@@ -2479,7 +2479,7 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
             onsubmit="return confirm('Are you sure you want to delete this archival description?');">
         @csrf
         @method('DELETE')
-        <button type="submit" class="btn atom-btn-outline-danger">Delete</button>
+        <button type="submit" class="btn atom-btn-outline-danger">{{ __('Delete') }}</button>
       </form>
     </li>
     @endif
@@ -2499,7 +2499,7 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
     <li>
       <div class="dropup">
         <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          More
+          {{ __('More') }}
         </button>
         <ul class="dropdown-menu mb-2">
           <li>
@@ -2612,7 +2612,7 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
           <div id="translate-step1">
             <div class="row mb-3">
               <div class="col-md-4">
-                <label class="form-label fw-bold">Source Language</label>
+                <label class="form-label fw-bold">{{ __('Source Language') }}</label>
                 <select id="translateSource" class="form-select">
                   @foreach($targetLanguages as $code => $name)
                     <option value="{{ $code }}" @selected($code === ($io->source_culture ?? 'en'))>{{ $name }}</option>
@@ -2620,7 +2620,7 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label fw-bold">Target Language</label>
+                <label class="form-label fw-bold">{{ __('Target Language') }}</label>
                 <select id="translateTarget" class="form-select">
                   @foreach($targetLanguages as $code => $name)
                     <option value="{{ $code }}" @selected($code === 'af')>{{ $name }}</option>
@@ -2628,15 +2628,15 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label fw-bold">Options</label>
-                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="translateSaveCulture" checked><label class="form-check-label small" for="translateSaveCulture">Save with culture code</label></div>
-                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="translateOverwrite"><label class="form-check-label small" for="translateOverwrite">Overwrite existing</label></div>
+                <label class="form-label fw-bold">{{ __('Options') }}</label>
+                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="translateSaveCulture" checked><label class="form-check-label small" for="translateSaveCulture">{{ __('Save with culture code') }}</label></div>
+                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="translateOverwrite"><label class="form-check-label small" for="translateOverwrite">{{ __('Overwrite existing') }}</label></div>
               </div>
             </div>
             <hr>
             <div class="d-flex justify-content-between mb-2">
               <span class="fw-bold">Fields to Translate</span>
-              <div><button type="button" class="btn btn-sm btn-outline-secondary" id="translateSelectAll">Select All</button> <button type="button" class="btn btn-sm btn-outline-secondary" id="translateDeselectAll">Deselect All</button></div>
+              <div><button type="button" class="btn btn-sm btn-outline-secondary" id="translateSelectAll">{{ __('Select All') }}</button> <button type="button" class="btn btn-sm btn-outline-secondary" id="translateDeselectAll">{{ __('Deselect All') }}</button></div>
             </div>
             <div class="row">
               @php $i = 0; @endphp
@@ -2780,7 +2780,7 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
             <h5 class="modal-title" id="triposrPreviewModalLabel">
               <i class="fas fa-cube me-2 text-warning"></i> 3D preview &mdash; review before saving
             </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
           </div>
           <div class="modal-body">
             @if(!empty($triposrPreview['is_demo']))

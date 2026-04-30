@@ -79,6 +79,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Commands\TranslationImportXliffCommand::class,
                 \AhgCore\Commands\TranslationExportXliffCommand::class,
                 \AhgCore\Commands\TranslationCoverageCommand::class,
+                \AhgCore\Commands\TranslationLintCommand::class,
                 \AhgCore\Commands\NestedSetRebuildCommand::class,
                 \AhgCore\Commands\AuditPurgeCommand::class,
                 \AhgCore\Commands\EmbargoProcessCommand::class,

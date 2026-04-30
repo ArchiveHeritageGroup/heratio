@@ -138,7 +138,7 @@
   </h1>
 
   @if(!empty($breadcrumbs))
-    <nav aria-label="Hierarchy">
+    <nav aria-label="{{ __('Hierarchy') }}">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('gallery.browse') }}">Gallery</a></li>
         @foreach($breadcrumbs as $crumb)
@@ -584,7 +584,7 @@
   @endif
 
   <div class="d-flex gap-1 mb-3">
-    <button class="btn btn-sm atom-btn-white" onclick="window.print()" title="Print">
+    <button class="btn btn-sm atom-btn-white" onclick="window.print()" title="{{ __('Print') }}">
       <i class="fas fa-print"></i>
     </button>
     @include('ahg-core::clipboard._button', ['slug' => $artwork->slug, 'type' => 'informationObject'])
