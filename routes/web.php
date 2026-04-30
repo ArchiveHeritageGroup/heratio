@@ -5,6 +5,38 @@ use Illuminate\Support\Facades\Route;
 
 // OAI-PMH route is in the ahg-oai package
 
+// Locale switcher — accepts a `culture` field via POST and persists it to
+// session('locale'). The SetLocale middleware applies it on the next request.
+// Validates against ahg_settings.i18n_languages, falling back to filenames in
+// /lang/*.json if the setting table is empty.
+Route::post('/set-locale', function (\Illuminate\Http\Request $request) {
+    $culture = (string) $request->input('culture', '');
+    if (! preg_match('/^[a-z]{2,3}(_[A-Z]{2})?$/', $culture)) {
+        return back();
+    }
+    $enabled = [];
+    if (\Illuminate\Support\Facades\Schema::hasTable('setting')) {
+        $enabled = \Illuminate\Support\Facades\DB::table('setting')
+            ->where('scope', 'i18n_languages')
+            ->where('editable', 1)
+            ->pluck('name')
+            ->toArray();
+    }
+    if (empty($enabled)) {
+        $files = glob(base_path('lang/*.json')) ?: [];
+        $enabled = array_map(fn ($f) => pathinfo($f, PATHINFO_FILENAME), $files);
+    }
+    if (empty($enabled) || in_array($culture, $enabled, true)) {
+        session(['locale' => $culture]);
+        \Illuminate\Support\Facades\App::setLocale($culture);
+    }
+    $redirectTo = (string) $request->input('redirect_to', '/');
+    if (! preg_match('#^https?://#i', $redirectTo) || str_starts_with($redirectTo, $request->getSchemeAndHttpHost())) {
+        return redirect($redirectTo);
+    }
+    return redirect('/');
+})->name('set-locale');
+
 // Authentication routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);

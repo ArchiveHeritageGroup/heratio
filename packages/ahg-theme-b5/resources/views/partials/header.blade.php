@@ -121,6 +121,9 @@
           @endif
         </ul>
 
+        {{-- Culture switcher --}}
+        @include('theme::partials.menus.culture-switcher')
+
         {{-- User menu --}}
         @include('theme::partials.menus.user-menu')
       </div>

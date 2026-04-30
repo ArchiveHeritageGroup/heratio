@@ -5,14 +5,14 @@
 --}}
 <div class="card mb-3" id="treeview-card">
   <div class="card-header fw-bold d-flex justify-content-between align-items-center">
-    <span><i class="fas fa-sitemap me-1"></i> Hierarchy</span>
+    <span><i class="fas fa-sitemap me-1"></i> {{ __('Hierarchy') }}</span>
     <button class="btn btn-sm btn-link p-0 text-muted" id="treeview-refresh" title="Refresh">
       <i class="fas fa-sync-alt"></i>
     </button>
   </div>
   <div class="card-body p-2" id="treeview-container">
     <div class="text-center py-3 text-muted" id="treeview-loading">
-      <i class="fas fa-spinner fa-spin me-1"></i> Loading hierarchy...
+      <i class="fas fa-spinner fa-spin me-1"></i> {{ __('Loading hierarchy...') }}
     </div>
     <ul class="list-unstyled ps-0 mb-0" id="treeview-tree" style="display:none;"></ul>
   </div>

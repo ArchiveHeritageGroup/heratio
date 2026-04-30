@@ -347,7 +347,7 @@
     {{-- TTS: read metadata aloud --}}
     <button type="button" class="btn btn-sm btn-outline-secondary"
             data-tts-action="toggle" data-tts-target="#tts-content-area"
-            title="Read metadata aloud" data-bs-toggle="tooltip">
+            title="{{ __('Read metadata aloud') }}" data-bs-toggle="tooltip">
       <i class="fas fa-volume-up"></i>
     </button>
 
@@ -355,7 +355,7 @@
     @if($pdfDigitalObject)
       <button type="button" class="btn btn-sm btn-outline-info"
               data-tts-action="read-pdf" data-tts-pdf-id="{{ $pdfDigitalObject->id }}"
-              title="Read PDF content aloud" data-bs-toggle="tooltip">
+              title="{{ __('Read PDF content aloud') }}" data-bs-toggle="tooltip">
         <i class="fas fa-file-pdf"></i>
       </button>
     @endif
@@ -366,12 +366,12 @@
         @if($favoriteId)
           <form method="POST" action="{{ route('favorites.remove', $favoriteId) }}" class="d-inline">
             @csrf
-            <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove from Favorites" data-bs-toggle="tooltip">
+            <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Remove from Favorites') }}" data-bs-toggle="tooltip">
               <i class="fas fa-heart-broken"></i>
             </button>
           </form>
         @else
-          <a href="{{ route('favorites.add', $museum->slug) }}" class="btn btn-sm btn-outline-danger" title="Add to Favorites" data-bs-toggle="tooltip">
+          <a href="{{ route('favorites.add', $museum->slug) }}" class="btn btn-sm btn-outline-danger" title="{{ __('Add to Favorites') }}" data-bs-toggle="tooltip">
             <i class="fas fa-heart"></i>
           </a>
         @endif
@@ -380,14 +380,14 @@
 
     {{-- Feedback — public, plugin-gated --}}
     @if($feedbackEnabled)
-      <a href="{{ url('/feedback/submit/' . $museum->slug) }}" class="btn btn-sm btn-outline-secondary" title="Item Feedback" data-bs-toggle="tooltip">
+      <a href="{{ url('/feedback/submit/' . $museum->slug) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Item Feedback') }}" data-bs-toggle="tooltip">
         <i class="fas fa-comment"></i>
       </a>
     @endif
 
     {{-- Request to Publish — public, plugin-gated, requires DO --}}
     @if($requestToPublishEnabled && $hasDigitalObject)
-      <a href="{{ url('/request-to-publish/' . $museum->slug) }}" class="btn btn-sm btn-outline-primary" title="Request to Publish" data-bs-toggle="tooltip">
+      <a href="{{ url('/request-to-publish/' . $museum->slug) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Request to Publish') }}" data-bs-toggle="tooltip">
         <i class="fas fa-paper-plane"></i>
       </a>
     @endif
@@ -395,11 +395,11 @@
     {{-- Cart — public, plugin-gated, requires DO --}}
     @if($cartEnabled && $hasDigitalObject)
       @if($cartId)
-        <a href="{{ route('cart.browse') }}" class="btn btn-sm btn-outline-success" title="Go to Cart" data-bs-toggle="tooltip">
+        <a href="{{ route('cart.browse') }}" class="btn btn-sm btn-outline-success" title="{{ __('Go to Cart') }}" data-bs-toggle="tooltip">
           <i class="fas fa-shopping-cart"></i>
         </a>
       @else
-        <a href="{{ route('cart.add', $museum->slug) }}" class="btn btn-sm btn-outline-success" title="Add to Cart" data-bs-toggle="tooltip">
+        <a href="{{ route('cart.add', $museum->slug) }}" class="btn btn-sm btn-outline-success" title="{{ __('Add to Cart') }}" data-bs-toggle="tooltip">
           <i class="fas fa-cart-plus"></i>
         </a>
       @endif
@@ -408,10 +408,10 @@
     {{-- Loan — @auth + plugin gate --}}
     @auth
       @if($loanEnabled)
-        <a href="{{ route('loan.create', ['type' => 'out', 'sector' => 'museum', 'object_id' => $museum->id]) }}" class="btn btn-sm btn-outline-warning" title="New Loan" data-bs-toggle="tooltip">
+        <a href="{{ route('loan.create', ['type' => 'out', 'sector' => 'museum', 'object_id' => $museum->id]) }}" class="btn btn-sm btn-outline-warning" title="{{ __('New Loan') }}" data-bs-toggle="tooltip">
           <i class="fas fa-hand-holding"></i>
         </a>
-        <a href="{{ route('loan.index', ['sector' => 'museum', 'object_id' => $museum->id]) }}" class="btn btn-sm btn-outline-info" title="Manage Loans" data-bs-toggle="tooltip">
+        <a href="{{ route('loan.index', ['sector' => 'museum', 'object_id' => $museum->id]) }}" class="btn btn-sm btn-outline-info" title="{{ __('Manage Loans') }}" data-bs-toggle="tooltip">
           <i class="fas fa-exchange-alt"></i>
         </a>
       @endif
@@ -429,7 +429,7 @@
   <section id="objectIdentificationArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#objectIdentification-collapse">
-        Object Identification
+        {{ __('Object Identification') }}
       </a>
       @auth
         <a href="{{ route('museum.edit', $museum->slug) }}#objectIdentification-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Object Identification">
@@ -441,70 +441,70 @@
 
     @if($museum->work_type)
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Work type</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Work type') }}</h3>
         <div>{{ $museum->work_type }}</div>
       </div>
     @endif
 
     @if($museum->object_type)
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Object type</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Object type') }}</h3>
         <div>{{ $museum->object_type }}</div>
       </div>
     @endif
 
     @if($museum->classification)
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Classification</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Classification') }}</h3>
         <div>{{ $museum->classification }}</div>
       </div>
     @endif
 
     @if($museum->object_class)
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Object class</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Object class') }}</h3>
         <div>{{ $museum->object_class }}</div>
       </div>
     @endif
 
     @if($museum->object_category)
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Object category</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Object category') }}</h3>
         <div>{{ $museum->object_category }}</div>
       </div>
     @endif
 
     @if($museum->object_sub_category)
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Object sub-category</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Object sub-category') }}</h3>
         <div>{{ $museum->object_sub_category }}</div>
       </div>
     @endif
 
     @if($museum->identifier)
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Identifier</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Identifier') }}</h3>
         <div>{{ $museum->identifier }}</div>
       </div>
     @endif
 
     @if($museum->record_type)
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Record type</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Record type') }}</h3>
         <div>{{ $museum->record_type }}</div>
       </div>
     @endif
 
     @if($museum->record_level)
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Record level</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Record level') }}</h3>
         <div>{{ $museum->record_level }}</div>
       </div>
     @endif
 
     @if($levelName)
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Level of description</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Level of description') }}</h3>
         <div>{{ $levelName }}</div>
       </div>
     @endif
@@ -515,7 +515,7 @@
   <section id="titleArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#title-collapse">
-        Title
+        {{ __('Title') }}
       </a>
       @auth
         <a href="{{ route('museum.edit', $museum->slug) }}#title-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Title">
@@ -526,13 +526,13 @@
     <div id="title-collapse">
 
     <div class="field text-break row g-0">
-      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Title</h3>
+      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Title') }}</h3>
       <div>{{ $museum->title ?: '[Untitled]' }}</div>
     </div>
 
     @if($museum->alternate_title)
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Alternate title</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Alternate title') }}</h3>
         <div>{{ $museum->alternate_title }}</div>
       </div>
     @endif
@@ -544,7 +544,7 @@
     <section id="creatorArea" class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
         <a class="text-decoration-none text-white" href="#creator-collapse">
-          Creator
+          {{ __('Creator') }}
         </a>
         @auth
           <a href="{{ route('museum.edit', $museum->slug) }}#creator-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Creator">
@@ -556,35 +556,35 @@
 
       @if($museum->creator_identity)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Creator identity</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Creator identity') }}</h3>
           <div>{{ $museum->creator_identity }}</div>
         </div>
       @endif
 
       @if($museum->creator_role)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Creator role</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Creator role') }}</h3>
           <div>{{ $museum->creator_role }}</div>
         </div>
       @endif
 
       @if($museum->creator_extent)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Creator extent</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Creator extent') }}</h3>
           <div>{{ $museum->creator_extent }}</div>
         </div>
       @endif
 
       @if($museum->creator_qualifier)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Creator qualifier</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Creator qualifier') }}</h3>
           <div>{{ $museum->creator_qualifier }}</div>
         </div>
       @endif
 
       @if($museum->creator_attribution)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Creator attribution</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Creator attribution') }}</h3>
           <div>{{ $museum->creator_attribution }}</div>
         </div>
       @endif
@@ -597,7 +597,7 @@
     <section id="creationArea" class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
         <a class="text-decoration-none text-white" href="#creation-collapse">
-          Creation
+          {{ __('Creation') }}
         </a>
         @auth
           <a href="{{ route('museum.edit', $museum->slug) }}#creation-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Creation">
@@ -609,14 +609,14 @@
 
       @if($museum->creation_date_display)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Creation date</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Creation date') }}</h3>
           <div>{{ $museum->creation_date_display }}</div>
         </div>
       @endif
 
       @if($museum->creation_date_earliest || $museum->creation_date_latest)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Date range</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Date range') }}</h3>
           <div>
             @if($museum->creation_date_earliest){{ $museum->creation_date_earliest }}@endif
             @if($museum->creation_date_earliest && $museum->creation_date_latest) &ndash; @endif
@@ -627,77 +627,77 @@
 
       @if($museum->creation_date_qualifier)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Date qualifier</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Date qualifier') }}</h3>
           <div>{{ $museum->creation_date_qualifier }}</div>
         </div>
       @endif
 
       @if($museum->creation_place)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Creation place</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Creation place') }}</h3>
           <div>{{ $museum->creation_place }}</div>
         </div>
       @endif
 
       @if($museum->creation_place_type)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Creation place type</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Creation place type') }}</h3>
           <div>{{ $museum->creation_place_type }}</div>
         </div>
       @endif
 
       @if($museum->discovery_place)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Discovery place</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Discovery place') }}</h3>
           <div>{{ $museum->discovery_place }}</div>
         </div>
       @endif
 
       @if($museum->discovery_place_type)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Discovery place type</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Discovery place type') }}</h3>
           <div>{{ $museum->discovery_place_type }}</div>
         </div>
       @endif
 
       @if($museum->style)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Style</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Style') }}</h3>
           <div>{{ $museum->style }}</div>
         </div>
       @endif
 
       @if($museum->period)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Period</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Period') }}</h3>
           <div>{{ $museum->period }}</div>
         </div>
       @endif
 
       @if($museum->cultural_group)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Cultural group</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Cultural group') }}</h3>
           <div>{{ $museum->cultural_group }}</div>
         </div>
       @endif
 
       @if($museum->movement)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Movement</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Movement') }}</h3>
           <div>{{ $museum->movement }}</div>
         </div>
       @endif
 
       @if($museum->school)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">School</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('School') }}</h3>
           <div>{{ $museum->school }}</div>
         </div>
       @endif
 
       @if($museum->dynasty)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Dynasty</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Dynasty') }}</h3>
           <div>{{ $museum->dynasty }}</div>
         </div>
       @endif
@@ -710,7 +710,7 @@
     <section id="measurementsArea" class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
         <a class="text-decoration-none text-white" href="#measurements-collapse">
-          Measurements
+          {{ __('Measurements') }}
         </a>
         @auth
           <a href="{{ route('museum.edit', $museum->slug) }}#measurements-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Measurements">
@@ -722,28 +722,28 @@
 
       @if($museum->measurements)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Measurements</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Measurements') }}</h3>
           <div>{{ $museum->measurements }}</div>
         </div>
       @endif
 
       @if($museum->dimensions)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Dimensions</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Dimensions') }}</h3>
           <div>{{ $museum->dimensions }}</div>
         </div>
       @endif
 
       @if($museum->orientation)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Orientation</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Orientation') }}</h3>
           <div>{{ $museum->orientation }}</div>
         </div>
       @endif
 
       @if($museum->shape)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Shape</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Shape') }}</h3>
           <div>{{ $museum->shape }}</div>
         </div>
       @endif
@@ -756,7 +756,7 @@
     <section id="materialsArea" class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
         <a class="text-decoration-none text-white" href="#materials-collapse">
-          Materials / Techniques
+          {{ __('Materials / Techniques') }}
         </a>
         @auth
           <a href="{{ route('museum.edit', $museum->slug) }}#materials-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Materials / Techniques">
@@ -768,56 +768,56 @@
 
       @if($museum->materials)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Materials</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Materials') }}</h3>
           <div>{!! nl2br(e($museum->materials)) !!}</div>
         </div>
       @endif
 
       @if($museum->techniques)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Techniques</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Techniques') }}</h3>
           <div>{!! nl2br(e($museum->techniques)) !!}</div>
         </div>
       @endif
 
       @if($museum->technique_cco)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Technique (CCO)</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Technique (CCO)') }}</h3>
           <div>{{ $museum->technique_cco }}</div>
         </div>
       @endif
 
       @if($museum->technique_qualifier)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Technique qualifier</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Technique qualifier') }}</h3>
           <div>{{ $museum->technique_qualifier }}</div>
         </div>
       @endif
 
       @if($museum->facture_description)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Facture description</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Facture description') }}</h3>
           <div>{!! nl2br(e($museum->facture_description)) !!}</div>
         </div>
       @endif
 
       @if($museum->color)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Color</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Color') }}</h3>
           <div>{{ $museum->color }}</div>
         </div>
       @endif
 
       @if($museum->physical_appearance)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Physical appearance</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Physical appearance') }}</h3>
           <div>{!! nl2br(e($museum->physical_appearance)) !!}</div>
         </div>
       @endif
 
       @if($museum->extent_and_medium)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Extent and medium</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Extent and medium') }}</h3>
           <div>{!! nl2br(e($museum->extent_and_medium)) !!}</div>
         </div>
       @endif
@@ -830,7 +830,7 @@
     <section id="subjectContentArea" class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
         <a class="text-decoration-none text-white" href="#subjectContent-collapse">
-          Subject / Content
+          {{ __('Subject / Content') }}
         </a>
         @auth
           <a href="{{ route('museum.edit', $museum->slug) }}#subjectContent-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Subject / Content">
@@ -842,70 +842,70 @@
 
       @if($museum->scope_and_content)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Scope and content</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Scope and content') }}</h3>
           <div>{!! nl2br(e($museum->scope_and_content)) !!}</div>
         </div>
       @endif
 
       @if($museum->style_period)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Style / Period</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Style / Period') }}</h3>
           <div>{{ $museum->style_period }}</div>
         </div>
       @endif
 
       @if($museum->cultural_context)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Cultural context</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Cultural context') }}</h3>
           <div>{{ $museum->cultural_context }}</div>
         </div>
       @endif
 
       @if($museum->subject_indexing_type)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Subject indexing type</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Subject indexing type') }}</h3>
           <div>{{ $museum->subject_indexing_type }}</div>
         </div>
       @endif
 
       @if($museum->subject_display)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Subject display</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Subject display') }}</h3>
           <div>{!! nl2br(e($museum->subject_display)) !!}</div>
         </div>
       @endif
 
       @if($museum->subject_extent)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Subject extent</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Subject extent') }}</h3>
           <div>{{ $museum->subject_extent }}</div>
         </div>
       @endif
 
       @if($museum->historical_context)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Historical context</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Historical context') }}</h3>
           <div>{!! nl2br(e($museum->historical_context)) !!}</div>
         </div>
       @endif
 
       @if($museum->architectural_context)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Architectural context</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Architectural context') }}</h3>
           <div>{!! nl2br(e($museum->architectural_context)) !!}</div>
         </div>
       @endif
 
       @if($museum->archaeological_context)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Archaeological context</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Archaeological context') }}</h3>
           <div>{!! nl2br(e($museum->archaeological_context)) !!}</div>
         </div>
       @endif
 
       @if($subjects->isNotEmpty())
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Subject access points</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Subject access points') }}</h3>
           <div>
             @foreach($subjects as $subject)
               <span class="badge bg-secondary me-1">{{ $subject->name }}</span>
@@ -916,7 +916,7 @@
 
       @if($places->isNotEmpty())
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Place access points</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Place access points') }}</h3>
           <div>
             @foreach($places as $place)
               <span class="badge bg-secondary me-1">{{ $place->name }}</span>
@@ -933,7 +933,7 @@
     <section id="editionStateArea" class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
         <a class="text-decoration-none text-white" href="#editionState-collapse">
-          Edition / State
+          {{ __('Edition / State') }}
         </a>
         @auth
           <a href="{{ route('museum.edit', $museum->slug) }}#editionState-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Edition / State">
@@ -945,35 +945,35 @@
 
       @if($museum->edition_description)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Edition description</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Edition description') }}</h3>
           <div>{!! nl2br(e($museum->edition_description)) !!}</div>
         </div>
       @endif
 
       @if($museum->edition_number)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Edition number</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Edition number') }}</h3>
           <div>{{ $museum->edition_number }}</div>
         </div>
       @endif
 
       @if($museum->edition_size)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Edition size</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Edition size') }}</h3>
           <div>{{ $museum->edition_size }}</div>
         </div>
       @endif
 
       @if($museum->state_identification)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">State identification</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('State identification') }}</h3>
           <div>{{ $museum->state_identification }}</div>
         </div>
       @endif
 
       @if($museum->state_description)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">State description</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('State description') }}</h3>
           <div>{!! nl2br(e($museum->state_description)) !!}</div>
         </div>
       @endif
@@ -986,7 +986,7 @@
     <section id="inscriptionsArea" class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
         <a class="text-decoration-none text-white" href="#inscriptions-collapse">
-          Inscriptions
+          {{ __('Inscriptions') }}
         </a>
         @auth
           <a href="{{ route('museum.edit', $museum->slug) }}#inscriptions-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Inscriptions">
@@ -998,70 +998,70 @@
 
       @if($museum->inscription)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Inscription</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Inscription') }}</h3>
           <div>{!! nl2br(e($museum->inscription)) !!}</div>
         </div>
       @endif
 
       @if($museum->inscriptions)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Inscriptions (additional)</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Inscriptions (additional)') }}</h3>
           <div>{!! nl2br(e($museum->inscriptions)) !!}</div>
         </div>
       @endif
 
       @if($museum->inscription_transcription)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Inscription transcription</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Inscription transcription') }}</h3>
           <div>{!! nl2br(e($museum->inscription_transcription)) !!}</div>
         </div>
       @endif
 
       @if($museum->inscription_type)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Inscription type</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Inscription type') }}</h3>
           <div>{{ $museum->inscription_type }}</div>
         </div>
       @endif
 
       @if($museum->inscription_location)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Inscription location</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Inscription location') }}</h3>
           <div>{{ $museum->inscription_location }}</div>
         </div>
       @endif
 
       @if($museum->inscription_language)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Inscription language</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Inscription language') }}</h3>
           <div>{{ $museum->inscription_language }}</div>
         </div>
       @endif
 
       @if($museum->inscription_translation)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Inscription translation</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Inscription translation') }}</h3>
           <div>{!! nl2br(e($museum->inscription_translation)) !!}</div>
         </div>
       @endif
 
       @if($museum->mark_type)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Mark type</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Mark type') }}</h3>
           <div>{{ $museum->mark_type }}</div>
         </div>
       @endif
 
       @if($museum->mark_description)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Mark description</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Mark description') }}</h3>
           <div>{!! nl2br(e($museum->mark_description)) !!}</div>
         </div>
       @endif
 
       @if($museum->mark_location)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Mark location</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Mark location') }}</h3>
           <div>{{ $museum->mark_location }}</div>
         </div>
       @endif
@@ -1074,7 +1074,7 @@
     <section id="conditionArea" class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
         <a class="text-decoration-none text-white" href="#condition-collapse">
-          Condition
+          {{ __('Condition') }}
         </a>
         @auth
           <a href="{{ route('museum.edit', $museum->slug) }}#condition-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Condition">
@@ -1086,63 +1086,63 @@
 
       @if($museum->condition_term)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Condition term</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Condition term') }}</h3>
           <div>{{ $museum->condition_term }}</div>
         </div>
       @endif
 
       @if($museum->condition_date)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Condition date</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Condition date') }}</h3>
           <div>{{ $museum->condition_date }}</div>
         </div>
       @endif
 
       @if($museum->condition_description)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Condition description</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Condition description') }}</h3>
           <div>{!! nl2br(e($museum->condition_description)) !!}</div>
         </div>
       @endif
 
       @if($museum->condition_notes)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Condition notes</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Condition notes') }}</h3>
           <div>{!! nl2br(e($museum->condition_notes)) !!}</div>
         </div>
       @endif
 
       @if($museum->condition_agent)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Condition agent</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Condition agent') }}</h3>
           <div>{{ $museum->condition_agent }}</div>
         </div>
       @endif
 
       @if($museum->treatment_type)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Treatment type</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Treatment type') }}</h3>
           <div>{{ $museum->treatment_type }}</div>
         </div>
       @endif
 
       @if($museum->treatment_date)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Treatment date</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Treatment date') }}</h3>
           <div>{{ $museum->treatment_date }}</div>
         </div>
       @endif
 
       @if($museum->treatment_agent)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Treatment agent</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Treatment agent') }}</h3>
           <div>{{ $museum->treatment_agent }}</div>
         </div>
       @endif
 
       @if($museum->treatment_description)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Treatment description</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Treatment description') }}</h3>
           <div>{!! nl2br(e($museum->treatment_description)) !!}</div>
         </div>
       @endif
@@ -1155,7 +1155,7 @@
     <section id="provenanceLocationArea" class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
         <a class="text-decoration-none text-white" href="#provenanceLocation-collapse">
-          Provenance / Location
+          {{ __('Provenance / Location') }}
         </a>
         @auth
           <a href="{{ route('museum.edit', $museum->slug) }}#provenanceLocation-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Provenance / Location">
@@ -1167,98 +1167,98 @@
 
       @if($museum->provenance)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Provenance</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Provenance') }}</h3>
           <div>{!! nl2br(e($museum->provenance)) !!}</div>
         </div>
       @endif
 
       @if($museum->provenance_text)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Provenance text</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Provenance text') }}</h3>
           <div>{!! nl2br(e($museum->provenance_text)) !!}</div>
         </div>
       @endif
 
       @if($museum->ownership_history)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Ownership history</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Ownership history') }}</h3>
           <div>{!! nl2br(e($museum->ownership_history)) !!}</div>
         </div>
       @endif
 
       @if($museum->current_location)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Current location</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Current location') }}</h3>
           <div>{!! nl2br(e($museum->current_location)) !!}</div>
         </div>
       @endif
 
       @if($museum->current_location_repository)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Current location repository</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Current location repository') }}</h3>
           <div>{{ $museum->current_location_repository }}</div>
         </div>
       @endif
 
       @if($museum->current_location_geography)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Current location geography</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Current location geography') }}</h3>
           <div>{{ $museum->current_location_geography }}</div>
         </div>
       @endif
 
       @if($museum->current_location_coordinates)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Current location coordinates</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Current location coordinates') }}</h3>
           <div>{{ $museum->current_location_coordinates }}</div>
         </div>
       @endif
 
       @if($museum->current_location_ref_number)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Current location reference number</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Current location reference number') }}</h3>
           <div>{{ $museum->current_location_ref_number }}</div>
         </div>
       @endif
 
       @if($museum->legal_status)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Legal status</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Legal status') }}</h3>
           <div>{{ $museum->legal_status }}</div>
         </div>
       @endif
 
       @if($museum->rights_type)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rights type</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Rights type') }}</h3>
           <div>{{ $museum->rights_type }}</div>
         </div>
       @endif
 
       @if($museum->rights_holder)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rights holder</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Rights holder') }}</h3>
           <div>{{ $museum->rights_holder }}</div>
         </div>
       @endif
 
       @if($museum->rights_date)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rights date</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Rights date') }}</h3>
           <div>{{ $museum->rights_date }}</div>
         </div>
       @endif
 
       @if($museum->rights_remarks)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rights remarks</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Rights remarks') }}</h3>
           <div>{!! nl2br(e($museum->rights_remarks)) !!}</div>
         </div>
       @endif
 
       @if($repository)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Repository</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Repository') }}</h3>
           <div>
             <a href="{{ url('/repository/' . $repository->slug) }}">{{ $repository->name }}</a>
           </div>
@@ -1273,7 +1273,7 @@
     <section id="relatedWorksArea" class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
         <a class="text-decoration-none text-white" href="#relatedWorks-collapse">
-          Related Works
+          {{ __('Related Works') }}
         </a>
         @auth
           <a href="{{ route('museum.edit', $museum->slug) }}#relatedWorks-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Related Works">
@@ -1285,28 +1285,28 @@
 
       @if($museum->related_work_type)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related work type</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Related work type') }}</h3>
           <div>{{ $museum->related_work_type }}</div>
         </div>
       @endif
 
       @if($museum->related_work_relationship)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related work relationship</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Related work relationship') }}</h3>
           <div>{{ $museum->related_work_relationship }}</div>
         </div>
       @endif
 
       @if($museum->related_work_label)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related work label</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Related work label') }}</h3>
           <div>{{ $museum->related_work_label }}</div>
         </div>
       @endif
 
       @if($museum->related_work_id)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related work identifier</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Related work identifier') }}</h3>
           <div>{{ $museum->related_work_id }}</div>
         </div>
       @endif
@@ -1319,7 +1319,7 @@
     <section id="catalogingArea" class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
         <a class="text-decoration-none text-white" href="#cataloging-collapse">
-          Cataloging
+          {{ __('Cataloging') }}
         </a>
         @auth
           <a href="{{ route('museum.edit', $museum->slug) }}#cataloging-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Cataloging">
@@ -1331,28 +1331,28 @@
 
       @if($museum->cataloger_name)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Cataloger name</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Cataloger name') }}</h3>
           <div>{{ $museum->cataloger_name }}</div>
         </div>
       @endif
 
       @if($museum->cataloging_date)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Cataloging date</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Cataloging date') }}</h3>
           <div>{{ $museum->cataloging_date }}</div>
         </div>
       @endif
 
       @if($museum->cataloging_institution)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Cataloging institution</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Cataloging institution') }}</h3>
           <div>{{ $museum->cataloging_institution }}</div>
         </div>
       @endif
 
       @if($museum->cataloging_remarks)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Cataloging remarks</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Cataloging remarks') }}</h3>
           <div>{!! nl2br(e($museum->cataloging_remarks)) !!}</div>
         </div>
       @endif
@@ -1364,7 +1364,7 @@
   <section id="recordInfoArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#recordInfo-collapse">
-        Record Info
+        {{ __('Record Info') }}
       </a>
       @auth
         <a href="{{ route('museum.edit', $museum->slug) }}#recordInfo-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Record Info">
@@ -1376,14 +1376,14 @@
 
     @if($museum->created_at)
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Created</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Created') }}</h3>
         <div>{{ \Carbon\Carbon::parse($museum->created_at)->format('Y-m-d H:i') }}</div>
       </div>
     @endif
 
     @if($museum->updated_at)
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Last updated</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Last updated') }}</h3>
         <div>{{ \Carbon\Carbon::parse($museum->updated_at)->format('Y-m-d H:i') }}</div>
       </div>
     @endif
@@ -1422,7 +1422,7 @@
   <ul class="actions mb-3 nav gap-2">
     {{-- Edit --}}
     <li>
-      <a href="{{ route('museum.edit', $museum->slug) }}" class="btn atom-btn-outline-light">Edit</a>
+      <a href="{{ route('museum.edit', $museum->slug) }}" class="btn atom-btn-outline-light">{{ __('Edit') }}</a>
     </li>
 
     {{-- Delete (admin only) --}}
@@ -1431,25 +1431,25 @@
       <form action="{{ route('museum.destroy', $museum->slug) }}" method="POST"
             onsubmit="return confirm('Are you sure you want to delete this museum object?');">
         @csrf
-        <button type="submit" class="btn atom-btn-outline-danger">Delete</button>
+        <button type="submit" class="btn atom-btn-outline-danger">{{ __('Delete') }}</button>
       </form>
     </li>
     @endif
 
     {{-- Add new (creates a child museum object) --}}
     <li>
-      <a href="{{ route('museum.create', ['parent_id' => $museum->id]) }}" class="btn atom-btn-outline-light">Add new</a>
+      <a href="{{ route('museum.create', ['parent_id' => $museum->id]) }}" class="btn atom-btn-outline-light">{{ __('Add new') }}</a>
     </li>
 
     {{-- Duplicate (pre-populated from this record) --}}
     <li>
-      <a href="{{ route('museum.create', ['parent_id' => $museum->id, 'copy_from' => $museum->id]) }}" class="btn atom-btn-outline-light">Duplicate</a>
+      <a href="{{ route('museum.create', ['parent_id' => $museum->id, 'copy_from' => $museum->id]) }}" class="btn atom-btn-outline-light">{{ __('Duplicate') }}</a>
     </li>
 
     {{-- Move (admin only) --}}
     @if($isAdmin)
     <li>
-      <a href="{{ url('/' . $museum->slug . '/default/move') }}" class="btn atom-btn-outline-light">Move</a>
+      <a href="{{ url('/' . $museum->slug . '/default/move') }}" class="btn atom-btn-outline-light">{{ __('Move') }}</a>
     </li>
     @endif
 
@@ -1457,7 +1457,7 @@
     <li>
       <div class="dropup">
         <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          More
+          {{ __('More') }}
         </button>
         <ul class="dropdown-menu mb-2">
           @if(\Illuminate\Support\Facades\Route::has('informationobject.rename'))

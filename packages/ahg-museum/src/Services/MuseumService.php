@@ -45,8 +45,21 @@ class MuseumService
      */
     public function getBySlug(string $slug): ?object
     {
+        // Culture fallback: prefer the requested culture, fall back to the
+        // record's source_culture (the language the record was originally
+        // authored in). Without this, requesting culture=fr on a record that
+        // only has culture=en data returns null and the page 404s.
+        $fallback = config('app.fallback_locale', 'en');
+
         $record = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->leftJoin('information_object_i18n as ioi_cur', function ($j) {
+                $j->on('ioi_cur.id', '=', 'information_object.id')
+                    ->where('ioi_cur.culture', '=', $this->culture);
+            })
+            ->leftJoin('information_object_i18n as ioi_fb', function ($j) use ($fallback) {
+                $j->on('ioi_fb.id', '=', 'information_object.id')
+                    ->where('ioi_fb.culture', '=', $fallback);
+            })
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->join('museum_metadata', 'information_object.id', '=', 'museum_metadata.object_id')
@@ -55,7 +68,6 @@ class MuseumService
                     ->where('display_object_config.object_type', '=', 'museum');
             })
             ->where('slug.slug', $slug)
-            ->where('information_object_i18n.culture', $this->culture)
             ->select([
                 'information_object.id',
                 'information_object.identifier',
@@ -65,13 +77,13 @@ class MuseumService
                 'information_object.lft',
                 'information_object.rgt',
                 'information_object.source_culture',
-                'information_object_i18n.title',
-                'information_object_i18n.alternate_title',
-                'information_object_i18n.scope_and_content',
-                'information_object_i18n.extent_and_medium',
-                'information_object_i18n.access_conditions',
-                'information_object_i18n.reproduction_conditions',
-                'information_object_i18n.physical_characteristics',
+                DB::raw('COALESCE(ioi_cur.title, ioi_fb.title) AS title'),
+                DB::raw('COALESCE(ioi_cur.alternate_title, ioi_fb.alternate_title) AS alternate_title'),
+                DB::raw('COALESCE(ioi_cur.scope_and_content, ioi_fb.scope_and_content) AS scope_and_content'),
+                DB::raw('COALESCE(ioi_cur.extent_and_medium, ioi_fb.extent_and_medium) AS extent_and_medium'),
+                DB::raw('COALESCE(ioi_cur.access_conditions, ioi_fb.access_conditions) AS access_conditions'),
+                DB::raw('COALESCE(ioi_cur.reproduction_conditions, ioi_fb.reproduction_conditions) AS reproduction_conditions'),
+                DB::raw('COALESCE(ioi_cur.physical_characteristics, ioi_fb.physical_characteristics) AS physical_characteristics'),
                 'object.created_at',
                 'object.updated_at',
                 'slug.slug',
