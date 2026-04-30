@@ -1424,7 +1424,7 @@
     @include('ahg-core::clipboard._button', ['slug' => $museum->slug, 'type' => 'informationObject'])
   </div>
 
-  @include('ahg-core::partials._record-sidebar-extras', ['objectId' => $museum->id, 'slug' => $museum->slug, 'title' => $museum->title])
+  @include('ahg-core::partials._record-sidebar-extras', ['objectId' => $museum->id, 'slug' => $museum->slug, 'title' => $museum->title, 'hideNer' => true])
 
 @endsection
 

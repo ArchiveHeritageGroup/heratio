@@ -4,7 +4,16 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', $themeData['siteTitle'] ?? 'Heratio')</title>
+    {{-- Document title. Some legacy views set @section('title') to HTML
+         intended for the visible page header (which should live in
+         @section('title-block') on the 1col layout). Strip tags here so
+         leaked HTML never reaches the browser tab. --}}
+    @php
+      $__rawTitle = trim(\Illuminate\Support\Facades\View::yieldContent('title') ?: '');
+      $__siteTitle = $themeData['siteTitle'] ?? 'Heratio';
+      $__docTitle = $__rawTitle !== '' ? trim(preg_replace('/\s+/', ' ', strip_tags($__rawTitle))) : $__siteTitle;
+    @endphp
+    <title>{{ $__docTitle }}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     {{-- CSS-in-JS libraries (Material-UI / JSS, used by Mirador 3) discover the
          per-request CSP nonce from this meta tag and tag their dynamically

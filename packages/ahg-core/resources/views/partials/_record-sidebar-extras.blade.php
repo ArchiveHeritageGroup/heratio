@@ -107,9 +107,11 @@
 @endif
 @endauth
 
-{{-- NER --}}
+{{-- NER — suppressed when the parent show page renders its own AI Tools
+     card in the left sidebar (museum, IO, library). Pass `hideNer => true`
+     when including this partial from those views. --}}
 @auth
-@if(\Illuminate\Support\Facades\Route::has('io.ai.review') && $__slug)
+@if(empty($hideNer) && \Illuminate\Support\Facades\Route::has('io.ai.review') && $__slug)
   <div class="card mb-3">
     <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
       <i class="fas fa-brain me-1"></i> NER

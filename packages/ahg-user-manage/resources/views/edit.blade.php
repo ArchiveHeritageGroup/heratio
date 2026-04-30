@@ -1,8 +1,12 @@
 @extends('theme::layouts.1col')
 
-@section('title')
+{{-- Browser tab title (plain text) — split from the visual page header --}}
+@section('title', ($user ? __('Edit user') : __('Add new user')) . ($user ? ' — ' . ($user->authorized_form_of_name ?? $user->username) : ''))
+
+{{-- Visible page header (rendered by 1col layout via @yield('title-block')) --}}
+@section('title-block')
   <div class="multiline-header d-flex flex-column mb-3">
-    <h1 class="mb-0">{{ $user ? 'Edit' : 'Add new' }} user</h1>
+    <h1 class="mb-0">{{ $user ? __('Edit user') : __('Add new user') }}</h1>
     @if($user)
       <span class="small">{{ $user->authorized_form_of_name ?? $user->username }}</span>
     @endif
