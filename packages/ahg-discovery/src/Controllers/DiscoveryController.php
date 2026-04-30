@@ -1230,30 +1230,13 @@ class DiscoveryController extends Controller
 
         try {
             $es = app(\AhgSearch\Services\ElasticsearchService::class);
-            // TEMP (issue #33): exact-match / phrase-only opt-in for the
-            // entity strategy. Three modes, default unchanged:
-            //   ''       — bool/should (current production behaviour: phrase + match)
-            //   'phrase' — match_phrase only (drops the analyzed `match` OR-of-tokens)
-            //   'raw'    — term query against nerEntityValues.raw (keyword subfield)
-            // Read from request query (`?exactMatch=1|phrase|raw`) or env var
-            // DISCOVERY_ENTITY_EXACT_MATCH; eval harness passes the query param.
-            // Will be reverted after the eval; do not rely on this in callers.
-            $exactMode = strtolower((string) (request()->query('exactMatch') ?: env('DISCOVERY_ENTITY_EXACT_MATCH', '')));
-            if ($exactMode === '1' || $exactMode === 'true') {
-                $exactMode = 'phrase'; // sensible default when the flag is just truthy
-            }
-
+            // bool/should — every term contributes a phrase + an analyzed clause;
+            // BM25 sums the matches, so an IO whose entities mention multiple
+            // search terms ranks higher than one that mentions just one.
             $should = [];
             foreach ($searchTerms as $term) {
-                if ($exactMode === 'raw') {
-                    $should[] = ['term' => ['nerEntityValues.raw' => ['value' => $term, 'boost' => 1.0]]];
-                } elseif ($exactMode === 'phrase') {
-                    $should[] = ['match_phrase' => ['nerEntityValues' => ['query' => $term, 'boost' => 1.0]]];
-                } else {
-                    // current production behaviour
-                    $should[] = ['match_phrase' => ['nerEntityValues' => ['query' => $term, 'boost' => 2.0]]];
-                    $should[] = ['match'        => ['nerEntityValues' => ['query' => $term]]];
-                }
+                $should[] = ['match_phrase' => ['nerEntityValues' => ['query' => $term, 'boost' => 2.0]]];
+                $should[] = ['match'        => ['nerEntityValues' => ['query' => $term]]];
             }
             $body = [
                 'query' => [
