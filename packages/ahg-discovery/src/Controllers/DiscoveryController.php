@@ -1230,13 +1230,17 @@ class DiscoveryController extends Controller
 
         try {
             $es = app(\AhgSearch\Services\ElasticsearchService::class);
-            // bool/should — every term contributes a phrase + an analyzed clause;
-            // BM25 sums the matches, so an IO whose entities mention multiple
-            // search terms ranks higher than one that mentions just one.
+            // term on nerEntityValues.raw — non-tokenised exact match against
+            // the keyword subfield of each entity label. The previous
+            // bool/should of match_phrase + match was a token-OR that pulled
+            // in any document sharing any token with the query (e.g. "South
+            // Africa" → "South Korea" / "South African Communist Party"),
+            // driving precision to 1.4% in isolation per the #32 audit.
+            // The #33 A/B showed term-on-raw lifts kw_entity nDCG@10 +82.3%,
+            // MRR +107.3%, recall@10 +17.0%, with entity-step latency 36→10ms.
             $should = [];
             foreach ($searchTerms as $term) {
-                $should[] = ['match_phrase' => ['nerEntityValues' => ['query' => $term, 'boost' => 2.0]]];
-                $should[] = ['match'        => ['nerEntityValues' => ['query' => $term]]];
+                $should[] = ['term' => ['nerEntityValues.raw' => ['value' => $term, 'boost' => 1.0]]];
             }
             $body = [
                 'query' => [
