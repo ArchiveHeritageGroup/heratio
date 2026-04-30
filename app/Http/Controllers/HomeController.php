@@ -14,12 +14,18 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // Get homepage static page content
+        // Resolve culture from the active locale, with fallback (matches the
+        // service-layer pattern from WithCultureFallback). See review item #6.
+        $culture = (string) app()->getLocale();
+        $fallback = (string) config('app.fallback_locale', 'en');
+
+        // Get homepage static page content (current culture, then fallback)
         $page = DB::table('static_page')
             ->join('static_page_i18n', 'static_page.id', '=', 'static_page_i18n.id')
             ->join('slug', 'static_page.id', '=', 'slug.object_id')
             ->where('slug.slug', 'home')
-            ->where('static_page_i18n.culture', 'en')
+            ->whereIn('static_page_i18n.culture', array_unique([$culture, $fallback]))
+            ->orderByRaw('FIELD(static_page_i18n.culture, ?, ?)', [$culture, $fallback])
             ->select('static_page.id', 'static_page_i18n.title', 'static_page_i18n.content')
             ->first();
 
@@ -28,26 +34,33 @@ class HomeController extends Controller
         $browseItems = collect();
         if ($browseMenuId) {
             $browseItems = DB::table('menu')
-                ->join('menu_i18n', 'menu.id', '=', 'menu_i18n.id')
-                ->where('menu_i18n.culture', 'en')
+                ->leftJoin('menu_i18n as mi_cur', function ($j) use ($culture) {
+                    $j->on('menu.id', '=', 'mi_cur.id')->where('mi_cur.culture', '=', $culture);
+                })
+                ->leftJoin('menu_i18n as mi_fb', function ($j) use ($fallback) {
+                    $j->on('menu.id', '=', 'mi_fb.id')->where('mi_fb.culture', '=', $fallback);
+                })
                 ->where('menu.parent_id', $browseMenuId)
                 ->orderBy('menu.lft')
-                ->select('menu_i18n.label', 'menu.path')
+                ->select('menu.path', DB::raw('COALESCE(mi_cur.label, mi_fb.label) AS label'))
                 ->get();
         }
 
-        // Static pages menu — children of the "staticPagesMenu" menu item (ID 61)
-        // In AtoM this shows Favorites, Feedback, Cart — NOT actual static page content
+        // Static pages menu — children of the "staticPagesMenu" menu item.
+        // Renders Favorites / Feedback / Cart links (not actual static-page content).
         $staticPagesMenuId = DB::table('menu')->where('name', 'staticPagesMenu')->value('id');
         $staticPages = collect();
         if ($staticPagesMenuId) {
             $staticPages = DB::table('menu')
-                ->leftJoin('menu_i18n', function ($j) {
-                    $j->on('menu.id', '=', 'menu_i18n.id')->where('menu_i18n.culture', '=', 'en');
+                ->leftJoin('menu_i18n as mi_cur', function ($j) use ($culture) {
+                    $j->on('menu.id', '=', 'mi_cur.id')->where('mi_cur.culture', '=', $culture);
+                })
+                ->leftJoin('menu_i18n as mi_fb', function ($j) use ($fallback) {
+                    $j->on('menu.id', '=', 'mi_fb.id')->where('mi_fb.culture', '=', $fallback);
                 })
                 ->where('menu.parent_id', $staticPagesMenuId)
                 ->orderBy('menu.lft')
-                ->select('menu_i18n.label as title', 'menu.path as slug')
+                ->select(DB::raw('COALESCE(mi_cur.label, mi_fb.label) AS title'), 'menu.path as slug')
                 ->get();
         }
 
@@ -61,7 +74,7 @@ class HomeController extends Controller
                 ->orderByDesc('visits')
                 ->limit(10)
                 ->get()
-                ->map(function ($row) {
+                ->map(function ($row) use ($culture, $fallback) {
                     $obj = DB::table('object')->where('id', $row->object_id)->first();
                     if (!$obj) {
                         return null;
@@ -71,21 +84,27 @@ class HomeController extends Controller
                     $title = null;
                     $module = null;
 
-                    if ($obj->class_name === 'QubitInformationObject') {
-                        $title = DB::table('information_object_i18n')
-                            ->where('id', $row->object_id)->where('culture', 'en')
-                            ->value('title');
-                        $module = 'informationobject';
-                    } elseif ($obj->class_name === 'QubitRepository') {
-                        $title = DB::table('repository_i18n')
-                            ->where('id', $row->object_id)->where('culture', 'en')
-                            ->value('authorized_form_of_name');
-                        $module = 'repository';
-                    } elseif ($obj->class_name === 'QubitActor') {
-                        $title = DB::table('actor_i18n')
-                            ->where('id', $row->object_id)->where('culture', 'en')
-                            ->value('authorized_form_of_name');
-                        $module = 'actor';
+                    // Resolve a localised title with culture fallback, picking the
+                    // i18n table off class_name. Mirrors the entity-service pattern.
+                    $i18nTable = match ($obj->class_name) {
+                        'QubitInformationObject' => 'information_object_i18n',
+                        'QubitRepository'        => 'repository_i18n',
+                        'QubitActor'             => 'actor_i18n',
+                        default                  => null,
+                    };
+                    $titleColumn = $obj->class_name === 'QubitInformationObject' ? 'title' : 'authorized_form_of_name';
+                    $module = match ($obj->class_name) {
+                        'QubitInformationObject' => 'informationobject',
+                        'QubitRepository'        => 'repository',
+                        'QubitActor'             => 'actor',
+                        default                  => null,
+                    };
+                    if ($i18nTable) {
+                        $title = DB::table($i18nTable)
+                            ->where('id', $row->object_id)
+                            ->whereIn('culture', array_unique([$culture, $fallback]))
+                            ->orderByRaw('FIELD(culture, ?, ?)', [$culture, $fallback])
+                            ->value($titleColumn);
                     }
 
                     if (!$title || !$slug) {
@@ -123,6 +142,9 @@ class HomeController extends Controller
     protected function getFeaturedCarousel(): array
     {
         try {
+            $culture = (string) app()->getLocale();
+            $fallback = (string) config('app.fallback_locale', 'en');
+
             // Load settings
             $settings = DB::table('iiif_viewer_settings')
                 ->whereIn('setting_key', [
@@ -164,11 +186,15 @@ class HomeController extends Controller
             $MEDIA_VIDEO = 138;
             $imageMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/tiff', 'image/jp2', 'image/webp', 'image/bmp'];
 
-            // Get collection items
+            // Get collection items. Title resolves via current culture with
+            // fallback (COALESCE) so non-en locales get a localised label.
             $items = DB::table('iiif_collection_item as ci')
                 ->leftJoin('information_object as io', 'ci.object_id', '=', 'io.id')
-                ->leftJoin('information_object_i18n as i18n', function ($join) {
-                    $join->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
+                ->leftJoin('information_object_i18n as i18n_cur', function ($join) use ($culture) {
+                    $join->on('io.id', '=', 'i18n_cur.id')->where('i18n_cur.culture', '=', $culture);
+                })
+                ->leftJoin('information_object_i18n as i18n_fb', function ($join) use ($fallback) {
+                    $join->on('io.id', '=', 'i18n_fb.id')->where('i18n_fb.culture', '=', $fallback);
                 })
                 ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
                 ->leftJoin('digital_object as do', function ($join) {
@@ -181,7 +207,7 @@ class HomeController extends Controller
                     'ci.label as custom_label',
                     'io.id as object_id',
                     'io.identifier',
-                    'i18n.title',
+                    DB::raw('COALESCE(i18n_cur.title, i18n_fb.title) AS title'),
                     'slug.slug',
                     'do.id as digital_object_id',
                     'do.name as filename',

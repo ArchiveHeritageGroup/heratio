@@ -1,25 +1,17 @@
-# Indigenous Cultural and Intellectual Property (ICIP) vocabulary — starter SKOS
+# Indigenous Cultural and Intellectual Property (ICIP) vocabulary — SKOS
 # concept scheme for use in archival, museum, and library description systems.
-#
-# ICIP is a framework for the recognition, protection, and management of the
-# rights of Indigenous and First Nations peoples in their cultural heritage.
-# It applies internationally — the Australian framework (AIATSIS / Terri
-# Janke) is the most-cited reference, but the concepts are applicable to any
-# indigenous community with cultural intellectual property at stake.
 #
 # Loaded into Fuseki via:
 #   php artisan ahg:vocabulary-import data/vocabularies/icip.ttl \
 #       --vocabulary=icip --format=turtle \
 #       --fuseki-user=admin --fuseki-password=admin123
 #
-# Resolved at runtime via:
-#   app(\AhgCore\Services\VocabularyResolverService::class)
-#       ->preferredLabel('https://heratio.theahg.co.za/vocabulary/icip#SacredSecret', 'af')
+# Languages covered: en (source) · af · zu · fr · es · de · pt
 #
-# This is a starter — authored 2026-04-30 by The Archive and Heritage Group.
-# Native-speaker review of all isiZulu / isiXhosa / Afrikaans labels is
-# strongly recommended before production use. Languages other than en/af/zu
-# fall through to English at runtime.
+# Native-speaker review still recommended for all non-English labels before
+# production use. Established translations were drawn from indigenous-rights
+# literature and SKOS dictionaries; some terms (notably gender / age
+# restriction phrasing) admit several conventions across communities.
 #
 # Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
 # Licensed under the GNU AGPL v3.
@@ -35,7 +27,11 @@ icip:Scheme a skos:ConceptScheme ;
     dct:title "Indigenous Cultural and Intellectual Property"@en ;
     dct:title "Inheemse Kulturele en Intellektuele Eiendom"@af ;
     dct:title "Amalungelo eMpahla yamasiko nokuhlakanipha kwabomdabu"@zu ;
-    dct:description "Starter SKOS vocabulary for ICIP-aware archival description, sensitivity classification, and permission management. Authored by The Archive and Heritage Group; native-speaker review pending."@en ;
+    dct:title "Propriété culturelle et intellectuelle autochtone"@fr ;
+    dct:title "Propiedad Cultural e Intelectual Indígena"@es ;
+    dct:title "Indigenes kulturelles und geistiges Eigentum"@de ;
+    dct:title "Propriedade Cultural e Intelectual Indígena"@pt ;
+    dct:description "Multilingual SKOS vocabulary for ICIP-aware archival description, sensitivity classification, and permission management."@en ;
     dct:creator "The Archive and Heritage Group (Pty) Ltd" ;
     dct:license <https://www.gnu.org/licenses/agpl-3.0.html> ;
     dct:issued "2026-04-30"^^<http://www.w3.org/2001/XMLSchema#date> .
@@ -48,6 +44,10 @@ icip:SensitivityLevel a skos:Concept ;
     skos:prefLabel "Sensitivity level"@en ;
     skos:prefLabel "Sensitiwiteitsvlak"@af ;
     skos:prefLabel "Izinga lobungozi"@zu ;
+    skos:prefLabel "Niveau de sensibilité"@fr ;
+    skos:prefLabel "Nivel de sensibilidad"@es ;
+    skos:prefLabel "Sensibilitätsstufe"@de ;
+    skos:prefLabel "Nível de sensibilidade"@pt ;
     skos:definition "How widely a cultural item or knowledge can be shared, viewed, or reproduced according to community protocols."@en .
 
 icip:RestrictionType a skos:Concept ;
@@ -56,6 +56,10 @@ icip:RestrictionType a skos:Concept ;
     skos:prefLabel "Restriction type"@en ;
     skos:prefLabel "Tipe beperking"@af ;
     skos:prefLabel "Uhlobo lokuvinjwa"@zu ;
+    skos:prefLabel "Type de restriction"@fr ;
+    skos:prefLabel "Tipo de restricción"@es ;
+    skos:prefLabel "Einschränkungstyp"@de ;
+    skos:prefLabel "Tipo de restrição"@pt ;
     skos:definition "The kind of access or use control that applies to the item — temporal, audience-based, or ceremonial."@en .
 
 icip:KnowledgeType a skos:Concept ;
@@ -64,6 +68,10 @@ icip:KnowledgeType a skos:Concept ;
     skos:prefLabel "Knowledge type"@en ;
     skos:prefLabel "Kennistipe"@af ;
     skos:prefLabel "Uhlobo lolwazi"@zu ;
+    skos:prefLabel "Type de savoir"@fr ;
+    skos:prefLabel "Tipo de conocimiento"@es ;
+    skos:prefLabel "Wissenstyp"@de ;
+    skos:prefLabel "Tipo de conhecimento"@pt ;
     skos:definition "Form of traditional or cultural knowledge represented (oral, visual, performative, place-based, etc.)."@en .
 
 icip:CustodianRole a skos:Concept ;
@@ -72,6 +80,10 @@ icip:CustodianRole a skos:Concept ;
     skos:prefLabel "Custodian role"@en ;
     skos:prefLabel "Bewaarder-rol"@af ;
     skos:prefLabel "Indima yomgcini"@zu ;
+    skos:prefLabel "Rôle de gardien"@fr ;
+    skos:prefLabel "Rol de custodio"@es ;
+    skos:prefLabel "Verwahrerrolle"@de ;
+    skos:prefLabel "Função de guardião"@pt ;
     skos:definition "Community-recognised authority that holds, transmits, or grants permission over cultural heritage."@en .
 
 icip:RightsType a skos:Concept ;
@@ -80,6 +92,10 @@ icip:RightsType a skos:Concept ;
     skos:prefLabel "ICIP rights type"@en ;
     skos:prefLabel "ICIP-regtetipe"@af ;
     skos:prefLabel "Uhlobo lwamalungelo e-ICIP"@zu ;
+    skos:prefLabel "Type de droit ICIP"@fr ;
+    skos:prefLabel "Tipo de derecho ICIP"@es ;
+    skos:prefLabel "ICIP-Rechtetyp"@de ;
+    skos:prefLabel "Tipo de direito ICIP"@pt ;
     skos:definition "A specific cultural-IP right asserted over an item (attribution, consent, integrity, etc.)."@en .
 
 # ─── Sensitivity levels ─────────────────────────────────────────────────────
@@ -90,6 +106,10 @@ icip:Open a skos:Concept ;
     skos:prefLabel "Open"@en ;
     skos:prefLabel "Oop"@af ;
     skos:prefLabel "Kuvulekile"@zu ;
+    skos:prefLabel "Ouvert"@fr ;
+    skos:prefLabel "Abierto"@es ;
+    skos:prefLabel "Offen"@de ;
+    skos:prefLabel "Aberto"@pt ;
     skos:definition "May be displayed, reproduced, and accessed without prior community consultation."@en .
 
 icip:Restricted a skos:Concept ;
@@ -98,6 +118,10 @@ icip:Restricted a skos:Concept ;
     skos:prefLabel "Restricted"@en ;
     skos:prefLabel "Beperk"@af ;
     skos:prefLabel "Ivinjelwe"@zu ;
+    skos:prefLabel "Restreint"@fr ;
+    skos:prefLabel "Restringido"@es ;
+    skos:prefLabel "Eingeschränkt"@de ;
+    skos:prefLabel "Restrito"@pt ;
     skos:definition "Access requires consent from a recognised custodian or community body."@en .
 
 icip:CulturallySensitive a skos:Concept ;
@@ -106,6 +130,10 @@ icip:CulturallySensitive a skos:Concept ;
     skos:prefLabel "Culturally sensitive"@en ;
     skos:prefLabel "Kultureel sensitief"@af ;
     skos:prefLabel "Kuthinta amasiko ngokuzwakalayo"@zu ;
+    skos:prefLabel "Culturellement sensible"@fr ;
+    skos:prefLabel "Culturalmente sensible"@es ;
+    skos:prefLabel "Kulturell sensibel"@de ;
+    skos:prefLabel "Culturalmente sensível"@pt ;
     skos:definition "Material requires careful contextual handling; warnings should accompany display or reproduction."@en .
 
 icip:SacredSecret a skos:Concept ;
@@ -114,6 +142,10 @@ icip:SacredSecret a skos:Concept ;
     skos:prefLabel "Sacred / secret"@en ;
     skos:prefLabel "Heilig / geheim"@af ;
     skos:prefLabel "Ngcwele / okuyimfihlo"@zu ;
+    skos:prefLabel "Sacré / secret"@fr ;
+    skos:prefLabel "Sagrado / secreto"@es ;
+    skos:prefLabel "Heilig / geheim"@de ;
+    skos:prefLabel "Sagrado / secreto"@pt ;
     skos:definition "Knowledge or items that may not be displayed publicly under any circumstances. Access requires explicit ceremonial authorisation."@en .
 
 icip:GenderRestricted a skos:Concept ;
@@ -122,6 +154,10 @@ icip:GenderRestricted a skos:Concept ;
     skos:prefLabel "Gender-restricted"@en ;
     skos:prefLabel "Geslagsbeperk"@af ;
     skos:prefLabel "Kuvinjwa ngokobulili"@zu ;
+    skos:prefLabel "Restreint par genre"@fr ;
+    skos:prefLabel "Restringido por género"@es ;
+    skos:prefLabel "Geschlechterspezifisch beschränkt"@de ;
+    skos:prefLabel "Restrito por gênero"@pt ;
     skos:definition "May only be viewed, handled, or transmitted by people of a specific gender as defined by community protocol (men's business / women's business)."@en .
 
 icip:AgeRestricted a skos:Concept ;
@@ -130,6 +166,10 @@ icip:AgeRestricted a skos:Concept ;
     skos:prefLabel "Age-restricted"@en ;
     skos:prefLabel "Ouderdombeperk"@af ;
     skos:prefLabel "Kuvinjwa ngokweminyaka"@zu ;
+    skos:prefLabel "Restreint par âge"@fr ;
+    skos:prefLabel "Restringido por edad"@es ;
+    skos:prefLabel "Altersbeschränkt"@de ;
+    skos:prefLabel "Restrito por idade"@pt ;
     skos:definition "Knowledge available only to community members who have undergone specific initiation or attained a recognised age threshold."@en .
 
 icip:DeceasedPersonsContent a skos:Concept ;
@@ -138,6 +178,10 @@ icip:DeceasedPersonsContent a skos:Concept ;
     skos:prefLabel "Deceased persons content"@en ;
     skos:prefLabel "Inhoud oor oorlede persone"@af ;
     skos:prefLabel "Okuqukethwe kwabantu abadlulayo"@zu ;
+    skos:prefLabel "Contenu de personnes décédées"@fr ;
+    skos:prefLabel "Contenido de personas fallecidas"@es ;
+    skos:prefLabel "Inhalte verstorbener Personen"@de ;
+    skos:prefLabel "Conteúdo de pessoas falecidas"@pt ;
     skos:definition "Names, images, voices, or knowledge of deceased persons that require culturally sensitive handling. In some communities such content must be temporarily withdrawn from public view after death."@en .
 
 # ─── Restriction types ──────────────────────────────────────────────────────
@@ -148,6 +192,10 @@ icip:CommunityOnly a skos:Concept ;
     skos:prefLabel "Community-only access"@en ;
     skos:prefLabel "Slegs-gemeenskapsgang"@af ;
     skos:prefLabel "Ukufinyelela komphakathi kuphela"@zu ;
+    skos:prefLabel "Accès réservé à la communauté"@fr ;
+    skos:prefLabel "Acceso solo comunitario"@es ;
+    skos:prefLabel "Nur Gemeinschaftszugang"@de ;
+    skos:prefLabel "Acesso somente comunitário"@pt ;
     skos:definition "Access limited to identified community members."@en .
 
 icip:CeremonialOnly a skos:Concept ;
@@ -156,6 +204,10 @@ icip:CeremonialOnly a skos:Concept ;
     skos:prefLabel "Ceremonial use only"@en ;
     skos:prefLabel "Slegs seremoniële gebruik"@af ;
     skos:prefLabel "Kusetshenziswa kuphela emicimbini yesintu"@zu ;
+    skos:prefLabel "Usage cérémoniel uniquement"@fr ;
+    skos:prefLabel "Solo para uso ceremonial"@es ;
+    skos:prefLabel "Nur zeremonielle Nutzung"@de ;
+    skos:prefLabel "Apenas uso cerimonial"@pt ;
     skos:definition "Material may only be activated or accessed within ceremonial / ritual contexts."@en .
 
 icip:TemporaryWithdrawal a skos:Concept ;
@@ -164,6 +216,10 @@ icip:TemporaryWithdrawal a skos:Concept ;
     skos:prefLabel "Temporary withdrawal"@en ;
     skos:prefLabel "Tydelike onttrekking"@af ;
     skos:prefLabel "Ukususwa kwesikhashana"@zu ;
+    skos:prefLabel "Retrait temporaire"@fr ;
+    skos:prefLabel "Retirada temporal"@es ;
+    skos:prefLabel "Vorübergehende Sperrung"@de ;
+    skos:prefLabel "Retirada temporária"@pt ;
     skos:definition "Material withdrawn from public access for a defined period (mourning, sorry business, ceremony preparation)."@en .
 
 icip:PermanentRestriction a skos:Concept ;
@@ -172,6 +228,10 @@ icip:PermanentRestriction a skos:Concept ;
     skos:prefLabel "Permanent restriction"@en ;
     skos:prefLabel "Permanente beperking"@af ;
     skos:prefLabel "Ukuvinjelwa unaphakade"@zu ;
+    skos:prefLabel "Restriction permanente"@fr ;
+    skos:prefLabel "Restricción permanente"@es ;
+    skos:prefLabel "Dauerhafte Einschränkung"@de ;
+    skos:prefLabel "Restrição permanente"@pt ;
     skos:definition "Restriction that does not have a defined end date; community must be re-consulted to lift it."@en .
 
 # ─── Knowledge types ────────────────────────────────────────────────────────
@@ -182,6 +242,10 @@ icip:OralTradition a skos:Concept ;
     skos:prefLabel "Oral tradition"@en ;
     skos:prefLabel "Mondelinge oorlewering"@af ;
     skos:prefLabel "Amasiko angqondweni nasolimini"@zu ;
+    skos:prefLabel "Tradition orale"@fr ;
+    skos:prefLabel "Tradición oral"@es ;
+    skos:prefLabel "Mündliche Überlieferung"@de ;
+    skos:prefLabel "Tradição oral"@pt ;
     skos:altLabel "Songlines"@en, "Stories"@en, "Folklore"@en .
 
 icip:TraditionalSong a skos:Concept ;
@@ -189,21 +253,33 @@ icip:TraditionalSong a skos:Concept ;
     skos:broader icip:KnowledgeType ;
     skos:prefLabel "Traditional song"@en ;
     skos:prefLabel "Tradisionele lied"@af ;
-    skos:prefLabel "Ingoma yesintu"@zu .
+    skos:prefLabel "Ingoma yesintu"@zu ;
+    skos:prefLabel "Chant traditionnel"@fr ;
+    skos:prefLabel "Canto tradicional"@es ;
+    skos:prefLabel "Traditioneller Gesang"@de ;
+    skos:prefLabel "Canção tradicional"@pt .
 
 icip:TraditionalDance a skos:Concept ;
     skos:inScheme icip:Scheme ;
     skos:broader icip:KnowledgeType ;
     skos:prefLabel "Traditional dance"@en ;
     skos:prefLabel "Tradisionele dans"@af ;
-    skos:prefLabel "Umdanso wesintu"@zu .
+    skos:prefLabel "Umdanso wesintu"@zu ;
+    skos:prefLabel "Danse traditionnelle"@fr ;
+    skos:prefLabel "Danza tradicional"@es ;
+    skos:prefLabel "Traditioneller Tanz"@de ;
+    skos:prefLabel "Dança tradicional"@pt .
 
 icip:TraditionalDesign a skos:Concept ;
     skos:inScheme icip:Scheme ;
     skos:broader icip:KnowledgeType ;
     skos:prefLabel "Traditional design / motif"@en ;
     skos:prefLabel "Tradisionele ontwerp / motief"@af ;
-    skos:prefLabel "Idizayini yesintu / uphawu"@zu .
+    skos:prefLabel "Idizayini yesintu / uphawu"@zu ;
+    skos:prefLabel "Motif traditionnel"@fr ;
+    skos:prefLabel "Diseño / motivo tradicional"@es ;
+    skos:prefLabel "Traditionelles Muster"@de ;
+    skos:prefLabel "Motivo tradicional"@pt .
 
 icip:TraditionalKnowledge a skos:Concept ;
     skos:inScheme icip:Scheme ;
@@ -211,6 +287,10 @@ icip:TraditionalKnowledge a skos:Concept ;
     skos:prefLabel "Traditional knowledge"@en ;
     skos:prefLabel "Tradisionele kennis"@af ;
     skos:prefLabel "Ulwazi lwesintu"@zu ;
+    skos:prefLabel "Savoir traditionnel"@fr ;
+    skos:prefLabel "Conocimiento tradicional"@es ;
+    skos:prefLabel "Traditionelles Wissen"@de ;
+    skos:prefLabel "Conhecimento tradicional"@pt ;
     skos:altLabel "TK"@en .
 
 icip:LanguageMaterial a skos:Concept ;
@@ -219,6 +299,10 @@ icip:LanguageMaterial a skos:Concept ;
     skos:prefLabel "Language material"@en ;
     skos:prefLabel "Taalmateriaal"@af ;
     skos:prefLabel "Izinto zolimi"@zu ;
+    skos:prefLabel "Matériel linguistique"@fr ;
+    skos:prefLabel "Material lingüístico"@es ;
+    skos:prefLabel "Sprachmaterial"@de ;
+    skos:prefLabel "Material linguístico"@pt ;
     skos:definition "Recordings, dictionaries, grammars, or texts in indigenous languages."@en .
 
 icip:PlaceName a skos:Concept ;
@@ -227,6 +311,10 @@ icip:PlaceName a skos:Concept ;
     skos:prefLabel "Place name"@en ;
     skos:prefLabel "Pleknaam"@af ;
     skos:prefLabel "Igama lendawo"@zu ;
+    skos:prefLabel "Toponyme"@fr ;
+    skos:prefLabel "Topónimo"@es ;
+    skos:prefLabel "Ortsname"@de ;
+    skos:prefLabel "Topônimo"@pt ;
     skos:definition "Indigenous toponyms, including significant sites whose names may themselves be restricted knowledge."@en .
 
 icip:Genealogy a skos:Concept ;
@@ -234,7 +322,11 @@ icip:Genealogy a skos:Concept ;
     skos:broader icip:KnowledgeType ;
     skos:prefLabel "Genealogy / kinship"@en ;
     skos:prefLabel "Genealogie / verwantskap"@af ;
-    skos:prefLabel "Uzalo / ubuhlobo"@zu .
+    skos:prefLabel "Uzalo / ubuhlobo"@zu ;
+    skos:prefLabel "Généalogie / parenté"@fr ;
+    skos:prefLabel "Genealogía / parentesco"@es ;
+    skos:prefLabel "Genealogie / Verwandtschaft"@de ;
+    skos:prefLabel "Genealogia / parentesco"@pt .
 
 icip:CulturalObject a skos:Concept ;
     skos:inScheme icip:Scheme ;
@@ -242,6 +334,10 @@ icip:CulturalObject a skos:Concept ;
     skos:prefLabel "Cultural object"@en ;
     skos:prefLabel "Kulturele voorwerp"@af ;
     skos:prefLabel "Into yamasiko"@zu ;
+    skos:prefLabel "Objet culturel"@fr ;
+    skos:prefLabel "Objeto cultural"@es ;
+    skos:prefLabel "Kulturobjekt"@de ;
+    skos:prefLabel "Objeto cultural"@pt ;
     skos:definition "Material artefact (regalia, instrument, tool, sacred object) carrying cultural meaning."@en .
 
 # ─── Custodian roles ────────────────────────────────────────────────────────
@@ -252,6 +348,10 @@ icip:Elder a skos:Concept ;
     skos:prefLabel "Elder"@en ;
     skos:prefLabel "Ouderling"@af ;
     skos:prefLabel "Umdala / iNkosi"@zu ;
+    skos:prefLabel "Aîné"@fr ;
+    skos:prefLabel "Anciano"@es ;
+    skos:prefLabel "Ältester"@de ;
+    skos:prefLabel "Ancião"@pt ;
     skos:definition "Senior community member with recognised authority over cultural matters."@en .
 
 icip:KnowledgeHolder a skos:Concept ;
@@ -259,7 +359,11 @@ icip:KnowledgeHolder a skos:Concept ;
     skos:broader icip:CustodianRole ;
     skos:prefLabel "Knowledge holder"@en ;
     skos:prefLabel "Kennishouer"@af ;
-    skos:prefLabel "Umphathi-lwazi"@zu .
+    skos:prefLabel "Umphathi-lwazi"@zu ;
+    skos:prefLabel "Détenteur du savoir"@fr ;
+    skos:prefLabel "Portador de conocimiento"@es ;
+    skos:prefLabel "Wissensträger"@de ;
+    skos:prefLabel "Portador de conhecimento"@pt .
 
 icip:CulturalAuthority a skos:Concept ;
     skos:inScheme icip:Scheme ;
@@ -267,6 +371,10 @@ icip:CulturalAuthority a skos:Concept ;
     skos:prefLabel "Cultural authority body"@en ;
     skos:prefLabel "Kulturele gesagsliggaam"@af ;
     skos:prefLabel "Iqembu lamasiko elinegunya"@zu ;
+    skos:prefLabel "Organisme d'autorité culturelle"@fr ;
+    skos:prefLabel "Órgano de autoridad cultural"@es ;
+    skos:prefLabel "Kulturelles Autoritätsgremium"@de ;
+    skos:prefLabel "Órgão de autoridade cultural"@pt ;
     skos:definition "Constituted body (council, foundation, traditional leadership) recognised as having decision-making authority."@en .
 
 icip:Family a skos:Concept ;
@@ -274,7 +382,11 @@ icip:Family a skos:Concept ;
     skos:broader icip:CustodianRole ;
     skos:prefLabel "Family / clan"@en ;
     skos:prefLabel "Familie / stam"@af ;
-    skos:prefLabel "Umndeni / isizwe"@zu .
+    skos:prefLabel "Umndeni / isizwe"@zu ;
+    skos:prefLabel "Famille / clan"@fr ;
+    skos:prefLabel "Familia / clan"@es ;
+    skos:prefLabel "Familie / Clan"@de ;
+    skos:prefLabel "Família / clã"@pt .
 
 # ─── ICIP rights types ──────────────────────────────────────────────────────
 
@@ -283,14 +395,22 @@ icip:Acknowledgment a skos:Concept ;
     skos:broader icip:RightsType ;
     skos:prefLabel "Right of acknowledgment"@en ;
     skos:prefLabel "Reg op erkenning"@af ;
-    skos:prefLabel "Ilungelo lokuqashelwa"@zu .
+    skos:prefLabel "Ilungelo lokuqashelwa"@zu ;
+    skos:prefLabel "Droit de reconnaissance"@fr ;
+    skos:prefLabel "Derecho de reconocimiento"@es ;
+    skos:prefLabel "Anerkennungsrecht"@de ;
+    skos:prefLabel "Direito de reconhecimento"@pt .
 
 icip:Attribution a skos:Concept ;
     skos:inScheme icip:Scheme ;
     skos:broader icip:RightsType ;
     skos:prefLabel "Right of attribution"@en ;
     skos:prefLabel "Reg op toeskrywing"@af ;
-    skos:prefLabel "Ilungelo lokunikezwa udumo"@zu .
+    skos:prefLabel "Ilungelo lokunikezwa udumo"@zu ;
+    skos:prefLabel "Droit d'attribution"@fr ;
+    skos:prefLabel "Derecho de atribución"@es ;
+    skos:prefLabel "Zuschreibungsrecht"@de ;
+    skos:prefLabel "Direito de atribuição"@pt .
 
 icip:Consent a skos:Concept ;
     skos:inScheme icip:Scheme ;
@@ -298,7 +418,11 @@ icip:Consent a skos:Concept ;
     skos:prefLabel "Free, prior and informed consent (FPIC)"@en ;
     skos:prefLabel "Vrye, vooraf en ingeligte toestemming (FPIC)"@af ;
     skos:prefLabel "Imvume yangaphambili enolwazi futhi engaphoqelelwe (FPIC)"@zu ;
-    skos:altLabel "FPIC"@en .
+    skos:prefLabel "Consentement libre, préalable et éclairé (CLPE)"@fr ;
+    skos:prefLabel "Consentimiento libre, previo e informado (CLPI)"@es ;
+    skos:prefLabel "Freie, vorherige und informierte Zustimmung (FPIC)"@de ;
+    skos:prefLabel "Consentimento livre, prévio e informado (CLPI)"@pt ;
+    skos:altLabel "FPIC"@en, "CLPE"@fr, "CLPI"@es, "CLPI"@pt .
 
 icip:Integrity a skos:Concept ;
     skos:inScheme icip:Scheme ;
@@ -306,6 +430,10 @@ icip:Integrity a skos:Concept ;
     skos:prefLabel "Right of integrity"@en ;
     skos:prefLabel "Reg op integriteit"@af ;
     skos:prefLabel "Ilungelo lobuqotho"@zu ;
+    skos:prefLabel "Droit à l'intégrité"@fr ;
+    skos:prefLabel "Derecho de integridad"@es ;
+    skos:prefLabel "Recht auf Integrität"@de ;
+    skos:prefLabel "Direito à integridade"@pt ;
     skos:definition "The right to prevent distortion, mutilation, or use of cultural material in derogatory contexts."@en .
 
 icip:NoCommercialUse a skos:Concept ;
@@ -313,7 +441,11 @@ icip:NoCommercialUse a skos:Concept ;
     skos:broader icip:RightsType ;
     skos:prefLabel "No commercial use without consent"@en ;
     skos:prefLabel "Geen kommersiële gebruik sonder toestemming"@af ;
-    skos:prefLabel "Akukho ukusetshenziswa kohwebo ngaphandle kwemvume"@zu .
+    skos:prefLabel "Akukho ukusetshenziswa kohwebo ngaphandle kwemvume"@zu ;
+    skos:prefLabel "Aucun usage commercial sans consentement"@fr ;
+    skos:prefLabel "Sin uso comercial sin consentimiento"@es ;
+    skos:prefLabel "Keine kommerzielle Nutzung ohne Zustimmung"@de ;
+    skos:prefLabel "Sem uso comercial sem consentimento"@pt .
 
 icip:Repatriation a skos:Concept ;
     skos:inScheme icip:Scheme ;
@@ -321,4 +453,8 @@ icip:Repatriation a skos:Concept ;
     skos:prefLabel "Right of repatriation"@en ;
     skos:prefLabel "Reg op terugbring"@af ;
     skos:prefLabel "Ilungelo lokubuyiselwa"@zu ;
+    skos:prefLabel "Droit de rapatriement"@fr ;
+    skos:prefLabel "Derecho de repatriación"@es ;
+    skos:prefLabel "Recht auf Rückführung"@de ;
+    skos:prefLabel "Direito de repatriação"@pt ;
     skos:definition "The right to recover physical materials, ancestral remains, or digital surrogates held outside the source community."@en .

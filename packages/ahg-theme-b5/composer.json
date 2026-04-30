@@ -2,7 +2,7 @@
     "name": "ahg/theme-b5",
     "description": "AHG Bootstrap 5 Theme - Layouts, nav, footer for Heratio",
     "type": "library",
-    "license": "proprietary",
+    "license": "AGPL-3.0-or-later",
     "require": {
         "php": "^8.2",
         "ahg/core": "@dev"

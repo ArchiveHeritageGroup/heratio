@@ -2,7 +2,7 @@
     "name": "ahg/research",
     "description": "Research Portal: researcher registration, reading room bookings, projects, evidence sets, journal, bibliographies, reports, annotations, knowledge platform, admin management",
     "type": "library",
-    "license": "proprietary",
+    "license": "AGPL-3.0-or-later",
     "autoload": {
         "psr-4": {
             "AhgResearch\\": "src/"

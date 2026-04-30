@@ -2,7 +2,7 @@
     "name": "ahg/core",
     "description": "AHG Core - Eloquent models and base services for Heratio",
     "type": "library",
-    "license": "proprietary",
+    "license": "AGPL-3.0-or-later",
     "require": {
         "php": "^8.2",
         "illuminate/support": "^11.0|^12.0",

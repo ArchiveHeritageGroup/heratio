@@ -2,7 +2,7 @@
     "name": "ahg/acl",
     "description": "AHG ACL - Role-based access control, security classifications, and audit logging for Heratio",
     "type": "library",
-    "license": "proprietary",
+    "license": "AGPL-3.0-or-later",
     "require": {
         "php": "^8.2",
         "ahg/core": "@dev",

@@ -28,3 +28,24 @@ FamilySearch/
 /public/downloads/*.pdf
 /public/downloads/*.html
 CLAUDE.md
+
+# Python tooling (RiC Explorer, ingest scripts, ad-hoc tools)
+venv/
+.venv/
+**/venv/
+**/.venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local agent worktrees
+.claude/worktrees/
+
+# Generated exports / reports
+/storage/app/exports/
+/storage/app/reports/
+*.bak

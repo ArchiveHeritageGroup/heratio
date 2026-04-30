@@ -54,8 +54,15 @@ jobs:
           coverage: none
       - run: composer install --no-interaction --prefer-dist
       - name: PHP Syntax Check
+        # Per-file `php -l`. Any non-zero exit fails the job. The previous
+        # implementation piped to `grep -v "No syntax errors"` which silently
+        # passed when there were no errors (grep returns 1 on no match) and
+        # could mask broken syntax depending on shell pipefail settings.
         run: |
-          find app packages -name "*.php" -exec php -l {} \; 2>&1 | grep -v "No syntax errors"
+          find app packages -name "*.php" \
+              -not -path '*/vendor/*' \
+              -not -path '*/worktree/*' \
+              -print0 | xargs -0 -n1 -P4 php -l > /dev/null
 
   laravel-unit:
     name: Unit Tests

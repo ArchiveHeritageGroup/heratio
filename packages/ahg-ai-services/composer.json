@@ -2,7 +2,7 @@
     "name": "ahg/ai-services",
     "description": "AHG AI Services - LLM integration, NER, summarization, translation, spellcheck for Heratio",
     "type": "library",
-    "license": "proprietary",
+    "license": "AGPL-3.0-or-later",
     "require": {
         "php": "^8.2",
         "ahg/core": "@dev",
