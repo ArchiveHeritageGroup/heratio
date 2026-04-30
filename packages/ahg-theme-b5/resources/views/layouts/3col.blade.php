@@ -8,6 +8,13 @@
     #left-column .list-group-item, #right-column .list-group-item { padding: 0.35rem 0.6rem; font-size: var(--ahg-font-sidebar, 0.85rem); }
     #left-column .card-body, #right-column .card-body { padding: 0.5rem 0.6rem; }
     #left-column h5, #left-column h6, #right-column h5, #right-column h6 { font-size: var(--ahg-font-sidebar, 0.85rem); }
+    /* Right column shrunk twice (16.67% → 11.11% → 7.44%, ~33% each step);
+       main absorbs the gain (66.67% → 75.89%); left stays at 16.67%.
+       Below md, Bootstrap stacks. */
+    @media (min-width: 768px) {
+      #right-column { flex: 0 0 7.44%;  max-width: 7.44%; }
+      #main-column  { flex: 0 0 75.89%; max-width: 75.89%; }
+    }
   </style>
   <div class="row">
     <div id="left-column" class="col-md-2">
