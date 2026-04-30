@@ -17,7 +17,7 @@
             <table class="table table-borderless">
               @if(!empty($embargo->embargo_type))
               <tr>
-                <th width="35%">Embargo Type</th>
+                <th width="35%">{{ __('Embargo Type') }}</th>
                 <td>
                   <span class="badge bg-{{ $embargo->embargo_type === 'full' ? 'danger' : 'warning' }}">
                     {{ ucfirst(str_replace('_', ' ', $embargo->embargo_type)) }}
@@ -26,13 +26,13 @@
               </tr>
               @endif
               @if(!empty($embargo->public_message))
-              <tr><th>Notice</th><td>{{ e($embargo->public_message) }}</td></tr>
+              <tr><th>{{ __('Notice') }}</th><td>{{ e($embargo->public_message) }}</td></tr>
               @endif
               @if(!empty($embargo->end_date))
-              <tr><th>Available From</th><td>{{ $embargo->end_date }}</td></tr>
+              <tr><th>{{ __('Available From') }}</th><td>{{ $embargo->end_date }}</td></tr>
               @endif
               @if(!empty($objectTitle))
-              <tr><th>Record</th><td>{{ e($objectTitle) }}</td></tr>
+              <tr><th>{{ __('Record') }}</th><td>{{ e($objectTitle) }}</td></tr>
               @endif
             </table>
           @endif

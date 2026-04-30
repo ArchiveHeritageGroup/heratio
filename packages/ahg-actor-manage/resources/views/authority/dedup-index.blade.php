@@ -5,7 +5,7 @@
 
 @section('content')
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
@@ -60,7 +60,7 @@
       @csrf
       <div class="row g-2 align-items-end">
         <div class="col-md-3">
-          <label class="form-label">Max actors to compare</label>
+          <label class="form-label">{{ __('Max actors to compare') }}</label>
           <input type="number" name="limit" class="form-control" value="500" min="10" max="5000">
         </div>
         <div class="col-auto">

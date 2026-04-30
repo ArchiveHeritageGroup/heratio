@@ -15,7 +15,7 @@
   @csrf
   <div class="card mb-4">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <h5 class="mb-0">Embargo Details</h5>
+      <h5 class="mb-0">{{ __('Embargo Details') }}</h5>
     </div>
     <div class="card-body">
       <div class="row">
@@ -42,7 +42,7 @@
           <input type="date" name="start_date" class="form-control" required value="{{ old('start_date', $embargo->start_date ?? date('Y-m-d')) }}">
         </div>
         <div class="col-md-6 mb-3">
-          <label class="form-label">End Date</label>
+          <label class="form-label">{{ __('End Date') }}</label>
           <input type="date" name="end_date" class="form-control" value="{{ old('end_date', $embargo->end_date ?? '') }}">
           <small class="form-text text-muted">Leave empty for indefinite embargo</small>
         </div>
@@ -51,16 +51,16 @@
         <div class="form-check">
           <input type="checkbox" name="auto_release" class="form-check-input" id="auto_release" value="1"
                  {{ old('auto_release', $embargo->auto_release ?? 1) ? 'checked' : '' }}>
-          <label class="form-check-label" for="auto_release">Automatically lift embargo when end date is reached</label>
+          <label class="form-check-label" for="auto_release">{{ __('Automatically lift embargo when end date is reached') }}</label>
         </div>
       </div>
       <div class="mb-3">
-        <label class="form-label">Reason Note</label>
+        <label class="form-label">{{ __('Reason Note') }}</label>
         <textarea name="reason_note" class="form-control" rows="3">{{ old('reason_note', $embargo->reason_note ?? '') }}</textarea>
       </div>
       <div class="mb-3">
-        <label class="form-label">Internal Note</label>
-        <textarea name="internal_note" class="form-control" rows="2" placeholder="Not visible to users">{{ old('internal_note', $embargo->internal_note ?? '') }}</textarea>
+        <label class="form-label">{{ __('Internal Note') }}</label>
+        <textarea name="internal_note" class="form-control" rows="2" placeholder="{{ __('Not visible to users') }}">{{ old('internal_note', $embargo->internal_note ?? '') }}</textarea>
       </div>
     </div>
   </div>
@@ -74,7 +74,7 @@
 @if(isset($embargo))
 <div class="card mt-4 border-danger">
   <div class="card-header bg-danger text-white">
-    <h5 class="mb-0">Release Embargo</h5>
+    <h5 class="mb-0">{{ __('Release Embargo') }}</h5>
   </div>
   <div class="card-body">
     <p>Release this embargo immediately. The item will become accessible according to its other rights settings.</p>

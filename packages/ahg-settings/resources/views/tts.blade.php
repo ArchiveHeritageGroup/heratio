@@ -56,7 +56,7 @@
           <input class="form-check-input" type="checkbox" id="tts_labels"
                  name="tts[all][read_labels]" value="1"
                  {{ ($settings['all']['read_labels'] ?? '1') === '1' ? 'checked' : '' }}>
-          <label class="form-check-label" for="tts_labels">Read field labels</label>
+          <label class="form-check-label" for="tts_labels">{{ __('Read field labels') }}</label>
         </div>
         <div class="form-text">Include field labels (e.g. "Scope and content:") when reading aloud.</div>
       </div>
@@ -66,7 +66,7 @@
           <input class="form-check-input" type="checkbox" id="tts_shortcuts"
                  name="tts[all][keyboard_shortcuts]" value="1"
                  {{ ($settings['all']['keyboard_shortcuts'] ?? '1') === '1' ? 'checked' : '' }}>
-          <label class="form-check-label" for="tts_shortcuts">Keyboard shortcuts</label>
+          <label class="form-check-label" for="tts_shortcuts">{{ __('Keyboard shortcuts') }}</label>
         </div>
         <div class="form-text">Enable keyboard shortcuts for play/pause/stop (Alt+P, Alt+S).</div>
       </div>
@@ -125,11 +125,11 @@
     <div class="card-header"><i class="fas fa-sliders-h me-2"></i>Voice Settings</div>
     <div class="card-body">
       <div class="mb-3">
-        <label class="form-label">Default Voice</label>
+        <label class="form-label">{{ __('Default Voice') }}</label>
         <select name="tts[all][default_voice]" class="form-select">
-          <option value="">Browser default</option>
-          <option value="en-US" {{ ($settings['all']['default_voice'] ?? '') === 'en-US' ? 'selected' : '' }}>English (US)</option>
-          <option value="en-GB" {{ ($settings['all']['default_voice'] ?? '') === 'en-GB' ? 'selected' : '' }}>English (UK)</option>
+          <option value="">{{ __('Browser default') }}</option>
+          <option value="en-US" {{ ($settings['all']['default_voice'] ?? '') === 'en-US' ? 'selected' : '' }}>{{ __('English (US)') }}</option>
+          <option value="en-GB" {{ ($settings['all']['default_voice'] ?? '') === 'en-GB' ? 'selected' : '' }}>{{ __('English (UK)') }}</option>
         </select>
       </div>
       <div class="mb-3">

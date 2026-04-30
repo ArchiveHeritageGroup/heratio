@@ -23,14 +23,14 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th>Step</th>
-                <th>Workflow</th>
-                <th>Object</th>
-                <th>Assigned To</th>
-                <th>Due Date</th>
-                <th>Days Overdue</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>{{ __('Step') }}</th>
+                <th>{{ __('Workflow') }}</th>
+                <th>{{ __('Object') }}</th>
+                <th>{{ __('Assigned To') }}</th>
+                <th>{{ __('Due Date') }}</th>
+                <th>{{ __('Days Overdue') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>

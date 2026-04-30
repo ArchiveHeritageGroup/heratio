@@ -15,12 +15,12 @@
           <div class="mb-3">
             <label class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="objectType" class="form-select">
-              <option value="accession">Accession</option>
-              <option value="informationObject">Archival Description</option>
-              <option value="authorityRecord">Authority Record / Actor</option>
-              <option value="donor">Donor</option>
-              <option value="physical_storage">Physical Storage</option>
-              <option value="repository">Repository / Archival Institution</option>
+              <option value="accession">{{ __('Accession') }}</option>
+              <option value="informationObject">{{ __('Archival Description') }}</option>
+              <option value="authorityRecord">{{ __('Authority Record / Actor') }}</option>
+              <option value="donor">{{ __('Donor') }}</option>
+              <option value="physical_storage">{{ __('Physical Storage') }}</option>
+              <option value="repository">{{ __('Repository / Archival Institution') }}</option>
             </select>
           </div>
           <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-check me-1"></i>Select</button>

@@ -7,7 +7,7 @@
     <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 @endif
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.reports') }}">Reports</a></li>
@@ -36,7 +36,7 @@
                     @csrf
                     <input type="hidden" name="form_action" value="update_status">
                     <div class="flex-grow-1">
-                        <label class="form-label small text-muted mb-0">Status</label>
+                        <label class="form-label small text-muted mb-0">{{ __('Status') }}</label>
                         <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                             @foreach(['draft' => 'Draft', 'in_progress' => 'In Progress', 'review' => 'Review', 'completed' => 'Completed'] as $sKey => $sLabel)
                                 <option value="{{ $sKey }}" {{ ($report->status ?? 'draft') === $sKey ? 'selected' : '' }}>{{ $sLabel }}</option>
@@ -44,7 +44,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="form-label small text-muted mb-0">Template</label>
+                        <label class="form-label small text-muted mb-0">{{ __('Template') }}</label>
                         @php $tplColors = ['research_summary'=>'primary','genealogical'=>'success','historical'=>'info','source_analysis'=>'warning','finding_aid'=>'secondary']; @endphp
                         <span class="badge bg-{{ $tplColors[$report->template_type ?? 'custom'] ?? 'dark' }} d-block mt-1">{{ ucwords(str_replace('_', ' ', $report->template_type ?? 'custom')) }}</span>
                     </div>
@@ -66,13 +66,13 @@
                     </div>
                     <div class="d-flex gap-1">
                         @if($index > 0)
-                        <form method="POST" class="d-inline">@csrf<input type="hidden" name="form_action" value="move_section"><input type="hidden" name="section_id" value="{{ $section->id }}"><input type="hidden" name="direction" value="up"><button type="submit" class="btn btn-sm btn-outline-secondary" title="Move Up"><i class="fas fa-arrow-up"></i></button></form>
+                        <form method="POST" class="d-inline">@csrf<input type="hidden" name="form_action" value="move_section"><input type="hidden" name="section_id" value="{{ $section->id }}"><input type="hidden" name="direction" value="up"><button type="submit" class="btn btn-sm btn-outline-secondary" title="{{ __('Move Up') }}"><i class="fas fa-arrow-up"></i></button></form>
                         @endif
                         @if($index < count($report->sections) - 1)
-                        <form method="POST" class="d-inline">@csrf<input type="hidden" name="form_action" value="move_section"><input type="hidden" name="section_id" value="{{ $section->id }}"><input type="hidden" name="direction" value="down"><button type="submit" class="btn btn-sm btn-outline-secondary" title="Move Down"><i class="fas fa-arrow-down"></i></button></form>
+                        <form method="POST" class="d-inline">@csrf<input type="hidden" name="form_action" value="move_section"><input type="hidden" name="section_id" value="{{ $section->id }}"><input type="hidden" name="direction" value="down"><button type="submit" class="btn btn-sm btn-outline-secondary" title="{{ __('Move Down') }}"><i class="fas fa-arrow-down"></i></button></form>
                         @endif
-                        <button type="button" class="btn btn-sm btn-outline-primary edit-section-btn" data-id="{{ $section->id }}" title="Edit"><i class="fas fa-edit"></i></button>
-                        <form method="POST" class="d-inline" onsubmit="return confirm('Delete this section?')">@csrf<input type="hidden" name="form_action" value="delete_section"><input type="hidden" name="section_id" value="{{ $section->id }}"><button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button></form>
+                        <button type="button" class="btn btn-sm btn-outline-primary edit-section-btn" data-id="{{ $section->id }}" title="{{ __('Edit') }}"><i class="fas fa-edit"></i></button>
+                        <form method="POST" class="d-inline" onsubmit="return confirm('Delete this section?')">@csrf<input type="hidden" name="form_action" value="delete_section"><input type="hidden" name="section_id" value="{{ $section->id }}"><button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}"><i class="fas fa-trash"></i></button></form>
                     </div>
                 </div>
                 {{-- Display --}}
@@ -93,7 +93,7 @@
                         @csrf
                         <input type="hidden" name="form_action" value="update_section">
                         <input type="hidden" name="section_id" value="{{ $section->id }}">
-                        <div class="mb-2"><input type="text" name="title" class="form-control form-control-sm" value="{{ e($section->title ?? '') }}" placeholder="Section title..."></div>
+                        <div class="mb-2"><input type="text" name="title" class="form-control form-control-sm" value="{{ e($section->title ?? '') }}" placeholder="{{ __('Section title...') }}"></div>
                         <div class="mb-2"><textarea name="content" class="form-control" rows="10">{{ e($section->content ?? '') }}</textarea></div>
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-save me-1"></i>Save</button>
@@ -111,7 +111,7 @@
                                 <input type="hidden" name="form_action" value="add_comment">
                                 <input type="hidden" name="section_id" value="{{ $section->id }}">
                                 <div class="input-group input-group-sm">
-                                    <input type="text" name="comment_content" class="form-control" placeholder="Add a comment...">
+                                    <input type="text" name="comment_content" class="form-control" placeholder="{{ __('Add a comment...') }}">
                                     <button type="submit" class="btn btn-outline-primary"><i class="fas fa-paper-plane"></i></button>
                                 </div>
                             </form>
@@ -141,14 +141,14 @@
                             @csrf
                             <input type="hidden" name="form_action" value="add_section">
                             <div class="col-md-4">
-                                <label class="form-label small">Section Type</label>
+                                <label class="form-label small">{{ __('Section Type') }}</label>
                                 <select name="section_type" class="form-select form-select-sm">
                                     @foreach(['text'=>'Text','heading'=>'Heading','title_page'=>'Title Page','toc'=>'Table of Contents','bibliography'=>'Bibliography','collection_list'=>'Collection List','annotation_list'=>'Annotation List','timeline'=>'Timeline','custom'=>'Custom'] as $tk=>$tl)
                                     <option value="{{ $tk }}">{{ $tl }}</option>
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-5"><label class="form-label small">Title</label><input type="text" name="title" class="form-control form-control-sm" placeholder="Section title..."></div>
+                            <div class="col-md-5"><label class="form-label small">{{ __('Title') }}</label><input type="text" name="title" class="form-control form-control-sm" placeholder="{{ __('Section title...') }}"></div>
                             <div class="col-md-3"><button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="fas fa-plus me-1"></i>Add</button></div>
                         </form>
                     </div>
@@ -160,11 +160,11 @@
                             <div class="row g-2 align-items-end">
                                 <div class="col-md-8">
                                     <select name="template_code" class="form-select form-select-sm">
-                                        <option value="research_summary">Research Summary</option>
-                                        <option value="genealogical">Genealogical Report</option>
-                                        <option value="historical">Historical Analysis</option>
-                                        <option value="source_analysis">Source Analysis</option>
-                                        <option value="finding_aid">Finding Aid</option>
+                                        <option value="research_summary">{{ __('Research Summary') }}</option>
+                                        <option value="genealogical">{{ __('Genealogical Report') }}</option>
+                                        <option value="historical">{{ __('Historical Analysis') }}</option>
+                                        <option value="source_analysis">{{ __('Source Analysis') }}</option>
+                                        <option value="finding_aid">{{ __('Finding Aid') }}</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4"><button type="submit" class="btn btn-sm btn-outline-success w-100"><i class="fas fa-layer-group me-1"></i>Load Sections</button></div>

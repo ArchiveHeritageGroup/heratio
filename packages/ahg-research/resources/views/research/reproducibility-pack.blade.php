@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('content')
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
@@ -12,7 +12,7 @@
 </nav>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">Reproducibility Pack</h1>
+    <h1 class="h2">{{ __('Reproducibility Pack') }}</h1>
     <button id="downloadPack" class="btn btn-primary"><i class="fas fa-download me-1"></i> Download Pack (JSON)</button>
 </div>
 
@@ -58,7 +58,7 @@
 
 {{-- Project Metadata --}}
 <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0">Project Metadata</h5></div>
+    <div class="card-header"><h5 class="mb-0">{{ __('Project Metadata') }}</h5></div>
     <div class="card-body">
         <dl class="row mb-0">
             <dt class="col-sm-3">Title</dt><dd class="col-sm-9">{{ e($project->title) }}</dd>
@@ -85,7 +85,7 @@
         @if(!empty($snapshots))
         <div class="table-responsive">
             <table class="table table-sm mb-0">
-                <thead><tr><th>Label</th><th>Created</th><th>Items</th></tr></thead>
+                <thead><tr><th>{{ __('Label') }}</th><th>{{ __('Created') }}</th><th>{{ __('Items') }}</th></tr></thead>
                 <tbody>
                 @foreach($snapshots as $snap)
                     <tr>

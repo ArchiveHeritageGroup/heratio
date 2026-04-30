@@ -28,7 +28,7 @@ $patterns = (array)($patterns ?? []);
           <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-fire me-2"></i>Popular Queries</h5></div>
           <div class="card-body p-0">
             @if(!empty($popularQueries))
-            <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>Query</th><th class="text-center">Searches</th><th class="text-center">Clicks</th></tr></thead><tbody>
+            <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>{{ __('Query') }}</th><th class="text-center">{{ __('Searches') }}</th><th class="text-center">{{ __('Clicks') }}</th></tr></thead><tbody>
               @foreach(array_slice($popularQueries,0,10) as $query)<tr><td>{{ $query->query_text ?? '' }}</td><td class="text-center">{{ number_format($query->search_count ?? 0) }}</td><td class="text-center">{{ number_format($query->total_clicks ?? 0) }}</td></tr>@endforeach
             </tbody></table></div>
             @else<p class="text-muted text-center py-4">No data available.</p>@endif
@@ -40,7 +40,7 @@ $patterns = (array)($patterns ?? []);
           <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>Zero Result Queries</h5></div>
           <div class="card-body p-0">
             @if(!empty($zeroResultQueries))
-            <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>Query</th><th class="text-center">Count</th><th>Last Searched</th></tr></thead><tbody>
+            <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>{{ __('Query') }}</th><th class="text-center">{{ __('Count') }}</th><th>{{ __('Last Searched') }}</th></tr></thead><tbody>
               @foreach(array_slice($zeroResultQueries,0,10) as $query)<tr><td>{{ $query->query_text ?? '' }}</td><td class="text-center">{{ number_format($query->search_count ?? 0) }}</td><td><small class="text-muted">{{ date('M d', strtotime($query->last_searched ?? 'now')) }}</small></td></tr>@endforeach
             </tbody></table></div>
             @else<p class="text-muted text-center py-4">No zero-result queries.</p>@endif

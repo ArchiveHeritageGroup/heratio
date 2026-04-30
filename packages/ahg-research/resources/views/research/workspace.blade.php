@@ -162,7 +162,7 @@
           @if($canUseFeatures)
             <a href="{{ route('research.book') }}" class="btn btn-sm btn-outline-primary">Book a visit</a>
           @else
-            <button class="btn btn-sm btn-outline-secondary" disabled>Book a visit</button>
+            <button class="btn btn-sm btn-outline-secondary" disabled>{{ __('Book a visit') }}</button>
           @endif
         </div>
       @endif
@@ -217,9 +217,9 @@
           <i class="fas fa-folder-open fa-2x mb-2 opacity-50"></i>
           <p class="mb-2">No evidence sets yet</p>
           @if($canUseFeatures)
-            <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#newCollectionModal">Create your first evidence set</button>
+            <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#newCollectionModal">{{ __('Create your first evidence set') }}</button>
           @else
-            <button class="btn btn-sm btn-outline-secondary" disabled>Create your first evidence set</button>
+            <button class="btn btn-sm btn-outline-secondary" disabled>{{ __('Create your first evidence set') }}</button>
           @endif
         </div>
       @endif
@@ -303,16 +303,16 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Evidence Set Name *</label>
-            <input type="text" name="collection_name" class="form-control" required placeholder="e.g., My Research Project">
+            <label class="form-label">{{ __('Evidence Set Name *') }}</label>
+            <input type="text" name="collection_name" class="form-control" required placeholder="{{ __('e.g., My Research Project') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea name="collection_description" class="form-control" rows="2" placeholder="Optional description..."></textarea>
+            <label class="form-label">{{ __('Description') }}</label>
+            <textarea name="collection_description" class="form-control" rows="2" placeholder="{{ __('Optional description...') }}"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="submit" class="btn btn-success"><i class="fas fa-plus me-1"></i>Create</button>
         </div>
       </form>

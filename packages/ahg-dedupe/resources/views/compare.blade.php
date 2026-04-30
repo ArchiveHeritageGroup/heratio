@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-columns me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Compare Duplicates</h1>
+      <h1 class="mb-0">{{ __('Compare Duplicates') }}</h1>
       <span class="small text-muted">
         Similarity score:
         @php
@@ -83,10 +83,10 @@
         <table class="table table-bordered mb-0">
           <thead>
             <tr>
-              <th style="width: 180px;">Field</th>
-              <th>Record A</th>
-              <th>Record B</th>
-              <th style="width: 80px;">Match</th>
+              <th style="width: 180px;">{{ __('Field') }}</th>
+              <th>{{ __('Record A') }}</th>
+              <th>{{ __('Record B') }}</th>
+              <th style="width: 80px;">{{ __('Match') }}</th>
             </tr>
           </thead>
           <tbody>

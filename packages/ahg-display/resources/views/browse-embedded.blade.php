@@ -387,7 +387,7 @@
       {{-- ===== GRID VIEW ===== --}}
       @if($viewMode === 'grid')
         @if(empty($objects))
-          <div class="text-center text-muted py-5"><i class="fas fa-inbox fa-4x mb-3"></i><h4>No results</h4></div>
+          <div class="text-center text-muted py-5"><i class="fas fa-inbox fa-4x mb-3"></i><h4>{{ __('No results') }}</h4></div>
         @else
           <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
             @foreach($objects as $obj)
@@ -420,9 +420,9 @@
             <thead class="table-light">
               <tr>
                 <th style="width:60px"></th>
-                <th>Title</th>
-                <th style="width:100px">Level</th>
-                <th style="width:100px">Type</th>
+                <th>{{ __('Title') }}</th>
+                <th style="width:100px">{{ __('Level') }}</th>
+                <th style="width:100px">{{ __('Type') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -458,7 +458,7 @@
       {{-- ===== CARD VIEW (default) ===== --}}
       @else
         @if(empty($objects))
-          <div class="text-center text-muted py-5"><i class="fas fa-inbox fa-4x mb-3"></i><h4>No results</h4></div>
+          <div class="text-center text-muted py-5"><i class="fas fa-inbox fa-4x mb-3"></i><h4>{{ __('No results') }}</h4></div>
         @else
           @foreach($objects as $obj)
             @php

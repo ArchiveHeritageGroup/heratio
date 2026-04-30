@@ -20,7 +20,7 @@
 
   {{-- Breadcrumbs --}}
   @if(!empty($breadcrumbs))
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
       <ol class="breadcrumb">
         @foreach($breadcrumbs as $crumb)
           <li class="breadcrumb-item">
@@ -46,8 +46,8 @@
             <th width="14%">
               <a href="{{ route('informationobject.inventory', ['slug' => $io->slug, 'sort' => 'level']) }}">Level of description</a>
             </th>
-            <th width="24%">Date</th>
-            <th width="8%">Digital object</th>
+            <th width="24%">{{ __('Date') }}</th>
+            <th width="8%">{{ __('Digital object') }}</th>
             <th></th>
           </tr>
         </thead>
@@ -76,7 +76,7 @@
 
     {{-- Pagination --}}
     @if($total > $perPage)
-      <nav aria-label="Inventory pagination">
+      <nav aria-label="{{ __('Inventory pagination') }}">
         <ul class="pagination justify-content-center">
           @php
             $totalPages = ceil($total / $perPage);

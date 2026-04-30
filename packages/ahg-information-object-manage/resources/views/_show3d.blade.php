@@ -26,7 +26,7 @@ $viewerId = 'viewer-' . uniqid(); @endphp
         } catch (\Throwable $e) { /* ignore */ }
       @endphp
       @if($isAiGenerated)
-        <span class="badge bg-warning text-dark" title="Reconstructed by an AI model from a 2D source — geometry is approximate">
+        <span class="badge bg-warning text-dark" title="{{ __('Reconstructed by an AI model from a 2D source — geometry is approximate') }}">
           <i class="fas fa-flask me-1"></i>{{ __('AI-generated reconstruction') }}
         </span>
       @endif

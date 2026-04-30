@@ -139,7 +139,7 @@
 @if ($blocks->isEmpty())
 <div class="container py-5 text-center">
   <i class="bi bi-grid-3x3-gap display-1 text-muted"></i>
-  <h3 class="mt-3 text-muted">Your Dashboard is Empty</h3>
+  <h3 class="mt-3 text-muted">{{ __('Your Dashboard is Empty') }}</h3>
   <p class="text-muted">Add blocks to customize your personal dashboard</p>
   <a href="{{ route('landing-page.myDashboard.list') }}" class="btn btn-primary btn-lg mt-2">
     <i class="bi bi-pencil"></i> Customize Dashboard

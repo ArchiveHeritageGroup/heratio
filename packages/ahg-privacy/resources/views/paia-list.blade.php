@@ -106,7 +106,7 @@
                             @endif
                         </td>
                         <td>
-                            <a href="#" class="btn btn-sm btn-outline-primary" title="View">
+                            <a href="#" class="btn btn-sm btn-outline-primary" title="{{ __('View') }}">
                                 <i class="fas fa-eye"></i>
                             </a>
                         </td>

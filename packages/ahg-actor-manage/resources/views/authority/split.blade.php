@@ -5,7 +5,7 @@
 
 @section('content')
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
@@ -28,12 +28,12 @@
 
     <form id="split-form">
       <div class="mb-3">
-        <label class="form-label">New actor name</label>
+        <label class="form-label">{{ __('New actor name') }}</label>
         <input type="text" name="new_name" id="split-new-name" class="form-control" required>
       </div>
 
       <div class="mb-3">
-        <label class="form-label">Notes</label>
+        <label class="form-label">{{ __('Notes') }}</label>
         <textarea name="notes" id="split-notes" class="form-control" rows="3"></textarea>
       </div>
 

@@ -9,7 +9,7 @@
       <div class="card-body p-4">
         <div class="text-center mb-4">
           <i class="fas fa-users display-4" style="color:var(--ahg-primary)"></i>
-          <h2 class="h4 mt-3">Welcome Back</h2>
+          <h2 class="h4 mt-3">{{ __('Welcome Back') }}</h2>
           <p class="text-muted">Sign in to contribute to our heritage collection</p>
         </div>
 
@@ -19,12 +19,12 @@
 
         <form method="post" action="{{ route('heritage.contributor-login') }}">@csrf
           <div class="mb-3">
-            <label for="email" class="form-label">Email Address</label>
-            <div class="input-group"><span class="input-group-text"><i class="fas fa-envelope"></i></span><input type="email" class="form-control" id="email" name="email" required autofocus placeholder="your@email.com"></div>
+            <label for="email" class="form-label">{{ __('Email Address') }}</label>
+            <div class="input-group"><span class="input-group-text"><i class="fas fa-envelope"></i></span><input type="email" class="form-control" id="email" name="email" required autofocus placeholder="{{ __('your@email.com') }}"></div>
           </div>
           <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <div class="input-group"><span class="input-group-text"><i class="fas fa-lock"></i></span><input type="password" class="form-control" id="password" name="password" required placeholder="Your password"></div>
+            <label for="password" class="form-label">{{ __('Password') }}</label>
+            <div class="input-group"><span class="input-group-text"><i class="fas fa-lock"></i></span><input type="password" class="form-control" id="password" name="password" required placeholder="{{ __('Your password') }}"></div>
           </div>
           <div class="d-grid gap-2 mb-3"><button type="submit" class="btn atom-btn-secondary btn-lg"><i class="fas fa-sign-in-alt me-2"></i>Sign In</button></div>
         </form>

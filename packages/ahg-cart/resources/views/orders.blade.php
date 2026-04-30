@@ -12,7 +12,7 @@
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
-          <th>Order #</th><th>Date</th><th>Status</th><th>Total</th><th>Actions</th>
+          <th>{{ __('Order #') }}</th><th>{{ __('Date') }}</th><th>{{ __('Status') }}</th><th>{{ __('Total') }}</th><th>{{ __('Actions') }}</th>
         </tr>
       </thead>
       <tbody>

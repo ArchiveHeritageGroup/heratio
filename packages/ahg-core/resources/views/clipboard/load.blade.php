@@ -12,7 +12,7 @@
     (overwrite) the current clipboard with the saved one.
   </div>
 
-  <h1>Load clipboard</h1>
+  <h1>{{ __('Load clipboard') }}</h1>
 
   <form id="clipboard-load-form" action="{{ route('clipboard.load.post') }}" method="POST">
     @csrf
@@ -22,7 +22,7 @@
         <h2 class="accordion-header" id="load-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse"
                   data-bs-target="#load-collapse" aria-expanded="true" aria-controls="load-collapse">
-            Load options
+            {{ __('Load options') }}
           </button>
         </h2>
         <div id="load-collapse" class="accordion-collapse collapse show" aria-labelledby="load-heading">
@@ -30,13 +30,13 @@
             <div class="mb-3">
               <label for="clipboardPassword" class="form-label">Clipboard ID <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" class="form-control" id="clipboardPassword" name="clipboardPassword"
-                     required placeholder="Enter 7-digit clipboard ID">
+                     required placeholder="{{ __('Enter 7-digit clipboard ID') }}">
             </div>
             <div class="mb-3">
               <label for="mode" class="form-label">Action <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" id="mode" name="mode">
-                <option value="merge" selected>Merge saved clipboard with existing clipboard results</option>
-                <option value="replace">Replace existing clipboard results with saved clipboard</option>
+                <option value="merge" selected>{{ __('Merge saved clipboard with existing clipboard results') }}</option>
+                <option value="replace">{{ __('Replace existing clipboard results with saved clipboard') }}</option>
               </select>
             </div>
           </div>
@@ -46,10 +46,10 @@
 
     <ul class="actions mb-3 nav gap-2">
       <li>
-        <button type="submit" name="load" class="btn atom-btn-outline-success">Load</button>
+        <button type="submit" name="load" class="btn atom-btn-outline-success">{{ __('Load') }}</button>
       </li>
       <li>
-        <button type="submit" name="loadView" class="btn atom-btn-outline-success">Load and view</button>
+        <button type="submit" name="loadView" class="btn atom-btn-outline-success">{{ __('Load and view') }}</button>
       </li>
     </ul>
   </form>

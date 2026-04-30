@@ -23,7 +23,7 @@
     </div>
   </div>
 
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('gallery.browse') }}">Gallery</a></li>
       <li class="breadcrumb-item"><a href="{{ route('gallery.artists') }}">Artists</a></li>
@@ -36,7 +36,7 @@
 
       {{-- Biographical Information --}}
       <section class="mb-4">
-        <h2 class="fs-5 border-bottom pb-2">Biographical information</h2>
+        <h2 class="fs-5 border-bottom pb-2">{{ __('Biographical information') }}</h2>
         <div class="field-list">
           @if($artist->display_name)
             <div class="row mb-1">
@@ -92,7 +92,7 @@
       {{-- Artistic Practice --}}
       @if($artist->artist_type || $artist->medium_specialty || $artist->movement_style)
         <section class="mb-4">
-          <h2 class="fs-5 border-bottom pb-2">Artistic practice</h2>
+          <h2 class="fs-5 border-bottom pb-2">{{ __('Artistic practice') }}</h2>
           <div class="field-list">
             @if($artist->artist_type)
               <div class="row mb-1">
@@ -119,7 +119,7 @@
       {{-- Representation --}}
       @if($artist->represented)
         <section class="mb-4">
-          <h2 class="fs-5 border-bottom pb-2">Representation</h2>
+          <h2 class="fs-5 border-bottom pb-2">{{ __('Representation') }}</h2>
           <div class="field-list">
             <div class="row mb-1">
               <div class="col-sm-4 fw-bold">Represented by</div>
@@ -132,7 +132,7 @@
       {{-- Biography --}}
       @if($artist->biography)
         <section class="mb-4">
-          <h2 class="fs-5 border-bottom pb-2">Biography</h2>
+          <h2 class="fs-5 border-bottom pb-2">{{ __('Biography') }}</h2>
           <div>{!! nl2br(e($artist->biography)) !!}</div>
         </section>
       @endif
@@ -140,7 +140,7 @@
       {{-- Artist Statement --}}
       @if($artist->artist_statement)
         <section class="mb-4">
-          <h2 class="fs-5 border-bottom pb-2">Artist statement</h2>
+          <h2 class="fs-5 border-bottom pb-2">{{ __('Artist statement') }}</h2>
           <div>{!! nl2br(e($artist->artist_statement)) !!}</div>
         </section>
       @endif
@@ -148,7 +148,7 @@
       {{-- CV --}}
       @if($artist->cv)
         <section class="mb-4">
-          <h2 class="fs-5 border-bottom pb-2">Curriculum Vitae</h2>
+          <h2 class="fs-5 border-bottom pb-2">{{ __('Curriculum Vitae') }}</h2>
           <div>{!! nl2br(e($artist->cv)) !!}</div>
         </section>
       @endif
@@ -185,7 +185,7 @@
       {{-- Notes --}}
       @if($artist->notes)
         <section class="mb-4">
-          <h2 class="fs-5 border-bottom pb-2">Notes</h2>
+          <h2 class="fs-5 border-bottom pb-2">{{ __('Notes') }}</h2>
           <div>{!! nl2br(e($artist->notes)) !!}</div>
         </section>
       @endif

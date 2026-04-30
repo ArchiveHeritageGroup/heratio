@@ -16,7 +16,7 @@
 
 @section('content')
 <div class="container-fluid px-4 py-3">
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">Statistics</a></li>
             <li class="breadcrumb-item"><a href="{{ route('statistics.admin') }}">Settings</a></li>
@@ -39,18 +39,18 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Configured Bot Patterns</h5>
+                    <h5 class="mb-0">{{ __('Configured Bot Patterns') }}</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Pattern</th>
-                                    <th>Category</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
+                                    <th>{{ __('Name') }}</th>
+                                    <th>{{ __('Pattern') }}</th>
+                                    <th>{{ __('Category') }}</th>
+                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -71,7 +71,7 @@
                                                 @csrf
                                                 <input type="hidden" name="form_action" value="toggle">
                                                 <input type="hidden" name="id" value="{{ $bot->id }}">
-                                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Toggle">
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="{{ __('Toggle') }}">
                                                     <i class="fas fa-toggle-{{ !empty($bot->is_active) ? 'on' : 'off' }}"></i>
                                                 </button>
                                             </form>
@@ -96,7 +96,7 @@
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Add Bot Pattern</h5>
+                    <h5 class="mb-0">{{ __('Add Bot Pattern') }}</h5>
                 </div>
                 <div class="card-body">
                     <form method="post">
@@ -104,25 +104,25 @@
                         <input type="hidden" name="form_action" value="add">
 
                         <div class="mb-3">
-                            <label for="name" class="form-label">Name *</label>
-                            <input type="text" class="form-control" id="name" name="name" required placeholder="e.g., MyBot">
+                            <label for="name" class="form-label">{{ __('Name *') }}</label>
+                            <input type="text" class="form-control" id="name" name="name" required placeholder="{{ __('e.g., MyBot') }}">
                         </div>
 
                         <div class="mb-3">
-                            <label for="pattern" class="form-label">Regex Pattern *</label>
-                            <input type="text" class="form-control" id="pattern" name="pattern" required placeholder="e.g., MyBot|mybot">
+                            <label for="pattern" class="form-label">{{ __('Regex Pattern *') }}</label>
+                            <input type="text" class="form-control" id="pattern" name="pattern" required placeholder="{{ __('e.g., MyBot|mybot') }}">
                             <small class="form-text text-muted">Case-insensitive regex to match user agent</small>
                         </div>
 
                         <div class="mb-3">
-                            <label for="category" class="form-label">Category</label>
+                            <label for="category" class="form-label">{{ __('Category') }}</label>
                             <select class="form-select" id="category" name="category">
-                                <option value="search_engine">Search Engine</option>
-                                <option value="social">Social Media</option>
-                                <option value="monitoring">Monitoring</option>
-                                <option value="crawler" selected>Crawler</option>
-                                <option value="spam">Spam</option>
-                                <option value="other">Other</option>
+                                <option value="search_engine">{{ __('Search Engine') }}</option>
+                                <option value="social">{{ __('Social Media') }}</option>
+                                <option value="monitoring">{{ __('Monitoring') }}</option>
+                                <option value="crawler" selected>{{ __('Crawler') }}</option>
+                                <option value="spam">{{ __('Spam') }}</option>
+                                <option value="other">{{ __('Other') }}</option>
                             </select>
                         </div>
 

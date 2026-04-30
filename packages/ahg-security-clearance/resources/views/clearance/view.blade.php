@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid mt-3">
-  <nav aria-label="breadcrumb"><ol class="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('security-clearance.index') }}">Security Clearances</a></li>
     <li class="breadcrumb-item active">{{ e($targetUser->authorized_form_of_name ?? $targetUser->username ?? 'User') }}</li>
   </ol></nav>
@@ -53,7 +53,7 @@
             @csrf
             <input type="hidden" name="user_id" value="{{ $targetUser->id }}">
             <div class="mb-3">
-              <label class="form-label">Classification Level</label>
+              <label class="form-label">{{ __('Classification Level') }}</label>
               <select name="classification_id" class="form-select" required>
                 <option value="0">— Revoke —</option>
                 @foreach($classifications ?? [] as $cl)
@@ -65,14 +65,14 @@
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label">Expires At</label>
+              <label class="form-label">{{ __('Expires At') }}</label>
               <input type="date" name="expires_at" class="form-control" value="{{ $clearance->expires_at ?? '' }}">
             </div>
             <div class="mb-3">
-              <label class="form-label">Notes</label>
+              <label class="form-label">{{ __('Notes') }}</label>
               <textarea name="notes" class="form-control" rows="2"></textarea>
             </div>
-            <button type="submit" class="btn btn-primary">Update</button>
+            <button type="submit" class="btn btn-primary">{{ __('Update') }}</button>
           </form>
         </div>
       </div>
@@ -85,7 +85,7 @@
         <div class="card-header"><h5 class="mb-0"><i class="fas fa-key"></i> Object Access Grants</h5></div>
         <div class="card-body table-responsive">
           <table class="table table-sm table-striped">
-            <thead><tr><th>Object</th><th>Classification</th><th>Granted</th><th>Expires</th><th>Actions</th></tr></thead>
+            <thead><tr><th>{{ __('Object') }}</th><th>{{ __('Classification') }}</th><th>{{ __('Granted') }}</th><th>{{ __('Expires') }}</th><th>{{ __('Actions') }}</th></tr></thead>
             <tbody>
               @forelse($accessGrants ?? [] as $grant)
               <tr>
@@ -115,7 +115,7 @@
         <div class="card-header"><h5 class="mb-0"><i class="fas fa-history"></i> Clearance History</h5></div>
         <div class="card-body table-responsive">
           <table class="table table-sm table-striped">
-            <thead><tr><th>Action</th><th>Level</th><th>By</th><th>Notes</th><th>Date</th></tr></thead>
+            <thead><tr><th>{{ __('Action') }}</th><th>{{ __('Level') }}</th><th>{{ __('By') }}</th><th>{{ __('Notes') }}</th><th>{{ __('Date') }}</th></tr></thead>
             <tbody>
               @forelse($history ?? [] as $entry)
               <tr>

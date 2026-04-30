@@ -5,7 +5,7 @@
 @section('content')
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3">Disposal History</h1>
+        <h1 class="h3">{{ __('Disposal History') }}</h1>
         <a href="{{ route('records.disposal.queue') }}" class="btn btn-outline-secondary btn-sm">
             <i class="fas fa-list"></i> Back to Queue
         </a>
@@ -17,11 +17,11 @@
                 <table class="table table-striped table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>IO Title</th>
-                            <th>Action</th>
-                            <th>Status</th>
-                            <th>Executed Date</th>
-                            <th>Certificate</th>
+                            <th>{{ __('IO Title') }}</th>
+                            <th>{{ __('Action') }}</th>
+                            <th>{{ __('Status') }}</th>
+                            <th>{{ __('Executed Date') }}</th>
+                            <th>{{ __('Certificate') }}</th>
                             <th></th>
                         </tr>
                     </thead>

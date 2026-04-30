@@ -54,7 +54,7 @@
     <div class="card-body">
       <div class="mb-3">
         <label class="form-label">{{ __('Object IDs (one per line or comma-separated)') }}</label>
-        <textarea name="object_ids" class="form-control" rows="4" placeholder="123&#10;456&#10;789" required></textarea>
+        <textarea name="object_ids" class="form-control" rows="4" placeholder="{{ __('123&#10;456&#10;789') }}" required></textarea>
         <small class="text-muted">{{ __('Enter the IDs of the information objects to apply this batch operation to.') }}</small>
       </div>
       <div class="form-check">
@@ -100,7 +100,7 @@
         </div>
         <div class="col-md-6 mb-3">
           <label class="form-label">{{ __('Copyright Notice') }}</label>
-          <input type="text" name="copyright_notice" class="form-control" placeholder="© 2026 ...">
+          <input type="text" name="copyright_notice" class="form-control" placeholder="{{ __('© 2026 ...') }}">
         </div>
       </div>
 
@@ -184,10 +184,10 @@ document.addEventListener('DOMContentLoaded', function() {
   {{-- Recent Batch Operations --}}
   @if(!empty($recentBatches))
   <div class="card">
-    <div class="card-header"><h5 class="mb-0">Recent Batch Operations</h5></div>
+    <div class="card-header"><h5 class="mb-0">{{ __('Recent Batch Operations') }}</h5></div>
     <div class="card-body table-responsive">
       <table class="table table-sm table-striped">
-        <thead><tr><th>Date</th><th>Operation</th><th>Objects</th><th>By</th><th>Result</th></tr></thead>
+        <thead><tr><th>{{ __('Date') }}</th><th>{{ __('Operation') }}</th><th>{{ __('Objects') }}</th><th>{{ __('By') }}</th><th>{{ __('Result') }}</th></tr></thead>
         <tbody>
           @foreach($recentBatches as $batch)
           <tr>

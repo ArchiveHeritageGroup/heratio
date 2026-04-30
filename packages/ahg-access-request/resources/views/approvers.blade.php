@@ -6,7 +6,7 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('accessRequest.pending') }}">Access Requests</a></li>
@@ -44,9 +44,9 @@
                                     <table class="table table-hover mb-0">
                                         <thead class="table-light">
                                             <tr>
-                                                <th>User</th>
-                                                <th>Email</th>
-                                                <th>Actions</th>
+                                                <th>{{ __('User') }}</th>
+                                                <th>{{ __('Email') }}</th>
+                                                <th>{{ __('Actions') }}</th>
                                             </tr>
                                         </thead>
                                         <tbody>

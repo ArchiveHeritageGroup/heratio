@@ -29,7 +29,7 @@
     <div class="no-print" style="background:#f8f9fa; padding:15px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
         <a href="{{ route('research.viewReport', $report->id) }}" style="text-decoration:none;">&larr; Back to Report</a>
         <button onclick="window.print()" style="padding:8px 16px; background:#dc3545; color:#fff; border:none; border-radius:4px; cursor:pointer;">
-            Print / Save as PDF
+            {{ __('Print / Save as PDF') }}
         </button>
     </div>
 
@@ -48,7 +48,7 @@
     </div>
 
     @if(!empty($report->sections) && count($report->sections) > 3)
-    <h2>Table of Contents</h2>
+    <h2>{{ __('Table of Contents') }}</h2>
     <ol style="font-size:0.9rem;">
         @foreach($report->sections as $s)
             <li><a href="#section-{{ $s->id }}" style="text-decoration:none; color:#333;">{{ e($s->title ?: ucfirst($s->section_type ?? 'Section')) }}</a></li>

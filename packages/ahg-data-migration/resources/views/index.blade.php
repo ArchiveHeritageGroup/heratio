@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-exchange-alt me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Data Migration</h1>
+      <h1 class="mb-0">{{ __('Data Migration') }}</h1>
       <span class="small text-muted">Import, export, and manage field mappings</span>
     </div>
   </div>
@@ -65,11 +65,11 @@
               <table class="table table-bordered mb-0">
                 <thead>
                   <tr>
-                    <th>Name</th>
-                    <th>Target Type</th>
-                    <th>Category</th>
-                    <th>Updated</th>
-                    <th style="width:100px">Actions</th>
+                    <th>{{ __('Name') }}</th>
+                    <th>{{ __('Target Type') }}</th>
+                    <th>{{ __('Category') }}</th>
+                    <th>{{ __('Updated') }}</th>
+                    <th style="width:100px">{{ __('Actions') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -81,7 +81,7 @@
                       <td>{{ $mapping['updated_at'] ? \Carbon\Carbon::parse($mapping['updated_at'])->format('Y-m-d H:i') : '' }}</td>
                       <td>
                         <a href="{{ route('data-migration.export-mapping', $mapping['id']) }}"
-                           class="btn btn-outline-secondary btn-sm me-1" title="Export mapping">
+                           class="btn btn-outline-secondary btn-sm me-1" title="{{ __('Export mapping') }}">
                           <i class="fas fa-file-export"></i>
                         </a>
                         <form method="POST"
@@ -89,7 +89,7 @@
                               class="d-inline"
                               onsubmit="return confirm('Delete this mapping?')">
                           @csrf
-                          <button type="submit" class="btn btn-outline-secondary btn-sm" title="Delete">
+                          <button type="submit" class="btn btn-outline-secondary btn-sm" title="{{ __('Delete') }}">
                             <i class="fas fa-trash"></i>
                           </button>
                         </form>
@@ -139,10 +139,10 @@
                 <thead>
                   <tr>
                     <th>#</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Progress</th>
-                    <th>Started</th>
+                    <th>{{ __('Type') }}</th>
+                    <th>{{ __('Status') }}</th>
+                    <th>{{ __('Progress') }}</th>
+                    <th>{{ __('Started') }}</th>
                   </tr>
                 </thead>
                 <tbody>

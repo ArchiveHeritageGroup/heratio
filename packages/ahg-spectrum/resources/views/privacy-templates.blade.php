@@ -76,14 +76,14 @@ $categories = [
                         </div>
                         <div class="btn-group btn-group-sm">
                             @if($t->file_path)
-                                <a href="{{ route('ahgspectrum.privacy-templates') }}/download?id={{ $t->id }}" class="btn btn-outline-success" title="Download">
+                                <a href="{{ route('ahgspectrum.privacy-templates') }}/download?id={{ $t->id }}" class="btn btn-outline-success" title="{{ __('Download') }}">
                                     <i class="fas fa-download"></i>
                                 </a>
                             @endif
-                            <button class="btn btn-outline-warning" onclick="replaceTemplate({{ $t->id }}, '{{ addslashes($t->name) }}')" title="Replace">
+                            <button class="btn btn-outline-warning" onclick="replaceTemplate({{ $t->id }}, '{{ addslashes($t->name) }}')" title="{{ __('Replace') }}">
                                 <i class="fas fa-sync"></i>
                             </button>
-                            <button class="btn btn-outline-danger" onclick="deleteTemplate({{ $t->id }})" title="Delete">
+                            <button class="btn btn-outline-danger" onclick="deleteTemplate({{ $t->id }})" title="{{ __('Delete') }}">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -112,29 +112,29 @@ $categories = [
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Category *</label>
+                        <label class="form-label">{{ __('Category *') }}</label>
                         <select name="category" class="form-select" required>
                             <option value="">-- Select --</option>
-                            <option value="paia_manual">PAIA Manual</option>
-                            <option value="privacy_notice">Privacy Notice</option>
-                            <option value="dsar_response">DSAR Response</option>
-                            <option value="breach_notification">Breach Notification</option>
-                            <option value="consent_form">Consent Form</option>
-                            <option value="retention_schedule">Retention Schedule</option>
+                            <option value="paia_manual">{{ __('PAIA Manual') }}</option>
+                            <option value="privacy_notice">{{ __('Privacy Notice') }}</option>
+                            <option value="dsar_response">{{ __('DSAR Response') }}</option>
+                            <option value="breach_notification">{{ __('Breach Notification') }}</option>
+                            <option value="consent_form">{{ __('Consent Form') }}</option>
+                            <option value="retention_schedule">{{ __('Retention Schedule') }}</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Template Name *</label>
-                        <input type="text" name="name" class="form-control" required placeholder="e.g., PAIA Manual - Standard">
+                        <label class="form-label">{{ __('Template Name *') }}</label>
+                        <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g., PAIA Manual - Standard') }}">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Word Document (.docx) *</label>
+                        <label class="form-label">{{ __('Word Document (.docx) *') }}</label>
                         <input type="file" name="template_file" class="form-control" accept=".docx,.doc" required>
                         <small class="text-muted">Upload a .docx file</small>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                     <button type="submit" class="btn btn-primary"><i class="fas fa-upload me-1"></i>Upload</button>
                 </div>
             </form>
@@ -157,12 +157,12 @@ $categories = [
                 <div class="modal-body">
                     <p>Replacing: <strong id="replace_name"></strong></p>
                     <div class="mb-3">
-                        <label class="form-label">New Word Document (.docx) *</label>
+                        <label class="form-label">{{ __('New Word Document (.docx) *') }}</label>
                         <input type="file" name="template_file" class="form-control" accept=".docx,.doc" required>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                     <button type="submit" class="btn btn-warning"><i class="fas fa-sync me-1"></i>Replace</button>
                 </div>
             </form>

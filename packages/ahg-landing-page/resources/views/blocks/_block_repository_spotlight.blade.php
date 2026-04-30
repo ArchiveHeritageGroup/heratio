@@ -54,7 +54,7 @@ $showHoldingsCount = $config['show_holdings_count'] ?? true;
 
         @if (!empty($repo['sample_holdings']))
           <div class="mt-3">
-            <h6 class="small text-muted">Sample Holdings:</h6>
+            <h6 class="small text-muted">{{ __('Sample Holdings:') }}</h6>
             <ul class="list-unstyled small">
               @foreach ($repo['sample_holdings'] as $holding)
                 <li>

@@ -15,7 +15,7 @@
   @if(isset($assignedLabels) && count($assignedLabels) > 0)
   <div class="card mb-4">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <h5 class="mb-0">Assigned Labels</h5>
+      <h5 class="mb-0">{{ __('Assigned Labels') }}</h5>
     </div>
     <div class="card-body">
       <div class="row">
@@ -28,7 +28,7 @@
             <div>
               <strong>{{ $label->name ?? '' }}</strong>
               @if($label->verified ?? false)
-                <i class="fas fa-check-circle text-success ms-1" title="Verified"></i>
+                <i class="fas fa-check-circle text-success ms-1" title="{{ __('Verified') }}"></i>
               @endif
               <br>
               <small class="text-muted">{{ $label->description ?? '' }}</small>
@@ -48,7 +48,7 @@
   @auth
   <div class="card mb-4">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <h5 class="mb-0">Assign TK Label</h5>
+      <h5 class="mb-0">{{ __('Assign TK Label') }}</h5>
     </div>
     <div class="card-body">
       <form action="{{ route('ext-rights.assign-tk-label', $resource->slug) }}" method="post">
@@ -64,20 +64,20 @@
             </select>
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label">Community Name</label>
+            <label class="form-label">{{ __('Community Name') }}</label>
             <input type="text" name="community_name" class="form-control">
           </div>
         </div>
         <div class="mb-3">
-          <label class="form-label">Community Contact</label>
+          <label class="form-label">{{ __('Community Contact') }}</label>
           <textarea name="community_contact" class="form-control" rows="2"></textarea>
         </div>
         <div class="mb-3">
-          <label class="form-label">Provenance Statement</label>
+          <label class="form-label">{{ __('Provenance Statement') }}</label>
           <textarea name="provenance_statement" class="form-control" rows="2"></textarea>
         </div>
         <div class="mb-3">
-          <label class="form-label">Cultural Note</label>
+          <label class="form-label">{{ __('Cultural Note') }}</label>
           <textarea name="cultural_note" class="form-control" rows="2"></textarea>
         </div>
         <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Assign Label</button>

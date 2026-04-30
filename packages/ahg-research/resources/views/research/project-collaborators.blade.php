@@ -8,7 +8,7 @@
 @section('title', 'Project Collaborators')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
@@ -35,11 +35,11 @@
             <table class="table table-hover mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th>{{ __('Name') }}</th>
+                        <th>{{ __('Email') }}</th>
+                        <th>{{ __('Role') }}</th>
+                        <th>{{ __('Status') }}</th>
+                        <th>{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>

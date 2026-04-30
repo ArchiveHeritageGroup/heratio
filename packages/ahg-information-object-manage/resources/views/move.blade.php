@@ -24,7 +24,7 @@
     <div class="accordion-item">
       <h2 class="accordion-header" id="move-heading">
         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#move-collapse" aria-expanded="true" aria-controls="move-collapse">
-          Move
+          {{ __('Move') }}
         </button>
       </h2>
       <div id="move-collapse" class="accordion-collapse collapse show" aria-labelledby="move-heading">
@@ -34,8 +34,8 @@
 
           {{-- Current parent breadcrumb --}}
           <div class="mb-3">
-            <label class="form-label fw-bold">Current location</label>
-            <nav aria-label="breadcrumb">
+            <label class="form-label fw-bold">{{ __('Current location') }}</label>
+            <nav aria-label="{{ __('breadcrumb') }}">
               <ol class="breadcrumb mb-0" style="background:var(--ahg-card-header-bg, #005837);padding:.5rem 1rem;border-radius:.375rem;">
                 @foreach($breadcrumb as $ancestor)
                   <li class="breadcrumb-item">
@@ -59,8 +59,8 @@
             @csrf
 
             <div class="mb-3">
-              <label for="new_parent_search" class="form-label fw-bold">New parent</label>
-              <input type="text" class="form-control" id="new_parent_search" placeholder="Type to search for a new parent record..." autocomplete="off">
+              <label for="new_parent_search" class="form-label fw-bold">{{ __('New parent') }}</label>
+              <input type="text" class="form-control" id="new_parent_search" placeholder="{{ __('Type to search for a new parent record...') }}" autocomplete="off">
               <input type="hidden" name="new_parent_id" id="new_parent_id" value="">
               <div id="move-autocomplete-results" class="list-group mt-1" style="position:relative;z-index:1000;"></div>
               <div id="move-selected-parent" class="mt-2"></div>

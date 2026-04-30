@@ -3,13 +3,13 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<h1>Dashboard</h1>
+<h1>{{ __('Dashboard') }}</h1>
 
 <div class="table-responsive">
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th>#</th><th>Name</th><th>Actions</th>
+        <th>#</th><th>{{ __('Name') }}</th><th>{{ __('Actions') }}</th>
       </tr>
     </thead>
     <tbody>

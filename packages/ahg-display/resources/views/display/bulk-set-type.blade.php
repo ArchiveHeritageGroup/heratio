@@ -42,7 +42,7 @@
     <div class="d-flex align-items-center">
       <i class="fas fa-3x fa-tags me-3 text-primary" aria-hidden="true"></i>
       <div>
-        <h1 class="mb-0">Bulk Set Object Types</h1>
+        <h1 class="mb-0">{{ __('Bulk Set Object Types') }}</h1>
         <span class="small text-muted">Assign a collection type to all objects in a collection</span>
       </div>
     </div>
@@ -60,7 +60,7 @@
     <div class="col-md-8">
       <div class="card">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0">Select Collection and Type</h5>
+          <h5 class="mb-0">{{ __('Select Collection and Type') }}</h5>
         </div>
         <div class="card-body">
           <form method="POST" action="{{ route('glam.bulk.set.type') }}">
@@ -70,7 +70,7 @@
             <div class="mb-4">
               <label class="form-label"><strong>Top-Level Collection</strong> <span class="badge bg-danger ms-1">Required</span></label>
               <select name="collection_id" id="collection_id" class="form-select" required>
-                <option value="">Select collection...</option>
+                <option value="">{{ __('Select collection...') }}</option>
                 @if(!empty($collections))
                   @foreach($collections as $collection)
                     <option value="{{ $collection->id }}" {{ old('collection_id') == $collection->id ? 'selected' : '' }}>

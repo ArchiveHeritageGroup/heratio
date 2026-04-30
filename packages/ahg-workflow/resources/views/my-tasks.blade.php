@@ -27,7 +27,7 @@
   @if(count($tasks) === 0)
     <div class="text-center text-muted py-5">
       <i class="fas fa-inbox fa-4x mb-3 opacity-50" aria-hidden="true"></i>
-      <h4>No tasks assigned to you</h4>
+      <h4>{{ __('No tasks assigned to you') }}</h4>
       <p>Browse the <a href="{{ route('workflow.pool') }}">task pool</a> to claim available tasks.</p>
     </div>
   @else
@@ -38,14 +38,14 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th>Step</th>
-                <th>Workflow</th>
-                <th>Object</th>
-                <th>Status</th>
-                <th>Priority</th>
-                <th>Due Date</th>
-                <th>Decision</th>
-                <th>Actions</th>
+                <th>{{ __('Step') }}</th>
+                <th>{{ __('Workflow') }}</th>
+                <th>{{ __('Object') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Priority') }}</th>
+                <th>{{ __('Due Date') }}</th>
+                <th>{{ __('Decision') }}</th>
+                <th>{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>

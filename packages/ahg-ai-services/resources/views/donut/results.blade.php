@@ -2,7 +2,7 @@
 @section('title', 'Donut — Extraction Results')
 @section('body-class', 'admin ai-services donut')
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.donut.dashboard') }}">Donut</a></li><li class="breadcrumb-item active">Results</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.donut.dashboard') }}">Donut</a></li><li class="breadcrumb-item active">Results</li></ol></nav>
 <h1><i class="fas fa-check-circle me-2"></i>Extraction Results</h1>
 
 <div class="card mb-4">
@@ -16,23 +16,23 @@
     <table class="table table-bordered">
       <tbody>
         <tr>
-          <th style="width:30%">FS_RECORD_TYPE</th>
+          <th style="width:30%">{{ __('FS_RECORD_TYPE') }}</th>
           <td>{{ $result['FS_RECORD_TYPE'] ?? '' }}</td>
         </tr>
         <tr>
-          <th>FS_RECORD_TYPE_ID</th>
+          <th>{{ __('FS_RECORD_TYPE_ID') }}</th>
           <td><code>{{ $result['FS_RECORD_TYPE_ID'] ?? '' }}</code></td>
         </tr>
         <tr>
-          <th>EVENT_YEAR_ORIG</th>
+          <th>{{ __('EVENT_YEAR_ORIG') }}</th>
           <td>{{ $result['EVENT_YEAR_ORIG'] ?? '' }}</td>
         </tr>
         <tr>
-          <th>EVENT_PLACE_ORIG</th>
+          <th>{{ __('EVENT_PLACE_ORIG') }}</th>
           <td>{{ $result['EVENT_PLACE_ORIG'] ?? '' }}</td>
         </tr>
         <tr>
-          <th>Non-Genealogical</th>
+          <th>{{ __('Non-Genealogical') }}</th>
           <td>
             @if($result['non_genealogical'] ?? false)
               <span class="badge bg-secondary">Yes</span>
@@ -42,7 +42,7 @@
           </td>
         </tr>
         <tr>
-          <th>Needs Review</th>
+          <th>{{ __('Needs Review') }}</th>
           <td>
             @if($result['needs_review'] ?? true)
               <span class="badge bg-warning text-dark">Yes</span>

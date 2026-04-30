@@ -12,10 +12,10 @@
     <div class="row">
       <div class="col-md-3">
         <select name="days" class="form-select" onchange="this.form.submit()">
-          <option value="7" {{ ($days ?? 30) == 7 ? 'selected' : '' }}>Next 7 days</option>
-          <option value="30" {{ ($days ?? 30) == 30 ? 'selected' : '' }}>Next 30 days</option>
-          <option value="60" {{ ($days ?? 30) == 60 ? 'selected' : '' }}>Next 60 days</option>
-          <option value="90" {{ ($days ?? 30) == 90 ? 'selected' : '' }}>Next 90 days</option>
+          <option value="7" {{ ($days ?? 30) == 7 ? 'selected' : '' }}>{{ __('Next 7 days') }}</option>
+          <option value="30" {{ ($days ?? 30) == 30 ? 'selected' : '' }}>{{ __('Next 30 days') }}</option>
+          <option value="60" {{ ($days ?? 30) == 60 ? 'selected' : '' }}>{{ __('Next 60 days') }}</option>
+          <option value="90" {{ ($days ?? 30) == 90 ? 'selected' : '' }}>{{ __('Next 90 days') }}</option>
         </select>
       </div>
     </div>
@@ -25,7 +25,7 @@
     <div class="card-body table-responsive">
       <table class="table table-striped table-hover">
         <thead>
-          <tr><th>Object</th><th>Type</th><th>Expires</th><th>Days Left</th><th>Auto-Release</th><th>Actions</th></tr>
+          <tr><th>{{ __('Object') }}</th><th>{{ __('Type') }}</th><th>{{ __('Expires') }}</th><th>{{ __('Days Left') }}</th><th>{{ __('Auto-Release') }}</th><th>{{ __('Actions') }}</th></tr>
         </thead>
         <tbody>
           @forelse($embargoes ?? [] as $emb)

@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-cog me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">DOI Configuration</h1>
+      <h1 class="mb-0">{{ __('DOI Configuration') }}</h1>
       <span class="small text-muted">DataCite Integration Settings</span>
     </div>
     <div class="ms-auto">
@@ -55,7 +55,7 @@
               <div class="col-sm-9">
                 <input type="text" class="form-control" id="datacite_repository_id" name="datacite_repository_id"
                        value="{{ old('datacite_repository_id', $settings['datacite_repository_id'] ?? '') }}"
-                       placeholder="e.g. INSTITUTION.REPOSITORY">
+                       placeholder="{{ __('e.g. INSTITUTION.REPOSITORY') }}">
                 <div class="form-text">Your DataCite repository ID (format: PREFIX.SUFFIX)</div>
               </div>
             </div>
@@ -65,7 +65,7 @@
               <div class="col-sm-9">
                 <input type="text" class="form-control" id="datacite_prefix" name="datacite_prefix"
                        value="{{ old('datacite_prefix', $settings['datacite_prefix'] ?? '') }}"
-                       placeholder="e.g. 10.12345">
+                       placeholder="{{ __('e.g. 10.12345') }}">
                 <div class="form-text">Your assigned DOI prefix</div>
               </div>
             </div>
@@ -180,7 +180,7 @@
               <div class="col-sm-9">
                 <input type="text" class="form-control" id="default_publisher" name="default_publisher"
                        value="{{ old('default_publisher', $settings['default_publisher'] ?? '') }}"
-                       placeholder="e.g. The Archive and Heritage Group">
+                       placeholder="{{ __('e.g. The Archive and Heritage Group') }}">
                 <div class="form-text">Used when no repository-specific publisher is set</div>
               </div>
             </div>
@@ -229,7 +229,7 @@
         <div class="card mb-4">
           <div class="card-header fw-bold" >Help</div>
           <div class="card-body">
-            <h6>Getting Started</h6>
+            <h6>{{ __('Getting Started') }}</h6>
             <ol class="small">
               <li>Register at <a href="https://doi.datacite.org/" target="_blank">DataCite Fabrica</a></li>
               <li>Create a repository</li>
@@ -239,7 +239,7 @@
               <li>Start minting DOIs</li>
             </ol>
 
-            <h6 class="mt-3">Test Mode</h6>
+            <h6 class="mt-3">{{ __('Test Mode') }}</h6>
             <p class="small text-muted">
               Use the test API URL while developing. Test DOIs are not resolvable but allow you to verify your integration.
             </p>

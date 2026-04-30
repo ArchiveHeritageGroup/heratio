@@ -6,9 +6,9 @@
 <div class="heritage-graph-page py-4">
   <div class="container-xxl">
     <div class="row mb-4"><div class="col">
-      <nav aria-label="breadcrumb"><ol class="breadcrumb mb-2"><li class="breadcrumb-item"><a href="{{ route('heritage.landing') }}">Heritage</a></li><li class="breadcrumb-item active">Knowledge Graph</li></ol></nav>
+      <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb mb-2"><li class="breadcrumb-item"><a href="{{ route('heritage.landing') }}">Heritage</a></li><li class="breadcrumb-item active">Knowledge Graph</li></ol></nav>
       <div class="d-flex justify-content-between align-items-center">
-        <h1 class="h2 mb-0">Entity Relationship Graph</h1>
+        <h1 class="h2 mb-0">{{ __('Entity Relationship Graph') }}</h1>
         <div class="btn-group"><a href="{{ route('heritage.search') }}" class="btn atom-btn-white"><i class="fas fa-search me-1"></i>Search</a><a href="{{ route('heritage.explore') }}" class="btn atom-btn-white"><i class="fas fa-compass me-1"></i>Explore</a></div>
       </div>
     </div></div>
@@ -16,10 +16,10 @@
     <div class="row mb-3">
       <div class="col-md-8">
         <div class="card shadow-sm"><div class="card-body py-2"><div class="row g-2 align-items-center">
-          <div class="col-auto"><label class="form-label mb-0 small text-muted">Filter by type:</label></div>
-          <div class="col-auto"><select id="entity-type-filter" class="form-select form-select-sm"><option value="">All Types</option>@foreach($entityTypes ?? [] as $type)<option value="{{ $type }}">{{ ucfirst($type) }}</option>@endforeach</select></div>
-          <div class="col-auto"><input type="text" id="graph-search" class="form-control form-control-sm" placeholder="Search entities..." style="width:180px"></div>
-          <div class="col-auto"><label class="form-label mb-0 small text-muted">Min occurrences:</label></div>
+          <div class="col-auto"><label class="form-label mb-0 small text-muted">{{ __('Filter by type:') }}</label></div>
+          <div class="col-auto"><select id="entity-type-filter" class="form-select form-select-sm"><option value="">{{ __('All Types') }}</option>@foreach($entityTypes ?? [] as $type)<option value="{{ $type }}">{{ ucfirst($type) }}</option>@endforeach</select></div>
+          <div class="col-auto"><input type="text" id="graph-search" class="form-control form-control-sm" placeholder="{{ __('Search entities...') }}" style="width:180px"></div>
+          <div class="col-auto"><label class="form-label mb-0 small text-muted">{{ __('Min occurrences:') }}</label></div>
           <div class="col-auto"><input type="number" id="min-occurrences" class="form-control form-control-sm" value="1" min="1" max="100" style="width:70px"></div>
           <div class="col-auto"><button id="refresh-graph" class="btn btn-sm atom-btn-secondary"><i class="fas fa-sync-alt"></i> Refresh</button></div>
         </div></div></div>
@@ -44,7 +44,7 @@
       </div>
       <div class="col-md-4">
         <div id="entity-panel" class="card shadow-sm" style="display:none">
-          <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0" id="entity-panel-title">Entity Details</h5><button type="button" class="btn-close btn-close-white" id="close-entity-panel"></button></div>
+          <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0" id="entity-panel-title">{{ __('Entity Details') }}</h5><button type="button" class="btn-close btn-close-white" id="close-entity-panel"></button></div>
           <div class="card-body"><div id="entity-panel-content"></div></div>
         </div>
         <div id="entity-instructions" class="card shadow-sm"><div class="card-body text-center py-5"><i class="fas fa-project-diagram fs-1 text-muted mb-3 d-block"></i><p class="text-muted mb-0">Click on a node to see entity details and related records.</p></div></div>

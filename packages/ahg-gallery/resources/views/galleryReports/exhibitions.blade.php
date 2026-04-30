@@ -9,18 +9,18 @@
 
 @section('sidebar')
 <div class="sidebar-content">
-  <h4>Filter Options</h4>
+  <h4>{{ __('Filter Options') }}</h4>
   <form method="get" action="{{ route('gallery-reports.exhibitions') }}">
     <div class="mb-3">
-      <label class="form-label">Status</label>
+      <label class="form-label">{{ __('Status') }}</label>
       <select name="status" class="form-select form-select-sm">
-        <option value="">All</option>
+        <option value="">{{ __('All') }}</option>
         @foreach(['planning','confirmed','installing','open','closing','closed','cancelled'] as $s)
           <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
         @endforeach
       </select>
     </div>
-    <button type="submit" class="btn btn-primary btn-sm w-100">Apply Filters</button>
+    <button type="submit" class="btn btn-primary btn-sm w-100">{{ __('Apply Filters') }}</button>
     <a href="{{ route('gallery-reports.exhibitions') }}" class="btn btn-outline-secondary btn-sm w-100 mt-2">Clear</a>
   </form>
   <hr>
@@ -39,13 +39,13 @@
   <table class="table table-striped table-hover">
     <thead class="table-dark">
       <tr>
-        <th>Title</th>
-        <th>Type</th>
-        <th>Status</th>
-        <th>Venue</th>
-        <th>Dates</th>
-        <th>Objects</th>
-        <th>Visitors</th>
+        <th>{{ __('Title') }}</th>
+        <th>{{ __('Type') }}</th>
+        <th>{{ __('Status') }}</th>
+        <th>{{ __('Venue') }}</th>
+        <th>{{ __('Dates') }}</th>
+        <th>{{ __('Objects') }}</th>
+        <th>{{ __('Visitors') }}</th>
       </tr>
     </thead>
     <tbody>

@@ -20,14 +20,14 @@
 @extends('theme::layouts.1col')
 
 @section('title')
-  <h1>EAD 2002 Export</h1>
+  <h1>{{ __('EAD 2002 Export') }}</h1>
 @endsection
 
 @section('content')
 
 <div class="card">
   <div class="card-header">
-    <h5 class="mb-0">Export to Encoded Archival Description (EAD)</h5>
+    <h5 class="mb-0">{{ __('Export to Encoded Archival Description (EAD)') }}</h5>
   </div>
   <div class="card-body">
 
@@ -40,7 +40,7 @@
       @csrf
 
       <div class="mb-3">
-        <label class="form-label">Select Record to Export</label>
+        <label class="form-label">{{ __('Select Record to Export') }}</label>
         <select name="object_id" class="form-select" required>
           <option value="">-- Select a fonds or collection --</option>
           @foreach ($fonds as $f)
@@ -61,7 +61,7 @@
 
       <hr>
 
-      <h6>EAD Export includes:</h6>
+      <h6>{{ __('EAD Export includes:') }}</h6>
       <ul class="small text-muted">
         <li>Descriptive identification (unitid, unittitle, unitdate)</li>
         <li>Scope and content</li>

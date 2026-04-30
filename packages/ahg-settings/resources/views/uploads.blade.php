@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Uploads settings</h1>
+  <h1>{{ __('Uploads settings') }}</h1>
 @endsection
 
 @section('content')
@@ -18,7 +18,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="settings-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#settings-collapse" aria-expanded="false" aria-controls="settings-collapse">
-              Upload settings
+              {{ __('Upload settings') }}
             </button>
           </h2>
           <div id="settings-collapse" class="accordion-collapse collapse" aria-labelledby="settings-heading">

@@ -12,7 +12,7 @@
   <div class="col-md-6">
     <div class="card mb-4">
       <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        <h5 class="mb-0">Export Single Object</h5>
+        <h5 class="mb-0">{{ __('Export Single Object') }}</h5>
       </div>
       <div class="card-body">
         <form method="get" action="{{ route('extended-rights.export') }}">
@@ -44,7 +44,7 @@
   <div class="col-md-6">
     <div class="card mb-4">
       <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        <h5 class="mb-0">Bulk Export</h5>
+        <h5 class="mb-0">{{ __('Bulk Export') }}</h5>
       </div>
       <div class="card-body">
         <form method="get" action="{{ route('extended-rights.export') }}">
@@ -67,7 +67,7 @@
 
 <div class="card">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h5 class="mb-0">Export Statistics</h5>
+    <h5 class="mb-0">{{ __('Export Statistics') }}</h5>
   </div>
   <div class="card-body">
     @php $totalWithRights = $stats['total_with_rights'] ?? 0; $inheritedRights = $stats['inherited_rights'] ?? 0; @endphp

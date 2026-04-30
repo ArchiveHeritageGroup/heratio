@@ -10,8 +10,8 @@
   <div class="col-md-3"><div class="card text-center border-warning"><div class="card-body py-3"><h3 class="text-warning mb-0">{{ $stats['warning'] ?? 0 }}</h3><small class="text-muted">Warnings</small></div></div></div>
 </div>
 @if(isset($recentFailures) && count($recentFailures) > 0)
-<div class="card"><div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">Recent Failures</h5></div>
-<div class="card-body p-0"><table class="table table-striped mb-0"><thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><th>Object</th><th>Issue</th><th>Date</th></tr></thead>
+<div class="card"><div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Recent Failures') }}</h5></div>
+<div class="card-body p-0"><table class="table table-striped mb-0"><thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><th>{{ __('Object') }}</th><th>{{ __('Issue') }}</th><th>{{ __('Date') }}</th></tr></thead>
 <tbody>@foreach($recentFailures as $f)<tr><td>{{ $f->title ?? '#' . ($f->object_id ?? '') }}</td><td>{{ $f->issue ?? '' }}</td><td>{{ $f->checked_at ?? '' }}</td></tr>@endforeach</tbody></table></div></div>
 @endif
 @endsection

@@ -11,7 +11,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-brain me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Semantic Search</h1>
+      <h1 class="mb-0">{{ __('Semantic Search') }}</h1>
       <span class="small text-muted">Search the archives using natural language</span>
     </div>
   </div>
@@ -34,7 +34,7 @@
               type="text"
               id="ric-search-input"
               class="form-control"
-              placeholder="e.g., records created by Hennie Pieterse"
+              placeholder="{{ __('e.g., records created by Hennie Pieterse') }}"
               autocomplete="off"
               value="{{ request('q') }}"
             />
@@ -49,10 +49,10 @@
       {{-- Quick Examples --}}
       <div class="mb-3">
         <small class="text-muted me-2">Try:</small>
-        <button class="btn btn-sm btn-outline-secondary ric-example" data-query="all fonds">All fonds</button>
-        <button class="btn btn-sm btn-outline-secondary ric-example" data-query="records from 1948-1994">Apartheid era</button>
-        <button class="btn btn-sm btn-outline-secondary ric-example" data-query="records about mining">Mining</button>
-        <button class="btn btn-sm btn-outline-secondary ric-example" data-query="heritage assets">Heritage assets</button>
+        <button class="btn btn-sm btn-outline-secondary ric-example" data-query="all fonds">{{ __('All fonds') }}</button>
+        <button class="btn btn-sm btn-outline-secondary ric-example" data-query="records from 1948-1994">{{ __('Apartheid era') }}</button>
+        <button class="btn btn-sm btn-outline-secondary ric-example" data-query="records about mining">{{ __('Mining') }}</button>
+        <button class="btn btn-sm btn-outline-secondary ric-example" data-query="heritage assets">{{ __('Heritage assets') }}</button>
       </div>
     </div>
   </div>
@@ -86,7 +86,7 @@
       <div class="card h-100">
         <div class="card-body text-center">
           <i class="fas fa-user fa-2x mb-3" style="color:var(--ahg-primary)"></i>
-          <h6>By Creator</h6>
+          <h6>{{ __('By Creator') }}</h6>
           <p class="small text-muted">Find records by who created them</p>
           <code class="small">records created by John Smith</code>
         </div>
@@ -96,7 +96,7 @@
       <div class="card h-100">
         <div class="card-body text-center">
           <i class="fas fa-book fa-2x mb-3" style="color:var(--ahg-primary)"></i>
-          <h6>By Subject</h6>
+          <h6>{{ __('By Subject') }}</h6>
           <p class="small text-muted">Find records about a topic</p>
           <code class="small">records about agriculture</code>
         </div>
@@ -106,7 +106,7 @@
       <div class="card h-100">
         <div class="card-body text-center">
           <i class="fas fa-calendar fa-2x mb-3" style="color:var(--ahg-primary)"></i>
-          <h6>By Date</h6>
+          <h6>{{ __('By Date') }}</h6>
           <p class="small text-muted">Find records from a time period</p>
           <code class="small">records between 1960-1980</code>
         </div>

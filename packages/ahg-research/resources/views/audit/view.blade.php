@@ -13,14 +13,14 @@
       <div class="card-body">
         @php $ac = match($entry->action ?? '') { 'create' => 'success', 'update' => 'warning', 'delete' => 'danger', default => 'secondary' }; @endphp
         <table class="table table-bordered mb-0">
-          <tr><th style="width:30%;">Date/Time</th><td>{{ $entry->created_at ?? '' }}</td></tr>
-          <tr><th>User</th><td>{{ e($entry->user_name ?? 'System') }}</td></tr>
-          <tr><th>Action</th><td><span class="badge bg-{{ $ac }}">{{ ucfirst($entry->action ?? '') }}</span></td></tr>
-          <tr><th>Table</th><td><code>{{ $entry->table_name ?? '' }}</code></td></tr>
-          <tr><th>Record ID</th><td>#{{ $entry->record_id ?? '' }}</td></tr>
-          @if($entry->field_name ?? false)<tr><th>Field</th><td><code>{{ $entry->field_name }}</code></td></tr>@endif
-          <tr><th>IP Address</th><td>{{ $entry->ip_address ?? 'N/A' }}</td></tr>
-          <tr><th>Description</th><td>{{ e($entry->action_description ?? 'N/A') }}</td></tr>
+          <tr><th style="width:30%;">{{ __('Date/Time') }}</th><td>{{ $entry->created_at ?? '' }}</td></tr>
+          <tr><th>{{ __('User') }}</th><td>{{ e($entry->user_name ?? 'System') }}</td></tr>
+          <tr><th>{{ __('Action') }}</th><td><span class="badge bg-{{ $ac }}">{{ ucfirst($entry->action ?? '') }}</span></td></tr>
+          <tr><th>{{ __('Table') }}</th><td><code>{{ $entry->table_name ?? '' }}</code></td></tr>
+          <tr><th>{{ __('Record ID') }}</th><td>#{{ $entry->record_id ?? '' }}</td></tr>
+          @if($entry->field_name ?? false)<tr><th>{{ __('Field') }}</th><td><code>{{ $entry->field_name }}</code></td></tr>@endif
+          <tr><th>{{ __('IP Address') }}</th><td>{{ $entry->ip_address ?? 'N/A' }}</td></tr>
+          <tr><th>{{ __('Description') }}</th><td>{{ e($entry->action_description ?? 'N/A') }}</td></tr>
         </table>
       </div>
     </div>
@@ -32,11 +32,11 @@
         <div class="card-body">
           <div class="row">
             <div class="col-6">
-              <label class="text-muted">Old Value</label>
+              <label class="text-muted">{{ __('Old Value') }}</label>
               <div class="bg-light border rounded p-2"><pre class="mb-0 text-danger">{{ e($entry->old_value ?? '(empty)') }}</pre></div>
             </div>
             <div class="col-6">
-              <label class="text-muted">New Value</label>
+              <label class="text-muted">{{ __('New Value') }}</label>
               <div class="bg-light border rounded p-2"><pre class="mb-0 text-success">{{ e($entry->new_value ?? '(empty)') }}</pre></div>
             </div>
           </div>
@@ -48,7 +48,7 @@
         <div class="card-header"><i class="fas fa-list me-2"></i>All Changes</div>
         <div class="card-body p-0">
           <table class="table table-striped mb-0">
-            <thead><tr><th>Field</th><th>Old</th><th>New</th></tr></thead>
+            <thead><tr><th>{{ __('Field') }}</th><th>{{ __('Old') }}</th><th>{{ __('New') }}</th></tr></thead>
             <tbody>
               @foreach($changes as $field => $change)
                 <tr>

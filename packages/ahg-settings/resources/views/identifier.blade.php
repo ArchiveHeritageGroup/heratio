@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Identifier-related</h1>
+  <h1>{{ __('Identifier-related') }}</h1>
 @endsection
 
 @section('content')
@@ -23,7 +23,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIdentifier">
-              Identifier settings
+              {{ __('Identifier settings') }}
             </button>
           </h2>
           <div id="collapseIdentifier" class="accordion-collapse collapse show" data-bs-parent="#settingsAccordion">

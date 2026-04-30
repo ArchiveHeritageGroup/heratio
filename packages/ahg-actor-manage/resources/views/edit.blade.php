@@ -36,7 +36,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="identity-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#identity-collapse" aria-expanded="false" aria-controls="identity-collapse">
-            Identity area
+            {{ __('Identity area') }}
           </button>
         </h2>
         <div id="identity-collapse" class="accordion-collapse collapse" aria-labelledby="identity-heading">
@@ -44,7 +44,7 @@
             <div class="mb-3">
               <label for="entity_type_id" class="form-label">
                 Type of entity
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <select name="entity_type_id" id="entity_type_id" class="form-select" required>
                 <option value="">-- Select --</option>
                 @foreach($formChoices['entityTypes'] as $type)
@@ -59,7 +59,7 @@
             <div class="mb-3">
               <label for="authorized_form_of_name" class="form-label">
                 Authorized form of name
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="authorized_form_of_name" id="authorized_form_of_name" class="form-control" required
                      value="{{ old('authorized_form_of_name', $actor->authorized_form_of_name ?? '') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record the standardized form of name for the entity being described in accordance with any relevant national or international conventions or rules applied by the agency that created the authority record. Use dates, place, jurisdiction, occupation, epithet and other qualifiers as appropriate to distinguish the authorized form of name from those of other entities with similar names.&ldquo; (ISAAR 5.1.2)"><i class="fas fa-question-circle"></i></button>
@@ -162,7 +162,7 @@
             <div class="mb-3">
               <label for="parent_id" class="form-label">Parent actor <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="parent_actor_name" id="parent_actor_name" class="form-control"
-                     value="{{ old('parent_actor_name', $parentActorName ?? '') }}" placeholder="Type to search parent actor..." autocomplete="off">
+                     value="{{ old('parent_actor_name', $parentActorName ?? '') }}" placeholder="{{ __('Type to search parent actor...') }}" autocomplete="off">
               <input type="hidden" name="parent_id" id="parent_id"
                      value="{{ old('parent_id', $actor->parent_id ?? '') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Select the parent authority record to create a hierarchical relationship. Type to search for an existing authority record."><i class="fas fa-question-circle"></i></button>
@@ -175,7 +175,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="description-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#description-collapse" aria-expanded="false" aria-controls="description-collapse">
-            Description area
+            {{ __('Description area') }}
           </button>
         </h2>
         <div id="description-collapse" class="accordion-collapse collapse" aria-labelledby="description-heading">
@@ -183,7 +183,7 @@
             <div class="mb-3">
               <label for="dates_of_existence" class="form-label">
                 Dates of existence
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="dates_of_existence" id="dates_of_existence" class="form-control"
                      value="{{ old('dates_of_existence', $actor->dates_of_existence ?? '') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record the dates of existence of the entity being described. For corporate bodies include the date of establishment/foundation/enabling legislation and dissolution. For persons include the dates or approximate dates of birth and death or, when these dates are not known, floruit dates. Where parallel systems of dating are used, equivalences may be recorded according to relevant conventions or rules. Specify in the Rules and/or conventions element (5.4.3) the system(s) of dating used, e.g. ISO 8601.&ldquo; (ISAAR 5.2.1)"><i class="fas fa-question-circle"></i></button>
@@ -238,36 +238,36 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="relationships-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#relationships-collapse" aria-expanded="false" aria-controls="relationships-collapse">
-            Relationships area
+            {{ __('Relationships area') }}
           </button>
         </h2>
         <div id="relationships-collapse" class="accordion-collapse collapse" aria-labelledby="relationships-heading">
           <div class="accordion-body">
 
             <!-- Related corporate bodies, persons or families -->
-            <h3 class="fs-6 mb-2">Related corporate bodies, persons or families</h3>
+            <h3 class="fs-6 mb-2">{{ __('Related corporate bodies, persons or families') }}</h3>
             <div class="table-responsive mb-3">
               <table class="table table-bordered mb-0" id="related-actors-table">
                 <thead class="table-light">
                   <tr>
-                    <th class="w-25">Name</th>
-                    <th class="w-15">Category</th>
-                    <th class="w-15">Type</th>
-                    <th class="w-15">Dates</th>
-                    <th class="w-30">Description</th>
+                    <th class="w-25">{{ __('Name') }}</th>
+                    <th class="w-15">{{ __('Category') }}</th>
+                    <th class="w-15">{{ __('Type') }}</th>
+                    <th class="w-15">{{ __('Dates') }}</th>
+                    <th class="w-30">{{ __('Description') }}</th>
                     <th><span class="visually-hidden">Actions</span></th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td><input type="text" name="relatedActors[0][name]" class="form-control form-control-sm" placeholder="Type to search..."></td>
+                    <td><input type="text" name="relatedActors[0][name]" class="form-control form-control-sm" placeholder="{{ __('Type to search...') }}"></td>
                     <td>
                       <select name="relatedActors[0][category]" class="form-select form-select-sm">
                         <option value=""></option>
-                        <option value="hierarchical">Hierarchical</option>
-                        <option value="temporal">Temporal</option>
-                        <option value="family">Family</option>
-                        <option value="associative">Associative</option>
+                        <option value="hierarchical">{{ __('Hierarchical') }}</option>
+                        <option value="temporal">{{ __('Temporal') }}</option>
+                        <option value="family">{{ __('Family') }}</option>
+                        <option value="associative">{{ __('Associative') }}</option>
                       </select>
                     </td>
                     <td><input type="text" name="relatedActors[0][type]" class="form-control form-control-sm"></td>
@@ -294,20 +294,20 @@
             </div>
 
             <!-- Related resources -->
-            <h3 class="fs-6 mb-2">Related resources</h3>
+            <h3 class="fs-6 mb-2">{{ __('Related resources') }}</h3>
             <div class="table-responsive mb-3">
               <table class="table table-bordered mb-0" id="related-resources-table">
                 <thead class="table-light">
                   <tr>
-                    <th class="w-40">Title</th>
-                    <th class="w-30">Relationship</th>
-                    <th class="w-30">Dates</th>
+                    <th class="w-40">{{ __('Title') }}</th>
+                    <th class="w-30">{{ __('Relationship') }}</th>
+                    <th class="w-30">{{ __('Dates') }}</th>
                     <th><span class="visually-hidden">Actions</span></th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td><input type="text" name="relatedResources[0][title]" class="form-control form-control-sm" placeholder="Type to search..."></td>
+                    <td><input type="text" name="relatedResources[0][title]" class="form-control form-control-sm" placeholder="{{ __('Type to search...') }}"></td>
                     <td><input type="text" name="relatedResources[0][relationship]" class="form-control form-control-sm"></td>
                     <td><input type="text" name="relatedResources[0][dates]" class="form-control form-control-sm"></td>
                     <td>
@@ -338,7 +338,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="contact-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#contact-collapse" aria-expanded="false" aria-controls="contact-collapse">
-            Contact information
+            {{ __('Contact information') }}
           </button>
         </h2>
         <div id="contact-collapse" class="accordion-collapse collapse" aria-labelledby="contact-heading">
@@ -354,7 +354,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="access-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#access-collapse" aria-expanded="false" aria-controls="access-collapse">
-            Access points
+            {{ __('Access points') }}
           </button>
         </h2>
         <div id="access-collapse" class="accordion-collapse collapse" aria-labelledby="access-heading">
@@ -400,13 +400,13 @@
             ])
 
             <!-- Occupation(s) multi-row table -->
-            <h3 class="fs-6 mb-2">Occupation(s)</h3>
+            <h3 class="fs-6 mb-2">{{ __('Occupation(s)') }}</h3>
             <div class="table-responsive">
               <table class="table table-bordered mb-0" id="occupations-table">
                 <thead class="table-light">
                   <tr>
-                    <th id="occupations-occupation-head" class="w-50">Occupation</th>
-                    <th id="occupations-content-head" class="w-50">Note</th>
+                    <th id="occupations-occupation-head" class="w-50">{{ __('Occupation') }}</th>
+                    <th id="occupations-content-head" class="w-50">{{ __('Note') }}</th>
                     <th><span class="visually-hidden">Delete</span></th>
                   </tr>
                 </thead>
@@ -441,7 +441,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="control-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#control-collapse" aria-expanded="false" aria-controls="control-collapse">
-            Control area
+            {{ __('Control area') }}
           </button>
         </h2>
         <div id="control-collapse" class="accordion-collapse collapse" aria-labelledby="control-heading">
@@ -449,7 +449,7 @@
             <div class="mb-3">
               <label for="description_identifier" class="form-label">
                 Authority record identifier
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="description_identifier" id="description_identifier" class="form-control"
                      value="{{ old('description_identifier', $actor->description_identifier ?? '') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record a unique authority record identifier in accordance with local and/or national conventions. If the authority record is to be used internationally, record the country code of the country in which the authority record was created in accordance with the latest version of ISO 3166 Codes for the representation of names of countries. Where the creator of the authority record is an international organization, give the organizational identifier in place of the country code.&ldquo; (ISAAR 5.4.1)"><i class="fas fa-question-circle"></i></button>
@@ -515,7 +515,7 @@
 
             @if($actor && $actor->updated_at)
               <div class="mb-3">
-                <h3 class="fs-6 mb-2">Last updated</h3>
+                <h3 class="fs-6 mb-2">{{ __('Last updated') }}</h3>
                 <span class="text-muted">{{ $actor->updated_at }}</span>
               </div>
             @endif

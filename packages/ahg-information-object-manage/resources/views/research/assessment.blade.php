@@ -5,7 +5,7 @@
 @section('title', 'Source Assessment — ' . ($io->title ?? ''))
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item active">Source Assessment</li>
@@ -21,13 +21,13 @@
 <div class="row">
     <div class="col-md-8">
         <div class="card mb-4">
-            <div class="card-header"><h5 class="mb-0">Assess Source</h5></div>
+            <div class="card-header"><h5 class="mb-0">{{ __('Assess Source') }}</h5></div>
             <div class="card-body">
                 <form method="POST" action="{{ route('io.research.assessment', $io->slug) }}">
                     @csrf
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <label class="form-label">Source Type</label>
+                            <label class="form-label">{{ __('Source Type') }}</label>
                             <select name="source_type" class="form-select">
                                 @foreach(['primary' => 'Primary', 'secondary' => 'Secondary', 'tertiary' => 'Tertiary'] as $v => $l)
                                     <option value="{{ $v }}" {{ ($assessment->source_type ?? '') === $v ? 'selected' : '' }}>{{ $l }}</option>
@@ -35,7 +35,7 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Source Form</label>
+                            <label class="form-label">{{ __('Source Form') }}</label>
                             <select name="source_form" class="form-select">
                                 @foreach(['original' => 'Original', 'scan' => 'Scan', 'transcription' => 'Transcription', 'translation' => 'Translation', 'born_digital' => 'Born Digital'] as $v => $l)
                                     <option value="{{ $v }}" {{ ($assessment->source_form ?? '') === $v ? 'selected' : '' }}>{{ $l }}</option>
@@ -43,7 +43,7 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Completeness</label>
+                            <label class="form-label">{{ __('Completeness') }}</label>
                             <select name="completeness" class="form-select">
                                 @foreach(['complete' => 'Complete', 'partial' => 'Partial', 'fragment' => 'Fragment', 'missing_pages' => 'Missing Pages', 'redacted' => 'Redacted'] as $v => $l)
                                     <option value="{{ $v }}" {{ ($assessment->completeness ?? '') === $v ? 'selected' : '' }}>{{ $l }}</option>
@@ -52,11 +52,11 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Rationale</label>
+                        <label class="form-label">{{ __('Rationale') }}</label>
                         <textarea name="rationale" class="form-control" rows="3">{{ e($assessment->rationale ?? '') }}</textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Bias Context</label>
+                        <label class="form-label">{{ __('Bias Context') }}</label>
                         <textarea name="bias_context" class="form-control" rows="2">{{ e($assessment->bias_context ?? '') }}</textarea>
                     </div>
                     <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Assessment</button>
@@ -66,7 +66,7 @@
 
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Quality Metrics</h5>
+                <h5 class="mb-0">{{ __('Quality Metrics') }}</h5>
                 @auth
                 <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addMetricModal"><i class="fas fa-plus me-1"></i>Add Metric</button>
                 @endauth
@@ -74,7 +74,7 @@
             <div class="card-body p-0">
                 @if(!empty($metrics))
                 <table class="table table-sm table-hover mb-0">
-                    <thead class="table-light"><tr><th>Metric</th><th>Value</th><th>Source</th><th>Date</th><th></th></tr></thead>
+                    <thead class="table-light"><tr><th>{{ __('Metric') }}</th><th>{{ __('Value') }}</th><th>{{ __('Source') }}</th><th>{{ __('Date') }}</th><th></th></tr></thead>
                     <tbody>
                     @foreach($metrics as $m)
                         <tr>
@@ -106,34 +106,34 @@
         @auth
         <div class="modal fade" id="addMetricModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
             <form method="POST">@csrf<input type="hidden" name="form_action" value="add_metric">
-            <div class="modal-header"><h5 class="modal-title">Add Quality Metric</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header"><h5 class="modal-title">{{ __('Add Quality Metric') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">Metric Type *</label>
+                    <label class="form-label">{{ __('Metric Type *') }}</label>
                     <select name="metric_type" class="form-select" required>
-                        <option value="accuracy">Accuracy</option>
-                        <option value="completeness">Completeness</option>
-                        <option value="consistency">Consistency</option>
-                        <option value="timeliness">Timeliness</option>
-                        <option value="relevance">Relevance</option>
-                        <option value="readability">Readability</option>
-                        <option value="ocr_confidence">OCR Confidence</option>
-                        <option value="ner_confidence">NER Confidence</option>
-                        <option value="other">Other</option>
+                        <option value="accuracy">{{ __('Accuracy') }}</option>
+                        <option value="completeness">{{ __('Completeness') }}</option>
+                        <option value="consistency">{{ __('Consistency') }}</option>
+                        <option value="timeliness">{{ __('Timeliness') }}</option>
+                        <option value="relevance">{{ __('Relevance') }}</option>
+                        <option value="readability">{{ __('Readability') }}</option>
+                        <option value="ocr_confidence">{{ __('OCR Confidence') }}</option>
+                        <option value="ner_confidence">{{ __('NER Confidence') }}</option>
+                        <option value="other">{{ __('Other') }}</option>
                     </select>
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label class="form-label">Value * (0-1)</label>
-                        <input type="number" name="metric_value" class="form-control" step="0.0001" min="0" max="1" required placeholder="e.g. 0.8500">
+                        <label class="form-label">{{ __('Value * (0-1)') }}</label>
+                        <input type="number" name="metric_value" class="form-control" step="0.0001" min="0" max="1" required placeholder="{{ __('e.g. 0.8500') }}">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Source Service</label>
-                        <input type="text" name="source_service" class="form-control" placeholder="e.g. Manual, AI, OCR engine">
+                        <label class="form-label">{{ __('Source Service') }}</label>
+                        <input type="text" name="source_service" class="form-control" placeholder="{{ __('e.g. Manual, AI, OCR engine') }}">
                     </div>
                 </div>
             </div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Add</button></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Add</button></div>
             </form>
         </div></div></div>
         @endauth
@@ -141,7 +141,7 @@
 
     <div class="col-md-4">
         <div class="card">
-            <div class="card-header"><h5 class="mb-0">Trust Score</h5></div>
+            <div class="card-header"><h5 class="mb-0">{{ __('Trust Score') }}</h5></div>
             <div class="card-body text-center">
                 @php $score = (int) ($assessment->trust_score ?? 0); @endphp
                 <div class="display-4 fw-bold text-{{ $score >= 70 ? 'success' : ($score >= 40 ? 'warning' : 'danger') }}">{{ $score }}</div>

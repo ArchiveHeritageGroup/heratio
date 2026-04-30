@@ -6,7 +6,7 @@
     $isOwner = ($project->owner_id ?? 0) == ($researcher->id ?? 0);
 @endphp
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.projects') }}">Projects</a></li>
@@ -40,7 +40,7 @@
     <div class="col-md-8">
         {{-- Description --}}
         <div class="card mb-4">
-            <div class="card-header"><h5 class="mb-0">Description</h5></div>
+            <div class="card-header"><h5 class="mb-0">{{ __('Description') }}</h5></div>
             <div class="card-body">
                 @if($project->description)
                     <p>{{ nl2br(e($project->description)) }}</p>
@@ -98,7 +98,7 @@
                             @csrf
                             <input type="hidden" name="form_action" value="add_milestone">
                             <div class="mb-2">
-                                <input type="text" name="milestone_title" class="form-control form-control-sm" placeholder="Milestone title *" required>
+                                <input type="text" name="milestone_title" class="form-control form-control-sm" placeholder="{{ __('Milestone title *') }}" required>
                             </div>
                             <div class="row mb-2">
                                 <div class="col-md-6">
@@ -106,13 +106,13 @@
                                 </div>
                                 <div class="col-md-6">
                                     <select name="milestone_status" class="form-select form-select-sm">
-                                        <option value="pending">Pending</option>
-                                        <option value="in_progress">In Progress</option>
+                                        <option value="pending">{{ __('Pending') }}</option>
+                                        <option value="in_progress">{{ __('In Progress') }}</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="mb-2">
-                                <textarea name="milestone_description" class="form-control form-control-sm" rows="2" placeholder="Description (optional)"></textarea>
+                                <textarea name="milestone_description" class="form-control form-control-sm" rows="2" placeholder="{{ __('Description (optional)') }}"></textarea>
                             </div>
                             <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-save me-1"></i> Save Milestone</button>
                         </form>
@@ -144,7 +144,7 @@
                                 @csrf
                                 <input type="hidden" name="form_action" value="complete_milestone">
                                 <input type="hidden" name="milestone_id" value="{{ $m->id }}">
-                                <button type="submit" class="btn btn-outline-success btn-sm" title="Mark Complete"><i class="fas fa-check fa-xs"></i></button>
+                                <button type="submit" class="btn btn-outline-success btn-sm" title="{{ __('Mark Complete') }}"><i class="fas fa-check fa-xs"></i></button>
                             </form>
                             @endif
                             @if($isOwner)
@@ -152,7 +152,7 @@
                                 @csrf
                                 <input type="hidden" name="form_action" value="delete_milestone">
                                 <input type="hidden" name="milestone_id" value="{{ $m->id }}">
-                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete"><i class="fas fa-trash fa-xs"></i></button>
+                                <button type="submit" class="btn btn-outline-danger btn-sm" title="{{ __('Delete') }}"><i class="fas fa-trash fa-xs"></i></button>
                             </form>
                             @endif
                         </div>
@@ -225,7 +225,7 @@
         {{-- Linked Resources --}}
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Linked Resources</h5>
+                <h5 class="mb-0">{{ __('Linked Resources') }}</h5>
                 @if($isOwner)
                 <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#addResourceForm">
                     <i class="fas fa-plus me-1"></i>Link Resource
@@ -240,25 +240,25 @@
                         <input type="hidden" name="form_action" value="add_resource">
                         <div class="row g-2">
                             <div class="col-md-4">
-                                <label class="form-label small">Type</label>
+                                <label class="form-label small">{{ __('Type') }}</label>
                                 <select name="resource_type" class="form-select form-select-sm">
-                                    <option value="external_link">External Link</option>
-                                    <option value="archive_record">Archive Record</option>
-                                    <option value="document">Document</option>
-                                    <option value="reference">Reference</option>
+                                    <option value="external_link">{{ __('External Link') }}</option>
+                                    <option value="archive_record">{{ __('Archive Record') }}</option>
+                                    <option value="document">{{ __('Document') }}</option>
+                                    <option value="reference">{{ __('Reference') }}</option>
                                 </select>
                             </div>
                             <div class="col-md-8">
-                                <label class="form-label small">Title</label>
-                                <input type="text" name="resource_title" class="form-control form-control-sm" required placeholder="Resource title...">
+                                <label class="form-label small">{{ __('Title') }}</label>
+                                <input type="text" name="resource_title" class="form-control form-control-sm" required placeholder="{{ __('Resource title...') }}">
                             </div>
                             <div class="col-md-8">
                                 <label class="form-label small">URL</label>
-                                <input type="url" name="external_url" class="form-control form-control-sm" placeholder="https://...">
+                                <input type="url" name="external_url" class="form-control form-control-sm" placeholder="{{ __('https://...') }}">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label small">Notes</label>
-                                <input type="text" name="resource_notes" class="form-control form-control-sm" placeholder="Optional notes...">
+                                <label class="form-label small">{{ __('Notes') }}</label>
+                                <input type="text" name="resource_notes" class="form-control form-control-sm" placeholder="{{ __('Optional notes...') }}">
                             </div>
                             <div class="col-12">
                                 <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-link me-1"></i>Link</button>
@@ -299,7 +299,7 @@
                                     @csrf
                                     <input type="hidden" name="form_action" value="remove_resource">
                                     <input type="hidden" name="resource_id" value="{{ $resource->id }}">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1" title="Remove"><i class="fas fa-times fa-xs"></i></button>
+                                    <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1" title="{{ __('Remove') }}"><i class="fas fa-times fa-xs"></i></button>
                                 </form>
                                 @endif
                             </div>
@@ -346,7 +346,7 @@
                 <div class="card-body text-center text-muted py-4">
                     <i class="fas fa-file-alt fa-2x mb-2 opacity-50"></i>
                     <p class="mb-2">No reports yet</p>
-                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#newProjectReportModal">Create first report</button>
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#newProjectReportModal">{{ __('Create first report') }}</button>
                 </div>
                 @endif
             </div>
@@ -407,7 +407,7 @@
                     <div>
                         {{ e($collab->first_name . ' ' . $collab->last_name) }}
                         @if(($collab->role ?? '') === 'owner')
-                            <i class="fas fa-crown text-warning ms-1" title="Owner"></i>
+                            <i class="fas fa-crown text-warning ms-1" title="{{ __('Owner') }}"></i>
                         @endif
                     </div>
                     <div class="d-flex align-items-center gap-1">
@@ -419,7 +419,7 @@
                             @csrf
                             <input type="hidden" name="form_action" value="remove_collaborator">
                             <input type="hidden" name="collaborator_researcher_id" value="{{ $collab->researcher_id }}">
-                            <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1" title="Remove"><i class="fas fa-times fa-xs"></i></button>
+                            <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1" title="{{ __('Remove') }}"><i class="fas fa-times fa-xs"></i></button>
                         </form>
                         @endif
                     </div>
@@ -466,22 +466,22 @@
         <input type="hidden" name="template_type" id="projectReportTemplate" value="custom">
         <div class="modal-header"><h5 class="modal-title"><i class="fas fa-file-alt me-2"></i>New Report for {{ e($project->title) }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
-            <div class="mb-3"><label class="form-label">Title *</label><input type="text" name="title" class="form-control" required placeholder="Report title..."></div>
-            <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div>
+            <div class="mb-3"><label class="form-label">{{ __('Title *') }}</label><input type="text" name="title" class="form-control" required placeholder="{{ __('Report title...') }}"></div>
+            <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="2"></textarea></div>
             <div class="mb-3">
-                <label class="form-label">Template</label>
+                <label class="form-label">{{ __('Template') }}</label>
                 <select name="template_type" class="form-select">
-                    <option value="custom">Custom (blank)</option>
-                    <option value="research_summary">Research Summary</option>
-                    <option value="genealogical">Genealogical Report</option>
-                    <option value="historical">Historical Analysis</option>
-                    <option value="source_analysis">Source Analysis</option>
-                    <option value="finding_aid">Finding Aid</option>
+                    <option value="custom">{{ __('Custom (blank)') }}</option>
+                    <option value="research_summary">{{ __('Research Summary') }}</option>
+                    <option value="genealogical">{{ __('Genealogical Report') }}</option>
+                    <option value="historical">{{ __('Historical Analysis') }}</option>
+                    <option value="source_analysis">{{ __('Source Analysis') }}</option>
+                    <option value="finding_aid">{{ __('Finding Aid') }}</option>
                 </select>
                 <small class="text-muted">Template sections will be auto-created.</small>
             </div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Create Report</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Create Report</button></div>
     </form>
 </div>
 </div>

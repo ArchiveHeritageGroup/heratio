@@ -6,7 +6,7 @@
 <div class="container-fluid py-4">
     <h1><i class="bi bi-archive me-2"></i>Export Archival Descriptions</h1>
 
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
             <li class="breadcrumb-item"><a href="{{ route('export.index') }}">Export</a></li>
@@ -27,9 +27,9 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Export Format <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <select name="format" class="form-select">
-                                    <option value="csv" {{ ($format ?? 'csv') === 'csv' ? 'selected' : '' }}>CSV (Bulk Export)</option>
-                                    <option value="ead" {{ ($format ?? '') === 'ead' ? 'selected' : '' }}>EAD 2002 (Single Record)</option>
-                                    <option value="dc" {{ ($format ?? '') === 'dc' ? 'selected' : '' }}>Dublin Core (Single Record)</option>
+                                    <option value="csv" {{ ($format ?? 'csv') === 'csv' ? 'selected' : '' }}>{{ __('CSV (Bulk Export)') }}</option>
+                                    <option value="ead" {{ ($format ?? '') === 'ead' ? 'selected' : '' }}>{{ __('EAD 2002 (Single Record)') }}</option>
+                                    <option value="dc" {{ ($format ?? '') === 'dc' ? 'selected' : '' }}>{{ __('Dublin Core (Single Record)') }}</option>
                                 </select>
                                 <div class="form-text">CSV supports bulk export. EAD/DC require selecting a specific record.</div>
                             </div>
@@ -37,7 +37,7 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Repository <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <select name="repository_id" class="form-select">
-                                    <option value="">All repositories</option>
+                                    <option value="">{{ __('All repositories') }}</option>
                                     @foreach($repositories as $repo)
                                         <option value="{{ $repo->id }}">{{ e($repo->name) }}</option>
                                     @endforeach
@@ -49,7 +49,7 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Limit <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <select name="limit" class="form-select">
-                                    <option value="0">No limit (all records)</option>
+                                    <option value="0">{{ __('No limit (all records)') }}</option>
                                     <option value="100">100 records</option>
                                     <option value="500">500 records</option>
                                     <option value="1000">1,000 records</option>

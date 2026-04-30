@@ -12,7 +12,7 @@ $stats = $alertData['stats'] ?? [];
   <div class="col-md-3">
     @include('ahg-heritage-manage::partials._admin-sidebar')
     <div class="mt-4">
-      <h6 class="text-muted mb-3">Filter by Severity</h6>
+      <h6 class="text-muted mb-3">{{ __('Filter by Severity') }}</h6>
       <div class="list-group">
         <a href="?" class="list-group-item list-group-item-action {{ !request('severity')?'active':'' }}">All Alerts</a>
         <a href="?severity=critical" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ request('severity')==='critical'?'active':'' }}">Critical <span class="badge bg-danger">{{ $stats['critical'] ?? 0 }}</span></a>
@@ -21,7 +21,7 @@ $stats = $alertData['stats'] ?? [];
       </div>
     </div>
     <div class="card border-0 shadow-sm mt-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">Alert Types</h6></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">{{ __('Alert Types') }}</h6></div>
       <div class="card-body">
         @foreach(['content_quality'=>['fas fa-file-alt','Content Quality'],'access_request'=>['fas fa-key','Access Requests'],'system'=>['fas fa-cog','System'],'security'=>['fas fa-shield-alt','Security'],'performance'=>['fas fa-tachometer-alt','Performance']] as $type => [$icon,$label])
         <a href="?type={{ $type }}" class="d-flex align-items-center text-decoration-none text-dark mb-2"><i class="{{ $icon }} me-2"></i><span>{{ $label }}</span></a>
@@ -47,7 +47,7 @@ $stats = $alertData['stats'] ?? [];
 
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">Active Alerts</h5>
+        <h5 class="mb-0">{{ __('Active Alerts') }}</h5>
         <button type="button" class="btn btn-sm btn-outline-light" onclick="if(confirm('Dismiss all info-level alerts?'))location.reload()"><i class="fas fa-check-double me-1"></i>Dismiss All Read</button>
       </div>
       <div class="card-body p-0">
@@ -74,7 +74,7 @@ $stats = $alertData['stats'] ?? [];
               </div>
               <div class="d-flex gap-2">
                 @if($alert->action_url ?? null)<a href="{{ $alert->action_url }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-arrow-right"></i></a>@endif
-                <button type="button" class="btn btn-sm btn-outline-secondary" title="Dismiss"><i class="fas fa-times"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" title="{{ __('Dismiss') }}"><i class="fas fa-times"></i></button>
               </div>
             </div>
           </div>

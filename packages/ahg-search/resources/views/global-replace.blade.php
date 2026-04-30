@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-exchange-alt me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Global search/replace</h1>
+      <h1 class="mb-0">{{ __('Global search/replace') }}</h1>
       <span class="small text-muted">Find and replace text across archival description fields</span>
     </div>
   </div>
@@ -80,9 +80,9 @@
       <table class="table table-bordered table-striped table-hover mb-4">
         <thead>
           <tr>
-            <th style="width: 20%">Title</th>
-            <th style="width: 40%">Current value</th>
-            <th style="width: 40%">New value</th>
+            <th style="width: 20%">{{ __('Title') }}</th>
+            <th style="width: 40%">{{ __('Current value') }}</th>
+            <th style="width: 40%">{{ __('New value') }}</th>
           </tr>
         </thead>
         <tbody>

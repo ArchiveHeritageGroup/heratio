@@ -8,7 +8,7 @@
 @section('content')
   <div class="text-center py-5">
     <i class="fas fa-check-circle fa-4x text-success mb-4"></i>
-    <h1 class="mb-3">Registration Submitted</h1>
+    <h1 class="mb-3">{{ __('Registration Submitted') }}</h1>
     <p class="lead text-muted">
       Your researcher registration has been successfully submitted and is now pending review.
     </p>

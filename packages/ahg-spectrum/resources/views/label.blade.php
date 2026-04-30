@@ -241,14 +241,14 @@ $sectorLabel = $sectorLabels[$sector] ?? __('Record');
                     <div id="barcodeSection" class="mb-2">
                         <img id="barcodeImg" class="barcode-img"
                              src="https://barcodeapi.org/api/128/{{ rawurlencode($defaultBarcodeData) }}"
-                             alt="Barcode">
+                             alt="{{ __('Barcode') }}">
                         <div class="small mt-1" id="barcodeText">{{ $defaultBarcodeData }}</div>
                     </div>
 
                     <div id="qrSection">
                         <img id="qrImg" class="qr-img"
                              src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ rawurlencode($qrUrl) }}"
-                             alt="QR Code">
+                             alt="{{ __('QR Code') }}">
                     </div>
                 </div>
             </div>

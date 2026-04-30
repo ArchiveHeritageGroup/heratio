@@ -6,7 +6,7 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('accessRequest.myRequests') }}">My Requests</a></li>
@@ -38,11 +38,11 @@
                             <label for="request_type" class="form-label">Request Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                             <select class="form-select" id="request_type" name="request_type" required>
                                 <option value="">-- Select type --</option>
-                                <option value="view">View restricted material</option>
-                                <option value="copy">Request copies</option>
-                                <option value="publish">Permission to publish</option>
-                                <option value="research">Research access</option>
-                                <option value="other">Other</option>
+                                <option value="view">{{ __('View restricted material') }}</option>
+                                <option value="copy">{{ __('Request copies') }}</option>
+                                <option value="publish">{{ __('Permission to publish') }}</option>
+                                <option value="research">{{ __('Research access') }}</option>
+                                <option value="other">{{ __('Other') }}</option>
                             </select>
                         </div>
 
@@ -60,10 +60,10 @@
                         <div class="mb-3">
                             <label for="urgency" class="form-label">Urgency <span class="badge bg-secondary ms-1">Optional</span></label>
                             <select class="form-select" id="urgency" name="urgency">
-                                <option value="low" {{ old('urgency') === 'low' ? 'selected' : '' }}>Low — no fixed deadline</option>
-                                <option value="normal" {{ (old('urgency') ?? 'normal') === 'normal' ? 'selected' : '' }}>Normal — within standard turnaround</option>
-                                <option value="high" {{ old('urgency') === 'high' ? 'selected' : '' }}>High — needed soon</option>
-                                <option value="urgent" {{ old('urgency') === 'urgent' ? 'selected' : '' }}>Urgent — needed ASAP</option>
+                                <option value="low" {{ old('urgency') === 'low' ? 'selected' : '' }}>{{ __('Low — no fixed deadline') }}</option>
+                                <option value="normal" {{ (old('urgency') ?? 'normal') === 'normal' ? 'selected' : '' }}>{{ __('Normal — within standard turnaround') }}</option>
+                                <option value="high" {{ old('urgency') === 'high' ? 'selected' : '' }}>{{ __('High — needed soon') }}</option>
+                                <option value="urgent" {{ old('urgency') === 'urgent' ? 'selected' : '' }}>{{ __('Urgent — needed ASAP') }}</option>
                             </select>
                             <div class="form-text">Helps reviewers prioritise the queue.</div>
                         </div>

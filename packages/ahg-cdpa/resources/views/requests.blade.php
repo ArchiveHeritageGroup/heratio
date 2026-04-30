@@ -13,7 +13,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.index') }}">CDPA</a></li>
                     <li class="breadcrumb-item active">Data Subject Requests</li>
@@ -52,13 +52,13 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Reference</th>
-                            <th>Type</th>
-                            <th>Data Subject</th>
-                            <th>Request Date</th>
-                            <th>Due Date</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>{{ __('Reference') }}</th>
+                            <th>{{ __('Type') }}</th>
+                            <th>{{ __('Data Subject') }}</th>
+                            <th>{{ __('Request Date') }}</th>
+                            <th>{{ __('Due Date') }}</th>
+                            <th>{{ __('Status') }}</th>
+                            <th>{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>

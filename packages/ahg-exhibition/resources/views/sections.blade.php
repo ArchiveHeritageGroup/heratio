@@ -24,7 +24,7 @@
 
 <div class="row">
   <div class="col-md-8">
-    <nav aria-label="breadcrumb">
+    <nav aria-label="{{ __('breadcrumb') }}">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">Exhibitions</a></li>
         <li class="breadcrumb-item"><a href="{{ route('exhibition.show', ['id' => $exId]) }}">{{ $exhibition->title ?? '' }}</a></li>
@@ -33,7 +33,7 @@
     </nav>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1>Exhibition Sections</h1>
+      <h1>{{ __('Exhibition Sections') }}</h1>
       <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSectionModal">
         <i class="fas fa-plus"></i> Add Section
       </button>
@@ -43,7 +43,7 @@
       <div class="card">
         <div class="card-body text-center py-5">
           <i class="fas fa-th-large fa-3x text-muted mb-3"></i>
-          <h5>No sections created yet</h5>
+          <h5>{{ __('No sections created yet') }}</h5>
           <p class="text-muted">Organize your exhibition by creating sections or galleries.</p>
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSectionModal">
             <i class="fas fa-plus"></i> Create First Section
@@ -94,7 +94,7 @@
   <div class="col-md-4">
     <div class="card mb-3">
       <div class="card-header">
-        <h5 class="mb-0">Exhibition Info</h5>
+        <h5 class="mb-0">{{ __('Exhibition Info') }}</h5>
       </div>
       <div class="card-body">
         <h6>{{ $exhibition->title ?? '' }}</h6>
@@ -107,7 +107,7 @@
 
     <div class="card">
       <div class="card-header">
-        <h5 class="mb-0">Tips</h5>
+        <h5 class="mb-0">{{ __('Tips') }}</h5>
       </div>
       <div class="card-body">
         <p class="small text-muted mb-2"><strong>Sections</strong> help organize your exhibition into logical groupings or physical spaces.</p>
@@ -126,7 +126,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add Section</h5>
+        <h5 class="modal-title">{{ __('Add Section') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form method="post" action="{{ route('exhibition.sections', ['id' => $exId]) }}">
@@ -137,25 +137,25 @@
             <input type="text" name="title" class="form-control" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Description</label>
+            <label class="form-label">{{ __('Description') }}</label>
             <textarea name="description" class="form-control" rows="2"></textarea>
           </div>
           <div class="mb-3">
-            <label class="form-label">Gallery Name</label>
+            <label class="form-label">{{ __('Gallery Name') }}</label>
             <input type="text" name="gallery_name" class="form-control">
           </div>
           <div class="mb-3">
-            <label class="form-label">Theme</label>
+            <label class="form-label">{{ __('Theme') }}</label>
             <input type="text" name="theme" class="form-control">
           </div>
           <div class="mb-3">
-            <label class="form-label">Display Order</label>
+            <label class="form-label">{{ __('Display Order') }}</label>
             <input type="number" name="display_order" class="form-control" min="0" value="{{ (is_countable($sections) ? count($sections) : 0) * 10 + 10 }}">
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Add Section</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="submit" class="btn btn-primary">{{ __('Add Section') }}</button>
         </div>
       </form>
     </div>

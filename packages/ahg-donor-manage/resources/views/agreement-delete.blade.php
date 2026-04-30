@@ -2,7 +2,7 @@
 @section('title', 'Delete Agreement')
 @section('body-class', 'delete')
 @section('content')
-  <div class="multiline-header d-flex align-items-center mb-3"><i class="fas fa-3x fa-file-signature me-3" aria-hidden="true"></i><div class="d-flex flex-column"><h1 class="mb-0">Delete Agreement</h1></div></div>
+  <div class="multiline-header d-flex align-items-center mb-3"><i class="fas fa-3x fa-file-signature me-3" aria-hidden="true"></i><div class="d-flex flex-column"><h1 class="mb-0">{{ __('Delete Agreement') }}</h1></div></div>
   <div class="card"><div class="card-header fw-semibold bg-danger text-white"><i class="fas fa-exclamation-triangle me-2"></i>Confirm Deletion</div>
   <div class="card-body">
     <p>Are you sure you want to delete this agreement?</p>

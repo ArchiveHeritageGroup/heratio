@@ -93,14 +93,14 @@
       <table class="table table-bordered table-striped mb-0">
         <thead>
           <tr>
-            <th style="width: 60px;">Thumbnail</th>
-            <th>Title / Object</th>
-            <th>Work type</th>
-            <th>Creator</th>
-            <th>Date</th>
-            <th>Location</th>
+            <th style="width: 60px;">{{ __('Thumbnail') }}</th>
+            <th>{{ __('Title / Object') }}</th>
+            <th>{{ __('Work type') }}</th>
+            <th>{{ __('Creator') }}</th>
+            <th>{{ __('Date') }}</th>
+            <th>{{ __('Location') }}</th>
             @if(request('sort') === 'lastUpdated')
-              <th>Updated</th>
+              <th>{{ __('Updated') }}</th>
             @endif
           </tr>
         </thead>

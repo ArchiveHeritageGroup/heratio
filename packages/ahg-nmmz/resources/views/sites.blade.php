@@ -22,7 +22,7 @@
 <div class="container-fluid">
   <div class="row mb-4">
     <div class="col">
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
           <li class="breadcrumb-item active">Archaeological Sites</li>
@@ -43,7 +43,7 @@
       <form method="get" class="row g-3">
         <div class="col-md-3">
           <select name="province" class="form-select">
-            <option value="">All Provinces</option>
+            <option value="">{{ __('All Provinces') }}</option>
             @foreach($provinces as $p)
               <option value="{{ $p }}" @selected(request('province') === $p)>{{ $p }}</option>
             @endforeach
@@ -51,15 +51,15 @@
         </div>
         <div class="col-md-3">
           <select name="status" class="form-select">
-            <option value="">All Status</option>
-            <option value="protected" @selected($currentStatus === 'protected')>Protected</option>
-            <option value="proposed" @selected($currentStatus === 'proposed')>Proposed</option>
-            <option value="at_risk" @selected($currentStatus === 'at_risk')>At Risk</option>
-            <option value="destroyed" @selected($currentStatus === 'destroyed')>Destroyed</option>
+            <option value="">{{ __('All Status') }}</option>
+            <option value="protected" @selected($currentStatus === 'protected')>{{ __('Protected') }}</option>
+            <option value="proposed" @selected($currentStatus === 'proposed')>{{ __('Proposed') }}</option>
+            <option value="at_risk" @selected($currentStatus === 'at_risk')>{{ __('At Risk') }}</option>
+            <option value="destroyed" @selected($currentStatus === 'destroyed')>{{ __('Destroyed') }}</option>
           </select>
         </div>
         <div class="col-md-2">
-          <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+          <button type="submit" class="btn btn-outline-primary w-100">{{ __('Filter') }}</button>
         </div>
       </form>
     </div>
@@ -77,13 +77,13 @@
         <table class="table table-hover mb-0">
           <thead>
             <tr>
-              <th>Site ID</th>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Province</th>
-              <th>Period</th>
-              <th>Protection Status</th>
-              <th>Actions</th>
+              <th>{{ __('Site ID') }}</th>
+              <th>{{ __('Name') }}</th>
+              <th>{{ __('Type') }}</th>
+              <th>{{ __('Province') }}</th>
+              <th>{{ __('Period') }}</th>
+              <th>{{ __('Protection Status') }}</th>
+              <th>{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>

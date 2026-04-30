@@ -132,10 +132,10 @@
                 <div class="col-md-3">
                   <label for="tpmPdfStandard" class="form-label">{{ __('PDF Standard') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select id="tpmPdfStandard" class="form-select">
-                    <option value="pdfa-2b" selected>PDF/A-2b</option>
-                    <option value="pdfa-1b">PDF/A-1b</option>
-                    <option value="pdfa-3b">PDF/A-3b</option>
-                    <option value="pdf">Standard PDF</option>
+                    <option value="pdfa-2b" selected>{{ __('PDF/A-2b') }}</option>
+                    <option value="pdfa-1b">{{ __('PDF/A-1b') }}</option>
+                    <option value="pdfa-3b">{{ __('PDF/A-3b') }}</option>
+                    <option value="pdf">{{ __('Standard PDF') }}</option>
                   </select>
                 </div>
                 <div class="col-md-2">

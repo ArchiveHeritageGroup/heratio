@@ -72,22 +72,22 @@
       <form method="GET" action="{{ route('settings.error-log') }}" class="row g-2 align-items-center">
         <div class="col-auto">
           <select name="status" class="form-select form-select-sm">
-            <option value="open" @selected($filters['status'] === 'open')>Open</option>
-            <option value="resolved" @selected($filters['status'] === 'resolved')>Resolved</option>
-            <option value="all" @selected($filters['status'] === 'all')>All</option>
+            <option value="open" @selected($filters['status'] === 'open')>{{ __('Open') }}</option>
+            <option value="resolved" @selected($filters['status'] === 'resolved')>{{ __('Resolved') }}</option>
+            <option value="all" @selected($filters['status'] === 'all')>{{ __('All') }}</option>
           </select>
         </div>
         <div class="col-auto">
           <select name="level" class="form-select form-select-sm">
-            <option value="">All levels</option>
-            <option value="fatal" @selected($filters['level'] === 'fatal')>Fatal</option>
-            <option value="error" @selected($filters['level'] === 'error')>Error</option>
-            <option value="warning" @selected($filters['level'] === 'warning')>Warning</option>
+            <option value="">{{ __('All levels') }}</option>
+            <option value="fatal" @selected($filters['level'] === 'fatal')>{{ __('Fatal') }}</option>
+            <option value="error" @selected($filters['level'] === 'error')>{{ __('Error') }}</option>
+            <option value="warning" @selected($filters['level'] === 'warning')>{{ __('Warning') }}</option>
           </select>
         </div>
         <div class="col">
           <input type="text" name="search" class="form-control form-control-sm"
-                 placeholder="Search message, URL, file, exception..."
+                 placeholder="{{ __('Search message, URL, file, exception...') }}"
                  value="{{ $filters['search'] }}">
         </div>
         <div class="col-auto">
@@ -107,12 +107,12 @@
         <thead class="table-dark">
           <tr>
             <th style="width:40px">#</th>
-            <th style="width:140px">Time</th>
-            <th style="width:70px">Level</th>
-            <th>Error</th>
-            <th style="width:160px">Location</th>
-            <th style="width:120px">Client</th>
-            <th style="width:100px">Actions</th>
+            <th style="width:140px">{{ __('Time') }}</th>
+            <th style="width:70px">{{ __('Level') }}</th>
+            <th>{{ __('Error') }}</th>
+            <th style="width:160px">{{ __('Location') }}</th>
+            <th style="width:120px">{{ __('Client') }}</th>
+            <th style="width:100px">{{ __('Actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -166,7 +166,7 @@
                   <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
                     @csrf
                     <input type="hidden" name="reopen_id" value="{{ $entry->id }}">
-                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Reopen">
+                    <button type="submit" class="btn btn-sm btn-outline-warning" title="{{ __('Reopen') }}">
                       <i class="fas fa-undo"></i>
                     </button>
                   </form>
@@ -174,19 +174,19 @@
                   <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
                     @csrf
                     <input type="hidden" name="resolve_id" value="{{ $entry->id }}">
-                    <button type="submit" class="btn btn-sm btn-outline-success" title="Resolve">
+                    <button type="submit" class="btn btn-sm btn-outline-success" title="{{ __('Resolve') }}">
                       <i class="fas fa-check"></i>
                     </button>
                   </form>
                 @endif
                 <button type="button" class="btn btn-sm btn-outline-secondary"
-                        data-bs-toggle="collapse" data-bs-target="#trace-{{ $entry->id }}" title="Details">
+                        data-bs-toggle="collapse" data-bs-target="#trace-{{ $entry->id }}" title="{{ __('Details') }}">
                   <i class="fas fa-chevron-down"></i>
                 </button>
                 <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
                   @csrf
                   <input type="hidden" name="delete_id" value="{{ $entry->id }}">
-                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}"
                           onclick="return confirm('Delete this entry?')">
                     <i class="fas fa-times"></i>
                   </button>

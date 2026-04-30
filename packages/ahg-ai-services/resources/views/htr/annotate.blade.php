@@ -2,7 +2,7 @@
 @section('title', 'ILM Annotate — HTR')
 @section('body-class', 'admin ai-services htr')
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li>
     <li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li>
@@ -25,24 +25,24 @@
 <div class="card mb-2">
   <div class="card-body py-2">
     <div class="row align-items-center g-2">
-      <div class="col-auto"><label class="form-label mb-0 small fw-bold">Server Folder:</label></div>
+      <div class="col-auto"><label class="form-label mb-0 small fw-bold">{{ __('Server Folder:') }}</label></div>
       <div class="col-md-4">
         <div class="input-group input-group-sm">
           <select id="folder-preset" class="form-select form-select-sm">
-            <option value="/usr/share/nginx/heratio/FamilySearch" selected>FamilySearch (all)</option>
-            <option value="/usr/share/nginx/heratio/FamilySearch/1898">FamilySearch / 1898</option>
-            <option value="/usr/share/nginx/heratio/FamilySearch/1904">FamilySearch / 1904</option>
-            <option value="/usr/share/nginx/heratio/FamilySearch/1912">FamilySearch / 1912</option>
-            <option value="/usr/share/nginx/heratio/FamilySearch/1920">FamilySearch / 1920</option>
-            <option value="/usr/share/nginx/heratio/FamilySearch/1930">FamilySearch / 1930</option>
-            <option value="/usr/share/nginx/heratio/FamilySearch/wynberg_death_1925-1929">Wynberg Deaths 1925-1929 (248)</option>
-            <option value="/tmp">Temp (/tmp)</option>
-            <option value="type_a">Training: Type A</option>
-            <option value="type_b">Training: Type B</option>
-            <option value="type_c">Training: Type C</option>
+            <option value="/usr/share/nginx/heratio/FamilySearch" selected>{{ __('FamilySearch (all)') }}</option>
+            <option value="/usr/share/nginx/heratio/FamilySearch/1898">{{ __('FamilySearch / 1898') }}</option>
+            <option value="/usr/share/nginx/heratio/FamilySearch/1904">{{ __('FamilySearch / 1904') }}</option>
+            <option value="/usr/share/nginx/heratio/FamilySearch/1912">{{ __('FamilySearch / 1912') }}</option>
+            <option value="/usr/share/nginx/heratio/FamilySearch/1920">{{ __('FamilySearch / 1920') }}</option>
+            <option value="/usr/share/nginx/heratio/FamilySearch/1930">{{ __('FamilySearch / 1930') }}</option>
+            <option value="/usr/share/nginx/heratio/FamilySearch/wynberg_death_1925-1929">{{ __('Wynberg Deaths 1925-1929 (248)') }}</option>
+            <option value="/tmp">{{ __('Temp (/tmp)') }}</option>
+            <option value="type_a">{{ __('Training: Type A') }}</option>
+            <option value="type_b">{{ __('Training: Type B') }}</option>
+            <option value="type_c">{{ __('Training: Type C') }}</option>
             <option value="">— Custom path —</option>
           </select>
-          <input type="text" id="folder-custom" class="form-control form-control-sm" placeholder="or type path here">
+          <input type="text" id="folder-custom" class="form-control form-control-sm" placeholder="{{ __('or type path here') }}">
           <button class="btn atom-btn-outline-success" id="btn-folder-load"><i class="fas fa-folder-open me-1"></i>Load</button>
         </div>
       </div>
@@ -60,7 +60,7 @@
       <div class="col-auto" id="skip-wrap" style="display:none;">
         <div class="form-check form-check-inline mb-0">
           <input class="form-check-input" type="checkbox" id="skip-done" checked>
-          <label class="form-check-label small" for="skip-done">Skip done</label>
+          <label class="form-check-label small" for="skip-done">{{ __('Skip done') }}</label>
         </div>
       </div>
     </div>
@@ -76,16 +76,16 @@
       </div>
       <div class="col-auto">
         <select id="doc-type" class="form-select form-select-sm" style="width:auto;">
-          <option value="type_a">Type A — Death Cert</option>
-          <option value="type_b">Type B — Register</option>
-          <option value="type_c">Type C — Narrative</option>
+          <option value="type_a">{{ __('Type A — Death Cert') }}</option>
+          <option value="type_b">{{ __('Type B — Register') }}</option>
+          <option value="type_c">{{ __('Type C — Narrative') }}</option>
         </select>
       </div>
       <div class="col-auto border-start ps-2">
         <div class="btn-group btn-group-sm">
-          <button class="btn atom-btn-white" id="tool-rect" title="Draw (R)"><i class="fas fa-vector-square"></i></button>
-          <button class="btn atom-btn-white active" id="tool-hand" title="Pan (H / Space)"><i class="fas fa-hand-paper"></i></button>
-          <button class="btn atom-btn-white" id="tool-select" title="Select (V)"><i class="fas fa-mouse-pointer"></i></button>
+          <button class="btn atom-btn-white" id="tool-rect" title="{{ __('Draw (R)') }}"><i class="fas fa-vector-square"></i></button>
+          <button class="btn atom-btn-white active" id="tool-hand" title="{{ __('Pan (H / Space)') }}"><i class="fas fa-hand-paper"></i></button>
+          <button class="btn atom-btn-white" id="tool-select" title="{{ __('Select (V)') }}"><i class="fas fa-mouse-pointer"></i></button>
         </div>
       </div>
       <div class="col-auto">
@@ -101,18 +101,18 @@
       <div class="col-auto">
         <div class="form-check form-switch mb-0">
           <input class="form-check-input" type="checkbox" id="non-gen-toggle">
-          <label class="form-check-label small" for="non-gen-toggle">Non-genealogical image</label>
+          <label class="form-check-label small" for="non-gen-toggle">{{ __('Non-genealogical image') }}</label>
         </div>
       </div>
       <div class="col-auto border-start ps-2" id="row-split-tools" style="display:none;">
         <div class="btn-group btn-group-sm">
-          <button class="btn atom-btn-white" id="btn-auto-rows" title="Auto-detect rows"><i class="fas fa-grip-lines me-1"></i>Auto Rows</button>
-          <input type="number" class="form-control form-control-sm" id="row-count" value="7" min="1" max="20" style="width:50px;" title="Number of rows">
-          <button class="btn atom-btn-white" id="btn-split-go" title="Split into row images"><i class="fas fa-cut me-1"></i>Split &amp; Annotate</button>
+          <button class="btn atom-btn-white" id="btn-auto-rows" title="{{ __('Auto-detect rows') }}"><i class="fas fa-grip-lines me-1"></i>Auto Rows</button>
+          <input type="number" class="form-control form-control-sm" id="row-count" value="7" min="1" max="20" style="width:50px;" title="{{ __('Number of rows') }}">
+          <button class="btn atom-btn-white" id="btn-split-go" title="{{ __('Split into row images') }}"><i class="fas fa-cut me-1"></i>Split &amp; Annotate</button>
         </div>
       </div>
       <div class="col-auto ms-auto">
-        <button class="btn atom-btn-white btn-sm" id="btn-skip" disabled title="Skip — move to rework folder"><i class="fas fa-forward me-1"></i>Skip</button>
+        <button class="btn atom-btn-white btn-sm" id="btn-skip" disabled title="{{ __('Skip — move to rework folder') }}"><i class="fas fa-forward me-1"></i>Skip</button>
         <button class="btn atom-btn-outline-success btn-sm" id="btn-save" disabled><i class="fas fa-save me-1"></i>Save</button>
       </div>
     </div>
@@ -124,9 +124,9 @@
   <div class="d-flex align-items-center gap-3">
     <strong>Non-genealogical type:</strong>
     <select id="ng-type" class="form-select form-select-sm" style="width:auto;">
-      <option value="135026">Administrative Image</option>
-      <option value="135165">No Extractable Data</option>
-      <option value="135784">No Genealogical Data</option>
+      <option value="135026">{{ __('Administrative Image') }}</option>
+      <option value="135165">{{ __('No Extractable Data') }}</option>
+      <option value="135784">{{ __('No Genealogical Data') }}</option>
     </select>
     <span class="small text-muted">No field boxes needed — just save.</span>
   </div>
@@ -159,15 +159,15 @@
       </div>
       <div class="card-body py-2">
         <select id="record-type" class="form-select form-select-sm">
-          <option value="Death Records">Death Records</option>
-          <option value="Birth Records">Birth Records</option>
-          <option value="Marriage Records">Marriage Records</option>
-          <option value="Christenings">Christenings</option>
-          <option value="Burials">Burials</option>
-          <option value="Church Records">Church Records</option>
-          <option value="Civil Registration">Civil Registration</option>
-          <option value="Census">Census</option>
-          <option value="Other Records">Other Records</option>
+          <option value="Death Records">{{ __('Death Records') }}</option>
+          <option value="Birth Records">{{ __('Birth Records') }}</option>
+          <option value="Marriage Records">{{ __('Marriage Records') }}</option>
+          <option value="Christenings">{{ __('Christenings') }}</option>
+          <option value="Burials">{{ __('Burials') }}</option>
+          <option value="Church Records">{{ __('Church Records') }}</option>
+          <option value="Civil Registration">{{ __('Civil Registration') }}</option>
+          <option value="Census">{{ __('Census') }}</option>
+          <option value="Other Records">{{ __('Other Records') }}</option>
         </select>
       </div>
     </div>

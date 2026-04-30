@@ -33,7 +33,7 @@
           <div class="accordion-item">
             <h2 class="accordion-header" id="rename-heading">
               <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#rename-collapse" aria-expanded="true" aria-controls="rename-collapse">
-                Rename
+                {{ __('Rename') }}
               </button>
             </h2>
             <div id="rename-collapse" class="accordion-collapse collapse show" aria-labelledby="rename-heading">

@@ -1,6 +1,6 @@
 {{-- Floating Favorites Tab — left edge, above Feedback --}}
 @auth
-<a href="{{ route('favorites.browse') }}" id="favorites-tab-btn" title="My Favorites">
+<a href="{{ route('favorites.browse') }}" id="favorites-tab-btn" title="{{ __('My Favorites') }}">
   <i class="fas fa-heart me-1"></i>Favorites
 </a>
 <style>
@@ -39,10 +39,10 @@
 {{-- Floating Feedback Tab — left edge, halfway down --}}
 <div id="feedback-tab-wrap">
   {{-- The tab button --}}
-  <button id="feedback-tab-btn" type="button" aria-label="Give feedback" title="Feedback">
+  <button id="feedback-tab-btn" type="button" aria-label="{{ __('Give feedback') }}" title="{{ __('Feedback') }}">
     <i class="fas fa-comment-alt me-1"></i>Feedback
   </button>
-  <button id="feedback-tab-dismiss" type="button" class="d-none" aria-label="Hide feedback" title="Hide feedback tab">
+  <button id="feedback-tab-dismiss" type="button" class="d-none" aria-label="{{ __('Hide feedback') }}" title="{{ __('Hide feedback tab') }}">
     <i class="fas fa-chevron-left"></i>
   </button>
 
@@ -50,7 +50,7 @@
   <div id="feedback-panel" class="d-none">
     <div class="feedback-panel-header">
       <strong><i class="fas fa-comment-alt me-1"></i>Feedback</strong>
-      <button type="button" id="feedback-panel-close" class="btn-close btn-close-white btn-sm" aria-label="Close"></button>
+      <button type="button" id="feedback-panel-close" class="btn-close btn-close-white btn-sm" aria-label="{{ __('Close') }}"></button>
     </div>
     <form id="feedback-panel-form" method="POST" action="{{ url('/feedback/general') }}">
       @csrf
@@ -62,7 +62,7 @@
 
       {{-- Star rating --}}
       <div class="mb-2">
-        <label class="form-label small fw-bold mb-1">Rate this page</label>
+        <label class="form-label small fw-bold mb-1">{{ __('Rate this page') }}</label>
         <div id="feedback-stars" class="d-flex gap-1">
           <span class="feedback-star" data-value="1"><i class="far fa-star"></i></span>
           <span class="feedback-star" data-value="2"><i class="far fa-star"></i></span>
@@ -76,11 +76,11 @@
       {{-- Category --}}
       <div class="mb-2">
         <select name="feed_type_id" class="form-select form-select-sm">
-          <option value="0">General feedback</option>
-          <option value="1">Bug report</option>
-          <option value="2">Feature request</option>
-          <option value="3">Content issue</option>
-          <option value="4">Usability</option>
+          <option value="0">{{ __('General feedback') }}</option>
+          <option value="1">{{ __('Bug report') }}</option>
+          <option value="2">{{ __('Feature request') }}</option>
+          <option value="3">{{ __('Content issue') }}</option>
+          <option value="4">{{ __('Usability') }}</option>
         </select>
       </div>
 
@@ -89,7 +89,7 @@
 
       {{-- Message --}}
       <div class="mb-2">
-        <textarea name="remarks" class="form-control form-control-sm" rows="3" placeholder="Tell us what you think..." required></textarea>
+        <textarea name="remarks" class="form-control form-control-sm" rows="3" placeholder="{{ __('Tell us what you think...') }}" required></textarea>
       </div>
 
       <button type="submit" class="btn btn-sm atom-btn-outline-success w-100">

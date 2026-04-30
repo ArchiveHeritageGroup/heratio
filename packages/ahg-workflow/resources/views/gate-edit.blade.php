@@ -75,20 +75,20 @@
           <div class="col-md-4">
             <div class="mb-3">
               <label for="field_name" class="form-label">Field Name <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="text" class="form-control" id="field_name" name="field_name" value="{{ old('field_name', $rule->field_name ?? '') }}" placeholder="e.g. title, scope_and_content">
+              <input type="text" class="form-control" id="field_name" name="field_name" value="{{ old('field_name', $rule->field_name ?? '') }}" placeholder="{{ __('e.g. title, scope_and_content') }}">
               <small class="text-muted">Used by required_field and min_description_length rules</small>
             </div>
           </div>
           <div class="col-md-4">
             <div class="mb-3">
               <label for="level_of_description_id" class="form-label">Level of Description ID <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="number" class="form-control" id="level_of_description_id" name="level_of_description_id" value="{{ old('level_of_description_id', $rule->level_of_description_id ?? '') }}" placeholder="Leave empty for all">
+              <input type="number" class="form-control" id="level_of_description_id" name="level_of_description_id" value="{{ old('level_of_description_id', $rule->level_of_description_id ?? '') }}" placeholder="{{ __('Leave empty for all') }}">
             </div>
           </div>
           <div class="col-md-4">
             <div class="mb-3">
               <label for="repository_id" class="form-label">Repository ID <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="number" class="form-control" id="repository_id" name="repository_id" value="{{ old('repository_id', $rule->repository_id ?? '') }}" placeholder="Leave empty for all">
+              <input type="number" class="form-control" id="repository_id" name="repository_id" value="{{ old('repository_id', $rule->repository_id ?? '') }}" placeholder="{{ __('Leave empty for all') }}">
             </div>
           </div>
         </div>
@@ -97,7 +97,7 @@
           <div class="col-md-6">
             <div class="mb-3">
               <label for="material_type" class="form-label">Material Type <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="text" class="form-control" id="material_type" name="material_type" value="{{ old('material_type', $rule->material_type ?? '') }}" placeholder="Leave empty for all">
+              <input type="text" class="form-control" id="material_type" name="material_type" value="{{ old('material_type', $rule->material_type ?? '') }}" placeholder="{{ __('Leave empty for all') }}">
             </div>
           </div>
           <div class="col-md-6">

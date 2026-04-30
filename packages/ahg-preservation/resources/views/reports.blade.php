@@ -63,11 +63,11 @@
                     <table class="table table-bordered table-sm table-striped mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Path</th>
-                                <th>MIME Type</th>
-                                <th>Size</th>
+                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Name') }}</th>
+                                <th>{{ __('Path') }}</th>
+                                <th>{{ __('MIME Type') }}</th>
+                                <th>{{ __('Size') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -99,13 +99,13 @@
                     <table class="table table-bordered table-sm table-striped mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Checksum ID</th>
-                                <th>File</th>
-                                <th>Algorithm</th>
-                                <th>Checksum</th>
-                                <th>Generated</th>
-                                <th>Last Verified</th>
-                                <th>Status</th>
+                                <th>{{ __('Checksum ID') }}</th>
+                                <th>{{ __('File') }}</th>
+                                <th>{{ __('Algorithm') }}</th>
+                                <th>{{ __('Checksum') }}</th>
+                                <th>{{ __('Generated') }}</th>
+                                <th>{{ __('Last Verified') }}</th>
+                                <th>{{ __('Status') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -153,14 +153,14 @@
                     <table class="table table-bordered table-sm table-striped mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>ID</th>
-                                <th>File</th>
-                                <th>Format</th>
-                                <th>MIME Type</th>
-                                <th>PUID</th>
-                                <th>Risk Level</th>
-                                <th>Preservation Action</th>
-                                <th>Identified</th>
+                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('File') }}</th>
+                                <th>{{ __('Format') }}</th>
+                                <th>{{ __('MIME Type') }}</th>
+                                <th>{{ __('PUID') }}</th>
+                                <th>{{ __('Risk Level') }}</th>
+                                <th>{{ __('Preservation Action') }}</th>
+                                <th>{{ __('Identified') }}</th>
                             </tr>
                         </thead>
                         <tbody>

@@ -1,6 +1,6 @@
 <div class="container-fluid py-3">
 
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item"><a href="@php echo route('researcher.dashboard') @endphp">Researcher</a></li>
       <li class="breadcrumb-item active">New Submission</li>
@@ -25,13 +25,13 @@
 
             <div class="mb-3">
               <label class="form-label fw-bold">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
-              <input type="text" name="title" class="form-control" required placeholder="e.g., Smith Family Papers 1950-1975">
+              <input type="text" name="title" class="form-control" required placeholder="{{ __('e.g., Smith Family Papers 1950-1975') }}">
               <small class="text-muted">A descriptive title for this submission package.</small>
             </div>
 
             <div class="mb-3">
               <label class="form-label fw-bold">Description <span class="badge bg-secondary ms-1">Optional</span></label>
-              <textarea name="description" class="form-control" rows="3" placeholder="Brief description of the collection being submitted..."></textarea>
+              <textarea name="description" class="form-control" rows="3" placeholder="{{ __('Brief description of the collection being submitted...') }}"></textarea>
             </div>
 
             <div class="mb-3">
@@ -61,7 +61,7 @@
             <div class="mb-3">
               <label class="form-label fw-bold">Parent Record (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="hidden" name="parent_object_id" id="parentObjectId" value="">
-              <input type="text" class="form-control" id="parentSearch" placeholder="Type to search for a parent record..." autocomplete="off">
+              <input type="text" class="form-control" id="parentSearch" placeholder="{{ __('Type to search for a parent record...') }}" autocomplete="off">
               <small class="text-muted">Place this submission under an existing archival record. Leave blank for root level.</small>
               <div id="parentResults" class="list-group mt-1" style="display:none; position:absolute; z-index:999; max-height:200px; overflow-y:auto;"></div>
             </div>

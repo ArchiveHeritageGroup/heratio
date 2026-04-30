@@ -59,14 +59,14 @@
     <div class="card-body">
         <table class="table table-sm mb-0">
             <tbody>
-                <tr><th style="width:180px;">Source Type</th><td>{{ ucfirst($session->source_type) }}</td></tr>
-                <tr><th>Source File</th><td>{{ $session->source_filename ?: '-' }}</td></tr>
-                <tr><th>Department</th><td>{{ $session->department ?: '-' }}</td></tr>
-                <tr><th>Agency Code</th><td>{{ $session->agency_code ?: '-' }}</td></tr>
-                <tr><th>Started</th><td>{{ $session->created_at }}</td></tr>
-                <tr><th>Completed</th><td>{{ $session->completed_at ?: 'In progress' }}</td></tr>
+                <tr><th style="width:180px;">{{ __('Source Type') }}</th><td>{{ ucfirst($session->source_type) }}</td></tr>
+                <tr><th>{{ __('Source File') }}</th><td>{{ $session->source_filename ?: '-' }}</td></tr>
+                <tr><th>{{ __('Department') }}</th><td>{{ $session->department ?: '-' }}</td></tr>
+                <tr><th>{{ __('Agency Code') }}</th><td>{{ $session->agency_code ?: '-' }}</td></tr>
+                <tr><th>{{ __('Started') }}</th><td>{{ $session->created_at }}</td></tr>
+                <tr><th>{{ __('Completed') }}</th><td>{{ $session->completed_at ?: 'In progress' }}</td></tr>
                 @if($session->column_mapping_json)
-                <tr><th>Column Mapping</th><td>
+                <tr><th>{{ __('Column Mapping') }}</th><td>
                     @php $colMap = json_decode($session->column_mapping_json, true); @endphp
                     @if($colMap)
                         @foreach($colMap as $field => $col)
@@ -103,7 +103,7 @@
             <form method="post" action="{{ route('records.fileplan.import.link', $session->id) }}" class="d-inline">
                 @csrf
                 <button type="submit" class="btn btn-outline-success" onclick="return confirm('Link records matching file plan codes?');">
-                    Link Records
+                    {{ __('Link Records') }}
                 </button>
             </form>
         @endif

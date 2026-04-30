@@ -57,7 +57,7 @@
       <div class="card-body small p-2">
         <table class="table table-sm table-borderless mb-0">
           <thead>
-            <tr><th>Table</th><th>Column</th><th class="text-center">Strict</th></tr>
+            <tr><th>{{ __('Table') }}</th><th>{{ __('Column') }}</th><th class="text-center">{{ __('Strict') }}</th></tr>
           </thead>
           <tbody>
             @foreach($columnMappings as $map)
@@ -66,9 +66,9 @@
                 <td><code>{{ $map->column_name }}</code></td>
                 <td class="text-center">
                   @if($map->is_strict)
-                    <i class="fas fa-lock text-danger" title="Strict: only dropdown values allowed"></i>
+                    <i class="fas fa-lock text-danger" title="{{ __('Strict: only dropdown values allowed') }}"></i>
                   @else
-                    <i class="fas fa-lock-open text-success" title="Non-strict: freetext allowed"></i>
+                    <i class="fas fa-lock-open text-success" title="{{ __('Non-strict: freetext allowed') }}"></i>
                   @endif
                 </td>
               </tr>
@@ -98,18 +98,18 @@
           <thead>
             <tr>
               <th style="width:40px"></th>
-              <th>Label</th>
-              <th style="width:140px">Code</th>
-              <th style="width:80px" class="text-center">Color</th>
-              <th style="width:80px" class="text-center">Default</th>
-              <th style="width:80px" class="text-center">Active</th>
-              <th style="width:80px" class="text-center">Actions</th>
+              <th>{{ __('Label') }}</th>
+              <th style="width:140px">{{ __('Code') }}</th>
+              <th style="width:80px" class="text-center">{{ __('Color') }}</th>
+              <th style="width:80px" class="text-center">{{ __('Default') }}</th>
+              <th style="width:80px" class="text-center">{{ __('Active') }}</th>
+              <th style="width:80px" class="text-center">{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody id="termsTbody">
             @foreach ($terms as $term)
               <tr data-id="{{ $term->id }}" class="term-row {{ !$term->is_active ? 'table-secondary text-muted inactive-row' : '' }}">
-                <td class="drag-handle text-center" style="cursor:grab" title="Drag to reorder">
+                <td class="drag-handle text-center" style="cursor:grab" title="{{ __('Drag to reorder') }}">
                   <i class="fas fa-grip-vertical text-muted"></i>
                 </td>
                 <td>
@@ -122,7 +122,7 @@
                 <td class="text-center">
                   <input type="color" class="form-control form-control-color form-control-sm term-color-input"
                          value="{{ $term->color ?: '#6c757d' }}" data-id="{{ $term->id }}"
-                         title="Choose color" style="width:32px;height:28px;padding:2px;">
+                         title="{{ __('Choose color') }}" style="width:32px;height:28px;padding:2px;">
                 </td>
                 <td class="text-center">
                   <input type="radio" class="form-check-input term-default-radio"
@@ -135,7 +135,7 @@
                 </td>
                 <td class="text-center">
                   <button type="button" class="btn btn-sm atom-btn-outline-danger btn-delete-term"
-                          data-id="{{ $term->id }}" data-label="{{ $term->label }}" title="Delete term">
+                          data-id="{{ $term->id }}" data-label="{{ $term->label }}" title="{{ __('Delete term') }}">
                     <i class="fas fa-times"></i>
                   </button>
                 </td>
@@ -164,11 +164,11 @@
       <div class="modal-body">
         <div class="mb-3">
           <label class="form-label">Label <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
-          <input type="text" id="addTermLabel" class="form-control" placeholder="e.g., Approved">
+          <input type="text" id="addTermLabel" class="form-control" placeholder="{{ __('e.g., Approved') }}">
         </div>
         <div class="mb-3">
           <label class="form-label">Code <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
-          <input type="text" id="addTermCode" class="form-control" placeholder="e.g., approved">
+          <input type="text" id="addTermCode" class="form-control" placeholder="{{ __('e.g., approved') }}">
           <div class="form-text">Lowercase letters, numbers, and underscores only</div>
         </div>
         <div class="row">
@@ -178,13 +178,13 @@
           </div>
           <div class="col-6">
             <label class="form-label">Icon <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="text" id="addTermIcon" class="form-control" placeholder="fa-check">
+            <input type="text" id="addTermIcon" class="form-control" placeholder="{{ __('fa-check') }}">
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn atom-btn-outline-success" id="addTermBtn">Add</button>
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+        <button type="button" class="btn atom-btn-outline-success" id="addTermBtn">{{ __('Add') }}</button>
       </div>
     </div>
   </div>

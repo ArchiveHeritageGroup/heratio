@@ -3,7 +3,7 @@
 @section('title-block')<h1><i class="fas fa-walking me-2"></i>Walk-in Researcher Registration</h1>@endsection
 @section('content')
 <div class="card mb-3">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Select Reading Room</h5></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Select Reading Room') }}</h5></div>
     <div class="card-body">
         <form method="GET" class="row g-2 align-items-end">
             <div class="col-md-4">
@@ -36,11 +36,11 @@
                     <table class="table table-bordered table-striped table-hover mb-0">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Organization</th>
-                                <th>Purpose</th>
-                                <th>Checked In</th>
-                                <th>Action</th>
+                                <th>{{ __('Name') }}</th>
+                                <th>{{ __('Organization') }}</th>
+                                <th>{{ __('Purpose') }}</th>
+                                <th>{{ __('Checked In') }}</th>
+                                <th>{{ __('Action') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -56,7 +56,7 @@
                                         <input type="hidden" name="form_action" value="checkout">
                                         <input type="hidden" name="visitor_id" value="{{ $visitor->id }}">
                                         <input type="hidden" name="room_id" value="{{ $roomId }}">
-                                        <button type="submit" class="btn atom-btn-outline-danger btn-sm" title="Check Out"><i class="fas fa-sign-out-alt me-1"></i>Check Out</button>
+                                        <button type="submit" class="btn atom-btn-outline-danger btn-sm" title="{{ __('Check Out') }}"><i class="fas fa-sign-out-alt me-1"></i>Check Out</button>
                                     </form>
                                 </td>
                             </tr>
@@ -120,12 +120,12 @@
                     <div class="mb-3">
                         <label class="form-label">Purpose of Visit <span class="badge bg-secondary ms-1">Optional</span></label>
                         <select name="purpose" class="form-select">
-                            <option value="research">Research</option>
-                            <option value="genealogy">Genealogy</option>
-                            <option value="academic">Academic</option>
-                            <option value="personal">Personal Interest</option>
-                            <option value="professional">Professional</option>
-                            <option value="other">Other</option>
+                            <option value="research">{{ __('Research') }}</option>
+                            <option value="genealogy">{{ __('Genealogy') }}</option>
+                            <option value="academic">{{ __('Academic') }}</option>
+                            <option value="personal">{{ __('Personal Interest') }}</option>
+                            <option value="professional">{{ __('Professional') }}</option>
+                            <option value="other">{{ __('Other') }}</option>
                         </select>
                     </div>
                     <div class="mb-3">

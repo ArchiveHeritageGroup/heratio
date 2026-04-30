@@ -68,14 +68,14 @@
                     <thead class="table-light">
                         <tr>
                             <th style="width:30px;"><input type="checkbox" id="selectAll" class="form-check-input"></th>
-                            <th>Request</th>
-                            <th>Item</th>
-                            <th>Location</th>
-                            <th>Researcher</th>
-                            <th>Booking</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>{{ __('Request') }}</th>
+                            <th>{{ __('Item') }}</th>
+                            <th>{{ __('Location') }}</th>
+                            <th>{{ __('Researcher') }}</th>
+                            <th>{{ __('Booking') }}</th>
+                            <th>{{ __('Priority') }}</th>
+                            <th>{{ __('Status') }}</th>
+                            <th>{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -115,13 +115,13 @@
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     @if($req->status === 'requested')
-                                        <button type="button" class="btn btn-outline-info action-btn" data-id="{{ $req->id }}" data-action="mark_in_transit" title="In Transit"><i class="fas fa-truck"></i></button>
+                                        <button type="button" class="btn btn-outline-info action-btn" data-id="{{ $req->id }}" data-action="mark_in_transit" title="{{ __('In Transit') }}"><i class="fas fa-truck"></i></button>
                                     @endif
                                     @if($req->status === 'in_transit')
-                                        <button type="button" class="btn btn-outline-success action-btn" data-id="{{ $req->id }}" data-action="mark_delivered" title="Delivered"><i class="fas fa-check"></i></button>
+                                        <button type="button" class="btn btn-outline-success action-btn" data-id="{{ $req->id }}" data-action="mark_delivered" title="{{ __('Delivered') }}"><i class="fas fa-check"></i></button>
                                     @endif
                                     @if(in_array($req->status, ['delivered', 'in_use']))
-                                        <button type="button" class="btn btn-outline-secondary action-btn" data-id="{{ $req->id }}" data-action="mark_returned" title="Return"><i class="fas fa-undo"></i></button>
+                                        <button type="button" class="btn btn-outline-secondary action-btn" data-id="{{ $req->id }}" data-action="mark_returned" title="{{ __('Return') }}"><i class="fas fa-undo"></i></button>
                                     @endif
                                 </div>
                             </td>
@@ -136,20 +136,20 @@
                 <div class="card-body">
                     <div class="row align-items-end">
                         <div class="col-md-3">
-                            <label class="form-label small">Update Status</label>
+                            <label class="form-label small">{{ __('Update Status') }}</label>
                             <select name="new_status" class="form-select form-select-sm">
                                 <option value="">-- Select --</option>
-                                <option value="requested">Requested</option>
-                                <option value="in_transit">In Transit</option>
-                                <option value="delivered">Delivered</option>
-                                <option value="in_use">In Use</option>
-                                <option value="returned">Returned</option>
-                                <option value="unavailable">Unavailable</option>
+                                <option value="requested">{{ __('Requested') }}</option>
+                                <option value="in_transit">{{ __('In Transit') }}</option>
+                                <option value="delivered">{{ __('Delivered') }}</option>
+                                <option value="in_use">{{ __('In Use') }}</option>
+                                <option value="returned">{{ __('Returned') }}</option>
+                                <option value="unavailable">{{ __('Unavailable') }}</option>
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label small">Notes</label>
-                            <input type="text" name="batch_notes" class="form-control form-control-sm" placeholder="Optional notes">
+                            <label class="form-label small">{{ __('Notes') }}</label>
+                            <input type="text" name="batch_notes" class="form-control form-control-sm" placeholder="{{ __('Optional notes') }}">
                         </div>
                         <div class="col-md-5">
                             <div class="d-flex flex-wrap gap-1">

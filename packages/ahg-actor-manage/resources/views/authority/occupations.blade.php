@@ -5,7 +5,7 @@
 
 @section('content')
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
@@ -30,10 +30,10 @@
     <table class="table table-hover mb-0">
       <thead>
         <tr>
-          <th>Occupation</th>
-          <th>From</th>
-          <th>To</th>
-          <th>Notes</th>
+          <th>{{ __('Occupation') }}</th>
+          <th>{{ __('From') }}</th>
+          <th>{{ __('To') }}</th>
+          <th>{{ __('Notes') }}</th>
           <th></th>
         </tr>
       </thead>
@@ -72,31 +72,31 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add Occupation</h5>
+        <h5 class="modal-title">{{ __('Add Occupation') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Occupation (free text)</label>
+          <label class="form-label">{{ __('Occupation (free text)') }}</label>
           <input type="text" id="occ-text" class="form-control">
         </div>
         <div class="row g-2 mb-3">
           <div class="col-md-6">
-            <label class="form-label">Date from</label>
-            <input type="text" id="occ-from" class="form-control" placeholder="YYYY">
+            <label class="form-label">{{ __('Date from') }}</label>
+            <input type="text" id="occ-from" class="form-control" placeholder="{{ __('YYYY') }}">
           </div>
           <div class="col-md-6">
-            <label class="form-label">Date to</label>
-            <input type="text" id="occ-to" class="form-control" placeholder="YYYY">
+            <label class="form-label">{{ __('Date to') }}</label>
+            <input type="text" id="occ-to" class="form-control" placeholder="{{ __('YYYY') }}">
           </div>
         </div>
         <div class="mb-3">
-          <label class="form-label">Notes</label>
+          <label class="form-label">{{ __('Notes') }}</label>
           <textarea id="occ-notes" class="form-control" rows="2"></textarea>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
         <button type="button" class="btn atom-btn-white" id="btn-save-occ">
           <i class="fas fa-save me-1"></i>Save
         </button>

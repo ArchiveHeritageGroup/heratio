@@ -34,7 +34,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="import-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#import-collapse" aria-expanded="true">
-            Import options
+            {{ __('Import options') }}
           </button>
         </h2>
         <div id="import-collapse" class="accordion-collapse collapse show">
@@ -45,11 +45,11 @@
                 <label class="form-label" for="object-type-select">Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select" name="objectType" id="object-type-select">
                   <option value="informationObject">{{ config('app.ui_label_informationobject', 'Archival description') }}</option>
-                  <option value="accession">Accession</option>
+                  <option value="accession">{{ __('Accession') }}</option>
                   <option value="authorityRecord">{{ config('app.ui_label_actor', 'Authority record') }}</option>
-                  <option value="authorityRecordRelationship">Authority record relationship</option>
-                  <option value="event">Event</option>
-                  <option value="repository">Repository</option>
+                  <option value="authorityRecordRelationship">{{ __('Authority record relationship') }}</option>
+                  <option value="event">{{ __('Event') }}</option>
+                  <option value="repository">{{ __('Repository') }}</option>
                 </select>
               </div>
             @endif
@@ -58,10 +58,10 @@
               <div class="mb-3">
                 <label for="object-type-select" class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select" name="objectType" id="object-type-select">
-                  <option value="ead">EAD 2002</option>
-                  <option value="eac-cpf">EAC CPF</option>
+                  <option value="ead">{{ __('EAD 2002') }}</option>
+                  <option value="eac-cpf">{{ __('EAC CPF') }}</option>
                   <option value="mods">MODS</option>
-                  <option value="dc">DC</option>
+                  <option value="dc">{{ __('DC') }}</option>
                 </select>
               </div>
             @endif
@@ -70,17 +70,17 @@
               <div class="mb-3">
                 <label class="form-label" for="update-type-select">Update behaviours <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select" name="updateType" id="update-type-select">
-                  <option value="import-as-new">Ignore matches and create new records on import</option>
-                  <option value="match-and-update">Update matches ignoring blank fields in CSV</option>
-                  <option value="delete-and-replace">Delete matches and replace with imported records</option>
+                  <option value="import-as-new">{{ __('Ignore matches and create new records on import') }}</option>
+                  <option value="match-and-update">{{ __('Update matches ignoring blank fields in CSV') }}</option>
+                  <option value="delete-and-replace">{{ __('Delete matches and replace with imported records') }}</option>
                 </select>
               </div>
             @else
               <div class="mb-3">
                 <label class="form-label" for="update-type-select">Update behaviours <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select" name="updateType" id="update-type-select">
-                  <option value="import-as-new">Ignore matches and import as new</option>
-                  <option value="delete-and-replace">Delete matches and replace with imports</option>
+                  <option value="import-as-new">{{ __('Ignore matches and import as new') }}</option>
+                  <option value="delete-and-replace">{{ __('Delete matches and replace with imports') }}</option>
                 </select>
               </div>
             @endif
@@ -93,7 +93,7 @@
             <div class="mb-3">
               <label class="form-label" for="collection-select">Limit matches to: <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" name="collection" id="collection-select">
-                <option value="">Top-level description</option>
+                <option value="">{{ __('Top-level description') }}</option>
                 @foreach($collections ?? [] as $coll)
                   <option value="{{ $coll->slug }}">{{ $coll->title }}</option>
                 @endforeach
@@ -117,7 +117,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="file-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#file-collapse" aria-expanded="true">
-            Select file
+            {{ __('Select file') }}
           </button>
         </h2>
         <div id="file-collapse" class="accordion-collapse collapse show">

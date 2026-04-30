@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-shield-alt me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Integrity Check</h1>
+      <h1 class="mb-0">{{ __('Integrity Check') }}</h1>
       <span class="small text-muted">Digital object verification and integrity monitoring</span>
     </div>
   </div>
@@ -87,7 +87,7 @@
     <div class="d-flex align-items-center gap-2">
       <label for="repository_filter" class="form-label mb-0 fw-bold">Filter by repository: <span class="badge bg-secondary ms-1">Optional</span></label>
       <select id="repository_filter" class="form-select form-select-sm" style="width: auto; min-width: 200px;">
-        <option value="">All repositories</option>
+        <option value="">{{ __('All repositories') }}</option>
         @foreach($repositories as $repo)
           <option value="{{ $repo->id }}">{{ $repo->name }}</option>
         @endforeach
@@ -127,12 +127,12 @@
           <table class="table table-bordered table-striped mb-0">
             <thead>
               <tr>
-                <th>Schedule</th>
-                <th>Status</th>
-                <th>Progress</th>
-                <th>Started</th>
-                <th>Completed</th>
-                <th>Duration</th>
+                <th>{{ __('Schedule') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Progress') }}</th>
+                <th>{{ __('Started') }}</th>
+                <th>{{ __('Completed') }}</th>
+                <th>{{ __('Duration') }}</th>
               </tr>
             </thead>
             <tbody>

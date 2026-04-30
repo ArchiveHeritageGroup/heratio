@@ -37,7 +37,7 @@
       <div class="card-header bg-light">Record under review</div>
       <table class="table table-sm mb-0">
         <tr>
-          <th class="text-muted" style="width:40%">Record</th>
+          <th class="text-muted" style="width:40%">{{ __('Record') }}</th>
           <td>
             @if($review->record_slug)
               <a href="{{ url('/' . $review->record_slug) }}">{{ $review->record_title ?: '[Untitled]' }}</a>
@@ -47,7 +47,7 @@
           </td>
         </tr>
         <tr>
-          <th class="text-muted">Disposal class</th>
+          <th class="text-muted">{{ __('Disposal class') }}</th>
           <td>
             @if($review->disposal_class_ref)
               <code>{{ $review->disposal_class_ref }}</code> — {{ $review->disposal_class_title }}
@@ -57,22 +57,22 @@
             @endif
           </td>
         </tr>
-        <tr><th class="text-muted">Review type</th><td>{{ $review->review_type }}</td></tr>
-        <tr><th class="text-muted">Due date</th><td>{{ $review->review_due_date }}{{ $overdue ? ' (overdue)' : '' }}</td></tr>
+        <tr><th class="text-muted">{{ __('Review type') }}</th><td>{{ $review->review_type }}</td></tr>
+        <tr><th class="text-muted">{{ __('Due date') }}</th><td>{{ $review->review_due_date }}{{ $overdue ? ' (overdue)' : '' }}</td></tr>
         @if($review->review_completed_date)
-          <tr><th class="text-muted">Completed</th><td>{{ $review->review_completed_date }}</td></tr>
+          <tr><th class="text-muted">{{ __('Completed') }}</th><td>{{ $review->review_completed_date }}</td></tr>
         @endif
         @if($review->next_review_due_date)
-          <tr><th class="text-muted">Next review due</th><td>{{ $review->next_review_due_date }}</td></tr>
+          <tr><th class="text-muted">{{ __('Next review due') }}</th><td>{{ $review->next_review_due_date }}</td></tr>
         @endif
         @if($review->decision)
-          <tr><th class="text-muted">Decision</th><td><strong>{{ $review->decision }}</strong></td></tr>
+          <tr><th class="text-muted">{{ __('Decision') }}</th><td><strong>{{ $review->decision }}</strong></td></tr>
         @endif
         @if($review->decision_notes)
-          <tr><th class="text-muted">Decision notes</th><td>{!! nl2br(e($review->decision_notes)) !!}</td></tr>
+          <tr><th class="text-muted">{{ __('Decision notes') }}</th><td>{!! nl2br(e($review->decision_notes)) !!}</td></tr>
         @endif
         @if($review->triggered_disposal_action_id)
-          <tr><th class="text-muted">Triggered disposal</th>
+          <tr><th class="text-muted">{{ __('Triggered disposal') }}</th>
               <td><a href="{{ url('/admin/records/disposal/' . $review->triggered_disposal_action_id) }}">action #{{ $review->triggered_disposal_action_id }}</a></td>
           </tr>
         @endif
@@ -88,7 +88,7 @@
           <form method="POST" action="{{ route('records.reviews.complete', $review->id) }}">
             @csrf
             <div class="mb-3">
-              <label class="form-label">Decision</label>
+              <label class="form-label">{{ __('Decision') }}</label>
               <select name="decision" class="form-select" required>
                 <option value="">— pick a decision —</option>
                 @foreach($decisions as $d)
@@ -102,11 +102,11 @@
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Notes (rationale)</label>
-              <textarea name="decision_notes" rows="4" class="form-control" placeholder="Why this decision? Cite policy, legislation, business need."></textarea>
+              <label class="form-label">{{ __('Notes (rationale)') }}</label>
+              <textarea name="decision_notes" rows="4" class="form-control" placeholder="{{ __('Why this decision? Cite policy, legislation, business need.') }}"></textarea>
             </div>
             <div class="mb-3">
-              <label class="form-label">Next review due</label>
+              <label class="form-label">{{ __('Next review due') }}</label>
               <input type="date" name="next_review_due_date" class="form-control">
               <div class="form-text small">Optional. If retaining, schedule the next look at this record.</div>
             </div>

@@ -170,13 +170,13 @@
   <body>
 
     <div class="print-toolbar">
-      <button onclick="window.print()">Print this page</button>
-      <button onclick="window.close()">Close</button>
+      <button onclick="window.print()">{{ __('Print this page') }}</button>
+      <button onclick="window.close()">{{ __('Close') }}</button>
     </div>
 
     <div class="print-header">
       <h1 class="site-title">{{ $themeData['siteTitle'] ?? 'Heratio' }}</h1>
-      <h2 class="record-title">@yield('record-title')</h2>
+      <h2 class="record-title">{{ __("@yield('record-title')") }}</h2>
       @hasSection('record-type')
         <div class="record-type">@yield('record-type')</div>
       @endif

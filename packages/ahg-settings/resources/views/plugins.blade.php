@@ -30,7 +30,7 @@
       <div class="col-auto">
         <strong><i class="fas fa-filter me-2"></i>Category</strong>
         <div class="btn-group btn-group-sm ms-2" role="group">
-          <button type="button" class="btn btn-outline-primary active" data-filter="all">All</button>
+          <button type="button" class="btn btn-outline-primary active" data-filter="all">{{ __('All') }}</button>
           @foreach($categories as $key => $cat)
           <button type="button" class="btn btn-outline-{{ $cat['class'] }}" data-filter="{{ $key }}">
             <i class="fas {{ $cat['icon'] }} me-1"></i>{{ $cat['label'] }}
@@ -41,7 +41,7 @@
       <div class="col-auto">
         <strong><i class="fas fa-toggle-on me-2"></i>Status</strong>
         <div class="btn-group btn-group-sm ms-2" role="group">
-          <button type="button" class="btn btn-outline-primary active" data-status="all">All</button>
+          <button type="button" class="btn btn-outline-primary active" data-status="all">{{ __('All') }}</button>
           <button type="button" class="btn btn-outline-success" data-status="enabled"><i class="fas fa-check me-1"></i>Enabled</button>
           <button type="button" class="btn btn-outline-secondary" data-status="disabled"><i class="fas fa-times me-1"></i>Disabled</button>
         </div>

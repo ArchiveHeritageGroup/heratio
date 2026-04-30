@@ -12,10 +12,10 @@
         <div class="mb-3">
           <label class="form-label">Sort <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="sort" class="form-select form-select-sm">
-            <option value="nameUp"' . (($params['sort'] ?? 'nameUp') === 'nameUp' ? ' selected' : '') . '>Name A-Z</option>
-            <option value="nameDown"' . (($params['sort'] ?? '') === 'nameDown' ? ' selected' : '') . '>Name Z-A</option>
-            <option value="updatedUp"' . (($params['sort'] ?? '') === 'updatedUp' ? ' selected' : '') . '>Updated oldest</option>
-            <option value="updatedDown"' . (($params['sort'] ?? '') === 'updatedDown' ? ' selected' : '') . '>Updated newest</option>
+            <option value="nameUp"' . (($params['sort'] ?? 'nameUp') === 'nameUp' ? ' selected' : '') . '>{{ __('Name A-Z') }}</option>
+            <option value="nameDown"' . (($params['sort'] ?? '') === 'nameDown' ? ' selected' : '') . '>{{ __('Name Z-A') }}</option>
+            <option value="updatedUp"' . (($params['sort'] ?? '') === 'updatedUp' ? ' selected' : '') . '>{{ __('Updated oldest') }}</option>
+            <option value="updatedDown"' . (($params['sort'] ?? '') === 'updatedDown' ? ' selected' : '') . '>{{ __('Updated newest') }}</option>
           </select>
         </div>',
     ])
@@ -29,7 +29,7 @@
       <table class="table table-bordered table-striped table-sm">
         <thead>
           <tr>
-            <th>#</th><th>Name</th><th>Usage</th><th>Terms</th><th>Created</th><th>Updated</th>
+            <th>#</th><th>{{ __('Name') }}</th><th>{{ __('Usage') }}</th><th>{{ __('Terms') }}</th><th>{{ __('Created') }}</th><th>{{ __('Updated') }}</th>
           </tr>
         </thead>
         <tbody>

@@ -4,7 +4,7 @@
 @section('body-class', 'browse accession valuation-report')
 
 @section('title-block')
-  <h1>Accession valuation report</h1>
+  <h1>{{ __('Accession valuation report') }}</h1>
 @endsection
 
 @section('before-content')
@@ -21,12 +21,12 @@
       <table class="table table-bordered table-hover mb-0">
         <thead>
           <tr>
-            <th>Identifier</th>
-            <th>Title</th>
-            <th>Date</th>
-            <th>Acquisition type</th>
-            <th>Extent</th>
-            <th>Appraisal</th>
+            <th>{{ __('Identifier') }}</th>
+            <th>{{ __('Title') }}</th>
+            <th>{{ __('Date') }}</th>
+            <th>{{ __('Acquisition type') }}</th>
+            <th>{{ __('Extent') }}</th>
+            <th>{{ __('Appraisal') }}</th>
           </tr>
         </thead>
         <tbody>

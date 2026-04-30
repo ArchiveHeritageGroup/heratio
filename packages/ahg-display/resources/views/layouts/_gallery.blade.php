@@ -20,7 +20,7 @@ $siblings = $data['siblings'] ?? [];
             {{-- Siblings/related works --}}
             @if(!empty($siblings))
             <div class="gallery-siblings mt-4">
-                <h6 class="text-muted mb-3">Related Works</h6>
+                <h6 class="text-muted mb-3">{{ __('Related Works') }}</h6>
                 <div class="row g-2">
                     @foreach($siblings as $s)
                     <div class="col-3">
@@ -58,13 +58,13 @@ $siblings = $data['siblings'] ?? [];
                 {{-- Physical details --}}
                 <table class="table table-sm table-borderless">
                     @if(!empty($fields['identity']['medium']))
-                    <tr><th class="text-muted" width="100">Medium</th><td>{{ $fields['identity']['medium']['value'] }}</td></tr>
+                    <tr><th class="text-muted" width="100">{{ __('Medium') }}</th><td>{{ $fields['identity']['medium']['value'] }}</td></tr>
                     @endif
                     @if(!empty($fields['identity']['dimensions']))
-                    <tr><th class="text-muted">Dimensions</th><td>{{ $fields['identity']['dimensions']['value'] }}</td></tr>
+                    <tr><th class="text-muted">{{ __('Dimensions') }}</th><td>{{ $fields['identity']['dimensions']['value'] }}</td></tr>
                     @endif
                     @if(!empty($fields['identity']['edition_info']))
-                    <tr><th class="text-muted">Edition</th><td>{{ $fields['identity']['edition_info']['value'] }}</td></tr>
+                    <tr><th class="text-muted">{{ __('Edition') }}</th><td>{{ $fields['identity']['edition_info']['value'] }}</td></tr>
                     @endif
                 </table>
 

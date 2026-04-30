@@ -29,7 +29,7 @@
           <div class="col-md-3">
             <label class="form-label">Repository <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="repository_id" class="form-select form-select-sm">
-              <option value="">All repositories</option>
+              <option value="">{{ __('All repositories') }}</option>
               @foreach($repositories ?? [] as $repo)
                 <option value="{{ $repo->id }}" {{ request('repository_id') == $repo->id ? 'selected' : '' }}>{{ $repo->name }}</option>
               @endforeach

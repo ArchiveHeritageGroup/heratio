@@ -18,15 +18,15 @@
           <table class="table table-bordered table-hover mb-0">
             <thead>
               <tr>
-                <th>Time</th>
-                <th>Task</th>
-                <th>Action</th>
-                <th>Workflow</th>
-                <th>Object</th>
-                <th>From</th>
-                <th>To</th>
-                <th>Performed By</th>
-                <th>Comment</th>
+                <th>{{ __('Time') }}</th>
+                <th>{{ __('Task') }}</th>
+                <th>{{ __('Action') }}</th>
+                <th>{{ __('Workflow') }}</th>
+                <th>{{ __('Object') }}</th>
+                <th>{{ __('From') }}</th>
+                <th>{{ __('To') }}</th>
+                <th>{{ __('Performed By') }}</th>
+                <th>{{ __('Comment') }}</th>
               </tr>
             </thead>
             <tbody>

@@ -43,21 +43,21 @@ $heroImagesArray = $heroImages ?? [];
 <form action="{{ route('heritage.admin-config') }}" method="post">@csrf
 
       <div class="card border-0 shadow-sm mb-4" id="section-hero">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h2 class="h5 mb-0">Hero Section</h2></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h2 class="h5 mb-0">{{ __('Hero Section') }}</h2></div>
         <div class="card-body">
           <div class="mb-3"><label for="hero_tagline" class="form-label">Tagline <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" id="hero_tagline" name="hero_tagline" value="{{ $heroTagline }}" maxlength="500"><div class="form-text">Main headline displayed in the hero section.</div></div>
           <div class="mb-3"><label for="hero_subtext" class="form-label">Subtext <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" id="hero_subtext" name="hero_subtext" rows="2">{{ $heroSubtext }}</textarea></div>
           <div class="mb-3"><label for="hero_search_placeholder" class="form-label">Search Placeholder <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" id="hero_search_placeholder" name="hero_search_placeholder" value="{{ $heroSearchPlaceholder }}"></div>
-          <div class="mb-3"><label for="suggested_searches" class="form-label">Suggested Searches <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" id="suggested_searches" name="suggested_searches" rows="4" placeholder="One search term per line">{{ implode("\n", (array)$suggestedSearches) }}</textarea><div class="form-text">Enter one search suggestion per line.</div></div>
+          <div class="mb-3"><label for="suggested_searches" class="form-label">Suggested Searches <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" id="suggested_searches" name="suggested_searches" rows="4" placeholder="{{ __('One search term per line') }}">{{ implode("\n", (array)$suggestedSearches) }}</textarea><div class="form-text">Enter one search suggestion per line.</div></div>
           <div class="row">
-            <div class="col-md-6 mb-3"><label for="hero_effect" class="form-label">Background Effect <span class="badge bg-secondary ms-1">Optional</span></label><select class="form-select" id="hero_effect" name="hero_effect"><option value="kenburns" {{ $heroEffect==='kenburns'?'selected':'' }}>Ken Burns</option><option value="fade" {{ $heroEffect==='fade'?'selected':'' }}>Fade</option><option value="none" {{ $heroEffect==='none'?'selected':'' }}>None</option></select></div>
+            <div class="col-md-6 mb-3"><label for="hero_effect" class="form-label">Background Effect <span class="badge bg-secondary ms-1">Optional</span></label><select class="form-select" id="hero_effect" name="hero_effect"><option value="kenburns" {{ $heroEffect==='kenburns'?'selected':'' }}>{{ __('Ken Burns') }}</option><option value="fade" {{ $heroEffect==='fade'?'selected':'' }}>{{ __('Fade') }}</option><option value="none" {{ $heroEffect==='none'?'selected':'' }}>{{ __('None') }}</option></select></div>
             <div class="col-md-6 mb-3"><label for="hero_rotation_seconds" class="form-label">Image Rotation (seconds) <span class="badge bg-secondary ms-1">Optional</span></label><input type="number" class="form-control" id="hero_rotation_seconds" name="hero_rotation_seconds" value="{{ (int)$heroRotationSeconds }}" min="1" max="60"></div>
           </div>
         </div>
       </div>
 
       <div class="card border-0 shadow-sm mb-4" id="section-sections">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h2 class="h5 mb-0">Sections</h2></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h2 class="h5 mb-0">{{ __('Sections') }}</h2></div>
         <div class="card-body">
           <p class="text-muted">Choose which sections to display on the landing page.</p>
           @foreach([['show_filters','Explore By','Filter categories with top values',$showFilters],['show_curated_stories','Featured Stories','Curated collections and narratives',$showCuratedStories],['show_community_activity','Community Activity','Recent contributions',$showCommunityActivity],['show_recent_additions','Recently Added','Latest items carousel',$showRecentAdditions],['show_stats','Statistics','Collection counts',$showStats]] as [$field,$label,$desc,$val])
@@ -70,12 +70,12 @@ $heroImagesArray = $heroImages ?? [];
       </div>
 
       <div class="card border-0 shadow-sm mb-4" id="section-filters">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h2 class="h5 mb-0">Filters</h2></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h2 class="h5 mb-0">{{ __('Filters') }}</h2></div>
         <div class="card-body">
           <p class="text-muted">Filters displayed in the "Explore By" section.</p>
           <div class="table-responsive">
             <table class="table table-hover">
-              <thead><tr><th style="width:30px"></th><th>Filter</th><th>Source</th><th class="text-center">Landing</th><th class="text-center">Search</th><th class="text-center">Enabled</th></tr></thead>
+              <thead><tr><th style="width:30px"></th><th>{{ __('Filter') }}</th><th>{{ __('Source') }}</th><th class="text-center">{{ __('Landing') }}</th><th class="text-center">{{ __('Search') }}</th><th class="text-center">{{ __('Enabled') }}</th></tr></thead>
               <tbody>
                 @foreach($filters ?? [] as $filter)
                 <tr>
@@ -95,7 +95,7 @@ $heroImagesArray = $heroImages ?? [];
 
       <div class="card border-0 shadow-sm mb-4" id="section-stories">
         <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-          <h2 class="h5 mb-0">Featured Stories</h2>
+          <h2 class="h5 mb-0">{{ __('Featured Stories') }}</h2>
           <span class="badge bg-secondary">{{ count($stories ?? []) }} stories</span>
         </div>
         <div class="card-body">
@@ -119,7 +119,7 @@ $heroImagesArray = $heroImages ?? [];
 
       <div class="card border-0 shadow-sm mb-4" id="section-images">
         <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-          <h2 class="h5 mb-0">Hero Images</h2>
+          <h2 class="h5 mb-0">{{ __('Hero Images') }}</h2>
           <a href="{{ route('heritage.admin-hero-slides') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-cog me-1"></i>Manage Hero Slides</a>
         </div>
         <div class="card-body">
@@ -128,7 +128,7 @@ $heroImagesArray = $heroImages ?? [];
           @else
           <div class="row g-3">
             @foreach((array)$heroImagesArray as $image)
-            <div class="col-md-4"><div class="card h-100"><img src="{{ $image['image_path'] ?? '' }}" class="card-img-top" style="height:120px;object-fit:cover;" alt="Hero image"><div class="card-body p-2"><small class="text-muted">{{ $image['title'] ?? $image['caption'] ?? 'No title' }}</small></div></div></div>
+            <div class="col-md-4"><div class="card h-100"><img src="{{ $image['image_path'] ?? '' }}" class="card-img-top" style="height:120px;object-fit:cover;" alt="{{ __('Hero image') }}"><div class="card-body p-2"><small class="text-muted">{{ $image['title'] ?? $image['caption'] ?? 'No title' }}</small></div></div></div>
             @endforeach
           </div>
           @endif
@@ -136,7 +136,7 @@ $heroImagesArray = $heroImages ?? [];
       </div>
 
       <div class="card border-0 shadow-sm mb-4" id="section-styling">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h2 class="h5 mb-0">Styling</h2></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h2 class="h5 mb-0">{{ __('Styling') }}</h2></div>
         <div class="card-body">
           <div class="row">
             <div class="col-md-6 mb-3"><label for="primary_color" class="form-label">Primary Color <span class="badge bg-secondary ms-1">Optional</span></label><div class="input-group"><input type="color" class="form-control form-control-color" value="{{ $primaryColor }}" onchange="document.getElementById('cfg_primary_color').value=this.value;"><input type="text" class="form-control" id="cfg_primary_color" name="primary_color" value="{{ $primaryColor }}" pattern="#[0-9A-Fa-f]{6}"></div></div>

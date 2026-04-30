@@ -61,7 +61,7 @@
       <div class="table-responsive">
         <table class="table table-sm mb-0">
           <thead>
-            <tr><th>Principle</th><th class="text-center">Green</th><th class="text-center">Amber</th><th class="text-center">Red</th><th class="text-center">N/A</th></tr>
+            <tr><th>{{ __('Principle') }}</th><th class="text-center">{{ __('Green') }}</th><th class="text-center">{{ __('Amber') }}</th><th class="text-center">{{ __('Red') }}</th><th class="text-center">{{ __('N/A') }}</th></tr>
           </thead>
           <tbody>
             @foreach(\AhgIcip\Services\OcapService::PRINCIPLES as $p)
@@ -87,12 +87,12 @@
       <table class="table table-hover table-sm mb-0">
         <thead class="table-light">
           <tr>
-            <th>Record</th>
-            <th class="text-center">Ownership</th>
-            <th class="text-center">Control</th>
-            <th class="text-center">Access</th>
-            <th class="text-center">Possession</th>
-            <th class="text-center">Overall</th>
+            <th>{{ __('Record') }}</th>
+            <th class="text-center">{{ __('Ownership') }}</th>
+            <th class="text-center">{{ __('Control') }}</th>
+            <th class="text-center">{{ __('Access') }}</th>
+            <th class="text-center">{{ __('Possession') }}</th>
+            <th class="text-center">{{ __('Overall') }}</th>
             <th></th>
           </tr>
         </thead>
@@ -113,7 +113,7 @@
               <td class="text-center">{!! $badge($r['possession']) !!}</td>
               <td class="text-center">{!! $badge($r['overall']) !!}</td>
               <td class="text-end">
-                <a href="{{ route('ahgicip.object-icip', ['id' => $r['io_id']]) }}" class="btn btn-sm btn-outline-secondary" title="ICIP detail">
+                <a href="{{ route('ahgicip.object-icip', ['id' => $r['io_id']]) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('ICIP detail') }}">
                   <i class="fas fa-eye"></i>
                 </a>
               </td>

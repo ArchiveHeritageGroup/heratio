@@ -15,7 +15,7 @@
     <div class="card-body">
         @if(!empty($breaches))
             <table class="table table-striped">
-                <thead><tr><th>Reference</th><th>Date</th><th>Type</th><th>Affected</th><th>Severity</th><th>Regulator</th><th>Status</th><th>Actions</th></tr></thead>
+                <thead><tr><th>{{ __('Reference') }}</th><th>{{ __('Date') }}</th><th>{{ __('Type') }}</th><th>{{ __('Affected') }}</th><th>{{ __('Severity') }}</th><th>{{ __('Regulator') }}</th><th>{{ __('Status') }}</th><th>{{ __('Actions') }}</th></tr></thead>
                 <tbody>
                 @foreach($breaches as $b)
                     <tr>
@@ -48,9 +48,9 @@
                         </td>
                         <td>
                             @if(($b->status ?? 'open') !== 'closed')
-                                <button class="btn btn-sm btn-outline-success" onclick="closeBreach({{ $b->id }})" title="Close"><i class="fas fa-check"></i></button>
+                                <button class="btn btn-sm btn-outline-success" onclick="closeBreach({{ $b->id }})" title="{{ __('Close') }}"><i class="fas fa-check"></i></button>
                                 @if(!($b->regulator_notified ?? false))
-                                    <button class="btn btn-sm btn-outline-info" onclick="notifyRegulator({{ $b->id }})" title="Mark Notified"><i class="fas fa-bell"></i></button>
+                                    <button class="btn btn-sm btn-outline-info" onclick="notifyRegulator({{ $b->id }})" title="{{ __('Mark Notified') }}"><i class="fas fa-bell"></i></button>
                                 @endif
                             @endif
                         </td>
@@ -96,47 +96,47 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('Breach Type') }} *</label>
                             <select name="breach_type" class="form-select" required>
-                                <option value="unauthorized_access">Unauthorized Access</option>
-                                <option value="data_theft">Data Theft</option>
-                                <option value="accidental_disclosure">Accidental Disclosure</option>
-                                <option value="loss_of_equipment">Loss of Equipment</option>
-                                <option value="cyber_attack">Cyber Attack</option>
-                                <option value="ransomware">Ransomware</option>
-                                <option value="phishing">Phishing</option>
-                                <option value="other">Other</option>
+                                <option value="unauthorized_access">{{ __('Unauthorized Access') }}</option>
+                                <option value="data_theft">{{ __('Data Theft') }}</option>
+                                <option value="accidental_disclosure">{{ __('Accidental Disclosure') }}</option>
+                                <option value="loss_of_equipment">{{ __('Loss of Equipment') }}</option>
+                                <option value="cyber_attack">{{ __('Cyber Attack') }}</option>
+                                <option value="ransomware">{{ __('Ransomware') }}</option>
+                                <option value="phishing">{{ __('Phishing') }}</option>
+                                <option value="other">{{ __('Other') }}</option>
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('Severity') }} *</label>
                             <select name="severity" class="form-select" required>
-                                <option value="low">Low - Minor impact</option>
-                                <option value="medium" selected>Medium - Moderate impact</option>
-                                <option value="high">High - Significant impact</option>
-                                <option value="critical">Critical - Severe impact</option>
+                                <option value="low">{{ __('Low - Minor impact') }}</option>
+                                <option value="medium" selected>{{ __('Medium - Moderate impact') }}</option>
+                                <option value="high">{{ __('High - Significant impact') }}</option>
+                                <option value="critical">{{ __('Critical - Severe impact') }}</option>
                             </select>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">{{ __('Description') }} *</label>
-                        <textarea name="description" class="form-control" rows="3" required placeholder="What happened?"></textarea>
+                        <textarea name="description" class="form-control" rows="3" required placeholder="{{ __('What happened?') }}"></textarea>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('Data Affected') }}</label>
-                            <textarea name="data_affected" class="form-control" rows="2" placeholder="What types of data were compromised?"></textarea>
+                            <textarea name="data_affected" class="form-control" rows="2" placeholder="{{ __('What types of data were compromised?') }}"></textarea>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('Individuals Affected') }}</label>
-                            <input type="number" name="individuals_affected" class="form-control" min="0" placeholder="Estimated number">
+                            <input type="number" name="individuals_affected" class="form-control" min="0" placeholder="{{ __('Estimated number') }}">
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">{{ __('Root Cause') }}</label>
-                        <textarea name="root_cause" class="form-control" rows="2" placeholder="What caused the breach?"></textarea>
+                        <textarea name="root_cause" class="form-control" rows="2" placeholder="{{ __('What caused the breach?') }}"></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">{{ __('Containment Actions Taken') }}</label>
-                        <textarea name="containment_actions" class="form-control" rows="2" placeholder="What steps were taken to contain the breach?"></textarea>
+                        <textarea name="containment_actions" class="form-control" rows="2" placeholder="{{ __('What steps were taken to contain the breach?') }}"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

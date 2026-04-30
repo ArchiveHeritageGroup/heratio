@@ -15,7 +15,7 @@
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th>Title</th><th>Reference Code</th><th>Added</th><th>Actions</th>
+        <th>{{ __('Title') }}</th><th>{{ __('Reference Code') }}</th><th>{{ __('Added') }}</th><th>{{ __('Actions') }}</th>
       </tr>
     </thead>
     <tbody>

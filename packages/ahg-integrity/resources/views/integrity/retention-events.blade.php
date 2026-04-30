@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-clock me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">Retention Events</h1><span class="small text-muted">Event-based retention triggers</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Retention Events') }}</h1><span class="small text-muted">Event-based retention triggers</span></div>
   </div>
 @endsection
 @section('content')
@@ -19,16 +19,16 @@
 <div class="row mb-4">
   <div class="col-md-6">
     <div class="card">
-      <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">Fire Retention Event</h5></div>
+      <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Fire Retention Event') }}</h5></div>
       <div class="card-body">
         <form method="POST" action="{{ route('integrity.retention-events.store') }}">
           @csrf
           <div class="mb-3">
-            <label for="information_object_id" class="form-label">Information Object ID</label>
-            <input type="number" class="form-control" id="information_object_id" name="information_object_id" required min="1" placeholder="Enter IO ID">
+            <label for="information_object_id" class="form-label">{{ __('Information Object ID') }}</label>
+            <input type="number" class="form-control" id="information_object_id" name="information_object_id" required min="1" placeholder="{{ __('Enter IO ID') }}">
           </div>
           <div class="mb-3">
-            <label for="event_type" class="form-label">Event Type</label>
+            <label for="event_type" class="form-label">{{ __('Event Type') }}</label>
             <select class="form-select" id="event_type" name="event_type" required>
               <option value="">-- Select or type --</option>
               @foreach($eventTypes as $type)
@@ -41,7 +41,7 @@
             </select>
           </div>
           <div class="mb-3">
-            <label for="notes" class="form-label">Notes</label>
+            <label for="notes" class="form-label">{{ __('Notes') }}</label>
             <textarea class="form-control" id="notes" name="notes" rows="2" maxlength="2000"></textarea>
           </div>
           <button type="submit" class="btn atom-btn-white"><i class="fas fa-bolt me-1"></i>Fire Event</button>
@@ -51,11 +51,11 @@
   </div>
   <div class="col-md-6">
     <div class="card">
-      <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">Retention Policies</h5></div>
+      <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Retention Policies') }}</h5></div>
       <div class="card-body p-0">
         @if(count($policies) > 0)
         <table class="table table-sm table-striped mb-0">
-          <thead><tr><th>Name</th><th>Period</th><th>Trigger</th><th>Enabled</th></tr></thead>
+          <thead><tr><th>{{ __('Name') }}</th><th>{{ __('Period') }}</th><th>{{ __('Trigger') }}</th><th>{{ __('Enabled') }}</th></tr></thead>
           <tbody>
             @foreach($policies as $p)
             <tr>
@@ -84,7 +84,7 @@
     <table class="table table-striped table-hover mb-0">
       <thead>
         <tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-          <th>ID</th><th>IO ID</th><th>IO Title</th><th>Event Type</th><th>Event Date</th><th>Triggered By</th><th>Notes</th>
+          <th>{{ __('ID') }}</th><th>{{ __('IO ID') }}</th><th>{{ __('IO Title') }}</th><th>{{ __('Event Type') }}</th><th>{{ __('Event Date') }}</th><th>{{ __('Triggered By') }}</th><th>{{ __('Notes') }}</th>
         </tr>
       </thead>
       <tbody>

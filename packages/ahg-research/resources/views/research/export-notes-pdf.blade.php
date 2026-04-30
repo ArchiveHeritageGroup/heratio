@@ -20,10 +20,10 @@
 <body>
     <div class="no-print" style="background:#f8f9fa; padding:12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
         <a href="{{ route('research.annotations') }}">&larr; Back to Notes</a>
-        <button onclick="window.print()" style="padding:6px 14px; background:#dc3545; color:#fff; border:none; border-radius:4px; cursor:pointer;">Print / Save as PDF</button>
+        <button onclick="window.print()" style="padding:6px 14px; background:#dc3545; color:#fff; border:none; border-radius:4px; cursor:pointer;">{{ __('Print / Save as PDF') }}</button>
     </div>
 
-    <h1>Research Notes</h1>
+    <h1>{{ __('Research Notes') }}</h1>
     <p style="color:#666; font-size:0.9rem;">
         Author: {{ e(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) }}<br>
         Exported: {{ date('F j, Y') }} &middot; {{ $notes->count() }} note(s)

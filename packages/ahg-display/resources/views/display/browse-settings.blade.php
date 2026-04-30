@@ -20,7 +20,7 @@
     <div class="d-flex align-items-center">
       <i class="fas fa-3x fa-cog me-3 text-primary" aria-hidden="true"></i>
       <div>
-        <h1 class="mb-0">Browse Settings</h1>
+        <h1 class="mb-0">{{ __('Browse Settings') }}</h1>
         <span class="small text-muted">Configure default browse behaviour and display preferences</span>
       </div>
     </div>
@@ -49,7 +49,7 @@
         @csrf
 
         {{-- Browse Interface section --}}
-        <h6 class="text-muted border-bottom pb-2 mb-3">Browse Interface</h6>
+        <h6 class="text-muted border-bottom pb-2 mb-3">{{ __('Browse Interface') }}</h6>
 
         <div class="mb-4">
           <div class="form-check form-switch">
@@ -66,15 +66,15 @@
         </div>
 
         {{-- Default Display Options section --}}
-        <h6 class="text-muted border-bottom pb-2 mb-3">Default Display Options</h6>
+        <h6 class="text-muted border-bottom pb-2 mb-3">{{ __('Default Display Options') }}</h6>
 
         <div class="row">
           <div class="col-md-6 mb-3">
             <label class="form-label" for="default_view">Default View <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="default_view" id="default_view" class="form-select">
-              <option value="list" {{ ($settings['default_view'] ?? 'list') === 'list' ? 'selected' : '' }}>List</option>
-              <option value="card" {{ ($settings['default_view'] ?? '') === 'card' ? 'selected' : '' }}>Cards</option>
-              <option value="table" {{ ($settings['default_view'] ?? '') === 'table' ? 'selected' : '' }}>Table</option>
+              <option value="list" {{ ($settings['default_view'] ?? 'list') === 'list' ? 'selected' : '' }}>{{ __('List') }}</option>
+              <option value="card" {{ ($settings['default_view'] ?? '') === 'card' ? 'selected' : '' }}>{{ __('Cards') }}</option>
+              <option value="table" {{ ($settings['default_view'] ?? '') === 'table' ? 'selected' : '' }}>{{ __('Table') }}</option>
             </select>
           </div>
 
@@ -89,31 +89,31 @@
         </div>
 
         {{-- Default Sorting section --}}
-        <h6 class="text-muted border-bottom pb-2 mb-3">Default Sorting</h6>
+        <h6 class="text-muted border-bottom pb-2 mb-3">{{ __('Default Sorting') }}</h6>
 
         <div class="row">
           <div class="col-md-6 mb-3">
             <label class="form-label" for="default_sort_field">Sort By <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="default_sort_field" id="default_sort_field" class="form-select">
-              <option value="updated_at" {{ ($settings['default_sort_field'] ?? 'updated_at') === 'updated_at' ? 'selected' : '' }}>Last Updated</option>
-              <option value="title" {{ ($settings['default_sort_field'] ?? '') === 'title' ? 'selected' : '' }}>Title</option>
-              <option value="identifier" {{ ($settings['default_sort_field'] ?? '') === 'identifier' ? 'selected' : '' }}>Identifier</option>
-              <option value="date" {{ ($settings['default_sort_field'] ?? '') === 'date' ? 'selected' : '' }}>Date Created</option>
-              <option value="startdate" {{ ($settings['default_sort_field'] ?? '') === 'startdate' ? 'selected' : '' }}>Start Date</option>
+              <option value="updated_at" {{ ($settings['default_sort_field'] ?? 'updated_at') === 'updated_at' ? 'selected' : '' }}>{{ __('Last Updated') }}</option>
+              <option value="title" {{ ($settings['default_sort_field'] ?? '') === 'title' ? 'selected' : '' }}>{{ __('Title') }}</option>
+              <option value="identifier" {{ ($settings['default_sort_field'] ?? '') === 'identifier' ? 'selected' : '' }}>{{ __('Identifier') }}</option>
+              <option value="date" {{ ($settings['default_sort_field'] ?? '') === 'date' ? 'selected' : '' }}>{{ __('Date Created') }}</option>
+              <option value="startdate" {{ ($settings['default_sort_field'] ?? '') === 'startdate' ? 'selected' : '' }}>{{ __('Start Date') }}</option>
             </select>
           </div>
 
           <div class="col-md-6 mb-3">
             <label class="form-label" for="default_sort_direction">Direction <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="default_sort_direction" id="default_sort_direction" class="form-select">
-              <option value="desc" {{ ($settings['default_sort_direction'] ?? 'desc') === 'desc' ? 'selected' : '' }}>Descending (newest first)</option>
-              <option value="asc" {{ ($settings['default_sort_direction'] ?? '') === 'asc' ? 'selected' : '' }}>Ascending (oldest first)</option>
+              <option value="desc" {{ ($settings['default_sort_direction'] ?? 'desc') === 'desc' ? 'selected' : '' }}>{{ __('Descending (newest first)') }}</option>
+              <option value="asc" {{ ($settings['default_sort_direction'] ?? '') === 'asc' ? 'selected' : '' }}>{{ __('Ascending (oldest first)') }}</option>
             </select>
           </div>
         </div>
 
         {{-- Additional Options section --}}
-        <h6 class="text-muted border-bottom pb-2 mb-3">Additional Options</h6>
+        <h6 class="text-muted border-bottom pb-2 mb-3">{{ __('Additional Options') }}</h6>
 
         <div class="mb-3">
           <div class="form-check">

@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('content')
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
@@ -19,7 +19,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">Snapshots</h1>
+    <h1 class="h2">{{ __('Snapshots') }}</h1>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSnapshotModal"><i class="fas fa-camera me-1"></i> Create Snapshot</button>
 </div>
 
@@ -28,7 +28,7 @@
 @else
 <div class="table-responsive">
     <table class="table table-hover">
-        <thead><tr><th>Title</th><th>Items</th><th>Hash</th><th>Status</th><th>Created</th><th></th></tr></thead>
+        <thead><tr><th>{{ __('Title') }}</th><th>{{ __('Items') }}</th><th>{{ __('Hash') }}</th><th>{{ __('Status') }}</th><th>{{ __('Created') }}</th><th></th></tr></thead>
         <tbody>
         @foreach($snapshots as $s)
             <tr>
@@ -52,24 +52,24 @@
             @csrf
             <input type="hidden" name="form_action" value="create">
             <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title">Create Snapshot</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-header"><h5 class="modal-title">{{ __('Create Snapshot') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Title <span class="text-danger">*</span></label>
                         <input type="text" name="title" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Description</label>
+                        <label class="form-label">{{ __('Description') }}</label>
                         <textarea name="description" class="form-control" rows="3"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Collection (optional — freezes a specific collection)</label>
+                        <label class="form-label">{{ __('Collection (optional — freezes a specific collection)') }}</label>
                         <select id="snapshotCollectionSelect" name="collection_id"></select>
                         <small class="text-muted">Leave empty to snapshot the entire project.</small>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                     <button type="submit" class="btn btn-primary"><i class="fas fa-camera me-1"></i>Create</button>
                 </div>
             </div>

@@ -54,7 +54,7 @@
               <label for="responsibility_statement" class="form-label">Statement of responsibility <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="responsibility_statement" id="responsibility_statement" class="form-control @error('responsibility_statement') is-invalid @enderror"
                      value="{{ old('responsibility_statement', $item->responsibility_statement ?? '') }}"
-                     placeholder="e.g. by John Smith ; edited by Jane Doe">
+                     placeholder="{{ __('e.g. by John Smith ; edited by Jane Doe') }}">
               @error('responsibility_statement') <div class="invalid-feedback">{{ $message }}</div> @enderror
               <div class="form-text">Names and roles as they appear on the item</div>
             </div>
@@ -107,7 +107,7 @@
                   <div class="row creator-row mb-2 align-items-center" data-index="{{ $i }}">
                     <div class="col-md-5">
                       <input type="text" name="creators[{{ $i }}][name]" class="form-control form-control-sm"
-                             placeholder="Name" value="{{ old("creators.{$i}.name", $creator->name ?? '') }}">
+                             placeholder="{{ __('Name') }}" value="{{ old("creators.{$i}.name", $creator->name ?? '') }}">
                     </div>
                     <div class="col-md-3">
                       <select name="creators[{{ $i }}][role]" class="form-select form-select-sm">
@@ -118,7 +118,7 @@
                     </div>
                     <div class="col-md-3">
                       <input type="text" name="creators[{{ $i }}][authority_uri]" class="form-control form-control-sm"
-                             placeholder="Authority URI" value="{{ old("creators.{$i}.authority_uri", '') }}">
+                             placeholder="{{ __('Authority URI') }}" value="{{ old("creators.{$i}.authority_uri", '') }}">
                     </div>
                     <div class="col-md-1">
                       <button type="button" class="btn btn-sm atom-btn-outline-danger remove-creator-btn w-100">
@@ -148,7 +148,7 @@
                 <div class="input-group">
                   <input type="text" name="isbn" id="isbn-input" class="form-control @error('isbn') is-invalid @enderror"
                          value="{{ old('isbn', $item->isbn ?? '') }}" placeholder="978-0-123456-78-9">
-                  <button type="button" class="btn atom-btn-white" id="isbn-lookup" title="Lookup ISBN and auto-fill form">
+                  <button type="button" class="btn atom-btn-white" id="isbn-lookup" title="{{ __('Lookup ISBN and auto-fill form') }}">
                     <i class="fas fa-search me-1"></i>Lookup
                   </button>
                 </div>
@@ -164,7 +164,7 @@
               <div class="col-md-3 mb-3">
                 <label class="form-label">DOI <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="doi" class="form-control @error('doi') is-invalid @enderror"
-                       value="{{ old('doi', $item->doi ?? '') }}" placeholder="10.1000/xyz123">
+                       value="{{ old('doi', $item->doi ?? '') }}" placeholder="{{ __('10.1000/xyz123') }}">
                 @error('doi') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
             </div>
@@ -191,7 +191,7 @@
               <div class="col-md-3 mb-3">
                 <label class="form-label">Open Library ID <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="openlibrary_id" class="form-control @error('openlibrary_id') is-invalid @enderror"
-                       value="{{ old('openlibrary_id', $item->openlibrary_id ?? '') }}" placeholder="OL12345M">
+                       value="{{ old('openlibrary_id', $item->openlibrary_id ?? '') }}" placeholder="{{ __('OL12345M') }}">
                 @error('openlibrary_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
             </div>
@@ -247,13 +247,13 @@
               <div class="col-md-4 mb-3">
                 <label for="call_number" class="form-label">Call number (LC) <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="call_number" id="call_number" class="form-control @error('call_number') is-invalid @enderror"
-                       value="{{ old('call_number', $item->call_number ?? '') }}" placeholder="e.g. QA76.73.J38">
+                       value="{{ old('call_number', $item->call_number ?? '') }}" placeholder="{{ __('e.g. QA76.73.J38') }}">
                 @error('call_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-4 mb-3">
                 <label for="dewey_decimal" class="form-label">Dewey Decimal <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="dewey_decimal" id="dewey_decimal" class="form-control @error('dewey_decimal') is-invalid @enderror"
-                       value="{{ old('dewey_decimal', $item->dewey_decimal ?? '') }}" placeholder="e.g. 005.133">
+                       value="{{ old('dewey_decimal', $item->dewey_decimal ?? '') }}" placeholder="{{ __('e.g. 005.133') }}">
                 @error('dewey_decimal') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
             </div>
@@ -262,7 +262,7 @@
               <div class="col-md-6 mb-3">
                 <label for="shelf_location" class="form-label">Shelf location <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="shelf_location" id="shelf_location" class="form-control @error('shelf_location') is-invalid @enderror"
-                       value="{{ old('shelf_location', $item->shelf_location ?? '') }}" placeholder="e.g. Main Library, Floor 2, Section A">
+                       value="{{ old('shelf_location', $item->shelf_location ?? '') }}" placeholder="{{ __('e.g. Main Library, Floor 2, Section A') }}">
                 @error('shelf_location') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-3 mb-3">
@@ -308,19 +308,19 @@
               <div class="col-md-3 mb-3">
                 <label for="publication_date" class="form-label">Publication date <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="publication_date" id="publication_date" class="form-control @error('publication_date') is-invalid @enderror"
-                       value="{{ old('publication_date', $item->publication_date ?? '') }}" placeholder="e.g. 2023">
+                       value="{{ old('publication_date', $item->publication_date ?? '') }}" placeholder="{{ __('e.g. 2023') }}">
                 @error('publication_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-3 mb-3">
                 <label for="edition" class="form-label">Edition <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="edition" id="edition" class="form-control @error('edition') is-invalid @enderror"
-                       value="{{ old('edition', $item->edition ?? '') }}" placeholder="e.g. 3rd ed.">
+                       value="{{ old('edition', $item->edition ?? '') }}" placeholder="{{ __('e.g. 3rd ed.') }}">
                 @error('edition') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-6 mb-3">
                 <label for="edition_statement" class="form-label">Edition statement <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="edition_statement" id="edition_statement" class="form-control @error('edition_statement') is-invalid @enderror"
-                       value="{{ old('edition_statement', $item->edition_statement ?? '') }}" placeholder="e.g. Revised and expanded">
+                       value="{{ old('edition_statement', $item->edition_statement ?? '') }}" placeholder="{{ __('e.g. Revised and expanded') }}">
                 @error('edition_statement') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
             </div>
@@ -335,7 +335,7 @@
               <div class="col-md-4 mb-3">
                 <label for="series_number" class="form-label">Series number <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="series_number" id="series_number" class="form-control @error('series_number') is-invalid @enderror"
-                       value="{{ old('series_number', $item->series_number ?? '') }}" placeholder="e.g. vol. 3">
+                       value="{{ old('series_number', $item->series_number ?? '') }}" placeholder="{{ __('e.g. vol. 3') }}">
                 @error('series_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
             </div>
@@ -354,19 +354,19 @@
               <div class="col-md-4 mb-3">
                 <label for="pagination" class="form-label">Pages <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="pagination" id="pagination" class="form-control @error('pagination') is-invalid @enderror"
-                       value="{{ old('pagination', $item->pagination ?? '') }}" placeholder="e.g. xiv, 350 p.">
+                       value="{{ old('pagination', $item->pagination ?? '') }}" placeholder="{{ __('e.g. xiv, 350 p.') }}">
                 @error('pagination') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-4 mb-3">
                 <label for="dimensions" class="form-label">Dimensions <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="dimensions" id="dimensions" class="form-control @error('dimensions') is-invalid @enderror"
-                       value="{{ old('dimensions', $item->dimensions ?? '') }}" placeholder="e.g. 24 cm">
+                       value="{{ old('dimensions', $item->dimensions ?? '') }}" placeholder="{{ __('e.g. 24 cm') }}">
                 @error('dimensions') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
               <div class="col-md-4 mb-3">
                 <label for="physical_details" class="form-label">Physical details <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="physical_details" id="physical_details" class="form-control @error('physical_details') is-invalid @enderror"
-                       value="{{ old('physical_details', $item->physical_details ?? '') }}" placeholder="e.g. ill., maps">
+                       value="{{ old('physical_details', $item->physical_details ?? '') }}" placeholder="{{ __('e.g. ill., maps') }}">
                 @error('physical_details') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
             </div>
@@ -379,7 +379,7 @@
           <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Subjects</h5>
             <div class="btn-group">
-              <button type="button" class="btn btn-sm atom-btn-white" id="suggest-subjects-btn" title="Get AI-powered subject suggestions">
+              <button type="button" class="btn btn-sm atom-btn-white" id="suggest-subjects-btn" title="{{ __('Get AI-powered subject suggestions') }}">
                 <i class="fas fa-magic me-1"></i>Suggest
               </button>
               <button type="button" class="btn btn-sm atom-btn-white" id="add-subject-btn">
@@ -394,7 +394,7 @@
                   <div class="row subject-row mb-2 align-items-center" data-index="{{ $i }}">
                     <div class="col-md-11">
                       <input type="text" name="subjects[{{ $i }}][heading]" class="form-control form-control-sm"
-                             placeholder="Subject heading" value="{{ old("subjects.{$i}.heading", $subject->name ?? '') }}">
+                             placeholder="{{ __('Subject heading') }}" value="{{ old("subjects.{$i}.heading", $subject->name ?? '') }}">
                     </div>
                     <div class="col-md-1">
                       <button type="button" class="btn btn-sm atom-btn-outline-danger remove-subject-btn w-100">
@@ -431,7 +431,7 @@
             <div class="mb-3">
               <label for="contents_note" class="form-label">Table of contents <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="contents_note" id="contents_note" class="form-control" rows="3"
-                        placeholder="Chapter listing or table of contents">{{ old('contents_note', $item->contents_note ?? '') }}</textarea>
+                        placeholder="{{ __('Chapter listing or table of contents') }}">{{ old('contents_note', $item->contents_note ?? '') }}</textarea>
             </div>
 
           </div>
@@ -452,7 +452,7 @@
             <div class="mb-3">
               <label for="bibliography_note" class="form-label">Bibliography note <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="bibliography_note" id="bibliography_note" class="form-control" rows="2"
-                        placeholder="e.g. Includes bibliographical references and index">{{ old('bibliography_note', $item->bibliography_note ?? '') }}</textarea>
+                        placeholder="{{ __('e.g. Includes bibliographical references and index') }}">{{ old('bibliography_note', $item->bibliography_note ?? '') }}</textarea>
             </div>
 
           </div>
@@ -498,10 +498,10 @@
 
             <div id="cover-preview">
               @if(!empty($item->cover_url))
-                <img src="{{ $item->cover_url }}" alt="Cover" class="img-fluid rounded shadow-sm mb-2" style="max-height: 200px;">
+                <img src="{{ $item->cover_url }}" alt="{{ __('Cover') }}" class="img-fluid rounded shadow-sm mb-2" style="max-height: 200px;">
                 <div class="mt-1"><small class="text-muted">Current cover</small></div>
               @elseif(!empty($cleanIsbn))
-                <img src="/library/cover/{{ $cleanIsbn }}" alt="Cover" class="img-fluid rounded shadow-sm mb-2" style="max-height: 200px;"
+                <img src="/library/cover/{{ $cleanIsbn }}" alt="{{ __('Cover') }}" class="img-fluid rounded shadow-sm mb-2" style="max-height: 200px;"
                      onerror="this.parentElement.innerHTML='<p class=\'text-muted\'>No Open Library cover found</p>'">
                 <div class="mt-1"><small class="text-muted">Open Library Preview</small></div>
                 <div class="mt-1"><small class="text-success"><i class="fas fa-info-circle me-1"></i>Will be saved on save</small></div>

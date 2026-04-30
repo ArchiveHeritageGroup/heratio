@@ -17,7 +17,7 @@
           <i class="fas fa-plus me-2"></i>Create Taxonomy
         </button>
         <hr>
-        <input type="text" id="sectionFilter" class="form-control form-control-sm mb-2" placeholder="Filter sections...">
+        <input type="text" id="sectionFilter" class="form-control form-control-sm mb-2" placeholder="{{ __('Filter sections...') }}">
         <div class="list-group list-group-flush" id="sectionNav">
           @foreach ($sectionLabels as $sKey => $sLabel)
             @php
@@ -62,7 +62,7 @@
       <button class="btn btn-sm atom-btn-white" id="collapseAll">
         <i class="fas fa-compress-arrows-alt me-1"></i>Collapse All
       </button>
-      <input type="text" class="form-control form-control-sm w-auto" id="taxonomySearch" placeholder="Search taxonomies...">
+      <input type="text" class="form-control form-control-sm w-auto" id="taxonomySearch" placeholder="{{ __('Search taxonomies...') }}">
     </div>
 
     <div class="accordion" id="dropdownAccordion">
@@ -85,10 +85,10 @@
                   <table class="table table-bordered table-hover table-sm mb-0">
                     <thead>
                       <tr>
-                        <th>Taxonomy</th>
-                        <th style="width:120px">Code</th>
-                        <th class="text-center" style="width:80px">Terms</th>
-                        <th class="text-end" style="width:160px">Actions</th>
+                        <th>{{ __('Taxonomy') }}</th>
+                        <th style="width:120px">{{ __('Code') }}</th>
+                        <th class="text-center" style="width:80px">{{ __('Terms') }}</th>
+                        <th class="text-end" style="width:160px">{{ __('Actions') }}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -102,22 +102,22 @@
                             <span class="badge bg-info rounded-pill">{{ $item->term_count }}</span>
                           </td>
                           <td class="text-end">
-                            <a href="{{ route('dropdown.edit', $item->taxonomy) }}" class="btn btn-sm atom-btn-white" title="Edit Terms">
+                            <a href="{{ route('dropdown.edit', $item->taxonomy) }}" class="btn btn-sm atom-btn-white" title="{{ __('Edit Terms') }}">
                               <i class="fas fa-edit"></i>
                             </a>
                             <button type="button" class="btn btn-sm atom-btn-white btn-rename"
                                     data-taxonomy="{{ $item->taxonomy }}"
-                                    data-label="{{ $item->taxonomy_label }}" title="Rename">
+                                    data-label="{{ $item->taxonomy_label }}" title="{{ __('Rename') }}">
                               <i class="fas fa-pen"></i>
                             </button>
                             <button type="button" class="btn btn-sm atom-btn-white btn-move"
                                     data-taxonomy="{{ $item->taxonomy }}"
-                                    data-section="{{ $sKey }}" title="Move Section">
+                                    data-section="{{ $sKey }}" title="{{ __('Move Section') }}">
                               <i class="fas fa-arrows-alt"></i>
                             </button>
                             <button type="button" class="btn btn-sm atom-btn-outline-danger btn-delete-taxonomy"
                                     data-taxonomy="{{ $item->taxonomy }}"
-                                    data-label="{{ $item->taxonomy_label }}" title="Delete">
+                                    data-label="{{ $item->taxonomy_label }}" title="{{ __('Delete') }}">
                               <i class="fas fa-trash"></i>
                             </button>
                           </td>
@@ -154,17 +154,17 @@
         </div>
         <div class="mb-3">
           <label class="form-label">Display Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
-          <input type="text" id="createLabel" class="form-control" placeholder="e.g., Condition Status">
+          <input type="text" id="createLabel" class="form-control" placeholder="{{ __('e.g., Condition Status') }}">
         </div>
         <div class="mb-3">
           <label class="form-label">Code <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
-          <input type="text" id="createCode" class="form-control" placeholder="e.g., condition_status">
+          <input type="text" id="createCode" class="form-control" placeholder="{{ __('e.g., condition_status') }}">
           <div class="form-text">Lowercase letters, numbers, and underscores only</div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn atom-btn-outline-success" id="createTaxonomyBtn">Create</button>
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+        <button type="button" class="btn atom-btn-outline-success" id="createTaxonomyBtn">{{ __('Create') }}</button>
       </div>
     </div>
   </div>
@@ -186,8 +186,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn atom-btn-white" id="renameTaxonomyBtn">Save</button>
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+        <button type="button" class="btn atom-btn-white" id="renameTaxonomyBtn">{{ __('Save') }}</button>
       </div>
     </div>
   </div>
@@ -213,8 +213,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn atom-btn-white" id="moveSectionBtn">Move</button>
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+        <button type="button" class="btn atom-btn-white" id="moveSectionBtn">{{ __('Move') }}</button>
       </div>
     </div>
   </div>

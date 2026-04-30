@@ -52,7 +52,7 @@
         type="text"
         name="q"
         class="form-control form-control-lg"
-        placeholder="Search descriptions, authority records, repositories, terms..."
+        placeholder="{{ __('Search descriptions, authority records, repositories, terms...') }}"
         value="{{ $query }}"
         autocomplete="off"
         data-autocomplete-url="{{ route('search.autocomplete') }}"
@@ -61,7 +61,7 @@
         <i class="fas fa-search" aria-hidden="true"></i>
         Search
       </button>
-      <a href="{{ route('search.advanced') }}{{ $query ? '?q=' . urlencode($query) : '' }}" class="btn atom-btn-white" title="Advanced search">
+      <a href="{{ route('search.advanced') }}{{ $query ? '?q=' . urlencode($query) : '' }}" class="btn atom-btn-white" title="{{ __('Advanced search') }}">
         <i class="fas fa-sliders-h" aria-hidden="true"></i>
         Advanced
       </a>
@@ -76,7 +76,7 @@
         @php
           $removeParams = request()->except([$filter['param'], 'page']);
         @endphp
-        <a href="{{ route('search', $removeParams) }}" class="badge bg-secondary text-decoration-none" title="Remove filter">
+        <a href="{{ route('search', $removeParams) }}" class="badge bg-secondary text-decoration-none" title="{{ __('Remove filter') }}">
           {{ $filter['label'] }}
           <i class="fas fa-times ms-1" aria-hidden="true"></i>
         </a>
@@ -107,7 +107,7 @@
                   'lastUpdated'   => 'Last updated',
               ];
             @endphp
-            <select class="form-select form-select-sm" onchange="window.location.href=this.value" aria-label="Sort results">
+            <select class="form-select form-select-sm" onchange="window.location.href=this.value" aria-label="{{ __('Sort results') }}">
               @foreach($sortOptions as $val => $label)
                 @php $sortUrl = request()->fullUrlWithQuery(['sort' => $val, 'page' => null]); @endphp
                 <option value="{{ $sortUrl }}" {{ $sort === $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -225,7 +225,7 @@
               <div class="d-flex align-items-start">
                 {{-- Digital object icon --}}
                 @if(!empty($result['hasDigitalObject']))
-                  <span class="text-primary me-2 mt-1" title="Has digital object">
+                  <span class="text-primary me-2 mt-1" title="{{ __('Has digital object') }}">
                     <i class="fas fa-file-image" aria-hidden="true"></i>
                   </span>
                 @endif

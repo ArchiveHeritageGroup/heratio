@@ -8,7 +8,7 @@
 @endsection
 
 @section('title-block')
-  <h1 class="mb-0">Rights Report</h1>
+  <h1 class="mb-0">{{ __('Rights Report') }}</h1>
 @endsection
 
 @section('content')
@@ -22,11 +22,11 @@
 @if(isset($byBasis) && count($byBasis) > 0)
 <div class="card mb-4">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h5 class="mb-0">By Rights Basis</h5>
+    <h5 class="mb-0">{{ __('By Rights Basis') }}</h5>
   </div>
   <div class="card-body p-0">
     <table class="table table-striped mb-0">
-      <thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><th>Basis</th><th class="text-end">Count</th></tr></thead>
+      <thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><th>{{ __('Basis') }}</th><th class="text-end">{{ __('Count') }}</th></tr></thead>
       <tbody>
         @foreach($byBasis as $row)
           <tr><td>{{ $row->name ?? $row->basis ?? '' }}</td><td class="text-end">{{ number_format($row->count ?? 0) }}</td></tr>
@@ -40,11 +40,11 @@
 @if(isset($byHolder) && count($byHolder) > 0)
 <div class="card">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h5 class="mb-0">By Rights Holder</h5>
+    <h5 class="mb-0">{{ __('By Rights Holder') }}</h5>
   </div>
   <div class="card-body p-0">
     <table class="table table-striped mb-0">
-      <thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><th>Rights Holder</th><th class="text-end">Count</th></tr></thead>
+      <thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><th>{{ __('Rights Holder') }}</th><th class="text-end">{{ __('Count') }}</th></tr></thead>
       <tbody>
         @foreach($byHolder as $row)
           <tr><td>{{ $row->name ?? '' }}</td><td class="text-end">{{ number_format($row->count ?? 0) }}</td></tr>

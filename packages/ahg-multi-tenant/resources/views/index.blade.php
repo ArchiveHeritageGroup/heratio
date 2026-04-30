@@ -117,12 +117,12 @@
           </h5>
           <form class="d-flex gap-2" method="get" action="{{ route('tenant.index') }}">
             <select name="status" class="form-select form-select-sm" style="width: 150px;">
-              <option value="">All Status</option>
-              <option value="active" {{ $statusFilter === 'active' ? 'selected' : '' }}>Active</option>
-              <option value="trial" {{ $statusFilter === 'trial' ? 'selected' : '' }}>Trial</option>
-              <option value="suspended" {{ $statusFilter === 'suspended' ? 'selected' : '' }}>Suspended</option>
+              <option value="">{{ __('All Status') }}</option>
+              <option value="active" {{ $statusFilter === 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
+              <option value="trial" {{ $statusFilter === 'trial' ? 'selected' : '' }}>{{ __('Trial') }}</option>
+              <option value="suspended" {{ $statusFilter === 'suspended' ? 'selected' : '' }}>{{ __('Suspended') }}</option>
             </select>
-            <input type="text" name="search" class="form-control form-control-sm" style="width: 200px;" placeholder="Search..." value="{{ $searchFilter }}">
+            <input type="text" name="search" class="form-control form-control-sm" style="width: 200px;" placeholder="{{ __('Search...') }}" value="{{ $searchFilter }}">
             <button type="submit" class="btn btn-sm btn-light">
               <i class="fas fa-search"></i>
             </button>
@@ -132,14 +132,14 @@
           <table class="table table-striped table-hover mb-0">
             <thead class="table-light">
               <tr>
-                <th>ID</th>
-                <th>Code</th>
-                <th>Name</th>
-                <th>Status</th>
-                <th class="text-center">Users</th>
-                <th>Repository</th>
-                <th>Contact</th>
-                <th class="text-end">Actions</th>
+                <th>{{ __('ID') }}</th>
+                <th>{{ __('Code') }}</th>
+                <th>{{ __('Name') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th class="text-center">{{ __('Users') }}</th>
+                <th>{{ __('Repository') }}</th>
+                <th>{{ __('Contact') }}</th>
+                <th class="text-end">{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -190,13 +190,13 @@
                   </td>
                   <td class="text-end">
                     <div class="btn-group btn-group-sm">
-                      <a href="{{ route('tenant.edit', ['id' => $tenant->id]) }}" class="btn btn-outline-primary" title="Edit Tenant">
+                      <a href="{{ route('tenant.edit', ['id' => $tenant->id]) }}" class="btn btn-outline-primary" title="{{ __('Edit Tenant') }}">
                         <i class="fas fa-edit"></i>
                       </a>
-                      <a href="{{ route('tenant.users', ['tenantId' => $tenant->id]) }}" class="btn btn-outline-info" title="Manage Users">
+                      <a href="{{ route('tenant.users', ['tenantId' => $tenant->id]) }}" class="btn btn-outline-info" title="{{ __('Manage Users') }}">
                         <i class="fas fa-users"></i>
                       </a>
-                      <a href="{{ route('tenant.branding', ['tenantId' => $tenant->id]) }}" class="btn btn-outline-secondary" title="Branding">
+                      <a href="{{ route('tenant.branding', ['tenantId' => $tenant->id]) }}" class="btn btn-outline-secondary" title="{{ __('Branding') }}">
                         <i class="fas fa-palette"></i>
                       </a>
                     </div>

@@ -8,7 +8,7 @@
 @endsection
 
 @section('title-block')
-  <h1 class="mb-0">Edit Orphan Work Designation</h1>
+  <h1 class="mb-0">{{ __('Edit Orphan Work Designation') }}</h1>
 @endsection
 
 @section('content')
@@ -17,7 +17,7 @@
   @method('PUT')
   <div class="card mb-4">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <h5 class="mb-0">Orphan Work Details</h5>
+      <h5 class="mb-0">{{ __('Orphan Work Details') }}</h5>
     </div>
     <div class="card-body">
       <div class="row">
@@ -42,7 +42,7 @@
   </div>
   <section class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
     <a href="{{ route('rights-admin.orphan-works') }}" class="btn atom-btn-outline-light">Cancel</a>
-    <button type="submit" class="btn atom-btn-outline-light">Save</button>
+    <button type="submit" class="btn atom-btn-outline-light">{{ __('Save') }}</button>
   </section>
 </form>
 @endsection

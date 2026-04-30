@@ -15,7 +15,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
                     <li class="breadcrumb-item active">Closure Periods</li>
@@ -65,13 +65,13 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Record</th>
-                            <th>Type</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Years</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>{{ __('Record') }}</th>
+                            <th>{{ __('Type') }}</th>
+                            <th>{{ __('Start Date') }}</th>
+                            <th>{{ __('End Date') }}</th>
+                            <th>{{ __('Years') }}</th>
+                            <th>{{ __('Status') }}</th>
+                            <th>{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>

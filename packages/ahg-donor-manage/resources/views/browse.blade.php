@@ -36,7 +36,7 @@
 <div class="container-fluid py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb mb-1">
           <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
           <li class="breadcrumb-item"><a href="{{ route('donor.browse') }}">Donors</a></li>
@@ -62,11 +62,11 @@
       <form method="get" action="{{ route('donor.browse') }}">
         <div class="row g-3 align-items-end">
           <div class="col-md-3">
-            <label class="form-label" for="donor-search">Search</label>
-            <input type="text" id="donor-search" name="subquery" class="form-control" placeholder="Donor name, identifier..." value="{{ $q }}">
+            <label class="form-label" for="donor-search">{{ __('Search') }}</label>
+            <input type="text" id="donor-search" name="subquery" class="form-control" placeholder="{{ __('Donor name, identifier...') }}" value="{{ $q }}">
           </div>
           <div class="col-md-2">
-            <label class="form-label" for="donor-sort">Sort by</label>
+            <label class="form-label" for="donor-sort">{{ __('Sort by') }}</label>
             <select name="sort" id="donor-sort" class="form-select">
               @foreach($sortOptions as $key => $label)
                 <option value="{{ $key }}" @selected($activeSort === $key)>{{ $label }}</option>
@@ -74,14 +74,14 @@
             </select>
           </div>
           <div class="col-md-2">
-            <label class="form-label" for="donor-dir">Direction</label>
+            <label class="form-label" for="donor-dir">{{ __('Direction') }}</label>
             <select name="sortDir" id="donor-dir" class="form-select">
-              <option value="asc" @selected($activeDir === 'asc')>Ascending</option>
-              <option value="desc" @selected($activeDir === 'desc')>Descending</option>
+              <option value="asc" @selected($activeDir === 'asc')>{{ __('Ascending') }}</option>
+              <option value="desc" @selected($activeDir === 'desc')>{{ __('Descending') }}</option>
             </select>
           </div>
           <div class="col-md-2">
-            <label class="form-label" for="donor-limit">Per page</label>
+            <label class="form-label" for="donor-limit">{{ __('Per page') }}</label>
             <select name="limit" id="donor-limit" class="form-select">
               @foreach([10, 25, 50, 100] as $n)
                 <option value="{{ $n }}" @selected((int) request('limit', 10) === $n)>{{ $n }}</option>
@@ -103,11 +103,11 @@
         <table class="table table-hover mb-0">
           <thead class="table-light">
             <tr>
-              <th>Name</th>
-              <th>Identifier</th>
-              <th>Status</th>
-              <th>Updated</th>
-              <th class="text-end">Actions</th>
+              <th>{{ __('Name') }}</th>
+              <th>{{ __('Identifier') }}</th>
+              <th>{{ __('Status') }}</th>
+              <th>{{ __('Updated') }}</th>
+              <th class="text-end">{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -131,9 +131,9 @@
                 </td>
                 <td class="text-end">
                   <div class="btn-group btn-group-sm">
-                    <a href="{{ route('donor.show', $doc['slug']) }}" class="btn btn-outline-primary" title="View"><i class="fas fa-eye"></i></a>
+                    <a href="{{ route('donor.show', $doc['slug']) }}" class="btn btn-outline-primary" title="{{ __('View') }}"><i class="fas fa-eye"></i></a>
                     @auth
-                      <a href="{{ route('donor.edit', $doc['slug']) }}" class="btn btn-outline-secondary" title="Edit"><i class="fas fa-edit"></i></a>
+                      <a href="{{ route('donor.edit', $doc['slug']) }}" class="btn btn-outline-secondary" title="{{ __('Edit') }}"><i class="fas fa-edit"></i></a>
                     @endauth
                   </div>
                 </td>

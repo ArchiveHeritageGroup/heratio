@@ -12,7 +12,7 @@
 @endisset
 <form method="get" class="mb-3">
     <div class="input-group input-group-sm" style="max-width:500px">
-        <input type="text" name="q" class="form-control" placeholder="Search predicate / dropdown code / evidence…" value="{{ $q ?? '' }}">
+        <input type="text" name="q" class="form-control" placeholder="{{ __('Search predicate / dropdown code / evidence…') }}" value="{{ $q ?? '' }}">
         <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
     </div>
 </form>
@@ -20,12 +20,12 @@
     <thead>
         <tr>
             <th>#</th>
-            <th>Subject</th>
-            <th>Predicate</th>
-            <th>Object</th>
-            <th>Dates</th>
-            <th>Certainty</th>
-            <th>Evidence</th>
+            <th>{{ __('Subject') }}</th>
+            <th>{{ __('Predicate') }}</th>
+            <th>{{ __('Object') }}</th>
+            <th>{{ __('Dates') }}</th>
+            <th>{{ __('Certainty') }}</th>
+            <th>{{ __('Evidence') }}</th>
         </tr>
     </thead>
     <tbody>

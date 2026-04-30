@@ -8,7 +8,7 @@
 <div class="alert alert-info"><strong>{{ count($items) }}</strong> 3D files found</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
-    <thead class="table-dark"><tr><th>File</th><th>Object</th><th>MIME Type</th><th>Size</th></tr></thead>
+    <thead class="table-dark"><tr><th>{{ __('File') }}</th><th>{{ __('Object') }}</th><th>{{ __('MIME Type') }}</th><th>{{ __('Size') }}</th></tr></thead>
     <tbody>
       @forelse($items as $d)
       <tr>

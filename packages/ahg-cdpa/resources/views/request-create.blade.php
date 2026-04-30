@@ -18,7 +18,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.index') }}">CDPA</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.requests') }}">Requests</a></li>
@@ -33,7 +33,7 @@
         @csrf
         <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Data Subject Information</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Data Subject Information') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -45,11 +45,11 @@
                             <input type="email" name="data_subject_email" class="form-control" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Phone</label>
+                            <label class="form-label">{{ __('Phone') }}</label>
                             <input type="tel" name="data_subject_phone" class="form-control">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">ID Number</label>
+                            <label class="form-label">{{ __('ID Number') }}</label>
                             <input type="text" name="data_subject_id_number" class="form-control">
                         </div>
                     </div>
@@ -57,29 +57,29 @@
             </div>
 
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Request Details</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Request Details') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Request Type <span class="text-danger">*</span></label>
                             <select name="request_type" class="form-select" required>
-                                <option value="">Select...</option>
-                                <option value="access">Access - Obtain copy of personal data</option>
-                                <option value="rectification">Rectification - Correct inaccurate data</option>
-                                <option value="erasure">Erasure - Delete personal data</option>
-                                <option value="restriction">Restriction - Limit processing</option>
-                                <option value="portability">Portability - Data transfer</option>
-                                <option value="objection">Objection - Object to processing</option>
+                                <option value="">{{ __('Select...') }}</option>
+                                <option value="access">{{ __('Access - Obtain copy of personal data') }}</option>
+                                <option value="rectification">{{ __('Rectification - Correct inaccurate data') }}</option>
+                                <option value="erasure">{{ __('Erasure - Delete personal data') }}</option>
+                                <option value="restriction">{{ __('Restriction - Limit processing') }}</option>
+                                <option value="portability">{{ __('Portability - Data transfer') }}</option>
+                                <option value="objection">{{ __('Objection - Object to processing') }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Verification Method</label>
+                            <label class="form-label">{{ __('Verification Method') }}</label>
                             <select name="verification_method" class="form-select">
-                                <option value="">Select...</option>
-                                <option value="id_document">ID Document</option>
-                                <option value="email_verification">Email Verification</option>
-                                <option value="in_person">In Person</option>
-                                <option value="other">Other</option>
+                                <option value="">{{ __('Select...') }}</option>
+                                <option value="id_document">{{ __('ID Document') }}</option>
+                                <option value="email_verification">{{ __('Email Verification') }}</option>
+                                <option value="in_person">{{ __('In Person') }}</option>
+                                <option value="other">{{ __('Other') }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -92,7 +92,7 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label">Description <span class="text-danger">*</span></label>
-                            <textarea name="description" class="form-control" rows="4" required placeholder="Describe the request and what personal data is involved..."></textarea>
+                            <textarea name="description" class="form-control" rows="4" required placeholder="{{ __('Describe the request and what personal data is involved...') }}"></textarea>
                         </div>
                     </div>
                 </div>

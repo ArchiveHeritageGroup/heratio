@@ -4,9 +4,9 @@
 @section('body-class', 'create gallery-artist')
 
 @section('content')
-  <h1>Add gallery artist</h1>
+  <h1>{{ __('Add gallery artist') }}</h1>
 
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('gallery.browse') }}">Gallery</a></li>
       <li class="breadcrumb-item"><a href="{{ route('gallery.artists') }}">Artists</a></li>
@@ -227,7 +227,7 @@
           <div class="mb-3">
             <label for="instagram" class="form-label">Instagram <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" class="form-control" id="instagram" name="instagram"
-                   value="{{ old('instagram') }}" placeholder="@handle">
+                   value="{{ old('instagram') }}" placeholder="{{ __('@handle') }}">
             <div class="form-text text-muted small">The artist's Instagram handle (e.g. "@artistname").</div>
           </div>
         </div>
@@ -235,7 +235,7 @@
           <div class="mb-3">
             <label for="twitter" class="form-label">Twitter / X <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" class="form-control" id="twitter" name="twitter"
-                   value="{{ old('twitter') }}" placeholder="@handle">
+                   value="{{ old('twitter') }}" placeholder="{{ __('@handle') }}">
             <div class="form-text text-muted small">The artist's Twitter/X handle.</div>
           </div>
         </div>

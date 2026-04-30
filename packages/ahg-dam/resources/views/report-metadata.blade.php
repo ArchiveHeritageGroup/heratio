@@ -4,7 +4,7 @@
 @section('body-class', 'dam-reports metadata')
 @section('sidebar')
 <div class="sidebar-content">
-  <h4>DAM Reports</h4>
+  <h4>{{ __('DAM Reports') }}</h4>
   <ul class="list-unstyled">
     <li><a href="{{ route('dam.reports.assets') }}"><i class="fas fa-file me-2"></i>Assets</a></li>
     <li><a href="{{ route('dam.reports.metadata') }}"><i class="fas fa-info-circle me-2"></i>Metadata</a></li>
@@ -20,7 +20,7 @@
 <div class="alert alert-info"><strong>{{ count($rows) }}</strong> assets found</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
-    <thead class="table-dark"><tr><th>File</th><th>Type</th><th>Size</th><th>Created</th></tr></thead>
+    <thead class="table-dark"><tr><th>{{ __('File') }}</th><th>{{ __('Type') }}</th><th>{{ __('Size') }}</th><th>{{ __('Created') }}</th></tr></thead>
     <tbody>
       @forelse($rows as $r)
       <tr>

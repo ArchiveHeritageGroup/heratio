@@ -9,17 +9,17 @@
       <table class="table table-bordered table-striped table-sm mb-0">
         <thead>
           <tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-            <th>Basis</th>
-            <th>Start date</th>
-            <th>End date</th>
-            <th>Rights note</th>
-            <th>Copyright status</th>
-            <th>Copyright jurisdiction</th>
-            <th>Copyright note</th>
-            <th>License terms</th>
-            <th>License note</th>
-            <th>Statute jurisdiction</th>
-            <th>Statute note</th>
+            <th>{{ __('Basis') }}</th>
+            <th>{{ __('Start date') }}</th>
+            <th>{{ __('End date') }}</th>
+            <th>{{ __('Rights note') }}</th>
+            <th>{{ __('Copyright status') }}</th>
+            <th>{{ __('Copyright jurisdiction') }}</th>
+            <th>{{ __('Copyright note') }}</th>
+            <th>{{ __('License terms') }}</th>
+            <th>{{ __('License note') }}</th>
+            <th>{{ __('Statute jurisdiction') }}</th>
+            <th>{{ __('Statute note') }}</th>
           </tr>
         </thead>
         <tbody>

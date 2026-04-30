@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container py-5">
-    <nav aria-label="breadcrumb">
+    <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('ahgprivacy.index') }}">{{ __('Privacy') }}</a></li>
             <li class="breadcrumb-item active">{{ __('Lodge Complaint') }}</li>
@@ -66,10 +66,10 @@
                             <div class="col-md-6">
                                 <label class="form-label">{{ __('Jurisdiction') }}</label>
                                 <select name="jurisdiction" class="form-select">
-                                    <option value="popia">POPIA (South Africa)</option>
-                                    <option value="ndpa">NDPA (Nigeria)</option>
-                                    <option value="kenya_dpa">Kenya DPA</option>
-                                    <option value="gdpr">GDPR (EU)</option>
+                                    <option value="popia">{{ __('POPIA (South Africa)') }}</option>
+                                    <option value="ndpa">{{ __('NDPA (Nigeria)') }}</option>
+                                    <option value="kenya_dpa">{{ __('Kenya DPA') }}</option>
+                                    <option value="gdpr">{{ __('GDPR (EU)') }}</option>
                                 </select>
                             </div>
                         </div>

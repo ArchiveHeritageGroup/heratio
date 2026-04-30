@@ -16,7 +16,7 @@
 
 @section('content')
 <div class="container-fluid px-4 py-3">
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">Statistics</a></li>
             <li class="breadcrumb-item active">Top {{ ucfirst($eventType) }}s</li>
@@ -37,7 +37,7 @@
             <form method="get" class="row g-3 align-items-center">
                 <input type="hidden" name="type" value="{{ $eventType }}">
                 <div class="col-auto">
-                    <label class="form-label mb-0">Period:</label>
+                    <label class="form-label mb-0">{{ __('Period:') }}</label>
                 </div>
                 <div class="col-auto">
                     <input type="date" name="start" class="form-control form-control-sm" value="{{ $startDate }}">
@@ -48,14 +48,14 @@
                 </div>
                 <div class="col-auto">
                     <select name="limit" class="form-select form-select-sm">
-                        <option value="25" {{ $limit == 25 ? 'selected' : '' }}>Top 25</option>
-                        <option value="50" {{ $limit == 50 ? 'selected' : '' }}>Top 50</option>
-                        <option value="100" {{ $limit == 100 ? 'selected' : '' }}>Top 100</option>
-                        <option value="500" {{ $limit == 500 ? 'selected' : '' }}>Top 500</option>
+                        <option value="25" {{ $limit == 25 ? 'selected' : '' }}>{{ __('Top 25') }}</option>
+                        <option value="50" {{ $limit == 50 ? 'selected' : '' }}>{{ __('Top 50') }}</option>
+                        <option value="100" {{ $limit == 100 ? 'selected' : '' }}>{{ __('Top 100') }}</option>
+                        <option value="500" {{ $limit == 500 ? 'selected' : '' }}>{{ __('Top 500') }}</option>
                     </select>
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+                    <button type="submit" class="btn btn-sm btn-primary">{{ __('Apply') }}</button>
                 </div>
             </form>
         </div>
@@ -80,11 +80,11 @@
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th style="width: 60px">Rank</th>
-                            <th>Title</th>
-                            <th class="text-end" style="width: 120px">Total</th>
-                            <th class="text-end" style="width: 120px">Unique</th>
-                            <th style="width: 100px">Actions</th>
+                            <th style="width: 60px">{{ __('Rank') }}</th>
+                            <th>{{ __('Title') }}</th>
+                            <th class="text-end" style="width: 120px">{{ __('Total') }}</th>
+                            <th class="text-end" style="width: 120px">{{ __('Unique') }}</th>
+                            <th style="width: 100px">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>

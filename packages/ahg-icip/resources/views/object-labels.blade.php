@@ -16,7 +16,7 @@
 
 @section('content')
 <div class="container-xxl">
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/'.$object->slug) }}">{{ $object->title ?? 'Record' }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.object-icip', ['slug' => $object->slug]) }}">ICIP</a></li>
@@ -36,7 +36,7 @@
   <div class="row">
     <div class="col-lg-8">
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Applied Labels</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Applied Labels') }}</h5></div>
         <div class="card-body">
           @if($labels->isEmpty())
             <p class="text-muted">No TK labels applied to this record.</p>
@@ -63,7 +63,7 @@
                         @csrf
                         <input type="hidden" name="form_action" value="remove">
                         <input type="hidden" name="label_id" value="{{ $label->id }}">
-                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove"><i class="bi bi-x-lg"></i></button>
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Remove') }}"><i class="bi bi-x-lg"></i></button>
                       </form>
                     </div>
                   </div>
@@ -75,7 +75,7 @@
       </div>
 
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">Add TK Label</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Add TK Label') }}</h5></div>
         <div class="card-body">
           <form method="post">
             @csrf
@@ -83,7 +83,7 @@
             <div class="mb-3">
               <label class="form-label">Label Type <span class="text-danger">*</span></label>
               <select name="label_type_id" class="form-select" required>
-                <option value="">Select label</option>
+                <option value="">{{ __('Select label') }}</option>
                 <optgroup label="Traditional Knowledge (TK) Labels">
                   @foreach($labelTypes as $type)
                     @if($type->category === 'TK')
@@ -103,30 +103,30 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Community</label>
+                <label class="form-label">{{ __('Community') }}</label>
                 <select name="community_id" class="form-select">
-                  <option value="">Not specified</option>
+                  <option value="">{{ __('Not specified') }}</option>
                   @foreach($communities as $c)
                     <option value="{{ $c->id }}">{{ $c->name }}</option>
                   @endforeach
                 </select>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Applied By</label>
+                <label class="form-label">{{ __('Applied By') }}</label>
                 <select name="applied_by" class="form-select">
-                  <option value="institution">Institution</option>
-                  <option value="community">Community</option>
+                  <option value="institution">{{ __('Institution') }}</option>
+                  <option value="community">{{ __('Community') }}</option>
                 </select>
               </div>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Local Contexts Project ID</label>
-              <input type="text" name="local_contexts_project_id" class="form-control" placeholder="Optional - link to Local Contexts Hub project">
+              <label class="form-label">{{ __('Local Contexts Project ID') }}</label>
+              <input type="text" name="local_contexts_project_id" class="form-control" placeholder="{{ __('Optional - link to Local Contexts Hub project') }}">
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Notes</label>
+              <label class="form-label">{{ __('Notes') }}</label>
               <textarea name="notes" class="form-control" rows="2"></textarea>
             </div>
 
@@ -140,7 +140,7 @@
 
     <div class="col-lg-4">
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">About TK Labels</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('About TK Labels') }}</h5></div>
         <div class="card-body small">
           <p>TK Labels are developed by <strong>Local Contexts</strong> to help Indigenous communities manage their cultural heritage.</p>
           <p><strong>TK Labels</strong> (brown) relate to Traditional Knowledge.</p>
@@ -154,7 +154,7 @@
       </div>
 
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">Applied By</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Applied By') }}</h5></div>
         <div class="card-body small">
           <p><strong>Community:</strong> Labels applied directly by or at the request of the community.</p>
           <p class="mb-0"><strong>Institution:</strong> Labels applied by the institution to acknowledge Indigenous origin or protocols.</p>

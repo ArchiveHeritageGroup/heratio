@@ -17,7 +17,7 @@
 {{-- Room Selector + Occupancy --}}
 <div class="row mb-4">
     <div class="col-md-4">
-        <label class="form-label">Select Reading Room</label>
+        <label class="form-label">{{ __('Select Reading Room') }}</label>
         <select class="form-select" onchange="window.location.href='?room_id=' + this.value">
             <option value="">-- Select Room --</option>
             @foreach($rooms as $r)
@@ -58,7 +58,7 @@
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
-                            <tr><th>Seat #</th><th>Label</th><th>Type</th><th>Zone</th><th>Amenities</th><th>Status</th><th>Researcher</th><th>Actions</th></tr>
+                            <tr><th>{{ __('Seat #') }}</th><th>{{ __('Label') }}</th><th>{{ __('Type') }}</th><th>{{ __('Zone') }}</th><th>{{ __('Amenities') }}</th><th>{{ __('Status') }}</th><th>{{ __('Researcher') }}</th><th>{{ __('Actions') }}</th></tr>
                         </thead>
                         <tbody>
                         @foreach($seats as $seat)
@@ -68,10 +68,10 @@
                                 <td><span class="badge bg-secondary">{{ ucfirst($seat->seat_type ?? 'standard') }}</span></td>
                                 <td>{{ e($seat->zone ?? '-') }}</td>
                                 <td>
-                                    @if($seat->has_power ?? false)<i class="fas fa-plug text-success me-1" title="Power"></i>@endif
-                                    @if($seat->has_lamp ?? false)<i class="fas fa-lightbulb text-warning me-1" title="Lamp"></i>@endif
-                                    @if($seat->has_computer ?? false)<i class="fas fa-desktop text-primary me-1" title="Computer"></i>@endif
-                                    @if($seat->has_magnifier ?? false)<i class="fas fa-search-plus text-info" title="Magnifier"></i>@endif
+                                    @if($seat->has_power ?? false)<i class="fas fa-plug text-success me-1" title="{{ __('Power') }}"></i>@endif
+                                    @if($seat->has_lamp ?? false)<i class="fas fa-lightbulb text-warning me-1" title="{{ __('Lamp') }}"></i>@endif
+                                    @if($seat->has_computer ?? false)<i class="fas fa-desktop text-primary me-1" title="{{ __('Computer') }}"></i>@endif
+                                    @if($seat->has_magnifier ?? false)<i class="fas fa-search-plus text-info" title="{{ __('Magnifier') }}"></i>@endif
                                 </td>
                                 <td>
                                     @php $seatStatus = $seat->status ?? (($seat->is_active ?? 1) ? 'available' : 'inactive'); @endphp
@@ -86,7 +86,7 @@
                                             <button class="btn btn-sm btn-outline-success assign-btn" data-id="{{ $seat->id }}" data-number="{{ e($seat->seat_number ?? $seat->id) }}"><i class="fas fa-user-plus"></i></button>
                                         @endif
                                         @if(in_array($seatStatus, ['occupied', 'reserved']))
-                                            <form method="POST" class="d-inline">@csrf<input type="hidden" name="form_action" value="release"><input type="hidden" name="seat_id" value="{{ $seat->id }}"><input type="hidden" name="room_id" value="{{ $roomId }}"><button class="btn btn-sm btn-outline-warning" title="Release"><i class="fas fa-sign-out-alt"></i></button></form>
+                                            <form method="POST" class="d-inline">@csrf<input type="hidden" name="form_action" value="release"><input type="hidden" name="seat_id" value="{{ $seat->id }}"><input type="hidden" name="room_id" value="{{ $roomId }}"><button class="btn btn-sm btn-outline-warning" title="{{ __('Release') }}"><i class="fas fa-sign-out-alt"></i></button></form>
                                         @endif
                                         @if(($seat->is_active ?? 1))
                                             <form method="POST" class="d-inline" onsubmit="return confirm('Deactivate this seat?')">@csrf<input type="hidden" name="form_action" value="delete"><input type="hidden" name="seat_id" value="{{ $seat->id }}"><input type="hidden" name="room_id" value="{{ $roomId }}"><button class="btn btn-sm btn-outline-danger"><i class="fas fa-ban"></i></button></form>
@@ -118,12 +118,12 @@
                     <input type="hidden" name="form_action" value="bulk_create">
                     <input type="hidden" name="room_id" value="{{ $roomId }}">
                     <div class="mb-3">
-                        <label class="form-label">Pattern *</label>
-                        <input type="text" name="pattern" class="form-control" placeholder="e.g. A1-A10 or 1-20" required>
+                        <label class="form-label">{{ __('Pattern *') }}</label>
+                        <input type="text" name="pattern" class="form-control" placeholder="{{ __('e.g. A1-A10 or 1-20') }}" required>
                         <small class="text-muted">Examples: A1-A10, 1-20, B1-B5</small>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Seat Type</label>
+                        <label class="form-label">{{ __('Seat Type') }}</label>
                         <select name="seat_type" class="form-select">
                             @foreach($seatTypes as $st)
                                 <option value="{{ $st->code }}">{{ $st->label }}</option>
@@ -131,8 +131,8 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Zone</label>
-                        <input type="text" name="zone" class="form-control" placeholder="e.g. Main Hall">
+                        <label class="form-label">{{ __('Zone') }}</label>
+                        <input type="text" name="zone" class="form-control" placeholder="{{ __('e.g. Main Hall') }}">
                     </div>
                     <button type="submit" class="btn btn-primary w-100"><i class="fas fa-plus-circle me-1"></i>Create Seats</button>
                 </form>
@@ -164,32 +164,32 @@
         <input type="hidden" name="form_action" id="seatAction" value="create">
         <input type="hidden" name="seat_id" id="seatId">
         <input type="hidden" name="room_id" value="{{ $roomId ?? '' }}">
-        <div class="modal-header"><h5 class="modal-title" id="seatModalTitle">Add Seat</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-header"><h5 class="modal-title" id="seatModalTitle">{{ __('Add Seat') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
             <div class="row">
-                <div class="col-6"><div class="mb-3"><label class="form-label">Seat Number *</label><input type="text" name="seat_number" id="seatNumber" class="form-control" required></div></div>
-                <div class="col-6"><div class="mb-3"><label class="form-label">Label</label><input type="text" name="seat_label" id="seatLabel" class="form-control"></div></div>
+                <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Seat Number *') }}</label><input type="text" name="seat_number" id="seatNumber" class="form-control" required></div></div>
+                <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Label') }}</label><input type="text" name="seat_label" id="seatLabel" class="form-control"></div></div>
             </div>
             <div class="row">
-                <div class="col-6"><div class="mb-3"><label class="form-label">Type</label><select name="seat_type" id="seatType" class="form-select">@foreach($seatTypes as $st)<option value="{{ $st->code }}">{{ $st->label }}</option>@endforeach</select></div></div>
-                <div class="col-6"><div class="mb-3"><label class="form-label">Zone</label><input type="text" name="zone" id="seatZone" class="form-control"></div></div>
+                <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Type') }}</label><select name="seat_type" id="seatType" class="form-select">@foreach($seatTypes as $st)<option value="{{ $st->code }}">{{ $st->label }}</option>@endforeach</select></div></div>
+                <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Zone') }}</label><input type="text" name="zone" id="seatZone" class="form-control"></div></div>
             </div>
             <div class="mb-3">
-                <label class="form-label">Amenities</label>
+                <label class="form-label">{{ __('Amenities') }}</label>
                 <div class="row">
                     <div class="col-6">
-                        <div class="form-check"><input type="checkbox" name="has_power" id="hasPower" class="form-check-input" value="1" checked><label class="form-check-label" for="hasPower">Power outlet</label></div>
-                        <div class="form-check"><input type="checkbox" name="has_lamp" id="hasLamp" class="form-check-input" value="1" checked><label class="form-check-label" for="hasLamp">Reading lamp</label></div>
+                        <div class="form-check"><input type="checkbox" name="has_power" id="hasPower" class="form-check-input" value="1" checked><label class="form-check-label" for="hasPower">{{ __('Power outlet') }}</label></div>
+                        <div class="form-check"><input type="checkbox" name="has_lamp" id="hasLamp" class="form-check-input" value="1" checked><label class="form-check-label" for="hasLamp">{{ __('Reading lamp') }}</label></div>
                     </div>
                     <div class="col-6">
-                        <div class="form-check"><input type="checkbox" name="has_computer" id="hasComputer" class="form-check-input" value="1"><label class="form-check-label" for="hasComputer">Computer</label></div>
-                        <div class="form-check"><input type="checkbox" name="has_magnifier" id="hasMagnifier" class="form-check-input" value="1"><label class="form-check-label" for="hasMagnifier">Magnifier</label></div>
+                        <div class="form-check"><input type="checkbox" name="has_computer" id="hasComputer" class="form-check-input" value="1"><label class="form-check-label" for="hasComputer">{{ __('Computer') }}</label></div>
+                        <div class="form-check"><input type="checkbox" name="has_magnifier" id="hasMagnifier" class="form-check-input" value="1"><label class="form-check-label" for="hasMagnifier">{{ __('Magnifier') }}</label></div>
                     </div>
                 </div>
             </div>
-            <div class="mb-3"><label class="form-label">Notes</label><textarea name="notes" id="seatNotes" class="form-control" rows="2"></textarea></div>
+            <div class="mb-3"><label class="form-label">{{ __('Notes') }}</label><textarea name="notes" id="seatNotes" class="form-control" rows="2"></textarea></div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary">{{ __('Save') }}</button></div>
     </form>
 </div></div></div>
 
@@ -198,9 +198,9 @@
     <form method="POST">@csrf<input type="hidden" name="form_action" value="assign"><input type="hidden" name="seat_id" id="assignSeatId"><input type="hidden" name="room_id" value="{{ $roomId ?? '' }}">
     <div class="modal-header"><h5 class="modal-title">Assign Seat <span id="assignSeatNumber"></span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Researcher *</label><select id="assignResearcherSearch" name="researcher_id" required></select></div>
+        <div class="mb-3"><label class="form-label">{{ __('Researcher *') }}</label><select id="assignResearcherSearch" name="researcher_id" required></select></div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-success"><i class="fas fa-user-plus me-1"></i>Assign</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-success"><i class="fas fa-user-plus me-1"></i>Assign</button></div>
     </form>
 </div></div></div>
 

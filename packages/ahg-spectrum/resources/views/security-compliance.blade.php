@@ -56,7 +56,7 @@
             <div class="card-body">
                 @if(!empty($recentLogs))
                     <table class="table table-sm">
-                        <thead><tr><th>Action</th><th>User</th><th>Time</th></tr></thead>
+                        <thead><tr><th>{{ __('Action') }}</th><th>{{ __('User') }}</th><th>{{ __('Time') }}</th></tr></thead>
                         <tbody>
                         @foreach($recentLogs as $log)
                             <tr>
@@ -81,7 +81,7 @@
             <div class="card-body">
                 @if(!empty($retentionSchedules))
                     <table class="table table-sm">
-                        <thead><tr><th>Ref</th><th>Type</th><th>Period</th></tr></thead>
+                        <thead><tr><th>{{ __('Ref') }}</th><th>{{ __('Type') }}</th><th>{{ __('Period') }}</th></tr></thead>
                         <tbody>
                         @foreach($retentionSchedules as $s)
                             <tr>

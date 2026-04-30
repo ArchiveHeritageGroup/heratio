@@ -55,7 +55,7 @@
 
                     {{-- Preview --}}
                     <div class="mb-3 text-center" id="previewArea" style="display:none">
-                        <img id="previewImg" src="" alt="Preview" class="img-fluid rounded border" style="max-height:300px">
+                        <img id="previewImg" src="" alt="{{ __('Preview') }}" class="img-fluid rounded border" style="max-height:300px">
                     </div>
 
                     {{-- Confidence slider --}}
@@ -81,7 +81,7 @@
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-3">
-                        <img id="overlayImg" src="" alt="Overlay" class="img-fluid rounded border" style="max-height:400px">
+                        <img id="overlayImg" src="" alt="{{ __('Overlay') }}" class="img-fluid rounded border" style="max-height:400px">
                     </div>
                     <div id="resultGrade" class="text-center mb-3"></div>
                     <h6>{{ __('Damages Detected') }}</h6>

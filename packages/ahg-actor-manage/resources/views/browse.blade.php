@@ -9,7 +9,7 @@
     <button class="btn btn-lg atom-btn-white collapsed text-wrap" type="button"
             data-bs-toggle="collapse" data-bs-target="#collapse-aggregations"
             aria-expanded="false" aria-controls="collapse-aggregations">
-      Narrow your results by:
+      {{ __('Narrow your results by:') }}
     </button>
   </h2>
 
@@ -22,7 +22,7 @@
           <button class="accordion-button collapsed" type="button"
                   data-bs-toggle="collapse" data-bs-target="#collapse-languages"
                   aria-expanded="false" aria-controls="collapse-languages">
-            Language
+            {{ __('Language') }}
           </button>
         </h2>
         <div id="collapse-languages" class="accordion-collapse collapse list-group list-group-flush"
@@ -32,7 +32,7 @@
             $langParams = request()->except(['languages', 'page']);
           @endphp
           <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentLang === '' ? 'active text-decoration-underline' : '' }}"
-             href="{{ url('/actor/browse') }}?{{ http_build_query($langParams) }}" title="All">All</a>
+             href="{{ url('/actor/browse') }}?{{ http_build_query($langParams) }}" title="{{ __('All') }}">All</a>
           @foreach($languageFacets as $langCode => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentLang == $langCode ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($langParams, ['languages' => $langCode])) }}"
@@ -54,7 +54,7 @@
           <button class="accordion-button collapsed" type="button"
                   data-bs-toggle="collapse" data-bs-target="#collapse-entityType"
                   aria-expanded="false" aria-controls="collapse-entityType">
-            Entity type
+            {{ __('Entity type') }}
           </button>
         </h2>
         <div id="collapse-entityType" class="accordion-collapse collapse list-group list-group-flush"
@@ -64,7 +64,7 @@
             $queryParams = request()->except(['entityType', 'page']);
           @endphp
           <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentEntityType === '' ? 'active text-decoration-underline' : '' }}"
-             href="{{ url('/actor/browse') }}?{{ http_build_query($queryParams) }}" title="All">All</a>
+             href="{{ url('/actor/browse') }}?{{ http_build_query($queryParams) }}" title="{{ __('All') }}">All</a>
           @foreach($entityTypeFacets as $typeId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentEntityType == $typeId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($queryParams, ['entityType' => $typeId])) }}"
@@ -86,7 +86,7 @@
           <button class="accordion-button collapsed" type="button"
                   data-bs-toggle="collapse" data-bs-target="#collapse-maintainedBy"
                   aria-expanded="false" aria-controls="collapse-maintainedBy">
-            Maintained by
+            {{ __('Maintained by') }}
           </button>
         </h2>
         <div id="collapse-maintainedBy" class="accordion-collapse collapse list-group list-group-flush"
@@ -96,7 +96,7 @@
             $mbParams = request()->except(['maintainedBy', 'page']);
           @endphp
           <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentMaintainedBy === '' ? 'active text-decoration-underline' : '' }}"
-             href="{{ url('/actor/browse') }}?{{ http_build_query($mbParams) }}" title="All">All</a>
+             href="{{ url('/actor/browse') }}?{{ http_build_query($mbParams) }}" title="{{ __('All') }}">All</a>
           @foreach($maintainedByFacets as $mbId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentMaintainedBy == $mbId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($mbParams, ['maintainedBy' => $mbId])) }}"
@@ -119,7 +119,7 @@
           <button class="accordion-button collapsed" type="button"
                   data-bs-toggle="collapse" data-bs-target="#collapse-occupation"
                   aria-expanded="false" aria-controls="collapse-occupation">
-            Occupation
+            {{ __('Occupation') }}
           </button>
         </h2>
         <div id="collapse-occupation" class="accordion-collapse collapse list-group list-group-flush"
@@ -129,7 +129,7 @@
             $occParams = request()->except(['occupation', 'page']);
           @endphp
           <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentOccupation === '' ? 'active text-decoration-underline' : '' }}"
-             href="{{ url('/actor/browse') }}?{{ http_build_query($occParams) }}" title="All">All</a>
+             href="{{ url('/actor/browse') }}?{{ http_build_query($occParams) }}" title="{{ __('All') }}">All</a>
           @foreach($occupationFacets as $occId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentOccupation == $occId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($occParams, ['occupation' => $occId])) }}"
@@ -152,7 +152,7 @@
           <button class="accordion-button collapsed" type="button"
                   data-bs-toggle="collapse" data-bs-target="#collapse-place"
                   aria-expanded="false" aria-controls="collapse-place">
-            Place
+            {{ __('Place') }}
           </button>
         </h2>
         <div id="collapse-place" class="accordion-collapse collapse list-group list-group-flush"
@@ -162,7 +162,7 @@
             $placeParams = request()->except(['place', 'page']);
           @endphp
           <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentPlace === '' ? 'active text-decoration-underline' : '' }}"
-             href="{{ url('/actor/browse') }}?{{ http_build_query($placeParams) }}" title="All">All</a>
+             href="{{ url('/actor/browse') }}?{{ http_build_query($placeParams) }}" title="{{ __('All') }}">All</a>
           @foreach($placeFacets as $placeId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentPlace == $placeId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($placeParams, ['place' => $placeId])) }}"
@@ -185,7 +185,7 @@
           <button class="accordion-button collapsed" type="button"
                   data-bs-toggle="collapse" data-bs-target="#collapse-subject"
                   aria-expanded="false" aria-controls="collapse-subject">
-            Subject
+            {{ __('Subject') }}
           </button>
         </h2>
         <div id="collapse-subject" class="accordion-collapse collapse list-group list-group-flush"
@@ -195,7 +195,7 @@
             $subParams = request()->except(['subject', 'page']);
           @endphp
           <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentSubject === '' ? 'active text-decoration-underline' : '' }}"
-             href="{{ url('/actor/browse') }}?{{ http_build_query($subParams) }}" title="All">All</a>
+             href="{{ url('/actor/browse') }}?{{ http_build_query($subParams) }}" title="{{ __('All') }}">All</a>
           @foreach($subjectFacets as $subId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentSubject == $subId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($subParams, ['subject' => $subId])) }}"
@@ -218,7 +218,7 @@
           <button class="accordion-button collapsed" type="button"
                   data-bs-toggle="collapse" data-bs-target="#collapse-mediaType"
                   aria-expanded="false" aria-controls="collapse-mediaType">
-            Media type
+            {{ __('Media type') }}
           </button>
         </h2>
         <div id="collapse-mediaType" class="accordion-collapse collapse list-group list-group-flush"
@@ -228,7 +228,7 @@
             $mtParams = request()->except(['mediaType', 'page']);
           @endphp
           <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentMediaType === '' ? 'active text-decoration-underline' : '' }}"
-             href="{{ url('/actor/browse') }}?{{ http_build_query($mtParams) }}" title="All">All</a>
+             href="{{ url('/actor/browse') }}?{{ http_build_query($mtParams) }}" title="{{ __('All') }}">All</a>
           @foreach($mediaTypeFacets as $mtId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentMediaType == $mtId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($mtParams, ['mediaType' => $mtId])) }}"
@@ -290,7 +290,7 @@
         <button class="accordion-button collapsed" type="button"
                 data-bs-toggle="collapse" data-bs-target="#collapse-adv-search"
                 aria-expanded="false" aria-controls="collapse-adv-search">
-          Advanced search options
+          {{ __('Advanced search options') }}
         </button>
       </h2>
       <div id="collapse-adv-search" class="accordion-collapse collapse" aria-labelledby="heading-adv-search">
@@ -303,19 +303,19 @@
               <input type="hidden" name="sortDir" value="{{ request('sortDir') }}">
             @endif
 
-            <h5>Find results with:</h5>
+            <h5>{{ __('Find results with:') }}</h5>
             <div class="criteria mb-4">
               {{-- First criterion row --}}
               <div class="criterion row align-items-center" id="criterion-0">
                 <div class="col-xl-auto mb-3 adv-search-boolean">
-                  <select class="form-select" name="so0" aria-label="Boolean">
+                  <select class="form-select" name="so0" aria-label="{{ __('Boolean') }}">
                     <option value="and" {{ ($params['so0'] ?? '') === 'and' ? 'selected' : '' }}>and</option>
                     <option value="or" {{ ($params['so0'] ?? '') === 'or' ? 'selected' : '' }}>or</option>
                     <option value="not" {{ ($params['so0'] ?? '') === 'not' ? 'selected' : '' }}>not</option>
                   </select>
                 </div>
                 <div class="col-xl-auto flex-grow-1 mb-3">
-                  <input class="form-control" type="text" aria-label="Search" placeholder="Search" name="sq0" value="{{ $params['sq0'] ?? '' }}">
+                  <input class="form-control" type="text" aria-label="{{ __('Search') }}" placeholder="{{ __('Search') }}" name="sq0" value="{{ $params['sq0'] ?? '' }}">
                 </div>
                 <div class="col-xl-auto mb-3 text-center">
                   <span class="form-text">in</span>
@@ -344,7 +344,7 @@
                   </select>
                 </div>
                 <div class="col-xl-auto mb-3">
-                  <a href="#" class="delete-criterion" aria-label="Delete criterion">
+                  <a href="#" class="delete-criterion" aria-label="{{ __('Delete criterion') }}">
                     <i aria-hidden="true" class="fas fa-times text-muted"></i>
                   </a>
                 </div>
@@ -354,14 +354,14 @@
               <template id="criterion-template">
                 <div class="criterion row align-items-center">
                   <div class="col-xl-auto mb-3 adv-search-boolean">
-                    <select class="form-select" aria-label="Boolean">
+                    <select class="form-select" aria-label="{{ __('Boolean') }}">
                       <option value="and">and</option>
                       <option value="or">or</option>
                       <option value="not">not</option>
                     </select>
                   </div>
                   <div class="col-xl-auto flex-grow-1 mb-3">
-                    <input class="form-control" type="text" aria-label="Search" placeholder="Search">
+                    <input class="form-control" type="text" aria-label="{{ __('Search') }}" placeholder="{{ __('Search') }}">
                   </div>
                   <div class="col-xl-auto mb-3 text-center">
                     <span class="form-text">in</span>
@@ -374,7 +374,7 @@
                     </select>
                   </div>
                   <div class="col-xl-auto mb-3">
-                    <a href="#" class="delete-criterion" aria-label="Delete criterion">
+                    <a href="#" class="delete-criterion" aria-label="{{ __('Delete criterion') }}">
                       <i aria-hidden="true" class="fas fa-times text-muted"></i>
                     </a>
                   </div>
@@ -391,10 +391,10 @@
               </div>
             </div>
 
-            <h5>Limit results to:</h5>
+            <h5>{{ __('Limit results to:') }}</h5>
             <div class="criteria mb-4">
               <div class="mb-3">
-                <label class="form-label" for="repository">Repository</label>
+                <label class="form-label" for="repository">{{ __('Repository') }}</label>
                 <select name="repository" class="form-select" id="repository">
                   <option value=""></option>
                   @foreach($repositories as $repo)
@@ -406,20 +406,20 @@
               </div>
             </div>
 
-            <h5>Filter results by:</h5>
+            <h5>{{ __('Filter results by:') }}</h5>
             <div class="criteria row mb-2">
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label" for="hasDigitalObject">Digital object available</label>
+                  <label class="form-label" for="hasDigitalObject">{{ __('Digital object available') }}</label>
                   <select name="hasDigitalObject" class="form-select" id="hasDigitalObject">
                     <option value=""></option>
-                    <option value="1" {{ ($params['hasDigitalObject'] ?? '') === '1' ? 'selected' : '' }}>Yes</option>
+                    <option value="1" {{ ($params['hasDigitalObject'] ?? '') === '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
                   </select>
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label" for="entityTypeFilter">Entity type</label>
+                  <label class="form-label" for="entityTypeFilter">{{ __('Entity type') }}</label>
                   <select name="entityType" class="form-select" id="entityTypeFilter">
                     <option value=""></option>
                     @foreach($entityTypeFacets as $typeId => $facet)
@@ -432,37 +432,37 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label" for="emptyField">Empty field</label>
+                  <label class="form-label" for="emptyField">{{ __('Empty field') }}</label>
                   <select name="emptyField" class="form-select" id="emptyField">
                     <option value=""></option>
-                    <option value="authorizedFormOfName" {{ ($params['emptyField'] ?? '') === 'authorizedFormOfName' ? 'selected' : '' }}>Name</option>
-                    <option value="datesOfExistence" {{ ($params['emptyField'] ?? '') === 'datesOfExistence' ? 'selected' : '' }}>Dates of existence</option>
-                    <option value="history" {{ ($params['emptyField'] ?? '') === 'history' ? 'selected' : '' }}>History</option>
-                    <option value="places" {{ ($params['emptyField'] ?? '') === 'places' ? 'selected' : '' }}>Places</option>
-                    <option value="legalStatus" {{ ($params['emptyField'] ?? '') === 'legalStatus' ? 'selected' : '' }}>Legal status</option>
-                    <option value="generalContext" {{ ($params['emptyField'] ?? '') === 'generalContext' ? 'selected' : '' }}>General context</option>
-                    <option value="descriptionIdentifier" {{ ($params['emptyField'] ?? '') === 'descriptionIdentifier' ? 'selected' : '' }}>Description identifier</option>
+                    <option value="authorizedFormOfName" {{ ($params['emptyField'] ?? '') === 'authorizedFormOfName' ? 'selected' : '' }}>{{ __('Name') }}</option>
+                    <option value="datesOfExistence" {{ ($params['emptyField'] ?? '') === 'datesOfExistence' ? 'selected' : '' }}>{{ __('Dates of existence') }}</option>
+                    <option value="history" {{ ($params['emptyField'] ?? '') === 'history' ? 'selected' : '' }}>{{ __('History') }}</option>
+                    <option value="places" {{ ($params['emptyField'] ?? '') === 'places' ? 'selected' : '' }}>{{ __('Places') }}</option>
+                    <option value="legalStatus" {{ ($params['emptyField'] ?? '') === 'legalStatus' ? 'selected' : '' }}>{{ __('Legal status') }}</option>
+                    <option value="generalContext" {{ ($params['emptyField'] ?? '') === 'generalContext' ? 'selected' : '' }}>{{ __('General context') }}</option>
+                    <option value="descriptionIdentifier" {{ ($params['emptyField'] ?? '') === 'descriptionIdentifier' ? 'selected' : '' }}>{{ __('Description identifier') }}</option>
                   </select>
                 </div>
               </div>
             </div>
 
-            <h5>Find results where:</h5>
+            <h5>{{ __('Find results where:') }}</h5>
             <div class="criteria row mb-2">
               <div class="col-md-3">
                 <div class="mb-3">
-                  <label class="form-label" for="relatedType">Relationship</label>
+                  <label class="form-label" for="relatedType">{{ __('Relationship') }}</label>
                   <select name="relatedType" class="form-select" id="relatedType">
                     <option value=""></option>
-                    <option value="159" {{ ($params['relatedType'] ?? '') === '159' ? 'selected' : '' }}>Draft</option>
-                    <option value="160" {{ ($params['relatedType'] ?? '') === '160' ? 'selected' : '' }}>Published</option>
+                    <option value="159" {{ ($params['relatedType'] ?? '') === '159' ? 'selected' : '' }}>{{ __('Draft') }}</option>
+                    <option value="160" {{ ($params['relatedType'] ?? '') === '160' ? 'selected' : '' }}>{{ __('Published') }}</option>
                   </select>
                 </div>
               </div>
               <div class="col-md-9">
                 <div class="mb-3">
-                  <label class="form-label" for="relatedAuthority">Related Authority record</label>
-                  <input type="text" class="form-control" name="relatedAuthority" id="relatedAuthority" value="{{ $params['relatedAuthority'] ?? '' }}" placeholder="Type to search authority records...">
+                  <label class="form-label" for="relatedAuthority">{{ __('Related Authority record') }}</label>
+                  <input type="text" class="form-control" name="relatedAuthority" id="relatedAuthority" value="{{ $params['relatedAuthority'] ?? '' }}" placeholder="{{ __('Type to search authority records...') }}">
                 </div>
               </div>
             </div>
@@ -488,19 +488,19 @@
         $displayMode = request('displayMode', 'list');
         $baseQuery = request()->except(['displayMode', 'page']);
       @endphp
-      <div class="btn-group" role="group" aria-label="Display mode">
+      <div class="btn-group" role="group" aria-label="{{ __('Display mode') }}">
         <a href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'list'])) }}"
-           class="btn btn-sm {{ $displayMode === 'list' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Compact table/list view">
+           class="btn btn-sm {{ $displayMode === 'list' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Compact table/list view') }}">
           <i class="fas fa-list" aria-hidden="true"></i>
           <span class="visually-hidden">List</span>
         </a>
         <a href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'grid'])) }}"
-           class="btn btn-sm {{ $displayMode === 'grid' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Thumbnail grid with cards">
+           class="btn btn-sm {{ $displayMode === 'grid' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Thumbnail grid with cards') }}">
           <i class="fas fa-th" aria-hidden="true"></i>
           <span class="visually-hidden">Grid</span>
         </a>
         <a href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'tree'])) }}"
-           class="btn btn-sm {{ $displayMode === 'tree' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Tree/hierarchy view">
+           class="btn btn-sm {{ $displayMode === 'tree' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Tree/hierarchy view') }}">
           <i class="fas fa-sitemap" aria-hidden="true"></i>
           <span class="visually-hidden">Tree</span>
         </a>

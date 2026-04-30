@@ -42,13 +42,13 @@
       <table class="table table-bordered mb-0">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Classification</th>
-            <th>Dates</th>
+            <th>{{ __('Name') }}</th>
+            <th>{{ __('Classification') }}</th>
+            <th>{{ __('Dates') }}</th>
             @if(request('sort', 'alphabetic') === 'alphabetic')
-              <th>Type</th>
+              <th>{{ __('Type') }}</th>
             @else
-              <th>Updated</th>
+              <th>{{ __('Updated') }}</th>
             @endif
           </tr>
         </thead>

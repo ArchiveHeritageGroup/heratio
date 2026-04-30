@@ -23,7 +23,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
                     <li class="breadcrumb-item active">Insurance</li>
@@ -40,14 +40,14 @@
             <form method="get" class="row g-3">
                 <div class="col-md-3">
                     <select name="status" class="form-select">
-                        <option value="">All Status</option>
-                        <option value="active" {{ 'active' === $currentStatus ? 'selected' : '' }}>Active</option>
-                        <option value="expired" {{ 'expired' === $currentStatus ? 'selected' : '' }}>Expired</option>
-                        <option value="cancelled" {{ 'cancelled' === $currentStatus ? 'selected' : '' }}>Cancelled</option>
+                        <option value="">{{ __('All Status') }}</option>
+                        <option value="active" {{ 'active' === $currentStatus ? 'selected' : '' }}>{{ __('Active') }}</option>
+                        <option value="expired" {{ 'expired' === $currentStatus ? 'selected' : '' }}>{{ __('Expired') }}</option>
+                        <option value="cancelled" {{ 'cancelled' === $currentStatus ? 'selected' : '' }}>{{ __('Cancelled') }}</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+                    <button type="submit" class="btn btn-outline-primary w-100">{{ __('Filter') }}</button>
                 </div>
             </form>
         </div>
@@ -65,13 +65,13 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Policy #</th>
-                            <th>Provider</th>
-                            <th>Coverage Type</th>
-                            <th>Coverage Amount</th>
-                            <th>Premium</th>
-                            <th>Period</th>
-                            <th>Status</th>
+                            <th>{{ __('Policy #') }}</th>
+                            <th>{{ __('Provider') }}</th>
+                            <th>{{ __('Coverage Type') }}</th>
+                            <th>{{ __('Coverage Amount') }}</th>
+                            <th>{{ __('Premium') }}</th>
+                            <th>{{ __('Period') }}</th>
+                            <th>{{ __('Status') }}</th>
                         </tr>
                     </thead>
                     <tbody>

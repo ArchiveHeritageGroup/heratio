@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Default template</h1>
+  <h1>{{ __('Default template') }}</h1>
 @endsection
 
 @section('content')
@@ -18,7 +18,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="default-template-heading">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#default-template-collapse" aria-expanded="true" aria-controls="default-template-collapse">
-              Default template settings
+              {{ __('Default template settings') }}
             </button>
           </h2>
           <div id="default-template-collapse" class="accordion-collapse collapse show" aria-labelledby="default-template-heading">

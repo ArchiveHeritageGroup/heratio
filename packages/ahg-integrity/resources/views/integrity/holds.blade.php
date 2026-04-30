@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-shield-alt me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">Legal Holds</h1><span class="small text-muted">Digital object integrity management</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Legal Holds') }}</h1><span class="small text-muted">Digital object integrity management</span></div>
   </div>
 @endsection
 @section('content')
@@ -46,7 +46,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <form method="get" action="{{ route('integrity.holds') }}" class="d-flex align-items-center gap-2">
     <select name="repository_id" class="form-select form-select-sm" style="width:auto;" onchange="this.form.submit()">
-      <option value="">All repositories</option>
+      <option value="">{{ __('All repositories') }}</option>
       @foreach($repositories as $repo)
         <option value="{{ $repo->id }}" {{ ($repositoryId ?? '') == $repo->id ? 'selected' : '' }}>{{ $repo->name }}</option>
       @endforeach
@@ -56,12 +56,12 @@
 </div>
 
 <div class="card">
-  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">Active Legal Holds</h5></div>
+  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Active Legal Holds') }}</h5></div>
   <div class="card-body p-0">
     @if(count($holds) > 0)
     <table class="table table-striped table-hover mb-0">
       <thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        <th>ID</th><th>IO</th><th>Title</th><th>Reason</th><th>Placed By</th><th>Placed At</th><th>Status</th><th>Actions</th>
+        <th>{{ __('ID') }}</th><th>{{ __('IO') }}</th><th>{{ __('Title') }}</th><th>{{ __('Reason') }}</th><th>{{ __('Placed By') }}</th><th>{{ __('Placed At') }}</th><th>{{ __('Status') }}</th><th>{{ __('Actions') }}</th>
       </tr></thead>
       <tbody>
         @foreach($holds as $h)
@@ -75,9 +75,9 @@
           <td>{{ $hold->placed_at }}</td>
           <td><span class="badge bg-{{ $hold->status === 'active' ? 'danger' : 'secondary' }}">{{ ucfirst($hold->status) }}</span></td>
           <td class="text-nowrap">
-            <a href="{{ route('integrity.holds.history', ['ioId' => $hold->information_object_id]) }}" class="btn btn-sm btn-outline-secondary" title="History"><i class="fas fa-history"></i></a>
+            <a href="{{ route('integrity.holds.history', ['ioId' => $hold->information_object_id]) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('History') }}"><i class="fas fa-history"></i></a>
             @if($hold->status === 'active')
-            <button type="button" class="btn btn-sm btn-outline-warning" title="Release" data-bs-toggle="modal" data-bs-target="#releaseModal{{ $hold->id }}"><i class="fas fa-unlock"></i></button>
+            <button type="button" class="btn btn-sm btn-outline-warning" title="{{ __('Release') }}" data-bs-toggle="modal" data-bs-target="#releaseModal{{ $hold->id }}"><i class="fas fa-unlock"></i></button>
             <!-- Release Modal -->
             <div class="modal fade" id="releaseModal{{ $hold->id }}" tabindex="-1">
               <div class="modal-dialog">
@@ -87,11 +87,11 @@
                     <div class="modal-header"><h5 class="modal-title">Release Hold #{{ $hold->id }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                     <div class="modal-body">
                       <div class="mb-3">
-                        <label class="form-label">Release Reason</label>
+                        <label class="form-label">{{ __('Release Reason') }}</label>
                         <textarea name="release_reason" class="form-control" rows="3" required></textarea>
                       </div>
                     </div>
-                    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-warning">Release Hold</button></div>
+                    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-warning">{{ __('Release Hold') }}</button></div>
                   </div>
                 </form>
               </div>

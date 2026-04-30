@@ -6,7 +6,7 @@
 
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-    <h5 class="mb-0">Merge Files to PDF</h5>
+    <h5 class="mb-0">{{ __('Merge Files to PDF') }}</h5>
     <a href="{{ route('pdf-tools.index') }}" class="btn atom-btn-white btn-sm">
       <i class="bi bi-arrow-left me-1"></i>Back
     </a>

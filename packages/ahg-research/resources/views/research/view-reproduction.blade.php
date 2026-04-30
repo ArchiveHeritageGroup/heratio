@@ -3,7 +3,7 @@
 @section('title', 'Reproduction Request')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.reproductions') }}">Reproductions</a></li>
@@ -50,7 +50,7 @@
             @if(!empty($items))
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
-                    <thead class="table-light"><tr><th>Item</th><th>Type</th><th>Format</th><th>Qty</th><th>Status</th><th></th></tr></thead>
+                    <thead class="table-light"><tr><th>{{ __('Item') }}</th><th>{{ __('Type') }}</th><th>{{ __('Format') }}</th><th>{{ __('Qty') }}</th><th>{{ __('Status') }}</th><th></th></tr></thead>
                     <tbody>
                     @foreach($items as $item)
                         <tr>
@@ -97,17 +97,17 @@
 {{-- Add Item Modal --}}
 <div class="modal fade" id="addItemModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
     <form method="POST">@csrf<input type="hidden" name="form_action" value="add_item"><input type="hidden" name="object_id" id="addItemObjectId">
-    <div class="modal-header"><h5 class="modal-title">Add Item</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-header"><h5 class="modal-title">{{ __('Add Item') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Search Archive Item *</label><select id="addItemSearch" placeholder="Search by title..."></select></div>
+        <div class="mb-3"><label class="form-label">{{ __('Search Archive Item *') }}</label><select id="addItemSearch" placeholder="{{ __('Search by title...') }}"></select></div>
         <div class="row mb-3">
-            <div class="col-md-6"><label class="form-label">Type</label><select name="reproduction_type" class="form-select"><option value="scan">Scan</option><option value="photocopy">Photocopy</option><option value="photograph">Photograph</option><option value="digital">Digital Copy</option></select></div>
-            <div class="col-md-3"><label class="form-label">Format</label><select name="format" class="form-select"><option value="PDF">PDF</option><option value="TIFF">TIFF</option><option value="JPEG">JPEG</option><option value="PNG">PNG</option></select></div>
-            <div class="col-md-3"><label class="form-label">Qty</label><input type="number" name="quantity" class="form-control" value="1" min="1"></div>
+            <div class="col-md-6"><label class="form-label">{{ __('Type') }}</label><select name="reproduction_type" class="form-select"><option value="scan">{{ __('Scan') }}</option><option value="photocopy">{{ __('Photocopy') }}</option><option value="photograph">{{ __('Photograph') }}</option><option value="digital">{{ __('Digital Copy') }}</option></select></div>
+            <div class="col-md-3"><label class="form-label">{{ __('Format') }}</label><select name="format" class="form-select"><option value="PDF">PDF</option><option value="TIFF">TIFF</option><option value="JPEG">JPEG</option><option value="PNG">PNG</option></select></div>
+            <div class="col-md-3"><label class="form-label">{{ __('Qty') }}</label><input type="number" name="quantity" class="form-control" value="1" min="1"></div>
         </div>
-        <div class="mb-3"><label class="form-label">Instructions</label><textarea name="special_instructions" class="form-control" rows="2" placeholder="e.g. 300dpi colour, A3..."></textarea></div>
+        <div class="mb-3"><label class="form-label">{{ __('Instructions') }}</label><textarea name="special_instructions" class="form-control" rows="2" placeholder="{{ __('e.g. 300dpi colour, A3...') }}"></textarea></div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Add</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Add</button></div>
     </form>
 </div></div></div>
 

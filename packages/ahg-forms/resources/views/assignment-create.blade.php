@@ -59,9 +59,9 @@
             <form method="post">
                 @csrf
                 <div class="mb-3">
-                    <label class="form-label">Form Template *</label>
+                    <label class="form-label">{{ __('Form Template *') }}</label>
                     <select name="template_id" class="form-select" required>
-                        <option value="">Select template...</option>
+                        <option value="">{{ __('Select template...') }}</option>
                         @foreach($templates as $template)
                             <option value="{{ $template->id }}">
                                 {{ $template->name }} ({{ $template->form_type }})
@@ -71,9 +71,9 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Repository (optional)</label>
+                    <label class="form-label">{{ __('Repository (optional)') }}</label>
                     <select name="repository_id" class="form-select">
-                        <option value="">All repositories</option>
+                        <option value="">{{ __('All repositories') }}</option>
                         @foreach($repos as $repo)
                             <option value="{{ $repo->id }}">{{ $repo->authorized_form_of_name }}</option>
                         @endforeach
@@ -82,9 +82,9 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Level of Description (optional)</label>
+                    <label class="form-label">{{ __('Level of Description (optional)') }}</label>
                     <select name="level_of_description_id" class="form-select">
-                        <option value="">All levels</option>
+                        <option value="">{{ __('All levels') }}</option>
                         @foreach($levels as $level)
                             <option value="{{ $level->id }}">{{ $level->name }}</option>
                         @endforeach
@@ -93,14 +93,14 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Priority</label>
+                    <label class="form-label">{{ __('Priority') }}</label>
                     <input type="number" name="priority" class="form-control" value="100" min="1" max="1000">
                     <small class="text-muted">Higher numbers = higher priority. When multiple assignments match, the highest priority wins.</small>
                 </div>
 
                 <div class="mb-3 form-check">
                     <input type="checkbox" name="inherit_to_children" class="form-check-input" id="inheritCheck" value="1">
-                    <label class="form-check-label" for="inheritCheck">Inherit to child records</label>
+                    <label class="form-check-label" for="inheritCheck">{{ __('Inherit to child records') }}</label>
                     <small class="d-block text-muted">Apply this template to child descriptions as well</small>
                 </div>
 

@@ -24,13 +24,13 @@
   <table class="table table-striped table-hover">
     <thead class="table-dark">
       <tr>
-        <th>Space</th>
-        <th>Venue</th>
-        <th>Area (m&sup2;)</th>
-        <th>Wall Length (m)</th>
-        <th>Height (m)</th>
-        <th>Climate</th>
-        <th>Max Weight (kg)</th>
+        <th>{{ __('Space') }}</th>
+        <th>{{ __('Venue') }}</th>
+        <th>{{ __('Area (m&sup2;)') }}</th>
+        <th>{{ __('Wall Length (m)') }}</th>
+        <th>{{ __('Height (m)') }}</th>
+        <th>{{ __('Climate') }}</th>
+        <th>{{ __('Max Weight (kg)') }}</th>
       </tr>
     </thead>
     <tbody>

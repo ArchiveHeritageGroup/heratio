@@ -36,9 +36,9 @@ if (isset($resource) && ($resource->id ?? null)) {
     </div>
 
     <div class="mb-3">
-        <label for="watermark_type_id" class="form-label">Watermark Type</label>
+        <label for="watermark_type_id" class="form-label">{{ __('Watermark Type') }}</label>
         <select class="form-select" id="watermark_type_id" name="watermark_type_id">
-            <option value="">Use default</option>
+            <option value="">{{ __('Use default') }}</option>
             @foreach($watermarkTypes as $type)
                 <option value="{{ $type->id }}"
                     {{ $currentWatermarkId == $type->id ? 'selected' : '' }}>
@@ -49,7 +49,7 @@ if (isset($resource) && ($resource->id ?? null)) {
     </div>
 
     <div class="mb-3">
-        <label for="watermark_position" class="form-label">Position</label>
+        <label for="watermark_position" class="form-label">{{ __('Position') }}</label>
         <select class="form-select" id="watermark_position" name="watermark_position">
             @php
             $positions = [
@@ -74,7 +74,7 @@ if (isset($resource) && ($resource->id ?? null)) {
     </div>
 
     <div class="mb-3">
-        <label for="watermark_opacity" class="form-label">Opacity</label>
+        <label for="watermark_opacity" class="form-label">{{ __('Opacity') }}</label>
         <input type="range" class="form-range" id="watermark_opacity" name="watermark_opacity"
                min="10" max="100" step="5" value="{{ (int) ($opacity * 100) }}">
         <small class="text-muted"><span id="opacity_value">{{ (int) ($opacity * 100) }}</span>%</small>

@@ -32,19 +32,19 @@
       <div class="card-header"><h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Background Job Settings</h5></div>
       <div class="card-body">
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">Enable Jobs</label>
+          <label class="col-sm-3 col-form-label">{{ __('Enable Jobs') }}</label>
           <div class="col-sm-9">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="jobs_enabled"
                      name="settings[jobs_enabled]" value="true"
                      {{ ($settings['jobs_enabled'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="jobs_enabled">Enable background job processing</label>
+              <label class="form-check-label" for="jobs_enabled">{{ __('Enable background job processing') }}</label>
             </div>
           </div>
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label" for="jobs_max_concurrent">Max Concurrent Jobs</label>
+          <label class="col-sm-3 col-form-label" for="jobs_max_concurrent">{{ __('Max Concurrent Jobs') }}</label>
           <div class="col-sm-9">
             <input type="number" class="form-control" id="jobs_max_concurrent"
                    name="settings[jobs_max_concurrent]"
@@ -54,7 +54,7 @@
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label" for="jobs_timeout">Job Timeout</label>
+          <label class="col-sm-3 col-form-label" for="jobs_timeout">{{ __('Job Timeout') }}</label>
           <div class="col-sm-9">
             <div class="input-group">
               <input type="number" class="form-control" id="jobs_timeout"
@@ -66,7 +66,7 @@
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label" for="jobs_retry_attempts">Retry Attempts</label>
+          <label class="col-sm-3 col-form-label" for="jobs_retry_attempts">{{ __('Retry Attempts') }}</label>
           <div class="col-sm-9">
             <input type="number" class="form-control" id="jobs_retry_attempts"
                    name="settings[jobs_retry_attempts]"
@@ -75,7 +75,7 @@
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label" for="jobs_cleanup_days">Cleanup After</label>
+          <label class="col-sm-3 col-form-label" for="jobs_cleanup_days">{{ __('Cleanup After') }}</label>
           <div class="col-sm-9">
             <div class="input-group">
               <input type="number" class="form-control" id="jobs_cleanup_days"
@@ -88,23 +88,23 @@
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">Notify on Failure</label>
+          <label class="col-sm-3 col-form-label">{{ __('Notify on Failure') }}</label>
           <div class="col-sm-9">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="jobs_notify_on_failure"
                      name="settings[jobs_notify_on_failure]" value="true"
                      {{ ($settings['jobs_notify_on_failure'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="jobs_notify_on_failure">Send email when jobs fail</label>
+              <label class="form-check-label" for="jobs_notify_on_failure">{{ __('Send email when jobs fail') }}</label>
             </div>
           </div>
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label" for="jobs_notify_email">Notification Email</label>
+          <label class="col-sm-3 col-form-label" for="jobs_notify_email">{{ __('Notification Email') }}</label>
           <div class="col-sm-9">
             <input type="email" class="form-control" id="jobs_notify_email"
                    name="settings[jobs_notify_email]"
-                   value="{{ e($settings['jobs_notify_email'] ?? '') }}" placeholder="admin@example.com">
+                   value="{{ e($settings['jobs_notify_email'] ?? '') }}" placeholder="{{ __('admin@example.com') }}">
           </div>
         </div>
       </div>

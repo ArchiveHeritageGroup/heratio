@@ -34,7 +34,7 @@ $statusColors = [
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">Vendor Management</a></li>
             <li class="breadcrumb-item"><a href="{{ route('ahgvendor.transactions') }}">Transactions</a></li>
@@ -68,18 +68,18 @@ $statusColors = [
                     <div class="row">
                         <div class="col-md-6">
                             <table class="table table-sm">
-                                <tr><th width="40%">Transaction #</th><td><code>{{ e($transaction->transaction_number) }}</code></td></tr>
-                                <tr><th>Vendor</th><td><a href="{{ route('ahgvendor.view', ['slug' => $transaction->vendor_slug]) }}">{{ e($transaction->vendor_name) }}</a></td></tr>
-                                <tr><th>Service Type</th><td>{{ e($transaction->service_name ?? '-') }}</td></tr>
-                                <tr><th>Priority</th><td><span class="badge bg-{{ ['low'=>'success','normal'=>'primary','high'=>'warning','urgent'=>'danger'][$transaction->priority ?? 'normal'] ?? 'secondary' }}">{{ ucfirst($transaction->priority ?? 'normal') }}</span></td></tr>
+                                <tr><th width="40%">{{ __('Transaction #') }}</th><td><code>{{ e($transaction->transaction_number) }}</code></td></tr>
+                                <tr><th>{{ __('Vendor') }}</th><td><a href="{{ route('ahgvendor.view', ['slug' => $transaction->vendor_slug]) }}">{{ e($transaction->vendor_name) }}</a></td></tr>
+                                <tr><th>{{ __('Service Type') }}</th><td>{{ e($transaction->service_name ?? '-') }}</td></tr>
+                                <tr><th>{{ __('Priority') }}</th><td><span class="badge bg-{{ ['low'=>'success','normal'=>'primary','high'=>'warning','urgent'=>'danger'][$transaction->priority ?? 'normal'] ?? 'secondary' }}">{{ ucfirst($transaction->priority ?? 'normal') }}</span></td></tr>
                             </table>
                         </div>
                         <div class="col-md-6">
                             <table class="table table-sm">
-                                <tr><th width="40%">Request Date</th><td>{{ $transaction->request_date ? \Carbon\Carbon::parse($transaction->request_date)->format('j M Y') : '-' }}</td></tr>
-                                <tr><th>Due Date</th><td>{{ !empty($transaction->due_date) ? \Carbon\Carbon::parse($transaction->due_date)->format('j M Y') : '-' }}</td></tr>
-                                <tr><th>Completion Date</th><td>{{ !empty($transaction->completion_date) ? \Carbon\Carbon::parse($transaction->completion_date)->format('j M Y') : '-' }}</td></tr>
-                                <tr><th>Reference</th><td>{{ e($transaction->reference_number ?? '-') }}</td></tr>
+                                <tr><th width="40%">{{ __('Request Date') }}</th><td>{{ $transaction->request_date ? \Carbon\Carbon::parse($transaction->request_date)->format('j M Y') : '-' }}</td></tr>
+                                <tr><th>{{ __('Due Date') }}</th><td>{{ !empty($transaction->due_date) ? \Carbon\Carbon::parse($transaction->due_date)->format('j M Y') : '-' }}</td></tr>
+                                <tr><th>{{ __('Completion Date') }}</th><td>{{ !empty($transaction->completion_date) ? \Carbon\Carbon::parse($transaction->completion_date)->format('j M Y') : '-' }}</td></tr>
+                                <tr><th>{{ __('Reference') }}</th><td>{{ e($transaction->reference_number ?? '-') }}</td></tr>
                             </table>
                         </div>
                     </div>
@@ -100,7 +100,7 @@ $statusColors = [
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
-                                <tr><th>Title</th><th>Identifier</th><th>Notes</th><th>Qty</th><th>Cost</th><th>Status</th><th width="80">Actions</th></tr>
+                                <tr><th>{{ __('Title') }}</th><th>{{ __('Identifier') }}</th><th>{{ __('Notes') }}</th><th>{{ __('Qty') }}</th><th>{{ __('Cost') }}</th><th>{{ __('Status') }}</th><th width="80">{{ __('Actions') }}</th></tr>
                             </thead>
                             <tbody>
                                 @php $total = 0; @endphp
@@ -134,7 +134,7 @@ $statusColors = [
                                 </tr>
                                 @endforeach
                             </tbody>
-                            <tfoot class="table-light"><tr><th colspan="4" class="text-end">Total:</th><th><strong>R{{ number_format($total, 2) }}</strong></th><th colspan="2"></th></tr></tfoot>
+                            <tfoot class="table-light"><tr><th colspan="4" class="text-end">{{ __('Total:') }}</th><th><strong>R{{ number_format($total, 2) }}</strong></th><th colspan="2"></th></tr></tfoot>
                         </table>
                     </div>
                     @else
@@ -154,9 +154,9 @@ $statusColors = [
                 <div class="card-header"><i class="fas fa-dollar-sign me-2"></i>Cost Summary</div>
                 <div class="card-body">
                     <table class="table table-sm mb-0">
-                        <tr><th>Estimated</th><td class="text-end">{{ $transaction->estimated_cost ? 'R' . number_format($transaction->estimated_cost, 2) : '-' }}</td></tr>
-                        <tr><th>Actual</th><td class="text-end"><strong>{{ $transaction->actual_cost ? 'R' . number_format($transaction->actual_cost, 2) : '-' }}</strong></td></tr>
-                        <tr class="table-light"><th>Items Total</th><td class="text-end"><strong>R{{ number_format($total ?? 0, 2) }}</strong></td></tr>
+                        <tr><th>{{ __('Estimated') }}</th><td class="text-end">{{ $transaction->estimated_cost ? 'R' . number_format($transaction->estimated_cost, 2) : '-' }}</td></tr>
+                        <tr><th>{{ __('Actual') }}</th><td class="text-end"><strong>{{ $transaction->actual_cost ? 'R' . number_format($transaction->actual_cost, 2) : '-' }}</strong></td></tr>
+                        <tr class="table-light"><th>{{ __('Items Total') }}</th><td class="text-end"><strong>R{{ number_format($total ?? 0, 2) }}</strong></td></tr>
                     </table>
                 </div>
             </div>
@@ -166,9 +166,9 @@ $statusColors = [
                 <div class="card-header"><i class="fas fa-file-invoice-dollar me-2"></i>Invoice</div>
                 <div class="card-body">
                     <table class="table table-sm mb-0">
-                        <tr><th>Invoice #</th><td>{{ e($transaction->invoice_number ?? '-') }}</td></tr>
-                        <tr><th>Invoice Date</th><td>{{ !empty($transaction->invoice_date) ? \Carbon\Carbon::parse($transaction->invoice_date)->format('j M Y') : '-' }}</td></tr>
-                        <tr><th>Payment</th><td><span class="badge bg-{{ ['pending'=>'warning','paid'=>'success','partial'=>'info','overdue'=>'danger'][$transaction->payment_status ?? 'pending'] ?? 'secondary' }}">{{ ucfirst($transaction->payment_status ?? 'pending') }}</span></td></tr>
+                        <tr><th>{{ __('Invoice #') }}</th><td>{{ e($transaction->invoice_number ?? '-') }}</td></tr>
+                        <tr><th>{{ __('Invoice Date') }}</th><td>{{ !empty($transaction->invoice_date) ? \Carbon\Carbon::parse($transaction->invoice_date)->format('j M Y') : '-' }}</td></tr>
+                        <tr><th>{{ __('Payment') }}</th><td><span class="badge bg-{{ ['pending'=>'warning','paid'=>'success','partial'=>'info','overdue'=>'danger'][$transaction->payment_status ?? 'pending'] ?? 'secondary' }}">{{ ucfirst($transaction->payment_status ?? 'pending') }}</span></td></tr>
                     </table>
                 </div>
             </div>
@@ -197,19 +197,19 @@ $statusColors = [
         <div class="modal-content">
             <form method="post" action="{{ route('ahgvendor.update-transaction-status', ['id' => $transaction->id]) }}">
                 @csrf
-                <div class="modal-header"><h5 class="modal-title">Update Status</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-header"><h5 class="modal-title">{{ __('Update Status') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">New Status</label>
+                        <label class="form-label">{{ __('New Status') }}</label>
                         <select name="status" class="form-select" required>
                             @foreach (($statusOptions ?? []) as $code => $label)
                             <option value="{{ $code }}" {{ $transaction->status === $code ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="mb-3"><label class="form-label">Notes</label><textarea name="status_notes" class="form-control" rows="3"></textarea></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Notes') }}</label><textarea name="status_notes" class="form-control" rows="3"></textarea></div>
                 </div>
-                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Update</button></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary">{{ __('Update') }}</button></div>
             </form>
         </div>
     </div>

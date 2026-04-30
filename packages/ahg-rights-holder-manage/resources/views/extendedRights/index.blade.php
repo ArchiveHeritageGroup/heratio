@@ -4,7 +4,7 @@
 @section('body-class', 'extended-rights index')
 
 @section('title-block')
-  <h1 class="mb-0">Extended Rights Management</h1>
+  <h1 class="mb-0">{{ __('Extended Rights Management') }}</h1>
 @endsection
 
 @section('content')
@@ -12,7 +12,7 @@
   {{-- Rights Statements --}}
   <div class="col-md-4 mb-4">
     <div class="card h-100">
-      <div class="card-header bg-primary text-white"><h5 class="mb-0">RightsStatements.org</h5></div>
+      <div class="card-header bg-primary text-white"><h5 class="mb-0">{{ __('RightsStatements.org') }}</h5></div>
       <div class="card-body">
         <p class="text-muted small">Standardized rights statements for cultural heritage institutions.</p>
         @if(!empty($rightsStatements) && count($rightsStatements) > 0)
@@ -37,7 +37,7 @@
   {{-- Creative Commons --}}
   <div class="col-md-4 mb-4">
     <div class="card h-100">
-      <div class="card-header bg-success text-white"><h5 class="mb-0">Creative Commons</h5></div>
+      <div class="card-header bg-success text-white"><h5 class="mb-0">{{ __('Creative Commons') }}</h5></div>
       <div class="card-body">
         <p class="text-muted small">Open licensing for sharing and reuse.</p>
         @if(!empty($ccLicenses) && count($ccLicenses) > 0)
@@ -62,7 +62,7 @@
   {{-- TK Labels --}}
   <div class="col-md-4 mb-4">
     <div class="card h-100">
-      <div class="card-header" style="background-color: #1a4d2e; color: white;"><h5 class="mb-0">Traditional Knowledge Labels</h5></div>
+      <div class="card-header" style="background-color: #1a4d2e; color: white;"><h5 class="mb-0">{{ __('Traditional Knowledge Labels') }}</h5></div>
       <div class="card-body">
         <p class="text-muted small">Labels for Indigenous cultural heritage.</p>
         @if(!empty($tkLabels) && count($tkLabels) > 0)
@@ -92,7 +92,7 @@
 @if(isset($stats))
 <div class="card mt-4">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h5 class="mb-0">Rights Coverage Statistics</h5>
+    <h5 class="mb-0">{{ __('Rights Coverage Statistics') }}</h5>
   </div>
   <div class="card-body">
     <div class="row text-center">
@@ -109,7 +109,7 @@
 @auth
 <div class="card mt-4">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h5 class="mb-0">Administration</h5>
+    <h5 class="mb-0">{{ __('Administration') }}</h5>
   </div>
   <div class="card-body">
     <a href="{{ route('extended-rights.batch') }}" class="btn atom-btn-white"><i class="fas fa-layer-group"></i> Batch Assign Rights</a>

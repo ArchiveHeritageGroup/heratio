@@ -3,7 +3,7 @@
 @section('title', 'Research Reports')
 
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item active">Reports</li>
@@ -33,13 +33,13 @@
     <table class="table table-hover align-middle">
         <thead class="table-light">
             <tr>
-                <th>Title</th>
-                <th>Template</th>
-                <th>Project</th>
-                <th>Status</th>
-                <th class="text-center">Sections</th>
-                <th>Last Updated</th>
-                <th class="text-end">Actions</th>
+                <th>{{ __('Title') }}</th>
+                <th>{{ __('Template') }}</th>
+                <th>{{ __('Project') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th class="text-center">{{ __('Sections') }}</th>
+                <th>{{ __('Last Updated') }}</th>
+                <th class="text-end">{{ __('Actions') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -72,8 +72,8 @@
                 <td><small class="text-muted">{{ date('M j, Y H:i', strtotime($report->updated_at)) }}</small></td>
                 <td class="text-end">
                     <div class="btn-group btn-group-sm">
-                        <a href="{{ route('research.viewReport', $report->id) }}" class="btn btn-outline-primary" title="View"><i class="fas fa-eye"></i></a>
-                        <a href="{{ route('research.viewReport', $report->id) }}?export=pdf" class="btn btn-outline-danger" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
+                        <a href="{{ route('research.viewReport', $report->id) }}" class="btn btn-outline-primary" title="{{ __('View') }}"><i class="fas fa-eye"></i></a>
+                        <a href="{{ route('research.viewReport', $report->id) }}?export=pdf" class="btn btn-outline-danger" title="{{ __('Export PDF') }}"><i class="fas fa-file-pdf"></i></a>
                     </div>
                 </td>
             </tr>
@@ -84,7 +84,7 @@
 @else
 <div class="text-center py-5">
     <i class="fas fa-file-alt fa-4x text-muted mb-3 opacity-50"></i>
-    <h4 class="text-muted">No reports yet</h4>
+    <h4 class="text-muted">{{ __('No reports yet') }}</h4>
     <p class="text-muted">Create a report to document your research findings.</p>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newReportModal"><i class="fas fa-plus me-1"></i>Create First Report</button>
 </div>
@@ -136,12 +136,12 @@
 
             {{-- Step 2: Details --}}
             <h6 class="mb-3"><span class="badge bg-primary me-2">2</span>Report Details</h6>
-            <div class="mb-3"><label class="form-label">Report Title *</label><input type="text" name="title" class="form-control" required placeholder="Enter report title..."></div>
-            <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2" placeholder="Brief description..."></textarea></div>
+            <div class="mb-3"><label class="form-label">{{ __('Report Title *') }}</label><input type="text" name="title" class="form-control" required placeholder="{{ __('Enter report title...') }}"></div>
+            <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="2" placeholder="{{ __('Brief description...') }}"></textarea></div>
             <div class="mb-3">
-                <label class="form-label">Project</label>
+                <label class="form-label">{{ __('Project') }}</label>
                 <select name="project_id" class="form-select">
-                    <option value="">No Project</option>
+                    <option value="">{{ __('No Project') }}</option>
                     @foreach($projects ?? [] as $p)
                         <option value="{{ $p->id }}">{{ e($p->title) }}</option>
                     @endforeach
@@ -150,7 +150,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
             <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Create Report</button>
         </div>
     </form>

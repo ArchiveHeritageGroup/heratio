@@ -46,7 +46,7 @@
           <div class="card shadow-sm h-100">
             <div class="card-body text-center py-4">
               <div class="mb-3"><i class="fas fa-layer-group fa-2x text-primary"></i></div>
-              <h6 class="card-title">Batch Operations</h6>
+              <h6 class="card-title">{{ __('Batch Operations') }}</h6>
               <p class="card-text text-muted small">Run bulk updates, imports, and exports across collections</p>
               <a href="{{ route('heritage.custodian-batch') }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-play me-1"></i> Launch
@@ -58,7 +58,7 @@
           <div class="card shadow-sm h-100">
             <div class="card-body text-center py-4">
               <div class="mb-3"><i class="fas fa-history fa-2x text-info"></i></div>
-              <h6 class="card-title">Audit Trail</h6>
+              <h6 class="card-title">{{ __('Audit Trail') }}</h6>
               <p class="card-text text-muted small">Review detailed change logs and user actions</p>
               <a href="{{ route('audit.browse') }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-search me-1"></i> View
@@ -70,7 +70,7 @@
           <div class="card shadow-sm h-100">
             <div class="card-body text-center py-4">
               <div class="mb-3"><i class="fas fa-key fa-2x text-warning"></i></div>
-              <h6 class="card-title">Access Requests</h6>
+              <h6 class="card-title">{{ __('Access Requests') }}</h6>
               <p class="card-text text-muted small">Manage pending access and permission requests</p>
               <a href="{{ route('acl.access-requests') }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-clipboard-list me-1"></i> Review
@@ -135,8 +135,8 @@
               <thead>
                 <tr>
                   <th style="width:60px;" class="text-center">#</th>
-                  <th>Username</th>
-                  <th class="text-end" style="width:150px;">Actions</th>
+                  <th>{{ __('Username') }}</th>
+                  <th class="text-end" style="width:150px;">{{ __('Actions') }}</th>
                 </tr>
               </thead>
               <tbody>

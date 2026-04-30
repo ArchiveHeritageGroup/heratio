@@ -22,7 +22,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.index') }}">CDPA</a></li>
                     <li class="breadcrumb-item active">Controller License</li>
@@ -42,7 +42,7 @@
         <div class="row">
             <div class="col-lg-8">
                 <div class="card mb-4">
-                    <div class="card-header"><h5 class="mb-0">License Details</h5></div>
+                    <div class="card-header"><h5 class="mb-0">{{ __('License Details') }}</h5></div>
                     <div class="card-body">
                         <dl class="row mb-0">
                             <dt class="col-sm-4">License Number</dt>
@@ -80,7 +80,7 @@
 
             <div class="col-lg-4">
                 <div class="card mb-4">
-                    <div class="card-header"><h5 class="mb-0">Status</h5></div>
+                    <div class="card-header"><h5 class="mb-0">{{ __('Status') }}</h5></div>
                     <div class="card-body text-center">
                         <span class="badge bg-{{ $color }} fs-4 px-4 py-3">
                             {{ ucfirst(str_replace('_', ' ', $licenseStatus)) }}
@@ -100,7 +100,7 @@
                 </div>
 
                 <div class="card">
-                    <div class="card-header"><h5 class="mb-0">License Tiers</h5></div>
+                    <div class="card-header"><h5 class="mb-0">{{ __('License Tiers') }}</h5></div>
                     <div class="card-body small">
                         <p class="mb-2"><strong>Tier 1:</strong> Small Scale (&lt;1,000 subjects)</p>
                         <p class="mb-2"><strong>Tier 2:</strong> Medium Scale (1,000-10,000)</p>
@@ -113,7 +113,7 @@
         <div class="card">
             <div class="card-body text-center py-5">
                 <i class="fas fa-id-card fa-4x text-muted mb-3"></i>
-                <h4>No Controller License Registered</h4>
+                <h4>{{ __('No Controller License Registered') }}</h4>
                 <p class="text-muted mb-4">Data controllers must register with the regulator under the Cyber and Data Protection Act.</p>
                 <a href="{{ route('ahgcdpa.license-edit') }}" class="btn btn-primary btn-lg">
                     <i class="fas fa-plus me-2"></i>Register License

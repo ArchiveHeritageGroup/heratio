@@ -20,7 +20,7 @@
 @endphp
 
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('ahgmarketplace.admin-dashboard') }}">{{ __('Marketplace Admin') }}</a></li>
@@ -58,7 +58,7 @@
       <input type="hidden" name="form_action" value="add">
       <div class="col-md-2">
         <label class="form-label small">{{ __('Code') }}</label>
-        <input type="text" name="code" class="form-control form-control-sm" required placeholder="USD" maxlength="3" style="text-transform:uppercase;">
+        <input type="text" name="code" class="form-control form-control-sm" required placeholder="{{ __('USD') }}" maxlength="3" style="text-transform:uppercase;">
       </div>
       <div class="col-md-3">
         <label class="form-label small">{{ __('Name') }}</label>

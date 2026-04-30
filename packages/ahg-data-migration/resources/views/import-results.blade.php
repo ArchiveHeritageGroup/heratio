@@ -7,12 +7,12 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-check-circle me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Import Results</h1>
+      <h1 class="mb-0">{{ __('Import Results') }}</h1>
       <span class="small text-muted">Summary of the completed import operation</span>
     </div>
   </div>
 
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
       <li class="breadcrumb-item active">Import Results</li>
@@ -80,21 +80,21 @@
         <table class="table table-bordered mb-0">
           <tbody>
             <tr>
-              <th style="width: 200px;">Job ID</th>
+              <th style="width: 200px;">{{ __('Job ID') }}</th>
               <td>
                 <a href="{{ route('data-migration.job', $job['id']) }}">{{ $job['id'] }}</a>
               </td>
             </tr>
             <tr>
-              <th>Name</th>
+              <th>{{ __('Name') }}</th>
               <td>{{ $job['name'] }}</td>
             </tr>
             <tr>
-              <th>Target Type</th>
+              <th>{{ __('Target Type') }}</th>
               <td><span class="badge bg-info">{{ $job['target_type'] }}</span></td>
             </tr>
             <tr>
-              <th>Status</th>
+              <th>{{ __('Status') }}</th>
               <td>
                 @if($job['status'] === 'completed')
                   <span class="badge bg-success">Completed</span>
@@ -106,7 +106,7 @@
               </td>
             </tr>
             <tr>
-              <th>Message</th>
+              <th>{{ __('Message') }}</th>
               <td>{{ $job['progress_message'] ?? 'N/A' }}</td>
             </tr>
           </tbody>
@@ -125,8 +125,8 @@
             <table class="table table-bordered table-sm table-striped mb-0">
               <thead>
                 <tr>
-                  <th style="width: 80px;">Row</th>
-                  <th>Error</th>
+                  <th style="width: 80px;">{{ __('Row') }}</th>
+                  <th>{{ __('Error') }}</th>
                 </tr>
               </thead>
               <tbody>

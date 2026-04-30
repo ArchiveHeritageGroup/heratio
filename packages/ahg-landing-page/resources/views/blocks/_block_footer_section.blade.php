@@ -21,7 +21,7 @@ $col3Content = $config['col3_content'] ?? '';
           @if ($showLogo)
             <div class="mb-2">
               @if (file_exists(public_path('uploads/logos/logo.png')))
-                <img src="/uploads/logos/logo.png" alt="Logo" style="max-height: 30px; filter: brightness(0) invert(1);">
+                <img src="/uploads/logos/logo.png" alt="{{ __('Logo') }}" style="max-height: 30px; filter: brightness(0) invert(1);">
               @endif
             </div>
           @endif

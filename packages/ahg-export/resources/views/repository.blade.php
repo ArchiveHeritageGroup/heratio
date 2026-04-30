@@ -6,7 +6,7 @@
 <div class="container-fluid py-4">
     <h1><i class="bi bi-building me-2"></i>Export Repositories</h1>
 
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
             <li class="breadcrumb-item"><a href="{{ route('export.index') }}">Export</a></li>
@@ -35,7 +35,7 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Limit <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <select name="limit" class="form-select">
-                                    <option value="0">No limit (all records)</option>
+                                    <option value="0">{{ __('No limit (all records)') }}</option>
                                     <option value="50">50 records</option>
                                     <option value="100">100 records</option>
                                     <option value="500">500 records</option>

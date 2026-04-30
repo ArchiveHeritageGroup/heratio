@@ -33,35 +33,35 @@
             <form method="post">
                 @csrf
                 <div class="mb-3">
-                    <label class="form-label">Template Name *</label>
-                    <input type="text" name="name" class="form-control" required placeholder="e.g., ISAD-G Standard Form">
+                    <label class="form-label">{{ __('Template Name *') }}</label>
+                    <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g., ISAD-G Standard Form') }}">
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Description</label>
-                    <textarea name="description" class="form-control" rows="3" placeholder="Describe the purpose of this form template..."></textarea>
+                    <label class="form-label">{{ __('Description') }}</label>
+                    <textarea name="description" class="form-control" rows="3" placeholder="{{ __('Describe the purpose of this form template...') }}"></textarea>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Form Type *</label>
+                    <label class="form-label">{{ __('Form Type *') }}</label>
                     <select name="form_type" class="form-select" required>
-                        <option value="">Select type...</option>
-                        <option value="information_object">Information Object (Archival Description)</option>
-                        <option value="actor">Authority Record (Actor)</option>
-                        <option value="repository">Repository</option>
-                        <option value="accession">Accession</option>
-                        <option value="deaccession">Deaccession</option>
-                        <option value="rights">Rights</option>
+                        <option value="">{{ __('Select type...') }}</option>
+                        <option value="information_object">{{ __('Information Object (Archival Description)') }}</option>
+                        <option value="actor">{{ __('Authority Record (Actor)') }}</option>
+                        <option value="repository">{{ __('Repository') }}</option>
+                        <option value="accession">{{ __('Accession') }}</option>
+                        <option value="deaccession">{{ __('Deaccession') }}</option>
+                        <option value="rights">{{ __('Rights') }}</option>
                     </select>
                     <small class="text-muted">The type of record this form will be used for</small>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Layout</label>
+                    <label class="form-label">{{ __('Layout') }}</label>
                     <select name="layout" class="form-select">
-                        <option value="single">Single Column</option>
-                        <option value="two-column">Two Columns</option>
-                        <option value="tabs">Tabbed Sections</option>
+                        <option value="single">{{ __('Single Column') }}</option>
+                        <option value="two-column">{{ __('Two Columns') }}</option>
+                        <option value="tabs">{{ __('Tabbed Sections') }}</option>
                     </select>
                 </div>
 

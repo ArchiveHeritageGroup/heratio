@@ -13,7 +13,7 @@
             <label class="form-label">Output Format <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="output_format" class="form-select">
               <option value="pdf">PDF</option>
-              <option value="tiff">Multi-page TIFF</option>
+              <option value="tiff">{{ __('Multi-page TIFF') }}</option>
             </select>
           </div>
           <div class="mb-3">
@@ -23,11 +23,11 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Output Filename <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="text" name="output_filename" class="form-control" placeholder="merged-output">
+            <input type="text" name="output_filename" class="form-control" placeholder="{{ __('merged-output') }}">
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="submit" class="btn atom-btn-white"><i class="fas fa-cogs me-1"></i>Start Merge</button>
         </div>
       </form>

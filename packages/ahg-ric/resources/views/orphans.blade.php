@@ -43,11 +43,11 @@
       <table class="table table-bordered table-striped mb-0">
         <thead>
           <tr>
-            <th>RiC URI</th>
-            <th>Expected Entity</th>
-            <th>Status</th>
-            <th>Detected</th>
-            <th>Resolved</th>
+            <th>{{ __('RiC URI') }}</th>
+            <th>{{ __('Expected Entity') }}</th>
+            <th>{{ __('Status') }}</th>
+            <th>{{ __('Detected') }}</th>
+            <th>{{ __('Resolved') }}</th>
           </tr>
         </thead>
         <tbody>

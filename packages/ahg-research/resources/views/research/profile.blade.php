@@ -6,7 +6,7 @@
 @endsection
 
 @section('content')
-  <nav aria-label="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
       <li class="breadcrumb-item active">My Profile</li>

@@ -18,31 +18,31 @@
 <form method="POST" action="{{ route('records.compliance.store') }}" class="row g-3">
   @csrf
   <div class="col-md-6">
-    <label class="form-label">Framework</label>
+    <label class="form-label">{{ __('Framework') }}</label>
     <select name="framework" class="form-select" required>
       <option value="">— pick a framework —</option>
       @foreach($frameworks as $f)<option value="{{ $f->code }}" @selected(old('framework')===$f->code)>{{ $f->label }}</option>@endforeach
     </select>
   </div>
   <div class="col-md-6">
-    <label class="form-label">Assessment ref</label>
+    <label class="form-label">{{ __('Assessment ref') }}</label>
     <input type="text" name="assessment_ref" class="form-control" value="{{ old('assessment_ref', 'CA-' . date('Y') . '-' . sprintf('%03d', random_int(1, 999))) }}" required>
     <div class="form-text small">Unique identifier — e.g. CA-2026-001.</div>
   </div>
   <div class="col-12">
-    <label class="form-label">Title</label>
+    <label class="form-label">{{ __('Title') }}</label>
     <input type="text" name="title" class="form-control" value="{{ old('title') }}" required>
   </div>
   <div class="col-12">
-    <label class="form-label">Scope (optional)</label>
-    <textarea name="scope" rows="3" class="form-control" placeholder="What is being assessed? Departments, record series, time period.">{{ old('scope') }}</textarea>
+    <label class="form-label">{{ __('Scope (optional)') }}</label>
+    <textarea name="scope" rows="3" class="form-control" placeholder="{{ __('What is being assessed? Departments, record series, time period.') }}">{{ old('scope') }}</textarea>
   </div>
   <div class="col-md-6">
-    <label class="form-label">Period start</label>
+    <label class="form-label">{{ __('Period start') }}</label>
     <input type="date" name="period_start" class="form-control" value="{{ old('period_start') }}">
   </div>
   <div class="col-md-6">
-    <label class="form-label">Period end</label>
+    <label class="form-label">{{ __('Period end') }}</label>
     <input type="date" name="period_end" class="form-control" value="{{ old('period_end') }}">
   </div>
   <div class="col-12">

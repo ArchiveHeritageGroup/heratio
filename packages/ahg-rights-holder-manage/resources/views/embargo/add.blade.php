@@ -5,7 +5,7 @@
 
 @section('title-block')
   <div class="multiline-header d-flex flex-column mb-3">
-    <h1 class="mb-0">Add Embargo</h1>
+    <h1 class="mb-0">{{ __('Add Embargo') }}</h1>
     <span class="small" id="heading-label">{{ $resource->title ?? $resource->slug ?? '' }}</span>
   </div>
 @endsection
@@ -16,17 +16,17 @@
 
   <div class="card mb-4">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <h4 class="mb-0">Embargo Details</h4>
+      <h4 class="mb-0">{{ __('Embargo Details') }}</h4>
     </div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-6 mb-3">
           <label for="embargo_type" class="form-label">Embargo Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
           <select name="embargo_type" id="embargo_type" class="form-select" required>
-            <option value="full">Full - Hide completely</option>
-            <option value="metadata_only">Metadata Only - Hide digital objects</option>
-            <option value="digital_object">Digital Object - Restrict downloads</option>
-            <option value="custom">Custom</option>
+            <option value="full">{{ __('Full - Hide completely') }}</option>
+            <option value="metadata_only">{{ __('Metadata Only - Hide digital objects') }}</option>
+            <option value="digital_object">{{ __('Digital Object - Restrict downloads') }}</option>
+            <option value="custom">{{ __('Custom') }}</option>
           </select>
         </div>
       </div>
@@ -51,12 +51,12 @@
 
       <div class="mb-3">
         <label for="reason" class="form-label">Reason <span class="badge bg-secondary ms-1">Optional</span></label>
-        <input type="text" name="reason" id="reason" class="form-control" placeholder="e.g., Donor restriction, Privacy concerns, Legal hold">
+        <input type="text" name="reason" id="reason" class="form-control" placeholder="{{ __('e.g., Donor restriction, Privacy concerns, Legal hold') }}">
       </div>
 
       <div class="mb-3">
         <label for="public_message" class="form-label">Public Message <span class="badge bg-secondary ms-1">Optional</span></label>
-        <textarea name="public_message" id="public_message" class="form-control" rows="2" placeholder="Message displayed to users when they encounter this embargo"></textarea>
+        <textarea name="public_message" id="public_message" class="form-control" rows="2" placeholder="{{ __('Message displayed to users when they encounter this embargo') }}"></textarea>
       </div>
 
       <div class="mb-3">
@@ -69,7 +69,7 @@
   {{-- Propagation Options --}}
   <div class="card mb-4">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <h4 class="mb-0">Apply to Hierarchy</h4>
+      <h4 class="mb-0">{{ __('Apply to Hierarchy') }}</h4>
     </div>
     <div class="card-body">
       @if(($descendantCount ?? 0) > 0)
@@ -93,7 +93,7 @@
 
   <div class="card mb-4">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <h4 class="mb-0">Notifications</h4>
+      <h4 class="mb-0">{{ __('Notifications') }}</h4>
     </div>
     <div class="card-body">
       <div class="form-check mb-3">

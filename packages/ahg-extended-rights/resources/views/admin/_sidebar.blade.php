@@ -17,7 +17,7 @@
   </a>
 </div>
 
-<h6 class="text-muted px-1 mb-2">Reports</h6>
+<h6 class="text-muted px-1 mb-2">{{ __('Reports') }}</h6>
 <div class="list-group mb-3">
   <a href="{{ route('ext-rights-admin.report', ['type' => 'summary']) }}" class="list-group-item list-group-item-action {{ request()->routeIs('ext-rights-admin.report') ? 'active' : '' }}">
     <i class="fas fa-chart-bar me-2"></i>Summary
@@ -30,7 +30,7 @@
   </a>
 </div>
 
-<h6 class="text-muted px-1 mb-2">Actions</h6>
+<h6 class="text-muted px-1 mb-2">{{ __('Actions') }}</h6>
 <div class="list-group mb-3">
   <a href="{{ route('ext-rights-admin.process-expired') }}" class="list-group-item list-group-item-action"
      onclick="return confirm('Process all expired embargoes?');">

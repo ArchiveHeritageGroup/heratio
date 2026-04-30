@@ -21,7 +21,7 @@
 <div class="container-fluid">
   <div class="row mb-4">
     <div class="col">
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
           <li class="breadcrumb-item"><a href="{{ route('nmmz.sites') }}">Archaeological Sites</a></li>
@@ -36,7 +36,7 @@
     @csrf
     <div class="col-lg-8">
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Site Information</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Site Information') }}</h5></div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-8">
@@ -44,36 +44,36 @@
               <input type="text" name="name" class="form-control" required>
             </div>
             <div class="col-md-4">
-              <label class="form-label">Site Type</label>
+              <label class="form-label">{{ __('Site Type') }}</label>
               <select name="site_type" class="form-select">
-                <option value="">Select...</option>
-                <option value="rock_art">Rock Art</option>
-                <option value="settlement">Settlement</option>
-                <option value="burial">Burial Site</option>
-                <option value="industrial">Industrial</option>
-                <option value="religious">Religious/Ceremonial</option>
-                <option value="cave">Cave/Shelter</option>
-                <option value="iron_age">Iron Age</option>
-                <option value="stone_age">Stone Age</option>
-                <option value="other">Other</option>
+                <option value="">{{ __('Select...') }}</option>
+                <option value="rock_art">{{ __('Rock Art') }}</option>
+                <option value="settlement">{{ __('Settlement') }}</option>
+                <option value="burial">{{ __('Burial Site') }}</option>
+                <option value="industrial">{{ __('Industrial') }}</option>
+                <option value="religious">{{ __('Religious/Ceremonial') }}</option>
+                <option value="cave">{{ __('Cave/Shelter') }}</option>
+                <option value="iron_age">{{ __('Iron Age') }}</option>
+                <option value="stone_age">{{ __('Stone Age') }}</option>
+                <option value="other">{{ __('Other') }}</option>
               </select>
             </div>
             <div class="col-12">
-              <label class="form-label">Description</label>
+              <label class="form-label">{{ __('Description') }}</label>
               <textarea name="description" class="form-control" rows="4"></textarea>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Period</label>
-              <input type="text" name="period" class="form-control" placeholder="e.g., Late Stone Age, Iron Age">
+              <label class="form-label">{{ __('Period') }}</label>
+              <input type="text" name="period" class="form-control" placeholder="{{ __('e.g., Late Stone Age, Iron Age') }}">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Research Potential</label>
+              <label class="form-label">{{ __('Research Potential') }}</label>
               <select name="research_potential" class="form-select">
-                <option value="">Select...</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-                <option value="unknown">Unknown</option>
+                <option value="">{{ __('Select...') }}</option>
+                <option value="high">{{ __('High') }}</option>
+                <option value="medium">{{ __('Medium') }}</option>
+                <option value="low">{{ __('Low') }}</option>
+                <option value="unknown">{{ __('Unknown') }}</option>
               </select>
             </div>
           </div>
@@ -81,32 +81,32 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Location</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Location') }}</h5></div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Province</label>
+              <label class="form-label">{{ __('Province') }}</label>
               <select name="province" class="form-select">
-                <option value="">Select...</option>
+                <option value="">{{ __('Select...') }}</option>
                 @foreach($provinces as $p)
                   <option value="{{ $p }}">{{ $p }}</option>
                 @endforeach
               </select>
             </div>
             <div class="col-md-6">
-              <label class="form-label">District</label>
+              <label class="form-label">{{ __('District') }}</label>
               <input type="text" name="district" class="form-control">
             </div>
             <div class="col-12">
-              <label class="form-label">Location Description</label>
+              <label class="form-label">{{ __('Location Description') }}</label>
               <textarea name="location_description" class="form-control" rows="2"></textarea>
             </div>
             <div class="col-md-6">
-              <label class="form-label">GPS Latitude</label>
+              <label class="form-label">{{ __('GPS Latitude') }}</label>
               <input type="text" name="gps_latitude" class="form-control" placeholder="-17.8252">
             </div>
             <div class="col-md-6">
-              <label class="form-label">GPS Longitude</label>
+              <label class="form-label">{{ __('GPS Longitude') }}</label>
               <input type="text" name="gps_longitude" class="form-control" placeholder="31.0335">
             </div>
           </div>
@@ -114,15 +114,15 @@
       </div>
 
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">Discovery Information</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Discovery Information') }}</h5></div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Discovery Date</label>
+              <label class="form-label">{{ __('Discovery Date') }}</label>
               <input type="date" name="discovery_date" class="form-control">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Discovered By</label>
+              <label class="form-label">{{ __('Discovered By') }}</label>
               <input type="text" name="discovered_by" class="form-control">
             </div>
           </div>
@@ -132,12 +132,12 @@
 
     <div class="col-lg-4">
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Protection Status</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Protection Status') }}</h5></div>
         <div class="card-body">
           <select name="protection_status" class="form-select">
-            <option value="proposed">Proposed</option>
-            <option value="protected">Protected</option>
-            <option value="at_risk">At Risk</option>
+            <option value="proposed">{{ __('Proposed') }}</option>
+            <option value="protected">{{ __('Protected') }}</option>
+            <option value="at_risk">{{ __('At Risk') }}</option>
           </select>
         </div>
       </div>

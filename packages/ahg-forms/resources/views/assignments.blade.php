@@ -35,12 +35,12 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Template</th>
-                            <th>Type</th>
-                            <th>Repository</th>
-                            <th>Level</th>
-                            <th>Priority</th>
-                            <th>Actions</th>
+                            <th>{{ __('Template') }}</th>
+                            <th>{{ __('Type') }}</th>
+                            <th>{{ __('Repository') }}</th>
+                            <th>{{ __('Level') }}</th>
+                            <th>{{ __('Priority') }}</th>
+                            <th>{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>

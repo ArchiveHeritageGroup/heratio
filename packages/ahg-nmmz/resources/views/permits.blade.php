@@ -21,7 +21,7 @@
 <div class="container-fluid">
   <div class="row mb-4">
     <div class="col">
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
           <li class="breadcrumb-item active">Export Permits</li>
@@ -42,15 +42,15 @@
       <form method="get" class="row g-3">
         <div class="col-md-3">
           <select name="status" class="form-select">
-            <option value="">All Status</option>
-            <option value="pending" @selected($currentStatus === 'pending')>Pending</option>
-            <option value="approved" @selected($currentStatus === 'approved')>Approved</option>
-            <option value="rejected" @selected($currentStatus === 'rejected')>Rejected</option>
-            <option value="expired" @selected($currentStatus === 'expired')>Expired</option>
+            <option value="">{{ __('All Status') }}</option>
+            <option value="pending" @selected($currentStatus === 'pending')>{{ __('Pending') }}</option>
+            <option value="approved" @selected($currentStatus === 'approved')>{{ __('Approved') }}</option>
+            <option value="rejected" @selected($currentStatus === 'rejected')>{{ __('Rejected') }}</option>
+            <option value="expired" @selected($currentStatus === 'expired')>{{ __('Expired') }}</option>
           </select>
         </div>
         <div class="col-md-2">
-          <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+          <button type="submit" class="btn btn-outline-primary w-100">{{ __('Filter') }}</button>
         </div>
       </form>
     </div>
@@ -68,14 +68,14 @@
         <table class="table table-hover mb-0">
           <thead>
             <tr>
-              <th>Permit #</th>
-              <th>Applicant</th>
-              <th>Object</th>
-              <th>Destination</th>
-              <th>Purpose</th>
-              <th>Status</th>
-              <th>Applied</th>
-              <th>Actions</th>
+              <th>{{ __('Permit #') }}</th>
+              <th>{{ __('Applicant') }}</th>
+              <th>{{ __('Object') }}</th>
+              <th>{{ __('Destination') }}</th>
+              <th>{{ __('Purpose') }}</th>
+              <th>{{ __('Status') }}</th>
+              <th>{{ __('Applied') }}</th>
+              <th>{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>

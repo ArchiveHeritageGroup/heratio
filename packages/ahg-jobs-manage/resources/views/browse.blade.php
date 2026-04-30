@@ -4,14 +4,14 @@
 @section('body-class', 'browse jobs')
 
 @section('title-block')
-  <h1>Manage jobs</h1>
+  <h1>{{ __('Manage jobs') }}</h1>
 @endsection
 
 @section('before-content')
   @if(session('notice'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
       {{ session('notice') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
@@ -55,7 +55,7 @@
   @if(auth()->check() && $pager->getNbResults() > 0)
     <div class="alert alert-info alert-dismissible fade show" role="alert">
       <i class="fas fa-info-circle me-1"></i> You may only clear jobs belonging to you.
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
@@ -85,19 +85,19 @@
     </ul>
 
     <div class="d-flex flex-wrap gap-2 ms-auto">
-      <a href="{{ route('job.browse', array_merge(request()->query(), [])) }}" class="btn btn-outline-secondary btn-sm" title="Refresh">
+      <a href="{{ route('job.browse', array_merge(request()->query(), [])) }}" class="btn btn-outline-secondary btn-sm" title="{{ __('Refresh') }}">
         <i class="fas fa-sync-alt"></i> Refresh
       </a>
-      <button type="button" class="btn btn-outline-secondary btn-sm" id="auto-refresh-toggle" title="Toggle auto refresh">
+      <button type="button" class="btn btn-outline-secondary btn-sm" id="auto-refresh-toggle" title="{{ __('Toggle auto refresh') }}">
         <i class="fas fa-sync"></i> Auto refresh: <span id="auto-refresh-label">off</span>
       </button>
       @if(Route::has('job.export-csv'))
-        <a href="{{ route('job.export-csv') }}" class="btn btn-outline-secondary btn-sm" title="Export CSV">
+        <a href="{{ route('job.export-csv') }}" class="btn btn-outline-secondary btn-sm" title="{{ __('Export CSV') }}">
           <i class="fas fa-download"></i> Export CSV
         </a>
       @endif
       @if(($stats['completed'] ?? 0) + ($stats['error'] ?? 0) > 0 && Route::has('job.clear-inactive'))
-        <a href="{{ route('job.clear-inactive') }}" class="btn btn-outline-danger btn-sm" title="Clear inactive jobs">
+        <a href="{{ route('job.clear-inactive') }}" class="btn btn-outline-danger btn-sm" title="{{ __('Clear inactive jobs') }}">
           <i class="fas fa-trash-alt"></i> Clear inactive
         </a>
       @endif
@@ -111,13 +111,13 @@
       <table class="table table-bordered table-hover mb-0">
         <thead>
           <tr>
-            <th>Job name</th>
-            <th>Status</th>
-            <th>User</th>
-            <th>Created</th>
-            <th>Completed</th>
-            <th>Related object</th>
-            <th>Actions</th>
+            <th>{{ __('Job name') }}</th>
+            <th>{{ __('Status') }}</th>
+            <th>{{ __('User') }}</th>
+            <th>{{ __('Created') }}</th>
+            <th>{{ __('Completed') }}</th>
+            <th>{{ __('Related object') }}</th>
+            <th>{{ __('Actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -147,12 +147,12 @@
               </td>
               <td>
                 <div class="btn-group btn-group-sm">
-                  <a href="{{ route('job.show', $job['id']) }}" class="btn btn-outline-primary btn-sm" title="Report">
+                  <a href="{{ route('job.show', $job['id']) }}" class="btn btn-outline-primary btn-sm" title="{{ __('Report') }}">
                     <i class="fas fa-file-alt"></i>
                   </a>
                   @if($job['status_id'] != 183)
                     @if(Route::has('job.destroy'))
-                      <a href="{{ route('job.destroy', $job['id']) }}" class="btn btn-outline-danger btn-sm" title="Delete">
+                      <a href="{{ route('job.destroy', $job['id']) }}" class="btn btn-outline-danger btn-sm" title="{{ __('Delete') }}">
                         <i class="fas fa-trash-alt"></i>
                       </a>
                     @endif

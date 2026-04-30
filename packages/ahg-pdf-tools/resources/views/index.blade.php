@@ -6,7 +6,7 @@
 
 <div class="card mb-4">
   <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-    <h5 class="mb-0">PDF Tools</h5>
+    <h5 class="mb-0">{{ __('PDF Tools') }}</h5>
   </div>
   <div class="card-body">
 
@@ -15,7 +15,7 @@
     @endif
 
     {{-- Tool Status --}}
-    <h6>Tool Availability</h6>
+    <h6>{{ __('Tool Availability') }}</h6>
     <div class="row mb-4">
       <div class="col-md-4">
         <div class="card {{ $pdftotextAvailable ? 'border-success' : 'border-danger' }}">
@@ -24,7 +24,7 @@
               <i class="bi bi-{{ $pdftotextAvailable ? 'check-circle' : 'x-circle' }} me-1"></i>
               {{ $pdftotextAvailable ? 'Installed' : 'Not Installed' }}
             </span>
-            <h6 class="card-title">pdftotext</h6>
+            <h6 class="card-title">{{ __('pdftotext') }}</h6>
             <p class="card-text small text-muted">PDF text extraction</p>
             @if($pdftotextVersion)
               <code class="small">{{ $pdftotextVersion }}</code>
@@ -41,7 +41,7 @@
               <i class="bi bi-{{ $imageMagickAvailable ? 'check-circle' : 'x-circle' }} me-1"></i>
               {{ $imageMagickAvailable ? 'Installed' : 'Not Installed' }}
             </span>
-            <h6 class="card-title">ImageMagick</h6>
+            <h6 class="card-title">{{ __('ImageMagick') }}</h6>
             <p class="card-text small text-muted">Image/TIFF to PDF conversion</p>
             @if($imageMagickVersion)
               <code class="small">{{ $imageMagickVersion }}</code>
@@ -58,7 +58,7 @@
               <i class="bi bi-{{ $ghostscriptAvailable ? 'check-circle' : 'x-circle' }} me-1"></i>
               {{ $ghostscriptAvailable ? 'Installed' : 'Not Installed' }}
             </span>
-            <h6 class="card-title">Ghostscript</h6>
+            <h6 class="card-title">{{ __('Ghostscript') }}</h6>
             <p class="card-text small text-muted">PDF/A generation</p>
             @if($ghostscriptVersion)
               <code class="small">{{ $ghostscriptVersion }}</code>
@@ -73,7 +73,7 @@
     <hr>
 
     {{-- Statistics --}}
-    <h6>PDF Text Extraction Statistics</h6>
+    <h6>{{ __('PDF Text Extraction Statistics') }}</h6>
     <div class="row mb-4">
       <div class="col-md-4">
         <div class="card bg-light">
@@ -104,7 +104,7 @@
     <hr>
 
     {{-- Quick Actions --}}
-    <h6>Quick Actions</h6>
+    <h6>{{ __('Quick Actions') }}</h6>
     <div class="d-flex gap-3 flex-wrap">
       @if($imageMagickAvailable)
         <a href="{{ route('pdf-tools.merge') }}" class="btn atom-btn-white">
@@ -130,7 +130,7 @@
 
     {{-- Supported Formats --}}
     <div class="mt-4">
-      <h6>Supported Input Formats for Merge</h6>
+      <h6>{{ __('Supported Input Formats for Merge') }}</h6>
       <div class="d-flex gap-2 flex-wrap">
         @foreach($supportedFormats as $fmt)
           <span class="badge bg-secondary">.{{ $fmt }}</span>
@@ -150,7 +150,7 @@
       <form action="{{ route('pdf-tools.extractText') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="modal-header">
-          <h5 class="modal-title">Extract Text from PDF</h5>
+          <h5 class="modal-title">{{ __('Extract Text from PDF') }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -162,12 +162,12 @@
           <div class="text-muted small">OR</div>
           <div class="mb-3 mt-2">
             <label class="form-label">Digital Object ID <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="number" class="form-control" name="digital_object_id" placeholder="Enter digital object ID">
+            <input type="number" class="form-control" name="digital_object_id" placeholder="{{ __('Enter digital object ID') }}">
             <div class="form-text">Extract text from an existing PDF in the repository</div>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="submit" class="btn atom-btn-outline-success">
             <i class="bi bi-file-earmark-text me-1"></i>Extract Text
           </button>

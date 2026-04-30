@@ -5,7 +5,7 @@
 @section('content')
 <div class="container py-4">
 
-  <nav aria-label="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Admin</a></li>
       <li class="breadcrumb-item"><a href="{{ route('acl.groups') }}">ACL</a></li>
@@ -29,18 +29,18 @@
         <table class="table table-bordered table-striped table-hover mb-0">
           <thead>
             <tr>
-              <th>Color</th>
-              <th>Code</th>
-              <th>Name</th>
-              <th class="text-center">Level</th>
-              <th>Description</th>
-              <th class="text-center">2FA</th>
-              <th class="text-center">Approval</th>
-              <th class="text-center">Justification</th>
-              <th class="text-center">Watermark</th>
-              <th class="text-center">Download</th>
-              <th class="text-center">Print</th>
-              <th class="text-center">Copy</th>
+              <th>{{ __('Color') }}</th>
+              <th>{{ __('Code') }}</th>
+              <th>{{ __('Name') }}</th>
+              <th class="text-center">{{ __('Level') }}</th>
+              <th>{{ __('Description') }}</th>
+              <th class="text-center">{{ __('2FA') }}</th>
+              <th class="text-center">{{ __('Approval') }}</th>
+              <th class="text-center">{{ __('Justification') }}</th>
+              <th class="text-center">{{ __('Watermark') }}</th>
+              <th class="text-center">{{ __('Download') }}</th>
+              <th class="text-center">{{ __('Print') }}</th>
+              <th class="text-center">{{ __('Copy') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -55,51 +55,51 @@
                 <td>{{ \Illuminate\Support\Str::limit($cls->description ?? '', 60) }}</td>
                 <td class="text-center">
                   @if($cls->requires_2fa)
-                    <i class="fas fa-check-circle text-success" title="Required"></i>
+                    <i class="fas fa-check-circle text-success" title="{{ __('Required') }}"></i>
                   @else
-                    <i class="fas fa-times-circle text-muted" title="Not required"></i>
+                    <i class="fas fa-times-circle text-muted" title="{{ __('Not required') }}"></i>
                   @endif
                 </td>
                 <td class="text-center">
                   @if($cls->requires_approval)
-                    <i class="fas fa-check-circle text-success" title="Required"></i>
+                    <i class="fas fa-check-circle text-success" title="{{ __('Required') }}"></i>
                   @else
-                    <i class="fas fa-times-circle text-muted" title="Not required"></i>
+                    <i class="fas fa-times-circle text-muted" title="{{ __('Not required') }}"></i>
                   @endif
                 </td>
                 <td class="text-center">
                   @if($cls->requires_justification)
-                    <i class="fas fa-check-circle text-success" title="Required"></i>
+                    <i class="fas fa-check-circle text-success" title="{{ __('Required') }}"></i>
                   @else
-                    <i class="fas fa-times-circle text-muted" title="Not required"></i>
+                    <i class="fas fa-times-circle text-muted" title="{{ __('Not required') }}"></i>
                   @endif
                 </td>
                 <td class="text-center">
                   @if($cls->watermark_required)
-                    <i class="fas fa-check-circle text-warning" title="Required"></i>
+                    <i class="fas fa-check-circle text-warning" title="{{ __('Required') }}"></i>
                   @else
-                    <i class="fas fa-times-circle text-muted" title="Not required"></i>
+                    <i class="fas fa-times-circle text-muted" title="{{ __('Not required') }}"></i>
                   @endif
                 </td>
                 <td class="text-center">
                   @if($cls->download_allowed)
-                    <i class="fas fa-check-circle text-success" title="Allowed"></i>
+                    <i class="fas fa-check-circle text-success" title="{{ __('Allowed') }}"></i>
                   @else
-                    <i class="fas fa-ban text-danger" title="Blocked"></i>
+                    <i class="fas fa-ban text-danger" title="{{ __('Blocked') }}"></i>
                   @endif
                 </td>
                 <td class="text-center">
                   @if($cls->print_allowed)
-                    <i class="fas fa-check-circle text-success" title="Allowed"></i>
+                    <i class="fas fa-check-circle text-success" title="{{ __('Allowed') }}"></i>
                   @else
-                    <i class="fas fa-ban text-danger" title="Blocked"></i>
+                    <i class="fas fa-ban text-danger" title="{{ __('Blocked') }}"></i>
                   @endif
                 </td>
                 <td class="text-center">
                   @if($cls->copy_allowed)
-                    <i class="fas fa-check-circle text-success" title="Allowed"></i>
+                    <i class="fas fa-check-circle text-success" title="{{ __('Allowed') }}"></i>
                   @else
-                    <i class="fas fa-ban text-danger" title="Blocked"></i>
+                    <i class="fas fa-ban text-danger" title="{{ __('Blocked') }}"></i>
                   @endif
                 </td>
               </tr>

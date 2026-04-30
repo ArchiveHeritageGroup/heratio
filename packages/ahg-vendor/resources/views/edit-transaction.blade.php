@@ -24,7 +24,7 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">Vendor Management</a></li>
             <li class="breadcrumb-item"><a href="{{ route('ahgvendor.transactions') }}">Transactions</a></li>
@@ -63,9 +63,9 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Vendor *</label>
+                                <label class="form-label">{{ __('Vendor *') }}</label>
                                 <select name="vendor_id" class="form-select" required>
-                                    <option value="">Select Vendor...</option>
+                                    <option value="">{{ __('Select Vendor...') }}</option>
                                     @foreach (($vendors ?? []) as $v)
                                     <option value="{{ $v->id }}" {{ ($transaction->vendor_id ?? '') == $v->id ? 'selected' : '' }}>
                                         {{ e($v->name) }}
@@ -74,9 +74,9 @@
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Service Type *</label>
+                                <label class="form-label">{{ __('Service Type *') }}</label>
                                 <select name="service_type_id" class="form-select" required>
-                                    <option value="">Select Service...</option>
+                                    <option value="">{{ __('Select Service...') }}</option>
                                     @foreach (($serviceTypes ?? []) as $st)
                                     <option value="{{ $st->id }}" {{ ($transaction->service_type_id ?? '') == $st->id ? 'selected' : '' }}>
                                         {{ e($st->name) }}
@@ -88,12 +88,12 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Transaction Number</label>
+                                <label class="form-label">{{ __('Transaction Number') }}</label>
                                 <input type="text" name="transaction_number" class="form-control"
                                        value="{{ e($transaction->transaction_number ?? '') }}" readonly>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Reference Number</label>
+                                <label class="form-label">{{ __('Reference Number') }}</label>
                                 <input type="text" name="reference_number" class="form-control"
                                        value="{{ e($transaction->reference_number ?? '') }}">
                             </div>
@@ -101,7 +101,7 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Status</label>
+                                <label class="form-label">{{ __('Status') }}</label>
                                 <select name="status" class="form-select">
                                     @foreach (($statusOptions ?? []) as $code => $label)
                                     <option value="{{ $code }}" {{ ($transaction->status ?? '') === $code ? 'selected' : '' }}>{{ $label }}</option>
@@ -109,7 +109,7 @@
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Priority</label>
+                                <label class="form-label">{{ __('Priority') }}</label>
                                 <select name="priority" class="form-select">
                                     <option value="low" {{ ($transaction->priority ?? '') === 'low' ? 'selected' : '' }}>Low</option>
                                     <option value="normal" {{ ($transaction->priority ?? 'normal') === 'normal' ? 'selected' : '' }}>Normal</option>
@@ -120,7 +120,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
+                            <label class="form-label">{{ __('Description') }}</label>
                             <textarea name="description" class="form-control" rows="3">{{ e($transaction->description ?? '') }}</textarea>
                         </div>
                     </div>
@@ -134,17 +134,17 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Request Date *</label>
+                                <label class="form-label">{{ __('Request Date *') }}</label>
                                 <input type="date" name="request_date" class="form-control"
                                        value="{{ $transaction->request_date ?? date('Y-m-d') }}" required>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Due Date</label>
+                                <label class="form-label">{{ __('Due Date') }}</label>
                                 <input type="date" name="due_date" class="form-control"
                                        value="{{ $transaction->due_date ?? '' }}">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Completion Date</label>
+                                <label class="form-label">{{ __('Completion Date') }}</label>
                                 <input type="date" name="completion_date" class="form-control"
                                        value="{{ $transaction->completion_date ?? '' }}">
                             </div>
@@ -160,7 +160,7 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Estimated Cost</label>
+                                <label class="form-label">{{ __('Estimated Cost') }}</label>
                                 <div class="input-group">
                                     <span class="input-group-text">R</span>
                                     <input type="number" name="estimated_cost" class="form-control" step="0.01"
@@ -168,7 +168,7 @@
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Actual Cost</label>
+                                <label class="form-label">{{ __('Actual Cost') }}</label>
                                 <div class="input-group">
                                     <span class="input-group-text">R</span>
                                     <input type="number" name="actual_cost" class="form-control" step="0.01"
@@ -198,17 +198,17 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label class="form-label">Invoice Number</label>
+                            <label class="form-label">{{ __('Invoice Number') }}</label>
                             <input type="text" name="invoice_number" class="form-control"
                                    value="{{ e($transaction->invoice_number ?? '') }}">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Invoice Date</label>
+                            <label class="form-label">{{ __('Invoice Date') }}</label>
                             <input type="date" name="invoice_date" class="form-control"
                                    value="{{ $transaction->invoice_date ?? '' }}">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Payment Status</label>
+                            <label class="form-label">{{ __('Payment Status') }}</label>
                             <select name="payment_status" class="form-select">
                                 @foreach (($paymentStatuses ?? []) as $code => $label)
                                 <option value="{{ $code }}" {{ ($transaction->payment_status ?? '') === $code ? 'selected' : '' }}>{{ $label }}</option>
@@ -216,7 +216,7 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Payment Date</label>
+                            <label class="form-label">{{ __('Payment Date') }}</label>
                             <input type="date" name="payment_date" class="form-control"
                                    value="{{ $transaction->payment_date ?? '' }}">
                         </div>
@@ -230,12 +230,12 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label class="form-label">Requested By</label>
+                            <label class="form-label">{{ __('Requested By') }}</label>
                             <input type="text" name="requested_by" class="form-control"
                                    value="{{ e($transaction->requested_by ?? '') }}">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Assigned To</label>
+                            <label class="form-label">{{ __('Assigned To') }}</label>
                             <input type="text" name="assigned_to" class="form-control"
                                    value="{{ e($transaction->assigned_to ?? '') }}">
                         </div>

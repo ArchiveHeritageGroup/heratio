@@ -18,13 +18,13 @@
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">RiC Role</th><td>Loan event / temporary custody transfer</td></tr>
-        @if(! empty($loan->loan_type))<tr><th class="text-muted">Loan type</th><td>{{ $loan->loan_type }}</td></tr>@endif
-        @if(! empty($loan->start_date))<tr><th class="text-muted">rico:beginningDate</th><td>{{ $loan->start_date }}</td></tr>@endif
-        @if(! empty($loan->end_date))<tr><th class="text-muted">rico:endDate</th><td>{{ $loan->end_date }}</td></tr>@endif
-        @if(! empty($loan->borrower))<tr><th class="text-muted">Borrower</th><td>{{ $loan->borrower }}</td></tr>@endif
-        @if(! empty($loan->lender))<tr><th class="text-muted">Lender</th><td>{{ $loan->lender }}</td></tr>@endif
-        @if(! empty($loan->status))<tr><th class="text-muted">Status</th><td>{{ $loan->status }}</td></tr>@endif
+        <tr><th class="text-muted" style="width:35%">{{ __('RiC Role') }}</th><td>Loan event / temporary custody transfer</td></tr>
+        @if(! empty($loan->loan_type))<tr><th class="text-muted">{{ __('Loan type') }}</th><td>{{ $loan->loan_type }}</td></tr>@endif
+        @if(! empty($loan->start_date))<tr><th class="text-muted">{{ __('rico:beginningDate') }}</th><td>{{ $loan->start_date }}</td></tr>@endif
+        @if(! empty($loan->end_date))<tr><th class="text-muted">{{ __('rico:endDate') }}</th><td>{{ $loan->end_date }}</td></tr>@endif
+        @if(! empty($loan->borrower))<tr><th class="text-muted">{{ __('Borrower') }}</th><td>{{ $loan->borrower }}</td></tr>@endif
+        @if(! empty($loan->lender))<tr><th class="text-muted">{{ __('Lender') }}</th><td>{{ $loan->lender }}</td></tr>@endif
+        @if(! empty($loan->status))<tr><th class="text-muted">{{ __('Status') }}</th><td>{{ $loan->status }}</td></tr>@endif
       </table>
     </div>
   </div>

@@ -53,36 +53,36 @@
 
                     {{-- Label Size --}}
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">Label Size</label>
+                        <label class="form-label fw-semibold">{{ __('Label Size') }}</label>
                         <select class="form-select" id="labelSize" onchange="updateLabelSize()">
-                            <option value="200">Small (50mm)</option>
-                            <option value="300" selected>Medium (75mm)</option>
-                            <option value="400">Large (100mm)</option>
+                            <option value="200">{{ __('Small (50mm)') }}</option>
+                            <option value="300" selected>{{ __('Medium (75mm)') }}</option>
+                            <option value="400">{{ __('Large (100mm)') }}</option>
                         </select>
                     </div>
 
                     {{-- Show Options --}}
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Show</label>
+                        <label class="form-label">{{ __('Show') }}</label>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="showBarcode" checked onchange="toggleBarcode()">
-                            <label class="form-check-label" for="showBarcode">Linear Barcode</label>
+                            <label class="form-check-label" for="showBarcode">{{ __('Linear Barcode') }}</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="showQR" checked onchange="toggleQR()">
-                            <label class="form-check-label" for="showQR">QR Code</label>
+                            <label class="form-check-label" for="showQR">{{ __('QR Code') }}</label>
                         </div>
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Include</label>
+                        <label class="form-label">{{ __('Include') }}</label>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="showTitle" checked onchange="toggleTitle()">
-                            <label class="form-check-label" for="showTitle">Title</label>
+                            <label class="form-check-label" for="showTitle">{{ __('Title') }}</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="showRepo" checked onchange="toggleRepo()">
-                            <label class="form-check-label" for="showRepo">Repository</label>
+                            <label class="form-check-label" for="showRepo">{{ __('Repository') }}</label>
                         </div>
                     </div>
                 </div>
@@ -123,7 +123,7 @@
                         @if (!empty($defaultBarcodeData))
                             <img id="barcodeImg" class="barcode-img"
                                  src="https://barcodeapi.org/api/128/{{ rawurlencode($defaultBarcodeData) }}"
-                                 alt="Barcode">
+                                 alt="{{ __('Barcode') }}">
                             <div class="small mt-1" id="barcodeText">{{ e($defaultBarcodeData) }}</div>
                         @else
                             <div class="text-muted small" id="barcodeText">No barcode data available</div>
@@ -133,7 +133,7 @@
                     <div id="qrSection">
                         <img id="qrImg" class="qr-img"
                              src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ rawurlencode($qrUrl) }}"
-                             alt="QR Code">
+                             alt="{{ __('QR Code') }}">
                     </div>
                 </div>
             </div>

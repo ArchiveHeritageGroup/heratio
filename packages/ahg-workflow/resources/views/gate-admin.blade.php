@@ -23,14 +23,14 @@
           <table class="table table-bordered table-hover mb-0">
             <thead>
               <tr>
-                <th>Order</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Entity</th>
-                <th>Severity</th>
-                <th>Field</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>{{ __('Order') }}</th>
+                <th>{{ __('Name') }}</th>
+                <th>{{ __('Type') }}</th>
+                <th>{{ __('Entity') }}</th>
+                <th>{{ __('Severity') }}</th>
+                <th>{{ __('Field') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>

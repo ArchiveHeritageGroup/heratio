@@ -2,7 +2,7 @@
 @section('title', 'Donut — Batch Extract')
 @section('body-class', 'admin ai-services donut')
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.donut.dashboard') }}">Donut</a></li><li class="breadcrumb-item active">Batch</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.donut.dashboard') }}">Donut</a></li><li class="breadcrumb-item active">Batch</li></ol></nav>
 <h1><i class="fas fa-layer-group me-2"></i>Batch Extract ILM Fields</h1>
 
 @if(session('error'))

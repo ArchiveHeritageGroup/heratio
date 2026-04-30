@@ -80,7 +80,7 @@
       <p>{{ e($booking->purpose ?? 'Not specified') }}</p>
       @if($booking->notes ?? false)
         <hr>
-        <h6>Notes</h6>
+        <h6>{{ __('Notes') }}</h6>
         <p>{{ e($booking->notes) }}</p>
       @endif
     </div>
@@ -96,8 +96,8 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th>Material</th>
-                <th>Status</th>
+                <th>{{ __('Material') }}</th>
+                <th>{{ __('Status') }}</th>
               </tr>
             </thead>
             <tbody>

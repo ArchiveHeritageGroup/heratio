@@ -25,7 +25,7 @@
 @endphp
 
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('ahgmarketplace.browse') }}">{{ __('Marketplace') }}</a></li>
@@ -97,7 +97,7 @@
         } catch (\Throwable $e) { /* ignore */ }
       @endphp
       @if($listingHas3d)
-        <span class="badge bg-dark ms-1 fs-6" title="3D model available">
+        <span class="badge bg-dark ms-1 fs-6" title="{{ __('3D model available') }}">
           <i class="fas fa-cube me-1"></i>3D
         </span>
       @endif
@@ -107,7 +107,7 @@
       <p class="text-muted mb-2">
         {{ __('by :name', ['name' => $listing->artist_name]) }}
         @if(!empty($listing->artist_id))
-          <span class="badge bg-info text-dark ms-1" title="Sold on behalf of this artist by the seller">
+          <span class="badge bg-info text-dark ms-1" title="{{ __('Sold on behalf of this artist by the seller') }}">
             <i class="fas fa-handshake me-1"></i>via broker
           </span>
         @endif
@@ -235,7 +235,7 @@
               <form method="POST" action="{{ route('ahgmarketplace.reserve', ['listingId' => $listing->id]) }}" class="mb-2">
                 @csrf
                 <button type="submit" class="btn btn-outline-warning w-100"
-                        title="Hold this listing for 12 hours (max 2 per 24 hours).">
+                        title="{{ __('Hold this listing for 12 hours (max 2 per 24 hours).') }}">
                   <i class="fas fa-clock me-1"></i> {{ __('Reserve for 12 hours') }}
                 </button>
               </form>

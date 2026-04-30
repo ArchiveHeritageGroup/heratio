@@ -6,7 +6,7 @@
 <div class="row">
   <div class="col-md-3">@include('ahg-preservation::_menu')</div>
   <div class="col-md-9">
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('preservation.index') }}">Preservation</a></li>
         <li class="breadcrumb-item"><a href="{{ route('preservation.tiffpdfmerge.browse') }}">Merge Jobs</a></li>
@@ -20,16 +20,16 @@
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">Job Details</div>
       <div class="card-body">
         <table class="table table-sm">
-          <tr><th width="150">Status</th><td>
+          <tr><th width="150">{{ __('Status') }}</th><td>
             @if(($job->status ?? '') === 'completed') <span class="badge bg-success">Completed</span>
             @elseif(($job->status ?? '') === 'failed') <span class="badge bg-danger">Failed</span>
             @else <span class="badge bg-info">{{ ucfirst($job->status ?? 'pending') }}</span> @endif
           </td></tr>
-          <tr><th>Output Format</th><td>{{ strtoupper($job->output_format ?? '-') }}</td></tr>
-          <tr><th>Output File</th><td>{{ $job->output_filename ?? '-' }}</td></tr>
-          <tr><th>Files Merged</th><td>{{ $job->file_count ?? 0 }}</td></tr>
-          <tr><th>Created</th><td>{{ $job->created_at ?? '' }}</td></tr>
-          <tr><th>Completed</th><td>{{ $job->completed_at ?? '-' }}</td></tr>
+          <tr><th>{{ __('Output Format') }}</th><td>{{ strtoupper($job->output_format ?? '-') }}</td></tr>
+          <tr><th>{{ __('Output File') }}</th><td>{{ $job->output_filename ?? '-' }}</td></tr>
+          <tr><th>{{ __('Files Merged') }}</th><td>{{ $job->file_count ?? 0 }}</td></tr>
+          <tr><th>{{ __('Created') }}</th><td>{{ $job->created_at ?? '' }}</td></tr>
+          <tr><th>{{ __('Completed') }}</th><td>{{ $job->completed_at ?? '-' }}</td></tr>
         </table>
 
         @if(($job->status ?? '') === 'completed' && ($job->output_path ?? null))
@@ -44,7 +44,7 @@
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
-            <thead><tr><th>#</th><th>Filename</th><th>Size</th><th>Type</th></tr></thead>
+            <thead><tr><th>#</th><th>{{ __('Filename') }}</th><th>{{ __('Size') }}</th><th>{{ __('Type') }}</th></tr></thead>
             <tbody>
               @forelse($sourceFiles ?? [] as $file)
               <tr>

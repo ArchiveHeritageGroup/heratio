@@ -27,7 +27,7 @@
     @endif
 
     @else
-    <nav aria-label="breadcrumb" class="mb-4"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('heritage.landing') }}">Heritage</a></li><li class="breadcrumb-item"><a href="{{ route('heritage.timeline') }}">Timeline</a></li><li class="breadcrumb-item active">{{ $currentPeriod->name ?? '' }}</li></ol></nav>
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-4"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('heritage.landing') }}">Heritage</a></li><li class="breadcrumb-item"><a href="{{ route('heritage.timeline') }}">Timeline</a></li><li class="breadcrumb-item active">{{ $currentPeriod->name ?? '' }}</li></ol></nav>
 
     <div class="row mb-4"><div class="col-12">
       <h1 class="display-5 fw-bold mb-2">{{ $currentPeriod->name ?? '' }}</h1>

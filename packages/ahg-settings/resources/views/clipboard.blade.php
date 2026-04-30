@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Clipboard settings</h1>
+  <h1>{{ __('Clipboard settings') }}</h1>
 @endsection
 
 @section('content')
@@ -20,7 +20,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="saving-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#saving-collapse" aria-expanded="false" aria-controls="saving-collapse">
-              Clipboard saving
+              {{ __('Clipboard saving') }}
             </button>
           </h2>
           <div id="saving-collapse" class="accordion-collapse collapse" aria-labelledby="saving-heading">
@@ -38,7 +38,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="sending-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sending-collapse" aria-expanded="false" aria-controls="sending-collapse">
-              Clipboard sending
+              {{ __('Clipboard sending') }}
             </button>
           </h2>
           <div id="sending-collapse" class="accordion-collapse collapse" aria-labelledby="sending-heading">
@@ -93,7 +93,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="export-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#export-collapse" aria-expanded="false" aria-controls="export-collapse">
-              Clipboard export
+              {{ __('Clipboard export') }}
             </button>
           </h2>
           <div id="export-collapse" class="accordion-collapse collapse" aria-labelledby="export-heading">

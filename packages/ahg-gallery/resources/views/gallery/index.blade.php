@@ -1,7 +1,7 @@
 @extends('theme::layouts.1col')
 @section('title', 'Gallery')
 @section('body-class', 'gallery index')
-@section('title-block')<h1 class="mb-0">Gallery</h1>@endsection
+@section('title-block')<h1 class="mb-0">{{ __('Gallery') }}</h1>@endsection
 @section('content')
 <div class="row">
   <div class="col-md-4 mb-3"><a href="{{ route('gallery.browse') }}" class="btn atom-btn-white w-100"><i class="fas fa-images me-1"></i>Browse Artworks</a></div>

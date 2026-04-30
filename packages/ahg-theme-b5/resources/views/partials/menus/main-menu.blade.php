@@ -84,13 +84,13 @@
 @if(count($addItems) > 0)
 <li class="nav-item dropdown d-flex flex-column">
   <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="add-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="fas fa-2x fa-fw fa-{{ $menuIcons['add'] }} px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Add" aria-hidden="true"></i>
+    <i class="fas fa-2x fa-fw fa-{{ $menuIcons['add'] }} px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="{{ __('Add') }}" aria-hidden="true"></i>
     <span class="d-lg-none mx-1" aria-hidden="true">Add</span>
     <span class="visually-hidden">Add</span>
   </a>
   <ul class="dropdown-menu dropdown-menu-end mb-2" aria-labelledby="add-menu">
     {{-- Sector Items --}}
-    <li><h6 class="dropdown-header">Sector items</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Sector items') }}</h6></li>
     @php
       $infoObjectItem = collect($addItems)->firstWhere('name', 'addInformationObject');
     @endphp
@@ -108,7 +108,7 @@
 
     {{-- Other entity types --}}
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">Other</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Other') }}</h6></li>
     @foreach($addItems as $item)
       @if(in_array($item->name, $adminOnly) && !$isAdmin)
         @continue
@@ -131,12 +131,12 @@
 @if(count($manageItems) > 0)
 <li class="nav-item dropdown d-flex flex-column">
   <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="manage-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="fas fa-2x fa-fw fa-{{ $menuIcons['manage'] }} px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Manage" aria-hidden="true"></i>
+    <i class="fas fa-2x fa-fw fa-{{ $menuIcons['manage'] }} px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="{{ __('Manage') }}" aria-hidden="true"></i>
     <span class="d-lg-none mx-1" aria-hidden="true">Manage</span>
     <span class="visually-hidden">Manage</span>
   </a>
   <ul class="dropdown-menu dropdown-menu-end mb-2" aria-labelledby="manage-menu">
-    <li><h6 class="dropdown-header">Manage</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Manage') }}</h6></li>
     @foreach($manageItems as $item)
       @if(in_array($item->name, $adminOnly) && !$isAdmin)
         @continue
@@ -164,12 +164,12 @@
 @if(count($importItems) > 0)
 <li class="nav-item dropdown d-flex flex-column">
   <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="import-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="fas fa-2x fa-fw fa-{{ $menuIcons['import'] }} px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Import" aria-hidden="true"></i>
+    <i class="fas fa-2x fa-fw fa-{{ $menuIcons['import'] }} px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="{{ __('Import') }}" aria-hidden="true"></i>
     <span class="d-lg-none mx-1" aria-hidden="true">Import</span>
     <span class="visually-hidden">Import</span>
   </a>
   <ul class="dropdown-menu dropdown-menu-end mb-2" aria-labelledby="import-menu">
-    <li><h6 class="dropdown-header">Import</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Import') }}</h6></li>
     @foreach($importItems as $item)
       <li>
         <a class="dropdown-item" href="{{ MenuService::resolvePath($item->path) }}">
@@ -187,12 +187,12 @@
 @if(count($adminItems) > 0)
 <li class="nav-item dropdown d-flex flex-column">
   <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="admin-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="fas fa-2x fa-fw fa-{{ $menuIcons['admin'] }} px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Admin" aria-hidden="true"></i>
+    <i class="fas fa-2x fa-fw fa-{{ $menuIcons['admin'] }} px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="{{ __('Admin') }}" aria-hidden="true"></i>
     <span class="d-lg-none mx-1" aria-hidden="true">Admin</span>
     <span class="visually-hidden">Admin</span>
   </a>
   <ul class="dropdown-menu dropdown-menu-end mb-2" aria-labelledby="admin-menu">
-    <li><h6 class="dropdown-header">Admin</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Admin') }}</h6></li>
     @foreach($adminItems as $item)
       <li>
         <a class="dropdown-item" href="{{ MenuService::resolvePath($item->path) }}">

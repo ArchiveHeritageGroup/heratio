@@ -79,7 +79,7 @@
       <p>{{ e($researcher->research_interests ?? 'Not specified') }}</p>
       @if($researcher->current_project ?? false)
         <hr>
-        <h6>Current Project</h6>
+        <h6>{{ __('Current Project') }}</h6>
         <p>{{ e($researcher->current_project) }}</p>
       @endif
     </div>
@@ -94,11 +94,11 @@
           <table class="table table-bordered table-sm table-hover">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Room</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>{{ __('Date') }}</th>
+                <th>{{ __('Time') }}</th>
+                <th>{{ __('Room') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -185,7 +185,7 @@
         <form action="{{ route('research.researchers.reject', $researcher->id) }}" method="POST">
           @csrf
           <div class="modal-header">
-            <h5 class="modal-title">Reject Researcher</h5>
+            <h5 class="modal-title">{{ __('Reject Researcher') }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
@@ -195,7 +195,7 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
             <button type="submit" class="btn atom-btn-outline-danger">
               <i class="fas fa-times me-1"></i>Reject
             </button>

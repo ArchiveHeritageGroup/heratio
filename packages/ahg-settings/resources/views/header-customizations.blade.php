@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Header customizations</h1>
+  <h1>{{ __('Header customizations') }}</h1>
 @endsection
 
 @section('content')
@@ -20,7 +20,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="logo-heading">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#logo-collapse" aria-expanded="true" aria-controls="logo-collapse">
-              Upload logo
+              {{ __('Upload logo') }}
             </button>
           </h2>
           <div id="logo-collapse" class="accordion-collapse collapse show" aria-labelledby="logo-heading">
@@ -47,7 +47,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="favicon-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#favicon-collapse" aria-expanded="false" aria-controls="favicon-collapse">
-              Upload favicon
+              {{ __('Upload favicon') }}
             </button>
           </h2>
           <div id="favicon-collapse" class="accordion-collapse collapse" aria-labelledby="favicon-heading">
@@ -74,7 +74,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="background-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#background-collapse" aria-expanded="false" aria-controls="background-collapse">
-              Change header background colour
+              {{ __('Change header background colour') }}
             </button>
           </h2>
           <div id="background-collapse" class="accordion-collapse collapse" aria-labelledby="background-heading">

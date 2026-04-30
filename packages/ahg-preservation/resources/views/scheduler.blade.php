@@ -88,19 +88,19 @@
                             <table class="table table-bordered table-sm table-striped mb-0">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Name</th>
-                                        <th>Workflow Type</th>
-                                        <th>Schedule</th>
-                                        <th>Batch</th>
-                                        <th>Timeout</th>
-                                        <th>Enabled</th>
-                                        <th>Last Run</th>
-                                        <th>Last Status</th>
-                                        <th>Next Run</th>
-                                        <th>Total Runs</th>
-                                        <th>Total Processed</th>
-                                        <th class="text-end">Actions</th>
+                                        <th>{{ __('ID') }}</th>
+                                        <th>{{ __('Name') }}</th>
+                                        <th>{{ __('Workflow Type') }}</th>
+                                        <th>{{ __('Schedule') }}</th>
+                                        <th>{{ __('Batch') }}</th>
+                                        <th>{{ __('Timeout') }}</th>
+                                        <th>{{ __('Enabled') }}</th>
+                                        <th>{{ __('Last Run') }}</th>
+                                        <th>{{ __('Last Status') }}</th>
+                                        <th>{{ __('Next Run') }}</th>
+                                        <th>{{ __('Total Runs') }}</th>
+                                        <th>{{ __('Total Processed') }}</th>
+                                        <th class="text-end">{{ __('Actions') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -147,7 +147,7 @@
                                         <td class="text-end">
                                             <div class="btn-group btn-group-sm">
                                                 <a href="{{ route('preservation.schedule-edit', $schedule->id) }}"
-                                                   class="btn btn-sm atom-btn-white" title="Edit">
+                                                   class="btn btn-sm atom-btn-white" title="{{ __('Edit') }}">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                             </div>
@@ -183,12 +183,12 @@
                                 <table class="table table-bordered table-sm table-striped mb-0">
                                     <thead>
                                         <tr>
-                                            <th>Schedule</th>
-                                            <th>Started</th>
-                                            <th>Duration</th>
-                                            <th>Processed</th>
-                                            <th>Status</th>
-                                            <th>Triggered By</th>
+                                            <th>{{ __('Schedule') }}</th>
+                                            <th>{{ __('Started') }}</th>
+                                            <th>{{ __('Duration') }}</th>
+                                            <th>{{ __('Processed') }}</th>
+                                            <th>{{ __('Status') }}</th>
+                                            <th>{{ __('Triggered By') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>

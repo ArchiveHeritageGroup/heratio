@@ -35,10 +35,10 @@
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">RiC Role</th><td>Published / printed work</td></tr>
-        @if(! empty($item->isbn))<tr><th class="text-muted">ISBN</th><td><code>{{ $item->isbn }}</code></td></tr>@endif
-        @if(! empty($item->publisher))<tr><th class="text-muted">Publisher</th><td>{{ $item->publisher }}</td></tr>@endif
-        @if(! empty($item->publication_date))<tr><th class="text-muted">Date of publication</th><td>{{ $item->publication_date }}</td></tr>@endif
+        <tr><th class="text-muted" style="width:35%">{{ __('RiC Role') }}</th><td>Published / printed work</td></tr>
+        @if(! empty($item->isbn))<tr><th class="text-muted">{{ __('ISBN') }}</th><td><code>{{ $item->isbn }}</code></td></tr>@endif
+        @if(! empty($item->publisher))<tr><th class="text-muted">{{ __('Publisher') }}</th><td>{{ $item->publisher }}</td></tr>@endif
+        @if(! empty($item->publication_date))<tr><th class="text-muted">{{ __('Date of publication') }}</th><td>{{ $item->publication_date }}</td></tr>@endif
       </table>
     </div>
   </div>

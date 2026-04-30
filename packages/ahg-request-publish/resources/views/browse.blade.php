@@ -7,7 +7,7 @@
   @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
       <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
@@ -16,7 +16,7 @@
     <div class="multiline-header d-flex align-items-center mb-3">
       <i class="fas fa-paper-plane fa-2x text-primary me-3" aria-hidden="true"></i>
       <div>
-        <h1 class="h3 mb-0">Request to Publish</h1>
+        <h1 class="h3 mb-0">{{ __('Request to Publish') }}</h1>
         <p class="text-muted mb-0">Manage image publication requests</p>
       </div>
     </div>
@@ -32,7 +32,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-paper-plane fa-2x text-primary me-3" aria-hidden="true"></i>
     <div>
-      <h1 class="h3 mb-0">Request to Publish</h1>
+      <h1 class="h3 mb-0">{{ __('Request to Publish') }}</h1>
     </div>
   </div>
 
@@ -74,7 +74,7 @@
     {{-- Sort controls --}}
     <div class="card-body border-bottom py-2">
       <div class="d-flex flex-wrap gap-2 justify-content-end">
-        <div class="btn-group btn-group-sm" role="group" aria-label="Sort options">
+        <div class="btn-group btn-group-sm" role="group" aria-label="{{ __('Sort options') }}">
           <span class="btn atom-btn-white disabled">Sort by:</span>
           <a href="{{ route('request-publish.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'nameUp'])) }}"
              class="btn atom-btn-white {{ $sort === 'nameUp' ? 'active' : '' }}">
@@ -102,14 +102,14 @@
           <table class="table table-bordered table-hover table-striped mb-0">
             <thead>
               <tr>
-                <th style="width: 100px;">Status</th>
-                <th>Archival Item</th>
-                <th>Requester</th>
-                <th>Institution</th>
-                <th>Planned Use</th>
-                <th>Need By</th>
-                <th>Submitted</th>
-                <th style="width: 80px;">Actions</th>
+                <th style="width: 100px;">{{ __('Status') }}</th>
+                <th>{{ __('Archival Item') }}</th>
+                <th>{{ __('Requester') }}</th>
+                <th>{{ __('Institution') }}</th>
+                <th>{{ __('Planned Use') }}</th>
+                <th>{{ __('Need By') }}</th>
+                <th>{{ __('Submitted') }}</th>
+                <th style="width: 80px;">{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -171,7 +171,7 @@
                   </td>
                   <td class="text-center">
                     <a href="{{ route('request-publish.edit', $row['id']) }}"
-                       class="btn btn-sm atom-btn-white" title="Review">
+                       class="btn btn-sm atom-btn-white" title="{{ __('Review') }}">
                       <i class="fas fa-eye"></i>
                     </a>
                   </td>
@@ -223,7 +223,7 @@
       @else
         <div class="text-center py-5">
           <i class="fas fa-paper-plane fa-3x text-muted mb-3"></i>
-          <h5 class="text-muted">No requests found</h5>
+          <h5 class="text-muted">{{ __('No requests found') }}</h5>
           <p class="text-muted mb-0">There are no publication requests matching your filter.</p>
         </div>
       @endif

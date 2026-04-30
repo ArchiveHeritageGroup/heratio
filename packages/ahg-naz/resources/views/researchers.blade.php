@@ -25,7 +25,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
                     <li class="breadcrumb-item active">Researcher Registry</li>
@@ -59,7 +59,7 @@
                 </div>
                 <div class="col-md-6">
                     <form method="get" class="d-flex">
-                        <input type="text" name="q" class="form-control me-2" placeholder="Search researchers..."
+                        <input type="text" name="q" class="form-control me-2" placeholder="{{ __('Search researchers...') }}"
                                value="{{ $search }}">
                         <button type="submit" class="btn btn-outline-primary">
                             <i class="fas fa-search"></i>
@@ -82,14 +82,14 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>Email</th>
-                            <th>Institution</th>
-                            <th>Nationality</th>
-                            <th>Registered</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>{{ __('Name') }}</th>
+                            <th>{{ __('Type') }}</th>
+                            <th>{{ __('Email') }}</th>
+                            <th>{{ __('Institution') }}</th>
+                            <th>{{ __('Nationality') }}</th>
+                            <th>{{ __('Registered') }}</th>
+                            <th>{{ __('Status') }}</th>
+                            <th>{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>

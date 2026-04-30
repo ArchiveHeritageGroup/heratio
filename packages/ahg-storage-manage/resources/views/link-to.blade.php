@@ -27,12 +27,12 @@
         <table class="table table-hover mb-0">
           <thead>
             <tr>
-              <th>Container</th>
-              <th>Location</th>
-              <th>Barcode</th>
-              <th>Capacity</th>
-              <th>Status</th>
-              <th class="text-end">Actions</th>
+              <th>{{ __('Container') }}</th>
+              <th>{{ __('Location') }}</th>
+              <th>{{ __('Barcode') }}</th>
+              <th>{{ __('Capacity') }}</th>
+              <th>{{ __('Status') }}</th>
+              <th class="text-end">{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -99,11 +99,11 @@
                 <td class="text-end">
                   <div class="btn-group btn-group-sm">
                     @if($po->po_slug)
-                      <a href="{{ route('physicalobject.edit', $po->po_slug) }}" class="btn btn-outline-primary" title="Edit container"><i class="fas fa-edit"></i></a>
+                      <a href="{{ route('physicalobject.edit', $po->po_slug) }}" class="btn btn-outline-primary" title="{{ __('Edit container') }}"><i class="fas fa-edit"></i></a>
                     @endif
                     <form method="POST" action="{{ route('physicalobject.unlink', $po->relation_id) }}" class="d-inline" onsubmit="return confirm('Unlink this container?')">
                       @csrf
-                      <button type="submit" class="btn btn-outline-danger" title="Unlink"><i class="fas fa-unlink"></i></button>
+                      <button type="submit" class="btn btn-outline-danger" title="{{ __('Unlink') }}"><i class="fas fa-unlink"></i></button>
                     </form>
                   </div>
                 </td>
@@ -137,8 +137,8 @@
             <input type="hidden" name="action" value="link_existing">
             <div class="row g-2 align-items-end">
               <div class="col-md-8">
-                <label class="form-label">Container</label>
-                <input type="text" id="container-search" class="form-control" placeholder="Type to search containers..." autocomplete="off">
+                <label class="form-label">{{ __('Container') }}</label>
+                <input type="text" id="container-search" class="form-control" placeholder="{{ __('Type to search containers...') }}" autocomplete="off">
                 <input type="hidden" name="physical_object_id" id="container-id">
                 <div id="container-results" class="list-group mt-1" style="position:absolute;z-index:1000;max-height:200px;overflow-y:auto;display:none;"></div>
               </div>
@@ -167,10 +167,10 @@
             <div class="row g-3 mb-3">
               <div class="col-md-6">
                 <label class="form-label">Container name <span class="text-danger">*</span></label>
-                <input type="text" name="name" class="form-control" required placeholder="e.g. Box 12, Shelf A3">
+                <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g. Box 12, Shelf A3') }}">
               </div>
               <div class="col-md-3">
-                <label class="form-label">Type</label>
+                <label class="form-label">{{ __('Type') }}</label>
                 <select name="type_id" class="form-select">
                   <option value="">-- Select --</option>
                   @foreach($containerTypes as $ct)
@@ -179,59 +179,59 @@
                 </select>
               </div>
               <div class="col-md-3">
-                <label class="form-label">Barcode</label>
-                <input type="text" name="barcode" class="form-control" placeholder="Scan or enter">
+                <label class="form-label">{{ __('Barcode') }}</label>
+                <input type="text" name="barcode" class="form-control" placeholder="{{ __('Scan or enter') }}">
               </div>
             </div>
 
             <h6 class="text-muted mb-2"><i class="fas fa-map-marker-alt me-1"></i>Location</h6>
             <div class="row g-3 mb-3">
               <div class="col-md-3">
-                <label class="form-label">Building</label>
+                <label class="form-label">{{ __('Building') }}</label>
                 <input type="text" name="building" class="form-control">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Floor</label>
+                <label class="form-label">{{ __('Floor') }}</label>
                 <input type="text" name="floor" class="form-control">
               </div>
               <div class="col-md-3">
-                <label class="form-label">Room</label>
+                <label class="form-label">{{ __('Room') }}</label>
                 <input type="text" name="room" class="form-control">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Aisle</label>
+                <label class="form-label">{{ __('Aisle') }}</label>
                 <input type="text" name="aisle" class="form-control">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Bay</label>
+                <label class="form-label">{{ __('Bay') }}</label>
                 <input type="text" name="bay" class="form-control">
               </div>
             </div>
             <div class="row g-3 mb-3">
               <div class="col-md-2">
-                <label class="form-label">Rack</label>
+                <label class="form-label">{{ __('Rack') }}</label>
                 <input type="text" name="rack" class="form-control">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Shelf</label>
+                <label class="form-label">{{ __('Shelf') }}</label>
                 <input type="text" name="shelf" class="form-control">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Position</label>
+                <label class="form-label">{{ __('Position') }}</label>
                 <input type="text" name="position" class="form-control">
               </div>
               <div class="col-md-3">
-                <label class="form-label">Location (text)</label>
-                <input type="text" name="location" class="form-control" placeholder="Free text location">
+                <label class="form-label">{{ __('Location (text)') }}</label>
+                <input type="text" name="location" class="form-control" placeholder="{{ __('Free text location') }}">
               </div>
               <div class="col-md-3">
-                <label class="form-label">Security level</label>
+                <label class="form-label">{{ __('Security level') }}</label>
                 <select name="security_level" class="form-select">
                   <option value="">-- None --</option>
-                  <option value="public">Public</option>
-                  <option value="restricted">Restricted</option>
-                  <option value="confidential">Confidential</option>
-                  <option value="vault">Vault</option>
+                  <option value="public">{{ __('Public') }}</option>
+                  <option value="restricted">{{ __('Restricted') }}</option>
+                  <option value="confidential">{{ __('Confidential') }}</option>
+                  <option value="vault">{{ __('Vault') }}</option>
                 </select>
               </div>
             </div>
@@ -239,16 +239,16 @@
             <h6 class="text-muted mb-2"><i class="fas fa-box me-1"></i>Capacity</h6>
             <div class="row g-3 mb-3">
               <div class="col-md-3">
-                <label class="form-label">Total capacity</label>
+                <label class="form-label">{{ __('Total capacity') }}</label>
                 <input type="number" name="total_capacity" class="form-control" min="0">
               </div>
               <div class="col-md-3">
-                <label class="form-label">Unit</label>
+                <label class="form-label">{{ __('Unit') }}</label>
                 <select name="capacity_unit" class="form-select">
-                  <option value="items">Items</option>
-                  <option value="boxes">Boxes</option>
-                  <option value="folders">Folders</option>
-                  <option value="volumes">Volumes</option>
+                  <option value="items">{{ __('Items') }}</option>
+                  <option value="boxes">{{ __('Boxes') }}</option>
+                  <option value="folders">{{ __('Folders') }}</option>
+                  <option value="volumes">{{ __('Volumes') }}</option>
                 </select>
               </div>
               <div class="col-md-3">

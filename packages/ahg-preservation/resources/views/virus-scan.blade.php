@@ -51,7 +51,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0 text-white-50">Clean</h6>
+                                <h6 class="mb-0 text-white-50">{{ __('Clean') }}</h6>
                                 <h2 class="mb-0">{{ number_format($scanStats['clean'] ?? 0) }}</h2>
                             </div>
                             <i class="fas fa-check-circle fa-2x opacity-50"></i>
@@ -64,7 +64,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0 text-white-50">Infected</h6>
+                                <h6 class="mb-0 text-white-50">{{ __('Infected') }}</h6>
                                 <h2 class="mb-0">{{ number_format($scanStats['infected'] ?? 0) }}</h2>
                             </div>
                             <i class="fas fa-virus fa-2x opacity-50"></i>
@@ -77,7 +77,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0">Errors</h6>
+                                <h6 class="mb-0">{{ __('Errors') }}</h6>
                                 <h2 class="mb-0">{{ number_format($scanStats['error'] ?? 0) }}</h2>
                             </div>
                             <i class="fas fa-exclamation-triangle fa-2x opacity-50"></i>
@@ -90,7 +90,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0 text-white-50">Not Scanned</h6>
+                                <h6 class="mb-0 text-white-50">{{ __('Not Scanned') }}</h6>
                                 <h2 class="mb-0">{{ number_format($unscannedObjects) }}</h2>
                             </div>
                             <i class="fas fa-question-circle fa-2x opacity-50"></i>
@@ -131,16 +131,16 @@ php artisan preservation:virus-scan --limit=500</code></pre>
                     <table class="table table-bordered table-sm table-striped mb-0">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>File</th>
-                                <th>Engine</th>
-                                <th>Status</th>
-                                <th>Threat</th>
-                                <th>File Size</th>
-                                <th>Scanned At</th>
-                                <th>Scanned By</th>
-                                <th>Duration</th>
-                                <th>Quarantined</th>
+                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('File') }}</th>
+                                <th>{{ __('Engine') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Threat') }}</th>
+                                <th>{{ __('File Size') }}</th>
+                                <th>{{ __('Scanned At') }}</th>
+                                <th>{{ __('Scanned By') }}</th>
+                                <th>{{ __('Duration') }}</th>
+                                <th>{{ __('Quarantined') }}</th>
                             </tr>
                         </thead>
                         <tbody>

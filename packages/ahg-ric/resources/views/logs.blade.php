@@ -23,7 +23,7 @@
     <div class="col-auto">
       <label class="form-label small mb-0">Operation <span class="badge bg-secondary ms-1">Optional</span></label>
       <select name="operation" class="form-select form-select-sm" onchange="this.form.submit()">
-        <option value="">All Operations</option>
+        <option value="">{{ __('All Operations') }}</option>
         @foreach($operations as $op)
           <option value="{{ $op }}" {{ $operation === $op ? 'selected' : '' }}>{{ $op }}</option>
         @endforeach
@@ -32,7 +32,7 @@
     <div class="col-auto">
       <label class="form-label small mb-0">Status <span class="badge bg-secondary ms-1">Optional</span></label>
       <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-        <option value="">All Statuses</option>
+        <option value="">{{ __('All Statuses') }}</option>
         @foreach($statuses as $s)
           <option value="{{ $s }}" {{ $status === $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
         @endforeach
@@ -41,7 +41,7 @@
     <div class="col-auto">
       <label class="form-label small mb-0">Entity Type <span class="badge bg-secondary ms-1">Optional</span></label>
       <select name="entity_type" class="form-select form-select-sm" onchange="this.form.submit()">
-        <option value="">All Entity Types</option>
+        <option value="">{{ __('All Entity Types') }}</option>
         @foreach($entityTypes as $et)
           <option value="{{ $et }}" {{ $entityType === $et ? 'selected' : '' }}>
             {{ ucfirst(str_replace('_', ' ', $et)) }}
@@ -69,12 +69,12 @@
       <table class="table table-bordered table-striped mb-0">
         <thead>
           <tr>
-            <th>Time</th>
-            <th>Operation</th>
-            <th>Entity</th>
-            <th>Status</th>
-            <th>Details</th>
-            <th>Triggered By</th>
+            <th>{{ __('Time') }}</th>
+            <th>{{ __('Operation') }}</th>
+            <th>{{ __('Entity') }}</th>
+            <th>{{ __('Status') }}</th>
+            <th>{{ __('Details') }}</th>
+            <th>{{ __('Triggered By') }}</th>
           </tr>
         </thead>
         <tbody>

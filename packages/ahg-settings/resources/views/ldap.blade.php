@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>LDAP authentication</h1>
+  <h1>{{ __('LDAP authentication') }}</h1>
 @endsection
 
 @section('content')
@@ -15,12 +15,12 @@
       @csrf
       <div class="accordion mb-3">
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ldap-collapse">LDAP authentication settings</button></h2>
+          <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ldap-collapse">{{ __('LDAP authentication settings') }}</button></h2>
           <div id="ldap-collapse" class="accordion-collapse collapse show">
             <div class="accordion-body">
               <div class="mb-3">
                 <label class="form-label">Host <span class="badge bg-danger ms-1">Required</span></label>
-                <input type="text" name="settings[ldapHost]" class="form-control" value="{{ $settings['ldapHost'] ?? '' }}" placeholder="ldap.example.com">
+                <input type="text" name="settings[ldapHost]" class="form-control" value="{{ $settings['ldapHost'] ?? '' }}" placeholder="{{ __('ldap.example.com') }}">
               </div>
               <div class="mb-3">
                 <label class="form-label">Port <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -28,7 +28,7 @@
               </div>
               <div class="mb-3">
                 <label class="form-label">Base DN <span class="badge bg-danger ms-1">Required</span></label>
-                <input type="text" name="settings[ldapBaseDn]" class="form-control" value="{{ $settings['ldapBaseDn'] ?? '' }}" placeholder="dc=example,dc=com">
+                <input type="text" name="settings[ldapBaseDn]" class="form-control" value="{{ $settings['ldapBaseDn'] ?? '' }}" placeholder="{{ __('dc=example,dc=com') }}">
               </div>
               <div class="mb-3">
                 <label class="form-label">Bind Lookup Attribute <span class="badge bg-secondary ms-1">Optional</span></label>

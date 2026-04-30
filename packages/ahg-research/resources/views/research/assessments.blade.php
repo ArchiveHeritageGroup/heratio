@@ -3,7 +3,7 @@
 @section('title', 'Source Assessments')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item active">Source Assessments</li>
@@ -18,13 +18,13 @@
         <table class="table table-hover mb-0">
             <thead class="table-light">
                 <tr>
-                    <th>Record</th>
-                    <th>Source Type</th>
-                    <th>Form</th>
-                    <th>Completeness</th>
-                    <th>Trust Score</th>
-                    <th>Assessed By</th>
-                    <th>Date</th>
+                    <th>{{ __('Record') }}</th>
+                    <th>{{ __('Source Type') }}</th>
+                    <th>{{ __('Form') }}</th>
+                    <th>{{ __('Completeness') }}</th>
+                    <th>{{ __('Trust Score') }}</th>
+                    <th>{{ __('Assessed By') }}</th>
+                    <th>{{ __('Date') }}</th>
                     <th></th>
                 </tr>
             </thead>
@@ -65,7 +65,7 @@
 @else
 <div class="text-center py-5">
     <i class="fas fa-clipboard-check fa-4x text-muted mb-3 opacity-50"></i>
-    <h4 class="text-muted">No assessments yet</h4>
+    <h4 class="text-muted">{{ __('No assessments yet') }}</h4>
     <p class="text-muted">Assess sources from the record detail page under Research Tools → Source Assessment.</p>
 </div>
 @endif

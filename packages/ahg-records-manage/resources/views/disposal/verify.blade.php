@@ -5,7 +5,7 @@
 @section('content')
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">DoD 5015.2 Destruction Verification</h1>
+        <h1 class="h3 mb-0">{{ __('DoD 5015.2 Destruction Verification') }}</h1>
         <a href="{{ route('records.disposal.show', $action->id) }}" class="btn btn-outline-secondary btn-sm">Back to Disposal Action</a>
     </div>
 
@@ -21,24 +21,24 @@
                     <div class="display-4 text-success mb-2">
                         <i class="fas fa-check-circle"></i>
                     </div>
-                    <h2 class="text-success">VERIFIED</h2>
+                    <h2 class="text-success">{{ __('VERIFIED') }}</h2>
                     <p class="text-muted">All DoD 5015.2 destruction verification checks passed.</p>
                 @else
                     <div class="display-4 text-danger mb-2">
                         <i class="fas fa-times-circle"></i>
                     </div>
-                    <h2 class="text-danger">FAILED</h2>
+                    <h2 class="text-danger">{{ __('FAILED') }}</h2>
                     <p class="text-muted">One or more verification checks failed. See details below.</p>
                 @endif
             </div>
 
             {{-- Checklist --}}
-            <h5 class="mb-3">Verification Checklist</h5>
+            <h5 class="mb-3">{{ __('Verification Checklist') }}</h5>
             <table class="table table-bordered">
                 <thead class="table-light">
                     <tr>
-                        <th style="width: 50px;">Result</th>
-                        <th>Check</th>
+                        <th style="width: 50px;">{{ __('Result') }}</th>
+                        <th>{{ __('Check') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -59,7 +59,7 @@
 
             {{-- Failures --}}
             @if (count($result['failures']) > 0)
-                <h5 class="mt-4 mb-2 text-danger">Failures</h5>
+                <h5 class="mt-4 mb-2 text-danger">{{ __('Failures') }}</h5>
                 <ul class="list-group">
                     @foreach ($result['failures'] as $failure)
                         <li class="list-group-item list-group-item-danger">{{ $failure }}</li>
@@ -69,31 +69,31 @@
 
             {{-- Certificate Details --}}
             @if ($action->certificate)
-                <h5 class="mt-4 mb-2">Destruction Certificate</h5>
+                <h5 class="mt-4 mb-2">{{ __('Destruction Certificate') }}</h5>
                 <table class="table table-sm table-bordered">
                     <tr>
-                        <th style="width: 200px;">Certificate Number</th>
+                        <th style="width: 200px;">{{ __('Certificate Number') }}</th>
                         <td>{{ $action->certificate->certificate_number }}</td>
                     </tr>
                     <tr>
-                        <th>Destruction Date</th>
+                        <th>{{ __('Destruction Date') }}</th>
                         <td>{{ $action->certificate->destruction_date ? \Carbon\Carbon::parse($action->certificate->destruction_date)->format('Y-m-d H:i') : '' }}</td>
                     </tr>
                     <tr>
-                        <th>Destruction Method</th>
+                        <th>{{ __('Destruction Method') }}</th>
                         <td>{{ $action->certificate->destruction_method }}</td>
                     </tr>
                     <tr>
-                        <th>Authorized By</th>
+                        <th>{{ __('Authorized By') }}</th>
                         <td>{{ $action->certificate->authorized_by }}</td>
                     </tr>
                     <tr>
-                        <th>Content Hash (SHA-256)</th>
+                        <th>{{ __('Content Hash (SHA-256)') }}</th>
                         <td><code>{{ $action->certificate->content_hash ?? 'N/A' }}</code></td>
                     </tr>
                     @if ($action->certificate->witness)
                         <tr>
-                            <th>Witness</th>
+                            <th>{{ __('Witness') }}</th>
                             <td>{{ $action->certificate->witness }}</td>
                         </tr>
                     @endif

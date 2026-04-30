@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Privacy Notification</h1>
+  <h1>{{ __('Privacy Notification') }}</h1>
 @endsection
 
 @section('content')
@@ -18,7 +18,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="privacy-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#privacy-collapse" aria-expanded="false" aria-controls="privacy-collapse">
-              Privacy Notification Settings
+              {{ __('Privacy Notification Settings') }}
             </button>
           </h2>
           <div id="privacy-collapse" class="accordion-collapse collapse" aria-labelledby="privacy-heading">

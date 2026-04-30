@@ -5,7 +5,7 @@
 </head>
 <body>
 <div class="container-fluid py-3">
-  <nav aria-label="breadcrumb"><ol class="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
     @if($objectSlug ?? null)<li class="breadcrumb-item"><a href="{{ route('informationobject.show', $objectSlug) }}">Record</a></li>@endif
     <li class="breadcrumb-item active">IIIF Viewer</li>
   </ol></nav>

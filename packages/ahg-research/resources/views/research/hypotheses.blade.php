@@ -8,7 +8,7 @@
 @section('title', 'Hypotheses')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
@@ -34,7 +34,7 @@
 {{-- Create hypothesis form (collapsed) --}}
 <div class="collapse mb-4" id="createHypothesisForm">
     <div class="card">
-        <div class="card-header"><h6 class="mb-0">Create Hypothesis</h6></div>
+        <div class="card-header"><h6 class="mb-0">{{ __('Create Hypothesis') }}</h6></div>
         <div class="card-body">
             <form method="POST">
                 @csrf
@@ -44,8 +44,8 @@
                     <textarea name="statement" class="form-control" rows="3" required></textarea>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Tags</label>
-                    <input type="text" name="tags" class="form-control" placeholder="Comma-separated tags">
+                    <label class="form-label">{{ __('Tags') }}</label>
+                    <input type="text" name="tags" class="form-control" placeholder="{{ __('Comma-separated tags') }}">
                 </div>
                 <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-check me-1"></i>Create</button>
             </form>

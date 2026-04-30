@@ -3,7 +3,7 @@
 @section('title', 'Saved Searches')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.workspace') }}">Workspace</a></li>
@@ -26,12 +26,12 @@
         <table class="table table-hover mb-0">
             <thead class="table-light">
                 <tr>
-                    <th>Name</th>
-                    <th>Citation ID</th>
-                    <th>Query</th>
-                    <th>Results</th>
-                    <th>Alerts</th>
-                    <th>Created</th>
+                    <th>{{ __('Name') }}</th>
+                    <th>{{ __('Citation ID') }}</th>
+                    <th>{{ __('Query') }}</th>
+                    <th>{{ __('Results') }}</th>
+                    <th>{{ __('Alerts') }}</th>
+                    <th>{{ __('Created') }}</th>
                     <th></th>
                 </tr>
             </thead>
@@ -66,9 +66,9 @@
                                     ? url('/glam/browse?' . $s->search_query)
                                     : url('/informationobject/browse?query=' . urlencode($s->search_query));
                             @endphp
-                            <a href="{{ $runUrl }}" class="btn btn-outline-primary" title="Run search"><i class="fas fa-search"></i></a>
-                            <button class="btn btn-outline-info diff-btn" data-id="{{ (int) $s->id }}" title="Diff results"><i class="fas fa-exchange-alt"></i></button>
-                            <button class="btn btn-outline-success snapshot-btn" data-id="{{ (int) $s->id }}" title="Snapshot current results"><i class="fas fa-camera"></i></button>
+                            <a href="{{ $runUrl }}" class="btn btn-outline-primary" title="{{ __('Run search') }}"><i class="fas fa-search"></i></a>
+                            <button class="btn btn-outline-info diff-btn" data-id="{{ (int) $s->id }}" title="{{ __('Diff results') }}"><i class="fas fa-exchange-alt"></i></button>
+                            <button class="btn btn-outline-success snapshot-btn" data-id="{{ (int) $s->id }}" title="{{ __('Snapshot current results') }}"><i class="fas fa-camera"></i></button>
                             <form method="POST" action="{{ route('research.savedSearches.destroy', $s->id) }}" class="d-inline" onsubmit="return confirm('Delete this saved search?')">
                                 @csrf
                                 @method('DELETE')
@@ -97,16 +97,16 @@
             @csrf
             <div class="row g-2 align-items-end">
                 <div class="col-md-3">
-                    <label class="form-label small">Name *</label>
+                    <label class="form-label small">{{ __('Name *') }}</label>
                     <input type="text" name="name" class="form-control form-control-sm" required>
                 </div>
                 <div class="col-md-5">
-                    <label class="form-label small">Search Query *</label>
-                    <input type="text" name="search_query" class="form-control form-control-sm" required placeholder="Enter query or paste URL params">
+                    <label class="form-label small">{{ __('Search Query *') }}</label>
+                    <input type="text" name="search_query" class="form-control form-control-sm" required placeholder="{{ __('Enter query or paste URL params') }}">
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label small">Description</label>
-                    <input type="text" name="description" class="form-control form-control-sm" placeholder="Optional">
+                    <label class="form-label small">{{ __('Description') }}</label>
+                    <input type="text" name="description" class="form-control form-control-sm" placeholder="{{ __('Optional') }}">
                 </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-sm btn-primary w-100"><i class="fas fa-save me-1"></i>Save</button>
@@ -120,7 +120,7 @@
 <div class="modal fade" id="diffModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Search Result Diff</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header"><h5 class="modal-title">{{ __('Search Result Diff') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body" id="diffBody"><div class="text-center"><i class="fas fa-spinner fa-spin"></i> Computing diff...</div></div>
         </div>
     </div>

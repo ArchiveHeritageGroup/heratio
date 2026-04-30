@@ -2,7 +2,7 @@
 @section('title', 'Donut — Batch Results')
 @section('body-class', 'admin ai-services donut')
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.donut.dashboard') }}">Donut</a></li><li class="breadcrumb-item active">Batch Results</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.donut.dashboard') }}">Donut</a></li><li class="breadcrumb-item active">Batch Results</li></ol></nav>
 <h1><i class="fas fa-check-circle me-2"></i>Batch Results ({{ $count }} images)</h1>
 
 @if($jobId)
@@ -16,14 +16,14 @@
   <table class="table table-bordered table-hover">
     <thead>
       <tr>
-        <th>File</th>
-        <th>Record Type</th>
-        <th>Type ID</th>
-        <th>Event Year</th>
-        <th>Event Place</th>
-        <th>Non-Genealogical</th>
-        <th>Confidence</th>
-        <th>Review</th>
+        <th>{{ __('File') }}</th>
+        <th>{{ __('Record Type') }}</th>
+        <th>{{ __('Type ID') }}</th>
+        <th>{{ __('Event Year') }}</th>
+        <th>{{ __('Event Place') }}</th>
+        <th>{{ __('Non-Genealogical') }}</th>
+        <th>{{ __('Confidence') }}</th>
+        <th>{{ __('Review') }}</th>
       </tr>
     </thead>
     <tbody>

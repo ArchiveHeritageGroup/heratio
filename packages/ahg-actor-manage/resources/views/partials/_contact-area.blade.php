@@ -20,7 +20,7 @@
           <div class="col-md-2 mb-3">
             <label class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="contacts[{{ $index }}][title]" class="form-select">
-              <option value="">Select...</option>
+              <option value="">{{ __('Select...') }}</option>
               @foreach($titles as $t)
                 <option value="{{ $t }}" @selected(($contact->title ?? '') === $t)>{{ $t }}</option>
               @endforeach
@@ -35,7 +35,7 @@
             <label class="form-label">Role/Position <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="contacts[{{ $index }}][role]" class="form-control"
                    value="{{ $contact->role ?? '' }}"
-                   placeholder="e.g., Director, Manager, Curator">
+                   placeholder="{{ __('e.g., Director, Manager, Curator') }}">
           </div>
         </div>
 
@@ -49,7 +49,7 @@
             <label class="form-label">Contact type <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="contacts[{{ $index }}][contact_type]" class="form-control"
                    value="{{ $contact->contact_type ?? '' }}"
-                   placeholder="e.g., Primary, Business, Home">
+                   placeholder="{{ __('e.g., Primary, Business, Home') }}">
           </div>
         </div>
 
@@ -62,7 +62,7 @@
           <div class="col-md-4 mb-3">
             <label class="form-label">Preferred contact method <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="contacts[{{ $index }}][preferred_contact_method]" class="form-select">
-              <option value="">Select...</option>
+              <option value="">{{ __('Select...') }}</option>
               <option value="email" @selected(($contact->preferred_contact_method ?? '') === 'email')>Email</option>
               <option value="phone" @selected(($contact->preferred_contact_method ?? '') === 'phone')>Phone</option>
               <option value="cell" @selected(($contact->preferred_contact_method ?? '') === 'cell')>Cell/Mobile</option>
@@ -118,7 +118,7 @@
           <div class="col-md-6 mb-3">
             <label class="form-label">Website <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="url" name="contacts[{{ $index }}][website]" class="form-control"
-                   value="{{ $contact->website ?? '' }}" placeholder="https://">
+                   value="{{ $contact->website ?? '' }}" placeholder="{{ __('https://') }}">
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label">Alternative phone <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -157,7 +157,7 @@
           <div class="col-md-4 mb-3">
             <label class="form-label">Country <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="contacts[{{ $index }}][country_code]" class="form-control"
-                   value="{{ $contact->country_code ?? '' }}" placeholder="e.g. ZA, US, GB">
+                   value="{{ $contact->country_code ?? '' }}" placeholder="{{ __('e.g. ZA, US, GB') }}">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Latitude <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -212,7 +212,7 @@
           <div class="col-md-2 mb-3">
             <label class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="contacts[__INDEX__][title]" class="form-select">
-              <option value="">Select...</option>
+              <option value="">{{ __('Select...') }}</option>
               @foreach($titles as $t)
                 <option value="{{ $t }}">{{ $t }}</option>
               @endforeach
@@ -225,7 +225,7 @@
           <div class="col-md-5 mb-3">
             <label class="form-label">Role/Position <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="contacts[__INDEX__][role]" class="form-control"
-                   placeholder="e.g., Director, Manager, Curator">
+                   placeholder="{{ __('e.g., Director, Manager, Curator') }}">
           </div>
         </div>
 
@@ -237,7 +237,7 @@
           <div class="col-md-6 mb-3">
             <label class="form-label">Contact type <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="contacts[__INDEX__][contact_type]" class="form-control"
-                   placeholder="e.g., Primary, Business, Home">
+                   placeholder="{{ __('e.g., Primary, Business, Home') }}">
           </div>
         </div>
 
@@ -249,12 +249,12 @@
           <div class="col-md-4 mb-3">
             <label class="form-label">Preferred contact method <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="contacts[__INDEX__][preferred_contact_method]" class="form-select">
-              <option value="">Select...</option>
-              <option value="email">Email</option>
-              <option value="phone">Phone</option>
-              <option value="cell">Cell/Mobile</option>
-              <option value="fax">Fax</option>
-              <option value="mail">Post/Mail</option>
+              <option value="">{{ __('Select...') }}</option>
+              <option value="email">{{ __('Email') }}</option>
+              <option value="phone">{{ __('Phone') }}</option>
+              <option value="cell">{{ __('Cell/Mobile') }}</option>
+              <option value="fax">{{ __('Fax') }}</option>
+              <option value="mail">{{ __('Post/Mail') }}</option>
             </select>
           </div>
           <div class="col-md-4 mb-3">
@@ -299,7 +299,7 @@
         <div class="row">
           <div class="col-md-6 mb-3">
             <label class="form-label">Website <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="url" name="contacts[__INDEX__][website]" class="form-control" placeholder="https://">
+            <input type="url" name="contacts[__INDEX__][website]" class="form-control" placeholder="{{ __('https://') }}">
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label">Alternative phone <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -333,7 +333,7 @@
         <div class="row">
           <div class="col-md-4 mb-3">
             <label class="form-label">Country <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="text" name="contacts[__INDEX__][country_code]" class="form-control" placeholder="e.g. ZA, US, GB">
+            <input type="text" name="contacts[__INDEX__][country_code]" class="form-control" placeholder="{{ __('e.g. ZA, US, GB') }}">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Latitude <span class="badge bg-secondary ms-1">Optional</span></label>

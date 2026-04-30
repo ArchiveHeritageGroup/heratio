@@ -90,7 +90,7 @@ function levelsGetSectorIcon(string $sector): string {
                       {{ e($level->name) }}
                       @if ($level->slug)
                         <a href="{{ route('term.show', ['slug' => $level->slug]) }}"
-                           class="text-muted ms-1" title="Edit in Taxonomy" target="_blank">
+                           class="text-muted ms-1" title="{{ __('Edit in Taxonomy') }}" target="_blank">
                           <i class="fas fa-external-link-alt fa-xs"></i>
                         </a>
                       @endif
@@ -124,9 +124,9 @@ function levelsGetSectorIcon(string $sector): string {
           <table class="table table-sm table-hover">
             <thead>
               <tr>
-                <th>Level</th>
-                <th style="width: 100px;">Order</th>
-                <th style="width: 80px;">Actions</th>
+                <th>{{ __('Level') }}</th>
+                <th style="width: 100px;">{{ __('Order') }}</th>
+                <th style="width: 80px;">{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -142,7 +142,7 @@ function levelsGetSectorIcon(string $sector): string {
                   <td>
                     @if ($level->slug)
                       <a href="{{ route('term.show', ['slug' => $level->slug]) }}"
-                         class="btn btn-sm btn-outline-secondary" title="Edit" target="_blank">
+                         class="btn btn-sm btn-outline-secondary" title="{{ __('Edit') }}" target="_blank">
                         <i class="fas fa-edit"></i>
                       </a>
                     @endif

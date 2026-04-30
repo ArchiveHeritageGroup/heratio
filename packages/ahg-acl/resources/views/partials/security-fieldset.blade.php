@@ -45,16 +45,16 @@ if (isset($resource) && ($resource->id ?? null)) {
   <h2 class="accordion-header" id="security-heading">
     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#security-collapse" aria-expanded="false" aria-controls="security-collapse">
-      Security Classification
+      {{ __('Security Classification') }}
     </button>
   </h2>
   <div id="security-collapse" class="accordion-collapse collapse" aria-labelledby="security-heading">
     <div class="accordion-body">
 
       <div class="mb-3">
-        <label for="security_classification_id" class="form-label">Security Classification</label>
+        <label for="security_classification_id" class="form-label">{{ __('Security Classification') }}</label>
         <select class="form-select" id="security_classification_id" name="security_classification_id">
-          <option value="">Public (No Classification)</option>
+          <option value="">{{ __('Public (No Classification)') }}</option>
           @foreach($classifications as $cls)
             <option value="{{ $cls->id }}"
                     data-level="{{ $cls->level }}"
@@ -68,25 +68,25 @@ if (isset($resource) && ($resource->id ?? null)) {
 
       <div id="classification-details" style="{{ $currentClassification ? '' : 'display: none;' }}">
         <div class="mb-3">
-          <label for="security_reason" class="form-label">Classification Reason</label>
+          <label for="security_reason" class="form-label">{{ __('Classification Reason') }}</label>
           <textarea class="form-control" id="security_reason" name="security_reason" rows="2">{{ $currentClassification ? e($currentClassification->reason ?? '') : '' }}</textarea>
         </div>
 
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="security_review_date" class="form-label">Review Date</label>
+            <label for="security_review_date" class="form-label">{{ __('Review Date') }}</label>
             <input type="date" class="form-control" id="security_review_date" name="security_review_date"
                    value="{{ $currentClassification ? ($currentClassification->review_date ?? '') : '' }}">
           </div>
           <div class="col-md-6 mb-3">
-            <label for="security_declassify_date" class="form-label">Declassify Date</label>
+            <label for="security_declassify_date" class="form-label">{{ __('Declassify Date') }}</label>
             <input type="date" class="form-control" id="security_declassify_date" name="security_declassify_date"
                    value="{{ $currentClassification ? ($currentClassification->declassify_date ?? '') : '' }}">
           </div>
         </div>
 
         <div class="mb-3">
-          <label for="security_handling_instructions" class="form-label">Handling Instructions</label>
+          <label for="security_handling_instructions" class="form-label">{{ __('Handling Instructions') }}</label>
           <textarea class="form-control" id="security_handling_instructions" name="security_handling_instructions" rows="2">{{ $currentClassification ? e($currentClassification->handling_instructions ?? '') : '' }}</textarea>
         </div>
 
@@ -108,7 +108,7 @@ if (isset($resource) && ($resource->id ?? null)) {
   <h2 class="accordion-header" id="watermark-heading">
     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#watermark-collapse" aria-expanded="false" aria-controls="watermark-collapse">
-      Watermark Settings
+      {{ __('Watermark Settings') }}
     </button>
   </h2>
   <div id="watermark-collapse" class="accordion-collapse collapse" aria-labelledby="watermark-heading">
@@ -128,9 +128,9 @@ if (isset($resource) && ($resource->id ?? null)) {
 
         {{-- System Watermarks --}}
         <div class="mb-3">
-          <label for="watermark_type_id" class="form-label">System Watermark</label>
+          <label for="watermark_type_id" class="form-label">{{ __('System Watermark') }}</label>
           <select class="form-select" id="watermark_type_id" name="watermark_type_id">
-            <option value="">Use default</option>
+            <option value="">{{ __('Use default') }}</option>
             @foreach($watermarkTypes as $wtype)
               <option value="{{ $wtype->id }}"
                       {{ ($currentWatermarkId == $wtype->id && !$currentCustomWatermarkId) ? 'selected' : '' }}
@@ -144,9 +144,9 @@ if (isset($resource) && ($resource->id ?? null)) {
         {{-- Custom Watermarks --}}
         @if($customWatermarks->count() > 0)
         <div class="mb-3">
-          <label for="custom_watermark_id" class="form-label">Or Custom Watermark</label>
+          <label for="custom_watermark_id" class="form-label">{{ __('Or Custom Watermark') }}</label>
           <select class="form-select" id="custom_watermark_id" name="custom_watermark_id">
-            <option value="">None (use system watermark)</option>
+            <option value="">{{ __('None (use system watermark)') }}</option>
             @foreach($customWatermarks as $cw)
               <option value="{{ $cw->id }}"
                       {{ ($currentCustomWatermarkId == $cw->id) ? 'selected' : '' }}
@@ -162,17 +162,17 @@ if (isset($resource) && ($resource->id ?? null)) {
         {{-- Upload New Custom Watermark --}}
         <div class="card bg-light mb-3">
           <div class="card-body">
-            <h6 class="card-title">Upload NEW Custom Watermark</h6>
+            <h6 class="card-title">{{ __('Upload NEW Custom Watermark') }}</h6>
             <small class="text-muted d-block mb-2">Leave empty to keep existing selection above</small>
 
             <div class="mb-2">
-              <label for="new_watermark_name" class="form-label">Watermark Name</label>
+              <label for="new_watermark_name" class="form-label">{{ __('Watermark Name') }}</label>
               <input type="text" class="form-control form-control-sm" id="new_watermark_name" name="new_watermark_name"
-                     placeholder="e.g., Company Logo">
+                     placeholder="{{ __('e.g., Company Logo') }}">
             </div>
 
             <div class="mb-2">
-              <label for="new_watermark_file" class="form-label">Watermark Image</label>
+              <label for="new_watermark_file" class="form-label">{{ __('Watermark Image') }}</label>
               <input type="file" class="form-control form-control-sm" id="new_watermark_file" name="new_watermark_file"
                      accept="image/png,image/gif">
               <small class="text-muted">PNG or GIF with transparency recommended</small>
@@ -180,18 +180,18 @@ if (isset($resource) && ($resource->id ?? null)) {
 
             <div class="row">
               <div class="col-md-6 mb-2">
-                <label for="new_watermark_position" class="form-label">Position</label>
+                <label for="new_watermark_position" class="form-label">{{ __('Position') }}</label>
                 <select class="form-select form-select-sm" id="new_watermark_position" name="new_watermark_position">
-                  <option value="center" {{ $currentPosition == 'center' ? 'selected' : '' }}>Center</option>
-                  <option value="repeat" {{ $currentPosition == 'repeat' ? 'selected' : '' }}>Repeat (tile)</option>
-                  <option value="bottom right" {{ $currentPosition == 'bottom right' ? 'selected' : '' }}>Bottom Right</option>
-                  <option value="bottom left" {{ $currentPosition == 'bottom left' ? 'selected' : '' }}>Bottom Left</option>
-                  <option value="top right" {{ $currentPosition == 'top right' ? 'selected' : '' }}>Top Right</option>
-                  <option value="top left" {{ $currentPosition == 'top left' ? 'selected' : '' }}>Top Left</option>
+                  <option value="center" {{ $currentPosition == 'center' ? 'selected' : '' }}>{{ __('Center') }}</option>
+                  <option value="repeat" {{ $currentPosition == 'repeat' ? 'selected' : '' }}>{{ __('Repeat (tile)') }}</option>
+                  <option value="bottom right" {{ $currentPosition == 'bottom right' ? 'selected' : '' }}>{{ __('Bottom Right') }}</option>
+                  <option value="bottom left" {{ $currentPosition == 'bottom left' ? 'selected' : '' }}>{{ __('Bottom Left') }}</option>
+                  <option value="top right" {{ $currentPosition == 'top right' ? 'selected' : '' }}>{{ __('Top Right') }}</option>
+                  <option value="top left" {{ $currentPosition == 'top left' ? 'selected' : '' }}>{{ __('Top Left') }}</option>
                 </select>
               </div>
               <div class="col-md-6 mb-2">
-                <label for="new_watermark_opacity" class="form-label">Opacity</label>
+                <label for="new_watermark_opacity" class="form-label">{{ __('Opacity') }}</label>
                 <input type="range" class="form-range" id="new_watermark_opacity" name="new_watermark_opacity"
                        min="10" max="80" value="{{ (int)($currentOpacity * 100) }}">
                 <small class="text-muted"><span id="opacity-value">{{ (int)($currentOpacity * 100) }}</span>%</small>

@@ -12,7 +12,7 @@
 
   <div class="ric-view-switch d-flex align-items-center gap-2 mb-3">
     <span class="small text-muted">View:</span>
-    <div class="btn-group btn-group-sm" role="group" aria-label="View mode">
+    <div class="btn-group btn-group-sm" role="group" aria-label="{{ __('View mode') }}">
       <form method="POST" action="{{ route('ric.set-view-mode') }}" style="display:inline;">
         @csrf
         <input type="hidden" name="mode" value="heratio">

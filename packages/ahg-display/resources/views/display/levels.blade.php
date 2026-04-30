@@ -15,7 +15,7 @@
     <div class="d-flex align-items-center">
       <i class="fas fa-3x fa-sitemap me-3 text-primary" aria-hidden="true"></i>
       <div>
-        <h1 class="mb-0">Levels of Description</h1>
+        <h1 class="mb-0">{{ __('Levels of Description') }}</h1>
         <span class="small text-muted">Manage hierarchical levels and their relationships</span>
       </div>
     </div>
@@ -37,7 +37,7 @@
         </div>
         <div class="col-auto">
           <select name="domain" id="domain" class="form-select form-select-sm">
-            <option value="">All domains</option>
+            <option value="">{{ __('All domains') }}</option>
             @if(!empty($domains))
               @foreach($domains as $domain)
                 <option value="{{ $domain }}" {{ ($currentDomain ?? '') === $domain ? 'selected' : '' }}>
@@ -49,7 +49,7 @@
         </div>
         <div class="col-auto">
           <button type="submit" class="btn atom-btn-white btn-sm">
-            Filter
+            {{ __('Filter') }}
           </button>
         </div>
         @if(!empty($currentDomain))
@@ -83,11 +83,11 @@
           <thead class="table-light">
             <tr>
               <th width="50"></th>
-              <th>Name</th>
-              <th>Code</th>
-              <th>Domain</th>
-              <th>Valid Parents</th>
-              <th>Valid Children</th>
+              <th>{{ __('Name') }}</th>
+              <th>{{ __('Code') }}</th>
+              <th>{{ __('Domain') }}</th>
+              <th>{{ __('Valid Parents') }}</th>
+              <th>{{ __('Valid Children') }}</th>
             </tr>
           </thead>
           <tbody>

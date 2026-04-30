@@ -13,7 +13,7 @@
 
 @section('content')
 <div class="multiline-header d-flex flex-column mb-3">
-    <h1 class="mb-0">Import multiple digital objects</h1>
+    <h1 class="mb-0">{{ __('Import multiple digital objects') }}</h1>
     <span class="small text-muted">{{ e($io->title ?? 'Untitled') }}</span>
 </div>
 
@@ -66,7 +66,7 @@
             <div class="accordion-item">
                 <h2 class="accordion-header" id="upload-heading">
                     <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#upload-collapse" aria-expanded="true" aria-controls="upload-collapse">
-                        Import multiple digital objects
+                        {{ __('Import multiple digital objects') }}
                     </button>
                 </h2>
                 <div id="upload-collapse" class="accordion-collapse collapse show" aria-labelledby="upload-heading">
@@ -78,13 +78,13 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="title" class="form-label">Title</label>
+                            <label for="title" class="form-label">{{ __('Title') }}</label>
                             <input type="text" class="form-control" id="title" name="title" value="image %dd%">
                             <div class="form-text">The "<strong>%dd%</strong>" placeholder will be replaced with an incremental number (e.g. 'image <strong>01</strong>', 'image <strong>02</strong>')</div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="levelOfDescription" class="form-label">Level of description</label>
+                            <label for="levelOfDescription" class="form-label">{{ __('Level of description') }}</label>
                             <select class="form-select" id="levelOfDescription" name="levelOfDescription">
                                 <option value="">—</option>
                                 @foreach($levels as $level)
@@ -99,7 +99,7 @@
                             <a href="{{ route('ingest.index') }}"><i class="fas fa-file-import me-1"></i>Data Ingest</a> tool instead.
                         </div>
 
-                        <h3 class="fs-6 mb-2">Digital objects</h3>
+                        <h3 class="fs-6 mb-2">{{ __('Digital objects') }}</h3>
 
                         <div id="uploads"></div>
 

@@ -61,21 +61,21 @@
         </div>
         <div class="row g-3">
           <div class="col-md-4">
-            <label class="form-label" for="integrity_default_algorithm">Default Algorithm</label>
+            <label class="form-label" for="integrity_default_algorithm">{{ __('Default Algorithm') }}</label>
             <select class="form-select" id="integrity_default_algorithm" name="settings[integrity_default_algorithm]">
-              <option value="sha256" {{ ($settings['integrity_default_algorithm'] ?? 'sha256') === 'sha256' ? 'selected' : '' }}>SHA-256 (faster)</option>
-              <option value="sha512" {{ ($settings['integrity_default_algorithm'] ?? '') === 'sha512' ? 'selected' : '' }}>SHA-512 (more secure)</option>
+              <option value="sha256" {{ ($settings['integrity_default_algorithm'] ?? 'sha256') === 'sha256' ? 'selected' : '' }}>{{ __('SHA-256 (faster)') }}</option>
+              <option value="sha512" {{ ($settings['integrity_default_algorithm'] ?? '') === 'sha512' ? 'selected' : '' }}>{{ __('SHA-512 (more secure)') }}</option>
             </select>
           </div>
           <div class="col-md-4">
-            <label class="form-label" for="integrity_default_batch_size">Default Batch Size</label>
+            <label class="form-label" for="integrity_default_batch_size">{{ __('Default Batch Size') }}</label>
             <input type="number" class="form-control" id="integrity_default_batch_size"
                    name="settings[integrity_default_batch_size]"
                    value="{{ e($settings['integrity_default_batch_size'] ?? '200') }}" min="0" max="50000">
             <div class="form-text">Objects per run (0 = unlimited).</div>
           </div>
           <div class="col-md-4">
-            <label class="form-label" for="integrity_io_throttle_ms">IO Throttle (ms)</label>
+            <label class="form-label" for="integrity_io_throttle_ms">{{ __('IO Throttle (ms)') }}</label>
             <input type="number" class="form-control" id="integrity_io_throttle_ms"
                    name="settings[integrity_io_throttle_ms]"
                    value="{{ e($settings['integrity_io_throttle_ms'] ?? '10') }}" min="0" max="1000">
@@ -84,19 +84,19 @@
         </div>
         <div class="row g-3 mt-2">
           <div class="col-md-4">
-            <label class="form-label" for="integrity_default_max_runtime">Max Runtime (minutes)</label>
+            <label class="form-label" for="integrity_default_max_runtime">{{ __('Max Runtime (minutes)') }}</label>
             <input type="number" class="form-control" id="integrity_default_max_runtime"
                    name="settings[integrity_default_max_runtime]"
                    value="{{ e($settings['integrity_default_max_runtime'] ?? '120') }}" min="1" max="1440">
           </div>
           <div class="col-md-4">
-            <label class="form-label" for="integrity_default_max_memory">Max Memory (MB)</label>
+            <label class="form-label" for="integrity_default_max_memory">{{ __('Max Memory (MB)') }}</label>
             <input type="number" class="form-control" id="integrity_default_max_memory"
                    name="settings[integrity_default_max_memory]"
                    value="{{ e($settings['integrity_default_max_memory'] ?? '512') }}" min="64" max="4096">
           </div>
           <div class="col-md-4">
-            <label class="form-label" for="integrity_dead_letter_threshold">Dead Letter Threshold</label>
+            <label class="form-label" for="integrity_dead_letter_threshold">{{ __('Dead Letter Threshold') }}</label>
             <input type="number" class="form-control" id="integrity_dead_letter_threshold"
                    name="settings[integrity_dead_letter_threshold]"
                    value="{{ e($settings['integrity_dead_letter_threshold'] ?? '3') }}" min="1" max="100">
@@ -136,19 +136,19 @@
         </div>
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label" for="integrity_alert_email">Default Alert Email</label>
+            <label class="form-label" for="integrity_alert_email">{{ __('Default Alert Email') }}</label>
             <input type="email" class="form-control" id="integrity_alert_email"
                    name="settings[integrity_alert_email]"
                    value="{{ e($settings['integrity_alert_email'] ?? '') }}"
-                   placeholder="admin@example.com">
+                   placeholder="{{ __('admin@example.com') }}">
             <div class="form-text">Default email for integrity alerts (used by new schedules and alert rules).</div>
           </div>
           <div class="col-md-6">
-            <label class="form-label" for="integrity_webhook_url">Default Webhook URL</label>
+            <label class="form-label" for="integrity_webhook_url">{{ __('Default Webhook URL') }}</label>
             <input type="url" class="form-control" id="integrity_webhook_url"
                    name="settings[integrity_webhook_url]"
                    value="{{ e($settings['integrity_webhook_url'] ?? '') }}"
-                   placeholder="https://hooks.slack.com/...">
+                   placeholder="{{ __('https://hooks.slack.com/...') }}">
             <div class="form-text">Default webhook URL for alert notifications (Slack, Teams, PagerDuty, etc).</div>
           </div>
         </div>

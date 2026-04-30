@@ -33,7 +33,7 @@
           <button class="accordion-button collapsed" type="button"
                   data-bs-toggle="collapse" data-bs-target="#identity-collapse"
                   aria-expanded="false" aria-controls="identity-collapse">
-            Identity area
+            {{ __('Identity area') }}
           </button>
         </h2>
         <div id="identity-collapse" class="accordion-collapse collapse" aria-labelledby="identity-heading">
@@ -41,7 +41,7 @@
             <div class="mb-3">
               <label for="authorized_form_of_name" class="form-label">
                 Authorized form of name
-                <span class="form-required text-danger" title="This is a mandatory element.">*</span>
+                <span class="form-required text-danger" title="{{ __('This is a mandatory element.') }}">*</span>
                 <span class="badge bg-danger ms-1">Required</span>
               </label>
               <input type="text" name="authorized_form_of_name" id="authorized_form_of_name"
@@ -58,7 +58,7 @@
           <button class="accordion-button collapsed" type="button"
                   data-bs-toggle="collapse" data-bs-target="#contact-collapse"
                   aria-expanded="false" aria-controls="contact-collapse">
-            Contact area
+            {{ __('Contact area') }}
           </button>
         </h2>
         <div id="contact-collapse" class="accordion-collapse collapse" aria-labelledby="contact-heading">

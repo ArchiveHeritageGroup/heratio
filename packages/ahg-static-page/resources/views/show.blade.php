@@ -35,7 +35,7 @@
         </h2>
         <div>
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Source language</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Source language') }}</h3>
             <div class="col-9 p-2">
               @php
                 $displayLang = function_exists('locale_get_display_language')

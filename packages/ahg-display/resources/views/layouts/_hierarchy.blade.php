@@ -6,7 +6,7 @@ $children = $data['children'] ?? [];
 
 {{-- Breadcrumb/Ancestors --}}
 @if(!empty($ancestors))
-<nav class="hierarchy-breadcrumb mb-3" aria-label="Hierarchy">
+<nav class="hierarchy-breadcrumb mb-3" aria-label="{{ __('Hierarchy') }}">
     <ol class="breadcrumb mb-0">
         @foreach($ancestors as $a)
         <li class="breadcrumb-item">

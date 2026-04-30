@@ -28,7 +28,7 @@ $summary = (array)($contentData['summary'] ?? ['total_items'=>0,'total_views'=>0
           <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Top Performing</h5></div>
           <div class="card-body p-0">
             @if(!empty($topContent))
-            <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>Item</th><th class="text-center">Views</th><th class="text-center">Downloads</th></tr></thead><tbody>
+            <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>{{ __('Item') }}</th><th class="text-center">{{ __('Views') }}</th><th class="text-center">{{ __('Downloads') }}</th></tr></thead><tbody>
               @foreach(array_slice($topContent,0,10) as $item)<tr><td>{{ mb_strimwidth($item->title ?? $item->slug ?? 'Item',0,35,'...') }}</td><td class="text-center">{{ number_format($item->view_count ?? 0) }}</td><td class="text-center">{{ number_format($item->download_count ?? 0) }}</td></tr>@endforeach
             </tbody></table></div>
             @else<p class="text-muted text-center py-4">No data available.</p>@endif
@@ -40,7 +40,7 @@ $summary = (array)($contentData['summary'] ?? ['total_items'=>0,'total_views'=>0
           <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-eye-slash me-2"></i>Needs Attention</h5></div>
           <div class="card-body p-0">
             @if(!empty($lowPerforming))
-            <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>Item</th><th class="text-center">Views</th><th>Issue</th></tr></thead><tbody>
+            <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>{{ __('Item') }}</th><th class="text-center">{{ __('Views') }}</th><th>{{ __('Issue') }}</th></tr></thead><tbody>
               @foreach(array_slice($lowPerforming,0,10) as $item)<tr><td>{{ mb_strimwidth($item->title ?? '',0,30,'...') }}</td><td class="text-center">{{ number_format($item->view_count ?? 0) }}</td><td><span class="badge bg-warning">{{ $item->issue ?? 'Low visibility' }}</span></td></tr>@endforeach
             </tbody></table></div>
             @else<p class="text-muted text-center py-4">All content performing well!</p>@endif
@@ -56,7 +56,7 @@ $summary = (array)($contentData['summary'] ?? ['total_items'=>0,'total_views'=>0
       </div>
       <div class="card-body p-0">
         @if(!empty($qualityIssues))
-        <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>Item</th><th>Issue Type</th><th>Details</th><th></th></tr></thead><tbody>
+        <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>{{ __('Item') }}</th><th>{{ __('Issue Type') }}</th><th>{{ __('Details') }}</th><th></th></tr></thead><tbody>
           @foreach($qualityIssues as $issue)
           @php $color = ['missing_description'=>'warning','no_digital_object'=>'info','poor_metadata'=>'danger','broken_links'=>'danger'][$issue->issue_type ?? ''] ?? 'secondary'; @endphp
           <tr><td>{{ mb_strimwidth($issue->title ?? '',0,40,'...') }}</td><td><span class="badge bg-{{ $color }}">{{ ucwords(str_replace('_',' ',$issue->issue_type ?? '')) }}</span></td><td><small class="text-muted">{{ $issue->details ?? '-' }}</small></td><td><a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-pencil-alt"></i></a></td></tr>

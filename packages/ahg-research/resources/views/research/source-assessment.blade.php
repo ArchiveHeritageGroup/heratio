@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'workspace'])@endsection
 @section('title', 'Source Assessment')
 @section('content')
-<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Source Assessment</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Source Assessment</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-microscope text-primary me-2"></i>Source Assessment</h1>
 <div class="row"><div class="col-md-8">
 <div class="card mb-4"><div class="card-header" style="background:var(--ahg-primary);color:#fff">Assessment Details</div><div class="card-body">
@@ -28,7 +28,7 @@
     </form>
 </div></div>
 </div><div class="col-md-4">
-<div class="card"><div class="card-header"><h6 class="mb-0">Source Info</h6></div><div class="card-body small">
+<div class="card"><div class="card-header"><h6 class="mb-0">{{ __('Source Info') }}</h6></div><div class="card-body small">
     <dl class="row mb-0"><dt class="col-5">Title</dt><dd class="col-7">{{ e($source->title ?? 'N/A') }}</dd><dt class="col-5">Repository</dt><dd class="col-7">{{ e($source->repository ?? 'N/A') }}</dd><dt class="col-5">Date</dt><dd class="col-7">{{ e($source->date ?? 'N/A') }}</dd></dl>
 </div></div>
 </div></div>

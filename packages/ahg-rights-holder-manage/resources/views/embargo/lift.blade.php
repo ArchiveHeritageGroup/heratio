@@ -5,7 +5,7 @@
 
 @section('title-block')
   <div class="multiline-header d-flex flex-column mb-3">
-    <h1 class="mb-0">Lift Embargo</h1>
+    <h1 class="mb-0">{{ __('Lift Embargo') }}</h1>
     <span class="small" id="heading-label">{{ $resource->title ?? $resource->slug ?? '' }}</span>
   </div>
 @endsection
@@ -40,7 +40,7 @@
       <hr>
       <div class="mb-3">
         <label for="lift_reason" class="form-label">Reason for lifting (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
-        <textarea name="lift_reason" id="lift_reason" class="form-control" rows="3" placeholder="e.g., Embargo period completed, Permission granted, Error correction"></textarea>
+        <textarea name="lift_reason" id="lift_reason" class="form-control" rows="3" placeholder="{{ __('e.g., Embargo period completed, Permission granted, Error correction') }}"></textarea>
       </div>
     </div>
   </div>

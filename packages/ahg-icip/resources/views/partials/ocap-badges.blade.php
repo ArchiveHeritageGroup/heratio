@@ -30,13 +30,13 @@
           'red'   => 'bg-danger',
           default => 'bg-secondary',
       };
-      return '<span class="badge ' . $cls . ' me-1" title="OCAP: ' . $label . '">'
+      return '<span class="badge ' . $cls . ' me-1" title="{{ __("OCAP: ' . $label . '") }}">'
            . '<i class="fas fa-shield-alt me-1"></i>' . $label . '</span>';
   };
 @endphp
 
 @if($__ocapAssessment)
-  <div class="ocap-badges mb-2" aria-label="OCAP compliance">
+  <div class="ocap-badges mb-2" aria-label="{{ __('OCAP compliance') }}">
     <small class="text-muted me-2"><strong>OCAP®</strong></small>
     {!! $__ocapBadge('Ownership',  $__ocapAssessment['ownership']) !!}
     {!! $__ocapBadge('Control',    $__ocapAssessment['control']) !!}

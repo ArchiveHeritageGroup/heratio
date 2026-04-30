@@ -69,51 +69,51 @@
                 </div>
 
                 <div class="mb-3">
-                  <label for="code" class="form-label">Code</label>
+                  <label for="code" class="form-label">{{ __('Code') }}</label>
                   <input type="text" class="form-control" id="code" name="code" value="{{ $tenant->code ?? '' }}" pattern="[a-z0-9-]+" maxlength="50">
                   <small class="form-text text-muted">Lowercase letters, numbers, and hyphens only</small>
                 </div>
 
                 <div class="row">
                   <div class="col-md-6 mb-3">
-                    <label for="domain" class="form-label">Domain</label>
+                    <label for="domain" class="form-label">{{ __('Domain') }}</label>
                     <input type="text" class="form-control" id="domain" name="domain" value="{{ $tenant->domain ?? '' }}">
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label for="database_name" class="form-label">Database Name</label>
+                    <label for="database_name" class="form-label">{{ __('Database Name') }}</label>
                     <input type="text" class="form-control" id="database_name" name="database_name" value="{{ $tenant->database_name ?? '' }}">
                   </div>
                 </div>
 
                 <div class="mb-3">
-                  <label for="description" class="form-label">Description</label>
+                  <label for="description" class="form-label">{{ __('Description') }}</label>
                   <textarea class="form-control" id="description" name="description" rows="3">{{ $tenant->description ?? '' }}</textarea>
                 </div>
 
                 <div class="row">
                   <div class="col-md-6 mb-3">
-                    <label for="contact_email" class="form-label">Contact Email</label>
+                    <label for="contact_email" class="form-label">{{ __('Contact Email') }}</label>
                     <input type="email" class="form-control" id="contact_email" name="contact_email" value="{{ $tenant->contact_email ?? '' }}">
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label for="contact_phone" class="form-label">Contact Phone</label>
+                    <label for="contact_phone" class="form-label">{{ __('Contact Phone') }}</label>
                     <input type="text" class="form-control" id="contact_phone" name="contact_phone" value="{{ $tenant->contact_phone ?? '' }}">
                   </div>
                 </div>
 
                 <div class="row">
                   <div class="col-md-6 mb-3">
-                    <label for="max_users" class="form-label">Max Users</label>
+                    <label for="max_users" class="form-label">{{ __('Max Users') }}</label>
                     <input type="number" class="form-control" id="max_users" name="max_users" value="{{ $tenant->max_users ?? '' }}" min="1">
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label for="max_storage_gb" class="form-label">Max Storage (GB)</label>
+                    <label for="max_storage_gb" class="form-label">{{ __('Max Storage (GB)') }}</label>
                     <input type="number" class="form-control" id="max_storage_gb" name="max_storage_gb" value="{{ $tenant->max_storage_gb ?? '' }}" min="1">
                   </div>
                 </div>
 
                 <div class="mb-3">
-                  <label for="is_active" class="form-label">Status</label>
+                  <label for="is_active" class="form-label">{{ __('Status') }}</label>
                   <select class="form-select" id="is_active" name="is_active">
                     <option value="1" {{ !empty($tenant->is_active) ? 'selected' : '' }}>Active</option>
                     <option value="0" {{ empty($tenant->is_active) ? 'selected' : '' }}>Suspended</option>
@@ -121,7 +121,7 @@
                 </div>
 
                 <div class="mb-3">
-                  <label class="form-label">Created</label>
+                  <label class="form-label">{{ __('Created') }}</label>
                   <p class="form-control-plaintext">
                     {{ !empty($tenant->created_at) ? \Carbon\Carbon::parse($tenant->created_at)->format('F j, Y g:i A') : '-' }}
                   </p>
@@ -147,9 +147,9 @@
               <table class="table table-striped table-hover mb-0">
                 <thead class="table-light">
                   <tr>
-                    <th>User</th>
-                    <th>Role</th>
-                    <th class="text-end">Actions</th>
+                    <th>{{ __('User') }}</th>
+                    <th>{{ __('Role') }}</th>
+                    <th class="text-end">{{ __('Actions') }}</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -8,9 +8,9 @@ $config = is_array($block->config) ? $block->config : (is_string($block->config)
     <span class="small flex-grow-1">{{ $block->type_label }}</span>
     <div class="btn-group btn-group-sm">
       <button type="button" class="btn btn-link btn-sm p-0 px-1 btn-edit-nested text-primary"
-              data-block-id="{{ $block->id }}" title="Edit"><i class="bi bi-pencil"></i></button>
+              data-block-id="{{ $block->id }}" title="{{ __('Edit') }}"><i class="bi bi-pencil"></i></button>
       <button type="button" class="btn btn-link btn-sm p-0 btn-delete-nested text-danger"
-              data-block-id="{{ $block->id }}" title="Delete"><i class="bi bi-trash"></i></button>
+              data-block-id="{{ $block->id }}" title="{{ __('Delete') }}"><i class="bi bi-trash"></i></button>
     </div>
   </div>
   <div class="card-body py-2 px-2 bg-light small">

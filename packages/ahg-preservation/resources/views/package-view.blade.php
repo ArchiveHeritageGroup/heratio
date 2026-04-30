@@ -33,7 +33,7 @@
                             <div class="col-md-6">
                                 <table class="table table-bordered table-sm table-borderless">
                                     <tr><th class="text-muted" style="width:40%">UUID</th><td><code>{{ $package->uuid }}</code></td></tr>
-                                    <tr><th class="text-muted">Type</th><td>
+                                    <tr><th class="text-muted">{{ __('Type') }}</th><td>
                                         @if(strtoupper($package->package_type) === 'SIP')
                                             <span class="badge bg-info">SIP</span> Submission Information Package
                                         @elseif(strtoupper($package->package_type) === 'AIP')
@@ -44,7 +44,7 @@
                                             <span class="badge bg-secondary">{{ $package->package_type }}</span>
                                         @endif
                                     </td></tr>
-                                    <tr><th class="text-muted">Status</th><td>
+                                    <tr><th class="text-muted">{{ __('Status') }}</th><td>
                                         @php
                                             $statusClass = [
                                                 'draft' => 'secondary', 'building' => 'warning', 'built' => 'info',
@@ -54,19 +54,19 @@
                                         @endphp
                                         <span class="badge bg-{{ $statusClass }} fs-6">{{ ucfirst($package->status) }}</span>
                                     </td></tr>
-                                    <tr><th class="text-muted">Format</th><td>{{ $package->package_format }} {{ $package->bagit_version ? '(v' . $package->bagit_version . ')' : '' }}</td></tr>
-                                    <tr><th class="text-muted">Manifest Algorithm</th><td><code>{{ $package->manifest_algorithm ?? '-' }}</code></td></tr>
-                                    <tr><th class="text-muted">Package Checksum</th><td><code class="small">{{ $package->package_checksum ?? '-' }}</code></td></tr>
+                                    <tr><th class="text-muted">{{ __('Format') }}</th><td>{{ $package->package_format }} {{ $package->bagit_version ? '(v' . $package->bagit_version . ')' : '' }}</td></tr>
+                                    <tr><th class="text-muted">{{ __('Manifest Algorithm') }}</th><td><code>{{ $package->manifest_algorithm ?? '-' }}</code></td></tr>
+                                    <tr><th class="text-muted">{{ __('Package Checksum') }}</th><td><code class="small">{{ $package->package_checksum ?? '-' }}</code></td></tr>
                                 </table>
                             </div>
                             <div class="col-md-6">
                                 <table class="table table-bordered table-sm table-borderless">
-                                    <tr><th class="text-muted" style="width:40%">Objects</th><td><span class="badge bg-primary">{{ $package->object_count }}</span></td></tr>
-                                    <tr><th class="text-muted">Total Size</th><td>{{ $package->total_size ? number_format($package->total_size / 1048576, 2) . ' MB' : '-' }}</td></tr>
-                                    <tr><th class="text-muted">Originator</th><td>{{ $package->originator ?? '-' }}</td></tr>
-                                    <tr><th class="text-muted">Created By</th><td>{{ $package->created_by ?? '-' }}</td></tr>
-                                    <tr><th class="text-muted">Created At</th><td>{{ $package->created_at }}</td></tr>
-                                    <tr><th class="text-muted">Retention Period</th><td>{{ $package->retention_period ?? '-' }}</td></tr>
+                                    <tr><th class="text-muted" style="width:40%">{{ __('Objects') }}</th><td><span class="badge bg-primary">{{ $package->object_count }}</span></td></tr>
+                                    <tr><th class="text-muted">{{ __('Total Size') }}</th><td>{{ $package->total_size ? number_format($package->total_size / 1048576, 2) . ' MB' : '-' }}</td></tr>
+                                    <tr><th class="text-muted">{{ __('Originator') }}</th><td>{{ $package->originator ?? '-' }}</td></tr>
+                                    <tr><th class="text-muted">{{ __('Created By') }}</th><td>{{ $package->created_by ?? '-' }}</td></tr>
+                                    <tr><th class="text-muted">{{ __('Created At') }}</th><td>{{ $package->created_at }}</td></tr>
+                                    <tr><th class="text-muted">{{ __('Retention Period') }}</th><td>{{ $package->retention_period ?? '-' }}</td></tr>
                                 </table>
                             </div>
                         </div>
@@ -94,13 +94,13 @@
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>File Name</th>
-                                        <th>Relative Path</th>
-                                        <th>MIME Type</th>
-                                        <th>PUID</th>
-                                        <th>Size</th>
-                                        <th>Checksum</th>
-                                        <th>Role</th>
+                                        <th>{{ __('File Name') }}</th>
+                                        <th>{{ __('Relative Path') }}</th>
+                                        <th>{{ __('MIME Type') }}</th>
+                                        <th>{{ __('PUID') }}</th>
+                                        <th>{{ __('Size') }}</th>
+                                        <th>{{ __('Checksum') }}</th>
+                                        <th>{{ __('Role') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -132,12 +132,12 @@
                             <table class="table table-bordered table-sm table-striped mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Date/Time</th>
-                                        <th>Type</th>
-                                        <th>Outcome</th>
-                                        <th>Detail</th>
-                                        <th>Agent</th>
-                                        <th>Created By</th>
+                                        <th>{{ __('Date/Time') }}</th>
+                                        <th>{{ __('Type') }}</th>
+                                        <th>{{ __('Outcome') }}</th>
+                                        <th>{{ __('Detail') }}</th>
+                                        <th>{{ __('Agent') }}</th>
+                                        <th>{{ __('Created By') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>

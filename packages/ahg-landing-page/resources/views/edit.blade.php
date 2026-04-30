@@ -27,12 +27,12 @@
       </button>
       <button type="button" class="btn btn-outline-light btn-sm" id="btn-settings"
               data-bs-toggle="offcanvas" data-bs-target="#pageSettingsPanel">
-        Settings
+        {{ __('Settings') }}
       </button>
       <div class="dropdown">
         <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button"
                 data-bs-toggle="dropdown">
-          Versions
+          {{ __('Versions') }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
           @if (count($versions) > 0)
@@ -52,10 +52,10 @@
         </ul>
       </div>
       <button type="button" class="btn btn-info btn-sm" id="btn-save-draft">
-        Save Draft
+        {{ __('Save Draft') }}
       </button>
       <button type="button" class="btn btn-success btn-sm" id="btn-publish">
-        Publish
+        {{ __('Publish') }}
       </button>
     </div>
   </div>
@@ -64,7 +64,7 @@
     {{-- Block Palette (Left Sidebar) --}}
     <div class="builder-palette bg-light border-end" style="width: 280px; min-height: calc(100vh - 56px);">
       <div class="p-3">
-        <h6 class="text-uppercase text-muted small mb-3">+ Add Block</h6>
+        <h6 class="text-uppercase text-muted small mb-3">{{ __('+ Add Block') }}</h6>
 
         <div class="block-types" id="block-palette">
           @php
@@ -92,10 +92,10 @@
                          data-type-id="{{ $type->id }}"
                          data-machine-name="{{ $type->machine_name }}">
                       <div class="drag-handle bg-secondary bg-opacity-25 px-2 py-2 rounded-start"
-                           style="cursor: grab;" title="Drag to canvas">
+                           style="cursor: grab;" title="{{ __('Drag to canvas') }}">
                         <i class="bi bi-grip-vertical"></i>
                       </div>
-                      <div class="card-body py-2 px-2 flex-grow-1" style="cursor: pointer;" title="Click to add">
+                      <div class="card-body py-2 px-2 flex-grow-1" style="cursor: pointer;" title="{{ __('Click to add') }}">
                         <div class="small fw-medium">{{ $type->label }}</div>
                       </div>
                     </div>
@@ -158,7 +158,7 @@
   {{-- Page Settings Offcanvas --}}
   <div class="offcanvas offcanvas-end" tabindex="-1" id="pageSettingsPanel">
     <div class="offcanvas-header border-bottom">
-      <h5 class="offcanvas-title">Page Settings</h5>
+      <h5 class="offcanvas-title">{{ __('Page Settings') }}</h5>
       <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body">
@@ -167,13 +167,13 @@
         <input type="hidden" name="id" value="{{ $page->id }}">
 
         <div class="mb-3">
-          <label class="form-label">Page Name</label>
+          <label class="form-label">{{ __('Page Name') }}</label>
           <input type="text" name="name" class="form-control"
                  value="{{ e($page->name) }}" required>
         </div>
 
         <div class="mb-3">
-          <label class="form-label">URL Slug</label>
+          <label class="form-label">{{ __('URL Slug') }}</label>
           <div class="input-group">
             <span class="input-group-text">/</span>
             <input type="text" name="slug" class="form-control"
@@ -183,7 +183,7 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Description</label>
+          <label class="form-label">{{ __('Description') }}</label>
           <textarea name="description" class="form-control" rows="3">{{ e($page->description ?? '') }}</textarea>
         </div>
 
@@ -191,7 +191,7 @@
           <div class="form-check form-switch">
             <input type="checkbox" name="is_default" class="form-check-input"
                    id="is_default" {{ $page->is_default ? 'checked' : '' }}>
-            <label class="form-check-label" for="is_default">Set as default home page</label>
+            <label class="form-check-label" for="is_default">{{ __('Set as default home page') }}</label>
           </div>
         </div>
 
@@ -199,19 +199,19 @@
           <div class="form-check form-switch">
             <input type="checkbox" name="is_active" class="form-check-input"
                    id="is_active" {{ $page->is_active ? 'checked' : '' }}>
-            <label class="form-check-label" for="is_active">Active (visible to public)</label>
+            <label class="form-check-label" for="is_active">{{ __('Active (visible to public)') }}</label>
           </div>
         </div>
 
         <div class="d-grid gap-2">
-          <button type="submit" class="btn btn-primary">Save Settings</button>
+          <button type="submit" class="btn btn-primary">{{ __('Save Settings') }}</button>
         </div>
       </form>
 
       <hr class="my-4">
 
       <div class="text-danger">
-        <h6>Danger Zone</h6>
+        <h6>{{ __('Danger Zone') }}</h6>
         @if (!$page->is_default)
           <button type="button" class="btn btn-outline-danger btn-sm" id="btn-delete-page">
             <i class="bi bi-trash"></i> Delete Page
@@ -232,16 +232,16 @@
       <i class="bi block-icon me-2"></i>
       <span class="block-label flex-grow-1"></span>
       <div class="block-actions">
-        <button type="button" class="btn btn-sm btn-link text-muted btn-visibility" title="Toggle visibility">
+        <button type="button" class="btn btn-sm btn-link text-muted btn-visibility" title="{{ __('Toggle visibility') }}">
           <i class="bi bi-eye"></i>
         </button>
-        <button type="button" class="btn btn-sm btn-link text-primary btn-edit" title="Edit">
+        <button type="button" class="btn btn-sm btn-link text-primary btn-edit" title="{{ __('Edit') }}">
           <i class="bi bi-pencil"></i>
         </button>
-        <button type="button" class="btn btn-sm btn-link text-secondary btn-duplicate" title="Duplicate">
+        <button type="button" class="btn btn-sm btn-link text-secondary btn-duplicate" title="{{ __('Duplicate') }}">
           <i class="bi bi-copy"></i>
         </button>
-        <button type="button" class="btn btn-sm btn-link text-danger btn-delete" title="Delete">
+        <button type="button" class="btn btn-sm btn-link text-danger btn-delete" title="{{ __('Delete') }}">
           <i class="bi bi-trash"></i>
         </button>
       </div>

@@ -4,7 +4,7 @@
 @section('body-class', 'browse aclGroup')
 
 @section('title-block')
-  <h1>List groups</h1>
+  <h1>{{ __('List groups') }}</h1>
 @endsection
 
 @section('content')
@@ -12,8 +12,8 @@
     <table class="table table-bordered mb-0">
       <thead>
         <tr>
-          <th>Group</th>
-          <th>Members</th>
+          <th>{{ __('Group') }}</th>
+          <th>{{ __('Members') }}</th>
         </tr>
       </thead>
       <tbody>

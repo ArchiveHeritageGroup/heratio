@@ -21,7 +21,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.permits') }}">Permits</a></li>
@@ -44,7 +44,7 @@
     <div class="row">
         <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Researcher</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Researcher') }}</h5></div>
                 <div class="card-body">
                     <dl class="row mb-0">
                         <dt class="col-sm-4">Name</dt>
@@ -62,7 +62,7 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Research Details</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Research Details') }}</h5></div>
                 <div class="card-body">
                     <dl class="row mb-0">
                         <dt class="col-sm-4">Topic</dt>
@@ -76,7 +76,7 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Validity & Fees</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Validity & Fees') }}</h5></div>
                 <div class="card-body">
                     <dl class="row mb-0">
                         <dt class="col-sm-4">Valid From</dt>
@@ -97,7 +97,7 @@
 
             @if(($permit->status ?? '') === 'pending')
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Review Actions</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Review Actions') }}</h5></div>
                 <div class="card-body">
                     <form method="post">
                         @csrf
@@ -115,7 +115,7 @@
 
         <div class="col-lg-4">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Status</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Status') }}</h5></div>
                 <div class="card-body text-center">
                     <span class="badge bg-{{ $statusColors[$permit->status ?? ''] ?? 'secondary' }} fs-5 px-4 py-2">
                         {{ ucfirst($permit->status ?? '') }}
@@ -130,7 +130,7 @@
             </div>
 
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Record</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Record') }}</h5></div>
                 <div class="card-body">
                     <p class="mb-1"><strong>Created:</strong> @if(!empty($permit->created_at)){{ \Carbon\Carbon::parse($permit->created_at)->format('j M Y') }}@endif</p>
                     @if(!empty($permit->approved_date))

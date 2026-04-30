@@ -65,11 +65,11 @@
             <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="title" id="title" class="form-select">
               <option value="">-- Select --</option>
-              <option value="Mr" {{ old('title') === 'Mr' ? 'selected' : '' }}>Mr</option>
-              <option value="Mrs" {{ old('title') === 'Mrs' ? 'selected' : '' }}>Mrs</option>
-              <option value="Ms" {{ old('title') === 'Ms' ? 'selected' : '' }}>Ms</option>
-              <option value="Dr" {{ old('title') === 'Dr' ? 'selected' : '' }}>Dr</option>
-              <option value="Prof" {{ old('title') === 'Prof' ? 'selected' : '' }}>Prof</option>
+              <option value="Mr" {{ old('title') === 'Mr' ? 'selected' : '' }}>{{ __('Mr') }}</option>
+              <option value="Mrs" {{ old('title') === 'Mrs' ? 'selected' : '' }}>{{ __('Mrs') }}</option>
+              <option value="Ms" {{ old('title') === 'Ms' ? 'selected' : '' }}>{{ __('Ms') }}</option>
+              <option value="Dr" {{ old('title') === 'Dr' ? 'selected' : '' }}>{{ __('Dr') }}</option>
+              <option value="Prof" {{ old('title') === 'Prof' ? 'selected' : '' }}>{{ __('Prof') }}</option>
             </select>
           </div>
           <div class="col-md-5 mb-3">
@@ -125,12 +125,12 @@
             <label for="affiliation_type" class="form-label">Affiliation Type <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="affiliation_type" id="affiliation_type" class="form-select">
               <option value="">-- Select --</option>
-              <option value="academic" {{ old('affiliation_type') === 'academic' ? 'selected' : '' }}>Academic</option>
-              <option value="government" {{ old('affiliation_type') === 'government' ? 'selected' : '' }}>Government</option>
-              <option value="independent" {{ old('affiliation_type') === 'independent' ? 'selected' : '' }}>Independent</option>
-              <option value="corporate" {{ old('affiliation_type') === 'corporate' ? 'selected' : '' }}>Corporate</option>
-              <option value="student" {{ old('affiliation_type') === 'student' ? 'selected' : '' }}>Student</option>
-              <option value="other" {{ old('affiliation_type') === 'other' ? 'selected' : '' }}>Other</option>
+              <option value="academic" {{ old('affiliation_type') === 'academic' ? 'selected' : '' }}>{{ __('Academic') }}</option>
+              <option value="government" {{ old('affiliation_type') === 'government' ? 'selected' : '' }}>{{ __('Government') }}</option>
+              <option value="independent" {{ old('affiliation_type') === 'independent' ? 'selected' : '' }}>{{ __('Independent') }}</option>
+              <option value="corporate" {{ old('affiliation_type') === 'corporate' ? 'selected' : '' }}>{{ __('Corporate') }}</option>
+              <option value="student" {{ old('affiliation_type') === 'student' ? 'selected' : '' }}>{{ __('Student') }}</option>
+              <option value="other" {{ old('affiliation_type') === 'other' ? 'selected' : '' }}>{{ __('Other') }}</option>
             </select>
           </div>
           <div class="col-md-4 mb-3">

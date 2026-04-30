@@ -12,7 +12,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-file-import me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">RDF Import</h1>
+      <h1 class="mb-0">{{ __('RDF Import') }}</h1>
       <small class="text-muted">Parse Turtle / JSON-LD / RDF-XML and create archival descriptions or actors. Dry-run first; commit only when the mapping looks right.</small>
     </div>
   </div>
@@ -30,11 +30,11 @@
     <div class="card-body">
       <div class="row g-3">
         <div class="col-md-3">
-          <label class="form-label">Format</label>
+          <label class="form-label">{{ __('Format') }}</label>
           <select name="format" class="form-select" required>
-            <option value="turtle" {{ old('format') === 'turtle' ? 'selected' : '' }}>Turtle (.ttl)</option>
-            <option value="jsonld" {{ old('format') === 'jsonld' ? 'selected' : '' }}>JSON-LD (.jsonld / .json)</option>
-            <option value="rdfxml" {{ old('format') === 'rdfxml' ? 'selected' : '' }}>RDF/XML (.rdf / .xml)</option>
+            <option value="turtle" {{ old('format') === 'turtle' ? 'selected' : '' }}>{{ __('Turtle (.ttl)') }}</option>
+            <option value="jsonld" {{ old('format') === 'jsonld' ? 'selected' : '' }}>{{ __('JSON-LD (.jsonld / .json)') }}</option>
+            <option value="rdfxml" {{ old('format') === 'rdfxml' ? 'selected' : '' }}>{{ __('RDF/XML (.rdf / .xml)') }}</option>
           </select>
         </div>
         <div class="col-md-9">
@@ -42,7 +42,7 @@
           <input type="file" name="file" class="form-control" accept=".ttl,.jsonld,.json,.rdf,.xml,.n3">
         </div>
         <div class="col-12">
-          <label class="form-label">Or paste RDF</label>
+          <label class="form-label">{{ __('Or paste RDF') }}</label>
           <textarea name="payload" rows="10" class="form-control font-monospace" placeholder="@prefix rico: <https://www.ica.org/standards/RiC/ontology#> .&#10;@prefix dc:   <http://purl.org/dc/elements/1.1/> .&#10;&#10;<https://example.org/record/1> a rico:Record ;&#10;    rico:name &quot;Cabinet minutes, 1965&quot;@en ;&#10;    dc:description &quot;Bound volume of cabinet minutes&quot;@en .">{{ old('payload') }}</textarea>
         </div>
         <div class="col-12">
@@ -88,7 +88,7 @@
         <div class="card mb-3">
           <div class="card-header bg-success text-white"><strong>Mapped predicates</strong></div>
           <div class="table-responsive"><table class="table table-sm mb-0">
-            <thead><tr><th>Predicate</th><th class="text-end">Count</th></tr></thead>
+            <thead><tr><th>{{ __('Predicate') }}</th><th class="text-end">{{ __('Count') }}</th></tr></thead>
             <tbody>
               @forelse($result['mapped_predicates'] as $p => $n)
                 <tr><td><code>{{ $p }}</code></td><td class="text-end">{{ $n }}</td></tr>
@@ -103,7 +103,7 @@
         <div class="card mb-3">
           <div class="card-header bg-warning"><strong>Unmapped predicates</strong></div>
           <div class="table-responsive"><table class="table table-sm mb-0">
-            <thead><tr><th>Predicate</th><th class="text-end">Count</th></tr></thead>
+            <thead><tr><th>{{ __('Predicate') }}</th><th class="text-end">{{ __('Count') }}</th></tr></thead>
             <tbody>
               @forelse($result['unmapped_predicates'] as $p => $n)
                 <tr><td><code>{{ $p }}</code></td><td class="text-end">{{ $n }}</td></tr>

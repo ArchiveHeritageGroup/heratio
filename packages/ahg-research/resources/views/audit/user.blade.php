@@ -34,7 +34,7 @@
   <div class="card-header">Recent Activity ({{ $totalCount ?? 0 }} total)</div>
   <div class="table-responsive">
     <table class="table table-striped mb-0">
-      <thead><tr><th>Date</th><th>Action</th><th>Table</th><th>Record</th><th></th></tr></thead>
+      <thead><tr><th>{{ __('Date') }}</th><th>{{ __('Action') }}</th><th>{{ __('Table') }}</th><th>{{ __('Record') }}</th><th></th></tr></thead>
       <tbody>
         @foreach($activity ?? [] as $entry)
           @php $ac = match($entry->action) { 'create' => 'success', 'update' => 'warning', 'delete' => 'danger', default => 'secondary' }; @endphp

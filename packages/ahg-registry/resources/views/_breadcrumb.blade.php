@@ -11,7 +11,7 @@
     }
 @endphp
 @if (!empty($breadcrumbItems))
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     @foreach ($breadcrumbItems as $i => $crumb)
       @if ($i === count($breadcrumbItems) - 1)

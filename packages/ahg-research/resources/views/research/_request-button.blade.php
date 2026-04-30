@@ -3,7 +3,7 @@
 @if($objectId)
 <div class="ahg-request-item-container mt-3 mb-3">
     <button type="button" class="btn btn-outline-primary btn-sm" id="requestItemBtn-{{ $objectId }}"
-            aria-label="Request this item for reading room access" data-object-id="{{ $objectId }}">
+            aria-label="{{ __('Request this item for reading room access') }}" data-object-id="{{ $objectId }}">
         <i class="fas fa-hand-holding me-1" aria-hidden="true"></i>Request this Item
     </button>
     <div id="requestItemResult-{{ $objectId }}" class="mt-2" role="status" aria-live="polite"></div>

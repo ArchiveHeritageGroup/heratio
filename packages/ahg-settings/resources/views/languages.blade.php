@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Languages</h1>
+  <h1>{{ __('Languages') }}</h1>
 @endsection
 
 @section('content')
@@ -15,7 +15,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="lang-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#lang-collapse" aria-expanded="true">
-            Language settings
+            {{ __('Language settings') }}
           </button>
         </h2>
         <div id="lang-collapse" class="accordion-collapse collapse show" aria-labelledby="lang-heading">
@@ -30,9 +30,9 @@
             <table class="table table-bordered table-sm mb-4">
               <thead>
                 <tr>
-                  <th>Language code</th>
-                  <th>Language name</th>
-                  <th style="width: 80px">Actions</th>
+                  <th>{{ __('Language code') }}</th>
+                  <th>{{ __('Language name') }}</th>
+                  <th style="width: 80px">{{ __('Actions') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -49,10 +49,10 @@
                           @csrf
                           <input type="hidden" name="action" value="delete">
                           <input type="hidden" name="delete_id" value="{{ $lang->id }}">
-                          <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove"><i class="fas fa-times"></i></button>
+                          <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="{{ __('Remove') }}"><i class="fas fa-times"></i></button>
                         </form>
                       @else
-                        <i class="fas fa-lock text-muted" title="Cannot delete"></i>
+                        <i class="fas fa-lock text-muted" title="{{ __('Cannot delete') }}"></i>
                       @endif
                     </td>
                   </tr>
@@ -66,7 +66,7 @@
               <input type="hidden" name="action" value="add">
               <div class="col-auto">
                 <label class="form-label">Language code <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" name="languageCode" class="form-control" placeholder="e.g. fr" maxlength="3" style="width: 100px">
+                <input type="text" name="languageCode" class="form-control" placeholder="{{ __('e.g. fr') }}" maxlength="3" style="width: 100px">
               </div>
               <div class="col-auto">
                 <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Add</button>

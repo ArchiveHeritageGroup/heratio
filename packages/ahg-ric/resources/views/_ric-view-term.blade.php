@@ -50,9 +50,9 @@
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">RiC Entity Type</th><td><code>rico:Concept</code></td></tr>
-        @if($taxonomyName)<tr><th class="text-muted">Taxonomy</th><td>{{ $taxonomyName }}</td></tr>@endif
-        @if($parentTerm)<tr><th class="text-muted">broaderTerm</th><td><a href="{{ url('/' . $parentTerm->slug) }}">{{ $parentTerm->name }}</a></td></tr>@endif
+        <tr><th class="text-muted" style="width:35%">{{ __('RiC Entity Type') }}</th><td><code>rico:Concept</code></td></tr>
+        @if($taxonomyName)<tr><th class="text-muted">{{ __('Taxonomy') }}</th><td>{{ $taxonomyName }}</td></tr>@endif
+        @if($parentTerm)<tr><th class="text-muted">{{ __('broaderTerm') }}</th><td><a href="{{ url('/' . $parentTerm->slug) }}">{{ $parentTerm->name }}</a></td></tr>@endif
       </table>
     </div>
   </div>

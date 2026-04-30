@@ -44,7 +44,7 @@
 
 {{-- Page header --}}
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
-  <h1 class="h3 mb-0">Exhibition Dashboard</h1>
+  <h1 class="h3 mb-0">{{ __('Exhibition Dashboard') }}</h1>
   <div class="btn-group">
     <a href="{{ route('exhibition.add') }}" class="btn btn-success btn-sm">
       <i class="fas fa-plus me-1"></i> New Exhibition
@@ -97,7 +97,7 @@
     {{-- Currently Open --}}
     <div class="card shadow-sm mb-4">
       <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Currently Open</h5>
+        <h5 class="mb-0">{{ __('Currently Open') }}</h5>
         <a href="{{ route('exhibition.index', ['status' => 'open']) }}" class="btn btn-sm btn-outline-primary">View All</a>
       </div>
       <div class="card-body p-0">
@@ -144,7 +144,7 @@
     {{-- Upcoming Exhibitions --}}
     <div class="card shadow-sm mb-4">
       <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Upcoming Exhibitions</h5>
+        <h5 class="mb-0">{{ __('Upcoming Exhibitions') }}</h5>
         <a href="{{ route('exhibition.index', ['status' => 'preparation']) }}" class="btn btn-sm btn-outline-primary">View All</a>
       </div>
       <div class="card-body p-0">
@@ -180,7 +180,7 @@
     {{-- Workflow Overview --}}
     <div class="card shadow-sm mb-4">
       <div class="card-header bg-white">
-        <h5 class="mb-0">Workflow Overview</h5>
+        <h5 class="mb-0">{{ __('Workflow Overview') }}</h5>
       </div>
       <div class="card-body">
         @if(empty($stats['by_status']))
@@ -207,16 +207,16 @@
     <div class="card shadow-sm mb-4" id="all-exhibitions">
       <div class="card-header bg-white">
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <h5 class="mb-0">All Exhibitions</h5>
+          <h5 class="mb-0">{{ __('All Exhibitions') }}</h5>
           <small class="text-muted">{{ $total ?? 0 }} total</small>
         </div>
         <form method="get" action="{{ route('exhibition.index') }}#all-exhibitions" class="row g-2 align-items-center">
           <div class="col-md-4">
-            <input type="text" name="search" class="form-control form-control-sm" placeholder="Search..." value="{{ $filters['search'] ?? '' }}">
+            <input type="text" name="search" class="form-control form-control-sm" placeholder="{{ __('Search...') }}" value="{{ $filters['search'] ?? '' }}">
           </div>
           <div class="col-md-3">
             <select name="status" class="form-select form-select-sm">
-              <option value="">All Statuses</option>
+              <option value="">{{ __('All Statuses') }}</option>
               @foreach($statuses as $key => $status)
                 <option value="{{ $key }}" {{ ($filters['status'] ?? '') == $key ? 'selected' : '' }}>
                   {{ is_array($status) ? ($status['label'] ?? $key) : $status }}
@@ -226,7 +226,7 @@
           </div>
           <div class="col-md-3">
             <select name="type" class="form-select form-select-sm">
-              <option value="">All Types</option>
+              <option value="">{{ __('All Types') }}</option>
               @foreach($types as $key => $label)
                 <option value="{{ $key }}" {{ ($filters['exhibition_type'] ?? '') == $key ? 'selected' : '' }}>
                   {{ is_array($label) ? ($label['label'] ?? $key) : $label }}
@@ -235,7 +235,7 @@
             </select>
           </div>
           <div class="col-md-2 text-end">
-            <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+            <button type="submit" class="btn btn-primary btn-sm">{{ __('Filter') }}</button>
             <a href="{{ route('exhibition.index') }}#all-exhibitions" class="btn btn-outline-secondary btn-sm">Clear</a>
           </div>
         </form>
@@ -251,12 +251,12 @@
             <table class="table table-hover align-middle mb-0">
               <thead class="table-light">
                 <tr>
-                  <th>Title</th>
-                  <th>Type</th>
-                  <th>Status</th>
-                  <th>Opens</th>
-                  <th>Closes</th>
-                  <th>Venue</th>
+                  <th>{{ __('Title') }}</th>
+                  <th>{{ __('Type') }}</th>
+                  <th>{{ __('Status') }}</th>
+                  <th>{{ __('Opens') }}</th>
+                  <th>{{ __('Closes') }}</th>
+                  <th>{{ __('Venue') }}</th>
                   <th class="text-end"></th>
                 </tr>
               </thead>
@@ -279,10 +279,10 @@
                     <td>{{ $ex->venue_name ?? '-' }}</td>
                     <td class="text-end">
                       <div class="btn-group btn-group-sm">
-                        <a href="{{ route('exhibition.show', ['id' => $ex->id]) }}" class="btn btn-outline-primary" title="View">
+                        <a href="{{ route('exhibition.show', ['id' => $ex->id]) }}" class="btn btn-outline-primary" title="{{ __('View') }}">
                           <i class="fas fa-eye"></i>
                         </a>
-                        <a href="{{ route('exhibition.edit', ['id' => $ex->id]) }}" class="btn btn-outline-secondary" title="Edit">
+                        <a href="{{ route('exhibition.edit', ['id' => $ex->id]) }}" class="btn btn-outline-secondary" title="{{ __('Edit') }}">
                           <i class="fas fa-edit"></i>
                         </a>
                       </div>
@@ -322,7 +322,7 @@
     {{-- Quick Actions --}}
     <div class="card shadow-sm mb-4">
       <div class="card-header bg-white">
-        <h5 class="mb-0">Quick Actions</h5>
+        <h5 class="mb-0">{{ __('Quick Actions') }}</h5>
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('exhibition.add') }}" class="list-group-item list-group-item-action">
@@ -347,7 +347,7 @@
     @if(!empty($pendingChecklists))
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white">
-          <h5 class="mb-0">Pending Checklist Items</h5>
+          <h5 class="mb-0">{{ __('Pending Checklist Items') }}</h5>
         </div>
         <ul class="list-group list-group-flush">
           @foreach(array_slice($pendingChecklists, 0, 5) as $item)
@@ -381,7 +381,7 @@
     @if(!empty($recentActivity))
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white">
-          <h5 class="mb-0">Recent Activity</h5>
+          <h5 class="mb-0">{{ __('Recent Activity') }}</h5>
         </div>
         <ul class="list-group list-group-flush">
           @foreach(array_slice($recentActivity, 0, 8) as $activity)
@@ -405,7 +405,7 @@
     {{-- Calendar --}}
     <div class="card shadow-sm mb-4">
       <div class="card-header bg-white">
-        <h5 class="mb-0">Calendar</h5>
+        <h5 class="mb-0">{{ __('Calendar') }}</h5>
       </div>
       <div class="card-body">
         <p class="small text-muted mb-2">Next 30 Days</p>

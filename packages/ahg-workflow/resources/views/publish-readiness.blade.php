@@ -59,11 +59,11 @@
           <table class="table table-bordered table-hover mb-0">
             <thead>
               <tr>
-                <th>Status</th>
-                <th>Rule</th>
-                <th>Type</th>
-                <th>Severity</th>
-                <th>Details</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Rule') }}</th>
+                <th>{{ __('Type') }}</th>
+                <th>{{ __('Severity') }}</th>
+                <th>{{ __('Details') }}</th>
               </tr>
             </thead>
             <tbody>

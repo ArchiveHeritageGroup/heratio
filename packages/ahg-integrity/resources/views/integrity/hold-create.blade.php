@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-shield-alt me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">Place Legal Hold</h1><span class="small text-muted">Digital object integrity management</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Place Legal Hold') }}</h1><span class="small text-muted">Digital object integrity management</span></div>
   </div>
 @endsection
 @section('content')
@@ -14,22 +14,22 @@
 @endif
 
 <div class="card">
-  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">Place Legal Hold</h5></div>
+  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Place Legal Hold') }}</h5></div>
   <div class="card-body">
     <form method="post" action="{{ route('integrity.holds.store') }}">
       @csrf
 
       <div class="mb-3">
-        <label for="io_search" class="form-label">Information Object</label>
+        <label for="io_search" class="form-label">{{ __('Information Object') }}</label>
         <div class="input-group">
-          <input type="text" id="io_search" class="form-control" placeholder="Search by title or enter IO ID..." value="{{ old('io_search', '') }}" autocomplete="off">
+          <input type="text" id="io_search" class="form-control" placeholder="{{ __('Search by title or enter IO ID...') }}" value="{{ old('io_search', '') }}" autocomplete="off">
           <input type="hidden" name="information_object_id" id="information_object_id" value="{{ old('information_object_id', '') }}">
           <button type="button" class="btn btn-outline-secondary" id="io_search_btn"><i class="fas fa-search"></i></button>
         </div>
         <div id="io_search_results" class="list-group mt-1" style="display:none; max-height:200px; overflow-y:auto;"></div>
         <div id="io_selected" class="mt-2" style="display:none;">
           <span class="badge bg-success" id="io_selected_label"></span>
-          <button type="button" class="btn btn-sm btn-link text-danger" id="io_clear">Clear</button>
+          <button type="button" class="btn btn-sm btn-link text-danger" id="io_clear">{{ __('Clear') }}</button>
         </div>
         @error('information_object_id')
         <div class="text-danger small">{{ $message }}</div>
@@ -37,7 +37,7 @@
       </div>
 
       <div class="mb-3">
-        <label for="reason" class="form-label">Reason for Hold</label>
+        <label for="reason" class="form-label">{{ __('Reason for Hold') }}</label>
         <textarea name="reason" id="reason" class="form-control" rows="4" required>{{ old('reason', '') }}</textarea>
         @error('reason')
         <div class="text-danger small">{{ $message }}</div>

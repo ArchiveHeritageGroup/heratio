@@ -20,7 +20,7 @@
   {{-- Available Labels --}}
   <div class="card mb-4">
     <div class="card-header">
-      <h5 class="mb-0">Available TK Labels</h5>
+      <h5 class="mb-0">{{ __('Available TK Labels') }}</h5>
     </div>
     <div class="card-body">
       <p class="text-muted mb-3">
@@ -65,17 +65,17 @@
   {{-- Current Assignments --}}
   <div class="card">
     <div class="card-header">
-      <h5 class="mb-0">Label Assignments</h5>
+      <h5 class="mb-0">{{ __('Label Assignments') }}</h5>
     </div>
     <div class="card-body p-0">
       <table class="table table-hover mb-0">
         <thead class="table-light">
           <tr>
-            <th>Label</th>
-            <th>Object</th>
-            <th>Community</th>
-            <th>Verified</th>
-            <th>Assigned</th>
+            <th>{{ __('Label') }}</th>
+            <th>{{ __('Object') }}</th>
+            <th>{{ __('Community') }}</th>
+            <th>{{ __('Verified') }}</th>
+            <th>{{ __('Assigned') }}</th>
             <th></th>
           </tr>
         </thead>
@@ -132,7 +132,7 @@
       <form action="{{ route('ext-rights-admin.assign-tk-label') }}" method="post">
         @csrf
         <div class="modal-header">
-          <h5 class="modal-title">Assign TK Label</h5>
+          <h5 class="modal-title">{{ __('Assign TK Label') }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -152,21 +152,21 @@
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label">Community Name</label>
+            <label class="form-label">{{ __('Community Name') }}</label>
             <input type="text" name="community_name" class="form-control">
           </div>
           <div class="mb-3">
-            <label class="form-label">Community Contact</label>
-            <textarea name="community_contact" class="form-control" rows="2" placeholder="Contact information for the community"></textarea>
+            <label class="form-label">{{ __('Community Contact') }}</label>
+            <textarea name="community_contact" class="form-control" rows="2" placeholder="{{ __('Contact information for the community') }}"></textarea>
           </div>
           <div class="mb-3">
-            <label class="form-label">Custom Text</label>
-            <textarea name="custom_text" class="form-control" rows="2" placeholder="Optional custom description from the community"></textarea>
+            <label class="form-label">{{ __('Custom Text') }}</label>
+            <textarea name="custom_text" class="form-control" rows="2" placeholder="{{ __('Optional custom description from the community') }}"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Assign Label</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="submit" class="btn btn-primary">{{ __('Assign Label') }}</button>
         </div>
       </form>
     </div>

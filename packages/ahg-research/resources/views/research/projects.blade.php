@@ -98,7 +98,7 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label for="proj_type" class="form-label">Project Type <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" name="project_type" id="proj_type" class="form-control" placeholder="e.g. thesis, dissertation, article">
+                <input type="text" name="project_type" id="proj_type" class="form-control" placeholder="{{ __('e.g. thesis, dissertation, article') }}">
               </div>
               <div class="col-md-6 mb-3">
                 <label for="proj_institution" class="form-label">Institution <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -117,7 +117,7 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
             <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Create</button>
           </div>
         </form>

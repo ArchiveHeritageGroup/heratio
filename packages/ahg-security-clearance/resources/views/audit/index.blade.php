@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid mt-3">
-  <nav aria-label="breadcrumb"><ol class="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">Security Dashboard</a></li>
     <li class="breadcrumb-item"><a href="{{ route('security-clearance.audit-dashboard') }}">Audit</a></li>
     <li class="breadcrumb-item active">Full Log</li>
@@ -18,37 +18,37 @@
     <div class="card-body">
       <form method="GET" class="row g-2">
         <div class="col-md-2">
-          <label class="form-label">Action</label>
+          <label class="form-label">{{ __('Action') }}</label>
           <select name="log_action" class="form-select form-select-sm">
-            <option value="">All</option>
+            <option value="">{{ __('All') }}</option>
             @foreach($actions ?? [] as $action)
               <option value="{{ $action }}" {{ ($filters['action'] ?? '') === $action ? 'selected' : '' }}>{{ ucfirst($action) }}</option>
             @endforeach
           </select>
         </div>
         <div class="col-md-2">
-          <label class="form-label">Category</label>
+          <label class="form-label">{{ __('Category') }}</label>
           <select name="category" class="form-select form-select-sm">
-            <option value="">All</option>
+            <option value="">{{ __('All') }}</option>
             @foreach($categories ?? [] as $cat)
               <option value="{{ $cat }}" {{ ($filters['category'] ?? '') === $cat ? 'selected' : '' }}>{{ ucfirst($cat) }}</option>
             @endforeach
           </select>
         </div>
         <div class="col-md-2">
-          <label class="form-label">User</label>
-          <input type="text" name="user" class="form-control form-control-sm" value="{{ $filters['user_name'] ?? '' }}" placeholder="Username">
+          <label class="form-label">{{ __('User') }}</label>
+          <input type="text" name="user" class="form-control form-control-sm" value="{{ $filters['user_name'] ?? '' }}" placeholder="{{ __('Username') }}">
         </div>
         <div class="col-md-2">
-          <label class="form-label">From</label>
+          <label class="form-label">{{ __('From') }}</label>
           <input type="date" name="date_from" class="form-control form-control-sm" value="{{ $filters['date_from'] ?? '' }}">
         </div>
         <div class="col-md-2">
-          <label class="form-label">To</label>
+          <label class="form-label">{{ __('To') }}</label>
           <input type="date" name="date_to" class="form-control form-control-sm" value="{{ $filters['date_to'] ?? '' }}">
         </div>
         <div class="col-md-2 d-flex align-items-end gap-1">
-          <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+          <button type="submit" class="btn btn-sm btn-primary">{{ __('Filter') }}</button>
           <a href="{{ route('security-clearance.audit-index') }}" class="btn btn-sm btn-secondary">Clear</a>
           <a href="{{ route('security-clearance.audit-export') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-download"></i></a>
         </div>
@@ -61,7 +61,7 @@
     <div class="card-body table-responsive">
       <table class="table table-sm table-striped table-hover">
         <thead>
-          <tr><th>ID</th><th>Time</th><th>Action</th><th>Category</th><th>User</th><th>Object</th><th>IP</th><th>Details</th></tr>
+          <tr><th>{{ __('ID') }}</th><th>{{ __('Time') }}</th><th>{{ __('Action') }}</th><th>{{ __('Category') }}</th><th>{{ __('User') }}</th><th>{{ __('Object') }}</th><th>{{ __('IP') }}</th><th>{{ __('Details') }}</th></tr>
         </thead>
         <tbody>
           @forelse($logs ?? [] as $log)

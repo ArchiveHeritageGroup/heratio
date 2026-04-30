@@ -5,7 +5,7 @@
 @section('content')
 <div class="container py-4">
 
-  <nav aria-label="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Admin</a></li>
       <li class="breadcrumb-item"><a href="{{ route('acl.groups') }}">ACL</a></li>
@@ -23,14 +23,14 @@
   @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
       {{ session('success') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
   @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
       {{ session('error') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
@@ -41,7 +41,7 @@
           <li>{{ $error }}</li>
         @endforeach
       </ul>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
@@ -58,11 +58,11 @@
             <table class="table table-bordered table-striped table-hover mb-0">
               <thead>
                 <tr>
-                  <th>User</th>
-                  <th>Clearance</th>
-                  <th>Can Approve</th>
-                  <th>Email Notify</th>
-                  <th>Actions</th>
+                  <th>{{ __('User') }}</th>
+                  <th>{{ __('Clearance') }}</th>
+                  <th>{{ __('Can Approve') }}</th>
+                  <th>{{ __('Email Notify') }}</th>
+                  <th>{{ __('Actions') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -87,16 +87,16 @@
                     </td>
                     <td>
                       @if($approver->email_notifications)
-                        <i class="fas fa-check text-success" title="Email notifications enabled"></i>
+                        <i class="fas fa-check text-success" title="{{ __('Email notifications enabled') }}"></i>
                       @else
-                        <i class="fas fa-times text-danger" title="Email notifications disabled"></i>
+                        <i class="fas fa-times text-danger" title="{{ __('Email notifications disabled') }}"></i>
                       @endif
                     </td>
                     <td>
                       <form action="{{ route('acl.remove-approver', ['id' => $approver->id]) }}" method="POST"
                             onsubmit="return confirm('Are you sure you want to remove this approver?');">
                         @csrf
-                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove approver">
+                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="{{ __('Remove approver') }}">
                           <i class="fas fa-user-minus me-1"></i> Remove
                         </button>
                       </form>

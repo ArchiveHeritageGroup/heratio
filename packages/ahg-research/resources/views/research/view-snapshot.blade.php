@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('content')
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
@@ -19,7 +19,7 @@
 
 {{-- Snapshot metadata --}}
 <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0">Snapshot Details</h5></div>
+    <div class="card-header"><h5 class="mb-0">{{ __('Snapshot Details') }}</h5></div>
     <div class="card-body">
         <dl class="row mb-0">
             @if($snapshot->description ?? null)
@@ -47,14 +47,14 @@
 {{-- Items --}}
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Snapshot Items</h5>
+        <h5 class="mb-0">{{ __('Snapshot Items') }}</h5>
         <span class="badge bg-primary">{{ count($items) }}</span>
     </div>
     @if(!empty($items))
     <div class="table-responsive">
         <table class="table table-hover mb-0">
             <thead class="table-light">
-                <tr><th>#</th><th>Object</th><th>Type</th><th>Slug</th></tr>
+                <tr><th>#</th><th>{{ __('Object') }}</th><th>{{ __('Type') }}</th><th>{{ __('Slug') }}</th></tr>
             </thead>
             <tbody>
                 @foreach($items as $i => $item)

@@ -4,7 +4,7 @@
 @section('body-class', 'browse accession intake-queue')
 
 @section('title-block')
-  <h1>Accession intake queue</h1>
+  <h1>{{ __('Accession intake queue') }}</h1>
 @endsection
 
 @section('before-content')
@@ -22,12 +22,12 @@
       <table class="table table-bordered table-hover mb-0">
         <thead>
           <tr>
-            <th>Identifier</th>
-            <th>Title</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Updated</th>
+            <th>{{ __('Identifier') }}</th>
+            <th>{{ __('Title') }}</th>
+            <th>{{ __('Date') }}</th>
+            <th>{{ __('Status') }}</th>
+            <th>{{ __('Priority') }}</th>
+            <th>{{ __('Updated') }}</th>
           </tr>
         </thead>
         <tbody>

@@ -32,7 +32,7 @@
         <div class="card-body py-2">
             <form method="get" class="row g-3 align-items-center">
                 <div class="col-auto">
-                    <label class="form-label mb-0">Period:</label>
+                    <label class="form-label mb-0">{{ __('Period:') }}</label>
                 </div>
                 <div class="col-auto">
                     <input type="date" name="start" class="form-control form-control-sm" value="{{ $startDate }}">
@@ -42,7 +42,7 @@
                     <input type="date" name="end" class="form-control form-control-sm" value="{{ $endDate }}">
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+                    <button type="submit" class="btn btn-sm btn-primary">{{ __('Apply') }}</button>
                 </div>
                 <div class="col-auto">
                     <a href="{{ route('statistics.dashboard', ['start' => \Carbon\Carbon::now()->subDays(7)->toDateString(), 'end' => \Carbon\Carbon::now()->toDateString()]) }}" class="btn btn-sm btn-outline-secondary">7 days</a>
@@ -59,7 +59,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="card-subtitle mb-1 text-white-50">Total Views</h6>
+                            <h6 class="card-subtitle mb-1 text-white-50">{{ __('Total Views') }}</h6>
                             <h2 class="card-title mb-0">{{ number_format($stats['total_views'] ?? 0) }}</h2>
                         </div>
                         <i class="fas fa-eye fa-2x opacity-50"></i>
@@ -72,7 +72,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="card-subtitle mb-1 text-white-50">Downloads</h6>
+                            <h6 class="card-subtitle mb-1 text-white-50">{{ __('Downloads') }}</h6>
                             <h2 class="card-title mb-0">{{ number_format($stats['total_downloads'] ?? 0) }}</h2>
                         </div>
                         <i class="fas fa-download fa-2x opacity-50"></i>
@@ -85,7 +85,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="card-subtitle mb-1 text-white-50">Unique Visitors</h6>
+                            <h6 class="card-subtitle mb-1 text-white-50">{{ __('Unique Visitors') }}</h6>
                             <h2 class="card-title mb-0">{{ number_format($stats['unique_visitors'] ?? 0) }}</h2>
                         </div>
                         <i class="fas fa-users fa-2x opacity-50"></i>
@@ -98,7 +98,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="card-subtitle mb-1 text-white-50">Countries</h6>
+                            <h6 class="card-subtitle mb-1 text-white-50">{{ __('Countries') }}</h6>
                             <h2 class="card-title mb-0">{{ number_format($stats['countries'] ?? 0) }}</h2>
                         </div>
                         <i class="fas fa-globe fa-2x opacity-50"></i>
@@ -156,8 +156,8 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>#</th>
-                                    <th>Title</th>
-                                    <th class="text-end">Views</th>
+                                    <th>{{ __('Title') }}</th>
+                                    <th class="text-end">{{ __('Views') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -197,8 +197,8 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>#</th>
-                                    <th>Title</th>
-                                    <th class="text-end">Downloads</th>
+                                    <th>{{ __('Title') }}</th>
+                                    <th class="text-end">{{ __('Downloads') }}</th>
                                 </tr>
                             </thead>
                             <tbody>

@@ -2,10 +2,10 @@
 @section('title', 'Shared Favorites')
 @section('body-class', 'browse')
 @section('content')
-  <div class="multiline-header d-flex align-items-center mb-3"><i class="fas fa-3x fa-share-alt me-3" aria-hidden="true"></i><div class="d-flex flex-column"><h1 class="mb-0">Shared Favorites</h1></div></div>
+  <div class="multiline-header d-flex align-items-center mb-3"><i class="fas fa-3x fa-share-alt me-3" aria-hidden="true"></i><div class="d-flex flex-column"><h1 class="mb-0">{{ __('Shared Favorites') }}</h1></div></div>
   @if(isset($rows) && count($rows))
     <div class="table-responsive"><table class="table table-bordered table-hover mb-0">
-      <thead><tr><th>#</th><th>Title</th><th>Type</th><th>Date Added</th><th>Notes</th></tr></thead>
+      <thead><tr><th>#</th><th>{{ __('Title') }}</th><th>{{ __('Type') }}</th><th>{{ __('Date Added') }}</th><th>{{ __('Notes') }}</th></tr></thead>
       <tbody>@foreach($rows as $row)<tr>@foreach((array)$row as $v)<td>{{ $v }}</td>@endforeach</tr>@endforeach</tbody>
     </table></div>
     @if(isset($pager))@include('ahg-core::components.pager', ['pager' => $pager])@endif

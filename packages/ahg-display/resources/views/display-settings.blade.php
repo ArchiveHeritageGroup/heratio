@@ -101,7 +101,7 @@ $moduleLabels = [
                                                        @php echo in_array($mode, $availableModes) ? 'checked' : ''; @endphp>
                                                 <label class="form-check-label"
                                                        for="mode_@php echo $module; @endphp_@php echo $mode; @endphp"
-                                                       title="@php echo $meta['name']; @endphp">
+                                                       title="{{ __("@php echo $meta['name']; @endphp") }}">
                                                     <i class="bi @php echo $meta['icon']; @endphp"></i> <span class="badge bg-secondary ms-1">Optional</span>
                                                 </label>
                                             </div>
@@ -156,7 +156,7 @@ $moduleLabels = [
                                     <button type="button" 
                                             class="btn btn-outline-warning btn-sm reset-module-btn"
                                             data-module="@php echo $module; @endphp"
-                                            title="Reset to defaults">
+                                            title="{{ __('Reset to defaults') }}">
                                         <i class="bi bi-arrow-counterclockwise"></i>
                                     </button>
                                 </td>

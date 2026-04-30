@@ -3,7 +3,7 @@
 @section('body-class', 'export physicalobject')
 @section('content')
 
-  <h1>Export storage report</h1>
+  <h1>{{ __('Export storage report') }}</h1>
 
   <form method="POST" action="{{ url('/physicalobject/holdingsReportExport') }}">
     @csrf
@@ -12,7 +12,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="export-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#export-collapse" aria-expanded="true" aria-controls="export-collapse">
-            Export options
+            {{ __('Export options') }}
           </button>
         </h2>
         <div id="export-collapse" class="accordion-collapse collapse show" aria-labelledby="export-heading">

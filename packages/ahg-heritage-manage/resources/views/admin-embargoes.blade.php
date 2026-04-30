@@ -14,7 +14,7 @@ $expiringEmbargoes = $expiringEmbargoes ?? [];
     @include('ahg-heritage-manage::partials._admin-sidebar')
 
     <div class="card border-0 shadow-sm mt-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">Statistics</h6></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">{{ __('Statistics') }}</h6></div>
       <div class="card-body">
         <div class="d-flex justify-content-between mb-2">
           <span>Active</span>
@@ -54,7 +54,7 @@ $expiringEmbargoes = $expiringEmbargoes ?? [];
 
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">Active Embargoes</h5>
+        <h5 class="mb-0">{{ __('Active Embargoes') }}</h5>
         <span class="badge bg-danger">{{ number_format($total) }} active</span>
       </div>
       <div class="card-body p-0">
@@ -67,7 +67,7 @@ $expiringEmbargoes = $expiringEmbargoes ?? [];
         <div class="table-responsive">
           <table class="table table-hover mb-0">
             <thead class="table-light">
-              <tr><th>Item</th><th>Type</th><th>End Date</th><th>Auto-Release</th><th></th></tr>
+              <tr><th>{{ __('Item') }}</th><th>{{ __('Type') }}</th><th>{{ __('End Date') }}</th><th>{{ __('Auto-Release') }}</th><th></th></tr>
             </thead>
             <tbody>
               @foreach($embargoes as $embargo)

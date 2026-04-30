@@ -9,7 +9,7 @@
 @section('content')
 
 <h1>Edit Rights: {{ $io->title ?? 'Untitled' }}</h1>
-<nav aria-label="breadcrumb" class="mb-4">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-4">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('io.rights.extended', $io->slug) }}">Extended Rights</a></li>
     <li class="breadcrumb-item active">Edit</li>
@@ -66,7 +66,7 @@
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>Rights Holder (Donor)</strong></div>
         <div class="card-body">
           <label for="rights_holder_id" class="form-label">Rights Holder <span class="badge bg-secondary ms-1">Optional</span></label>
-          <select name="rights_holder_id" id="rights_holder_id" class="form-select" placeholder="Type to search...">
+          <select name="rights_holder_id" id="rights_holder_id" class="form-select" placeholder="{{ __('Type to search...') }}">
             <option value="">-- None --</option>
             @if(isset($donors) && count($donors) > 0)
               @php

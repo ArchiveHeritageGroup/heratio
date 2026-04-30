@@ -4,7 +4,7 @@
     <h4 class="mb-1"><i class="{{ $icon ?? 'fas fa-cog' }} me-2"></i>{{ $featureTitle }}</h4>
     <p class="text-muted mb-0">{{ $featureDescription ?? '' }}</p>
     @if(isset($io))
-      <nav aria-label="breadcrumb" class="mt-2">
+      <nav aria-label="{{ __('breadcrumb') }}" class="mt-2">
         <ol class="breadcrumb mb-0">
           <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title }}</a></li>
           <li class="breadcrumb-item active">{{ $featureTitle }}</li>

@@ -16,7 +16,7 @@
 
 @section('content')
 <div class="container-fluid px-4 py-3">
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">Statistics</a></li>
             <li class="breadcrumb-item active">Downloads Report</li>
@@ -34,7 +34,7 @@
         <div class="card-body py-2">
             <form method="get" class="row g-3 align-items-center">
                 <div class="col-auto">
-                    <label class="form-label mb-0">Period:</label>
+                    <label class="form-label mb-0">{{ __('Period:') }}</label>
                 </div>
                 <div class="col-auto">
                     <input type="date" name="start" class="form-control form-control-sm" value="{{ $startDate }}">
@@ -44,7 +44,7 @@
                     <input type="date" name="end" class="form-control form-control-sm" value="{{ $endDate }}">
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+                    <button type="submit" class="btn btn-sm btn-primary">{{ __('Apply') }}</button>
                 </div>
             </form>
         </div>
@@ -54,7 +54,7 @@
         <div class="col-lg-6 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">Downloads Over Time</h5>
+                    <h5 class="mb-0">{{ __('Downloads Over Time') }}</h5>
                 </div>
                 <div class="card-body">
                     <canvas id="downloadsChart" height="250"></canvas>
@@ -64,7 +64,7 @@
         <div class="col-lg-6 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">Top Downloaded Items</h5>
+                    <h5 class="mb-0">{{ __('Top Downloaded Items') }}</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -72,8 +72,8 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>#</th>
-                                    <th>Title</th>
-                                    <th class="text-end">Downloads</th>
+                                    <th>{{ __('Title') }}</th>
+                                    <th class="text-end">{{ __('Downloads') }}</th>
                                 </tr>
                             </thead>
                             <tbody>

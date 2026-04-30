@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-calendar-check me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">Retention Schedules</h1><span class="small text-muted">Records management — retention schedule administration</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Retention Schedules') }}</h1><span class="small text-muted">Records management — retention schedule administration</span></div>
   </div>
 @endsection
 @section('content')
@@ -17,30 +17,30 @@
 
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h5 class="mb-0">Retention Schedules</h5>
+    <h5 class="mb-0">{{ __('Retention Schedules') }}</h5>
     <a href="{{ route('records.schedules.create') }}" class="btn btn-sm btn-light"><i class="fas fa-plus me-1"></i>Create Schedule</a>
   </div>
   <div class="card-body pb-2">
     <form method="get" action="{{ route('records.schedules.index') }}" class="row g-2 mb-3">
       <div class="col-md-3">
         <select name="status" class="form-select form-select-sm">
-          <option value="">All statuses</option>
-          <option value="draft" {{ ($filters['status'] ?? '') === 'draft' ? 'selected' : '' }}>Draft</option>
-          <option value="active" {{ ($filters['status'] ?? '') === 'active' ? 'selected' : '' }}>Active</option>
-          <option value="superseded" {{ ($filters['status'] ?? '') === 'superseded' ? 'selected' : '' }}>Superseded</option>
-          <option value="expired" {{ ($filters['status'] ?? '') === 'expired' ? 'selected' : '' }}>Expired</option>
+          <option value="">{{ __('All statuses') }}</option>
+          <option value="draft" {{ ($filters['status'] ?? '') === 'draft' ? 'selected' : '' }}>{{ __('Draft') }}</option>
+          <option value="active" {{ ($filters['status'] ?? '') === 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
+          <option value="superseded" {{ ($filters['status'] ?? '') === 'superseded' ? 'selected' : '' }}>{{ __('Superseded') }}</option>
+          <option value="expired" {{ ($filters['status'] ?? '') === 'expired' ? 'selected' : '' }}>{{ __('Expired') }}</option>
         </select>
       </div>
       <div class="col-md-3">
         <select name="jurisdiction" class="form-select form-select-sm">
-          <option value="">All jurisdictions</option>
+          <option value="">{{ __('All jurisdictions') }}</option>
           @foreach($jurisdictions as $j)
             <option value="{{ $j }}" {{ ($filters['jurisdiction'] ?? '') === $j ? 'selected' : '' }}>{{ $j }}</option>
           @endforeach
         </select>
       </div>
       <div class="col-md-4">
-        <input type="text" name="search" class="form-control form-control-sm" placeholder="Search ref or title..." value="{{ $filters['search'] ?? '' }}">
+        <input type="text" name="search" class="form-control form-control-sm" placeholder="{{ __('Search ref or title...') }}" value="{{ $filters['search'] ?? '' }}">
       </div>
       <div class="col-md-2">
         <button type="submit" class="btn btn-sm atom-btn-white w-100"><i class="fas fa-filter me-1"></i>Filter</button>
@@ -51,7 +51,7 @@
     @if(count($items) > 0)
     <table class="table table-striped table-hover mb-0">
       <thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        <th>Ref</th><th>Title</th><th>Jurisdiction</th><th>Effective Date</th><th>Review Date</th><th>Classes</th><th>Status</th>
+        <th>{{ __('Ref') }}</th><th>{{ __('Title') }}</th><th>{{ __('Jurisdiction') }}</th><th>{{ __('Effective Date') }}</th><th>{{ __('Review Date') }}</th><th>{{ __('Classes') }}</th><th>{{ __('Status') }}</th>
       </tr></thead>
       <tbody>
         @foreach($items as $item)

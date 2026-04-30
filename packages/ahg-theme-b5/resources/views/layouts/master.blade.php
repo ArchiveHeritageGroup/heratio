@@ -130,7 +130,7 @@
 
       {{-- Breadcrumbs --}}
       @hasSection('breadcrumbs')
-        <nav aria-label="breadcrumb" id="breadcrumb">
+        <nav aria-label="{{ __('breadcrumb') }}" id="breadcrumb">
           <ol class="breadcrumb">
             @yield('breadcrumbs')
           </ol>

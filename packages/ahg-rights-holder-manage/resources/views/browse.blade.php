@@ -4,7 +4,7 @@
 @section('body-class', 'browse rightsholder')
 
 @section('content')
-  <h1>Browse rights holders</h1>
+  <h1>{{ __('Browse rights holders') }}</h1>
 
   <div class="d-flex flex-wrap gap-2 mb-3">
     @include('ahg-core::components.inline-search', [
@@ -47,8 +47,8 @@
     <table class="table table-bordered mb-0">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Updated</th>
+          <th>{{ __('Name') }}</th>
+          <th>{{ __('Updated') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -74,7 +74,7 @@
 
   @auth
     <section class="actions mb-3">
-      <a class="btn btn-outline-secondary" href="{{ route('rightsholder.create') }}" title="Add new">Add new</a>
+      <a class="btn btn-outline-secondary" href="{{ route('rightsholder.create') }}" title="{{ __('Add new') }}">Add new</a>
     </section>
   @endauth
 @endsection

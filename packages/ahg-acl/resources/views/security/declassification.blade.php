@@ -17,11 +17,11 @@
     <table class="table table-striped">
       <thead>
         <tr>
-          <th>Object</th>
-          <th>Current</th>
-          <th>Downgrade To</th>
-          <th>Scheduled</th>
-          <th>Actions</th>
+          <th>{{ __('Object') }}</th>
+          <th>{{ __('Current') }}</th>
+          <th>{{ __('Downgrade To') }}</th>
+          <th>{{ __('Scheduled') }}</th>
+          <th>{{ __('Actions') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -71,11 +71,11 @@
     <table class="table table-striped">
       <thead>
         <tr>
-          <th>Object</th>
-          <th>Current</th>
-          <th>Downgrade To</th>
-          <th>Scheduled Date</th>
-          <th>Days Until</th>
+          <th>{{ __('Object') }}</th>
+          <th>{{ __('Current') }}</th>
+          <th>{{ __('Downgrade To') }}</th>
+          <th>{{ __('Scheduled Date') }}</th>
+          <th>{{ __('Days Until') }}</th>
         </tr>
       </thead>
       <tbody>

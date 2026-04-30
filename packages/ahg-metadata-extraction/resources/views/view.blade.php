@@ -25,30 +25,30 @@
     {{-- Digital Object Info --}}
     <div class="row mb-4">
       <div class="col-md-6">
-        <h6>Digital Object Details</h6>
+        <h6>{{ __('Digital Object Details') }}</h6>
         <table class="table table-bordered table-sm">
           <tr>
-            <th class="w-25">ID</th>
+            <th class="w-25">{{ __('ID') }}</th>
             <td>{{ $digitalObject->id }}</td>
           </tr>
           <tr>
-            <th>File Name</th>
+            <th>{{ __('File Name') }}</th>
             <td>{{ e($digitalObject->name ?: basename($digitalObject->path)) }}</td>
           </tr>
           <tr>
-            <th>MIME Type</th>
+            <th>{{ __('MIME Type') }}</th>
             <td><code>{{ e($digitalObject->mime_type ?? 'unknown') }}</code></td>
           </tr>
           <tr>
-            <th>Size</th>
+            <th>{{ __('Size') }}</th>
             <td>{{ $digitalObject->byte_size ? number_format($digitalObject->byte_size / 1024, 1) . ' KB' : '-' }}</td>
           </tr>
           <tr>
-            <th>Path</th>
+            <th>{{ __('Path') }}</th>
             <td><small class="text-muted">{{ e($digitalObject->path) }}</small></td>
           </tr>
           <tr>
-            <th>Parent Record</th>
+            <th>{{ __('Parent Record') }}</th>
             <td>
               @if($digitalObject->slug)
                 <a href="{{ url('/' . $digitalObject->slug) }}">
@@ -62,7 +62,7 @@
         </table>
       </div>
       <div class="col-md-6">
-        <h6>Actions</h6>
+        <h6>{{ __('Actions') }}</h6>
         <div class="d-flex gap-2 flex-wrap">
           <button type="button" class="btn atom-btn-outline-success btn-sm" id="extractBtn">
             <i class="bi bi-download me-1"></i>Extract Metadata
@@ -84,7 +84,7 @@
 
     {{-- Extracted Metadata --}}
     @if(count($groupedMetadata) > 0)
-      <h6>Extracted Metadata</h6>
+      <h6>{{ __('Extracted Metadata') }}</h6>
 
       <div class="accordion" id="metadataAccordion">
         @php $index = 0; @endphp
@@ -103,8 +103,8 @@
                 <table class="table table-bordered table-sm table-striped mb-0">
                   <thead>
                     <tr>
-                      <th style="width: 30%">Field</th>
-                      <th>Value</th>
+                      <th style="width: 30%">{{ __('Field') }}</th>
+                      <th>{{ __('Value') }}</th>
                     </tr>
                   </thead>
                   <tbody>

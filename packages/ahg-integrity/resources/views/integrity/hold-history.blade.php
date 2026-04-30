@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-shield-alt me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">Hold History</h1><span class="small text-muted">{{ $ioTitle }} (IO #{{ $ioId }})</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Hold History') }}</h1><span class="small text-muted">{{ $ioTitle }} (IO #{{ $ioId }})</span></div>
   </div>
 @endsection
 @section('content')
@@ -17,7 +17,7 @@
     @if(count($history) > 0)
     <table class="table table-striped table-hover mb-0">
       <thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        <th>ID</th><th>Status</th><th>Reason</th><th>Placed By</th><th>Placed At</th><th>Released By</th><th>Released At</th>
+        <th>{{ __('ID') }}</th><th>{{ __('Status') }}</th><th>{{ __('Reason') }}</th><th>{{ __('Placed By') }}</th><th>{{ __('Placed At') }}</th><th>{{ __('Released By') }}</th><th>{{ __('Released At') }}</th>
       </tr></thead>
       <tbody>
         @foreach($history as $h)

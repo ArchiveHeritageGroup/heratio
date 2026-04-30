@@ -46,33 +46,33 @@
                         <div class="mb-3">
                             <label class="form-label" for="term">Term <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="term" name="term" required
-                                   placeholder="e.g., archive, manuscript, photograph">
+                                   placeholder="{{ __('e.g., archive, manuscript, photograph') }}">
                             <div class="form-text">The main term to add to the thesaurus.</div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label" for="domain">Domain</label>
+                            <label class="form-label" for="domain">{{ __('Domain') }}</label>
                             <select class="form-select" id="domain" name="domain">
-                                <option value="general">General</option>
-                                <option value="archival">Archival</option>
-                                <option value="museum">Museum</option>
-                                <option value="library">Library</option>
-                                <option value="south_african">South African</option>
+                                <option value="general">{{ __('General') }}</option>
+                                <option value="archival">{{ __('Archival') }}</option>
+                                <option value="museum">{{ __('Museum') }}</option>
+                                <option value="library">{{ __('Library') }}</option>
+                                <option value="south_african">{{ __('South African') }}</option>
                             </select>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label" for="relationship">Relationship Type</label>
+                            <label class="form-label" for="relationship">{{ __('Relationship Type') }}</label>
                             <select class="form-select" id="relationship" name="relationship">
-                                <option value="exact">Exact (synonym)</option>
-                                <option value="related">Related</option>
-                                <option value="broader">Broader</option>
-                                <option value="narrower">Narrower</option>
+                                <option value="exact">{{ __('Exact (synonym)') }}</option>
+                                <option value="related">{{ __('Related') }}</option>
+                                <option value="broader">{{ __('Broader') }}</option>
+                                <option value="narrower">{{ __('Narrower') }}</option>
                             </select>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label" for="weight">Weight</label>
+                            <label class="form-label" for="weight">{{ __('Weight') }}</label>
                             <input type="number" class="form-control" id="weight" name="weight"
                                    value="0.8" min="0" max="1" step="0.1">
                             <div class="form-text">Relevance weight (0.0 - 1.0). Higher = more relevant.</div>
@@ -81,9 +81,9 @@
 
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label" for="synonyms">Synonyms</label>
+                            <label class="form-label" for="synonyms">{{ __('Synonyms') }}</label>
                             <textarea class="form-control" id="synonyms" name="synonyms" rows="10"
-                                      placeholder="Enter one synonym per line..."></textarea>
+                                      placeholder="{{ __('Enter one synonym per line...') }}"></textarea>
                             <div class="form-text">Enter each synonym on a new line.</div>
                         </div>
                     </div>

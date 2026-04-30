@@ -294,11 +294,11 @@ $objectSlug = $resource->slug ?? '';
 
                             <div class="comparison-slider" id="comparison-{{ $comparison['id'] }}">
                                 <div class="before-image">
-                                    <img src="/uploads/{{ $comparison['before_file_path'] }}" alt="Before">
+                                    <img src="/uploads/{{ $comparison['before_file_path'] }}" alt="{{ __('Before') }}">
                                     <span class="label">{{ __('Before') }}</span>
                                 </div>
                                 <div class="after-image">
-                                    <img src="/uploads/{{ $comparison['after_file_path'] }}" alt="After">
+                                    <img src="/uploads/{{ $comparison['after_file_path'] }}" alt="{{ __('After') }}">
                                     <span class="label">{{ __('After') }}</span>
                                 </div>
                                 <input type="range" class="comparison-range" min="0" max="100" value="50">
@@ -382,7 +382,7 @@ $objectSlug = $resource->slug ?? '';
         <div class="modal-content bg-dark">
             <div class="modal-header border-0">
                 <h5 class="modal-title text-white" id="lightbox-title"></h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
             </div>
             <div class="modal-body text-center p-0">
                 <img id="lightbox-image" src="" alt="" class="img-fluid">
@@ -406,7 +406,7 @@ $objectSlug = $resource->slug ?? '';
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">{{ __('Edit Photo') }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
             </div>
             <form id="edit-photo-form">
                 @csrf
@@ -473,7 +473,7 @@ $objectSlug = $resource->slug ?? '';
                         <i class="fas fa-download"></i> {{ __('Export') }}
                     </button>
                 </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
             </div>
             <div class="modal-body p-0" style="height: calc(100vh - 120px);">
                 <div id="annotator-container" style="height: 100%;"></div>

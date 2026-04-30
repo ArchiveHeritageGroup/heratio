@@ -28,7 +28,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="elements-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#elements-collapse" aria-expanded="false" aria-controls="elements-collapse">
-            Elements area
+            {{ __('Elements area') }}
           </button>
         </h2>
         <div id="elements-collapse" class="accordion-collapse collapse" aria-labelledby="elements-heading">
@@ -75,12 +75,12 @@
             </div>
 
             {{-- Scope note(s) - multi-row table --}}
-            <h3 class="fs-6 mb-2">Scope note(s)</h3>
+            <h3 class="fs-6 mb-2">{{ __('Scope note(s)') }}</h3>
             <div class="table-responsive mb-2">
               <table class="table table-bordered mb-0" id="scope-notes-table">
                 <thead class="table-light">
                   <tr>
-                    <th id="scopeNotes-content-head" class="w-100">Content</th>
+                    <th id="scopeNotes-content-head" class="w-100">{{ __('Content') }}</th>
                     <th><span class="visually-hidden">Delete</span></th>
                   </tr>
                 </thead>
@@ -111,12 +111,12 @@
             </div>
 
             {{-- Source note(s) - multi-row table --}}
-            <h3 class="fs-6 mb-2">Source note(s)</h3>
+            <h3 class="fs-6 mb-2">{{ __('Source note(s)') }}</h3>
             <div class="table-responsive mb-2">
               <table class="table table-bordered mb-0" id="source-notes-table">
                 <thead class="table-light">
                   <tr>
-                    <th id="sourceNotes-content-head" class="w-100">Content</th>
+                    <th id="sourceNotes-content-head" class="w-100">{{ __('Content') }}</th>
                     <th><span class="visually-hidden">Delete</span></th>
                   </tr>
                 </thead>
@@ -147,12 +147,12 @@
             </div>
 
             {{-- Display note(s) - multi-row table --}}
-            <h3 class="fs-6 mb-2">Display note(s)</h3>
+            <h3 class="fs-6 mb-2">{{ __('Display note(s)') }}</h3>
             <div class="table-responsive mb-2">
               <table class="table table-bordered mb-0" id="display-notes-table">
                 <thead class="table-light">
                   <tr>
-                    <th id="displayNotes-content-head" class="w-100">Content</th>
+                    <th id="displayNotes-content-head" class="w-100">{{ __('Content') }}</th>
                     <th><span class="visually-hidden">Delete</span></th>
                   </tr>
                 </thead>
@@ -190,7 +190,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="relationships-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#relationships-collapse" aria-expanded="false" aria-controls="relationships-collapse">
-            Relationships
+            {{ __('Relationships') }}
           </button>
         </h2>
         <div id="relationships-collapse" class="accordion-collapse collapse" aria-labelledby="relationships-heading">
@@ -200,14 +200,14 @@
             <div class="mb-3">
               <label for="parent_id" class="form-label">Broad term <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="parent_id" id="parent_id" class="form-control"
-                     value="{{ old('parent_id', $parentTerm->name ?? '') }}" placeholder="Type to search terms..." autocomplete="off">
+                     value="{{ old('parent_id', $parentTerm->name ?? '') }}" placeholder="{{ __('Type to search terms...') }}" autocomplete="off">
             </div>
 
             {{-- Related term(s) --}}
             <div class="mb-3">
               <label for="related_terms" class="form-label">Related term(s) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="related_terms" id="related_terms" class="form-control"
-                     value="{{ old('related_terms', $relatedTerms ?? '') }}" placeholder="Type to search terms..." autocomplete="off">
+                     value="{{ old('related_terms', $relatedTerms ?? '') }}" placeholder="{{ __('Type to search terms...') }}" autocomplete="off">
             </div>
 
             {{-- Converse term + Self-reciprocal --}}
@@ -216,7 +216,7 @@
                 <div class="mb-3">
                   <label for="converse_term" class="form-label">Converse term <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="text" name="converse_term" id="converse_term" class="form-control"
-                         value="{{ old('converse_term', $converseTerm->name ?? '') }}" placeholder="Type to search terms..." autocomplete="off">
+                         value="{{ old('converse_term', $converseTerm->name ?? '') }}" placeholder="{{ __('Type to search terms...') }}" autocomplete="off">
                 </div>
               </div>
               <div class="col-md-3 pb-md-2 d-flex align-items-end">

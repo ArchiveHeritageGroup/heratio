@@ -19,7 +19,7 @@
 
         @isset($eventTypes)
         <div class="mb-3">
-            <div class="btn-group flex-wrap" role="group" aria-label="Event-type filter">
+            <div class="btn-group flex-wrap" role="group" aria-label="{{ __('Event-type filter') }}">
                 <a href="{{ route('preservation.events') }}"
                    class="btn btn-sm btn-{{ !($currentType ?? null) ? 'primary' : 'outline-primary' }}">All</a>
                 @foreach ($eventTypes as $type)
@@ -45,13 +45,13 @@
                     <table class="table table-bordered table-sm table-striped mb-0">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Date/Time</th>
-                                <th>Type</th>
-                                <th>File</th>
-                                <th>Outcome</th>
-                                <th>Detail</th>
-                                <th>Agent</th>
+                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Date/Time') }}</th>
+                                <th>{{ __('Type') }}</th>
+                                <th>{{ __('File') }}</th>
+                                <th>{{ __('Outcome') }}</th>
+                                <th>{{ __('Detail') }}</th>
+                                <th>{{ __('Agent') }}</th>
                             </tr>
                         </thead>
                         <tbody>

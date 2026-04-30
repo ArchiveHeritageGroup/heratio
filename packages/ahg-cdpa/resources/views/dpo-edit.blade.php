@@ -18,7 +18,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.index') }}">CDPA</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.dpo') }}">DPO</a></li>
@@ -33,7 +33,7 @@
         @csrf
         <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">DPO Information</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('DPO Information') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -47,17 +47,17 @@
                                    value="{{ $dpo->email ?? '' }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Phone</label>
+                            <label class="form-label">{{ __('Phone') }}</label>
                             <input type="tel" name="phone" class="form-control"
                                    value="{{ $dpo->phone ?? '' }}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">HIT Certificate Number</label>
+                            <label class="form-label">{{ __('HIT Certificate Number') }}</label>
                             <input type="text" name="hit_cert_number" class="form-control"
                                    value="{{ $dpo->hit_cert_number ?? '' }}">
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Qualifications</label>
+                            <label class="form-label">{{ __('Qualifications') }}</label>
                             <textarea name="qualifications" class="form-control" rows="3">{{ $dpo->qualifications ?? '' }}</textarea>
                         </div>
                         <div class="col-md-6">
@@ -66,7 +66,7 @@
                                    value="{{ $dpo->appointment_date ?? '' }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Term End Date</label>
+                            <label class="form-label">{{ __('Term End Date') }}</label>
                             <input type="date" name="term_end_date" class="form-control"
                                    value="{{ $dpo->term_end_date ?? '' }}">
                         </div>
@@ -75,7 +75,7 @@
             </div>
 
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Form DP2 (Regulator Notification)</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Form DP2 (Regulator Notification)') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
@@ -88,12 +88,12 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Submission Date</label>
+                            <label class="form-label">{{ __('Submission Date') }}</label>
                             <input type="date" name="form_dp2_date" class="form-control"
                                    value="{{ $dpo->form_dp2_date ?? '' }}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Regulator Reference</label>
+                            <label class="form-label">{{ __('Regulator Reference') }}</label>
                             <input type="text" name="form_dp2_ref" class="form-control"
                                    value="{{ $dpo->form_dp2_ref ?? '' }}">
                         </div>

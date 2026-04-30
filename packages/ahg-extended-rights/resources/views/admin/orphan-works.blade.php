@@ -39,12 +39,12 @@
       <table class="table table-hover mb-0">
         <thead class="table-light">
           <tr>
-            <th>Object</th>
-            <th>Work Type</th>
-            <th>Search Started</th>
-            <th>Status</th>
-            <th>Search Steps</th>
-            <th>Actions</th>
+            <th>{{ __('Object') }}</th>
+            <th>{{ __('Work Type') }}</th>
+            <th>{{ __('Search Started') }}</th>
+            <th>{{ __('Status') }}</th>
+            <th>{{ __('Search Steps') }}</th>
+            <th>{{ __('Actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -74,11 +74,11 @@
             </td>
             <td>
               <div class="btn-group btn-group-sm">
-                <a href="{{ route('ext-rights-admin.orphan-work-edit', $work->id) }}" class="btn btn-outline-secondary" title="View/Edit">
+                <a href="{{ route('ext-rights-admin.orphan-work-edit', $work->id) }}" class="btn btn-outline-secondary" title="{{ __('View/Edit') }}">
                   <i class="fas fa-edit"></i>
                 </a>
                 @if(($work->status ?? '') === 'in_progress')
-                <a href="{{ route('ext-rights-admin.complete-orphan-search', $work->id) }}" class="btn btn-outline-success" title="Mark Complete"
+                <a href="{{ route('ext-rights-admin.complete-orphan-search', $work->id) }}" class="btn btn-outline-success" title="{{ __('Mark Complete') }}"
                    onclick="return confirm('Mark this search as complete?');">
                   <i class="fas fa-check"></i>
                 </a>
@@ -99,13 +99,13 @@
   {{-- Info Panel --}}
   <div class="card mt-4">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <h5 class="mb-0">About Orphan Works</h5>
+      <h5 class="mb-0">{{ __('About Orphan Works') }}</h5>
     </div>
     <div class="card-body">
       <p>Orphan works are copyrighted works whose rights holders cannot be identified or located after a diligent search.
       Before using an orphan work, institutions should conduct and document a thorough due diligence search.</p>
 
-      <h6>Recommended Search Sources:</h6>
+      <h6>{{ __('Recommended Search Sources:') }}</h6>
       <ul>
         <li>Copyright registries and databases</li>
         <li>Author/artist societies and collecting organizations</li>

@@ -22,7 +22,7 @@ $layout = $params['layout'] ?? 'card';
                         <form method="get" class="mb-4">
                             <div class="input-group">
                                 <input type="text" name="query" class="form-control"
-                                       placeholder="Search..."
+                                       placeholder="{{ __('Search...') }}"
                                        value="{{ e($params['query'] !== '*' ? $params['query'] : '') }}">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-search"></i>
@@ -65,15 +65,15 @@ $layout = $params['layout'] ?? 'card';
                     <!-- Layout Switcher -->
                     <div class="btn-group btn-group-sm">
                         <a href="?{{ http_build_query(array_merge($requestParams, ['layout' => 'card'])) }}"
-                           class="btn btn-{{ $layout === 'card' ? 'primary' : 'outline-secondary' }}" title="Cards">
+                           class="btn btn-{{ $layout === 'card' ? 'primary' : 'outline-secondary' }}" title="{{ __('Cards') }}">
                             <i class="fas fa-th-large"></i>
                         </a>
                         <a href="?{{ http_build_query(array_merge($requestParams, ['layout' => 'grid'])) }}"
-                           class="btn btn-{{ $layout === 'grid' ? 'primary' : 'outline-secondary' }}" title="Grid">
+                           class="btn btn-{{ $layout === 'grid' ? 'primary' : 'outline-secondary' }}" title="{{ __('Grid') }}">
                             <i class="fas fa-th"></i>
                         </a>
                         <a href="?{{ http_build_query(array_merge($requestParams, ['layout' => 'list'])) }}"
-                           class="btn btn-{{ $layout === 'list' ? 'primary' : 'outline-secondary' }}" title="List">
+                           class="btn btn-{{ $layout === 'list' ? 'primary' : 'outline-secondary' }}" title="{{ __('List') }}">
                             <i class="fas fa-list"></i>
                         </a>
                     </div>

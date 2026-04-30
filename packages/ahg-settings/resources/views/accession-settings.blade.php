@@ -37,7 +37,7 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label" for="accession_numbering_mask">Numbering Mask</label>
+            <label class="form-label" for="accession_numbering_mask">{{ __('Numbering Mask') }}</label>
             <input type="text" class="form-control" id="accession_numbering_mask"
                    name="accession_numbering_mask"
                    value="{{ e($settings['accession_numbering_mask'] ?? 'ACC-{YYYY}-{####}') }}"
@@ -45,12 +45,12 @@
             <div class="form-text">Pattern for auto-generated accession numbers. Use {YYYY} for year and {####} for sequence.</div>
           </div>
           <div class="col-md-6">
-            <label class="form-label" for="accession_default_priority">Default Priority</label>
+            <label class="form-label" for="accession_default_priority">{{ __('Default Priority') }}</label>
             <select class="form-select" id="accession_default_priority" name="accession_default_priority">
-              <option value="low" {{ ($settings['accession_default_priority'] ?? 'normal') === 'low' ? 'selected' : '' }}>Low</option>
-              <option value="normal" {{ ($settings['accession_default_priority'] ?? 'normal') === 'normal' ? 'selected' : '' }}>Normal</option>
-              <option value="high" {{ ($settings['accession_default_priority'] ?? 'normal') === 'high' ? 'selected' : '' }}>High</option>
-              <option value="urgent" {{ ($settings['accession_default_priority'] ?? 'normal') === 'urgent' ? 'selected' : '' }}>Urgent</option>
+              <option value="low" {{ ($settings['accession_default_priority'] ?? 'normal') === 'low' ? 'selected' : '' }}>{{ __('Low') }}</option>
+              <option value="normal" {{ ($settings['accession_default_priority'] ?? 'normal') === 'normal' ? 'selected' : '' }}>{{ __('Normal') }}</option>
+              <option value="high" {{ ($settings['accession_default_priority'] ?? 'normal') === 'high' ? 'selected' : '' }}>{{ __('High') }}</option>
+              <option value="urgent" {{ ($settings['accession_default_priority'] ?? 'normal') === 'urgent' ? 'selected' : '' }}>{{ __('Urgent') }}</option>
             </select>
             <div class="form-text">Default priority assigned to new accessions in the intake queue.</div>
           </div>

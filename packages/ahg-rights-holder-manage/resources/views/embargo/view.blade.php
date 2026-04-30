@@ -4,7 +4,7 @@
 @section('body-class', 'embargo view')
 
 @section('title-block')
-  <h1 class="mb-0">Embargo Details</h1>
+  <h1 class="mb-0">{{ __('Embargo Details') }}</h1>
 @endsection
 
 @section('content')
@@ -76,13 +76,13 @@
 {{-- Exceptions --}}
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between align-items-center" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h4 class="mb-0">Exceptions</h4>
+    <h4 class="mb-0">{{ __('Exceptions') }}</h4>
   </div>
   <div class="card-body">
     @if(!empty($embargo['exceptions']))
       <table class="table table-sm">
         <thead>
-          <tr><th>Type</th><th>Details</th><th>Valid Period</th></tr>
+          <tr><th>{{ __('Type') }}</th><th>{{ __('Details') }}</th><th>{{ __('Valid Period') }}</th></tr>
         </thead>
         <tbody>
           @foreach($embargo['exceptions'] as $exception)
@@ -115,13 +115,13 @@
 {{-- Audit Log --}}
 <div class="card">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h4 class="mb-0">Audit Log</h4>
+    <h4 class="mb-0">{{ __('Audit Log') }}</h4>
   </div>
   <div class="card-body">
     @if(!empty($embargo['audit_log']))
       <table class="table table-sm">
         <thead>
-          <tr><th>Date</th><th>Action</th><th>User</th><th>IP Address</th></tr>
+          <tr><th>{{ __('Date') }}</th><th>{{ __('Action') }}</th><th>{{ __('User') }}</th><th>{{ __('IP Address') }}</th></tr>
         </thead>
         <tbody>
           @foreach($embargo['audit_log'] as $log)

@@ -14,16 +14,16 @@
   }
 </style>
 
-<header id="top-bar" class="navbar navbar-expand-lg navbar-dark" role="navigation" aria-label="Main navigation">
+<header id="top-bar" class="navbar navbar-expand-lg navbar-dark" role="navigation" aria-label="{{ __('Main navigation') }}">
   <div class="container-fluid">
     {{-- Brand / Logo --}}
     @if(($themeData['toggleLogo'] ?? true) || ($themeData['toggleTitle'] ?? true))
-      <a class="navbar-brand d-flex flex-wrap flex-lg-nowrap align-items-center py-0 me-0" href="{{ url('/') }}" title="Home" rel="home">
+      <a class="navbar-brand d-flex flex-wrap flex-lg-nowrap align-items-center py-0 me-0" href="{{ url('/') }}" title="{{ __('Home') }}" rel="home">
         @if($themeData['toggleLogo'] ?? true)
           @if($themeData['customLogo'] ?? null)
-            <img src="{{ $themeData['customLogo'] }}" alt="Logo" class="d-inline-block me-3" height="70" style="padding: 0;">
+            <img src="{{ $themeData['customLogo'] }}" alt="{{ __('Logo') }}" class="d-inline-block me-3" height="70" style="padding: 0;">
           @else
-            <img src="{{ asset('vendor/ahg-theme-b5/images/image.png') }}" alt="Logo" class="d-inline-block me-3" height="70" style="padding: 0;">
+            <img src="{{ asset('vendor/ahg-theme-b5/images/image.png') }}" alt="{{ __('Logo') }}" class="d-inline-block me-3" height="70" style="padding: 0;">
           @endif
         @endif
         @if(($themeData['toggleTitle'] ?? true) && !empty($themeData['siteTitle']))
@@ -34,7 +34,7 @@
 
     {{-- Hamburger toggle --}}
     <button class="navbar-toggler atom-btn-secondary my-2 me-1 px-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false">
-      <i class="fas fa-2x fa-fw fa-bars" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Toggle navigation" aria-hidden="true"></i>
+      <i class="fas fa-2x fa-fw fa-bars" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ __('Toggle navigation') }}" aria-hidden="true"></i>
       <span class="visually-hidden">Toggle navigation</span>
     </button>
 
@@ -53,12 +53,12 @@
           @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgRicExplorerPlugin'))
             <li class="nav-item dropdown d-flex flex-column">
               <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="ric-tools-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-2x fa-fw fa-sitemap px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="RiC Tools" aria-hidden="true"></i>
+                <i class="fas fa-2x fa-fw fa-sitemap px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="{{ __('RiC Tools') }}" aria-hidden="true"></i>
                 <span class="d-lg-none mx-1" aria-hidden="true">RiC Tools</span>
                 <span class="visually-hidden">RiC Tools</span>
               </a>
               <ul class="dropdown-menu dropdown-menu-end mb-2" aria-labelledby="ric-tools-menu">
-                <li><h6 class="dropdown-header">RiC Tools</h6></li>
+                <li><h6 class="dropdown-header">{{ __('RiC Tools') }}</h6></li>
                 <li><a class="dropdown-item" href="{{ url('/admin/ric') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
                 <li><a class="dropdown-item" href="{{ url('/admin/ric/sync-status') }}"><i class="fas fa-sync me-2"></i>Sync Status</a></li>
                 <li><a class="dropdown-item" href="{{ url('/admin/ric/queue') }}"><i class="fas fa-tasks me-2"></i>Queue</a></li>
@@ -73,7 +73,7 @@
           {{-- Help Center --}}
           <li class="nav-item d-flex flex-column">
             <a class="nav-link d-flex align-items-center p-0" href="{{ url('/help') }}" id="help-center-menu">
-              <i class="fas fa-2x fa-fw fa-question-circle px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Help Center" aria-hidden="true"></i>
+              <i class="fas fa-2x fa-fw fa-question-circle px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="{{ __('Help Center') }}" aria-hidden="true"></i>
               <span class="d-lg-none mx-1" aria-hidden="true">Help Center</span>
               <span class="visually-hidden">Help Center</span>
             </a>
@@ -94,7 +94,7 @@
             @endphp
             <li class="nav-item d-flex flex-column">
               <a class="nav-link d-flex align-items-center p-0 position-relative" href="{{ route('ahgspectrum.my-tasks') }}">
-                <i class="fas fa-2x fa-fw fa-bell px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="My Tasks" aria-hidden="true"></i>
+                <i class="fas fa-2x fa-fw fa-bell px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="{{ __('My Tasks') }}" aria-hidden="true"></i>
                 @if($spectrumBellCount > 0)
                   <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; margin-left: -18px; margin-top: 6px;">
                     {{ $spectrumBellCount > 99 ? '99+' : $spectrumBellCount }}

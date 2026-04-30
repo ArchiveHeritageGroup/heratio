@@ -14,7 +14,7 @@
   </div>
 
   @if(isset($parent->ancestors) && count($parent->ancestors) > 0)
-    <nav aria-label="breadcrumb">
+    <nav aria-label="{{ __('breadcrumb') }}">
       <ol class="breadcrumb">
         @foreach($parent->ancestors as $item)
           @if(isset($item->parent))

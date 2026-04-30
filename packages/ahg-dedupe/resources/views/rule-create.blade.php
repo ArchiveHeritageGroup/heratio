@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-plus me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Create Detection Rule</h1>
+      <h1 class="mb-0">{{ __('Create Detection Rule') }}</h1>
       <span class="small text-muted">Duplicate Detection</span>
     </div>
     <div class="ms-auto">
@@ -23,13 +23,13 @@
       <div class="col-lg-8">
         <div class="card mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0">Rule Details</h5>
+            <h5 class="mb-0">{{ __('Rule Details') }}</h5>
           </div>
           <div class="card-body">
             <div class="mb-3">
               <label for="name" class="form-label">Rule Name <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" class="form-control" id="name" name="name" required
-                     placeholder="e.g., Title Similarity Check" value="{{ old('name') }}">
+                     placeholder="{{ __('e.g., Title Similarity Check') }}" value="{{ old('name') }}">
             </div>
 
             <div class="mb-3">
@@ -64,7 +64,7 @@
             <div class="mb-3">
               <label for="repository_id" class="form-label">Apply to Repository <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" id="repository_id" name="repository_id">
-                <option value="">All Repositories (Global)</option>
+                <option value="">{{ __('All Repositories (Global)') }}</option>
                 @foreach($repositories as $repo)
                   <option value="{{ $repo->id }}" {{ old('repository_id') == $repo->id ? 'selected' : '' }}>
                     {{ $repo->name }}

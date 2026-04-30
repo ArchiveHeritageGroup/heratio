@@ -25,27 +25,27 @@
 
 <form method="GET" class="row g-2 align-items-end mb-3">
   <div class="col-md-3">
-    <label class="form-label small mb-0">Framework</label>
+    <label class="form-label small mb-0">{{ __('Framework') }}</label>
     <select name="framework" class="form-select form-select-sm">
-      <option value="">All</option>
+      <option value="">{{ __('All') }}</option>
       @foreach($frameworks as $f)<option value="{{ $f->code }}" @selected($filters['framework']===$f->code)>{{ $f->label }}</option>@endforeach
     </select>
   </div>
   <div class="col-md-3">
-    <label class="form-label small mb-0">Status</label>
+    <label class="form-label small mb-0">{{ __('Status') }}</label>
     <select name="status" class="form-select form-select-sm">
-      <option value="">All</option>
-      <option value="in_progress" @selected($filters['status']==='in_progress')>In progress</option>
-      <option value="finalised"   @selected($filters['status']==='finalised')>Finalised</option>
+      <option value="">{{ __('All') }}</option>
+      <option value="in_progress" @selected($filters['status']==='in_progress')>{{ __('In progress') }}</option>
+      <option value="finalised"   @selected($filters['status']==='finalised')>{{ __('Finalised') }}</option>
     </select>
   </div>
-  <div class="col-md-2"><button type="submit" class="btn btn-sm btn-primary">Filter</button></div>
+  <div class="col-md-2"><button type="submit" class="btn btn-sm btn-primary">{{ __('Filter') }}</button></div>
 </form>
 
 <div class="card">
   <table class="table table-hover table-sm mb-0">
     <thead class="table-light">
-      <tr><th>Ref</th><th>Framework</th><th>Title</th><th>Period</th><th>Score</th><th>Status</th><th class="text-end"></th></tr>
+      <tr><th>{{ __('Ref') }}</th><th>{{ __('Framework') }}</th><th>{{ __('Title') }}</th><th>{{ __('Period') }}</th><th>{{ __('Score') }}</th><th>{{ __('Status') }}</th><th class="text-end"></th></tr>
     </thead>
     <tbody>
     @forelse($rows as $a)

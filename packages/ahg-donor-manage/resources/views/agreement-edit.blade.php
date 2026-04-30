@@ -12,7 +12,7 @@
   @if($documents->isNotEmpty())
   <div class="card mt-3"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-paperclip me-2"></i>Documents</div>
   <div class="card-body"><table class="table table-sm table-striped mb-0">
-    <thead><tr><th>Filename</th><th>Type</th><th>Size</th><th>Uploaded</th></tr></thead>
+    <thead><tr><th>{{ __('Filename') }}</th><th>{{ __('Type') }}</th><th>{{ __('Size') }}</th><th>{{ __('Uploaded') }}</th></tr></thead>
     <tbody>
     @foreach($documents as $doc)
       <tr><td>{{ $doc->original_filename ?? $doc->filename }}</td><td>{{ $doc->document_type ?? '-' }}</td><td>{{ number_format(($doc->file_size ?? 0) / 1024, 1) }} KB</td><td>{{ $doc->created_at ?? '-' }}</td></tr>
@@ -24,7 +24,7 @@
   @if($linkedRecords->isNotEmpty())
   <div class="card mt-3"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-link me-2"></i>Linked Records</div>
   <div class="card-body"><table class="table table-sm table-striped mb-0">
-    <thead><tr><th>Identifier</th><th>Title</th></tr></thead>
+    <thead><tr><th>{{ __('Identifier') }}</th><th>{{ __('Title') }}</th></tr></thead>
     <tbody>
     @foreach($linkedRecords as $lr)
       <tr><td>{{ $lr->identifier ?? '-' }}</td><td><a href="{{ $lr->slug ? url('/'.$lr->slug) : '#' }}">{{ $lr->title ?? '-' }}</a></td></tr>
@@ -36,7 +36,7 @@
   @if($linkedAccessions->isNotEmpty())
   <div class="card mt-3"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-archive me-2"></i>Linked Accessions</div>
   <div class="card-body"><table class="table table-sm table-striped mb-0">
-    <thead><tr><th>Identifier</th><th>Title</th></tr></thead>
+    <thead><tr><th>{{ __('Identifier') }}</th><th>{{ __('Title') }}</th></tr></thead>
     <tbody>
     @foreach($linkedAccessions as $la)
       <tr><td>{{ $la->identifier ?? '-' }}</td><td>{{ $la->title ?? '-' }}</td></tr>

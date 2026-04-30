@@ -14,7 +14,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
                     <li class="breadcrumb-item active">Research Permits</li>
@@ -54,14 +54,14 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Permit #</th>
-                            <th>Researcher</th>
-                            <th>Type</th>
-                            <th>Research Topic</th>
-                            <th>Valid Until</th>
-                            <th>Fee</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>{{ __('Permit #') }}</th>
+                            <th>{{ __('Researcher') }}</th>
+                            <th>{{ __('Type') }}</th>
+                            <th>{{ __('Research Topic') }}</th>
+                            <th>{{ __('Valid Until') }}</th>
+                            <th>{{ __('Fee') }}</th>
+                            <th>{{ __('Status') }}</th>
+                            <th>{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -99,9 +99,9 @@
                                     @if ($permit->fee_amount > 0)
                                         {{ $permit->fee_currency ?? 'USD' }} {{ number_format($permit->fee_amount, 2) }}
                                         @if ($permit->fee_paid)
-                                            <i class="fas fa-check-circle text-success" title="Paid"></i>
+                                            <i class="fas fa-check-circle text-success" title="{{ __('Paid') }}"></i>
                                         @else
-                                            <i class="fas fa-times-circle text-danger" title="Unpaid"></i>
+                                            <i class="fas fa-times-circle text-danger" title="{{ __('Unpaid') }}"></i>
                                         @endif
                                     @else
                                         <span class="text-muted">Free</span>

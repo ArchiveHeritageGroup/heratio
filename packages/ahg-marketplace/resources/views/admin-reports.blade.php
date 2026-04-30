@@ -30,7 +30,7 @@
     }
 @endphp
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
     <li class="breadcrumb-item"><a href="{{ route('ahgmarketplace.admin-dashboard') }}">Marketplace Admin</a></li>
@@ -38,7 +38,7 @@
   </ol>
 </nav>
 
-<h1 class="h3 mb-4">Marketplace Reports</h1>
+<h1 class="h3 mb-4">{{ __('Marketplace Reports') }}</h1>
 
 {{-- Revenue overview cards --}}
 <div class="row g-3 mb-4">
@@ -83,17 +83,17 @@
 {{-- Monthly revenue table with progress bars --}}
 <div class="card mb-4">
   <div class="card-header">
-    <h5 class="card-title mb-0">Monthly Revenue</h5>
+    <h5 class="card-title mb-0">{{ __('Monthly Revenue') }}</h5>
   </div>
   @if (!empty($monthlyRevenue))
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
         <thead class="table-light">
           <tr>
-            <th style="width: 120px;">Month</th>
-            <th>Revenue</th>
-            <th class="text-end" style="width: 140px;">Commission</th>
-            <th class="text-end" style="width: 100px;">Sales</th>
+            <th style="width: 120px;">{{ __('Month') }}</th>
+            <th>{{ __('Revenue') }}</th>
+            <th class="text-end" style="width: 140px;">{{ __('Commission') }}</th>
+            <th class="text-end" style="width: 100px;">{{ __('Sales') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -132,7 +132,7 @@
   <div class="col-lg-6">
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="card-title mb-0">Top 10 Sellers by Revenue</h5>
+        <h5 class="card-title mb-0">{{ __('Top 10 Sellers by Revenue') }}</h5>
       </div>
       @if (!empty($topSellers))
         <div class="table-responsive">
@@ -140,9 +140,9 @@
             <thead class="table-light">
               <tr>
                 <th style="width: 40px;">#</th>
-                <th>Seller</th>
-                <th class="text-end">Sales</th>
-                <th class="text-end">Revenue</th>
+                <th>{{ __('Seller') }}</th>
+                <th class="text-end">{{ __('Sales') }}</th>
+                <th class="text-end">{{ __('Revenue') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -173,7 +173,7 @@
   <div class="col-lg-6">
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="card-title mb-0">Top 10 Items by Sales</h5>
+        <h5 class="card-title mb-0">{{ __('Top 10 Items by Sales') }}</h5>
       </div>
       @if (!empty($topItems))
         <div class="table-responsive">
@@ -181,10 +181,10 @@
             <thead class="table-light">
               <tr>
                 <th style="width: 40px;">#</th>
-                <th>Item</th>
-                <th>Sector</th>
-                <th class="text-end">Revenue</th>
-                <th class="text-end">Sales</th>
+                <th>{{ __('Item') }}</th>
+                <th>{{ __('Sector') }}</th>
+                <th class="text-end">{{ __('Revenue') }}</th>
+                <th class="text-end">{{ __('Sales') }}</th>
               </tr>
             </thead>
             <tbody>

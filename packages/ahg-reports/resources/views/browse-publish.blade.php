@@ -19,13 +19,13 @@
             <table class="table table-bordered table-sm table-striped mb-0">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Identifier</th>
-                  <th>Publish</th>
-                  <th>Restriction</th>
-                  <th>Refusal</th>
-                  <th>Sensitivity</th>
-                  <th>Classification</th>
+                  <th>{{ __('Name') }}</th>
+                  <th>{{ __('Identifier') }}</th>
+                  <th>{{ __('Publish') }}</th>
+                  <th>{{ __('Restriction') }}</th>
+                  <th>{{ __('Refusal') }}</th>
+                  <th>{{ __('Sensitivity') }}</th>
+                  <th>{{ __('Classification') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -58,7 +58,7 @@
           @if(!empty($items) && count($items) > 0)
           <div class="card-footer">
             <a href="{{ route('informationobject.browse') }}" class="btn atom-btn-white">Return</a>
-            <button type="submit" class="btn atom-btn-white ms-2">Continue</button>
+            <button type="submit" class="btn atom-btn-white ms-2">{{ __('Continue') }}</button>
           </div>
           @endif
         </form>

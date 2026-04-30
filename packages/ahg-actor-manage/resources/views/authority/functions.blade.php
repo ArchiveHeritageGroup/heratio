@@ -5,7 +5,7 @@
 
 @section('content')
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
@@ -30,10 +30,10 @@
     <table class="table table-hover mb-0">
       <thead>
         <tr>
-          <th>Function</th>
-          <th>Relation</th>
-          <th>Period</th>
-          <th>Notes</th>
+          <th>{{ __('Function') }}</th>
+          <th>{{ __('Relation') }}</th>
+          <th>{{ __('Period') }}</th>
+          <th>{{ __('Notes') }}</th>
           <th></th>
         </tr>
       </thead>
@@ -81,16 +81,16 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Link Function</h5>
+        <h5 class="modal-title">{{ __('Link Function') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Function ID</label>
-          <input type="number" id="func-id" class="form-control" placeholder="Enter function object ID">
+          <label class="form-label">{{ __('Function ID') }}</label>
+          <input type="number" id="func-id" class="form-control" placeholder="{{ __('Enter function object ID') }}">
         </div>
         <div class="mb-3">
-          <label class="form-label">Relation type</label>
+          <label class="form-label">{{ __('Relation type') }}</label>
           <select id="func-rel-type" class="form-select">
             @foreach ($relationTypes as $key => $label)
               <option value="{{ $key }}">{{ e($label) }}</option>
@@ -99,21 +99,21 @@
         </div>
         <div class="row g-2 mb-3">
           <div class="col-md-6">
-            <label class="form-label">Date from</label>
-            <input type="text" id="func-from" class="form-control" placeholder="YYYY">
+            <label class="form-label">{{ __('Date from') }}</label>
+            <input type="text" id="func-from" class="form-control" placeholder="{{ __('YYYY') }}">
           </div>
           <div class="col-md-6">
-            <label class="form-label">Date to</label>
-            <input type="text" id="func-to" class="form-control" placeholder="YYYY">
+            <label class="form-label">{{ __('Date to') }}</label>
+            <input type="text" id="func-to" class="form-control" placeholder="{{ __('YYYY') }}">
           </div>
         </div>
         <div class="mb-3">
-          <label class="form-label">Notes</label>
+          <label class="form-label">{{ __('Notes') }}</label>
           <textarea id="func-notes" class="form-control" rows="2"></textarea>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
         <button type="button" class="btn atom-btn-white" id="btn-save-func">
           <i class="fas fa-save me-1"></i>Save
         </button>

@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid mt-3">
-  <nav aria-label="breadcrumb"><ol class="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">Security Dashboard</a></li>
     <li class="breadcrumb-item active">Audit Dashboard</li>
   </ol></nav>
@@ -16,9 +16,9 @@
     <div class="row">
       <div class="col-md-3">
         <select name="period" class="form-select" onchange="this.form.submit()">
-          <option value="7 days" {{ ($period ?? '') === '7 days' ? 'selected' : '' }}>Last 7 days</option>
-          <option value="30 days" {{ ($period ?? '') === '30 days' ? 'selected' : '' }}>Last 30 days</option>
-          <option value="90 days" {{ ($period ?? '') === '90 days' ? 'selected' : '' }}>Last 90 days</option>
+          <option value="7 days" {{ ($period ?? '') === '7 days' ? 'selected' : '' }}>{{ __('Last 7 days') }}</option>
+          <option value="30 days" {{ ($period ?? '') === '30 days' ? 'selected' : '' }}>{{ __('Last 30 days') }}</option>
+          <option value="90 days" {{ ($period ?? '') === '90 days' ? 'selected' : '' }}>{{ __('Last 90 days') }}</option>
         </select>
       </div>
       <div class="col-md-4">
@@ -29,20 +29,20 @@
 
   {{-- Activity Stats --}}
   <div class="row mb-4">
-    <div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body"><h6>Total Events</h6><h3>{{ $stats['total_events'] ?? 0 }}</h3></div></div></div>
-    <div class="col-md-3"><div class="card bg-danger text-white"><div class="card-body"><h6>Security Events</h6><h3>{{ $stats['security_events'] ?? 0 }}</h3></div></div></div>
-    <div class="col-md-3"><div class="card bg-info text-white"><div class="card-body"><h6>Users Active</h6><h3>{{ count($stats['by_user'] ?? []) }}</h3></div></div></div>
-    <div class="col-md-3"><div class="card bg-success text-white"><div class="card-body"><h6>Action Types</h6><h3>{{ count($stats['by_action'] ?? []) }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body"><h6>{{ __('Total Events') }}</h6><h3>{{ $stats['total_events'] ?? 0 }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card bg-danger text-white"><div class="card-body"><h6>{{ __('Security Events') }}</h6><h3>{{ $stats['security_events'] ?? 0 }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card bg-info text-white"><div class="card-body"><h6>{{ __('Users Active') }}</h6><h3>{{ count($stats['by_user'] ?? []) }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card bg-success text-white"><div class="card-body"><h6>{{ __('Action Types') }}</h6><h3>{{ count($stats['by_action'] ?? []) }}</h3></div></div></div>
   </div>
 
   <div class="row">
     {{-- Top Users --}}
     <div class="col-md-6 mb-4">
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">Most Active Users</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Most Active Users') }}</h5></div>
         <div class="card-body table-responsive">
           <table class="table table-sm">
-            <thead><tr><th>User</th><th>Events</th></tr></thead>
+            <thead><tr><th>{{ __('User') }}</th><th>{{ __('Events') }}</th></tr></thead>
             <tbody>
               @forelse($stats['by_user'] ?? [] as $user)
               <tr>
@@ -61,10 +61,10 @@
     {{-- Actions Breakdown --}}
     <div class="col-md-6 mb-4">
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">Actions Breakdown</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Actions Breakdown') }}</h5></div>
         <div class="card-body table-responsive">
           <table class="table table-sm">
-            <thead><tr><th>Action</th><th>Count</th></tr></thead>
+            <thead><tr><th>{{ __('Action') }}</th><th>{{ __('Count') }}</th></tr></thead>
             <tbody>
               @forelse($stats['by_action'] ?? [] as $action)
               <tr>
@@ -88,10 +88,10 @@
   {{-- Daily Activity --}}
   @if(count($stats['by_day'] ?? []))
   <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0">Daily Activity</h5></div>
+    <div class="card-header"><h5 class="mb-0">{{ __('Daily Activity') }}</h5></div>
     <div class="card-body table-responsive">
       <table class="table table-sm">
-        <thead><tr><th>Date</th><th>Events</th><th></th></tr></thead>
+        <thead><tr><th>{{ __('Date') }}</th><th>{{ __('Events') }}</th><th></th></tr></thead>
         <tbody>
           @foreach($stats['by_day'] as $day)
           <tr>

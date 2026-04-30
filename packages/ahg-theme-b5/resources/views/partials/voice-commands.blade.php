@@ -16,8 +16,8 @@
   class="voice-floating-btn voice-ui"
   style="display:none"
   type="button"
-  aria-label="Toggle voice commands"
-  title="Click: voice | Right-click: type command">
+  aria-label="{{ __('Toggle voice commands') }}"
+  title="{{ __('Click: voice | Right-click: type command') }}">
   <i class="bi bi-mic"></i>
 </button>
 
@@ -30,11 +30,11 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="voice-help-label"><i class="bi bi-mic me-2"></i>Voice Commands</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
       </div>
       <div class="modal-body">
         <div class="mb-2">
-          <input type="text" class="form-control form-control-sm" id="voice-help-search" placeholder="Filter commands..." autocomplete="off">
+          <input type="text" class="form-control form-control-sm" id="voice-help-search" placeholder="{{ __('Filter commands...') }}" autocomplete="off">
         </div>
         <p class="text-muted small">Click the mic button and speak a command. Commands are not case-sensitive.</p>
 
@@ -158,7 +158,7 @@
         </ul>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn atom-btn-outline-light btn-sm" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn atom-btn-outline-light btn-sm" data-bs-dismiss="modal">{{ __('Close') }}</button>
       </div>
     </div>
   </div>

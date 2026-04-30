@@ -109,10 +109,10 @@
           <table class="table table-bordered table-hover mb-0">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Code</th>
-                <th>Status</th>
-                <th>Contact</th>
+                <th>{{ __('Name') }}</th>
+                <th>{{ __('Code') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Contact') }}</th>
               </tr>
             </thead>
             <tbody>

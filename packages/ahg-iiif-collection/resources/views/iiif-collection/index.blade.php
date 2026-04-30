@@ -32,7 +32,7 @@
 @section('content')
 <div class="iiif-collections">
     @if($parentCollection)
-    <nav aria-label="breadcrumb" class="mb-4">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('iiif-collection.index') }}">Collections</a></li>
             <li class="breadcrumb-item active">{{ e($parentCollection->display_name) }}</li>
@@ -75,11 +75,11 @@
                         <i class="fas fa-images me-1"></i>{{ $collection->item_count }} items
                     </span>
                     <div class="btn-group btn-group-sm">
-                        <a href="{{ route('iiif-collection.manifest', $collection->slug) }}" class="btn atom-btn-white" title="IIIF Manifest" target="_blank">
+                        <a href="{{ route('iiif-collection.manifest', $collection->slug) }}" class="btn atom-btn-white" title="{{ __('IIIF Manifest') }}" target="_blank">
                             <i class="fas fa-code"></i>
                         </a>
                         @auth
-                        <a href="{{ route('iiif-collection.edit', $collection->id) }}" class="btn atom-btn-white" title="Edit">
+                        <a href="{{ route('iiif-collection.edit', $collection->id) }}" class="btn atom-btn-white" title="{{ __('Edit') }}">
                             <i class="fas fa-edit"></i>
                         </a>
                         @endauth

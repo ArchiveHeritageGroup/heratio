@@ -24,7 +24,7 @@
 @section('content')
 <div class="container py-3">
 
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? '' }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('io.condition', $io->slug) }}">Condition</a></li>
@@ -119,7 +119,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr><th>Type</th><th>Location</th><th>Severity</th><th>Description</th><th>Treatment</th></tr>
+              <tr><th>{{ __('Type') }}</th><th>{{ __('Location') }}</th><th>{{ __('Severity') }}</th><th>{{ __('Description') }}</th><th>{{ __('Treatment') }}</th></tr>
             </thead>
             <tbody>
               @foreach($damages as $dmg)
@@ -157,7 +157,7 @@
             @csrf
             <div class="row g-2 align-items-end">
               <div class="col-md-3">
-                <label class="form-label small">Photo Type</label>
+                <label class="form-label small">{{ __('Photo Type') }}</label>
                 <select name="image_type" class="form-select form-select-sm">
                   @foreach($photoTypes as $val => $label)
                     <option value="{{ $val }}">{{ $label }}</option>
@@ -165,11 +165,11 @@
                 </select>
               </div>
               <div class="col-md-3">
-                <label class="form-label small">Caption</label>
-                <input type="text" name="caption" class="form-control form-control-sm" placeholder="Brief description">
+                <label class="form-label small">{{ __('Caption') }}</label>
+                <input type="text" name="caption" class="form-control form-control-sm" placeholder="{{ __('Brief description') }}">
               </div>
               <div class="col-md-4">
-                <label class="form-label small">Photo</label>
+                <label class="form-label small">{{ __('Photo') }}</label>
                 <input type="file" name="photo" class="form-control form-control-sm" accept="image/*" required>
               </div>
               <div class="col-md-2">
@@ -217,13 +217,13 @@
                 @auth
                   <div class="card-footer p-2">
                     <div class="btn-group btn-group-sm w-100">
-                      <button class="btn btn-outline-info" title="Annotate"
+                      <button class="btn btn-outline-info" title="{{ __('Annotate') }}"
                               data-action="annotate"
                               data-photo-id="{{ $photo->id }}"
                               data-image-src="{{ $imgSrc }}">
                         <i class="fas fa-draw-polygon"></i>
                       </button>
-                      <button class="btn btn-outline-success" title="AI Scan"
+                      <button class="btn btn-outline-success" title="{{ __('AI Scan') }}"
                               data-action="ai-scan"
                               data-photo-id="{{ $photo->id }}"
                               data-image-src="{{ $imgSrc }}">
@@ -232,7 +232,7 @@
                       <form method="POST" action="{{ route('io.condition.photo.delete', $photo->id) }}" class="d-inline"
                             onsubmit="return confirm('Delete this photo?')">
                         @csrf @method('DELETE')
-                        <button class="btn btn-outline-danger btn-sm" title="Delete"><i class="fas fa-trash"></i></button>
+                        <button class="btn btn-outline-danger btn-sm" title="{{ __('Delete') }}"><i class="fas fa-trash"></i></button>
                       </form>
                     </div>
                   </div>
@@ -264,7 +264,7 @@
         <div id="annotator-container" class="condition-annotator-container"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
         <button type="button" class="btn btn-primary" data-action="save-annotations">
           <i class="fas fa-save me-1"></i>Save Annotations
         </button>
@@ -292,7 +292,7 @@
         <a href="#" id="aiScanViewFull" class="btn btn-primary btn-sm" target="_blank">
           <i class="fas fa-eye me-1"></i>View Full Report
         </a>
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">{{ __('Close') }}</button>
       </div>
     </div>
   </div>

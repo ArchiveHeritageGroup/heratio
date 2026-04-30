@@ -4,7 +4,7 @@
 @section('body-class', 'embargo index')
 
 @section('title-block')
-  <h1 class="mb-0">Embargo Management</h1>
+  <h1 class="mb-0">{{ __('Embargo Management') }}</h1>
 @endsection
 
 @section('content')
@@ -30,19 +30,19 @@
   {{-- Active Embargoes --}}
   <div class="card">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <h4 class="mb-0">Active Embargoes</h4>
+      <h4 class="mb-0">{{ __('Active Embargoes') }}</h4>
     </div>
     <div class="card-body p-0">
       @if(isset($activeEmbargoes) && count($activeEmbargoes) > 0)
         <table class="table table-striped table-hover mb-0">
           <thead>
             <tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-              <th>Object</th>
-              <th>Type</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Reason</th>
-              <th>Actions</th>
+              <th>{{ __('Object') }}</th>
+              <th>{{ __('Type') }}</th>
+              <th>{{ __('Start Date') }}</th>
+              <th>{{ __('End Date') }}</th>
+              <th>{{ __('Reason') }}</th>
+              <th>{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>

@@ -11,7 +11,7 @@
 
 @section('sidebar')
 <div class="sidebar-content">
-  <h4>Gallery Reports</h4>
+  <h4>{{ __('Gallery Reports') }}</h4>
   <ul class="list-unstyled">
     <li><a href="{{ route('gallery-reports.exhibitions') }}"><i class="fas fa-images me-2"></i>Exhibitions</a></li>
     <li><a href="{{ route('gallery-reports.loans') }}"><i class="fas fa-exchange-alt me-2"></i>Loans</a></li>

@@ -67,12 +67,12 @@
               <div class="col-md-6 mb-3">
                 <label class="form-label">Planned use <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="rtp_planned_use" class="form-select">
-                  <option value="">Select...</option>
-                  <option value="Publication">Publication</option>
-                  <option value="Research">Research</option>
-                  <option value="Exhibition">Exhibition</option>
-                  <option value="Personal">Personal</option>
-                  <option value="Other">Other</option>
+                  <option value="">{{ __('Select...') }}</option>
+                  <option value="Publication">{{ __('Publication') }}</option>
+                  <option value="Research">{{ __('Research') }}</option>
+                  <option value="Exhibition">{{ __('Exhibition') }}</option>
+                  <option value="Personal">{{ __('Personal') }}</option>
+                  <option value="Other">{{ __('Other') }}</option>
                 </select>
               </div>
               <div class="col-md-12 mb-3">

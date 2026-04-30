@@ -3,7 +3,7 @@
 @section('title', 'Report Templates')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.reports') }}">Reports</a></li>
@@ -42,13 +42,13 @@
                         data-description="{{ e($tpl->description ?? '') }}"
                         data-sections="{{ e(implode("\n", json_decode($tpl->sections_config ?? '[]', true) ?: [])) }}"
                         data-system="{{ $tpl->is_system }}"
-                        title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                        title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></button>
                     @if(!$tpl->is_system)
                     <form method="POST" class="d-inline" onsubmit="return confirm('Delete this template?')">
                         @csrf
                         <input type="hidden" name="form_action" value="delete">
                         <input type="hidden" name="template_id" value="{{ $tpl->id }}">
-                        <button class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}"><i class="fas fa-trash"></i></button>
                     </form>
                     @endif
                 </div>
@@ -84,39 +84,39 @@
 {{-- Create Template Modal --}}
 <div class="modal fade" id="createTemplateModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
     <form method="POST">@csrf<input type="hidden" name="form_action" value="create">
-    <div class="modal-header"><h5 class="modal-title">New Template</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-header"><h5 class="modal-title">{{ __('New Template') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Name *</label><input type="text" name="name" class="form-control" required placeholder="e.g. Conservation Report"></div>
-        <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div>
+        <div class="mb-3"><label class="form-label">{{ __('Name *') }}</label><input type="text" name="name" class="form-control" required placeholder="{{ __('e.g. Conservation Report') }}"></div>
+        <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="2"></textarea></div>
         <div class="mb-3">
-            <label class="form-label">Sections (one per line)</label>
-            <textarea name="sections_raw" class="form-control" rows="8" placeholder="type:Title
+            <label class="form-label">{{ __('Sections (one per line)') }}</label>
+            <textarea name="sections_raw" class="form-control" rows="8" placeholder="{{ __('type:Title
 text:Introduction
 text:Methodology
 heading:Findings
 text:Discussion
-bibliography"></textarea>
+bibliography') }}"></textarea>
             <small class="text-muted">Format: <code>type:Title</code> — Types: text, heading, title_page, toc, bibliography, collection_list, annotation_list</small>
         </div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Create</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Create</button></div>
     </form>
 </div></div></div>
 
 {{-- Edit Template Modal --}}
 <div class="modal fade" id="editTemplateModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
     <form method="POST">@csrf<input type="hidden" name="form_action" value="update"><input type="hidden" name="template_id" id="editTplId">
-    <div class="modal-header"><h5 class="modal-title">Edit Template</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-header"><h5 class="modal-title">{{ __('Edit Template') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Name *</label><input type="text" name="name" id="editTplName" class="form-control" required></div>
-        <div class="mb-3"><label class="form-label">Description</label><textarea name="description" id="editTplDesc" class="form-control" rows="2"></textarea></div>
+        <div class="mb-3"><label class="form-label">{{ __('Name *') }}</label><input type="text" name="name" id="editTplName" class="form-control" required></div>
+        <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" id="editTplDesc" class="form-control" rows="2"></textarea></div>
         <div class="mb-3">
-            <label class="form-label">Sections (one per line)</label>
+            <label class="form-label">{{ __('Sections (one per line)') }}</label>
             <textarea name="sections_raw" id="editTplSections" class="form-control" rows="8"></textarea>
             <small class="text-muted">Format: <code>type:Title</code></small>
         </div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button></div>
     </form>
 </div></div></div>
 

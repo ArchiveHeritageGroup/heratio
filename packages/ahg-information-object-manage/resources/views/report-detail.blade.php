@@ -52,9 +52,9 @@
               <table class="table table-hover mb-0">
                 <thead class="table-light">
                   <tr>
-                    <th>Identifier</th>
-                    <th>Title</th>
-                    <th>Scope &amp; Content</th>
+                    <th>{{ __('Identifier') }}</th>
+                    <th>{{ __('Title') }}</th>
+                    <th>{{ __('Scope &amp; Content') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -92,9 +92,9 @@
               <table class="table table-hover mb-0">
                 <thead class="table-light">
                   <tr>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Location</th>
+                    <th>{{ __('Name') }}</th>
+                    <th>{{ __('Type') }}</th>
+                    <th>{{ __('Location') }}</th>
                   </tr>
                 </thead>
                 <tbody>

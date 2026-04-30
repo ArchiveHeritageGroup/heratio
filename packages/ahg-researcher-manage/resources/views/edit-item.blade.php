@@ -1,6 +1,6 @@
 <div class="container-fluid py-3">
 
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item"><a href="@php echo route('researcher.dashboard') @endphp">Researcher</a></li>
       <li class="breadcrumb-item"><a href="{{ route('researcher.viewSubmission', ['id' => $submissionId]) }}">@php echo htmlspecialchars($submission->title) @endphp</a></li>
@@ -30,7 +30,7 @@
 
         <!-- Item Type -->
         <div class="card mb-3">
-          <div class="card-header"><h6 class="mb-0">Item Type</h6></div>
+          <div class="card-header"><h6 class="mb-0">{{ __('Item Type') }}</h6></div>
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-6">
@@ -73,7 +73,7 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label fw-bold">Identifier <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" name="identifier" class="form-control" value="@php echo htmlspecialchars($item->identifier ?? '') @endphp" placeholder="e.g., MS-2024-001">
+                <input type="text" name="identifier" class="form-control" value="@php echo htmlspecialchars($item->identifier ?? '') @endphp" placeholder="{{ __('e.g., MS-2024-001') }}">
               </div>
               <div class="col-md-4">
                 <label class="form-label fw-bold">Level of Description <span class="badge bg-warning ms-1">Recommended</span></label>
@@ -88,7 +88,7 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label fw-bold">Date (display) <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" name="date_display" class="form-control" value="@php echo htmlspecialchars($item->date_display ?? '') @endphp" placeholder="e.g., 1950-1975">
+                <input type="text" name="date_display" class="form-control" value="@php echo htmlspecialchars($item->date_display ?? '') @endphp" placeholder="{{ __('e.g., 1950-1975') }}">
               </div>
               <div class="col-md-4">
                 <div class="row g-2">
@@ -104,7 +104,7 @@
               </div>
               <div class="col-12">
                 <label class="form-label fw-bold">Extent and Medium <span class="badge bg-warning ms-1">Recommended</span></label>
-                <input type="text" name="extent_and_medium" class="form-control" value="@php echo htmlspecialchars($item->extent_and_medium ?? '') @endphp" placeholder="e.g., 3 boxes, 150 photographs">
+                <input type="text" name="extent_and_medium" class="form-control" value="@php echo htmlspecialchars($item->extent_and_medium ?? '') @endphp" placeholder="{{ __('e.g., 3 boxes, 150 photographs') }}">
               </div>
             </div>
           </div>
@@ -131,7 +131,7 @@
                 <input type="hidden" name="creators" id="creatorsValue" value="@php echo htmlspecialchars($item->creators ?? '') @endphp">
                 <div class="tag-container border rounded p-1 d-flex flex-wrap gap-1 mb-1" id="creatorsTags"></div>
                 <input type="text" class="form-control form-control-sm tag-autocomplete" id="creatorsInput"
-                       data-target="creators" data-source="actor" placeholder="Type to search creators...">
+                       data-target="creators" data-source="actor" placeholder="{{ __('Type to search creators...') }}">
                 <small class="text-muted">Persons, organizations, families.</small>
               </div>
               <div class="col-md-6">
@@ -139,21 +139,21 @@
                 <input type="hidden" name="subjects" id="subjectsValue" value="@php echo htmlspecialchars($item->subjects ?? '') @endphp">
                 <div class="tag-container border rounded p-1 d-flex flex-wrap gap-1 mb-1" id="subjectsTags"></div>
                 <input type="text" class="form-control form-control-sm tag-autocomplete" id="subjectsInput"
-                       data-target="subjects" data-source="term" data-taxonomy="35" placeholder="Type to search subjects...">
+                       data-target="subjects" data-source="term" data-taxonomy="35" placeholder="{{ __('Type to search subjects...') }}">
               </div>
               <div class="col-md-6">
                 <label class="form-label fw-bold">Places <span class="badge bg-warning ms-1">Recommended</span></label>
                 <input type="hidden" name="places" id="placesValue" value="@php echo htmlspecialchars($item->places ?? '') @endphp">
                 <div class="tag-container border rounded p-1 d-flex flex-wrap gap-1 mb-1" id="placesTags"></div>
                 <input type="text" class="form-control form-control-sm tag-autocomplete" id="placesInput"
-                       data-target="places" data-source="term" data-taxonomy="42" placeholder="Type to search places...">
+                       data-target="places" data-source="term" data-taxonomy="42" placeholder="{{ __('Type to search places...') }}">
               </div>
               <div class="col-md-6">
                 <label class="form-label fw-bold">Genre <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="hidden" name="genres" id="genresValue" value="@php echo htmlspecialchars($item->genres ?? '') @endphp">
                 <div class="tag-container border rounded p-1 d-flex flex-wrap gap-1 mb-1" id="genresTags"></div>
                 <input type="text" class="form-control form-control-sm tag-autocomplete" id="genresInput"
-                       data-target="genres" data-source="term" data-taxonomy="78" placeholder="Type to search genre...">
+                       data-target="genres" data-source="term" data-taxonomy="78" placeholder="{{ __('Type to search genre...') }}">
               </div>
             </div>
           </div>
@@ -199,7 +199,7 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label fw-bold">Contact <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" name="repository_contact" class="form-control" value="@php echo htmlspecialchars($item->repository_contact ?? '') @endphp" placeholder="Email or phone">
+                <input type="text" name="repository_contact" class="form-control" value="@php echo htmlspecialchars($item->repository_contact ?? '') @endphp" placeholder="{{ __('Email or phone') }}">
               </div>
             </div>
           </div>

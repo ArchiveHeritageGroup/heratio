@@ -13,7 +13,7 @@ $missingRepository = $missingRepository ?? 0;
 $missingDigitalObjects = $missingDigitalObjects ?? 0;
 @endphp
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('ahgspectrum.dashboard') }}">Spectrum</a></li>
         <li class="breadcrumb-item active">{{ __('Data Quality') }}</li>

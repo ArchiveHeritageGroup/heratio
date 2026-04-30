@@ -6,7 +6,7 @@
 
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-    <h5 class="mb-0">Digital Objects</h5>
+    <h5 class="mb-0">{{ __('Digital Objects') }}</h5>
     <div>
       <a href="{{ route('metadata-extraction.status') }}" class="btn atom-btn-white btn-sm me-2">
         <i class="bi bi-info-circle me-1"></i>Status
@@ -60,7 +60,7 @@
         <div class="col-md-4">
           <label class="form-label">MIME Type <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="mime_type" class="form-select form-select-sm">
-            <option value="">All types</option>
+            <option value="">{{ __('All types') }}</option>
             @foreach($mimeTypes as $mime)
               <option value="{{ $mime }}" {{ $filterMimeType === $mime ? 'selected' : '' }}>{{ $mime }}</option>
             @endforeach
@@ -69,13 +69,13 @@
         <div class="col-md-4">
           <label class="form-label">Has Metadata <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="extracted" class="form-select form-select-sm">
-            <option value="">All</option>
-            <option value="yes" {{ $filterExtracted === 'yes' ? 'selected' : '' }}>Yes - has metadata</option>
-            <option value="no" {{ $filterExtracted === 'no' ? 'selected' : '' }}>No - not extracted</option>
+            <option value="">{{ __('All') }}</option>
+            <option value="yes" {{ $filterExtracted === 'yes' ? 'selected' : '' }}>{{ __('Yes - has metadata') }}</option>
+            <option value="no" {{ $filterExtracted === 'no' ? 'selected' : '' }}>{{ __('No - not extracted') }}</option>
           </select>
         </div>
         <div class="col-md-4 d-flex align-items-end">
-          <button type="submit" class="btn atom-btn-outline-light btn-sm me-2">Filter</button>
+          <button type="submit" class="btn atom-btn-outline-light btn-sm me-2">{{ __('Filter') }}</button>
           <a href="{{ route('metadata-extraction.index') }}" class="btn atom-btn-white btn-sm">Clear</a>
         </div>
       </div>
@@ -89,13 +89,13 @@
         <table class="table table-bordered table-striped table-hover">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>File Name</th>
-              <th>MIME Type</th>
-              <th>Size</th>
-              <th>Parent Record</th>
-              <th>Metadata</th>
-              <th>Actions</th>
+              <th>{{ __('ID') }}</th>
+              <th>{{ __('File Name') }}</th>
+              <th>{{ __('MIME Type') }}</th>
+              <th>{{ __('Size') }}</th>
+              <th>{{ __('Parent Record') }}</th>
+              <th>{{ __('Metadata') }}</th>
+              <th>{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -125,11 +125,11 @@
                 </td>
                 <td>
                   <div class="btn-group btn-group-sm">
-                    <a href="{{ route('metadata-extraction.view', $obj->id) }}" class="btn atom-btn-white" title="View metadata">
+                    <a href="{{ route('metadata-extraction.view', $obj->id) }}" class="btn atom-btn-white" title="{{ __('View metadata') }}">
                       <i class="bi bi-eye"></i>
                     </a>
                     @if($exifToolAvailable)
-                      <button type="button" class="btn atom-btn-outline-success extract-btn" data-id="{{ $obj->id }}" title="Extract metadata">
+                      <button type="button" class="btn atom-btn-outline-success extract-btn" data-id="{{ $obj->id }}" title="{{ __('Extract metadata') }}">
                         <i class="bi bi-download"></i>
                       </button>
                     @endif
@@ -143,7 +143,7 @@
 
       {{-- Pagination --}}
       @if($totalPages > 1)
-        <nav aria-label="Page navigation">
+        <nav aria-label="{{ __('Page navigation') }}">
           <ul class="pagination pagination-sm justify-content-center">
             @if($page > 1)
               <li class="page-item">

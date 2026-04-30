@@ -84,15 +84,15 @@
       <table class="table table-bordered table-striped mb-0 sticky-enabled">
         <thead>
           <tr>
-            <th style="width:60px;">Cover</th>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Material type</th>
-            <th>Call number</th>
-            <th>ISBN</th>
-            <th>Publisher</th>
+            <th style="width:60px;">{{ __('Cover') }}</th>
+            <th>{{ __('Title') }}</th>
+            <th>{{ __('Author') }}</th>
+            <th>{{ __('Material type') }}</th>
+            <th>{{ __('Call number') }}</th>
+            <th>{{ __('ISBN') }}</th>
+            <th>{{ __('Publisher') }}</th>
             @if(request('sort') === 'lastUpdated')
-              <th>Updated</th>
+              <th>{{ __('Updated') }}</th>
             @endif
             <th class="text-center" style="width:50px;"></th>
           </tr>
@@ -133,7 +133,7 @@
               <td class="text-center">
                 <button class="btn btn-sm atom-btn-white clipboard"
                         data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="library"
-                        title="Add to clipboard">
+                        title="{{ __('Add to clipboard') }}">
                   <i class="fas fa-paperclip" aria-hidden="true"></i>
                   <span class="visually-hidden">Add to clipboard</span>
                 </button>

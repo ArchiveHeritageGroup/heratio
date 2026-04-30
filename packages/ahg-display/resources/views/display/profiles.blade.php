@@ -41,7 +41,7 @@
     <div class="d-flex align-items-center">
       <i class="fas fa-3x fa-layer-group me-3 text-primary" aria-hidden="true"></i>
       <div>
-        <h1 class="mb-0">Display Profiles</h1>
+        <h1 class="mb-0">{{ __('Display Profiles') }}</h1>
         <span class="small text-muted">Configure how objects are displayed in different domains</span>
       </div>
     </div>
@@ -72,19 +72,19 @@
               <table class="table table-sm table-borderless mb-0">
                 <tbody>
                   <tr>
-                    <th class="text-muted" width="120">Code:</th>
+                    <th class="text-muted" width="120">{{ __('Code:') }}</th>
                     <td><code>{{ $profile->code ?? '-' }}</code></td>
                   </tr>
                   <tr>
-                    <th class="text-muted">Layout:</th>
+                    <th class="text-muted">{{ __('Layout:') }}</th>
                     <td>{{ ucfirst($profile->layout_mode ?? $profile->layout ?? 'list') }}</td>
                   </tr>
                   <tr>
-                    <th class="text-muted">Thumbnail:</th>
+                    <th class="text-muted">{{ __('Thumbnail:') }}</th>
                     <td>{{ ucfirst($profile->thumbnail_size ?? 'default') }} ({{ $profile->thumbnail_position ?? 'left' }})</td>
                   </tr>
                   <tr>
-                    <th class="text-muted">Default:</th>
+                    <th class="text-muted">{{ __('Default:') }}</th>
                     <td>
                       @if(!empty($profile->is_default))
                         <span class="badge bg-success">Yes</span>

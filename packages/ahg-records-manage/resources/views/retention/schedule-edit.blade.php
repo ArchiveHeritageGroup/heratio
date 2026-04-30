@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-calendar-check me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">Edit Retention Schedule</h1><span class="small text-muted">{{ $schedule->schedule_ref }} — {{ $schedule->title }}</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Edit Retention Schedule') }}</h1><span class="small text-muted">{{ $schedule->schedule_ref }} — {{ $schedule->title }}</span></div>
   </div>
 @endsection
 @section('content')
@@ -13,7 +13,7 @@
 
 <form method="post" action="{{ route('records.schedules.update', $schedule->id) }}">@csrf @method('PUT')
 <div class="card mb-4">
-  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">Schedule Details</h5></div>
+  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Schedule Details') }}</h5></div>
   <div class="card-body">
     <div class="row">
       <div class="col-md-4 mb-3">
@@ -55,7 +55,7 @@
 </div>
 <section class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
   <a href="{{ route('records.schedules.show', $schedule->id) }}" class="btn atom-btn-outline-light">Cancel</a>
-  <button type="submit" class="btn atom-btn-outline-light">Save Changes</button>
+  <button type="submit" class="btn atom-btn-outline-light">{{ __('Save Changes') }}</button>
 </section>
 </form>
 @endsection

@@ -36,7 +36,7 @@
       <div class="col-md-2">
         <label class="form-label">Table <span class="badge bg-secondary ms-1">Optional</span></label>
         <select name="table" class="form-select form-select-sm">
-          <option value="">All Tables</option>
+          <option value="">{{ __('All Tables') }}</option>
           @foreach($tables ?? [] as $table)
             <option value="{{ $table }}" {{ request('table') === $table ? 'selected' : '' }}>{{ $table }}</option>
           @endforeach
@@ -45,10 +45,10 @@
       <div class="col-md-2">
         <label class="form-label">Action <span class="badge bg-secondary ms-1">Optional</span></label>
         <select name="form_action" class="form-select form-select-sm">
-          <option value="">All Actions</option>
-          <option value="create" {{ request('form_action') === 'create' ? 'selected' : '' }}>Create</option>
-          <option value="update" {{ request('form_action') === 'update' ? 'selected' : '' }}>Update</option>
-          <option value="delete" {{ request('form_action') === 'delete' ? 'selected' : '' }}>Delete</option>
+          <option value="">{{ __('All Actions') }}</option>
+          <option value="create" {{ request('form_action') === 'create' ? 'selected' : '' }}>{{ __('Create') }}</option>
+          <option value="update" {{ request('form_action') === 'update' ? 'selected' : '' }}>{{ __('Update') }}</option>
+          <option value="delete" {{ request('form_action') === 'delete' ? 'selected' : '' }}>{{ __('Delete') }}</option>
         </select>
       </div>
       <div class="col-md-2">
@@ -61,7 +61,7 @@
       </div>
       <div class="col-md-2">
         <label class="form-label">Search <span class="badge bg-secondary ms-1">Optional</span></label>
-        <input type="text" name="q" class="form-control form-control-sm" value="{{ request('q') }}" placeholder="Search...">
+        <input type="text" name="q" class="form-control form-control-sm" value="{{ request('q') }}" placeholder="{{ __('Search...') }}">
       </div>
       <div class="col-md-2 d-flex align-items-end">
         <button type="submit" class="btn atom-btn-white btn-sm me-2"><i class="fas fa-search"></i> Filter</button>
@@ -86,7 +86,7 @@
       <div class="table-responsive">
         <table class="table table-striped table-hover mb-0">
           <thead class="table-light">
-            <tr><th>Date/Time</th><th>User</th><th>Action</th><th>Table</th><th>Record</th><th>Changes</th><th></th></tr>
+            <tr><th>{{ __('Date/Time') }}</th><th>{{ __('User') }}</th><th>{{ __('Action') }}</th><th>{{ __('Table') }}</th><th>{{ __('Record') }}</th><th>{{ __('Changes') }}</th><th></th></tr>
           </thead>
           <tbody>
             @foreach($logs as $log)

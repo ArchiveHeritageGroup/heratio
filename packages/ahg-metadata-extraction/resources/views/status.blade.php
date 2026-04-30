@@ -6,7 +6,7 @@
 
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-    <h5 class="mb-0">System Status</h5>
+    <h5 class="mb-0">{{ __('System Status') }}</h5>
     <a href="{{ route('metadata-extraction.index') }}" class="btn atom-btn-white btn-sm">
       <i class="bi bi-arrow-left me-1"></i>Back
     </a>
@@ -16,10 +16,10 @@
     {{-- Tool Status --}}
     <div class="row mb-4">
       <div class="col-md-6">
-        <h6>Tool Availability</h6>
+        <h6>{{ __('Tool Availability') }}</h6>
         <table class="table table-bordered table-sm">
           <tr>
-            <th class="w-50">ExifTool</th>
+            <th class="w-50">{{ __('ExifTool') }}</th>
             <td>
               @if($exifToolAvailable)
                 <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Installed</span>
@@ -30,7 +30,7 @@
             </td>
           </tr>
           <tr>
-            <th>ffprobe</th>
+            <th>{{ __('ffprobe') }}</th>
             <td>
               @if($ffprobeAvailable)
                 <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Installed</span>
@@ -41,7 +41,7 @@
             </td>
           </tr>
           <tr>
-            <th>pdfinfo</th>
+            <th>{{ __('pdfinfo') }}</th>
             <td>
               @if($pdfinfoAvailable)
                 <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Installed</span>
@@ -54,7 +54,7 @@
 
         @if(!$exifToolAvailable)
           <div class="alert alert-warning">
-            <h6>Installation Instructions</h6>
+            <h6>{{ __('Installation Instructions') }}</h6>
             <p class="mb-2">ExifTool is required for metadata extraction. Install with:</p>
             <code>sudo apt install exiftool</code>
             <p class="mt-2 mb-0 small text-muted">For other systems: https://exiftool.org/install.html</p>
@@ -63,7 +63,7 @@
 
         @if(!$ffprobeAvailable)
           <div class="alert alert-warning">
-            <h6>ffprobe Installation</h6>
+            <h6>{{ __('ffprobe Installation') }}</h6>
             <p class="mb-2">ffprobe is required for video/audio metadata. Install with:</p>
             <code>sudo apt install ffmpeg</code>
           </div>
@@ -71,7 +71,7 @@
 
         @if(!$pdfinfoAvailable)
           <div class="alert alert-warning">
-            <h6>pdfinfo Installation</h6>
+            <h6>{{ __('pdfinfo Installation') }}</h6>
             <p class="mb-2">pdfinfo is required for PDF metadata. Install with:</p>
             <code>sudo apt install poppler-utils</code>
           </div>
@@ -79,14 +79,14 @@
       </div>
 
       <div class="col-md-6">
-        <h6>Extraction Statistics</h6>
+        <h6>{{ __('Extraction Statistics') }}</h6>
         <table class="table table-bordered table-sm">
           <tr>
-            <th class="w-50">Total Digital Objects</th>
+            <th class="w-50">{{ __('Total Digital Objects') }}</th>
             <td><strong>{{ number_format($stats['total_digital_objects']) }}</strong></td>
           </tr>
           <tr>
-            <th>Objects with Metadata</th>
+            <th>{{ __('Objects with Metadata') }}</th>
             <td>
               <strong>{{ number_format($stats['objects_with_metadata']) }}</strong>
               @if($stats['total_digital_objects'] > 0)
@@ -95,11 +95,11 @@
             </td>
           </tr>
           <tr>
-            <th>Total Metadata Fields</th>
+            <th>{{ __('Total Metadata Fields') }}</th>
             <td><strong>{{ number_format($stats['total_metadata_fields']) }}</strong></td>
           </tr>
           <tr>
-            <th>Average Fields per Object</th>
+            <th>{{ __('Average Fields per Object') }}</th>
             <td>
               <strong>{{ $stats['objects_with_metadata'] > 0 ? round($stats['total_metadata_fields'] / $stats['objects_with_metadata'], 1) : 0 }}</strong>
             </td>
@@ -111,7 +111,7 @@
     <hr>
 
     {{-- MIME Type Breakdown --}}
-    <h6>MIME Type Breakdown</h6>
+    <h6>{{ __('MIME Type Breakdown') }}</h6>
     <p class="text-muted small">Top 10 file types in your repository</p>
 
     @if($stats['mime_type_breakdown']->count() > 0)
@@ -119,9 +119,9 @@
         <table class="table table-bordered table-sm table-striped">
           <thead>
             <tr>
-              <th>MIME Type</th>
-              <th>Count</th>
-              <th>Supported</th>
+              <th>{{ __('MIME Type') }}</th>
+              <th>{{ __('Count') }}</th>
+              <th>{{ __('Supported') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -150,12 +150,12 @@
     <hr>
 
     {{-- Supported Formats --}}
-    <h6>Supported Formats</h6>
+    <h6>{{ __('Supported Formats') }}</h6>
     <p class="text-muted small">ExifTool can extract metadata from the following file types:</p>
 
     <div class="row">
       <div class="col-md-3">
-        <h6 class="text-muted small">Images</h6>
+        <h6 class="text-muted small">{{ __('Images') }}</h6>
         <ul class="small">
           <li>JPEG/JPG</li>
           <li>PNG</li>
@@ -167,7 +167,7 @@
         </ul>
       </div>
       <div class="col-md-3">
-        <h6 class="text-muted small">Documents</h6>
+        <h6 class="text-muted small">{{ __('Documents') }}</h6>
         <ul class="small">
           <li>PDF</li>
           <li>Office documents</li>
@@ -175,7 +175,7 @@
         </ul>
       </div>
       <div class="col-md-3">
-        <h6 class="text-muted small">Video</h6>
+        <h6 class="text-muted small">{{ __('Video') }}</h6>
         <ul class="small">
           <li>MP4</li>
           <li>AVI</li>
@@ -184,7 +184,7 @@
         </ul>
       </div>
       <div class="col-md-3">
-        <h6 class="text-muted small">Audio</h6>
+        <h6 class="text-muted small">{{ __('Audio') }}</h6>
         <ul class="small">
           <li>MP3</li>
           <li>WAV</li>

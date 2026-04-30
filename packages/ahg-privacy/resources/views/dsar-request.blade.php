@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container py-4">
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('ahgprivacy.index') }}">{{ __('Privacy') }}</a></li>
             <li class="breadcrumb-item active">{{ __('Submit Request') }}</li>

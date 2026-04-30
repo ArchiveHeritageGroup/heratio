@@ -21,7 +21,7 @@
       </div>
       <div class="modal-footer">
         <a href="{{ route('io.ai.review') }}?object_id={{ $objectId }}" class="btn btn-outline-primary btn-sm" id="nerFooterReview" style="display:none"><i class="fas fa-list-check me-1"></i>Review</a>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
       </div>
     </div>
   </div>

@@ -18,7 +18,7 @@
         <div class="row justify-content-center">
           <div class="col-lg-8 col-md-10">
             <form action="{{ route('help.search') }}" method="get" class="input-group input-group-lg">
-              <input type="text" name="q" class="form-control" placeholder="Search help articles..." autocomplete="off">
+              <input type="text" name="q" class="form-control" placeholder="{{ __('Search help articles...') }}" autocomplete="off">
               <button type="submit" class="btn atom-btn-white"><i class="fas fa-search"></i></button>
             </form>
           </div>
@@ -44,7 +44,7 @@
     </div>
 
     {{-- Category Cards --}}
-    <h2 class="h4 mb-3">Browse by Category</h2>
+    <h2 class="h4 mb-3">{{ __('Browse by Category') }}</h2>
     <div class="row g-3 mb-4">
       @foreach($categories as $cat)
         @php $catName = $cat['category']; @endphp
@@ -67,7 +67,7 @@
 
     {{-- Recently Updated --}}
     @if(!empty($recentArticles))
-      <h2 class="h4 mb-3">Recently Updated</h2>
+      <h2 class="h4 mb-3">{{ __('Recently Updated') }}</h2>
       <div class="list-group mb-4">
         @foreach($recentArticles as $article)
           <a href="{{ route('help.article', $article['slug']) }}"

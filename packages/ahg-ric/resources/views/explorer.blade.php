@@ -11,7 +11,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-project-diagram me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">RiC Explorer</h1>
+      <h1 class="mb-0">{{ __('RiC Explorer') }}</h1>
       <span class="small text-muted">Records in Contexts &mdash; Graph Visualization</span>
     </div>
   </div>
@@ -24,7 +24,7 @@
           <div class="input-group">
             <span class="input-group-text"><i class="fas fa-search"></i></span>
             <input type="text" id="ric-autocomplete-input" class="form-control"
-                   placeholder="Search records by title, identifier, or slug..." autocomplete="off" />
+                   placeholder="{{ __('Search records by title, identifier, or slug...') }}" autocomplete="off" />
           </div>
           <div id="ric-autocomplete-dropdown" class="list-group position-absolute shadow-sm" style="display:none; z-index:1050; max-height:300px; overflow-y:auto; width:calc(100% - 2rem);"></div>
         </div>
@@ -39,7 +39,7 @@
             <button type="button" class="btn atom-btn-secondary ric-view-btn active" data-view="2d">2D</button>
             <button type="button" class="btn atom-btn-secondary ric-view-btn" data-view="3d">3D</button>
             <button type="button" class="btn atom-btn-secondary ric-view-btn" data-view="timeline"><i class="fas fa-stream me-1"></i>Timeline</button>
-            <button type="button" class="btn atom-btn-secondary" id="ric-fullscreen-btn" title="Fullscreen">
+            <button type="button" class="btn atom-btn-secondary" id="ric-fullscreen-btn" title="{{ __('Fullscreen') }}">
               <i class="fas fa-expand"></i>
             </button>
           </div>
@@ -110,40 +110,40 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label small">Entity Type</label>
+            <label class="form-label small">{{ __('Entity Type') }}</label>
             <select id="ric-create-type" class="form-select form-select-sm" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;">
-              <option value="RecordSet">RecordSet (Fonds/Collection)</option>
-              <option value="Record" selected>Record (Item/File)</option>
-              <option value="RecordPart">RecordPart</option>
-              <option value="Person">Person</option>
-              <option value="CorporateBody">CorporateBody</option>
-              <option value="Family">Family</option>
-              <option value="Place">Place</option>
-              <option value="Activity">Activity</option>
-              <option value="Event">Event</option>
-              <option value="Concept">Concept/Term</option>
+              <option value="RecordSet">{{ __('RecordSet (Fonds/Collection)') }}</option>
+              <option value="Record" selected>{{ __('Record (Item/File)') }}</option>
+              <option value="RecordPart">{{ __('RecordPart') }}</option>
+              <option value="Person">{{ __('Person') }}</option>
+              <option value="CorporateBody">{{ __('CorporateBody') }}</option>
+              <option value="Family">{{ __('Family') }}</option>
+              <option value="Place">{{ __('Place') }}</option>
+              <option value="Activity">{{ __('Activity') }}</option>
+              <option value="Event">{{ __('Event') }}</option>
+              <option value="Concept">{{ __('Concept/Term') }}</option>
             </select>
           </div>
           <div class="mb-3">
             <label class="form-label small">Name / Title <span class="text-danger">*</span></label>
-            <input type="text" id="ric-create-name" class="form-control form-control-sm" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="Enter entity name">
+            <input type="text" id="ric-create-name" class="form-control form-control-sm" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="{{ __('Enter entity name') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label small">Identifier</label>
-            <input type="text" id="ric-create-identifier" class="form-control form-control-sm" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="Optional identifier">
+            <label class="form-label small">{{ __('Identifier') }}</label>
+            <input type="text" id="ric-create-identifier" class="form-control form-control-sm" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="{{ __('Optional identifier') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label small">Description</label>
-            <textarea id="ric-create-description" class="form-control form-control-sm" rows="3" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="Optional description"></textarea>
+            <label class="form-label small">{{ __('Description') }}</label>
+            <textarea id="ric-create-description" class="form-control form-control-sm" rows="3" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="{{ __('Optional description') }}"></textarea>
           </div>
           <div class="mb-3">
             <label class="form-label small">Parent URI <span class="text-muted">(link to existing entity)</span></label>
-            <input type="text" id="ric-create-parent" class="form-control form-control-sm" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="Optional parent URI">
+            <input type="text" id="ric-create-parent" class="form-control form-control-sm" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="{{ __('Optional parent URI') }}">
           </div>
           <div id="ric-create-result" style="display:none;"></div>
         </div>
         <div class="modal-footer" style="border-color:#444;">
-          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="button" class="btn btn-sm btn-success" id="ric-create-submit" onclick="submitCreateEntity()">
             <i class="fas fa-plus me-1"></i>Create Entity
           </button>

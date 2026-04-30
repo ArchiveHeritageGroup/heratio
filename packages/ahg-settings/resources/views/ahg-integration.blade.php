@@ -49,23 +49,23 @@
         </div>
         <div class="card-body">
           <div class="mb-3">
-            <label for="ahg_central_enabled" class="form-label">Enable AHG Central Integration</label>
+            <label for="ahg_central_enabled" class="form-label">{{ __('Enable AHG Central Integration') }}</label>
             <div>
               <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" name="settings[ahg_central_enabled]" id="ahg_central_enabled" value="1" {{ ($settings['ahg_central_enabled'] ?? '0') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="ahg_central_enabled">Allow this instance to communicate with AHG Central services.</label>
+                <label class="form-check-label" for="ahg_central_enabled">{{ __('Allow this instance to communicate with AHG Central services.') }}</label>
               </div>
             </div>
           </div>
 
           <div class="mb-3">
-            <label for="ahg_central_api_url" class="form-label">AHG Central API URL</label>
+            <label for="ahg_central_api_url" class="form-label">{{ __('AHG Central API URL') }}</label>
             <input type="url" name="settings[ahg_central_api_url]" id="ahg_central_api_url" class="form-control" value="{{ $settings['ahg_central_api_url'] ?? 'https://central.theahg.co.za/api/v1' }}">
             <div class="form-text">Base URL for the AHG Central API endpoint.</div>
           </div>
 
           <div class="mb-3">
-            <label for="ahg_central_api_key" class="form-label">API Key</label>
+            <label for="ahg_central_api_key" class="form-label">{{ __('API Key') }}</label>
             <div class="input-group">
               <input type="password" name="settings[ahg_central_api_key]" class="form-control" id="ahg_central_api_key" value="{{ $settings['ahg_central_api_key'] ?? '' }}">
               <button class="btn btn-outline-secondary" type="button" onclick="var i=document.getElementById('ahg_central_api_key');i.type=i.type==='password'?'text':'password';"><i class="fas fa-eye"></i></button>
@@ -74,7 +74,7 @@
           </div>
 
           <div class="mb-3">
-            <label for="ahg_central_site_id" class="form-label">Site ID</label>
+            <label for="ahg_central_site_id" class="form-label">{{ __('Site ID') }}</label>
             <input type="text" name="settings[ahg_central_site_id]" id="ahg_central_site_id" class="form-control" value="{{ $settings['ahg_central_site_id'] ?? '' }}">
             <div class="form-text">Unique identifier for this Heratio instance when communicating with AHG Central.</div>
           </div>
@@ -101,7 +101,7 @@
           <p class="text-muted mb-3">Previously, AHG Central was configured via environment variables. Database settings (above) take precedence over environment variables.</p>
           <table class="table table-sm">
             <thead>
-              <tr><th>Variable</th><th>Current Value</th><th>Status</th></tr>
+              <tr><th>{{ __('Variable') }}</th><th>{{ __('Current Value') }}</th><th>{{ __('Status') }}</th></tr>
             </thead>
             <tbody>
               @php

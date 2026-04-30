@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-compress-arrows-alt me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Merge Duplicate Records</h1>
+      <h1 class="mb-0">{{ __('Merge Duplicate Records') }}</h1>
       <span class="small text-muted">Duplicate Detection</span>
     </div>
     <div class="ms-auto d-flex gap-2">
@@ -28,7 +28,7 @@
     {{-- Detection Info --}}
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">Detection Details</h5>
+        <h5 class="mb-0">{{ __('Detection Details') }}</h5>
       </div>
       <div class="card-body">
         <div class="row">

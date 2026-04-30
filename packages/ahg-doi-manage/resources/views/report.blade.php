@@ -13,7 +13,7 @@
     <div class="multiline-header d-flex align-items-center mb-3">
       <i class="fas fa-3x fa-chart-bar me-3" aria-hidden="true"></i>
       <div class="d-flex flex-column flex-grow-1">
-        <h1 class="mb-0">DOI Reports</h1>
+        <h1 class="mb-0">{{ __('DOI Reports') }}</h1>
         <span class="small text-muted">Statistics and Analytics</span>
       </div>
       <div class="d-flex gap-2">
@@ -95,9 +95,9 @@
               <table class="table table-sm mb-0">
                 <thead>
                   <tr>
-                    <th>Month</th>
-                    <th class="text-end">Minted</th>
-                    <th class="text-end">Updated</th>
+                    <th>{{ __('Month') }}</th>
+                    <th class="text-end">{{ __('Minted') }}</th>
+                    <th class="text-end">{{ __('Updated') }}</th>
                     <th style="width: 40%"></th>
                   </tr>
                 </thead>
@@ -140,8 +140,8 @@
               <table class="table table-sm mb-0">
                 <thead>
                   <tr>
-                    <th>Repository</th>
-                    <th class="text-end">Count</th>
+                    <th>{{ __('Repository') }}</th>
+                    <th class="text-end">{{ __('Count') }}</th>
                     <th style="width: 40%"></th>
                   </tr>
                 </thead>
@@ -190,11 +190,11 @@
           <div class="col-md-3">
             <label class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="status" class="form-select">
-              <option value="">All Statuses</option>
-              <option value="findable">Findable</option>
-              <option value="registered">Registered</option>
-              <option value="draft">Draft</option>
-              <option value="deleted">Deleted</option>
+              <option value="">{{ __('All Statuses') }}</option>
+              <option value="findable">{{ __('Findable') }}</option>
+              <option value="registered">{{ __('Registered') }}</option>
+              <option value="draft">{{ __('Draft') }}</option>
+              <option value="deleted">{{ __('Deleted') }}</option>
             </select>
           </div>
           <div class="col-md-2">

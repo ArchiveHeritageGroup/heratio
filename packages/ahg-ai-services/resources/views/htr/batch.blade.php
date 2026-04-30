@@ -2,7 +2,7 @@
 @section('title', 'Batch HTR Processing')
 @section('body-class', 'admin ai-services htr')
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li><li class="breadcrumb-item active">Batch</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li><li class="breadcrumb-item active">Batch</li></ol></nav>
 @include('ahg-ai-services::htr._nav')
 <h1><i class="fas fa-layer-group me-2"></i>Batch HTR Processing</h1>
 
@@ -20,7 +20,7 @@
         <select name="format" class="form-select" style="max-width:200px">
           <option value="csv">CSV</option>
           <option value="json">JSON</option>
-          <option value="gedcom">GEDCOM</option>
+          <option value="gedcom">{{ __('GEDCOM') }}</option>
         </select>
       </div>
       <div class="progress mb-3 d-none" id="batch-progress"><div class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%"></div></div>
@@ -35,7 +35,7 @@
   <div class="card-header" style="background: var(--ahg-primary); color: white;">Batch Results</div>
   <div class="card-body table-responsive">
     <table class="table table-striped mb-0">
-      <thead><tr><th>File</th><th>Type</th><th>Fields</th><th>Confidence</th><th>Actions</th></tr></thead>
+      <thead><tr><th>{{ __('File') }}</th><th>{{ __('Type') }}</th><th>{{ __('Fields') }}</th><th>{{ __('Confidence') }}</th><th>{{ __('Actions') }}</th></tr></thead>
       <tbody>
       @foreach($batchResults['results'] ?? [] as $result)
         <tr>

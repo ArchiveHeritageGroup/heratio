@@ -28,7 +28,7 @@
       {{-- Basic info --}}
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#basicInfo-collapse" aria-expanded="true">Basic info</button>
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#basicInfo-collapse" aria-expanded="true">{{ __('Basic info') }}</button>
         </h2>
         <div id="basicInfo-collapse" class="accordion-collapse collapse show">
           <div class="accordion-body">
@@ -88,7 +88,7 @@
       {{-- Profile --}}
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#profile-collapse" aria-expanded="true">Profile</button>
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#profile-collapse" aria-expanded="true">{{ __('Profile') }}</button>
         </h2>
         <div id="profile-collapse" class="accordion-collapse collapse show">
           <div class="accordion-body">
@@ -106,7 +106,7 @@
       @php $contact = $user->contact ?? null; @endphp
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#contactInfo-collapse" aria-expanded="true">Contact information</button>
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#contactInfo-collapse" aria-expanded="true">{{ __('Contact information') }}</button>
         </h2>
         <div id="contactInfo-collapse" class="accordion-collapse collapse show">
           <div class="accordion-body">
@@ -171,7 +171,7 @@
       {{-- Access control (User groups) --}}
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#accessControl-collapse" aria-expanded="true">Access control</button>
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#accessControl-collapse" aria-expanded="true">{{ __('Access control') }}</button>
         </h2>
         <div id="accessControl-collapse" class="accordion-collapse collapse show">
           <div class="accordion-body">
@@ -204,7 +204,7 @@
       {{-- Allowed languages for translation --}}
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#translate-collapse" aria-expanded="true">Allowed languages for translation</button>
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#translate-collapse" aria-expanded="true">{{ __('Allowed languages for translation') }}</button>
         </h2>
         <div id="translate-collapse" class="accordion-collapse collapse show">
           <div class="accordion-body">
@@ -235,7 +235,7 @@
       @if($user)
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#apiKeys-collapse" aria-expanded="true">API keys</button>
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#apiKeys-collapse" aria-expanded="true">{{ __('API keys') }}</button>
         </h2>
         <div id="apiKeys-collapse" class="accordion-collapse collapse show">
           <div class="accordion-body">
@@ -264,7 +264,7 @@
               <select name="restApiKey" id="restApiKey" class="form-select">
                 <option value="">-- Select action --</option>
                 <option value="generate">(Re)generate API key</option>
-                <option value="delete">Delete API key</option>
+                <option value="delete">{{ __('Delete API key') }}</option>
               </select>
               @if(!$restApiKey)
                 <div class="form-text">Not generated yet.</div>
@@ -280,7 +280,7 @@
               <select name="oaiApiKey" id="oaiApiKey" class="form-select">
                 <option value="">-- Select action --</option>
                 <option value="generate">(Re)generate API key</option>
-                <option value="delete">Delete API key</option>
+                <option value="delete">{{ __('Delete API key') }}</option>
               </select>
               @if(!$oaiApiKey)
                 <div class="form-text">Not generated yet.</div>

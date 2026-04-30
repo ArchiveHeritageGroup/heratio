@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>CSV Validator</h1>
+  <h1>{{ __('CSV Validator') }}</h1>
 @endsection
 
 @section('content')
@@ -18,7 +18,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="validator-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#validator-collapse" aria-expanded="false" aria-controls="validator-collapse">
-              CSV Validator settings
+              {{ __('CSV Validator settings') }}
             </button>
           </h2>
           <div id="validator-collapse" class="accordion-collapse collapse" aria-labelledby="validator-heading">

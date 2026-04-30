@@ -5,7 +5,7 @@
 
 @section('title-block')
   <div class="multiline-header d-flex flex-column mb-3">
-    <h1 class="mb-0" aria-describedby="heading-label">User profile</h1>
+    <h1 class="mb-0" aria-describedby="heading-label">{{ __('User profile') }}</h1>
     <span class="small" id="heading-label">
       {{ $user->username ?? '[Unknown]' }}
       @if(auth()->check() && auth()->user()->id === $user->id)
@@ -33,20 +33,20 @@
     <div>
       @if($user->username)
         <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Username</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Username') }}</h3>
           <div class="col-9 p-2">{{ $user->username }}</div>
         </div>
       @endif
 
       @if($user->email)
         <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Email</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Email') }}</h3>
           <div class="col-9 p-2">{{ $user->email }}</div>
         </div>
       @endif
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Active</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Active') }}</h3>
         <div class="col-9 p-2">
           @if($user->active)
             <span class="badge bg-success">Yes</span>
@@ -68,7 +68,7 @@
       </h2>
       <div>
         <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Authorized form of name</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Authorized form of name') }}</h3>
           <div class="col-9 p-2">{{ $user->authorized_form_of_name }}</div>
         </div>
       </div>
@@ -86,55 +86,55 @@
       <div>
         @if(!empty($user->contact->telephone))
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Telephone</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Telephone') }}</h3>
             <div class="col-9 p-2">{{ $user->contact->telephone }}</div>
           </div>
         @endif
         @if(!empty($user->contact->fax))
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Fax</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Fax') }}</h3>
             <div class="col-9 p-2">{{ $user->contact->fax }}</div>
           </div>
         @endif
         @if(!empty($user->contact->street_address))
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Street address</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Street address') }}</h3>
             <div class="col-9 p-2">{{ $user->contact->street_address }}</div>
           </div>
         @endif
         @if(!empty($user->contact->city))
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">City</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('City') }}</h3>
             <div class="col-9 p-2">{{ $user->contact->city }}</div>
           </div>
         @endif
         @if(!empty($user->contact->region))
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Region/province</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Region/province') }}</h3>
             <div class="col-9 p-2">{{ $user->contact->region }}</div>
           </div>
         @endif
         @if(!empty($user->contact->postal_code))
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Postal code</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Postal code') }}</h3>
             <div class="col-9 p-2">{{ $user->contact->postal_code }}</div>
           </div>
         @endif
         @if(!empty($user->contact->country_code))
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Country</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Country') }}</h3>
             <div class="col-9 p-2">{{ strtoupper($user->contact->country_code) }}</div>
           </div>
         @endif
         @if(!empty($user->contact->website))
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Website</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Website') }}</h3>
             <div class="col-9 p-2"><a href="{{ $user->contact->website }}" target="_blank">{{ $user->contact->website }}</a></div>
           </div>
         @endif
         @if(!empty($user->contact->note))
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Note</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Note') }}</h3>
             <div class="col-9 p-2">{{ $user->contact->note }}</div>
           </div>
         @endif
@@ -151,7 +151,7 @@
     </h2>
     <div>
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">User groups</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('User groups') }}</h3>
         <div class="col-9 p-2">
           @if(isset($groups) && $groups->isNotEmpty())
             {{ $groups->pluck('name')->implode(', ') }}
@@ -162,7 +162,7 @@
       </div>
       @if(isset($repositories) && count($repositories) > 0)
         <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Repository affiliation</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Repository affiliation') }}</h3>
           <div class="col-9 p-2">
             @foreach($repositories as $repo)
               {{ $repo->name ?? $repo->authorized_form_of_name ?? '[Unknown]' }}@if(!$loop->last), @endif
@@ -182,7 +182,7 @@
     </h2>
     <div>
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Translate</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Translate') }}</h3>
         <div class="col-9 p-2">
           @if(isset($user->translateLanguages) && count($user->translateLanguages) > 0)
             {{ implode(', ', array_map('strtoupper', $user->translateLanguages)) }}
@@ -203,7 +203,7 @@
     </h2>
     <div>
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">REST API access key</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('REST API access key') }}</h3>
         <div class="col-9 p-2">
           @if(isset($restApiKey))
             <code>{{ $restApiKey }}</code>
@@ -213,7 +213,7 @@
         </div>
       </div>
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">OAI-PMH API access key</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('OAI-PMH API access key') }}</h3>
         <div class="col-9 p-2">
           @if(isset($oaiApiKey))
             <code>{{ $oaiApiKey }}</code>
@@ -234,7 +234,7 @@
       <div>
         @if(!empty($clearance))
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Clearance level</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Clearance level') }}</h3>
             <div class="col-9 p-2">
               @if(!empty($clearance->color))
                 <span class="badge" style="background:{{ $clearance->color }};color:#fff;">{{ $clearance->classification_name ?? 'Unknown' }}</span>
@@ -248,13 +248,13 @@
           </div>
           @if(!empty($clearance->granted_at))
             <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Granted</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Granted') }}</h3>
               <div class="col-9 p-2">{{ \Carbon\Carbon::parse($clearance->granted_at)->format('Y-m-d H:i') }}@if(!empty($clearance->granted_by_name)) by {{ $clearance->granted_by_name }}@endif</div>
             </div>
           @endif
           @if(!empty($clearance->expires_at))
             <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Expires</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Expires') }}</h3>
               <div class="col-9 p-2">
                 @php $expired = strtotime($clearance->expires_at) < time(); @endphp
                 <span class="{{ $expired ? 'text-danger fw-bold' : '' }}">
@@ -266,7 +266,7 @@
           @endif
         @else
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Clearance level</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Clearance level') }}</h3>
             <div class="col-9 p-2">
               <em>None</em>
               @auth
@@ -289,13 +289,13 @@
         <div>
           @if($user->created_at)
             <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Created at</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Created at') }}</h3>
               <div class="col-9 p-2">{{ \Carbon\Carbon::parse($user->created_at)->format('Y-m-d H:i:s') }}</div>
             </div>
           @endif
           @if($user->updated_at)
             <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Updated at</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Updated at') }}</h3>
               <div class="col-9 p-2">{{ \Carbon\Carbon::parse($user->updated_at)->format('Y-m-d H:i:s') }}</div>
             </div>
           @endif

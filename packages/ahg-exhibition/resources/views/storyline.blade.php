@@ -28,7 +28,7 @@
 
 <div class="row">
   <div class="col-md-8">
-    <nav aria-label="breadcrumb">
+    <nav aria-label="{{ __('breadcrumb') }}">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">Exhibitions</a></li>
         <li class="breadcrumb-item"><a href="{{ route('exhibition.show', ['id' => $exId]) }}">{{ $exhibition->title ?? '' }}</a></li>
@@ -64,7 +64,7 @@
       <div class="card">
         <div class="card-body text-center py-5">
           <i class="fas fa-map-signs fa-3x text-muted mb-3"></i>
-          <h5>No stops added yet</h5>
+          <h5>{{ __('No stops added yet') }}</h5>
           <p class="text-muted">Add stops to create a narrative journey through the exhibition.</p>
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStopModal">
             <i class="fas fa-plus"></i> Add First Stop
@@ -131,7 +131,7 @@
   <div class="col-md-4">
     <div class="card mb-3">
       <div class="card-header">
-        <h5 class="mb-0">Storyline Info</h5>
+        <h5 class="mb-0">{{ __('Storyline Info') }}</h5>
       </div>
       <div class="card-body">
         <ul class="list-unstyled mb-0">
@@ -145,7 +145,7 @@
 
     <div class="card">
       <div class="card-header">
-        <h5 class="mb-0">Actions</h5>
+        <h5 class="mb-0">{{ __('Actions') }}</h5>
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('exhibition.storylines', ['id' => $exId]) }}" class="list-group-item list-group-item-action">
@@ -160,7 +160,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add Stop</h5>
+        <h5 class="modal-title">{{ __('Add Stop') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form method="post" action="{{ route('exhibition.storyline', ['exhibitionId' => $exId, 'storylineId' => $slId]) }}">
@@ -171,23 +171,23 @@
             <input type="text" name="title" class="form-control" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Narrative Content</label>
+            <label class="form-label">{{ __('Narrative Content') }}</label>
             <textarea name="narrative_content" class="form-control" rows="5"></textarea>
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Duration (seconds)</label>
+              <label class="form-label">{{ __('Duration (seconds)') }}</label>
               <input type="number" name="duration_seconds" class="form-control" min="0">
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Stop Order</label>
+              <label class="form-label">{{ __('Stop Order') }}</label>
               <input type="number" name="stop_order" class="form-control" min="1" value="{{ count($stops) + 1 }}">
             </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Add Stop</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="submit" class="btn btn-primary">{{ __('Add Stop') }}</button>
         </div>
       </form>
     </div>

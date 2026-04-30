@@ -10,7 +10,7 @@
 @section('body-class', 'registry registry-admin-email')
 
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('registry.index') }}">{{ __('Registry') }}</a></li>
@@ -47,8 +47,8 @@
         <div class="col-md-6">
           <label class="form-label">{{ __('Encryption') }}</label>
           <select name="smtp_encryption" class="form-select">
-            <option value="tls" {{ ($settings['smtp_encryption'] ?? 'tls') === 'tls' ? 'selected' : '' }}>TLS</option>
-            <option value="ssl" {{ ($settings['smtp_encryption'] ?? '') === 'ssl' ? 'selected' : '' }}>SSL</option>
+            <option value="tls" {{ ($settings['smtp_encryption'] ?? 'tls') === 'tls' ? 'selected' : '' }}>{{ __('TLS') }}</option>
+            <option value="ssl" {{ ($settings['smtp_encryption'] ?? '') === 'ssl' ? 'selected' : '' }}>{{ __('SSL') }}</option>
             <option value="none" {{ ($settings['smtp_encryption'] ?? '') === 'none' ? 'selected' : '' }}>{{ __('None') }}</option>
           </select>
         </div>

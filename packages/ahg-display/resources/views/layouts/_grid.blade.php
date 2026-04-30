@@ -13,18 +13,18 @@
                     <div class="btn-group btn-group-sm">
                         @if(in_array('view', $data['actions'] ?? []))
                         <a href="{{ route('informationobject.show', ['slug' => $object->slug]) }}"
-                           class="btn btn-light" title="View"><i class="fas fa-eye"></i></a>
+                           class="btn btn-light" title="{{ __('View') }}"><i class="fas fa-eye"></i></a>
                         @endif
                         @if(in_array('zoom', $data['actions'] ?? []))
                         <a href="{{ $digitalObject->path }}"
-                           class="btn btn-light" data-lightbox="grid" title="Zoom"><i class="fas fa-search-plus"></i></a>
+                           class="btn btn-light" data-lightbox="grid" title="{{ __('Zoom') }}"><i class="fas fa-search-plus"></i></a>
                         @endif
                         @if(in_array('add_to_lightbox', $data['actions'] ?? []))
                         <a href="{{ route('dam.addToLightbox', ['digital_object_id' => $digitalObject->id]) }}"
-                           class="btn btn-light" title="Add to Lightbox"><i class="fas fa-plus"></i></a>
+                           class="btn btn-light" title="{{ __('Add to Lightbox') }}"><i class="fas fa-plus"></i></a>
                         @endif
                         @if(in_array('select', $data['actions'] ?? []))
-                        <button type="button" class="btn btn-light select-toggle" data-id="{{ $object->id }}" title="Select">
+                        <button type="button" class="btn btn-light select-toggle" data-id="{{ $object->id }}" title="{{ __('Select') }}">
                             <i class="fas fa-check"></i>
                         </button>
                         @endif

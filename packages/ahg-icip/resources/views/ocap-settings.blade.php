@@ -23,7 +23,7 @@
           <input type="hidden" name="ocap_enabled" value="0">
           <input class="form-check-input" type="checkbox" id="ocap_enabled"
                  name="ocap_enabled" value="1" {{ $enabled ? 'checked' : '' }}>
-          <label class="form-check-label" for="ocap_enabled">Enable OCAP overlay</label>
+          <label class="form-check-label" for="ocap_enabled">{{ __('Enable OCAP overlay') }}</label>
         </div>
 
         <p class="text-muted small mb-2">
@@ -39,7 +39,7 @@
       </div>
       <div class="card-footer text-end">
         <a href="{{ route('ahgicip.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
-        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
       </div>
     </div>
   </form>

@@ -16,7 +16,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">
             <thead><tr>
-              <th>ID</th><th>Status</th><th>Output Format</th><th>Files</th><th>Output</th><th>Created</th><th>Actions</th>
+              <th>{{ __('ID') }}</th><th>{{ __('Status') }}</th><th>{{ __('Output Format') }}</th><th>{{ __('Files') }}</th><th>{{ __('Output') }}</th><th>{{ __('Created') }}</th><th>{{ __('Actions') }}</th>
             </tr></thead>
             <tbody>
               @forelse($jobs ?? [] as $job)

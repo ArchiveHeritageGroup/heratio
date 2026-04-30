@@ -21,7 +21,7 @@
             <div class="modal-body">
                 {{-- Common: link relation type --}}
                 <div class="mb-3">
-                    <label class="form-label">Relation to this record</label>
+                    <label class="form-label">{{ __('Relation to this record') }}</label>
                     <select class="form-select form-select-sm" id="ricLinkRelationType">
                         <option value="">-- No link --</option>
                         @foreach($ricDropdowns['ric_relation_type'] as $rt)
@@ -38,7 +38,7 @@
                             <input type="text" id="ric-f-activity-name" class="form-control">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Activity Type</label>
+                            <label class="form-label">{{ __('Activity Type') }}</label>
                             <select id="ric-f-activity-type" class="form-select">
                                 <option value="">-- Select --</option>
                                 @foreach($ricDropdowns['ric_activity_type'] as $d)<option value="{{ $d->code }}" {{ $d->is_default ? 'selected' : '' }}>{{ $d->label }}</option>@endforeach
@@ -46,11 +46,11 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-4"><label class="form-label">Start Date</label><input type="date" id="ric-f-activity-start" class="form-control"></div>
-                        <div class="col-md-4"><label class="form-label">End Date</label><input type="date" id="ric-f-activity-end" class="form-control"></div>
-                        <div class="col-md-4"><label class="form-label">Date Display</label><input type="text" id="ric-f-activity-date-display" class="form-control" placeholder="e.g. ca. 1920"></div>
+                        <div class="col-md-4"><label class="form-label">{{ __('Start Date') }}</label><input type="date" id="ric-f-activity-start" class="form-control"></div>
+                        <div class="col-md-4"><label class="form-label">{{ __('End Date') }}</label><input type="date" id="ric-f-activity-end" class="form-control"></div>
+                        <div class="col-md-4"><label class="form-label">{{ __('Date Display') }}</label><input type="text" id="ric-f-activity-date-display" class="form-control" placeholder="{{ __('e.g. ca. 1920') }}"></div>
                     </div>
-                    <div class="mb-3"><label class="form-label">Description</label><textarea id="ric-f-activity-desc" class="form-control" rows="3"></textarea></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea id="ric-f-activity-desc" class="form-control" rows="3"></textarea></div>
                 </div>
 
                 {{-- Place fields --}}
@@ -61,7 +61,7 @@
                             <input type="text" id="ric-f-place-name" class="form-control">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Place Type</label>
+                            <label class="form-label">{{ __('Place Type') }}</label>
                             <select id="ric-f-place-type" class="form-select">
                                 <option value="">-- Select --</option>
                                 @foreach($ricDropdowns['ric_place_type'] as $d)<option value="{{ $d->code }}" {{ $d->is_default ? 'selected' : '' }}>{{ $d->label }}</option>@endforeach
@@ -69,12 +69,12 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-4"><label class="form-label">Latitude</label><input type="number" step="any" id="ric-f-place-lat" class="form-control"></div>
-                        <div class="col-md-4"><label class="form-label">Longitude</label><input type="number" step="any" id="ric-f-place-lng" class="form-control"></div>
-                        <div class="col-md-4"><label class="form-label">Authority URI</label><input type="url" id="ric-f-place-uri" class="form-control" placeholder="https://www.geonames.org/..."></div>
+                        <div class="col-md-4"><label class="form-label">{{ __('Latitude') }}</label><input type="number" step="any" id="ric-f-place-lat" class="form-control"></div>
+                        <div class="col-md-4"><label class="form-label">{{ __('Longitude') }}</label><input type="number" step="any" id="ric-f-place-lng" class="form-control"></div>
+                        <div class="col-md-4"><label class="form-label">{{ __('Authority URI') }}</label><input type="url" id="ric-f-place-uri" class="form-control" placeholder="{{ __('https://www.geonames.org/...') }}"></div>
                     </div>
-                    <div class="mb-3"><label class="form-label">Address</label><textarea id="ric-f-place-address" class="form-control" rows="2"></textarea></div>
-                    <div class="mb-3"><label class="form-label">Description</label><textarea id="ric-f-place-desc" class="form-control" rows="2"></textarea></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Address') }}</label><textarea id="ric-f-place-address" class="form-control" rows="2"></textarea></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea id="ric-f-place-desc" class="form-control" rows="2"></textarea></div>
                 </div>
 
                 {{-- Rule fields --}}
@@ -85,7 +85,7 @@
                             <input type="text" id="ric-f-rule-title" class="form-control">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Rule Type</label>
+                            <label class="form-label">{{ __('Rule Type') }}</label>
                             <select id="ric-f-rule-type" class="form-select">
                                 <option value="">-- Select --</option>
                                 @foreach($ricDropdowns['ric_rule_type'] as $d)<option value="{{ $d->code }}" {{ $d->is_default ? 'selected' : '' }}>{{ $d->label }}</option>@endforeach
@@ -93,12 +93,12 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-4"><label class="form-label">Jurisdiction</label><input type="text" id="ric-f-rule-jurisdiction" class="form-control"></div>
-                        <div class="col-md-4"><label class="form-label">Start Date</label><input type="date" id="ric-f-rule-start" class="form-control"></div>
-                        <div class="col-md-4"><label class="form-label">End Date</label><input type="date" id="ric-f-rule-end" class="form-control"></div>
+                        <div class="col-md-4"><label class="form-label">{{ __('Jurisdiction') }}</label><input type="text" id="ric-f-rule-jurisdiction" class="form-control"></div>
+                        <div class="col-md-4"><label class="form-label">{{ __('Start Date') }}</label><input type="date" id="ric-f-rule-start" class="form-control"></div>
+                        <div class="col-md-4"><label class="form-label">{{ __('End Date') }}</label><input type="date" id="ric-f-rule-end" class="form-control"></div>
                     </div>
-                    <div class="mb-3"><label class="form-label">Description</label><textarea id="ric-f-rule-desc" class="form-control" rows="3"></textarea></div>
-                    <div class="mb-3"><label class="form-label">Legislation</label><textarea id="ric-f-rule-legislation" class="form-control" rows="2"></textarea></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea id="ric-f-rule-desc" class="form-control" rows="3"></textarea></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Legislation') }}</label><textarea id="ric-f-rule-legislation" class="form-control" rows="2"></textarea></div>
                 </div>
 
                 {{-- Instantiation fields --}}
@@ -109,7 +109,7 @@
                             <input type="text" id="ric-f-inst-title" class="form-control">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Carrier Type</label>
+                            <label class="form-label">{{ __('Carrier Type') }}</label>
                             <select id="ric-f-inst-carrier" class="form-select">
                                 <option value="">-- Select --</option>
                                 @foreach($ricDropdowns['ric_carrier_type'] as $d)<option value="{{ $d->code }}" {{ $d->is_default ? 'selected' : '' }}>{{ $d->label }}</option>@endforeach
@@ -117,16 +117,16 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-4"><label class="form-label">MIME Type</label><input type="text" id="ric-f-inst-mime" class="form-control" placeholder="e.g. image/tiff"></div>
-                        <div class="col-md-4"><label class="form-label">Extent</label><input type="number" step="any" id="ric-f-inst-extent" class="form-control"></div>
-                        <div class="col-md-4"><label class="form-label">Unit</label><input type="text" id="ric-f-inst-unit" class="form-control" value="bytes"></div>
+                        <div class="col-md-4"><label class="form-label">{{ __('MIME Type') }}</label><input type="text" id="ric-f-inst-mime" class="form-control" placeholder="{{ __('e.g. image/tiff') }}"></div>
+                        <div class="col-md-4"><label class="form-label">{{ __('Extent') }}</label><input type="number" step="any" id="ric-f-inst-extent" class="form-control"></div>
+                        <div class="col-md-4"><label class="form-label">{{ __('Unit') }}</label><input type="text" id="ric-f-inst-unit" class="form-control" value="bytes"></div>
                     </div>
-                    <div class="mb-3"><label class="form-label">Description</label><textarea id="ric-f-inst-desc" class="form-control" rows="2"></textarea></div>
-                    <div class="mb-3"><label class="form-label">Technical Characteristics</label><textarea id="ric-f-inst-tech" class="form-control" rows="2"></textarea></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea id="ric-f-inst-desc" class="form-control" rows="2"></textarea></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Technical Characteristics') }}</label><textarea id="ric-f-inst-tech" class="form-control" rows="2"></textarea></div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                 <button type="button" class="btn btn-primary" id="ricEntitySaveBtn"><i class="fas fa-save"></i> Create</button>
             </div>
         </div>

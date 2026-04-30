@@ -16,7 +16,7 @@
 
 @section('content')
 <div class="container-fluid px-4 py-3">
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">Statistics</a></li>
             <li class="breadcrumb-item active">Item Statistics</li>
@@ -42,7 +42,7 @@
             <form method="get" class="row g-3 align-items-center">
                 <input type="hidden" name="object_id" value="{{ $object->id }}">
                 <div class="col-auto">
-                    <label class="form-label mb-0">Period:</label>
+                    <label class="form-label mb-0">{{ __('Period:') }}</label>
                 </div>
                 <div class="col-auto">
                     <input type="date" name="start" class="form-control form-control-sm" value="{{ $startDate }}">
@@ -52,7 +52,7 @@
                     <input type="date" name="end" class="form-control form-control-sm" value="{{ $endDate }}">
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+                    <button type="submit" class="btn btn-sm btn-primary">{{ __('Apply') }}</button>
                 </div>
             </form>
         </div>
@@ -62,7 +62,7 @@
         <div class="col-md-3">
             <div class="card bg-primary text-white h-100">
                 <div class="card-body text-center">
-                    <h6 class="text-white-50">Total Views</h6>
+                    <h6 class="text-white-50">{{ __('Total Views') }}</h6>
                     <h2 class="mb-0">{{ number_format($stats['total_views'] ?? 0) }}</h2>
                 </div>
             </div>
@@ -70,7 +70,7 @@
         <div class="col-md-3">
             <div class="card bg-info text-white h-100">
                 <div class="card-body text-center">
-                    <h6 class="text-white-50">Unique Viewers</h6>
+                    <h6 class="text-white-50">{{ __('Unique Viewers') }}</h6>
                     <h2 class="mb-0">{{ number_format($stats['unique_views'] ?? 0) }}</h2>
                 </div>
             </div>
@@ -78,7 +78,7 @@
         <div class="col-md-3">
             <div class="card bg-success text-white h-100">
                 <div class="card-body text-center">
-                    <h6 class="text-white-50">Downloads</h6>
+                    <h6 class="text-white-50">{{ __('Downloads') }}</h6>
                     <h2 class="mb-0">{{ number_format($stats['total_downloads'] ?? 0) }}</h2>
                 </div>
             </div>
@@ -86,7 +86,7 @@
         <div class="col-md-3">
             <div class="card bg-secondary text-white h-100">
                 <div class="card-body text-center">
-                    <h6 class="text-white-50">Countries</h6>
+                    <h6 class="text-white-50">{{ __('Countries') }}</h6>
                     <h2 class="mb-0">{{ count($stats['top_countries'] ?? []) }}</h2>
                 </div>
             </div>

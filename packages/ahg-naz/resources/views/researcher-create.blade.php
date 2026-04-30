@@ -18,7 +18,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.researchers') }}">Researchers</a></li>
@@ -33,18 +33,18 @@
         @csrf
         <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Personal Information</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Personal Information') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-2">
-                            <label class="form-label">Title</label>
+                            <label class="form-label">{{ __('Title') }}</label>
                             <select name="title" class="form-select">
                                 <option value="">-</option>
-                                <option value="Mr">Mr</option>
-                                <option value="Mrs">Mrs</option>
-                                <option value="Ms">Ms</option>
-                                <option value="Dr">Dr</option>
-                                <option value="Prof">Prof</option>
+                                <option value="Mr">{{ __('Mr') }}</option>
+                                <option value="Mrs">{{ __('Mrs') }}</option>
+                                <option value="Ms">{{ __('Ms') }}</option>
+                                <option value="Dr">{{ __('Dr') }}</option>
+                                <option value="Prof">{{ __('Prof') }}</option>
                             </select>
                         </div>
                         <div class="col-md-5">
@@ -60,23 +60,23 @@
                             <input type="email" name="email" class="form-control" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Phone</label>
+                            <label class="form-label">{{ __('Phone') }}</label>
                             <input type="tel" name="phone" class="form-control">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Researcher Type <span class="text-danger">*</span></label>
                             <select name="researcher_type" class="form-select" required>
-                                <option value="local">Local</option>
-                                <option value="foreign">Foreign</option>
-                                <option value="institutional">Institutional</option>
+                                <option value="local">{{ __('Local') }}</option>
+                                <option value="foreign">{{ __('Foreign') }}</option>
+                                <option value="institutional">{{ __('Institutional') }}</option>
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Nationality</label>
+                            <label class="form-label">{{ __('Nationality') }}</label>
                             <input type="text" name="nationality" class="form-control">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">National ID / Passport</label>
+                            <label class="form-label">{{ __('National ID / Passport') }}</label>
                             <input type="text" name="national_id" class="form-control">
                         </div>
                     </div>
@@ -84,19 +84,19 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Affiliation</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Affiliation') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-8">
-                            <label class="form-label">Institution</label>
+                            <label class="form-label">{{ __('Institution') }}</label>
                             <input type="text" name="institution" class="form-control">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Position</label>
+                            <label class="form-label">{{ __('Position') }}</label>
                             <input type="text" name="position" class="form-control">
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Research Interests</label>
+                            <label class="form-label">{{ __('Research Interests') }}</label>
                             <textarea name="research_interests" class="form-control" rows="3"></textarea>
                         </div>
                     </div>

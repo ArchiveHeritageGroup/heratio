@@ -32,7 +32,7 @@
   @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
       {{ session('success') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
@@ -174,7 +174,7 @@
                   <label class="form-label">Remote Server URL <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="url" class="form-control" name="triposr_remote_url"
                          value="{{ e(getTripoSetting3d($settings, 'triposr_remote_url')) }}"
-                         placeholder="https://gpu-server.example.com:5050">
+                         placeholder="{{ __('https://gpu-server.example.com:5050') }}">
                   <div class="form-text">Full URL including port (e.g., https://gpu.example.com:5050)</div>
                 </div>
               </div>
@@ -183,7 +183,7 @@
                   <label class="form-label">API Key <span class="badge bg-secondary ms-1">Optional</span></label>
                   @php $apiKey = getTripoSetting3d($settings, 'triposr_remote_api_key'); @endphp
                   <input type="password" class="form-control" name="triposr_remote_api_key"
-                         value="{{ $apiKey ? '***' : '' }}" placeholder="Optional API key">
+                         value="{{ $apiKey ? '***' : '' }}" placeholder="{{ __('Optional API key') }}">
                 </div>
               </div>
             </div>
@@ -260,7 +260,7 @@
               <div class="table-responsive">
                 <table class="table table-sm table-hover mb-0">
                   <thead>
-                    <tr><th>ID</th><th>Status</th><th>Time</th></tr>
+                    <tr><th>{{ __('ID') }}</th><th>{{ __('Status') }}</th><th>{{ __('Time') }}</th></tr>
                   </thead>
                   <tbody>
                     @foreach($recentJobs as $job)

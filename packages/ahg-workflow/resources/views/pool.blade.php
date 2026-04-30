@@ -21,13 +21,13 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th>Step</th>
-                <th>Workflow</th>
-                <th>Object</th>
-                <th>Priority</th>
-                <th>Due Date</th>
-                <th>Created</th>
-                <th>Action</th>
+                <th>{{ __('Step') }}</th>
+                <th>{{ __('Workflow') }}</th>
+                <th>{{ __('Object') }}</th>
+                <th>{{ __('Priority') }}</th>
+                <th>{{ __('Due Date') }}</th>
+                <th>{{ __('Created') }}</th>
+                <th>{{ __('Action') }}</th>
               </tr>
             </thead>
             <tbody>

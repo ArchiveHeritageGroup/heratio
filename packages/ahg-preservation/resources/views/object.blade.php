@@ -6,7 +6,7 @@
 <div class="row">
   <div class="col-md-3">@include('ahg-preservation::_menu')</div>
   <div class="col-md-9">
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('preservation.index') }}">Preservation</a></li>
         <li class="breadcrumb-item active">{{ $digitalObject->name ?? 'Object' }}</li>
@@ -22,14 +22,14 @@
         <div class="row">
           <div class="col-md-6">
             <table class="table table-sm">
-              <tr><th width="150">ID</th><td>{{ $digitalObject->id ?? '' }}</td></tr>
-              <tr><th>Filename</th><td>{{ $digitalObject->name ?? 'Unknown' }}</td></tr>
-              <tr><th>Parent Object</th><td>
+              <tr><th width="150">{{ __('ID') }}</th><td>{{ $digitalObject->id ?? '' }}</td></tr>
+              <tr><th>{{ __('Filename') }}</th><td>{{ $digitalObject->name ?? 'Unknown' }}</td></tr>
+              <tr><th>{{ __('Parent Object') }}</th><td>
                 @if($digitalObject->slug ?? null) <a href="{{ route('informationobject.show', $digitalObject->slug) }}">{{ $digitalObject->object_title ?? 'View' }}</a>
                 @else - @endif
               </td></tr>
-              <tr><th>File Size</th><td>{{ number_format($digitalObject->byte_size ?? 0) }} bytes</td></tr>
-              <tr><th>MIME Type</th><td>{{ $digitalObject->mime_type ?? 'Unknown' }}</td></tr>
+              <tr><th>{{ __('File Size') }}</th><td>{{ number_format($digitalObject->byte_size ?? 0) }} bytes</td></tr>
+              <tr><th>{{ __('MIME Type') }}</th><td>{{ $digitalObject->mime_type ?? 'Unknown' }}</td></tr>
             </table>
           </div>
           <div class="col-md-6">
@@ -60,7 +60,7 @@
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
-            <thead><tr><th>Algorithm</th><th>Value</th><th>Status</th><th>Generated</th><th>Last Verified</th></tr></thead>
+            <thead><tr><th>{{ __('Algorithm') }}</th><th>{{ __('Value') }}</th><th>{{ __('Status') }}</th><th>{{ __('Generated') }}</th><th>{{ __('Last Verified') }}</th></tr></thead>
             <tbody>
               @forelse($checksums ?? [] as $cs)
               <tr>
@@ -93,7 +93,7 @@
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-bordered table-sm table-striped mb-0">
-                    <thead><tr><th>Algorithm</th><th>Status</th><th>Expected</th><th>Actual</th><th>Checked By</th><th>Duration</th><th>Checked At</th></tr></thead>
+                    <thead><tr><th>{{ __('Algorithm') }}</th><th>{{ __('Status') }}</th><th>{{ __('Expected') }}</th><th>{{ __('Actual') }}</th><th>{{ __('Checked By') }}</th><th>{{ __('Duration') }}</th><th>{{ __('Checked At') }}</th></tr></thead>
                     <tbody>
                         @php $fixityHistory = $fixityHistory ?? collect(); @endphp
                         @forelse($fixityHistory as $check)
@@ -136,7 +136,7 @@
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">
-            <thead><tr><th>Date</th><th>Type</th><th>Outcome</th><th>Detail</th><th>Agent</th></tr></thead>
+            <thead><tr><th>{{ __('Date') }}</th><th>{{ __('Type') }}</th><th>{{ __('Outcome') }}</th><th>{{ __('Detail') }}</th><th>{{ __('Agent') }}</th></tr></thead>
             <tbody>
               @forelse($events ?? [] as $event)
               <tr>

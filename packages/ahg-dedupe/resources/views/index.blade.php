@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-clone me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Duplicate Detection</h1>
+      <h1 class="mb-0">{{ __('Duplicate Detection') }}</h1>
       <span class="small text-muted">Dashboard</span>
     </div>
     <div class="ms-auto d-flex gap-2">
@@ -92,11 +92,11 @@
               <table class="table table-bordered table-striped mb-0">
                 <thead>
                   <tr>
-                    <th style="width: 70px;">Score</th>
-                    <th>Record A</th>
-                    <th>Record B</th>
-                    <th>Method</th>
-                    <th style="width: 140px;">Actions</th>
+                    <th style="width: 70px;">{{ __('Score') }}</th>
+                    <th>{{ __('Record A') }}</th>
+                    <th>{{ __('Record B') }}</th>
+                    <th>{{ __('Method') }}</th>
+                    <th style="width: 140px;">{{ __('Actions') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -122,13 +122,13 @@
                       <td><span class="badge bg-light text-dark">{{ $dup->detection_method }}</span></td>
                       <td>
                         <div class="btn-group btn-group-sm">
-                          <a href="{{ route('dedupe.compare', $dup->id) }}" class="btn btn-outline-secondary" title="Compare">
+                          <a href="{{ route('dedupe.compare', $dup->id) }}" class="btn btn-outline-secondary" title="{{ __('Compare') }}">
                             <i class="fas fa-columns"></i>
                           </a>
-                          <a href="{{ route('dedupe.merge', $dup->id) }}" class="btn btn-outline-secondary" title="Merge">
+                          <a href="{{ route('dedupe.merge', $dup->id) }}" class="btn btn-outline-secondary" title="{{ __('Merge') }}">
                             <i class="fas fa-compress-arrows-alt"></i>
                           </a>
-                          <button type="button" class="btn btn-outline-secondary btn-dismiss" data-id="{{ $dup->id }}" title="Dismiss">
+                          <button type="button" class="btn btn-outline-secondary btn-dismiss" data-id="{{ $dup->id }}" title="{{ __('Dismiss') }}">
                             <i class="fas fa-times"></i>
                           </button>
                         </div>

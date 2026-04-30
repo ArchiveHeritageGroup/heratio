@@ -20,9 +20,9 @@
     $files = $files ?? [];
 @endphp
 
-<h1>Upload Files</h1>
+<h1>{{ __('Upload Files') }}</h1>
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">Ingestion Manager</a></li>
         <li class="breadcrumb-item">{{ $session->title ?? ('Session #' . ($session->id ?? '')) }}</li>
@@ -63,7 +63,7 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label for="ingest_file" class="form-label">Select CSV, ZIP, or EAD file</label>
+                        <label for="ingest_file" class="form-label">{{ __('Select CSV, ZIP, or EAD file') }}</label>
                         <div id="drop-zone" class="border border-2 border-dashed rounded p-5 text-center mb-3">
                             <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
                             <p class="mb-1">Drag and drop file here, or click to browse</p>
@@ -77,9 +77,9 @@
                     <hr>
 
                     <div class="mb-3">
-                        <label for="directory_path" class="form-label">Or enter a server directory path</label>
+                        <label for="directory_path" class="form-label">{{ __('Or enter a server directory path') }}</label>
                         <input type="text" class="form-control" id="directory_path" name="directory_path"
-                               placeholder="/path/to/files/on/server">
+                               placeholder="{{ __('/path/to/files/on/server') }}">
                         <small class="text-muted">For large batches, point to a directory on the server instead of uploading</small>
                     </div>
                 </div>

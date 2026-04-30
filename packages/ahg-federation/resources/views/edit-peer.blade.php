@@ -6,7 +6,7 @@
 <div class="container-fluid py-3">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb mb-1">
                     <li class="breadcrumb-item"><a href="{{ route('federation.index') }}">Federation</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('federation.peers') }}">Peers</a></li>
@@ -48,7 +48,7 @@
                             <label for="base_url" class="form-label">OAI-PMH Base URL <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                             <input type="url" class="form-control" id="base_url" name="base_url"
                                    value="{{ $peer->base_url ?? old('base_url', '') }}" required
-                                   placeholder="https://example.com/oai">
+                                   placeholder="{{ __('https://example.com/oai') }}">
                             <div class="form-text">The OAI-PMH endpoint URL of the peer repository</div>
                         </div>
 

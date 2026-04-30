@@ -31,7 +31,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.index') }}">CDPA</a></li>
                     <li class="breadcrumb-item active">Configuration</li>
@@ -60,20 +60,20 @@
         <div class="row">
             <div class="col-lg-8">
                 <div class="card mb-4">
-                    <div class="card-header"><h5 class="mb-0">Organization Details</h5></div>
+                    <div class="card-header"><h5 class="mb-0">{{ __('Organization Details') }}</h5></div>
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-12">
-                                <label class="form-label">Organization Name</label>
+                                <label class="form-label">{{ __('Organization Name') }}</label>
                                 <input type="text" name="organization_name" class="form-control"
                                        value="{{ $cfgGet('organization_name') }}">
                             </div>
                             <div class="col-12">
-                                <label class="form-label">Organization Address</label>
+                                <label class="form-label">{{ __('Organization Address') }}</label>
                                 <textarea name="organization_address" class="form-control" rows="2">{{ $cfgGet('organization_address') }}</textarea>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">DPO Email (for notifications)</label>
+                                <label class="form-label">{{ __('DPO Email (for notifications)') }}</label>
                                 <input type="email" name="dpo_email" class="form-control"
                                        value="{{ $cfgGet('dpo_email') }}">
                             </div>
@@ -82,29 +82,29 @@
                 </div>
 
                 <div class="card mb-4">
-                    <div class="card-header"><h5 class="mb-0">Compliance Deadlines</h5></div>
+                    <div class="card-header"><h5 class="mb-0">{{ __('Compliance Deadlines') }}</h5></div>
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label">Data Subject Request Response (days)</label>
+                                <label class="form-label">{{ __('Data Subject Request Response (days)') }}</label>
                                 <input type="number" name="response_deadline_days" class="form-control"
                                        value="{{ $cfgGet('response_deadline_days', 30) }}" min="1" max="90">
                                 <small class="text-muted">CDPA requires response within 30 days</small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Breach Notification (hours)</label>
+                                <label class="form-label">{{ __('Breach Notification (hours)') }}</label>
                                 <input type="number" name="breach_notification_hours" class="form-control"
                                        value="{{ $cfgGet('breach_notification_hours', 72) }}" min="1" max="168">
                                 <small class="text-muted">CDPA requires notification within 72 hours</small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">License Renewal Reminder (days)</label>
+                                <label class="form-label">{{ __('License Renewal Reminder (days)') }}</label>
                                 <input type="number" name="license_reminder_days" class="form-control"
                                        value="{{ $cfgGet('license_reminder_days', 90) }}" min="7" max="365">
                                 <small class="text-muted">Days before expiry to show warning</small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">DPIA Review Period (months)</label>
+                                <label class="form-label">{{ __('DPIA Review Period (months)') }}</label>
                                 <input type="number" name="dpia_review_months" class="form-control"
                                        value="{{ $cfgGet('dpia_review_months', 12) }}" min="1" max="36">
                                 <small class="text-muted">Recommended review frequency</small>
@@ -124,7 +124,7 @@
                 </div>
 
                 <div class="card mb-4">
-                    <div class="card-header"><h5 class="mb-0">CDPA Key Requirements</h5></div>
+                    <div class="card-header"><h5 class="mb-0">{{ __('CDPA Key Requirements') }}</h5></div>
                     <div class="card-body small">
                         <ul class="mb-0">
                             <li><strong>Registration:</strong> Register with the regulator</li>
@@ -138,7 +138,7 @@
                 </div>
 
                 <div class="card">
-                    <div class="card-header"><h5 class="mb-0">About</h5></div>
+                    <div class="card-header"><h5 class="mb-0">{{ __('About') }}</h5></div>
                     <div class="card-body">
                         <p class="small text-muted mb-2">
                             <strong>CDPA Module</strong><br>

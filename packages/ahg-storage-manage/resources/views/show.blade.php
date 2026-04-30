@@ -31,21 +31,21 @@
     <div>
       @if($typeName)
         <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Type</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Type') }}</h3>
           <div class="col-9 p-2">{{ $typeName }}</div>
         </div>
       @endif
 
       @if($storage->location ?? null)
         <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Location</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Location') }}</h3>
           <div class="col-9 p-2">{{ $storage->location }}</div>
         </div>
       @endif
 
       @if($storage->description ?? null)
         <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Description</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Description') }}</h3>
           <div class="col-9 p-2">{!! nl2br(e($storage->description)) !!}</div>
         </div>
       @endif
@@ -149,7 +149,7 @@
                 $percent = $total > 0 ? round(($used / $total) * 100) : 0;
                 $barClass = $percent >= 90 ? 'bg-danger' : ($percent >= 70 ? 'bg-warning' : 'bg-success');
               @endphp
-              <h6>Unit Capacity</h6>
+              <h6>{{ __('Unit Capacity') }}</h6>
               <div class="row mb-3">
                 <div class="col-md-4 text-center">
                   <h3 class="mb-0">{{ $total }}</h3>
@@ -181,7 +181,7 @@
                 $percentLm = $totalLm > 0 ? round(($usedLm / $totalLm) * 100) : 0;
                 $barClassLm = $percentLm >= 90 ? 'bg-danger' : ($percentLm >= 70 ? 'bg-warning' : 'bg-success');
               @endphp
-              <h6>Linear Metres</h6>
+              <h6>{{ __('Linear Metres') }}</h6>
               <div class="row mb-3">
                 <div class="col-md-4 text-center">
                   <h3 class="mb-0">{{ number_format($totalLm, 2) }}</h3>
@@ -318,7 +318,7 @@
         </h2>
         <div>
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Source language</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Source language') }}</h3>
             <div class="col-9 p-2">
               @php
                 $displayLang = function_exists('locale_get_display_language')
@@ -353,7 +353,7 @@
              aria-labelledby="relatedResourcesHeading">
           <div class="accordion-body">
             @if(isset($descriptions) && $descriptions->isNotEmpty())
-              <h3 class="h6 text-muted">Archival descriptions</h3>
+              <h3 class="h6 text-muted">{{ __('Archival descriptions') }}</h3>
               <ul class="list-unstyled mb-3">
                 @foreach($descriptions as $desc)
                   <li class="mb-1">
@@ -365,7 +365,7 @@
             @endif
 
             @if(isset($accessions) && $accessions->isNotEmpty())
-              <h3 class="h6 text-muted">Accessions</h3>
+              <h3 class="h6 text-muted">{{ __('Accessions') }}</h3>
               <ul class="list-unstyled mb-0">
                 @foreach($accessions as $acc)
                   <li class="mb-1">

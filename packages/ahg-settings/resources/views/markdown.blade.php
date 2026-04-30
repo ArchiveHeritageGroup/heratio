@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Markdown</h1>
+  <h1>{{ __('Markdown') }}</h1>
 @endsection
 
 @section('content')
@@ -23,7 +23,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="markdown-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#markdown-collapse" aria-expanded="false" aria-controls="markdown-collapse">
-              Markdown settings
+              {{ __('Markdown settings') }}
             </button>
           </h2>
           <div id="markdown-collapse" class="accordion-collapse collapse" aria-labelledby="markdown-heading">

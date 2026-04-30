@@ -38,23 +38,23 @@
       <table class="table table-bordered mb-0">
         <tbody>
           <tr>
-            <th style="width: 200px;">Name</th>
+            <th style="width: 200px;">{{ __('Name') }}</th>
             <td>{{ $menu->name }}</td>
           </tr>
           <tr>
-            <th>Label</th>
+            <th>{{ __('Label') }}</th>
             <td>{{ $menu->label ?: 'N/A' }}</td>
           </tr>
           <tr>
-            <th>Description</th>
+            <th>{{ __('Description') }}</th>
             <td>{{ $menu->description ?: 'N/A' }}</td>
           </tr>
           <tr>
-            <th>Path</th>
+            <th>{{ __('Path') }}</th>
             <td>{{ $menu->path ?: 'N/A' }}</td>
           </tr>
           <tr>
-            <th>Parent ID</th>
+            <th>{{ __('Parent ID') }}</th>
             <td>
               @if($menu->parentId)
                 <a href="{{ route('menu.show', $menu->parentId) }}">{{ $menu->parentId }}</a>
@@ -64,23 +64,23 @@
             </td>
           </tr>
           <tr>
-            <th>Lft / Rgt</th>
+            <th>{{ __('Lft / Rgt') }}</th>
             <td>{{ $menu->lft }} / {{ $menu->rgt }}</td>
           </tr>
           <tr>
-            <th>Serial number</th>
+            <th>{{ __('Serial number') }}</th>
             <td>{{ $menu->serialNumber ?? 'N/A' }}</td>
           </tr>
           <tr>
-            <th>Source culture</th>
+            <th>{{ __('Source culture') }}</th>
             <td>{{ $menu->sourceCulture }}</td>
           </tr>
           <tr>
-            <th>Created</th>
+            <th>{{ __('Created') }}</th>
             <td>{{ $menu->createdAt ? \Carbon\Carbon::parse($menu->createdAt)->format('Y-m-d H:i:s') : 'N/A' }}</td>
           </tr>
           <tr>
-            <th>Updated</th>
+            <th>{{ __('Updated') }}</th>
             <td>{{ $menu->updatedAt ? \Carbon\Carbon::parse($menu->updatedAt)->format('Y-m-d H:i:s') : 'N/A' }}</td>
           </tr>
         </tbody>
@@ -97,11 +97,11 @@
         <table class="table table-bordered table-striped mb-0">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Label</th>
-              <th>Path</th>
-              <th>Lft</th>
-              <th>Rgt</th>
+              <th>{{ __('Name') }}</th>
+              <th>{{ __('Label') }}</th>
+              <th>{{ __('Path') }}</th>
+              <th>{{ __('Lft') }}</th>
+              <th>{{ __('Rgt') }}</th>
             </tr>
           </thead>
           <tbody>

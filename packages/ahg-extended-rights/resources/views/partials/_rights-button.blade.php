@@ -19,7 +19,7 @@
 @endphp
 <a href="{{ route('ext-rights.index', $slug) }}"
    class="btn btn-{{ $isRestricted ? 'warning' : ($hasRights ? 'outline-primary' : 'outline-secondary') }} btn-sm me-1"
-   title="View rights">
+   title="{{ __('View rights') }}">
     <i class="fas fa-{{ $isRestricted ? 'lock' : 'balance-scale' }} me-1"></i>
     Rights
     @if($isRestricted)

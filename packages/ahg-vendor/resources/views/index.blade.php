@@ -46,7 +46,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="card-subtitle mb-1 text-white-50">Active Vendors</h6>
+                            <h6 class="card-subtitle mb-1 text-white-50">{{ __('Active Vendors') }}</h6>
                             <h2 class="mb-0">{{ number_format($stats['active_vendors'] ?? 0) }}</h2>
                         </div>
                         <i class="fas fa-building fa-2x opacity-50"></i>
@@ -59,7 +59,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="card-subtitle mb-1 text-white-50">Active Transactions</h6>
+                            <h6 class="card-subtitle mb-1 text-white-50">{{ __('Active Transactions') }}</h6>
                             <h2 class="mb-0">{{ number_format($stats['active_transactions'] ?? 0) }}</h2>
                         </div>
                         <i class="fas fa-exchange-alt fa-2x opacity-50"></i>
@@ -72,7 +72,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="card-subtitle mb-1">Pending Approval</h6>
+                            <h6 class="card-subtitle mb-1">{{ __('Pending Approval') }}</h6>
                             <h2 class="mb-0">{{ number_format($stats['pending_approval'] ?? 0) }}</h2>
                         </div>
                         <i class="fas fa-clock fa-2x opacity-50"></i>
@@ -85,7 +85,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="card-subtitle mb-1 text-white-50">Overdue</h6>
+                            <h6 class="card-subtitle mb-1 text-white-50">{{ __('Overdue') }}</h6>
                             <h2 class="mb-0">{{ number_format($stats['overdue_items'] ?? 0) }}</h2>
                         </div>
                         <i class="fas fa-exclamation-triangle fa-2x opacity-50"></i>
@@ -98,7 +98,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="card-subtitle mb-1 text-white-50">Items Out</h6>
+                            <h6 class="card-subtitle mb-1 text-white-50">{{ __('Items Out') }}</h6>
                             <h2 class="mb-0">{{ number_format($stats['items_out'] ?? 0) }}</h2>
                         </div>
                         <i class="fas fa-boxes fa-2x opacity-50"></i>
@@ -111,7 +111,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="card-subtitle mb-1 text-white-50">This Month</h6>
+                            <h6 class="card-subtitle mb-1 text-white-50">{{ __('This Month') }}</h6>
                             <h2 class="mb-0">R{{ number_format($stats['this_month_cost'] ?? 0, 2) }}</h2>
                         </div>
                         <i class="fas fa-coins fa-2x opacity-50"></i>
@@ -134,12 +134,12 @@
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Transaction #</th>
-                                    <th>Vendor</th>
-                                    <th>Service</th>
-                                    <th>Expected Return</th>
-                                    <th>Days Overdue</th>
-                                    <th>Actions</th>
+                                    <th>{{ __('Transaction #') }}</th>
+                                    <th>{{ __('Vendor') }}</th>
+                                    <th>{{ __('Service') }}</th>
+                                    <th>{{ __('Expected Return') }}</th>
+                                    <th>{{ __('Days Overdue') }}</th>
+                                    <th>{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -188,12 +188,12 @@
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Transaction #</th>
-                                    <th>Vendor</th>
-                                    <th>Service</th>
-                                    <th>Items</th>
-                                    <th>Status</th>
-                                    <th>Expected Return</th>
+                                    <th>{{ __('Transaction #') }}</th>
+                                    <th>{{ __('Vendor') }}</th>
+                                    <th>{{ __('Service') }}</th>
+                                    <th>{{ __('Items') }}</th>
+                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Expected Return') }}</th>
                                 </tr>
                             </thead>
                             <tbody>

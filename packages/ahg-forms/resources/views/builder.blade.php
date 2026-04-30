@@ -18,7 +18,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('forms.index') }}">Form Templates</a></li>
                     <li class="breadcrumb-item active">Form Builder</li>
@@ -151,39 +151,39 @@
                         <input type="hidden" id="prop-field-id" name="field_id">
 
                         <div class="mb-3">
-                            <label for="prop-label" class="form-label">Label</label>
+                            <label for="prop-label" class="form-label">{{ __('Label') }}</label>
                             <input type="text" class="form-control" id="prop-label" name="label">
                         </div>
 
                         <div class="mb-3">
-                            <label for="prop-name" class="form-label">Field Name</label>
+                            <label for="prop-name" class="form-label">{{ __('Field Name') }}</label>
                             <input type="text" class="form-control" id="prop-name" name="field_name">
                             <div class="form-text">Internal field identifier</div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="prop-help" class="form-label">Help Text</label>
+                            <label for="prop-help" class="form-label">{{ __('Help Text') }}</label>
                             <textarea class="form-control" id="prop-help" name="help_text" rows="2"></textarea>
                         </div>
 
                         <div class="mb-3">
-                            <label for="prop-placeholder" class="form-label">Placeholder</label>
+                            <label for="prop-placeholder" class="form-label">{{ __('Placeholder') }}</label>
                             <input type="text" class="form-control" id="prop-placeholder" name="placeholder">
                         </div>
 
                         <div class="mb-3">
-                            <label for="prop-default" class="form-label">Default Value</label>
+                            <label for="prop-default" class="form-label">{{ __('Default Value') }}</label>
                             <input type="text" class="form-control" id="prop-default" name="default_value">
                         </div>
 
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" id="prop-required" name="is_required">
-                            <label class="form-check-label" for="prop-required">Required</label>
+                            <label class="form-check-label" for="prop-required">{{ __('Required') }}</label>
                         </div>
 
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" id="prop-readonly" name="is_readonly">
-                            <label class="form-check-label" for="prop-readonly">Read Only</label>
+                            <label class="form-check-label" for="prop-readonly">{{ __('Read Only') }}</label>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">

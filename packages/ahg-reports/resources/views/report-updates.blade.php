@@ -26,9 +26,9 @@
           <div class="col-md-3">
             <label class="form-label">Culture <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="culture" class="form-select form-select-sm">
-              <option value="en" {{ request('culture','en')=='en'?'selected':'' }}>English</option>
-              <option value="af" {{ request('culture')=='af'?'selected':'' }}>Afrikaans</option>
-              <option value="fr" {{ request('culture')=='fr'?'selected':'' }}>French</option>
+              <option value="en" {{ request('culture','en')=='en'?'selected':'' }}>{{ __('English') }}</option>
+              <option value="af" {{ request('culture')=='af'?'selected':'' }}>{{ __('Afrikaans') }}</option>
+              <option value="fr" {{ request('culture')=='fr'?'selected':'' }}>{{ __('French') }}</option>
             </select>
           </div>
           <div class="col-md-3">

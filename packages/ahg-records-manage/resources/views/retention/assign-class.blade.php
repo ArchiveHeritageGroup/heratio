@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-link me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">Record Disposal Class</h1><span class="small text-muted">{{ $ioTitle }} (ID: {{ $ioId }})</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Record Disposal Class') }}</h1><span class="small text-muted">{{ $ioTitle }} (ID: {{ $ioId }})</span></div>
   </div>
 @endsection
 @section('content')
@@ -13,13 +13,13 @@
 
 @if($assignment)
 <div class="card mb-4">
-  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">Current Assignment</h5></div>
+  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Current Assignment') }}</h5></div>
   <div class="card-body">
     <table class="table table-sm">
-      <tr><th style="width:200px">Schedule</th><td>{{ $assignment->schedule_ref ?? '' }} — {{ $assignment->schedule_title ?? '' }}</td></tr>
-      <tr><th>Disposal Class</th><td>{{ $assignment->class_ref ?? '' }} — {{ $assignment->class_title ?? '' }}</td></tr>
-      <tr><th>Disposal Action</th><td>{{ ucfirst(str_replace('_', ' ', $assignment->disposal_action ?? '')) }}</td></tr>
-      <tr><th>Retention Period</th><td>
+      <tr><th style="width:200px">{{ __('Schedule') }}</th><td>{{ $assignment->schedule_ref ?? '' }} — {{ $assignment->schedule_title ?? '' }}</td></tr>
+      <tr><th>{{ __('Disposal Class') }}</th><td>{{ $assignment->class_ref ?? '' }} — {{ $assignment->class_title ?? '' }}</td></tr>
+      <tr><th>{{ __('Disposal Action') }}</th><td>{{ ucfirst(str_replace('_', ' ', $assignment->disposal_action ?? '')) }}</td></tr>
+      <tr><th>{{ __('Retention Period') }}</th><td>
         @if($assignment->retention_period_years || $assignment->retention_period_months)
           {{ $assignment->retention_period_years ? $assignment->retention_period_years . ' year(s)' : '' }}
           {{ $assignment->retention_period_months ? $assignment->retention_period_months . ' month(s)' : '' }}
@@ -27,13 +27,13 @@
           -
         @endif
       </td></tr>
-      <tr><th>Retention Start Date</th><td>{{ $assignment->retention_start_date ?? '-' }}</td></tr>
-      <tr><th>Calculated Disposal Date</th><td>{{ $assignment->calculated_disposal_date ?? '-' }}</td></tr>
+      <tr><th>{{ __('Retention Start Date') }}</th><td>{{ $assignment->retention_start_date ?? '-' }}</td></tr>
+      <tr><th>{{ __('Calculated Disposal Date') }}</th><td>{{ $assignment->calculated_disposal_date ?? '-' }}</td></tr>
       @if($assignment->override_disposal_date)
-        <tr><th>Override Disposal Date</th><td>{{ $assignment->override_disposal_date }}</td></tr>
-        <tr><th>Override Reason</th><td>{{ $assignment->override_reason ?? '-' }}</td></tr>
+        <tr><th>{{ __('Override Disposal Date') }}</th><td>{{ $assignment->override_disposal_date }}</td></tr>
+        <tr><th>{{ __('Override Reason') }}</th><td>{{ $assignment->override_reason ?? '-' }}</td></tr>
       @endif
-      <tr><th>Assigned At</th><td>{{ $assignment->assigned_at ?? '-' }}</td></tr>
+      <tr><th>{{ __('Assigned At') }}</th><td>{{ $assignment->assigned_at ?? '-' }}</td></tr>
     </table>
   </div>
 </div>

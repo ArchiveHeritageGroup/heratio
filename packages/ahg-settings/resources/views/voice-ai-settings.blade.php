@@ -48,18 +48,18 @@
             <div class="form-text">Allow users to navigate and control the application using voice commands.</div>
           </div>
           <div class="col-md-6">
-            <label class="form-label" for="voice_language">Voice Language</label>
+            <label class="form-label" for="voice_language">{{ __('Voice Language') }}</label>
             <select class="form-select" id="voice_language" name="settings[voice_language]">
-              <option value="en-US" {{ ($settings['voice_language'] ?? 'en-US') === 'en-US' ? 'selected' : '' }}>English (US)</option>
-              <option value="en-GB" {{ ($settings['voice_language'] ?? '') === 'en-GB' ? 'selected' : '' }}>English (UK)</option>
-              <option value="af-ZA" {{ ($settings['voice_language'] ?? '') === 'af-ZA' ? 'selected' : '' }}>Afrikaans</option>
+              <option value="en-US" {{ ($settings['voice_language'] ?? 'en-US') === 'en-US' ? 'selected' : '' }}>{{ __('English (US)') }}</option>
+              <option value="en-GB" {{ ($settings['voice_language'] ?? '') === 'en-GB' ? 'selected' : '' }}>{{ __('English (UK)') }}</option>
+              <option value="af-ZA" {{ ($settings['voice_language'] ?? '') === 'af-ZA' ? 'selected' : '' }}>{{ __('Afrikaans') }}</option>
               <option value="zu-ZA" {{ ($settings['voice_language'] ?? '') === 'zu-ZA' ? 'selected' : '' }}>isiZulu</option>
               <option value="xh-ZA" {{ ($settings['voice_language'] ?? '') === 'xh-ZA' ? 'selected' : '' }}>isiXhosa</option>
-              <option value="st-ZA" {{ ($settings['voice_language'] ?? '') === 'st-ZA' ? 'selected' : '' }}>Sesotho</option>
-              <option value="fr-FR" {{ ($settings['voice_language'] ?? '') === 'fr-FR' ? 'selected' : '' }}>French</option>
-              <option value="pt-PT" {{ ($settings['voice_language'] ?? '') === 'pt-PT' ? 'selected' : '' }}>Portuguese</option>
-              <option value="es-ES" {{ ($settings['voice_language'] ?? '') === 'es-ES' ? 'selected' : '' }}>Spanish</option>
-              <option value="de-DE" {{ ($settings['voice_language'] ?? '') === 'de-DE' ? 'selected' : '' }}>German</option>
+              <option value="st-ZA" {{ ($settings['voice_language'] ?? '') === 'st-ZA' ? 'selected' : '' }}>{{ __('Sesotho') }}</option>
+              <option value="fr-FR" {{ ($settings['voice_language'] ?? '') === 'fr-FR' ? 'selected' : '' }}>{{ __('French') }}</option>
+              <option value="pt-PT" {{ ($settings['voice_language'] ?? '') === 'pt-PT' ? 'selected' : '' }}>{{ __('Portuguese') }}</option>
+              <option value="es-ES" {{ ($settings['voice_language'] ?? '') === 'es-ES' ? 'selected' : '' }}>{{ __('Spanish') }}</option>
+              <option value="de-DE" {{ ($settings['voice_language'] ?? '') === 'de-DE' ? 'selected' : '' }}>{{ __('German') }}</option>
             </select>
           </div>
         </div>
@@ -143,16 +143,16 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label" for="voice_llm_provider">LLM Provider</label>
+            <label class="form-label" for="voice_llm_provider">{{ __('LLM Provider') }}</label>
             <select class="form-select" id="voice_llm_provider" name="settings[voice_llm_provider]">
-              <option value="local" {{ ($settings['voice_llm_provider'] ?? '') === 'local' ? 'selected' : '' }}>Local Only</option>
-              <option value="cloud" {{ ($settings['voice_llm_provider'] ?? '') === 'cloud' ? 'selected' : '' }}>Cloud Only</option>
-              <option value="hybrid" {{ ($settings['voice_llm_provider'] ?? 'hybrid') === 'hybrid' ? 'selected' : '' }}>Hybrid (Local + Cloud Fallback)</option>
+              <option value="local" {{ ($settings['voice_llm_provider'] ?? '') === 'local' ? 'selected' : '' }}>{{ __('Local Only') }}</option>
+              <option value="cloud" {{ ($settings['voice_llm_provider'] ?? '') === 'cloud' ? 'selected' : '' }}>{{ __('Cloud Only') }}</option>
+              <option value="hybrid" {{ ($settings['voice_llm_provider'] ?? 'hybrid') === 'hybrid' ? 'selected' : '' }}>{{ __('Hybrid (Local + Cloud Fallback)') }}</option>
             </select>
             <div class="form-text">Choose where AI image descriptions are processed.</div>
           </div>
           <div class="col-md-6">
-            <label class="form-label" for="voice_daily_cloud_limit">Daily Cloud Limit</label>
+            <label class="form-label" for="voice_daily_cloud_limit">{{ __('Daily Cloud Limit') }}</label>
             <input type="number" class="form-control" id="voice_daily_cloud_limit"
                    name="settings[voice_daily_cloud_limit]"
                    value="{{ e($settings['voice_daily_cloud_limit'] ?? '50') }}" min="0" max="10000">
@@ -161,26 +161,26 @@
         </div>
 
         <hr>
-        <h6 class="mb-3">Local LLM Settings</h6>
+        <h6 class="mb-3">{{ __('Local LLM Settings') }}</h6>
         <div class="row g-3">
           <div class="col-md-4">
-            <label class="form-label" for="voice_local_llm_url">Local LLM URL</label>
+            <label class="form-label" for="voice_local_llm_url">{{ __('Local LLM URL') }}</label>
             <input type="text" class="form-control" id="voice_local_llm_url"
                    name="settings[voice_local_llm_url]"
                    value="{{ e($settings['voice_local_llm_url'] ?? 'http://localhost:11434') }}"
-                   placeholder="http://localhost:11434">
+                   placeholder="{{ __('http://localhost:11434') }}">
             <div class="form-text">Ollama or compatible API endpoint.</div>
           </div>
           <div class="col-md-4">
-            <label class="form-label" for="voice_local_llm_model">Local LLM Model</label>
+            <label class="form-label" for="voice_local_llm_model">{{ __('Local LLM Model') }}</label>
             <input type="text" class="form-control" id="voice_local_llm_model"
                    name="settings[voice_local_llm_model]"
                    value="{{ e($settings['voice_local_llm_model'] ?? 'llava:7b') }}"
-                   placeholder="llava:7b">
+                   placeholder="{{ __('llava:7b') }}">
             <div class="form-text">Vision-capable model name (e.g. llava:7b, bakllava).</div>
           </div>
           <div class="col-md-4">
-            <label class="form-label" for="voice_local_llm_timeout">Timeout (seconds)</label>
+            <label class="form-label" for="voice_local_llm_timeout">{{ __('Timeout (seconds)') }}</label>
             <input type="number" class="form-control" id="voice_local_llm_timeout"
                    name="settings[voice_local_llm_timeout]"
                    value="{{ e($settings['voice_local_llm_timeout'] ?? '30') }}" min="5" max="300">
@@ -189,22 +189,22 @@
         </div>
 
         <hr>
-        <h6 class="mb-3">Cloud LLM Settings</h6>
+        <h6 class="mb-3">{{ __('Cloud LLM Settings') }}</h6>
         <div class="row g-3">
           <div class="col-md-4">
-            <label class="form-label" for="voice_anthropic_api_key">Anthropic API Key</label>
+            <label class="form-label" for="voice_anthropic_api_key">{{ __('Anthropic API Key') }}</label>
             <input type="password" class="form-control" id="voice_anthropic_api_key"
                    name="settings[voice_anthropic_api_key]"
                    value="{{ e($settings['voice_anthropic_api_key'] ?? '') }}"
-                   placeholder="sk-ant-...">
+                   placeholder="{{ __('sk-ant-...') }}">
             <div class="form-text">API key for Claude cloud vision. Stored encrypted.</div>
           </div>
           <div class="col-md-4">
-            <label class="form-label" for="voice_cloud_model">Cloud Model</label>
+            <label class="form-label" for="voice_cloud_model">{{ __('Cloud Model') }}</label>
             <input type="text" class="form-control" id="voice_cloud_model"
                    name="settings[voice_cloud_model]"
                    value="{{ e($settings['voice_cloud_model'] ?? 'claude-sonnet-4-20250514') }}"
-                   placeholder="claude-sonnet-4-20250514">
+                   placeholder="{{ __('claude-sonnet-4-20250514') }}">
             <div class="form-text">Anthropic model ID for image descriptions.</div>
           </div>
           <div class="col-md-4">

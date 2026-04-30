@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('content')
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
@@ -19,7 +19,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">Map Builder</h1>
+    <h1 class="h2">{{ __('Map Builder') }}</h1>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPointModal"><i class="fas fa-map-marker-alt me-1"></i> Add Point</button>
 </div>
 
@@ -45,7 +45,7 @@
         @else
         <div class="table-responsive">
             <table class="table table-sm">
-                <thead><tr><th>Label</th><th>Place</th><th>Lat</th><th>Lng</th><th>Actions</th></tr></thead>
+                <thead><tr><th>{{ __('Label') }}</th><th>{{ __('Place') }}</th><th>{{ __('Lat') }}</th><th>{{ __('Lng') }}</th><th>{{ __('Actions') }}</th></tr></thead>
                 <tbody>
                 @foreach($points as $pt)
                     <tr>
@@ -61,12 +61,12 @@
                                 data-lat="{{ $pt->latitude }}"
                                 data-lng="{{ $pt->longitude }}"
                                 data-desc="{{ e($pt->description ?? '') }}"
-                                title="Edit"><i class="fas fa-edit"></i></button>
+                                title="{{ __('Edit') }}"><i class="fas fa-edit"></i></button>
                             <form method="post" action="{{ route('research.mapBuilder', $project->id) }}" class="d-inline" onsubmit="return confirm('Delete this point?')">
                                 @csrf
                                 <input type="hidden" name="form_action" value="delete_point">
                                 <input type="hidden" name="point_id" value="{{ $pt->id }}">
-                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}"><i class="fas fa-trash"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -84,17 +84,17 @@
         <form method="post" action="{{ route('research.mapBuilder', $project->id) }}">
             @csrf
             <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title">Add Map Point</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-header"><h5 class="modal-title">{{ __('Add Map Point') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="mb-3"><label class="form-label">Label <span class="text-danger">*</span></label><input type="text" name="label" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label">Place Name</label><input type="text" name="place_name" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Place Name') }}</label><input type="text" name="place_name" class="form-control"></div>
                     <div class="row mb-3">
                         <div class="col"><label class="form-label">Latitude <span class="text-danger">*</span></label><input type="number" step="any" name="latitude" id="pointLat" class="form-control" required></div>
                         <div class="col"><label class="form-label">Longitude <span class="text-danger">*</span></label><input type="number" step="any" name="longitude" id="pointLng" class="form-control" required></div>
                     </div>
-                    <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="2"></textarea></div>
                 </div>
-                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save</button></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary">{{ __('Save') }}</button></div>
             </div>
         </form>
     </div>
@@ -108,17 +108,17 @@
             <input type="hidden" name="form_action" value="update_point">
             <input type="hidden" name="point_id" id="editPointId">
             <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title">Edit Map Point</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-header"><h5 class="modal-title">{{ __('Edit Map Point') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="mb-3"><label class="form-label">Label <span class="text-danger">*</span></label><input type="text" name="label" id="editPointLabel" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label">Place Name</label><input type="text" name="place_name" id="editPointPlace" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Place Name') }}</label><input type="text" name="place_name" id="editPointPlace" class="form-control"></div>
                     <div class="row mb-3">
                         <div class="col"><label class="form-label">Latitude <span class="text-danger">*</span></label><input type="number" step="any" name="latitude" id="editPointLat" class="form-control" required></div>
                         <div class="col"><label class="form-label">Longitude <span class="text-danger">*</span></label><input type="number" step="any" name="longitude" id="editPointLng" class="form-control" required></div>
                     </div>
-                    <div class="mb-3"><label class="form-label">Description</label><textarea name="description" id="editPointDesc" class="form-control" rows="2"></textarea></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" id="editPointDesc" class="form-control" rows="2"></textarea></div>
                 </div>
-                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Update</button></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary">{{ __('Update') }}</button></div>
             </div>
         </form>
     </div>

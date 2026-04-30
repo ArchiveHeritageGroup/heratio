@@ -54,7 +54,7 @@
                         @if(!empty($item['installed']))
                             <span class="text-success"><i class="fas fa-check me-1"></i>Already installed</span>
                         @else
-                            <button type="button" class="btn btn-primary btn-sm" disabled title="Library install not yet available">
+                            <button type="button" class="btn btn-primary btn-sm" disabled title="{{ __('Library install not yet available') }}">
                                 <i class="fas fa-download me-1"></i> Install
                             </button>
                         @endif

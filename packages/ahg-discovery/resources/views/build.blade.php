@@ -11,7 +11,7 @@
                 <i class="fas fa-tree text-primary me-2"></i>
                 PageIndex Build
             </h1>
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="{{ route('ahgdiscovery.pageindex') }}">PageIndex</a></li>
                     <li class="breadcrumb-item active">Build</li>

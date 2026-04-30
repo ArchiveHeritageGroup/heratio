@@ -12,7 +12,7 @@ $total = $flagData['total'] ?? 0;
   <div class="col-md-3">
     @include('ahg-heritage-manage::partials._admin-sidebar')
     <div class="card border-0 shadow-sm mt-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">Statistics</h6></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">{{ __('Statistics') }}</h6></div>
       <div class="card-body">
         <div class="d-flex justify-content-between mb-2"><span>Unresolved</span><span class="badge bg-warning">{{ $stats['unresolved'] ?? 0 }}</span></div>
         <div class="d-flex justify-content-between mb-2"><span>Critical</span><span class="badge bg-danger">{{ $stats['critical'] ?? 0 }}</span></div>
@@ -29,7 +29,7 @@ $total = $flagData['total'] ?? 0;
         <form method="get" class="row g-3">
           <div class="col-md-4">
             <select class="form-select" name="severity">
-              <option value="">All Severities</option>
+              <option value="">{{ __('All Severities') }}</option>
               @foreach(['critical','high','medium','low'] as $sev)
               <option value="{{ $sev }}" {{ request('severity') === $sev ? 'selected' : '' }}>{{ ucfirst($sev) }}</option>
               @endforeach
@@ -37,21 +37,21 @@ $total = $flagData['total'] ?? 0;
           </div>
           <div class="col-md-4">
             <select class="form-select" name="flag_type">
-              <option value="">All Types</option>
-              <option value="personal_info">Personal Information</option>
-              <option value="sensitive">Sensitive Data</option>
-              <option value="children">Children's Data</option>
-              <option value="health">Health Information</option>
+              <option value="">{{ __('All Types') }}</option>
+              <option value="personal_info">{{ __('Personal Information') }}</option>
+              <option value="sensitive">{{ __('Sensitive Data') }}</option>
+              <option value="children">{{ __("Children's Data") }}</option>
+              <option value="health">{{ __('Health Information') }}</option>
             </select>
           </div>
-          <div class="col-md-4"><button type="submit" class="btn atom-btn-secondary w-100">Filter</button></div>
+          <div class="col-md-4"><button type="submit" class="btn atom-btn-secondary w-100">{{ __('Filter') }}</button></div>
         </form>
       </div>
     </div>
 
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">Unresolved Flags</h5>
+        <h5 class="mb-0">{{ __('Unresolved Flags') }}</h5>
         <span class="badge bg-warning text-dark">{{ number_format($total) }} flags</span>
       </div>
       <div class="card-body p-0">
@@ -80,12 +80,12 @@ $total = $flagData['total'] ?? 0;
     <div class="modal fade" id="resolveModal" tabindex="-1">
       <div class="modal-dialog"><div class="modal-content">
         <form method="post" action="{{ route('heritage.admin-popia') }}">@csrf
-          <div class="modal-header bg-success text-white"><h5 class="modal-title">Resolve Privacy Flag</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+          <div class="modal-header bg-success text-white"><h5 class="modal-title">{{ __('Resolve Privacy Flag') }}</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
           <div class="modal-body">
             <input type="hidden" name="form_action" value="resolve"><input type="hidden" name="flag_id" id="resolve_flag_id">
-            <div class="mb-3"><label for="resolution_notes" class="form-label">Resolution Notes</label><textarea class="form-control" name="resolution_notes" id="resolution_notes" rows="3" placeholder="Describe what action was taken..."></textarea></div>
+            <div class="mb-3"><label for="resolution_notes" class="form-label">{{ __('Resolution Notes') }}</label><textarea class="form-control" name="resolution_notes" id="resolution_notes" rows="3" placeholder="{{ __('Describe what action was taken...') }}"></textarea></div>
           </div>
-          <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn atom-btn-outline-success">Mark as Resolved</button></div>
+          <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn atom-btn-outline-success">{{ __('Mark as Resolved') }}</button></div>
         </form>
       </div></div>
     </div>

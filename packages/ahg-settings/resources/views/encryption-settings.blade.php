@@ -72,7 +72,7 @@
                  name="encryption_enabled" value="1"
                  {{ ($settings['encryption_enabled'] ?? '') === 'true' || ($settings['encryption_enabled'] ?? '') === '1' ? 'checked' : '' }}
                  {{ !$keyExists ? 'disabled' : '' }}>
-          <label class="form-check-label fw-bold" for="encryption_enabled">Enable Encryption</label>
+          <label class="form-check-label fw-bold" for="encryption_enabled">{{ __('Enable Encryption') }}</label>
         </div>
         <div class="form-text mb-3">Master toggle. When enabled, new file uploads will be encrypted automatically.</div>
       </div>
@@ -90,7 +90,7 @@
           <input class="form-check-input" type="checkbox" id="encryption_encrypt_derivatives"
                  name="encryption_encrypt_derivatives" value="1"
                  {{ ($settings['encryption_encrypt_derivatives'] ?? 'true') === 'true' || ($settings['encryption_encrypt_derivatives'] ?? '') === '1' ? 'checked' : '' }}>
-          <label class="form-check-label fw-bold" for="encryption_encrypt_derivatives">Encrypt derivatives</label>
+          <label class="form-check-label fw-bold" for="encryption_encrypt_derivatives">{{ __('Encrypt derivatives') }}</label>
         </div>
         <div class="form-text mb-3">Also encrypt thumbnails and reference images. Recommended for full protection.</div>
 

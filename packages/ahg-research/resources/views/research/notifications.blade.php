@@ -22,7 +22,7 @@
     ];
 @endphp
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item active">Notifications</li>
@@ -76,7 +76,7 @@
                 <div class="table-responsive">
                     <table class="table align-middle">
                         <thead class="table-light">
-                            <tr><th>Notification Type</th><th class="text-center">In-App</th><th class="text-center">Email</th><th>Digest Frequency</th></tr>
+                            <tr><th>{{ __('Notification Type') }}</th><th class="text-center">{{ __('In-App') }}</th><th class="text-center">{{ __('Email') }}</th><th>{{ __('Digest Frequency') }}</th></tr>
                         </thead>
                         <tbody>
                         @foreach(['alert' => 'Alerts', 'invitation' => 'Invitations', 'comment' => 'Comments', 'reply' => 'Replies', 'system' => 'System', 'reminder' => 'Reminders', 'collaboration' => 'Collaboration'] as $tk => $tl)
@@ -137,7 +137,7 @@
                             @csrf
                             <input type="hidden" name="do" value="mark_read">
                             <input type="hidden" name="id" value="{{ $n->id }}">
-                            <button type="submit" class="btn btn-link btn-sm p-0" title="Mark as read"><i class="fas fa-check text-muted"></i></button>
+                            <button type="submit" class="btn btn-link btn-sm p-0" title="{{ __('Mark as read') }}"><i class="fas fa-check text-muted"></i></button>
                         </form>
                         @endif
                     </div>
@@ -149,7 +149,7 @@
     @else
     <div class="text-center py-5">
         <i class="fas fa-bell-slash fa-4x text-muted mb-3 opacity-50"></i>
-        <h4 class="text-muted">No notifications</h4>
+        <h4 class="text-muted">{{ __('No notifications') }}</h4>
         <p class="text-muted">{{ $currentTab === 'unread' ? 'You have no unread notifications.' : 'You have no notifications yet.' }}</p>
     </div>
     @endif

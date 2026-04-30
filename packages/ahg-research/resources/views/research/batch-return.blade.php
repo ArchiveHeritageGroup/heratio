@@ -8,7 +8,7 @@
 @section('title', 'Batch Return')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.retrievalQueue') }}">Retrieval Queue</a></li>
@@ -25,7 +25,7 @@
         <div class="card-body p-0">
             <table class="table table-hover mb-0">
                 <thead class="table-light">
-                    <tr><th><input type="checkbox" id="selectAll"></th><th>Item</th><th>Researcher</th><th>Checked Out</th><th>Condition</th></tr>
+                    <tr><th><input type="checkbox" id="selectAll"></th><th>{{ __('Item') }}</th><th>{{ __('Researcher') }}</th><th>{{ __('Checked Out') }}</th><th>{{ __('Condition') }}</th></tr>
                 </thead>
                 <tbody>
                     @foreach($checkedOutItems ?? [] as $item)
@@ -36,9 +36,9 @@
                         <td class="small">{{ $item->checked_out_at ?? '' }}</td>
                         <td>
                             <select name="condition_{{ $item->id }}" class="form-select form-select-sm">
-                                <option value="good">Good</option>
-                                <option value="fair">Fair</option>
-                                <option value="damaged">Damaged</option>
+                                <option value="good">{{ __('Good') }}</option>
+                                <option value="fair">{{ __('Fair') }}</option>
+                                <option value="damaged">{{ __('Damaged') }}</option>
                             </select>
                         </td>
                     </tr>

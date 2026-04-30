@@ -18,7 +18,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="card-subtitle mb-1 text-white-50">My Tasks</h6>
+              <h6 class="card-subtitle mb-1 text-white-50">{{ __('My Tasks') }}</h6>
               <h2 class="card-title mb-0">{{ $stats['my_tasks'] ?? 0 }}</h2>
             </div>
             <i class="fas fa-clipboard-list fa-2x opacity-50" aria-hidden="true"></i>
@@ -36,7 +36,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="card-subtitle mb-1 text-dark-50">Pool Tasks</h6>
+              <h6 class="card-subtitle mb-1 text-dark-50">{{ __('Pool Tasks') }}</h6>
               <h2 class="card-title mb-0">{{ $stats['pool_tasks'] ?? 0 }}</h2>
             </div>
             <i class="fas fa-inbox fa-2x opacity-50" aria-hidden="true"></i>
@@ -54,7 +54,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="card-subtitle mb-1 text-white-50">Completed Today</h6>
+              <h6 class="card-subtitle mb-1 text-white-50">{{ __('Completed Today') }}</h6>
               <h2 class="card-title mb-0">{{ $stats['completed_today'] ?? 0 }}</h2>
             </div>
             <i class="fas fa-check-circle fa-2x opacity-50" aria-hidden="true"></i>
@@ -67,7 +67,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="card-subtitle mb-1 text-white-50">Overdue</h6>
+              <h6 class="card-subtitle mb-1 text-white-50">{{ __('Overdue') }}</h6>
               <h2 class="card-title mb-0">{{ $stats['overdue_tasks'] ?? 0 }}</h2>
             </div>
             <i class="fas fa-exclamation-triangle fa-2x opacity-50" aria-hidden="true"></i>
@@ -140,7 +140,7 @@
                     </div>
                     <form action="{{ route('workflow.task.claim', $task->id) }}" method="POST" class="d-inline">
                       @csrf
-                      <button type="submit" class="btn btn-sm atom-btn-outline-success">Claim</button>
+                      <button type="submit" class="btn btn-sm atom-btn-outline-success">{{ __('Claim') }}</button>
                     </form>
                   </div>
                 </div>
@@ -168,10 +168,10 @@
           <table class="table table-hover mb-0">
             <thead class="table-light">
               <tr>
-                <th scope="col">Time</th>
-                <th scope="col">Action</th>
-                <th scope="col">Object</th>
-                <th scope="col">User</th>
+                <th scope="col">{{ __('Time') }}</th>
+                <th scope="col">{{ __('Action') }}</th>
+                <th scope="col">{{ __('Object') }}</th>
+                <th scope="col">{{ __('User') }}</th>
               </tr>
             </thead>
             <tbody>

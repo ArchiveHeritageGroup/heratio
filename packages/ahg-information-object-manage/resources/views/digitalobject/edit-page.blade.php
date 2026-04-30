@@ -81,21 +81,21 @@
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label text-muted small mb-0">Filename</label>
+                            <label class="form-label text-muted small mb-0">{{ __('Filename') }}</label>
                             <p class="fw-bold mb-0">{{ e($do->name) }}</p>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label text-muted small mb-0">Filesize</label>
+                            <label class="form-label text-muted small mb-0">{{ __('Filesize') }}</label>
                             <p class="mb-0">{{ \AhgCore\Services\DigitalObjectService::formatFileSize($do->byte_size) }}</p>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label text-muted small mb-0">MIME</label>
+                            <label class="form-label text-muted small mb-0">{{ __('MIME') }}</label>
                             <p class="mb-0"><code>{{ e($do->mime_type) }}</code></p>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="media_type_id" class="form-label">Media type</label>
+                        <label for="media_type_id" class="form-label">{{ __('Media type') }}</label>
                         <select class="form-select" id="media_type_id" name="media_type_id">
                             @foreach($mediaTypes as $mtId => $mtName)
                                 <option value="{{ $mtId }}" @selected($do->media_type_id == $mtId)>{{ $mtName }}</option>
@@ -105,7 +105,7 @@
 
                     @if($hasChildren)
                     <div class="mb-3">
-                        <label for="display_as_compound" class="form-label">View children as compound?</label>
+                        <label for="display_as_compound" class="form-label">{{ __('View children as compound?') }}</label>
                         <select class="form-select" id="display_as_compound" name="display_as_compound">
                             <option value="1" @selected($do->display_as_compound ?? false)>Yes</option>
                             <option value="0" @selected(!($do->display_as_compound ?? false))>No</option>
@@ -114,7 +114,7 @@
                     @endif
 
                     <hr>
-                    <label class="form-label">Replace master file</label>
+                    <label class="form-label">{{ __('Replace master file') }}</label>
                     <input type="file" class="form-control" name="replace_file">
                     <div class="form-text">Select a new file to replace the existing master.</div>
                 </div>
@@ -139,7 +139,7 @@
                         </div>
                     @else
                         <div class="mb-3">
-                            <label class="form-label">Upload reference image</label>
+                            <label class="form-label">{{ __('Upload reference image') }}</label>
                             <input type="file" class="form-control" name="repFile_reference" accept="image/*">
                         </div>
                     @endif
@@ -165,7 +165,7 @@
                         </div>
                     @else
                         <div class="mb-3">
-                            <label class="form-label">Upload thumbnail image</label>
+                            <label class="form-label">{{ __('Upload thumbnail image') }}</label>
                             <input type="file" class="form-control" name="repFile_thumbnail" accept="image/*">
                         </div>
                     @endif

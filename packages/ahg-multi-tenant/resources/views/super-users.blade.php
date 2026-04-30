@@ -27,7 +27,7 @@
 <div class="container-fluid py-4">
   <div class="row">
     <div class="col-12">
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('tenant.index') }}">Tenant Administration</a></li>
           <li class="breadcrumb-item active">Super Users</li>

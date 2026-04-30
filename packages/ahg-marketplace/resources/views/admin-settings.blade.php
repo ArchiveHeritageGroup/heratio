@@ -11,7 +11,7 @@
 
 @section('content')
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
     <li class="breadcrumb-item"><a href="{{ route('ahgmarketplace.admin-dashboard') }}">Marketplace Admin</a></li>
@@ -26,13 +26,13 @@
   </div>
 @endif
 
-<h1 class="h3 mb-4">Marketplace Settings</h1>
+<h1 class="h3 mb-4">{{ __('Marketplace Settings') }}</h1>
 
 @if(empty($settings) || (is_countable($settings) && count($settings) === 0))
   <div class="card">
     <div class="card-body text-center py-5">
       <i class="fas fa-cog fa-3x text-muted mb-3 d-block"></i>
-      <h5>No settings configured</h5>
+      <h5>{{ __('No settings configured') }}</h5>
       <p class="text-muted">Run the marketplace install to populate default settings.</p>
     </div>
   </div>
@@ -75,7 +75,7 @@
                     <input type="checkbox" class="form-check-input" name="{{ e($inputName) }}"
                            id="{{ e($inputName) }}" value="1"
                            {{ ($value && $value !== '0' && $value !== 'false') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="{{ e($inputName) }}">Enabled</label>
+                    <label class="form-check-label" for="{{ e($inputName) }}">{{ __('Enabled') }}</label>
                   </div>
                 @elseif($type === 'number' || $type === 'integer' || $type === 'float')
                   <input type="number" class="form-control" name="{{ e($inputName) }}"

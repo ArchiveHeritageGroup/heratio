@@ -47,13 +47,13 @@
   <div class="card-body py-2">
     <div class="row align-items-end">
       <div class="col-md-5">
-        <label class="form-label small fw-bold">Folder with images</label>
-        <input type="text" id="ba-folder" class="form-control form-control-sm" value="/usr/share/nginx/heratio/FamilySearch/stefan" placeholder="/path/to/images">
+        <label class="form-label small fw-bold">{{ __('Folder with images') }}</label>
+        <input type="text" id="ba-folder" class="form-control form-control-sm" value="/usr/share/nginx/heratio/FamilySearch/stefan" placeholder="{{ __('/path/to/images') }}">
       </div>
       <div class="col-md-5">
-        <label class="form-label small fw-bold">Spreadsheet (in same folder)</label>
+        <label class="form-label small fw-bold">{{ __('Spreadsheet (in same folder)') }}</label>
         <select id="ba-spreadsheet" class="form-select form-select-sm">
-          <option value="">Select spreadsheet...</option>
+          <option value="">{{ __('Select spreadsheet...') }}</option>
         </select>
       </div>
       <div class="col-md-2">
@@ -75,9 +75,9 @@
         <span>
           <span id="ba-counter" class="badge bg-light text-dark me-2">0/0</span>
           <div class="btn-group btn-group-sm me-2">
-            <button class="btn btn-light active" id="ba-tool-hand" title="Pan (H)" onclick="baSetTool('hand')"><i class="fas fa-hand-paper"></i></button>
-            <button class="btn btn-light" id="ba-tool-draw" title="Draw (R)" onclick="baSetTool('draw')"><i class="fas fa-vector-square"></i></button>
-            <button class="btn btn-light" id="ba-tool-select" title="Select/Move (V)" onclick="baSetTool('select')"><i class="fas fa-mouse-pointer"></i></button>
+            <button class="btn btn-light active" id="ba-tool-hand" title="{{ __('Pan (H)') }}" onclick="baSetTool('hand')"><i class="fas fa-hand-paper"></i></button>
+            <button class="btn btn-light" id="ba-tool-draw" title="{{ __('Draw (R)') }}" onclick="baSetTool('draw')"><i class="fas fa-vector-square"></i></button>
+            <button class="btn btn-light" id="ba-tool-select" title="{{ __('Select/Move (V)') }}" onclick="baSetTool('select')"><i class="fas fa-mouse-pointer"></i></button>
           </div>
           <button class="btn btn-sm btn-light" onclick="baZoomIn()"><i class="fas fa-search-plus"></i></button>
           <button class="btn btn-sm btn-light" onclick="baZoomOut()"><i class="fas fa-search-minus"></i></button>

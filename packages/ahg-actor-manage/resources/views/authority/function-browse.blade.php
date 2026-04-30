@@ -5,7 +5,7 @@
 
 @section('content')
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
@@ -24,8 +24,8 @@
     <table class="table table-hover mb-0">
       <thead>
         <tr>
-          <th>Function</th>
-          <th class="text-center">Linked Actors</th>
+          <th>{{ __('Function') }}</th>
+          <th class="text-center">{{ __('Linked Actors') }}</th>
           <th></th>
         </tr>
       </thead>

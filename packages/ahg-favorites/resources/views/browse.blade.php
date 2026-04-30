@@ -53,10 +53,10 @@
 
     {{-- View Toggle --}}
     <div class="btn-group btn-group-sm">
-      <a href="{{ route('favorites.browse', array_merge($params, ['view' => 'table'])) }}" class="btn {{ ($params['view'] ?? 'table') === 'table' ? 'atom-btn-outline-success' : 'atom-btn-white' }}" title="Table View">
+      <a href="{{ route('favorites.browse', array_merge($params, ['view' => 'table'])) }}" class="btn {{ ($params['view'] ?? 'table') === 'table' ? 'atom-btn-outline-success' : 'atom-btn-white' }}" title="{{ __('Table View') }}">
         <i class="fas fa-list"></i>
       </a>
-      <a href="{{ route('favorites.browse', array_merge($params, ['view' => 'grid'])) }}" class="btn {{ ($params['view'] ?? 'table') === 'grid' ? 'atom-btn-outline-success' : 'atom-btn-white' }}" title="Grid View">
+      <a href="{{ route('favorites.browse', array_merge($params, ['view' => 'grid'])) }}" class="btn {{ ($params['view'] ?? 'table') === 'grid' ? 'atom-btn-outline-success' : 'atom-btn-white' }}" title="{{ __('Grid View') }}">
         <i class="fas fa-th"></i>
       </a>
     </div>
@@ -100,7 +100,7 @@
                 @if($folder->color)<i class="fas fa-circle me-1" style="color:{{ $folder->color }}; font-size:0.5em;"></i>@endif
                 {{ $folder->name }}
                 @if(!empty($folder->share_token))
-                  <i class="fas fa-share-alt text-info ms-1" title="Shared"></i>
+                  <i class="fas fa-share-alt text-info ms-1" title="{{ __('Shared') }}"></i>
                 @endif
               </span>
               <span class="badge bg-secondary rounded-pill">{{ $folder->item_count }}</span>
@@ -161,10 +161,10 @@
 
       <div class="col-md-5">
         <div class="input-group input-group-sm">
-          <input type="text" name="query" class="form-control" placeholder="Search favorites..." value="{{ $params['query'] ?? '' }}">
+          <input type="text" name="query" class="form-control" placeholder="{{ __('Search favorites...') }}" value="{{ $params['query'] ?? '' }}">
           <button class="btn atom-btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
           @if(!empty($params['query']))
-            <a href="{{ route('favorites.browse', array_diff_key($params, ['query' => ''])) }}" class="btn atom-btn-outline-danger" title="Clear search"><i class="fas fa-times"></i></a>
+            <a href="{{ route('favorites.browse', array_diff_key($params, ['query' => ''])) }}" class="btn atom-btn-outline-danger" title="{{ __('Clear search') }}"><i class="fas fa-times"></i></a>
           @endif
         </div>
       </div>
@@ -193,8 +193,8 @@
           @if(!empty($folders) && count($folders) > 0)
             <div class="input-group input-group-sm" style="max-width: 250px;">
               <select name="move_folder_id" class="form-select form-select-sm">
-                <option value="">Move to...</option>
-                <option value="">Unfiled</option>
+                <option value="">{{ __('Move to...') }}</option>
+                <option value="">{{ __('Unfiled') }}</option>
                 @foreach($folders as $f)
                   <option value="{{ $f->id }}">{{ $f->name }}</option>
                 @endforeach
@@ -234,11 +234,11 @@
                   </div>
                   <div>
                     @if(!empty($item->has_digital_object))
-                      <i class="fas fa-camera text-info me-1" title="Has digital object"></i>
+                      <i class="fas fa-camera text-info me-1" title="{{ __('Has digital object') }}"></i>
                     @endif
                     <form method="post" action="{{ route('favorites.remove', $item->id) }}" class="d-inline">
                       @csrf
-                      <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove"
+                      <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="{{ __('Remove') }}"
                               onclick="return confirm('Remove from favorites?');">
                         <i class="fas fa-heart-broken"></i>
                       </button>
@@ -280,16 +280,16 @@
         <table class="table table-bordered table-striped table-sm align-middle mb-0">
           <thead>
             <tr>
-              <th style="width:30px"><input type="checkbox" id="selectAll" class="form-check-input" title="Select all"></th>
-              <th>Title</th>
-              <th style="width:140px">Reference Code</th>
-              <th class="text-center" style="width:110px">Level</th>
-              <th class="text-center col-optional col-dates" style="width:130px">Dates</th>
-              <th class="text-center col-optional col-repository" style="width:150px">Repository</th>
-              <th class="text-center" style="width:50px" title="Digital Object"><i class="fas fa-camera"></i></th>
-              <th class="text-center" style="width:110px">Date Added</th>
-              <th class="text-center" style="width:60px">Notes</th>
-              <th class="text-center" style="width:100px">Actions</th>
+              <th style="width:30px"><input type="checkbox" id="selectAll" class="form-check-input" title="{{ __('Select all') }}"></th>
+              <th>{{ __('Title') }}</th>
+              <th style="width:140px">{{ __('Reference Code') }}</th>
+              <th class="text-center" style="width:110px">{{ __('Level') }}</th>
+              <th class="text-center col-optional col-dates" style="width:130px">{{ __('Dates') }}</th>
+              <th class="text-center col-optional col-repository" style="width:150px">{{ __('Repository') }}</th>
+              <th class="text-center" style="width:50px" title="{{ __('Digital Object') }}"><i class="fas fa-camera"></i></th>
+              <th class="text-center" style="width:110px">{{ __('Date Added') }}</th>
+              <th class="text-center" style="width:60px">{{ __('Notes') }}</th>
+              <th class="text-center" style="width:100px">{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -308,22 +308,22 @@
                 <td class="text-center small text-muted col-optional col-repository">{{ $item->repository_name ?? '' }}</td>
                 <td class="text-center">
                   @if(!empty($item->has_digital_object))
-                    <i class="fas fa-camera text-info" title="Has digital object"></i>
+                    <i class="fas fa-camera text-info" title="{{ __('Has digital object') }}"></i>
                   @endif
                 </td>
                 <td class="text-center text-muted small">{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d') }}</td>
                 <td class="text-center">
-                  <button type="button" class="btn btn-sm atom-btn-white notes-toggle" data-fav-id="{{ $item->id }}" title="Notes">
+                  <button type="button" class="btn btn-sm atom-btn-white notes-toggle" data-fav-id="{{ $item->id }}" title="{{ __('Notes') }}">
                     <i class="fas fa-sticky-note{{ $item->notes ? ' text-warning' : '' }}"></i>
                   </button>
                 </td>
                 <td class="text-center">
-                  <a href="{{ favItemUrl($item) }}" class="btn btn-sm atom-btn-white me-1" title="View">
+                  <a href="{{ favItemUrl($item) }}" class="btn btn-sm atom-btn-white me-1" title="{{ __('View') }}">
                     <i class="fas fa-eye"></i>
                   </a>
                   <form method="post" action="{{ route('favorites.remove', $item->id) }}" class="d-inline">
                     @csrf
-                    <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove"
+                    <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="{{ __('Remove') }}"
                             onclick="return confirm('Remove from favorites?');">
                       <i class="fas fa-heart-broken"></i>
                     </button>
@@ -336,7 +336,7 @@
                 <td colspan="9">
                   <div class="input-group input-group-sm">
                     <input type="text" class="form-control notes-input" id="notes-input-{{ $item->id }}"
-                           placeholder="Add a note..." value="{{ e($item->notes ?? '') }}">
+                           placeholder="{{ __('Add a note...') }}" value="{{ e($item->notes ?? '') }}">
                     <button class="btn atom-btn-white notes-save" data-fav-id="{{ $item->id }}" type="button">
                       <i class="fas fa-save"></i> Save
                     </button>
@@ -370,7 +370,7 @@
             <div class="mb-3">
               <label class="form-label">Parent Folder <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" name="parent_id">
-                <option value="">None (top level)</option>
+                <option value="">{{ __('None (top level)') }}</option>
                 @foreach($folders as $f)
                   @if(!$f->parent_id)
                     <option value="{{ $f->id }}">{{ $f->name }}</option>
@@ -380,7 +380,7 @@
             </div>
           @endif
         </div>
-        <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-folder-plus me-1"></i>Create Folder</button></div>
+        <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-folder-plus me-1"></i>Create Folder</button></div>
       </div>
     </form>
   </div>
@@ -397,9 +397,9 @@
         <div class="modal-body">
           <div class="mb-3"><label class="form-label">Upload CSV <span class="badge bg-secondary ms-1">Optional</span></label><input type="file" name="file" class="form-control" accept=".csv,.txt"><small class="text-muted">CSV must contain a "slug" or "reference_code" column.</small></div>
           <div class="text-center text-muted my-2">&mdash; or &mdash;</div>
-          <div class="mb-3"><label class="form-label">Paste Slugs <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="slugs" class="form-control" rows="4" placeholder="One slug per line, or comma-separated..."></textarea></div>
+          <div class="mb-3"><label class="form-label">Paste Slugs <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="slugs" class="form-control" rows="4" placeholder="{{ __('One slug per line, or comma-separated...') }}"></textarea></div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-upload me-1"></i>Import</button></div>
+        <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-upload me-1"></i>Import</button></div>
       </div>
     </form>
   </div>
@@ -417,7 +417,7 @@
           <div class="mb-3"><label class="form-label">Folder Name <span class="badge bg-danger ms-1">Required</span></label><input type="text" name="name" class="form-control" value="{{ e($activeFolder->name) }}" required maxlength="255"></div>
           <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="description" class="form-control" rows="2">{{ e($activeFolder->description ?? '') }}</textarea></div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save Changes</button></div>
+        <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save Changes</button></div>
       </div>
     </form>
   </div>
@@ -449,7 +449,7 @@
             <i class="fas fa-ban me-1"></i>Revoke Sharing
           </button>
         </form>
-        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Close') }}</button>
       </div>
     </div>
   </div>
@@ -459,11 +459,11 @@
 
 {{-- Column Config Dropdown --}}
 <div class="dropdown position-fixed" style="bottom: 20px; right: 20px; z-index: 1050;">
-  <button class="btn btn-sm atom-btn-white rounded-circle shadow" type="button" data-bs-toggle="dropdown" title="Column Settings" style="width:36px;height:36px;">
+  <button class="btn btn-sm atom-btn-white rounded-circle shadow" type="button" data-bs-toggle="dropdown" title="{{ __('Column Settings') }}" style="width:36px;height:36px;">
     <i class="fas fa-columns"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><h6 class="dropdown-header">Optional Columns</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Optional Columns') }}</h6></li>
     <li>
       <label class="dropdown-item">
         <input type="checkbox" class="form-check-input me-2 col-toggle" data-col="col-dates" checked>

@@ -14,7 +14,7 @@
       <input class="form-check-input" type="checkbox" name="settings[meta_auto_populate]" id="meta_auto" value="1" {{ ($settings['meta_auto_populate'] ?? '0') == '1' ? 'checked' : '' }}>
       <label class="form-check-label" for="meta_auto">Auto-populate fields from metadata <span class="badge bg-secondary ms-1">Optional</span></label>
     </div>
-    <h6 class="mt-3">File types</h6>
+    <h6 class="mt-3">{{ __('File types') }}</h6>
     @foreach(['images', 'pdf', 'office', 'video', 'audio'] as $type)
       <div class="form-check form-check-inline">
         <input type="hidden" name="settings[meta_{{ $type }}]" value="0">

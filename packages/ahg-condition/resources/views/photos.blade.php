@@ -37,7 +37,7 @@
 <div class="condition-photos-page">
   <div class="row mb-4">
     <div class="col-md-12">
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           @if($objectSlug)
             <li class="breadcrumb-item"><a href="{{ url('/'.$objectSlug) }}">{{ $objectTitle }}</a></li>
@@ -76,7 +76,7 @@
         <div class="row">
           <div class="col-md-4">
             <div class="mb-3">
-              <label class="form-label">Photo Type</label>
+              <label class="form-label">{{ __('Photo Type') }}</label>
               <select name="photo_type" id="photo_type" class="form-select">
                 @foreach($photoTypes as $value => $label)
                   <option value="{{ $value }}">{{ $label }}</option>
@@ -86,14 +86,14 @@
           </div>
           <div class="col-md-4">
             <div class="mb-3">
-              <label class="form-label">Caption</label>
+              <label class="form-label">{{ __('Caption') }}</label>
               <input type="text" name="caption" id="caption" class="form-control"
-                     placeholder="Brief description of the photo">
+                     placeholder="{{ __('Brief description of the photo') }}">
             </div>
           </div>
           <div class="col-md-4">
             <div class="mb-3">
-              <label class="form-label">Select Photo</label>
+              <label class="form-label">{{ __('Select Photo') }}</label>
               <input type="file" name="photo" id="photo-file" class="form-control" accept="image/*" required>
             </div>
           </div>
@@ -158,13 +158,13 @@
                   <div class="btn-group btn-group-sm w-100">
                     <a class="btn btn-outline-info"
                        href="{{ route('condition.annotate', $photo->id) }}"
-                       title="Annotate">
+                       title="{{ __('Annotate') }}">
                       <i class="fas fa-draw-polygon"></i>
                     </a>
                     <form action="{{ route('condition.photo.delete', $photo->id) }}" method="post" class="d-inline"
                           onsubmit="return confirm('Delete this photo?');">
                       @csrf
-                      <button type="submit" class="btn btn-outline-danger" title="Delete">
+                      <button type="submit" class="btn btn-outline-danger" title="{{ __('Delete') }}">
                         <i class="fas fa-trash"></i>
                       </button>
                     </form>

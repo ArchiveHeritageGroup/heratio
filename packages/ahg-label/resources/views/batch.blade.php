@@ -52,7 +52,7 @@
                 <div class="mb-2">
                     <img class="barcode-img"
                          src="https://barcodeapi.org/api/128/{{ rawurlencode($label['barcodeData']) }}"
-                         alt="Barcode">
+                         alt="{{ __('Barcode') }}">
                     <div class="small mt-1">{{ e($label['barcodeData']) }}</div>
                 </div>
             @endif
@@ -61,7 +61,7 @@
                 <div>
                     <img class="qr-img"
                          src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ rawurlencode($label['qrUrl']) }}"
-                         alt="QR Code">
+                         alt="{{ __('QR Code') }}">
                 </div>
             @endif
         </div>

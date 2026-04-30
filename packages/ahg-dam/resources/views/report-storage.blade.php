@@ -4,7 +4,7 @@
 @section('body-class', 'dam-reports storage')
 @section('sidebar')
 <div class="sidebar-content">
-  <h4>Storage Summary</h4>
+  <h4>{{ __('Storage Summary') }}</h4>
   @php
   if (!function_exists('damFmtBytes')) { function damFmtBytes($b,$p=2){$u=['B','KB','MB','GB','TB'];$b=max($b,0);$w=floor(($b?log($b):0)/log(1024));$w=min($w,count($u)-1);return round($b/pow(1024,$w),$p).' '.$u[$w];} }
   @endphp
@@ -27,7 +27,7 @@
   <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-hdd me-2"></i>Storage by File Type</h5></div>
   <div class="card-body p-0">
     <table class="table table-striped mb-0">
-      <thead class="table-light"><tr><th>MIME Type</th><th class="text-end">Files</th><th class="text-end">Size</th></tr></thead>
+      <thead class="table-light"><tr><th>{{ __('MIME Type') }}</th><th class="text-end">{{ __('Files') }}</th><th class="text-end">{{ __('Size') }}</th></tr></thead>
       <tbody>
         @forelse($storage['byType'] ?? [] as $t)
         <tr>

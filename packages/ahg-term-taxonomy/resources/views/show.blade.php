@@ -39,13 +39,13 @@
         {{-- Tab navigation --}}
         <ul class="nav nav-tabs border-0" id="treeview-menu" role="tablist">
           <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="treeview-tab" data-bs-toggle="tab" data-bs-target="#treeview-pane" type="button" role="tab">Treeview</button>
+            <button class="nav-link active" id="treeview-tab" data-bs-toggle="tab" data-bs-target="#treeview-pane" type="button" role="tab">{{ __('Treeview') }}</button>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link" id="list-tab" data-bs-toggle="tab" data-bs-target="#list-pane" type="button" role="tab">List</button>
+            <button class="nav-link" id="list-tab" data-bs-toggle="tab" data-bs-target="#list-pane" type="button" role="tab">{{ __('List') }}</button>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link" id="search-tab" data-bs-toggle="tab" data-bs-target="#search-pane" type="button" role="tab">Search</button>
+            <button class="nav-link" id="search-tab" data-bs-toggle="tab" data-bs-target="#search-pane" type="button" role="tab">{{ __('Search') }}</button>
           </li>
         </ul>
 
@@ -137,11 +137,11 @@
                   <div class="px-3 py-2">
                     <div class="form-check">
                       <input class="form-check-input" type="radio" name="queryField" id="qf-all" value="allLabels" checked>
-                      <label class="form-check-label" for="qf-all">All labels</label>
+                      <label class="form-check-label" for="qf-all">{{ __('All labels') }}</label>
                     </div>
                     <div class="form-check">
                       <input class="form-check-input" type="radio" name="queryField" id="qf-preferred" value="preferredLabel">
-                      <label class="form-check-label" for="qf-preferred">Preferred label</label>
+                      <label class="form-check-label" for="qf-preferred">{{ __('Preferred label') }}</label>
                     </div>
                     <div class="form-check">
                       <input class="form-check-input" type="radio" name="queryField" id="qf-usefor" value="useForLabels">
@@ -185,7 +185,7 @@
 
       {{-- Breadcrumb --}}
       @if($breadcrumb->isNotEmpty())
-        <nav aria-label="breadcrumb" class="mb-3">
+        <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
           <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('term.browse', ['taxonomy' => $term->taxonomy_id]) }}">{{ $taxonomyName }}</a></li>
             @foreach($breadcrumb as $ancestor)
@@ -202,18 +202,18 @@
           <div class="d-flex p-3 border-bottom text-primary">
             Elements area
             @auth
-              <a href="{{ route('term.edit', $term->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+              <a href="{{ route('term.edit', $term->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
             @endauth
           </div>
         </h2>
         <div>
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Taxonomy</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Taxonomy') }}</h3>
             <div class="col-9 p-2"><a href="{{ route('term.browse', ['taxonomy' => $term->taxonomy_id]) }}">{{ $taxonomyName }}</a></div>
           </div>
           @if($term->code ?? null)
             <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Code</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Code') }}</h3>
               <div class="col-9 p-2">
                 <code>{{ $term->code }}</code>
               </div>
@@ -221,24 +221,24 @@
           @endif
           @if($scopeNote && $scopeNote->content)
             <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Scope note(s)</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Scope note(s)') }}</h3>
               <div class="col-9 p-2">{!! nl2br(e($scopeNote->content)) !!}</div>
             </div>
           @endif
           @if(!empty($sourceNotes))
             <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Source note(s)</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Source note(s)') }}</h3>
               <div class="col-9 p-2">@foreach($sourceNotes as $note)<p class="mb-1">{{ $note }}</p>@endforeach</div>
             </div>
           @endif
           @if(!empty($displayNotes))
             <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Display note(s)</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Display note(s)') }}</h3>
               <div class="col-9 p-2">@foreach($displayNotes as $note)<p class="mb-1">{{ $note }}</p>@endforeach</div>
             </div>
           @endif
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Hierarchical terms</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Hierarchical terms') }}</h3>
             <div class="col-9 p-2">
               @if($broaderTerm)
                 <div class="mb-1">{{ $term->name }}: <strong>BT</strong> <a href="{{ route('term.show', $broaderTerm->slug) }}">{{ $broaderTerm->name }}</a></div>
@@ -250,19 +250,19 @@
           </div>
           @if(!empty($useFor))
             <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Equivalent terms</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Equivalent terms') }}</h3>
               <div class="col-9 p-2">@foreach($useFor as $uf)<div class="mb-1">{{ $term->name }}: <strong>UF</strong> {{ $uf }}</div>@endforeach</div>
             </div>
           @endif
           @if($converseTerm)
             <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Converse term</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Converse term') }}</h3>
               <div class="col-9 p-2"><a href="{{ route('term.show', $converseTerm->slug) }}">{{ $converseTerm->name }}</a></div>
             </div>
           @endif
           @if($associatedTerms->isNotEmpty())
             <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Associated terms</h3>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Associated terms') }}</h3>
               <div class="col-9 p-2">@foreach($associatedTerms as $rt)<div class="mb-1">{{ $term->name }}: <strong>RT</strong> <a href="{{ route('term.show', $rt->slug) }}">{{ $rt->name }}</a></div>@endforeach</div>
             </div>
           @endif
@@ -280,7 +280,7 @@
             </h2>
             <div>
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Source language</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Source language') }}</h3>
                 <div class="col-9 p-2">
                   @php
                     $displayLang = function_exists('locale_get_display_language')
@@ -394,29 +394,29 @@
     <div class="col-md-3">
       {{-- #34-35 SKOS Import/Export --}}
       @auth
-        <h4 class="h5 mb-2">Import</h4>
+        <h4 class="h5 mb-2">{{ __('Import') }}</h4>
         <ul class="list-unstyled">
           <li><a href="{{ route('term.import.skos', ['taxonomy' => $term->taxonomy_id]) }}"><i class="fas fa-download me-1"></i>SKOS</a></li>
         </ul>
       @endauth
-      <h4 class="h5 mb-2">Export</h4>
+      <h4 class="h5 mb-2">{{ __('Export') }}</h4>
       <ul class="list-unstyled">
         <li><a href="{{ route('term.export.skos', ['taxonomy' => $term->taxonomy_id]) }}"><i class="fas fa-upload me-1"></i>SKOS</a></li>
       </ul>
 
-      <h4 class="h5 mb-2">Results</h4>
+      <h4 class="h5 mb-2">{{ __('Results') }}</h4>
       <ul class="list-unstyled"><li>{{ number_format($relatedDescriptionsCount) }}</li></ul>
 
       @if($broaderTerm)
-        <h4 class="h5 mb-2">Broader term</h4>
+        <h4 class="h5 mb-2">{{ __('Broader term') }}</h4>
         <ul class="list-unstyled"><li><a href="{{ route('term.show', $broaderTerm->slug) }}">{{ $broaderTerm->name }}</a></li></ul>
       @endif
 
-      <h4 class="h5 mb-2">No. narrower terms</h4>
+      <h4 class="h5 mb-2">{{ __('No. narrower terms') }}</h4>
       <ul class="list-unstyled"><li>{{ $narrowerCount }}</li></ul>
 
       @if($associatedTerms->isNotEmpty())
-        <h4 class="h5 mb-2">Related terms</h4>
+        <h4 class="h5 mb-2">{{ __('Related terms') }}</h4>
         <ul class="list-unstyled">
           @foreach($associatedTerms as $rt)
             <li><a href="{{ route('term.show', $rt->slug) }}">{{ $rt->name }}</a></li>

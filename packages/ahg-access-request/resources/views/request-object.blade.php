@@ -6,7 +6,7 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
                     <li class="breadcrumb-item active">Request Object Access</li>
@@ -39,9 +39,9 @@
                         <div class="mb-3">
                             <label for="access_type" class="form-label">Access Type <span class="badge bg-secondary ms-1">Optional</span></label>
                             <select class="form-select" id="access_type" name="access_type">
-                                <option value="view">View only</option>
-                                <option value="download">Download</option>
-                                <option value="copy">Physical copy</option>
+                                <option value="view">{{ __('View only') }}</option>
+                                <option value="download">{{ __('Download') }}</option>
+                                <option value="copy">{{ __('Physical copy') }}</option>
                             </select>
                         </div>
 

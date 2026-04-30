@@ -12,7 +12,7 @@
       </div>
       <div class="card-body text-center py-5">
         <i class="fas fa-lock fa-5x text-warning mb-4"></i>
-        <h3 class="mb-3">This record is under embargo</h3>
+        <h3 class="mb-3">{{ __('This record is under embargo') }}</h3>
 
         @if(!empty($embargoInfo['public_message']))
           <p class="lead">{{ $embargoInfo['public_message'] }}</p>

@@ -27,21 +27,21 @@
     <div class="card mb-3">
       <div class="card-header bg-light">Rule definition</div>
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:30%">Type</th><td><span class="badge bg-secondary">{{ $rule->rule_type }}</span></td></tr>
-        <tr><th class="text-muted">Pattern</th><td><code>{{ $rule->match_pattern }}</code></td></tr>
-        <tr><th class="text-muted">Priority</th><td>{{ $rule->priority }}</td></tr>
-        <tr><th class="text-muted">Apply on</th><td>{{ $rule->apply_on }}</td></tr>
-        <tr><th class="text-muted">File plan node</th><td>{{ $rule->fileplan_code ?? '?' }} — {{ $rule->fileplan_title ?? '?' }}</td></tr>
-        <tr><th class="text-muted">Disposal class</th><td>@if($rule->disposal_class_ref){{ $rule->disposal_class_ref }} — {{ $rule->disposal_class_title }}@else<em class="text-muted">inherit from node</em>@endif</td></tr>
-        @if($rule->description)<tr><th class="text-muted">Description</th><td><small>{!! nl2br(e($rule->description)) !!}</small></td></tr>@endif
-        <tr><th class="text-muted">Created</th><td><small>{{ $rule->created_at }}</small></td></tr>
+        <tr><th class="text-muted" style="width:30%">{{ __('Type') }}</th><td><span class="badge bg-secondary">{{ $rule->rule_type }}</span></td></tr>
+        <tr><th class="text-muted">{{ __('Pattern') }}</th><td><code>{{ $rule->match_pattern }}</code></td></tr>
+        <tr><th class="text-muted">{{ __('Priority') }}</th><td>{{ $rule->priority }}</td></tr>
+        <tr><th class="text-muted">{{ __('Apply on') }}</th><td>{{ $rule->apply_on }}</td></tr>
+        <tr><th class="text-muted">{{ __('File plan node') }}</th><td>{{ $rule->fileplan_code ?? '?' }} — {{ $rule->fileplan_title ?? '?' }}</td></tr>
+        <tr><th class="text-muted">{{ __('Disposal class') }}</th><td>@if($rule->disposal_class_ref){{ $rule->disposal_class_ref }} — {{ $rule->disposal_class_title }}@else<em class="text-muted">inherit from node</em>@endif</td></tr>
+        @if($rule->description)<tr><th class="text-muted">{{ __('Description') }}</th><td><small>{!! nl2br(e($rule->description)) !!}</small></td></tr>@endif
+        <tr><th class="text-muted">{{ __('Created') }}</th><td><small>{{ $rule->created_at }}</small></td></tr>
       </table>
     </div>
 
     <div class="card">
       <div class="card-header bg-light"><i class="fas fa-history me-1"></i> Recent matches ({{ $logCount }} total)</div>
       <table class="table table-sm mb-0">
-        <thead class="table-light"><tr><th>Record</th><th>Match detail</th><th>When</th></tr></thead>
+        <thead class="table-light"><tr><th>{{ __('Record') }}</th><th>{{ __('Match detail') }}</th><th>{{ __('When') }}</th></tr></thead>
         <tbody>
         @forelse($recent as $row)
           <tr>
@@ -81,7 +81,7 @@
           @csrf
           <div class="mb-2">
             <label class="form-label small mb-1">folder_path</label>
-            <input type="text" name="folder_path" class="form-control form-control-sm" value="{{ $tm['folder_path'] ?? '' }}" placeholder="/Projects/Bridge Construction">
+            <input type="text" name="folder_path" class="form-control form-control-sm" value="{{ $tm['folder_path'] ?? '' }}" placeholder="{{ __('/Projects/Bridge Construction') }}">
           </div>
           <div class="mb-2">
             <label class="form-label small mb-1">workspace</label>
@@ -93,7 +93,7 @@
           </div>
           <div class="mb-2">
             <label class="form-label small mb-1">mime_type</label>
-            <input type="text" name="mime_type" class="form-control form-control-sm" value="{{ $tm['mime_type'] ?? '' }}" placeholder="application/pdf">
+            <input type="text" name="mime_type" class="form-control form-control-sm" value="{{ $tm['mime_type'] ?? '' }}" placeholder="{{ __('application/pdf') }}">
           </div>
           <div class="mb-2">
             <label class="form-label small mb-1">tags (comma-separated)</label>

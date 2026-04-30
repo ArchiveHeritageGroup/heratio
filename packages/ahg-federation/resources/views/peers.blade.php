@@ -6,7 +6,7 @@
 <div class="container-fluid py-3">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb mb-1">
                     <li class="breadcrumb-item"><a href="{{ route('federation.index') }}">Federation</a></li>
                     <li class="breadcrumb-item active">Peers</li>
@@ -32,13 +32,13 @@
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Name</th>
-                                <th>Base URL</th>
-                                <th>Metadata Prefix</th>
-                                <th>Status</th>
-                                <th>Records</th>
-                                <th>Last Harvest</th>
-                                <th>Actions</th>
+                                <th>{{ __('Name') }}</th>
+                                <th>{{ __('Base URL') }}</th>
+                                <th>{{ __('Metadata Prefix') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Records') }}</th>
+                                <th>{{ __('Last Harvest') }}</th>
+                                <th>{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -60,7 +60,7 @@
                                         <a href="{{ route('federation.editPeer', $peer->id) }}" class="atom-btn-white btn-sm me-1">Edit</a>
                                         <form method="post" action="{{ route('federation.testPeer', $peer->id) }}" class="d-inline">
                                             @csrf
-                                            <button type="submit" class="atom-btn-white btn-sm">Test</button>
+                                            <button type="submit" class="atom-btn-white btn-sm">{{ __('Test') }}</button>
                                         </form>
                                     </td>
                                 </tr>

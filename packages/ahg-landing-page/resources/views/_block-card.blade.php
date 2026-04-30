@@ -16,13 +16,13 @@ $isColumnLayout = in_array($block->machine_name, ['row_1_col', 'row_2_col', 'row
               title="{{ $block->is_visible ? 'Hide' : 'Show' }}">
         <i class="bi {{ $block->is_visible ? 'bi-eye' : 'bi-eye-slash' }}"></i>
       </button>
-      <button type="button" class="btn btn-sm btn-outline-primary btn-edit" title="Edit">
+      <button type="button" class="btn btn-sm btn-outline-primary btn-edit" title="{{ __('Edit') }}">
         <i class="bi bi-pencil"></i>
       </button>
-      <button type="button" class="btn btn-sm btn-outline-secondary btn-duplicate" title="Duplicate">
+      <button type="button" class="btn btn-sm btn-outline-secondary btn-duplicate" title="{{ __('Duplicate') }}">
         <i class="bi bi-clipboard"></i>
       </button>
-      <button type="button" class="btn btn-sm btn-outline-danger btn-delete" title="Delete">
+      <button type="button" class="btn btn-sm btn-outline-danger btn-delete" title="{{ __('Delete') }}">
         <i class="bi bi-trash"></i>
       </button>
     </div>
@@ -57,9 +57,9 @@ $isColumnLayout = in_array($block->machine_name, ['row_1_col', 'row_2_col', 'row
                       <span class="drag-handle me-1" style="cursor: grab;"><i class="bi bi-grip-vertical"></i></span>
                       <span class="flex-grow-1 text-truncate">{{ $childBlock->title ?: $childBlock->type_label }}</span>
                       <button type="button" class="btn btn-link btn-sm p-0 px-1 btn-edit-nested text-primary"
-                              data-block-id="{{ $childBlock->id }}" title="Edit"><i class="bi bi-pencil"></i></button>
+                              data-block-id="{{ $childBlock->id }}" title="{{ __('Edit') }}"><i class="bi bi-pencil"></i></button>
                       <button type="button" class="btn btn-link btn-sm p-0 btn-delete-nested text-danger"
-                              data-block-id="{{ $childBlock->id }}" title="Delete"><i class="bi bi-trash"></i></button>
+                              data-block-id="{{ $childBlock->id }}" title="{{ __('Delete') }}"><i class="bi bi-trash"></i></button>
                     </div>
                   </div>
                 @endforeach

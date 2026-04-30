@@ -16,7 +16,7 @@
 
 @section('content')
 <div class="container-xxl">
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.dashboard') }}">ICIP</a></li>
       <li class="breadcrumb-item active">Communities</li>
@@ -38,22 +38,22 @@
     <div class="card-body">
       <form method="get" class="row g-3 align-items-end">
         <div class="col-md-3">
-          <label class="form-label">State/Territory</label>
+          <label class="form-label">{{ __('State/Territory') }}</label>
           <select name="state" class="form-select">
-            <option value="">All States</option>
+            <option value="">{{ __('All States') }}</option>
             @foreach($states as $code => $name)
               <option value="{{ $code }}" @selected(($filters['state'] ?? '') === $code)>{{ $name }}</option>
             @endforeach
           </select>
         </div>
         <div class="col-md-4">
-          <label class="form-label">Search</label>
-          <input type="text" name="search" class="form-control" placeholder="Name, language group, region..." value="{{ $filters['search'] ?? '' }}">
+          <label class="form-label">{{ __('Search') }}</label>
+          <input type="text" name="search" class="form-control" placeholder="{{ __('Name, language group, region...') }}" value="{{ $filters['search'] ?? '' }}">
         </div>
         <div class="col-md-2">
           <div class="form-check">
             <input type="checkbox" name="active_only" value="1" class="form-check-input" id="activeOnly" @checked(($filters['active_only'] ?? '1') === '1')>
-            <label class="form-check-label" for="activeOnly">Active only</label>
+            <label class="form-check-label" for="activeOnly">{{ __('Active only') }}</label>
           </div>
         </div>
         <div class="col-md-3">
@@ -78,13 +78,13 @@
           <table class="table table-hover mb-0">
             <thead class="table-light">
               <tr>
-                <th>Community Name</th>
-                <th>Language Group</th>
-                <th>Region</th>
-                <th>State</th>
-                <th>Contact</th>
-                <th>Status</th>
-                <th width="120">Actions</th>
+                <th>{{ __('Community Name') }}</th>
+                <th>{{ __('Language Group') }}</th>
+                <th>{{ __('Region') }}</th>
+                <th>{{ __('State') }}</th>
+                <th>{{ __('Contact') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th width="120">{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -120,9 +120,9 @@
                   </td>
                   <td>
                     <div class="btn-group btn-group-sm">
-                      <a href="{{ route('ahgicip.community-view', ['id' => $community->id]) }}" class="btn btn-outline-primary" title="View"><i class="bi bi-eye"></i></a>
-                      <a href="{{ route('ahgicip.community-edit', ['id' => $community->id]) }}" class="btn btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></a>
-                      <a href="{{ route('ahgicip.report-community', ['id' => $community->id]) }}" class="btn btn-outline-info" title="Report"><i class="bi bi-graph-up"></i></a>
+                      <a href="{{ route('ahgicip.community-view', ['id' => $community->id]) }}" class="btn btn-outline-primary" title="{{ __('View') }}"><i class="bi bi-eye"></i></a>
+                      <a href="{{ route('ahgicip.community-edit', ['id' => $community->id]) }}" class="btn btn-outline-secondary" title="{{ __('Edit') }}"><i class="bi bi-pencil"></i></a>
+                      <a href="{{ route('ahgicip.report-community', ['id' => $community->id]) }}" class="btn btn-outline-info" title="{{ __('Report') }}"><i class="bi bi-graph-up"></i></a>
                     </div>
                   </td>
                 </tr>

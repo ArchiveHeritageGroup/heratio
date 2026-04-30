@@ -104,12 +104,12 @@
               <table class="table table-hover mb-0">
                 <thead class="table-light">
                   <tr>
-                    <th>Title</th>
-                    <th>Source</th>
-                    <th>Items</th>
-                    <th>Files</th>
-                    <th>Status</th>
-                    <th>Updated</th>
+                    <th>{{ __('Title') }}</th>
+                    <th>{{ __('Source') }}</th>
+                    <th>{{ __('Items') }}</th>
+                    <th>{{ __('Files') }}</th>
+                    <th>{{ __('Status') }}</th>
+                    <th>{{ __('Updated') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -222,7 +222,7 @@
               </div>
               @if($col->item_count > 0)
               <a href="{{ route('researcher.submissions') }}"
-                 class="btn btn-sm btn-outline-success" title="Create submission from this collection">
+                 class="btn btn-sm btn-outline-success" title="{{ __('Create submission from this collection') }}">
                 <i class="bi bi-box-arrow-in-right"></i>
               </a>
               @endif

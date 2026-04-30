@@ -33,7 +33,7 @@
                         <label for="name" class="form-label">Schedule Name <span class="badge bg-danger ms-1">Required</span></label>
                         <input type="text" class="form-control" id="name" name="name" required
                                value="{{ old('name', $schedule->name ?? '') }}"
-                               placeholder="e.g., Daily Format Identification">
+                               placeholder="{{ __('e.g., Daily Format Identification') }}">
                     </div>
                     <div class="col-md-4 mb-3">
                         <label for="workflow_type" class="form-label">Workflow Type <span class="badge bg-danger ms-1">Required</span></label>
@@ -60,7 +60,7 @@
                   <div class="mb-3">
                     <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
                     <textarea class="form-control" id="description" name="description" rows="2"
-                              placeholder="Optional description of this schedule">{{ old('description', $schedule->description ?? '') }}</textarea>
+                              placeholder="{{ __('Optional description of this schedule') }}">{{ old('description', $schedule->description ?? '') }}</textarea>
                   </div>
 
                   <hr>
@@ -71,18 +71,18 @@
                         <label for="cron_expression" class="form-label">Cron Expression <span class="badge bg-danger ms-1">Required</span></label>
                         <input type="text" class="form-control font-monospace" id="cron_expression" name="cron_expression"
                                value="{{ old('cron_expression', $schedule->cron_expression ?? '0 2 * * *') }}"
-                               placeholder="0 2 * * *">
+                               placeholder="{{ __('0 2 * * *') }}">
                         <div class="form-text" id="cron_description">Daily at 02:00</div>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Quick Presets</label>
+                        <label class="form-label">{{ __('Quick Presets') }}</label>
                         <div class="d-flex flex-wrap gap-1">
                             <button type="button" class="btn btn-sm atom-btn-white cron-preset" data-cron="0 1 * * *">1:00 AM</button>
                             <button type="button" class="btn btn-sm atom-btn-white cron-preset" data-cron="0 2 * * *">2:00 AM</button>
                             <button type="button" class="btn btn-sm atom-btn-white cron-preset" data-cron="0 3 * * *">3:00 AM</button>
-                            <button type="button" class="btn btn-sm atom-btn-white cron-preset" data-cron="0 * * * *">Hourly</button>
-                            <button type="button" class="btn btn-sm atom-btn-white cron-preset" data-cron="0 4 * * 0">Sunday 4AM</button>
-                            <button type="button" class="btn btn-sm atom-btn-white cron-preset" data-cron="0 6 * * 6">Saturday 6AM</button>
+                            <button type="button" class="btn btn-sm atom-btn-white cron-preset" data-cron="0 * * * *">{{ __('Hourly') }}</button>
+                            <button type="button" class="btn btn-sm atom-btn-white cron-preset" data-cron="0 4 * * 0">{{ __('Sunday 4AM') }}</button>
+                            <button type="button" class="btn btn-sm atom-btn-white cron-preset" data-cron="0 6 * * 6">{{ __('Saturday 6AM') }}</button>
                         </div>
                     </div>
                   </div>
@@ -128,7 +128,7 @@
                         <label for="notify_email" class="form-label">Notification Email <span class="badge bg-secondary ms-1">Optional</span></label>
                         <input type="email" class="form-control" id="notify_email" name="notify_email"
                                value="{{ old('notify_email', $schedule->notify_email ?? '') }}"
-                               placeholder="admin@example.com">
+                               placeholder="{{ __('admin@example.com') }}">
                     </div>
                   </div>
 

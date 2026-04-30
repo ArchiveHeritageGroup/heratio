@@ -106,11 +106,11 @@
 
           {{-- Tab navigation --}}
           <ul class="nav nav-tabs mb-3" role="tablist">
-            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#adv-basic" type="button">Basic</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#adv-content" type="button">Content</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#adv-access" type="button">Access Points</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#adv-dates" type="button">Dates</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#adv-filters" type="button">Filters</button></li>
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#adv-basic" type="button">{{ __('Basic') }}</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#adv-content" type="button">{{ __('Content') }}</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#adv-access" type="button">{{ __('Access Points') }}</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#adv-dates" type="button">{{ __('Dates') }}</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#adv-filters" type="button">{{ __('Filters') }}</button></li>
           </ul>
 
           <div class="tab-content">
@@ -152,8 +152,8 @@
                 <div class="col-md-4">
                   <label class="form-label small fw-bold">Date matching <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="rangeType" class="form-select">
-                    <option value="inclusive" {{ ($params['rangeType'] ?? '') === 'inclusive' ? 'selected' : '' }}>Overlapping</option>
-                    <option value="exact" {{ ($params['rangeType'] ?? '') === 'exact' ? 'selected' : '' }}>Exact</option>
+                    <option value="inclusive" {{ ($params['rangeType'] ?? '') === 'inclusive' ? 'selected' : '' }}>{{ __('Overlapping') }}</option>
+                    <option value="exact" {{ ($params['rangeType'] ?? '') === 'exact' ? 'selected' : '' }}>{{ __('Exact') }}</option>
                   </select>
                 </div>
               </div>
@@ -172,7 +172,7 @@
                         <option value="{{ $fKey }}">{{ $fLabel }}</option>
                       @endforeach
                     </select>
-                    <input type="text" name="" class="form-control" value="" placeholder="Enter search term...">
+                    <input type="text" name="" class="form-control" value="" placeholder="{{ __('Enter search term...') }}">
                   </div>
                 </div>
                 <button type="button" class="btn btn-sm atom-btn-white mt-1" id="add-field-search-btn">
@@ -184,12 +184,12 @@
                 <div class="col-md-4">
                   <label class="form-label small fw-bold">Sector <span class="badge bg-warning ms-1">Recommended</span></label>
                   <select name="type" class="form-select" id="sector-filter-select">
-                    <option value="">All sectors</option>
-                    <option value="archive" {{ $currentType === 'archive' ? 'selected' : '' }}>Archive</option>
-                    <option value="library" {{ $currentType === 'library' ? 'selected' : '' }}>Library</option>
-                    <option value="museum" {{ $currentType === 'museum' ? 'selected' : '' }}>Museum</option>
-                    <option value="gallery" {{ $currentType === 'gallery' ? 'selected' : '' }}>Gallery</option>
-                    <option value="dam" {{ $currentType === 'dam' ? 'selected' : '' }}>Photos</option>
+                    <option value="">{{ __('All sectors') }}</option>
+                    <option value="archive" {{ $currentType === 'archive' ? 'selected' : '' }}>{{ __('Archive') }}</option>
+                    <option value="library" {{ $currentType === 'library' ? 'selected' : '' }}>{{ __('Library') }}</option>
+                    <option value="museum" {{ $currentType === 'museum' ? 'selected' : '' }}>{{ __('Museum') }}</option>
+                    <option value="gallery" {{ $currentType === 'gallery' ? 'selected' : '' }}>{{ __('Gallery') }}</option>
+                    <option value="dam" {{ $currentType === 'dam' ? 'selected' : '' }}>{{ __('Photos') }}</option>
                   </select>
                 </div>
                 <div class="col-md-4">
@@ -201,7 +201,7 @@
                         : collect($allLevelsArr);
                   @endphp
                   <select name="level" class="form-select" id="level-filter-select">
-                    <option value="">Any level</option>
+                    <option value="">{{ __('Any level') }}</option>
                     @foreach($activeLevels as $level)
                       @php $lid = is_array($level) ? $level['id'] : $level->id; $lname = is_array($level) ? $level['name'] : $level->name; @endphp
                       <option value="{{ $lid }}" {{ ($params['level'] ?? '') == $lid ? 'selected' : '' }}>{{ $lname }}</option>
@@ -211,7 +211,7 @@
                 <div class="col-md-4">
                   <label class="form-label small fw-bold">Repository <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="repo" id="repo-select">
-                    <option value="">Any repository</option>
+                    <option value="">{{ __('Any repository') }}</option>
                     @foreach($repositories as $repo)
                       <option value="{{ $repo->id }}" {{ ($params['repo'] ?? '') == $repo->id ? 'selected' : '' }}>{{ $repo->name }}</option>
                     @endforeach
@@ -220,9 +220,9 @@
                 <div class="col-md-4">
                   <label class="form-label small fw-bold">Digital objects <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="hasDigital" class="form-select">
-                    <option value="">Any</option>
-                    <option value="1" {{ ($params['hasDigital'] ?? '') === '1' ? 'selected' : '' }}>With digital objects</option>
-                    <option value="0" {{ ($params['hasDigital'] ?? '') === '0' ? 'selected' : '' }}>Without digital objects</option>
+                    <option value="">{{ __('Any') }}</option>
+                    <option value="1" {{ ($params['hasDigital'] ?? '') === '1' ? 'selected' : '' }}>{{ __('With digital objects') }}</option>
+                    <option value="0" {{ ($params['hasDigital'] ?? '') === '0' ? 'selected' : '' }}>{{ __('Without digital objects') }}</option>
                   </select>
                 </div>
                 <div class="col-12">
@@ -290,7 +290,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Save This Search</h5>
+        <h5 class="modal-title">{{ __('Save This Search') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -312,8 +312,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn atom-btn-outline-success" id="glam-save-search-btn">Save</button>
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+        <button type="button" class="btn atom-btn-outline-success" id="glam-save-search-btn">{{ __('Save') }}</button>
       </div>
     </div>
   </div>

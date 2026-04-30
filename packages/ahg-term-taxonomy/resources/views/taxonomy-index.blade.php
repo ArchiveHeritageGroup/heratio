@@ -4,14 +4,14 @@
 @section('body-class', 'browse taxonomy')
 
 @section('content')
-  <h1>List taxonomies</h1>
+  <h1>{{ __('List taxonomies') }}</h1>
 
   <div class="table-responsive mb-3">
     <table class="table table-bordered mb-0">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Note</th>
+          <th>{{ __('Name') }}</th>
+          <th>{{ __('Note') }}</th>
         </tr>
       </thead>
       <tbody>

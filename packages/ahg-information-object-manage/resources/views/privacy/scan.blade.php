@@ -8,7 +8,7 @@
   @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
       <i class="fas fa-exclamation-circle me-1"></i> {{ session('error') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
@@ -157,11 +157,11 @@
               <table class="table table-bordered table-hover mb-0">
                 <thead>
                   <tr>
-                    <th>Type</th>
-                    <th>Value</th>
-                    <th>Confidence</th>
-                    <th>Risk</th>
-                    <th>Source</th>
+                    <th>{{ __('Type') }}</th>
+                    <th>{{ __('Value') }}</th>
+                    <th>{{ __('Confidence') }}</th>
+                    <th>{{ __('Risk') }}</th>
+                    <th>{{ __('Source') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -237,8 +237,8 @@
             <table class="table table-bordered table-sm mb-0">
               <thead>
                 <tr>
-                  <th>Type</th>
-                  <th class="text-end">Count</th>
+                  <th>{{ __('Type') }}</th>
+                  <th class="text-end">{{ __('Count') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -306,7 +306,7 @@
         <div class="mb-3">
           <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
         </div>
-        <h5 class="text-success">No PII Detected</h5>
+        <h5 class="text-success">{{ __('No PII Detected') }}</h5>
         <p class="text-muted mb-3">
           No personally identifiable information was found in this record.
         </p>

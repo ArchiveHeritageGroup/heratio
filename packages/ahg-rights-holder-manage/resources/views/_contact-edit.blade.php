@@ -6,15 +6,15 @@
   - 15 fields per contact (matching contact_information + contact_information_i18n schema)
 --}}
 
-<h3 class="fs-6 mb-2">Related contact information</h3>
+<h3 class="fs-6 mb-2">{{ __('Related contact information') }}</h3>
 
 <div id="contact-table-editor">
   <div class="table-responsive">
     <table class="table table-bordered mb-0" id="contact-table">
       <thead class="table-light">
         <tr>
-          <th class="w-80">Contact person</th>
-          <th class="w-20">Primary</th>
+          <th class="w-80">{{ __('Contact person') }}</th>
+          <th class="w-20">{{ __('Primary') }}</th>
           <th><span class="visually-hidden">Actions</span></th>
         </tr>
       </thead>
@@ -92,21 +92,21 @@
               <button class="btn atom-btn-white active-primary text-wrap active"
                       id="pills-main-tab" data-bs-toggle="pill" data-bs-target="#pills-main"
                       type="button" role="tab" aria-controls="pills-main" aria-selected="true">
-                Main
+                {{ __('Main') }}
               </button>
             </li>
             <li class="nav-item" role="presentation">
               <button class="btn atom-btn-white active-primary text-wrap"
                       id="pills-phys-tab" data-bs-toggle="pill" data-bs-target="#pills-phys"
                       type="button" role="tab" aria-controls="pills-phys" aria-selected="false">
-                Physical location
+                {{ __('Physical location') }}
               </button>
             </li>
             <li class="nav-item" role="presentation">
               <button class="btn atom-btn-white active-primary text-wrap"
                       id="pills-other-tab" data-bs-toggle="pill" data-bs-target="#pills-other"
                       type="button" role="tab" aria-controls="pills-other" aria-selected="false">
-                Other details
+                {{ __('Other details') }}
               </button>
             </li>
           </ul>
@@ -119,7 +119,7 @@
                 <label for="modal-primaryContact" class="form-label">Primary contact <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="form-check">
                   <input type="checkbox" class="form-check-input" id="modal-primaryContact" value="1">
-                  <label class="form-check-label" for="modal-primaryContact">Yes</label>
+                  <label class="form-check-label" for="modal-primaryContact">{{ __('Yes') }}</label>
                 </div>
               </div>
               <div class="mb-3">
@@ -156,7 +156,7 @@
               </div>
               <div class="mb-3">
                 <label for="modal-countryCode" class="form-label">Country <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" class="form-control" id="modal-countryCode" placeholder="e.g. ZA, US, GB">
+                <input type="text" class="form-control" id="modal-countryCode" placeholder="{{ __('e.g. ZA, US, GB') }}">
               </div>
               <div class="mb-3">
                 <label for="modal-postalCode" class="form-label">Postal code <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -191,8 +191,8 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn atom-btn-outline-light" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn atom-btn-outline-success" id="contact-modal-submit">Submit</button>
+          <button type="button" class="btn atom-btn-outline-light" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="button" class="btn atom-btn-outline-success" id="contact-modal-submit">{{ __('Submit') }}</button>
         </div>
       </div>
     </div>

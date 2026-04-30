@@ -4,7 +4,7 @@
 @section('body-class', 'museum-reports objects')
 @section('sidebar')
 <div class="sidebar-content">
-  <h4>Museum Reports</h4>
+  <h4>{{ __('Museum Reports') }}</h4>
   <ul class="list-unstyled">
     <li><a href="{{ route('museum.report-objects') }}"><i class="fas fa-cube me-2"></i>Objects</a></li>
     <li><a href="{{ route('museum.report-creators') }}"><i class="fas fa-user-edit me-2"></i>Creators</a></li>
@@ -22,7 +22,7 @@
 <div class="alert alert-info"><strong>{{ count($objects) }}</strong> objects found</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
-    <thead class="table-dark"><tr><th>Title</th><th>Work Type</th><th>Classification</th><th>Materials</th><th>Condition</th></tr></thead>
+    <thead class="table-dark"><tr><th>{{ __('Title') }}</th><th>{{ __('Work Type') }}</th><th>{{ __('Classification') }}</th><th>{{ __('Materials') }}</th><th>{{ __('Condition') }}</th></tr></thead>
     <tbody>
       @forelse($objects as $o)
       <tr>

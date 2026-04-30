@@ -18,7 +18,7 @@
 <div class="container-fluid py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb mb-1">
           <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
           <li class="breadcrumb-item"><a href="{{ route('donor.browse') }}">{{ __('Donor Dashboard') }}</a></li>

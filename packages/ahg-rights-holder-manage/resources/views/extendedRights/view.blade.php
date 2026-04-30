@@ -36,7 +36,7 @@
       {{-- Rights Statement --}}
       @if($primary->rightsStatement ?? null)
         <div class="field mb-3">
-          <h5>Rights Statement</h5>
+          <h5>{{ __('Rights Statement') }}</h5>
           <div class="d-flex align-items-start">
             @if($primary->rightsStatement->icon_url ?? null)
               <img src="{{ $primary->rightsStatement->icon_url }}" alt="" class="me-3" style="width:88px;">
@@ -55,7 +55,7 @@
       {{-- Creative Commons --}}
       @if($primary->creativeCommonsLicense ?? null)
         <div class="field mb-3">
-          <h5>License</h5>
+          <h5>{{ __('License') }}</h5>
           <div class="d-flex align-items-center">
             @if($primary->creativeCommonsLicense->badge_html ?? null)
               {!! $primary->creativeCommonsLicense->badge_html !!}
@@ -73,7 +73,7 @@
       {{-- TK Labels --}}
       @if(($primary->tkLabels ?? null) && count($primary->tkLabels) > 0)
         <div class="field mb-3">
-          <h5>Traditional Knowledge Labels</h5>
+          <h5>{{ __('Traditional Knowledge Labels') }}</h5>
           <div class="tk-labels-grid">
             @foreach($primary->tkLabels as $label)
               <div class="tk-label-item d-flex align-items-start mb-2">
@@ -93,7 +93,7 @@
       {{-- Rights Holder --}}
       @if($primary->rights_holder ?? null)
         <div class="field mb-3">
-          <h5>Rights Holder</h5>
+          <h5>{{ __('Rights Holder') }}</h5>
           @if($primary->rights_holder_uri ?? null)
             <a href="{{ $primary->rights_holder_uri }}" target="_blank">{{ $primary->rights_holder }}</a>
           @else
@@ -104,12 +104,12 @@
 
       {{-- Copyright Notice --}}
       @if($primary->copyright_notice ?? null)
-        <div class="field mb-3"><h5>Copyright Notice</h5><p>{{ $primary->copyright_notice }}</p></div>
+        <div class="field mb-3"><h5>{{ __('Copyright Notice') }}</h5><p>{{ $primary->copyright_notice }}</p></div>
       @endif
 
       {{-- Usage Notes --}}
       @if($primary->rights_note ?? null)
-        <div class="field mb-3"><h5>Usage Notes</h5><p>{!! nl2br(e($primary->rights_note)) !!}</p></div>
+        <div class="field mb-3"><h5>{{ __('Usage Notes') }}</h5><p>{!! nl2br(e($primary->rights_note)) !!}</p></div>
       @endif
     @endif
   </div>

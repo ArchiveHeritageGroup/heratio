@@ -44,9 +44,9 @@
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">RiC Entity Type</th><td><code>rico:Function</code></td></tr>
-        @if($function->classification ?? null)<tr><th class="text-muted">Classification</th><td>{{ $function->classification }}</td></tr>@endif
-        @if($function->description ?? null)<tr><th class="text-muted">Description</th><td>{{ \Illuminate\Support\Str::limit(strip_tags($function->description), 200) }}</td></tr>@endif
+        <tr><th class="text-muted" style="width:35%">{{ __('RiC Entity Type') }}</th><td><code>rico:Function</code></td></tr>
+        @if($function->classification ?? null)<tr><th class="text-muted">{{ __('Classification') }}</th><td>{{ $function->classification }}</td></tr>@endif
+        @if($function->description ?? null)<tr><th class="text-muted">{{ __('Description') }}</th><td>{{ \Illuminate\Support\Str::limit(strip_tags($function->description), 200) }}</td></tr>@endif
       </table>
     </div>
   </div>

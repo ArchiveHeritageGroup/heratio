@@ -15,7 +15,7 @@
 {{-- Search --}}
 <form method="get" class="mb-3">
     <div class="input-group input-group-sm" style="max-width:400px">
-        <input type="text" name="search" class="form-control" placeholder="Search activities..." value="{{ $params['search'] ?? '' }}">
+        <input type="text" name="search" class="form-control" placeholder="{{ __('Search activities...') }}" value="{{ $params['search'] ?? '' }}">
         <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
     </div>
 </form>
@@ -23,11 +23,11 @@
 <table class="table table-sm table-striped table-hover">
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Created</th>
+            <th>{{ __('Name') }}</th>
+            <th>{{ __('Type') }}</th>
+            <th>{{ __('Start Date') }}</th>
+            <th>{{ __('End Date') }}</th>
+            <th>{{ __('Created') }}</th>
         </tr>
     </thead>
     <tbody>

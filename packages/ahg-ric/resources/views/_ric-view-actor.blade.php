@@ -83,12 +83,12 @@
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">RiC Entity Type</th><td><code>rico:{{ $ricAgentType }}</code></td></tr>
+        <tr><th class="text-muted" style="width:35%">{{ __('RiC Entity Type') }}</th><td><code>rico:{{ $ricAgentType }}</code></td></tr>
         @if($actor->dates_of_existence ?? null)
-          <tr><th class="text-muted">Dates of existence</th><td>{{ $actor->dates_of_existence }}</td></tr>
+          <tr><th class="text-muted">{{ __('Dates of existence') }}</th><td>{{ $actor->dates_of_existence }}</td></tr>
         @endif
         @if($actor->history ?? null)
-          <tr><th class="text-muted">History</th><td>{{ \Illuminate\Support\Str::limit(strip_tags($actor->history), 300) }}</td></tr>
+          <tr><th class="text-muted">{{ __('History') }}</th><td>{{ \Illuminate\Support\Str::limit(strip_tags($actor->history), 300) }}</td></tr>
         @endif
       </table>
     </div>

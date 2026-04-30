@@ -129,7 +129,7 @@
             <div>
               <strong>{{ $label->name ?? '' }}</strong>
               @if($label->verified ?? false)
-                <i class="fas fa-check-circle text-success ms-1" title="Verified"></i>
+                <i class="fas fa-check-circle text-success ms-1" title="{{ __('Verified') }}"></i>
               @endif
               <br>
               <small class="text-muted">{{ $label->description ?? '' }}</small>
@@ -163,10 +163,10 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th>Basis</th>
-              <th>Rights Statement / License</th>
-              <th>Status</th>
-              <th>Dates</th>
+              <th>{{ __('Basis') }}</th>
+              <th>{{ __('Rights Statement / License') }}</th>
+              <th>{{ __('Status') }}</th>
+              <th>{{ __('Dates') }}</th>
               <th></th>
             </tr>
           </thead>
@@ -216,13 +216,13 @@
               <td>
                 @auth
                 <div class="btn-group btn-group-sm">
-                  <a href="{{ route('ext-rights.edit', [$resource->slug, $right->id]) }}" class="btn btn-outline-secondary" title="Edit">
+                  <a href="{{ route('ext-rights.edit', [$resource->slug, $right->id]) }}" class="btn btn-outline-secondary" title="{{ __('Edit') }}">
                     <i class="fas fa-edit"></i>
                   </a>
                   <form action="{{ route('ext-rights.delete', [$resource->slug, $right->id]) }}" method="post"
                         onsubmit="return confirm('Delete this rights record?');" class="d-inline">
                     @csrf
-                    <button type="submit" class="btn btn-outline-danger" title="Delete">
+                    <button type="submit" class="btn btn-outline-danger" title="{{ __('Delete') }}">
                       <i class="fas fa-trash"></i>
                     </button>
                   </form>

@@ -5,7 +5,7 @@
 
 @section('content')
   {{-- Breadcrumb --}}
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('researcher.dashboard') }}">Researcher</a></li>
       <li class="breadcrumb-item active" aria-current="page">Import Exchange</li>
@@ -15,7 +15,7 @@
   <div class="d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-file-import me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Import Exchange</h1>
+      <h1 class="mb-0">{{ __('Import Exchange') }}</h1>
       <span class="small text-muted">Import data from an exchange JSON file</span>
     </div>
   </div>
@@ -89,7 +89,7 @@
     <div class="col-lg-8">
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0">Upload Exchange File</h5>
+          <h5 class="mb-0">{{ __('Upload Exchange File') }}</h5>
         </div>
         <div class="card-body">
           <div class="alert alert-info mb-3">
@@ -118,7 +118,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="repository_id" class="form-label fw-bold">Target Repository (optional)</label>
+              <label for="repository_id" class="form-label fw-bold">{{ __('Target Repository (optional)') }}</label>
               <select class="form-select @error('repository_id') is-invalid @enderror"
                       id="repository_id"
                       name="repository_id">

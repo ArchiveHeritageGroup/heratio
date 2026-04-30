@@ -11,7 +11,7 @@
       </button>
       <button type="button" class="btn btn-light btn-sm ric-view-btn active" data-view="2d">2D</button>
       <button type="button" class="btn btn-outline-light btn-sm ric-view-btn" data-view="3d">3D</button>
-      <button type="button" class="btn btn-outline-light btn-sm" id="ric-fullscreen-btn" title="Fullscreen">
+      <button type="button" class="btn btn-outline-light btn-sm" id="ric-fullscreen-btn" title="{{ __('Fullscreen') }}">
         <i class="fas fa-expand"></i>
       </button>
     </div>

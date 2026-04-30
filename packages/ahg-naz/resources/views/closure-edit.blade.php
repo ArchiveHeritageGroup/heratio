@@ -18,7 +18,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.closures') }}">Closures</a></li>
@@ -37,7 +37,7 @@
         @csrf
         <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Closure Details</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Closure Details') }}</h5></div>
                 <div class="card-body">
                     <dl class="row">
                         <dt class="col-sm-4">Record</dt>
@@ -45,7 +45,7 @@
                     </dl>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Closure Type</label>
+                            <label class="form-label">{{ __('Closure Type') }}</label>
                             <select name="closure_type" class="form-select">
                                 <option value="standard" @if(($closure->closure_type ?? '') === 'standard') selected @endif>Standard</option>
                                 <option value="extended" @if(($closure->closure_type ?? '') === 'extended') selected @endif>Extended</option>
@@ -54,7 +54,7 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Status</label>
+                            <label class="form-label">{{ __('Status') }}</label>
                             <select name="status" class="form-select">
                                 <option value="active" @if(($closure->status ?? '') === 'active') selected @endif>Active</option>
                                 <option value="expired" @if(($closure->status ?? '') === 'expired') selected @endif>Expired</option>
@@ -63,19 +63,19 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">End Date</label>
+                            <label class="form-label">{{ __('End Date') }}</label>
                             <input type="date" name="end_date" class="form-control" value="{{ $closure->end_date ?? '' }}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Review Date</label>
+                            <label class="form-label">{{ __('Review Date') }}</label>
                             <input type="date" name="review_date" class="form-control" value="{{ $closure->review_date ?? '' }}">
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Closure Reason</label>
+                            <label class="form-label">{{ __('Closure Reason') }}</label>
                             <textarea name="closure_reason" class="form-control" rows="3">{{ $closure->closure_reason ?? '' }}</textarea>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Release Notes</label>
+                            <label class="form-label">{{ __('Release Notes') }}</label>
                             <textarea name="release_notes" class="form-control" rows="2">{{ $closure->release_notes ?? '' }}</textarea>
                         </div>
                     </div>

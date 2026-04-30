@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Permissions</h1>
+  <h1>{{ __('Permissions') }}</h1>
 @endsection
 
 @section('content')
@@ -20,7 +20,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="permissions-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#permissions-collapse" aria-expanded="false" aria-controls="permissions-collapse">
-              PREMIS access permissions
+              {{ __('PREMIS access permissions') }}
             </button>
           </h2>
           <div id="permissions-collapse" class="accordion-collapse collapse" aria-labelledby="permissions-heading">
@@ -34,7 +34,7 @@
                 </select>
               </div>
 
-              <h3 class="fs-6 mb-2">Permissions</h3>
+              <h3 class="fs-6 mb-2">{{ __('Permissions') }}</h3>
 
               <div class="table-responsive mb-3">
                 <table class="table table-bordered mb-0">
@@ -43,10 +43,10 @@
                   <colgroup span="3"></colgroup>
                   <colgroup span="3"></colgroup>
                   <tr>
-                    <th rowspan="2" scope="colgroup" class="text-center">Basis</th>
-                    <th colspan="3" scope="colgroup" class="text-center">Allow</th>
-                    <th colspan="3" scope="colgroup" class="text-center">Conditional</th>
-                    <th colspan="3" scope="colgroup" class="text-center">Disallow</th>
+                    <th rowspan="2" scope="colgroup" class="text-center">{{ __('Basis') }}</th>
+                    <th colspan="3" scope="colgroup" class="text-center">{{ __('Allow') }}</th>
+                    <th colspan="3" scope="colgroup" class="text-center">{{ __('Conditional') }}</th>
+                    <th colspan="3" scope="colgroup" class="text-center">{{ __('Disallow') }}</th>
                   </tr>
                   <tr>
                     <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Master</span></th>
@@ -75,7 +75,7 @@
               </div>
 
               <div class="text-end">
-                <div class="btn-group" role="group" aria-label="Permission toggles">
+                <div class="btn-group" role="group" aria-label="{{ __('Permission toggles') }}">
                   <button type="button" class="btn btn-sm atom-btn-white" onclick="document.querySelectorAll('#permissions-collapse input[type=radio]').forEach(r=>r.checked=true)">All</button>
                   <button type="button" class="btn btn-sm atom-btn-white" onclick="document.querySelectorAll('#permissions-collapse input[type=radio]').forEach(r=>r.checked=false)">None</button>
                 </div>
@@ -88,7 +88,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="statements-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#statements-collapse" aria-expanded="false" aria-controls="statements-collapse">
-              PREMIS access statements
+              {{ __('PREMIS access statements') }}
             </button>
           </h2>
           <div id="statements-collapse" class="accordion-collapse collapse" aria-labelledby="statements-heading">
@@ -140,7 +140,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="copyright-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#copyright-collapse" aria-expanded="false" aria-controls="copyright-collapse">
-              Copyright statement
+              {{ __('Copyright statement') }}
             </button>
           </h2>
           <div id="copyright-collapse" class="accordion-collapse collapse" aria-labelledby="copyright-heading">
@@ -189,7 +189,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="preservation-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#preservation-collapse" aria-expanded="false" aria-controls="preservation-collapse">
-              Preservation system access statement
+              {{ __('Preservation system access statement') }}
             </button>
           </h2>
           <div id="preservation-collapse" class="accordion-collapse collapse" aria-labelledby="preservation-heading">

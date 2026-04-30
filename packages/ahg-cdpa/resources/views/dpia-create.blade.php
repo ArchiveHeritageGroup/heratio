@@ -18,7 +18,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.index') }}">CDPA</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.dpia') }}">DPIA</a></li>
@@ -33,7 +33,7 @@
         @csrf
         <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Assessment Details</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Assessment Details') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
@@ -41,9 +41,9 @@
                             <input type="text" name="name" class="form-control" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Related Processing Activity</label>
+                            <label class="form-label">{{ __('Related Processing Activity') }}</label>
                             <select name="processing_activity_id" class="form-select">
-                                <option value="">None / New Activity</option>
+                                <option value="">{{ __('None / New Activity') }}</option>
                                 @foreach(($activities ?? []) as $a)
                                     <option value="{{ $a->id }}">{{ $a->name }}</option>
                                 @endforeach
@@ -59,30 +59,30 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label">Description <span class="text-danger">*</span></label>
-                            <textarea name="description" class="form-control" rows="4" required placeholder="Describe the processing activity and why a DPIA is needed..."></textarea>
+                            <textarea name="description" class="form-control" rows="4" required placeholder="{{ __('Describe the processing activity and why a DPIA is needed...') }}"></textarea>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Necessity & Proportionality</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Necessity & Proportionality') }}</h5></div>
                 <div class="card-body">
                     <label class="form-label">Assessment of necessity and proportionality <span class="text-danger">*</span></label>
-                    <textarea name="necessity_assessment" class="form-control" rows="4" required placeholder="Why is this processing necessary? Is it proportionate to the purpose?"></textarea>
+                    <textarea name="necessity_assessment" class="form-control" rows="4" required placeholder="{{ __('Why is this processing necessary? Is it proportionate to the purpose?') }}"></textarea>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Risk Assessment</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Risk Assessment') }}</h5></div>
                 <div class="card-body">
                     <label class="form-label">Overall Risk Level <span class="text-danger">*</span></label>
                     <select name="risk_level" class="form-select" required>
-                        <option value="">Select...</option>
-                        <option value="low">Low - Minimal impact on data subjects</option>
-                        <option value="medium">Medium - Moderate impact, manageable with controls</option>
-                        <option value="high">High - Significant impact, requires strong controls</option>
-                        <option value="critical">Critical - Severe impact, may require regulator consultation</option>
+                        <option value="">{{ __('Select...') }}</option>
+                        <option value="low">{{ __('Low - Minimal impact on data subjects') }}</option>
+                        <option value="medium">{{ __('Medium - Moderate impact, manageable with controls') }}</option>
+                        <option value="high">{{ __('High - Significant impact, requires strong controls') }}</option>
+                        <option value="critical">{{ __('Critical - Severe impact, may require regulator consultation') }}</option>
                     </select>
                 </div>
             </div>

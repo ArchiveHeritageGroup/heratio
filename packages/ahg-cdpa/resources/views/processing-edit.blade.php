@@ -18,7 +18,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.index') }}">CDPA</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.processing') }}">Processing</a></li>
@@ -33,7 +33,7 @@
         @csrf
         <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Activity Details</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Activity Details') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-8">
@@ -41,9 +41,9 @@
                             <input type="text" name="name" class="form-control" value="{{ $activity->name ?? '' }}" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Category</label>
+                            <label class="form-label">{{ __('Category') }}</label>
                             <select name="category" class="form-select">
-                                <option value="">Select...</option>
+                                <option value="">{{ __('Select...') }}</option>
                                 <option value="hr" {{ ($activity->category ?? '') === 'hr' ? 'selected' : '' }}>HR/Employment</option>
                                 <option value="customer" {{ ($activity->category ?? '') === 'customer' ? 'selected' : '' }}>Customer Data</option>
                                 <option value="marketing" {{ ($activity->category ?? '') === 'marketing' ? 'selected' : '' }}>Marketing</option>
@@ -54,7 +54,7 @@
                             </select>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Data Types Processed</label>
+                            <label class="form-label">{{ __('Data Types Processed') }}</label>
                             <input type="text" name="data_types" class="form-control" value="{{ $activity->data_types ?? '' }}">
                         </div>
                         <div class="col-12">
@@ -64,7 +64,7 @@
                         <div class="col-md-6">
                             <label class="form-label">Legal Basis <span class="text-danger">*</span></label>
                             <select name="legal_basis" class="form-select" required>
-                                <option value="">Select...</option>
+                                <option value="">{{ __('Select...') }}</option>
                                 <option value="consent" {{ ($activity->legal_basis ?? '') === 'consent' ? 'selected' : '' }}>Consent</option>
                                 <option value="contract" {{ ($activity->legal_basis ?? '') === 'contract' ? 'selected' : '' }}>Contractual Necessity</option>
                                 <option value="legal_obligation" {{ ($activity->legal_basis ?? '') === 'legal_obligation' ? 'selected' : '' }}>Legal Obligation</option>
@@ -74,7 +74,7 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Retention Period</label>
+                            <label class="form-label">{{ __('Retention Period') }}</label>
                             <input type="text" name="retention_period" class="form-control" value="{{ $activity->retention_period ?? '' }}">
                         </div>
                     </div>
@@ -82,15 +82,15 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Storage & Security</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Storage & Security') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Storage Location</label>
+                            <label class="form-label">{{ __('Storage Location') }}</label>
                             <input type="text" name="storage_location" class="form-control" value="{{ $activity->storage_location ?? '' }}">
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Security Safeguards</label>
+                            <label class="form-label">{{ __('Security Safeguards') }}</label>
                             <textarea name="safeguards" class="form-control" rows="2">{{ $activity->safeguards ?? '' }}</textarea>
                         </div>
                     </div>
@@ -98,25 +98,25 @@
             </div>
 
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Special Categories</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Special Categories') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-4">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="cross_border" id="cross_border" {{ ($activity->cross_border ?? false) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="cross_border">Cross-border transfer</label>
+                                <label class="form-check-label" for="cross_border">{{ __('Cross-border transfer') }}</label>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="children_data" id="children_data" {{ ($activity->children_data ?? false) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="children_data">Children's data</label>
+                                <label class="form-check-label" for="children_data">{{ __("Children's data") }}</label>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="biometric_data" id="biometric_data" {{ ($activity->biometric_data ?? false) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="biometric_data">Biometric data</label>
+                                <label class="form-check-label" for="biometric_data">{{ __('Biometric data') }}</label>
                             </div>
                         </div>
                     </div>

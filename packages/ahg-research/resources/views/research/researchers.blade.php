@@ -63,13 +63,13 @@
         <div class="col-md-6">
           <form method="get" action="{{ route('research.researchers') }}" class="d-flex gap-2">
             <select name="filter" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
-              <option value="all">All Status</option>
-              <option value="pending" {{ $cs === 'pending' ? 'selected' : '' }}>Pending</option>
-              <option value="approved" {{ $cs === 'approved' ? 'selected' : '' }}>Approved</option>
-              <option value="suspended" {{ $cs === 'suspended' ? 'selected' : '' }}>Suspended</option>
-              <option value="rejected" {{ $cs === 'rejected' ? 'selected' : '' }}>Rejected</option>
+              <option value="all">{{ __('All Status') }}</option>
+              <option value="pending" {{ $cs === 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+              <option value="approved" {{ $cs === 'approved' ? 'selected' : '' }}>{{ __('Approved') }}</option>
+              <option value="suspended" {{ $cs === 'suspended' ? 'selected' : '' }}>{{ __('Suspended') }}</option>
+              <option value="rejected" {{ $cs === 'rejected' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
             </select>
-            <input type="text" name="q" class="form-control form-control-sm" placeholder="Search..." value="{{ e($query ?? '') }}" style="width: 200px;">
+            <input type="text" name="q" class="form-control form-control-sm" placeholder="{{ __('Search...') }}" value="{{ e($query ?? '') }}" style="width: 200px;">
             <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-search"></i></button>
           </form>
         </div>
@@ -84,11 +84,11 @@
       <table class="table table-hover mb-0">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Institution</th>
-            <th>Status</th>
-            <th>Registered</th>
+            <th>{{ __('Name') }}</th>
+            <th>{{ __('Email') }}</th>
+            <th>{{ __('Institution') }}</th>
+            <th>{{ __('Status') }}</th>
+            <th>{{ __('Registered') }}</th>
             <th width="100"></th>
           </tr>
         </thead>
@@ -114,7 +114,7 @@
                 @if(($r->status ?? '') === 'pending')
                   <form action="{{ route('research.researchers.approve', $r->id) }}" method="POST" class="d-inline">
                     @csrf
-                    <button type="submit" class="btn btn-sm btn-outline-success" title="Approve">
+                    <button type="submit" class="btn btn-sm btn-outline-success" title="{{ __('Approve') }}">
                       <i class="fas fa-check"></i>
                     </button>
                   </form>

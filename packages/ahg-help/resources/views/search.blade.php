@@ -10,7 +10,7 @@
   </div>
 
   <div class="col-lg-9 col-md-8">
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('help.index') }}">Help Center</a></li>
         <li class="breadcrumb-item active">Search Results</li>
@@ -19,7 +19,7 @@
 
     <form action="{{ route('help.search') }}" method="get" class="mb-4">
       <div class="input-group input-group-lg">
-        <input type="text" name="q" class="form-control" value="{{ $query }}" placeholder="Search help articles..." autocomplete="off">
+        <input type="text" name="q" class="form-control" value="{{ $query }}" placeholder="{{ __('Search help articles...') }}" autocomplete="off">
         <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-search me-1"></i> Search</button>
       </div>
     </form>

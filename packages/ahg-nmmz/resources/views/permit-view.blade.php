@@ -22,7 +22,7 @@
 <div class="container-fluid">
   <div class="row mb-4">
     <div class="col">
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
           <li class="breadcrumb-item"><a href="{{ route('nmmz.permits') }}">Export Permits</a></li>
@@ -41,7 +41,7 @@
   <div class="row">
     <div class="col-lg-8">
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Applicant Information</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Applicant Information') }}</h5></div>
         <div class="card-body">
           <dl class="row mb-0">
             <dt class="col-sm-4">Applicant Name</dt>
@@ -63,7 +63,7 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Object Details</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Object Details') }}</h5></div>
         <div class="card-body">
           <dl class="row mb-0">
             @if($permit->antiquity_id)
@@ -86,7 +86,7 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Export Details</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Export Details') }}</h5></div>
         <div class="card-body">
           <dl class="row mb-0">
             <dt class="col-sm-4">Export Purpose</dt>
@@ -112,14 +112,14 @@
 
       @if($permit->status === 'approved' && !empty($permit->approval_conditions))
         <div class="card mb-4">
-          <div class="card-header bg-success text-white"><h5 class="mb-0">Approval Conditions</h5></div>
+          <div class="card-header bg-success text-white"><h5 class="mb-0">{{ __('Approval Conditions') }}</h5></div>
           <div class="card-body">{!! nl2br(e($permit->approval_conditions)) !!}</div>
         </div>
       @endif
 
       @if($permit->status === 'rejected' && !empty($permit->rejection_reason))
         <div class="card mb-4">
-          <div class="card-header bg-danger text-white"><h5 class="mb-0">Rejection Reason</h5></div>
+          <div class="card-header bg-danger text-white"><h5 class="mb-0">{{ __('Rejection Reason') }}</h5></div>
           <div class="card-body">{!! nl2br(e($permit->rejection_reason)) !!}</div>
         </div>
       @endif
@@ -127,7 +127,7 @@
 
     <div class="col-lg-4">
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Status</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Status') }}</h5></div>
         <div class="card-body text-center">
           <span class="badge bg-{{ $color }} fs-5 px-4 py-2">{{ ucfirst($permit->status ?? 'Pending') }}</span>
         </div>
@@ -135,12 +135,12 @@
 
       @if($permit->status === 'pending')
         <div class="card mb-4">
-          <div class="card-header"><h5 class="mb-0">Review Actions</h5></div>
+          <div class="card-header"><h5 class="mb-0">{{ __('Review Actions') }}</h5></div>
           <div class="card-body">
             <form method="post">
               @csrf
               <div class="mb-3">
-                <label class="form-label">Conditions (if approving)</label>
+                <label class="form-label">{{ __('Conditions (if approving)') }}</label>
                 <textarea name="conditions" class="form-control" rows="3"></textarea>
               </div>
               <button type="submit" name="action_type" value="approve" class="btn btn-success w-100 mb-2">
@@ -150,7 +150,7 @@
               <hr>
 
               <div class="mb-3">
-                <label class="form-label">Rejection Reason</label>
+                <label class="form-label">{{ __('Rejection Reason') }}</label>
                 <textarea name="rejection_reason" class="form-control" rows="3"></textarea>
               </div>
               <button type="submit" name="action_type" value="reject" class="btn btn-danger w-100">
@@ -162,7 +162,7 @@
       @endif
 
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">Record Info</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Record Info') }}</h5></div>
         <div class="card-body">
           <small class="text-muted">
             <p class="mb-1"><strong>Applied:</strong> {{ $permit->created_at ? \Carbon\Carbon::parse($permit->created_at)->format('j M Y H:i') : '-' }}</p>

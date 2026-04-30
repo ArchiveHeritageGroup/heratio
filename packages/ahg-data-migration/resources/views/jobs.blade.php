@@ -7,12 +7,12 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-tasks me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Migration Jobs</h1>
+      <h1 class="mb-0">{{ __('Migration Jobs') }}</h1>
       <span class="small text-muted">Track import and export operations</span>
     </div>
   </div>
 
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
       <li class="breadcrumb-item active">Jobs</li>
@@ -35,17 +35,17 @@
           <table class="table table-bordered table-striped mb-0">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Target</th>
-                <th>Status</th>
-                <th>Progress</th>
-                <th>Imported</th>
-                <th>Updated</th>
-                <th>Skipped</th>
-                <th>Errors</th>
-                <th>Created</th>
-                <th>Completed</th>
+                <th>{{ __('ID') }}</th>
+                <th>{{ __('Name') }}</th>
+                <th>{{ __('Target') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Progress') }}</th>
+                <th>{{ __('Imported') }}</th>
+                <th>{{ __('Updated') }}</th>
+                <th>{{ __('Skipped') }}</th>
+                <th>{{ __('Errors') }}</th>
+                <th>{{ __('Created') }}</th>
+                <th>{{ __('Completed') }}</th>
               </tr>
             </thead>
             <tbody>

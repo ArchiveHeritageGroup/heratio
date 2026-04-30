@@ -6,7 +6,7 @@
 <div class="container-fluid py-3">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb mb-1">
                     <li class="breadcrumb-item"><a href="{{ route('federation.index') }}">Federation</a></li>
                     <li class="breadcrumb-item active">Harvest Logs</li>
@@ -22,14 +22,14 @@
                 <div class="col-auto">
                     <label for="peer_id" class="form-label">Filter by Peer <span class="badge bg-secondary ms-1">Optional</span></label>
                     <select class="form-select" id="peer_id" name="peer_id">
-                        <option value="">All peers</option>
+                        <option value="">{{ __('All peers') }}</option>
                         @foreach($peers as $peer)
                             <option value="{{ $peer->id }}" {{ ($peerId ?? '') == $peer->id ? 'selected' : '' }}>{{ $peer->name }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="atom-btn-white">Filter</button>
+                    <button type="submit" class="atom-btn-white">{{ __('Filter') }}</button>
                 </div>
             </form>
         </div>
@@ -44,13 +44,13 @@
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>ID</th>
-                                <th>Peer</th>
-                                <th>Started</th>
-                                <th>Completed</th>
-                                <th>Status</th>
-                                <th>Records</th>
-                                <th>Errors</th>
+                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Peer') }}</th>
+                                <th>{{ __('Started') }}</th>
+                                <th>{{ __('Completed') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Records') }}</th>
+                                <th>{{ __('Errors') }}</th>
                             </tr>
                         </thead>
                         <tbody>

@@ -29,9 +29,9 @@
     $validCount = $stats['valid'] ?? 0;
 @endphp
 
-<h1>Validation Report</h1>
+<h1>{{ __('Validation Report') }}</h1>
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">Ingestion Manager</a></li>
         <li class="breadcrumb-item">{{ $session->title ?? ('Session #' . ($session->id ?? '')) }}</li>
@@ -101,11 +101,11 @@
             <table class="table table-sm table-hover mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th style="width: 8%">Row</th>
-                        <th style="width: 10%">Severity</th>
-                        <th style="width: 15%">Field</th>
-                        <th>Message</th>
-                        <th style="width: 20%">Actions</th>
+                        <th style="width: 8%">{{ __('Row') }}</th>
+                        <th style="width: 10%">{{ __('Severity') }}</th>
+                        <th style="width: 15%">{{ __('Field') }}</th>
+                        <th>{{ __('Message') }}</th>
+                        <th style="width: 20%">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -165,7 +165,7 @@
                 <input type="hidden" name="row_number" id="fix_row_number">
                 <input type="hidden" name="field_name" id="fix_field_name">
                 <div class="modal-header">
-                    <h5 class="modal-title">Fix Field Value</h5>
+                    <h5 class="modal-title">{{ __('Fix Field Value') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -176,13 +176,13 @@
                         <label class="form-label">Field: <code id="fix_field_label"></code></label>
                     </div>
                     <div class="mb-3">
-                        <label for="fix_value" class="form-label">New value</label>
+                        <label for="fix_value" class="form-label">{{ __('New value') }}</label>
                         <input type="text" class="form-control" id="fix_value" name="field_value" required>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Apply Fix</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ __('Apply Fix') }}</button>
                 </div>
             </form>
         </div>

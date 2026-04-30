@@ -2,9 +2,9 @@
 @section('title', 'Scan dashboard')
 
 @section('content')
-<h1>Scan</h1>
+<h1>{{ __('Scan') }}</h1>
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Admin</a></li>
         <li class="breadcrumb-item active">Scan</li>
@@ -56,7 +56,7 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
-                <h6 class="text-muted mb-1">Last 24 hours</h6>
+                <h6 class="text-muted mb-1">{{ __('Last 24 hours') }}</h6>
                 <h3 class="mb-0">{{ number_format($last24h) }} arrival(s)</h3>
                 <small class="text-muted">{{ number_format($doneLast24h) }} completed</small>
             </div>
@@ -64,7 +64,7 @@
     </div>
 </div>
 
-<h4 class="mt-4">Per-folder throughput</h4>
+<h4 class="mt-4">{{ __('Per-folder throughput') }}</h4>
 @if($folders->isEmpty())
     <p class="text-muted">No watched folders yet. <a href="{{ route('scan.folders.create') }}">Add one</a>.</p>
 @else
@@ -72,14 +72,14 @@
         <table class="table table-sm table-hover">
             <thead>
                 <tr>
-                    <th>Code</th>
-                    <th>Label</th>
-                    <th>Enabled</th>
-                    <th>Pending</th>
-                    <th>Failed</th>
-                    <th>Done</th>
-                    <th>Last successful ingest</th>
-                    <th>Last scan</th>
+                    <th>{{ __('Code') }}</th>
+                    <th>{{ __('Label') }}</th>
+                    <th>{{ __('Enabled') }}</th>
+                    <th>{{ __('Pending') }}</th>
+                    <th>{{ __('Failed') }}</th>
+                    <th>{{ __('Done') }}</th>
+                    <th>{{ __('Last successful ingest') }}</th>
+                    <th>{{ __('Last scan') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -100,7 +100,7 @@
     </div>
 @endif
 
-<h4 class="mt-4">Recent activity</h4>
+<h4 class="mt-4">{{ __('Recent activity') }}</h4>
 @if($recent->isEmpty())
     <p class="text-muted">No files in the pipeline yet.</p>
 @else
@@ -109,12 +109,12 @@
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Folder</th>
-                    <th>File</th>
-                    <th>Status</th>
-                    <th>Stage</th>
-                    <th>IO</th>
-                    <th>Created</th>
+                    <th>{{ __('Folder') }}</th>
+                    <th>{{ __('File') }}</th>
+                    <th>{{ __('Status') }}</th>
+                    <th>{{ __('Stage') }}</th>
+                    <th>{{ __('IO') }}</th>
+                    <th>{{ __('Created') }}</th>
                 </tr>
             </thead>
             <tbody>

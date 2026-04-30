@@ -33,9 +33,9 @@
         <div class="card-body">
             <form method="get" class="row g-3">
                 <div class="col-md-4">
-                    <label class="form-label">Form Type</label>
+                    <label class="form-label">{{ __('Form Type') }}</label>
                     <select name="type" class="form-select">
-                        <option value="">All Types</option>
+                        <option value="">{{ __('All Types') }}</option>
                         @foreach(($formTypes ?? []) as $value => $label)
                             <option value="{{ $value }}" {{ ($type ?? '') === $value ? 'selected' : '' }}>
                                 {{ $label }}
@@ -44,9 +44,9 @@
                     </select>
                 </div>
                 <div class="col-md-5">
-                    <label class="form-label">Search</label>
+                    <label class="form-label">{{ __('Search') }}</label>
                     <input type="text" name="search" class="form-control"
-                           placeholder="Search by name or description..."
+                           placeholder="{{ __('Search by name or description...') }}"
                            value="{{ $search ?? '' }}">
                 </div>
                 <div class="col-md-3 d-flex align-items-end">
@@ -120,15 +120,15 @@
                                 <div class="card-footer bg-white">
                                     <div class="btn-group btn-group-sm w-100">
                                         <a href="{{ route('forms.preview', ['id' => $template->id]) }}"
-                                           class="btn btn-outline-primary" title="Preview">
+                                           class="btn btn-outline-primary" title="{{ __('Preview') }}">
                                             <i class="fas fa-eye me-1"></i> Preview
                                         </a>
                                         <a href="{{ route('forms.builder', ['id' => $template->id]) }}"
-                                           class="btn btn-outline-secondary" title="Edit">
+                                           class="btn btn-outline-secondary" title="{{ __('Edit') }}">
                                             <i class="fas fa-edit me-1"></i> Edit
                                         </a>
                                         <a href="{{ route('forms.template.export', ['id' => $template->id]) }}"
-                                           class="btn btn-outline-success" title="Export">
+                                           class="btn btn-outline-success" title="{{ __('Export') }}">
                                             <i class="fas fa-download me-1"></i> Export
                                         </a>
                                     </div>

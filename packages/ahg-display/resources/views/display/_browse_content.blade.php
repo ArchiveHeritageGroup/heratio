@@ -46,7 +46,7 @@
 
 {{-- ========== BREADCRUMB (if browsing within a parent) ========== --}}
 @if(!empty($breadcrumb) && count($breadcrumb) > 0)
-  <nav aria-label="Hierarchy breadcrumb" class="mb-2">
+  <nav aria-label="{{ __('Hierarchy breadcrumb') }}" class="mb-2">
     <ol class="breadcrumb mb-0 small">
       <li class="breadcrumb-item">
         <a href="{{ route('glam.browse') }}"><i class="fas fa-home"></i></a>
@@ -139,7 +139,7 @@
       </a>
     @endif
 
-    <a href="{{ route('glam.browse') }}" class="badge bg-outline-secondary border text-dark text-decoration-none ms-1" title="Clear all filters">
+    <a href="{{ route('glam.browse') }}" class="badge bg-outline-secondary border text-dark text-decoration-none ms-1" title="{{ __('Clear all filters') }}">
       <i class="fas fa-times-circle me-1"></i> Clear all
     </a>
   </div>
@@ -156,7 +156,7 @@
         Search instead for "{{ e($originalQuery) }}"
       </a>
     @endif
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
   </div>
 @endif
 
@@ -168,7 +168,7 @@
     <a href="{{ glamBrowseUrl($fp, ['query' => $didYouMean]) }}" class="alert-link fw-bold">
       "{{ e($didYouMean) }}"
     </a>?
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
   </div>
 @endif
 
@@ -177,7 +177,7 @@
   <div class="alert alert-secondary alert-dismissible fade show mb-2" role="alert">
     <i class="fas fa-info-circle me-1"></i>
     Results enhanced by Elasticsearch full-text search.
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
   </div>
 @endif
 
@@ -222,7 +222,7 @@
         @endif
       </div>
     </div>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
   </div>
 @endif
 
@@ -241,23 +241,23 @@
 
   {{-- View mode buttons --}}
   <a href="{{ glamBrowseUrl($fp, ['view' => 'card']) }}"
-     class="btn btn-sm {{ ($viewMode ?? 'card') === 'card' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Card view" aria-label="Card view">
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'card' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Card view') }}" aria-label="{{ __('Card view') }}">
     <i class="fas fa-th-large"></i>
   </a>
   <a href="{{ glamBrowseUrl($fp, ['view' => 'grid']) }}"
-     class="btn btn-sm {{ ($viewMode ?? 'card') === 'grid' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Grid view" aria-label="Grid view">
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'grid' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Grid view') }}" aria-label="{{ __('Grid view') }}">
     <i class="fas fa-th"></i>
   </a>
   <a href="{{ glamBrowseUrl($fp, ['view' => 'table']) }}"
-     class="btn btn-sm {{ ($viewMode ?? 'card') === 'table' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Table view" aria-label="Table view">
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'table' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Table view') }}" aria-label="{{ __('Table view') }}">
     <i class="fas fa-list"></i>
   </a>
   <a href="{{ glamBrowseUrl($fp, ['view' => 'full']) }}"
-     class="btn btn-sm {{ ($viewMode ?? 'card') === 'full' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Full width" aria-label="Full width">
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'full' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Full width') }}" aria-label="{{ __('Full width') }}">
     <i class="fas fa-bars"></i>
   </a>
   <a href="{{ glamBrowseUrl($fp, ['view' => 'tile']) }}"
-     class="btn btn-sm {{ ($viewMode ?? 'card') === 'tile' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Marketplace-style tiles" aria-label="Marketplace-style tiles">
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'tile' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Marketplace-style tiles') }}" aria-label="{{ __('Marketplace-style tiles') }}">
     <i class="fas fa-shopping-bag"></i>
   </a>
 
@@ -419,10 +419,10 @@
               {{-- Actions --}}
               <td class="col-actions text-center">
                 <div class="d-flex gap-1 justify-content-center">
-                  <a href="{{ $objUrl }}" class="btn btn-sm atom-btn-white" title="View">
+                  <a href="{{ $objUrl }}" class="btn btn-sm atom-btn-white" title="{{ __('View') }}">
                     <i class="fas fa-eye"></i>
                   </a>
-                  <button class="btn atom-btn-outline-success btn-sm clipboard" data-clipboard-slug="{{ $objSlug }}" data-clipboard-type="informationObject" data-title="Add to clipboard" data-alt-title="Remove from clipboard" title="Add to clipboard" aria-label="Add to clipboard"><i class="fas fa-paperclip"></i></button>
+                  <button class="btn atom-btn-outline-success btn-sm clipboard" data-clipboard-slug="{{ $objSlug }}" data-clipboard-type="informationObject" data-title="Add to clipboard" data-alt-title="Remove from clipboard" title="{{ __('Add to clipboard') }}" aria-label="{{ __('Add to clipboard') }}"><i class="fas fa-paperclip"></i></button>
                 </div>
               </td>
             </tr>
@@ -518,7 +518,7 @@
                       <span class="badge bg-light text-dark border">{{ $objLevel }}</span>
                     @endif
                   </div>
-                  <a href="{{ $objUrl }}" class="btn btn-sm atom-btn-white" title="View">
+                  <a href="{{ $objUrl }}" class="btn btn-sm atom-btn-white" title="{{ __('View') }}">
                     <i class="fas fa-eye me-1"></i> View
                   </a>
                 </div>
@@ -670,8 +670,8 @@
               </div>
             </div>
             <div class="col-md-1 d-flex flex-column align-items-center justify-content-center border-start gap-1">
-              <a href="{{ $objUrl }}" class="btn atom-btn-outline-success btn-sm" aria-label="View"><i class="fas fa-eye"></i></a>
-              <button class="btn atom-btn-outline-success btn-sm clipboard" data-clipboard-slug="{{ $objSlug }}" data-clipboard-type="informationObject" data-title="Add to clipboard" data-alt-title="Remove from clipboard" title="Add to clipboard" aria-label="Add to clipboard"><i class="fas fa-paperclip"></i></button>
+              <a href="{{ $objUrl }}" class="btn atom-btn-outline-success btn-sm" aria-label="{{ __('View') }}"><i class="fas fa-eye"></i></a>
+              <button class="btn atom-btn-outline-success btn-sm clipboard" data-clipboard-slug="{{ $objSlug }}" data-clipboard-type="informationObject" data-title="Add to clipboard" data-alt-title="Remove from clipboard" title="{{ __('Add to clipboard') }}" aria-label="{{ __('Add to clipboard') }}"><i class="fas fa-paperclip"></i></button>
             </div>
           </div>
           {{-- Discovery metadata footer --}}
@@ -708,7 +708,7 @@
   {{-- No results --}}
   <div class="text-center py-5">
     <i class="fas fa-search fa-4x text-muted mb-3"></i>
-    <h4 class="text-muted">No results found</h4>
+    <h4 class="text-muted">{{ __('No results found') }}</h4>
     <p class="text-muted">
       Try adjusting your filters or
       <a href="{{ route('glam.browse') }}">clear all filters</a>

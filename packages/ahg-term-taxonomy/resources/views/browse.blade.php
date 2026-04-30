@@ -56,11 +56,11 @@
             <div class="px-3 py-2">
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="subqueryField" id="qf-all" value="allLabels" {{ (request('subqueryField', 'allLabels') === 'allLabels') ? 'checked' : '' }}>
-                <label class="form-check-label" for="qf-all">All labels</label>
+                <label class="form-check-label" for="qf-all">{{ __('All labels') }}</label>
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="subqueryField" id="qf-preferred" value="preferredLabel" {{ request('subqueryField') === 'preferredLabel' ? 'checked' : '' }}>
-                <label class="form-check-label" for="qf-preferred">Preferred label</label>
+                <label class="form-check-label" for="qf-preferred">{{ __('Preferred label') }}</label>
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="subqueryField" id="qf-usefor" value="useForLabels" {{ request('subqueryField') === 'useForLabels' ? 'checked' : '' }}>
@@ -121,7 +121,7 @@
           <thead>
             <tr>
               <th>{{ $taxonomyName ?? 'Term' }} term</th>
-              <th>Scope note</th>
+              <th>{{ __('Scope note') }}</th>
               <th class="text-end">{{ config('app.ui_label_informationobject', 'Archival description') }} count</th>
               <th class="text-end">{{ config('app.ui_label_actor', 'Authority record') }} count</th>
             </tr>
@@ -134,7 +134,7 @@
                     {{ $doc['name'] ?: '[Untitled]' }}
                   </a>
                   @if($doc['isProtected'] ?? false)
-                    <i class="fas fa-lock text-muted ms-1" style="font-size:.7em;" title="Protected term"></i>
+                    <i class="fas fa-lock text-muted ms-1" style="font-size:.7em;" title="{{ __('Protected term') }}"></i>
                   @endif
                   @if(($doc['descendantCount'] ?? 0) > 0)
                     <span class="text-muted">({{ $doc['descendantCount'] }})</span>

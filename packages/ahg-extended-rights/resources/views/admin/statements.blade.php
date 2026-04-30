@@ -16,7 +16,7 @@
   <div class="card mb-4">
     <div class="card-header">
       <h5 class="mb-0">
-        <img src="https://rightsstatements.org/files/icons/rightss.logo.svg" alt="Rights Statements" height="24" class="me-2">
+        <img src="https://rightsstatements.org/files/icons/rightss.logo.svg" alt="{{ __('Rights Statements') }}" height="24" class="me-2">
         Rights Statements
       </h5>
     </div>
@@ -67,7 +67,7 @@
   <div class="card mb-4">
     <div class="card-header">
       <h5 class="mb-0">
-        <img src="https://mirrors.creativecommons.org/presskit/logos/cc.logo.svg" alt="Creative Commons" height="24" class="me-2">
+        <img src="https://mirrors.creativecommons.org/presskit/logos/cc.logo.svg" alt="{{ __('Creative Commons') }}" height="24" class="me-2">
         Creative Commons Licenses
       </h5>
     </div>
@@ -125,17 +125,17 @@
   {{-- Usage Guide --}}
   <div class="card">
     <div class="card-header">
-      <h5 class="mb-0">Usage Guide</h5>
+      <h5 class="mb-0">{{ __('Usage Guide') }}</h5>
     </div>
     <div class="card-body">
-      <h6>When to use Rights Statements:</h6>
+      <h6>{{ __('When to use Rights Statements:') }}</h6>
       <ul>
         <li><strong>In Copyright statements</strong> - For works that are still under copyright protection</li>
         <li><strong>No Copyright statements</strong> - For works in the public domain or with specific use restrictions</li>
         <li><strong>Other statements</strong> - When copyright status is unclear or not yet evaluated</li>
       </ul>
 
-      <h6>When to use Creative Commons:</h6>
+      <h6>{{ __('When to use Creative Commons:') }}</h6>
       <ul>
         <li>When you (or the rights holder) want to grant specific permissions for reuse</li>
         <li>For works you own or have permission to license</li>

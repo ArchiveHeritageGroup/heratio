@@ -19,11 +19,11 @@
 
   {{-- My Requests --}}
   <div class="card">
-    <div class="card-header"><h5 class="mb-0">Request History</h5></div>
+    <div class="card-header"><h5 class="mb-0">{{ __('Request History') }}</h5></div>
     <div class="card-body table-responsive">
       <table class="table table-striped">
         <thead>
-          <tr><th>Object</th><th>Type</th><th>Status</th><th>Submitted</th><th>Reviewed</th><th>Notes</th></tr>
+          <tr><th>{{ __('Object') }}</th><th>{{ __('Type') }}</th><th>{{ __('Status') }}</th><th>{{ __('Submitted') }}</th><th>{{ __('Reviewed') }}</th><th>{{ __('Notes') }}</th></tr>
         </thead>
         <tbody>
           @forelse($requests ?? [] as $req)

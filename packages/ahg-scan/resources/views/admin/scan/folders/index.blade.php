@@ -2,9 +2,9 @@
 @section('title', 'Scan — Watched folders')
 
 @section('content')
-<h1>Watched scan folders</h1>
+<h1>{{ __('Watched scan folders') }}</h1>
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Admin</a></li>
         <li class="breadcrumb-item"><a href="{{ route('scan.dashboard') }}">Scan</a></li>
@@ -32,7 +32,7 @@
     <div class="card">
         <div class="card-body text-center py-5">
             <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">No watched folders</h5>
+            <h5 class="text-muted">{{ __('No watched folders') }}</h5>
             <p class="text-muted">Create a watched folder to auto-ingest scanned material.</p>
             <a href="{{ route('scan.folders.create') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-plus me-1"></i>New watched folder
@@ -44,15 +44,15 @@
         <table class="table table-striped table-hover">
             <thead>
                 <tr>
-                    <th>Code</th>
-                    <th>Label</th>
-                    <th>Path</th>
-                    <th>Sector</th>
-                    <th>Standard</th>
-                    <th>Layout</th>
-                    <th>Enabled</th>
-                    <th>Last scan</th>
-                    <th style="width:1%">Actions</th>
+                    <th>{{ __('Code') }}</th>
+                    <th>{{ __('Label') }}</th>
+                    <th>{{ __('Path') }}</th>
+                    <th>{{ __('Sector') }}</th>
+                    <th>{{ __('Standard') }}</th>
+                    <th>{{ __('Layout') }}</th>
+                    <th>{{ __('Enabled') }}</th>
+                    <th>{{ __('Last scan') }}</th>
+                    <th style="width:1%">{{ __('Actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -75,7 +75,7 @@
                     <td class="text-nowrap">
                         <form action="{{ route('scan.folders.run', $f->id) }}" method="POST" class="d-inline">
                             @csrf
-                            <button class="btn btn-sm btn-outline-secondary" title="Run a scan pass now">
+                            <button class="btn btn-sm btn-outline-secondary" title="{{ __('Run a scan pass now') }}">
                                 <i class="fas fa-play"></i>
                             </button>
                         </form>

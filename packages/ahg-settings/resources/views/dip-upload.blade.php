@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>DIP upload settings</h1>
+  <h1>{{ __('DIP upload settings') }}</h1>
 @endsection
 
 @section('content')
@@ -18,7 +18,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="dip-upload-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dip-upload-collapse" aria-expanded="false" aria-controls="dip-upload-collapse">
-              DIP Upload settings
+              {{ __('DIP Upload settings') }}
             </button>
           </h2>
           <div id="dip-upload-collapse" class="accordion-collapse collapse" aria-labelledby="dip-upload-heading">

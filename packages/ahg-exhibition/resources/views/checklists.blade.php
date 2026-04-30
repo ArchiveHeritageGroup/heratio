@@ -49,7 +49,7 @@
 
 <div class="row">
   <div class="col-md-8">
-    <nav aria-label="breadcrumb">
+    <nav aria-label="{{ __('breadcrumb') }}">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">Exhibitions</a></li>
         <li class="breadcrumb-item"><a href="{{ route('exhibition.show', ['id' => $exId]) }}">{{ $exhibition->title ?? '' }}</a></li>
@@ -58,7 +58,7 @@
     </nav>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1>Exhibition Checklists</h1>
+      <h1>{{ __('Exhibition Checklists') }}</h1>
       <div class="btn-group">
         <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">
           <i class="fas fa-plus"></i> Create Checklist
@@ -87,7 +87,7 @@
       <div class="card">
         <div class="card-body text-center py-5">
           <i class="fas fa-square-check fa-3x text-muted mb-3"></i>
-          <h5>No checklists created yet</h5>
+          <h5>{{ __('No checklists created yet') }}</h5>
           <p class="text-muted">Create checklists to track tasks for planning, installation, and closing.</p>
         </div>
       </div>
@@ -174,7 +174,7 @@
   <div class="col-md-4">
     <div class="card mb-3">
       <div class="card-header">
-        <h5 class="mb-0">Exhibition Info</h5>
+        <h5 class="mb-0">{{ __('Exhibition Info') }}</h5>
       </div>
       <div class="card-body">
         <h6>{{ $exhibition->title ?? '' }}</h6>
@@ -186,7 +186,7 @@
 
     <div class="card mb-3">
       <div class="card-header">
-        <h5 class="mb-0">Overall Progress</h5>
+        <h5 class="mb-0">{{ __('Overall Progress') }}</h5>
       </div>
       <div class="card-body">
         <div class="text-center mb-3">
@@ -223,7 +223,7 @@
 
     <div class="card">
       <div class="card-header">
-        <h5 class="mb-0">Checklist Types</h5>
+        <h5 class="mb-0">{{ __('Checklist Types') }}</h5>
       </div>
       <div class="card-body">
         <ul class="list-unstyled small mb-0">
@@ -242,7 +242,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add Checklist Item</h5>
+        <h5 class="modal-title">{{ __('Add Checklist Item') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form method="post" action="{{ route('exhibition.checklists', ['id' => $exId]) }}">
@@ -250,7 +250,7 @@
         <input type="hidden" name="checklist_id" id="addItemChecklistId">
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Checklist</label>
+            <label class="form-label">{{ __('Checklist') }}</label>
             <input type="text" id="addItemChecklistName" class="form-control" readonly>
           </div>
           <div class="mb-3">
@@ -259,22 +259,22 @@
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Assigned To</label>
+              <label class="form-label">{{ __('Assigned To') }}</label>
               <input type="text" name="assigned_to" class="form-control">
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Due Date</label>
+              <label class="form-label">{{ __('Due Date') }}</label>
               <input type="date" name="due_date" class="form-control">
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label">Notes</label>
+            <label class="form-label">{{ __('Notes') }}</label>
             <textarea name="notes" class="form-control" rows="2"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Add Item</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="submit" class="btn btn-primary">{{ __('Add Item') }}</button>
         </div>
       </form>
     </div>

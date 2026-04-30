@@ -4,7 +4,7 @@
 @section('body-class', 'browse user')
 
 @section('content')
-  <h1>List users</h1>
+  <h1>{{ __('List users') }}</h1>
 
   <div class="d-inline-block mb-3">
     @include('ahg-core::components.inline-search', [
@@ -29,9 +29,9 @@
       <table class="table table-bordered mb-0">
         <thead>
           <tr>
-            <th>User name</th>
-            <th>Email</th>
-            <th>User groups</th>
+            <th>{{ __('User name') }}</th>
+            <th>{{ __('Email') }}</th>
+            <th>{{ __('User groups') }}</th>
           </tr>
         </thead>
         <tbody>

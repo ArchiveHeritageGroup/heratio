@@ -99,14 +99,14 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <label class="form-label">Search for entity</label>
-                <input type="text" id="ric-hier-search" class="form-control" placeholder="Type to search..." autocomplete="off">
+                <label class="form-label">{{ __('Search for entity') }}</label>
+                <input type="text" id="ric-hier-search" class="form-control" placeholder="{{ __('Type to search...') }}" autocomplete="off">
                 <input type="hidden" id="ric-hier-target-id">
                 <input type="hidden" id="ric-hier-direction">
                 <div id="ric-hier-results" class="list-group mt-1" style="max-height:200px; overflow-y:auto; display:none;"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                 <button type="button" class="btn btn-primary" id="ricHierarchySaveBtn"><i class="fas fa-link"></i> Link</button>
             </div>
         </div>

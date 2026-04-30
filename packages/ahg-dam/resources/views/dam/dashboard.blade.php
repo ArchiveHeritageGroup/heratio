@@ -14,7 +14,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-images fa-2x text-danger me-3" aria-hidden="true"></i>
     <div>
-      <h1 class="mb-0">Digital Asset Management</h1>
+      <h1 class="mb-0">{{ __('Digital Asset Management') }}</h1>
       <span class="small text-muted">Photo archive and DAM</span>
     </div>
   </div>
@@ -191,8 +191,8 @@
         <table class="table table-hover mb-0">
           <thead class="table-light">
             <tr>
-              <th>Title</th>
-              <th style="width:150px">Identifier</th>
+              <th>{{ __('Title') }}</th>
+              <th style="width:150px">{{ __('Identifier') }}</th>
               <th style="width:100px"></th>
             </tr>
           </thead>

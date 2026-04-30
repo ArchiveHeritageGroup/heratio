@@ -13,7 +13,7 @@
 
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between align-items-center" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h5 class="mb-0">Schedule Details</h5>
+    <h5 class="mb-0">{{ __('Schedule Details') }}</h5>
     <div class="d-flex gap-2">
       @if($schedule->status === 'draft')
         <form method="post" action="{{ route('records.schedules.approve', $schedule->id) }}" class="d-inline">@csrf
@@ -27,27 +27,27 @@
     <div class="row">
       <div class="col-md-6">
         <table class="table table-sm">
-          <tr><th style="width:160px">Reference</th><td>{{ $schedule->schedule_ref }}</td></tr>
-          <tr><th>Title</th><td>{{ $schedule->title }}</td></tr>
-          <tr><th>Authority</th><td>{{ $schedule->authority ?? '-' }}</td></tr>
-          <tr><th>Jurisdiction</th><td>{{ $schedule->jurisdiction ?? '-' }}</td></tr>
-          <tr><th>Version</th><td>{{ $schedule->version }}</td></tr>
+          <tr><th style="width:160px">{{ __('Reference') }}</th><td>{{ $schedule->schedule_ref }}</td></tr>
+          <tr><th>{{ __('Title') }}</th><td>{{ $schedule->title }}</td></tr>
+          <tr><th>{{ __('Authority') }}</th><td>{{ $schedule->authority ?? '-' }}</td></tr>
+          <tr><th>{{ __('Jurisdiction') }}</th><td>{{ $schedule->jurisdiction ?? '-' }}</td></tr>
+          <tr><th>{{ __('Version') }}</th><td>{{ $schedule->version }}</td></tr>
         </table>
       </div>
       <div class="col-md-6">
         <table class="table table-sm">
-          <tr><th style="width:160px">Status</th><td>
+          <tr><th style="width:160px">{{ __('Status') }}</th><td>
             @if($schedule->status === 'draft')<span class="badge bg-secondary">Draft</span>
             @elseif($schedule->status === 'active')<span class="badge bg-success">Active</span>
             @elseif($schedule->status === 'superseded')<span class="badge bg-warning text-dark">Superseded</span>
             @elseif($schedule->status === 'expired')<span class="badge bg-danger">Expired</span>
             @else<span class="badge bg-secondary">{{ ucfirst($schedule->status) }}</span>@endif
           </td></tr>
-          <tr><th>Effective Date</th><td>{{ $schedule->effective_date ?? '-' }}</td></tr>
-          <tr><th>Review Date</th><td>{{ $schedule->review_date ?? '-' }}</td></tr>
-          <tr><th>Expiry Date</th><td>{{ $schedule->expiry_date ?? '-' }}</td></tr>
-          <tr><th>Approved By</th><td>{{ $schedule->approved_by ?? '-' }}</td></tr>
-          <tr><th>Approved At</th><td>{{ $schedule->approved_at ?? '-' }}</td></tr>
+          <tr><th>{{ __('Effective Date') }}</th><td>{{ $schedule->effective_date ?? '-' }}</td></tr>
+          <tr><th>{{ __('Review Date') }}</th><td>{{ $schedule->review_date ?? '-' }}</td></tr>
+          <tr><th>{{ __('Expiry Date') }}</th><td>{{ $schedule->expiry_date ?? '-' }}</td></tr>
+          <tr><th>{{ __('Approved By') }}</th><td>{{ $schedule->approved_by ?? '-' }}</td></tr>
+          <tr><th>{{ __('Approved At') }}</th><td>{{ $schedule->approved_at ?? '-' }}</td></tr>
         </table>
       </div>
     </div>
@@ -66,7 +66,7 @@
     @if(count($classes) > 0)
     <table class="table table-striped table-hover mb-0">
       <thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        <th>Ref</th><th>Title</th><th>Retention</th><th>Trigger</th><th>Disposal Action</th><th>Records</th><th>Active</th><th>Actions</th>
+        <th>{{ __('Ref') }}</th><th>{{ __('Title') }}</th><th>{{ __('Retention') }}</th><th>{{ __('Trigger') }}</th><th>{{ __('Disposal Action') }}</th><th>{{ __('Records') }}</th><th>{{ __('Active') }}</th><th>{{ __('Actions') }}</th>
       </tr></thead>
       <tbody>
         @foreach($classes as $class)
@@ -85,10 +85,10 @@
           <td>{{ $class->record_count ?? 0 }}</td>
           <td>{!! $class->is_active ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-secondary">No</span>' !!}</td>
           <td>
-            <a href="{{ route('records.classes.edit', [$schedule->id, $class->id]) }}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-edit"></i></a>
+            <a href="{{ route('records.classes.edit', [$schedule->id, $class->id]) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Edit') }}"><i class="fas fa-edit"></i></a>
             @if(($class->record_count ?? 0) === 0)
               <form method="post" action="{{ route('records.classes.delete', [$schedule->id, $class->id]) }}" class="d-inline">@csrf @method('DELETE')
-                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete" onclick="return confirm('Delete this disposal class?')"><i class="fas fa-trash"></i></button>
+                <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}" onclick="return confirm('Delete this disposal class?')"><i class="fas fa-trash"></i></button>
               </form>
             @endif
           </td>

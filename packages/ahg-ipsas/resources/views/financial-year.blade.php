@@ -23,7 +23,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.reports') }}">Reports</a></li>
@@ -48,7 +48,7 @@
         <div class="col-lg-3 mb-4">
             <div class="card bg-primary text-white">
                 <div class="card-body">
-                    <h6 class="text-white-50">Total Assets</h6>
+                    <h6 class="text-white-50">{{ __('Total Assets') }}</h6>
                     <h2 class="mb-0">{{ number_format($summary['total_assets'] ?? 0) }}</h2>
                 </div>
             </div>
@@ -56,7 +56,7 @@
         <div class="col-lg-3 mb-4">
             <div class="card bg-success text-white">
                 <div class="card-body">
-                    <h6 class="text-white-50">Total Value</h6>
+                    <h6 class="text-white-50">{{ __('Total Value') }}</h6>
                     <h2 class="mb-0">{{ $defaultCurrency }} {{ number_format($summary['total_value'] ?? 0, 0) }}</h2>
                 </div>
             </div>
@@ -64,7 +64,7 @@
         <div class="col-lg-3 mb-4">
             <div class="card bg-info text-white">
                 <div class="card-body">
-                    <h6 class="text-white-50">Additions</h6>
+                    <h6 class="text-white-50">{{ __('Additions') }}</h6>
                     <h2 class="mb-0">{{ number_format($summary['additions'] ?? 0) }}</h2>
                 </div>
             </div>
@@ -72,7 +72,7 @@
         <div class="col-lg-3 mb-4">
             <div class="card bg-warning text-dark">
                 <div class="card-body">
-                    <h6 class="text-dark-50">Impairments</h6>
+                    <h6 class="text-dark-50">{{ __('Impairments') }}</h6>
                     <h2 class="mb-0">{{ $defaultCurrency }} {{ number_format($summary['impairments'] ?? 0, 0) }}</h2>
                 </div>
             </div>
@@ -82,11 +82,11 @@
     <div class="row">
         <div class="col-lg-6 mb-4">
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Value by Category</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Value by Category') }}</h5></div>
                 <div class="card-body">
                     @if(!empty($summary['by_category']))
                         <table class="table table-sm mb-0">
-                            <thead><tr><th>Category</th><th class="text-end">Value</th></tr></thead>
+                            <thead><tr><th>{{ __('Category') }}</th><th class="text-end">{{ __('Value') }}</th></tr></thead>
                             <tbody>
                                 @foreach($summary['by_category'] as $cat)
                                 <tr>
@@ -105,11 +105,11 @@
 
         <div class="col-lg-6 mb-4">
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Value by Basis</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Value by Basis') }}</h5></div>
                 <div class="card-body">
                     @if(!empty($summary['by_basis']))
                         <table class="table table-sm mb-0">
-                            <thead><tr><th>Valuation Basis</th><th class="text-end">Value</th></tr></thead>
+                            <thead><tr><th>{{ __('Valuation Basis') }}</th><th class="text-end">{{ __('Value') }}</th></tr></thead>
                             <tbody>
                                 @foreach($summary['by_basis'] as $basis)
                                 <tr>
@@ -128,7 +128,7 @@
 
         <div class="col-12">
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Movement Summary</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Movement Summary') }}</h5></div>
                 <div class="card-body">
                     <table class="table mb-0">
                         <tbody>

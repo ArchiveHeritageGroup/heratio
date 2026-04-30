@@ -30,29 +30,29 @@
 
 <form method="GET" class="row g-2 align-items-end mb-3">
   <div class="col-md-3">
-    <label class="form-label small mb-0">Status</label>
+    <label class="form-label small mb-0">{{ __('Status') }}</label>
     <select name="status" class="form-select form-select-sm">
-      <option value="">All</option>
-      <option value="captured"   @selected($filters['status']==='captured')>Captured</option>
-      <option value="classified" @selected($filters['status']==='classified')>Classified</option>
-      <option value="declared"   @selected($filters['status']==='declared')>Declared</option>
+      <option value="">{{ __('All') }}</option>
+      <option value="captured"   @selected($filters['status']==='captured')>{{ __('Captured') }}</option>
+      <option value="classified" @selected($filters['status']==='classified')>{{ __('Classified') }}</option>
+      <option value="declared"   @selected($filters['status']==='declared')>{{ __('Declared') }}</option>
     </select>
   </div>
   <div class="col-md-3">
-    <label class="form-label small mb-0">Source</label>
+    <label class="form-label small mb-0">{{ __('Source') }}</label>
     <select name="source" class="form-select form-select-sm">
-      <option value="">All</option>
-      <option value="eml_upload" @selected($filters['source']==='eml_upload')>EML upload</option>
-      <option value="imap"       @selected($filters['source']==='imap')>IMAP</option>
-      <option value="smtp_drop"  @selected($filters['source']==='smtp_drop')>SMTP drop</option>
+      <option value="">{{ __('All') }}</option>
+      <option value="eml_upload" @selected($filters['source']==='eml_upload')>{{ __('EML upload') }}</option>
+      <option value="imap"       @selected($filters['source']==='imap')>{{ __('IMAP') }}</option>
+      <option value="smtp_drop"  @selected($filters['source']==='smtp_drop')>{{ __('SMTP drop') }}</option>
     </select>
   </div>
   <div class="col-md-4">
-    <label class="form-label small mb-0">Search subject / from / to</label>
+    <label class="form-label small mb-0">{{ __('Search subject / from / to') }}</label>
     <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control form-control-sm">
   </div>
   <div class="col-md-2">
-    <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+    <button type="submit" class="btn btn-sm btn-primary">{{ __('Filter') }}</button>
     <a href="{{ route('records.emails.index') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
   </div>
 </form>
@@ -61,7 +61,7 @@
   <table class="table table-hover table-sm mb-0">
     <thead class="table-light">
       <tr>
-        <th>From</th><th>Subject</th><th>Sent</th><th>Source</th><th>File plan</th><th>Status</th><th class="text-end"></th>
+        <th>{{ __('From') }}</th><th>{{ __('Subject') }}</th><th>{{ __('Sent') }}</th><th>{{ __('Source') }}</th><th>{{ __('File plan') }}</th><th>{{ __('Status') }}</th><th class="text-end"></th>
       </tr>
     </thead>
     <tbody>

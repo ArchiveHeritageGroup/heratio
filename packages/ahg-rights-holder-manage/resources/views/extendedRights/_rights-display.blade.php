@@ -33,9 +33,9 @@ $embargoType = $embargoTypes[$embargo->embargo_type ?? 'full'] ?? 'Access Restri
 @if($rights ?? null)
 {{-- Rights Statement --}}
 @if($rights->rs_code ?? null)
-<h4 class="h5 mt-3 mb-2 text-muted">Rights Statement</h4>
+<h4 class="h5 mt-3 mb-2 text-muted">{{ __('Rights Statement') }}</h4>
 <div class="field row g-0">
-  <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Statement</h3>
+  <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Statement') }}</h3>
   <div class="col-9 p-2">
     {{ $rights->rs_name ?? '' }}
     @if($rights->rs_uri ?? null)
@@ -47,9 +47,9 @@ $embargoType = $embargoTypes[$embargo->embargo_type ?? 'full'] ?? 'Access Restri
 
 {{-- Creative Commons --}}
 @if($rights->cc_code ?? null)
-<h4 class="h5 mt-3 mb-2 text-muted">License</h4>
+<h4 class="h5 mt-3 mb-2 text-muted">{{ __('License') }}</h4>
 <div class="field row g-0">
-  <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">License</h3>
+  <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('License') }}</h3>
   <div class="col-9 p-2">
     {{ $rights->cc_name ?? '' }}
     @if($rights->cc_uri ?? null)
@@ -61,7 +61,7 @@ $embargoType = $embargoTypes[$embargo->embargo_type ?? 'full'] ?? 'Access Restri
 
 {{-- TK Labels --}}
 @if(!empty($rights->tk_labels) && count($rights->tk_labels) > 0)
-<h4 class="h5 mt-3 mb-2 text-muted">Traditional Knowledge Labels</h4>
+<h4 class="h5 mt-3 mb-2 text-muted">{{ __('Traditional Knowledge Labels') }}</h4>
 @foreach($rights->tk_labels as $tk)
 <div class="field row g-0">
   <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ $tk->category_name ?? 'TK Label' }}</h3>

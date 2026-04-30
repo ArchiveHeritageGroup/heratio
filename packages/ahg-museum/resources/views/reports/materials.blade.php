@@ -8,7 +8,7 @@
 <div class="alert alert-info"><strong>{{ count($records) }}</strong> records with materials/techniques</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
-    <thead class="table-dark"><tr><th>Object</th><th>Materials</th><th>Techniques</th><th>Dimensions</th></tr></thead>
+    <thead class="table-dark"><tr><th>{{ __('Object') }}</th><th>{{ __('Materials') }}</th><th>{{ __('Techniques') }}</th><th>{{ __('Dimensions') }}</th></tr></thead>
     <tbody>
       @forelse($records as $r)
       <tr><td><strong>{{ e($r->title ?? '-') }}</strong></td><td>{{ e($r->materials ?? '-') }}</td><td>{{ e($r->techniques ?? '-') }}</td><td>{{ e($r->dimensions ?? '-') }}</td></tr>

@@ -11,58 +11,58 @@
 
 @section('sidebar')
 <section class="card mb-3">
-  <div class="card-header"><h6 class="mb-0">Filter options</h6></div>
+  <div class="card-header"><h6 class="mb-0">{{ __('Filter options') }}</h6></div>
   <div class="card-body">
     <form method="get" action="{{ route('reports.descriptions') }}">
       <div class="mb-3">
-        <label class="form-label">Level of description</label>
+        <label class="form-label">{{ __('Level of description') }}</label>
         <select name="level" class="form-select form-select-sm">
-          <option value="">All levels</option>
+          <option value="">{{ __('All levels') }}</option>
           @foreach($levels as $l)
             <option value="{{ $l->id }}" {{ ($params['level'] ?? '') == $l->id ? 'selected' : '' }}>{{ e($l->name) }}</option>
           @endforeach
         </select>
       </div>
       <div class="mb-3">
-        <label class="form-label">Publication status</label>
+        <label class="form-label">{{ __('Publication status') }}</label>
         <select name="publicationStatus" class="form-select form-select-sm">
-          <option value="">All</option>
-          <option value="159" {{ ($params['publicationStatus'] ?? '') == '159' ? 'selected' : '' }}>Draft</option>
-          <option value="160" {{ ($params['publicationStatus'] ?? '') == '160' ? 'selected' : '' }}>Published</option>
+          <option value="">{{ __('All') }}</option>
+          <option value="159" {{ ($params['publicationStatus'] ?? '') == '159' ? 'selected' : '' }}>{{ __('Draft') }}</option>
+          <option value="160" {{ ($params['publicationStatus'] ?? '') == '160' ? 'selected' : '' }}>{{ __('Published') }}</option>
         </select>
       </div>
       <div class="mb-3">
-        <label class="form-label">Date start</label>
+        <label class="form-label">{{ __('Date start') }}</label>
         <input type="date" name="dateStart" class="form-control form-control-sm" value="{{ $params['dateStart'] ?? '' }}">
       </div>
       <div class="mb-3">
-        <label class="form-label">Date end</label>
+        <label class="form-label">{{ __('Date end') }}</label>
         <input type="date" name="dateEnd" class="form-control form-control-sm" value="{{ $params['dateEnd'] ?? '' }}">
       </div>
       <div class="mb-3">
-        <label class="form-label">Date of</label>
+        <label class="form-label">{{ __('Date of') }}</label>
         <select name="dateOf" class="form-select form-select-sm">
-          <option value="created_at" {{ ($params['dateOf'] ?? 'created_at') === 'created_at' ? 'selected' : '' }}>Creation date</option>
-          <option value="updated_at" {{ ($params['dateOf'] ?? '') === 'updated_at' ? 'selected' : '' }}>Modification date</option>
+          <option value="created_at" {{ ($params['dateOf'] ?? 'created_at') === 'created_at' ? 'selected' : '' }}>{{ __('Creation date') }}</option>
+          <option value="updated_at" {{ ($params['dateOf'] ?? '') === 'updated_at' ? 'selected' : '' }}>{{ __('Modification date') }}</option>
         </select>
       </div>
       <div class="mb-3">
-        <label class="form-label">Results per page</label>
+        <label class="form-label">{{ __('Results per page') }}</label>
         <select name="limit" class="form-select form-select-sm">
           @foreach([10, 20, 50, 100] as $lim)
             <option value="{{ $lim }}" {{ ($params['limit'] ?? 20) == $lim ? 'selected' : '' }}>{{ $lim }}</option>
           @endforeach
         </select>
       </div>
-      <button type="submit" class="btn btn-primary btn-sm w-100 mb-2">Search</button>
-      <button type="button" onclick="exportTableToCSV()" class="btn btn-outline-secondary btn-sm w-100">Export to CSV</button>
+      <button type="submit" class="btn btn-primary btn-sm w-100 mb-2">{{ __('Search') }}</button>
+      <button type="button" onclick="exportTableToCSV()" class="btn btn-outline-secondary btn-sm w-100">{{ __('Export to CSV') }}</button>
     </form>
   </div>
 </section>
 @endsection
 
 @section('title-block')
-<h1>Browse Archival Description</h1>
+<h1>{{ __('Browse Archival Description') }}</h1>
 <div class="mb-3">
   <a href="{{ route('reports.dashboard') }}" class="btn btn-outline-secondary btn-sm">
     <i class="fas fa-arrow-left me-1"></i>Back to Reports
@@ -90,30 +90,30 @@
     <table id="reportTable" class="table table-bordered table-striped table-sm">
       <thead>
         <tr>
-          <th>Identifier</th>
-          <th>Title</th>
-          <th>Alternate Title</th>
-          <th>Extent And Medium</th>
-          <th>Archival History</th>
-          <th>Acquisition</th>
-          <th>Scope And Content</th>
-          <th>Appraisal</th>
-          <th>Accruals</th>
-          <th>Arrangement</th>
-          <th>Access Conditions</th>
-          <th>Reproduction Conditions</th>
-          <th>Physical Characteristics</th>
-          <th>Finding Aids</th>
-          <th>Location Of Originals</th>
-          <th>Location Of Copies</th>
-          <th>Related Units</th>
-          <th>Institution Responsible</th>
-          <th>Rules</th>
-          <th>Sources</th>
-          <th>Revision History</th>
-          <th>Culture</th>
-          <th>Repository</th>
-          <th>Created</th>
+          <th>{{ __('Identifier') }}</th>
+          <th>{{ __('Title') }}</th>
+          <th>{{ __('Alternate Title') }}</th>
+          <th>{{ __('Extent And Medium') }}</th>
+          <th>{{ __('Archival History') }}</th>
+          <th>{{ __('Acquisition') }}</th>
+          <th>{{ __('Scope And Content') }}</th>
+          <th>{{ __('Appraisal') }}</th>
+          <th>{{ __('Accruals') }}</th>
+          <th>{{ __('Arrangement') }}</th>
+          <th>{{ __('Access Conditions') }}</th>
+          <th>{{ __('Reproduction Conditions') }}</th>
+          <th>{{ __('Physical Characteristics') }}</th>
+          <th>{{ __('Finding Aids') }}</th>
+          <th>{{ __('Location Of Originals') }}</th>
+          <th>{{ __('Location Of Copies') }}</th>
+          <th>{{ __('Related Units') }}</th>
+          <th>{{ __('Institution Responsible') }}</th>
+          <th>{{ __('Rules') }}</th>
+          <th>{{ __('Sources') }}</th>
+          <th>{{ __('Revision History') }}</th>
+          <th>{{ __('Culture') }}</th>
+          <th>{{ __('Repository') }}</th>
+          <th>{{ __('Created') }}</th>
         </tr>
       </thead>
       <tbody>

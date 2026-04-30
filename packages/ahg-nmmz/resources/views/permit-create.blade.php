@@ -18,7 +18,7 @@
 <div class="container-fluid">
   <div class="row mb-4">
     <div class="col">
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
           <li class="breadcrumb-item"><a href="{{ route('nmmz.permits') }}">Export Permits</a></li>
@@ -34,7 +34,7 @@
     @csrf
     <div class="col-lg-8">
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Applicant Information</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Applicant Information') }}</h5></div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
@@ -42,24 +42,24 @@
               <input type="text" name="applicant_name" class="form-control" required>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Applicant Type</label>
+              <label class="form-label">{{ __('Applicant Type') }}</label>
               <select name="applicant_type" class="form-select">
-                <option value="individual">Individual</option>
-                <option value="institution">Institution/Museum</option>
-                <option value="dealer">Art Dealer</option>
-                <option value="researcher">Researcher</option>
+                <option value="individual">{{ __('Individual') }}</option>
+                <option value="institution">{{ __('Institution/Museum') }}</option>
+                <option value="dealer">{{ __('Art Dealer') }}</option>
+                <option value="researcher">{{ __('Researcher') }}</option>
               </select>
             </div>
             <div class="col-12">
-              <label class="form-label">Address</label>
+              <label class="form-label">{{ __('Address') }}</label>
               <textarea name="applicant_address" class="form-control" rows="2"></textarea>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Email</label>
+              <label class="form-label">{{ __('Email') }}</label>
               <input type="email" name="applicant_email" class="form-control">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Phone</label>
+              <label class="form-label">{{ __('Phone') }}</label>
               <input type="tel" name="applicant_phone" class="form-control">
             </div>
           </div>
@@ -67,23 +67,23 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Object to be Exported</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Object to be Exported') }}</h5></div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Linked Antiquity (if registered)</label>
-              <input type="number" name="antiquity_id" class="form-control" placeholder="Antiquity ID (optional)">
+              <label class="form-label">{{ __('Linked Antiquity (if registered)') }}</label>
+              <input type="number" name="antiquity_id" class="form-control" placeholder="{{ __('Antiquity ID (optional)') }}">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Quantity</label>
+              <label class="form-label">{{ __('Quantity') }}</label>
               <input type="number" name="quantity" class="form-control" value="1" min="1">
             </div>
             <div class="col-12">
               <label class="form-label">Object Description <span class="text-danger">*</span></label>
-              <textarea name="object_description" class="form-control" rows="4" required placeholder="Detailed description of the object(s) to be exported"></textarea>
+              <textarea name="object_description" class="form-control" rows="4" required placeholder="{{ __('Detailed description of the object(s) to be exported') }}"></textarea>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Estimated Value (USD)</label>
+              <label class="form-label">{{ __('Estimated Value (USD)') }}</label>
               <input type="number" name="estimated_value" class="form-control" min="0" step="0.01">
             </div>
           </div>
@@ -91,19 +91,19 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Export Details</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Export Details') }}</h5></div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">Export Purpose <span class="text-danger">*</span></label>
               <select name="export_purpose" class="form-select" required>
-                <option value="">Select...</option>
-                <option value="exhibition">Exhibition</option>
-                <option value="research">Research/Study</option>
-                <option value="conservation">Conservation/Restoration</option>
-                <option value="sale">Sale</option>
-                <option value="permanent">Permanent Export</option>
-                <option value="loan">Temporary Loan</option>
+                <option value="">{{ __('Select...') }}</option>
+                <option value="exhibition">{{ __('Exhibition') }}</option>
+                <option value="research">{{ __('Research/Study') }}</option>
+                <option value="conservation">{{ __('Conservation/Restoration') }}</option>
+                <option value="sale">{{ __('Sale') }}</option>
+                <option value="permanent">{{ __('Permanent Export') }}</option>
+                <option value="loan">{{ __('Temporary Loan') }}</option>
               </select>
             </div>
             <div class="col-md-6">
@@ -111,19 +111,19 @@
               <input type="text" name="destination_country" class="form-control" required>
             </div>
             <div class="col-12">
-              <label class="form-label">Purpose Details</label>
-              <textarea name="purpose_details" class="form-control" rows="3" placeholder="Additional details about the purpose of export"></textarea>
+              <label class="form-label">{{ __('Purpose Details') }}</label>
+              <textarea name="purpose_details" class="form-control" rows="3" placeholder="{{ __('Additional details about the purpose of export') }}"></textarea>
             </div>
             <div class="col-12">
-              <label class="form-label">Destination Institution</label>
-              <input type="text" name="destination_institution" class="form-control" placeholder="Museum, gallery, or institution name">
+              <label class="form-label">{{ __('Destination Institution') }}</label>
+              <input type="text" name="destination_institution" class="form-control" placeholder="{{ __('Museum, gallery, or institution name') }}">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Proposed Export Date</label>
+              <label class="form-label">{{ __('Proposed Export Date') }}</label>
               <input type="date" name="export_date_proposed" class="form-control">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Return Date (if temporary)</label>
+              <label class="form-label">{{ __('Return Date (if temporary)') }}</label>
               <input type="date" name="return_date" class="form-control">
             </div>
           </div>

@@ -17,7 +17,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-paper-plane fa-2x text-primary me-3" aria-hidden="true"></i>
     <div>
-      <h1 class="h3 mb-0">Review Publication Request</h1>
+      <h1 class="h3 mb-0">{{ __('Review Publication Request') }}</h1>
       <p class="text-muted mb-0">
         Submitted: {{ $record->created_at ? \Carbon\Carbon::parse($record->created_at)->format('d M Y H:i') : '' }}
       </p>
@@ -154,7 +154,7 @@
             <div class="mb-3">
               <label for="rtp_admin_notes" class="form-label fw-semibold">Admin Notes <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="rtp_admin_notes" id="rtp_admin_notes" class="form-control" rows="4"
-                        placeholder="Add notes for internal reference or to communicate with the requester...">{{ old('rtp_admin_notes', $record->rtp_admin_notes ?? '') }}</textarea>
+                        placeholder="{{ __('Add notes for internal reference or to communicate with the requester...') }}">{{ old('rtp_admin_notes', $record->rtp_admin_notes ?? '') }}</textarea>
             </div>
           </div>
         </div>

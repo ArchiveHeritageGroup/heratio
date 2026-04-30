@@ -22,7 +22,7 @@
                 @csrf
                 <div class="mb-3">
                     <label class="form-label">Manifest URI <span class="badge bg-secondary ms-1">Optional</span></label>
-                    <input type="url" class="form-control form-control-sm" name="manifest_uri" placeholder="https://...">
+                    <input type="url" class="form-control form-control-sm" name="manifest_uri" placeholder="{{ __('https://...') }}">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Label <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -54,7 +54,7 @@
                 <div class="mb-3">
                     <label class="form-label">Search for objects <span class="badge bg-secondary ms-1">Optional</span></label>
                     <input type="text" class="form-control" id="objectSearchInput"
-                           placeholder="Type to search by title or identifier..."
+                           placeholder="{{ __('Type to search by title or identifier...') }}"
                            autocomplete="off">
                     <div id="searchResults" class="list-group mt-2" style="max-height: 300px; overflow-y: auto;"></div>
                 </div>

@@ -32,10 +32,10 @@
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">RiC Concept</th><td>rico:Activity (Transfer / Accession)</td></tr>
-        @if($accession->identifier)<tr><th class="text-muted">Identifier</th><td>{{ $accession->identifier }}</td></tr>@endif
-        @if($accession->date)<tr><th class="text-muted">Date</th><td>{{ $accession->date }}</td></tr>@endif
-        @if($accession->scope_and_content)<tr><th class="text-muted">Scope</th><td>{{ \Illuminate\Support\Str::limit(strip_tags($accession->scope_and_content), 200) }}</td></tr>@endif
+        <tr><th class="text-muted" style="width:35%">{{ __('RiC Concept') }}</th><td>rico:Activity (Transfer / Accession)</td></tr>
+        @if($accession->identifier)<tr><th class="text-muted">{{ __('Identifier') }}</th><td>{{ $accession->identifier }}</td></tr>@endif
+        @if($accession->date)<tr><th class="text-muted">{{ __('Date') }}</th><td>{{ $accession->date }}</td></tr>@endif
+        @if($accession->scope_and_content)<tr><th class="text-muted">{{ __('Scope') }}</th><td>{{ \Illuminate\Support\Str::limit(strip_tags($accession->scope_and_content), 200) }}</td></tr>@endif
       </table>
     </div>
   </div>

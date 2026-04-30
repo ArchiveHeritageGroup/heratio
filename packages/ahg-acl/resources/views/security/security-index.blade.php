@@ -7,7 +7,7 @@
 <div class="container mt-4">
   <div class="row">
     <div class="col-12">
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
           <li class="breadcrumb-item"><a href="{{ route('acl.security-dashboard') }}">Security</a></li>
@@ -70,12 +70,12 @@
               <thead class="table-light">
                 <tr>
                   <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
-                  <th>User</th>
-                  <th>Clearance Level</th>
-                  <th>Granted By</th>
-                  <th>Granted</th>
-                  <th>Expires</th>
-                  <th>Actions</th>
+                  <th>{{ __('User') }}</th>
+                  <th>{{ __('Clearance Level') }}</th>
+                  <th>{{ __('Granted By') }}</th>
+                  <th>{{ __('Granted') }}</th>
+                  <th>{{ __('Expires') }}</th>
+                  <th>{{ __('Actions') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -128,7 +128,7 @@
                     <td>
                       <div class="btn-group btn-group-sm">
                         <a href="{{ route('acl.view-classification', ['id' => $user->id]) }}"
-                           class="btn btn-outline-primary" title="View Details">
+                           class="btn btn-outline-primary" title="{{ __('View Details') }}">
                           <i class="fas fa-eye"></i>
                         </a>
                         <button class="btn btn-outline-success"
@@ -137,14 +137,14 @@
                                 data-user-id="{{ $user->id }}"
                                 data-username="{{ e($user->username) }}"
                                 data-current="{{ $user->classification_id ?? 0 }}"
-                                title="Grant/Change Clearance">
+                                title="{{ __('Grant/Change Clearance') }}">
                           <i class="fas fa-key"></i>
                         </button>
                         @if($user->classification_id ?? null)
                           <a href="{{ route('acl.set-clearance') }}"
                              class="btn btn-outline-danger"
                              onclick="event.preventDefault(); if(confirm('Revoke clearance for {{ e($user->username) }}?')) { document.getElementById('revoke-form-{{ $user->id }}').submit(); }"
-                             title="Revoke Clearance">
+                             title="{{ __('Revoke Clearance') }}">
                             <i class="fas fa-ban"></i>
                           </a>
                           <form id="revoke-form-{{ $user->id }}" action="{{ route('acl.set-clearance') }}" method="POST" style="display:none;">
@@ -182,7 +182,7 @@
           <p>Granting clearance to: <strong id="grantUsername"></strong></p>
 
           <div class="mb-3">
-            <label for="grantClassification" class="form-label">Clearance Level</label>
+            <label for="grantClassification" class="form-label">{{ __('Clearance Level') }}</label>
             <select class="form-select" name="classification_id" id="grantClassification" required>
               <option value="0">-- Revoke Clearance --</option>
               @foreach($classifications ?? [] as $c)
@@ -194,17 +194,17 @@
           </div>
 
           <div class="mb-3">
-            <label for="grantExpires" class="form-label">Expires (optional)</label>
+            <label for="grantExpires" class="form-label">{{ __('Expires (optional)') }}</label>
             <input type="date" class="form-control" name="expires_at" id="grantExpires">
           </div>
 
           <div class="mb-3">
-            <label for="grantNotes" class="form-label">Notes</label>
-            <textarea class="form-control" name="notes" rows="2" placeholder="Reason for granting clearance..."></textarea>
+            <label for="grantNotes" class="form-label">{{ __('Notes') }}</label>
+            <textarea class="form-control" name="notes" rows="2" placeholder="{{ __('Reason for granting clearance...') }}"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="submit" class="btn btn-success">
             <i class="fas fa-check me-1"></i> Grant Clearance
           </button>
@@ -235,7 +235,7 @@
           <div id="selectedUsersContainer"></div>
 
           <div class="mb-3">
-            <label for="bulkClassification" class="form-label">Clearance Level</label>
+            <label for="bulkClassification" class="form-label">{{ __('Clearance Level') }}</label>
             <select class="form-select" name="classification_id" id="bulkClassification" required>
               @foreach($classifications ?? [] as $c)
                 <option value="{{ $c->id }}">
@@ -246,12 +246,12 @@
           </div>
 
           <div class="mb-3">
-            <label for="bulkNotes" class="form-label">Notes</label>
-            <textarea class="form-control" name="notes" rows="2" placeholder="Reason for bulk grant..."></textarea>
+            <label for="bulkNotes" class="form-label">{{ __('Notes') }}</label>
+            <textarea class="form-control" name="notes" rows="2" placeholder="{{ __('Reason for bulk grant...') }}"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="submit" class="btn btn-primary" id="bulkGrantBtn" disabled>
             <i class="fas fa-check me-1"></i> Grant to Selected
           </button>

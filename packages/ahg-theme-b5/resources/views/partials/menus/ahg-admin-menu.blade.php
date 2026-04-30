@@ -37,12 +37,12 @@
 {{-- AHG Plugins menu (admin only) --}}
 <li class="nav-item dropdown d-flex flex-column">
   <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="ahg-admin-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="fas fa-2x fa-fw fa-cubes px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="AHG Plugins" aria-hidden="true"></i>
+    <i class="fas fa-2x fa-fw fa-cubes px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="{{ __('AHG Plugins') }}" aria-hidden="true"></i>
     <span class="d-lg-none mx-1" aria-hidden="true">AHG Plugins</span>
     <span class="visually-hidden">AHG Plugins</span>
   </a>
   <ul class="dropdown-menu dropdown-menu-end mb-2" aria-labelledby="ahg-admin-menu" style="max-height: 80vh; overflow-y: auto;">
-    <li><h6 class="dropdown-header">AHG Plugins</h6></li>
+    <li><h6 class="dropdown-header">{{ __('AHG Plugins') }}</h6></li>
 
     {{-- Settings --}}
     <li><a class="dropdown-item" href="{{ route('settings.index') }}"><i class="fas fa-cog me-2"></i>AHG Settings</a></li>
@@ -70,12 +70,12 @@
 
     {{-- Security --}}
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">Security</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Security') }}</h6></li>
     <li><a class="dropdown-item" href="{{ route('acl.clearances') }}"><i class="fas fa-user-lock me-2"></i>Clearances</a></li>
 
     {{-- Research --}}
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">Research</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Research') }}</h6></li>
     <li><a class="dropdown-item" href="{{ url('/research/dashboard') }}"><i class="fas fa-book-reader me-2"></i>Dashboard</a></li>
     <li><a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ url('/research/researchers') }}">
       <span><i class="fas fa-user-graduate me-2"></i>Researchers</span>
@@ -93,7 +93,7 @@
 
     {{-- Researcher Submissions --}}
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">Researcher Submissions</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Researcher Submissions') }}</h6></li>
     <li><a class="dropdown-item" href="{{ route('researcher.dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
     <li><a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('researcher.pending') }}">
       <span><i class="fas fa-clock me-2"></i>Pending Review</span>
@@ -105,13 +105,13 @@
 
     {{-- Access --}}
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">Access</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Access') }}</h6></li>
     <li><a class="dropdown-item" href="{{ route('acl.access-requests') }}"><i class="fas fa-key me-2"></i>Requests</a></li>
     <li><a class="dropdown-item" href="{{ route('acl.approvers') }}"><i class="fas fa-user-check me-2"></i>Approvers</a></li>
 
     {{-- Audit --}}
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">Audit</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Audit') }}</h6></li>
     <li><a class="dropdown-item" href="{{ route('audit.statistics') }}"><i class="fas fa-chart-bar me-2"></i>Statistics</a></li>
     <li><a class="dropdown-item" href="{{ route('acl.audit-log') }}"><i class="fas fa-history me-2"></i>Logs</a></li>
     <li><a class="dropdown-item" href="{{ route('audit.settings') }}"><i class="fas fa-cog me-2"></i>Settings</a></li>
@@ -127,7 +127,7 @@
 
     {{-- Data Quality (Data Migration gated by ahgDataMigrationPlugin; Dedupe always shown) --}}
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">Data Quality</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Data Quality') }}</h6></li>
     @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgDataMigrationPlugin'))
     <li><a class="dropdown-item" href="{{ route('data-migration.index') }}"><i class="fas fa-exchange-alt me-2"></i>Data Migration</a></li>
     @endif
@@ -135,19 +135,19 @@
 
     {{-- Data Entry --}}
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">Data Entry</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Data Entry') }}</h6></li>
     <li><a class="dropdown-item" href="{{ url('/admin/formTemplates') }}"><i class="fas fa-wpforms me-2"></i>Form Templates</a></li>
 
     {{-- DOI Management --}}
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">DOI Management</h6></li>
+    <li><h6 class="dropdown-header">{{ __('DOI Management') }}</h6></li>
     <li><a class="dropdown-item" href="{{ route('doi.index') }}"><i class="fas fa-fingerprint me-2"></i>DOI Dashboard</a></li>
     <li><a class="dropdown-item" href="{{ route('doi.queue') }}"><i class="fas fa-stream me-2"></i>Minting Queue</a></li>
 
     {{-- Heritage (gated by ahgHeritageAccountingPlugin) --}}
     @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgHeritageAccountingPlugin'))
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">Heritage</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Heritage') }}</h6></li>
     <li><a class="dropdown-item" href="{{ route('heritage.admin') }}"><i class="fas fa-landmark me-2"></i>Admin</a></li>
     <li><a class="dropdown-item" href="{{ route('heritage.analytics') }}"><i class="fas fa-chart-line me-2"></i>Analytics</a></li>
     <li><a class="dropdown-item" href="{{ route('heritage.custodian') }}"><i class="fas fa-hands me-2"></i>Custodian</a></li>
@@ -155,7 +155,7 @@
 
     {{-- Maintenance (Backup/Restore gated by ahgBackupPlugin; Jobs always shown) --}}
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">Maintenance</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Maintenance') }}</h6></li>
     @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgBackupPlugin'))
     <li><a class="dropdown-item" href="{{ route('backup.index') }}"><i class="fas fa-download me-2"></i>Backup</a></li>
     <li><a class="dropdown-item" href="{{ route('backup.restore') }}"><i class="fas fa-upload me-2"></i>Restore</a></li>

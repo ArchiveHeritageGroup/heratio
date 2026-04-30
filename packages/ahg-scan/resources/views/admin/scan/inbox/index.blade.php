@@ -2,9 +2,9 @@
 @section('title', 'Scan inbox')
 
 @section('content')
-<h1>Scan inbox</h1>
+<h1>{{ __('Scan inbox') }}</h1>
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Admin</a></li>
         <li class="breadcrumb-item"><a href="{{ route('scan.dashboard') }}">Scan</a></li>
@@ -19,7 +19,7 @@
 <form method="GET" class="card card-body mb-3">
     <div class="row g-2">
         <div class="col-md-3">
-            <label class="form-label">Status</label>
+            <label class="form-label">{{ __('Status') }}</label>
             <select name="status" class="form-select form-select-sm">
                 <option value="">— All —</option>
                 @foreach($statuses as $s)
@@ -28,7 +28,7 @@
             </select>
         </div>
         <div class="col-md-3">
-            <label class="form-label">Folder</label>
+            <label class="form-label">{{ __('Folder') }}</label>
             <select name="folder" class="form-select form-select-sm">
                 <option value="">— All —</option>
                 @foreach($folders as $f)
@@ -37,11 +37,11 @@
             </select>
         </div>
         <div class="col-md-4">
-            <label class="form-label">Search filename</label>
+            <label class="form-label">{{ __('Search filename') }}</label>
             <input type="text" name="q" value="{{ $q }}" class="form-control form-control-sm">
         </div>
         <div class="col-md-2 d-flex align-items-end">
-            <button class="btn btn-sm btn-outline-secondary w-100">Filter</button>
+            <button class="btn btn-sm btn-outline-secondary w-100">{{ __('Filter') }}</button>
         </div>
     </div>
 </form>
@@ -75,14 +75,14 @@
                     <tr>
                         <th style="width:1%"><input type="checkbox" id="bulkSelectAll"></th>
                         <th>#</th>
-                        <th>Folder</th>
-                        <th>File</th>
-                        <th>Size</th>
-                        <th>Status</th>
-                        <th>Stage</th>
-                        <th>IO</th>
-                        <th>Attempts</th>
-                        <th>Created</th>
+                        <th>{{ __('Folder') }}</th>
+                        <th>{{ __('File') }}</th>
+                        <th>{{ __('Size') }}</th>
+                        <th>{{ __('Status') }}</th>
+                        <th>{{ __('Stage') }}</th>
+                        <th>{{ __('IO') }}</th>
+                        <th>{{ __('Attempts') }}</th>
+                        <th>{{ __('Created') }}</th>
                     </tr>
                 </thead>
                 <tbody>

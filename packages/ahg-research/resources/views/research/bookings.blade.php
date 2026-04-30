@@ -26,10 +26,10 @@
       <table class="table table-hover mb-0">
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Researcher</th>
-            <th>Room</th>
+            <th>{{ __('Date') }}</th>
+            <th>{{ __('Time') }}</th>
+            <th>{{ __('Researcher') }}</th>
+            <th>{{ __('Room') }}</th>
             <th width="150"></th>
           </tr>
         </thead>
@@ -51,13 +51,13 @@
                 </a>
                 <form action="{{ route('research.bookings.confirm', $booking->id) }}" method="POST" class="d-inline">
                   @csrf
-                  <button type="submit" class="btn btn-sm btn-outline-success" title="Confirm">
+                  <button type="submit" class="btn btn-sm btn-outline-success" title="{{ __('Confirm') }}">
                     <i class="fas fa-check"></i>
                   </button>
                 </form>
                 <form action="{{ route('research.bookings.cancel', $booking->id) }}" method="POST" class="d-inline">
                   @csrf
-                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancel">
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Cancel') }}">
                     <i class="fas fa-times"></i>
                   </button>
                 </form>
@@ -79,11 +79,11 @@
       <table class="table table-hover mb-0">
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Researcher</th>
-            <th>Room</th>
-            <th>Check-in</th>
+            <th>{{ __('Date') }}</th>
+            <th>{{ __('Time') }}</th>
+            <th>{{ __('Researcher') }}</th>
+            <th>{{ __('Room') }}</th>
+            <th>{{ __('Check-in') }}</th>
             <th width="180"></th>
           </tr>
         </thead>

@@ -111,7 +111,7 @@
                     <i class="fas fa-sticky-note me-1"></i>Notes
                   </label>
                   <textarea name="notes" id="notes" class="form-control" rows="3"
-                            placeholder="Enter any notes about this clearance...">{{ $clearance->notes ?? '' }}</textarea>
+                            placeholder="{{ __('Enter any notes about this clearance...') }}">{{ $clearance->notes ?? '' }}</textarea>
                 </div>
 
                 <div class="d-flex justify-content-between border-top pt-3">
@@ -203,8 +203,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" name="action_type" value="revoke" class="btn btn-danger">Revoke Clearance</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="submit" name="action_type" value="revoke" class="btn btn-danger">{{ __('Revoke Clearance') }}</button>
         </div>
       </form>
     </div>

@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'adminTypes'])@endsection
 @section('title', ($isNew ?? true) ? 'Add Researcher Type' : 'Edit Researcher Type')
 @section('content')
-<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.adminTypes') }}">Researcher Types</a></li><li class="breadcrumb-item active">{{ ($isNew ?? true) ? 'Add' : 'Edit' }}</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.adminTypes') }}">Researcher Types</a></li><li class="breadcrumb-item active">{{ ($isNew ?? true) ? 'Add' : 'Edit' }}</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-user-tag text-primary me-2"></i>{{ ($isNew ?? true) ? 'Add Researcher Type' : 'Edit Researcher Type' }}</h1>
 <div class="card">
     <div class="card-body">
@@ -15,7 +15,7 @@
                 <div class="col-md-3"><label class="form-label">Sort Order <span class="badge bg-secondary ms-1">Optional</span></label><input type="number" name="sort_order" class="form-control" value="{{ $type->sort_order ?? 0 }}"></div>
             </div>
             <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="description" class="form-control" rows="2">{{ e($type->description ?? '') }}</textarea></div>
-            <h5 class="border-bottom pb-2 mt-4 mb-3">Privileges</h5>
+            <h5 class="border-bottom pb-2 mt-4 mb-3">{{ __('Privileges') }}</h5>
             <div class="row mb-3">
                 <div class="col-md-4"><label class="form-label">Max Advance Booking Days <span class="badge bg-secondary ms-1">Optional</span></label><input type="number" name="max_advance_days" class="form-control" value="{{ $type->max_advance_days ?? 30 }}"></div>
                 <div class="col-md-4"><label class="form-label">Max Hours per Day <span class="badge bg-secondary ms-1">Optional</span></label><input type="number" name="max_hours_per_day" class="form-control" value="{{ $type->max_hours_per_day ?? 8 }}"></div>

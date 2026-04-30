@@ -30,7 +30,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="identity-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#identity-collapse" aria-expanded="true" aria-controls="identity-collapse">
-            Identity area
+            {{ __('Identity area') }}
           </button>
         </h2>
         <div id="identity-collapse" class="accordion-collapse collapse show" aria-labelledby="identity-heading">
@@ -38,7 +38,7 @@
             <div class="mb-3">
               <label for="authorized_form_of_name" class="form-label">
                 Authorized form of name
-                <span class="form-required" title="This is a mandatory field.">*</span>
+                <span class="form-required" title="{{ __('This is a mandatory field.') }}">*</span>
                 <span class="badge bg-danger ms-1">Required</span>
               </label>
               <input type="text" name="authorized_form_of_name" id="authorized_form_of_name" class="form-control" required
@@ -52,7 +52,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="description-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#description-collapse" aria-expanded="false" aria-controls="description-collapse">
-            Description area
+            {{ __('Description area') }}
           </button>
         </h2>
         <div id="description-collapse" class="accordion-collapse collapse" aria-labelledby="description-heading">
@@ -113,7 +113,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="control-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#control-collapse" aria-expanded="false" aria-controls="control-collapse">
-            Control area
+            {{ __('Control area') }}
           </button>
         </h2>
         <div id="control-collapse" class="accordion-collapse collapse" aria-labelledby="control-heading">
@@ -150,7 +150,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="contact-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#contact-collapse" aria-expanded="false" aria-controls="contact-collapse">
-            Contact area
+            {{ __('Contact area') }}
           </button>
         </h2>
         <div id="contact-collapse" class="accordion-collapse collapse" aria-labelledby="contact-heading">
@@ -164,14 +164,14 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="io-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#io-collapse" aria-expanded="false" aria-controls="io-collapse">
-            Archival description area
+            {{ __('Archival description area') }}
           </button>
         </h2>
         <div id="io-collapse" class="accordion-collapse collapse" aria-labelledby="io-heading">
           <div class="accordion-body">
             <div class="mb-3">
               <label for="information_objects" class="form-label">Linked archival descriptions <span class="badge bg-secondary ms-1">Optional</span></label>
-              <select name="information_objects[]" id="information_objects" class="form-select" multiple placeholder="Type to search archival descriptions...">
+              <select name="information_objects[]" id="information_objects" class="form-select" multiple placeholder="{{ __('Type to search archival descriptions...') }}">
                 @if(isset($linkedInformationObjects) && $linkedInformationObjects->isNotEmpty())
                   @foreach($linkedInformationObjects as $io)
                     <option value="{{ $io->id }}" selected>{{ $io->title ?: $io->identifier ?: '[Untitled]' }}</option>

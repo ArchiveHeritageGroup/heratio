@@ -11,42 +11,42 @@
 
 @section('sidebar')
 <section class="card mb-3">
-  <div class="card-header"><h6 class="mb-0">Filter options</h6></div>
+  <div class="card-header"><h6 class="mb-0">{{ __('Filter options') }}</h6></div>
   <div class="card-body">
     <form method="get" action="{{ route('reports.authorities') }}">
       <div class="mb-3">
-        <label class="form-label">Date start</label>
+        <label class="form-label">{{ __('Date start') }}</label>
         <input type="date" name="dateStart" class="form-control form-control-sm" value="{{ $params['dateStart'] ?? '' }}">
       </div>
       <div class="mb-3">
-        <label class="form-label">Date end</label>
+        <label class="form-label">{{ __('Date end') }}</label>
         <input type="date" name="dateEnd" class="form-control form-control-sm" value="{{ $params['dateEnd'] ?? '' }}">
       </div>
       <div class="mb-3">
-        <label class="form-label">Date of</label>
+        <label class="form-label">{{ __('Date of') }}</label>
         <select name="dateOf" class="form-select form-select-sm">
-          <option value="created_at" {{ ($params['dateOf'] ?? 'created_at') === 'created_at' ? 'selected' : '' }}>Creation date</option>
-          <option value="updated_at" {{ ($params['dateOf'] ?? '') === 'updated_at' ? 'selected' : '' }}>Modification date</option>
+          <option value="created_at" {{ ($params['dateOf'] ?? 'created_at') === 'created_at' ? 'selected' : '' }}>{{ __('Creation date') }}</option>
+          <option value="updated_at" {{ ($params['dateOf'] ?? '') === 'updated_at' ? 'selected' : '' }}>{{ __('Modification date') }}</option>
         </select>
       </div>
       <div class="mb-3">
-        <label class="form-label">Entity type</label>
+        <label class="form-label">{{ __('Entity type') }}</label>
         <select name="entityType" class="form-select form-select-sm">
-          <option value="">All types</option>
+          <option value="">{{ __('All types') }}</option>
           @foreach($entityTypes as $t)
             <option value="{{ $t->id }}" {{ ($params['entityType'] ?? '') == $t->id ? 'selected' : '' }}>{{ e($t->name) }}</option>
           @endforeach
         </select>
       </div>
       <div class="mb-3">
-        <label class="form-label">Results per page</label>
+        <label class="form-label">{{ __('Results per page') }}</label>
         <select name="limit" class="form-select form-select-sm">
           @foreach([10, 20, 50, 100] as $lim)
             <option value="{{ $lim }}" {{ ($params['limit'] ?? 20) == $lim ? 'selected' : '' }}>{{ $lim }}</option>
           @endforeach
         </select>
       </div>
-      <button type="submit" class="btn btn-primary btn-sm w-100 mb-2">Search</button>
+      <button type="submit" class="btn btn-primary btn-sm w-100 mb-2">{{ __('Search') }}</button>
       <button type="button" onclick="exportTableToCSV()" class="btn btn-outline-secondary btn-sm w-100">
         <i class="fas fa-download me-1"></i>Export CSV
       </button>
@@ -56,7 +56,7 @@
 @endsection
 
 @section('title-block')
-<h1>Browse Authority Record/Actor Report</h1>
+<h1>{{ __('Browse Authority Record/Actor Report') }}</h1>
 <div class="mb-3">
   <a href="{{ route('reports.dashboard') }}" class="btn btn-outline-secondary btn-sm">
     <i class="fas fa-arrow-left me-1"></i>Back to Reports
@@ -73,11 +73,11 @@
   <table id="reportTable" class="table table-striped table-sm">
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Dates</th>
-        <th>Created</th>
-        <th>Updated</th>
+        <th>{{ __('Name') }}</th>
+        <th>{{ __('Type') }}</th>
+        <th>{{ __('Dates') }}</th>
+        <th>{{ __('Created') }}</th>
+        <th>{{ __('Updated') }}</th>
       </tr>
     </thead>
     <tbody>

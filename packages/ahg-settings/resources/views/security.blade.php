@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Security settings</h1>
+  <h1>{{ __('Security settings') }}</h1>
 @endsection
 
 @section('content')
@@ -21,7 +21,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSecurity">
-              Security settings
+              {{ __('Security settings') }}
             </button>
           </h2>
           <div id="collapseSecurity" class="accordion-collapse collapse show" data-bs-parent="#settingsAccordion">
@@ -34,15 +34,15 @@
               <div class="mb-3">
                 <label class="form-label">Require SSL for admin <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="require_ssl_admin" class="form-select">
-                  <option value="0" {{ $settings['require_ssl_admin'] == '0' ? 'selected' : '' }}>No</option>
-                  <option value="1" {{ $settings['require_ssl_admin'] == '1' ? 'selected' : '' }}>Yes</option>
+                  <option value="0" {{ $settings['require_ssl_admin'] == '0' ? 'selected' : '' }}>{{ __('No') }}</option>
+                  <option value="1" {{ $settings['require_ssl_admin'] == '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
                 </select>
               </div>
               <div class="mb-3">
                 <label class="form-label">Require strong passwords <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="require_strong_passwords" class="form-select">
-                  <option value="0" {{ $settings['require_strong_passwords'] == '0' ? 'selected' : '' }}>No</option>
-                  <option value="1" {{ $settings['require_strong_passwords'] == '1' ? 'selected' : '' }}>Yes</option>
+                  <option value="0" {{ $settings['require_strong_passwords'] == '0' ? 'selected' : '' }}>{{ __('No') }}</option>
+                  <option value="1" {{ $settings['require_strong_passwords'] == '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
                 </select>
                 <small class="text-muted">Minimum 8 characters with upper, lower, digit, and symbol</small>
               </div>

@@ -18,7 +18,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.transfers') }}">Transfers</a></li>
@@ -33,7 +33,7 @@
         @csrf
         <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Transferring Agency</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Transferring Agency') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
@@ -41,24 +41,24 @@
                             <input type="text" name="transferring_agency" class="form-control" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Contact Person</label>
+                            <label class="form-label">{{ __('Contact Person') }}</label>
                             <input type="text" name="agency_contact" class="form-control">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Email</label>
+                            <label class="form-label">{{ __('Email') }}</label>
                             <input type="email" name="agency_email" class="form-control">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Phone</label>
+                            <label class="form-label">{{ __('Phone') }}</label>
                             <input type="tel" name="agency_phone" class="form-control">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Transfer Type</label>
+                            <label class="form-label">{{ __('Transfer Type') }}</label>
                             <select name="transfer_type" class="form-select">
-                                <option value="scheduled">Scheduled Transfer</option>
-                                <option value="voluntary">Voluntary Transfer</option>
-                                <option value="rescue">Rescue Transfer</option>
-                                <option value="donation">Donation</option>
+                                <option value="scheduled">{{ __('Scheduled Transfer') }}</option>
+                                <option value="voluntary">{{ __('Voluntary Transfer') }}</option>
+                                <option value="rescue">{{ __('Rescue Transfer') }}</option>
+                                <option value="donation">{{ __('Donation') }}</option>
                             </select>
                         </div>
                     </div>
@@ -66,31 +66,31 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Records Details</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Records Details') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label">Description <span class="text-danger">*</span></label>
-                            <textarea name="description" class="form-control" rows="4" required placeholder="Describe the records being transferred"></textarea>
+                            <textarea name="description" class="form-control" rows="4" required placeholder="{{ __('Describe the records being transferred') }}"></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Date Range Start</label>
+                            <label class="form-label">{{ __('Date Range Start') }}</label>
                             <input type="date" name="date_range_start" class="form-control">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Date Range End</label>
+                            <label class="form-label">{{ __('Date Range End') }}</label>
                             <input type="date" name="date_range_end" class="form-control">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Linear Metres</label>
+                            <label class="form-label">{{ __('Linear Metres') }}</label>
                             <input type="number" name="quantity_linear_metres" class="form-control" step="0.01" min="0">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Number of Boxes</label>
+                            <label class="form-label">{{ __('Number of Boxes') }}</label>
                             <input type="number" name="quantity_boxes" class="form-control" min="0">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Number of Items</label>
+                            <label class="form-label">{{ __('Number of Items') }}</label>
                             <input type="number" name="quantity_items" class="form-control" min="0">
                         </div>
                     </div>
@@ -99,13 +99,13 @@
 
             @if(!empty($schedules) && (is_countable($schedules) && count($schedules) > 0))
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Retention Schedule</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Retention Schedule') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label">Linked Schedule</label>
+                            <label class="form-label">{{ __('Linked Schedule') }}</label>
                             <select name="schedule_id" class="form-select">
-                                <option value="">None</option>
+                                <option value="">{{ __('None') }}</option>
                                 @foreach($schedules as $s)
                                     <option value="{{ $s->id }}">{{ $s->agency_name ?? '' }} — {{ $s->record_series ?? '' }}</option>
                                 @endforeach
@@ -117,7 +117,7 @@
             @endif
 
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Restrictions</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Restrictions') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
@@ -129,11 +129,11 @@
                             </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Restriction Details</label>
+                            <label class="form-label">{{ __('Restriction Details') }}</label>
                             <textarea name="restriction_details" class="form-control" rows="2"></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Proposed Transfer Date</label>
+                            <label class="form-label">{{ __('Proposed Transfer Date') }}</label>
                             <input type="date" name="proposed_date" class="form-control">
                         </div>
                     </div>

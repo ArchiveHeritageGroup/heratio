@@ -2,7 +2,7 @@
 @section('title', 'Training Data Sources — HTR')
 @section('body-class', 'admin ai-services htr')
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li>
     <li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">Vital Records HTR</a></li>
@@ -50,16 +50,16 @@
         @csrf
         <div class="row g-3">
           <div class="col-md-4">
-            <label class="form-label">Client ID</label>
-            <input type="text" name="fs_client_id" class="form-control" placeholder="FAMILYSEARCH_CLIENT_ID" value="{{ old('fs_client_id') }}">
+            <label class="form-label">{{ __('Client ID') }}</label>
+            <input type="text" name="fs_client_id" class="form-control" placeholder="{{ __('FAMILYSEARCH_CLIENT_ID') }}" value="{{ old('fs_client_id') }}">
           </div>
           <div class="col-md-4">
-            <label class="form-label">Username</label>
-            <input type="text" name="fs_username" class="form-control" placeholder="FAMILYSEARCH_USERNAME" value="{{ old('fs_username') }}">
+            <label class="form-label">{{ __('Username') }}</label>
+            <input type="text" name="fs_username" class="form-control" placeholder="{{ __('FAMILYSEARCH_USERNAME') }}" value="{{ old('fs_username') }}">
           </div>
           <div class="col-md-4">
-            <label class="form-label">Password</label>
-            <input type="password" name="fs_password" class="form-control" placeholder="FAMILYSEARCH_PASSWORD">
+            <label class="form-label">{{ __('Password') }}</label>
+            <input type="password" name="fs_password" class="form-control" placeholder="{{ __('FAMILYSEARCH_PASSWORD') }}">
           </div>
         </div>
         <button type="submit" class="btn atom-btn-outline-success mt-3"><i class="fas fa-save me-1"></i>Save Credentials</button>
@@ -77,11 +77,11 @@
     <table class="table table-hover mb-0">
       <thead>
         <tr>
-          <th>Collection</th>
-          <th>Region</th>
-          <th>Doc Type</th>
-          <th>Downloaded</th>
-          <th class="text-end">Actions</th>
+          <th>{{ __('Collection') }}</th>
+          <th>{{ __('Region') }}</th>
+          <th>{{ __('Doc Type') }}</th>
+          <th>{{ __('Downloaded') }}</th>
+          <th class="text-end">{{ __('Actions') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -109,7 +109,7 @@
               <td class="text-end">
                 <div class="input-group input-group-sm justify-content-end" style="max-width:240px; margin-left:auto;">
                   <input type="number" class="form-control download-count" value="50" min="1" max="1000" data-collection="{{ $src['collection_id'] }}" data-doctype="{{ $src['doc_type'] }}">
-                  <button class="btn atom-btn-outline-success btn-download" data-collection="{{ $src['collection_id'] }}" data-doctype="{{ $src['doc_type'] }}" @if(!$fsConfigured) disabled title="Configure API key first" @endif>
+                  <button class="btn atom-btn-outline-success btn-download" data-collection="{{ $src['collection_id'] }}" data-doctype="{{ $src['doc_type'] }}" @if(!$fsConfigured) disabled title="{{ __('Configure API key first') }}" @endif>
                     <i class="fas fa-download me-1"></i>Download
                   </button>
                 </div>
@@ -131,10 +131,10 @@
     <table class="table table-hover mb-0">
       <thead>
         <tr>
-          <th>Collection</th>
-          <th>Doc Type</th>
-          <th>Downloaded</th>
-          <th class="text-end">Actions</th>
+          <th>{{ __('Collection') }}</th>
+          <th>{{ __('Doc Type') }}</th>
+          <th>{{ __('Downloaded') }}</th>
+          <th class="text-end">{{ __('Actions') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -173,12 +173,12 @@
     <table class="table table-hover mb-0" id="jobs-table">
       <thead>
         <tr>
-          <th>Job ID</th>
-          <th>Source</th>
-          <th>Collection</th>
-          <th>Type</th>
-          <th>Progress</th>
-          <th>Status</th>
+          <th>{{ __('Job ID') }}</th>
+          <th>{{ __('Source') }}</th>
+          <th>{{ __('Collection') }}</th>
+          <th>{{ __('Type') }}</th>
+          <th>{{ __('Progress') }}</th>
+          <th>{{ __('Status') }}</th>
         </tr>
       </thead>
       <tbody>

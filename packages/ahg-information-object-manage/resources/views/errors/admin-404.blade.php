@@ -28,11 +28,11 @@
           <table class="table table-sm table-bordered mb-0">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Parent ID</th>
-                <th>Nested Set</th>
-                <th>Action</th>
+                <th>{{ __('ID') }}</th>
+                <th>{{ __('Title') }}</th>
+                <th>{{ __('Parent ID') }}</th>
+                <th>{{ __('Nested Set') }}</th>
+                <th>{{ __('Action') }}</th>
               </tr>
             </thead>
             <tbody>

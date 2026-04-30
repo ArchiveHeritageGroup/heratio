@@ -166,14 +166,14 @@
         <table class="table table-bordered table-sm table-hover mb-0">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Object Title</th>
-              <th>Filename</th>
-              <th>MIME Type</th>
-              <th>Size</th>
-              <th class="text-center">Thumb</th>
-              <th class="text-center">Ref</th>
-              <th class="text-end">Actions</th>
+              <th>{{ __('ID') }}</th>
+              <th>{{ __('Object Title') }}</th>
+              <th>{{ __('Filename') }}</th>
+              <th>{{ __('MIME Type') }}</th>
+              <th>{{ __('Size') }}</th>
+              <th class="text-center">{{ __('Thumb') }}</th>
+              <th class="text-center">{{ __('Ref') }}</th>
+              <th class="text-end">{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -209,7 +209,7 @@
               <td class="text-end">
                 <form method="POST" action="{{ route('media-processing.regenerate', $master->id) }}" class="d-inline">
                   @csrf
-                  <button type="submit" class="btn btn-sm atom-btn-white" title="Regenerate derivatives">
+                  <button type="submit" class="btn btn-sm atom-btn-white" title="{{ __('Regenerate derivatives') }}">
                     <i class="fas fa-sync-alt"></i>
                   </button>
                 </form>
@@ -234,13 +234,13 @@
         <table class="table table-bordered table-sm table-hover mb-0">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Object Title</th>
-              <th>Master</th>
-              <th>Derivative</th>
-              <th>Type</th>
-              <th>MIME</th>
-              <th>Size</th>
+              <th>{{ __('ID') }}</th>
+              <th>{{ __('Object Title') }}</th>
+              <th>{{ __('Master') }}</th>
+              <th>{{ __('Derivative') }}</th>
+              <th>{{ __('Type') }}</th>
+              <th>{{ __('MIME') }}</th>
+              <th>{{ __('Size') }}</th>
             </tr>
           </thead>
           <tbody>

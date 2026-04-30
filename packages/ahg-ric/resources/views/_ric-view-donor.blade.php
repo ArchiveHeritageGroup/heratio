@@ -36,7 +36,7 @@
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">RiC Role</th><td>Provenance agent / Donor</td></tr>
+        <tr><th class="text-muted" style="width:35%">{{ __('RiC Role') }}</th><td>Provenance agent / Donor</td></tr>
       </table>
     </div>
   </div>

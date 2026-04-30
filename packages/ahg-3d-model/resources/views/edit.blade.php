@@ -7,7 +7,7 @@
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
   {{-- Breadcrumb --}}
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
       <li class="breadcrumb-item"><a href="{{ route('admin.3d-models.index') }}">3D Models</a></li>
@@ -21,7 +21,7 @@
   @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
       {{ session('success') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
@@ -38,7 +38,7 @@
             <model-viewer
               id="preview-viewer"
               src="/uploads/{{ $model->file_path }}"
-              alt="Preview"
+              alt="{{ __('Preview') }}"
               camera-controls
               touch-action="pan-y"
               auto-rotate
@@ -211,10 +211,10 @@
           </div>
           <div class="card-body">
             <table class="table table-sm mb-0">
-              <tr><th>Filename</th><td>{{ e($model->original_filename ?? '') }}</td></tr>
-              <tr><th>Format</th><td>{{ strtoupper($model->format ?? '') }}</td></tr>
-              <tr><th>Size</th><td>{{ number_format(($model->file_size ?? 0) / 1048576, 2) }} MB</td></tr>
-              <tr><th>Uploaded</th><td>{{ !empty($model->created_at) ? \Carbon\Carbon::parse($model->created_at)->format('M j, Y') : '-' }}</td></tr>
+              <tr><th>{{ __('Filename') }}</th><td>{{ e($model->original_filename ?? '') }}</td></tr>
+              <tr><th>{{ __('Format') }}</th><td>{{ strtoupper($model->format ?? '') }}</td></tr>
+              <tr><th>{{ __('Size') }}</th><td>{{ number_format(($model->file_size ?? 0) / 1048576, 2) }} MB</td></tr>
+              <tr><th>{{ __('Uploaded') }}</th><td>{{ !empty($model->created_at) ? \Carbon\Carbon::parse($model->created_at)->format('M j, Y') : '-' }}</td></tr>
             </table>
           </div>
         </div>
@@ -284,7 +284,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Add Hotspot</h5>
+          <h5 class="modal-title">{{ __('Add Hotspot') }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -292,11 +292,11 @@
           <div class="mb-3">
             <label class="form-label">Type <span class="badge bg-danger ms-1">Required</span></label>
             <select class="form-select" id="hotspot_type">
-              <option value="annotation">Annotation</option>
-              <option value="info">Information</option>
-              <option value="damage">Damage</option>
-              <option value="detail">Detail</option>
-              <option value="link">Link</option>
+              <option value="annotation">{{ __('Annotation') }}</option>
+              <option value="info">{{ __('Information') }}</option>
+              <option value="damage">{{ __('Damage') }}</option>
+              <option value="detail">{{ __('Detail') }}</option>
+              <option value="link">{{ __('Link') }}</option>
             </select>
           </div>
           <div class="mb-3">
@@ -317,8 +317,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn atom-btn-white" id="saveHotspot">Add Hotspot</button>
+          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="button" class="btn atom-btn-white" id="saveHotspot">{{ __('Add Hotspot') }}</button>
         </div>
       </div>
     </div>

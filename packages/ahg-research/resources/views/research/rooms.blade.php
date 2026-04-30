@@ -1,7 +1,7 @@
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar')@endsection
 @section('title-block')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.index') }}">Research</a></li>
         <li class="breadcrumb-item active">Reading Rooms</li>

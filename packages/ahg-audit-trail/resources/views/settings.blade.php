@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-cog me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Audit settings</h1>
+      <h1 class="mb-0">{{ __('Audit settings') }}</h1>
       <span class="small text-muted">Configure audit logging behaviour</span>
     </div>
   </div>
@@ -18,7 +18,7 @@
     {{-- General --}}
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">General</h5>
+        <h5 class="mb-0">{{ __('General') }}</h5>
       </div>
       <div class="card-body">
         <div class="form-check form-switch">
@@ -32,7 +32,7 @@
     {{-- What to Log --}}
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">What to Log</h5>
+        <h5 class="mb-0">{{ __('What to Log') }}</h5>
       </div>
       <div class="card-body">
         <div class="row">
@@ -77,7 +77,7 @@
     {{-- Privacy Settings --}}
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">Privacy Settings</h5>
+        <h5 class="mb-0">{{ __('Privacy Settings') }}</h5>
       </div>
       <div class="card-body">
         <div class="form-check form-switch mb-3">

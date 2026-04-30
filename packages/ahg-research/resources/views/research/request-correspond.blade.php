@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'workspace'])@endsection
 @section('title', 'Request Correspondence')
 @section('content')
-<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Correspondence</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Correspondence</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-envelope text-primary me-2"></i>Request Correspondence</h1>
 <div class="row"><div class="col-md-8">
 <div class="card mb-4"><div class="card-header" style="background:var(--ahg-primary);color:#fff">Messages</div>
@@ -23,13 +23,13 @@
     </div>
     <div class="card-footer">
         <form method="POST" class="d-flex gap-2">@csrf <input type="hidden" name="request_id" value="{{ $request_id ?? 0 }}">
-            <input type="text" name="message" class="form-control" placeholder="Type a message..." required>
+            <input type="text" name="message" class="form-control" placeholder="{{ __('Type a message...') }}" required>
             <button type="submit" class="btn atom-btn-white"><i class="fas fa-paper-plane"></i></button>
         </form>
     </div>
 </div>
 </div><div class="col-md-4">
-<div class="card"><div class="card-header"><h6 class="mb-0">Request Details</h6></div><div class="card-body">
+<div class="card"><div class="card-header"><h6 class="mb-0">{{ __('Request Details') }}</h6></div><div class="card-body">
     <dl class="row mb-0 small">
         <dt class="col-sm-5">Request #</dt><dd class="col-sm-7">{{ $requestDetail->id ?? '' }}</dd>
         <dt class="col-sm-5">Status</dt><dd class="col-sm-7"><span class="badge bg-{{ match($requestDetail->status ?? '') { 'approved' => 'success', 'denied' => 'danger', 'pending' => 'warning', default => 'secondary' } }}">{{ ucfirst($requestDetail->status ?? '') }}</span></dd>

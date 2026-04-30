@@ -106,17 +106,17 @@
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:25%">RiC Entity Type</th><td><code>rico:{{ $ricType }}</code></td></tr>
-        <tr><th class="text-muted">Identifier</th><td>{{ $io->identifier ?? '—' }}</td></tr>
-        <tr><th class="text-muted">Level</th><td>{{ $lodLabel ?: '—' }}</td></tr>
+        <tr><th class="text-muted" style="width:25%">{{ __('RiC Entity Type') }}</th><td><code>rico:{{ $ricType }}</code></td></tr>
+        <tr><th class="text-muted">{{ __('Identifier') }}</th><td>{{ $io->identifier ?? '—' }}</td></tr>
+        <tr><th class="text-muted">{{ __('Level') }}</th><td>{{ $lodLabel ?: '—' }}</td></tr>
         @if($holder)
-          <tr><th class="text-muted">hasOrHadHolder</th><td><a href="{{ url('/' . $holder->slug) }}">{{ $holder->name }}</a></td></tr>
+          <tr><th class="text-muted">{{ __('hasOrHadHolder') }}</th><td><a href="{{ url('/' . $holder->slug) }}">{{ $holder->name }}</a></td></tr>
         @endif
         @if($io->scope_and_content)
-          <tr><th class="text-muted">Scope</th><td>{{ \Illuminate\Support\Str::limit(strip_tags($io->scope_and_content), 200) }}</td></tr>
+          <tr><th class="text-muted">{{ __('Scope') }}</th><td>{{ \Illuminate\Support\Str::limit(strip_tags($io->scope_and_content), 200) }}</td></tr>
         @endif
         @if($io->extent_and_medium)
-          <tr><th class="text-muted">Extent</th><td>{{ $io->extent_and_medium }}</td></tr>
+          <tr><th class="text-muted">{{ __('Extent') }}</th><td>{{ $io->extent_and_medium }}</td></tr>
         @endif
       </table>
     </div>

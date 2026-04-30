@@ -28,12 +28,12 @@
             <p class="text-muted">{{ $report->description }}</p>
           @endif
           <table class="table table-sm">
-            <tr><th width="150">ID</th><td>{{ $report->id ?? '-' }}</td></tr>
-            <tr><th>Data Source</th><td>{{ ucfirst($report->data_source ?? '-') }}</td></tr>
-            <tr><th>Category</th><td>{{ $report->category ?? '-' }}</td></tr>
-            <tr><th>Status</th><td><span class="badge bg-secondary">{{ ucfirst($report->status ?? 'draft') }}</span></td></tr>
-            <tr><th>Created</th><td>{{ $report->created_at ?? '-' }}</td></tr>
-            <tr><th>Updated</th><td>{{ $report->updated_at ?? '-' }}</td></tr>
+            <tr><th width="150">{{ __('ID') }}</th><td>{{ $report->id ?? '-' }}</td></tr>
+            <tr><th>{{ __('Data Source') }}</th><td>{{ ucfirst($report->data_source ?? '-') }}</td></tr>
+            <tr><th>{{ __('Category') }}</th><td>{{ $report->category ?? '-' }}</td></tr>
+            <tr><th>{{ __('Status') }}</th><td><span class="badge bg-secondary">{{ ucfirst($report->status ?? 'draft') }}</span></td></tr>
+            <tr><th>{{ __('Created') }}</th><td>{{ $report->created_at ?? '-' }}</td></tr>
+            <tr><th>{{ __('Updated') }}</th><td>{{ $report->updated_at ?? '-' }}</td></tr>
           </table>
         @else
           <p class="text-muted text-center py-4">No data available.</p>

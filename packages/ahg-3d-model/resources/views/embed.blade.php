@@ -78,7 +78,7 @@
     @endforeach
 
     @if(!empty($model->ar_enabled))
-      <button slot="ar-button" class="ar-button">View in AR</button>
+      <button slot="ar-button" class="ar-button">{{ __('View in AR') }}</button>
     @endif
 
     <div class="progress-bar" slot="progress-bar">

@@ -36,7 +36,7 @@
 @endphp
 
 <div class="condition-check-header">
-  <nav aria-label="breadcrumb" class="mb-2">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-2">
     <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
       @if(!empty($conditionCheck->slug))

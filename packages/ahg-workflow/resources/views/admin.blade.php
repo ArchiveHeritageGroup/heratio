@@ -50,14 +50,14 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th>Name</th>
-                <th>Scope</th>
-                <th>Trigger</th>
-                <th>Applies To</th>
-                <th>Steps</th>
-                <th>Active Tasks</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>{{ __('Name') }}</th>
+                <th>{{ __('Scope') }}</th>
+                <th>{{ __('Trigger') }}</th>
+                <th>{{ __('Applies To') }}</th>
+                <th>{{ __('Steps') }}</th>
+                <th>{{ __('Active Tasks') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>

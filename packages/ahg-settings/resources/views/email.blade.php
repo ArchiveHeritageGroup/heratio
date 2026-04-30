@@ -45,7 +45,7 @@
             <div class="card-body">
               <p class="small text-muted">Save settings first, then send a test email to verify configuration.</p>
               <div class="input-group">
-                <input type="email" name="test_email" class="form-control" placeholder="test@example.com" id="testEmailInput">
+                <input type="email" name="test_email" class="form-control" placeholder="{{ __('test@example.com') }}" id="testEmailInput">
                 <button type="button" class="btn atom-btn-white" id="btnSendTest">
                   <i class="fas fa-paper-plane me-1"></i>Send Test
                 </button>
@@ -59,7 +59,7 @@
               @foreach ($notificationSettings as $setting)
                 <div class="mb-3">
                   <label class="form-label">{{ ucwords(str_replace('_', ' ', str_replace('notify_', '', $setting->setting_key))) }} <span class="badge bg-secondary ms-1">Optional</span></label>
-                  <input type="email" name="settings[{{ $setting->setting_key }}]" class="form-control" value="{{ e($setting->setting_value ?? '') }}" placeholder="admin@example.com">
+                  <input type="email" name="settings[{{ $setting->setting_key }}]" class="form-control" value="{{ e($setting->setting_value ?? '') }}" placeholder="{{ __('admin@example.com') }}">
                   @if ($setting->description)<small class="text-muted">{{ e($setting->description) }}</small>@endif
                 </div>
               @endforeach
@@ -120,8 +120,8 @@
           <div class="mb-3">
             <label class="form-label">Enable Error Alerts <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="error_alert[error_alert_enabled]" class="form-select">
-              <option value="0" {{ (isset($errorAlertSettings['error_alert_enabled']) && $errorAlertSettings['error_alert_enabled'] === '0') ? 'selected' : '' }}>Disabled</option>
-              <option value="1" {{ (!isset($errorAlertSettings['error_alert_enabled']) || $errorAlertSettings['error_alert_enabled'] === '1') ? 'selected' : '' }}>Enabled</option>
+              <option value="0" {{ (isset($errorAlertSettings['error_alert_enabled']) && $errorAlertSettings['error_alert_enabled'] === '0') ? 'selected' : '' }}>{{ __('Disabled') }}</option>
+              <option value="1" {{ (!isset($errorAlertSettings['error_alert_enabled']) || $errorAlertSettings['error_alert_enabled'] === '1') ? 'selected' : '' }}>{{ __('Enabled') }}</option>
             </select>
             <small class="text-muted">Send email alerts when unhandled exceptions occur.</small>
           </div>
@@ -140,8 +140,8 @@
           <div class="mb-3">
             <label class="form-label">Production Only <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="error_alert[error_alert_env_gate]" class="form-select">
-              <option value="0" {{ (isset($errorAlertSettings['error_alert_env_gate']) && $errorAlertSettings['error_alert_env_gate'] === '0') ? 'selected' : '' }}>Send in all environments</option>
-              <option value="1" {{ (!isset($errorAlertSettings['error_alert_env_gate']) || $errorAlertSettings['error_alert_env_gate'] === '1') ? 'selected' : '' }}>Production only</option>
+              <option value="0" {{ (isset($errorAlertSettings['error_alert_env_gate']) && $errorAlertSettings['error_alert_env_gate'] === '0') ? 'selected' : '' }}>{{ __('Send in all environments') }}</option>
+              <option value="1" {{ (!isset($errorAlertSettings['error_alert_env_gate']) || $errorAlertSettings['error_alert_env_gate'] === '1') ? 'selected' : '' }}>{{ __('Production only') }}</option>
             </select>
             <small class="text-muted">When enabled, suppresses alerts in debug/development mode.</small>
           </div>
@@ -166,7 +166,7 @@
             <div class="form-check form-switch">
               <input type="hidden" name="notif_toggles[research_email_notifications]" value="0">
               <input class="form-check-input" type="checkbox" name="notif_toggles[research_email_notifications]" value="1" id="research_email_notifications" {{ ($notifToggles['research_email_notifications'] ?? '1') == '1' ? 'checked' : '' }}>
-              <label class="form-check-label" for="research_email_notifications">Enabled</label>
+              <label class="form-check-label" for="research_email_notifications">{{ __('Enabled') }}</label>
             </div>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -177,7 +177,7 @@
             <div class="form-check form-switch">
               <input type="hidden" name="notif_toggles[access_request_email_notifications]" value="0">
               <input class="form-check-input" type="checkbox" name="notif_toggles[access_request_email_notifications]" value="1" id="access_request_email_notifications" {{ ($notifToggles['access_request_email_notifications'] ?? '1') == '1' ? 'checked' : '' }}>
-              <label class="form-check-label" for="access_request_email_notifications">Enabled</label>
+              <label class="form-check-label" for="access_request_email_notifications">{{ __('Enabled') }}</label>
             </div>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -188,7 +188,7 @@
             <div class="form-check form-switch">
               <input type="hidden" name="notif_toggles[workflow_email_notifications]" value="0">
               <input class="form-check-input" type="checkbox" name="notif_toggles[workflow_email_notifications]" value="1" id="workflow_email_notifications" {{ ($notifToggles['workflow_email_notifications'] ?? '1') == '1' ? 'checked' : '' }}>
-              <label class="form-check-label" for="workflow_email_notifications">Enabled</label>
+              <label class="form-check-label" for="workflow_email_notifications">{{ __('Enabled') }}</label>
             </div>
           </li>
         </ul>

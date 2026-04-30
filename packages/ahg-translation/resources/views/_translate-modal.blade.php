@@ -74,7 +74,7 @@
           <i class="fas fa-language me-2"></i>Translate Record
           <span class="ahg-step-indicator badge bg-light text-dark ms-2">Step 1: Select Fields</span>
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
       </div>
 
       <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
@@ -83,7 +83,7 @@
         <div class="ahg-step-1">
           <div class="row mb-3">
             <div class="col-md-4">
-              <label class="form-label fw-bold">Read from culture</label>
+              <label class="form-label fw-bold">{{ __('Read from culture') }}</label>
               <select class="form-select ahg-translate-read-culture">
                 @foreach ($availableCultures as $c)
                   @php
@@ -96,7 +96,7 @@
               <small class="text-muted">Culture where text is stored</small>
             </div>
             <div class="col-md-4">
-              <label class="form-label fw-bold">Source Language</label>
+              <label class="form-label fw-bold">{{ __('Source Language') }}</label>
               <select class="form-select ahg-translate-source">
                 @foreach ($targetLanguages as $code => $name)
                   <option value="{{ $code }}" {{ $code === $userCulture ? 'selected' : '' }}>{{ $name }}</option>
@@ -105,7 +105,7 @@
               <small class="text-muted">Actual language of the text</small>
             </div>
             <div class="col-md-4">
-              <label class="form-label fw-bold">Target Language</label>
+              <label class="form-label fw-bold">{{ __('Target Language') }}</label>
               <select class="form-select ahg-translate-target">
                 @foreach ($targetLanguages as $code => $name)
                   <option value="{{ $code }}" {{ $code === $defaultTarget ? 'selected' : '' }}>{{ $name }}</option>
@@ -118,14 +118,14 @@
             <div class="col-md-6">
               <div class="form-check form-switch">
                 <input class="form-check-input ahg-save-culture" type="checkbox" id="ahg-save-culture-{{ $objectId }}" {{ $saveCultureDefault ? 'checked' : '' }}>
-                <label class="form-check-label fw-bold" for="ahg-save-culture-{{ $objectId }}">Save with culture code</label>
+                <label class="form-check-label fw-bold" for="ahg-save-culture-{{ $objectId }}">{{ __('Save with culture code') }}</label>
               </div>
               <small class="text-muted">Saves translation in target language's culture</small>
             </div>
             <div class="col-md-6">
               <div class="form-check form-switch">
                 <input class="form-check-input ahg-overwrite" type="checkbox" id="ahg-overwrite-{{ $objectId }}" {{ $overwriteDefault ? 'checked' : '' }}>
-                <label class="form-check-label fw-bold" for="ahg-overwrite-{{ $objectId }}">Overwrite existing</label>
+                <label class="form-check-label fw-bold" for="ahg-overwrite-{{ $objectId }}">{{ __('Overwrite existing') }}</label>
               </div>
               <small class="text-muted">Overwrite if target field already has content</small>
             </div>
@@ -136,8 +136,8 @@
           <div class="mb-2">
             <span class="fw-bold">Fields to Translate</span>
             <div class="float-end">
-              <button type="button" class="btn btn-sm btn-outline-secondary ahg-select-all">Select All</button>
-              <button type="button" class="btn btn-sm btn-outline-secondary ahg-deselect-all">Deselect All</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary ahg-select-all">{{ __('Select All') }}</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary ahg-deselect-all">{{ __('Deselect All') }}</button>
             </div>
           </div>
 

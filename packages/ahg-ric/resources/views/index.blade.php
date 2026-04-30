@@ -20,7 +20,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="card-subtitle text-muted mb-1">Fuseki Status</h6>
+              <h6 class="card-subtitle text-muted mb-1">{{ __('Fuseki Status') }}</h6>
               <h3 class="mb-0 {{ ($fusekiStatus['online'] ?? false) ? 'text-success' : 'text-danger' }}">
                 {{ ($fusekiStatus['online'] ?? false) ? 'Online' : 'Offline' }}
               </h3>
@@ -50,7 +50,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="card-subtitle text-muted mb-1">Queue</h6>
+              <h6 class="card-subtitle text-muted mb-1">{{ __('Queue') }}</h6>
               <h3 class="mb-0" id="queue-count">
                 <span class="spinner-border spinner-border-sm text-muted"></span>
               </h3>
@@ -71,7 +71,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="card-subtitle text-muted mb-1">Orphaned Triples</h6>
+              <h6 class="card-subtitle text-muted mb-1">{{ __('Orphaned Triples') }}</h6>
               <h3 class="mb-0" id="orphan-count">
                 <span class="spinner-border spinner-border-sm text-muted"></span>
               </h3>
@@ -91,7 +91,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="card-subtitle text-muted mb-1">Sync Status</h6>
+              <h6 class="card-subtitle text-muted mb-1">{{ __('Sync Status') }}</h6>
               <h3 class="mb-0 {{ ($syncSummary['synced'] ?? 0) > 0 ? 'text-success' : 'text-secondary' }}">
                 {{ ($syncSummary['synced'] ?? 0) > 0 ? 'Active' : 'Disabled' }}
               </h3>
@@ -112,7 +112,7 @@
   <div class="row g-3 mb-4">
     <div class="col-md-8">
       <div class="card h-100">
-        <div class="card-header" ><h5 class="mb-0">Record Activity (7 Days)</h5></div>
+        <div class="card-header" ><h5 class="mb-0">{{ __('Record Activity (7 Days)') }}</h5></div>
         <div class="card-body position-relative" style="min-height: 200px;">
           <div id="chart-loading-1" class="text-center py-5">
             <div class="spinner-border text-primary"></div>
@@ -124,7 +124,7 @@
     </div>
     <div class="col-md-4">
       <div class="card h-100">
-        <div class="card-header" ><h5 class="mb-0">Operations by Type</h5></div>
+        <div class="card-header" ><h5 class="mb-0">{{ __('Operations by Type') }}</h5></div>
         <div class="card-body position-relative" style="min-height: 200px;">
           <div id="chart-loading-2" class="text-center py-5">
             <div class="spinner-border text-primary"></div>
@@ -140,7 +140,7 @@
   <div class="row g-3 mb-4">
     <div class="col-md-8">
       <div class="card">
-        <div class="card-header" ><h5 class="mb-0">Entity Sync Status</h5></div>
+        <div class="card-header" ><h5 class="mb-0">{{ __('Entity Sync Status') }}</h5></div>
         <div class="card-body" id="entity-status-body">
           <div class="text-center py-4">
             <div class="spinner-border text-primary"></div>
@@ -153,10 +153,10 @@
     <div class="col-md-4">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center" >
-          <h5 class="mb-0">Quick Actions</h5>
+          <h5 class="mb-0">{{ __('Quick Actions') }}</h5>
         </div>
         <div class="card-body">
-          <button type="button" class="btn btn-success w-100 mb-2" onclick="runManualSync()" id="sync-btn" disabled title="Checking sync configuration...">
+          <button type="button" class="btn btn-success w-100 mb-2" onclick="runManualSync()" id="sync-btn" disabled title="{{ __('Checking sync configuration...') }}">
             <i class="fas fa-sync-alt"></i> Sync to Fuseki
           </button>
           <div id="sync-readiness" class="small text-muted mb-2"><i class="fas fa-spinner fa-spin"></i> Checking configuration…</div>
@@ -186,7 +186,7 @@
 
       {{-- Integrity Results --}}
       <div class="card mt-3" id="integrity-results" style="display: none;">
-        <div class="card-header" ><h5 class="mb-0">Integrity Check Results</h5></div>
+        <div class="card-header" ><h5 class="mb-0">{{ __('Integrity Check Results') }}</h5></div>
         <div class="card-body" id="integrity-content"></div>
       </div>
 
@@ -201,7 +201,7 @@
   {{-- Recent Operations --}}
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center" >
-      <h5 class="mb-0">Recent Operations</h5>
+      <h5 class="mb-0">{{ __('Recent Operations') }}</h5>
       <small class="text-white-50" id="last-updated"></small>
     </div>
     <div class="card-body" id="recent-ops-body">

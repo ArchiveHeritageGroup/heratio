@@ -43,7 +43,7 @@
             <button class="accordion-button collapsed" type="button"
                     data-bs-toggle="collapse" data-bs-target="#collapse-languages"
                     aria-expanded="false" aria-controls="collapse-languages">
-              Language
+              {{ __('Language') }}
             </button>
           </h2>
           <div id="collapse-languages" class="accordion-collapse collapse list-group list-group-flush"
@@ -53,7 +53,7 @@
               $langParams = request()->except(['languages', 'page']);
             @endphp
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentLang === '' ? 'active text-decoration-underline' : '' }}"
-               href="{{ route('informationobject.browse', $langParams) }}" title="All">All</a>
+               href="{{ route('informationobject.browse', $langParams) }}" title="{{ __('All') }}">All</a>
             @foreach($languageFacets as $langCode => $facet)
               <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentLang == $langCode ? 'active text-decoration-underline' : '' }}"
                  href="{{ route('informationobject.browse', array_merge($langParams, ['languages' => $langCode])) }}"
@@ -76,7 +76,7 @@
             <button class="accordion-button collapsed" type="button"
                     data-bs-toggle="collapse" data-bs-target="#collapse-collection"
                     aria-expanded="false" aria-controls="collapse-collection">
-              Part of
+              {{ __('Part of') }}
             </button>
           </h2>
           <div id="collapse-collection" class="accordion-collapse collapse list-group list-group-flush"
@@ -86,7 +86,7 @@
               $collParams = request()->except(['collection', 'page']);
             @endphp
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentCollection === '' ? 'active text-decoration-underline' : '' }}"
-               href="{{ route('informationobject.browse', $collParams) }}" title="All">All</a>
+               href="{{ route('informationobject.browse', $collParams) }}" title="{{ __('All') }}">All</a>
             @foreach($collectionFacets as $coll)
               <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentCollection == $coll->id ? 'active text-decoration-underline' : '' }}"
                  href="{{ route('informationobject.browse', array_merge($collParams, ['collection' => $coll->id])) }}"
@@ -120,7 +120,7 @@
                   $facetParams = request()->except([$facetName, 'page']);
                 @endphp
                 <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentVal === '' ? 'active text-decoration-underline' : '' }}"
-                   href="{{ route('informationobject.browse', $facetParams) }}" title="All">All</a>
+                   href="{{ route('informationobject.browse', $facetParams) }}" title="{{ __('All') }}">All</a>
                 @foreach($facetData['terms'] as $term)
                   @php
                     $termValue = $term['value'] ?? $term['id'] ?? '';
@@ -184,14 +184,14 @@
         $displayMode = request('displayMode', 'table');
         $baseQuery = request()->except(['displayMode', 'page']);
       @endphp
-      <div class="btn-group" role="group" aria-label="Display mode">
+      <div class="btn-group" role="group" aria-label="{{ __('Display mode') }}">
         <a href="{{ route('informationobject.browse', array_merge($baseQuery, ['displayMode' => 'card'])) }}"
-           class="btn btn-sm {{ $displayMode === 'card' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Card view with thumbnails">
+           class="btn btn-sm {{ $displayMode === 'card' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Card view with thumbnails') }}">
           <i class="fas fa-th" aria-hidden="true"></i>
           <span class="visually-hidden">Card</span>
         </a>
         <a href="{{ route('informationobject.browse', array_merge($baseQuery, ['displayMode' => 'table'])) }}"
-           class="btn btn-sm {{ $displayMode === 'table' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Table view">
+           class="btn btn-sm {{ $displayMode === 'table' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Table view') }}">
           <i class="fas fa-list" aria-hidden="true"></i>
           <span class="visually-hidden">Table</span>
         </a>

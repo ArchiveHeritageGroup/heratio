@@ -5,7 +5,7 @@
 @section('content')
 <div class="container py-3">
   <!-- Breadcrumb -->
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? $io->slug }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('io.provenance', $io->slug) }}">Provenance</a></li>
@@ -73,12 +73,12 @@
         <table class="table table-bordered table-striped table-hover mb-0">
           <thead>
             <tr>
-              <th>Type</th>
-              <th>Date</th>
-              <th>From</th>
-              <th>To</th>
-              <th>Location</th>
-              <th>Certainty</th>
+              <th>{{ __('Type') }}</th>
+              <th>{{ __('Date') }}</th>
+              <th>{{ __('From') }}</th>
+              <th>{{ __('To') }}</th>
+              <th>{{ __('Location') }}</th>
+              <th>{{ __('Certainty') }}</th>
             </tr>
           </thead>
           <tbody>

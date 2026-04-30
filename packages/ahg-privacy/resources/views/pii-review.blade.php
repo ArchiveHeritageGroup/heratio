@@ -33,12 +33,12 @@
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th style="width: 80px;">Status</th>
-                            <th style="width: 120px;">Type</th>
-                            <th>Value</th>
-                            <th>Object</th>
-                            <th class="text-center" style="width: 100px;">Confidence</th>
-                            <th style="width: 200px;">Actions</th>
+                            <th style="width: 80px;">{{ __('Status') }}</th>
+                            <th style="width: 120px;">{{ __('Type') }}</th>
+                            <th>{{ __('Value') }}</th>
+                            <th>{{ __('Object') }}</th>
+                            <th class="text-center" style="width: 100px;">{{ __('Confidence') }}</th>
+                            <th style="width: 200px;">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -102,19 +102,19 @@ $conf = round($entity->confidence * 100);
                                     <form action="{{ route('ahgprivacy.pii-entity-action') }}" method="post" class="d-inline">
                                         <input type="hidden" name="entity_id" value="{{ $entity->id }}">
                                         <div class="btn-group btn-group-sm">
-                                            <button type="submit" name="entity_action" value="approved" class="btn btn-outline-success" title="Approve - Not PII">
+                                            <button type="submit" name="entity_action" value="approved" class="btn btn-outline-success" title="{{ __('Approve - Not PII') }}">
                                                 <i class="fas fa-check"></i>
                                             </button>
-                                            <button type="submit" name="entity_action" value="redacted" class="btn btn-outline-warning" title="Redact - Is PII">
+                                            <button type="submit" name="entity_action" value="redacted" class="btn btn-outline-warning" title="{{ __('Redact - Is PII') }}">
                                                 <i class="fas fa-eraser"></i>
                                             </button>
-                                            <button type="submit" name="entity_action" value="rejected" class="btn btn-outline-danger" title="Reject - False Positive">
+                                            <button type="submit" name="entity_action" value="rejected" class="btn btn-outline-danger" title="{{ __('Reject - False Positive') }}">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </div>
                                     </form>
                                     <a href="{{ route('ahgprivacy.visual-redaction-editor', ['id' => $entity->object_id]) }}"
-                                       class="btn btn-sm btn-outline-dark" title="Visual Redaction Editor">
+                                       class="btn btn-sm btn-outline-dark" title="{{ __('Visual Redaction Editor') }}">
                                         <i class="fas fa-mask"></i>
                                     </a>
                                 </div>

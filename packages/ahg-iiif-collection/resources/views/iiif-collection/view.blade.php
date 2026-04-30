@@ -189,7 +189,7 @@ foreach ($collection->items as $item) {
 @endsection
 
 @section('title-block')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb mb-2">
         <li class="breadcrumb-item"><a href="{{ route('iiif-collection.index') }}">Collections</a></li>
         @foreach($breadcrumbs as $bc)
@@ -220,7 +220,7 @@ foreach ($collection->items as $item) {
         <strong>Display Warning:</strong>
         {{ $warningCount }} item(s) will not display in carousels/galleries.
         <small class="d-block mt-1">Audio/video files need thumbnails, and only image files can be displayed directly.</small>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
     @endif
 
@@ -257,7 +257,7 @@ foreach ($collection->items as $item) {
             @if($warningCount > 0)
             <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="hideProblematic" onchange="toggleProblematicItems(this.checked)">
-                <label class="form-check-label" for="hideProblematic">Hide non-displayable</label>
+                <label class="form-check-label" for="hideProblematic">{{ __('Hide non-displayable') }}</label>
             </div>
             @endif
             @endauth
@@ -277,12 +277,12 @@ foreach ($collection->items as $item) {
                     <thead>
                         <tr>
                             <th style="width: 50px;"></th>
-                            <th>Title</th>
-                            <th>Identifier</th>
-                            <th>Type</th>
-                            <th style="width: 80px;">Media</th>
-                            <th style="width: 120px;">Status</th>
-                            <th style="width: 150px;">Actions</th>
+                            <th>{{ __('Title') }}</th>
+                            <th>{{ __('Identifier') }}</th>
+                            <th>{{ __('Type') }}</th>
+                            <th style="width: 80px;">{{ __('Media') }}</th>
+                            <th style="width: 120px;">{{ __('Status') }}</th>
+                            <th style="width: 150px;">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="sortable-items">
@@ -335,7 +335,7 @@ foreach ($collection->items as $item) {
                             </td>
                             <td>
                                 @if($item->manifest_uri)
-                                    <span class="badge bg-info" title="External manifest">
+                                    <span class="badge bg-info" title="{{ __('External manifest') }}">
                                         <i class="fas fa-check me-1"></i>External
                                     </span>
                                 @elseif($status)
@@ -349,14 +349,14 @@ foreach ($collection->items as $item) {
                                         </span>
                                     @endif
                                 @else
-                                    <span class="badge bg-danger" title="No digital object">
+                                    <span class="badge bg-danger" title="{{ __('No digital object') }}">
                                         <i class="fas fa-times me-1"></i>Missing
                                     </span>
                                 @endif
                             </td>
                             <td>
                                 @if($item->slug)
-                                <a href="{{ route('iiif-collection.object-manifest', $item->slug) }}" class="btn btn-sm atom-btn-white" target="_blank" title="View IIIF Manifest">
+                                <a href="{{ route('iiif-collection.object-manifest', $item->slug) }}" class="btn btn-sm atom-btn-white" target="_blank" title="{{ __('View IIIF Manifest') }}">
                                     <i class="fas fa-code"></i>
                                 </a>
                                 @endif
@@ -364,7 +364,7 @@ foreach ($collection->items as $item) {
                                 <a href="{{ route('iiif-collection.remove-item', ['item_id' => $item->id, 'collection_id' => $collection->id]) }}"
                                    class="btn btn-sm atom-btn-outline-danger"
                                    onclick="return confirm('Remove this item from the collection?')"
-                                   title="Remove">
+                                   title="{{ __('Remove') }}">
                                     <i class="fas fa-times"></i>
                                 </a>
                                 @endauth

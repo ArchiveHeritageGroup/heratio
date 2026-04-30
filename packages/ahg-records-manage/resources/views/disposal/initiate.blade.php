@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid">
-    <h1 class="h3 mb-3">Initiate Disposal</h1>
+    <h1 class="h3 mb-3">{{ __('Initiate Disposal') }}</h1>
 
     @if (session('error'))
         <div class="alert alert-danger">{{ session('error') }}</div>
@@ -27,7 +27,7 @@
                 <input type="hidden" name="information_object_id" value="{{ $io->id }}">
 
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Action Type</label>
+                    <label class="form-label fw-bold">{{ __('Action Type') }}</label>
                     @foreach ([
                         'destroy' => ['Destroy', 'Permanently delete all digital objects and generate destruction certificate.'],
                         'transfer_archives' => ['Transfer to Archives', 'Transfer records to an archival institution.'],
@@ -52,9 +52,9 @@
                 </div>
 
                 <div class="mb-3" id="transfer-destination-group" style="display: none;">
-                    <label for="transfer_destination" class="form-label fw-bold">Transfer Destination</label>
+                    <label for="transfer_destination" class="form-label fw-bold">{{ __('Transfer Destination') }}</label>
                     <input type="text" name="transfer_destination" id="transfer_destination" class="form-control"
-                        value="{{ old('transfer_destination') }}" placeholder="Name of the receiving institution or organization">
+                        value="{{ old('transfer_destination') }}" placeholder="{{ __('Name of the receiving institution or organization') }}">
                     @error('transfer_destination')
                         <div class="text-danger small">{{ $message }}</div>
                     @enderror
@@ -62,7 +62,7 @@
 
                 @if (count($disposalClasses) > 0)
                     <div class="mb-3">
-                        <label for="disposal_class_id" class="form-label fw-bold">Retention Policy (Disposal Class)</label>
+                        <label for="disposal_class_id" class="form-label fw-bold">{{ __('Retention Policy (Disposal Class)') }}</label>
                         <select name="disposal_class_id" id="disposal_class_id" class="form-select">
                             <option value="">-- None --</option>
                             @foreach ($disposalClasses as $class)
@@ -75,8 +75,8 @@
                 @endif
 
                 <div class="mb-3">
-                    <label for="reason" class="form-label fw-bold">Reason</label>
-                    <textarea name="reason" id="reason" class="form-control" rows="3" placeholder="Reason for initiating disposal...">{{ old('reason') }}</textarea>
+                    <label for="reason" class="form-label fw-bold">{{ __('Reason') }}</label>
+                    <textarea name="reason" id="reason" class="form-control" rows="3" placeholder="{{ __('Reason for initiating disposal...') }}">{{ old('reason') }}</textarea>
                     @error('reason')
                         <div class="text-danger small">{{ $message }}</div>
                     @enderror
@@ -84,7 +84,7 @@
 
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-primary" {{ $hasLegalHold ? 'disabled' : '' }}>
-                        Initiate Disposal
+                        {{ __('Initiate Disposal') }}
                     </button>
                     <a href="{{ route('records.disposal.queue') }}" class="btn btn-secondary">Cancel</a>
                 </div>

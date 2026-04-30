@@ -5,7 +5,7 @@
 @section('title', 'Trust Score — ' . ($io->title ?? ''))
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item active">Trust Score</li>
@@ -19,7 +19,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h1 class="h2">Trust Score</h1>
+        <h1 class="h2">{{ __('Trust Score') }}</h1>
         <p class="text-muted mb-0">
             <a href="{{ url('/' . $io->slug) }}">{{ e($io->title ?? 'Untitled') }}</a>
             @if($io->identifier ?? null)
@@ -56,7 +56,7 @@
     </div>
     <div class="col-md-8">
         <div class="card h-100">
-            <div class="card-header"><h5 class="mb-0">Score Breakdown</h5></div>
+            <div class="card-header"><h5 class="mb-0">{{ __('Score Breakdown') }}</h5></div>
             <div class="card-body">
                 {{-- Source Type --}}
                 <div class="mb-3">
@@ -156,7 +156,7 @@
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-sm">
-                <thead><tr><th>Metric</th><th>Value</th><th style="width:40%">Score</th><th>Service</th><th>Date</th></tr></thead>
+                <thead><tr><th>{{ __('Metric') }}</th><th>{{ __('Value') }}</th><th style="width:40%">{{ __('Score') }}</th><th>{{ __('Service') }}</th><th>{{ __('Date') }}</th></tr></thead>
                 <tbody>
                 @foreach($qualityMetrics as $m)
                     @php
@@ -201,7 +201,7 @@
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-sm">
-                <thead><tr><th>Assessor</th><th>Source Type</th><th>Completeness</th><th>Manual Score</th><th>Date</th></tr></thead>
+                <thead><tr><th>{{ __('Assessor') }}</th><th>{{ __('Source Type') }}</th><th>{{ __('Completeness') }}</th><th>{{ __('Manual Score') }}</th><th>{{ __('Date') }}</th></tr></thead>
                 <tbody>
                 @foreach($assessmentHistory as $h)
                     @php

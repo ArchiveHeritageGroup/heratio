@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>User interface label</h1>
+  <h1>{{ __('User interface label') }}</h1>
 @endsection
 
 @section('content')
@@ -18,7 +18,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="interface-label-heading">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#interface-label-collapse" aria-expanded="true" aria-controls="interface-label-collapse">
-              User interface labels
+              {{ __('User interface labels') }}
             </button>
           </h2>
           <div id="interface-label-collapse" class="accordion-collapse collapse show" aria-labelledby="interface-label-heading">

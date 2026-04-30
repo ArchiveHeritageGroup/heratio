@@ -90,7 +90,7 @@
                 <span class="badge bg-secondary me-1 mb-1 ahg-ac-tag" data-id="{{ $item['id'] ?? $item->id ?? '' }}">
                     {{ $item['name'] ?? $item->name ?? '' }}
                     <input type="hidden" name="{{ $acMultiName }}" value="{{ $item['id'] ?? $item->id ?? '' }}">
-                    <button type="button" class="btn-close btn-close-white ms-1 ahg-ac-tag-remove" aria-label="Remove" style="font-size: 0.6em;"></button>
+                    <button type="button" class="btn-close btn-close-white ms-1 ahg-ac-tag-remove" aria-label="{{ __('Remove') }}" style="font-size: 0.6em;"></button>
                 </span>
             @endforeach
         </div>

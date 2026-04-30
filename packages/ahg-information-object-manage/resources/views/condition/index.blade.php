@@ -6,7 +6,7 @@
 <div class="container py-4">
 
   {{-- Breadcrumb --}}
-  <nav aria-label="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('informationobject.show', ['slug' => $io->slug ?? $io->id]) }}">{{ $io->title ?? 'Untitled' }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">Condition</li>
@@ -102,12 +102,12 @@
           <table class="table table-bordered table-striped table-hover mb-0">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Type</th>
-                <th>Assessor</th>
-                <th>Notes</th>
-                <th class="text-end">Actions</th>
+                <th>{{ __('Date') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Type') }}</th>
+                <th>{{ __('Assessor') }}</th>
+                <th>{{ __('Notes') }}</th>
+                <th class="text-end">{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -134,17 +134,17 @@
                   <td>{{ \Illuminate\Support\Str::limit($check->notes ?? '', 80) }}</td>
                   <td class="text-end">
                     @if(($check->source ?? '') === 'spectrum')
-                      <a href="{{ route('io.condition.spectrum.show', ['id' => $check->id ?? 0]) }}" class="btn btn-sm btn-outline-primary" title="View Report">
+                      <a href="{{ route('io.condition.spectrum.show', ['id' => $check->id ?? 0]) }}" class="btn btn-sm btn-outline-primary" title="{{ __('View Report') }}">
                         <i class="fas fa-eye me-1"></i>View
                       </a>
-                      <a href="{{ route('io.condition.spectrum.show', ['id' => $check->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-secondary" title="View Photos">
+                      <a href="{{ route('io.condition.spectrum.show', ['id' => $check->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-secondary" title="{{ __('View Photos') }}">
                         <i class="fas fa-images"></i>
                       </a>
                     @else
-                      <a href="{{ route('io.condition.show', ['id' => $check->id ?? 0]) }}" class="btn btn-sm btn-outline-primary" title="View Report">
+                      <a href="{{ route('io.condition.show', ['id' => $check->id ?? 0]) }}" class="btn btn-sm btn-outline-primary" title="{{ __('View Report') }}">
                         <i class="fas fa-eye me-1"></i>View
                       </a>
-                      <a href="{{ route('io.condition.show', ['id' => $check->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-secondary" title="View Photos">
+                      <a href="{{ route('io.condition.show', ['id' => $check->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-secondary" title="{{ __('View Photos') }}">
                         <i class="fas fa-images"></i>
                       </a>
                     @endif
@@ -164,7 +164,7 @@
       <div class="mb-4">
         <i class="fas fa-clipboard-check fa-4x text-muted"></i>
       </div>
-      <h4 class="text-muted">No Condition Reports</h4>
+      <h4 class="text-muted">{{ __('No Condition Reports') }}</h4>
       <p class="text-muted mb-4">
         No condition reports found for this object.
       </p>

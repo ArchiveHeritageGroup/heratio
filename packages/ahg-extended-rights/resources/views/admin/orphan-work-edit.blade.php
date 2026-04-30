@@ -22,7 +22,7 @@
         @csrf
         <div class="card mb-4">
           <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-            <h5 class="mb-0">Work Details</h5>
+            <h5 class="mb-0">{{ __('Work Details') }}</h5>
           </div>
           <div class="card-body">
             <div class="row">
@@ -45,12 +45,12 @@
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Search Jurisdiction</label>
+                <label class="form-label">{{ __('Search Jurisdiction') }}</label>
                 <input type="text" name="search_jurisdiction" class="form-control"
-                       value="{{ old('search_jurisdiction', $orphanWork->search_jurisdiction ?? 'ZA') }}" placeholder="ISO 3166-1 alpha-2">
+                       value="{{ old('search_jurisdiction', $orphanWork->search_jurisdiction ?? 'ZA') }}" placeholder="{{ __('ISO 3166-1 alpha-2') }}">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Proposed Fee (if any)</label>
+                <label class="form-label">{{ __('Proposed Fee (if any)') }}</label>
                 <div class="input-group">
                   <span class="input-group-text">R</span>
                   <input type="number" name="proposed_fee" class="form-control" step="0.01"
@@ -59,11 +59,11 @@
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Intended Use</label>
+              <label class="form-label">{{ __('Intended Use') }}</label>
               <textarea name="intended_use" class="form-control" rows="3">{{ old('intended_use', $orphanWork->intended_use ?? '') }}</textarea>
             </div>
             <div class="mb-3">
-              <label class="form-label">Notes</label>
+              <label class="form-label">{{ __('Notes') }}</label>
               <textarea name="notes" class="form-control" rows="3">{{ old('notes', $orphanWork->notes ?? '') }}</textarea>
             </div>
           </div>
@@ -79,7 +79,7 @@
       {{-- Search Steps --}}
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-          <h5 class="mb-0">Search Steps</h5>
+          <h5 class="mb-0">{{ __('Search Steps') }}</h5>
           <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#addStepModal">
             <i class="fas fa-plus me-1"></i>Add Step
           </button>
@@ -87,7 +87,7 @@
         <div class="card-body p-0">
           <table class="table table-hover mb-0">
             <thead class="table-light">
-              <tr><th>Date</th><th>Source</th><th>Search Terms</th><th>Results</th></tr>
+              <tr><th>{{ __('Date') }}</th><th>{{ __('Source') }}</th><th>{{ __('Search Terms') }}</th><th>{{ __('Results') }}</th></tr>
             </thead>
             <tbody>
               @forelse($searchSteps as $step)
@@ -131,7 +131,7 @@
       @if(isset($orphanWork))
       <div class="card mb-4">
         <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-          <h5 class="mb-0">Status</h5>
+          <h5 class="mb-0">{{ __('Status') }}</h5>
         </div>
         <div class="card-body">
           @php
@@ -169,7 +169,7 @@
 
       <div class="card">
         <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-          <h5 class="mb-0">Recommended Sources</h5>
+          <h5 class="mb-0">{{ __('Recommended Sources') }}</h5>
         </div>
         <div class="card-body">
           <ul class="list-unstyled mb-0">
@@ -195,7 +195,7 @@
       <form action="{{ route('ext-rights-admin.add-search-step', $orphanWork->id) }}" method="post">
         @csrf
         <div class="modal-header">
-          <h5 class="modal-title">Add Search Step</h5>
+          <h5 class="modal-title">{{ __('Add Search Step') }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -215,30 +215,30 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Source Name <span class="text-danger">*</span></label>
-            <input type="text" name="source_name" class="form-control" required placeholder="e.g., DALRO, SAMRO, National Library">
+            <input type="text" name="source_name" class="form-control" required placeholder="{{ __('e.g., DALRO, SAMRO, National Library') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">Source URL</label>
-            <input type="url" name="source_url" class="form-control" placeholder="https://...">
+            <label class="form-label">{{ __('Source URL') }}</label>
+            <input type="url" name="source_url" class="form-control" placeholder="{{ __('https://...') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">Search Terms Used</label>
-            <input type="text" name="search_terms" class="form-control" placeholder="Keywords, names, titles searched">
+            <label class="form-label">{{ __('Search Terms Used') }}</label>
+            <input type="text" name="search_terms" class="form-control" placeholder="{{ __('Keywords, names, titles searched') }}">
           </div>
           <div class="mb-3">
             <div class="form-check">
               <input type="checkbox" name="results_found" class="form-check-input" id="results_found" value="1">
-              <label class="form-check-label" for="results_found">Results found</label>
+              <label class="form-check-label" for="results_found">{{ __('Results found') }}</label>
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label">Results Description</label>
-            <textarea name="results_description" class="form-control" rows="3" placeholder="Describe what was found or document negative result"></textarea>
+            <label class="form-label">{{ __('Results Description') }}</label>
+            <textarea name="results_description" class="form-control" rows="3" placeholder="{{ __('Describe what was found or document negative result') }}"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Add Step</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="submit" class="btn btn-primary">{{ __('Add Step') }}</button>
         </div>
       </form>
     </div>

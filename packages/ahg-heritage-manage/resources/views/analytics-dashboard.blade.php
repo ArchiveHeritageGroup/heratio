@@ -18,7 +18,7 @@
     {{-- Main content --}}
     <div class="col-md-9">
       {{-- Time period selector --}}
-      <div class="btn-group mb-4" role="group" aria-label="Time period">
+      <div class="btn-group mb-4" role="group" aria-label="{{ __('Time period') }}">
         <a href="{{ route('heritage.analytics', ['days' => 7]) }}"
            class="btn {{ $days === 7 ? 'btn-primary' : 'btn-outline-secondary' }}">
           7 Days

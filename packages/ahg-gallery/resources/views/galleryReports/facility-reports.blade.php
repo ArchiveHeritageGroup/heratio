@@ -24,14 +24,14 @@
   <table class="table table-striped table-hover">
     <thead class="table-dark">
       <tr>
-        <th>Institution</th>
-        <th>Loan</th>
-        <th>Type</th>
-        <th>Fire</th>
-        <th>Climate</th>
-        <th>Security</th>
-        <th>Handlers</th>
-        <th>Approved</th>
+        <th>{{ __('Institution') }}</th>
+        <th>{{ __('Loan') }}</th>
+        <th>{{ __('Type') }}</th>
+        <th>{{ __('Fire') }}</th>
+        <th>{{ __('Climate') }}</th>
+        <th>{{ __('Security') }}</th>
+        <th>{{ __('Handlers') }}</th>
+        <th>{{ __('Approved') }}</th>
       </tr>
     </thead>
     <tbody>

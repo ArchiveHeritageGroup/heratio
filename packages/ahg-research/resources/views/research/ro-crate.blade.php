@@ -8,7 +8,7 @@
 @section('title', 'RO-Crate')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
@@ -33,7 +33,7 @@
 
 {{-- Manifest JSON --}}
 <div class="card mb-4">
-    <div class="card-header"><h6 class="mb-0">RO-Crate Manifest (ro-crate-metadata.json)</h6></div>
+    <div class="card-header"><h6 class="mb-0">{{ __('RO-Crate Manifest (ro-crate-metadata.json)') }}</h6></div>
     <div class="card-body">
         <pre class="mb-0" style="max-height:400px; overflow:auto;"><code>{{ json_encode($manifest ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</code></pre>
     </div>
@@ -41,7 +41,7 @@
 
 {{-- Collaborators --}}
 <div class="card mb-4">
-    <div class="card-header"><h6 class="mb-0">Collaborators</h6></div>
+    <div class="card-header"><h6 class="mb-0">{{ __('Collaborators') }}</h6></div>
     <ul class="list-group list-group-flush">
         @forelse($collaborators ?? [] as $c)
         <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -56,7 +56,7 @@
 
 {{-- Included resources --}}
 <div class="card mb-4">
-    <div class="card-header"><h6 class="mb-0">Included Resources</h6></div>
+    <div class="card-header"><h6 class="mb-0">{{ __('Included Resources') }}</h6></div>
     <ul class="list-group list-group-flush">
         @forelse($resources ?? [] as $r)
         <li class="list-group-item d-flex justify-content-between align-items-center">

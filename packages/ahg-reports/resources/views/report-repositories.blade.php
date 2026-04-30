@@ -11,33 +11,33 @@
 
 @section('sidebar')
 <section class="card mb-3">
-  <div class="card-header"><h6 class="mb-0">Filter options</h6></div>
+  <div class="card-header"><h6 class="mb-0">{{ __('Filter options') }}</h6></div>
   <div class="card-body">
     <form method="get" action="{{ route('reports.repositories') }}">
       <div class="mb-3">
-        <label class="form-label">Date start</label>
+        <label class="form-label">{{ __('Date start') }}</label>
         <input type="date" name="dateStart" class="form-control form-control-sm" value="{{ $params['dateStart'] ?? '' }}">
       </div>
       <div class="mb-3">
-        <label class="form-label">Date end</label>
+        <label class="form-label">{{ __('Date end') }}</label>
         <input type="date" name="dateEnd" class="form-control form-control-sm" value="{{ $params['dateEnd'] ?? '' }}">
       </div>
       <div class="mb-3">
-        <label class="form-label">Date of</label>
+        <label class="form-label">{{ __('Date of') }}</label>
         <select name="dateOf" class="form-select form-select-sm">
-          <option value="created_at" {{ ($params['dateOf'] ?? 'created_at') === 'created_at' ? 'selected' : '' }}>Creation date</option>
-          <option value="updated_at" {{ ($params['dateOf'] ?? '') === 'updated_at' ? 'selected' : '' }}>Modification date</option>
+          <option value="created_at" {{ ($params['dateOf'] ?? 'created_at') === 'created_at' ? 'selected' : '' }}>{{ __('Creation date') }}</option>
+          <option value="updated_at" {{ ($params['dateOf'] ?? '') === 'updated_at' ? 'selected' : '' }}>{{ __('Modification date') }}</option>
         </select>
       </div>
       <div class="mb-3">
-        <label class="form-label">Results per page</label>
+        <label class="form-label">{{ __('Results per page') }}</label>
         <select name="limit" class="form-select form-select-sm">
           @foreach([10, 20, 50, 100] as $lim)
             <option value="{{ $lim }}" {{ ($params['limit'] ?? 20) == $lim ? 'selected' : '' }}>{{ $lim }}</option>
           @endforeach
         </select>
       </div>
-      <button type="submit" class="btn btn-primary btn-sm w-100 mb-2">Search</button>
+      <button type="submit" class="btn btn-primary btn-sm w-100 mb-2">{{ __('Search') }}</button>
       <button type="button" onclick="exportTableToCSV()" class="btn btn-outline-secondary btn-sm w-100">
         <i class="fas fa-download me-1"></i>Export CSV
       </button>
@@ -47,7 +47,7 @@
 @endsection
 
 @section('title-block')
-<h1>Browse Repository Report</h1>
+<h1>{{ __('Browse Repository Report') }}</h1>
 <div class="mb-3">
   <a href="{{ route('reports.dashboard') }}" class="btn btn-outline-secondary btn-sm">
     <i class="fas fa-arrow-left me-1"></i>Back to Reports
@@ -75,27 +75,27 @@
     <table id="reportTable" class="table table-bordered table-striped table-sm">
       <thead>
         <tr>
-          <th>Identifier</th>
-          <th>Name</th>
-          <th>Description Status</th>
-          <th>Description Detail</th>
-          <th>Description Identifier</th>
-          <th>Geocultural Context</th>
-          <th>Collecting Policies</th>
-          <th>Buildings</th>
-          <th>Holdings</th>
-          <th>Finding Aids</th>
-          <th>Opening Times</th>
-          <th>Access Conditions</th>
-          <th>Disabled Access</th>
-          <th>Research Services</th>
-          <th>Reproduction Services</th>
-          <th>Public Facilities</th>
-          <th>Description Institution Identifier</th>
-          <th>Description Rules</th>
-          <th>Description Sources</th>
-          <th>Description Revision History</th>
-          <th>Created</th>
+          <th>{{ __('Identifier') }}</th>
+          <th>{{ __('Name') }}</th>
+          <th>{{ __('Description Status') }}</th>
+          <th>{{ __('Description Detail') }}</th>
+          <th>{{ __('Description Identifier') }}</th>
+          <th>{{ __('Geocultural Context') }}</th>
+          <th>{{ __('Collecting Policies') }}</th>
+          <th>{{ __('Buildings') }}</th>
+          <th>{{ __('Holdings') }}</th>
+          <th>{{ __('Finding Aids') }}</th>
+          <th>{{ __('Opening Times') }}</th>
+          <th>{{ __('Access Conditions') }}</th>
+          <th>{{ __('Disabled Access') }}</th>
+          <th>{{ __('Research Services') }}</th>
+          <th>{{ __('Reproduction Services') }}</th>
+          <th>{{ __('Public Facilities') }}</th>
+          <th>{{ __('Description Institution Identifier') }}</th>
+          <th>{{ __('Description Rules') }}</th>
+          <th>{{ __('Description Sources') }}</th>
+          <th>{{ __('Description Revision History') }}</th>
+          <th>{{ __('Created') }}</th>
         </tr>
       </thead>
       <tbody>

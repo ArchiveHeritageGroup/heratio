@@ -4,11 +4,11 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <h1>CSV Export</h1>
+    <h1>{{ __('CSV Export') }}</h1>
 
     <div class="card">
         <div class="card-header">
-            <h5 class="mb-0">Export Archival Descriptions to CSV</h5>
+            <h5 class="mb-0">{{ __('Export Archival Descriptions to CSV') }}</h5>
         </div>
         <div class="card-body">
 
@@ -21,9 +21,9 @@
                 @csrf
 
                 <div class="mb-3">
-                    <label class="form-label">Repository</label>
+                    <label class="form-label">{{ __('Repository') }}</label>
                     <select name="repository_id" class="form-select">
-                        <option value="">All repositories</option>
+                        <option value="">{{ __('All repositories') }}</option>
                         @foreach($repositories as $repo)
                             <option value="{{ $repo->id }}">{{ e($repo->name) }}</option>
                         @endforeach
@@ -31,7 +31,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Level of Description</label>
+                    <label class="form-label">{{ __('Level of Description') }}</label>
                     <select name="level_ids[]" class="form-select" multiple size="5">
                         @foreach($levels as $level)
                             <option value="{{ $level->id }}">{{ e($level->name) }}</option>
@@ -41,8 +41,8 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Parent Record Slug (Optional)</label>
-                    <input type="text" name="parent_slug" class="form-control" placeholder="e.g. my-fonds-123">
+                    <label class="form-label">{{ __('Parent Record Slug (Optional)') }}</label>
+                    <input type="text" name="parent_slug" class="form-control" placeholder="{{ __('e.g. my-fonds-123') }}">
                     <small class="text-muted">Export only descendants of this record.</small>
                 </div>
 

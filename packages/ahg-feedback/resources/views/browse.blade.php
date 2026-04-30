@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-comments me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Feedback Management</h1>
+      <h1 class="mb-0">{{ __('Feedback Management') }}</h1>
     </div>
   </div>
 
@@ -46,7 +46,7 @@
     <div class="col-md-9">
       {{-- Sort controls --}}
       <div class="d-flex flex-wrap gap-2 mb-3 justify-content-end">
-        <div class="btn-group btn-group-sm" role="group" aria-label="Sort options">
+        <div class="btn-group btn-group-sm" role="group" aria-label="{{ __('Sort options') }}">
           <span class="btn atom-btn-white disabled">Sort by:</span>
           <a href="{{ route('feedback.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'nameUp'])) }}"
              class="btn atom-btn-white {{ $sort === 'nameUp' ? 'active' : '' }}">
@@ -73,12 +73,12 @@
             <thead>
               <tr>
                 <th style="width:40px">#</th>
-                <th>Subject/Record</th>
-                <th>Type</th>
-                <th>Remarks</th>
-                <th>Contact</th>
-                <th>Date</th>
-                <th style="width:120px">Actions</th>
+                <th>{{ __('Subject/Record') }}</th>
+                <th>{{ __('Type') }}</th>
+                <th>{{ __('Remarks') }}</th>
+                <th>{{ __('Contact') }}</th>
+                <th>{{ __('Date') }}</th>
+                <th style="width:120px">{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -110,7 +110,7 @@
                       {{ $row['name'] ?: '[Untitled]' }}
                     </a>
                     @if(!empty($row['parent_id']))
-                      <br><a href="{{ url('/' . $row['parent_id']) }}" class="small text-muted" title="View related record">
+                      <br><a href="{{ url('/' . $row['parent_id']) }}" class="small text-muted" title="{{ __('View related record') }}">
                         <i class="fas fa-link me-1"></i>{{ $row['parent_id'] }}
                       </a>
                     @endif
@@ -142,13 +142,13 @@
                   </td>
                   <td>
                     <div class="d-flex gap-1">
-                      <a href="{{ route('feedback.edit', $row['id']) }}" class="btn btn-sm atom-btn-white" title="Edit">
+                      <a href="{{ route('feedback.edit', $row['id']) }}" class="btn btn-sm atom-btn-white" title="{{ __('Edit') }}">
                         <i class="fas fa-edit"></i>
                       </a>
                       <form method="POST" action="{{ route('feedback.destroy', $row['id']) }}"
                             onsubmit="return confirm('Are you sure you want to delete this feedback?');">
                         @csrf
-                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Delete">
+                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="{{ __('Delete') }}">
                           <i class="fas fa-trash"></i>
                         </button>
                       </form>

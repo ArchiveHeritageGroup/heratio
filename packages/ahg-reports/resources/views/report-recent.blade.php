@@ -12,13 +12,13 @@
         <div class="mb-3">
           <label class="form-label">Entity type <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="className" class="form-select form-select-sm">
-            <option value="">All types</option>
-            <option value="QubitInformationObject"' . (($params['className'] ?? '') === 'QubitInformationObject' ? ' selected' : '') . '>Descriptions</option>
-            <option value="QubitActor"' . (($params['className'] ?? '') === 'QubitActor' ? ' selected' : '') . '>Authority records</option>
-            <option value="QubitRepository"' . (($params['className'] ?? '') === 'QubitRepository' ? ' selected' : '') . '>Repositories</option>
-            <option value="QubitAccession"' . (($params['className'] ?? '') === 'QubitAccession' ? ' selected' : '') . '>Accessions</option>
-            <option value="QubitPhysicalObject"' . (($params['className'] ?? '') === 'QubitPhysicalObject' ? ' selected' : '') . '>Physical storage</option>
-            <option value="QubitDonor"' . (($params['className'] ?? '') === 'QubitDonor' ? ' selected' : '') . '>Donors</option>
+            <option value="">{{ __('All types') }}</option>
+            <option value="QubitInformationObject"' . (($params['className'] ?? '') === 'QubitInformationObject' ? ' selected' : '') . '>{{ __('Descriptions') }}</option>
+            <option value="QubitActor"' . (($params['className'] ?? '') === 'QubitActor' ? ' selected' : '') . '>{{ __('Authority records') }}</option>
+            <option value="QubitRepository"' . (($params['className'] ?? '') === 'QubitRepository' ? ' selected' : '') . '>{{ __('Repositories') }}</option>
+            <option value="QubitAccession"' . (($params['className'] ?? '') === 'QubitAccession' ? ' selected' : '') . '>{{ __('Accessions') }}</option>
+            <option value="QubitPhysicalObject"' . (($params['className'] ?? '') === 'QubitPhysicalObject' ? ' selected' : '') . '>{{ __('Physical storage') }}</option>
+            <option value="QubitDonor"' . (($params['className'] ?? '') === 'QubitDonor' ? ' selected' : '') . '>{{ __('Donors') }}</option>
           </select>
         </div>',
     ])
@@ -32,7 +32,7 @@
       <table class="table table-bordered table-striped table-sm">
         <thead>
           <tr>
-            <th>#</th><th>Type</th><th>Created</th><th>Updated</th>
+            <th>#</th><th>{{ __('Type') }}</th><th>{{ __('Created') }}</th><th>{{ __('Updated') }}</th>
           </tr>
         </thead>
         <tbody>

@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-search me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Start Duplicate Scan</h1>
+      <h1 class="mb-0">{{ __('Start Duplicate Scan') }}</h1>
       <span class="small text-muted">Duplicate Detection</span>
     </div>
     <div class="ms-auto">
@@ -21,7 +21,7 @@
     <div class="col-lg-8">
       <div class="card">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0">Scan Configuration</h5>
+          <h5 class="mb-0">{{ __('Scan Configuration') }}</h5>
         </div>
         <div class="card-body">
           <form method="post" action="{{ route('dedupe.scan.start') }}">

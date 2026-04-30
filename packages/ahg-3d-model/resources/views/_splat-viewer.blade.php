@@ -12,7 +12,7 @@
       <i class="fas fa-cloud me-1"></i>{{ e($title) }} (Gaussian Splat)
     </span>
     <div class="btn-group btn-group-sm">
-      <button type="button" class="btn atom-btn-white" id="{{ $viewerId }}-fullscreen" title="Fullscreen">
+      <button type="button" class="btn atom-btn-white" id="{{ $viewerId }}-fullscreen" title="{{ __('Fullscreen') }}">
         <i class="fas fa-expand"></i>
       </button>
     </div>

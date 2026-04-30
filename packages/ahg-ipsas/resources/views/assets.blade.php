@@ -27,7 +27,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
                     <li class="breadcrumb-item active">Asset Register</li>
@@ -49,7 +49,7 @@
             <form method="get" class="row g-3">
                 <div class="col-md-3">
                     <select name="category" class="form-select">
-                        <option value="">All Categories</option>
+                        <option value="">{{ __('All Categories') }}</option>
                         @foreach($categories as $cat)
                             <option value="{{ $cat->id }}" {{ $currentCategory == $cat->id ? 'selected' : '' }}>
                                 {{ $cat->name }}
@@ -59,26 +59,26 @@
                 </div>
                 <div class="col-md-2">
                     <select name="status" class="form-select">
-                        <option value="">All Status</option>
-                        <option value="active" {{ 'active' === $currentStatus ? 'selected' : '' }}>Active</option>
-                        <option value="on_loan" {{ 'on_loan' === $currentStatus ? 'selected' : '' }}>On Loan</option>
-                        <option value="in_storage" {{ 'in_storage' === $currentStatus ? 'selected' : '' }}>In Storage</option>
-                        <option value="disposed" {{ 'disposed' === $currentStatus ? 'selected' : '' }}>Disposed</option>
+                        <option value="">{{ __('All Status') }}</option>
+                        <option value="active" {{ 'active' === $currentStatus ? 'selected' : '' }}>{{ __('Active') }}</option>
+                        <option value="on_loan" {{ 'on_loan' === $currentStatus ? 'selected' : '' }}>{{ __('On Loan') }}</option>
+                        <option value="in_storage" {{ 'in_storage' === $currentStatus ? 'selected' : '' }}>{{ __('In Storage') }}</option>
+                        <option value="disposed" {{ 'disposed' === $currentStatus ? 'selected' : '' }}>{{ __('Disposed') }}</option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <select name="basis" class="form-select">
-                        <option value="">All Valuation</option>
-                        <option value="historical_cost" {{ 'historical_cost' === $currentBasis ? 'selected' : '' }}>Historical Cost</option>
-                        <option value="fair_value" {{ 'fair_value' === $currentBasis ? 'selected' : '' }}>Fair Value</option>
-                        <option value="nominal" {{ 'nominal' === $currentBasis ? 'selected' : '' }}>Nominal</option>
+                        <option value="">{{ __('All Valuation') }}</option>
+                        <option value="historical_cost" {{ 'historical_cost' === $currentBasis ? 'selected' : '' }}>{{ __('Historical Cost') }}</option>
+                        <option value="fair_value" {{ 'fair_value' === $currentBasis ? 'selected' : '' }}>{{ __('Fair Value') }}</option>
+                        <option value="nominal" {{ 'nominal' === $currentBasis ? 'selected' : '' }}>{{ __('Nominal') }}</option>
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <input type="text" name="q" class="form-control" placeholder="Search..." value="{{ $search }}">
+                    <input type="text" name="q" class="form-control" placeholder="{{ __('Search...') }}" value="{{ $search }}">
                 </div>
                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+                    <button type="submit" class="btn btn-outline-primary w-100">{{ __('Filter') }}</button>
                 </div>
             </form>
         </div>
@@ -96,14 +96,14 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Asset #</th>
-                            <th>Title</th>
-                            <th>Category</th>
-                            <th>Valuation Basis</th>
-                            <th>Current Value</th>
-                            <th>Status</th>
-                            <th>Condition</th>
-                            <th>Actions</th>
+                            <th>{{ __('Asset #') }}</th>
+                            <th>{{ __('Title') }}</th>
+                            <th>{{ __('Category') }}</th>
+                            <th>{{ __('Valuation Basis') }}</th>
+                            <th>{{ __('Current Value') }}</th>
+                            <th>{{ __('Status') }}</th>
+                            <th>{{ __('Condition') }}</th>
+                            <th>{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>

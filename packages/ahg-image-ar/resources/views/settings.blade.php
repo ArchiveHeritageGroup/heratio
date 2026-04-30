@@ -98,12 +98,12 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label">Server URL</label>
+            <label class="form-label">{{ __('Server URL') }}</label>
             <input type="url" class="form-control" name="ar_server_url"
                    value="{{ get_ar_setting($settings, 'ar_server_url', 'http://192.168.0.78:5052') }}">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Model</label>
+            <label class="form-label">{{ __('Model') }}</label>
             <select class="form-select" name="ar_model">
               @foreach(['svd' => 'SVD (8 GB OK)',
                         'svd-xt' => 'SVD-XT (25 frames; tighter on 8 GB)',
@@ -114,7 +114,7 @@
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Request timeout (s)</label>
+            <label class="form-label">{{ __('Request timeout (s)') }}</label>
             <input type="number" class="form-control" min="60" max="3600" name="ar_request_timeout"
                    value="{{ get_ar_setting($settings, 'ar_request_timeout', '900') }}">
           </div>
@@ -127,32 +127,32 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-2">
-            <label class="form-label">Frames</label>
+            <label class="form-label">{{ __('Frames') }}</label>
             <input type="number" class="form-control" min="8" max="49" name="ar_num_frames"
                    value="{{ get_ar_setting($settings, 'ar_num_frames', '14') }}">
             <div class="form-text">SVD: 14 / 25 · CogVideoX: 49</div>
           </div>
           <div class="col-md-2">
-            <label class="form-label">FPS</label>
+            <label class="form-label">{{ __('FPS') }}</label>
             <input type="number" class="form-control" min="4" max="30" name="ar_fps"
                    value="{{ get_ar_setting($settings, 'ar_fps', '7') }}">
             <div class="form-text">SVD canonical = 7</div>
           </div>
           <div class="col-md-2">
-            <label class="form-label">Motion bucket</label>
+            <label class="form-label">{{ __('Motion bucket') }}</label>
             <input type="number" class="form-control" min="1" max="255" name="ar_motion_bucket_id"
                    value="{{ get_ar_setting($settings, 'ar_motion_bucket_id', '127') }}">
             <div class="form-text">SVD only · 1=still · 255=wild</div>
           </div>
           <div class="col-md-2">
-            <label class="form-label">Seed</label>
+            <label class="form-label">{{ __('Seed') }}</label>
             <input type="number" class="form-control" min="0" name="ar_seed"
                    value="{{ get_ar_setting($settings, 'ar_seed', '0') }}">
             <div class="form-text">0 = random per call</div>
           </div>
           <div class="col-md-12">
-            <label class="form-label">Default prompt (CogVideoX/WAN only — SVD ignores it)</label>
-            <textarea class="form-control" rows="2" name="ar_default_prompt" placeholder="e.g. cinematic, soft motion, painterly camera">{{ get_ar_setting($settings, 'ar_default_prompt', '') }}</textarea>
+            <label class="form-label">{{ __('Default prompt (CogVideoX/WAN only — SVD ignores it)') }}</label>
+            <textarea class="form-control" rows="2" name="ar_default_prompt" placeholder="{{ __('e.g. cinematic, soft motion, painterly camera') }}">{{ get_ar_setting($settings, 'ar_default_prompt', '') }}</textarea>
           </div>
         </div>
       </div>
@@ -162,9 +162,9 @@
   </form>
 
   @if($stats['recent']->count())
-    <h5 class="mt-4">Recent generations</h5>
+    <h5 class="mt-4">{{ __('Recent generations') }}</h5>
     <table class="table table-sm">
-      <thead><tr><th>#</th><th>IO</th><th>Model</th><th>Prompt</th><th>MP4</th><th>Took</th><th>Created</th></tr></thead>
+      <thead><tr><th>#</th><th>{{ __('IO') }}</th><th>{{ __('Model') }}</th><th>{{ __('Prompt') }}</th><th>MP4</th><th>{{ __('Took') }}</th><th>{{ __('Created') }}</th></tr></thead>
       <tbody>
         @foreach($stats['recent'] as $r)
           <tr>

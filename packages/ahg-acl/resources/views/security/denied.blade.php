@@ -15,7 +15,7 @@
         <div class="card-body text-center">
           <i class="fas fa-lock fa-5x text-danger mb-4"></i>
 
-          <h5>You do not have permission to access this resource.</h5>
+          <h5>{{ __('You do not have permission to access this resource.') }}</h5>
 
           @if($classification ?? null)
           <p class="mt-3">

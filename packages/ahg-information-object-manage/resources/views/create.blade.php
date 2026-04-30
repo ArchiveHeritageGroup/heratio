@@ -13,7 +13,7 @@
     @if($repoSlug)
       <div class="repository-logo mb-3 mx-auto">
         <a class="text-decoration-none" href="{{ url('/repository/' . $repoSlug) }}">
-          <img alt="Go to repository" class="img-fluid img-thumbnail border-4 shadow-sm bg-white"
+          <img alt="{{ __('Go to repository') }}" class="img-fluid img-thumbnail border-4 shadow-sm bg-white"
                src="/uploads/r/{{ $repoSlug }}/conf/logo.png"
                onerror="this.parentElement.style.display='none'">
         </a>
@@ -52,7 +52,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="identity-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#identity-collapse" aria-expanded="false" aria-controls="identity-collapse">
-            Identity area
+            {{ __('Identity area') }}
           </button>
         </h2>
         <div id="identity-collapse" class="accordion-collapse collapse" aria-labelledby="identity-heading">
@@ -61,7 +61,7 @@
             <div class="mb-3">
               <label for="identifier" class="form-label">
                 Identifier
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <div class="input-group">
                 <input type="text" class="form-control" id="identifier" name="identifier" value="{{ old('identifier') }}">
                 <button type="button" class="btn atom-btn-white" id="generate-identifier" data-url="{{ url('/informationobject/generateIdentifier') }}">
@@ -77,20 +77,20 @@
               <table class="table table-sm" id="altids-table">
                 <thead>
                   <tr>
-                    <th>Label</th>
-                    <th>Value</th>
+                    <th>{{ __('Label') }}</th>
+                    <th>{{ __('Value') }}</th>
                     <th style="width:80px"></th>
                   </tr>
                 </thead>
                 <tbody></tbody>
               </table>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-altid-row">Add alternative identifier</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-altid-row">{{ __('Add alternative identifier') }}</button>
             </div>
 
             <div class="mb-3">
               <label for="title" class="form-label">
                 Title
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" value="{{ old('title') }}" required>
               @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Provide either a formal title or a concise supplied title in accordance with the rules of multilevel description and national conventions. (ISAD 3.1.2)"><i class="fas fa-question-circle"></i></button>
@@ -102,17 +102,17 @@
               <table class="table table-sm" id="events-table">
                 <thead>
                   <tr>
-                    <th>Type</th>
-                    <th>Date</th>
-                    <th>Start</th>
-                    <th>End</th>
-                    <th>Actor</th>
+                    <th>{{ __('Type') }}</th>
+                    <th>{{ __('Date') }}</th>
+                    <th>{{ __('Start') }}</th>
+                    <th>{{ __('End') }}</th>
+                    <th>{{ __('Actor') }}</th>
                     <th style="width:80px"></th>
                   </tr>
                 </thead>
                 <tbody></tbody>
               </table>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-event-row">Add date</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-event-row">{{ __('Add date') }}</button>
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Identify and record the date(s) of the unit of description. Identify the type of date given. Record as a single date or a range of dates as appropriate. (ISAD 3.1.3). The Date display field can be used to enter free-text date information, including typographical marks to express approximation, uncertainty, or qualification. Use the start and end fields to make the dates searchable."><i class="fas fa-question-circle"></i></button>
             </div>
 
@@ -146,7 +146,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="context-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#context-collapse" aria-expanded="false" aria-controls="context-collapse">
-            Context area
+            {{ __('Context area') }}
           </button>
         </h2>
         <div id="context-collapse" class="accordion-collapse collapse" aria-labelledby="context-heading">
@@ -160,7 +160,7 @@
                 <span class="badge bg-danger ms-1">Required</span></label>
               <div id="creator-list"></div>
               <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control" id="creator-autocomplete-add" data-target="creator-list" data-field="creators" placeholder="Type to add creator..." autocomplete="off">
+                <input type="text" class="form-control" id="creator-autocomplete-add" data-target="creator-list" data-field="creators" placeholder="{{ __('Type to add creator...') }}" autocomplete="off">
               </div>
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record the name of the organization(s) or the individual(s) responsible for the creation, accumulation and maintenance of the records in the unit of description. Search for an existing name in the authority records by typing the first few characters of the name. Alternatively, type a new name to create and link to a new authority record. (ISAD 3.2.1)"><i class="fas fa-question-circle"></i></button>
               <div class="alert alert-info py-1 px-2 mt-1 mb-0 small"><em>This field is marked as mandatory in the relevant descriptive standard.</em></div>
@@ -196,7 +196,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="content-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#content-collapse" aria-expanded="false" aria-controls="content-collapse">
-            Content and structure area
+            {{ __('Content and structure area') }}
           </button>
         </h2>
         <div id="content-collapse" class="accordion-collapse collapse" aria-labelledby="content-heading">
@@ -232,7 +232,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="conditions-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#conditions-collapse" aria-expanded="false" aria-controls="conditions-collapse">
-            Conditions of access and use area
+            {{ __('Conditions of access and use area') }}
           </button>
         </h2>
         <div id="conditions-collapse" class="accordion-collapse collapse" aria-labelledby="conditions-heading">
@@ -253,7 +253,7 @@
             <div class="mb-3">
               <label class="form-label">Language(s) of material <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="languages-list"></div>
-              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-lang-row" data-target="languages-list" data-name="languages[]">Add language</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-lang-row" data-target="languages-list" data-name="languages[]">{{ __('Add language') }}</button>
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record the language(s) of the materials comprising the unit of description. (ISAD 3.4.3)"><i class="fas fa-question-circle"></i></button>
             </div>
 
@@ -261,7 +261,7 @@
             <div class="mb-3">
               <label class="form-label">Script(s) of material <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="scripts-list"></div>
-              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-script-row" data-target="scripts-list" data-name="scripts[]">Add script</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-script-row" data-target="scripts-list" data-name="scripts[]">{{ __('Add script') }}</button>
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record the script(s) of the materials comprising the unit of description. (ISAD 3.4.3)"><i class="fas fa-question-circle"></i></button>
             </div>
 
@@ -291,7 +291,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="allied-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#allied-collapse" aria-expanded="false" aria-controls="allied-collapse">
-            Allied materials area
+            {{ __('Allied materials area') }}
           </button>
         </h2>
         <div id="allied-collapse" class="accordion-collapse collapse" aria-labelledby="allied-heading">
@@ -318,7 +318,7 @@
             <div class="mb-3">
               <label class="form-label">Publication notes <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="pubnotes-list"></div>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-pubnote-row">Add publication note</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-pubnote-row">{{ __('Add publication note') }}</button>
             </div>
 
           </div>
@@ -329,7 +329,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="notes-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#notes-collapse" aria-expanded="false" aria-controls="notes-collapse">
-            Notes area
+            {{ __('Notes area') }}
           </button>
         </h2>
         <div id="notes-collapse" class="accordion-collapse collapse" aria-labelledby="notes-heading">
@@ -337,14 +337,14 @@
             <table class="table table-sm" id="notes-table">
               <thead>
                 <tr>
-                  <th style="width:30%">Type</th>
-                  <th>Content</th>
+                  <th style="width:30%">{{ __('Type') }}</th>
+                  <th>{{ __('Content') }}</th>
                   <th style="width:80px"></th>
                 </tr>
               </thead>
               <tbody></tbody>
             </table>
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="add-note-row">Add note</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="add-note-row">{{ __('Add note') }}</button>
           </div>
         </div>
       </div>
@@ -353,7 +353,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="access-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#access-collapse" aria-expanded="false" aria-controls="access-collapse">
-            Access points
+            {{ __('Access points') }}
           </button>
         </h2>
         <div id="access-collapse" class="accordion-collapse collapse" aria-labelledby="access-heading">
@@ -364,7 +364,7 @@
               <label class="form-label">Subject access points <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="subject-ap-list"></div>
               <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control" data-taxonomy="35" data-target="subject-ap-list" data-name="subjectAccessPointIds[]" placeholder="Type to add subject..." autocomplete="off">
+                <input type="text" class="form-control" data-taxonomy="35" data-target="subject-ap-list" data-name="subjectAccessPointIds[]" placeholder="{{ __('Type to add subject...') }}" autocomplete="off">
               </div>
             </div>
 
@@ -373,7 +373,7 @@
               <label class="form-label">Place access points <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="place-ap-list"></div>
               <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control" data-taxonomy="42" data-target="place-ap-list" data-name="placeAccessPointIds[]" placeholder="Type to add place..." autocomplete="off">
+                <input type="text" class="form-control" data-taxonomy="42" data-target="place-ap-list" data-name="placeAccessPointIds[]" placeholder="{{ __('Type to add place...') }}" autocomplete="off">
               </div>
             </div>
 
@@ -382,7 +382,7 @@
               <label class="form-label">Genre access points <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="genre-ap-list"></div>
               <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control" data-taxonomy="78" data-target="genre-ap-list" data-name="genreAccessPointIds[]" placeholder="Type to add genre..." autocomplete="off">
+                <input type="text" class="form-control" data-taxonomy="78" data-target="genre-ap-list" data-name="genreAccessPointIds[]" placeholder="{{ __('Type to add genre...') }}" autocomplete="off">
               </div>
             </div>
 
@@ -391,7 +391,7 @@
               <label class="form-label">Name access points (subjects) <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="name-ap-list"></div>
               <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control" data-target="name-ap-list" placeholder="Type to add name..." autocomplete="off">
+                <input type="text" class="form-control" data-target="name-ap-list" placeholder="{{ __('Type to add name...') }}" autocomplete="off">
               </div>
             </div>
 
@@ -403,7 +403,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="description-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#description-collapse" aria-expanded="false" aria-controls="description-collapse">
-            Description control area
+            {{ __('Description control area') }}
           </button>
         </h2>
         <div id="description-collapse" class="accordion-collapse collapse" aria-labelledby="description-heading">
@@ -458,7 +458,7 @@
             <div class="mb-3">
               <label class="form-label">Language(s) of description <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="langs-of-desc-list"></div>
-              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-lang-row" data-target="langs-of-desc-list" data-name="languagesOfDescription[]">Add language</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-lang-row" data-target="langs-of-desc-list" data-name="languagesOfDescription[]">{{ __('Add language') }}</button>
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Indicate the language(s) used to create the description of the archival material."><i class="fas fa-question-circle"></i></button>
             </div>
 
@@ -466,7 +466,7 @@
             <div class="mb-3">
               <label class="form-label">Script(s) of description <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="scripts-of-desc-list"></div>
-              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-script-row" data-target="scripts-of-desc-list" data-name="scriptsOfDescription[]">Add script</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-script-row" data-target="scripts-of-desc-list" data-name="scriptsOfDescription[]">{{ __('Add script') }}</button>
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Indicate the script(s) used to create the description of the archival material."><i class="fas fa-question-circle"></i></button>
             </div>
 
@@ -480,14 +480,14 @@
             <div class="mb-3">
               <label class="form-label">Archivist's notes <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="archnotes-list"></div>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-archnote-row">Add archivist's note</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-archnote-row">{{ __("Add archivist's note") }}</button>
             </div>
 
             <div class="mb-3">
               <label for="publication_status_id" class="form-label">Publication status <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" id="publication_status_id" name="publication_status_id">
-                <option value="159" selected>Draft</option>
-                <option value="160">Published</option>
+                <option value="159" selected>{{ __('Draft') }}</option>
+                <option value="160">{{ __('Published') }}</option>
               </select>
             </div>
 
@@ -512,7 +512,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="security-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#security-collapse" aria-expanded="false">
-            Security Classification
+            {{ __('Security Classification') }}
           </button>
         </h2>
         <div id="security-collapse" class="accordion-collapse collapse" aria-labelledby="security-heading">
@@ -531,7 +531,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="watermark-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#watermark-collapse" aria-expanded="false">
-            Watermark Settings
+            {{ __('Watermark Settings') }}
           </button>
         </h2>
         <div id="watermark-collapse" class="accordion-collapse collapse" aria-labelledby="watermark-heading">
@@ -545,7 +545,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="admin-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#admin-collapse" aria-expanded="false">
-            Administration area
+            {{ __('Administration area') }}
           </button>
         </h2>
         <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
@@ -553,8 +553,8 @@
             <div class="mb-3">
               <label for="publication_status_id" class="form-label">Publication status <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="publication_status_id" id="publication_status_id" class="form-select">
-                <option value="159" selected>Draft</option>
-                <option value="160">Published</option>
+                <option value="159" selected>{{ __('Draft') }}</option>
+                <option value="160">{{ __('Published') }}</option>
               </select>
             </div>
           </div>
@@ -565,9 +565,9 @@
     <ul class="actions mb-3 nav gap-2">
       @if(request('copy_from') && $parentTitle)
         @php $sourceSlug = \Illuminate\Support\Facades\DB::table('slug')->where('object_id', request('copy_from'))->value('slug'); @endphp
-        <li><a class="btn atom-btn-outline-light" role="button" href="{{ $sourceSlug ? url('/' . $sourceSlug) : route('informationobject.browse') }}" title="Cancel">Cancel</a></li>
+        <li><a class="btn atom-btn-outline-light" role="button" href="{{ $sourceSlug ? url('/' . $sourceSlug) : route('informationobject.browse') }}" title="{{ __('Cancel') }}">Cancel</a></li>
       @else
-        <li><a class="btn atom-btn-outline-light" role="button" href="{{ route('informationobject.browse') }}" title="Cancel">Cancel</a></li>
+        <li><a class="btn atom-btn-outline-light" role="button" href="{{ route('informationobject.browse') }}" title="{{ __('Cancel') }}">Cancel</a></li>
       @endif
       <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
     </ul>

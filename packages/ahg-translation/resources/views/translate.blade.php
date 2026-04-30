@@ -6,7 +6,7 @@
 <div class="multiline-header d-flex align-items-center mb-3">
   <i class="fas fa-3x fa-language me-3" aria-hidden="true"></i>
   <div class="d-flex flex-column">
-    <h1 class="mb-0">Translate Record</h1>
+    <h1 class="mb-0">{{ __('Translate Record') }}</h1>
     <span class="text-muted">{{ $title }}</span>
   </div>
 </div>
@@ -26,7 +26,7 @@
       {{-- Language selectors --}}
       <div class="row mb-3">
         <div class="col-md-4">
-          <label class="form-label fw-bold">Read from culture</label>
+          <label class="form-label fw-bold">{{ __('Read from culture') }}</label>
           <select class="form-select" id="read-culture">
             @foreach ($availableCultures as $c)
               <option value="{{ $c }}" {{ $c === $culture ? 'selected' : '' }}>
@@ -37,7 +37,7 @@
           <small class="text-muted">Culture where text is stored</small>
         </div>
         <div class="col-md-4">
-          <label class="form-label fw-bold">Source Language</label>
+          <label class="form-label fw-bold">{{ __('Source Language') }}</label>
           <select class="form-select" id="source-lang">
             @foreach ($targetLanguages as $code => $name)
               <option value="{{ $code }}" {{ $code === $culture ? 'selected' : '' }}>{{ $name }}</option>
@@ -46,7 +46,7 @@
           <small class="text-muted">Actual language of the text</small>
         </div>
         <div class="col-md-4">
-          <label class="form-label fw-bold">Target Language</label>
+          <label class="form-label fw-bold">{{ __('Target Language') }}</label>
           <select class="form-select" id="target-lang">
             @foreach ($targetLanguages as $code => $name)
               <option value="{{ $code }}" {{ $code === $defaultTarget ? 'selected' : '' }}>{{ $name }}</option>
@@ -60,14 +60,14 @@
         <div class="col-md-6">
           <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" id="save-culture" {{ $saveCultureDefault ? 'checked' : '' }}>
-            <label class="form-check-label fw-bold" for="save-culture">Save with culture code</label>
+            <label class="form-check-label fw-bold" for="save-culture">{{ __('Save with culture code') }}</label>
           </div>
           <small class="text-muted">Saves translation in target language's culture</small>
         </div>
         <div class="col-md-6">
           <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" id="overwrite" {{ $overwriteDefault ? 'checked' : '' }}>
-            <label class="form-check-label fw-bold" for="overwrite">Overwrite existing</label>
+            <label class="form-check-label fw-bold" for="overwrite">{{ __('Overwrite existing') }}</label>
           </div>
           <small class="text-muted">Overwrite if target field already has content</small>
         </div>
@@ -79,8 +79,8 @@
       <div class="mb-2">
         <span class="fw-bold">Fields to Translate</span>
         <div class="float-end">
-          <button type="button" class="btn btn-sm btn-outline-secondary" id="select-all">Select All</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" id="deselect-all">Deselect All</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="select-all">{{ __('Select All') }}</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="deselect-all">{{ __('Deselect All') }}</button>
         </div>
       </div>
 

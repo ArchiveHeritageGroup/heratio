@@ -5,7 +5,7 @@
 @section('content')
 <div class="container py-4">
 
-  <nav aria-label="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Admin</a></li>
       <li class="breadcrumb-item"><a href="{{ route('acl.groups') }}">ACL</a></li>
@@ -50,15 +50,15 @@
         <table class="table table-bordered table-striped table-hover mb-0">
           <thead>
             <tr>
-              <th>User</th>
-              <th>Classification</th>
-              <th>Request Type</th>
-              <th>Justification</th>
-              <th class="text-center">Priority</th>
-              <th class="text-center">Status</th>
-              <th>Requested</th>
+              <th>{{ __('User') }}</th>
+              <th>{{ __('Classification') }}</th>
+              <th>{{ __('Request Type') }}</th>
+              <th>{{ __('Justification') }}</th>
+              <th class="text-center">{{ __('Priority') }}</th>
+              <th class="text-center">{{ __('Status') }}</th>
+              <th>{{ __('Requested') }}</th>
               @if($status === 'pending')
-                <th class="text-end">Actions</th>
+                <th class="text-end">{{ __('Actions') }}</th>
               @endif
             </tr>
           </thead>
@@ -105,10 +105,10 @@
                 @if($status === 'pending')
                   <td class="text-end">
                     <div class="btn-group btn-group-sm" role="group">
-                      <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ $req->id }}" title="Approve">
+                      <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ $req->id }}" title="{{ __('Approve') }}">
                         <i class="fas fa-check"></i>
                       </button>
-                      <button type="button" class="btn atom-btn-outline-danger" data-bs-toggle="modal" data-bs-target="#denyModal{{ $req->id }}" title="Deny">
+                      <button type="button" class="btn atom-btn-outline-danger" data-bs-toggle="modal" data-bs-target="#denyModal{{ $req->id }}" title="{{ __('Deny') }}">
                         <i class="fas fa-times"></i>
                       </button>
                     </div>
@@ -121,8 +121,8 @@
                             @csrf
                             <input type="hidden" name="decision" value="approved">
                             <div class="modal-header bg-success text-white">
-                              <h5 class="modal-title">Approve Request</h5>
-                              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                              <h5 class="modal-title">{{ __('Approve Request') }}</h5>
+                              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
                             </div>
                             <div class="modal-body text-start">
                               <p>Approve access request from <strong>{{ $req->user_name ?? $req->username }}</strong>?</p>
@@ -132,7 +132,7 @@
                               </div>
                             </div>
                             <div class="modal-footer">
-                              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                               <button type="submit" class="btn atom-btn-outline-success">
                                 <i class="fas fa-check me-1"></i> Approve
                               </button>
@@ -150,8 +150,8 @@
                             @csrf
                             <input type="hidden" name="decision" value="denied">
                             <div class="modal-header bg-danger text-white">
-                              <h5 class="modal-title">Deny Request</h5>
-                              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                              <h5 class="modal-title">{{ __('Deny Request') }}</h5>
+                              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
                             </div>
                             <div class="modal-body text-start">
                               <p>Deny access request from <strong>{{ $req->user_name ?? $req->username }}</strong>?</p>
@@ -161,7 +161,7 @@
                               </div>
                             </div>
                             <div class="modal-footer">
-                              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                               <button type="submit" class="btn atom-btn-outline-danger">
                                 <i class="fas fa-times me-1"></i> Deny
                               </button>
@@ -236,18 +236,18 @@
         <form method="get" action="{{ route('acl.access-requests') }}" class="row g-2">
           <input type="hidden" name="status" value="{{ $status }}">
           <div class="col-md-4">
-            <label class="form-label small mb-1">Filter by request status</label>
+            <label class="form-label small mb-1">{{ __('Filter by request status') }}</label>
             <select name="status_filter" class="form-select form-select-sm">
-              <option value="">All statuses</option>
+              <option value="">{{ __('All statuses') }}</option>
               @foreach (['pending', 'approved', 'denied', 'cancelled', 'expired'] as $s)
                 <option value="{{ $s }}" {{ ($statusFilter ?? '') === $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
               @endforeach
             </select>
           </div>
           <div class="col-md-4">
-            <label class="form-label small mb-1">Filter by action</label>
+            <label class="form-label small mb-1">{{ __('Filter by action') }}</label>
             <select name="action_filter" class="form-select form-select-sm">
-              <option value="">All actions</option>
+              <option value="">{{ __('All actions') }}</option>
               @foreach (['created', 'approved', 'denied', 'cancelled', 'expired', 'reviewed'] as $a)
                 <option value="{{ $a }}" {{ ($actionFilter ?? '') === $a ? 'selected' : '' }}>{{ ucfirst($a) }}</option>
               @endforeach
@@ -277,12 +277,12 @@
           <table class="table table-bordered table-hover mb-0">
             <thead class="table-light">
               <tr>
-                <th>When</th>
-                <th>Action</th>
-                <th>Request #</th>
-                <th>Status</th>
-                <th>Actor</th>
-                <th>Details</th>
+                <th>{{ __('When') }}</th>
+                <th>{{ __('Action') }}</th>
+                <th>{{ __('Request #') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Actor') }}</th>
+                <th>{{ __('Details') }}</th>
               </tr>
             </thead>
             <tbody>

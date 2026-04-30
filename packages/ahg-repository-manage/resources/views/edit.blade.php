@@ -37,7 +37,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="identity-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#identity-collapse" aria-expanded="true" aria-controls="identity-collapse">
-            Identity area
+            {{ __('Identity area') }}
           </button>
         </h2>
         <div id="identity-collapse" class="accordion-collapse collapse show" aria-labelledby="identity-heading">
@@ -45,7 +45,7 @@
             <div class="mb-3">
               <label for="identifier" class="form-label">
                 Identifier
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="identifier" id="identifier" class="form-control"
                      value="{{ old('identifier', $repository->identifier ?? '') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&quot;Record the numeric or alpha-numeric code identifying the institution in accordance with the relevant international and national standards.&quot; (ISDIAH 5.1.1)"><i class="fas fa-question-circle"></i></button>
@@ -54,7 +54,7 @@
             <div class="mb-3">
               <label for="authorized_form_of_name" class="form-label">
                 Authorized form of name
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="authorized_form_of_name" id="authorized_form_of_name" class="form-control" required
                      value="{{ old('authorized_form_of_name', $repository->authorized_form_of_name ?? '') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&quot;Record the standardised form of name of the institution, adding appropriate qualifiers (for instance dates, place, etc.), if necessary. Specify separately in the Rules and/or conventions used element (5.6.3) which set of rules has been applied for this element.&quot; (ISDIAH 5.1.2)"><i class="fas fa-question-circle"></i></button>
@@ -77,7 +77,7 @@
             <div class="mb-3">
               <label for="repository_type" class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="repository_type" id="repository_type" class="form-control"
-                     value="{{ old('repository_type', $repository->repository_type ?? '') }}" placeholder="Type to search repository types..." autocomplete="off">
+                     value="{{ old('repository_type', $repository->repository_type ?? '') }}" placeholder="{{ __('Type to search repository types...') }}" autocomplete="off">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record the type of the institution. (ISDIAH 5.1.5) Select as many types as desired from the drop-down menu; these values are drawn from the Repository Types taxonomy."><i class="fas fa-question-circle"></i></button>
             </div>
           </div>
@@ -88,20 +88,20 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="contact-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#contact-collapse" aria-expanded="false" aria-controls="contact-collapse">
-            Contact area
+            {{ __('Contact area') }}
           </button>
         </h2>
         <div id="contact-collapse" class="accordion-collapse collapse" aria-labelledby="contact-heading">
           <div class="accordion-body">
 
-            <h3 class="fs-6 mb-2">Related contact information</h3>
+            <h3 class="fs-6 mb-2">{{ __('Related contact information') }}</h3>
 
             <div class="table-responsive">
               <table class="table table-bordered mb-0" id="contact-table">
                 <thead>
                   <tr>
-                    <th class="w-80">Contact person</th>
-                    <th class="w-20">Primary</th>
+                    <th class="w-80">{{ __('Contact person') }}</th>
+                    <th class="w-20">{{ __('Primary') }}</th>
                     <th><span class="visually-hidden">Actions</span></th>
                   </tr>
                 </thead>
@@ -140,7 +140,7 @@
               <div class="modal-dialog modal-lg modal-dialog-scrollable">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h4 class="h5 modal-title" id="related-contact-information-heading">Related contact information</h4>
+                    <h4 class="h5 modal-title" id="related-contact-information-heading">{{ __('Related contact information') }}</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal">
                       <span class="visually-hidden">Close</span>
                     </button>
@@ -150,13 +150,13 @@
 
                     <ul class="nav nav-pills mb-3 d-flex gap-2" role="tablist">
                       <li class="nav-item" role="presentation">
-                        <button class="btn atom-btn-white active-primary text-wrap active" id="pills-main-tab" data-bs-toggle="pill" data-bs-target="#pills-main" type="button" role="tab" aria-controls="pills-main" aria-selected="true">Main</button>
+                        <button class="btn atom-btn-white active-primary text-wrap active" id="pills-main-tab" data-bs-toggle="pill" data-bs-target="#pills-main" type="button" role="tab" aria-controls="pills-main" aria-selected="true">{{ __('Main') }}</button>
                       </li>
                       <li class="nav-item" role="presentation">
-                        <button class="btn atom-btn-white active-primary text-wrap" id="pills-phys-tab" data-bs-toggle="pill" data-bs-target="#pills-phys" type="button" role="tab" aria-controls="pills-phys" aria-selected="false">Physical location</button>
+                        <button class="btn atom-btn-white active-primary text-wrap" id="pills-phys-tab" data-bs-toggle="pill" data-bs-target="#pills-phys" type="button" role="tab" aria-controls="pills-phys" aria-selected="false">{{ __('Physical location') }}</button>
                       </li>
                       <li class="nav-item" role="presentation">
-                        <button class="btn atom-btn-white active-primary text-wrap" id="pills-other-tab" data-bs-toggle="pill" data-bs-target="#pills-other" type="button" role="tab" aria-controls="pills-other" aria-selected="false">Other details</button>
+                        <button class="btn atom-btn-white active-primary text-wrap" id="pills-other-tab" data-bs-toggle="pill" data-bs-target="#pills-other" type="button" role="tab" aria-controls="pills-other" aria-selected="false">{{ __('Other details') }}</button>
                       </li>
                     </ul>
 
@@ -165,8 +165,8 @@
                         <div class="mb-3">
                           <label class="form-label">Primary contact <span class="badge bg-secondary ms-1">Optional</span></label>
                           <select name="contact_primary" class="form-select">
-                            <option value="0">No</option>
-                            <option value="1">Yes</option>
+                            <option value="0">{{ __('No') }}</option>
+                            <option value="1">{{ __('Yes') }}</option>
                           </select>
                         </div>
                         <div class="mb-3">
@@ -187,7 +187,7 @@
                         </div>
                         <div class="mb-3">
                           <label for="contact_website" class="form-label">URL <span class="badge bg-secondary ms-1">Optional</span></label>
-                          <input type="url" name="contact_website" id="contact_website" class="form-control" placeholder="https://">
+                          <input type="url" name="contact_website" id="contact_website" class="form-control" placeholder="{{ __('https://') }}">
                         </div>
                       </div>
 
@@ -236,8 +236,8 @@
                   </div>
 
                   <div class="modal-footer">
-                    <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn atom-btn-outline-success modal-submit" data-bs-dismiss="modal">Submit</button>
+                    <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="button" class="btn atom-btn-outline-success modal-submit" data-bs-dismiss="modal">{{ __('Submit') }}</button>
                   </div>
                 </div>
               </div>
@@ -251,7 +251,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="description-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#description-collapse" aria-expanded="false" aria-controls="description-collapse">
-            Description area
+            {{ __('Description area') }}
           </button>
         </h2>
         <div id="description-collapse" class="accordion-collapse collapse" aria-labelledby="description-heading">
@@ -311,7 +311,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="access-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#access-collapse" aria-expanded="false" aria-controls="access-collapse">
-            Access area
+            {{ __('Access area') }}
           </button>
         </h2>
         <div id="access-collapse" class="accordion-collapse collapse" aria-labelledby="access-heading">
@@ -341,7 +341,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="services-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#services-collapse" aria-expanded="false" aria-controls="services-collapse">
-            Services area
+            {{ __('Services area') }}
           </button>
         </h2>
         <div id="services-collapse" class="accordion-collapse collapse" aria-labelledby="services-heading">
@@ -371,7 +371,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="control-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#control-collapse" aria-expanded="false" aria-controls="control-collapse">
-            Control area
+            {{ __('Control area') }}
           </button>
         </h2>
         <div id="control-collapse" class="accordion-collapse collapse" aria-labelledby="control-heading">
@@ -430,7 +430,7 @@
 
             @if($repository && $repository->updated_at)
               <div class="mb-3">
-                <h3 class="fs-6 mb-2">Last updated</h3>
+                <h3 class="fs-6 mb-2">{{ __('Last updated') }}</h3>
                 <span class="text-muted">{{ $repository->updated_at }}</span>
               </div>
             @endif
@@ -438,14 +438,14 @@
             <div class="mb-3">
               <label for="desc_language" class="form-label">Language(s) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="desc_language" name="desc_language"
-                     value="{{ old('desc_language') }}" placeholder="e.g. English, French">
+                     value="{{ old('desc_language') }}" placeholder="{{ __('e.g. English, French') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Select the language(s) of this record from the drop-down menu; enter the first few letters to narrow the choices. (ISDIAH 5.6.7)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="desc_script" class="form-label">Script(s) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="desc_script" name="desc_script"
-                     value="{{ old('desc_script') }}" placeholder="e.g. Latin, Cyrillic">
+                     value="{{ old('desc_script') }}" placeholder="{{ __('e.g. Latin, Cyrillic') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Select the script(s) of this record from the drop-down menu; enter the first few letters to narrow the choices. (ISDIAH 5.6.7)"><i class="fas fa-question-circle"></i></button>
             </div>
 
@@ -468,7 +468,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="points-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#points-collapse" aria-expanded="false" aria-controls="points-collapse">
-            Access points
+            {{ __('Access points') }}
           </button>
         </h2>
         <div id="points-collapse" class="accordion-collapse collapse" aria-labelledby="points-heading">
@@ -476,14 +476,14 @@
             <div class="mb-3">
               <label for="thematic_area" class="form-label">Thematic area <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="thematic_area" name="thematic_area"
-                     value="{{ old('thematic_area') }}" placeholder="Type to search thematic areas..." autocomplete="off">
+                     value="{{ old('thematic_area') }}" placeholder="{{ __('Type to search thematic areas...') }}" autocomplete="off">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Search for an existing term in the Thematic Areas taxonomy by typing the first few characters of the term name. This should be used to identify major collecting areas."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="geographic_subregion" class="form-label">Geographic subregion <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="geographic_subregion" name="geographic_subregion"
-                     value="{{ old('geographic_subregion') }}" placeholder="Type to search geographic subregions..." autocomplete="off">
+                     value="{{ old('geographic_subregion') }}" placeholder="{{ __('Type to search geographic subregions...') }}" autocomplete="off">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Search for an existing term in the Geographic Subregion taxonomy by typing the first few characters of the term name."><i class="fas fa-question-circle"></i></button>
             </div>
           </div>
@@ -494,7 +494,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="admin-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#admin-collapse" aria-expanded="false" aria-controls="admin-collapse">
-            Administration area
+            {{ __('Administration area') }}
           </button>
         </h2>
         <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
@@ -502,7 +502,7 @@
             <div class="mb-3">
               <label for="upload_limit" class="form-label">Upload limit (MB) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="number" name="upload_limit" id="upload_limit" class="form-control" min="-1" step="1"
-                     value="{{ old('upload_limit', $repository->upload_limit ?? '') }}" placeholder="-1 = unlimited, 0 = disabled">
+                     value="{{ old('upload_limit', $repository->upload_limit ?? '') }}" placeholder="{{ __('-1 = unlimited, 0 = disabled') }}">
               <div class="form-text"><strong>-1</strong> = unlimited, <strong>0</strong> = disabled, any positive number = limit in MB</div>
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Set the maximum upload size in megabytes for digital objects associated with this repository. Set to 0 or leave blank to use the global default."><i class="fas fa-question-circle"></i></button>
             </div>

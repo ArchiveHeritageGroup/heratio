@@ -43,10 +43,10 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-8">
-            <label for="fuseki_endpoint" class="form-label fw-bold">Fuseki SPARQL Endpoint</label>
+            <label for="fuseki_endpoint" class="form-label fw-bold">{{ __('Fuseki SPARQL Endpoint') }}</label>
             <input type="url" class="form-control" id="fuseki_endpoint" name="fuseki_endpoint"
                    value="{{ $settings['fuseki_endpoint'] ?? config('ric.fuseki_endpoint', 'http://localhost:3030/ric') }}"
-                   placeholder="http://localhost:3030/ric">
+                   placeholder="{{ __('http://localhost:3030/ric') }}">
             <div class="form-text">Full URL to Fuseki SPARQL endpoint (e.g., http://localhost:3030/ric)</div>
           </div>
           <div class="col-md-4">
@@ -56,14 +56,14 @@
             </button>
           </div>
           <div class="col-md-6">
-            <label for="fuseki_username" class="form-label fw-bold">Username</label>
+            <label for="fuseki_username" class="form-label fw-bold">{{ __('Username') }}</label>
             <input type="text" class="form-control" id="fuseki_username" name="fuseki_username"
                    value="{{ $settings['fuseki_username'] ?? 'admin' }}">
           </div>
           <div class="col-md-6">
-            <label for="fuseki_password" class="form-label fw-bold">Password</label>
+            <label for="fuseki_password" class="form-label fw-bold">{{ __('Password') }}</label>
             <input type="password" class="form-control" id="fuseki_password" name="fuseki_password"
-                   value="{{ $settings['fuseki_password'] ?? '' }}" placeholder="Leave blank to keep current">
+                   value="{{ $settings['fuseki_password'] ?? '' }}" placeholder="{{ __('Leave blank to keep current') }}">
           </div>
         </div>
       </div>
@@ -103,7 +103,7 @@
               <input class="form-check-input" type="checkbox" id="fuseki_sync_on_save"
                      name="fuseki_sync_on_save" value="1"
                      {{ ($settings['fuseki_sync_on_save'] ?? '1') === '1' || ($settings['fuseki_sync_on_save'] ?? '') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="fuseki_sync_on_save">Sync on Record Save</label>
+              <label class="form-check-label" for="fuseki_sync_on_save">{{ __('Sync on Record Save') }}</label>
             </div>
             <div class="form-text">Automatically sync to Fuseki when records are created/updated</div>
           </div>
@@ -112,7 +112,7 @@
               <input class="form-check-input" type="checkbox" id="fuseki_sync_on_delete"
                      name="fuseki_sync_on_delete" value="1"
                      {{ ($settings['fuseki_sync_on_delete'] ?? '1') === '1' || ($settings['fuseki_sync_on_delete'] ?? '') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="fuseki_sync_on_delete">Sync on Record Delete</label>
+              <label class="form-check-label" for="fuseki_sync_on_delete">{{ __('Sync on Record Delete') }}</label>
             </div>
             <div class="form-text">Remove from Fuseki when records are deleted</div>
           </div>
@@ -121,12 +121,12 @@
               <input class="form-check-input" type="checkbox" id="fuseki_cascade_delete"
                      name="fuseki_cascade_delete" value="1"
                      {{ ($settings['fuseki_cascade_delete'] ?? '1') === '1' || ($settings['fuseki_cascade_delete'] ?? '') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="fuseki_cascade_delete">Cascade Delete References</label>
+              <label class="form-check-label" for="fuseki_cascade_delete">{{ __('Cascade Delete References') }}</label>
             </div>
             <div class="form-text">Also remove triples where deleted record is the object</div>
           </div>
           <div class="col-md-6">
-            <label for="fuseki_batch_size" class="form-label fw-bold">Batch Size</label>
+            <label for="fuseki_batch_size" class="form-label fw-bold">{{ __('Batch Size') }}</label>
             <input type="number" class="form-control" id="fuseki_batch_size" name="fuseki_batch_size"
                    value="{{ $settings['fuseki_batch_size'] ?? '100' }}" min="10" max="1000" step="10">
             <div class="form-text">Records per batch for bulk sync operations</div>
@@ -143,17 +143,17 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-6">
-            <label for="fuseki_integrity_schedule" class="form-label fw-bold">Check Schedule</label>
+            <label for="fuseki_integrity_schedule" class="form-label fw-bold">{{ __('Check Schedule') }}</label>
             <select class="form-select" id="fuseki_integrity_schedule" name="fuseki_integrity_schedule">
               @php $curSched = $settings['fuseki_integrity_schedule'] ?? 'weekly'; @endphp
-              <option value="daily" {{ $curSched === 'daily' ? 'selected' : '' }}>Daily</option>
-              <option value="weekly" {{ $curSched === 'weekly' ? 'selected' : '' }}>Weekly</option>
-              <option value="monthly" {{ $curSched === 'monthly' ? 'selected' : '' }}>Monthly</option>
-              <option value="disabled" {{ $curSched === 'disabled' ? 'selected' : '' }}>Disabled</option>
+              <option value="daily" {{ $curSched === 'daily' ? 'selected' : '' }}>{{ __('Daily') }}</option>
+              <option value="weekly" {{ $curSched === 'weekly' ? 'selected' : '' }}>{{ __('Weekly') }}</option>
+              <option value="monthly" {{ $curSched === 'monthly' ? 'selected' : '' }}>{{ __('Monthly') }}</option>
+              <option value="disabled" {{ $curSched === 'disabled' ? 'selected' : '' }}>{{ __('Disabled') }}</option>
             </select>
           </div>
           <div class="col-md-6">
-            <label for="fuseki_orphan_retention_days" class="form-label fw-bold">Orphan Retention (days)</label>
+            <label for="fuseki_orphan_retention_days" class="form-label fw-bold">{{ __('Orphan Retention (days)') }}</label>
             <input type="number" class="form-control" id="fuseki_orphan_retention_days" name="fuseki_orphan_retention_days"
                    value="{{ $settings['fuseki_orphan_retention_days'] ?? '30' }}" min="1" max="365">
             <div class="form-text">Days to retain orphaned triples before cleanup</div>

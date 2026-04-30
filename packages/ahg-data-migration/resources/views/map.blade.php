@@ -7,12 +7,12 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-project-diagram me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Field Mapping</h1>
+      <h1 class="mb-0">{{ __('Field Mapping') }}</h1>
       <span class="small text-muted">Map source columns to target fields</span>
     </div>
   </div>
 
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
       <li class="breadcrumb-item"><a href="{{ route('data-migration.upload') }}">Upload</a></li>
@@ -60,7 +60,7 @@
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-columns"></i> Column Mapping</h5>
       <div class="d-flex gap-2">
-        <button type="button" class="btn btn-sm atom-btn-outline-success" id="autoMapBtn" title="Auto-map columns by name matching">
+        <button type="button" class="btn btn-sm atom-btn-outline-success" id="autoMapBtn" title="{{ __('Auto-map columns by name matching') }}">
           <i class="fas fa-magic"></i> Auto Map
         </button>
         <button type="button" class="btn btn-sm atom-btn-white" id="clearMapBtn">
@@ -73,9 +73,9 @@
         <table class="table table-bordered mb-0" id="mappingTable">
           <thead>
             <tr>
-              <th style="width: 40%;">Source Column (CSV)</th>
+              <th style="width: 40%;">{{ __('Source Column (CSV)') }}</th>
               <th style="width: 10%; text-align: center;"><i class="fas fa-arrow-right"></i></th>
-              <th style="width: 50%;">Target Field</th>
+              <th style="width: 50%;">{{ __('Target Field') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -141,11 +141,11 @@
       <div class="row mb-3">
         <div class="col-md-4">
           <label for="mappingName" class="form-label">Mapping Name <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="text" class="form-control" id="mappingName" placeholder="e.g. ISAD CSV Import">
+          <input type="text" class="form-control" id="mappingName" placeholder="{{ __('e.g. ISAD CSV Import') }}">
         </div>
         <div class="col-md-3">
           <label for="mappingCategory" class="form-label">Category <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="text" class="form-control" id="mappingCategory" value="Custom" placeholder="Category">
+          <input type="text" class="form-control" id="mappingCategory" value="Custom" placeholder="{{ __('Category') }}">
         </div>
         <div class="col-md-3 d-flex align-items-end">
           <button type="button" class="btn atom-btn-white" id="saveMappingBtn">

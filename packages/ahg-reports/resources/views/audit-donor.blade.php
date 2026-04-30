@@ -52,13 +52,13 @@
           <table class="table table-bordered table-sm table-striped mb-0">
             <thead>
               <tr>
-                <th>Audit ID</th>
-                <th>User</th>
-                <th>Action</th>
-                <th>Date/Time</th>
-                <th>Record</th>
-                <th>Table</th>
-                <th>Details</th>
+                <th>{{ __('Audit ID') }}</th>
+                <th>{{ __('User') }}</th>
+                <th>{{ __('Action') }}</th>
+                <th>{{ __('Date/Time') }}</th>
+                <th>{{ __('Record') }}</th>
+                <th>{{ __('Table') }}</th>
+                <th>{{ __('Details') }}</th>
               </tr>
             </thead>
             <tbody>

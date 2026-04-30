@@ -15,16 +15,16 @@
     @endif
 
     <div class="card border-0 shadow-sm">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Platform Features</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Platform Features') }}</h5></div>
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-hover mb-0">
             <thead class="table-light">
               <tr>
-                <th>Feature</th>
-                <th>Code</th>
-                <th class="text-center">Status</th>
-                <th class="text-center">Action</th>
+                <th>{{ __('Feature') }}</th>
+                <th>{{ __('Code') }}</th>
+                <th class="text-center">{{ __('Status') }}</th>
+                <th class="text-center">{{ __('Action') }}</th>
               </tr>
             </thead>
             <tbody>

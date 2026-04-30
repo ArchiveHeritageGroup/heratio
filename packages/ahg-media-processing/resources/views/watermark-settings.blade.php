@@ -169,7 +169,7 @@
             <div class="mb-3">
               <label for="custom_watermark_name" class="form-label">Name <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" class="form-control" id="custom_watermark_name"
-                name="custom_watermark_name" required maxlength="100" placeholder="e.g. Company Logo">
+                name="custom_watermark_name" required maxlength="100" placeholder="{{ __('e.g. Company Logo') }}">
             </div>
 
             <div class="mb-3">
@@ -225,7 +225,7 @@
               @csrf
               <input type="hidden" name="delete_custom_watermark" value="{{ $cw->id }}">
               <button type="submit" class="btn btn-sm atom-btn-outline-danger"
-                onclick="return confirm('Delete this custom watermark?')" title="Delete">
+                onclick="return confirm('Delete this custom watermark?')" title="{{ __('Delete') }}">
                 <i class="fas fa-trash"></i>
               </button>
             </form>

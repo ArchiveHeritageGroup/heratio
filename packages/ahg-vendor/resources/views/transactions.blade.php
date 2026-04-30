@@ -40,53 +40,53 @@
         <div class="card-body">
             <form method="get" action="{{ route('ahgvendor.transactions') }}" class="row g-3">
                 <div class="col-md-2">
-                    <label class="form-label">Search</label>
-                    <input type="text" name="search" class="form-control" placeholder="Transaction #..." value="{{ e($filters['search'] ?? '') }}">
+                    <label class="form-label">{{ __('Search') }}</label>
+                    <input type="text" name="search" class="form-control" placeholder="{{ __('Transaction #...') }}" value="{{ e($filters['search'] ?? '') }}">
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">Status</label>
+                    <label class="form-label">{{ __('Status') }}</label>
                     <select name="status" class="form-select">
-                        <option value="">All Statuses</option>
+                        <option value="">{{ __('All Statuses') }}</option>
                         @foreach (($statusOptions ?? []) as $key => $label)
                         <option value="{{ $key }}" {{ ($filters['status'] ?? '') === $key ? 'selected' : '' }}>{{ $label }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">Vendor</label>
+                    <label class="form-label">{{ __('Vendor') }}</label>
                     <select name="vendor_id" class="form-select">
-                        <option value="">All Vendors</option>
+                        <option value="">{{ __('All Vendors') }}</option>
                         @foreach (($vendors ?? []) as $vendor)
                         <option value="{{ $vendor->id }}" {{ ($filters['vendor_id'] ?? '') == $vendor->id ? 'selected' : '' }}>{{ e($vendor->name) }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">Service</label>
+                    <label class="form-label">{{ __('Service') }}</label>
                     <select name="service_type_id" class="form-select">
-                        <option value="">All Services</option>
+                        <option value="">{{ __('All Services') }}</option>
                         @foreach (($serviceTypes ?? []) as $service)
                         <option value="{{ $service->id }}" {{ ($filters['service_type_id'] ?? '') == $service->id ? 'selected' : '' }}>{{ e($service->name) }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-md-1">
-                    <label class="form-label">From</label>
+                    <label class="form-label">{{ __('From') }}</label>
                     <input type="date" name="date_from" class="form-control" value="{{ e($filters['date_from'] ?? '') }}">
                 </div>
                 <div class="col-md-1">
-                    <label class="form-label">To</label>
+                    <label class="form-label">{{ __('To') }}</label>
                     <input type="date" name="date_to" class="form-control" value="{{ e($filters['date_to'] ?? '') }}">
                 </div>
                 <div class="col-md-1">
                     <label class="form-label">&nbsp;</label>
                     <div class="form-check mt-2">
                         <input type="checkbox" name="overdue" value="1" class="form-check-input" id="overdueOnly" {{ ($filters['overdue'] ?? '') ? 'checked' : '' }}>
-                        <label class="form-check-label" for="overdueOnly">Overdue</label>
+                        <label class="form-check-label" for="overdueOnly">{{ __('Overdue') }}</label>
                     </div>
                 </div>
                 <div class="col-md-1 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                    <button type="submit" class="btn btn-primary w-100">{{ __('Filter') }}</button>
                 </div>
             </form>
         </div>
@@ -103,15 +103,15 @@
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Transaction #</th>
-                            <th>Vendor</th>
-                            <th>Service</th>
-                            <th>Items</th>
-                            <th>Request Date</th>
-                            <th>Expected Return</th>
-                            <th>Status</th>
-                            <th>Est. Cost</th>
-                            <th>Actions</th>
+                            <th>{{ __('Transaction #') }}</th>
+                            <th>{{ __('Vendor') }}</th>
+                            <th>{{ __('Service') }}</th>
+                            <th>{{ __('Items') }}</th>
+                            <th>{{ __('Request Date') }}</th>
+                            <th>{{ __('Expected Return') }}</th>
+                            <th>{{ __('Status') }}</th>
+                            <th>{{ __('Est. Cost') }}</th>
+                            <th>{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -158,10 +158,10 @@
                             </td>
                             <td>
                                 <div class="btn-group btn-group-sm">
-                                    <a href="{{ route('ahgvendor.view-transaction', ['id' => $trans->id]) }}" class="btn btn-outline-primary" title="View">
+                                    <a href="{{ route('ahgvendor.view-transaction', ['id' => $trans->id]) }}" class="btn btn-outline-primary" title="{{ __('View') }}">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('ahgvendor.edit-transaction', ['id' => $trans->id]) }}" class="btn btn-outline-secondary" title="Edit">
+                                    <a href="{{ route('ahgvendor.edit-transaction', ['id' => $trans->id]) }}" class="btn btn-outline-secondary" title="{{ __('Edit') }}">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                 </div>

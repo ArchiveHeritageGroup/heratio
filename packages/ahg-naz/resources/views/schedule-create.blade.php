@@ -18,7 +18,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.schedules') }}">Schedules</a></li>
@@ -33,7 +33,7 @@
         @csrf
         <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Agency Information</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Agency Information') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-8">
@@ -41,7 +41,7 @@
                             <input type="text" name="agency_name" class="form-control" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Agency Code</label>
+                            <label class="form-label">{{ __('Agency Code') }}</label>
                             <input type="text" name="agency_code" class="form-control">
                         </div>
                         <div class="col-12">
@@ -49,7 +49,7 @@
                             <input type="text" name="record_series" class="form-control" required>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Description</label>
+                            <label class="form-label">{{ __('Description') }}</label>
                             <textarea name="description" class="form-control" rows="3"></textarea>
                         </div>
                     </div>
@@ -57,7 +57,7 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Retention & Disposal</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Retention & Disposal') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-4">
@@ -65,46 +65,46 @@
                             <input type="number" name="retention_period_active" class="form-control" required min="0">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Semi-active (years)</label>
+                            <label class="form-label">{{ __('Semi-active (years)') }}</label>
                             <input type="number" name="retention_period_semi" class="form-control" min="0" value="0">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Disposal Action <span class="text-danger">*</span></label>
                             <select name="disposal_action" class="form-select" required>
-                                <option value="destroy">Destroy</option>
-                                <option value="transfer">Transfer to NAZ</option>
-                                <option value="review">Review</option>
-                                <option value="permanent">Permanent Retention</option>
+                                <option value="destroy">{{ __('Destroy') }}</option>
+                                <option value="transfer">{{ __('Transfer to NAZ') }}</option>
+                                <option value="review">{{ __('Review') }}</option>
+                                <option value="permanent">{{ __('Permanent Retention') }}</option>
                             </select>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Legal Authority</label>
-                            <textarea name="legal_authority" class="form-control" rows="2" placeholder="Legal basis for retention period"></textarea>
+                            <label class="form-label">{{ __('Legal Authority') }}</label>
+                            <textarea name="legal_authority" class="form-control" rows="2" placeholder="{{ __('Legal basis for retention period') }}"></textarea>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Classification & Access</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Classification & Access') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Classification</label>
+                            <label class="form-label">{{ __('Classification') }}</label>
                             <select name="classification" class="form-select">
-                                <option value="vital">Vital</option>
-                                <option value="important">Important</option>
-                                <option value="useful" selected>Useful</option>
-                                <option value="non-essential">Non-essential</option>
+                                <option value="vital">{{ __('Vital') }}</option>
+                                <option value="important">{{ __('Important') }}</option>
+                                <option value="useful" selected>{{ __('Useful') }}</option>
+                                <option value="non-essential">{{ __('Non-essential') }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Access Restriction</label>
+                            <label class="form-label">{{ __('Access Restriction') }}</label>
                             <select name="access_restriction" class="form-select">
-                                <option value="open" selected>Open</option>
-                                <option value="restricted">Restricted</option>
-                                <option value="confidential">Confidential</option>
-                                <option value="secret">Secret</option>
+                                <option value="open" selected>{{ __('Open') }}</option>
+                                <option value="restricted">{{ __('Restricted') }}</option>
+                                <option value="confidential">{{ __('Confidential') }}</option>
+                                <option value="secret">{{ __('Secret') }}</option>
                             </select>
                         </div>
                     </div>

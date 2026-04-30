@@ -11,7 +11,7 @@
 
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0">Requested Resource</h5>
+        <h5 class="mb-0">{{ __('Requested Resource') }}</h5>
       </div>
       <div class="card-body">
         <p>
@@ -54,7 +54,7 @@
 
     <div class="card">
       <div class="card-header">
-        <h5 class="mb-0">Access Request Details</h5>
+        <h5 class="mb-0">{{ __('Access Request Details') }}</h5>
       </div>
       <div class="card-body">
         <form action="{{ route('acl.submit-access-request') }}" method="post">
@@ -65,25 +65,25 @@
           @endif
 
           <div class="mb-3">
-            <label class="form-label">Type of Access *</label>
+            <label class="form-label">{{ __('Type of Access *') }}</label>
             <select name="request_type" class="form-select" required>
-              <option value="view">View Only</option>
-              <option value="download">Download</option>
-              <option value="print">Print</option>
+              <option value="view">{{ __('View Only') }}</option>
+              <option value="download">{{ __('Download') }}</option>
+              <option value="print">{{ __('Print') }}</option>
             </select>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Priority</label>
+            <label class="form-label">{{ __('Priority') }}</label>
             <select name="priority" class="form-select">
-              <option value="normal">Normal</option>
-              <option value="urgent">Urgent</option>
-              <option value="immediate">Immediate</option>
+              <option value="normal">{{ __('Normal') }}</option>
+              <option value="urgent">{{ __('Urgent') }}</option>
+              <option value="immediate">{{ __('Immediate') }}</option>
             </select>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Duration Required (hours)</label>
+            <label class="form-label">{{ __('Duration Required (hours)') }}</label>
             <select name="duration_hours" class="form-select">
               <option value="1">1 hour</option>
               <option value="4">4 hours</option>
@@ -96,9 +96,9 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Justification *</label>
+            <label class="form-label">{{ __('Justification *') }}</label>
             <textarea name="justification" class="form-control" rows="5" required
-                      minlength="20" placeholder="Please provide a detailed justification for your access request. Include the purpose, project name, and any relevant authorization."></textarea>
+                      minlength="20" placeholder="{{ __('Please provide a detailed justification for your access request. Include the purpose, project name, and any relevant authorization.') }}"></textarea>
             <div class="form-text">Minimum 20 characters required.</div>
           </div>
 

@@ -37,7 +37,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="identity-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#identity-collapse" aria-expanded="false" aria-controls="identity-collapse">
-            Identity area
+            {{ __('Identity area') }}
           </button>
         </h2>
         <div id="identity-collapse" class="accordion-collapse collapse" aria-labelledby="identity-heading">
@@ -45,7 +45,7 @@
             <div class="mb-3">
               <label for="type_id" class="form-label">
                 Type
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <select name="type_id" id="type_id" class="form-select" required>
                 <option value="" disabled @selected(empty(old('type_id', $function->type_id ?? '')))>-- Select --</option>
                 @foreach($formChoices['functionTypes'] as $type)
@@ -60,7 +60,7 @@
             <div class="mb-3">
               <label for="authorized_form_of_name" class="form-label">
                 Authorized form of name
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="authorized_form_of_name" id="authorized_form_of_name" class="form-control" required
                      value="{{ old('authorized_form_of_name', $function->authorized_form_of_name ?? '') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&quot;Record the authorised name of the function being described. In cases where the name is not enough, add qualifiers to make it unique such as the territorial or administrative scope, or the name of the institution which performs it. This element is to be used in conjunction with the Function description identifier element (5.4.1).&quot; (ISDF 5.1.2)"><i class="fas fa-question-circle"></i></button>
@@ -94,7 +94,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="context-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#context-collapse" aria-expanded="false" aria-controls="context-collapse">
-            Context area
+            {{ __('Context area') }}
           </button>
         </h2>
         <div id="context-collapse" class="accordion-collapse collapse" aria-labelledby="context-heading">
@@ -131,7 +131,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="relationships-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#relationships-collapse" aria-expanded="false" aria-controls="relationships-collapse">
-            Relationships area
+            {{ __('Relationships area') }}
           </button>
         </h2>
         <div id="relationships-collapse" class="accordion-collapse collapse" aria-labelledby="relationships-heading">
@@ -139,9 +139,9 @@
 
             {{-- Related functions --}}
             <div class="mb-3">
-              <label class="form-label fw-bold">Related function(s)</label>
+              <label class="form-label fw-bold">{{ __('Related function(s)') }}</label>
               <table class="table table-bordered table-sm" id="related-functions-table">
-                <thead><tr><th>Name</th><th>Identifier</th><th>Category</th><th>Description</th><th>Dates</th><th style="width:50px"></th></tr></thead>
+                <thead><tr><th>{{ __('Name') }}</th><th>{{ __('Identifier') }}</th><th>{{ __('Category') }}</th><th>{{ __('Description') }}</th><th>{{ __('Dates') }}</th><th style="width:50px"></th></tr></thead>
                 <tbody>
                   @if(isset($relatedFunctions) && count($relatedFunctions) > 0)
                     @foreach($relatedFunctions as $rf)
@@ -157,14 +157,14 @@
                   @endif
                 </tbody>
               </table>
-              <button type="button" class="btn btn-sm atom-btn-white" onclick="addRelRow('related-functions-table', ['name','identifier','category','description','dates'])">Add related function</button>
+              <button type="button" class="btn btn-sm atom-btn-white" onclick="addRelRow('related-functions-table', ['name','identifier','category','description','dates'])">{{ __('Add related function') }}</button>
             </div>
 
             {{-- Related authority records --}}
             <div class="mb-3">
-              <label class="form-label fw-bold">Related authority record(s)</label>
+              <label class="form-label fw-bold">{{ __('Related authority record(s)') }}</label>
               <table class="table table-bordered table-sm" id="related-actors-table">
-                <thead><tr><th>Name</th><th>Identifier</th><th>Nature of relationship</th><th>Dates</th><th style="width:50px"></th></tr></thead>
+                <thead><tr><th>{{ __('Name') }}</th><th>{{ __('Identifier') }}</th><th>{{ __('Nature of relationship') }}</th><th>{{ __('Dates') }}</th><th style="width:50px"></th></tr></thead>
                 <tbody>
                   @if(isset($relatedActors) && count($relatedActors) > 0)
                     @foreach($relatedActors as $ra)
@@ -179,14 +179,14 @@
                   @endif
                 </tbody>
               </table>
-              <button type="button" class="btn btn-sm atom-btn-white" onclick="addRelRow('related-actors-table', ['name','identifier','nature','dates'])">Add related authority record</button>
+              <button type="button" class="btn btn-sm atom-btn-white" onclick="addRelRow('related-actors-table', ['name','identifier','nature','dates'])">{{ __('Add related authority record') }}</button>
             </div>
 
             {{-- Related resources --}}
             <div class="mb-3">
-              <label class="form-label fw-bold">Related resource(s)</label>
+              <label class="form-label fw-bold">{{ __('Related resource(s)') }}</label>
               <table class="table table-bordered table-sm" id="related-resources-table">
-                <thead><tr><th>Title</th><th>Identifier</th><th>Nature of relationship</th><th>Dates</th><th style="width:50px"></th></tr></thead>
+                <thead><tr><th>{{ __('Title') }}</th><th>{{ __('Identifier') }}</th><th>{{ __('Nature of relationship') }}</th><th>{{ __('Dates') }}</th><th style="width:50px"></th></tr></thead>
                 <tbody>
                   @if(isset($relatedResources) && count($relatedResources) > 0)
                     @foreach($relatedResources as $rr)
@@ -201,7 +201,7 @@
                   @endif
                 </tbody>
               </table>
-              <button type="button" class="btn btn-sm atom-btn-white" onclick="addRelRow('related-resources-table', ['title','identifier','nature','dates'])">Add related resource</button>
+              <button type="button" class="btn btn-sm atom-btn-white" onclick="addRelRow('related-resources-table', ['title','identifier','nature','dates'])">{{ __('Add related resource') }}</button>
             </div>
 
           </div>
@@ -212,7 +212,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="control-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#control-collapse" aria-expanded="false" aria-controls="control-collapse">
-            Control area
+            {{ __('Control area') }}
           </button>
         </h2>
         <div id="control-collapse" class="accordion-collapse collapse" aria-labelledby="control-heading">
@@ -274,14 +274,14 @@
             <div class="mb-3">
               <label for="language" class="form-label">Language(s) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="language" name="language"
-                     value="{{ old('language', $function->language ?? '') }}" placeholder="e.g. English">
+                     value="{{ old('language', $function->language ?? '') }}" placeholder="{{ __('e.g. English') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Select the language(s) of this record from the drop-down menu; enter the first few letters to narrow the choices. (ISDF 5.4.7)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="script" class="form-label">Script(s) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="script" name="script"
-                     value="{{ old('script', $function->script ?? '') }}" placeholder="e.g. Latin">
+                     value="{{ old('script', $function->script ?? '') }}" placeholder="{{ __('e.g. Latin') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Select the script(s) of this record from the drop-down menu; enter the first few letters to narrow the choices. (ISDF 5.4.7)"><i class="fas fa-question-circle"></i></button>
             </div>
 

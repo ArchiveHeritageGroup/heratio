@@ -16,12 +16,12 @@
      @else
        data-show-accessions="0"
      @endif>
-    <i class="fas fa-2x fa-fw fa-paperclip px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Clipboard" aria-hidden="true"></i>
+    <i class="fas fa-2x fa-fw fa-paperclip px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="{{ __('Clipboard') }}" aria-hidden="true"></i>
     <span class="d-lg-none mx-1" aria-hidden="true">Clipboard</span>
     <span class="visually-hidden">Clipboard</span>
   </a>
   <ul class="dropdown-menu dropdown-menu-end mb-2" aria-labelledby="clipboard-menu">
-    <li><h6 class="dropdown-header">Clipboard</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Clipboard') }}</h6></li>
     <li class="text-muted text-nowrap px-3 pb-2">
       <span id="counts-block"
             data-information-object-label="{{ config('app.ui_label_informationobject', 'Archival description') }}"
@@ -33,26 +33,26 @@
       </span>
     </li>
     <li>
-      <button type="button" class="dropdown-item" id="clipboard-clear-btn" title="Clear all selections"
+      <button type="button" class="dropdown-item" id="clipboard-clear-btn" title="{{ __('Clear all selections') }}"
               data-clear-url="{{ route('clipboard.clear') }}"
               data-csrf="{{ csrf_token() }}">
         <i class="fas fa-trash-alt me-2"></i>Clear all selections
       </button>
     </li>
     <li>
-      <a class="dropdown-item" href="{{ route('clipboard.view') }}" title="Go to clipboard">
+      <a class="dropdown-item" href="{{ route('clipboard.view') }}" title="{{ __('Go to clipboard') }}">
         <i class="fas fa-clipboard-list me-2"></i>Go to clipboard
       </a>
     </li>
     <li>
-      <a class="dropdown-item" href="{{ url('/clipboard/load') }}" title="Load clipboard">
+      <a class="dropdown-item" href="{{ url('/clipboard/load') }}" title="{{ __('Load clipboard') }}">
         <i class="fas fa-upload me-2"></i>Load clipboard
       </a>
     </li>
     <li>
       <form method="POST" action="{{ route('clipboard.save') }}" id="clipboard-save-form">
         @csrf
-        <button type="submit" class="dropdown-item" title="Save clipboard">
+        <button type="submit" class="dropdown-item" title="{{ __('Save clipboard') }}">
           <i class="fas fa-download me-2"></i>Save clipboard
         </button>
       </form>

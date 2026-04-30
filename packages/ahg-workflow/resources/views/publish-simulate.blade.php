@@ -2,7 +2,7 @@
 @section('title', 'Publish Simulation')
 @section('body-class', 'workflow simulate')
 @section('content')
-  <div class="multiline-header d-flex align-items-center mb-3"><i class="fas fa-3x fa-play-circle me-3" aria-hidden="true"></i><div class="d-flex flex-column"><h1 class="mb-0">Publish Readiness Simulation</h1></div></div>
+  <div class="multiline-header d-flex align-items-center mb-3"><i class="fas fa-3x fa-play-circle me-3" aria-hidden="true"></i><div class="d-flex flex-column"><h1 class="mb-0">{{ __('Publish Readiness Simulation') }}</h1></div></div>
   <div class="card"><div class="card-header fw-semibold"><i class="fas fa-play-circle me-2"></i>Gate Results</div><div class="card-body">
     @if(isset($gates) && count($gates))
       @foreach($gates as $gate)

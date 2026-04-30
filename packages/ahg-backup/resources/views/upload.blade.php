@@ -4,7 +4,7 @@
 @section('content')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-cloud-upload-alt me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">Upload Backup</h1></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Upload Backup') }}</h1></div>
   </div>
   <div class="card"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-edit me-2"></i>Upload Backup</div>
   <div class="card-body"><form method="POST" action="{{ $formAction ?? '#' }}">@csrf

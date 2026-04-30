@@ -19,7 +19,7 @@
 
   {{-- Workflow Settings --}}
   <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0">Workflow Settings</h5></div>
+    <div class="card-header"><h5 class="mb-0">{{ __('Workflow Settings') }}</h5></div>
     <div class="card-body">
       <form action="{{ route('workflow.admin.edit', $workflow->id) }}" method="POST">
         @csrf
@@ -128,7 +128,7 @@
       {{-- Add Step Form (collapsed) --}}
       <div class="collapse mb-4" id="addStepForm">
         <div class="card card-body bg-light">
-          <h6>Add New Step</h6>
+          <h6>{{ __('Add New Step') }}</h6>
           <form action="{{ route('workflow.admin.step.add', $workflow->id) }}" method="POST">
             @csrf
             <div class="row">
@@ -139,19 +139,19 @@
               <div class="col-md-4 mb-3">
                 <label for="step_type" class="form-label">Step Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                 <select class="form-select" id="step_type" name="step_type">
-                  <option value="review">Review</option>
-                  <option value="approve">Approve</option>
-                  <option value="quality_check">Quality Check</option>
-                  <option value="final_review">Final Review</option>
-                  <option value="publish">Publish</option>
+                  <option value="review">{{ __('Review') }}</option>
+                  <option value="approve">{{ __('Approve') }}</option>
+                  <option value="quality_check">{{ __('Quality Check') }}</option>
+                  <option value="final_review">{{ __('Final Review') }}</option>
+                  <option value="publish">{{ __('Publish') }}</option>
                 </select>
               </div>
               <div class="col-md-4 mb-3">
                 <label for="action_required" class="form-label">Action Required <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                 <select class="form-select" id="action_required" name="action_required">
-                  <option value="approve_reject">Approve / Reject</option>
-                  <option value="acknowledge">Acknowledge</option>
-                  <option value="review_only">Review Only</option>
+                  <option value="approve_reject">{{ __('Approve / Reject') }}</option>
+                  <option value="acknowledge">{{ __('Acknowledge') }}</option>
+                  <option value="review_only">{{ __('Review Only') }}</option>
                 </select>
               </div>
             </div>
@@ -166,7 +166,7 @@
               </div>
               <div class="col-md-3 mb-3">
                 <label for="step_order" class="form-label">Step Order <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="number" class="form-control" id="step_order" name="step_order" placeholder="Auto">
+                <input type="number" class="form-control" id="step_order" name="step_order" placeholder="{{ __('Auto') }}">
               </div>
             </div>
             <div class="row">
@@ -208,14 +208,14 @@
           <table class="table table-bordered table-hover mb-0">
             <thead>
               <tr>
-                <th>Order</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Action</th>
-                <th>Pool</th>
-                <th>Escalation</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>{{ __('Order') }}</th>
+                <th>{{ __('Name') }}</th>
+                <th>{{ __('Type') }}</th>
+                <th>{{ __('Action') }}</th>
+                <th>{{ __('Pool') }}</th>
+                <th>{{ __('Escalation') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>

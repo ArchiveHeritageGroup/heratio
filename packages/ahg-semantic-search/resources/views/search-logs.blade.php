@@ -3,13 +3,13 @@
 @section('title', 'Semantic Search')
 
 @section('content')
-<h1>Semantic Search</h1>
+<h1>{{ __('Semantic Search') }}</h1>
 
 <div class="table-responsive">
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th>#</th><th>Name</th><th>Actions</th>
+        <th>#</th><th>{{ __('Name') }}</th><th>{{ __('Actions') }}</th>
       </tr>
     </thead>
     <tbody>

@@ -24,20 +24,20 @@
     <div class="card mb-3">
       <div class="card-header bg-light">Headers</div>
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:30%">Message-ID</th><td><code class="small">{{ $email->message_id }}</code></td></tr>
-        <tr><th class="text-muted">From</th><td>{{ $email->from_address }}</td></tr>
-        <tr><th class="text-muted">To</th><td><small>{{ $email->to_addresses }}</small></td></tr>
-        @if($email->cc_addresses)<tr><th class="text-muted">CC</th><td><small>{{ $email->cc_addresses }}</small></td></tr>@endif
-        <tr><th class="text-muted">Subject</th><td>{{ $email->subject }}</td></tr>
-        <tr><th class="text-muted">Sent</th><td>{{ $email->sent_at }}</td></tr>
-        @if($email->received_at)<tr><th class="text-muted">Received</th><td>{{ $email->received_at }}</td></tr>@endif
-        <tr><th class="text-muted">Attachments</th><td>{{ $email->attachment_count }}</td></tr>
-        <tr><th class="text-muted">Source</th><td>{{ $email->capture_source }}</td></tr>
+        <tr><th class="text-muted" style="width:30%">{{ __('Message-ID') }}</th><td><code class="small">{{ $email->message_id }}</code></td></tr>
+        <tr><th class="text-muted">{{ __('From') }}</th><td>{{ $email->from_address }}</td></tr>
+        <tr><th class="text-muted">{{ __('To') }}</th><td><small>{{ $email->to_addresses }}</small></td></tr>
+        @if($email->cc_addresses)<tr><th class="text-muted">{{ __('CC') }}</th><td><small>{{ $email->cc_addresses }}</small></td></tr>@endif
+        <tr><th class="text-muted">{{ __('Subject') }}</th><td>{{ $email->subject }}</td></tr>
+        <tr><th class="text-muted">{{ __('Sent') }}</th><td>{{ $email->sent_at }}</td></tr>
+        @if($email->received_at)<tr><th class="text-muted">{{ __('Received') }}</th><td>{{ $email->received_at }}</td></tr>@endif
+        <tr><th class="text-muted">{{ __('Attachments') }}</th><td>{{ $email->attachment_count }}</td></tr>
+        <tr><th class="text-muted">{{ __('Source') }}</th><td>{{ $email->capture_source }}</td></tr>
         @if($email->information_object_id)
-          <tr><th class="text-muted">Declared as</th><td><a href="/admin/information-object/{{ $email->information_object_id }}">information_object #{{ $email->information_object_id }}</a></td></tr>
+          <tr><th class="text-muted">{{ __('Declared as') }}</th><td><a href="/admin/information-object/{{ $email->information_object_id }}">information_object #{{ $email->information_object_id }}</a></td></tr>
         @endif
         @if($email->eml_storage_path)
-          <tr><th class="text-muted">EML on disk</th><td><code class="small">{{ $email->eml_storage_path }}</code></td></tr>
+          <tr><th class="text-muted">{{ __('EML on disk') }}</th><td><code class="small">{{ $email->eml_storage_path }}</code></td></tr>
         @endif
       </table>
     </div>
@@ -58,14 +58,14 @@
         <form method="POST" action="{{ route('records.emails.classify', $email->id) }}">
           @csrf
           <div class="mb-2">
-            <label class="form-label small mb-1">File plan node</label>
+            <label class="form-label small mb-1">{{ __('File plan node') }}</label>
             <select name="fileplan_node_id" class="form-select form-select-sm" required>
               <option value="">— pick a node —</option>
               @foreach($fileplanNodes as $n)<option value="{{ $n->id }}" @selected($email->fileplan_node_id == $n->id)>{{ str_repeat('— ', $n->depth) }}{{ $n->code }} — {{ $n->title }}</option>@endforeach
             </select>
           </div>
           <div class="mb-2">
-            <label class="form-label small mb-1">Disposal class (optional)</label>
+            <label class="form-label small mb-1">{{ __('Disposal class (optional)') }}</label>
             <select name="disposal_class_id" class="form-select form-select-sm">
               <option value="">— inherit from node —</option>
               @foreach($disposalClasses as $dc)<option value="{{ $dc->id }}" @selected($email->disposal_class_id == $dc->id)>{{ $dc->class_ref }} — {{ $dc->title }}</option>@endforeach

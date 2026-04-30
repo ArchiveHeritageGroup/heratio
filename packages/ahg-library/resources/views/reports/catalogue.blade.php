@@ -9,7 +9,7 @@
 
 @section('sidebar')
 <div class="sidebar-content">
-  <h4>Library Reports</h4>
+  <h4>{{ __('Library Reports') }}</h4>
   <ul class="list-unstyled">
     <li><a href="{{ route('library.report-catalogue') }}"><i class="fas fa-book me-2"></i>Catalogue</a></li>
     <li><a href="{{ route('library.report-creators') }}"><i class="fas fa-user-edit me-2"></i>Creators</a></li>
@@ -31,7 +31,7 @@
 <div class="table-responsive">
   <table class="table table-striped table-hover">
     <thead class="table-dark">
-      <tr><th>Title</th><th>Author(s)</th><th>Type</th><th>Call #</th><th>ISBN</th><th>Publisher</th><th>Status</th></tr>
+      <tr><th>{{ __('Title') }}</th><th>{{ __('Author(s)') }}</th><th>{{ __('Type') }}</th><th>{{ __('Call #') }}</th><th>{{ __('ISBN') }}</th><th>{{ __('Publisher') }}</th><th>{{ __('Status') }}</th></tr>
     </thead>
     <tbody>
       @forelse($items as $i)

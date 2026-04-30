@@ -3,7 +3,7 @@
 @section('title', 'Activity Log')
 
 @section('content')
-<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Activity Log</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Activity Log</li></ol></nav>
 
 <h1 class="h2 mb-4"><i class="fas fa-stream text-primary me-2"></i>Activity Log</h1>
 
@@ -12,16 +12,16 @@
     <div class="card-body">
         <form method="GET" class="row g-2 align-items-end">
             <div class="col-md-3">
-                <label class="form-label small">Type</label>
+                <label class="form-label small">{{ __('Type') }}</label>
                 <select name="type" class="form-select form-select-sm">
-                    <option value="">All Types</option>
+                    <option value="">{{ __('All Types') }}</option>
                     @foreach($activityTypes ?? [] as $t)
                         <option value="{{ $t }}" {{ ($typeFilter ?? '') === $t ? 'selected' : '' }}>{{ ucfirst(str_replace('_', ' ', $t)) }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-2"><label class="form-label small">From</label><input type="date" class="form-control form-control-sm" name="date_from" value="{{ $dateFrom ?? '' }}"></div>
-            <div class="col-md-2"><label class="form-label small">To</label><input type="date" class="form-control form-control-sm" name="date_to" value="{{ $dateTo ?? '' }}"></div>
+            <div class="col-md-2"><label class="form-label small">{{ __('From') }}</label><input type="date" class="form-control form-control-sm" name="date_from" value="{{ $dateFrom ?? '' }}"></div>
+            <div class="col-md-2"><label class="form-label small">{{ __('To') }}</label><input type="date" class="form-control form-control-sm" name="date_to" value="{{ $dateTo ?? '' }}"></div>
             <div class="col-md-2"><button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-filter me-1"></i>Filter</button></div>
             @if(($typeFilter ?? '') || ($dateFrom ?? '') || ($dateTo ?? ''))
                 <div class="col-md-2"><a href="{{ route('research.activities') }}" class="btn btn-outline-secondary btn-sm w-100">Clear</a></div>
@@ -52,7 +52,7 @@
 
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Activities</h5>
+        <h5 class="mb-0">{{ __('Activities') }}</h5>
         <span class="badge bg-primary">{{ count($activities) }}</span>
     </div>
     <div class="card-body p-0">
@@ -94,7 +94,7 @@
         @else
         <div class="card-body text-center text-muted py-5">
             <i class="fas fa-stream fa-3x mb-3 opacity-50"></i>
-            <h5>No activities found</h5>
+            <h5>{{ __('No activities found') }}</h5>
             <p>Activities are logged automatically as researchers use the system.</p>
         </div>
         @endif

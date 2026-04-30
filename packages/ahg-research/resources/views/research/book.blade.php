@@ -112,7 +112,7 @@
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-archive me-2"></i>Material Requests</div>
       <div class="card-body">
         <p class="text-muted small">Search and select archival materials you would like to have prepared for your visit.</p>
-        <select id="material-select" name="materials[]" multiple placeholder="Type to search records..."></select>
+        <select id="material-select" name="materials[]" multiple placeholder="{{ __('Type to search records...') }}"></select>
         <small class="text-muted d-block mt-2">Start typing a title, identifier or reference number to search.</small>
       </div>
     </div>

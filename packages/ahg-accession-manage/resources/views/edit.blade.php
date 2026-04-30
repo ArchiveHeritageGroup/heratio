@@ -29,7 +29,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="basic-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#basic-collapse" aria-expanded="false" aria-controls="basic-collapse">
-            Basic info
+            {{ __('Basic info') }}
           </button>
         </h2>
         <div id="basic-collapse" class="accordion-collapse collapse" aria-labelledby="basic-heading">
@@ -51,14 +51,14 @@
             </div>
 
             <div id="alternative-identifiers-table" class="collapse">
-              <h3 class="fs-6 mb-2">Alternative identifier(s)</h3>
+              <h3 class="fs-6 mb-2">{{ __('Alternative identifier(s)') }}</h3>
               <div class="table-responsive mb-2">
                 <table class="table table-bordered mb-0" id="altids-table">
                   <thead>
                     <tr>
-                      <th id="alt-identifiers-type-head" class="w-30">Type</th>
-                      <th id="alt-identifiers-identifier-head" class="w-35">Identifier</th>
-                      <th id="alt-identifiers-note-head" class="w-35">Notes</th>
+                      <th id="alt-identifiers-type-head" class="w-30">{{ __('Type') }}</th>
+                      <th id="alt-identifiers-identifier-head" class="w-35">{{ __('Identifier') }}</th>
+                      <th id="alt-identifiers-note-head" class="w-35">{{ __('Notes') }}</th>
                       <th><span class="visually-hidden">Delete</span></th>
                     </tr>
                   </thead>
@@ -105,7 +105,7 @@
             <div class="mb-3">
               <label for="date" class="form-label">
                 Acquisition date
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="date" name="date" id="date" class="form-control @error('date') is-invalid @enderror"
                      value="{{ old('date', $accession->date ?? '') }}">
               @error('date') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -115,7 +115,7 @@
             <div class="mb-3">
               <label for="source_of_acquisition" class="form-label">
                 Immediate source of acquisition
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <textarea name="source_of_acquisition" id="source_of_acquisition" class="form-control" rows="3">{{ old('source_of_acquisition', $accession->source_of_acquisition ?? '') }}</textarea>
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Identify immediate source of acquisition or transfer, and date and method of acquisition IF the information is NOT confidential."><i class="fas fa-question-circle"></i></button>
             </div>
@@ -123,7 +123,7 @@
             <div class="mb-3">
               <label for="location_information" class="form-label">
                 Location information
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <textarea name="location_information" id="location_information" class="form-control" rows="3">{{ old('location_information', $accession->location_information ?? '') }}</textarea>
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="A description of the physical location in the repository where the accession can be found."><i class="fas fa-question-circle"></i></button>
             </div>
@@ -135,20 +135,20 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="donor-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#donor-collapse" aria-expanded="false" aria-controls="donor-collapse">
-            Donor/Transferring body area
+            {{ __('Donor/Transferring body area') }}
           </button>
         </h2>
         <div id="donor-collapse" class="accordion-collapse collapse" aria-labelledby="donor-heading">
           <div class="accordion-body">
 
-            <h3 class="fs-6 mb-2">Related donors</h3>
+            <h3 class="fs-6 mb-2">{{ __('Related donors') }}</h3>
 
             <div class="atom-table-modal">
               <div class="table-responsive">
                 <table class="table table-bordered mb-0" id="donor-table">
                   <thead>
                     <tr>
-                      <th class="w-100">Name</th>
+                      <th class="w-100">{{ __('Name') }}</th>
                       <th><span class="visually-hidden">Actions</span></th>
                     </tr>
                   </thead>
@@ -186,7 +186,7 @@
                 <div class="modal-dialog modal-lg modal-dialog-scrollable">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h4 class="h5 modal-title" id="related-donor-heading">Related donor record</h4>
+                      <h4 class="h5 modal-title" id="related-donor-heading">{{ __('Related donor record') }}</h4>
                       <button type="button" class="btn-close" data-bs-dismiss="modal">
                         <span class="visually-hidden">Close</span>
                       </button>
@@ -196,21 +196,21 @@
 
                       <div class="mb-3">
                         <label for="donor_name" class="form-label">Name <span class="badge bg-secondary ms-1">Optional</span></label>
-                        <input type="text" name="donor_name" id="donor_name" class="form-control" value="{{ old('donor_name', $donor->name ?? '') }}" placeholder="Type to search donors..." autocomplete="off">
+                        <input type="text" name="donor_name" id="donor_name" class="form-control" value="{{ old('donor_name', $donor->name ?? '') }}" placeholder="{{ __('Type to search donors...') }}" autocomplete="off">
                         <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="This is the legal entity field and provides the contact information for the person(s) or the institution that donated or transferred the materials. It has the option of multiple instances and provides the option of creating more than one contact record using the same form."><i class="fas fa-question-circle"></i></button>
                       </div>
 
-                      <h5>Primary contact information</h5>
+                      <h5>{{ __('Primary contact information') }}</h5>
 
                       <ul class="nav nav-pills mb-3 d-flex gap-2" role="tablist">
                         <li class="nav-item" role="presentation">
-                          <button class="btn atom-btn-white active-primary text-wrap active" id="pills-main-tab" data-bs-toggle="pill" data-bs-target="#pills-main" type="button" role="tab" aria-controls="pills-main" aria-selected="true">Main</button>
+                          <button class="btn atom-btn-white active-primary text-wrap active" id="pills-main-tab" data-bs-toggle="pill" data-bs-target="#pills-main" type="button" role="tab" aria-controls="pills-main" aria-selected="true">{{ __('Main') }}</button>
                         </li>
                         <li class="nav-item" role="presentation">
-                          <button class="btn atom-btn-white active-primary text-wrap" id="pills-phys-tab" data-bs-toggle="pill" data-bs-target="#pills-phys" type="button" role="tab" aria-controls="pills-phys" aria-selected="false">Physical location</button>
+                          <button class="btn atom-btn-white active-primary text-wrap" id="pills-phys-tab" data-bs-toggle="pill" data-bs-target="#pills-phys" type="button" role="tab" aria-controls="pills-phys" aria-selected="false">{{ __('Physical location') }}</button>
                         </li>
                         <li class="nav-item" role="presentation">
-                          <button class="btn atom-btn-white active-primary text-wrap" id="pills-other-tab" data-bs-toggle="pill" data-bs-target="#pills-other" type="button" role="tab" aria-controls="pills-other" aria-selected="false">Other details</button>
+                          <button class="btn atom-btn-white active-primary text-wrap" id="pills-other-tab" data-bs-toggle="pill" data-bs-target="#pills-other" type="button" role="tab" aria-controls="pills-other" aria-selected="false">{{ __('Other details') }}</button>
                         </li>
                       </ul>
 
@@ -283,8 +283,8 @@
                     </div>
 
                     <div class="modal-footer">
-                      <button type="button" class="btn atom-btn-outline-light" data-bs-dismiss="modal">Cancel</button>
-                      <button type="button" class="btn atom-btn-outline-success modal-submit">Submit</button>
+                      <button type="button" class="btn atom-btn-outline-light" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                      <button type="button" class="btn atom-btn-outline-success modal-submit">{{ __('Submit') }}</button>
                     </div>
                   </div>
                 </div>
@@ -299,7 +299,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="admin-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#admin-collapse" aria-expanded="false" aria-controls="admin-collapse">
-            Administrative area
+            {{ __('Administrative area') }}
           </button>
         </h2>
         <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
@@ -334,23 +334,23 @@
 
             <div class="mb-3">
               <label for="creators" class="form-label">Creators <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="text" name="creators" id="creators" class="form-control" value="{{ old('creators', $accession->creators ?? '') }}" placeholder="Type to search authority records..." autocomplete="off">
+              <input type="text" name="creators" id="creators" class="form-control" value="{{ old('creators', $accession->creators ?? '') }}" placeholder="{{ __('Type to search authority records...') }}" autocomplete="off">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="The name of the creator of the accession or the name of the department that created the accession."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <!-- ISAD Date(s) multi-row table -->
             <h3 class="fs-6 mb-2">
               Date(s)
-              <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span>
+              <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span>
             </h3>
             <div class="table-responsive mb-2">
               <table class="table table-bordered mb-0" id="isad-dates-table">
                 <thead>
                   <tr>
-                    <th id="isad-events-type-head" class="w-25">Type</th>
-                    <th id="isad-events-date-head" class="w-30">Date</th>
-                    <th id="isad-events-start-head">Start</th>
-                    <th id="isad-events-end-head">End</th>
+                    <th id="isad-events-type-head" class="w-25">{{ __('Type') }}</th>
+                    <th id="isad-events-date-head" class="w-30">{{ __('Date') }}</th>
+                    <th id="isad-events-start-head">{{ __('Start') }}</th>
+                    <th id="isad-events-end-head">{{ __('End') }}</th>
                     <th><span class="visually-hidden">Delete</span></th>
                   </tr>
                 </thead>
@@ -368,10 +368,10 @@
                       <input type="text" name="editEvents[0][date]" class="form-control form-control-sm" aria-labelledby="isad-events-date-head" aria-describedby="isad-events-table-help">
                     </td>
                     <td>
-                      <input type="text" name="editEvents[0][startDate]" class="form-control form-control-sm" placeholder="YYYY-MM-DD" aria-labelledby="isad-events-start-head" aria-describedby="isad-events-table-help">
+                      <input type="text" name="editEvents[0][startDate]" class="form-control form-control-sm" placeholder="{{ __('YYYY-MM-DD') }}" aria-labelledby="isad-events-start-head" aria-describedby="isad-events-table-help">
                     </td>
                     <td>
-                      <input type="text" name="editEvents[0][endDate]" class="form-control form-control-sm" placeholder="YYYY-MM-DD" aria-labelledby="isad-events-end-head" aria-describedby="isad-events-table-help">
+                      <input type="text" name="editEvents[0][endDate]" class="form-control form-control-sm" placeholder="{{ __('YYYY-MM-DD') }}" aria-labelledby="isad-events-end-head" aria-describedby="isad-events-table-help">
                     </td>
                     <td>
                       <button type="button" class="btn atom-btn-white remove-isaddate-row">
@@ -397,15 +397,15 @@
             </div>
 
             <!-- Event(s) multi-row table -->
-            <h3 class="fs-6 mb-2">Event(s)</h3>
+            <h3 class="fs-6 mb-2">{{ __('Event(s)') }}</h3>
             <div class="table-responsive mb-2">
               <table class="table table-bordered mb-0" id="events-table">
                 <thead>
                   <tr>
-                    <th id="accession-events-type-head" class="w-20">Type</th>
-                    <th id="accession-events-date-head" class="w-25">Date</th>
-                    <th id="accession-events-agent-head">Agent</th>
-                    <th id="accession-events-notes-head">Notes</th>
+                    <th id="accession-events-type-head" class="w-20">{{ __('Type') }}</th>
+                    <th id="accession-events-date-head" class="w-25">{{ __('Date') }}</th>
+                    <th id="accession-events-agent-head">{{ __('Agent') }}</th>
+                    <th id="accession-events-notes-head">{{ __('Notes') }}</th>
                     <th><span class="visually-hidden">Delete</span></th>
                   </tr>
                 </thead>
@@ -526,7 +526,7 @@
           <div class="accordion-body">
             <div class="mb-3">
               <label for="information_objects" class="form-label">{{ config('app.ui_label_informationobject', 'Archival description') }} <span class="badge bg-secondary ms-1">Optional</span></label>
-              <select name="information_objects[]" id="information_objects" class="form-select" multiple placeholder="Type to search archival descriptions...">
+              <select name="information_objects[]" id="information_objects" class="form-select" multiple placeholder="{{ __('Type to search archival descriptions...') }}">
                 @if(isset($linkedInformationObjects) && $linkedInformationObjects->isNotEmpty())
                   @foreach($linkedInformationObjects as $io)
                     <option value="{{ $io->id }}" selected>{{ $io->title ?: '[Untitled]' }}</option>

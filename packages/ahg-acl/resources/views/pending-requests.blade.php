@@ -6,7 +6,7 @@
 @section('content')
 <div class="container py-4">
 
-  <nav aria-label="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
       <li class="breadcrumb-item active">Access Requests</li>
@@ -78,12 +78,12 @@
           <table class="table table-bordered table-hover mb-0">
             <thead>
               <tr>
-                <th>User</th>
-                <th>Current &rarr; Requested</th>
-                <th>Urgency</th>
-                <th>Reason</th>
-                <th>Submitted</th>
-                <th>Actions</th>
+                <th>{{ __('User') }}</th>
+                <th>{{ __('Current &rarr; Requested') }}</th>
+                <th>{{ __('Urgency') }}</th>
+                <th>{{ __('Reason') }}</th>
+                <th>{{ __('Submitted') }}</th>
+                <th>{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -121,10 +121,10 @@
                   </td>
                   <td>
                     <div class="btn-group btn-group-sm">
-                      <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ $req->id }}" title="Approve">
+                      <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ $req->id }}" title="{{ __('Approve') }}">
                         <i class="fas fa-check"></i>
                       </button>
-                      <button type="button" class="btn atom-btn-outline-danger" data-bs-toggle="modal" data-bs-target="#denyModal{{ $req->id }}" title="Deny">
+                      <button type="button" class="btn atom-btn-outline-danger" data-bs-toggle="modal" data-bs-target="#denyModal{{ $req->id }}" title="{{ __('Deny') }}">
                         <i class="fas fa-times"></i>
                       </button>
                     </div>
@@ -137,7 +137,7 @@
                             @csrf
                             <input type="hidden" name="decision" value="approved">
                             <div class="modal-header bg-success text-white">
-                              <h5 class="modal-title">Approve Request</h5>
+                              <h5 class="modal-title">{{ __('Approve Request') }}</h5>
                               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body text-start">
@@ -148,7 +148,7 @@
                               </div>
                             </div>
                             <div class="modal-footer">
-                              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                               <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-check me-1"></i> Approve</button>
                             </div>
                           </form>
@@ -164,7 +164,7 @@
                             @csrf
                             <input type="hidden" name="decision" value="denied">
                             <div class="modal-header bg-danger text-white">
-                              <h5 class="modal-title">Deny Request</h5>
+                              <h5 class="modal-title">{{ __('Deny Request') }}</h5>
                               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body text-start">
@@ -175,7 +175,7 @@
                               </div>
                             </div>
                             <div class="modal-footer">
-                              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                               <button type="submit" class="btn atom-btn-outline-danger"><i class="fas fa-times me-1"></i> Deny</button>
                             </div>
                           </form>

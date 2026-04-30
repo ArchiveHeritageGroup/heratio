@@ -20,14 +20,14 @@
                     <table class="table table-bordered table-sm table-striped mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Type</th>
-                                <th>Schedule</th>
-                                <th>Last Run</th>
-                                <th>Next Run</th>
-                                <th>Active</th>
+                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Name') }}</th>
+                                <th>{{ __('Description') }}</th>
+                                <th>{{ __('Type') }}</th>
+                                <th>{{ __('Schedule') }}</th>
+                                <th>{{ __('Last Run') }}</th>
+                                <th>{{ __('Next Run') }}</th>
+                                <th>{{ __('Active') }}</th>
                             </tr>
                         </thead>
                         <tbody>

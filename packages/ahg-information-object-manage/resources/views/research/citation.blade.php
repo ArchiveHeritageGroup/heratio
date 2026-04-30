@@ -6,7 +6,7 @@
 @endsection
 
 @section('content')
-  <nav aria-label="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? '' }}</a></li>
       <li class="breadcrumb-item active">Citation Generator</li>
@@ -88,21 +88,21 @@
     <div class="card-header"><h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Citation Information</h5></div>
     <div class="card-body">
       <table class="table table-borderless mb-0">
-        <tr><th width="150">Title:</th><td>{{ $io->title }}</td></tr>
+        <tr><th width="150">{{ __('Title:') }}</th><td>{{ $io->title }}</td></tr>
         @if($identifier)
-          <tr><th>Identifier:</th><td>{{ $identifier }}</td></tr>
+          <tr><th>{{ __('Identifier:') }}</th><td>{{ $identifier }}</td></tr>
         @endif
         @if($creatorStr)
-          <tr><th>Creator:</th><td>{{ $creatorStr }}</td></tr>
+          <tr><th>{{ __('Creator:') }}</th><td>{{ $creatorStr }}</td></tr>
         @endif
         @if($repoName)
-          <tr><th>Repository:</th><td>{{ $repoName }}</td></tr>
+          <tr><th>{{ __('Repository:') }}</th><td>{{ $repoName }}</td></tr>
         @endif
         @if($dateStr)
-          <tr><th>Date:</th><td>{{ $dateStr }}</td></tr>
+          <tr><th>{{ __('Date:') }}</th><td>{{ $dateStr }}</td></tr>
         @endif
-        <tr><th>URL:</th><td><a href="{{ $url }}" target="_blank">{{ $url }}</a></td></tr>
-        <tr><th>Accessed:</th><td>{{ $today }}</td></tr>
+        <tr><th>{{ __('URL:') }}</th><td><a href="{{ $url }}" target="_blank">{{ $url }}</a></td></tr>
+        <tr><th>{{ __('Accessed:') }}</th><td>{{ $today }}</td></tr>
       </table>
     </div>
   </div>

@@ -279,7 +279,7 @@ $canManageClearance = $isAdmin || ($currentUser && $currentUser->can('manage_sec
             <i class="fas fa-user-shield me-2"></i>
             {{ $userClearance ? __('Change Security Clearance') : __('Grant Security Clearance') }}
           </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
         </div>
 
         <div class="modal-body">
@@ -302,11 +302,11 @@ $canManageClearance = $isAdmin || ($currentUser && $currentUser->can('manage_sec
                       echo '<option value="' . $class->id . '" ' . $selected . '>' . htmlspecialchars($class->name) . ' (Level ' . $class->level . ')</option>';
                   }
               } catch (Exception $e) {
-                  echo '<option value="1">Public (Level 0)</option>';
-                  echo '<option value="2">Restricted (Level 1)</option>';
-                  echo '<option value="3">Confidential (Level 2)</option>';
-                  echo '<option value="4">Secret (Level 3)</option>';
-                  echo '<option value="5">Top Secret (Level 4)</option>';
+                  echo '<option value="1">{{ __('Public (Level 0)') }}</option>';
+                  echo '<option value="2">{{ __('Restricted (Level 1)') }}</option>';
+                  echo '<option value="3">{{ __('Confidential (Level 2)') }}</option>';
+                  echo '<option value="4">{{ __('Secret (Level 3)') }}</option>';
+                  echo '<option value="5">{{ __('Top Secret (Level 4)') }}</option>';
               } @endphp
             </select>
           </div>

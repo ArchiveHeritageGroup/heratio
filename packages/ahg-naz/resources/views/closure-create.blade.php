@@ -18,7 +18,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.closures') }}">Closures</a></li>
@@ -33,7 +33,7 @@
         @csrf
         <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Record Information</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Record Information') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
@@ -46,20 +46,20 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Closure Details</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Closure Details') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Closure Type <span class="text-danger">*</span></label>
                             <select name="closure_type" class="form-select" required>
-                                <option value="standard">Standard (25 years)</option>
-                                <option value="extended">Extended</option>
-                                <option value="indefinite">Indefinite</option>
-                                <option value="ministerial">Ministerial Order</option>
+                                <option value="standard">{{ __('Standard (25 years)') }}</option>
+                                <option value="extended">{{ __('Extended') }}</option>
+                                <option value="indefinite">{{ __('Indefinite') }}</option>
+                                <option value="ministerial">{{ __('Ministerial Order') }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Closure Period (years)</label>
+                            <label class="form-label">{{ __('Closure Period (years)') }}</label>
                             <input type="number" name="years" class="form-control" value="25" min="1">
                         </div>
                         <div class="col-md-6">
@@ -67,7 +67,7 @@
                             <input type="date" name="start_date" class="form-control" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Review Date</label>
+                            <label class="form-label">{{ __('Review Date') }}</label>
                             <input type="date" name="review_date" class="form-control">
                         </div>
                         <div class="col-12">
@@ -75,8 +75,8 @@
                             <textarea name="closure_reason" class="form-control" rows="3" required></textarea>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Authority Reference</label>
-                            <input type="text" name="authority_reference" class="form-control" placeholder="Ministerial order or legal reference">
+                            <label class="form-label">{{ __('Authority Reference') }}</label>
+                            <input type="text" name="authority_reference" class="form-control" placeholder="{{ __('Ministerial order or legal reference') }}">
                         </div>
                     </div>
                 </div>

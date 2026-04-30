@@ -7,14 +7,14 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-chart-bar me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Audit statistics</h1>
+      <h1 class="mb-0">{{ __('Audit statistics') }}</h1>
       <span class="small text-muted">Last {{ $days }} days</span>
     </div>
   </div>
 
   {{-- Time period selector --}}
   <div class="mb-4">
-    <div class="btn-group" role="group" aria-label="Time period">
+    <div class="btn-group" role="group" aria-label="{{ __('Time period') }}">
       <a href="{{ route('audit.statistics', ['days' => 7]) }}"
          class="btn btn-sm {{ $days === 7 ? 'btn-primary' : 'btn-outline-secondary' }}">
         7 days
@@ -35,7 +35,7 @@
     <div class="col-md-3 mb-3">
       <div class="card border-secondary h-100">
         <div class="card-body text-center">
-          <h5 class="card-title text-secondary">Total Actions</h5>
+          <h5 class="card-title text-secondary">{{ __('Total Actions') }}</h5>
           <p class="display-6 fw-bold mb-0">{{ number_format($totalActions) }}</p>
         </div>
       </div>
@@ -43,7 +43,7 @@
     <div class="col-md-3 mb-3">
       <div class="card border-success h-100">
         <div class="card-body text-center">
-          <h5 class="card-title text-success">Created</h5>
+          <h5 class="card-title text-success">{{ __('Created') }}</h5>
           <p class="display-6 fw-bold mb-0">{{ number_format($createdCount) }}</p>
         </div>
       </div>
@@ -51,7 +51,7 @@
     <div class="col-md-3 mb-3">
       <div class="card border-info h-100">
         <div class="card-body text-center">
-          <h5 class="card-title text-info">Updated</h5>
+          <h5 class="card-title text-info">{{ __('Updated') }}</h5>
           <p class="display-6 fw-bold mb-0">{{ number_format($updatedCount) }}</p>
         </div>
       </div>
@@ -59,7 +59,7 @@
     <div class="col-md-3 mb-3">
       <div class="card border-danger h-100">
         <div class="card-body text-center">
-          <h5 class="card-title text-danger">Deleted</h5>
+          <h5 class="card-title text-danger">{{ __('Deleted') }}</h5>
           <p class="display-6 fw-bold mb-0">{{ number_format($deletedCount) }}</p>
         </div>
       </div>
@@ -77,8 +77,8 @@
           <table class="table table-bordered table-striped mb-0">
             <thead>
               <tr>
-                <th>User</th>
-                <th class="text-end" style="width:150px">Action Count</th>
+                <th>{{ __('User') }}</th>
+                <th class="text-end" style="width:150px">{{ __('Action Count') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -114,9 +114,9 @@
           <table class="table table-bordered table-striped mb-0">
             <thead>
               <tr>
-                <th>Time</th>
-                <th>User</th>
-                <th>Action</th>
+                <th>{{ __('Time') }}</th>
+                <th>{{ __('User') }}</th>
+                <th>{{ __('Action') }}</th>
               </tr>
             </thead>
             <tbody>

@@ -38,14 +38,14 @@
             <input type="hidden" name="return" value="{{ $returnUrl }}">
 
             <div class="mb-3">
-              <label class="form-label">Enter the 6-digit code from your app to confirm setup:</label>
+              <label class="form-label">{{ __('Enter the 6-digit code from your app to confirm setup:') }}</label>
               <input type="text" name="code" class="form-control form-control-lg text-center" maxlength="6"
                      pattern="[0-9]{6}" placeholder="000000" autofocus required
                      style="letter-spacing: 0.5em; font-size: 1.5em;">
             </div>
 
             <div class="d-grid">
-              <button type="submit" class="btn btn-primary btn-lg">Confirm Setup</button>
+              <button type="submit" class="btn btn-primary btn-lg">{{ __('Confirm Setup') }}</button>
             </div>
           </form>
         </div>

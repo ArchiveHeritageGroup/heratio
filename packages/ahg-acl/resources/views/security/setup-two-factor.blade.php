@@ -20,18 +20,18 @@
           Your security clearance requires two-factor authentication. Follow the steps below to set up your authenticator app.
         </div>
 
-        <h5>Step 1: Scan the QR Code</h5>
+        <h5>{{ __('Step 1: Scan the QR Code') }}</h5>
         <p class="text-muted">Open your authenticator app (Google Authenticator, Authy, or Microsoft Authenticator) and scan this QR code:</p>
 
         <div class="text-center my-4">
-          <img src="{{ e($qrCodeUrl ?? '') }}" alt="QR Code" class="border rounded p-2" style="max-width: 220px;">
+          <img src="{{ e($qrCodeUrl ?? '') }}" alt="{{ __('QR Code') }}" class="border rounded p-2" style="max-width: 220px;">
         </div>
 
         <div class="mb-4">
-          <h6>Or enter this key manually:</h6>
+          <h6>{{ __('Or enter this key manually:') }}</h6>
           <div class="input-group">
             <input type="text" class="form-control font-monospace text-center" value="{{ e($secret ?? '') }}" readonly id="totp-secret">
-            <button class="btn btn-outline-secondary" type="button" id="btn-copy-secret" title="Copy to clipboard">
+            <button class="btn btn-outline-secondary" type="button" id="btn-copy-secret" title="{{ __('Copy to clipboard') }}">
               <i class="fas fa-copy"></i>
             </button>
           </div>
@@ -39,7 +39,7 @@
 
         <hr>
 
-        <h5>Step 2: Enter Verification Code</h5>
+        <h5>{{ __('Step 2: Enter Verification Code') }}</h5>
         <p class="text-muted">Enter the 6-digit code shown in your authenticator app to confirm setup:</p>
 
         <form action="{{ route('acl.setup-2fa-store') }}" method="post">

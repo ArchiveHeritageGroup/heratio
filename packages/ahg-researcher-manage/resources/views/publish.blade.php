@@ -1,6 +1,6 @@
 <div class="container-fluid py-3">
 
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item"><a href="@php echo route('researcher.dashboard') @endphp">Researcher</a></li>
       <li class="breadcrumb-item"><a href="{{ route('researcher.viewSubmission', ['id' => $submission->id]) }}">@php echo htmlspecialchars($submission->title) @endphp</a></li>
@@ -59,15 +59,15 @@
             <!-- Summary -->
             <div class="row g-3 mb-4">
               <div class="col-md-3 text-center">
-                <h3 class="mb-0 text-success">@php echo count($publishResult['created_objects']) @endphp</h3>
+                <h3 class="mb-0 text-success">{{ __("@php echo count($publishResult['created_objects']) @endphp") }}</h3>
                 <small class="text-muted">Records Created</small>
               </div>
               <div class="col-md-3 text-center">
-                <h3 class="mb-0 text-primary">@php echo count($publishResult['created_actors']) @endphp</h3>
+                <h3 class="mb-0 text-primary">{{ __("@php echo count($publishResult['created_actors']) @endphp") }}</h3>
                 <small class="text-muted">Creators Created</small>
               </div>
               <div class="col-md-3 text-center">
-                <h3 class="mb-0 text-info">@php echo count($publishResult['created_repos']) @endphp</h3>
+                <h3 class="mb-0 text-info">{{ __("@php echo count($publishResult['created_repos']) @endphp") }}</h3>
                 <small class="text-muted">Repositories Created</small>
               </div>
               <div class="col-md-3 text-center">
@@ -85,9 +85,9 @@
                   <table class="table table-sm table-hover mb-0">
                     <thead class="table-light">
                       <tr>
-                        <th>Title</th>
-                        <th>Level</th>
-                        <th>AtoM Link</th>
+                        <th>{{ __('Title') }}</th>
+                        <th>{{ __('Level') }}</th>
+                        <th>{{ __('AtoM Link') }}</th>
                       </tr>
                     </thead>
                     <tbody>

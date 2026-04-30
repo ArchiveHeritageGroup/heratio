@@ -45,7 +45,7 @@
       @if($classification ?? null)
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label text-muted small">Classification Level</label>
+            <label class="form-label text-muted small">{{ __('Classification Level') }}</label>
             <p class="mb-0">
               <span class="badge fs-6" style="background-color: {{ $classification->classificationColor ?? $classification->color ?? '#666' }};">
                 <i class="{{ $classification->classificationIcon ?? $classification->icon ?? 'fa-lock' }} me-1"></i>
@@ -54,15 +54,15 @@
             </p>
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label text-muted small">Classified By</label>
+            <label class="form-label text-muted small">{{ __('Classified By') }}</label>
             <p class="mb-0">{{ $classification->classifiedByUsername ?? $classification->classified_by_username ?? 'System' }}</p>
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label text-muted small">Classification Date</label>
+            <label class="form-label text-muted small">{{ __('Classification Date') }}</label>
             <p class="mb-0">{{ ($classification->classifiedAt ?? $classification->classified_at ?? null) ? date('F j, Y', strtotime($classification->classifiedAt ?? $classification->classified_at)) : '-' }}</p>
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label text-muted small">Review Date</label>
+            <label class="form-label text-muted small">{{ __('Review Date') }}</label>
             <p class="mb-0">
               @if($classification->reviewDate ?? $classification->review_date ?? null)
                 {{ date('F j, Y', strtotime($classification->reviewDate ?? $classification->review_date)) }}
@@ -76,7 +76,7 @@
           </div>
           @if($classification->declassifyDate ?? $classification->declassify_date ?? null)
             <div class="col-md-6 mb-3">
-              <label class="form-label text-muted small">Auto-declassify Date</label>
+              <label class="form-label text-muted small">{{ __('Auto-declassify Date') }}</label>
               <p class="mb-0">
                 {{ date('F j, Y', strtotime($classification->declassifyDate ?? $classification->declassify_date)) }}
                 @if(strtotime($classification->declassifyDate ?? $classification->declassify_date) <= time())
@@ -87,13 +87,13 @@
           @endif
           @if($classification->reason ?? null)
             <div class="col-12 mb-3">
-              <label class="form-label text-muted small">Classification Reason</label>
+              <label class="form-label text-muted small">{{ __('Classification Reason') }}</label>
               <p class="mb-0">{{ $classification->reason }}</p>
             </div>
           @endif
           @if($classification->handlingInstructions ?? $classification->handling_instructions ?? null)
             <div class="col-12">
-              <label class="form-label text-muted small">Handling Instructions</label>
+              <label class="form-label text-muted small">{{ __('Handling Instructions') }}</label>
               <div class="alert alert-warning mb-0">
                 <i class="fas fa-exclamation-triangle me-2"></i>
                 {{ $classification->handlingInstructions ?? $classification->handling_instructions }}
@@ -112,7 +112,7 @@
       @else
         <div class="text-center py-4">
           <i class="fas fa-globe fa-3x text-success mb-3"></i>
-          <h5>This record is publicly accessible</h5>
+          <h5>{{ __('This record is publicly accessible') }}</h5>
           <p class="text-muted">No security classification has been applied to this record.</p>
           <a href="{{ route('acl.classify', ['id' => $resource->id ?? 0]) }}" class="btn btn-primary">
             <i class="fas fa-lock me-1"></i>Apply Classification
@@ -136,12 +136,12 @@
           <table class="table table-hover mb-0">
             <thead class="table-light">
               <tr>
-                <th>Date</th>
-                <th>Action</th>
-                <th>From</th>
-                <th>To</th>
-                <th>By</th>
-                <th>Reason</th>
+                <th>{{ __('Date') }}</th>
+                <th>{{ __('Action') }}</th>
+                <th>{{ __('From') }}</th>
+                <th>{{ __('To') }}</th>
+                <th>{{ __('By') }}</th>
+                <th>{{ __('Reason') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -185,11 +185,11 @@
           <p class="text-success"><i class="fas fa-globe me-1"></i>This record will become publicly accessible.</p>
           <div class="mb-3">
             <label class="form-label">Reason <span class="text-danger">*</span></label>
-            <textarea name="reason" class="form-control" rows="2" required placeholder="Enter reason for declassification..."></textarea>
+            <textarea name="reason" class="form-control" rows="2" required placeholder="{{ __('Enter reason for declassification...') }}"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="submit" class="btn btn-success"><i class="fas fa-unlock me-1"></i>Remove Classification</button>
         </div>
       </form>

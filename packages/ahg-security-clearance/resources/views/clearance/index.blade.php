@@ -9,13 +9,13 @@
 {{-- Stats --}}
   <div class="row mb-4">
     <div class="col-md-4">
-      <div class="card bg-primary text-white"><div class="card-body"><h5>Total Users</h5><h2>{{ $stats['total_users'] ?? 0 }}</h2></div></div>
+      <div class="card bg-primary text-white"><div class="card-body"><h5>{{ __('Total Users') }}</h5><h2>{{ $stats['total_users'] ?? 0 }}</h2></div></div>
     </div>
     <div class="col-md-4">
-      <div class="card bg-success text-white"><div class="card-body"><h5>With Clearance</h5><h2>{{ $stats['with_clearance'] ?? 0 }}</h2></div></div>
+      <div class="card bg-success text-white"><div class="card-body"><h5>{{ __('With Clearance') }}</h5><h2>{{ $stats['with_clearance'] ?? 0 }}</h2></div></div>
     </div>
     <div class="col-md-4">
-      <div class="card bg-danger text-white"><div class="card-body"><h5>Top Secret+</h5><h2>{{ $stats['top_secret'] ?? 0 }}</h2></div></div>
+      <div class="card bg-danger text-white"><div class="card-body"><h5>{{ __('Top Secret+') }}</h5><h2>{{ $stats['top_secret'] ?? 0 }}</h2></div></div>
     </div>
   </div>
 
@@ -25,15 +25,15 @@
       <form method="POST" action="{{ route('security-clearance.grant') }}">
         @csrf
         <div class="modal-content">
-          <div class="modal-header"><h5 class="modal-title">Grant Clearance</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-header"><h5 class="modal-title">{{ __('Grant Clearance') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
           <div class="modal-body">
             <input type="hidden" name="user_id" id="grantUserId">
             <div class="mb-3">
-              <label class="form-label">User</label>
+              <label class="form-label">{{ __('User') }}</label>
               <input type="text" class="form-control" id="grantUserName" readonly>
             </div>
             <div class="mb-3">
-              <label class="form-label">Classification Level</label>
+              <label class="form-label">{{ __('Classification Level') }}</label>
               <select name="classification_id" class="form-select" required>
                 <option value="0">— Revoke —</option>
                 @foreach($classifications ?? [] as $cl)
@@ -42,17 +42,17 @@
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label">Expires At</label>
+              <label class="form-label">{{ __('Expires At') }}</label>
               <input type="date" name="expires_at" class="form-control">
             </div>
             <div class="mb-3">
-              <label class="form-label">Notes</label>
+              <label class="form-label">{{ __('Notes') }}</label>
               <textarea name="notes" class="form-control" rows="2"></textarea>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-primary">Grant</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+            <button type="submit" class="btn btn-primary">{{ __('Grant') }}</button>
           </div>
         </div>
       </form>
@@ -73,7 +73,7 @@
         @csrf
         <div class="row">
           <div class="col-md-4">
-            <label class="form-label">Classification Level</label>
+            <label class="form-label">{{ __('Classification Level') }}</label>
             <select name="classification_id" class="form-select" required>
               @foreach($classifications ?? [] as $cl)
                 <option value="{{ $cl->id }}">{{ e($cl->name) }}</option>
@@ -81,11 +81,11 @@
             </select>
           </div>
           <div class="col-md-4">
-            <label class="form-label">Notes</label>
+            <label class="form-label">{{ __('Notes') }}</label>
             <input type="text" name="notes" class="form-control" value="Bulk grant by administrator">
           </div>
           <div class="col-md-4 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary">Apply to Selected</button>
+            <button type="submit" class="btn btn-primary">{{ __('Apply to Selected') }}</button>
           </div>
         </div>
         <div id="bulkUserIds"></div>
@@ -100,12 +100,12 @@
         <thead>
           <tr>
             <th><input type="checkbox" id="selectAll"></th>
-            <th>User</th>
-            <th>Email</th>
-            <th>Clearance</th>
-            <th>Granted By</th>
-            <th>Expires</th>
-            <th>Actions</th>
+            <th>{{ __('User') }}</th>
+            <th>{{ __('Email') }}</th>
+            <th>{{ __('Clearance') }}</th>
+            <th>{{ __('Granted By') }}</th>
+            <th>{{ __('Expires') }}</th>
+            <th>{{ __('Actions') }}</th>
           </tr>
         </thead>
         <tbody>

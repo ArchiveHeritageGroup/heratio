@@ -7,7 +7,7 @@
 @section('title', 'Validation Queue')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item active">Validation Queue</li>
@@ -31,38 +31,38 @@
     <div class="card-body py-2">
         <form method="get" class="row g-2 align-items-end">
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Status</label>
+                <label class="form-label form-label-sm mb-0">{{ __('Status') }}</label>
                 <select name="status" class="form-select form-select-sm">
-                    <option value="pending" {{ request('status', 'pending') === 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="accepted" {{ request('status') === 'accepted' ? 'selected' : '' }}>Accepted</option>
-                    <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
-                    <option value="modified" {{ request('status') === 'modified' ? 'selected' : '' }}>Modified</option>
-                    <option value="" {{ request('status') === '' ? 'selected' : '' }}>All</option>
+                    <option value="pending" {{ request('status', 'pending') === 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+                    <option value="accepted" {{ request('status') === 'accepted' ? 'selected' : '' }}>{{ __('Accepted') }}</option>
+                    <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
+                    <option value="modified" {{ request('status') === 'modified' ? 'selected' : '' }}>{{ __('Modified') }}</option>
+                    <option value="" {{ request('status') === '' ? 'selected' : '' }}>{{ __('All') }}</option>
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Result Type</label>
+                <label class="form-label form-label-sm mb-0">{{ __('Result Type') }}</label>
                 <select name="result_type" class="form-select form-select-sm">
-                    <option value="">All</option>
+                    <option value="">{{ __('All') }}</option>
                     @foreach(['entity','summary','translation','transcription','form_field','face'] as $rt)
                     <option value="{{ $rt }}" {{ request('result_type') === $rt ? 'selected' : '' }}>{{ ucfirst($rt) }}</option>
                     @endforeach
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Extraction Type</label>
+                <label class="form-label form-label-sm mb-0">{{ __('Extraction Type') }}</label>
                 <select name="extraction_type" class="form-select form-select-sm">
-                    <option value="">All</option>
+                    <option value="">{{ __('All') }}</option>
                     @foreach(['ocr','ner','summarize','translate','spellcheck','face_detection','form_extraction'] as $et)
                     <option value="{{ $et }}" {{ request('extraction_type') === $et ? 'selected' : '' }}>{{ ucfirst(str_replace('_', ' ', $et)) }}</option>
                     @endforeach
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Min Confidence</label>
+                <label class="form-label form-label-sm mb-0">{{ __('Min Confidence') }}</label>
                 <input type="number" name="min_confidence" class="form-control form-control-sm" style="width:100px" min="0" max="1" step="0.01" value="{{ request('min_confidence', '') }}" placeholder="0.00">
             </div>
-            <div class="col-auto"><button type="submit" class="btn btn-sm btn-primary">Filter</button></div>
+            <div class="col-auto"><button type="submit" class="btn btn-sm btn-primary">{{ __('Filter') }}</button></div>
         </form>
     </div>
 </div>
@@ -75,14 +75,14 @@
         <thead class="table-light">
             <tr>
                 <th><input type="checkbox" id="selectAll"></th>
-                <th>Object</th>
-                <th>Extraction</th>
-                <th>Result Type</th>
-                <th>Model</th>
-                <th>Confidence</th>
-                <th>Reviewer</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>{{ __('Object') }}</th>
+                <th>{{ __('Extraction') }}</th>
+                <th>{{ __('Result Type') }}</th>
+                <th>{{ __('Model') }}</th>
+                <th>{{ __('Confidence') }}</th>
+                <th>{{ __('Reviewer') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Actions') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -120,11 +120,11 @@
                 <td><span class="badge bg-{{ match($item->status ?? '') { 'pending' => 'warning', 'accepted' => 'success', 'rejected' => 'danger', 'modified' => 'info', default => 'secondary' } }}">{{ ucfirst($item->status ?? 'pending') }}</span></td>
                 <td>
                     <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-secondary preview-btn" data-id="{{ (int) $item->result_id }}" data-data="{{ e($item->data_json ?? '{}') }}" title="Preview"><i class="fas fa-eye"></i></button>
+                        <button class="btn btn-outline-secondary preview-btn" data-id="{{ (int) $item->result_id }}" data-data="{{ e($item->data_json ?? '{}') }}" title="{{ __('Preview') }}"><i class="fas fa-eye"></i></button>
                         @if(($item->status ?? '') === 'pending')
-                        <button class="btn btn-success validate-btn" data-id="{{ (int) $item->result_id }}" data-action="accept" title="Accept"><i class="fas fa-check"></i></button>
-                        <button class="btn btn-warning modify-btn" data-id="{{ (int) $item->result_id }}" data-data="{{ e($item->data_json ?? '{}') }}" title="Edit & Accept"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-danger validate-btn" data-id="{{ (int) $item->result_id }}" data-action="reject" title="Reject"><i class="fas fa-times"></i></button>
+                        <button class="btn btn-success validate-btn" data-id="{{ (int) $item->result_id }}" data-action="accept" title="{{ __('Accept') }}"><i class="fas fa-check"></i></button>
+                        <button class="btn btn-warning modify-btn" data-id="{{ (int) $item->result_id }}" data-data="{{ e($item->data_json ?? '{}') }}" title="{{ __('Edit & Accept') }}"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger validate-btn" data-id="{{ (int) $item->result_id }}" data-action="reject" title="{{ __('Reject') }}"><i class="fas fa-times"></i></button>
                         @endif
                     </div>
                 </td>
@@ -144,7 +144,7 @@
 <div class="modal fade" id="previewModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Data Preview</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header"><h5 class="modal-title">{{ __('Data Preview') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body"><pre id="previewData" class="bg-light p-3 rounded" style="max-height:400px;overflow:auto;white-space:pre-wrap"></pre></div>
         </div>
     </div>
@@ -154,15 +154,15 @@
 <div class="modal fade" id="modifyModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Edit & Accept</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header"><h5 class="modal-title">{{ __('Edit & Accept') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <p class="text-muted">Edit the JSON data below, then click "Accept with Changes".</p>
                 <textarea id="modifyData" class="form-control font-monospace" rows="12"></textarea>
                 <input type="hidden" id="modifyResultId">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" id="modifyAcceptBtn" class="btn btn-success">Accept with Changes</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                <button type="button" id="modifyAcceptBtn" class="btn btn-success">{{ __('Accept with Changes') }}</button>
             </div>
         </div>
     </div>

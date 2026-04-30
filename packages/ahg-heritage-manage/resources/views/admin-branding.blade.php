@@ -22,7 +22,7 @@ $branding = (array) ($branding ?? []);
       @csrf
 
       <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Colors</h5></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Colors') }}</h5></div>
         <div class="card-body">
           <div class="row">
             <div class="col-md-4 mb-3">
@@ -60,19 +60,19 @@ $branding = (array) ($branding ?? []);
       </div>
 
       <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Logos</h5></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Logos') }}</h5></div>
         <div class="card-body">
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="logo_path" class="form-label">Logo URL <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="logo_path" name="logo_path"
-                     value="{{ $branding['logo_path'] ?? '' }}" placeholder="/uploads/logo.png">
+                     value="{{ $branding['logo_path'] ?? '' }}" placeholder="{{ __('/uploads/logo.png') }}">
               <div class="form-text">Path to main logo image.</div>
             </div>
             <div class="col-md-6 mb-3">
               <label for="favicon_path" class="form-label">Favicon URL <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="favicon_path" name="favicon_path"
-                     value="{{ $branding['favicon_path'] ?? '' }}" placeholder="/uploads/favicon.ico">
+                     value="{{ $branding['favicon_path'] ?? '' }}" placeholder="{{ __('/uploads/favicon.ico') }}">
               <div class="form-text">Path to favicon image.</div>
             </div>
           </div>
@@ -80,12 +80,12 @@ $branding = (array) ($branding ?? []);
       </div>
 
       <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Text</h5></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Text') }}</h5></div>
         <div class="card-body">
           <div class="mb-3">
             <label for="banner_text" class="form-label">Banner Text <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" class="form-control" id="banner_text" name="banner_text"
-                   value="{{ $branding['banner_text'] ?? '' }}" placeholder="Optional announcement banner">
+                   value="{{ $branding['banner_text'] ?? '' }}" placeholder="{{ __('Optional announcement banner') }}">
           </div>
           <div class="mb-3">
             <label for="footer_text" class="form-label">Footer Text <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -95,7 +95,7 @@ $branding = (array) ($branding ?? []);
       </div>
 
       <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Social Links</h5></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Social Links') }}</h5></div>
         <div class="card-body">
           @php $socialLinks = $branding['social_links'] ?? []; @endphp
           <div class="row">
@@ -120,10 +120,10 @@ $branding = (array) ($branding ?? []);
       </div>
 
       <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Custom CSS</h5></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Custom CSS') }}</h5></div>
         <div class="card-body">
           <textarea class="form-control font-monospace" id="custom_css" name="custom_css" rows="6"
-                    placeholder="/* Add custom CSS styles here */">{{ $branding['custom_css'] ?? '' }}</textarea>
+                    placeholder="{{ __('/* Add custom CSS styles here */') }}">{{ $branding['custom_css'] ?? '' }}</textarea>
           <div class="form-text">Custom CSS to apply across the site.</div>
         </div>
       </div>

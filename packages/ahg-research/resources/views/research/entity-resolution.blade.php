@@ -7,7 +7,7 @@
 @section('title', 'Entity Resolution')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item active">Entity Resolution</li>
@@ -15,7 +15,7 @@
 </nav>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">Entity Resolution</h1>
+    <h1 class="h2">{{ __('Entity Resolution') }}</h1>
     <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#proposeMatchModal"><i class="fas fa-plus me-1"></i>Propose Match</button>
 </div>
 
@@ -26,32 +26,32 @@
             <div class="col-auto">
                 <label class="form-label form-label-sm mb-0">Status <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="status" class="form-select form-select-sm">
-                    <option value="">All</option>
-                    <option value="proposed" {{ request('status') === 'proposed' ? 'selected' : '' }}>Proposed</option>
-                    <option value="accepted" {{ request('status') === 'accepted' ? 'selected' : '' }}>Accepted</option>
-                    <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
+                    <option value="">{{ __('All') }}</option>
+                    <option value="proposed" {{ request('status') === 'proposed' ? 'selected' : '' }}>{{ __('Proposed') }}</option>
+                    <option value="accepted" {{ request('status') === 'accepted' ? 'selected' : '' }}>{{ __('Accepted') }}</option>
+                    <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
                 </select>
             </div>
             <div class="col-auto">
                 <label class="form-label form-label-sm mb-0">Entity Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="entity_type" class="form-select form-select-sm">
-                    <option value="">All</option>
-                    <option value="actor" {{ request('entity_type') === 'actor' ? 'selected' : '' }}>Actor</option>
-                    <option value="information_object" {{ request('entity_type') === 'information_object' ? 'selected' : '' }}>Information Object</option>
-                    <option value="repository" {{ request('entity_type') === 'repository' ? 'selected' : '' }}>Repository</option>
+                    <option value="">{{ __('All') }}</option>
+                    <option value="actor" {{ request('entity_type') === 'actor' ? 'selected' : '' }}>{{ __('Actor') }}</option>
+                    <option value="information_object" {{ request('entity_type') === 'information_object' ? 'selected' : '' }}>{{ __('Information Object') }}</option>
+                    <option value="repository" {{ request('entity_type') === 'repository' ? 'selected' : '' }}>{{ __('Repository') }}</option>
                 </select>
             </div>
             <div class="col-auto">
                 <label class="form-label form-label-sm mb-0">Relationship <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="relationship_type" class="form-select form-select-sm">
-                    <option value="">All</option>
+                    <option value="">{{ __('All') }}</option>
                     <option value="sameAs" {{ request('relationship_type') === 'sameAs' ? 'selected' : '' }}>sameAs</option>
                     <option value="relatedTo" {{ request('relationship_type') === 'relatedTo' ? 'selected' : '' }}>relatedTo</option>
                     <option value="partOf" {{ request('relationship_type') === 'partOf' ? 'selected' : '' }}>partOf</option>
                     <option value="memberOf" {{ request('relationship_type') === 'memberOf' ? 'selected' : '' }}>memberOf</option>
                 </select>
             </div>
-            <div class="col-auto"><button type="submit" class="btn btn-outline-secondary btn-sm">Filter</button></div>
+            <div class="col-auto"><button type="submit" class="btn btn-outline-secondary btn-sm">{{ __('Filter') }}</button></div>
         </form>
     </div>
 </div>
@@ -63,16 +63,16 @@
     <table class="table table-bordered table-hover align-middle">
         <thead>
             <tr>
-                <th>Entity A</th>
+                <th>{{ __('Entity A') }}</th>
                 <th></th>
-                <th>Entity B</th>
-                <th>Relationship</th>
-                <th>Confidence</th>
-                <th>Method</th>
-                <th>Evidence</th>
-                <th>Resolver</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>{{ __('Entity B') }}</th>
+                <th>{{ __('Relationship') }}</th>
+                <th>{{ __('Confidence') }}</th>
+                <th>{{ __('Method') }}</th>
+                <th>{{ __('Evidence') }}</th>
+                <th>{{ __('Resolver') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Actions') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -102,7 +102,7 @@
                 <td><small class="text-muted">{{ $p->match_method ?? '-' }}</small></td>
                 <td>
                     @if(!empty($p->evidence))
-                        <button class="btn btn-sm btn-outline-secondary evidence-btn" data-evidence="{{ e(json_encode($p->evidence)) }}" title="View evidence"><i class="fas fa-file-alt"></i> {{ count($p->evidence) }}</button>
+                        <button class="btn btn-sm btn-outline-secondary evidence-btn" data-evidence="{{ e(json_encode($p->evidence)) }}" title="{{ __('View evidence') }}"><i class="fas fa-file-alt"></i> {{ count($p->evidence) }}</button>
                     @else
                         <small class="text-muted">-</small>
                     @endif
@@ -118,9 +118,9 @@
                 <td>
                     <div class="btn-group btn-group-sm">
                         @if($p->status === 'proposed')
-                        <button class="btn btn-outline-secondary check-conflicts-btn" data-id="{{ (int) $p->id }}" title="Check conflicts"><i class="fas fa-exclamation-triangle"></i></button>
-                        <button class="btn btn-success resolve-btn" data-id="{{ (int) $p->id }}" data-status="accepted" title="Accept"><i class="fas fa-check"></i></button>
-                        <button class="btn btn-outline-danger resolve-btn" data-id="{{ (int) $p->id }}" data-status="rejected" title="Reject"><i class="fas fa-times"></i></button>
+                        <button class="btn btn-outline-secondary check-conflicts-btn" data-id="{{ (int) $p->id }}" title="{{ __('Check conflicts') }}"><i class="fas fa-exclamation-triangle"></i></button>
+                        <button class="btn btn-success resolve-btn" data-id="{{ (int) $p->id }}" data-status="accepted" title="{{ __('Accept') }}"><i class="fas fa-check"></i></button>
+                        <button class="btn btn-outline-danger resolve-btn" data-id="{{ (int) $p->id }}" data-status="rejected" title="{{ __('Reject') }}"><i class="fas fa-times"></i></button>
                         @endif
                     </div>
                 </td>
@@ -135,20 +135,20 @@
 <div class="modal fade" id="proposeMatchModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Propose Entity Match</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header"><h5 class="modal-title">{{ __('Propose Entity Match') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <form method="post" action="{{ url('/research/entityResolution') }}" id="proposeForm">
                     @csrf
                     <input type="hidden" name="form_action" value="propose">
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <h6>Entity A</h6>
+                            <h6>{{ __('Entity A') }}</h6>
                             <div class="mb-2">
                                 <label class="form-label form-label-sm">Type <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <select name="entity_a_type" class="form-select form-select-sm">
-                                    <option value="actor">Actor</option>
-                                    <option value="information_object">Information Object</option>
-                                    <option value="repository">Repository</option>
+                                    <option value="actor">{{ __('Actor') }}</option>
+                                    <option value="information_object">{{ __('Information Object') }}</option>
+                                    <option value="repository">{{ __('Repository') }}</option>
                                 </select>
                             </div>
                             <div class="mb-2">
@@ -157,13 +157,13 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <h6>Entity B</h6>
+                            <h6>{{ __('Entity B') }}</h6>
                             <div class="mb-2">
                                 <label class="form-label form-label-sm">Type <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <select name="entity_b_type" class="form-select form-select-sm">
-                                    <option value="actor">Actor</option>
-                                    <option value="information_object">Information Object</option>
-                                    <option value="repository">Repository</option>
+                                    <option value="actor">{{ __('Actor') }}</option>
+                                    <option value="information_object">{{ __('Information Object') }}</option>
+                                    <option value="repository">{{ __('Repository') }}</option>
                                 </select>
                             </div>
                             <div class="mb-2">
@@ -185,10 +185,10 @@
                         <div class="col-md-6">
                             <label class="form-label form-label-sm">Match Method <span class="badge bg-secondary ms-1">Optional</span></label>
                             <select name="match_method" class="form-select form-select-sm">
-                                <option value="manual">Manual</option>
-                                <option value="name_similarity">Name Similarity</option>
-                                <option value="identifier_match">Identifier Match</option>
-                                <option value="authority_record">Authority Record</option>
+                                <option value="manual">{{ __('Manual') }}</option>
+                                <option value="name_similarity">{{ __('Name Similarity') }}</option>
+                                <option value="identifier_match">{{ __('Identifier Match') }}</option>
+                                <option value="authority_record">{{ __('Authority Record') }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -203,14 +203,14 @@
                     <div class="mb-3">
                         <label class="form-label form-label-sm">{{ __('Evidence') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <textarea name="evidence" class="form-control form-control-sm font-monospace" rows="3"
-                                  placeholder="authority_record | 123 | VIAF match confirmed&#10;document | 456 | Cross-reference in finding aid"></textarea>
+                                  placeholder="{{ __('authority_record | 123 | VIAF match confirmed&#10;document | 456 | Cross-reference in finding aid') }}"></textarea>
                         <small class="text-muted">{{ __('One line per evidence item: type | id | description') }}</small>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" form="proposeForm" class="btn btn-success">Propose Match</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                <button type="submit" form="proposeForm" class="btn btn-success">{{ __('Propose Match') }}</button>
             </div>
         </div>
     </div>
@@ -220,7 +220,7 @@
 <div class="modal fade" id="evidenceModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Evidence</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header"><h5 class="modal-title">{{ __('Evidence') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body" id="evidenceBody"></div>
         </div>
     </div>

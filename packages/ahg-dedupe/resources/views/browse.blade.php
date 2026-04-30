@@ -28,7 +28,7 @@
     <div class="col-auto">
       <label class="form-label small mb-1">Status <span class="badge bg-secondary ms-1">Optional</span></label>
       <select name="status" class="form-select form-select-sm">
-        <option value="">All statuses</option>
+        <option value="">{{ __('All statuses') }}</option>
         @foreach(['pending', 'confirmed', 'merged', 'dismissed'] as $opt)
           <option value="{{ $opt }}" {{ $currentStatus === $opt ? 'selected' : '' }}>{{ ucfirst($opt) }}</option>
         @endforeach
@@ -37,7 +37,7 @@
     <div class="col-auto">
       <label class="form-label small mb-1">Detection Method <span class="badge bg-secondary ms-1">Optional</span></label>
       <select name="method" class="form-select form-select-sm">
-        <option value="">All methods</option>
+        <option value="">{{ __('All methods') }}</option>
         @foreach($methods as $m)
           <option value="{{ $m }}" {{ $currentMethod === $m ? 'selected' : '' }}>{{ $m }}</option>
         @endforeach
@@ -46,7 +46,7 @@
     <div class="col-auto">
       <label class="form-label small mb-1">Min Score <span class="badge bg-secondary ms-1">Optional</span></label>
       <select name="min_score" class="form-select form-select-sm">
-        <option value="">Any</option>
+        <option value="">{{ __('Any') }}</option>
         @foreach([50, 60, 70, 75, 80, 85, 90, 95] as $s)
           <option value="{{ $s }}" {{ $currentScore == $s ? 'selected' : '' }}>{{ $s }}%</option>
         @endforeach
@@ -79,13 +79,13 @@
             <thead>
               <tr>
                 <th style="width: 40px;"><input type="checkbox" class="form-check-input" id="checkAll"></th>
-                <th style="width: 70px;">Score</th>
-                <th>Record A</th>
-                <th>Record B</th>
-                <th>Method</th>
-                <th>Status</th>
-                <th>Detected</th>
-                <th style="width: 140px;">Actions</th>
+                <th style="width: 70px;">{{ __('Score') }}</th>
+                <th>{{ __('Record A') }}</th>
+                <th>{{ __('Record B') }}</th>
+                <th>{{ __('Method') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Detected') }}</th>
+                <th style="width: 140px;">{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -136,14 +136,14 @@
                   <td><small class="text-muted">{{ $dup['detected_at'] ? \Carbon\Carbon::parse($dup['detected_at'])->format('M j, Y') : '-' }}</small></td>
                   <td>
                     <div class="btn-group btn-group-sm">
-                      <a href="{{ route('dedupe.compare', $dup['id']) }}" class="btn btn-outline-secondary" title="Compare Side-by-Side">
+                      <a href="{{ route('dedupe.compare', $dup['id']) }}" class="btn btn-outline-secondary" title="{{ __('Compare Side-by-Side') }}">
                         <i class="fas fa-columns"></i>
                       </a>
                       @if($dup['status'] !== 'merged')
-                        <a href="{{ route('dedupe.merge', $dup['id']) }}" class="btn btn-outline-secondary" title="Merge Records">
+                        <a href="{{ route('dedupe.merge', $dup['id']) }}" class="btn btn-outline-secondary" title="{{ __('Merge Records') }}">
                           <i class="fas fa-compress-arrows-alt"></i>
                         </a>
-                        <button type="button" class="btn btn-outline-secondary btn-dismiss" data-id="{{ $dup['id'] }}" title="Dismiss">
+                        <button type="button" class="btn btn-outline-secondary btn-dismiss" data-id="{{ $dup['id'] }}" title="{{ __('Dismiss') }}">
                           <i class="fas fa-times"></i>
                         </button>
                       @endif

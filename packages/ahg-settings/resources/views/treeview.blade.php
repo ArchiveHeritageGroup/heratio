@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Treeview settings</h1>
+  <h1>{{ __('Treeview settings') }}</h1>
 @endsection
 
 @section('content')
@@ -17,7 +17,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGeneral">
-              General
+              {{ __('General') }}
             </button>
           </h2>
           <div id="collapseGeneral" class="accordion-collapse collapse show" data-bs-parent="#settingsAccordion">
@@ -26,22 +26,22 @@
                 <div class="col-md-6 mb-3">
                   <label class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="settings[treeview_type]" class="form-select">
-                    <option value="sidebar" {{ ($settings['treeview_type'] ?? '') == 'sidebar' ? 'selected' : '' }}>Sidebar</option>
-                    <option value="full" {{ ($settings['treeview_type'] ?? '') == 'full' ? 'selected' : '' }}>Full width</option>
+                    <option value="sidebar" {{ ($settings['treeview_type'] ?? '') == 'sidebar' ? 'selected' : '' }}>{{ __('Sidebar') }}</option>
+                    <option value="full" {{ ($settings['treeview_type'] ?? '') == 'full' ? 'selected' : '' }}>{{ __('Full width') }}</option>
                   </select>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label class="form-label">Show browse hierarchy page <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="settings[show_browse_hierarchy_page]" class="form-select">
-                    <option value="1" {{ ($settings['show_browse_hierarchy_page'] ?? '') == '1' ? 'selected' : '' }}>Yes</option>
-                    <option value="0" {{ ($settings['show_browse_hierarchy_page'] ?? '') == '0' ? 'selected' : '' }}>No</option>
+                    <option value="1" {{ ($settings['show_browse_hierarchy_page'] ?? '') == '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
+                    <option value="0" {{ ($settings['show_browse_hierarchy_page'] ?? '') == '0' ? 'selected' : '' }}>{{ __('No') }}</option>
                   </select>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label class="form-label">Make full width treeview collapsed on description pages <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="settings[allow_full_width_treeview_collapse]" class="form-select">
-                    <option value="1" {{ ($settings['allow_full_width_treeview_collapse'] ?? '') == '1' ? 'selected' : '' }}>Yes</option>
-                    <option value="0" {{ ($settings['allow_full_width_treeview_collapse'] ?? '') == '0' ? 'selected' : '' }}>No</option>
+                    <option value="1" {{ ($settings['allow_full_width_treeview_collapse'] ?? '') == '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
+                    <option value="0" {{ ($settings['allow_full_width_treeview_collapse'] ?? '') == '0' ? 'selected' : '' }}>{{ __('No') }}</option>
                   </select>
                 </div>
               </div>
@@ -52,7 +52,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSidebar">
-              Sidebar
+              {{ __('Sidebar') }}
             </button>
           </h2>
           <div id="collapseSidebar" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion">
@@ -60,9 +60,9 @@
               <div class="mb-3">
                 <label class="form-label">Sort (information object) <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="settings[sort]" class="form-select">
-                  <option value="" {{ ($settings['sort'] ?? '') == '' ? 'selected' : '' }}>Manual</option>
-                  <option value="title" {{ ($settings['sort'] ?? '') == 'title' ? 'selected' : '' }}>Title</option>
-                  <option value="identifier" {{ ($settings['sort'] ?? '') == 'identifier' ? 'selected' : '' }}>Identifier</option>
+                  <option value="" {{ ($settings['sort'] ?? '') == '' ? 'selected' : '' }}>{{ __('Manual') }}</option>
+                  <option value="title" {{ ($settings['sort'] ?? '') == 'title' ? 'selected' : '' }}>{{ __('Title') }}</option>
+                  <option value="identifier" {{ ($settings['sort'] ?? '') == 'identifier' ? 'selected' : '' }}>{{ __('Identifier') }}</option>
                 </select>
                 <small class="text-muted">Sort siblings in the treeview</small>
               </div>
@@ -73,7 +73,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFullWidth">
-              Full width
+              {{ __('Full width') }}
             </button>
           </h2>
           <div id="collapseFullWidth" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion">

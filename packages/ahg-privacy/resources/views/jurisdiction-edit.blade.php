@@ -27,7 +27,7 @@
                                 <label class="form-label">{{ __('Code') }} <span class="text-danger">*</span></label>
                                 <input type="text" name="code" class="form-control" required 
                                        value="{{ $isEdit ? $jurisdiction->code : '' }}"
-                                       placeholder="e.g. popia, gdpr" maxlength="30"
+                                       placeholder="{{ __('e.g. popia, gdpr') }}" maxlength="30"
                                        {{ $isEdit ? 'readonly' : '' }}>
                                 <small class="text-muted">{{ __('Unique identifier, lowercase') }}</small>
                             </div>
@@ -35,13 +35,13 @@
                                 <label class="form-label">{{ __('Short Name') }} <span class="text-danger">*</span></label>
                                 <input type="text" name="name" class="form-control" required
                                        value="{{ $isEdit ? $jurisdiction->name : '' }}"
-                                       placeholder="e.g. POPIA, GDPR">
+                                       placeholder="{{ __('e.g. POPIA, GDPR') }}">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">{{ __('Full Name') }} <span class="text-danger">*</span></label>
                                 <input type="text" name="full_name" class="form-control" required
                                        value="{{ $isEdit ? $jurisdiction->full_name : '' }}"
-                                       placeholder="e.g. Protection of Personal Information Act">
+                                       placeholder="{{ __('e.g. Protection of Personal Information Act') }}">
                             </div>
                         </div>
 
@@ -50,7 +50,7 @@
                                 <label class="form-label">{{ __('Country') }} <span class="text-danger">*</span></label>
                                 <input type="text" name="country" class="form-control" required
                                        value="{{ $isEdit ? $jurisdiction->country : '' }}"
-                                       placeholder="e.g. South Africa">
+                                       placeholder="{{ __('e.g. South Africa') }}">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">{{ __('Region') }}</label>
@@ -66,7 +66,7 @@
                                 <label class="form-label">{{ __('Flag Icon') }}</label>
                                 <input type="text" name="icon" class="form-control"
                                        value="{{ $isEdit ? $jurisdiction->icon : '' }}"
-                                       placeholder="e.g. za, eu" maxlength="10">
+                                       placeholder="{{ __('e.g. za, eu') }}" maxlength="10">
                                 <small class="text-muted">{{ __('ISO code') }}</small>
                             </div>
                             <div class="col-md-2">
@@ -88,13 +88,13 @@
                                 <label class="form-label">{{ __('Regulator Name') }}</label>
                                 <input type="text" name="regulator" class="form-control"
                                        value="{{ $isEdit ? $jurisdiction->regulator : '' }}"
-                                       placeholder="e.g. Information Regulator">
+                                       placeholder="{{ __('e.g. Information Regulator') }}">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">{{ __('Regulator Website') }}</label>
                                 <input type="url" name="regulator_url" class="form-control"
                                        value="{{ $isEdit ? $jurisdiction->regulator_url : '' }}"
-                                       placeholder="https://...">
+                                       placeholder="{{ __('https://...') }}">
                             </div>
                         </div>
 

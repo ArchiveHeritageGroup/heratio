@@ -56,15 +56,15 @@ $allModes = [
                         <span class="me-auto">@php echo $label; @endphp</span>
                         
                         @if(!$canOverride)
-                            <span class="badge bg-secondary me-2" title="Locked by administrator">
+                            <span class="badge bg-secondary me-2" title="{{ __('Locked by administrator') }}">
                                 <i class="bi bi-lock"></i>
                             </span>
                         @elseif($hasCustom)
-                            <span class="badge bg-primary me-2" title="Custom preference">
+                            <span class="badge bg-primary me-2" title="{{ __('Custom preference') }}">
                                 <i class="bi bi-person-check"></i>
                             </span>
                         @else
-                            <span class="badge bg-light text-dark me-2" title="Using default">
+                            <span class="badge bg-light text-dark me-2" title="{{ __('Using default') }}">
                                 Default
                             </span>
                         @endif
@@ -99,7 +99,7 @@ $allModes = [
                                                        @php echo $meta['active'] ? 'checked' : ''; @endphp>
                                                 <label class="btn btn-outline-primary" 
                                                        for="dm_@php echo $module; @endphp_@php echo $mode; @endphp"
-                                                       title="@php echo $meta['description']; @endphp">
+                                                       title="{{ __("@php echo $meta['description']; @endphp") }}">
                                                     <i class="bi @php echo $meta['icon']; @endphp"></i>
                                                     <span class="d-none d-lg-inline ms-1">@php echo $meta['name']; @endphp</span>
                                                  <span class="badge bg-secondary ms-1">Required</span></label>
@@ -124,9 +124,9 @@ $allModes = [
                                     <div class="col-md-3">
                                         <label class="form-label">{{ __('Card Size') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                                         <select name="card_size" class="form-select">
-                                            <option value="small" @php echo ($settings['card_size'] ?? 'medium') === 'small' ? 'selected' : ''; @endphp>Small</option>
-                                            <option value="medium" @php echo ($settings['card_size'] ?? 'medium') === 'medium' ? 'selected' : ''; @endphp>Medium</option>
-                                            <option value="large" @php echo ($settings['card_size'] ?? 'medium') === 'large' ? 'selected' : ''; @endphp>Large</option>
+                                            <option value="small" @php echo ($settings['card_size'] ?? 'medium') === 'small' ? 'selected' : ''; @endphp>{{ __('Small') }}</option>
+                                            <option value="medium" @php echo ($settings['card_size'] ?? 'medium') === 'medium' ? 'selected' : ''; @endphp>{{ __('Medium') }}</option>
+                                            <option value="large" @php echo ($settings['card_size'] ?? 'medium') === 'large' ? 'selected' : ''; @endphp>{{ __('Large') }}</option>
                                         </select>
                                     </div>
                                     

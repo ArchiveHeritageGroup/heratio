@@ -18,7 +18,7 @@
     {{-- Current Clearance --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0">Current Clearance</h5>
+        <h5 class="mb-0">{{ __('Current Clearance') }}</h5>
       </div>
       <div class="card-body">
         @if($clearance ?? null)
@@ -82,7 +82,7 @@
                        value="{{ date('Y-m-d', strtotime('+1 year')) }}">
               </div>
               <div class="col-md-4">
-                <button type="submit" class="btn btn-success">Approve Renewal</button>
+                <button type="submit" class="btn btn-success">{{ __('Approve Renewal') }}</button>
               </div>
             </div>
           </form>
@@ -109,7 +109,7 @@
           <div class="row">
             <div class="col-md-6">
               <div class="mb-3">
-                <label class="form-label">Clearance Level *</label>
+                <label class="form-label">{{ __('Clearance Level *') }}</label>
                 <select name="classification_id" class="form-select" required>
                   @foreach($classifications ?? [] as $level)
                   <option value="{{ $level->id }}"
@@ -122,7 +122,7 @@
             </div>
             <div class="col-md-6">
               <div class="mb-3">
-                <label class="form-label">Expiry Date</label>
+                <label class="form-label">{{ __('Expiry Date') }}</label>
                 <input type="date" name="expiry_date" class="form-control"
                        value="{{ $clearance->expiry_date ?? '' }}">
               </div>
@@ -132,21 +132,21 @@
           <div class="row">
             <div class="col-md-4">
               <div class="mb-3">
-                <label class="form-label">Vetting Reference</label>
+                <label class="form-label">{{ __('Vetting Reference') }}</label>
                 <input type="text" name="vetting_reference" class="form-control"
                        value="{{ e($clearance->vetting_reference ?? '') }}">
               </div>
             </div>
             <div class="col-md-4">
               <div class="mb-3">
-                <label class="form-label">Vetting Date</label>
+                <label class="form-label">{{ __('Vetting Date') }}</label>
                 <input type="date" name="vetting_date" class="form-control"
                        value="{{ $clearance->vetting_date ?? '' }}">
               </div>
             </div>
             <div class="col-md-4">
               <div class="mb-3">
-                <label class="form-label">Vetting Authority</label>
+                <label class="form-label">{{ __('Vetting Authority') }}</label>
                 <input type="text" name="vetting_authority" class="form-control"
                        value="{{ e($clearance->vetting_authority ?? '') }}">
               </div>
@@ -154,11 +154,11 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Notes</label>
+            <label class="form-label">{{ __('Notes') }}</label>
             <textarea name="notes" class="form-control" rows="2">{{ e($clearance->notes ?? '') }}</textarea>
           </div>
 
-          <button type="submit" class="btn btn-primary">Save Clearance</button>
+          <button type="submit" class="btn btn-primary">{{ __('Save Clearance') }}</button>
 
           @if($clearance ?? null)
           <form action="{{ route('acl.set-clearance') }}" method="post" style="display:inline;"
@@ -167,7 +167,7 @@
             <input type="hidden" name="user_id" value="{{ $targetUser->id }}">
             <input type="hidden" name="action_type" value="revoke">
             <button type="submit" class="btn btn-danger">
-              Revoke Clearance
+              {{ __('Revoke Clearance') }}
             </button>
           </form>
           @endif
@@ -178,7 +178,7 @@
     {{-- Compartment Access --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0">Compartment Access</h5>
+        <h5 class="mb-0">{{ __('Compartment Access') }}</h5>
       </div>
       <div class="card-body">
         @if(empty($compartments))
@@ -187,10 +187,10 @@
         <table class="table table-sm">
           <thead>
             <tr>
-              <th>Compartment</th>
-              <th>Granted</th>
-              <th>Expires</th>
-              <th>Actions</th>
+              <th>{{ __('Compartment') }}</th>
+              <th>{{ __('Granted') }}</th>
+              <th>{{ __('Expires') }}</th>
+              <th>{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -210,7 +210,7 @@
                   <input type="hidden" name="user_id" value="{{ $targetUser->id }}">
                   <input type="hidden" name="compartment_id" value="{{ $comp->compartment_id ?? $comp->id ?? '' }}">
                   <button type="submit" class="btn btn-sm btn-outline-danger">
-                    Revoke
+                    {{ __('Revoke') }}
                   </button>
                 </form>
               </td>
@@ -221,7 +221,7 @@
         @endif
 
         <hr>
-        <h6>Grant Compartment Access</h6>
+        <h6>{{ __('Grant Compartment Access') }}</h6>
         <form action="{{ route('acl.set-clearance') }}" method="post" class="row">
           @csrf
           <input type="hidden" name="action_type" value="grant_compartment">
@@ -234,10 +234,10 @@
             </select>
           </div>
           <div class="col-md-3">
-            <input type="date" name="expiry_date" class="form-control" placeholder="Expiry (optional)">
+            <input type="date" name="expiry_date" class="form-control" placeholder="{{ __('Expiry (optional)') }}">
           </div>
           <div class="col-md-3">
-            <button type="submit" class="btn btn-primary">Grant</button>
+            <button type="submit" class="btn btn-primary">{{ __('Grant') }}</button>
           </div>
         </form>
       </div>
@@ -248,7 +248,7 @@
     {{-- User Info --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0">User Information</h5>
+        <h5 class="mb-0">{{ __('User Information') }}</h5>
       </div>
       <div class="card-body">
         <p><strong>Username:</strong><br>{{ e($targetUser->username ?? '') }}</p>
@@ -262,7 +262,7 @@
     {{-- Clearance History --}}
     <div class="card">
       <div class="card-header">
-        <h5 class="mb-0">Clearance History</h5>
+        <h5 class="mb-0">{{ __('Clearance History') }}</h5>
       </div>
       <div class="card-body" style="max-height: 400px; overflow-y: auto;">
         @if(empty($history))

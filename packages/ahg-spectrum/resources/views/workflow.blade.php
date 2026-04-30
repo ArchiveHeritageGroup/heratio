@@ -69,7 +69,7 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
 
 <h1>{{ __('Spectrum Workflow') }}: {{ $resource->title ?? $resource->slug ?? '' }}</h1>
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ url('/' . ($resource->slug ?? '')) }}">{{ $resource->title ?? $resource->slug ?? '' }}</a></li>
@@ -462,7 +462,7 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
                     <input type="hidden" name="procedure_type" value="{{ $procedureType }}">
                     <div class="col">
                         <label class="form-label">{{ __('Link a SOP document (URL to PDF, document or wiki page)') }}</label>
-                        <input type="url" name="sop_url" class="form-control form-control-sm" placeholder="https://..." required>
+                        <input type="url" name="sop_url" class="form-control form-control-sm" placeholder="{{ __('https://...') }}" required>
                     </div>
                     <div class="col-auto">
                         <button type="submit" class="btn btn-sm btn-primary">

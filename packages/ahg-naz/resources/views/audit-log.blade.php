@@ -3,36 +3,36 @@
 @section('title', 'NAZ Audit Log')
 
 @section('content')
-<h1>NAZ Audit Log</h1>
+<h1>{{ __('NAZ Audit Log') }}</h1>
 
 <div class="card mb-3">
   <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-    <h5 class="mb-0">Filters</h5>
+    <h5 class="mb-0">{{ __('Filters') }}</h5>
   </div>
   <div class="card-body">
     <form method="GET" action="{{ route('ahgnaz.audit-log') }}" class="row g-2 align-items-end">
       <div class="col-md-2">
-        <label class="form-label">Action type</label>
+        <label class="form-label">{{ __('Action type') }}</label>
         <input type="text" name="action_type" class="form-control form-control-sm" value="{{ request('action_type') }}">
       </div>
       <div class="col-md-2">
-        <label class="form-label">Entity type</label>
+        <label class="form-label">{{ __('Entity type') }}</label>
         <input type="text" name="entity_type" class="form-control form-control-sm" value="{{ request('entity_type') }}">
       </div>
       <div class="col-md-2">
-        <label class="form-label">User ID</label>
+        <label class="form-label">{{ __('User ID') }}</label>
         <input type="number" name="user_id" class="form-control form-control-sm" value="{{ request('user_id') }}">
       </div>
       <div class="col-md-2">
-        <label class="form-label">From</label>
+        <label class="form-label">{{ __('From') }}</label>
         <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
       </div>
       <div class="col-md-2">
-        <label class="form-label">To</label>
+        <label class="form-label">{{ __('To') }}</label>
         <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
       </div>
       <div class="col-md-2">
-        <button class="btn btn-sm btn-primary w-100">Filter</button>
+        <button class="btn btn-sm btn-primary w-100">{{ __('Filter') }}</button>
       </div>
     </form>
   </div>
@@ -43,13 +43,13 @@
 <table class="table table-sm table-striped">
   <thead>
     <tr>
-      <th>Date</th>
-      <th>Action</th>
-      <th>Entity</th>
-      <th>Entity ID</th>
-      <th>User</th>
-      <th>IP</th>
-      <th>Notes</th>
+      <th>{{ __('Date') }}</th>
+      <th>{{ __('Action') }}</th>
+      <th>{{ __('Entity') }}</th>
+      <th>{{ __('Entity ID') }}</th>
+      <th>{{ __('User') }}</th>
+      <th>{{ __('IP') }}</th>
+      <th>{{ __('Notes') }}</th>
     </tr>
   </thead>
   <tbody>

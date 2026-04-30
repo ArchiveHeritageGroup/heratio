@@ -3,7 +3,7 @@
 @section('title', 'Manage Software')
 
 @section('content')
-<h1>Manage Software</h1>
+<h1>{{ __('Manage Software') }}</h1>
 
 <form method="POST">
   @csrf
@@ -11,7 +11,7 @@
   <div class="accordion mb-3">
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#main-collapse" aria-expanded="true">Manage Software</button>
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#main-collapse" aria-expanded="true">{{ __('Manage Software') }}</button>
       </h2>
       <div id="main-collapse" class="accordion-collapse collapse show">
         <div class="accordion-body">

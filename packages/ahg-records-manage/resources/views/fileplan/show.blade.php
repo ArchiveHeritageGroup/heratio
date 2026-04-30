@@ -3,7 +3,7 @@
 @section('body-class', 'admin records')
 
 @section('title-block')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb mb-1">
         <li class="breadcrumb-item"><a href="{{ route('records.fileplan.index') }}">File Plan</a></li>
         @foreach($breadcrumb as $crumb)
@@ -24,7 +24,7 @@
         <a href="{{ route('records.fileplan.edit', $node->id) }}" class="btn btn-outline-primary btn-sm">Edit</a>
         <form method="post" action="{{ route('records.fileplan.destroy', $node->id) }}" class="d-inline" onsubmit="return confirm('Delete this node?');">
             @csrf @method('DELETE')
-            <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+            <button type="submit" class="btn btn-outline-danger btn-sm">{{ __('Delete') }}</button>
         </form>
     </div>
 </div>
@@ -46,10 +46,10 @@
             <div class="card-body">
                 <table class="table table-sm mb-0">
                     <tbody>
-                        <tr><th style="width:180px;">Code</th><td>{{ $node->code }}</td></tr>
-                        <tr><th>Title</th><td>{{ $node->title }}</td></tr>
+                        <tr><th style="width:180px;">{{ __('Code') }}</th><td>{{ $node->code }}</td></tr>
+                        <tr><th>{{ __('Title') }}</th><td>{{ $node->title }}</td></tr>
                         <tr>
-                            <th>Type</th>
+                            <th>{{ __('Type') }}</th>
                             <td>
                                 @php
                                     $typeBadges = [
@@ -64,21 +64,21 @@
                                 <span class="badge {{ $badgeClass }}">{{ str_replace('_', ' ', $node->node_type) }}</span>
                             </td>
                         </tr>
-                        <tr><th>Status</th><td><span class="badge {{ $node->status === 'active' ? 'bg-success' : ($node->status === 'closed' ? 'bg-secondary' : 'bg-warning text-dark') }}">{{ ucfirst($node->status) }}</span></td></tr>
-                        <tr><th>Description</th><td>{{ $node->description ?: '-' }}</td></tr>
-                        <tr><th>Parent</th><td>
+                        <tr><th>{{ __('Status') }}</th><td><span class="badge {{ $node->status === 'active' ? 'bg-success' : ($node->status === 'closed' ? 'bg-secondary' : 'bg-warning text-dark') }}">{{ ucfirst($node->status) }}</span></td></tr>
+                        <tr><th>{{ __('Description') }}</th><td>{{ $node->description ?: '-' }}</td></tr>
+                        <tr><th>{{ __('Parent') }}</th><td>
                             @if($node->parent_id)
                                 <a href="{{ route('records.fileplan.show', $node->parent_id) }}">{{ $node->parent_code }} - {{ $node->parent_title }}</a>
                             @else
                                 <em>Root node</em>
                             @endif
                         </td></tr>
-                        <tr><th>Depth</th><td>{{ $node->depth }}</td></tr>
+                        <tr><th>{{ __('Depth') }}</th><td>{{ $node->depth }}</td></tr>
                         @if($node->source_department)
-                            <tr><th>Source Department</th><td>{{ $node->source_department }}</td></tr>
+                            <tr><th>{{ __('Source Department') }}</th><td>{{ $node->source_department }}</td></tr>
                         @endif
                         @if($node->source_agency_code)
-                            <tr><th>Agency Code</th><td>{{ $node->source_agency_code }}</td></tr>
+                            <tr><th>{{ __('Agency Code') }}</th><td>{{ $node->source_agency_code }}</td></tr>
                         @endif
                     </tbody>
                 </table>
@@ -90,15 +90,15 @@
             <div class="card-body">
                 <table class="table table-sm mb-0">
                     <tbody>
-                        <tr><th style="width:180px;">Disposal Class</th><td>
+                        <tr><th style="width:180px;">{{ __('Disposal Class') }}</th><td>
                             @if($node->disposal_class_id)
                                 {{ $node->disposal_class_code ?? '' }} {{ $node->disposal_class_title ?? '(ID: ' . $node->disposal_class_id . ')' }}
                             @else
                                 -
                             @endif
                         </td></tr>
-                        <tr><th>Retention Period</th><td>{{ $node->retention_period ?: '-' }}</td></tr>
-                        <tr><th>Disposal Action</th><td>{{ $node->disposal_action ? ucfirst($node->disposal_action) : '-' }}</td></tr>
+                        <tr><th>{{ __('Retention Period') }}</th><td>{{ $node->retention_period ?: '-' }}</td></tr>
+                        <tr><th>{{ __('Disposal Action') }}</th><td>{{ $node->disposal_action ? ucfirst($node->disposal_action) : '-' }}</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -112,7 +112,7 @@
                 <form method="post" action="{{ route('records.fileplan.move', $node->id) }}">
                     @csrf
                     <div class="mb-2">
-                        <label for="new_parent_id" class="form-label">New Parent</label>
+                        <label for="new_parent_id" class="form-label">{{ __('New Parent') }}</label>
                         <select name="new_parent_id" id="new_parent_id" class="form-select form-select-sm">
                             @php
                                 $allNodes = app(\AhgRecordsManage\Services\FilePlanService::class)->getNodesForDropdown();
@@ -124,7 +124,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-sm btn-outline-warning" onclick="return confirm('Move this node?');">Move</button>
+                    <button type="submit" class="btn btn-sm btn-outline-warning" onclick="return confirm('Move this node?');">{{ __('Move') }}</button>
                 </form>
             </div>
         </div>
@@ -147,10 +147,10 @@
         <table class="table table-sm table-striped mb-0">
             <thead>
                 <tr>
-                    <th>Code</th>
-                    <th>Title</th>
-                    <th>Type</th>
-                    <th>Status</th>
+                    <th>{{ __('Code') }}</th>
+                    <th>{{ __('Title') }}</th>
+                    <th>{{ __('Type') }}</th>
+                    <th>{{ __('Status') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -175,9 +175,9 @@
         <table class="table table-sm table-striped mb-0">
             <thead>
                 <tr>
-                    <th>Identifier</th>
-                    <th>Title</th>
-                    <th>Created</th>
+                    <th>{{ __('Identifier') }}</th>
+                    <th>{{ __('Title') }}</th>
+                    <th>{{ __('Created') }}</th>
                 </tr>
             </thead>
             <tbody>

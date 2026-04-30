@@ -41,7 +41,7 @@
         </div>
     </div>
 
-    <h1>Finding Aid</h1>
+    <h1>{{ __('Finding Aid') }}</h1>
     <div class="meta">
         <strong>{{ e($collection->name) }}</strong><br>
         @if($collection->description)
@@ -53,7 +53,7 @@
     </div>
 
     @if(count($items) > 3)
-    <h2>Table of Contents</h2>
+    <h2>{{ __('Table of Contents') }}</h2>
     <div class="toc">
         <ol>
             @foreach($items as $i => $item)
@@ -63,7 +63,7 @@
     </div>
     @endif
 
-    <h2>Archival Descriptions</h2>
+    <h2>{{ __('Archival Descriptions') }}</h2>
 
     @foreach($items as $item)
     <div class="item" id="item-{{ $item->id }}">

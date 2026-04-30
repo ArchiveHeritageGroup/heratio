@@ -6,7 +6,7 @@
 <div class="container py-4">
 
   {{-- Breadcrumb --}}
-  <nav aria-label="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('informationobject.show', ['slug' => $io->slug ?? $io->id]) }}">{{ $io->title ?? 'Untitled' }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">Preservation Packages</li>
@@ -43,7 +43,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="mb-0">Total Packages</h6>
+              <h6 class="mb-0">{{ __('Total Packages') }}</h6>
               <h2 class="mb-0">{{ $totalPackages }}</h2>
               <small>{{ $totalSize > 0 ? formatBytes($totalSize) : '' }}</small>
             </div>
@@ -57,7 +57,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="mb-0">SIPs</h6>
+              <h6 class="mb-0">{{ __('SIPs') }}</h6>
               <h2 class="mb-0">{{ $sipCount }}</h2>
               <small>Submission</small>
             </div>
@@ -71,7 +71,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="mb-0">AIPs</h6>
+              <h6 class="mb-0">{{ __('AIPs') }}</h6>
               <h2 class="mb-0">{{ $aipCount }}</h2>
               <small>Archival</small>
             </div>
@@ -85,7 +85,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="mb-0">DIPs</h6>
+              <h6 class="mb-0">{{ __('DIPs') }}</h6>
               <h2 class="mb-0">{{ $dipCount }}</h2>
               <small>Dissemination</small>
             </div>
@@ -148,13 +148,13 @@
           <table class="table table-bordered table-striped table-hover mb-0">
             <thead>
               <tr>
-                <th>Package Name / UUID</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Objects</th>
-                <th>Size</th>
-                <th>Created</th>
-                <th class="text-end">Actions</th>
+                <th>{{ __('Package Name / UUID') }}</th>
+                <th>{{ __('Type') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Objects') }}</th>
+                <th>{{ __('Size') }}</th>
+                <th>{{ __('Created') }}</th>
+                <th class="text-end">{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -202,15 +202,15 @@
                   <td>{{ $aip->created_at ?? '—' }}</td>
                   <td class="text-end">
                     <div class="btn-group btn-group-sm" role="group">
-                      <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?view={{ $aip->id }}" class="btn atom-btn-white" title="View package">
+                      <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?view={{ $aip->id }}" class="btn atom-btn-white" title="{{ __('View package') }}">
                         <i class="fas fa-eye"></i>
                       </a>
                       @auth
-                        <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?edit={{ $aip->id }}" class="btn atom-btn-white" title="Edit package">
+                        <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?edit={{ $aip->id }}" class="btn atom-btn-white" title="{{ __('Edit package') }}">
                           <i class="fas fa-pencil-alt"></i>
                         </a>
                       @endauth
-                      <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?download={{ $aip->id }}" class="btn atom-btn-outline-success" title="Download package">
+                      <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?download={{ $aip->id }}" class="btn atom-btn-outline-success" title="{{ __('Download package') }}">
                         <i class="fas fa-download"></i>
                       </a>
                     </div>
@@ -234,11 +234,11 @@
             <table class="table table-bordered table-striped table-hover mb-0">
               <thead>
                 <tr>
-                  <th>PUID</th>
-                  <th>MIME Type</th>
-                  <th>Size</th>
-                  <th>Ingested</th>
-                  <th class="text-end">Actions</th>
+                  <th>{{ __('PUID') }}</th>
+                  <th>{{ __('MIME Type') }}</th>
+                  <th>{{ __('Size') }}</th>
+                  <th>{{ __('Ingested') }}</th>
+                  <th class="text-end">{{ __('Actions') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -249,7 +249,7 @@
                     <td>{{ isset($po->size) ? formatBytes($po->size) : '—' }}</td>
                     <td>{{ $po->date_ingested ?? '—' }}</td>
                     <td class="text-end">
-                      <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?premis={{ $po->id ?? '' }}" class="btn btn-sm atom-btn-white" title="View PREMIS events">
+                      <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?premis={{ $po->id ?? '' }}" class="btn btn-sm atom-btn-white" title="{{ __('View PREMIS events') }}">
                         <i class="fas fa-eye"></i>
                       </a>
                     </td>
@@ -269,7 +269,7 @@
       <div class="mb-4">
         <i class="fas fa-box-open fa-4x text-muted"></i>
       </div>
-      <h4 class="text-muted">No Preservation Packages</h4>
+      <h4 class="text-muted">{{ __('No Preservation Packages') }}</h4>
       <p class="text-muted mb-4">
         No preservation packages have been created for this resource yet.
       </p>
@@ -292,24 +292,24 @@
       <form action="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}" method="GET">
         <div class="modal-header">
           <h5 class="modal-title" id="createPackageModalLabel"><i class="fas fa-plus me-2"></i> Create Preservation Package</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3">
             <label for="package_type" class="form-label">Package Type <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="package_type" id="package_type" class="form-select">
-              <option value="SIP">SIP (Submission Information Package)</option>
-              <option value="AIP" selected>AIP (Archival Information Package)</option>
-              <option value="DIP">DIP (Dissemination Information Package)</option>
+              <option value="SIP">{{ __('SIP (Submission Information Package)') }}</option>
+              <option value="AIP" selected>{{ __('AIP (Archival Information Package)') }}</option>
+              <option value="DIP">{{ __('DIP (Dissemination Information Package)') }}</option>
             </select>
           </div>
           <div class="mb-3">
             <label for="package_name" class="form-label">Package Name <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="text" name="package_name" id="package_name" class="form-control" placeholder="Enter a descriptive name">
+            <input type="text" name="package_name" id="package_name" class="form-control" placeholder="{{ __('Enter a descriptive name') }}">
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="submit" class="btn atom-btn-outline-success">
             <i class="fas fa-plus me-1"></i> Create Package
           </button>

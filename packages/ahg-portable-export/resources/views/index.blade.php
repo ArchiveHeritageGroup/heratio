@@ -18,7 +18,7 @@
   <div class="card mb-4">
     <div class="card-header bg-primary text-white d-flex align-items-center">
       <i class="fas fa-file-export me-2"></i>
-      <h4 class="mb-0">Portable Export</h4>
+      <h4 class="mb-0">{{ __('Portable Export') }}</h4>
     </div>
     <div class="card-body">
       <p class="text-muted mb-0">
@@ -57,26 +57,26 @@
 
           <div class="row mb-3">
             <div class="col-md-6">
-              <label for="export-scope" class="form-label fw-bold">Scope</label>
+              <label for="export-scope" class="form-label fw-bold">{{ __('Scope') }}</label>
               <select class="form-select" id="export-scope" name="scope_type">
-                <option value="all">Entire Catalogue</option>
-                <option value="fonds">Specific Fonds/Collection</option>
-                <option value="repository">By Repository</option>
+                <option value="all">{{ __('Entire Catalogue') }}</option>
+                <option value="fonds">{{ __('Specific Fonds/Collection') }}</option>
+                <option value="repository">{{ __('By Repository') }}</option>
               </select>
             </div>
           </div>
 
           <div class="row mb-3" id="scope-slug-group" style="display:none;">
             <div class="col-md-6">
-              <label for="fonds-search" class="form-label fw-bold">Fonds / Collection</label>
+              <label for="fonds-search" class="form-label fw-bold">{{ __('Fonds / Collection') }}</label>
               <div class="position-relative">
-                <input type="text" class="form-control" id="fonds-search" placeholder="Type to search..." autocomplete="off">
+                <input type="text" class="form-control" id="fonds-search" placeholder="{{ __('Type to search...') }}" autocomplete="off">
                 <input type="hidden" id="export-slug" name="scope_slug">
                 <div id="fonds-results" class="list-group position-absolute w-100 shadow-sm" style="display:none; z-index:1050; max-height:250px; overflow-y:auto;"></div>
               </div>
               <div id="fonds-selected" class="mt-2" style="display:none;">
                 <span class="badge bg-primary fs-6 px-3 py-2" id="fonds-selected-label"></span>
-                <button type="button" class="btn btn-sm btn-outline-danger ms-1" id="fonds-clear" title="Clear">
+                <button type="button" class="btn btn-sm btn-outline-danger ms-1" id="fonds-clear" title="{{ __('Clear') }}">
                   <i class="fas fa-times"></i>
                 </button>
               </div>
@@ -86,7 +86,7 @@
 
           <div class="row mb-3" id="scope-repo-group" style="display:none;">
             <div class="col-md-6">
-              <label for="export-repository" class="form-label fw-bold">Repository</label>
+              <label for="export-repository" class="form-label fw-bold">{{ __('Repository') }}</label>
               <select class="form-select" id="export-repository" name="repository_id">
                 <option value="">-- Select --</option>
                 @foreach($repositories as $repo)
@@ -110,7 +110,7 @@
 
           <div class="row mb-4">
             <div class="col-md-8">
-              <label class="form-label fw-bold">Export Type</label>
+              <label class="form-label fw-bold">{{ __('Export Type') }}</label>
               <div class="btn-group w-100" role="group">
                 <input type="radio" class="btn-check" name="mode" id="mode-viewer" value="read_only" checked>
                 <label class="btn btn-outline-primary" for="mode-viewer">
@@ -133,7 +133,7 @@
 
           {{-- Archive entity types --}}
           <div id="archive-entity-types" style="display:none;" class="mb-4">
-            <label class="form-label fw-bold">Entity Types to Export</label>
+            <label class="form-label fw-bold">{{ __('Entity Types to Export') }}</label>
             <div class="row g-2">
               @php
                 $entities = [
@@ -255,28 +255,28 @@
               <input type="text" class="form-control" id="export-title" name="title" value="Portable Catalogue" required>
             </div>
             <div class="col-md-3">
-              <label for="export-culture" class="form-label fw-bold">Language</label>
+              <label for="export-culture" class="form-label fw-bold">{{ __('Language') }}</label>
               <select class="form-select" id="export-culture" name="culture">
-                <option value="en">English</option>
-                <option value="fr">French</option>
-                <option value="af">Afrikaans</option>
-                <option value="pt">Portuguese</option>
+                <option value="en">{{ __('English') }}</option>
+                <option value="fr">{{ __('French') }}</option>
+                <option value="af">{{ __('Afrikaans') }}</option>
+                <option value="pt">{{ __('Portuguese') }}</option>
               </select>
             </div>
           </div>
 
-          <h6 class="mt-4 mb-3">Branding (Optional)</h6>
+          <h6 class="mt-4 mb-3">{{ __('Branding (Optional)') }}</h6>
           <div class="row mb-3">
             <div class="col-md-4">
-              <label for="branding-title" class="form-label">Viewer Title</label>
-              <input type="text" class="form-control" id="branding-title" name="branding_title" placeholder="e.g. My Archive Collection">
+              <label for="branding-title" class="form-label">{{ __('Viewer Title') }}</label>
+              <input type="text" class="form-control" id="branding-title" name="branding_title" placeholder="{{ __('e.g. My Archive Collection') }}">
             </div>
             <div class="col-md-4">
-              <label for="branding-subtitle" class="form-label">Subtitle</label>
+              <label for="branding-subtitle" class="form-label">{{ __('Subtitle') }}</label>
               <input type="text" class="form-control" id="branding-subtitle" name="branding_subtitle">
             </div>
             <div class="col-md-4">
-              <label for="branding-footer" class="form-label">Footer Text</label>
+              <label for="branding-footer" class="form-label">{{ __('Footer Text') }}</label>
               <input type="text" class="form-control" id="branding-footer" name="branding_footer">
             </div>
           </div>
@@ -300,13 +300,13 @@
             <div class="card-body">
               <table class="table table-sm mb-0" id="review-table">
                 <tbody>
-                  <tr><th style="width:30%">Title</th><td id="review-title">-</td></tr>
-                  <tr><th>Scope</th><td id="review-scope">-</td></tr>
-                  <tr><th>Export Type</th><td id="review-mode">-</td></tr>
-                  <tr><th>Language</th><td id="review-culture">-</td></tr>
-                  <tr><th>Digital Objects</th><td id="review-objects">-</td></tr>
-                  <tr><th>Branding</th><td id="review-branding">-</td></tr>
-                  <tr id="review-estimate-row" style="display:none;"><th>Estimated Size</th><td id="review-estimate">-</td></tr>
+                  <tr><th style="width:30%">{{ __('Title') }}</th><td id="review-title">-</td></tr>
+                  <tr><th>{{ __('Scope') }}</th><td id="review-scope">-</td></tr>
+                  <tr><th>{{ __('Export Type') }}</th><td id="review-mode">-</td></tr>
+                  <tr><th>{{ __('Language') }}</th><td id="review-culture">-</td></tr>
+                  <tr><th>{{ __('Digital Objects') }}</th><td id="review-objects">-</td></tr>
+                  <tr><th>{{ __('Branding') }}</th><td id="review-branding">-</td></tr>
+                  <tr id="review-estimate-row" style="display:none;"><th>{{ __('Estimated Size') }}</th><td id="review-estimate">-</td></tr>
                 </tbody>
               </table>
             </div>
@@ -366,8 +366,8 @@
       <table class="table table-hover table-striped mb-0" id="exports-table">
         <thead class="table-light">
           <tr>
-            <th>ID</th><th>Title</th><th>Scope</th><th>Mode</th><th>Status</th>
-            <th>Descriptions</th><th>Size</th><th>Expires</th><th>Actions</th>
+            <th>{{ __('ID') }}</th><th>{{ __('Title') }}</th><th>{{ __('Scope') }}</th><th>{{ __('Mode') }}</th><th>{{ __('Status') }}</th>
+            <th>{{ __('Descriptions') }}</th><th>{{ __('Size') }}</th><th>{{ __('Expires') }}</th><th>{{ __('Actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -409,14 +409,14 @@
                 </td>
                 <td>
                   @if($exp->status === 'completed')
-                    <a href="{{ route('portable-export.download') }}?id={{ $exp->id }}" class="btn btn-sm btn-success" title="Download">
+                    <a href="{{ route('portable-export.download') }}?id={{ $exp->id }}" class="btn btn-sm btn-success" title="{{ __('Download') }}">
                       <i class="fas fa-download"></i>
                     </a>
-                    <button class="btn btn-sm btn-outline-primary btn-share-token" data-id="{{ $exp->id }}" title="Share Link">
+                    <button class="btn btn-sm btn-outline-primary btn-share-token" data-id="{{ $exp->id }}" title="{{ __('Share Link') }}">
                       <i class="fas fa-link"></i>
                     </button>
                   @endif
-                  <button class="btn btn-sm btn-outline-danger btn-delete-export" data-id="{{ $exp->id }}" title="Delete">
+                  <button class="btn btn-sm btn-outline-danger btn-delete-export" data-id="{{ $exp->id }}" title="{{ __('Delete') }}">
                     <i class="fas fa-trash"></i>
                   </button>
                 </td>
@@ -438,15 +438,15 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Max Downloads (blank = unlimited)</label>
-            <input type="number" class="form-control" id="share-max-downloads" min="1" placeholder="unlimited">
+            <label class="form-label">{{ __('Max Downloads (blank = unlimited)') }}</label>
+            <input type="number" class="form-control" id="share-max-downloads" min="1" placeholder="{{ __('unlimited') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">Expires After (hours)</label>
+            <label class="form-label">{{ __('Expires After (hours)') }}</label>
             <input type="number" class="form-control" id="share-expires-hours" value="168" min="1">
           </div>
           <div id="share-result" style="display:none;">
-            <label class="form-label">Share URL</label>
+            <label class="form-label">{{ __('Share URL') }}</label>
             <div class="input-group">
               <input type="text" class="form-control" id="share-url" readonly>
               <button class="btn btn-outline-secondary" id="btn-copy-url" type="button">
@@ -456,8 +456,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" id="btn-generate-token">Generate Link</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
+          <button type="button" class="btn btn-primary" id="btn-generate-token">{{ __('Generate Link') }}</button>
         </div>
       </div>
     </div>

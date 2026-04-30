@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'reports'])@endsection
 @section('title', 'Generate Finding Aid')
 @section('content')
-<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.reports') }}">Reports</a></li><li class="breadcrumb-item active">Finding Aid</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.reports') }}">Reports</a></li><li class="breadcrumb-item active">Finding Aid</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-sitemap text-primary me-2"></i>Generate Finding Aid</h1>
 <div class="row">
     <div class="col-md-8">
@@ -15,8 +15,8 @@
                         <select name="collection_id" class="form-select" required><option value="">-- Select --</option>@foreach($collections ?? [] as $c)<option value="{{ $c->id }}">{{ e($c->title ?? '') }}</option>@endforeach</select>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-6"><label class="form-label">Format <span class="badge bg-secondary ms-1">Optional</span></label><select name="format" class="form-select"><option value="ead">EAD (XML)</option><option value="pdf">PDF</option><option value="html">HTML</option></select></div>
-                        <div class="col-md-6"><label class="form-label">Depth <span class="badge bg-secondary ms-1">Optional</span></label><select name="depth" class="form-select"><option value="full">Full (all levels)</option><option value="series">Series level</option><option value="file">File level</option></select></div>
+                        <div class="col-md-6"><label class="form-label">Format <span class="badge bg-secondary ms-1">Optional</span></label><select name="format" class="form-select"><option value="ead">{{ __('EAD (XML)') }}</option><option value="pdf">PDF</option><option value="html">HTML</option></select></div>
+                        <div class="col-md-6"><label class="form-label">Depth <span class="badge bg-secondary ms-1">Optional</span></label><select name="depth" class="form-select"><option value="full">{{ __('Full (all levels)') }}</option><option value="series">{{ __('Series level') }}</option><option value="file">{{ __('File level') }}</option></select></div>
                     </div>
                     <div class="form-check mb-2"><input type="checkbox" name="include_dao" class="form-check-input" id="includeDao" checked><label class="form-check-label" for="includeDao">Include digital object links <span class="badge bg-secondary ms-1">Optional</span></label></div>
                     <div class="form-check mb-2"><input type="checkbox" name="include_access" class="form-check-input" id="includeAccess" checked><label class="form-check-label" for="includeAccess">Include access points <span class="badge bg-secondary ms-1">Optional</span></label></div>
@@ -29,7 +29,7 @@
     </div>
     <div class="col-md-4">
         <div class="card">
-            <div class="card-header"><h6 class="mb-0">About Finding Aids</h6></div>
+            <div class="card-header"><h6 class="mb-0">{{ __('About Finding Aids') }}</h6></div>
             <div class="card-body small text-muted">
                 A finding aid is a document that describes a collection of records. It helps researchers locate relevant materials by providing hierarchical descriptions, access points, and administrative metadata.
             </div>

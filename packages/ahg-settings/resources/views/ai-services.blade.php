@@ -32,7 +32,7 @@
     </div>
     <div class="card-body">
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Processing Mode</label>
+        <label class="col-sm-3 col-form-label">{{ __('Processing Mode') }}</label>
         <div class="col-sm-9">
           <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="processing_mode" id="mode_hybrid" value="hybrid"
@@ -52,7 +52,7 @@
       </div>
 
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">API Endpoint</label>
+        <label class="col-sm-3 col-form-label">{{ __('API Endpoint') }}</label>
         <div class="col-sm-6">
           <input type="text" class="form-control" name="api_url"
             value="{{ $settings['api_url'] ?? '' }}">
@@ -66,7 +66,7 @@
       </div>
 
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">API Key</label>
+        <label class="col-sm-3 col-form-label">{{ __('API Key') }}</label>
         <div class="col-sm-6">
           <input type="password" class="form-control" name="api_key" id="api_key"
             value="{{ $settings['api_key'] ?? '' }}">
@@ -79,7 +79,7 @@
       </div>
 
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Timeout (seconds)</label>
+        <label class="col-sm-3 col-form-label">{{ __('Timeout (seconds)') }}</label>
         <div class="col-sm-3">
           <input type="number" class="form-control" name="api_timeout" min="10" max="300"
             value="{{ $settings['api_timeout'] ?? '60' }}">
@@ -100,7 +100,7 @@
             <input type="hidden" name="ner_enabled" value="0">
             <input class="form-check-input" type="checkbox" name="ner_enabled" id="ner_enabled" value="1"
               {{ ($settings['ner_enabled'] ?? '1') === '1' ? 'checked' : '' }}>
-            <label class="form-check-label fw-bold" for="ner_enabled">Enable NER</label>
+            <label class="form-check-label fw-bold" for="ner_enabled">{{ __('Enable NER') }}</label>
           </div>
         </div>
         <div class="col-sm-9">
@@ -114,7 +114,7 @@
             <input type="hidden" name="auto_extract_on_upload" value="0">
             <input class="form-check-input" type="checkbox" name="auto_extract_on_upload" id="auto_extract" value="1"
               {{ ($settings['auto_extract_on_upload'] ?? '0') === '1' ? 'checked' : '' }}>
-            <label class="form-check-label" for="auto_extract">Auto-extract on upload</label>
+            <label class="form-check-label" for="auto_extract">{{ __('Auto-extract on upload') }}</label>
           </div>
         </div>
         <div class="col-sm-9">
@@ -123,7 +123,7 @@
       </div>
 
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Entity Types</label>
+        <label class="col-sm-3 col-form-label">{{ __('Entity Types') }}</label>
         <div class="col-sm-9">
           <div class="form-check form-check-inline">
             <input class="form-check-input" type="checkbox" name="entity_PERSON" id="entity_person" value="1"
@@ -162,7 +162,7 @@
             <input type="hidden" name="summarizer_enabled" value="0">
             <input class="form-check-input" type="checkbox" name="summarizer_enabled" id="summarizer_enabled" value="1"
               {{ ($settings['summarizer_enabled'] ?? '1') === '1' ? 'checked' : '' }}>
-            <label class="form-check-label fw-bold" for="summarizer_enabled">Enable Summarization</label>
+            <label class="form-check-label fw-bold" for="summarizer_enabled">{{ __('Enable Summarization') }}</label>
           </div>
         </div>
         <div class="col-sm-9">
@@ -171,7 +171,7 @@
       </div>
 
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Save Summary To</label>
+        <label class="col-sm-3 col-form-label">{{ __('Save Summary To') }}</label>
         <div class="col-sm-6">
           <select class="form-select" name="summary_field">
             @foreach($summaryFields as $value => $label)
@@ -185,7 +185,7 @@
       </div>
 
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Summary Length</label>
+        <label class="col-sm-3 col-form-label">{{ __('Summary Length') }}</label>
         <div class="col-sm-3">
           <div class="input-group">
             <span class="input-group-text">Min</span>
@@ -219,7 +219,7 @@
             <input type="hidden" name="spellcheck_enabled" value="0">
             <input class="form-check-input" type="checkbox" name="spellcheck_enabled" id="spellcheck_enabled" value="1"
               {{ ($settings['spellcheck_enabled'] ?? '0') === '1' ? 'checked' : '' }}>
-            <label class="form-check-label fw-bold" for="spellcheck_enabled">Enable Spell Check</label>
+            <label class="form-check-label fw-bold" for="spellcheck_enabled">{{ __('Enable Spell Check') }}</label>
           </div>
         </div>
         <div class="col-sm-9">
@@ -228,7 +228,7 @@
       </div>
 
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Language</label>
+        <label class="col-sm-3 col-form-label">{{ __('Language') }}</label>
         <div class="col-sm-6">
           <select class="form-select" name="spellcheck_language">
             @foreach($spellcheckLanguages as $code => $label)
@@ -241,7 +241,7 @@
       </div>
 
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Check Fields</label>
+        <label class="col-sm-3 col-form-label">{{ __('Check Fields') }}</label>
         <div class="col-sm-9">
           @foreach($spellcheckFields as $field => $label)
             <div class="form-check form-check-inline">
@@ -268,7 +268,7 @@
             <input type="hidden" name="translation_enabled" value="0">
             <input class="form-check-input" type="checkbox" name="translation_enabled" id="translation_enabled" value="1"
               {{ ($settings['translation_enabled'] ?? '1') === '1' ? 'checked' : '' }}>
-            <label class="form-check-label fw-bold" for="translation_enabled">Enable Translation</label>
+            <label class="form-check-label fw-bold" for="translation_enabled">{{ __('Enable Translation') }}</label>
           </div>
         </div>
         <div class="col-sm-9">
@@ -277,7 +277,7 @@
       </div>
 
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">OPUS-MT Endpoint</label>
+        <label class="col-sm-3 col-form-label">{{ __('OPUS-MT Endpoint') }}</label>
         <div class="col-sm-6">
           <input type="text" class="form-control" name="mt_endpoint"
             value="{{ $settings['mt_endpoint'] ?? 'http://127.0.0.1:5100/translate' }}">
@@ -291,7 +291,7 @@
       </div>
 
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Default Source Language</label>
+        <label class="col-sm-3 col-form-label">{{ __('Default Source Language') }}</label>
         <div class="col-sm-4">
           <select class="form-select" name="translation_source_lang">
             @foreach($translationLanguages as $code => $langData)
@@ -304,7 +304,7 @@
       </div>
 
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Default Target Language</label>
+        <label class="col-sm-3 col-form-label">{{ __('Default Target Language') }}</label>
         <div class="col-sm-4">
           <select class="form-select" name="translation_target_lang" id="translation_target_lang">
             @foreach($translationLanguages as $code => $langData)
@@ -323,7 +323,7 @@
             <input type="hidden" name="translation_save_culture" value="0">
             <input class="form-check-input" type="checkbox" name="translation_save_culture" id="translation_save_culture" value="1"
               {{ ($settings['translation_save_culture'] ?? '1') === '1' ? 'checked' : '' }}>
-            <label class="form-check-label fw-bold" for="translation_save_culture">Save with culture code</label>
+            <label class="form-check-label fw-bold" for="translation_save_culture">{{ __('Save with culture code') }}</label>
           </div>
         </div>
         <div class="col-sm-9">
@@ -338,7 +338,7 @@
       <hr class="my-4">
 
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Institution Sector</label>
+        <label class="col-sm-3 col-form-label">{{ __('Institution Sector') }}</label>
         <div class="col-sm-4">
           <select class="form-select" name="translation_sector" id="translation_sector" onchange="updateFieldsForSector()">
             <option value="archives" {{ ($settings['translation_sector'] ?? 'archives') === 'archives' ? 'selected' : '' }}>
@@ -362,7 +362,7 @@
       </div>
 
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Fields to Translate</label>
+        <label class="col-sm-3 col-form-label">{{ __('Fields to Translate') }}</label>
         <div class="col-sm-9">
           <p class="text-muted small mb-2">Select source fields and choose where to save the translation in the target language.</p>
 
@@ -372,7 +372,7 @@
                 <thead class="table-light">
                   <tr>
                     <th style="width:40px;"></th>
-                    <th>Source Field</th>
+                    <th>{{ __('Source Field') }}</th>
                     <th><i class="fas fa-arrow-right text-muted"></i> Save To (Target)</th>
                   </tr>
                 </thead>
@@ -402,9 +402,9 @@
           @endforeach
 
           <div class="mt-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllFields()">Select All</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAllFields()">Deselect All</button>
-            <button type="button" class="btn btn-sm btn-outline-info" onclick="resetTargetFields()">Reset Targets to Same Field</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllFields()">{{ __('Select All') }}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAllFields()">{{ __('Deselect All') }}</button>
+            <button type="button" class="btn btn-sm btn-outline-info" onclick="resetTargetFields()">{{ __('Reset Targets to Same Field') }}</button>
           </div>
         </div>
       </div>
@@ -412,7 +412,7 @@
       <hr class="my-4">
 
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Translation Mode</label>
+        <label class="col-sm-3 col-form-label">{{ __('Translation Mode') }}</label>
         <div class="col-sm-9">
           <div class="form-check">
             <input class="form-check-input" type="radio" name="translation_mode" id="mode_review" value="review"
@@ -437,7 +437,7 @@
             <input type="hidden" name="translation_overwrite" value="0">
             <input class="form-check-input" type="checkbox" name="translation_overwrite" id="translation_overwrite" value="1"
               {{ ($settings['translation_overwrite'] ?? '0') === '1' ? 'checked' : '' }}>
-            <label class="form-check-label" for="translation_overwrite">Overwrite existing</label>
+            <label class="form-check-label" for="translation_overwrite">{{ __('Overwrite existing') }}</label>
           </div>
         </div>
         <div class="col-sm-9">
@@ -446,7 +446,7 @@
       </div>
 
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label">Timeout (seconds)</label>
+        <label class="col-sm-3 col-form-label">{{ __('Timeout (seconds)') }}</label>
         <div class="col-sm-3">
           <input type="number" class="form-control" name="mt_timeout" min="10" max="120"
             value="{{ $settings['mt_timeout'] ?? '30' }}">
@@ -481,7 +481,7 @@
           @if(!empty($qdrantStatus['collections']))
             <table class="table table-sm table-bordered mb-0">
               <thead class="table-light">
-                <tr><th>Collection</th><th>Vectors</th><th>Status</th></tr>
+                <tr><th>{{ __('Collection') }}</th><th>{{ __('Vectors') }}</th><th>{{ __('Status') }}</th></tr>
               </thead>
               <tbody>
                 @foreach($qdrantStatus['collections'] as $col)
@@ -513,19 +513,19 @@
       <hr>
       <div class="row mb-3">
         <div class="col-md-6">
-          <label class="form-label fw-bold">Qdrant URL</label>
+          <label class="form-label fw-bold">{{ __('Qdrant URL') }}</label>
           <input type="text" class="form-control" name="qdrant_url" value="{{ $settings['qdrant_url'] ?? 'http://localhost:6333' }}">
           <div class="form-text">Qdrant REST endpoint</div>
         </div>
         <div class="col-md-6">
-          <label class="form-label fw-bold">Collection Name</label>
-          <input type="text" class="form-control" name="qdrant_collection" value="{{ $settings['qdrant_collection'] ?? '' }}" placeholder="Auto-detected from database name">
+          <label class="form-label fw-bold">{{ __('Collection Name') }}</label>
+          <input type="text" class="form-control" name="qdrant_collection" value="{{ $settings['qdrant_collection'] ?? '' }}" placeholder="{{ __('Auto-detected from database name') }}">
           <div class="form-text">Leave empty for auto-detection (dbname_records)</div>
         </div>
       </div>
       <div class="row mb-3">
         <div class="col-md-6">
-          <label class="form-label fw-bold">Embedding Model</label>
+          <label class="form-label fw-bold">{{ __('Embedding Model') }}</label>
           <select class="form-select" name="qdrant_model">
             <option value="all-MiniLM-L6-v2" {{ ($settings['qdrant_model'] ?? '') === 'all-MiniLM-L6-v2' ? 'selected' : '' }}>all-MiniLM-L6-v2 (384d, fast)</option>
             <option value="all-mpnet-base-v2" {{ ($settings['qdrant_model'] ?? '') === 'all-mpnet-base-v2' ? 'selected' : '' }}>all-mpnet-base-v2 (768d, higher quality)</option>
@@ -534,7 +534,7 @@
           <div class="form-text">Sentence-transformers model for embeddings</div>
         </div>
         <div class="col-md-6">
-          <label class="form-label fw-bold">Minimum Similarity Score</label>
+          <label class="form-label fw-bold">{{ __('Minimum Similarity Score') }}</label>
           <input type="number" class="form-control" name="qdrant_min_score" value="{{ $settings['qdrant_min_score'] ?? '0.25' }}" min="0" max="1" step="0.05">
           <div class="form-text">Cosine similarity threshold (0-1). Lower = more results, higher = stricter match.</div>
         </div>

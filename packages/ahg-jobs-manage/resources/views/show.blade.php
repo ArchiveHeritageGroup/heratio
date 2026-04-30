@@ -17,15 +17,15 @@
       <table class="table table-bordered mb-0">
         <tbody>
           <tr>
-            <th style="width: 200px;">Id</th>
+            <th style="width: 200px;">{{ __('Id') }}</th>
             <td>{{ $job->id }}</td>
           </tr>
           <tr>
-            <th style="width: 200px;">Job name</th>
+            <th style="width: 200px;">{{ __('Job name') }}</th>
             <td>{{ $job->name }}</td>
           </tr>
           <tr>
-            <th>Status</th>
+            <th>{{ __('Status') }}</th>
             <td>
               @if($job->status_id == 184)
                 <span class="badge bg-success">{{ $job->status_name ?: 'Completed' }}</span>
@@ -37,20 +37,20 @@
             </td>
           </tr>
           <tr>
-            <th>User</th>
+            <th>{{ __('User') }}</th>
             <td>{{ $job->user_name ?: $job->username ?: 'N/A' }}</td>
           </tr>
           <tr>
-            <th>Created</th>
+            <th>{{ __('Created') }}</th>
             <td>{{ $job->created_at ? \Carbon\Carbon::parse($job->created_at)->format('Y-m-d H:i:s') : 'N/A' }}</td>
           </tr>
           <tr>
-            <th>Completed</th>
+            <th>{{ __('Completed') }}</th>
             <td>{{ $job->completed_at ? \Carbon\Carbon::parse($job->completed_at)->format('Y-m-d H:i:s') : 'N/A' }}</td>
           </tr>
           @if($job->object_id ?? null)
             <tr>
-              <th>Associated record</th>
+              <th>{{ __('Associated record') }}</th>
               <td>
                 @if($job->object_slug ?? null)
                   <a href="{{ url('/' . $job->object_slug) }}">{{ $job->object_slug }}</a>
@@ -62,7 +62,7 @@
           @endif
           @if($job->download_path)
             <tr>
-              <th>Download</th>
+              <th>{{ __('Download') }}</th>
               <td>
                 <a href="{{ $job->download_path }}" class="btn btn-sm atom-btn-white">
                   <i class="fas fa-download me-1"></i> Download
@@ -78,7 +78,7 @@
   @if($job->output)
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">Output</h5>
+        <h5 class="mb-0">{{ __('Output') }}</h5>
       </div>
       <div class="card-body p-0">
         <pre class="mb-0 p-3" style="max-height: 500px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">{{ $job->output }}</pre>
@@ -89,7 +89,7 @@
   @if($job->status_id == 185 && ($job->error_output ?? null))
     <div class="card mb-4">
       <div class="card-header bg-danger text-white">
-        <h5 class="mb-0">Error(s)</h5>
+        <h5 class="mb-0">{{ __('Error(s)') }}</h5>
       </div>
       <div class="card-body p-0">
         <div class="alert alert-danger mb-0 rounded-0 border-0">

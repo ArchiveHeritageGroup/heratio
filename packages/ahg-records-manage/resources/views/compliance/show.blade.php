@@ -29,13 +29,13 @@
 <div class="row mb-3">
   <div class="col-md-8">
     <table class="table table-sm">
-      <tr><th class="text-muted" style="width:25%">Framework</th><td>{{ $assessment->framework }}</td></tr>
-      <tr><th class="text-muted">Title</th><td>{{ $assessment->title }}</td></tr>
-      @if($assessment->scope)<tr><th class="text-muted">Scope</th><td>{!! nl2br(e($assessment->scope)) !!}</td></tr>@endif
-      <tr><th class="text-muted">Period</th><td>{{ $assessment->period_start ?: '—' }} → {{ $assessment->period_end ?: '—' }}</td></tr>
-      <tr><th class="text-muted">Assessed at</th><td>{{ $assessment->assessed_at }}</td></tr>
+      <tr><th class="text-muted" style="width:25%">{{ __('Framework') }}</th><td>{{ $assessment->framework }}</td></tr>
+      <tr><th class="text-muted">{{ __('Title') }}</th><td>{{ $assessment->title }}</td></tr>
+      @if($assessment->scope)<tr><th class="text-muted">{{ __('Scope') }}</th><td>{!! nl2br(e($assessment->scope)) !!}</td></tr>@endif
+      <tr><th class="text-muted">{{ __('Period') }}</th><td>{{ $assessment->period_start ?: '—' }} → {{ $assessment->period_end ?: '—' }}</td></tr>
+      <tr><th class="text-muted">{{ __('Assessed at') }}</th><td>{{ $assessment->assessed_at }}</td></tr>
       @if($assessment->signed_off_by)
-        <tr><th class="text-muted">Signed off</th><td>{{ $assessment->signed_off_by }} ({{ $assessment->signed_off_at }})</td></tr>
+        <tr><th class="text-muted">{{ __('Signed off') }}</th><td>{{ $assessment->signed_off_by }} ({{ $assessment->signed_off_at }})</td></tr>
       @endif
     </table>
   </div>
@@ -64,7 +64,7 @@
   <div class="card-header bg-light">Findings ({{ count($checks) }})</div>
   <table class="table table-sm mb-0">
     <thead class="table-light"><tr>
-      <th style="width:8%">Status</th><th style="width:12%">Ref</th><th>Check</th><th class="text-end" style="width:6%">Weight</th><th>Finding</th>
+      <th style="width:8%">{{ __('Status') }}</th><th style="width:12%">{{ __('Ref') }}</th><th>{{ __('Check') }}</th><th class="text-end" style="width:6%">{{ __('Weight') }}</th><th>{{ __('Finding') }}</th>
     </tr></thead>
     <tbody>
     @forelse($checks as $c)
@@ -106,8 +106,8 @@
       <form method="POST" action="{{ route('records.compliance.finalize', $assessment->id) }}" class="row g-2 align-items-end">
         @csrf
         <div class="col-md-6">
-          <label class="form-label small mb-1">Signed off by (name + role)</label>
-          <input type="text" name="signed_off_by" class="form-control form-control-sm" placeholder="e.g. Jane Doe, Records Manager" required>
+          <label class="form-label small mb-1">{{ __('Signed off by (name + role)') }}</label>
+          <input type="text" name="signed_off_by" class="form-control form-control-sm" placeholder="{{ __('e.g. Jane Doe, Records Manager') }}" required>
         </div>
         <div class="col-md-6">
           <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Finalise this assessment? This locks the score and findings.');"><i class="fas fa-stamp me-1"></i>Finalise</button>

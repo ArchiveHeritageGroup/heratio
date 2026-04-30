@@ -23,7 +23,7 @@
         <div class="accordion-item">
             <h2 class="accordion-header">
                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#basisSection">
-                    Rights basis
+                    {{ __('Rights basis') }}
                 </button>
             </h2>
             <div id="basisSection" class="accordion-collapse collapse show">
@@ -42,7 +42,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Rights Statement</label>
+                        <label class="form-label">{{ __('Rights Statement') }}</label>
                         <select name="rights_statement_id" class="form-select">
                             <option value="">-- Select --</option>
                             @foreach($formOptions['rights_statements'] as $stmt)
@@ -56,10 +56,10 @@
 
                     {{-- Copyright Fields --}}
                     <div id="copyrightFields" class="basis-fields" style="display: none;">
-                        <hr><h6 class="text-muted mb-3">Copyright Information</h6>
+                        <hr><h6 class="text-muted mb-3">{{ __('Copyright Information') }}</h6>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Copyright status</label>
+                                <label class="form-label">{{ __('Copyright status') }}</label>
                                 <select name="copyright_status" class="form-select">
                                     <option value="">-- Select --</option>
                                     @foreach($formOptions['copyright_status_options'] as $v => $l)
@@ -68,35 +68,35 @@
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Status determination date</label>
+                                <label class="form-label">{{ __('Status determination date') }}</label>
                                 <input type="date" name="copyright_status_date" class="form-control" value="{{ old('copyright_status_date', $right->copyright_determination_date ?? '') }}">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Jurisdiction</label>
-                                <input type="text" name="copyright_jurisdiction" class="form-control" maxlength="2" placeholder="ZA" value="{{ old('copyright_jurisdiction', $right->copyright_jurisdiction ?? '') }}">
+                                <label class="form-label">{{ __('Jurisdiction') }}</label>
+                                <input type="text" name="copyright_jurisdiction" class="form-control" maxlength="2" placeholder="{{ __('ZA') }}" value="{{ old('copyright_jurisdiction', $right->copyright_jurisdiction ?? '') }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Expiry date</label>
+                                <label class="form-label">{{ __('Expiry date') }}</label>
                                 <input type="date" name="copyright_expiry_date" class="form-control" value="{{ old('copyright_expiry_date', $right->copyright_expiry_date ?? '') }}">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Copyright holder</label>
+                            <label class="form-label">{{ __('Copyright holder') }}</label>
                             <input type="text" name="copyright_holder" class="form-control" value="{{ old('copyright_holder', $right->copyright_holder ?? '') }}">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Copyright note</label>
+                            <label class="form-label">{{ __('Copyright note') }}</label>
                             <textarea name="copyright_note" class="form-control" rows="2">{{ old('copyright_note', $right->copyright_note ?? '') }}</textarea>
                         </div>
                     </div>
 
                     {{-- License Fields --}}
                     <div id="licenseFields" class="basis-fields" style="display: none;">
-                        <hr><h6 class="text-muted mb-3">License Information</h6>
+                        <hr><h6 class="text-muted mb-3">{{ __('License Information') }}</h6>
                         <div class="mb-3">
-                            <label class="form-label">License type</label>
+                            <label class="form-label">{{ __('License type') }}</label>
                             <select name="license_type" id="license_type" class="form-select">
                                 <option value="">-- Select --</option>
                                 <option value="cc" {{ old('license_type', $right->license_type ?? '') === 'cc' ? 'selected' : '' }}>Creative Commons</option>
@@ -106,7 +106,7 @@
                             </select>
                         </div>
                         <div id="ccLicenseField" class="mb-3" style="display: none;">
-                            <label class="form-label">Creative Commons License</label>
+                            <label class="form-label">{{ __('Creative Commons License') }}</label>
                             <select name="cc_license_id" class="form-select">
                                 <option value="">-- Select --</option>
                                 @foreach($formOptions['cc_licenses'] as $license)
@@ -117,56 +117,56 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">License identifier</label>
+                            <label class="form-label">{{ __('License identifier') }}</label>
                             <input type="text" name="license_identifier" class="form-control" value="{{ old('license_identifier', $right->license_identifier ?? '') }}">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">License URL</label>
+                            <label class="form-label">{{ __('License URL') }}</label>
                             <input type="url" name="license_url" class="form-control" value="{{ old('license_url', $right->license_url ?? '') }}">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">License terms</label>
+                            <label class="form-label">{{ __('License terms') }}</label>
                             <textarea name="license_terms" class="form-control" rows="3">{{ old('license_terms', $right->license_terms ?? '') }}</textarea>
                         </div>
                     </div>
 
                     {{-- Statute Fields --}}
                     <div id="statuteFields" class="basis-fields" style="display: none;">
-                        <hr><h6 class="text-muted mb-3">Statute Information</h6>
+                        <hr><h6 class="text-muted mb-3">{{ __('Statute Information') }}</h6>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Jurisdiction</label>
-                                <input type="text" name="statute_jurisdiction" class="form-control" maxlength="2" placeholder="ZA" value="{{ old('statute_jurisdiction', $right->statute_jurisdiction ?? '') }}">
+                                <label class="form-label">{{ __('Jurisdiction') }}</label>
+                                <input type="text" name="statute_jurisdiction" class="form-control" maxlength="2" placeholder="{{ __('ZA') }}" value="{{ old('statute_jurisdiction', $right->statute_jurisdiction ?? '') }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Determination date</label>
+                                <label class="form-label">{{ __('Determination date') }}</label>
                                 <input type="date" name="statute_determination_date" class="form-control" value="{{ old('statute_determination_date', $right->statute_determination_date ?? '') }}">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Statute citation</label>
+                            <label class="form-label">{{ __('Statute citation') }}</label>
                             <input type="text" name="statute_citation" class="form-control" value="{{ old('statute_citation', $right->statute_citation ?? '') }}">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Statute note</label>
+                            <label class="form-label">{{ __('Statute note') }}</label>
                             <textarea name="statute_note" class="form-control" rows="2">{{ old('statute_note', $right->statute_note ?? '') }}</textarea>
                         </div>
                     </div>
 
                     {{-- Donor Fields --}}
                     <div id="donorFields" class="basis-fields" style="display: none;">
-                        <hr><h6 class="text-muted mb-3">Donor Information</h6>
+                        <hr><h6 class="text-muted mb-3">{{ __('Donor Information') }}</h6>
                         <div class="mb-3">
-                            <label class="form-label">Donor name</label>
+                            <label class="form-label">{{ __('Donor name') }}</label>
                             <input type="text" name="donor_name" class="form-control" value="{{ old('donor_name', $right->donor_name ?? '') }}">
                         </div>
                     </div>
 
                     {{-- Policy Fields --}}
                     <div id="policyFields" class="basis-fields" style="display: none;">
-                        <hr><h6 class="text-muted mb-3">Policy Information</h6>
+                        <hr><h6 class="text-muted mb-3">{{ __('Policy Information') }}</h6>
                         <div class="mb-3">
-                            <label class="form-label">Policy identifier</label>
+                            <label class="form-label">{{ __('Policy identifier') }}</label>
                             <input type="text" name="policy_identifier" class="form-control" value="{{ old('policy_identifier', $right->policy_identifier ?? '') }}">
                         </div>
                     </div>
@@ -175,29 +175,29 @@
                     <hr>
                     <div class="row">
                         <div class="col-md-5 mb-3">
-                            <label class="form-label">Start date</label>
+                            <label class="form-label">{{ __('Start date') }}</label>
                             <input type="date" name="start_date" class="form-control" value="{{ old('start_date', $right->start_date ?? '') }}">
                         </div>
                         <div class="col-md-5 mb-3">
-                            <label class="form-label">End date</label>
+                            <label class="form-label">{{ __('End date') }}</label>
                             <input type="date" name="end_date" class="form-control" value="{{ old('end_date', $right->end_date ?? '') }}">
                         </div>
                         <div class="col-md-2 mb-3">
                             <label class="form-label">&nbsp;</label>
                             <div class="form-check mt-2">
                                 <input class="form-check-input" type="checkbox" name="end_date_open" id="end_date_open" value="1" {{ old('end_date_open', $right->end_date_open ?? 0) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="end_date_open">Open</label>
+                                <label class="form-check-label" for="end_date_open">{{ __('Open') }}</label>
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Rights holder</label>
+                        <label class="form-label">{{ __('Rights holder') }}</label>
                         <input type="text" name="rights_holder_name" class="form-control" value="{{ old('rights_holder_name', $right->rights_holder_name ?? '') }}">
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Rights note</label>
+                        <label class="form-label">{{ __('Rights note') }}</label>
                         <textarea name="rights_note" class="form-control" rows="3">{{ old('rights_note', $right->rights_note ?? '') }}</textarea>
                     </div>
 
@@ -209,7 +209,7 @@
         <div class="accordion-item">
             <h2 class="accordion-header">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#actsSection">
-                    Act / Granted rights
+                    {{ __('Act / Granted rights') }}
                 </button>
             </h2>
             <div id="actsSection" class="accordion-collapse collapse">
@@ -244,10 +244,10 @@
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <input type="text" name="restriction_reasons[]" class="form-control form-control-sm" placeholder="Reason (optional)" value="{{ is_object($g) ? ($g->restriction_note ?? '') : ($g['restriction_reason'] ?? '') }}">
+                                <input type="text" name="restriction_reasons[]" class="form-control form-control-sm" placeholder="{{ __('Reason (optional)') }}" value="{{ is_object($g) ? ($g->restriction_note ?? '') : ($g['restriction_reason'] ?? '') }}">
                             </div>
                             <div class="col-md-1">
-                                <button type="button" class="btn btn-sm btn-outline-danger remove-grant" title="Remove">
+                                <button type="button" class="btn btn-sm btn-outline-danger remove-grant" title="{{ __('Remove') }}">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>

@@ -19,7 +19,7 @@
 {{-- Room Selector + Type Counts --}}
 <div class="row mb-4">
     <div class="col-md-4">
-        <label class="form-label">Select Reading Room</label>
+        <label class="form-label">{{ __('Select Reading Room') }}</label>
         <select class="form-select" onchange="window.location.href='?room_id=' + this.value">
             <option value="">-- Select Room --</option>
             @foreach($rooms as $r)
@@ -29,7 +29,7 @@
     </div>
     @if(($currentRoom ?? false) && !empty($equipment))
     <div class="col-md-8">
-        <label class="form-label">Equipment by Type</label>
+        <label class="form-label">{{ __('Equipment by Type') }}</label>
         <div>
             @php $typeCounts = collect($equipment)->groupBy('equipment_type')->map->count(); @endphp
             @foreach($typeCounts as $type => $count)
@@ -54,7 +54,7 @@
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
-                            <tr><th>Name</th><th>Type</th><th>Brand/Model</th><th>Location</th><th>Condition</th><th>Status</th><th>Actions</th></tr>
+                            <tr><th>{{ __('Name') }}</th><th>{{ __('Type') }}</th><th>{{ __('Brand/Model') }}</th><th>{{ __('Location') }}</th><th>{{ __('Condition') }}</th><th>{{ __('Status') }}</th><th>{{ __('Actions') }}</th></tr>
                         </thead>
                         <tbody>
                         @foreach($equipment as $item)
@@ -72,9 +72,9 @@
                                 </td>
                                 <td>{!! ($item->is_available ?? 1) ? '<span class="badge bg-success">Available</span>' : '<span class="badge bg-danger">Unavailable</span>' !!}</td>
                                 <td>
-                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick='editEquipment(@json($item))' title="Edit"><i class="fas fa-edit"></i></button>
-                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="logMaintenance({{ $item->id }})" title="Log Maintenance"><i class="fas fa-wrench"></i></button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="showHistory({{ $item->id }}, '{{ e($item->name) }}')" title="History"><i class="fas fa-history"></i></button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick='editEquipment(@json($item))' title="{{ __('Edit') }}"><i class="fas fa-edit"></i></button>
+                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="logMaintenance({{ $item->id }})" title="{{ __('Log Maintenance') }}"><i class="fas fa-wrench"></i></button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="showHistory({{ $item->id }}, '{{ e($item->name) }}')" title="{{ __('History') }}"><i class="fas fa-history"></i></button>
                                 </td>
                             </tr>
                         @endforeach
@@ -113,28 +113,28 @@
         <input type="hidden" name="form_action" id="equipmentAction" value="create">
         <input type="hidden" name="equipment_id" id="equipmentId">
         <input type="hidden" name="room_id" value="{{ $roomId ?? '' }}">
-        <div class="modal-header"><h5 class="modal-title" id="equipmentModalTitle">Add Equipment</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-header"><h5 class="modal-title" id="equipmentModalTitle">{{ __('Add Equipment') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
             <div class="row">
-                <div class="col-6"><div class="mb-3"><label class="form-label">Name *</label><input type="text" name="name" id="eqName" class="form-control" required></div></div>
-                <div class="col-6"><div class="mb-3"><label class="form-label">Code/ID</label><input type="text" name="code" id="eqCode" class="form-control" placeholder="e.g. MF-001"></div></div>
+                <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Name *') }}</label><input type="text" name="name" id="eqName" class="form-control" required></div></div>
+                <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Code/ID') }}</label><input type="text" name="code" id="eqCode" class="form-control" placeholder="{{ __('e.g. MF-001') }}"></div></div>
             </div>
             <div class="row">
-                <div class="col-6"><div class="mb-3"><label class="form-label">Type *</label><select name="equipment_type" id="eqType" class="form-select" required>@foreach($equipmentTypes as $code => $label)<option value="{{ $code }}">{{ $label }}</option>@endforeach</select></div></div>
-                <div class="col-6"><div class="mb-3"><label class="form-label">Location</label><input type="text" name="location" id="eqLocation" class="form-control" placeholder="e.g. Table A"></div></div>
+                <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Type *') }}</label><select name="equipment_type" id="eqType" class="form-select" required>@foreach($equipmentTypes as $code => $label)<option value="{{ $code }}">{{ $label }}</option>@endforeach</select></div></div>
+                <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Location') }}</label><input type="text" name="location" id="eqLocation" class="form-control" placeholder="{{ __('e.g. Table A') }}"></div></div>
             </div>
             <div class="row">
-                <div class="col-6"><div class="mb-3"><label class="form-label">Brand</label><input type="text" name="brand" id="eqBrand" class="form-control"></div></div>
-                <div class="col-6"><div class="mb-3"><label class="form-label">Model</label><input type="text" name="model" id="eqModel" class="form-control"></div></div>
+                <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Brand') }}</label><input type="text" name="brand" id="eqBrand" class="form-control"></div></div>
+                <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Model') }}</label><input type="text" name="model" id="eqModel" class="form-control"></div></div>
             </div>
             <div class="row">
-                <div class="col-6"><div class="mb-3"><label class="form-label">Serial Number</label><input type="text" name="serial_number" id="eqSerial" class="form-control"></div></div>
-                <div class="col-6"><div class="mb-3"><label class="form-label">Max Booking Hours</label><input type="number" name="max_booking_hours" id="eqMaxHours" class="form-control" value="4" min="1" max="8"></div></div>
+                <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Serial Number') }}</label><input type="text" name="serial_number" id="eqSerial" class="form-control"></div></div>
+                <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Max Booking Hours') }}</label><input type="number" name="max_booking_hours" id="eqMaxHours" class="form-control" value="4" min="1" max="8"></div></div>
             </div>
-            <div class="mb-3"><label class="form-label">Description</label><textarea name="description" id="eqDescription" class="form-control" rows="2"></textarea></div>
-            <div class="form-check mb-3"><input type="checkbox" name="requires_training" id="eqTraining" class="form-check-input" value="1"><label class="form-check-label" for="eqTraining">Requires training to use</label></div>
+            <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" id="eqDescription" class="form-control" rows="2"></textarea></div>
+            <div class="form-check mb-3"><input type="checkbox" name="requires_training" id="eqTraining" class="form-check-input" value="1"><label class="form-check-label" for="eqTraining">{{ __('Requires training to use') }}</label></div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary">{{ __('Save') }}</button></div>
     </form>
 </div></div></div>
 
@@ -144,19 +144,19 @@
         <input type="hidden" name="form_action" value="maintenance">
         <input type="hidden" name="equipment_id" id="maintenanceEquipmentId">
         <input type="hidden" name="room_id" value="{{ $roomId ?? '' }}">
-        <div class="modal-header"><h5 class="modal-title">Log Maintenance</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-header"><h5 class="modal-title">{{ __('Log Maintenance') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
-            <div class="mb-3"><label class="form-label">Description *</label><textarea name="maintenance_description" class="form-control" rows="3" required placeholder="Describe the maintenance performed..."></textarea></div>
-            <div class="mb-3"><label class="form-label">New Condition</label>
+            <div class="mb-3"><label class="form-label">{{ __('Description *') }}</label><textarea name="maintenance_description" class="form-control" rows="3" required placeholder="{{ __('Describe the maintenance performed...') }}"></textarea></div>
+            <div class="mb-3"><label class="form-label">{{ __('New Condition') }}</label>
                 <select name="new_condition" class="form-select">
                     @foreach($equipmentConditions as $code => $label)
                         <option value="{{ $code }}" {{ $code === 'good' ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="mb-3"><label class="form-label">Next Maintenance Date</label><input type="date" name="next_maintenance_date" class="form-control"></div>
+            <div class="mb-3"><label class="form-label">{{ __('Next Maintenance Date') }}</label><input type="date" name="next_maintenance_date" class="form-control"></div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Log Maintenance</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary">{{ __('Log Maintenance') }}</button></div>
     </form>
 </div></div></div>
 

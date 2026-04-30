@@ -36,27 +36,27 @@
 
 <form method="GET" class="row g-2 align-items-end mb-3">
   <div class="col-md-3">
-    <label class="form-label small mb-0">Type</label>
+    <label class="form-label small mb-0">{{ __('Type') }}</label>
     <select name="rule_type" class="form-select form-select-sm">
-      <option value="">All</option>
+      <option value="">{{ __('All') }}</option>
       @foreach($ruleTypes as $rt)<option value="{{ $rt->code }}" @selected($filters['rule_type']===$rt->code)>{{ $rt->label }}</option>@endforeach
     </select>
   </div>
   <div class="col-md-3">
-    <label class="form-label small mb-0">Active</label>
+    <label class="form-label small mb-0">{{ __('Active') }}</label>
     <select name="is_active" class="form-select form-select-sm">
-      <option value="">All</option>
-      <option value="1" @selected($filters['is_active']==='1')>Active</option>
-      <option value="0" @selected($filters['is_active']==='0')>Inactive</option>
+      <option value="">{{ __('All') }}</option>
+      <option value="1" @selected($filters['is_active']==='1')>{{ __('Active') }}</option>
+      <option value="0" @selected($filters['is_active']==='0')>{{ __('Inactive') }}</option>
     </select>
   </div>
-  <div class="col-md-2"><button type="submit" class="btn btn-sm btn-primary">Filter</button></div>
+  <div class="col-md-2"><button type="submit" class="btn btn-sm btn-primary">{{ __('Filter') }}</button></div>
 </form>
 
 <div class="card mb-3">
   <table class="table table-hover table-sm mb-0">
     <thead class="table-light">
-      <tr><th>Pri</th><th>Name</th><th>Type</th><th>Pattern</th><th>File plan node</th><th>Apply on</th><th>Active</th><th class="text-end"></th></tr>
+      <tr><th>{{ __('Pri') }}</th><th>{{ __('Name') }}</th><th>{{ __('Type') }}</th><th>{{ __('Pattern') }}</th><th>{{ __('File plan node') }}</th><th>{{ __('Apply on') }}</th><th>{{ __('Active') }}</th><th class="text-end"></th></tr>
     </thead>
     <tbody>
     @forelse($rules as $r)
@@ -85,7 +85,7 @@
 <div class="card">
   <div class="card-header bg-light"><i class="fas fa-fire me-1"></i> Top firing rules (last 50)</div>
   <table class="table table-sm mb-0">
-    <thead class="table-light"><tr><th>Rule</th><th>Type</th><th class="text-end">Fires</th><th>Last</th></tr></thead>
+    <thead class="table-light"><tr><th>{{ __('Rule') }}</th><th>{{ __('Type') }}</th><th class="text-end">{{ __('Fires') }}</th><th>{{ __('Last') }}</th></tr></thead>
     <tbody>
     @foreach($stats as $s)
       <tr>

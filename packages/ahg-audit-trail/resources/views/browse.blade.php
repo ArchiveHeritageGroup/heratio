@@ -11,56 +11,56 @@
 @section('body-class', 'browse audit-trail')
 
 @section('title-block')
-  <h1>Audit Trail</h1>
+  <h1>{{ __('Audit Trail') }}</h1>
 @endsection
 
 @section('sidebar')
   <section id="facets">
     <div class="sidebar-lowering">
-      <h3>Filter Audit Logs</h3>
+      <h3>{{ __('Filter Audit Logs') }}</h3>
       <form method="get" action="{{ route('audit.browse') }}">
         <div class="mb-3">
-          <label class="form-label">Action Type</label>
+          <label class="form-label">{{ __('Action Type') }}</label>
           <select name="filter_action" class="form-select form-select-sm">
-            <option value="">All Actions</option>
+            <option value="">{{ __('All Actions') }}</option>
             @foreach($actionTypes as $value => $label)
               <option value="{{ $value }}" @selected(($currentFilters['action'] ?? '') === $value)>{{ $label }}</option>
             @endforeach
           </select>
         </div>
         <div class="mb-3">
-          <label class="form-label">Entity Type</label>
+          <label class="form-label">{{ __('Entity Type') }}</label>
           <select name="entity_type" class="form-select form-select-sm">
-            <option value="">All Types</option>
+            <option value="">{{ __('All Types') }}</option>
             @foreach($entityTypes as $value => $label)
               <option value="{{ $value }}" @selected(($currentFilters['entity_type'] ?? '') === $value)>{{ $label }}</option>
             @endforeach
           </select>
         </div>
         <div class="mb-3">
-          <label class="form-label">Username</label>
+          <label class="form-label">{{ __('Username') }}</label>
           <select name="username" class="form-select form-select-sm">
-            <option value="">All Users</option>
+            <option value="">{{ __('All Users') }}</option>
             @foreach($usernames as $username)
               <option value="{{ $username }}" @selected(($currentFilters['username'] ?? '') === $username)>{{ $username }}</option>
             @endforeach
           </select>
         </div>
         <div class="mb-3">
-          <label class="form-label">From Date</label>
+          <label class="form-label">{{ __('From Date') }}</label>
           <input type="date" name="from_date" class="form-control form-control-sm" value="{{ $currentFilters['from_date'] ?? '' }}">
         </div>
         <div class="mb-3">
-          <label class="form-label">To Date</label>
+          <label class="form-label">{{ __('To Date') }}</label>
           <input type="date" name="to_date" class="form-control form-control-sm" value="{{ $currentFilters['to_date'] ?? '' }}">
         </div>
         <div class="d-grid gap-2">
-          <button type="submit" class="btn btn-primary btn-sm">Apply Filters</button>
+          <button type="submit" class="btn btn-primary btn-sm">{{ __('Apply Filters') }}</button>
           <a href="{{ route('audit.browse') }}" class="btn btn-outline-secondary btn-sm">Clear</a>
         </div>
       </form>
       <hr class="my-4">
-      <h4>Quick Links</h4>
+      <h4>{{ __('Quick Links') }}</h4>
       <ul class="list-unstyled">
         <li><a href="{{ route('audit.authentication') }}">Authentication Log</a></li>
         <li><a href="{{ route('audit.security-access') }}">Security Access Log</a></li>
@@ -86,13 +86,13 @@
     <table class="table table-striped table-hover table-sm">
       <thead class="table-light">
         <tr>
-          <th>Date/Time</th>
-          <th>User</th>
-          <th>Action</th>
-          <th>Entity</th>
-          <th>Title</th>
-          <th>IP</th>
-          <th class="text-end">Actions</th>
+          <th>{{ __('Date/Time') }}</th>
+          <th>{{ __('User') }}</th>
+          <th>{{ __('Action') }}</th>
+          <th>{{ __('Entity') }}</th>
+          <th>{{ __('Title') }}</th>
+          <th>{{ __('IP') }}</th>
+          <th class="text-end">{{ __('Actions') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -123,11 +123,11 @@
             <td class="text-end">
               <div class="btn-group btn-group-sm">
                 @if(in_array($action, ['update', 'create']) && (!empty($log['old_values']) || !empty($log['new_values'])))
-                  <button type="button" class="btn btn-outline-warning btn-audit-compare" data-audit-id="{{ $log['id'] }}" title="Compare Changes">
+                  <button type="button" class="btn btn-outline-warning btn-audit-compare" data-audit-id="{{ $log['id'] }}" title="{{ __('Compare Changes') }}">
                     <i class="fas fa-exchange-alt"></i>
                   </button>
                 @endif
-                <a href="{{ route('audit.show', $log['id']) }}" class="btn btn-outline-primary" title="View Details">
+                <a href="{{ route('audit.show', $log['id']) }}" class="btn btn-outline-primary" title="{{ __('View Details') }}">
                   <i class="fas fa-eye"></i>
                 </a>
               </div>

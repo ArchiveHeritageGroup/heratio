@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid mt-3">
-  <nav aria-label="breadcrumb"><ol class="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">Security Dashboard</a></li>
     <li class="breadcrumb-item"><a href="{{ route('security-clearance.compartments') }}">Compartments</a></li>
     <li class="breadcrumb-item active">Access Grants</li>
@@ -16,7 +16,7 @@
     <div class="card-body table-responsive">
       <table class="table table-striped table-hover">
         <thead>
-          <tr><th>User</th><th>Compartment</th><th>Granted By</th><th>Granted At</th><th>Expires</th><th>Actions</th></tr>
+          <tr><th>{{ __('User') }}</th><th>{{ __('Compartment') }}</th><th>{{ __('Granted By') }}</th><th>{{ __('Granted At') }}</th><th>{{ __('Expires') }}</th><th>{{ __('Actions') }}</th></tr>
         </thead>
         <tbody>
           @forelse($grants ?? [] as $grant)

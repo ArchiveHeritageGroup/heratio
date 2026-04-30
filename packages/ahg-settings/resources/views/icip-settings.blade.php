@@ -17,7 +17,7 @@
       @csrf
       <div class="accordion mb-3">
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#display-collapse">Display Settings</button></h2>
+          <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#display-collapse">{{ __('Display Settings') }}</button></h2>
           <div id="display-collapse" class="accordion-collapse collapse show">
             <div class="accordion-body">
               <div class="form-check form-switch mb-3">
@@ -39,7 +39,7 @@
 
       <div class="accordion mb-3">
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ack-collapse">Acknowledgement Settings</button></h2>
+          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ack-collapse">{{ __('Acknowledgement Settings') }}</button></h2>
           <div id="ack-collapse" class="accordion-collapse collapse">
             <div class="accordion-body">
               <div class="form-check form-switch mb-3">
@@ -55,7 +55,7 @@
 
       <div class="accordion mb-3">
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#consent-collapse">Consent & Consultation</button></h2>
+          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#consent-collapse">{{ __('Consent & Consultation') }}</button></h2>
           <div id="consent-collapse" class="accordion-collapse collapse">
             <div class="accordion-body">
               <div class="form-check form-switch mb-3">
@@ -81,7 +81,7 @@
 
       <div class="accordion mb-3">
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#lc-collapse">Local Contexts Integration</button></h2>
+          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#lc-collapse">{{ __('Local Contexts Integration') }}</button></h2>
           <div id="lc-collapse" class="accordion-collapse collapse">
             <div class="accordion-body">
               <div class="alert alert-info">
@@ -106,7 +106,7 @@
 
       <div class="accordion mb-3">
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#audit-collapse">Audit & Logging</button></h2>
+          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#audit-collapse">{{ __('Audit & Logging') }}</button></h2>
           <div id="audit-collapse" class="accordion-collapse collapse">
             <div class="accordion-body">
               <div class="form-check form-switch mb-3">

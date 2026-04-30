@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('title', ($isNew ?? false) ? 'New Project' : 'Edit Project')
 @section('content')
-<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.projects') }}">Projects</a></li><li class="breadcrumb-item active">{{ ($isNew ?? false) ? 'New' : 'Edit' }}</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.projects') }}">Projects</a></li><li class="breadcrumb-item active">{{ ($isNew ?? false) ? 'New' : 'Edit' }}</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-project-diagram text-primary me-2"></i>{{ ($isNew ?? false) ? 'New Project' : 'Edit Project' }}</h1>
 <div class="card">
     <div class="card-body">
@@ -45,7 +45,7 @@
                     </select>
                 </div>
             </div>
-            <div class="mb-3"><label class="form-label">Tags <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="tags" class="form-control" value="{{ e($project->tags ?? '') }}" placeholder="comma-separated"></div>
+            <div class="mb-3"><label class="form-label">Tags <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="tags" class="form-control" value="{{ e($project->tags ?? '') }}" placeholder="{{ __('comma-separated') }}"></div>
             <button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>Save Project</button>
             <a href="{{ route('research.projects') }}" class="btn atom-btn-white">Cancel</a>
         </form>

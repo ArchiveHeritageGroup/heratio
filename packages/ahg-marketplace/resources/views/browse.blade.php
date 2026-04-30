@@ -12,7 +12,7 @@
 @section('body-class', 'marketplace browse')
 
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
     <li class="breadcrumb-item active">{{ __('Marketplace') }}</li>
@@ -196,7 +196,7 @@
                 </span>
                 <span class="badge bg-info">{{ ucfirst($listing->sector ?? '') }}</span>
                 @if(!empty($listing->has_3d))
-                  <span class="badge bg-dark ms-1" title="3D model available"><i class="fas fa-cube me-1"></i>3D</span>
+                  <span class="badge bg-dark ms-1" title="{{ __('3D model available') }}"><i class="fas fa-cube me-1"></i>3D</span>
                 @endif
               </div>
             </div>

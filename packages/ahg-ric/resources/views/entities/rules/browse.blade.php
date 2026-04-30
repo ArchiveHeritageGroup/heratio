@@ -11,12 +11,12 @@
 </div>
 <form method="get" class="mb-3">
     <div class="input-group input-group-sm" style="max-width:400px">
-        <input type="text" name="search" class="form-control" placeholder="Search rules..." value="{{ $params['search'] ?? '' }}">
+        <input type="text" name="search" class="form-control" placeholder="{{ __('Search rules...') }}" value="{{ $params['search'] ?? '' }}">
         <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
     </div>
 </form>
 <table class="table table-sm table-striped table-hover">
-    <thead><tr><th>Title</th><th>Type</th><th>Jurisdiction</th><th>Dates</th><th>Created</th></tr></thead>
+    <thead><tr><th>{{ __('Title') }}</th><th>{{ __('Type') }}</th><th>{{ __('Jurisdiction') }}</th><th>{{ __('Dates') }}</th><th>{{ __('Created') }}</th></tr></thead>
     <tbody>
         @forelse($result->items as $item)
         <tr>

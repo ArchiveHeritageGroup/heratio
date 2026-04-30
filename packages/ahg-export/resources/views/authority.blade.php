@@ -6,7 +6,7 @@
 <div class="container-fluid py-4">
     <h1><i class="bi bi-person-badge me-2"></i>Export Authority Records</h1>
 
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
             <li class="breadcrumb-item"><a href="{{ route('export.index') }}">Export</a></li>
@@ -27,7 +27,7 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Export Format <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <select name="format" class="form-select">
-                                    <option value="eac">EAC-CPF (XML)</option>
+                                    <option value="eac">{{ __('EAC-CPF (XML)') }}</option>
                                     <option value="csv">CSV</option>
                                 </select>
                                 <div class="form-text">EAC-CPF is the standard for authority record exchange.</div>
@@ -36,7 +36,7 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Entity Type <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <select name="entity_type_id" class="form-select">
-                                    <option value="">All types</option>
+                                    <option value="">{{ __('All types') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -45,7 +45,7 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Limit <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <select name="limit" class="form-select">
-                                    <option value="0">No limit (all records)</option>
+                                    <option value="0">{{ __('No limit (all records)') }}</option>
                                     <option value="100">100 records</option>
                                     <option value="500">500 records</option>
                                     <option value="1000">1,000 records</option>

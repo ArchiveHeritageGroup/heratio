@@ -25,30 +25,30 @@
             <div class="col-md-4 mb-3">
               <label class="form-label">Data Source <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <select name="data_source" class="form-select" required>
-                <option value="information_object">Archival Descriptions</option>
-                <option value="actor">Authority Records</option>
-                <option value="accession">Accessions</option>
-                <option value="repository">Repositories</option>
-                <option value="physical_object">Physical Storage</option>
-                <option value="donor">Donors</option>
+                <option value="information_object">{{ __('Archival Descriptions') }}</option>
+                <option value="actor">{{ __('Authority Records') }}</option>
+                <option value="accession">{{ __('Accessions') }}</option>
+                <option value="repository">{{ __('Repositories') }}</option>
+                <option value="physical_object">{{ __('Physical Storage') }}</option>
+                <option value="donor">{{ __('Donors') }}</option>
               </select>
             </div>
             <div class="col-md-4 mb-3">
               <label class="form-label">Category <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="category" class="form-select">
-                <option value="Archives">Archives</option>
-                <option value="Collections">Collections</option>
-                <option value="Heritage">Heritage</option>
-                <option value="Compliance">Compliance</option>
-                <option value="General">General</option>
+                <option value="Archives">{{ __('Archives') }}</option>
+                <option value="Collections">{{ __('Collections') }}</option>
+                <option value="Heritage">{{ __('Heritage') }}</option>
+                <option value="Compliance">{{ __('Compliance') }}</option>
+                <option value="General">{{ __('General') }}</option>
               </select>
             </div>
             <div class="col-md-4 mb-3">
               <label class="form-label">Visibility <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="visibility" class="form-select">
-                <option value="private">Private</option>
-                <option value="shared">Shared</option>
-                <option value="public">Public</option>
+                <option value="private">{{ __('Private') }}</option>
+                <option value="shared">{{ __('Shared') }}</option>
+                <option value="public">{{ __('Public') }}</option>
               </select>
             </div>
           </div>

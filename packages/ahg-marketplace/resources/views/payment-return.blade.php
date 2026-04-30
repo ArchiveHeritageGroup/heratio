@@ -15,19 +15,19 @@
         <div class="card-body p-4 text-center">
           @if($success)
             <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-            <h1 class="h3">Payment received</h1>
+            <h1 class="h3">{{ __('Payment received') }}</h1>
             <p class="text-muted">
               Thank you. Your payment has been confirmed.
             </p>
           @elseif($cancelled ?? false)
             <i class="fas fa-times-circle fa-4x text-warning mb-3"></i>
-            <h1 class="h3">Payment cancelled</h1>
+            <h1 class="h3">{{ __('Payment cancelled') }}</h1>
             <p class="text-muted">
               You cancelled the payment. The listing has been kept available — you can retry whenever you're ready.
             </p>
           @else
             <i class="fas fa-clock fa-4x text-info mb-3"></i>
-            <h1 class="h3">Awaiting confirmation</h1>
+            <h1 class="h3">{{ __('Awaiting confirmation') }}</h1>
             <p class="text-muted">
               Your payment is being processed. PayFast will confirm via webhook shortly &mdash; you'll see the status update on your purchases page.
             </p>

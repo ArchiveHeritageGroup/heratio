@@ -71,16 +71,16 @@
                 <i class="fas fa-file-pdf me-1"></i>PDF Document
               </span>
               <div class="btn-group btn-group-sm">
-                <a href="{{ $masterUrl }}" target="_blank" class="btn atom-btn-white" title="Open in new tab">
+                <a href="{{ $masterUrl }}" target="_blank" class="btn atom-btn-white" title="{{ __('Open in new tab') }}">
                   <i class="fas fa-external-link-alt"></i>
                 </a>
-                <a href="{{ $masterUrl }}" download class="btn atom-btn-white" title="Download PDF">
+                <a href="{{ $masterUrl }}" download class="btn atom-btn-white" title="{{ __('Download PDF') }}">
                   <i class="fas fa-download"></i>
                 </a>
               </div>
             </div>
             <div class="ratio" style="--bs-aspect-ratio: 85%;">
-              <iframe src="{{ $masterUrl }}" style="border:none;border-radius:8px;background:#525659;" title="PDF Viewer"></iframe>
+              <iframe src="{{ $masterUrl }}" style="border:none;border-radius:8px;background:#525659;" title="{{ __('PDF Viewer') }}"></iframe>
             </div>
           </div>
         </div>
@@ -142,13 +142,13 @@
 
           {{-- Controls --}}
           <div class="d-flex align-items-center justify-content-center gap-2">
-            <button class="btn btn-sm btn-outline-light" id="{{ $audioPlayerId }}-back" title="Back 10s">
+            <button class="btn btn-sm btn-outline-light" id="{{ $audioPlayerId }}-back" title="{{ __('Back 10s') }}">
               <i class="fas fa-backward"></i> 10s
             </button>
-            <button class="btn btn-lg btn-light rounded-circle" id="{{ $audioPlayerId }}-play" title="Play/Pause" style="width:50px;height:50px;">
+            <button class="btn btn-lg btn-light rounded-circle" id="{{ $audioPlayerId }}-play" title="{{ __('Play/Pause') }}" style="width:50px;height:50px;">
               <i class="fas fa-play" id="{{ $audioPlayerId }}-play-icon"></i>
             </button>
-            <button class="btn btn-sm btn-outline-light" id="{{ $audioPlayerId }}-fwd" title="Forward 10s">
+            <button class="btn btn-sm btn-outline-light" id="{{ $audioPlayerId }}-fwd" title="{{ __('Forward 10s') }}">
               10s <i class="fas fa-forward"></i>
             </button>
             <div class="ms-3 d-flex align-items-center gap-1">
@@ -378,7 +378,7 @@
             <div class="modal-content" style="background:#1a1a2e;height:100vh;">
               <div class="modal-header" style="background:var(--ahg-primary);color:#fff;position:absolute;top:0;left:0;right:0;z-index:10;">
                 <h5 class="modal-title"><i class="fas fa-cube me-2"></i>3D Model Viewer</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
               </div>
               <div class="modal-body p-0" style="position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;">
                 <model-viewer 
@@ -491,21 +491,21 @@
         {{-- Viewer toggle --}}
         <div class="d-flex justify-content-between align-items-center mb-2" style="position:relative;z-index:10;">
           <div class="btn-group btn-group-sm" role="group">
-            <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white {{ $vType === 'openseadragon' ? 'active' : '' }}" title="OpenSeadragon Deep Zoom">
+            <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white {{ $vType === 'openseadragon' ? 'active' : '' }}" title="{{ __('OpenSeadragon Deep Zoom') }}">
               <i class="fas fa-search-plus me-1"></i>Deep Zoom
             </button>
-            <button id="btn-mirador-{{ $viewerId }}" class="btn atom-btn-white {{ $vType === 'mirador' ? 'active' : '' }}" title="Mirador IIIF Viewer">
+            <button id="btn-mirador-{{ $viewerId }}" class="btn atom-btn-white {{ $vType === 'mirador' ? 'active' : '' }}" title="{{ __('Mirador IIIF Viewer') }}">
               <i class="fas fa-columns me-1"></i>Mirador
             </button>
-            <button id="btn-img-{{ $viewerId }}" class="btn atom-btn-white {{ in_array($vType, ['single', 'carousel']) ? 'active' : '' }}" title="Simple image">
+            <button id="btn-img-{{ $viewerId }}" class="btn atom-btn-white {{ in_array($vType, ['single', 'carousel']) ? 'active' : '' }}" title="{{ __('Simple image') }}">
               <i class="fas fa-image me-1"></i>Image
             </button>
           </div>
           <div class="btn-group btn-group-sm">
-            <a href="{{ $imgSrc }}" target="_blank" class="btn atom-btn-white" title="Open full size">
+            <a href="{{ $imgSrc }}" target="_blank" class="btn atom-btn-white" title="{{ __('Open full size') }}">
               <i class="fas fa-external-link-alt"></i>
             </a>
-            <button id="btn-fs-{{ $viewerId }}" class="btn atom-btn-white" title="Fullscreen">
+            <button id="btn-fs-{{ $viewerId }}" class="btn atom-btn-white" title="{{ __('Fullscreen') }}">
               <i class="fas fa-expand"></i>
             </button>
           </div>
@@ -603,7 +603,7 @@
             <span class="badge bg-primary"><i class="fas {{ $isSketchfab ? 'fa-cube' : 'fa-play' }} me-1"></i>{{ $embedLabel }}</span>
             <br><small class="text-muted"><a href="{{ $masterObj->path }}" target="_blank" class="text-muted text-decoration-none">{{ $masterObj->path }} <i class="fas fa-external-link-alt ms-1"></i></a></small>
           </div>
-          <a href="{{ $masterObj->path }}" target="_blank" class="btn btn-sm atom-btn-white" title="Open on original site">
+          <a href="{{ $masterObj->path }}" target="_blank" class="btn btn-sm atom-btn-white" title="{{ __('Open on original site') }}">
             <i class="fas fa-external-link-alt me-1"></i>View on {{ $isSketchfab ? 'Sketchfab' : 'original site' }}
           </a>
         </div>
@@ -660,7 +660,7 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-md-6">
-                  <h6 class="text-muted mb-2">Technical Details</h6>
+                  <h6 class="text-muted mb-2">{{ __('Technical Details') }}</h6>
                   <table class="table table-bordered table-sm table-borderless">
                     @if($mediaMetadata->duration)<tr><td class="text-muted">Duration:</td><td>{{ gmdate('H:i:s', (int) $mediaMetadata->duration) }}</td></tr>@endif
                     @if($mediaMetadata->file_size)<tr><td class="text-muted">File Size:</td><td>{{ \AhgCore\Services\DigitalObjectService::formatFileSize($mediaMetadata->file_size) }}</td></tr>@endif
@@ -674,7 +674,7 @@
                   </table>
                 </div>
                 <div class="col-md-6">
-                  <h6 class="text-muted mb-2">Embedded Metadata</h6>
+                  <h6 class="text-muted mb-2">{{ __('Embedded Metadata') }}</h6>
                   <table class="table table-bordered table-sm table-borderless">
                     @foreach(['title', 'artist', 'album', 'genre', 'year', 'copyright'] as $field)
                       @if($mediaMetadata->$field ?? null)<tr><td class="text-muted">{{ ucfirst($field) }}:</td><td>{{ e($mediaMetadata->$field) }}</td></tr>@endif
@@ -707,10 +707,10 @@
             <div class="card-header d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#transcription-collapse" aria-expanded="false" style="background:var(--ahg-primary);color:#fff">
               <span><i class="fas fa-file-alt me-2"></i>Transcription</span>
               <div class="btn-group btn-group-sm" onclick="event.stopPropagation();">
-                <a href="/media/transcription/{{ $doId }}/vtt" class="btn atom-btn-white" title="Download VTT"><i class="fas fa-closed-captioning"></i> VTT</a>
-                <a href="/media/transcription/{{ $doId }}/srt" class="btn atom-btn-white" title="Download SRT"><i class="fas fa-file-video"></i> SRT</a>
+                <a href="/media/transcription/{{ $doId }}/vtt" class="btn atom-btn-white" title="{{ __('Download VTT') }}"><i class="fas fa-closed-captioning"></i> VTT</a>
+                <a href="/media/transcription/{{ $doId }}/srt" class="btn atom-btn-white" title="{{ __('Download SRT') }}"><i class="fas fa-file-video"></i> SRT</a>
                 @auth
-                <button class="btn atom-btn-white" title="Re-transcribe" data-action="retranscribe" data-do-id="{{ $doId }}" data-lang="{{ $transcription->language ?? 'en' }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-redo"></i></button>
+                <button class="btn atom-btn-white" title="{{ __('Re-transcribe') }}" data-action="retranscribe" data-do-id="{{ $doId }}" data-lang="{{ $transcription->language ?? 'en' }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-redo"></i></button>
                 @endauth
               </div>
             </div>
@@ -728,7 +728,7 @@
             {{-- Search --}}
             <div class="card-body py-2 border-bottom">
               <div class="input-group input-group-sm">
-                <input type="text" class="form-control" id="transcript-search-{{ $doId }}" placeholder="Search in transcript...">
+                <input type="text" class="form-control" id="transcript-search-{{ $doId }}" placeholder="{{ __('Search in transcript...') }}">
                 <button class="btn atom-btn-white" type="button" id="transcript-search-btn-{{ $doId }}"><i class="fas fa-search"></i></button>
               </div>
             </div>
@@ -761,7 +761,7 @@
               <p class="text-muted mb-3">This {{ $doMediaType }} has not been transcribed yet.</p>
               <div class="d-flex justify-content-center gap-2 flex-wrap">
                 <button class="btn atom-btn-white" data-action="transcribe" data-do-id="{{ $doId }}" data-lang="en" data-csrf="{{ csrf_token() }}"><i class="fas fa-language me-1"></i>Transcribe (English)</button>
-                <button class="btn atom-btn-white" data-action="transcribe" data-do-id="{{ $doId }}" data-lang="af" data-csrf="{{ csrf_token() }}">Afrikaans</button>
+                <button class="btn atom-btn-white" data-action="transcribe" data-do-id="{{ $doId }}" data-lang="af" data-csrf="{{ csrf_token() }}">{{ __('Afrikaans') }}</button>
               </div>
             </div>
           </div>
@@ -783,7 +783,7 @@
                     <small class="text-muted ms-2">[{{ gmdate('i:s', (int) $snippet->start_time) }} - {{ gmdate('i:s', (int) $snippet->end_time) }}]</small>
                     @if($snippet->notes)<br><small class="text-muted">{{ e($snippet->notes) }}</small>@endif
                   </div>
-                  <button class="btn btn-sm atom-btn-white" onclick="var p=document.querySelector('audio,video');p&&(p.currentTime={{ $snippet->start_time }},p.play())" title="Play snippet">
+                  <button class="btn btn-sm atom-btn-white" onclick="var p=document.querySelector('audio,video');p&&(p.currentTime={{ $snippet->start_time }},p.play())" title="{{ __('Play snippet') }}">
                     <i class="fas fa-play"></i>
                   </button>
                 </div>
@@ -801,10 +801,10 @@
           <div id="snippet-form" style="display:none;" class="card mt-2">
             <div class="card-body">
               <div class="row g-2">
-                <div class="col-md-4"><input type="text" class="form-control form-control-sm" id="snippet-title" placeholder="Snippet title"></div>
-                <div class="col-md-2"><input type="number" class="form-control form-control-sm" id="snippet-start" placeholder="Start (sec)" step="0.1"></div>
-                <div class="col-md-2"><input type="number" class="form-control form-control-sm" id="snippet-end" placeholder="End (sec)" step="0.1"></div>
-                <div class="col-md-4"><input type="text" class="form-control form-control-sm" id="snippet-notes" placeholder="Notes (optional)"></div>
+                <div class="col-md-4"><input type="text" class="form-control form-control-sm" id="snippet-title" placeholder="{{ __('Snippet title') }}"></div>
+                <div class="col-md-2"><input type="number" class="form-control form-control-sm" id="snippet-start" placeholder="{{ __('Start (sec)') }}" step="0.1"></div>
+                <div class="col-md-2"><input type="number" class="form-control form-control-sm" id="snippet-end" placeholder="{{ __('End (sec)') }}" step="0.1"></div>
+                <div class="col-md-4"><input type="text" class="form-control form-control-sm" id="snippet-notes" placeholder="{{ __('Notes (optional)') }}"></div>
               </div>
               <div class="mt-2 d-flex gap-2">
                 <button class="btn btn-sm atom-btn-white" onclick="var p=document.querySelector('audio,video');p&&(document.getElementById('snippet-start').value=p.currentTime.toFixed(1))">

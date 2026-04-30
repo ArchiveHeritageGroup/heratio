@@ -9,7 +9,7 @@
     <table id="userPermissions" class="table table-bordered sticky-enabled">
       <thead>
         <tr>
-          <th colspan="2">&nbsp;</th>
+          <th colspan="2">{{ __('&nbsp;') }}</th>
           @foreach($roles as $item)
             @php $group = \AhgCore\Models\AclGroup::find($item); @endphp
             @if($group)

@@ -21,7 +21,7 @@ $displayTitle = !empty($customTitle) ? $customTitle : $siteTitle;
         @if ($showLogo)
           <a href="/" class="me-3">
             @if (file_exists(public_path('uploads/logos/logo.png')))
-              <img src="/uploads/logos/logo.png" alt="Logo" style="max-height: 50px;">
+              <img src="/uploads/logos/logo.png" alt="{{ __('Logo') }}" style="max-height: 50px;">
             @else
               <div class="bg-primary text-white rounded p-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">

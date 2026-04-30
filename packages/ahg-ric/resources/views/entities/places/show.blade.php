@@ -9,19 +9,19 @@
         @include('ahg-ric::entities._hierarchy', ['entity' => $entity, 'hierarchy' => $hierarchy, 'entityType' => 'place'])
 
         <section class="mb-3">
-            <h2 class="h6 text-muted">Details</h2>
+            <h2 class="h6 text-muted">{{ __('Details') }}</h2>
             <table class="table table-sm">
-                <tr><th style="width:180px">Type</th><td><span class="badge bg-success">{{ $entity->type_id ?? 'Not set' }}</span></td></tr>
+                <tr><th style="width:180px">{{ __('Type') }}</th><td><span class="badge bg-success">{{ $entity->type_id ?? 'Not set' }}</span></td></tr>
                 @if($entity->latitude && $entity->longitude)
-                <tr><th>Coordinates</th><td>{{ $entity->latitude }}, {{ $entity->longitude }}</td></tr>
+                <tr><th>{{ __('Coordinates') }}</th><td>{{ $entity->latitude }}, {{ $entity->longitude }}</td></tr>
                 @endif
-                @if($entity->address)<tr><th>Address</th><td>{!! nl2br(e($entity->address)) !!}</td></tr>@endif
-                @if($entity->description)<tr><th>Description</th><td>{!! nl2br(e($entity->description)) !!}</td></tr>@endif
+                @if($entity->address)<tr><th>{{ __('Address') }}</th><td>{!! nl2br(e($entity->address)) !!}</td></tr>@endif
+                @if($entity->description)<tr><th>{{ __('Description') }}</th><td>{!! nl2br(e($entity->description)) !!}</td></tr>@endif
             </table>
         </section>
 
         <section>
-            <h2 class="h6 text-muted">Relations</h2>
+            <h2 class="h6 text-muted">{{ __('Relations') }}</h2>
             @include('ahg-ric::_relation-editor', ['recordId' => $entity->id])
         </section>
     </div>

@@ -42,7 +42,7 @@
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
   {{-- Breadcrumb --}}
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
       @if($object ?? null)
@@ -144,13 +144,13 @@
 
         {{-- Control buttons --}}
         <div class="viewer-controls">
-          <button id="btn-fullscreen" class="viewer-btn" title="Fullscreen">
+          <button id="btn-fullscreen" class="viewer-btn" title="{{ __('Fullscreen') }}">
             <i class="fas fa-expand"></i>
           </button>
-          <button id="btn-rotate" class="viewer-btn" title="Toggle Auto-Rotate">
+          <button id="btn-rotate" class="viewer-btn" title="{{ __('Toggle Auto-Rotate') }}">
             <i class="fas fa-sync-alt"></i>
           </button>
-          <button id="btn-reset" class="viewer-btn" title="Reset Camera">
+          <button id="btn-reset" class="viewer-btn" title="{{ __('Reset Camera') }}">
             <i class="fas fa-undo"></i>
           </button>
         </div>
@@ -167,25 +167,25 @@
         </div>
         <div class="card-body">
           <table class="table table-sm mb-0">
-            <tr><th width="40%">Format</th><td>{{ strtoupper($model->format ?? '') }}</td></tr>
-            <tr><th>File Size</th><td>{{ number_format(($model->file_size ?? 0) / 1048576, 2) }} MB</td></tr>
+            <tr><th width="40%">{{ __('Format') }}</th><td>{{ strtoupper($model->format ?? '') }}</td></tr>
+            <tr><th>{{ __('File Size') }}</th><td>{{ number_format(($model->file_size ?? 0) / 1048576, 2) }} MB</td></tr>
             @if(!empty($model->vertex_count))
-              <tr><th>Vertices</th><td>{{ number_format($model->vertex_count) }}</td></tr>
+              <tr><th>{{ __('Vertices') }}</th><td>{{ number_format($model->vertex_count) }}</td></tr>
             @endif
             @if(!empty($model->face_count))
-              <tr><th>Faces</th><td>{{ number_format($model->face_count) }}</td></tr>
+              <tr><th>{{ __('Faces') }}</th><td>{{ number_format($model->face_count) }}</td></tr>
             @endif
             @if(!empty($model->texture_count))
-              <tr><th>Textures</th><td>{{ $model->texture_count }}</td></tr>
+              <tr><th>{{ __('Textures') }}</th><td>{{ $model->texture_count }}</td></tr>
             @endif
             @if(!empty($model->animation_count))
-              <tr><th>Animations</th><td>{{ $model->animation_count }}</td></tr>
+              <tr><th>{{ __('Animations') }}</th><td>{{ $model->animation_count }}</td></tr>
             @endif
             <tr>
-              <th>AR Enabled</th>
+              <th>{{ __('AR Enabled') }}</th>
               <td>{!! !empty($model->ar_enabled) ? '<span class="text-success">Yes</span>' : '<span class="text-muted">No</span>' !!}</td>
             </tr>
-            <tr><th>Uploaded</th><td>{{ !empty($model->created_at) ? \Carbon\Carbon::parse($model->created_at)->format('M j, Y') : '-' }}</td></tr>
+            <tr><th>{{ __('Uploaded') }}</th><td>{{ !empty($model->created_at) ? \Carbon\Carbon::parse($model->created_at)->format('M j, Y') : '-' }}</td></tr>
           </table>
         </div>
       </div>

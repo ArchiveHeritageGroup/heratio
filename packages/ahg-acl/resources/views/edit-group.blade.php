@@ -5,7 +5,7 @@
 @section('content')
 <div class="container py-4">
 
-  <nav aria-label="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Admin</a></li>
       <li class="breadcrumb-item"><a href="{{ route('acl.groups') }}">ACL Groups</a></li>
@@ -27,7 +27,7 @@
           <li>{{ $error }}</li>
         @endforeach
       </ul>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
@@ -47,9 +47,9 @@
             <table class="table table-bordered table-striped table-hover mb-0">
               <thead>
                 <tr>
-                  <th>User</th>
-                  <th>Username</th>
-                  <th class="text-end">Actions</th>
+                  <th>{{ __('User') }}</th>
+                  <th>{{ __('Username') }}</th>
+                  <th class="text-end">{{ __('Actions') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -60,7 +60,7 @@
                     <td class="text-end">
                       <form action="{{ route('acl.remove-member', ['groupId' => $group->id, 'userId' => $member->user_id]) }}" method="POST" class="d-inline" onsubmit="return confirm('Remove this member from the group?');">
                         @csrf
-                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove member">
+                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="{{ __('Remove member') }}">
                           <i class="fas fa-user-minus"></i>
                         </button>
                       </form>
@@ -108,10 +108,10 @@
             <table class="table table-bordered table-striped table-hover mb-0">
               <thead>
                 <tr>
-                  <th>Action</th>
-                  <th>Object ID</th>
-                  <th class="text-center">Grant / Deny</th>
-                  <th class="text-end">Actions</th>
+                  <th>{{ __('Action') }}</th>
+                  <th>{{ __('Object ID') }}</th>
+                  <th class="text-center">{{ __('Grant / Deny') }}</th>
+                  <th class="text-end">{{ __('Actions') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -131,7 +131,7 @@
                         @csrf
                         <input type="hidden" name="_action" value="delete_permission">
                         <input type="hidden" name="permission_id" value="{{ $perm->id }}">
-                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove permission">
+                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="{{ __('Remove permission') }}">
                           <i class="fas fa-trash-alt"></i>
                         </button>
                       </form>
@@ -152,17 +152,17 @@
             <input type="hidden" name="_action" value="add_permission">
             <div class="col">
               <label for="perm_action" class="form-label form-label-sm">Action <span class="badge bg-danger ms-1">Required</span></label>
-              <input type="text" name="action" id="perm_action" class="form-control form-control-sm" placeholder="e.g. read, create, update, delete" required>
+              <input type="text" name="action" id="perm_action" class="form-control form-control-sm" placeholder="{{ __('e.g. read, create, update, delete') }}" required>
             </div>
             <div class="col-3">
               <label for="perm_object_id" class="form-label form-label-sm">Object ID <span class="badge bg-danger ms-1">Required</span></label>
-              <input type="number" name="object_id" id="perm_object_id" class="form-control form-control-sm" placeholder="All">
+              <input type="number" name="object_id" id="perm_object_id" class="form-control form-control-sm" placeholder="{{ __('All') }}">
             </div>
             <div class="col-3">
               <label for="perm_grant_deny" class="form-label form-label-sm">Grant/Deny <span class="badge bg-danger ms-1">Required</span></label>
               <select name="grant_deny" id="perm_grant_deny" class="form-select form-select-sm" required>
-                <option value="1">Grant</option>
-                <option value="0">Deny</option>
+                <option value="1">{{ __('Grant') }}</option>
+                <option value="0">{{ __('Deny') }}</option>
               </select>
             </div>
             <div class="col-auto">

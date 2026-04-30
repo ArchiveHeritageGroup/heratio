@@ -7,7 +7,7 @@
 <div class="container-fluid py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h1 class="h3 mb-1">Landing Pages</h1>
+      <h1 class="h3 mb-1">{{ __('Landing Pages') }}</h1>
       <p class="text-muted mb-0">Manage your site's landing pages</p>
     </div>
     <a href="{{ route('landing-page.create') }}" class="btn btn-primary">
@@ -18,7 +18,7 @@
   @if ($pages->isEmpty())
     <div class="text-center py-5">
       <i class="bi bi-file-earmark-plus display-1 text-muted"></i>
-      <h3 class="mt-3 text-muted">No Landing Pages Yet</h3>
+      <h3 class="mt-3 text-muted">{{ __('No Landing Pages Yet') }}</h3>
       <p class="text-muted">Create your first landing page to get started</p>
       <a href="{{ route('landing-page.create') }}" class="btn btn-primary btn-lg mt-2">
         <i class="bi bi-plus-lg"></i> Create Landing Page
@@ -68,12 +68,12 @@
                   Edit
                 </a>
                 <a href="{{ route('landing-page.show', $page->slug) }}"
-                   class="btn btn-outline-secondary btn-sm" target="_blank" title="Preview">
+                   class="btn btn-outline-secondary btn-sm" target="_blank" title="{{ __('Preview') }}">
                   Preview
                 </a>
                 @if ($page->is_active)
                   <a href="{{ route('landing-page.show', $page->slug) }}"
-                     class="btn btn-outline-secondary btn-sm" target="_blank" title="View Live">
+                     class="btn btn-outline-secondary btn-sm" target="_blank" title="{{ __('View Live') }}">
                     View
                   </a>
                 @endif

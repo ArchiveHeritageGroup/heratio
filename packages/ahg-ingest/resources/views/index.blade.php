@@ -12,9 +12,9 @@
 @section('title', 'Ingestion Manager')
 
 @section('content')
-<h1>Ingestion Manager</h1>
+<h1>{{ __('Ingestion Manager') }}</h1>
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Admin</a></li>
         <li class="breadcrumb-item active">Ingestion Manager</li>
@@ -39,7 +39,7 @@
     <div class="card">
         <div class="card-body text-center py-5">
             <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">No ingest sessions yet</h5>
+            <h5 class="text-muted">{{ __('No ingest sessions yet') }}</h5>
             <p class="text-muted">Start a new ingest to batch-import records and digital objects</p>
             <a href="{{ route('ingest.configure') }}" class="btn btn btn-outline-secondary">
                 <i class="fas fa-plus me-1"></i>New Ingest
@@ -51,15 +51,15 @@
         <table class="table table-striped table-hover">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Sector</th>
-                    <th>Status</th>
+                    <th>{{ __('ID') }}</th>
+                    <th>{{ __('Title') }}</th>
+                    <th>{{ __('Sector') }}</th>
+                    <th>{{ __('Status') }}</th>
                     @if($isAdmin ?? false)
-                        <th>User</th>
+                        <th>{{ __('User') }}</th>
                     @endif
-                    <th>Updated</th>
-                    <th>Actions</th>
+                    <th>{{ __('Updated') }}</th>
+                    <th>{{ __('Actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -86,15 +86,15 @@
                     <td>{{ isset($s->updated_at) ? date('Y-m-d H:i', strtotime($s->updated_at)) : '' }}</td>
                     <td>
                         @if(in_array($statusLabel, ['configure', 'upload', 'map', 'validate', 'preview']) && Route::has('ingest.' . $statusLabel))
-                            <a href="{{ route('ingest.' . $statusLabel, $s->id) }}" class="btn btn-sm btn-outline-primary" title="Resume">
+                            <a href="{{ route('ingest.' . $statusLabel, $s->id) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Resume') }}">
                                 <i class="fas fa-play"></i>
                             </a>
-                            <a href="{{ route('ingest.configure', $s->id) }}?cancel=1" class="btn btn-sm btn-outline-danger" title="Cancel" onclick="return confirm('Cancel this ingest session?')">
+                            <a href="{{ route('ingest.configure', $s->id) }}?cancel=1" class="btn btn-sm btn-outline-danger" title="{{ __('Cancel') }}" onclick="return confirm('Cancel this ingest session?')">
                                 <i class="fas fa-times"></i>
                             </a>
                         @endif
                         @if($statusLabel === 'completed')
-                            <a href="{{ route('ingest.commit', $s->id) }}" class="btn btn-sm btn-outline-success" title="View Report">
+                            <a href="{{ route('ingest.commit', $s->id) }}" class="btn btn-sm btn-outline-success" title="{{ __('View Report') }}">
                                 <i class="fas fa-chart-bar"></i>
                             </a>
                         @endif

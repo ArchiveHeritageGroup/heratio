@@ -8,7 +8,7 @@
 @section('title', 'Annotation Studio')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         @if(!empty($objectSlug))
@@ -124,12 +124,12 @@
                     <div class="mb-3">
                         <label class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label>
                         <select name="annotation_type" class="form-select form-select-sm">
-                            <option value="comment">Comment</option>
-                            <option value="transcription">Transcription</option>
-                            <option value="translation">Translation</option>
-                            <option value="description">Description</option>
-                            <option value="question">Question</option>
-                            <option value="correction">Correction</option>
+                            <option value="comment">{{ __('Comment') }}</option>
+                            <option value="transcription">{{ __('Transcription') }}</option>
+                            <option value="translation">{{ __('Translation') }}</option>
+                            <option value="description">{{ __('Description') }}</option>
+                            <option value="question">{{ __('Question') }}</option>
+                            <option value="correction">{{ __('Correction') }}</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -138,11 +138,11 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Tags <span class="badge bg-secondary ms-1">Optional</span></label>
-                        <input type="text" name="tags" class="form-control form-control-sm" placeholder="comma-separated">
+                        <input type="text" name="tags" class="form-control form-control-sm" placeholder="{{ __('comma-separated') }}">
                     </div>
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn atom-btn-white btn-sm"><i class="fas fa-save me-1"></i>Save</button>
-                        <button type="button" class="btn atom-btn-white btn-sm" id="cancelAnnotation">Cancel</button>
+                        <button type="button" class="btn atom-btn-white btn-sm" id="cancelAnnotation">{{ __('Cancel') }}</button>
                     </div>
                 </form>
             </div>
@@ -183,15 +183,15 @@
 <div class="modal fade" id="importIiifModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Import IIIF Annotations</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header"><h5 class="modal-title">{{ __('Import IIIF Annotations') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <div class="mb-3">
                     <label class="form-label">IIIF Annotation List URL or JSON <span class="badge bg-secondary ms-1">Optional</span></label>
-                    <textarea id="iiifImportData" class="form-control" rows="6" placeholder="Paste IIIF annotation list JSON or URL..."></textarea>
+                    <textarea id="iiifImportData" class="form-control" rows="6" placeholder="{{ __('Paste IIIF annotation list JSON or URL...') }}"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                 <button type="button" class="btn atom-btn-white" id="importIiifBtn"><i class="fas fa-file-import me-1"></i>Import</button>
             </div>
         </div>

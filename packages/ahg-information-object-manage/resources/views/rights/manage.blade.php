@@ -15,10 +15,10 @@
 
 @section('content')
 
-<h1 class="mb-1">Manage Rights</h1>
+<h1 class="mb-1">{{ __('Manage Rights') }}</h1>
 <p class="text-muted mb-3">{{ $io->title ?? 'Untitled' }}</p>
 
-<nav aria-label="breadcrumb" class="mb-4">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-4">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url('/' . $io->slug) }}">{{ $io->title ?? $io->slug }}</a></li>
     <li class="breadcrumb-item active">Manage Rights</li>
@@ -54,7 +54,7 @@
           <div class="row">
             <div class="col-md-6">
               <div class="mb-3">
-                <label for="rights_statement_id" class="form-label">Rights Statement</label>
+                <label for="rights_statement_id" class="form-label">{{ __('Rights Statement') }}</label>
                 <select name="rights_statement_id" id="rights_statement_id" class="form-select">
                   <option value="">-- None --</option>
                   @foreach($rightsStatements as $rs)
@@ -66,7 +66,7 @@
               </div>
 
               <div class="mb-3">
-                <label for="cc_license_id" class="form-label">Creative Commons License</label>
+                <label for="cc_license_id" class="form-label">{{ __('Creative Commons License') }}</label>
                 <select name="cc_license_id" id="cc_license_id" class="form-select">
                   <option value="">-- None --</option>
                   @foreach($ccLicenses as $cc)
@@ -78,26 +78,26 @@
               </div>
 
               <div class="mb-3">
-                <label for="ext_rights_holder" class="form-label">Rights Holder</label>
+                <label for="ext_rights_holder" class="form-label">{{ __('Rights Holder') }}</label>
                 <input type="text" name="ext_rights_holder" id="ext_rights_holder" class="form-control"
                        value="{{ old('ext_rights_holder', $currentExtended->rights_holder ?? '') }}">
               </div>
 
               <div class="mb-3">
-                <label for="ext_rights_holder_uri" class="form-label">Rights Holder URI</label>
+                <label for="ext_rights_holder_uri" class="form-label">{{ __('Rights Holder URI') }}</label>
                 <input type="url" name="ext_rights_holder_uri" id="ext_rights_holder_uri" class="form-control"
                        value="{{ old('ext_rights_holder_uri', $currentExtended->rights_holder_uri ?? '') }}"
-                       placeholder="https://">
+                       placeholder="{{ __('https://') }}">
               </div>
 
               <div class="row">
                 <div class="col-md-6 mb-3">
-                  <label for="ext_rights_date" class="form-label">Rights Date</label>
+                  <label for="ext_rights_date" class="form-label">{{ __('Rights Date') }}</label>
                   <input type="date" name="ext_rights_date" id="ext_rights_date" class="form-control"
                          value="{{ old('ext_rights_date', $currentExtended->rights_date ?? '') }}">
                 </div>
                 <div class="col-md-6 mb-3">
-                  <label for="ext_expiry_date" class="form-label">Expiry Date</label>
+                  <label for="ext_expiry_date" class="form-label">{{ __('Expiry Date') }}</label>
                   <input type="date" name="ext_expiry_date" id="ext_expiry_date" class="form-control"
                          value="{{ old('ext_expiry_date', $currentExtended->expiry_date ?? '') }}">
                 </div>
@@ -106,24 +106,24 @@
 
             <div class="col-md-6">
               <div class="mb-3">
-                <label for="ext_usage_conditions" class="form-label">Usage Conditions</label>
+                <label for="ext_usage_conditions" class="form-label">{{ __('Usage Conditions') }}</label>
                 <textarea name="ext_usage_conditions" id="ext_usage_conditions" class="form-control" rows="3">{{ old('ext_usage_conditions', $currentExtended->usage_conditions ?? '') }}</textarea>
               </div>
 
               <div class="mb-3">
-                <label for="ext_copyright_notice" class="form-label">Copyright Notice</label>
+                <label for="ext_copyright_notice" class="form-label">{{ __('Copyright Notice') }}</label>
                 <textarea name="ext_copyright_notice" id="ext_copyright_notice" class="form-control" rows="3">{{ old('ext_copyright_notice', $currentExtended->copyright_notice ?? '') }}</textarea>
               </div>
 
               <div class="mb-3">
-                <label for="ext_rights_note" class="form-label">Rights Note</label>
+                <label for="ext_rights_note" class="form-label">{{ __('Rights Note') }}</label>
                 <textarea name="ext_rights_note" id="ext_rights_note" class="form-control" rows="3">{{ old('ext_rights_note', $currentExtended->rights_note ?? '') }}</textarea>
               </div>
 
               {{-- TK Labels --}}
               @if($tkLabels->isNotEmpty())
               <div class="mb-3">
-                <label class="form-label">TK Labels</label>
+                <label class="form-label">{{ __('TK Labels') }}</label>
                 <div class="border rounded p-2" style="max-height:200px;overflow-y:auto">
                   @foreach($tkLabels as $tk)
                     <div class="form-check">
@@ -165,7 +165,7 @@
           <div class="row">
             <div class="col-md-6">
               <div class="mb-3">
-                <label for="premis_basis_id" class="form-label">Basis</label>
+                <label for="premis_basis_id" class="form-label">{{ __('Basis') }}</label>
                 <select name="premis_basis_id" id="premis_basis_id" class="form-select">
                   <option value="">-- Select basis --</option>
                   @foreach($basisTerms as $bt)
@@ -180,7 +180,7 @@
               {{-- Copyright fields --}}
               <div id="basisCopyright" class="basis-fields">
                 <div class="mb-3">
-                  <label for="premis_copyright_status_id" class="form-label">Copyright Status</label>
+                  <label for="premis_copyright_status_id" class="form-label">{{ __('Copyright Status') }}</label>
                   <select name="premis_copyright_status_id" id="premis_copyright_status_id" class="form-select">
                     <option value="">-- Select --</option>
                     @foreach($copyrightStatusTerms as $cs)
@@ -191,17 +191,17 @@
                   </select>
                 </div>
                 <div class="mb-3">
-                  <label for="premis_copyright_status_date" class="form-label">Copyright Status Date</label>
+                  <label for="premis_copyright_status_date" class="form-label">{{ __('Copyright Status Date') }}</label>
                   <input type="date" name="premis_copyright_status_date" id="premis_copyright_status_date" class="form-control"
                          value="{{ old('premis_copyright_status_date', $pri->copyright_status_date ?? '') }}">
                 </div>
                 <div class="mb-3">
-                  <label for="premis_copyright_jurisdiction" class="form-label">Copyright Jurisdiction</label>
+                  <label for="premis_copyright_jurisdiction" class="form-label">{{ __('Copyright Jurisdiction') }}</label>
                   <input type="text" name="premis_copyright_jurisdiction" id="premis_copyright_jurisdiction" class="form-control"
                          value="{{ old('premis_copyright_jurisdiction', $pri->copyright_jurisdiction ?? '') }}">
                 </div>
                 <div class="mb-3">
-                  <label for="premis_copyright_note" class="form-label">Copyright Note</label>
+                  <label for="premis_copyright_note" class="form-label">{{ __('Copyright Note') }}</label>
                   <textarea name="premis_copyright_note" id="premis_copyright_note" class="form-control" rows="2">{{ old('premis_copyright_note', $pri->copyright_note ?? '') }}</textarea>
                 </div>
               </div>
@@ -209,11 +209,11 @@
               {{-- License fields --}}
               <div id="basisLicense" class="basis-fields">
                 <div class="mb-3">
-                  <label for="premis_license_terms" class="form-label">License Terms</label>
+                  <label for="premis_license_terms" class="form-label">{{ __('License Terms') }}</label>
                   <textarea name="premis_license_terms" id="premis_license_terms" class="form-control" rows="2">{{ old('premis_license_terms', $pri->license_terms ?? '') }}</textarea>
                 </div>
                 <div class="mb-3">
-                  <label for="premis_license_note" class="form-label">License Note</label>
+                  <label for="premis_license_note" class="form-label">{{ __('License Note') }}</label>
                   <textarea name="premis_license_note" id="premis_license_note" class="form-control" rows="2">{{ old('premis_license_note', $pri->license_note ?? '') }}</textarea>
                 </div>
               </div>
@@ -221,17 +221,17 @@
               {{-- Statute fields --}}
               <div id="basisStatute" class="basis-fields">
                 <div class="mb-3">
-                  <label for="premis_statute_jurisdiction" class="form-label">Statute Jurisdiction</label>
+                  <label for="premis_statute_jurisdiction" class="form-label">{{ __('Statute Jurisdiction') }}</label>
                   <input type="text" name="premis_statute_jurisdiction" id="premis_statute_jurisdiction" class="form-control"
                          value="{{ old('premis_statute_jurisdiction', $pri->statute_jurisdiction ?? '') }}">
                 </div>
                 <div class="mb-3">
-                  <label for="premis_statute_determination_date" class="form-label">Statute Determination Date</label>
+                  <label for="premis_statute_determination_date" class="form-label">{{ __('Statute Determination Date') }}</label>
                   <input type="date" name="premis_statute_determination_date" id="premis_statute_determination_date" class="form-control"
                          value="{{ old('premis_statute_determination_date', $pri->statute_determination_date ?? '') }}">
                 </div>
                 <div class="mb-3">
-                  <label for="premis_statute_note" class="form-label">Statute Note</label>
+                  <label for="premis_statute_note" class="form-label">{{ __('Statute Note') }}</label>
                   <textarea name="premis_statute_note" id="premis_statute_note" class="form-control" rows="2">{{ old('premis_statute_note', $pri->statute_note ?? '') }}</textarea>
                 </div>
               </div>
@@ -240,45 +240,45 @@
             <div class="col-md-6">
               <div class="row">
                 <div class="col-md-6 mb-3">
-                  <label for="premis_start_date" class="form-label">Start Date</label>
+                  <label for="premis_start_date" class="form-label">{{ __('Start Date') }}</label>
                   <input type="date" name="premis_start_date" id="premis_start_date" class="form-control"
                          value="{{ old('premis_start_date', $pri->start_date ?? '') }}">
                 </div>
                 <div class="col-md-6 mb-3">
-                  <label for="premis_end_date" class="form-label">End Date</label>
+                  <label for="premis_end_date" class="form-label">{{ __('End Date') }}</label>
                   <input type="date" name="premis_end_date" id="premis_end_date" class="form-control"
                          value="{{ old('premis_end_date', $pri->end_date ?? '') }}">
                 </div>
               </div>
 
               <div class="mb-3">
-                <label for="premis_rights_holder_id" class="form-label">Rights Holder (Actor)</label>
+                <label for="premis_rights_holder_id" class="form-label">{{ __('Rights Holder (Actor)') }}</label>
                 <input type="text" name="premis_rights_holder_id" id="premis_rights_holder_id" class="form-control"
                        value="{{ old('premis_rights_holder_id', $pri->rights_holder_id ?? '') }}"
-                       placeholder="Actor ID">
+                       placeholder="{{ __('Actor ID') }}">
                 @if($pri && ($pri->rights_holder_name ?? null))
                   <small class="text-muted">Current: {{ $pri->rights_holder_name }}</small>
                 @endif
               </div>
 
               <div class="mb-3">
-                <label for="premis_rights_note" class="form-label">Rights Note</label>
+                <label for="premis_rights_note" class="form-label">{{ __('Rights Note') }}</label>
                 <textarea name="premis_rights_note" id="premis_rights_note" class="form-control" rows="3">{{ old('premis_rights_note', $pri->rights_note ?? '') }}</textarea>
               </div>
 
-              <h6 class="mt-3 mb-2">Documentation Identifier</h6>
+              <h6 class="mt-3 mb-2">{{ __('Documentation Identifier') }}</h6>
               <div class="mb-3">
-                <label for="premis_identifier_type" class="form-label">Identifier Type</label>
+                <label for="premis_identifier_type" class="form-label">{{ __('Identifier Type') }}</label>
                 <input type="text" name="premis_identifier_type" id="premis_identifier_type" class="form-control"
                        value="{{ old('premis_identifier_type', $pri->identifier_type ?? '') }}">
               </div>
               <div class="mb-3">
-                <label for="premis_identifier_value" class="form-label">Identifier Value</label>
+                <label for="premis_identifier_value" class="form-label">{{ __('Identifier Value') }}</label>
                 <input type="text" name="premis_identifier_value" id="premis_identifier_value" class="form-control"
                        value="{{ old('premis_identifier_value', $pri->identifier_value ?? '') }}">
               </div>
               <div class="mb-3">
-                <label for="premis_identifier_role" class="form-label">Identifier Role</label>
+                <label for="premis_identifier_role" class="form-label">{{ __('Identifier Role') }}</label>
                 <input type="text" name="premis_identifier_role" id="premis_identifier_role" class="form-control"
                        value="{{ old('premis_identifier_role', $pri->identifier_role ?? '') }}">
               </div>
@@ -316,7 +316,7 @@
                 </div>
                 <div class="row">
                   <div class="col-md-3 mb-2">
-                    <label class="form-label">Act</label>
+                    <label class="form-label">{{ __('Act') }}</label>
                     <select name="granted[{{ $idx }}][act_id]" class="form-select">
                       <option value="">-- Select --</option>
                       @foreach($actTerms as $at)
@@ -325,7 +325,7 @@
                     </select>
                   </div>
                   <div class="col-md-2 mb-2">
-                    <label class="form-label">Restriction</label>
+                    <label class="form-label">{{ __('Restriction') }}</label>
                     <select name="granted[{{ $idx }}][restriction]" class="form-select">
                       <option value="0" @if($gr->restriction == 0) selected @endif>Allow</option>
                       <option value="1" @if($gr->restriction == 1) selected @endif>Disallow</option>
@@ -333,15 +333,15 @@
                     </select>
                   </div>
                   <div class="col-md-2 mb-2">
-                    <label class="form-label">Start Date</label>
+                    <label class="form-label">{{ __('Start Date') }}</label>
                     <input type="date" name="granted[{{ $idx }}][start_date]" class="form-control" value="{{ $gr->start_date }}">
                   </div>
                   <div class="col-md-2 mb-2">
-                    <label class="form-label">End Date</label>
+                    <label class="form-label">{{ __('End Date') }}</label>
                     <input type="date" name="granted[{{ $idx }}][end_date]" class="form-control" value="{{ $gr->end_date }}">
                   </div>
                   <div class="col-md-3 mb-2">
-                    <label class="form-label">Notes</label>
+                    <label class="form-label">{{ __('Notes') }}</label>
                     <textarea name="granted[{{ $idx }}][notes]" class="form-control" rows="1">{{ $gr->notes }}</textarea>
                   </div>
                 </div>
@@ -389,7 +389,7 @@
               <div class="card-body">
                 <input type="hidden" name="lift_embargo_id" value="" id="liftEmbargoId">
                 <div class="mb-3">
-                  <label for="lift_reason" class="form-label">Reason for Lifting</label>
+                  <label for="lift_reason" class="form-label">{{ __('Reason for Lifting') }}</label>
                   <textarea name="lift_reason" id="lift_reason" class="form-control" rows="2"></textarea>
                 </div>
                 <button type="button" class="btn btn-danger" id="liftEmbargoBtn"
@@ -404,7 +404,7 @@
 
           <div class="row">
             <div class="col-md-4 mb-3">
-              <label for="embargo_type" class="form-label">Embargo Type</label>
+              <label for="embargo_type" class="form-label">{{ __('Embargo Type') }}</label>
               <select name="embargo_type" id="embargo_type" class="form-select">
                 <option value="">-- No embargo --</option>
                 <option value="full" @if(old('embargo_type', $embargo->embargo_type ?? '') == 'full') selected @endif>Full</option>
@@ -413,12 +413,12 @@
               </select>
             </div>
             <div class="col-md-4 mb-3">
-              <label for="embargo_start_date" class="form-label">Start Date</label>
+              <label for="embargo_start_date" class="form-label">{{ __('Start Date') }}</label>
               <input type="date" name="embargo_start_date" id="embargo_start_date" class="form-control"
                      value="{{ old('embargo_start_date', $embargo->start_date ?? '') }}">
             </div>
             <div class="col-md-4 mb-3" id="embargoEndDateWrap">
-              <label for="embargo_end_date" class="form-label">End Date</label>
+              <label for="embargo_end_date" class="form-label">{{ __('End Date') }}</label>
               <input type="date" name="embargo_end_date" id="embargo_end_date" class="form-control"
                      value="{{ old('embargo_end_date', $embargo->end_date ?? '') }}">
             </div>
@@ -426,7 +426,7 @@
 
           <div class="row">
             <div class="col-md-12 mb-3">
-              <label for="embargo_reason" class="form-label">Reason</label>
+              <label for="embargo_reason" class="form-label">{{ __('Reason') }}</label>
               <textarea name="embargo_reason" id="embargo_reason" class="form-control" rows="2">{{ old('embargo_reason', $embargo->reason ?? '') }}</textarea>
             </div>
           </div>
@@ -436,18 +436,18 @@
               <div class="form-check">
                 <input type="checkbox" name="embargo_is_perpetual" value="1" class="form-check-input" id="embargo_is_perpetual"
                        @if(old('embargo_is_perpetual', $embargo->is_perpetual ?? false)) checked @endif>
-                <label class="form-check-label" for="embargo_is_perpetual">Perpetual (no end date)</label>
+                <label class="form-check-label" for="embargo_is_perpetual">{{ __('Perpetual (no end date)') }}</label>
               </div>
             </div>
             <div class="col-md-4 mb-3">
               <div class="form-check">
                 <input type="checkbox" name="embargo_notify_on_expiry" value="1" class="form-check-input" id="embargo_notify_on_expiry"
                        @if(old('embargo_notify_on_expiry', $embargo->notify_on_expiry ?? true)) checked @endif>
-                <label class="form-check-label" for="embargo_notify_on_expiry">Notify on expiry</label>
+                <label class="form-check-label" for="embargo_notify_on_expiry">{{ __('Notify on expiry') }}</label>
               </div>
             </div>
             <div class="col-md-4 mb-3">
-              <label for="embargo_notify_days_before" class="form-label">Notify days before</label>
+              <label for="embargo_notify_days_before" class="form-label">{{ __('Notify days before') }}</label>
               <input type="number" name="embargo_notify_days_before" id="embargo_notify_days_before" class="form-control"
                      value="{{ old('embargo_notify_days_before', $embargo->notify_days_before ?? 30) }}" min="1" max="365">
             </div>

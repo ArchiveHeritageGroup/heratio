@@ -18,7 +18,7 @@
 <div class="container-fluid">
   <div class="row mb-4">
     <div class="col">
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
           <li class="breadcrumb-item"><a href="{{ route('nmmz.antiquities') }}">Antiquities</a></li>
@@ -34,7 +34,7 @@
     @csrf
     <div class="col-lg-8">
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Object Information</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Object Information') }}</h5></div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-12">
@@ -42,80 +42,80 @@
               <input type="text" name="name" class="form-control" required>
             </div>
             <div class="col-12">
-              <label class="form-label">Description</label>
+              <label class="form-label">{{ __('Description') }}</label>
               <textarea name="description" class="form-control" rows="4"></textarea>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Object Type</label>
+              <label class="form-label">{{ __('Object Type') }}</label>
               <select name="object_type" class="form-select">
-                <option value="">Select...</option>
-                <option value="ceramic">Ceramic</option>
-                <option value="stone">Stone Tool/Object</option>
-                <option value="metal">Metal Work</option>
-                <option value="bone">Bone/Ivory</option>
-                <option value="textile">Textile</option>
-                <option value="wooden">Wooden</option>
-                <option value="document">Document</option>
-                <option value="jewelry">Jewelry</option>
-                <option value="sculpture">Sculpture</option>
-                <option value="painting">Painting</option>
-                <option value="other">Other</option>
+                <option value="">{{ __('Select...') }}</option>
+                <option value="ceramic">{{ __('Ceramic') }}</option>
+                <option value="stone">{{ __('Stone Tool/Object') }}</option>
+                <option value="metal">{{ __('Metal Work') }}</option>
+                <option value="bone">{{ __('Bone/Ivory') }}</option>
+                <option value="textile">{{ __('Textile') }}</option>
+                <option value="wooden">{{ __('Wooden') }}</option>
+                <option value="document">{{ __('Document') }}</option>
+                <option value="jewelry">{{ __('Jewelry') }}</option>
+                <option value="sculpture">{{ __('Sculpture') }}</option>
+                <option value="painting">{{ __('Painting') }}</option>
+                <option value="other">{{ __('Other') }}</option>
               </select>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Material</label>
-              <input type="text" name="material" class="form-control" placeholder="e.g., Bronze, Soapstone, Wood">
+              <label class="form-label">{{ __('Material') }}</label>
+              <input type="text" name="material" class="form-control" placeholder="{{ __('e.g., Bronze, Soapstone, Wood') }}">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Estimated Age (Years)</label>
-              <input type="number" name="estimated_age_years" class="form-control" min="100" placeholder="Minimum 100 years">
+              <label class="form-label">{{ __('Estimated Age (Years)') }}</label>
+              <input type="number" name="estimated_age_years" class="form-control" min="100" placeholder="{{ __('Minimum 100 years') }}">
               <small class="text-muted">Must be over 100 years to qualify as antiquity</small>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Dimensions</label>
-              <input type="text" name="dimensions" class="form-control" placeholder="e.g., 15cm x 10cm x 5cm">
+              <label class="form-label">{{ __('Dimensions') }}</label>
+              <input type="text" name="dimensions" class="form-control" placeholder="{{ __('e.g., 15cm x 10cm x 5cm') }}">
             </div>
           </div>
         </div>
       </div>
 
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Provenance</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Provenance') }}</h5></div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-12">
-              <label class="form-label">Provenance/History</label>
-              <textarea name="provenance" class="form-control" rows="3" placeholder="Origin and ownership history"></textarea>
+              <label class="form-label">{{ __('Provenance/History') }}</label>
+              <textarea name="provenance" class="form-control" rows="3" placeholder="{{ __('Origin and ownership history') }}"></textarea>
             </div>
             <div class="col-12">
-              <label class="form-label">Find Location</label>
-              <input type="text" name="find_location" class="form-control" placeholder="Where was the object found/acquired?">
+              <label class="form-label">{{ __('Find Location') }}</label>
+              <input type="text" name="find_location" class="form-control" placeholder="{{ __('Where was the object found/acquired?') }}">
             </div>
           </div>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">Current Status</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Current Status') }}</h5></div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Current Location</label>
-              <input type="text" name="current_location" class="form-control" placeholder="Museum, private collection, etc.">
+              <label class="form-label">{{ __('Current Location') }}</label>
+              <input type="text" name="current_location" class="form-control" placeholder="{{ __('Museum, private collection, etc.') }}">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Condition</label>
+              <label class="form-label">{{ __('Condition') }}</label>
               <select name="condition_rating" class="form-select">
-                <option value="">Select...</option>
-                <option value="excellent">Excellent</option>
-                <option value="good">Good</option>
-                <option value="fair">Fair</option>
-                <option value="poor">Poor</option>
-                <option value="fragmentary">Fragmentary</option>
+                <option value="">{{ __('Select...') }}</option>
+                <option value="excellent">{{ __('Excellent') }}</option>
+                <option value="good">{{ __('Good') }}</option>
+                <option value="fair">{{ __('Fair') }}</option>
+                <option value="poor">{{ __('Poor') }}</option>
+                <option value="fragmentary">{{ __('Fragmentary') }}</option>
               </select>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Estimated Value (USD)</label>
+              <label class="form-label">{{ __('Estimated Value (USD)') }}</label>
               <input type="number" name="estimated_value" class="form-control" min="0" step="0.01">
             </div>
           </div>

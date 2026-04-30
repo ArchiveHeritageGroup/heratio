@@ -10,7 +10,7 @@
     <div class="sticky-top" style="top: 1rem;">
       <div class="mb-3">
         <form action="{{ route('help.search') }}" method="get" class="input-group input-group-sm">
-          <input type="text" name="q" class="form-control" placeholder="Search help..." autocomplete="off">
+          <input type="text" name="q" class="form-control" placeholder="{{ __('Search help...') }}" autocomplete="off">
           <button type="submit" class="btn atom-btn-white"><i class="fas fa-search"></i></button>
         </form>
       </div>
@@ -20,7 +20,7 @@
       </a>
 
       @if(!empty($toc))
-        <h6 class="text-uppercase text-muted mb-2">Contents</h6>
+        <h6 class="text-uppercase text-muted mb-2">{{ __('Contents') }}</h6>
         <nav>
           <ul class="nav flex-column">
             @foreach($toc as $entry)
@@ -51,7 +51,7 @@
 
   {{-- Main Content --}}
   <div class="col-lg-9 col-md-8">
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('help.index') }}">Help Center</a></li>
         <li class="breadcrumb-item"><a href="{{ route('help.category', \AhgHelp\Services\HelpArticleService::categorySlug($article['category'])) }}">{{ $article['category'] }}</a></li>

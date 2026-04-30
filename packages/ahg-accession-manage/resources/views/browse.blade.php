@@ -28,15 +28,15 @@
     <table class="table table-bordered mb-0">
       <thead>
         <tr>
-          <th>Accession number</th>
-          <th>Title</th>
-          <th>Acquisition date</th>
-          <th>Acquisition type</th>
-          <th>Resource type</th>
-          <th>Status</th>
-          <th>Priority</th>
+          <th>{{ __('Accession number') }}</th>
+          <th>{{ __('Title') }}</th>
+          <th>{{ __('Acquisition date') }}</th>
+          <th>{{ __('Acquisition type') }}</th>
+          <th>{{ __('Resource type') }}</th>
+          <th>{{ __('Status') }}</th>
+          <th>{{ __('Priority') }}</th>
           @if(request('sort') === 'lastUpdated')
-            <th>Updated</th>
+            <th>{{ __('Updated') }}</th>
           @endif
         </tr>
       </thead>

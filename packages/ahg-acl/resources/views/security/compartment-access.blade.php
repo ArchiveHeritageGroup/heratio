@@ -31,7 +31,7 @@
 {{-- Current Access --}}
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between">
-    <h5 class="mb-0">Users with Access</h5>
+    <h5 class="mb-0">{{ __('Users with Access') }}</h5>
     <span class="badge bg-primary">{{ count($users ?? []) }} users</span>
   </div>
   <div class="card-body">
@@ -41,12 +41,12 @@
     <table class="table table-striped">
       <thead>
         <tr>
-          <th>User</th>
-          <th>Granted Date</th>
-          <th>Expires</th>
-          <th>Briefing</th>
-          <th>Granted By</th>
-          <th>Actions</th>
+          <th>{{ __('User') }}</th>
+          <th>{{ __('Granted Date') }}</th>
+          <th>{{ __('Expires') }}</th>
+          <th>{{ __('Briefing') }}</th>
+          <th>{{ __('Granted By') }}</th>
+          <th>{{ __('Actions') }}</th>
         </tr>
       </thead>
       <tbody>

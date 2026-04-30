@@ -53,7 +53,7 @@
                 <small class="form-text text-muted">Display name for the tenant</small>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="code" class="form-label">Code</label>
+                <label for="code" class="form-label">{{ __('Code') }}</label>
                 <input type="text" class="form-control" id="code" name="code" pattern="[a-z0-9-]+" maxlength="50">
                 <small class="form-text text-muted">Unique identifier (auto-generated if empty). Lowercase letters, numbers, and hyphens only.</small>
               </div>
@@ -61,20 +61,20 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="domain" class="form-label">Domain</label>
-                <input type="text" class="form-control" id="domain" name="domain" placeholder="example.com">
+                <label for="domain" class="form-label">{{ __('Domain') }}</label>
+                <input type="text" class="form-control" id="domain" name="domain" placeholder="{{ __('example.com') }}">
                 <small class="form-text text-muted">Custom domain for the tenant (optional)</small>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="database_name" class="form-label">Database Name</label>
-                <input type="text" class="form-control" id="database_name" name="database_name" placeholder="tenant_db">
+                <label for="database_name" class="form-label">{{ __('Database Name') }}</label>
+                <input type="text" class="form-control" id="database_name" name="database_name" placeholder="{{ __('tenant_db') }}">
                 <small class="form-text text-muted">Optional separate database name</small>
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="repository_id" class="form-label">Link to Repository</label>
+                <label for="repository_id" class="form-label">{{ __('Link to Repository') }}</label>
                 <select class="form-select" id="repository_id" name="repository_id">
                   <option value="">-- None --</option>
                   @foreach($repositories as $repo)
@@ -86,16 +86,16 @@
                 <small class="form-text text-muted">Link tenant to an existing repository</small>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="is_active" class="form-label">Initial Status</label>
+                <label for="is_active" class="form-label">{{ __('Initial Status') }}</label>
                 <select class="form-select" id="is_active" name="is_active">
-                  <option value="1" selected>Active</option>
-                  <option value="0">Suspended</option>
+                  <option value="1" selected>{{ __('Active') }}</option>
+                  <option value="0">{{ __('Suspended') }}</option>
                 </select>
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="description" class="form-label">Description</label>
+              <label for="description" class="form-label">{{ __('Description') }}</label>
               <textarea class="form-control" id="description" name="description" rows="3"></textarea>
             </div>
           </div>
@@ -108,11 +108,11 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="contact_email" class="form-label">Contact Email</label>
+                <label for="contact_email" class="form-label">{{ __('Contact Email') }}</label>
                 <input type="email" class="form-control" id="contact_email" name="contact_email">
               </div>
               <div class="col-md-6 mb-3">
-                <label for="contact_phone" class="form-label">Contact Phone</label>
+                <label for="contact_phone" class="form-label">{{ __('Contact Phone') }}</label>
                 <input type="text" class="form-control" id="contact_phone" name="contact_phone">
               </div>
             </div>
@@ -126,11 +126,11 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="max_users" class="form-label">Max Users</label>
+                <label for="max_users" class="form-label">{{ __('Max Users') }}</label>
                 <input type="number" class="form-control" id="max_users" name="max_users" min="1">
               </div>
               <div class="col-md-6 mb-3">
-                <label for="max_storage_gb" class="form-label">Max Storage (GB)</label>
+                <label for="max_storage_gb" class="form-label">{{ __('Max Storage (GB)') }}</label>
                 <input type="number" class="form-control" id="max_storage_gb" name="max_storage_gb" min="1">
               </div>
             </div>

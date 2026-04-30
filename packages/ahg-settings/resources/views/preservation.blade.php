@@ -46,7 +46,7 @@
       <div class="table-responsive">
         <table class="table table-hover mb-0">
           <thead class="table-light">
-            <tr><th>Name</th><th>Type</th><th>Path/Bucket</th><th>Status</th><th>Last Sync</th><th>Actions</th></tr>
+            <tr><th>{{ __('Name') }}</th><th>{{ __('Type') }}</th><th>{{ __('Path/Bucket') }}</th><th>{{ __('Status') }}</th><th>{{ __('Last Sync') }}</th><th>{{ __('Actions') }}</th></tr>
           </thead>
           <tbody>
             @forelse($targets ?? [] as $target)

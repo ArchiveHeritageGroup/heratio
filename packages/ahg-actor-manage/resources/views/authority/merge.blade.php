@@ -5,7 +5,7 @@
 
 @section('content')
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
@@ -28,8 +28,8 @@
 
     <div class="row g-2 mb-3">
       <div class="col-md-6">
-        <label class="form-label">Search for actor to merge</label>
-        <input type="text" id="merge-search" class="form-control" placeholder="Type actor name...">
+        <label class="form-label">{{ __('Search for actor to merge') }}</label>
+        <input type="text" id="merge-search" class="form-control" placeholder="{{ __('Type actor name...') }}">
       </div>
       <div class="col-auto align-self-end">
         <button class="btn atom-btn-white" id="btn-merge-search">
@@ -42,7 +42,7 @@
       <table class="table table-sm table-hover">
         <thead>
           <tr>
-            <th>Name</th>
+            <th>{{ __('Name') }}</th>
             <th></th>
           </tr>
         </thead>
@@ -65,10 +65,10 @@
       <table class="table table-sm mb-0">
         <thead>
           <tr>
-            <th>Type</th>
-            <th>Status</th>
-            <th>Records Transferred</th>
-            <th>Date</th>
+            <th>{{ __('Type') }}</th>
+            <th>{{ __('Status') }}</th>
+            <th>{{ __('Records Transferred') }}</th>
+            <th>{{ __('Date') }}</th>
           </tr>
         </thead>
         <tbody>

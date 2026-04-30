@@ -46,7 +46,7 @@
             <table class="table table-bordered mb-0">
               <tbody>
                 <tr>
-                  <th style="width: 200px;">DOI</th>
+                  <th style="width: 200px;">{{ __('DOI') }}</th>
                   <td>
                     <a href="https://doi.org/{{ $doi->doi }}" target="_blank" class="text-monospace text-decoration-none">
                       <code>{{ $doi->doi }}</code>
@@ -55,7 +55,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Record</th>
+                  <th>{{ __('Record') }}</th>
                   <td>
                     @if($doi->information_object_id)
                       <a href="{{ route('informationobject.show', $doi->information_object_id) }}">
@@ -67,7 +67,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Status</th>
+                  <th>{{ __('Status') }}</th>
                   <td>
                     @if($doi->status === 'findable')
                       <span class="badge bg-success">Findable</span>
@@ -81,29 +81,29 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Minted At</th>
+                  <th>{{ __('Minted At') }}</th>
                   <td>{{ $doi->minted_at ? \Carbon\Carbon::parse($doi->minted_at)->format('Y-m-d H:i:s') : '-' }}</td>
                 </tr>
                 <tr>
-                  <th>Last Sync</th>
+                  <th>{{ __('Last Sync') }}</th>
                   <td>{{ !empty($doi->last_sync_at) ? \Carbon\Carbon::parse($doi->last_sync_at)->format('Y-m-d H:i:s') : '-' }}</td>
                 </tr>
                 <tr>
-                  <th>Created</th>
+                  <th>{{ __('Created') }}</th>
                   <td>{{ $doi->created_at ? \Carbon\Carbon::parse($doi->created_at)->format('Y-m-d H:i:s') : '' }}</td>
                 </tr>
                 <tr>
-                  <th>Last Updated</th>
+                  <th>{{ __('Last Updated') }}</th>
                   <td>{{ $doi->updated_at ? \Carbon\Carbon::parse($doi->updated_at)->format('Y-m-d H:i:s') : '' }}</td>
                 </tr>
                 @if($doi->status === 'deleted')
                   <tr>
-                    <th>Deactivated At</th>
+                    <th>{{ __('Deactivated At') }}</th>
                     <td>{{ !empty($doi->deactivated_at) ? \Carbon\Carbon::parse($doi->deactivated_at)->format('Y-m-d H:i:s') : '-' }}</td>
                   </tr>
                   @if(!empty($doi->deactivation_reason))
                     <tr>
-                      <th>Deactivation Reason</th>
+                      <th>{{ __('Deactivation Reason') }}</th>
                       <td>{{ $doi->deactivation_reason }}</td>
                     </tr>
                   @endif
@@ -124,16 +124,16 @@
         @endif
 
         {{-- Activity Log --}}
-        <h3 class="mb-3">Activity Log</h3>
+        <h3 class="mb-3">{{ __('Activity Log') }}</h3>
         @if(count($logs))
           <div class="table-responsive mb-3">
             <table class="table table-bordered table-striped mb-0">
               <thead>
                 <tr>
-                  <th>Action</th>
-                  <th>Status Change</th>
-                  <th>Performed At</th>
-                  <th>Details</th>
+                  <th>{{ __('Action') }}</th>
+                  <th>{{ __('Status Change') }}</th>
+                  <th>{{ __('Performed At') }}</th>
+                  <th>{{ __('Details') }}</th>
                 </tr>
               </thead>
               <tbody>

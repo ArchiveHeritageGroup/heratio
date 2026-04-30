@@ -1,6 +1,6 @@
 <div class="container-fluid py-3">
 
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item"><a href="@php echo route('researcher.dashboard') @endphp">Researcher</a></li>
       <li class="breadcrumb-item"><a href="@php echo route('researcher.submissions') @endphp">Submissions</a></li>
@@ -22,7 +22,7 @@
       <!-- Header -->
       <div class="d-flex justify-content-between align-items-start mb-3">
         <div>
-          <h4 class="mb-1">@php echo htmlspecialchars($submission->title) @endphp</h4>
+          <h4 class="mb-1">{{ __('@php echo htmlspecialchars($submission->title) @endphp') }}</h4>
           <span class="badge bg-@php echo $color @endphp me-2">@php echo ucfirst(str_replace('_', ' ', $submission->status)) @endphp</span>
           <span class="badge bg-@php echo $submission->source_type === 'offline' ? 'secondary' : 'primary' @endphp">
             @php echo ucfirst($submission->source_type) @endphp
@@ -86,11 +86,11 @@
               <table class="table table-hover mb-0 table-sm">
                 <thead class="table-light">
                   <tr>
-                    <th>Type</th>
-                    <th>Title</th>
-                    <th>Level</th>
-                    <th>Files</th>
-                    <th>Access Points</th>
+                    <th>{{ __('Type') }}</th>
+                    <th>{{ __('Title') }}</th>
+                    <th>{{ __('Level') }}</th>
+                    <th>{{ __('Files') }}</th>
+                    <th>{{ __('Access Points') }}</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -133,7 +133,7 @@
                       @if(in_array($submission->status, ['draft', 'returned']))
                         <form method="post" action="{{ route('researcher.deleteItem', ['id' => $submission->id, 'itemId' => $item->id]) }}"
                               style="display:inline" onsubmit="return confirm('Delete this item?')">
-                          <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                          <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}">
                             <i class="bi bi-trash"></i>
                           </button>
                         </form>

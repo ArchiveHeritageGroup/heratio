@@ -47,10 +47,10 @@
       <table class="table table-bordered table-hover mb-0">
         <thead>
           <tr>
-            <th>Object</th>
-            <th class="text-center" style="width: 120px">Pending</th>
-            <th class="text-center" style="width: 120px">Approved</th>
-            <th style="width: 220px">Actions</th>
+            <th>{{ __('Object') }}</th>
+            <th class="text-center" style="width: 120px">{{ __('Pending') }}</th>
+            <th class="text-center" style="width: 120px">{{ __('Approved') }}</th>
+            <th style="width: 220px">{{ __('Actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -74,12 +74,12 @@
                 </td>
                 <td>
                   <div class="btn-group btn-group-sm">
-                    <button class="btn atom-btn-white" onclick="reviewObject({{ $obj->id }})" title="Review pending entities">
+                    <button class="btn atom-btn-white" onclick="reviewObject({{ $obj->id }})" title="{{ __('Review pending entities') }}">
                       <i class="fas fa-eye me-1"></i>Review
                     </button>
                     @if(($obj->has_pdf ?? false) && ($obj->approved_count ?? 0) > 0)
                       <a href="{{ route('io.ai.extract', ['id' => $obj->id]) }}"
-                         class="btn atom-btn-white" title="View PDF with entity highlights">
+                         class="btn atom-btn-white" title="{{ __('View PDF with entity highlights') }}">
                         <i class="fas fa-file-pdf"></i>
                       </a>
                     @endif
@@ -119,7 +119,7 @@
             <i class="fas fa-times me-1"></i>Reject All
           </button>
         </div>
-        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
         <button type="button" class="btn atom-btn-outline-success" onclick="saveAllDecisions()">
           <i class="fas fa-save me-1"></i>Save All Decisions
         </button>

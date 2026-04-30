@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('content')
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
@@ -19,7 +19,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">AI Extraction Jobs</h1>
+    <h1 class="h2">{{ __('AI Extraction Jobs') }}</h1>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createJobModal"><i class="fas fa-robot me-1"></i> New Job</button>
 </div>
 
@@ -28,16 +28,16 @@
     <div class="card-body py-2">
         <form method="get" class="row g-2 align-items-end">
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Status</label>
+                <label class="form-label form-label-sm mb-0">{{ __('Status') }}</label>
                 <select name="status" class="form-select form-select-sm">
-                    <option value="">All</option>
-                    <option value="queued" {{ request('status') === 'queued' ? 'selected' : '' }}>Queued</option>
-                    <option value="running" {{ request('status') === 'running' ? 'selected' : '' }}>Running</option>
-                    <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completed</option>
-                    <option value="failed" {{ request('status') === 'failed' ? 'selected' : '' }}>Failed</option>
+                    <option value="">{{ __('All') }}</option>
+                    <option value="queued" {{ request('status') === 'queued' ? 'selected' : '' }}>{{ __('Queued') }}</option>
+                    <option value="running" {{ request('status') === 'running' ? 'selected' : '' }}>{{ __('Running') }}</option>
+                    <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>{{ __('Completed') }}</option>
+                    <option value="failed" {{ request('status') === 'failed' ? 'selected' : '' }}>{{ __('Failed') }}</option>
                 </select>
             </div>
-            <div class="col-auto"><button type="submit" class="btn btn-sm btn-primary">Filter</button></div>
+            <div class="col-auto"><button type="submit" class="btn btn-sm btn-primary">{{ __('Filter') }}</button></div>
         </form>
     </div>
 </div>
@@ -47,7 +47,7 @@
 @else
 <div class="table-responsive">
     <table class="table table-hover">
-        <thead><tr><th>Type</th><th>Status</th><th>Progress</th><th>Created</th><th>Actions</th></tr></thead>
+        <thead><tr><th>{{ __('Type') }}</th><th>{{ __('Status') }}</th><th>{{ __('Progress') }}</th><th>{{ __('Created') }}</th><th>{{ __('Actions') }}</th></tr></thead>
         <tbody>
         @foreach($jobs as $j)
             @php
@@ -69,14 +69,14 @@
                                 @csrf
                                 <input type="hidden" name="form_action" value="cancel">
                                 <input type="hidden" name="job_id" value="{{ $j->id }}">
-                                <button type="submit" class="btn btn-outline-danger" title="Cancel" onclick="return confirm('Cancel this job?')"><i class="fas fa-stop"></i></button>
+                                <button type="submit" class="btn btn-outline-danger" title="{{ __('Cancel') }}" onclick="return confirm('Cancel this job?')"><i class="fas fa-stop"></i></button>
                             </form>
                         @elseif(($j->status ?? '') === 'failed')
                             <form method="post" action="{{ route('research.extractionJobs', $project->id) }}" class="d-inline">
                                 @csrf
                                 <input type="hidden" name="form_action" value="retry">
                                 <input type="hidden" name="job_id" value="{{ $j->id }}">
-                                <button type="submit" class="btn btn-outline-warning" title="Retry"><i class="fas fa-redo"></i></button>
+                                <button type="submit" class="btn btn-outline-warning" title="{{ __('Retry') }}"><i class="fas fa-redo"></i></button>
                             </form>
                         @endif
                     </div>
@@ -95,7 +95,7 @@
             @csrf
             <input type="hidden" name="form_action" value="create">
             <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title">New Extraction Job</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-header"><h5 class="modal-title">{{ __('New Extraction Job') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Collection <span class="text-danger">*</span></label>
@@ -103,28 +103,28 @@
                         <small class="text-muted">Search for a collection to extract from.</small>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Extraction Type</label>
+                        <label class="form-label">{{ __('Extraction Type') }}</label>
                         <select name="extraction_type" class="form-select">
-                            <option value="ner">Named Entity Recognition (NER)</option>
-                            <option value="ocr">Optical Character Recognition (OCR)</option>
-                            <option value="summarize">Summarize</option>
-                            <option value="translate">Translate</option>
-                            <option value="spellcheck">Spellcheck</option>
-                            <option value="face_detection">Face Detection</option>
-                            <option value="form_extraction">Form Extraction</option>
+                            <option value="ner">{{ __('Named Entity Recognition (NER)') }}</option>
+                            <option value="ocr">{{ __('Optical Character Recognition (OCR)') }}</option>
+                            <option value="summarize">{{ __('Summarize') }}</option>
+                            <option value="translate">{{ __('Translate') }}</option>
+                            <option value="spellcheck">{{ __('Spellcheck') }}</option>
+                            <option value="face_detection">{{ __('Face Detection') }}</option>
+                            <option value="form_extraction">{{ __('Form Extraction') }}</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Language (optional)</label>
-                        <input type="text" name="language" class="form-control" placeholder="en">
+                        <label class="form-label">{{ __('Language (optional)') }}</label>
+                        <input type="text" name="language" class="form-control" placeholder="{{ __('en') }}">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Model (optional)</label>
-                        <input type="text" name="model" class="form-control" placeholder="default">
+                        <label class="form-label">{{ __('Model (optional)') }}</label>
+                        <input type="text" name="model" class="form-control" placeholder="{{ __('default') }}">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                     <button type="submit" class="btn btn-primary"><i class="fas fa-robot me-1"></i>Create Job</button>
                 </div>
             </div>

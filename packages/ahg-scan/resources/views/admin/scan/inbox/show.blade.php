@@ -4,7 +4,7 @@
 @section('content')
 <h1>Scan file #{{ $file->id }}</h1>
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Admin</a></li>
         <li class="breadcrumb-item"><a href="{{ route('scan.dashboard') }}">Scan</a></li>

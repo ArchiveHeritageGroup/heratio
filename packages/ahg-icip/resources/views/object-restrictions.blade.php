@@ -16,7 +16,7 @@
 
 @section('content')
 <div class="container-xxl">
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/'.$object->slug) }}">{{ $object->title ?? 'Record' }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.object-icip', ['slug' => $object->slug]) }}">ICIP</a></li>
@@ -36,7 +36,7 @@
   <div class="row">
     <div class="col-lg-8">
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Active Restrictions</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Active Restrictions') }}</h5></div>
         <div class="card-body">
           @if($restrictions->isEmpty())
             <p class="text-muted">No access restrictions applied to this record.</p>
@@ -72,7 +72,7 @@
                   @csrf
                   <input type="hidden" name="form_action" value="remove">
                   <input type="hidden" name="restriction_id" value="{{ $restriction->id }}">
-                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove"><i class="bi bi-x-lg"></i></button>
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Remove') }}"><i class="bi bi-x-lg"></i></button>
                 </form>
               </div>
             @endforeach
@@ -81,7 +81,7 @@
       </div>
 
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">Add Restriction</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Add Restriction') }}</h5></div>
         <div class="card-body">
           <form method="post">
             @csrf
@@ -97,9 +97,9 @@
                 </select>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Community</label>
+                <label class="form-label">{{ __('Community') }}</label>
                 <select name="community_id" class="form-select">
-                  <option value="">Not specified</option>
+                  <option value="">{{ __('Not specified') }}</option>
                   @foreach($communities as $c)
                     <option value="{{ $c->id }}">{{ $c->name }}</option>
                   @endforeach
@@ -108,17 +108,17 @@
             </div>
 
             <div class="mb-3" id="customTextGroup" style="display: none;">
-              <label class="form-label">Custom Restriction Text</label>
+              <label class="form-label">{{ __('Custom Restriction Text') }}</label>
               <textarea name="custom_restriction_text" class="form-control" rows="2"></textarea>
             </div>
 
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label class="form-label">Start Date</label>
+                <label class="form-label">{{ __('Start Date') }}</label>
                 <input type="date" name="start_date" class="form-control">
               </div>
               <div class="col-md-4 mb-3">
-                <label class="form-label">End Date</label>
+                <label class="form-label">{{ __('End Date') }}</label>
                 <input type="date" name="end_date" class="form-control">
                 <div class="form-text">Leave blank for indefinite</div>
               </div>
@@ -126,7 +126,7 @@
                 <label class="form-label">&nbsp;</label>
                 <div class="form-check mt-2">
                   <input type="checkbox" name="applies_to_descendants" value="1" class="form-check-input" id="applyDescendants" checked>
-                  <label class="form-check-label" for="applyDescendants">Apply to child records</label>
+                  <label class="form-check-label" for="applyDescendants">{{ __('Apply to child records') }}</label>
                 </div>
               </div>
             </div>
@@ -142,7 +142,7 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Notes</label>
+              <label class="form-label">{{ __('Notes') }}</label>
               <textarea name="notes" class="form-control" rows="2"></textarea>
             </div>
 
@@ -156,7 +156,7 @@
 
     <div class="col-lg-4">
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">Restriction Types</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Restriction Types') }}</h5></div>
         <div class="card-body small">
           <dl class="mb-0">
             <dt><i class="bi bi-people text-danger me-1"></i> Community Permission Required</dt>

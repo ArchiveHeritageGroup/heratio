@@ -16,7 +16,7 @@
       <table id="userPermissions" class="table table-bordered">
         <thead>
           <tr>
-            <th colspan="2">&nbsp;</th>
+            <th colspan="2">{{ __('&nbsp;') }}</th>
             @foreach($userGroups as $item)
               @if(isset($groupNames[$item]))
                 <th>{{ $groupNames[$item] }}</th>

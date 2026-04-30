@@ -4,7 +4,7 @@
 @section('body-class', 'browse accession dashboard')
 
 @section('title-block')
-  <h1>Accession dashboard</h1>
+  <h1>{{ __('Accession dashboard') }}</h1>
 @endsection
 
 @section('before-content')
@@ -49,12 +49,12 @@
     <div class="col-md-6 mb-4">
       <div class="card">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0">By processing status</h5>
+          <h5 class="mb-0">{{ __('By processing status') }}</h5>
         </div>
         <div class="card-body p-0">
           <table class="table table-bordered mb-0">
             <thead>
-              <tr><th>Status</th><th class="text-end">Count</th></tr>
+              <tr><th>{{ __('Status') }}</th><th class="text-end">{{ __('Count') }}</th></tr>
             </thead>
             <tbody>
               @foreach($byStatus as $row)
@@ -72,12 +72,12 @@
     <div class="col-md-6 mb-4">
       <div class="card">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0">By processing priority</h5>
+          <h5 class="mb-0">{{ __('By processing priority') }}</h5>
         </div>
         <div class="card-body p-0">
           <table class="table table-bordered mb-0">
             <thead>
-              <tr><th>Priority</th><th class="text-end">Count</th></tr>
+              <tr><th>{{ __('Priority') }}</th><th class="text-end">{{ __('Count') }}</th></tr>
             </thead>
             <tbody>
               @foreach($byPriority as $row)

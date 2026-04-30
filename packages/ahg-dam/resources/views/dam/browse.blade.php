@@ -90,13 +90,13 @@
       <table class="table table-bordered table-striped mb-0">
         <thead>
           <tr>
-            <th style="width:60px;">Thumbnail</th>
-            <th>Title</th>
-            <th>Asset Type</th>
-            <th>Creator</th>
-            <th>Date</th>
+            <th style="width:60px;">{{ __('Thumbnail') }}</th>
+            <th>{{ __('Title') }}</th>
+            <th>{{ __('Asset Type') }}</th>
+            <th>{{ __('Creator') }}</th>
+            <th>{{ __('Date') }}</th>
             @if(request('sort') === 'lastUpdated')
-              <th>Updated</th>
+              <th>{{ __('Updated') }}</th>
             @endif
             <th class="text-center" style="width:50px;"></th>
           </tr>
@@ -128,14 +128,14 @@
               <td class="text-center">
                 <button class="btn btn-sm atom-btn-white clipboard"
                         data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="dam"
-                        title="Add to clipboard">
+                        title="{{ __('Add to clipboard') }}">
                   <i class="fas fa-paperclip" aria-hidden="true"></i>
                   <span class="visually-hidden">Add to clipboard</span>
                 </button>
                 @auth
                   <a class="btn btn-sm atom-btn-white"
                      href="{{ route('ahgmarketplace.seller-listing-create', ['io' => $doc['id']]) }}"
-                     title="Add to marketplace">
+                     title="{{ __('Add to marketplace') }}">
                     <i class="fas fa-store" aria-hidden="true"></i>
                     <span class="visually-hidden">Add to marketplace</span>
                   </a>

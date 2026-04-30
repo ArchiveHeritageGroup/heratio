@@ -78,7 +78,7 @@
           <div class="text-muted small">
             Sold
             @if(($stats['demo_sold_listings'] ?? 0) > 0)
-              <span class="badge bg-warning text-dark ms-1" title="Includes demo-mode sales (e-commerce disabled)">
+              <span class="badge bg-warning text-dark ms-1" title="{{ __('Includes demo-mode sales (e-commerce disabled)') }}">
                 {{ number_format($stats['demo_sold_listings']) }} demo
               </span>
             @endif
@@ -176,11 +176,11 @@
             <table class="table table-sm table-hover mb-0">
               <thead class="table-light">
                 <tr>
-                  <th>Title</th>
-                  <th>Sector</th>
-                  <th>Status</th>
-                  <th class="text-end">Price</th>
-                  <th class="text-center" style="width: 130px;">Actions</th>
+                  <th>{{ __('Title') }}</th>
+                  <th>{{ __('Sector') }}</th>
+                  <th>{{ __('Status') }}</th>
+                  <th class="text-end">{{ __('Price') }}</th>
+                  <th class="text-center" style="width: 130px;">{{ __('Actions') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -219,24 +219,24 @@
                     </td>
                     <td class="text-center">
                       <a href="{{ route('ahgmarketplace.seller-listing-edit', ['id' => $l->id]) }}"
-                         class="btn btn-sm btn-outline-primary" title="Edit">
+                         class="btn btn-sm btn-outline-primary" title="{{ __('Edit') }}">
                         <i class="fas fa-edit"></i>
                       </a>
                       <a href="{{ route('ahgmarketplace.seller-listing-images', ['id' => $l->id]) }}"
-                         class="btn btn-sm btn-outline-secondary" title="Manage images">
+                         class="btn btn-sm btn-outline-secondary" title="{{ __('Manage images') }}">
                         <i class="fas fa-images"></i>
                       </a>
                       @if($l->status === 'draft')
                         <form method="POST" action="{{ route('ahgmarketplace.seller-listing-publish') }}" class="d-inline">
                           @csrf
                           <input type="hidden" name="id" value="{{ $l->id }}">
-                          <button type="submit" class="btn btn-sm btn-outline-success" title="Publish">
+                          <button type="submit" class="btn btn-sm btn-outline-success" title="{{ __('Publish') }}">
                             <i class="fas fa-globe"></i>
                           </button>
                         </form>
                       @elseif(in_array($l->status, ['published', 'active']))
                         <a href="{{ route('ahgmarketplace.listing', ['slug' => $l->slug]) }}"
-                           class="btn btn-sm btn-outline-info" title="View public listing" target="_blank">
+                           class="btn btn-sm btn-outline-info" title="{{ __('View public listing') }}" target="_blank">
                           <i class="fas fa-external-link-alt"></i>
                         </a>
                       @endif

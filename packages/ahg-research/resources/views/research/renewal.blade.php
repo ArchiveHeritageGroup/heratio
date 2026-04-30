@@ -57,7 +57,7 @@
             @csrf
             <div class="mb-3">
                 <label class="form-label">Reason for Renewal <span class="badge bg-secondary ms-1">Optional</span></label>
-                <textarea class="form-control" name="reason" rows="4" placeholder="Please describe why you need to renew your researcher access (e.g., ongoing research project, continued study...)"></textarea>
+                <textarea class="form-control" name="reason" rows="4" placeholder="{{ __('Please describe why you need to renew your researcher access (e.g., ongoing research project, continued study...)') }}"></textarea>
                 <div class="form-text">Providing a reason helps administrators process your request faster.</div>
             </div>
             <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-paper-plane me-1"></i>Submit Renewal Request</button>

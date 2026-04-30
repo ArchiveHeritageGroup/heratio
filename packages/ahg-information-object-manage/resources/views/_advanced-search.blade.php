@@ -256,7 +256,7 @@
               <div class="mb-3">
                 <label for="adv-start-date" class="form-label">{{ __('Start') }}</label>
                 <input type="date" class="form-control" id="adv-start-date" name="startDate"
-                       value="{{ request('startDate') }}" placeholder="YYYY-MM-DD" max="9999-12-31">
+                       value="{{ request('startDate') }}" placeholder="{{ __('YYYY-MM-DD') }}" max="9999-12-31">
               </div>
             </div>
 
@@ -264,7 +264,7 @@
               <div class="mb-3">
                 <label for="adv-end-date" class="form-label">{{ __('End') }}</label>
                 <input type="date" class="form-control" id="adv-end-date" name="endDate"
-                       value="{{ request('endDate') }}" placeholder="YYYY-MM-DD" max="9999-12-31">
+                       value="{{ request('endDate') }}" placeholder="{{ __('YYYY-MM-DD') }}" max="9999-12-31">
               </div>
             </div>
 

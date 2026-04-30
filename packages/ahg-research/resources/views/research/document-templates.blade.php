@@ -7,7 +7,7 @@
 @section('title', 'Document Templates')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item active">Document Templates</li>
@@ -15,7 +15,7 @@
 </nav>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">Document Templates</h1>
+    <h1 class="h2">{{ __('Document Templates') }}</h1>
     <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#newTemplateModal"><i class="fas fa-plus me-1"></i> New Template</button>
 </div>
 
@@ -53,7 +53,7 @@
                 @csrf
                 <input type="hidden" name="form_action" value="create">
                 <div class="modal-header">
-                    <h5 class="modal-title">New Document Template</h5>
+                    <h5 class="modal-title">{{ __('New Document Template') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -64,11 +64,11 @@
                     <div class="mb-3">
                         <label class="form-label">Document Type * <span class="badge bg-secondary ms-1">Optional</span></label>
                         <select name="document_type" class="form-select">
-                            <option value="research_report">Research Report</option>
-                            <option value="finding_aid">Finding Aid</option>
-                            <option value="accession_form">Accession Form</option>
-                            <option value="condition_report">Condition Report</option>
-                            <option value="other">Other</option>
+                            <option value="research_report">{{ __('Research Report') }}</option>
+                            <option value="finding_aid">{{ __('Finding Aid') }}</option>
+                            <option value="accession_form">{{ __('Accession Form') }}</option>
+                            <option value="condition_report">{{ __('Condition Report') }}</option>
+                            <option value="other">{{ __('Other') }}</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -81,8 +81,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ __('Create') }}</button>
                 </div>
             </form>
         </div>
@@ -98,7 +98,7 @@
                 <input type="hidden" name="form_action" value="update">
                 <input type="hidden" name="template_id" id="editTemplateId">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Document Template</h5>
+                    <h5 class="modal-title">{{ __('Edit Document Template') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -109,11 +109,11 @@
                     <div class="mb-3">
                         <label class="form-label">Document Type * <span class="badge bg-secondary ms-1">Optional</span></label>
                         <select name="document_type" id="editTemplateType" class="form-select">
-                            <option value="research_report">Research Report</option>
-                            <option value="finding_aid">Finding Aid</option>
-                            <option value="accession_form">Accession Form</option>
-                            <option value="condition_report">Condition Report</option>
-                            <option value="other">Other</option>
+                            <option value="research_report">{{ __('Research Report') }}</option>
+                            <option value="finding_aid">{{ __('Finding Aid') }}</option>
+                            <option value="accession_form">{{ __('Accession Form') }}</option>
+                            <option value="condition_report">{{ __('Condition Report') }}</option>
+                            <option value="other">{{ __('Other') }}</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -126,8 +126,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ __('Update') }}</button>
                 </div>
             </form>
         </div>

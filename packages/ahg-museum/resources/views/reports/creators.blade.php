@@ -8,7 +8,7 @@
 <div class="alert alert-info"><strong>{{ count($creators) }}</strong> creators found</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
-    <thead class="table-dark"><tr><th>Creator</th><th>Role</th><th>Attribution</th><th>School</th><th class="text-end">Objects</th></tr></thead>
+    <thead class="table-dark"><tr><th>{{ __('Creator') }}</th><th>{{ __('Role') }}</th><th>{{ __('Attribution') }}</th><th>{{ __('School') }}</th><th class="text-end">{{ __('Objects') }}</th></tr></thead>
     <tbody>
       @forelse($creators as $c)
       <tr><td><strong>{{ e($c->creator_name ?? '-') }}</strong></td><td>{{ e($c->creator_role ?? '-') }}</td><td>{{ e($c->attribution ?? '-') }}</td><td>{{ e($c->school ?? '-') }}</td><td class="text-end"><span class="badge bg-primary">{{ $c->object_count ?? 0 }}</span></td></tr>

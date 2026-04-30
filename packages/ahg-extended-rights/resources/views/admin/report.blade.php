@@ -73,11 +73,11 @@
     @if(!empty($data['by_basis']))
     <div class="card mt-4">
       <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        <h5 class="mb-0">Rights by Basis</h5>
+        <h5 class="mb-0">{{ __('Rights by Basis') }}</h5>
       </div>
       <div class="card-body p-0">
         <table class="table table-striped mb-0">
-          <thead><tr><th>Basis</th><th class="text-end">Count</th></tr></thead>
+          <thead><tr><th>{{ __('Basis') }}</th><th class="text-end">{{ __('Count') }}</th></tr></thead>
           <tbody>
             @foreach($data['by_basis'] as $basis => $count)
             <tr><td>{{ ucfirst($basis) }}</td><td class="text-end">{{ number_format($count) }}</td></tr>
@@ -91,11 +91,11 @@
     @if(!empty($data['by_rights_statement']))
     <div class="card mt-4">
       <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        <h5 class="mb-0">By Rights Statement</h5>
+        <h5 class="mb-0">{{ __('By Rights Statement') }}</h5>
       </div>
       <div class="card-body p-0">
         <table class="table table-striped mb-0">
-          <thead><tr><th>Statement Code</th><th class="text-end">Count</th></tr></thead>
+          <thead><tr><th>{{ __('Statement Code') }}</th><th class="text-end">{{ __('Count') }}</th></tr></thead>
           <tbody>
             @foreach($data['by_rights_statement'] as $code => $count)
             <tr><td><span class="badge bg-secondary">{{ $code }}</span></td><td class="text-end">{{ number_format($count) }}</td></tr>

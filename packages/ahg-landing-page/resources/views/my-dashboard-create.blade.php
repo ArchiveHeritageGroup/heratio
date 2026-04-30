@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="container py-4" style="max-width: 600px;">
-  <nav aria-label="breadcrumb" class="mb-4">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-4">
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
         <a href="{{ route('landing-page.myDashboard.list') }}">My Dashboards</a>
@@ -46,14 +46,14 @@
           <label class="form-label" for="name">Dashboard Name <span class="text-danger">*</span></label>
           <input type="text" name="name" id="name" class="form-control" required
                  value="{{ old('name', 'My Dashboard') }}"
-                 placeholder="e.g., My Dashboard, Research View">
+                 placeholder="{{ __('e.g., My Dashboard, Research View') }}">
           <div class="form-text">Give your dashboard a name</div>
         </div>
 
         <div class="mb-3">
-          <label class="form-label" for="description">Description</label>
+          <label class="form-label" for="description">{{ __('Description') }}</label>
           <textarea name="description" id="description" class="form-control" rows="2"
-                    placeholder="Optional description">{{ old('description', '') }}</textarea>
+                    placeholder="{{ __('Optional description') }}">{{ old('description', '') }}</textarea>
         </div>
 
         @if ($hasDashboards)

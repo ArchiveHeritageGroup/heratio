@@ -4,7 +4,7 @@
 
 @section('title-block')
 <div class="d-flex justify-content-between align-items-center">
-    <h1 class="mb-0">File Plan</h1>
+    <h1 class="mb-0">{{ __('File Plan') }}</h1>
     <div>
         <a href="{{ route('records.fileplan.import') }}" class="btn btn-outline-primary btn-sm me-1">
             <i class="fas fa-file-import"></i> Import File Plan

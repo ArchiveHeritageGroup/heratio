@@ -23,7 +23,7 @@
 <div class="container-fluid">
   <div class="row mb-4">
     <div class="col">
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
           <li class="breadcrumb-item active">National Monuments</li>
@@ -44,7 +44,7 @@
       <form method="get" class="row g-3">
         <div class="col-md-3">
           <select name="category" class="form-select">
-            <option value="">All Categories</option>
+            <option value="">{{ __('All Categories') }}</option>
             @foreach($categories as $cat)
               <option value="{{ $cat->id }}" @selected(($filters['category_id'] ?? null) == $cat->id)>{{ $cat->name }}</option>
             @endforeach
@@ -52,25 +52,25 @@
         </div>
         <div class="col-md-2">
           <select name="status" class="form-select">
-            <option value="">All Status</option>
-            <option value="active" @selected(($filters['status'] ?? null) === 'active')>Active</option>
-            <option value="at_risk" @selected(($filters['status'] ?? null) === 'at_risk')>At Risk</option>
-            <option value="destroyed" @selected(($filters['status'] ?? null) === 'destroyed')>Destroyed</option>
+            <option value="">{{ __('All Status') }}</option>
+            <option value="active" @selected(($filters['status'] ?? null) === 'active')>{{ __('Active') }}</option>
+            <option value="at_risk" @selected(($filters['status'] ?? null) === 'at_risk')>{{ __('At Risk') }}</option>
+            <option value="destroyed" @selected(($filters['status'] ?? null) === 'destroyed')>{{ __('Destroyed') }}</option>
           </select>
         </div>
         <div class="col-md-2">
           <select name="province" class="form-select">
-            <option value="">All Provinces</option>
+            <option value="">{{ __('All Provinces') }}</option>
             @foreach(['Bulawayo','Harare','Manicaland','Mashonaland Central','Mashonaland East','Mashonaland West','Masvingo','Matabeleland North','Matabeleland South','Midlands'] as $p)
               <option value="{{ $p }}" @selected(($filters['province'] ?? null) === $p)>{{ $p }}</option>
             @endforeach
           </select>
         </div>
         <div class="col-md-3">
-          <input type="text" name="q" class="form-control" placeholder="Search..." value="{{ $filters['search'] ?? '' }}">
+          <input type="text" name="q" class="form-control" placeholder="{{ __('Search...') }}" value="{{ $filters['search'] ?? '' }}">
         </div>
         <div class="col-md-2">
-          <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+          <button type="submit" class="btn btn-outline-primary w-100">{{ __('Filter') }}</button>
         </div>
       </form>
     </div>
@@ -87,14 +87,14 @@
         <table class="table table-hover mb-0">
           <thead>
             <tr>
-              <th>Monument #</th>
-              <th>Name</th>
-              <th>Category</th>
-              <th>Province</th>
-              <th>Legal Status</th>
-              <th>Condition</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>{{ __('Monument #') }}</th>
+              <th>{{ __('Name') }}</th>
+              <th>{{ __('Category') }}</th>
+              <th>{{ __('Province') }}</th>
+              <th>{{ __('Legal Status') }}</th>
+              <th>{{ __('Condition') }}</th>
+              <th>{{ __('Status') }}</th>
+              <th>{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>

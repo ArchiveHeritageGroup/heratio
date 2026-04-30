@@ -63,7 +63,7 @@
                 <div class="d-flex align-items-start">
                     <i class="fas fa-lock fa-2x me-3 mt-1"></i>
                     <div class="flex-grow-1">
-                        <h6 class="alert-heading mb-1">Under Embargo</h6>
+                        <h6 class="alert-heading mb-1">{{ __('Under Embargo') }}</h6>
                         <p class="mb-1">
                             <strong>Type:</strong>
                             {{ ucwords(str_replace('_', ' ', $extEmbargo->embargo_type ?? '')) }}
@@ -97,7 +97,7 @@
 
         @if($extTkLabels->count() > 0)
             <div class="mb-3">
-                <h6 class="text-muted mb-2">Traditional Knowledge Labels</h6>
+                <h6 class="text-muted mb-2">{{ __('Traditional Knowledge Labels') }}</h6>
                 <div class="d-flex flex-wrap gap-2">
                     @foreach($extTkLabels as $label)
                         <span class="badge" style="background-color: {{ $label->color ?? '#666' }}; font-size: 0.9em;"
@@ -147,12 +147,12 @@
                 <table class="table table-sm table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Basis</th>
-                            <th>Rights Statement</th>
-                            <th>Acts</th>
-                            <th>Dates</th>
+                            <th>{{ __('Basis') }}</th>
+                            <th>{{ __('Rights Statement') }}</th>
+                            <th>{{ __('Acts') }}</th>
+                            <th>{{ __('Dates') }}</th>
                             @if($canEdit)
-                                <th style="width: 100px;">Actions</th>
+                                <th style="width: 100px;">{{ __('Actions') }}</th>
                             @endif
                         </tr>
                     </thead>
@@ -219,7 +219,7 @@
                                     <td>
                                         <div class="btn-group btn-group-sm">
                                             <a href="{{ route('ext-rights.edit', [$slug, $right->id]) }}"
-                                               class="btn btn-outline-secondary btn-sm" title="Edit">
+                                               class="btn btn-outline-secondary btn-sm" title="{{ __('Edit') }}">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                         </div>

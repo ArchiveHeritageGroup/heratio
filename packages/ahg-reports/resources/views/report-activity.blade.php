@@ -21,7 +21,7 @@
           <div class="mb-3">
             <label class="form-label">User <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="actionUser" class="form-select form-select-sm">
-              <option value="">All users</option>
+              <option value="">{{ __('All users') }}</option>
               @foreach($users as $u)
                 <option value="{{ $u }}" {{ ($params['actionUser'] ?? '') === $u ? 'selected' : '' }}>{{ $u }}</option>
               @endforeach
@@ -30,7 +30,7 @@
           <div class="mb-3">
             <label class="form-label">Action <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="userAction" class="form-select form-select-sm">
-              <option value="">All actions</option>
+              <option value="">{{ __('All actions') }}</option>
               @foreach(['create', 'update', 'delete'] as $a)
                 <option value="{{ $a }}" {{ ($params['userAction'] ?? '') === $a ? 'selected' : '' }}>{{ ucfirst($a) }}</option>
               @endforeach
@@ -61,11 +61,11 @@
         <table class="table table-bordered table-striped table-sm">
           <thead>
             <tr>
-            <th>Date</th><th>User</th><th>Action</th>
+            <th>{{ __('Date') }}</th><th>{{ __('User') }}</th><th>{{ __('Action') }}</th>
             @if($auditTable === 'ahg_audit_log')
-              <th>Entity type</th><th>Entity</th>
+              <th>{{ __('Entity type') }}</th><th>{{ __('Entity') }}</th>
             @else
-              <th>Table</th><th>Record</th>
+              <th>{{ __('Table') }}</th><th>{{ __('Record') }}</th>
             @endif
             </tr>
           </thead>

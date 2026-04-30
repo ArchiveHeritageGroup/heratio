@@ -62,16 +62,16 @@
                 <div class="card-body">
                     <form action="{{ route('ahgprivacy.pii-scan-run') }}" method="post">
                         <div class="mb-3">
-                            <label class="form-label">Repository (optional)</label>
+                            <label class="form-label">{{ __('Repository (optional)') }}</label>
                             <select name="repository_id" class="form-select">
-                                <option value="">All repositories</option>
+                                <option value="">{{ __('All repositories') }}</option>
                                 @foreach($repositories as $repo)
                                     <option value="{{ $repo->id }}">{{ $repo->name }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Batch Size</label>
+                            <label class="form-label">{{ __('Batch Size') }}</label>
                             <select name="limit" class="form-select">
                                 <option value="25">25 objects</option>
                                 <option value="50" selected>50 objects</option>
@@ -153,10 +153,10 @@ $badges = [
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Object</th>
-                                    <th class="text-center" style="width: 100px;">PII Count</th>
-                                    <th style="width: 150px;">Scanned</th>
-                                    <th style="width: 120px;">Actions</th>
+                                    <th>{{ __('Object') }}</th>
+                                    <th class="text-center" style="width: 100px;">{{ __('PII Count') }}</th>
+                                    <th style="width: 150px;">{{ __('Scanned') }}</th>
+                                    <th style="width: 120px;">{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>

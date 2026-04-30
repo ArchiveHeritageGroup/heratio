@@ -57,7 +57,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h6 class="text-muted">Total Terms</h6>
+                            <h6 class="text-muted">{{ __('Total Terms') }}</h6>
                             <h2 class="mb-0">{{ number_format($stats['total_terms'] ?? 0) }}</h2>
                         </div>
                         <div class="text-primary">
@@ -81,7 +81,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h6 class="text-muted">Search Logs</h6>
+                            <h6 class="text-muted">{{ __('Search Logs') }}</h6>
                             <h2 class="mb-0">{{ number_format($stats['search_logs'] ?? 0) }}</h2>
                         </div>
                         <div class="text-success">
@@ -102,7 +102,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h6 class="text-muted">Sync Logs</h6>
+                            <h6 class="text-muted">{{ __('Sync Logs') }}</h6>
                             <h2 class="mb-0">{{ number_format($stats['sync_logs'] ?? 0) }}</h2>
                         </div>
                         <div class="text-info">
@@ -123,7 +123,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h6 class="text-muted">Data Sources</h6>
+                            <h6 class="text-muted">{{ __('Data Sources') }}</h6>
                             <h2 class="mb-0">
                                 @php
                                     $sources = 0;
@@ -191,13 +191,13 @@
                 </div>
                 <div class="card-body">
                     <div class="input-group mb-3">
-                        <input type="text" id="test-query" class="form-control" placeholder="Enter a search term...">
+                        <input type="text" id="test-query" class="form-control" placeholder="{{ __('Enter a search term...') }}">
                         <button class="btn btn-primary" type="button" id="test-expand-btn">
                             <i class="fas fa-search me-1"></i>Expand
                         </button>
                     </div>
                     <div id="expansion-result" style="display: none;">
-                        <h6>Expansions:</h6>
+                        <h6>{{ __('Expansions:') }}</h6>
                         <div id="expansion-terms"></div>
                     </div>
                 </div>

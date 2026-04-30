@@ -51,17 +51,17 @@
               <input class="form-check-input" type="checkbox" id="face_enabled"
                      name="face_enabled" value="1"
                      {{ ($settings['face_enabled'] ?? 'false') === 'true' || ($settings['face_enabled'] ?? '') === '1' ? 'checked' : '' }}>
-              <label class="form-check-label fw-bold" for="face_enabled">Enable Face Detection</label>
+              <label class="form-check-label fw-bold" for="face_enabled">{{ __('Enable Face Detection') }}</label>
             </div>
             <div class="form-text">Detect faces in uploaded images</div>
           </div>
           <div class="col-md-6">
-            <label for="face_backend" class="form-label fw-bold">Backend</label>
+            <label for="face_backend" class="form-label fw-bold">{{ __('Backend') }}</label>
             <select class="form-select" id="face_backend" name="face_backend">
               @php $curBackend = $settings['face_backend'] ?? 'local'; @endphp
-              <option value="local" {{ $curBackend === 'local' ? 'selected' : '' }}>Local (OpenCV)</option>
-              <option value="aws" {{ $curBackend === 'aws' ? 'selected' : '' }}>AWS Rekognition</option>
-              <option value="azure" {{ $curBackend === 'azure' ? 'selected' : '' }}>Azure Face API</option>
+              <option value="local" {{ $curBackend === 'local' ? 'selected' : '' }}>{{ __('Local (OpenCV)') }}</option>
+              <option value="aws" {{ $curBackend === 'aws' ? 'selected' : '' }}>{{ __('AWS Rekognition') }}</option>
+              <option value="azure" {{ $curBackend === 'azure' ? 'selected' : '' }}>{{ __('Azure Face API') }}</option>
             </select>
           </div>
         </div>

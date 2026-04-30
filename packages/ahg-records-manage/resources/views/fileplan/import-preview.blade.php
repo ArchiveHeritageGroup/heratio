@@ -3,7 +3,7 @@
 @section('body-class', 'admin records')
 
 @section('title-block')
-<h1>Import File Plan - Step 3: Preview</h1>
+<h1>{{ __('Import File Plan - Step 3: Preview') }}</h1>
 @endsection
 
 @section('content')

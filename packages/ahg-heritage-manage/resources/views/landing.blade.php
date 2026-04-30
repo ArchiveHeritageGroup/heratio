@@ -68,7 +68,7 @@
                        placeholder="{{ $searchPlaceholder }}"
                        autocomplete="off"
                        id="heritage-search-input">
-                <button type="submit" aria-label="Search">
+                <button type="submit" aria-label="{{ __('Search') }}">
                     <i class="fas fa-search"></i>
                 </button>
             </form>
@@ -170,14 +170,14 @@
     @if(!empty($curatedCollections))
     <section class="heritage-collections">
         <div class="heritage-section-header">
-            <h2 class="heritage-section-title">Curated Collections</h2>
+            <h2 class="heritage-section-title">{{ __('Curated Collections') }}</h2>
             <a href="{{ route('informationobject.browse') }}" class="heritage-view-all">
                 View All <i class="fas fa-arrow-right"></i>
             </a>
         </div>
 
         <div class="heritage-carousel heritage-carousel-autorotate" data-autorotate="5000">
-            <button class="heritage-carousel-arrow left" aria-label="Previous" data-carousel="collections-track" data-scroll="-320">
+            <button class="heritage-carousel-arrow left" aria-label="{{ __('Previous') }}" data-carousel="collections-track" data-scroll="-320">
                 <i class="fas fa-chevron-left"></i>
             </button>
 
@@ -220,7 +220,7 @@
                 @endforeach
             </div>
 
-            <button class="heritage-carousel-arrow right" aria-label="Next" data-carousel="collections-track" data-scroll="320">
+            <button class="heritage-carousel-arrow right" aria-label="{{ __('Next') }}" data-carousel="collections-track" data-scroll="320">
                 <i class="fas fa-chevron-right"></i>
             </button>
 
@@ -235,7 +235,7 @@
          ================================================================ -->
     <section class="heritage-creators">
         <div class="heritage-section-header">
-            <h2 class="heritage-section-title">Browse by Creator</h2>
+            <h2 class="heritage-section-title">{{ __('Browse by Creator') }}</h2>
             <a href="{{ url('/heritage/creators') }}" class="heritage-view-all">
                 View All <i class="fas fa-arrow-right"></i>
             </a>
@@ -267,7 +267,7 @@
          ================================================================ -->
     <section class="heritage-timeline">
         <div class="heritage-section-header">
-            <h2 class="heritage-section-title">Explore by Time</h2>
+            <h2 class="heritage-section-title">{{ __('Explore by Time') }}</h2>
             <a href="{{ url('/heritage/timeline') }}" class="heritage-view-all">
                 Full Timeline <i class="fas fa-arrow-right"></i>
             </a>
@@ -299,7 +299,7 @@
          ================================================================ -->
     <section class="heritage-recent">
         <div class="heritage-section-header">
-            <h2 class="heritage-section-title">Recently Added</h2>
+            <h2 class="heritage-section-title">{{ __('Recently Added') }}</h2>
             <a href="{{ url('/heritage/search') }}?sort=recent" class="heritage-view-all">
                 View All <i class="fas fa-arrow-right"></i>
             </a>
@@ -347,7 +347,7 @@
          ================================================================ -->
     <section class="heritage-contribute">
         <div class="heritage-contribute-inner">
-            <h2 class="heritage-contribute-title">Help Us Preserve History</h2>
+            <h2 class="heritage-contribute-title">{{ __('Help Us Preserve History') }}</h2>
             <p class="heritage-contribute-subtitle">
                 Join our community of contributors helping to document and preserve our shared heritage.
             </p>
@@ -355,21 +355,21 @@
             <div class="heritage-cta-cards">
                 <div class="heritage-cta-card">
                     <div class="heritage-cta-icon"><i class="fas fa-file-alt"></i></div>
-                    <h3 class="heritage-cta-title">Transcribe</h3>
+                    <h3 class="heritage-cta-title">{{ __('Transcribe') }}</h3>
                     <p class="heritage-cta-description">Help make handwritten documents searchable by transcribing them.</p>
                     <a href="{{ url('/heritage/login') }}" class="heritage-cta-button">Start Transcribing</a>
                 </div>
 
                 <div class="heritage-cta-card">
                     <div class="heritage-cta-icon"><i class="fas fa-id-badge"></i></div>
-                    <h3 class="heritage-cta-title">Identify</h3>
+                    <h3 class="heritage-cta-title">{{ __('Identify') }}</h3>
                     <p class="heritage-cta-description">Help identify people, places, and objects in historical photographs.</p>
                     <a href="{{ url('/heritage/login') }}" class="heritage-cta-button">Help Identify</a>
                 </div>
 
                 <div class="heritage-cta-card">
                     <div class="heritage-cta-icon"><i class="fas fa-book"></i></div>
-                    <h3 class="heritage-cta-title">Add Context</h3>
+                    <h3 class="heritage-cta-title">{{ __('Add Context') }}</h3>
                     <p class="heritage-cta-description">Share your knowledge about local history and personal memories.</p>
                     <a href="{{ url('/heritage/login') }}" class="heritage-cta-button">Share Stories</a>
                 </div>
@@ -377,7 +377,7 @@
 
             <!-- Leaderboard -->
             <div class="heritage-leaderboard">
-                <h4 class="heritage-leaderboard-title">Top Contributors This Month</h4>
+                <h4 class="heritage-leaderboard-title">{{ __('Top Contributors This Month') }}</h4>
                 <div class="heritage-leaderboard-row">
                     @if($topContributors->count() > 0)
                         @foreach($topContributors as $contributor)

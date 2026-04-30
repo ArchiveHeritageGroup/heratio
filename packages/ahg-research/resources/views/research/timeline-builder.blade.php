@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('content')
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
@@ -16,7 +16,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">Timeline Builder</h1>
+    <h1 class="h2">{{ __('Timeline Builder') }}</h1>
     <div class="d-flex gap-2">
         <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#autoPopulateModal"><i class="fas fa-magic me-1"></i>Auto-populate</button>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal"><i class="fas fa-plus me-1"></i> Add Event</button>
@@ -39,7 +39,7 @@
         @else
         <div class="table-responsive">
             <table class="table table-sm">
-                <thead><tr><th>Label</th><th>Start</th><th>End</th><th>Type</th><th>Actions</th></tr></thead>
+                <thead><tr><th>{{ __('Label') }}</th><th>{{ __('Start') }}</th><th>{{ __('End') }}</th><th>{{ __('Type') }}</th><th>{{ __('Actions') }}</th></tr></thead>
                 <tbody>
                 @foreach($events as $ev)
                     <tr>
@@ -55,8 +55,8 @@
                                 data-start="{{ e($ev->date_start ?? '') }}"
                                 data-end="{{ e($ev->date_end ?? '') }}"
                                 data-type="{{ e($ev->date_type ?? '') }}"
-                                title="Edit"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-outline-danger delete-event-btn" data-id="{{ $ev->id }}" title="Delete"><i class="fas fa-trash"></i></button>
+                                title="{{ __('Edit') }}"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger delete-event-btn" data-id="{{ $ev->id }}" title="{{ __('Delete') }}"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                 @endforeach
@@ -71,24 +71,24 @@
 <div class="modal fade" id="addEventModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Add Event</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header"><h5 class="modal-title">{{ __('Add Event') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <div class="mb-3"><label class="form-label">Label <span class="text-danger">*</span></label><input type="text" id="eventLabel" class="form-control" required></div>
-                <div class="mb-3"><label class="form-label">Description</label><textarea id="eventDesc" class="form-control" rows="2"></textarea></div>
+                <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea id="eventDesc" class="form-control" rows="2"></textarea></div>
                 <div class="row mb-3">
                     <div class="col"><label class="form-label">Start Date <span class="text-danger">*</span></label><input type="date" id="eventStart" class="form-control" required></div>
-                    <div class="col"><label class="form-label">End Date</label><input type="date" id="eventEnd" class="form-control"></div>
+                    <div class="col"><label class="form-label">{{ __('End Date') }}</label><input type="date" id="eventEnd" class="form-control"></div>
                 </div>
-                <div class="mb-3"><label class="form-label">Type</label>
+                <div class="mb-3"><label class="form-label">{{ __('Type') }}</label>
                     <select id="eventType" class="form-select">
-                        <option value="event">Event</option>
-                        <option value="creation">Creation</option>
-                        <option value="accession">Accession</option>
-                        <option value="publication">Publication</option>
+                        <option value="event">{{ __('Event') }}</option>
+                        <option value="creation">{{ __('Creation') }}</option>
+                        <option value="accession">{{ __('Accession') }}</option>
+                        <option value="publication">{{ __('Publication') }}</option>
                     </select>
                 </div>
             </div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="button" class="btn btn-primary" id="saveEvent">Save</button></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="button" class="btn btn-primary" id="saveEvent">{{ __('Save') }}</button></div>
         </div>
     </div>
 </div>
@@ -97,25 +97,25 @@
 <div class="modal fade" id="editEventModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Edit Event</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header"><h5 class="modal-title">{{ __('Edit Event') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <input type="hidden" id="editEventId">
                 <div class="mb-3"><label class="form-label">Label <span class="text-danger">*</span></label><input type="text" id="editEventLabel" class="form-control" required></div>
-                <div class="mb-3"><label class="form-label">Description</label><textarea id="editEventDesc" class="form-control" rows="2"></textarea></div>
+                <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea id="editEventDesc" class="form-control" rows="2"></textarea></div>
                 <div class="row mb-3">
                     <div class="col"><label class="form-label">Start Date <span class="text-danger">*</span></label><input type="date" id="editEventStart" class="form-control" required></div>
-                    <div class="col"><label class="form-label">End Date</label><input type="date" id="editEventEnd" class="form-control"></div>
+                    <div class="col"><label class="form-label">{{ __('End Date') }}</label><input type="date" id="editEventEnd" class="form-control"></div>
                 </div>
-                <div class="mb-3"><label class="form-label">Type</label>
+                <div class="mb-3"><label class="form-label">{{ __('Type') }}</label>
                     <select id="editEventType" class="form-select">
-                        <option value="event">Event</option>
-                        <option value="creation">Creation</option>
-                        <option value="accession">Accession</option>
-                        <option value="publication">Publication</option>
+                        <option value="event">{{ __('Event') }}</option>
+                        <option value="creation">{{ __('Creation') }}</option>
+                        <option value="accession">{{ __('Accession') }}</option>
+                        <option value="publication">{{ __('Publication') }}</option>
                     </select>
                 </div>
             </div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="button" class="btn btn-primary" id="updateEvent">Update</button></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="button" class="btn btn-primary" id="updateEvent">{{ __('Update') }}</button></div>
         </div>
     </div>
 </div>
@@ -124,12 +124,12 @@
 <div class="modal fade" id="autoPopulateModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Auto-populate from Collection</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header"><h5 class="modal-title">{{ __('Auto-populate from Collection') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <p class="text-muted">Select an evidence set (collection) to auto-generate timeline events from its item dates.</p>
-                <div class="mb-3"><label class="form-label">Collection</label><select id="autoCollectionId"></select></div>
+                <div class="mb-3"><label class="form-label">{{ __('Collection') }}</label><select id="autoCollectionId"></select></div>
             </div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="button" class="btn btn-primary" id="autoPopulateBtn">Populate</button></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="button" class="btn btn-primary" id="autoPopulateBtn">{{ __('Populate') }}</button></div>
         </div>
     </div>
 </div>

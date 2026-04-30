@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-exclamation-triangle text-danger me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">Overdue Vital Record Reviews</h1><span class="small text-muted">Records past their scheduled review date</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Overdue Vital Record Reviews') }}</h1><span class="small text-muted">Records past their scheduled review date</span></div>
   </div>
 @endsection
 @section('content')
@@ -25,7 +25,7 @@
     <table class="table table-striped table-hover mb-0">
       <thead>
         <tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-          <th>ID</th><th>IO ID</th><th>IO Title</th><th>Reason</th><th>Review Cycle</th><th>Due Date</th><th>Days Overdue</th><th>Last Reviewed</th><th>Actions</th>
+          <th>{{ __('ID') }}</th><th>{{ __('IO ID') }}</th><th>{{ __('IO Title') }}</th><th>{{ __('Reason') }}</th><th>{{ __('Review Cycle') }}</th><th>{{ __('Due Date') }}</th><th>{{ __('Days Overdue') }}</th><th>{{ __('Last Reviewed') }}</th><th>{{ __('Actions') }}</th>
         </tr>
       </thead>
       <tbody>

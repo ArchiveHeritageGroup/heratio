@@ -9,7 +9,7 @@
 
 @section('sidebar')
 <div class="sidebar-content">
-  <h4>DAM Reports</h4>
+  <h4>{{ __('DAM Reports') }}</h4>
   <ul class="list-unstyled">
     <li><a href="{{ route('dam.reports.assets') }}"><i class="fas fa-file me-2"></i>Assets</a></li>
     <li><a href="{{ route('dam.reports.metadata') }}"><i class="fas fa-info-circle me-2"></i>Metadata</a></li>

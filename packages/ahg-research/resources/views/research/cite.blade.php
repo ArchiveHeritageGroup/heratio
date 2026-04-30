@@ -47,7 +47,7 @@
             @if(isset($citations[$style]) && !isset($citations[$style]['error']))
             <div class="input-group">
                 <textarea class="form-control" rows="3" readonly id="citation-{{ $style }}">{{ $citations[$style]['citation'] ?? '' }}</textarea>
-                <button class="btn atom-btn-white" type="button" onclick="copyCitation('{{ $style }}')" title="Copy to clipboard">
+                <button class="btn atom-btn-white" type="button" onclick="copyCitation('{{ $style }}')" title="{{ __('Copy to clipboard') }}">
                     <i class="fas fa-copy"></i>
                 </button>
             </div>

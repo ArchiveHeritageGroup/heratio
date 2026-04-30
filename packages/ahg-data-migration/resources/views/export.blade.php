@@ -5,11 +5,11 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-file-export me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Export Records</h1>
+      <h1 class="mb-0">{{ __('Export Records') }}</h1>
       <span class="small text-muted">Data Migration</span>
     </div>
   </div>
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
       <li class="breadcrumb-item active">Export</li>
@@ -29,9 +29,9 @@
           <select class="form-select" id="export_type" name="export_type" required>
             <option value="">-- Select format --</option>
             <option value="csv">CSV</option>
-            <option value="xml">EAD XML</option>
-            <option value="dc">Dublin Core XML</option>
-            <option value="mods">MODS XML</option>
+            <option value="xml">{{ __('EAD XML') }}</option>
+            <option value="dc">{{ __('Dublin Core XML') }}</option>
+            <option value="mods">{{ __('MODS XML') }}</option>
           </select>
         </div>
         <div class="mb-3">
@@ -40,10 +40,10 @@
           </label>
           <select class="form-select" id="target_type" name="target_type" required>
             <option value="">-- Select record type --</option>
-            <option value="informationObject">Information Objects</option>
-            <option value="actor">Authority Records</option>
-            <option value="repository">Repositories</option>
-            <option value="accession">Accessions</option>
+            <option value="informationObject">{{ __('Information Objects') }}</option>
+            <option value="actor">{{ __('Authority Records') }}</option>
+            <option value="repository">{{ __('Repositories') }}</option>
+            <option value="accession">{{ __('Accessions') }}</option>
           </select>
         </div>
         <div class="mb-3">

@@ -32,13 +32,13 @@
           <table class="table table-striped table-hover">
             <thead class="table-light">
               <tr>
-                <th>Name</th>
+                <th>{{ __('Name') }}</th>
                 <th>URL</th>
-                <th>User</th>
-                <th>Events</th>
-                <th>Status</th>
-                <th>Deliveries</th>
-                <th>Actions</th>
+                <th>{{ __('User') }}</th>
+                <th>{{ __('Events') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Deliveries') }}</th>
+                <th>{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -85,20 +85,20 @@
       <form method="post" action="{{ route('settings.webhooks') }}">
         @csrf
         <div class="modal-header">
-          <h5 class="modal-title">Create Webhook</h5>
+          <h5 class="modal-title">{{ __('Create Webhook') }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Name</label>
+            <label class="form-label">{{ __('Name') }}</label>
             <input type="text" name="name" class="form-control" required>
           </div>
           <div class="mb-3">
             <label class="form-label">URL</label>
-            <input type="url" name="url" class="form-control" required placeholder="https://example.com/webhook">
+            <input type="url" name="url" class="form-control" required placeholder="{{ __('https://example.com/webhook') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">Events</label>
+            <label class="form-label">{{ __('Events') }}</label>
             @foreach(['item.created', 'item.updated', 'item.deleted', 'item.published'] as $ev)
               <div class="form-check">
                 <input class="form-check-input" type="checkbox" name="events[]" value="{{ $ev }}" id="ev-{{ $ev }}">
@@ -108,8 +108,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="submit" class="btn btn-primary">{{ __('Create') }}</button>
         </div>
       </form>
     </div>

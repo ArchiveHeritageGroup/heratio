@@ -25,7 +25,7 @@
 
 <div class="row">
   <div class="col-md-8">
-    <nav aria-label="breadcrumb">
+    <nav aria-label="{{ __('breadcrumb') }}">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">Exhibitions</a></li>
         <li class="breadcrumb-item"><a href="{{ route('exhibition.show', ['id' => $exId]) }}">{{ $exhibition->title ?? '' }}</a></li>
@@ -34,7 +34,7 @@
     </nav>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1>Exhibition Objects</h1>
+      <h1>{{ __('Exhibition Objects') }}</h1>
       <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addObjectModal">
         <i class="fas fa-plus"></i> Add Object
       </button>
@@ -44,7 +44,7 @@
       <div class="card">
         <div class="card-body text-center py-5">
           <i class="fas fa-archive fa-3x text-muted mb-3"></i>
-          <h5>No objects added yet</h5>
+          <h5>{{ __('No objects added yet') }}</h5>
           <p class="text-muted">Add objects from the collection to this exhibition.</p>
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addObjectModal">
             <i class="fas fa-plus"></i> Add First Object
@@ -75,12 +75,12 @@
             <thead>
               <tr>
                 <th style="width: 60px;"></th>
-                <th>Object</th>
-                <th>Section</th>
-                <th>Location</th>
-                <th>Loan</th>
-                <th>Display Order</th>
-                <th class="text-end">Actions</th>
+                <th>{{ __('Object') }}</th>
+                <th>{{ __('Section') }}</th>
+                <th>{{ __('Location') }}</th>
+                <th>{{ __('Loan') }}</th>
+                <th>{{ __('Display Order') }}</th>
+                <th class="text-end">{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody id="objectList">
@@ -131,10 +131,10 @@
                   </td>
                   <td class="text-end">
                     <div class="btn-group btn-group-sm">
-                      <button type="button" class="btn btn-outline-primary" title="Edit">
+                      <button type="button" class="btn btn-outline-primary" title="{{ __('Edit') }}">
                         <i class="fas fa-edit"></i>
                       </button>
-                      <button type="button" class="btn btn-outline-danger" title="Remove">
+                      <button type="button" class="btn btn-outline-danger" title="{{ __('Remove') }}">
                         <i class="fas fa-times"></i>
                       </button>
                     </div>
@@ -154,7 +154,7 @@
   <div class="col-md-4">
     <div class="card mb-3">
       <div class="card-header">
-        <h5 class="mb-0">Exhibition Info</h5>
+        <h5 class="mb-0">{{ __('Exhibition Info') }}</h5>
       </div>
       <div class="card-body">
         <h6>{{ $exhibition->title ?? '' }}</h6>
@@ -174,7 +174,7 @@
     @if(!empty($sections) && (!is_object($sections) || !method_exists($sections, 'isEmpty') || !$sections->isEmpty()))
       <div class="card mb-3">
         <div class="card-header">
-          <h5 class="mb-0">Sections</h5>
+          <h5 class="mb-0">{{ __('Sections') }}</h5>
         </div>
         <ul class="list-group list-group-flush">
           @foreach($sections as $section)
@@ -190,7 +190,7 @@
 
     <div class="card">
       <div class="card-header">
-        <h5 class="mb-0">Actions</h5>
+        <h5 class="mb-0">{{ __('Actions') }}</h5>
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('exhibition.objectList', ['id' => $exId]) }}" class="list-group-item list-group-item-action">
@@ -208,31 +208,31 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add Object to Exhibition</h5>
+        <h5 class="modal-title">{{ __('Add Object to Exhibition') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form method="post" action="{{ route('exhibition.objects', ['id' => $exId]) }}">
         @csrf
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Search Objects</label>
-            <input type="text" id="objectSearch" class="form-control" placeholder="Search by title, number, or description...">
+            <label class="form-label">{{ __('Search Objects') }}</label>
+            <input type="text" id="objectSearch" class="form-control" placeholder="{{ __('Search by title, number, or description...') }}">
             <input type="hidden" name="museum_object_id" id="selectedObjectId">
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Display Location</label>
-            <input type="text" name="display_location" class="form-control" placeholder="e.g., Gallery A, Case 3">
+            <label class="form-label">{{ __('Display Location') }}</label>
+            <input type="text" name="display_location" class="form-control" placeholder="{{ __('e.g., Gallery A, Case 3') }}">
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Display Notes</label>
+            <label class="form-label">{{ __('Display Notes') }}</label>
             <textarea name="display_notes" class="form-control" rows="2"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Add Object</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="submit" class="btn btn-primary">{{ __('Add Object') }}</button>
         </div>
       </form>
     </div>

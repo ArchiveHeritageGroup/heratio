@@ -38,7 +38,7 @@
 
 <div class="row">
   <div class="col-md-8">
-    <nav aria-label="breadcrumb">
+    <nav aria-label="{{ __('breadcrumb') }}">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">Exhibitions</a></li>
         <li class="breadcrumb-item"><a href="{{ route('exhibition.show', ['id' => $exId]) }}">{{ $exhibition->title ?? '' }}</a></li>
@@ -47,7 +47,7 @@
     </nav>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1>Exhibition Events</h1>
+      <h1>{{ __('Exhibition Events') }}</h1>
       <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEventModal">
         <i class="fas fa-plus"></i> Add Event
       </button>
@@ -68,7 +68,7 @@
       <div class="card">
         <div class="card-body text-center py-5">
           <i class="fas fa-calendar fa-3x text-muted mb-3"></i>
-          <h5>No events scheduled</h5>
+          <h5>{{ __('No events scheduled') }}</h5>
           <p class="text-muted">Schedule events like openings, talks, workshops, and tours.</p>
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">
             <i class="fas fa-plus"></i> Schedule First Event
@@ -147,7 +147,7 @@
   <div class="col-md-4">
     <div class="card mb-3">
       <div class="card-header">
-        <h5 class="mb-0">Exhibition Info</h5>
+        <h5 class="mb-0">{{ __('Exhibition Info') }}</h5>
       </div>
       <div class="card-body">
         <h6>{{ $exhibition->title ?? '' }}</h6>
@@ -166,7 +166,7 @@
 
     <div class="card mb-3">
       <div class="card-header">
-        <h5 class="mb-0">Event Types</h5>
+        <h5 class="mb-0">{{ __('Event Types') }}</h5>
       </div>
       <div class="card-body">
         <ul class="list-unstyled small mb-0">
@@ -184,7 +184,7 @@
 
     <div class="card">
       <div class="card-header">
-        <h5 class="mb-0">Summary</h5>
+        <h5 class="mb-0">{{ __('Summary') }}</h5>
       </div>
       <div class="card-body">
         <ul class="list-unstyled mb-0">
@@ -210,7 +210,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add Event</h5>
+        <h5 class="modal-title">{{ __('Add Event') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form method="post" action="{{ route('exhibition.events', ['id' => $exId]) }}">
@@ -222,16 +222,16 @@
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Event Type</label>
+              <label class="form-label">{{ __('Event Type') }}</label>
               <select name="event_type" class="form-select">
-                <option value="other">Other</option>
-                <option value="opening">Opening</option>
-                <option value="closing">Closing</option>
-                <option value="talk">Talk/Lecture</option>
-                <option value="tour">Tour</option>
-                <option value="workshop">Workshop</option>
-                <option value="performance">Performance</option>
-                <option value="private_view">Private View</option>
+                <option value="other">{{ __('Other') }}</option>
+                <option value="opening">{{ __('Opening') }}</option>
+                <option value="closing">{{ __('Closing') }}</option>
+                <option value="talk">{{ __('Talk/Lecture') }}</option>
+                <option value="tour">{{ __('Tour') }}</option>
+                <option value="workshop">{{ __('Workshop') }}</option>
+                <option value="performance">{{ __('Performance') }}</option>
+                <option value="private_view">{{ __('Private View') }}</option>
               </select>
             </div>
             <div class="col-md-6 mb-3">
@@ -241,50 +241,50 @@
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Start Time</label>
+              <label class="form-label">{{ __('Start Time') }}</label>
               <input type="time" name="event_time" class="form-control">
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">End Time</label>
+              <label class="form-label">{{ __('End Time') }}</label>
               <input type="time" name="end_time" class="form-control">
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label">Location</label>
+            <label class="form-label">{{ __('Location') }}</label>
             <input type="text" name="location" class="form-control">
           </div>
           <div class="mb-3">
-            <label class="form-label">Description</label>
+            <label class="form-label">{{ __('Description') }}</label>
             <textarea name="description" class="form-control" rows="3"></textarea>
           </div>
           <div class="row">
             <div class="col-md-4 mb-3">
-              <label class="form-label">Capacity</label>
+              <label class="form-label">{{ __('Capacity') }}</label>
               <input type="number" name="capacity" class="form-control" min="1">
             </div>
             <div class="col-md-4 mb-3">
               <label class="form-label">&nbsp;</label>
               <div class="form-check mt-2">
                 <input type="checkbox" name="registration_required" class="form-check-input" value="1" id="addRegRequired">
-                <label class="form-check-label" for="addRegRequired">Registration Required</label>
+                <label class="form-check-label" for="addRegRequired">{{ __('Registration Required') }}</label>
               </div>
             </div>
             <div class="col-md-4 mb-3">
               <label class="form-label">&nbsp;</label>
               <div class="form-check mt-2">
                 <input type="checkbox" name="is_free" class="form-check-input" value="1" id="addIsFree" checked>
-                <label class="form-check-label" for="addIsFree">Free Event</label>
+                <label class="form-check-label" for="addIsFree">{{ __('Free Event') }}</label>
               </div>
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label">Ticket Price</label>
+            <label class="form-label">{{ __('Ticket Price') }}</label>
             <input type="number" name="ticket_price" class="form-control" min="0" step="0.01">
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Add Event</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="submit" class="btn btn-primary">{{ __('Add Event') }}</button>
         </div>
       </form>
     </div>

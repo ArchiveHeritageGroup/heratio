@@ -5,7 +5,7 @@
 @section('content')
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3">Disposal Queue</h1>
+        <h1 class="h3">{{ __('Disposal Queue') }}</h1>
         <a href="{{ route('records.disposal.history') }}" class="btn btn-outline-secondary btn-sm">
             <i class="fas fa-history"></i> View History
         </a>
@@ -60,33 +60,33 @@
         <div class="card-body">
             <form method="GET" action="{{ route('records.disposal.queue') }}" class="row g-2 align-items-end">
                 <div class="col-md-3">
-                    <label class="form-label" for="filter-status">Status</label>
+                    <label class="form-label" for="filter-status">{{ __('Status') }}</label>
                     <select name="status" id="filter-status" class="form-select form-select-sm">
-                        <option value="">All</option>
+                        <option value="">{{ __('All') }}</option>
                         @foreach (['pending', 'recommended', 'approved', 'cleared', 'executed', 'rejected', 'cancelled', 'retained'] as $s)
                             <option value="{{ $s }}" {{ ($filters['status'] ?? '') === $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label" for="filter-action-type">Action Type</label>
+                    <label class="form-label" for="filter-action-type">{{ __('Action Type') }}</label>
                     <select name="action_type" id="filter-action-type" class="form-select form-select-sm">
-                        <option value="">All</option>
+                        <option value="">{{ __('All') }}</option>
                         @foreach (['destroy' => 'Destroy', 'transfer_archives' => 'Transfer to Archives', 'transfer_external' => 'Transfer External', 'retain_permanent' => 'Retain Permanently', 'review' => 'Review'] as $val => $label)
                             <option value="{{ $val }}" {{ ($filters['action_type'] ?? '') === $val ? 'selected' : '' }}>{{ $label }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label" for="filter-date-from">Date From</label>
+                    <label class="form-label" for="filter-date-from">{{ __('Date From') }}</label>
                     <input type="date" name="date_from" id="filter-date-from" class="form-control form-control-sm" value="{{ $filters['date_from'] ?? '' }}">
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label" for="filter-date-to">Date To</label>
+                    <label class="form-label" for="filter-date-to">{{ __('Date To') }}</label>
                     <input type="date" name="date_to" id="filter-date-to" class="form-control form-control-sm" value="{{ $filters['date_to'] ?? '' }}">
                 </div>
                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+                    <button type="submit" class="btn btn-primary btn-sm w-100">{{ __('Filter') }}</button>
                 </div>
             </form>
         </div>
@@ -99,11 +99,11 @@
                 <table class="table table-striped table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>IO Title</th>
-                            <th>Action Type</th>
-                            <th>Status</th>
-                            <th>Initiated By</th>
-                            <th>Date</th>
+                            <th>{{ __('IO Title') }}</th>
+                            <th>{{ __('Action Type') }}</th>
+                            <th>{{ __('Status') }}</th>
+                            <th>{{ __('Initiated By') }}</th>
+                            <th>{{ __('Date') }}</th>
                             <th></th>
                         </tr>
                     </thead>

@@ -49,17 +49,17 @@
       <table class="table table-bordered table-striped mb-0">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Title</th>
+            <th>{{ __('ID') }}</th>
+            <th>{{ __('Title') }}</th>
             @if($isAdmin)
-              <th>Researcher</th>
+              <th>{{ __('Researcher') }}</th>
             @endif
-            <th>Source</th>
-            <th>Items</th>
-            <th>Files</th>
-            <th>Status</th>
-            <th>Created</th>
-            <th>Updated</th>
+            <th>{{ __('Source') }}</th>
+            <th>{{ __('Items') }}</th>
+            <th>{{ __('Files') }}</th>
+            <th>{{ __('Status') }}</th>
+            <th>{{ __('Created') }}</th>
+            <th>{{ __('Updated') }}</th>
           </tr>
         </thead>
         <tbody>

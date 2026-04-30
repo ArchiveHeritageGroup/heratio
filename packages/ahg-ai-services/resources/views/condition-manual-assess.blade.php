@@ -37,8 +37,8 @@
 
       {{-- Link to Object (optional) --}}
       <div class="mb-3">
-        <label class="form-label">Link to Object (optional)</label>
-        <input type="text" class="form-control form-control-sm" id="objectSearch" placeholder="Search by title..." autocomplete="off">
+        <label class="form-label">{{ __('Link to Object (optional)') }}</label>
+        <input type="text" class="form-control form-control-sm" id="objectSearch" placeholder="{{ __('Search by title...') }}" autocomplete="off">
         <input type="hidden" id="objectId" name="information_object_id" value="">
         <div id="objectResults" class="list-group position-absolute" style="z-index:1000;display:none"></div>
       </div>
@@ -62,7 +62,7 @@
 
       {{-- Damages --}}
       <div class="mb-3">
-        <label class="form-label">Damages</label>
+        <label class="form-label">{{ __('Damages') }}</label>
         <div id="damagesContainer"></div>
         <button type="button" class="btn btn-sm btn-outline-success mt-2" id="addDamageBtn">
           <i class="fas fa-plus me-1"></i>Add Damage
@@ -73,13 +73,13 @@
 
       {{-- Recommendations --}}
       <div class="mb-3">
-        <label class="form-label">Recommendations</label>
-        <textarea class="form-control form-control-sm" id="recommendations" name="recommendations" rows="3" placeholder="Enter conservation recommendations..."></textarea>
+        <label class="form-label">{{ __('Recommendations') }}</label>
+        <textarea class="form-control form-control-sm" id="recommendations" name="recommendations" rows="3" placeholder="{{ __('Enter conservation recommendations...') }}"></textarea>
       </div>
 
       {{-- Image Upload (optional) --}}
       <div class="mb-3">
-        <label class="form-label">Reference Photo (optional)</label>
+        <label class="form-label">{{ __('Reference Photo (optional)') }}</label>
         <input type="file" class="form-control form-control-sm" id="imageFile" name="image_file" accept="image/*">
       </div>
 

@@ -13,30 +13,30 @@
     <div class="card-body">
       <form method="GET" class="row g-2">
         <div class="col-md-2">
-          <label class="form-label">Type</label>
+          <label class="form-label">{{ __('Type') }}</label>
           <select name="type" class="form-select form-select-sm">
-            <option value="">All</option>
-            <option value="rights_statement" {{ request('type') === 'rights_statement' ? 'selected' : '' }}>Rights Statement</option>
-            <option value="cc_license" {{ request('type') === 'cc_license' ? 'selected' : '' }}>CC License</option>
-            <option value="tk_label" {{ request('type') === 'tk_label' ? 'selected' : '' }}>TK Label</option>
-            <option value="embargo" {{ request('type') === 'embargo' ? 'selected' : '' }}>Embargo</option>
+            <option value="">{{ __('All') }}</option>
+            <option value="rights_statement" {{ request('type') === 'rights_statement' ? 'selected' : '' }}>{{ __('Rights Statement') }}</option>
+            <option value="cc_license" {{ request('type') === 'cc_license' ? 'selected' : '' }}>{{ __('CC License') }}</option>
+            <option value="tk_label" {{ request('type') === 'tk_label' ? 'selected' : '' }}>{{ __('TK Label') }}</option>
+            <option value="embargo" {{ request('type') === 'embargo' ? 'selected' : '' }}>{{ __('Embargo') }}</option>
           </select>
         </div>
         <div class="col-md-3">
-          <label class="form-label">Search</label>
-          <input type="text" name="q" class="form-control form-control-sm" value="{{ request('q') }}" placeholder="Object title or ID">
+          <label class="form-label">{{ __('Search') }}</label>
+          <input type="text" name="q" class="form-control form-control-sm" value="{{ request('q') }}" placeholder="{{ __('Object title or ID') }}">
         </div>
         <div class="col-md-2">
-          <label class="form-label">Repository</label>
+          <label class="form-label">{{ __('Repository') }}</label>
           <select name="repository" class="form-select form-select-sm">
-            <option value="">All</option>
+            <option value="">{{ __('All') }}</option>
             @foreach($repositories ?? [] as $repo)
               <option value="{{ $repo->id }}" {{ request('repository') == $repo->id ? 'selected' : '' }}>{{ e($repo->name ?? '') }}</option>
             @endforeach
           </select>
         </div>
         <div class="col-md-2 d-flex align-items-end gap-1">
-          <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+          <button type="submit" class="btn btn-sm btn-primary">{{ __('Filter') }}</button>
           <a href="{{ route('ext-rights-admin.browse') }}" class="btn btn-sm btn-secondary">Clear</a>
         </div>
       </form>
@@ -47,7 +47,7 @@
     <div class="card-body table-responsive">
       <table class="table table-striped table-hover">
         <thead>
-          <tr><th>Object</th><th>Rights Type</th><th>Value</th><th>Date</th><th>Actions</th></tr>
+          <tr><th>{{ __('Object') }}</th><th>{{ __('Rights Type') }}</th><th>{{ __('Value') }}</th><th>{{ __('Date') }}</th><th>{{ __('Actions') }}</th></tr>
         </thead>
         <tbody>
           @forelse($rights ?? [] as $right)

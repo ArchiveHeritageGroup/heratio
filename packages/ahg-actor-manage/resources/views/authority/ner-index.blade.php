@@ -11,7 +11,7 @@
   $pendingItems = $pendingEntities['data'] ?? [];
 @endphp
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
@@ -67,10 +67,10 @@
     <table class="table table-sm table-hover mb-0">
       <thead>
         <tr>
-          <th>Entity Value</th>
-          <th>Type</th>
-          <th>Confidence</th>
-          <th>Source</th>
+          <th>{{ __('Entity Value') }}</th>
+          <th>{{ __('Type') }}</th>
+          <th>{{ __('Confidence') }}</th>
+          <th>{{ __('Source') }}</th>
           <th></th>
         </tr>
       </thead>
@@ -107,10 +107,10 @@
     <table class="table table-sm table-hover mb-0">
       <thead>
         <tr>
-          <th>Entity</th>
-          <th>Type</th>
-          <th>Actor</th>
-          <th>Status</th>
+          <th>{{ __('Entity') }}</th>
+          <th>{{ __('Type') }}</th>
+          <th>{{ __('Actor') }}</th>
+          <th>{{ __('Status') }}</th>
           <th></th>
         </tr>
       </thead>

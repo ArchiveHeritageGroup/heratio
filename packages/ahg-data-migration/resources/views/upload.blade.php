@@ -7,12 +7,12 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-upload me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Upload File</h1>
+      <h1 class="mb-0">{{ __('Upload File') }}</h1>
       <span class="small text-muted">Data Migration</span>
     </div>
   </div>
 
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
       <li class="breadcrumb-item active">Upload</li>
@@ -84,42 +84,42 @@
           <div class="row g-3">
             {{-- Excel Sheet Selection (only for Excel files) --}}
             <div class="col-md-6 d-none" id="sheetSelectGroup">
-              <label class="form-label">Excel Sheet</label>
+              <label class="form-label">{{ __('Excel Sheet') }}</label>
               <select name="sheet_index" id="sheetSelect" class="form-select">
-                <option value="0">Loading sheets...</option>
+                <option value="0">{{ __('Loading sheets...') }}</option>
               </select>
               <small class="text-muted">Select which sheet to import</small>
             </div>
 
             {{-- Header Row Option --}}
             <div class="col-md-6">
-              <label class="form-label">First Row Contains</label>
+              <label class="form-label">{{ __('First Row Contains') }}</label>
               <select name="first_row_header" id="firstRowHeader" class="form-select">
-                <option value="1" selected>Column Headers (skip first row)</option>
-                <option value="0">Data (no headers - use column letters)</option>
+                <option value="1" selected>{{ __('Column Headers (skip first row)') }}</option>
+                <option value="0">{{ __('Data (no headers - use column letters)') }}</option>
               </select>
             </div>
 
             {{-- CSV Delimiter (only for CSV files) --}}
             <div class="col-md-6 d-none" id="delimiterGroup">
-              <label class="form-label">CSV Delimiter</label>
+              <label class="form-label">{{ __('CSV Delimiter') }}</label>
               <select name="delimiter" id="delimiter" class="form-select">
-                <option value="auto">Auto-detect</option>
-                <option value=",">Comma (,)</option>
-                <option value=";">Semicolon (;)</option>
-                <option value="\t">Tab</option>
-                <option value="|">Pipe (|)</option>
+                <option value="auto">{{ __('Auto-detect') }}</option>
+                <option value=",">{{ __('Comma (,)') }}</option>
+                <option value=";">{{ __('Semicolon (;)') }}</option>
+                <option value="\t">{{ __('Tab') }}</option>
+                <option value="|">{{ __('Pipe (|)') }}</option>
               </select>
             </div>
 
             {{-- Encoding --}}
             <div class="col-md-6">
-              <label class="form-label">File Encoding</label>
+              <label class="form-label">{{ __('File Encoding') }}</label>
               <select name="encoding" id="encoding" class="form-select">
-                <option value="auto">Auto-detect</option>
-                <option value="UTF-8">UTF-8</option>
-                <option value="ISO-8859-1">ISO-8859-1 (Latin-1)</option>
-                <option value="Windows-1252">Windows-1252</option>
+                <option value="auto">{{ __('Auto-detect') }}</option>
+                <option value="UTF-8">{{ __('UTF-8') }}</option>
+                <option value="ISO-8859-1">{{ __('ISO-8859-1 (Latin-1)') }}</option>
+                <option value="Windows-1252">{{ __('Windows-1252') }}</option>
               </select>
             </div>
           </div>
@@ -135,26 +135,26 @@
           </div>
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">File Location</label>
+              <label class="form-label">{{ __('File Location') }}</label>
               <select name="digital_object_source" id="digitalObjectSource" class="form-select">
-                <option value="none">No digital objects to import</option>
-                <option value="server">Files already on server (FTP/SFTP uploaded)</option>
-                <option value="same">Same folder as import file</option>
+                <option value="none">{{ __('No digital objects to import') }}</option>
+                <option value="server">{{ __('Files already on server (FTP/SFTP uploaded)') }}</option>
+                <option value="same">{{ __('Same folder as import file') }}</option>
               </select>
             </div>
             <div class="col-md-6 d-none" id="serverPathDiv">
-              <label class="form-label">Server Folder Path</label>
+              <label class="form-label">{{ __('Server Folder Path') }}</label>
               <select name="digital_object_folder" id="digitalObjectFolder" class="form-select">
                 <option value="{{ config('heratio.uploads_path', storage_path('app/uploads')) }}/migration/">uploads/migration/</option>
                 <option value="{{ config('heratio.uploads_path', storage_path('app/uploads')) }}/imports/">uploads/imports/</option>
                 <option value="{{ config('heratio.uploads_path', storage_path('app/uploads')) }}/digital_objects/">uploads/digital_objects/</option>
-                <option value="custom">Custom path...</option>
+                <option value="custom">{{ __('Custom path...') }}</option>
               </select>
             </div>
           </div>
           <div class="row g-3 mt-2 d-none" id="customPathRow">
             <div class="col-md-12">
-              <label class="form-label">Custom Server Path</label>
+              <label class="form-label">{{ __('Custom Server Path') }}</label>
               <input type="text" name="custom_digital_path" id="customDigitalPath" class="form-control"
                      placeholder="{{ config('heratio.uploads_path', storage_path('app/uploads')) }}/myfiles/">
               <small class="text-muted">Full server path where digital objects are stored</small>
@@ -172,35 +172,35 @@
           <h6 class="text-primary"><span class="badge bg-primary me-2">2c</span>Source Format</h6>
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Import From</label>
+              <label class="form-label">{{ __('Import From') }}</label>
               <select name="source_format" id="sourceFormat" class="form-select">
-                <option value="auto">Auto-detect from file</option>
+                <option value="auto">{{ __('Auto-detect from file') }}</option>
                 <optgroup label="Industry Standards">
-                  <option value="preservica_opex">Preservica OPEX (folder/ZIP)</option>
-                  <option value="preservica_xip">Preservica XIP/PAX</option>
-                  <option value="archivesspace">ArchivesSpace Export</option>
-                  <option value="vernon">Vernon CMS</option>
-                  <option value="emu">EMu (Museum)</option>
-                  <option value="pastperfect">PastPerfect</option>
-                  <option value="collectiveaccess">CollectiveAccess</option>
+                  <option value="preservica_opex">{{ __('Preservica OPEX (folder/ZIP)') }}</option>
+                  <option value="preservica_xip">{{ __('Preservica XIP/PAX') }}</option>
+                  <option value="archivesspace">{{ __('ArchivesSpace Export') }}</option>
+                  <option value="vernon">{{ __('Vernon CMS') }}</option>
+                  <option value="emu">{{ __('EMu (Museum)') }}</option>
+                  <option value="pastperfect">{{ __('PastPerfect') }}</option>
+                  <option value="collectiveaccess">{{ __('CollectiveAccess') }}</option>
                 </optgroup>
                 <optgroup label="Standard Formats">
-                  <option value="ead">EAD 2002 (Archives)</option>
-                  <option value="ead3">EAD3 (Archives)</option>
-                  <option value="dc">Dublin Core XML</option>
-                  <option value="mods">MODS (Library)</option>
-                  <option value="marc">MARC XML (Library)</option>
-                  <option value="lido">LIDO (Museum)</option>
-                  <option value="spectrum">Spectrum CSV</option>
+                  <option value="ead">{{ __('EAD 2002 (Archives)') }}</option>
+                  <option value="ead3">{{ __('EAD3 (Archives)') }}</option>
+                  <option value="dc">{{ __('Dublin Core XML') }}</option>
+                  <option value="mods">{{ __('MODS (Library)') }}</option>
+                  <option value="marc">{{ __('MARC XML (Library)') }}</option>
+                  <option value="lido">{{ __('LIDO (Museum)') }}</option>
+                  <option value="spectrum">{{ __('Spectrum CSV') }}</option>
                 </optgroup>
                 <optgroup label="Generic">
-                  <option value="generic_csv">Generic CSV</option>
-                  <option value="generic_xml">Generic XML</option>
+                  <option value="generic_csv">{{ __('Generic CSV') }}</option>
+                  <option value="generic_xml">{{ __('Generic XML') }}</option>
                 </optgroup>
               </select>
             </div>
             <div class="col-md-6 d-none" id="folderSourceGroup">
-              <label class="form-label">Or Select Server Folder</label>
+              <label class="form-label">{{ __('Or Select Server Folder') }}</label>
               <div class="input-group">
                 <input type="text" name="source_folder" id="sourceFolder" class="form-control"
                        placeholder="{{ config('heratio.uploads_path', storage_path('app/uploads')) }}/preservica_export/">
@@ -221,21 +221,21 @@
               <label for="target_type" class="form-label">Target Record Type <span class="text-danger">*</span></label>
               <select class="form-select @error('target_type') is-invalid @enderror" id="target_type" name="target_type" required>
                 <option value="">-- Select target type --</option>
-                <option value="archives" {{ old('target_type') === 'archives' ? 'selected' : '' }}>Archives (ISAD-G)</option>
-                <option value="library" {{ old('target_type') === 'library' ? 'selected' : '' }}>Library</option>
-                <option value="museum" {{ old('target_type') === 'museum' ? 'selected' : '' }}>Museum (Spectrum)</option>
-                <option value="gallery" {{ old('target_type') === 'gallery' ? 'selected' : '' }}>Gallery (CCO)</option>
-                <option value="dam" {{ old('target_type') === 'dam' ? 'selected' : '' }}>Digital Assets (DAM)</option>
-                <option value="accession" {{ old('target_type') === 'accession' ? 'selected' : '' }}>Accession Records</option>
-                <option value="actor" {{ old('target_type') === 'actor' ? 'selected' : '' }}>Authority Records (ISAAR)</option>
-                <option value="repository" {{ old('target_type') === 'repository' ? 'selected' : '' }}>Repositories (ISDIAH)</option>
+                <option value="archives" {{ old('target_type') === 'archives' ? 'selected' : '' }}>{{ __('Archives (ISAD-G)') }}</option>
+                <option value="library" {{ old('target_type') === 'library' ? 'selected' : '' }}>{{ __('Library') }}</option>
+                <option value="museum" {{ old('target_type') === 'museum' ? 'selected' : '' }}>{{ __('Museum (Spectrum)') }}</option>
+                <option value="gallery" {{ old('target_type') === 'gallery' ? 'selected' : '' }}>{{ __('Gallery (CCO)') }}</option>
+                <option value="dam" {{ old('target_type') === 'dam' ? 'selected' : '' }}>{{ __('Digital Assets (DAM)') }}</option>
+                <option value="accession" {{ old('target_type') === 'accession' ? 'selected' : '' }}>{{ __('Accession Records') }}</option>
+                <option value="actor" {{ old('target_type') === 'actor' ? 'selected' : '' }}>{{ __('Authority Records (ISAAR)') }}</option>
+                <option value="repository" {{ old('target_type') === 'repository' ? 'selected' : '' }}>{{ __('Repositories (ISDIAH)') }}</option>
               </select>
               @error('target_type')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
             </div>
             <div class="col-md-6">
-              <label for="saved_mapping" class="form-label">Load Saved Mapping (Optional)</label>
+              <label for="saved_mapping" class="form-label">{{ __('Load Saved Mapping (Optional)') }}</label>
               <select name="saved_mapping" id="savedMapping" class="form-select">
                 <option value="">-- None (map manually) --</option>
                 @foreach($savedMappings as $mapping)
@@ -253,9 +253,9 @@
             <div class="col-md-6">
               <label for="import_type" class="form-label">Import Type <span class="text-danger">*</span></label>
               <select class="form-select @error('import_type') is-invalid @enderror" id="import_type" name="import_type" required>
-                <option value="create" {{ old('import_type', 'create') === 'create' ? 'selected' : '' }}>Create new records</option>
-                <option value="update" {{ old('import_type') === 'update' ? 'selected' : '' }}>Match and update existing</option>
-                <option value="replace" {{ old('import_type') === 'replace' ? 'selected' : '' }}>Delete and replace</option>
+                <option value="create" {{ old('import_type', 'create') === 'create' ? 'selected' : '' }}>{{ __('Create new records') }}</option>
+                <option value="update" {{ old('import_type') === 'update' ? 'selected' : '' }}>{{ __('Match and update existing') }}</option>
+                <option value="replace" {{ old('import_type') === 'replace' ? 'selected' : '' }}>{{ __('Delete and replace') }}</option>
               </select>
               <div class="form-text">
                 <strong>Create new:</strong> All rows create new records.<br>
@@ -296,7 +296,7 @@
   @if(isset($recentImports) && count($recentImports) > 0)
   <div class="card mt-4">
     <div class="card-header">
-      <h6 class="mb-0">Recent Imports</h6>
+      <h6 class="mb-0">{{ __('Recent Imports') }}</h6>
     </div>
     <div class="list-group list-group-flush">
       @foreach($recentImports as $import)

@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Visible elements</h1>
+  <h1>{{ __('Visible elements') }}</h1>
 @endsection
 
 @section('content')

@@ -52,7 +52,7 @@
     <div class="d-flex align-items-center">
       <i class="fas fa-3x fa-desktop me-3 text-primary" aria-hidden="true"></i>
       <div>
-        <h1 class="mb-0">Display Configuration</h1>
+        <h1 class="mb-0">{{ __('Display Configuration') }}</h1>
         <span class="small text-muted">Manage display profiles, levels, fields, and collection types</span>
       </div>
     </div>

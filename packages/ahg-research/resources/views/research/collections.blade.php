@@ -83,7 +83,7 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
             <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Create</button>
           </div>
         </form>

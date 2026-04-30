@@ -22,7 +22,7 @@
   }
 @endphp
 <div class="container-xxl">
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.dashboard') }}">ICIP</a></li>
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.consent-list') }}">Consent Records</a></li>
@@ -50,7 +50,7 @@
       <div class="col-lg-8">
         @if(!$object)
           <div class="card mb-4">
-            <div class="card-header"><h5 class="mb-0">Information Object</h5></div>
+            <div class="card-header"><h5 class="mb-0">{{ __('Information Object') }}</h5></div>
             <div class="card-body">
               <div class="mb-3">
                 <label class="form-label">Object ID <span class="text-danger">*</span></label>
@@ -64,13 +64,13 @@
         @endif
 
         <div class="card mb-4">
-          <div class="card-header"><h5 class="mb-0">Consent Details</h5></div>
+          <div class="card-header"><h5 class="mb-0">{{ __('Consent Details') }}</h5></div>
           <div class="card-body">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Community</label>
+                <label class="form-label">{{ __('Community') }}</label>
                 <select name="community_id" class="form-select">
-                  <option value="">Not specified / Multiple</option>
+                  <option value="">{{ __('Not specified / Multiple') }}</option>
                   @foreach($communities as $c)
                     <option value="{{ $c->id }}" @selected(($consent->community_id ?? '') == $c->id)>{{ $c->name }}</option>
                   @endforeach
@@ -87,7 +87,7 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Consent Scope</label>
+              <label class="form-label">{{ __('Consent Scope') }}</label>
               <div class="row">
                 @foreach($scopeOptions as $value => $label)
                   <div class="col-md-6 col-lg-4">
@@ -103,24 +103,24 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Consent Date</label>
+                <label class="form-label">{{ __('Consent Date') }}</label>
                 <input type="date" name="consent_date" class="form-control" value="{{ $consent->consent_date ?? '' }}">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Expiry Date</label>
+                <label class="form-label">{{ __('Expiry Date') }}</label>
                 <input type="date" name="consent_expiry_date" class="form-control" value="{{ $consent->consent_expiry_date ?? '' }}">
                 <div class="form-text">Leave blank for indefinite consent</div>
               </div>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Consent Granted By</label>
+              <label class="form-label">{{ __('Consent Granted By') }}</label>
               <input type="text" name="consent_granted_by" class="form-control" value="{{ $consent->consent_granted_by ?? '' }}">
               <div class="form-text">Person or authority who granted consent</div>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Consent Document Path</label>
+              <label class="form-label">{{ __('Consent Document Path') }}</label>
               <input type="text" name="consent_document_path" class="form-control" value="{{ $consent->consent_document_path ?? '' }}">
               <div class="form-text">Path to uploaded consent document (if applicable)</div>
             </div>
@@ -128,20 +128,20 @@
         </div>
 
         <div class="card mb-4">
-          <div class="card-header"><h5 class="mb-0">Conditions &amp; Restrictions</h5></div>
+          <div class="card-header"><h5 class="mb-0">{{ __('Conditions &amp; Restrictions') }}</h5></div>
           <div class="card-body">
             <div class="mb-3">
-              <label class="form-label">Conditions</label>
+              <label class="form-label">{{ __('Conditions') }}</label>
               <textarea name="conditions" class="form-control" rows="4">{{ $consent->conditions ?? '' }}</textarea>
               <div class="form-text">Any conditions attached to this consent</div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Restrictions</label>
+              <label class="form-label">{{ __('Restrictions') }}</label>
               <textarea name="restrictions" class="form-control" rows="4">{{ $consent->restrictions ?? '' }}</textarea>
               <div class="form-text">Specific usage restrictions that apply</div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Notes</label>
+              <label class="form-label">{{ __('Notes') }}</label>
               <textarea name="notes" class="form-control" rows="3">{{ $consent->notes ?? '' }}</textarea>
             </div>
           </div>
@@ -160,7 +160,7 @@
         </div>
 
         <div class="card">
-          <div class="card-header"><h6 class="mb-0">Status Guide</h6></div>
+          <div class="card-header"><h6 class="mb-0">{{ __('Status Guide') }}</h6></div>
           <div class="card-body small">
             <dl class="mb-0">
               <dt class="text-muted">Not Required</dt>

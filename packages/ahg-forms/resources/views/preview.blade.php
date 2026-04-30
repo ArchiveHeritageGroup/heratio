@@ -21,7 +21,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('forms.index') }}">Form Templates</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('forms.builder', ['id' => $template->id ?? 0]) }}">Builder</a></li>
@@ -41,7 +41,7 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Form Preview</h5>
+                    <h5 class="mb-0">{{ __('Form Preview') }}</h5>
                 </div>
                 <div class="card-body">
                     @if($fields->isEmpty())
@@ -79,9 +79,9 @@
                                         @elseif($field->field_type === 'select' || $field->field_type === 'multiselect' || $field->field_type === 'radio')
                                             <select class="form-select" {{ !empty($field->is_readonly) ? 'disabled' : '' }}>
                                                 <option value="">-- Select --</option>
-                                                <option>Option 1</option>
-                                                <option>Option 2</option>
-                                                <option>Option 3</option>
+                                                <option>{{ __('Option 1') }}</option>
+                                                <option>{{ __('Option 2') }}</option>
+                                                <option>{{ __('Option 3') }}</option>
                                             </select>
 
                                         @elseif($field->field_type === 'date')
@@ -92,10 +92,10 @@
                                         @elseif($field->field_type === 'daterange' || $field->field_type === 'date_range')
                                             <div class="row">
                                                 <div class="col-6">
-                                                    <input type="date" class="form-control" placeholder="Start date">
+                                                    <input type="date" class="form-control" placeholder="{{ __('Start date') }}">
                                                 </div>
                                                 <div class="col-6">
-                                                    <input type="date" class="form-control" placeholder="End date">
+                                                    <input type="date" class="form-control" placeholder="{{ __('End date') }}">
                                                 </div>
                                             </div>
 
@@ -112,7 +112,7 @@
 
                                         @elseif($field->field_type === 'autocomplete')
                                             <input type="text" class="form-control"
-                                                   placeholder="Start typing to search...">
+                                                   placeholder="{{ __('Start typing to search...') }}">
 
                                         @elseif($field->field_type === 'hidden')
                                             <input type="hidden" value="{{ $field->default_value ?? '' }}">
@@ -135,7 +135,7 @@
                                     <i class="fas fa-save me-1"></i> Save (Preview Only)
                                 </button>
                                 <button type="button" class="btn btn-outline-secondary" disabled>
-                                    Cancel
+                                    {{ __('Cancel') }}
                                 </button>
                             </div>
                         </form>

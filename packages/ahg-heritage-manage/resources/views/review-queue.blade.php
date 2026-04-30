@@ -28,7 +28,7 @@ $total = $queueData['total'] ?? 0;
 
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">Pending Contributions</h5><span class="badge bg-warning text-dark">{{ $total }} pending</span>
+        <h5 class="mb-0">{{ __('Pending Contributions') }}</h5><span class="badge bg-warning text-dark">{{ $total }} pending</span>
       </div>
       <div class="card-body p-0">
         @if(empty($contributions))

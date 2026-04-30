@@ -6,7 +6,7 @@
 <div class="multiline-header d-flex align-items-center mb-3">
   <i class="fas fa-3x fa-database me-3" aria-hidden="true"></i>
   <div class="d-flex flex-column">
-    <h1 class="mb-0">Backup & Restore</h1>
+    <h1 class="mb-0">{{ __('Backup & Restore') }}</h1>
     <span class="small text-muted">Manage database and file backups</span>
   </div>
 </div>
@@ -150,11 +150,11 @@
             <table class="table table-hover mb-0">
               <thead class="table-light">
                 <tr>
-                  <th>Date</th>
-                  <th>Type</th>
-                  <th>Components</th>
-                  <th>Size</th>
-                  <th class="text-end">Actions</th>
+                  <th>{{ __('Date') }}</th>
+                  <th>{{ __('Type') }}</th>
+                  <th>{{ __('Components') }}</th>
+                  <th>{{ __('Size') }}</th>
+                  <th class="text-end">{{ __('Actions') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -189,16 +189,16 @@
                       @foreach($backup['components'] as $comp)
                         @switch($comp)
                           @case('database')
-                            <span class="badge bg-success me-1" title="Database"><i class="fas fa-database"></i></span>
+                            <span class="badge bg-success me-1" title="{{ __('Database') }}"><i class="fas fa-database"></i></span>
                             @break
                           @case('uploads')
-                            <span class="badge bg-warning text-dark me-1" title="Uploads"><i class="fas fa-images"></i></span>
+                            <span class="badge bg-warning text-dark me-1" title="{{ __('Uploads') }}"><i class="fas fa-images"></i></span>
                             @break
                           @case('plugins')
-                            <span class="badge bg-info me-1" title="Plugins"><i class="fas fa-puzzle-piece"></i></span>
+                            <span class="badge bg-info me-1" title="{{ __('Plugins') }}"><i class="fas fa-puzzle-piece"></i></span>
                             @break
                           @case('framework')
-                            <span class="badge bg-secondary me-1" title="Framework"><i class="fas fa-code"></i></span>
+                            <span class="badge bg-secondary me-1" title="{{ __('Framework') }}"><i class="fas fa-code"></i></span>
                             @break
                         @endswitch
                       @endforeach
@@ -206,13 +206,13 @@
                     <td>{{ $backup['size_human'] }}</td>
                     <td class="text-end">
                       <div class="btn-group btn-group-sm">
-                        <a href="{{ route('backup.restore') }}?backup_id={{ $backup['id'] }}" class="btn btn-outline-success" title="Restore">
+                        <a href="{{ route('backup.restore') }}?backup_id={{ $backup['id'] }}" class="btn btn-outline-success" title="{{ __('Restore') }}">
                           <i class="fas fa-undo"></i>
                         </a>
-                        <a href="{{ route('backup.download', $backup['id']) }}" class="btn btn-outline-primary" title="Download">
+                        <a href="{{ route('backup.download', $backup['id']) }}" class="btn btn-outline-primary" title="{{ __('Download') }}">
                           <i class="fas fa-download"></i>
                         </a>
-                        <button type="button" class="btn btn-outline-danger" title="Delete" onclick="deleteBackup('{{ $backup['id'] }}', '{{ $backup['filename'] }}')">
+                        <button type="button" class="btn btn-outline-danger" title="{{ __('Delete') }}" onclick="deleteBackup('{{ $backup['id'] }}', '{{ $backup['filename'] }}')">
                           <i class="fas fa-trash"></i>
                         </button>
                       </div>
@@ -242,7 +242,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="createBackupModalLabel"><i class="fas fa-plus me-2"></i>Create Backup</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
       </div>
       <div class="modal-body">
         <p class="text-muted">Select components to include in this backup:</p>
@@ -281,7 +281,7 @@
         <div id="backup-result" class="d-none"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
         <button type="button" class="btn btn-primary" id="btn-start-backup">
           <i class="fas fa-play me-1"></i>Start Backup
         </button>
@@ -333,7 +333,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
         <button type="button" class="btn btn-primary" id="btn-db-backup">
           <i class="fas fa-play me-1"></i>Start Backup
         </button>
@@ -379,8 +379,8 @@
         </div>
         <hr>
         <div class="d-flex justify-content-between">
-          <button type="button" class="btn btn-sm btn-outline-secondary" id="full-select-all">Select All</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" id="full-select-none">Deselect All</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="full-select-all">{{ __('Select All') }}</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="full-select-none">{{ __('Deselect All') }}</button>
         </div>
         <div id="full-backup-progress" class="mt-3 d-none">
           <div class="progress">
@@ -390,7 +390,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
         <button type="button" class="btn btn-dark" id="btn-full-backup">
           <i class="fas fa-play me-1"></i>Start Backup
         </button>
@@ -409,43 +409,43 @@
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label" for="sched-name">Name</label>
+          <label class="form-label" for="sched-name">{{ __('Name') }}</label>
           <input type="text" class="form-control" id="sched-name" value="Daily Database Backup" required>
         </div>
         <div class="row mb-3">
           <div class="col-6">
-            <label class="form-label" for="sched-frequency">Frequency</label>
+            <label class="form-label" for="sched-frequency">{{ __('Frequency') }}</label>
             <select class="form-select" id="sched-frequency">
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-              <option value="hourly">Hourly</option>
+              <option value="daily">{{ __('Daily') }}</option>
+              <option value="weekly">{{ __('Weekly') }}</option>
+              <option value="monthly">{{ __('Monthly') }}</option>
+              <option value="hourly">{{ __('Hourly') }}</option>
             </select>
           </div>
           <div class="col-6">
-            <label class="form-label" for="sched-time">Time</label>
+            <label class="form-label" for="sched-time">{{ __('Time') }}</label>
             <input type="time" class="form-control" id="sched-time" value="02:00">
           </div>
         </div>
         <div class="row mb-3">
           <div class="col-6" id="sched-dow-group" style="display:none">
-            <label class="form-label" for="sched-dow">Day of Week</label>
+            <label class="form-label" for="sched-dow">{{ __('Day of Week') }}</label>
             <select class="form-select" id="sched-dow">
-              <option value="0">Sunday</option>
-              <option value="1">Monday</option>
-              <option value="2">Tuesday</option>
-              <option value="3">Wednesday</option>
-              <option value="4">Thursday</option>
-              <option value="5">Friday</option>
-              <option value="6">Saturday</option>
+              <option value="0">{{ __('Sunday') }}</option>
+              <option value="1">{{ __('Monday') }}</option>
+              <option value="2">{{ __('Tuesday') }}</option>
+              <option value="3">{{ __('Wednesday') }}</option>
+              <option value="4">{{ __('Thursday') }}</option>
+              <option value="5">{{ __('Friday') }}</option>
+              <option value="6">{{ __('Saturday') }}</option>
             </select>
           </div>
           <div class="col-6" id="sched-dom-group" style="display:none">
-            <label class="form-label" for="sched-dom">Day of Month</label>
+            <label class="form-label" for="sched-dom">{{ __('Day of Month') }}</label>
             <input type="number" class="form-control" id="sched-dom" min="1" max="28" value="1">
           </div>
           <div class="col-6">
-            <label class="form-label" for="sched-retention">Retention (days)</label>
+            <label class="form-label" for="sched-retention">{{ __('Retention (days)') }}</label>
             <input type="number" class="form-control" id="sched-retention" min="1" max="365" value="30">
           </div>
         </div>
@@ -469,7 +469,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
         <button type="button" class="btn btn-primary"><i class="fas fa-save me-1"></i>Create Schedule</button>
       </div>
     </div>

@@ -131,7 +131,7 @@
   @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
       <i class="fas fa-exclamation-circle me-1"></i> {{ session('error') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
@@ -141,7 +141,7 @@
       <h4 class="mb-1">
         <i class="fas fa-eraser me-2"></i>Visual Redaction Editor
       </h4>
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb mb-0">
           <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
           @if(isset($io->slug))
@@ -219,34 +219,34 @@
   <div class="card border-0 shadow-sm mb-3 redaction-toolbar">
     <div class="card-body py-2">
       <div class="d-flex align-items-center justify-content-between">
-        <div class="btn-group" role="group" aria-label="Redaction tools">
-          <button type="button" class="btn btn-outline-light btn-sm active" id="tool-select" data-tool="select" title="Select tool">
+        <div class="btn-group" role="group" aria-label="{{ __('Redaction tools') }}">
+          <button type="button" class="btn btn-outline-light btn-sm active" id="tool-select" data-tool="select" title="{{ __('Select tool') }}">
             <i class="fas fa-mouse-pointer me-1"></i> Select
           </button>
-          <button type="button" class="btn atom-atom-btn-outline-danger btn-sm" id="tool-draw" data-tool="draw" title="Draw redaction rectangle">
+          <button type="button" class="btn atom-atom-btn-outline-danger btn-sm" id="tool-draw" data-tool="draw" title="{{ __('Draw redaction rectangle') }}">
             <i class="fas fa-vector-square me-1"></i> Draw
           </button>
         </div>
 
         <div class="d-flex align-items-center gap-2">
           <div class="zoom-controls">
-            <button type="button" class="btn btn-outline-light btn-sm" id="zoom-out" title="Zoom out">
+            <button type="button" class="btn btn-outline-light btn-sm" id="zoom-out" title="{{ __('Zoom out') }}">
               <i class="fas fa-search-minus"></i>
             </button>
             <span class="text-white small" id="zoom-level">100%</span>
-            <button type="button" class="btn btn-outline-light btn-sm" id="zoom-in" title="Zoom in">
+            <button type="button" class="btn btn-outline-light btn-sm" id="zoom-in" title="{{ __('Zoom in') }}">
               <i class="fas fa-search-plus"></i>
             </button>
-            <button type="button" class="btn btn-outline-light btn-sm" id="zoom-fit" title="Fit to page">
+            <button type="button" class="btn btn-outline-light btn-sm" id="zoom-fit" title="{{ __('Fit to page') }}">
               <i class="fas fa-expand"></i>
             </button>
           </div>
 
           <div class="btn-group">
-            <button type="button" class="btn atom-atom-btn-outline-success btn-sm" id="save-redactions" title="Save redactions">
+            <button type="button" class="btn atom-atom-btn-outline-success btn-sm" id="save-redactions" title="{{ __('Save redactions') }}">
               <i class="fas fa-save me-1"></i> Save
             </button>
-            <button type="button" class="btn atom-btn-outline-light btn-sm" id="apply-redactions" title="Apply redactions permanently">
+            <button type="button" class="btn atom-btn-outline-light btn-sm" id="apply-redactions" title="{{ __('Apply redactions permanently') }}">
               <i class="fas fa-stamp me-1"></i> Apply
             </button>
           </div>
@@ -271,13 +271,13 @@
           {{-- Page Navigation --}}
           <div class="text-center py-2">
             <div class="page-nav">
-              <button class="btn btn-outline-light btn-sm" id="prev-page" title="Previous page">
+              <button class="btn btn-outline-light btn-sm" id="prev-page" title="{{ __('Previous page') }}">
                 <i class="fas fa-chevron-left"></i>
               </button>
               <span class="text-white small">
                 Page <span id="current-page">1</span> of <span id="total-pages">{{ $totalPages }}</span>
               </span>
-              <button class="btn btn-outline-light btn-sm" id="next-page" title="Next page">
+              <button class="btn btn-outline-light btn-sm" id="next-page" title="{{ __('Next page') }}">
                 <i class="fas fa-chevron-right"></i>
               </button>
             </div>
@@ -311,7 +311,7 @@
           @endif
         </div>
         <div class="card-footer border-0 p-2" style="background: #16213e;">
-          <button class="btn atom-atom-btn-outline-danger btn-sm w-100" id="clear-all-regions" title="Remove all regions">
+          <button class="btn atom-atom-btn-outline-danger btn-sm w-100" id="clear-all-regions" title="{{ __('Remove all regions') }}">
             <i class="fas fa-trash me-1"></i> Clear All
           </button>
         </div>

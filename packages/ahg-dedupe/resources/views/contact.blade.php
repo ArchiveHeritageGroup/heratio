@@ -4,7 +4,7 @@
 @section('content')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-address-card me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">Authority Contact</h1></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Authority Contact') }}</h1></div>
   </div>
   <div class="row"><div class="col-lg-8">
     <div class="card mb-4"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff">Details</div>

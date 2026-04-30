@@ -14,7 +14,7 @@
   }
 @endphp
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
@@ -112,7 +112,7 @@
         </label>
       </div>
       <div class="mb-3">
-        <label class="form-label">Minimum confidence threshold</label>
+        <label class="form-label">{{ __('Minimum confidence threshold') }}</label>
         <input type="number" name="config[ner_auto_stub_threshold]" class="form-control" style="max-width:200px"
                value="{{ e(cfgVal($config, 'ner_auto_stub_threshold', '0.85')) }}"
                min="0" max="1" step="0.05">
@@ -135,7 +135,7 @@
         </label>
       </div>
       <div class="mb-3">
-        <label class="form-label">Deduplication threshold (0-1)</label>
+        <label class="form-label">{{ __('Deduplication threshold (0-1)') }}</label>
         <input type="number" name="config[dedup_threshold]" class="form-control" style="max-width:200px"
                value="{{ e(cfgVal($config, 'dedup_threshold', '0.80')) }}"
                min="0" max="1" step="0.05">

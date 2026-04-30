@@ -56,19 +56,19 @@
   @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
       {{ session('error') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
   @if(session('warning'))
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
       {{ session('warning') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
   @if(session('info'))
     <div class="alert alert-info alert-dismissible fade show" role="alert">
       {{ session('info') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
@@ -76,7 +76,7 @@
     <div class="card">
       <div class="card-body text-center py-5">
         <i class="fas fa-cube fa-4x text-muted mb-3 d-block"></i>
-        <h4>No 3D Models Yet</h4>
+        <h4>{{ __('No 3D Models Yet') }}</h4>
         <p class="text-muted">Upload 3D models from individual object pages.</p>
       </div>
     </div>
@@ -86,14 +86,14 @@
         <table class="table table-bordered table-hover mb-0">
           <thead>
             <tr>
-              <th width="60">ID</th>
-              <th>Filename</th>
-              <th>Object</th>
-              <th>Format</th>
-              <th class="text-end">Size</th>
-              <th class="text-center">Thumbnail</th>
-              <th class="text-center">Multi-angle</th>
-              <th width="180">Actions</th>
+              <th width="60">{{ __('ID') }}</th>
+              <th>{{ __('Filename') }}</th>
+              <th>{{ __('Object') }}</th>
+              <th>{{ __('Format') }}</th>
+              <th class="text-end">{{ __('Size') }}</th>
+              <th class="text-center">{{ __('Thumbnail') }}</th>
+              <th class="text-center">{{ __('Multi-angle') }}</th>
+              <th width="180">{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -155,7 +155,7 @@
 
     {{-- Pagination --}}
     @if($totalPages > 1)
-      <nav class="mt-3" aria-label="3D models pagination">
+      <nav class="mt-3" aria-label="{{ __('3D models pagination') }}">
         <ul class="pagination justify-content-center">
           @if($page > 1)
             <li class="page-item">

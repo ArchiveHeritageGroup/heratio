@@ -38,7 +38,7 @@ $period = $period ?? '';
 
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">Top Contributors</h5>
+        <h5 class="mb-0">{{ __('Top Contributors') }}</h5>
         <div class="btn-group btn-group-sm">
           <a href="{{ route('heritage.leaderboard') }}" class="btn btn-outline-light {{ empty($period)?'active':'' }}">All Time</a>
           <a href="{{ route('heritage.leaderboard', ['period'=>'month']) }}" class="btn btn-outline-light {{ $period==='month'?'active':'' }}">This Month</a>
@@ -51,7 +51,7 @@ $period = $period ?? '';
         @else
         <div class="table-responsive">
           <table class="table table-hover mb-0">
-            <thead class="table-light"><tr><th width="60">Rank</th><th>Contributor</th><th class="text-center">Level</th><th class="text-center">Contributions</th><th class="text-center">Points</th><th class="text-center">Badges</th></tr></thead>
+            <thead class="table-light"><tr><th width="60">{{ __('Rank') }}</th><th>{{ __('Contributor') }}</th><th class="text-center">{{ __('Level') }}</th><th class="text-center">{{ __('Contributions') }}</th><th class="text-center">{{ __('Points') }}</th><th class="text-center">{{ __('Badges') }}</th></tr></thead>
             <tbody>
               @foreach($leaderboard as $entry)
               <tr>

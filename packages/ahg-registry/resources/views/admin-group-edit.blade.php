@@ -3,7 +3,7 @@
 @section('title', 'Edit Group')
 
 @section('content')
-<h1>Edit Group</h1>
+<h1>{{ __('Edit Group') }}</h1>
 
 <form method="POST">
   @csrf
@@ -11,7 +11,7 @@
   <div class="accordion mb-3">
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#main-collapse" aria-expanded="true">Edit Group</button>
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#main-collapse" aria-expanded="true">{{ __('Edit Group') }}</button>
       </h2>
       <div id="main-collapse" class="accordion-collapse collapse show">
         <div class="accordion-body">

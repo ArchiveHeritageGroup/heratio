@@ -286,7 +286,7 @@
                     </div>
                     <div class="card-body">
                         @if(!empty($compliance['issues']))
-                            <h6 class="text-danger">Issues (Require Action)</h6>
+                            <h6 class="text-danger">{{ __('Issues (Require Action)') }}</h6>
                             <ul class="mb-3">
                                 @foreach($compliance['issues'] as $issue)
                                     <li>{{ $issue }}</li>
@@ -294,7 +294,7 @@
                             </ul>
                         @endif
                         @if(!empty($compliance['warnings']))
-                            <h6 class="text-warning">Warnings</h6>
+                            <h6 class="text-warning">{{ __('Warnings') }}</h6>
                             <ul class="mb-0">
                                 @foreach($compliance['warnings'] as $warning)
                                     <li>{{ $warning }}</li>

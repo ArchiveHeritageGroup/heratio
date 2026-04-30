@@ -42,7 +42,7 @@
           <div class="accordion-body">
             <div class="mb-3">
               <label class="form-label">{{ __('Google Analytics tracking ID') }}</label>
-              <input type="text" name="google_analytics" class="form-control" value="{{ old('google_analytics', $googleAnalytics ?? '') }}" placeholder="G-XXXXXXXXXX or UA-XXXXXXXX-X">
+              <input type="text" name="google_analytics" class="form-control" value="{{ old('google_analytics', $googleAnalytics ?? '') }}" placeholder="{{ __('G-XXXXXXXXXX or UA-XXXXXXXX-X') }}">
             </div>
           </div>
         </div>

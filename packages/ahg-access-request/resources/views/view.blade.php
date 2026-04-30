@@ -6,7 +6,7 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('accessRequest.myRequests') }}">My Requests</a></li>
@@ -30,19 +30,19 @@
                         <div class="card-body">
                             <table class="table table-borderless">
                                 <tr>
-                                    <th style="width: 200px;">Subject</th>
+                                    <th style="width: 200px;">{{ __('Subject') }}</th>
                                     <td>{{ $accessRequest->subject ?? 'N/A' }}</td>
                                 </tr>
                                 <tr>
-                                    <th>Requester</th>
+                                    <th>{{ __('Requester') }}</th>
                                     <td>{{ $accessRequest->user_name ?? 'Unknown' }}</td>
                                 </tr>
                                 <tr>
-                                    <th>Request Type</th>
+                                    <th>{{ __('Request Type') }}</th>
                                     <td>{{ $accessRequest->request_type ?? 'N/A' }}</td>
                                 </tr>
                                 <tr>
-                                    <th>Status</th>
+                                    <th>{{ __('Status') }}</th>
                                     <td>
                                         @if($accessRequest->status === 'approved')
                                             <span class="badge bg-success">Approved</span>
@@ -56,15 +56,15 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th>Created</th>
+                                    <th>{{ __('Created') }}</th>
                                     <td>{{ $accessRequest->created_at ?? '' }}</td>
                                 </tr>
                                 <tr>
-                                    <th>Description</th>
+                                    <th>{{ __('Description') }}</th>
                                     <td>{{ $accessRequest->description ?? '' }}</td>
                                 </tr>
                                 <tr>
-                                    <th>Justification</th>
+                                    <th>{{ __('Justification') }}</th>
                                     <td>{{ $accessRequest->justification ?? '' }}</td>
                                 </tr>
                             </table>
@@ -74,7 +74,7 @@
                     @if(auth()->user() && $accessRequest->status === 'pending')
                         <div class="card">
                             <div class="card-header">
-                                <h6 class="mb-0">Actions</h6>
+                                <h6 class="mb-0">{{ __('Actions') }}</h6>
                             </div>
                             <div class="card-body d-flex gap-2">
                                 <form method="post" action="{{ route('accessRequest.approve', $accessRequest->id) }}">

@@ -23,7 +23,7 @@
 
     {{-- General Settings --}}
     <section class="card mb-4">
-      <div class="card-header"><h5 class="mb-0">General Settings</h5></div>
+      <div class="card-header"><h5 class="mb-0">{{ __('General Settings') }}</h5></div>
       <div class="card-body">
         <div class="form-check form-switch mb-3">
           <input class="form-check-input" type="checkbox" id="audit_enabled" name="settings[audit_enabled]" value="1" {{ ($settings['audit_enabled'] ?? '0') === '1' ? 'checked' : '' }}>
@@ -34,7 +34,7 @@
 
     {{-- What to Log --}}
     <section class="card mb-4">
-      <div class="card-header"><h5 class="mb-0">What to Log</h5></div>
+      <div class="card-header"><h5 class="mb-0">{{ __('What to Log') }}</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-6">
@@ -59,15 +59,15 @@
 
     {{-- Privacy Settings --}}
     <section class="card mb-4">
-      <div class="card-header"><h5 class="mb-0">Privacy Settings</h5></div>
+      <div class="card-header"><h5 class="mb-0">{{ __('Privacy Settings') }}</h5></div>
       <div class="card-body">
         <div class="form-check form-switch mb-3">
           <input class="form-check-input" type="checkbox" id="audit_mask_sensitive" name="settings[audit_mask_sensitive]" value="1" {{ ($settings['audit_mask_sensitive'] ?? '0') === '1' ? 'checked' : '' }}>
-          <label class="form-check-label" for="audit_mask_sensitive">Mask Sensitive Data</label>
+          <label class="form-check-label" for="audit_mask_sensitive">{{ __('Mask Sensitive Data') }}</label>
         </div>
         <div class="form-check form-switch mb-3">
           <input class="form-check-input" type="checkbox" id="audit_ip_anonymize" name="settings[audit_ip_anonymize]" value="1" {{ ($settings['audit_ip_anonymize'] ?? '0') === '1' ? 'checked' : '' }}>
-          <label class="form-check-label" for="audit_ip_anonymize">Anonymize IP Addresses (POPIA)</label>
+          <label class="form-check-label" for="audit_ip_anonymize">{{ __('Anonymize IP Addresses (POPIA)') }}</label>
         </div>
       </div>
     </section>

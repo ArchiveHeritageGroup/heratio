@@ -2,7 +2,7 @@
 @section('title', 'HTR Model Training')
 @section('body-class', 'admin ai-services htr')
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li><li class="breadcrumb-item active">Training</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li><li class="breadcrumb-item active">Training</li></ol></nav>
 @include('ahg-ai-services::htr._nav')
 <h1><i class="fas fa-graduation-cap me-2"></i>HTR Model Training</h1>
 
@@ -10,7 +10,7 @@
   <div class="card-header" style="background: var(--ahg-primary); color: white;">Annotation Counts</div>
   <div class="card-body table-responsive">
     <table class="table table-striped mb-0">
-      <thead><tr><th>Document Type</th><th>Annotations</th><th>Minimum Required</th><th>Status</th></tr></thead>
+      <thead><tr><th>{{ __('Document Type') }}</th><th>{{ __('Annotations') }}</th><th>{{ __('Minimum Required') }}</th><th>{{ __('Status') }}</th></tr></thead>
       <tbody>
       @php
         $types = ['type_a' => 'Type A — Death Certificate', 'type_b' => 'Type B — Register', 'type_c' => 'Type C — Narrative'];

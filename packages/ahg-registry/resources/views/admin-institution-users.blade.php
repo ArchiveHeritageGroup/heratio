@@ -3,7 +3,7 @@
 @section('title', 'Home')
 
 @section('content')
-<h1>Home</h1>
+<h1>{{ __('Home') }}</h1>
 
 <form method="POST">
   @csrf
@@ -11,7 +11,7 @@
   <div class="accordion mb-3">
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#main-collapse" aria-expanded="true">Home</button>
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#main-collapse" aria-expanded="true">{{ __('Home') }}</button>
       </h2>
       <div id="main-collapse" class="accordion-collapse collapse show">
         <div class="accordion-body">

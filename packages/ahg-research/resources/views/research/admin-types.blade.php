@@ -3,7 +3,7 @@
 @section('title', 'Researcher Types')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item active">Researcher Types</li>
@@ -24,14 +24,14 @@
         <table class="table table-hover mb-0">
             <thead class="table-light">
                 <tr>
-                    <th>Name</th>
-                    <th>Code</th>
-                    <th>Max Advance Days</th>
-                    <th>Max Hours/Day</th>
-                    <th>Max Materials</th>
-                    <th>Auto Approve</th>
-                    <th>Status</th>
-                    <th width="100">Actions</th>
+                    <th>{{ __('Name') }}</th>
+                    <th>{{ __('Code') }}</th>
+                    <th>{{ __('Max Advance Days') }}</th>
+                    <th>{{ __('Max Hours/Day') }}</th>
+                    <th>{{ __('Max Materials') }}</th>
+                    <th>{{ __('Auto Approve') }}</th>
+                    <th>{{ __('Status') }}</th>
+                    <th width="100">{{ __('Actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -50,12 +50,12 @@
                     <td>
                         <button class="btn btn-sm btn-outline-primary edit-type-btn"
                             data-type='{!! json_encode($type, JSON_HEX_APOS | JSON_HEX_QUOT) !!}'
-                            title="Edit"><i class="fas fa-edit"></i></button>
+                            title="{{ __('Edit') }}"><i class="fas fa-edit"></i></button>
                         <form method="POST" class="d-inline" onsubmit="return confirm('Delete this type?')">
                             @csrf
                             <input type="hidden" name="form_action" value="delete">
                             <input type="hidden" name="type_id" value="{{ $type->id }}">
-                            <button class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}"><i class="fas fa-trash"></i></button>
                         </form>
                     </td>
                 </tr>
@@ -72,41 +72,41 @@
     <form method="POST" id="typeForm">@csrf
         <input type="hidden" name="form_action" id="typeAction" value="create">
         <input type="hidden" name="type_id" id="typeId">
-        <div class="modal-header"><h5 class="modal-title" id="typeModalTitle">Add Researcher Type</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-header"><h5 class="modal-title" id="typeModalTitle">{{ __('Add Researcher Type') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
             <div class="row">
-                <div class="col-md-8"><div class="mb-3"><label class="form-label">Name *</label><input type="text" name="name" id="typeName" class="form-control" required></div></div>
-                <div class="col-md-4"><div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" id="typeCode" class="form-control" required placeholder="e.g. academic"></div></div>
+                <div class="col-md-8"><div class="mb-3"><label class="form-label">{{ __('Name *') }}</label><input type="text" name="name" id="typeName" class="form-control" required></div></div>
+                <div class="col-md-4"><div class="mb-3"><label class="form-label">{{ __('Code *') }}</label><input type="text" name="code" id="typeCode" class="form-control" required placeholder="{{ __('e.g. academic') }}"></div></div>
             </div>
-            <div class="mb-3"><label class="form-label">Description</label><textarea name="description" id="typeDesc" class="form-control" rows="2"></textarea></div>
+            <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" id="typeDesc" class="form-control" rows="2"></textarea></div>
 
-            <h6 class="border-bottom pb-2 mt-3">Booking Limits</h6>
+            <h6 class="border-bottom pb-2 mt-3">{{ __('Booking Limits') }}</h6>
             <div class="row">
-                <div class="col-md-4"><div class="mb-3"><label class="form-label">Max Advance Days</label><input type="number" name="max_booking_days_advance" id="typeAdvDays" class="form-control" value="14" min="1"></div></div>
-                <div class="col-md-4"><div class="mb-3"><label class="form-label">Max Hours/Day</label><input type="number" name="max_booking_hours_per_day" id="typeMaxHrs" class="form-control" value="4" min="1"></div></div>
-                <div class="col-md-4"><div class="mb-3"><label class="form-label">Max Materials/Booking</label><input type="number" name="max_materials_per_booking" id="typeMaxMat" class="form-control" value="10" min="1"></div></div>
-            </div>
-
-            <h6 class="border-bottom pb-2 mt-3">Permissions</h6>
-            <div class="row">
-                <div class="col-md-4"><div class="form-check mb-2"><input type="checkbox" name="can_remote_access" id="typeRemote" class="form-check-input" value="1"><label class="form-check-label" for="typeRemote">Remote Access</label></div></div>
-                <div class="col-md-4"><div class="form-check mb-2"><input type="checkbox" name="can_request_reproductions" id="typeRepro" class="form-check-input" value="1" checked><label class="form-check-label" for="typeRepro">Request Reproductions</label></div></div>
-                <div class="col-md-4"><div class="form-check mb-2"><input type="checkbox" name="can_export_data" id="typeExport" class="form-check-input" value="1" checked><label class="form-check-label" for="typeExport">Export Data</label></div></div>
-            </div>
-            <div class="row">
-                <div class="col-md-4"><div class="form-check mb-2"><input type="checkbox" name="requires_id_verification" id="typeIdVerify" class="form-check-input" value="1" checked><label class="form-check-label" for="typeIdVerify">Requires ID Verification</label></div></div>
-                <div class="col-md-4"><div class="form-check mb-2"><input type="checkbox" name="auto_approve" id="typeAutoApprove" class="form-check-input" value="1"><label class="form-check-label" for="typeAutoApprove">Auto Approve</label></div></div>
-                <div class="col-md-4"><div class="form-check mb-2"><input type="checkbox" name="is_active" id="typeActive" class="form-check-input" value="1" checked><label class="form-check-label" for="typeActive">Active</label></div></div>
+                <div class="col-md-4"><div class="mb-3"><label class="form-label">{{ __('Max Advance Days') }}</label><input type="number" name="max_booking_days_advance" id="typeAdvDays" class="form-control" value="14" min="1"></div></div>
+                <div class="col-md-4"><div class="mb-3"><label class="form-label">{{ __('Max Hours/Day') }}</label><input type="number" name="max_booking_hours_per_day" id="typeMaxHrs" class="form-control" value="4" min="1"></div></div>
+                <div class="col-md-4"><div class="mb-3"><label class="form-label">{{ __('Max Materials/Booking') }}</label><input type="number" name="max_materials_per_booking" id="typeMaxMat" class="form-control" value="10" min="1"></div></div>
             </div>
 
-            <h6 class="border-bottom pb-2 mt-3">Other</h6>
+            <h6 class="border-bottom pb-2 mt-3">{{ __('Permissions') }}</h6>
             <div class="row">
-                <div class="col-md-4"><div class="mb-3"><label class="form-label">Expiry (months)</label><input type="number" name="expiry_months" id="typeExpiry" class="form-control" value="12" min="1"></div></div>
-                <div class="col-md-4"><div class="mb-3"><label class="form-label">Priority Level</label><input type="number" name="priority_level" id="typePriority" class="form-control" value="5" min="1" max="10"></div></div>
-                <div class="col-md-4"><div class="mb-3"><label class="form-label">Sort Order</label><input type="number" name="sort_order" id="typeSortOrder" class="form-control" value="100"></div></div>
+                <div class="col-md-4"><div class="form-check mb-2"><input type="checkbox" name="can_remote_access" id="typeRemote" class="form-check-input" value="1"><label class="form-check-label" for="typeRemote">{{ __('Remote Access') }}</label></div></div>
+                <div class="col-md-4"><div class="form-check mb-2"><input type="checkbox" name="can_request_reproductions" id="typeRepro" class="form-check-input" value="1" checked><label class="form-check-label" for="typeRepro">{{ __('Request Reproductions') }}</label></div></div>
+                <div class="col-md-4"><div class="form-check mb-2"><input type="checkbox" name="can_export_data" id="typeExport" class="form-check-input" value="1" checked><label class="form-check-label" for="typeExport">{{ __('Export Data') }}</label></div></div>
+            </div>
+            <div class="row">
+                <div class="col-md-4"><div class="form-check mb-2"><input type="checkbox" name="requires_id_verification" id="typeIdVerify" class="form-check-input" value="1" checked><label class="form-check-label" for="typeIdVerify">{{ __('Requires ID Verification') }}</label></div></div>
+                <div class="col-md-4"><div class="form-check mb-2"><input type="checkbox" name="auto_approve" id="typeAutoApprove" class="form-check-input" value="1"><label class="form-check-label" for="typeAutoApprove">{{ __('Auto Approve') }}</label></div></div>
+                <div class="col-md-4"><div class="form-check mb-2"><input type="checkbox" name="is_active" id="typeActive" class="form-check-input" value="1" checked><label class="form-check-label" for="typeActive">{{ __('Active') }}</label></div></div>
+            </div>
+
+            <h6 class="border-bottom pb-2 mt-3">{{ __('Other') }}</h6>
+            <div class="row">
+                <div class="col-md-4"><div class="mb-3"><label class="form-label">{{ __('Expiry (months)') }}</label><input type="number" name="expiry_months" id="typeExpiry" class="form-control" value="12" min="1"></div></div>
+                <div class="col-md-4"><div class="mb-3"><label class="form-label">{{ __('Priority Level') }}</label><input type="number" name="priority_level" id="typePriority" class="form-control" value="5" min="1" max="10"></div></div>
+                <div class="col-md-4"><div class="mb-3"><label class="form-label">{{ __('Sort Order') }}</label><input type="number" name="sort_order" id="typeSortOrder" class="form-control" value="100"></div></div>
             </div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary" id="typeSubmitBtn"><i class="fas fa-plus me-1"></i>Add Type</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary" id="typeSubmitBtn"><i class="fas fa-plus me-1"></i>Add Type</button></div>
     </form>
 </div></div></div>
 

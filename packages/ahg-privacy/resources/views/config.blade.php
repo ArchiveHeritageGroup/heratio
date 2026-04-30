@@ -60,7 +60,7 @@
                                 <label class="form-label">{{ __('Data Protection Email') }}</label>
                                 <input type="email" name="data_protection_email" class="form-control" 
                                        value="{{ $config->data_protection_email ?? '' }}"
-                                       placeholder="privacy@example.org">
+                                       placeholder="{{ __('privacy@example.org') }}">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">{{ __('DSAR Response Days') }}</label>

@@ -23,7 +23,7 @@
 
 @section('content')
   {{-- Breadcrumb --}}
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
       <li class="breadcrumb-item"><a href="{{ url($object->slug ?? '') }}">{{ e($object->title ?? 'Object') }}</a></li>
@@ -37,7 +37,7 @@
   @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
       {{ session('error') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
@@ -72,7 +72,7 @@
             <div class="mb-3">
               <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="title" name="title"
-                     value="{{ old('title') }}" placeholder="e.g., Bronze Statue - Front View">
+                     value="{{ old('title') }}" placeholder="{{ __('e.g., Bronze Statue - Front View') }}">
               <div class="form-text">A descriptive title for this 3D model</div>
             </div>
 
@@ -80,14 +80,14 @@
             <div class="mb-3">
               <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="description" name="description" rows="3"
-                        placeholder="Describe the 3D model, its origin, scanning method, etc.">{{ old('description') }}</textarea>
+                        placeholder="{{ __('Describe the 3D model, its origin, scanning method, etc.') }}">{{ old('description') }}</textarea>
             </div>
 
             {{-- Alt Text --}}
             <div class="mb-3">
               <label for="alt_text" class="form-label">Alt Text (Accessibility) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="alt_text" name="alt_text"
-                     value="{{ old('alt_text') }}" placeholder="A brief description for screen readers">
+                     value="{{ old('alt_text') }}" placeholder="{{ __('A brief description for screen readers') }}">
             </div>
           </div>
 
@@ -95,7 +95,7 @@
             {{-- Options --}}
             <div class="card bg-light">
               <div class="card-body">
-                <h5 class="card-title mb-3">Options</h5>
+                <h5 class="card-title mb-3">{{ __('Options') }}</h5>
 
                 <div class="form-check mb-3">
                   <input class="form-check-input" type="checkbox" id="is_primary" name="is_primary" value="1">
@@ -115,7 +115,7 @@
 
                 <hr>
 
-                <h6 class="mb-2">Supported Formats</h6>
+                <h6 class="mb-2">{{ __('Supported Formats') }}</h6>
                 <ul class="list-unstyled small">
                   <li><strong>.glb</strong> - glTF Binary (recommended)</li>
                   <li><strong>.gltf</strong> - glTF JSON</li>

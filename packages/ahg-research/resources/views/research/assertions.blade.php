@@ -8,7 +8,7 @@
 @section('title', 'Assertions')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
@@ -36,18 +36,18 @@
     <div class="card-body">
         <form method="GET" class="row g-2 align-items-end">
             <div class="col-md-4">
-                <label class="form-label">Type</label>
+                <label class="form-label">{{ __('Type') }}</label>
                 <select name="type" class="form-select form-select-sm">
-                    <option value="">All Types</option>
+                    <option value="">{{ __('All Types') }}</option>
                     @foreach(['biographical', 'chronological', 'spatial', 'relational', 'attributive'] as $t)
                         <option value="{{ $t }}" {{ ($typeFilter ?? '') === $t ? 'selected' : '' }}>{{ ucfirst($t) }}</option>
                     @endforeach
                 </select>
             </div>
             <div class="col-md-4">
-                <label class="form-label">Status</label>
+                <label class="form-label">{{ __('Status') }}</label>
                 <select name="status" class="form-select form-select-sm">
-                    <option value="">All Statuses</option>
+                    <option value="">{{ __('All Statuses') }}</option>
                     @foreach(['proposed', 'verified', 'disputed'] as $s)
                         <option value="{{ $s }}" {{ ($statusFilter ?? '') === $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
                     @endforeach
@@ -64,7 +64,7 @@
 {{-- Create assertion form (collapsed) --}}
 <div class="collapse mb-4" id="createAssertionForm">
     <div class="card">
-        <div class="card-header"><h6 class="mb-0">Create Assertion</h6></div>
+        <div class="card-header"><h6 class="mb-0">{{ __('Create Assertion') }}</h6></div>
         <div class="card-body">
             <form method="POST">
                 @csrf
@@ -85,13 +85,13 @@
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-4">
-                        <label class="form-label">Assertion Type</label>
+                        <label class="form-label">{{ __('Assertion Type') }}</label>
                         <select name="assertion_type" class="form-select">
-                            <option value="biographical">Biographical</option>
-                            <option value="chronological">Chronological</option>
-                            <option value="spatial">Spatial</option>
-                            <option value="relational">Relational</option>
-                            <option value="attributive">Attributive</option>
+                            <option value="biographical">{{ __('Biographical') }}</option>
+                            <option value="chronological">{{ __('Chronological') }}</option>
+                            <option value="spatial">{{ __('Spatial') }}</option>
+                            <option value="relational">{{ __('Relational') }}</option>
+                            <option value="attributive">{{ __('Attributive') }}</option>
                         </select>
                     </div>
                     <div class="col-md-8">
@@ -113,13 +113,13 @@
             <table class="table table-hover mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>Subject</th>
-                        <th>Predicate</th>
-                        <th>Object</th>
-                        <th>Type</th>
-                        <th>Status</th>
-                        <th>Evidence</th>
-                        <th>Created</th>
+                        <th>{{ __('Subject') }}</th>
+                        <th>{{ __('Predicate') }}</th>
+                        <th>{{ __('Object') }}</th>
+                        <th>{{ __('Type') }}</th>
+                        <th>{{ __('Status') }}</th>
+                        <th>{{ __('Evidence') }}</th>
+                        <th>{{ __('Created') }}</th>
                     </tr>
                 </thead>
                 <tbody>

@@ -12,7 +12,7 @@
       <span class="visually-hidden">Search</span>
     </button>
     @if(request('subquery'))
-      <a href="{{ request()->fullUrlWithoutQuery('subquery') }}" class="btn btn-sm atom-btn-white" title="Clear search" role="button">
+      <a href="{{ request()->fullUrlWithoutQuery('subquery') }}" class="btn btn-sm atom-btn-white" title="{{ __('Clear search') }}" role="button">
         <i class="fas fa-undo" aria-hidden="true"></i>
         <span class="visually-hidden">Reset search</span>
       </a>

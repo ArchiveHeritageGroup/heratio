@@ -7,7 +7,7 @@
 @section('title', 'Team Workspaces')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item active">Workspaces</li>
@@ -32,7 +32,7 @@
                             {{ ucfirst($ws->visibility) }}
                         </span>
                         @if(($ws->my_role ?? $ws->role ?? '') === 'owner')
-                            <i class="fas fa-crown text-warning" title="Owner"></i>
+                            <i class="fas fa-crown text-warning" title="{{ __('Owner') }}"></i>
                         @endif
                     </div>
                     <div class="card-body">
@@ -61,7 +61,7 @@
     <div class="card">
         <div class="card-body text-center py-5">
             <i class="fas fa-users-cog fa-3x text-muted mb-3"></i>
-            <h5>No Workspaces Yet</h5>
+            <h5>{{ __('No Workspaces Yet') }}</h5>
             <p class="text-muted">Create a private workspace to collaborate with other researchers.</p>
             <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createWorkspaceModal">
                 <i class="fas fa-plus me-1"></i> Create Workspace
@@ -78,13 +78,13 @@
                 @csrf
                 <input type="hidden" name="form_action" value="create">
                 <div class="modal-header">
-                    <h5 class="modal-title">Create Workspace</h5>
+                    <h5 class="modal-title">{{ __('Create Workspace') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Name * <span class="badge bg-danger ms-1">Required</span></label>
-                        <input type="text" name="name" class="form-control" required placeholder="e.g., Thesis Research Group">
+                        <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g., Thesis Research Group') }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -93,15 +93,15 @@
                     <div class="mb-3">
                         <label class="form-label">Visibility <span class="badge bg-secondary ms-1">Optional</span></label>
                         <select name="visibility" class="form-select">
-                            <option value="private">Private</option>
-                            <option value="members">Members Only</option>
-                            <option value="public">Public</option>
+                            <option value="private">{{ __('Private') }}</option>
+                            <option value="members">{{ __('Members Only') }}</option>
+                            <option value="public">{{ __('Public') }}</option>
                         </select>
                         <small class="text-muted">Private is recommended for research collaboration</small>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                     <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i> Create</button>
                 </div>
             </form>

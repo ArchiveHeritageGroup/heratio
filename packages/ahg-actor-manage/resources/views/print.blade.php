@@ -10,7 +10,7 @@
 @section('content')
 
   {{-- ===== Identity area ===== --}}
-  <h2 class="section-heading">Identity area</h2>
+  <h2 class="section-heading">{{ __('Identity area') }}</h2>
 
   @if($entityTypeName)
     <div class="field-row">
@@ -88,7 +88,7 @@
     foreach ($descFields as $f => $l) { if ($actor->$f) { $hasDesc = true; break; } }
   @endphp
   @if($hasDesc)
-    <h2 class="section-heading">Description area</h2>
+    <h2 class="section-heading">{{ __('Description area') }}</h2>
     @foreach($descFields as $field => $label)
       @if($actor->$field)
         <div class="field-row">
@@ -101,7 +101,7 @@
 
   {{-- ===== Events (dates) ===== --}}
   @if($events->isNotEmpty())
-    <h2 class="section-heading">Dates</h2>
+    <h2 class="section-heading">{{ __('Dates') }}</h2>
     @foreach($events as $event)
       <div class="field-row">
         <div class="field-label">{{ $event->event_name ?? 'Date' }}</div>
@@ -117,7 +117,7 @@
 
   {{-- ===== Contact information ===== --}}
   @if($contacts->isNotEmpty())
-    <h2 class="section-heading">Contact information</h2>
+    <h2 class="section-heading">{{ __('Contact information') }}</h2>
     @foreach($contacts as $contact)
       <div class="contact-block">
         @if($contact->primary_contact)
@@ -141,7 +141,7 @@
 
   {{-- ===== Access points ===== --}}
   @if(($subjects ?? collect())->isNotEmpty() || ($places ?? collect())->isNotEmpty() || ($occupations ?? collect())->isNotEmpty())
-    <h2 class="section-heading">Access points</h2>
+    <h2 class="section-heading">{{ __('Access points') }}</h2>
 
     @if($subjects->isNotEmpty())
       <div class="field-row">
@@ -179,16 +179,16 @@
 
   {{-- ===== Relationships ===== --}}
   @if(count($relatedActors) > 0)
-    <h2 class="section-heading">Related authority records</h2>
+    <h2 class="section-heading">{{ __('Related authority records') }}</h2>
     <table>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Identifier</th>
-          <th>Category</th>
-          <th>Relationship type</th>
-          <th>Dates</th>
-          <th>Description</th>
+          <th>{{ __('Name') }}</th>
+          <th>{{ __('Identifier') }}</th>
+          <th>{{ __('Category') }}</th>
+          <th>{{ __('Relationship type') }}</th>
+          <th>{{ __('Dates') }}</th>
+          <th>{{ __('Description') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -207,7 +207,7 @@
   @endif
 
   @if($relatedResources->isNotEmpty())
-    <h2 class="section-heading">Related descriptions</h2>
+    <h2 class="section-heading">{{ __('Related descriptions') }}</h2>
     <ul>
       @foreach($relatedResources as $resource)
         <li>{{ $resource->title ?: '[Untitled]' }}</li>
@@ -216,7 +216,7 @@
   @endif
 
   @if($relatedFunctions->isNotEmpty())
-    <h2 class="section-heading">Related functions</h2>
+    <h2 class="section-heading">{{ __('Related functions') }}</h2>
     <ul>
       @foreach($relatedFunctions as $fn)
         <li>{{ $fn->name ?: '[Untitled]' }}</li>
@@ -225,7 +225,7 @@
   @endif
 
   {{-- ===== Control area ===== --}}
-  <h2 class="section-heading">Control area</h2>
+  <h2 class="section-heading">{{ __('Control area') }}</h2>
 
   @if($actor->description_identifier)
     <div class="field-row">

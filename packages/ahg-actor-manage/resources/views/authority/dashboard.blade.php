@@ -14,7 +14,7 @@
   $levelColors = ['stub' => 'danger', 'minimal' => 'warning', 'partial' => 'info', 'full' => 'success'];
 @endphp
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item active">Authority Dashboard</li>
   </ol>
@@ -94,8 +94,8 @@
           <table class="table table-sm">
             <thead>
               <tr>
-                <th>Source</th>
-                <th class="text-end">Count</th>
+                <th>{{ __('Source') }}</th>
+                <th class="text-end">{{ __('Count') }}</th>
               </tr>
             </thead>
             <tbody>

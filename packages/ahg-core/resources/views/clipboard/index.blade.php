@@ -47,9 +47,9 @@
       <table class="table table-bordered table-striped table-hover">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th class="text-end">Actions</th>
+            <th>{{ __('Name') }}</th>
+            <th>{{ __('Type') }}</th>
+            <th class="text-end">{{ __('Actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -88,7 +88,7 @@
                 <button class="btn btn-sm atom-btn-outline-danger clipboard-remove-btn"
                         data-clipboard-slug="{{ $item->slug }}"
                         data-clipboard-type="{{ $item->type }}"
-                        title="Remove from clipboard">
+                        title="{{ __('Remove from clipboard') }}">
                   <i class="fas fa-times"></i>
                 </button>
               </td>

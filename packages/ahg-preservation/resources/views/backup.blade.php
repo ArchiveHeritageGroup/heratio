@@ -22,16 +22,16 @@
                     <table class="table table-sm table-striped mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Type</th>
-                                <th>Active</th>
-                                <th>Sync Schedule</th>
-                                <th>Last Sync</th>
-                                <th>Last Status</th>
-                                <th>Files</th>
-                                <th>Size</th>
+                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Name') }}</th>
+                                <th>{{ __('Description') }}</th>
+                                <th>{{ __('Type') }}</th>
+                                <th>{{ __('Active') }}</th>
+                                <th>{{ __('Sync Schedule') }}</th>
+                                <th>{{ __('Last Sync') }}</th>
+                                <th>{{ __('Last Status') }}</th>
+                                <th>{{ __('Files') }}</th>
+                                <th>{{ __('Size') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -81,16 +81,16 @@
                     <table class="table table-sm table-striped mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>ID</th>
-                                <th>Target</th>
-                                <th>Operation</th>
-                                <th>Status</th>
-                                <th>Files Total</th>
-                                <th>Synced</th>
-                                <th>Failed</th>
-                                <th>Transferred</th>
-                                <th>Started</th>
-                                <th>Duration</th>
+                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Target') }}</th>
+                                <th>{{ __('Operation') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Files Total') }}</th>
+                                <th>{{ __('Synced') }}</th>
+                                <th>{{ __('Failed') }}</th>
+                                <th>{{ __('Transferred') }}</th>
+                                <th>{{ __('Started') }}</th>
+                                <th>{{ __('Duration') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -147,19 +147,19 @@
                     <table class="table table-sm table-striped mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>ID</th>
-                                <th>Backup Type</th>
-                                <th>Backup Path</th>
-                                <th>Size</th>
-                                <th>Status</th>
-                                <th>Method</th>
-                                <th>Files Checked</th>
-                                <th>Valid</th>
-                                <th>Invalid</th>
-                                <th>Missing</th>
-                                <th>Verified At</th>
-                                <th>Verified By</th>
-                                <th>Duration</th>
+                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Backup Type') }}</th>
+                                <th>{{ __('Backup Path') }}</th>
+                                <th>{{ __('Size') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Method') }}</th>
+                                <th>{{ __('Files Checked') }}</th>
+                                <th>{{ __('Valid') }}</th>
+                                <th>{{ __('Invalid') }}</th>
+                                <th>{{ __('Missing') }}</th>
+                                <th>{{ __('Verified At') }}</th>
+                                <th>{{ __('Verified By') }}</th>
+                                <th>{{ __('Duration') }}</th>
                             </tr>
                         </thead>
                         <tbody>

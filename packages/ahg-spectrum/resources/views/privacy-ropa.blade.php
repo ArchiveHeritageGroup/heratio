@@ -15,7 +15,7 @@
     <div class="card-body">
         @if(!empty($activities))
             <table class="table table-striped">
-                <thead><tr><th>Name</th><th>Purpose</th><th>Lawful Basis</th><th>DPIA</th><th>Status</th><th>Actions</th></tr></thead>
+                <thead><tr><th>{{ __('Name') }}</th><th>{{ __('Purpose') }}</th><th>{{ __('Lawful Basis') }}</th><th>{{ __('DPIA') }}</th><th>{{ __('Status') }}</th><th>{{ __('Actions') }}</th></tr></thead>
                 <tbody>
                 @foreach($activities as $a)
                     <tr>
@@ -66,12 +66,12 @@
                             <label class="form-label">{{ __('Lawful Basis (POPIA S11)') }}</label>
                             <select name="lawful_basis" class="form-select">
                                 <option value="">-- Select --</option>
-                                <option value="consent">Consent (S11(1)(a))</option>
-                                <option value="contract">Contract (S11(1)(b))</option>
-                                <option value="legal_obligation">Legal Obligation (S11(1)(c))</option>
-                                <option value="legitimate_interest">Legitimate Interest (S11(1)(d))</option>
-                                <option value="vital_interest">Vital Interest (S11(1)(d))</option>
-                                <option value="public_interest">Public Interest (S11(1)(e))</option>
+                                <option value="consent">{{ __('Consent (S11(1)(a))') }}</option>
+                                <option value="contract">{{ __('Contract (S11(1)(b))') }}</option>
+                                <option value="legal_obligation">{{ __('Legal Obligation (S11(1)(c))') }}</option>
+                                <option value="legitimate_interest">{{ __('Legitimate Interest (S11(1)(d))') }}</option>
+                                <option value="vital_interest">{{ __('Vital Interest (S11(1)(d))') }}</option>
+                                <option value="public_interest">{{ __('Public Interest (S11(1)(e))') }}</option>
                             </select>
                         </div>
                     </div>
@@ -82,21 +82,21 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('Data Categories') }}</label>
-                            <textarea name="data_categories" class="form-control" rows="2" placeholder="e.g., Names, ID numbers, Contact details"></textarea>
+                            <textarea name="data_categories" class="form-control" rows="2" placeholder="{{ __('e.g., Names, ID numbers, Contact details') }}"></textarea>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('Data Subjects') }}</label>
-                            <textarea name="data_subjects" class="form-control" rows="2" placeholder="e.g., Researchers, Donors, Staff"></textarea>
+                            <textarea name="data_subjects" class="form-control" rows="2" placeholder="{{ __('e.g., Researchers, Donors, Staff') }}"></textarea>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('Recipients') }}</label>
-                            <input type="text" name="recipients" class="form-control" placeholder="Who receives this data?">
+                            <input type="text" name="recipients" class="form-control" placeholder="{{ __('Who receives this data?') }}">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('Retention Period') }}</label>
-                            <input type="text" name="retention_period" class="form-control" placeholder="e.g., 7 years">
+                            <input type="text" name="retention_period" class="form-control" placeholder="{{ __('e.g., 7 years') }}">
                         </div>
                     </div>
                     <div class="row">
@@ -109,15 +109,15 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('Status') }}</label>
                             <select name="status" class="form-select">
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                                <option value="under_review">Under Review</option>
+                                <option value="active">{{ __('Active') }}</option>
+                                <option value="inactive">{{ __('Inactive') }}</option>
+                                <option value="under_review">{{ __('Under Review') }}</option>
                             </select>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">{{ __('Security Measures') }}</label>
-                        <textarea name="security_measures" class="form-control" rows="2" placeholder="Describe technical and organizational security measures"></textarea>
+                        <textarea name="security_measures" class="form-control" rows="2" placeholder="{{ __('Describe technical and organizational security measures') }}"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -67,11 +67,11 @@
                         <div class="mb-3">
                             <label class="form-label" for="viewing_hint">Viewing Hint <span class="badge bg-secondary ms-1">Optional</span></label>
                             <select class="form-select" id="viewing_hint" name="viewing_hint">
-                                <option value="individuals">Individuals</option>
-                                <option value="paged">Paged</option>
-                                <option value="continuous">Continuous</option>
-                                <option value="multi-part">Multi-part</option>
-                                <option value="top">Top</option>
+                                <option value="individuals">{{ __('Individuals') }}</option>
+                                <option value="paged">{{ __('Paged') }}</option>
+                                <option value="continuous">{{ __('Continuous') }}</option>
+                                <option value="multi-part">{{ __('Multi-part') }}</option>
+                                <option value="top">{{ __('Top') }}</option>
                             </select>
                         </div>
                     </div>

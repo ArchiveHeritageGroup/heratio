@@ -40,7 +40,7 @@
       @if($repoLogoUrl)
         <div class="text-center mb-3">
           <a href="{{ route('repository.show', $repoSlug) }}">
-            <img src="{{ $repoLogoUrl }}" alt="Repository logo" class="img-fluid" style="max-height:80px;">
+            <img src="{{ $repoLogoUrl }}" alt="{{ __('Repository logo') }}" class="img-fluid" style="max-height:80px;">
           </a>
         </div>
       @endif

@@ -23,8 +23,8 @@
       <div class="mb-3">
         <label class="form-label">Date of <span class="badge bg-secondary ms-1">Optional</span></label>
         <select name="dateOf" class="form-select form-select-sm">
-          <option value="created_at" {{ ($params['dateOf'] ?? '') === 'created_at' ? 'selected' : '' }}>Created</option>
-          <option value="updated_at" {{ ($params['dateOf'] ?? '') === 'updated_at' ? 'selected' : '' }}>Updated</option>
+          <option value="created_at" {{ ($params['dateOf'] ?? '') === 'created_at' ? 'selected' : '' }}>{{ __('Created') }}</option>
+          <option value="updated_at" {{ ($params['dateOf'] ?? '') === 'updated_at' ? 'selected' : '' }}>{{ __('Updated') }}</option>
         </select>
       </div>
       @if(isset($extraFilters))

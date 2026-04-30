@@ -28,14 +28,14 @@
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th style="width:40px;">Order</th>
-                                <th>Label</th>
-                                <th>Machine Name</th>
-                                <th>Entity Type</th>
-                                <th>Field Type</th>
-                                <th>Required</th>
-                                <th>Active</th>
-                                <th>Actions</th>
+                                <th style="width:40px;">{{ __('Order') }}</th>
+                                <th>{{ __('Label') }}</th>
+                                <th>{{ __('Machine Name') }}</th>
+                                <th>{{ __('Entity Type') }}</th>
+                                <th>{{ __('Field Type') }}</th>
+                                <th>{{ __('Required') }}</th>
+                                <th>{{ __('Active') }}</th>
+                                <th>{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>

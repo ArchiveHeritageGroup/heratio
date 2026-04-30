@@ -27,7 +27,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0 text-white-50">Total Packages</h6>
+                                <h6 class="mb-0 text-white-50">{{ __('Total Packages') }}</h6>
                                 <h2 class="mb-0">{{ number_format($packages->count()) }}</h2>
                                 <small>{{ $totalSize ? number_format($totalSize / 1048576, 1) . ' MB' : '' }}</small>
                             </div>
@@ -41,7 +41,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0 text-white-50">SIPs</h6>
+                                <h6 class="mb-0 text-white-50">{{ __('SIPs') }}</h6>
                                 <h2 class="mb-0">{{ number_format($sipCount) }}</h2>
                                 <small>Submission</small>
                             </div>
@@ -55,7 +55,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0 text-white-50">AIPs</h6>
+                                <h6 class="mb-0 text-white-50">{{ __('AIPs') }}</h6>
                                 <h2 class="mb-0">{{ number_format($aipCount) }}</h2>
                                 <small>Archival</small>
                             </div>
@@ -69,7 +69,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0">DIPs</h6>
+                                <h6 class="mb-0">{{ __('DIPs') }}</h6>
                                 <h2 class="mb-0">{{ number_format($dipCount) }}</h2>
                                 <small>Dissemination</small>
                             </div>
@@ -99,16 +99,16 @@
                     <table class="table table-bordered table-sm table-striped mb-0">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>{{ __('ID') }}</th>
                                 <th>UUID</th>
-                                <th>Name</th>
-                                <th>Type</th>
-                                <th>Status</th>
-                                <th>Format</th>
-                                <th>Objects</th>
-                                <th>Size</th>
-                                <th>Created</th>
-                                <th class="text-end">Actions</th>
+                                <th>{{ __('Name') }}</th>
+                                <th>{{ __('Type') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Format') }}</th>
+                                <th>{{ __('Objects') }}</th>
+                                <th>{{ __('Size') }}</th>
+                                <th>{{ __('Created') }}</th>
+                                <th class="text-end">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -160,16 +160,16 @@
                                 <td class="text-nowrap"><small>{{ $pkg->created_at }}</small></td>
                                 <td class="text-end">
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ route('preservation.package-view', $pkg->id) }}" class="btn btn-sm atom-btn-white" title="View package">
+                                        <a href="{{ route('preservation.package-view', $pkg->id) }}" class="btn btn-sm atom-btn-white" title="{{ __('View package') }}">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         @if($pkg->status === 'draft')
-                                        <a href="{{ route('preservation.package-edit', $pkg->id) }}" class="btn btn-sm atom-btn-white" title="Edit package">
+                                        <a href="{{ route('preservation.package-edit', $pkg->id) }}" class="btn btn-sm atom-btn-white" title="{{ __('Edit package') }}">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         @endif
                                         @if($pkg->export_path ?? null)
-                                        <a href="#" class="btn btn-sm atom-btn-white" title="Download export">
+                                        <a href="#" class="btn btn-sm atom-btn-white" title="{{ __('Download export') }}">
                                             <i class="fas fa-download"></i>
                                         </a>
                                         @endif

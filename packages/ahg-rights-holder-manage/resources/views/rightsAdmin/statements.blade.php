@@ -8,20 +8,20 @@
 @endsection
 
 @section('title-block')
-  <h1 class="mb-0">Rights Statements</h1>
+  <h1 class="mb-0">{{ __('Rights Statements') }}</h1>
 @endsection
 
 @section('content')
 <div class="card">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h5 class="mb-0">Configured Rights Statements</h5>
+    <h5 class="mb-0">{{ __('Configured Rights Statements') }}</h5>
   </div>
   <div class="card-body p-0">
     @if(isset($statements) && count($statements) > 0)
       <table class="table table-striped table-hover mb-0">
         <thead>
           <tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-            <th>Code</th><th>Name</th><th>URI</th><th class="text-end">Objects</th>
+            <th>{{ __('Code') }}</th><th>{{ __('Name') }}</th><th>URI</th><th class="text-end">{{ __('Objects') }}</th>
           </tr>
         </thead>
         <tbody>

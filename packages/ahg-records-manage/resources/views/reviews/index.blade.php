@@ -43,20 +43,20 @@
 
 <form method="GET" class="row g-2 align-items-end mb-3">
   <div class="col-md-3">
-    <label class="form-label small mb-0">Status</label>
+    <label class="form-label small mb-0">{{ __('Status') }}</label>
     <select name="status" class="form-select form-select-sm">
-      <option value="">All</option>
-      <option value="pending" @selected($filters['status']==='pending')>Pending</option>
-      <option value="completed" @selected($filters['status']==='completed')>Completed</option>
-      <option value="cancelled" @selected($filters['status']==='cancelled')>Cancelled</option>
+      <option value="">{{ __('All') }}</option>
+      <option value="pending" @selected($filters['status']==='pending')>{{ __('Pending') }}</option>
+      <option value="completed" @selected($filters['status']==='completed')>{{ __('Completed') }}</option>
+      <option value="cancelled" @selected($filters['status']==='cancelled')>{{ __('Cancelled') }}</option>
     </select>
   </div>
   <div class="col-md-3">
-    <label class="form-label small mb-0">Due before</label>
+    <label class="form-label small mb-0">{{ __('Due before') }}</label>
     <input type="date" name="due_before" value="{{ $filters['due_before'] }}" class="form-control form-control-sm">
   </div>
   <div class="col-md-3">
-    <label class="form-label small mb-0">Search title</label>
+    <label class="form-label small mb-0">{{ __('Search title') }}</label>
     <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control form-control-sm" placeholder="...">
   </div>
   <div class="col-md-3">
@@ -69,13 +69,13 @@
   <table class="table table-hover table-sm mb-0">
     <thead class="table-light">
       <tr>
-        <th>Record</th>
-        <th>Disposal class</th>
-        <th>Type</th>
-        <th>Due</th>
-        <th>Status</th>
-        <th>Decision</th>
-        <th class="text-end">Action</th>
+        <th>{{ __('Record') }}</th>
+        <th>{{ __('Disposal class') }}</th>
+        <th>{{ __('Type') }}</th>
+        <th>{{ __('Due') }}</th>
+        <th>{{ __('Status') }}</th>
+        <th>{{ __('Decision') }}</th>
+        <th class="text-end">{{ __('Action') }}</th>
       </tr>
     </thead>
     <tbody>

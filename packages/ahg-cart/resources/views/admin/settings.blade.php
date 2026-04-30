@@ -65,7 +65,7 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Currency</label>
+                <label class="form-label">{{ __('Currency') }}</label>
                 <select name="currency" class="form-select">
                   @foreach(['ZAR' => 'ZAR - South African Rand', 'USD' => 'USD - US Dollar', 'EUR' => 'EUR - Euro', 'GBP' => 'GBP - British Pound'] as $code => $label)
                     <option value="{{ $code }}" {{ ($settings->currency ?? 'ZAR') === $code ? 'selected' : '' }}>{{ $label }}</option>
@@ -74,13 +74,13 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">VAT Rate (%)</label>
+                <label class="form-label">{{ __('VAT Rate (%)') }}</label>
                 <input type="number" name="vat_rate" class="form-control" step="0.01" min="0" max="50"
                        value="{{ $settings->vat_rate ?? 15.00 }}">
               </div>
 
               <div class="mb-3">
-                <label class="form-label">VAT Number</label>
+                <label class="form-label">{{ __('VAT Number') }}</label>
                 <input type="text" name="vat_number" class="form-control"
                        value="{{ e($settings->vat_number ?? '') }}">
               </div>
@@ -88,15 +88,15 @@
 
             <div class="col-md-6">
               <div class="mb-3">
-                <label class="form-label">Admin Notification Email</label>
+                <label class="form-label">{{ __('Admin Notification Email') }}</label>
                 <input type="email" name="admin_notification_email" class="form-control"
                        value="{{ e($settings->admin_notification_email ?? '') }}"
-                       placeholder="orders@example.com">
+                       placeholder="{{ __('orders@example.com') }}">
                 <small class="text-muted">Receive order notifications at this email.</small>
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Terms and Conditions</label>
+                <label class="form-label">{{ __('Terms and Conditions') }}</label>
                 <textarea name="terms_conditions" class="form-control" rows="6">{{ e($settings->terms_conditions ?? '') }}</textarea>
               </div>
             </div>
@@ -149,19 +149,19 @@
           <div class="row">
             <div class="col-md-6">
               <div class="mb-3">
-                <label class="form-label">Merchant ID</label>
+                <label class="form-label">{{ __('Merchant ID') }}</label>
                 <input type="text" name="payfast_merchant_id" class="form-control"
                        value="{{ e($settings->payfast_merchant_id ?? '') }}">
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Merchant Key</label>
+                <label class="form-label">{{ __('Merchant Key') }}</label>
                 <input type="text" name="payfast_merchant_key" class="form-control"
                        value="{{ e($settings->payfast_merchant_key ?? '') }}">
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Passphrase</label>
+                <label class="form-label">{{ __('Passphrase') }}</label>
                 <input type="password" name="payfast_passphrase" class="form-control"
                        value="{{ e($settings->payfast_passphrase ?? '') }}">
                 <small class="text-muted">Optional but recommended for security.</small>
@@ -218,9 +218,9 @@
             <table class="table table-hover">
               <thead class="table-light">
                 <tr>
-                  <th>Product Type</th>
-                  <th>Type</th>
-                  <th class="text-center" style="width:100px">Active</th>
+                  <th>{{ __('Product Type') }}</th>
+                  <th>{{ __('Type') }}</th>
+                  <th class="text-center" style="width:100px">{{ __('Active') }}</th>
                   <th style="width:150px">Price ({{ $settings->currency ?? 'ZAR' }})</th>
                 </tr>
               </thead>

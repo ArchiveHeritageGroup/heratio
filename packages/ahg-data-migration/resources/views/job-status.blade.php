@@ -12,7 +12,7 @@
     </div>
   </div>
 
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
       <li class="breadcrumb-item"><a href="{{ route('data-migration.jobs') }}">Jobs</a></li>
@@ -97,38 +97,38 @@
       <table class="table table-bordered mb-0">
         <tbody>
           <tr>
-            <th style="width: 200px;">Job ID</th>
+            <th style="width: 200px;">{{ __('Job ID') }}</th>
             <td>{{ $job['id'] }}</td>
           </tr>
           <tr>
-            <th>Target Type</th>
+            <th>{{ __('Target Type') }}</th>
             <td><span class="badge bg-info">{{ $job['target_type'] }}</span></td>
           </tr>
           <tr>
-            <th>Source File</th>
+            <th>{{ __('Source File') }}</th>
             <td><code>{{ $job['source_file'] ?: 'N/A' }}</code></td>
           </tr>
           <tr>
-            <th>Source Format</th>
+            <th>{{ __('Source Format') }}</th>
             <td>{{ strtoupper($job['source_format'] ?? 'CSV') }}</td>
           </tr>
           <tr>
-            <th>Started</th>
+            <th>{{ __('Started') }}</th>
             <td>{{ $job['started_at'] ? \Carbon\Carbon::parse($job['started_at'])->format('Y-m-d H:i:s') : 'Not started' }}</td>
           </tr>
           <tr>
-            <th>Completed</th>
+            <th>{{ __('Completed') }}</th>
             <td>{{ $job['completed_at'] ? \Carbon\Carbon::parse($job['completed_at'])->format('Y-m-d H:i:s') : 'Not completed' }}</td>
           </tr>
           @if($job['started_at'] && $job['completed_at'])
             <tr>
-              <th>Duration</th>
+              <th>{{ __('Duration') }}</th>
               <td>{{ \Carbon\Carbon::parse($job['started_at'])->diffForHumans(\Carbon\Carbon::parse($job['completed_at']), true) }}</td>
             </tr>
           @endif
           @if(!empty($job['import_options']))
             <tr>
-              <th>Import Type</th>
+              <th>{{ __('Import Type') }}</th>
               <td>{{ $job['import_options']['import_type'] ?? 'N/A' }}</td>
             </tr>
           @endif
@@ -148,8 +148,8 @@
           <table class="table table-bordered table-sm table-striped mb-0">
             <thead>
               <tr>
-                <th style="width: 80px;">Row</th>
-                <th>Error Message</th>
+                <th style="width: 80px;">{{ __('Row') }}</th>
+                <th>{{ __('Error Message') }}</th>
               </tr>
             </thead>
             <tbody>

@@ -48,7 +48,7 @@
                     $html .= ' <small class="badge bg-secondary ms-1">' . htmlspecialchars((string) $node['level']) . '</small>';
                 }
                 if (!empty($node['has_do'])) {
-                    $html .= ' <i class="fas fa-paperclip text-info ms-1" title="Has digital object"></i>';
+                    $html .= ' <i class="fas fa-paperclip text-info ms-1" title="{{ __('Has digital object') }}"></i>';
                 }
                 $html .= '</div>';
                 if ($hasChildren) {
@@ -62,9 +62,9 @@
     }
 @endphp
 
-<h1>Preview &amp; Approve</h1>
+<h1>{{ __('Preview &amp; Approve') }}</h1>
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">Ingestion Manager</a></li>
         <li class="breadcrumb-item">{{ $session->title ?? ('Session #' . ($session->id ?? '')) }}</li>

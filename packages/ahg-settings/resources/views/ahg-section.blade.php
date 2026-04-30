@@ -3,7 +3,7 @@
 @section('body-class', 'admin settings')
 
 @section('content')
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Settings</a></li>
       <li class="breadcrumb-item active" aria-current="page">{{ $groupLabel }}</li>
@@ -122,7 +122,7 @@
                              value="{{ $val ?: '#000000' }}"
                              onchange="document.getElementById('setting-{{ $key }}').value = this.value">
                       <input type="text" class="form-control" name="settings[{{ $key }}]" id="setting-{{ $key }}"
-                             value="{{ e($val) }}" placeholder="#000000" pattern="^#[0-9a-fA-F]{6}$"
+                             value="{{ e($val) }}" placeholder="{{ __('#000000') }}" pattern="^#[0-9a-fA-F]{6}$"
                              onchange="document.getElementById('setting-{{ $key }}-picker').value = this.value">
                     </div>
                     @if($setting->description)

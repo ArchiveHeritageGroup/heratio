@@ -31,7 +31,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="parent_id" class="form-label">Parent Node</label>
+                    <label for="parent_id" class="form-label">{{ __('Parent Node') }}</label>
                     <select name="parent_id" id="parent_id" class="form-select">
                         <option value="">-- Root (no parent) --</option>
                         @foreach($parentNodes as $pn)
@@ -69,12 +69,12 @@
             </div>
 
             <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
+                <label for="description" class="form-label">{{ __('Description') }}</label>
                 <textarea name="description" id="description" class="form-control" rows="3">{{ old('description', $node->description) }}</textarea>
             </div>
 
             <div class="mb-3">
-                <label for="status" class="form-label">Status</label>
+                <label for="status" class="form-label">{{ __('Status') }}</label>
                 <select name="status" id="status" class="form-select">
                     <option value="active" {{ old('status', $node->status) === 'active' ? 'selected' : '' }}>Active</option>
                     <option value="closed" {{ old('status', $node->status) === 'closed' ? 'selected' : '' }}>Closed</option>
@@ -89,17 +89,17 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <label for="disposal_class_id" class="form-label">Disposal Class</label>
-                    <input type="number" name="disposal_class_id" id="disposal_class_id" class="form-control" value="{{ old('disposal_class_id', $node->disposal_class_id) }}" placeholder="Disposal class ID">
+                    <label for="disposal_class_id" class="form-label">{{ __('Disposal Class') }}</label>
+                    <input type="number" name="disposal_class_id" id="disposal_class_id" class="form-control" value="{{ old('disposal_class_id', $node->disposal_class_id) }}" placeholder="{{ __('Disposal class ID') }}">
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label for="retention_period" class="form-label">Retention Period</label>
+                    <label for="retention_period" class="form-label">{{ __('Retention Period') }}</label>
                     <input type="text" name="retention_period" id="retention_period" class="form-control" value="{{ old('retention_period', $node->retention_period) }}" maxlength="100">
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label for="disposal_action" class="form-label">Disposal Action</label>
+                    <label for="disposal_action" class="form-label">{{ __('Disposal Action') }}</label>
                     <select name="disposal_action" id="disposal_action" class="form-select">
                         <option value="">-- Select --</option>
                         <option value="destroy" {{ old('disposal_action', $node->disposal_action) === 'destroy' ? 'selected' : '' }}>Destroy</option>
@@ -114,7 +114,7 @@
 
     <div class="d-flex justify-content-between">
         <a href="{{ route('records.fileplan.show', $node->id) }}" class="btn btn-secondary">Cancel</a>
-        <button type="submit" class="btn btn-primary">Update Node</button>
+        <button type="submit" class="btn btn-primary">{{ __('Update Node') }}</button>
     </div>
 </form>
 @endsection

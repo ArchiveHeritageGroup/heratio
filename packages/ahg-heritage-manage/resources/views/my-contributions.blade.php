@@ -35,7 +35,7 @@ $badges = $profile['badges'] ?? [];
 
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">Contribution History</h5>
+        <h5 class="mb-0">{{ __('Contribution History') }}</h5>
         <div class="btn-group btn-group-sm">
           <a href="{{ route('heritage.my-contributions') }}" class="btn btn-outline-light {{ !request('status')?'active':'' }}">All</a>
           @foreach(['pending','approved','rejected'] as $s)<a href="{{ route('heritage.my-contributions', ['status'=>$s]) }}" class="btn btn-outline-light {{ request('status')===$s?'active':'' }}">{{ ucfirst($s) }}</a>@endforeach

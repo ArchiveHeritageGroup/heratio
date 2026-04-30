@@ -52,7 +52,7 @@ $versions = $contribution['versions'] ?? [];
           <div class="col-md-4"><small class="text-muted d-block">Points Value</small><strong class="text-success">+{{ $type['points_value'] ?? 0 }} pts</strong></div>
         </div>
         <hr>
-        <h6 class="text-muted mb-3">Contribution Content</h6>
+        <h6 class="text-muted mb-3">{{ __('Contribution Content') }}</h6>
 
         @if(($type['code'] ?? '') === 'transcription')
         <div class="bg-light border rounded p-3 font-monospace" style="white-space:pre-wrap">{{ $content['text'] ?? '' }}</div>
@@ -74,7 +74,7 @@ $versions = $contribution['versions'] ?? [];
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-check-square me-2"></i>Decision</h5></div>
       <div class="card-body">
         <form method="post" action="{{ route('heritage.review-contribution', $contribution['id'] ?? 0) }}">@csrf
-          <div class="mb-3"><label for="notes" class="form-label">Review Notes <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="notes" rows="3" placeholder="Add any notes for the contributor..."></textarea><div class="form-text">These notes will be visible to the contributor.</div></div>
+          <div class="mb-3"><label for="notes" class="form-label">Review Notes <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="notes" rows="3" placeholder="{{ __('Add any notes for the contributor...') }}"></textarea><div class="form-text">These notes will be visible to the contributor.</div></div>
           <div class="d-flex gap-2">
             <button type="submit" name="decision" value="approve" class="btn atom-btn-outline-success btn-lg flex-fill"><i class="fas fa-check-circle me-2"></i>Approve</button>
             <button type="submit" name="decision" value="reject" class="btn atom-btn-outline-danger btn-lg flex-fill"><i class="fas fa-times-circle me-2"></i>Reject</button>

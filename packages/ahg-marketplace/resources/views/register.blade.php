@@ -26,7 +26,7 @@
           <div class="text-center mb-3">
             <i class="fas fa-shopping-bag fa-3x text-success"></i>
           </div>
-          <h2 class="h4 text-center mb-3">Register as a Buyer</h2>
+          <h2 class="h4 text-center mb-3">{{ __('Register as a Buyer') }}</h2>
           <ul class="small mb-4">
             <li>Browse all listings &mdash; gallery, museum, archive, library, DAM</li>
             <li>Place bids on auctions</li>
@@ -60,7 +60,7 @@
           <div class="text-center mb-3">
             <i class="fas fa-tag fa-3x text-primary"></i>
           </div>
-          <h2 class="h4 text-center mb-3">Register as a Seller</h2>
+          <h2 class="h4 text-center mb-3">{{ __('Register as a Seller') }}</h2>
           <ul class="small mb-4">
             <li>List items at fixed price, by offer, or as auctions</li>
             <li>Receive payments via PayFast (and other gateways)</li>

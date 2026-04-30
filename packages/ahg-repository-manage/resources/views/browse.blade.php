@@ -8,7 +8,7 @@
     <button class="btn btn-lg atom-btn-white collapsed text-wrap" type="button"
             data-bs-toggle="collapse" data-bs-target="#collapse-aggregations"
             aria-expanded="false" aria-controls="collapse-aggregations">
-      Narrow your results by:
+      {{ __('Narrow your results by:') }}
     </button>
   </h2>
 
@@ -22,7 +22,7 @@
             <button class="accordion-button collapsed" type="button"
                     data-bs-toggle="collapse" data-bs-target="#collapse-languages"
                     aria-expanded="false" aria-controls="collapse-languages">
-              Language
+              {{ __('Language') }}
             </button>
           </h2>
           <div id="collapse-languages" class="accordion-collapse collapse list-group list-group-flush"
@@ -50,7 +50,7 @@
             <button class="accordion-button collapsed" type="button"
                     data-bs-toggle="collapse" data-bs-target="#collapse-archiveType"
                     aria-expanded="false" aria-controls="collapse-archiveType">
-              Archive type
+              {{ __('Archive type') }}
             </button>
           </h2>
           <div id="collapse-archiveType" class="accordion-collapse collapse list-group list-group-flush"
@@ -78,7 +78,7 @@
             <button class="accordion-button collapsed" type="button"
                     data-bs-toggle="collapse" data-bs-target="#collapse-region"
                     aria-expanded="false" aria-controls="collapse-region">
-              Geographic Region
+              {{ __('Geographic Region') }}
             </button>
           </h2>
           <div id="collapse-region" class="accordion-collapse collapse list-group list-group-flush"
@@ -106,7 +106,7 @@
             <button class="accordion-button collapsed" type="button"
                     data-bs-toggle="collapse" data-bs-target="#collapse-subregion"
                     aria-expanded="false" aria-controls="collapse-subregion">
-              Geographic Subregion
+              {{ __('Geographic Subregion') }}
             </button>
           </h2>
           <div id="collapse-subregion" class="accordion-collapse collapse list-group list-group-flush"
@@ -134,7 +134,7 @@
             <button class="accordion-button collapsed" type="button"
                     data-bs-toggle="collapse" data-bs-target="#collapse-locality"
                     aria-expanded="false" aria-controls="collapse-locality">
-              Locality
+              {{ __('Locality') }}
             </button>
           </h2>
           <div id="collapse-locality" class="accordion-collapse collapse list-group list-group-flush"
@@ -162,7 +162,7 @@
             <button class="accordion-button collapsed" type="button"
                     data-bs-toggle="collapse" data-bs-target="#collapse-thematicArea"
                     aria-expanded="false" aria-controls="collapse-thematicArea">
-              Thematic Area
+              {{ __('Thematic Area') }}
             </button>
           </h2>
           <div id="collapse-thematicArea" class="accordion-collapse collapse list-group list-group-flush"
@@ -229,7 +229,7 @@
         <button class="accordion-button collapsed" type="button"
                 data-bs-toggle="collapse" data-bs-target="#collapse-adv-search"
                 aria-expanded="false" aria-controls="collapse-adv-search">
-          Advanced search options
+          {{ __('Advanced search options') }}
         </button>
       </h2>
       <div id="collapse-adv-search" class="accordion-collapse collapse" aria-labelledby="heading-adv-search">
@@ -244,7 +244,7 @@
             <div class="row mb-4">
 
               <div class="col-md-4">
-                <label class="form-label" for="thematicAreas">Thematic area</label>
+                <label class="form-label" for="thematicAreas">{{ __('Thematic area') }}</label>
                 <select class="form-select" name="thematicAreas" id="thematicAreas">
                   <option selected="selected"></option>
                   @foreach($thematicAreaOptions ?? [] as $ta)
@@ -254,7 +254,7 @@
               </div>
 
               <div class="col-md-4">
-                <label class="form-label" for="types">Archive type</label>
+                <label class="form-label" for="types">{{ __('Archive type') }}</label>
                 <select class="form-select" name="types" id="types">
                   <option selected="selected"></option>
                   @foreach($repositoryTypes ?? [] as $rt)
@@ -264,7 +264,7 @@
               </div>
 
               <div class="col-md-4">
-                <label class="form-label" for="regions">Region</label>
+                <label class="form-label" for="regions">{{ __('Region') }}</label>
                 <select class="form-select" name="regions" id="regions">
                   <option selected="selected"></option>
                   @foreach($regions ?? [] as $r)
@@ -292,13 +292,13 @@
       $displayMode = request('displayMode', 'list');
       $baseQuery = request()->except(['displayMode', 'page']);
     @endphp
-    <div class="btn-group" role="group" aria-label="Display mode">
+    <div class="btn-group" role="group" aria-label="{{ __('Display mode') }}">
       <a href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'list'])) }}"
-         class="btn btn-sm {{ $displayMode === 'list' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Compact table/list view">
+         class="btn btn-sm {{ $displayMode === 'list' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Compact table/list view') }}">
         <i class="fas fa-list me-1" aria-hidden="true"></i> Table view
       </a>
       <a href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'grid'])) }}"
-         class="btn btn-sm {{ $displayMode === 'grid' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Thumbnail grid with cards">
+         class="btn btn-sm {{ $displayMode === 'grid' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Thumbnail grid with cards') }}">
         <i class="fas fa-th me-1" aria-hidden="true"></i> Card view
       </a>
     </div>
@@ -362,15 +362,15 @@
           <thead>
             <tr>
               <th class="sortable w-40">
-                <a title="Sort" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'nameUp' ? 'nameDown' : 'nameUp'])) }}">Name</a>
+                <a title="{{ __('Sort') }}" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'nameUp' ? 'nameDown' : 'nameUp'])) }}">Name</a>
               </th>
               <th class="sortable w-20">
-                <a title="Sort" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'regionUp' ? 'regionDown' : 'regionUp'])) }}">Region</a>
+                <a title="{{ __('Sort') }}" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'regionUp' ? 'regionDown' : 'regionUp'])) }}">Region</a>
               </th>
               <th class="sortable w-20">
-                <a title="Sort" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'localityUp' ? 'localityDown' : 'localityUp'])) }}">Locality</a>
+                <a title="{{ __('Sort') }}" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'localityUp' ? 'localityDown' : 'localityUp'])) }}">Locality</a>
               </th>
-              <th class="w-20">Thematic area</th>
+              <th class="w-20">{{ __('Thematic area') }}</th>
               <th><span class="visually-hidden">Clipboard</span></th>
             </tr>
           </thead>

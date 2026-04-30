@@ -21,7 +21,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.valuations') }}">Valuations</a></li>
@@ -43,16 +43,16 @@
             </div>
             @else
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Select Asset</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Select Asset') }}</h5></div>
                 <div class="card-body">
                     <label class="form-label">Asset <span class="text-danger">*</span></label>
-                    <input type="number" name="asset_id" class="form-control" required placeholder="Enter Asset ID">
+                    <input type="number" name="asset_id" class="form-control" required placeholder="{{ __('Enter Asset ID') }}">
                 </div>
             </div>
             @endif
 
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Valuation Details</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Valuation Details') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -60,33 +60,33 @@
                             <input type="date" name="valuation_date" class="form-control" required value="{{ date('Y-m-d') }}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Valuation Type</label>
+                            <label class="form-label">{{ __('Valuation Type') }}</label>
                             <select name="valuation_type" class="form-select">
-                                <option value="initial">Initial</option>
-                                <option value="revaluation">Revaluation</option>
-                                <option value="impairment">Impairment</option>
-                                <option value="reversal">Reversal</option>
+                                <option value="initial">{{ __('Initial') }}</option>
+                                <option value="revaluation">{{ __('Revaluation') }}</option>
+                                <option value="impairment">{{ __('Impairment') }}</option>
+                                <option value="reversal">{{ __('Reversal') }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Valuation Basis</label>
+                            <label class="form-label">{{ __('Valuation Basis') }}</label>
                             <select name="valuation_basis" class="form-select">
-                                <option value="historical_cost">Historical Cost</option>
-                                <option value="fair_value">Fair Value</option>
-                                <option value="nominal">Nominal Value</option>
+                                <option value="historical_cost">{{ __('Historical Cost') }}</option>
+                                <option value="fair_value">{{ __('Fair Value') }}</option>
+                                <option value="nominal">{{ __('Nominal Value') }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Valuation Method</label>
+                            <label class="form-label">{{ __('Valuation Method') }}</label>
                             <select name="valuation_method" class="form-select">
-                                <option value="market_comparison">Market Comparison</option>
-                                <option value="income_approach">Income Approach</option>
-                                <option value="cost_approach">Cost Approach</option>
-                                <option value="expert_opinion">Expert Opinion</option>
+                                <option value="market_comparison">{{ __('Market Comparison') }}</option>
+                                <option value="income_approach">{{ __('Income Approach') }}</option>
+                                <option value="cost_approach">{{ __('Cost Approach') }}</option>
+                                <option value="expert_opinion">{{ __('Expert Opinion') }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Previous Value</label>
+                            <label class="form-label">{{ __('Previous Value') }}</label>
                             <input type="number" name="previous_value" class="form-control" step="0.01" min="0" value="{{ $asset->current_value ?? '' }}">
                         </div>
                         <div class="col-md-6">
@@ -98,35 +98,35 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Valuer Information</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Valuer Information') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Valuer Name</label>
+                            <label class="form-label">{{ __('Valuer Name') }}</label>
                             <input type="text" name="valuer_name" class="form-control">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Valuer Type</label>
+                            <label class="form-label">{{ __('Valuer Type') }}</label>
                             <select name="valuer_type" class="form-select">
-                                <option value="internal">Internal</option>
-                                <option value="external">External</option>
-                                <option value="government">Government</option>
+                                <option value="internal">{{ __('Internal') }}</option>
+                                <option value="external">{{ __('External') }}</option>
+                                <option value="government">{{ __('Government') }}</option>
                             </select>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Qualifications</label>
+                            <label class="form-label">{{ __('Qualifications') }}</label>
                             <input type="text" name="valuer_qualification" class="form-control">
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Market Evidence</label>
+                            <label class="form-label">{{ __('Market Evidence') }}</label>
                             <textarea name="market_evidence" class="form-control" rows="2"></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Documentation Reference</label>
+                            <label class="form-label">{{ __('Documentation Reference') }}</label>
                             <input type="text" name="documentation_ref" class="form-control">
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Notes</label>
+                            <label class="form-label">{{ __('Notes') }}</label>
                             <textarea name="notes" class="form-control" rows="2"></textarea>
                         </div>
                     </div>

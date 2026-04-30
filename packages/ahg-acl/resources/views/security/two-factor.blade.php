@@ -33,7 +33,7 @@
           <input type="hidden" name="return" value="{{ e($returnUrl ?? '/') }}">
 
           <div class="mb-4">
-            <label class="form-label">Enter Verification Code</label>
+            <label class="form-label">{{ __('Enter Verification Code') }}</label>
             <input type="text" name="code" class="form-control form-control-lg text-center"
                    maxlength="6" pattern="\d{6}" placeholder="000000" required autofocus
                    autocomplete="one-time-code" inputmode="numeric"

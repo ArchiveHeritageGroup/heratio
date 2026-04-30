@@ -11,19 +11,19 @@
 
 @section('sidebar')
 <section class="card mb-3">
-  <div class="card-header"><h6 class="mb-0">Filter options</h6></div>
+  <div class="card-header"><h6 class="mb-0">{{ __('Filter options') }}</h6></div>
   <div class="card-body">
     <form method="get" action="{{ route('reports.donors') }}">
       <div class="mb-3">
-        <label class="form-label">Date start</label>
+        <label class="form-label">{{ __('Date start') }}</label>
         <input type="date" name="dateStart" class="form-control form-control-sm" value="{{ $params['dateStart'] ?? '' }}">
       </div>
       <div class="mb-3">
-        <label class="form-label">Date end</label>
+        <label class="form-label">{{ __('Date end') }}</label>
         <input type="date" name="dateEnd" class="form-control form-control-sm" value="{{ $params['dateEnd'] ?? '' }}">
       </div>
       <div class="mb-3">
-        <label class="form-label">Results per page</label>
+        <label class="form-label">{{ __('Results per page') }}</label>
         <select name="limit" class="form-select form-select-sm">
           @foreach([25, 50, 100, 500] as $lim)
             <option value="{{ $lim }}" {{ ($params['limit'] ?? 20) == $lim ? 'selected' : '' }}>{{ $lim }}</option>
@@ -41,7 +41,7 @@
 
 @section('title-block')
 <div class="d-flex justify-content-between align-items-center">
-  <h1>Browse Donor Report</h1>
+  <h1>{{ __('Browse Donor Report') }}</h1>
   <a href="{{ route('reports.dashboard') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back</a>
 </div>
 @endsection
@@ -54,12 +54,12 @@
     <table id="reportTable" class="table table-bordered table-striped table-sm">
       <thead class="table-dark">
         <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Telephone</th>
-          <th>City</th>
-          <th>Created</th>
-          <th>Updated</th>
+          <th>{{ __('Name') }}</th>
+          <th>{{ __('Email') }}</th>
+          <th>{{ __('Telephone') }}</th>
+          <th>{{ __('City') }}</th>
+          <th>{{ __('Created') }}</th>
+          <th>{{ __('Updated') }}</th>
         </tr>
       </thead>
       <tbody>

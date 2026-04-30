@@ -5,10 +5,10 @@
 
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-cog me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">RiC Sync Configuration</h1></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('RiC Sync Configuration') }}</h1></div>
   </div>
 
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('ric.index') }}">RiC Dashboard</a></li>
       <li class="breadcrumb-item active">Configuration</li>
@@ -34,19 +34,19 @@
           </div>
           <div class="card-body">
             <div class="mb-3">
-              <label class="form-label">Endpoint URL</label>
+              <label class="form-label">{{ __('Endpoint URL') }}</label>
               <input type="text" class="form-control" name="config[fuseki_endpoint]"
                      value="{{ old('config.fuseki_endpoint', $config['fuseki_endpoint'] ?? '') }}"
-                     placeholder="http://localhost:3030/ric">
+                     placeholder="{{ __('http://localhost:3030/ric') }}">
             </div>
             <div class="mb-3">
-              <label class="form-label">Username</label>
+              <label class="form-label">{{ __('Username') }}</label>
               <input type="text" class="form-control" name="config[fuseki_username]"
                      value="{{ old('config.fuseki_username', $config['fuseki_username'] ?? '') }}"
-                     placeholder="admin">
+                     placeholder="{{ __('admin') }}">
             </div>
             <div class="mb-3">
-              <label class="form-label">Password</label>
+              <label class="form-label">{{ __('Password') }}</label>
               <input type="password" class="form-control" name="config[fuseki_password]"
                      value="{{ old('config.fuseki_password', $config['fuseki_password'] ?? '') }}">
             </div>
@@ -68,20 +68,20 @@
             <div class="form-check form-switch mb-3">
               <input class="form-check-input" type="checkbox" name="config[sync_enabled]" value="1"
                      id="sync_enabled" {{ ($config['sync_enabled'] ?? '1') === '1' ? 'checked' : '' }}>
-              <label class="form-check-label" for="sync_enabled">Enable automatic sync</label>
+              <label class="form-check-label" for="sync_enabled">{{ __('Enable automatic sync') }}</label>
             </div>
             <div class="form-check form-switch mb-3">
               <input class="form-check-input" type="checkbox" name="config[queue_enabled]" value="1"
                      id="queue_enabled" {{ ($config['queue_enabled'] ?? '1') === '1' ? 'checked' : '' }}>
-              <label class="form-check-label" for="queue_enabled">Use async queue</label>
+              <label class="form-check-label" for="queue_enabled">{{ __('Use async queue') }}</label>
             </div>
             <div class="form-check form-switch mb-3">
               <input class="form-check-input" type="checkbox" name="config[cascade_delete]" value="1"
                      id="cascade_delete" {{ ($config['cascade_delete'] ?? '1') === '1' ? 'checked' : '' }}>
-              <label class="form-check-label" for="cascade_delete">Cascade delete references</label>
+              <label class="form-check-label" for="cascade_delete">{{ __('Cascade delete references') }}</label>
             </div>
             <div class="mb-3">
-              <label class="form-label">Batch Size</label>
+              <label class="form-label">{{ __('Batch Size') }}</label>
               <input type="number" class="form-control" name="config[batch_size]"
                      value="{{ old('config.batch_size', $config['batch_size'] ?? '100') }}"
                      min="1" max="10000">

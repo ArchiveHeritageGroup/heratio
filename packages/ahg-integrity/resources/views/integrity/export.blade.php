@@ -4,12 +4,12 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-shield-alt me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">Export</h1><span class="small text-muted">Digital object integrity management</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Export') }}</h1><span class="small text-muted">Digital object integrity management</span></div>
   </div>
 @endsection
 @section('content')
 <div class="card">
-  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">Export Integrity Data</h5></div>
+  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Export Integrity Data') }}</h5></div>
   <div class="card-body">
     <form method="get" action="{{ route('integrity.export') }}">
       <div class="row">

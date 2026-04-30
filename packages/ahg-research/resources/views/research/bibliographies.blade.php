@@ -1,7 +1,7 @@
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar')@endsection
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item active">Bibliographies</li>
@@ -36,9 +36,9 @@
                     </div>
                     <div class="card-footer bg-transparent">
                         <div class="btn-group btn-group-sm">
-                            <a href="{{ route('research.viewBibliography', $bib->id) }}?export=ris" class="btn btn-outline-secondary" title="Export RIS">RIS</a>
-                            <a href="{{ route('research.viewBibliography', $bib->id) }}?export=bibtex" class="btn btn-outline-secondary" title="Export BibTeX">BibTeX</a>
-                            <a href="{{ route('research.viewBibliography', $bib->id) }}?export=zotero" class="btn btn-outline-secondary" title="Export Zotero">Zotero</a>
+                            <a href="{{ route('research.viewBibliography', $bib->id) }}?export=ris" class="btn btn-outline-secondary" title="{{ __('Export RIS') }}">RIS</a>
+                            <a href="{{ route('research.viewBibliography', $bib->id) }}?export=bibtex" class="btn btn-outline-secondary" title="{{ __('Export BibTeX') }}">BibTeX</a>
+                            <a href="{{ route('research.viewBibliography', $bib->id) }}?export=zotero" class="btn btn-outline-secondary" title="{{ __('Export Zotero') }}">Zotero</a>
                         </div>
                     </div>
                 </div>
@@ -49,7 +49,7 @@
     <div class="card">
         <div class="card-body text-center py-5">
             <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
-            <h5>No Bibliographies Yet</h5>
+            <h5>{{ __('No Bibliographies Yet') }}</h5>
             <p class="text-muted">Create a bibliography to organize your research citations.</p>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBibModal">
                 <i class="fas fa-plus me-1"></i> Create Bibliography
@@ -66,31 +66,31 @@
                 @csrf
                 <input type="hidden" name="form_action" value="create">
                 <div class="modal-header">
-                    <h5 class="modal-title">Create Bibliography</h5>
+                    <h5 class="modal-title">{{ __('Create Bibliography') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Name *</label>
-                        <input type="text" name="name" class="form-control" required placeholder="e.g., Thesis Bibliography">
+                        <label class="form-label">{{ __('Name *') }}</label>
+                        <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g., Thesis Bibliography') }}">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Description</label>
+                        <label class="form-label">{{ __('Description') }}</label>
                         <textarea name="description" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Citation Style</label>
+                        <label class="form-label">{{ __('Citation Style') }}</label>
                         <select name="citation_style" class="form-select">
-                            <option value="chicago">Chicago</option>
-                            <option value="mla">MLA</option>
-                            <option value="apa">APA</option>
-                            <option value="harvard">Harvard</option>
-                            <option value="turabian">Turabian</option>
+                            <option value="chicago">{{ __('Chicago') }}</option>
+                            <option value="mla">{{ __('MLA') }}</option>
+                            <option value="apa">{{ __('APA') }}</option>
+                            <option value="harvard">{{ __('Harvard') }}</option>
+                            <option value="turabian">{{ __('Turabian') }}</option>
                         </select>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                     <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Create</button>
                 </div>
             </form>

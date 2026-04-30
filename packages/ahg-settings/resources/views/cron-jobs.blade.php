@@ -13,14 +13,14 @@
     <div>
       <form action="{{ route('settings.cron-seed') }}" method="POST" class="d-inline">
         @csrf
-        <button type="submit" class="btn btn-sm atom-btn-white" title="Add missing default entries">
+        <button type="submit" class="btn btn-sm atom-btn-white" title="{{ __('Add missing default entries') }}">
           <i class="fas fa-seedling me-1"></i>Seed Defaults
         </button>
       </form>
       <form action="{{ route('settings.cron-seed') }}" method="POST" class="d-inline ms-1">
         @csrf
         <input type="hidden" name="reset" value="1">
-        <button type="submit" class="btn btn-sm atom-btn-white" onclick="return confirm('Reset ALL schedules to defaults? Custom changes will be overwritten.')" title="Overwrite all to defaults">
+        <button type="submit" class="btn btn-sm atom-btn-white" onclick="return confirm('Reset ALL schedules to defaults? Custom changes will be overwritten.')" title="{{ __('Overwrite all to defaults') }}">
           <i class="fas fa-undo me-1"></i>Reset All
         </button>
       </form>
@@ -89,14 +89,14 @@
             <table class="table table-bordered table-sm table-hover mb-0 align-middle">
               <thead>
                 <tr>
-                  <th style="width:40px">On</th>
-                  <th>Job</th>
-                  <th>Schedule</th>
-                  <th>Status</th>
-                  <th>Last Run</th>
-                  <th>Duration</th>
-                  <th>Next Run</th>
-                  <th style="width:120px">Actions</th>
+                  <th style="width:40px">{{ __('On') }}</th>
+                  <th>{{ __('Job') }}</th>
+                  <th>{{ __('Schedule') }}</th>
+                  <th>{{ __('Status') }}</th>
+                  <th>{{ __('Last Run') }}</th>
+                  <th>{{ __('Duration') }}</th>
+                  <th>{{ __('Next Run') }}</th>
+                  <th style="width:120px">{{ __('Actions') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -172,19 +172,19 @@
                     {{-- Run Now --}}
                     <form action="{{ route('settings.cron-run', $job->id) }}" method="POST" class="d-inline">
                       @csrf
-                      <button type="submit" class="btn btn-sm atom-btn-outline-success" title="Run now" onclick="return confirm('Run {{ $job->name }} now?')">
+                      <button type="submit" class="btn btn-sm atom-btn-outline-success" title="{{ __('Run now') }}" onclick="return confirm('Run {{ $job->name }} now?')">
                         <i class="fas fa-play"></i>
                       </button>
                     </form>
 
                     {{-- Edit Modal Trigger --}}
-                    <button type="button" class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#edit-{{ $job->id }}" title="Edit">
+                    <button type="button" class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#edit-{{ $job->id }}" title="{{ __('Edit') }}">
                       <i class="fas fa-edit"></i>
                     </button>
 
                     {{-- Output Modal Trigger --}}
                     @if($job->last_run_output)
-                    <button type="button" class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#output-{{ $job->id }}" title="View output">
+                    <button type="button" class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#output-{{ $job->id }}" title="{{ __('View output') }}">
                       <i class="fas fa-terminal"></i>
                     </button>
                     @endif
@@ -223,7 +223,7 @@
                           </div>
                           <div class="mb-3">
                             <label class="form-label fw-bold">Notification Email <span class="badge bg-secondary ms-1">Optional</span></label>
-                            <input type="email" name="notify_email" class="form-control" value="{{ $job->notify_email }}" placeholder="admin@example.com">
+                            <input type="email" name="notify_email" class="form-control" value="{{ $job->notify_email }}" placeholder="{{ __('admin@example.com') }}">
                           </div>
                           <div class="row text-muted small">
                             <div class="col">Total runs: {{ $job->total_runs }}</div>
@@ -231,8 +231,8 @@
                           </div>
                         </div>
                         <div class="modal-footer">
-                          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-                          <button type="submit" class="btn atom-btn-outline-success">Save Changes</button>
+                          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                          <button type="submit" class="btn atom-btn-outline-success">{{ __('Save Changes') }}</button>
                         </div>
                       </div>
                     </form>

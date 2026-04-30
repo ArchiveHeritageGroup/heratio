@@ -6,7 +6,7 @@
 @section('sidebar')
   <div class="card mb-3">
     <div class="card-header">
-      <h4 class="mb-0">Watermark Settings</h4>
+      <h4 class="mb-0">{{ __('Watermark Settings') }}</h4>
     </div>
     <div class="card-body">
       <p>Configure default watermark behavior for all digital objects.</p>
@@ -16,7 +16,7 @@
 
 @section('content')
 
-<h1>Watermark Settings</h1>
+<h1>{{ __('Watermark Settings') }}</h1>
 
 @if(session('success'))
   <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -37,7 +37,7 @@
 
   <div class="card mb-4">
     <div class="card-header">
-      <h5 class="mb-0">Default Watermark</h5>
+      <h5 class="mb-0">{{ __('Default Watermark') }}</h5>
     </div>
     <div class="card-body">
 
@@ -54,7 +54,7 @@
       </div>
 
       <div class="mb-3">
-        <label for="default_watermark_type" class="form-label">Default Watermark Type</label>
+        <label for="default_watermark_type" class="form-label">{{ __('Default Watermark Type') }}</label>
         <select class="form-select" id="default_watermark_type" name="default_watermark_type">
           @foreach($watermarkTypes ?? [] as $wtype)
             <option value="{{ $wtype->code ?? $wtype->id ?? '' }}"
@@ -71,7 +71,7 @@
 
   <div class="card mb-4">
     <div class="card-header">
-      <h5 class="mb-0">Application Settings</h5>
+      <h5 class="mb-0">{{ __('Application Settings') }}</h5>
     </div>
     <div class="card-body">
 
@@ -112,7 +112,7 @@
       </div>
 
       <div class="mb-3">
-        <label for="watermark_min_size" class="form-label">Minimum Image Size</label>
+        <label for="watermark_min_size" class="form-label">{{ __('Minimum Image Size') }}</label>
         <div class="input-group" style="max-width: 200px;">
           <input type="number" class="form-control" id="watermark_min_size"
                  name="watermark_min_size" value="{{ $minSize ?? 0 }}" min="0">
@@ -127,36 +127,36 @@
   {{-- Custom Watermarks Section --}}
   <div class="card mb-4">
     <div class="card-header">
-      <h5 class="mb-0">Custom Watermarks</h5>
+      <h5 class="mb-0">{{ __('Custom Watermarks') }}</h5>
     </div>
     <div class="card-body">
 
       {{-- Upload New --}}
-      <h6>Upload New Watermark</h6>
+      <h6>{{ __('Upload New Watermark') }}</h6>
       <div class="row mb-4">
         <div class="col-md-3">
-          <label for="custom_watermark_name" class="form-label">Name</label>
-          <input type="text" class="form-control" id="custom_watermark_name" name="custom_watermark_name" placeholder="My Logo">
+          <label for="custom_watermark_name" class="form-label">{{ __('Name') }}</label>
+          <input type="text" class="form-control" id="custom_watermark_name" name="custom_watermark_name" placeholder="{{ __('My Logo') }}">
         </div>
         <div class="col-md-4">
-          <label for="custom_watermark_position" class="form-label">Position</label>
+          <label for="custom_watermark_position" class="form-label">{{ __('Position') }}</label>
           <select class="form-select" id="custom_watermark_position" name="custom_watermark_position">
-            <option value="center">Center</option>
-            <option value="top-left">Top Left</option>
-            <option value="top-right">Top Right</option>
-            <option value="bottom-left">Bottom Left</option>
-            <option value="bottom-right" selected>Bottom Right</option>
-            <option value="repeat">Repeat/Tile</option>
+            <option value="center">{{ __('Center') }}</option>
+            <option value="top-left">{{ __('Top Left') }}</option>
+            <option value="top-right">{{ __('Top Right') }}</option>
+            <option value="bottom-left">{{ __('Bottom Left') }}</option>
+            <option value="bottom-right" selected>{{ __('Bottom Right') }}</option>
+            <option value="repeat">{{ __('Repeat/Tile') }}</option>
           </select>
         </div>
         <div class="col-md-3">
-          <label for="custom_watermark_opacity" class="form-label">Opacity</label>
+          <label for="custom_watermark_opacity" class="form-label">{{ __('Opacity') }}</label>
           <input type="number" class="form-control" id="custom_watermark_opacity" name="custom_watermark_opacity" value="0.40" min="0.1" max="1.0" step="0.1">
         </div>
       </div>
       <div class="row mb-4">
         <div class="col-md-6">
-          <label for="custom_watermark_file" class="form-label">Watermark Image File</label>
+          <label for="custom_watermark_file" class="form-label">{{ __('Watermark Image File') }}</label>
           <input type="file" class="form-control" id="custom_watermark_file" name="custom_watermark_file" accept="image/png,image/jpeg,image/gif">
           <small class="text-muted">Supported: PNG, JPEG, GIF. Recommended: transparent PNG.</small>
         </div>
@@ -169,7 +169,7 @@
 
       {{-- Existing Custom Watermarks --}}
       @if(!empty($customWatermarks) && count($customWatermarks) > 0)
-      <h6 class="mt-4">Existing Custom Watermarks</h6>
+      <h6 class="mt-4">{{ __('Existing Custom Watermarks') }}</h6>
       <div class="row">
         @foreach($customWatermarks as $cw)
         <div class="col-md-3 mb-3">
@@ -213,7 +213,7 @@
 
   <div class="card mb-4">
     <div class="card-header">
-      <h5 class="mb-0">Available Watermarks</h5>
+      <h5 class="mb-0">{{ __('Available Watermarks') }}</h5>
     </div>
     <div class="card-body">
       <div class="row">

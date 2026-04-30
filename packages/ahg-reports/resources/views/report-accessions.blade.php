@@ -18,33 +18,33 @@
   </div>
 </section>
 <section class="card mb-3">
-  <div class="card-header"><h6 class="mb-0">Filter options</h6></div>
+  <div class="card-header"><h6 class="mb-0">{{ __('Filter options') }}</h6></div>
   <div class="card-body">
     <form method="get" action="{{ route('reports.accessions') }}">
       <div class="mb-3">
-        <label class="form-label">Date start</label>
+        <label class="form-label">{{ __('Date start') }}</label>
         <input type="date" name="dateStart" class="form-control form-control-sm" value="{{ $params['dateStart'] ?? '' }}">
       </div>
       <div class="mb-3">
-        <label class="form-label">Date end</label>
+        <label class="form-label">{{ __('Date end') }}</label>
         <input type="date" name="dateEnd" class="form-control form-control-sm" value="{{ $params['dateEnd'] ?? '' }}">
       </div>
       <div class="mb-3">
-        <label class="form-label">Date of</label>
+        <label class="form-label">{{ __('Date of') }}</label>
         <select name="dateOf" class="form-select form-select-sm">
-          <option value="created_at" {{ ($params['dateOf'] ?? 'created_at') === 'created_at' ? 'selected' : '' }}>Creation date</option>
-          <option value="updated_at" {{ ($params['dateOf'] ?? '') === 'updated_at' ? 'selected' : '' }}>Modification date</option>
+          <option value="created_at" {{ ($params['dateOf'] ?? 'created_at') === 'created_at' ? 'selected' : '' }}>{{ __('Creation date') }}</option>
+          <option value="updated_at" {{ ($params['dateOf'] ?? '') === 'updated_at' ? 'selected' : '' }}>{{ __('Modification date') }}</option>
         </select>
       </div>
       <div class="mb-3">
-        <label class="form-label">Results per page</label>
+        <label class="form-label">{{ __('Results per page') }}</label>
         <select name="limit" class="form-select form-select-sm">
           @foreach([10, 20, 50, 100] as $lim)
             <option value="{{ $lim }}" {{ ($params['limit'] ?? 20) == $lim ? 'selected' : '' }}>{{ $lim }}</option>
           @endforeach
         </select>
       </div>
-      <button type="submit" class="btn btn-primary btn-sm w-100 mb-2">Search</button>
+      <button type="submit" class="btn btn-primary btn-sm w-100 mb-2">{{ __('Search') }}</button>
       <button type="button" onclick="exportTableToCSV()" class="btn btn-outline-secondary btn-sm w-100">
         <i class="fas fa-download me-1"></i>Export CSV
       </button>
@@ -54,7 +54,7 @@
 @endsection
 
 @section('title-block')
-<h1>Browse Accession Report</h1>
+<h1>{{ __('Browse Accession Report') }}</h1>
 @endsection
 
 @section('content')
@@ -73,14 +73,14 @@
     <table id="reportTable" class="table table-bordered table-striped table-sm">
       <thead>
         <tr>
-          <th>Identifier</th>
-          <th>Title</th>
-          <th>Accession Date</th>
-          <th>Acquisition Type</th>
-          <th>Resource Type</th>
-          <th>Processing Status</th>
-          <th>Culture</th>
-          <th>Created</th>
+          <th>{{ __('Identifier') }}</th>
+          <th>{{ __('Title') }}</th>
+          <th>{{ __('Accession Date') }}</th>
+          <th>{{ __('Acquisition Type') }}</th>
+          <th>{{ __('Resource Type') }}</th>
+          <th>{{ __('Processing Status') }}</th>
+          <th>{{ __('Culture') }}</th>
+          <th>{{ __('Created') }}</th>
         </tr>
       </thead>
       <tbody>

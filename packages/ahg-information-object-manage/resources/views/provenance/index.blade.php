@@ -5,7 +5,7 @@
 @section('content')
 <div class="container py-3">
 
-  <h1>Provenance History</h1>
+  <h1>{{ __('Provenance History') }}</h1>
 
   <div class="object-info mb-3">
     <p>
@@ -103,20 +103,20 @@
 
   {{-- Ownership History Table --}}
   <div class="provenance-table-section">
-    <h2>Ownership History</h2>
+    <h2>{{ __('Ownership History') }}</h2>
 
     @if($events->isNotEmpty())
       <table class="table table-striped provenance-table">
         <thead>
           <tr>
             <th width="5%">#</th>
-            <th width="25%">Owner</th>
-            <th width="15%">Location</th>
-            <th width="15%">Period</th>
-            <th width="15%">Transfer</th>
-            <th width="10%">Certainty</th>
+            <th width="25%">{{ __('Owner') }}</th>
+            <th width="15%">{{ __('Location') }}</th>
+            <th width="15%">{{ __('Period') }}</th>
+            <th width="15%">{{ __('Transfer') }}</th>
+            <th width="10%">{{ __('Certainty') }}</th>
             @auth
-              <th width="15%">Actions</th>
+              <th width="15%">{{ __('Actions') }}</th>
             @endauth
           </tr>
         </thead>
@@ -210,7 +210,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Provenance Entry</h5>
+          <h5 class="modal-title">{{ __('Provenance Entry') }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -220,115 +220,115 @@
 
             <div class="row mb-3">
               <div class="col-md-8">
-                <label for="owner_name" class="form-label">Owner Name *</label>
+                <label for="owner_name" class="form-label">{{ __('Owner Name *') }}</label>
                 <input type="text" class="form-control" name="owner_name" id="owner_name" required>
               </div>
               <div class="col-md-4">
-                <label for="owner_type" class="form-label">Owner Type</label>
+                <label for="owner_type" class="form-label">{{ __('Owner Type') }}</label>
                 <select class="form-select" name="owner_type" id="owner_type">
-                  <option value="unknown">Unknown</option>
-                  <option value="person">Person</option>
-                  <option value="family">Family</option>
-                  <option value="dealer">Dealer</option>
-                  <option value="auction_house">Auction House</option>
-                  <option value="museum">Museum</option>
-                  <option value="corporate">Corporate</option>
-                  <option value="government">Government</option>
-                  <option value="religious">Religious</option>
-                  <option value="artist">Artist</option>
+                  <option value="unknown">{{ __('Unknown') }}</option>
+                  <option value="person">{{ __('Person') }}</option>
+                  <option value="family">{{ __('Family') }}</option>
+                  <option value="dealer">{{ __('Dealer') }}</option>
+                  <option value="auction_house">{{ __('Auction House') }}</option>
+                  <option value="museum">{{ __('Museum') }}</option>
+                  <option value="corporate">{{ __('Corporate') }}</option>
+                  <option value="government">{{ __('Government') }}</option>
+                  <option value="religious">{{ __('Religious') }}</option>
+                  <option value="artist">{{ __('Artist') }}</option>
                 </select>
               </div>
             </div>
 
             <div class="row mb-3">
               <div class="col-md-8">
-                <label for="owner_location" class="form-label">Location</label>
-                <input type="text" class="form-control" name="owner_location" id="owner_location" placeholder="City, Country">
+                <label for="owner_location" class="form-label">{{ __('Location') }}</label>
+                <input type="text" class="form-control" name="owner_location" id="owner_location" placeholder="{{ __('City, Country') }}">
               </div>
               <div class="col-md-4">
-                <label for="certainty" class="form-label">Certainty</label>
+                <label for="certainty" class="form-label">{{ __('Certainty') }}</label>
                 <select class="form-select" name="certainty" id="certainty">
-                  <option value="certain">Certain</option>
-                  <option value="probable">Probable</option>
-                  <option value="possible">Possible</option>
-                  <option value="uncertain">Uncertain</option>
-                  <option value="unknown">Unknown</option>
+                  <option value="certain">{{ __('Certain') }}</option>
+                  <option value="probable">{{ __('Probable') }}</option>
+                  <option value="possible">{{ __('Possible') }}</option>
+                  <option value="uncertain">{{ __('Uncertain') }}</option>
+                  <option value="unknown">{{ __('Unknown') }}</option>
                 </select>
               </div>
             </div>
 
             <div class="row mb-3">
               <div class="col-md-3">
-                <label for="start_date" class="form-label">Start Date</label>
-                <input type="text" class="form-control" name="start_date" id="start_date" placeholder="YYYY or text">
+                <label for="start_date" class="form-label">{{ __('Start Date') }}</label>
+                <input type="text" class="form-control" name="start_date" id="start_date" placeholder="{{ __('YYYY or text') }}">
               </div>
               <div class="col-md-3">
-                <label for="end_date" class="form-label">End Date</label>
-                <input type="text" class="form-control" name="end_date" id="end_date" placeholder="YYYY or text">
+                <label for="end_date" class="form-label">{{ __('End Date') }}</label>
+                <input type="text" class="form-control" name="end_date" id="end_date" placeholder="{{ __('YYYY or text') }}">
               </div>
               <div class="col-md-6">
-                <label for="transfer_type" class="form-label">Transfer Method</label>
+                <label for="transfer_type" class="form-label">{{ __('Transfer Method') }}</label>
                 <select class="form-select" name="transfer_type" id="transfer_type">
-                  <option value="unknown">Unknown</option>
-                  <option value="sale">Sale</option>
-                  <option value="auction">Auction</option>
-                  <option value="gift">Gift</option>
-                  <option value="bequest">Bequest</option>
-                  <option value="inheritance">Inheritance</option>
-                  <option value="commission">Commission</option>
-                  <option value="exchange">Exchange</option>
-                  <option value="transfer">Transfer</option>
-                  <option value="found">Found/Discovery</option>
-                  <option value="restitution">Restitution</option>
-                  <option value="repatriation">Repatriation</option>
+                  <option value="unknown">{{ __('Unknown') }}</option>
+                  <option value="sale">{{ __('Sale') }}</option>
+                  <option value="auction">{{ __('Auction') }}</option>
+                  <option value="gift">{{ __('Gift') }}</option>
+                  <option value="bequest">{{ __('Bequest') }}</option>
+                  <option value="inheritance">{{ __('Inheritance') }}</option>
+                  <option value="commission">{{ __('Commission') }}</option>
+                  <option value="exchange">{{ __('Exchange') }}</option>
+                  <option value="transfer">{{ __('Transfer') }}</option>
+                  <option value="found">{{ __('Found/Discovery') }}</option>
+                  <option value="restitution">{{ __('Restitution') }}</option>
+                  <option value="repatriation">{{ __('Repatriation') }}</option>
                 </select>
               </div>
             </div>
 
             <div class="row mb-3">
               <div class="col-md-4">
-                <label for="sale_price" class="form-label">Sale Price</label>
+                <label for="sale_price" class="form-label">{{ __('Sale Price') }}</label>
                 <input type="number" class="form-control" name="sale_price" id="sale_price" step="0.01">
               </div>
               <div class="col-md-2">
-                <label for="sale_currency" class="form-label">Currency</label>
+                <label for="sale_currency" class="form-label">{{ __('Currency') }}</label>
                 <select class="form-select" name="sale_currency" id="sale_currency">
                   <option value="">--</option>
-                  <option value="ZAR">ZAR</option>
-                  <option value="USD">USD</option>
-                  <option value="EUR">EUR</option>
-                  <option value="GBP">GBP</option>
+                  <option value="ZAR">{{ __('ZAR') }}</option>
+                  <option value="USD">{{ __('USD') }}</option>
+                  <option value="EUR">{{ __('EUR') }}</option>
+                  <option value="GBP">{{ __('GBP') }}</option>
                 </select>
               </div>
               <div class="col-md-4">
-                <label for="auction_house" class="form-label">Auction House</label>
+                <label for="auction_house" class="form-label">{{ __('Auction House') }}</label>
                 <input type="text" class="form-control" name="auction_house" id="auction_house">
               </div>
               <div class="col-md-2">
-                <label for="auction_lot" class="form-label">Lot #</label>
+                <label for="auction_lot" class="form-label">{{ __('Lot #') }}</label>
                 <input type="text" class="form-control" name="auction_lot" id="auction_lot">
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="sources" class="form-label">Sources/Documentation</label>
+              <label for="sources" class="form-label">{{ __('Sources/Documentation') }}</label>
               <textarea class="form-control" name="sources" id="sources" rows="2"></textarea>
             </div>
 
             <div class="mb-3">
-              <label for="notes" class="form-label">Notes</label>
+              <label for="notes" class="form-label">{{ __('Notes') }}</label>
               <textarea class="form-control" name="notes" id="notes" rows="2"></textarea>
             </div>
 
             <div class="form-check">
               <input type="checkbox" class="form-check-input" name="is_gap" id="is_gap" value="1">
-              <label class="form-check-label" for="is_gap">Mark as provenance gap</label>
+              <label class="form-check-label" for="is_gap">{{ __('Mark as provenance gap') }}</label>
             </div>
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" id="save-entry">Save</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="button" class="btn btn-primary" id="save-entry">{{ __('Save') }}</button>
         </div>
       </div>
     </div>

@@ -16,7 +16,7 @@
 
 @section('content')
 <div class="container-xxl">
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.dashboard') }}">ICIP</a></li>
       <li class="breadcrumb-item active">Consent Records</li>
@@ -38,18 +38,18 @@
     <div class="card-body">
       <form method="get" class="row g-3 align-items-end">
         <div class="col-md-3">
-          <label class="form-label">Status</label>
+          <label class="form-label">{{ __('Status') }}</label>
           <select name="status" class="form-select">
-            <option value="">All Statuses</option>
+            <option value="">{{ __('All Statuses') }}</option>
             @foreach($statusOptions as $value => $label)
               <option value="{{ $value }}" @selected(($filters['status'] ?? '') === $value)>{{ $label }}</option>
             @endforeach
           </select>
         </div>
         <div class="col-md-4">
-          <label class="form-label">Community</label>
+          <label class="form-label">{{ __('Community') }}</label>
           <select name="community_id" class="form-select">
-            <option value="">All Communities</option>
+            <option value="">{{ __('All Communities') }}</option>
             @foreach($communities as $c)
               <option value="{{ $c->id }}" @selected(($filters['community_id'] ?? '') == $c->id)>{{ $c->name }}</option>
             @endforeach
@@ -76,12 +76,12 @@
           <table class="table table-hover mb-0">
             <thead class="table-light">
               <tr>
-                <th>Record</th>
-                <th>Community</th>
-                <th>Status</th>
-                <th>Consent Date</th>
-                <th>Expiry</th>
-                <th width="100">Actions</th>
+                <th>{{ __('Record') }}</th>
+                <th>{{ __('Community') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Consent Date') }}</th>
+                <th>{{ __('Expiry') }}</th>
+                <th width="100">{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -121,8 +121,8 @@
                     @if(!empty($consent->consent_expiry_date))
                       <span class="{{ $isExpired ? 'text-danger' : ($isExpiringSoon ? 'text-warning' : '') }}">
                         {{ \Carbon\Carbon::parse($consent->consent_expiry_date)->format('j M Y') }}
-                        @if($isExpired)<i class="bi bi-exclamation-circle" title="Expired"></i>
-                        @elseif($isExpiringSoon)<i class="bi bi-clock" title="Expiring soon"></i>@endif
+                        @if($isExpired)<i class="bi bi-exclamation-circle" title="{{ __('Expired') }}"></i>
+                        @elseif($isExpiringSoon)<i class="bi bi-clock" title="{{ __('Expiring soon') }}"></i>@endif
                       </span>
                     @else
                       -
@@ -130,8 +130,8 @@
                   </td>
                   <td>
                     <div class="btn-group btn-group-sm">
-                      <a href="{{ route('ahgicip.consent-view', ['id' => $consent->id]) }}" class="btn btn-outline-primary" title="View"><i class="bi bi-eye"></i></a>
-                      <a href="{{ route('ahgicip.consent-edit', ['id' => $consent->id]) }}" class="btn btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></a>
+                      <a href="{{ route('ahgicip.consent-view', ['id' => $consent->id]) }}" class="btn btn-outline-primary" title="{{ __('View') }}"><i class="bi bi-eye"></i></a>
+                      <a href="{{ route('ahgicip.consent-edit', ['id' => $consent->id]) }}" class="btn btn-outline-secondary" title="{{ __('Edit') }}"><i class="bi bi-pencil"></i></a>
                     </div>
                   </td>
                 </tr>

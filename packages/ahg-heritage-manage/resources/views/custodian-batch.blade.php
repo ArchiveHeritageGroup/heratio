@@ -12,7 +12,7 @@ $total = $jobData['total'] ?? 0;
   <div class="col-md-3">
     @include('ahg-heritage-manage::partials._admin-sidebar')
     <div class="mt-4">
-      <label class="form-label">Filter by Status</label>
+      <label class="form-label">{{ __('Filter by Status') }}</label>
       <div class="list-group">
         <a href="?" class="list-group-item list-group-item-action {{ !request('status') ? 'active' : '' }}">All Jobs</a>
         <a href="?status=processing" class="list-group-item list-group-item-action {{ request('status')==='processing' ? 'active' : '' }}">Processing</a>
@@ -29,7 +29,7 @@ $total = $jobData['total'] ?? 0;
 
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">Batch Jobs</h5>
+        <h5 class="mb-0">{{ __('Batch Jobs') }}</h5>
         <span class="badge bg-secondary">{{ number_format($total) }} jobs</span>
       </div>
       <div class="card-body p-0">
@@ -38,7 +38,7 @@ $total = $jobData['total'] ?? 0;
         @else
         <div class="table-responsive">
           <table class="table table-hover mb-0">
-            <thead class="table-light"><tr><th>Job</th><th>Type</th><th>Progress</th><th>Status</th><th>Created</th><th></th></tr></thead>
+            <thead class="table-light"><tr><th>{{ __('Job') }}</th><th>{{ __('Type') }}</th><th>{{ __('Progress') }}</th><th>{{ __('Status') }}</th><th>{{ __('Created') }}</th><th></th></tr></thead>
             <tbody>
               @foreach($jobs as $job)
               @php

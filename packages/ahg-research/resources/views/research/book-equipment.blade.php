@@ -8,7 +8,7 @@
 @section('title', 'Book Equipment')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.equipment') }}">Equipment</a></li>
@@ -62,7 +62,7 @@
     </div>
     <div class="col-md-4">
         <div class="card">
-            <div class="card-header"><h6 class="mb-0">Equipment Info</h6></div>
+            <div class="card-header"><h6 class="mb-0">{{ __('Equipment Info') }}</h6></div>
             <div class="card-body text-muted small">
                 Select an equipment item to see its availability and details.
             </div>

@@ -42,7 +42,7 @@
     <div class="d-flex align-items-center">
       <i class="fas fa-3x fa-columns me-3 text-primary" aria-hidden="true"></i>
       <div>
-        <h1 class="mb-0">Field Mappings</h1>
+        <h1 class="mb-0">{{ __('Field Mappings') }}</h1>
         <span class="small text-muted">These fields map display elements to existing database tables and columns</span>
       </div>
     </div>
@@ -68,14 +68,14 @@
           <table class="table table-sm table-hover mb-0">
             <thead class="table-light">
               <tr>
-                <th>Field</th>
-                <th>Code</th>
-                <th>Type</th>
-                <th>Source Table</th>
-                <th>Source Column</th>
+                <th>{{ __('Field') }}</th>
+                <th>{{ __('Code') }}</th>
+                <th>{{ __('Type') }}</th>
+                <th>{{ __('Source Table') }}</th>
+                <th>{{ __('Source Column') }}</th>
                 <th>ISAD</th>
-                <th>Spectrum</th>
-                <th>DC</th>
+                <th>{{ __('Spectrum') }}</th>
+                <th>{{ __('DC') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -106,14 +106,14 @@
         <table class="table table-bordered table-striped mb-0">
           <thead>
             <tr>
-              <th>Field Name</th>
-              <th>Code</th>
-              <th>Type</th>
-              <th>Source Table</th>
-              <th>Source Column</th>
+              <th>{{ __('Field Name') }}</th>
+              <th>{{ __('Code') }}</th>
+              <th>{{ __('Type') }}</th>
+              <th>{{ __('Source Table') }}</th>
+              <th>{{ __('Source Column') }}</th>
               <th class="text-center">ISAD</th>
-              <th class="text-center">Spectrum</th>
-              <th class="text-center">DC</th>
+              <th class="text-center">{{ __('Spectrum') }}</th>
+              <th class="text-center">{{ __('DC') }}</th>
             </tr>
           </thead>
           <tbody>

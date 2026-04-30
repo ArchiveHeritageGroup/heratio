@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>I18n language</h1>
+  <h1>{{ __('I18n language') }}</h1>
 @endsection
 
 @section('content')
@@ -45,8 +45,8 @@
               <div class="mb-3">
                 <label class="form-label">Add language <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="input-group" style="max-width:300px;">
-                  <input type="text" name="languageCode" class="form-control" placeholder="e.g. fr, de, af" pattern="[a-z]{2,3}">
-                  <button type="submit" name="action" value="add" class="btn atom-btn-outline-success">Add</button>
+                  <input type="text" name="languageCode" class="form-control" placeholder="{{ __('e.g. fr, de, af') }}" pattern="[a-z]{2,3}">
+                  <button type="submit" name="action" value="add" class="btn atom-btn-outline-success">{{ __('Add') }}</button>
                 </div>
               </div>
             </div>

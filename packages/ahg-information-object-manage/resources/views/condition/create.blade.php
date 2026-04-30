@@ -5,7 +5,7 @@
 @section('content')
 <div class="container py-3">
 
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? $io->identifier ?? '' }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('io.condition', $io->slug) }}">Condition</a></li>
@@ -31,12 +31,12 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-4">
-            <label for="assessment_date" class="form-label">Assessment Date *</label>
+            <label for="assessment_date" class="form-label">{{ __('Assessment Date *') }}</label>
             <input type="date" class="form-control @error('assessment_date') is-invalid @enderror" id="assessment_date" name="assessment_date" value="{{ old('assessment_date', date('Y-m-d')) }}" required>
             @error('assessment_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
           </div>
           <div class="col-md-4">
-            <label for="context" class="form-label">Context</label>
+            <label for="context" class="form-label">{{ __('Context') }}</label>
             <select class="form-select" id="context" name="context">
               <option value="">-- Select --</option>
               @foreach($contextOptions as $opt)
@@ -45,7 +45,7 @@
             </select>
           </div>
           <div class="col-md-4">
-            <label for="next_check_date" class="form-label">Next Check Date</label>
+            <label for="next_check_date" class="form-label">{{ __('Next Check Date') }}</label>
             <input type="date" class="form-control" id="next_check_date" name="next_check_date" value="{{ old('next_check_date') }}">
           </div>
         </div>
@@ -59,7 +59,7 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-4">
-            <label for="overall_rating" class="form-label">Overall Rating *</label>
+            <label for="overall_rating" class="form-label">{{ __('Overall Rating *') }}</label>
             <select class="form-select @error('overall_rating') is-invalid @enderror" id="overall_rating" name="overall_rating" required>
               <option value="">-- Select --</option>
               @foreach($ratingOptions as $opt)
@@ -69,7 +69,7 @@
             @error('overall_rating')<div class="invalid-feedback">{{ $message }}</div>@enderror
           </div>
           <div class="col-md-4">
-            <label for="priority" class="form-label">Treatment Priority</label>
+            <label for="priority" class="form-label">{{ __('Treatment Priority') }}</label>
             <select class="form-select" id="priority" name="priority">
               <option value="">-- Select --</option>
               @foreach($priorityOptions as $opt)
@@ -97,7 +97,7 @@
               </select>
             </div>
             <div class="col-md-2">
-              <input type="text" class="form-control form-control-sm" name="damage_location[]" placeholder="Location">
+              <input type="text" class="form-control form-control-sm" name="damage_location[]" placeholder="{{ __('Location') }}">
             </div>
             <div class="col-md-2">
               <select class="form-select form-select-sm" name="damage_severity[]">
@@ -107,7 +107,7 @@
               </select>
             </div>
             <div class="col-md-4">
-              <input type="text" class="form-control form-control-sm" name="damage_description[]" placeholder="Description">
+              <input type="text" class="form-control form-control-sm" name="damage_description[]" placeholder="{{ __('Description') }}">
             </div>
             <div class="col-md-1">
               <button type="button" class="btn btn-sm btn-outline-danger remove-damage" style="display:none;"><i class="fas fa-times"></i></button>
@@ -124,28 +124,28 @@
       </div>
       <div class="card-body">
         <div class="mb-3">
-          <label for="summary" class="form-label">Summary / Description</label>
+          <label for="summary" class="form-label">{{ __('Summary / Description') }}</label>
           <textarea class="form-control" id="summary" name="summary" rows="4">{{ old('summary') }}</textarea>
         </div>
         <div class="mb-3">
-          <label for="recommendations" class="form-label">Treatment Recommendations</label>
+          <label for="recommendations" class="form-label">{{ __('Treatment Recommendations') }}</label>
           <textarea class="form-control" id="recommendations" name="recommendations" rows="3">{{ old('recommendations') }}</textarea>
         </div>
         <div class="row g-3">
           <div class="col-md-6">
-            <label for="environmental_notes" class="form-label">Environmental Notes</label>
+            <label for="environmental_notes" class="form-label">{{ __('Environmental Notes') }}</label>
             <textarea class="form-control" id="environmental_notes" name="environmental_notes" rows="2">{{ old('environmental_notes') }}</textarea>
           </div>
           <div class="col-md-6">
-            <label for="handling_notes" class="form-label">Handling Notes</label>
+            <label for="handling_notes" class="form-label">{{ __('Handling Notes') }}</label>
             <textarea class="form-control" id="handling_notes" name="handling_notes" rows="2">{{ old('handling_notes') }}</textarea>
           </div>
           <div class="col-md-6">
-            <label for="display_notes" class="form-label">Display Notes</label>
+            <label for="display_notes" class="form-label">{{ __('Display Notes') }}</label>
             <textarea class="form-control" id="display_notes" name="display_notes" rows="2">{{ old('display_notes') }}</textarea>
           </div>
           <div class="col-md-6">
-            <label for="storage_notes" class="form-label">Storage Notes</label>
+            <label for="storage_notes" class="form-label">{{ __('Storage Notes') }}</label>
             <textarea class="form-control" id="storage_notes" name="storage_notes" rows="2">{{ old('storage_notes') }}</textarea>
           </div>
         </div>

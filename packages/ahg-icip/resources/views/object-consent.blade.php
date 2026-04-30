@@ -16,7 +16,7 @@
 
 @section('content')
 <div class="container-xxl">
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/'.$object->slug) }}">{{ $object->title ?? 'Record' }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.object-icip', ['slug' => $object->slug]) }}">ICIP</a></li>
@@ -36,7 +36,7 @@
   <div class="row">
     <div class="col-lg-8">
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Consent Records</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Consent Records') }}</h5></div>
         <div class="card-body p-0">
           @if($consents->isEmpty())
             <div class="p-4 text-center text-muted">No consent records yet</div>
@@ -45,11 +45,11 @@
               <table class="table table-hover mb-0">
                 <thead class="table-light">
                   <tr>
-                    <th>Status</th>
-                    <th>Community</th>
-                    <th>Date</th>
-                    <th>Expiry</th>
-                    <th>Actions</th>
+                    <th>{{ __('Status') }}</th>
+                    <th>{{ __('Community') }}</th>
+                    <th>{{ __('Date') }}</th>
+                    <th>{{ __('Expiry') }}</th>
+                    <th>{{ __('Actions') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -87,15 +87,15 @@
       </div>
 
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">Add Consent Record</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Add Consent Record') }}</h5></div>
         <div class="card-body">
           <form method="post">
             @csrf
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Community</label>
+                <label class="form-label">{{ __('Community') }}</label>
                 <select name="community_id" class="form-select">
-                  <option value="">Not specified / Multiple</option>
+                  <option value="">{{ __('Not specified / Multiple') }}</option>
                   @foreach($communities as $c)
                     <option value="{{ $c->id }}">{{ $c->name }}</option>
                   @endforeach
@@ -112,7 +112,7 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Consent Scope</label>
+              <label class="form-label">{{ __('Consent Scope') }}</label>
               <div class="row">
                 @foreach($scopeOptions as $value => $label)
                   <div class="col-md-4">
@@ -127,25 +127,25 @@
 
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label class="form-label">Consent Date</label>
+                <label class="form-label">{{ __('Consent Date') }}</label>
                 <input type="date" name="consent_date" class="form-control">
               </div>
               <div class="col-md-4 mb-3">
-                <label class="form-label">Expiry Date</label>
+                <label class="form-label">{{ __('Expiry Date') }}</label>
                 <input type="date" name="consent_expiry_date" class="form-control">
               </div>
               <div class="col-md-4 mb-3">
-                <label class="form-label">Granted By</label>
+                <label class="form-label">{{ __('Granted By') }}</label>
                 <input type="text" name="consent_granted_by" class="form-control">
               </div>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Conditions</label>
+              <label class="form-label">{{ __('Conditions') }}</label>
               <textarea name="conditions" class="form-control" rows="2"></textarea>
             </div>
             <div class="mb-3">
-              <label class="form-label">Notes</label>
+              <label class="form-label">{{ __('Notes') }}</label>
               <textarea name="notes" class="form-control" rows="2"></textarea>
             </div>
 
@@ -159,7 +159,7 @@
 
     <div class="col-lg-4">
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">Status Guide</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Status Guide') }}</h5></div>
         <div class="card-body small">
           <dl class="mb-0">
             <dt class="text-muted">Not Required</dt>

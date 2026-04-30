@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-shield-alt me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">Destruction Certificate</h1><span class="small text-muted">{{ $cert->certificate_number }}</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Destruction Certificate') }}</h1><span class="small text-muted">{{ $cert->certificate_number }}</span></div>
   </div>
 @endsection
 @section('content')
@@ -15,12 +15,12 @@
 
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h5 class="mb-0">Certificate of Destruction</h5>
+    <h5 class="mb-0">{{ __('Certificate of Destruction') }}</h5>
     <button class="btn btn-sm btn-light d-print-none" onclick="window.print()"><i class="fas fa-print me-1"></i>Print</button>
   </div>
   <div class="card-body">
     <div class="text-center mb-4">
-      <h3>Certificate of Destruction</h3>
+      <h3>{{ __('Certificate of Destruction') }}</h3>
       <p class="text-muted fs-5"><code>{{ $cert->certificate_number }}</code></p>
     </div>
 

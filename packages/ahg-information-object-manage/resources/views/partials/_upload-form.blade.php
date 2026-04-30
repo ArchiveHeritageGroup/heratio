@@ -41,7 +41,7 @@
             @endphp
             <div class="d-flex align-items-start gap-3">
               @if($thumbUrl && !$isExternalLink)
-                <img src="{{ $thumbUrl }}" alt="Thumbnail" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
+                <img src="{{ $thumbUrl }}" alt="{{ __('Thumbnail') }}" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
               @elseif($isExternalLink)
                 <a href="{{ $master->path }}" target="_blank" class="d-flex align-items-center justify-content-center bg-light border rounded" style="width: 100px; height: 100px; text-decoration: none;" title="{{ __('Open external resource') }}">
                   <i class="fas {{ $externalIcon }} fa-3x text-primary"></i>

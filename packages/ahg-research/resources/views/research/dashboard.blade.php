@@ -227,10 +227,10 @@
       <table class="table table-bordered table-hover mb-0">
         <thead>
           <tr>
-            <th>Time</th>
-            <th>Researcher</th>
-            <th>Room</th>
-            <th>Status</th>
+            <th>{{ __('Time') }}</th>
+            <th>{{ __('Researcher') }}</th>
+            <th>{{ __('Room') }}</th>
+            <th>{{ __('Status') }}</th>
           </tr>
         </thead>
         <tbody>

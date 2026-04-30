@@ -14,7 +14,7 @@
 @section('content')
 <h1>{{ $session ? 'Edit Ingest Configuration' : 'New Ingest' }}</h1>
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Admin</a></li>
         <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">Ingestion Manager</a></li>
@@ -54,9 +54,9 @@
                 <div class="card-header"><h5 class="mb-0"><i class="fas fa-cog me-2"></i>Ingest Settings</h5></div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label for="title" class="form-label">Session Title</label>
+                        <label for="title" class="form-label">{{ __('Session Title') }}</label>
                         <input type="text" class="form-control" id="title" name="title"
-                               value="{{ e($session->title ?? '') }}" placeholder="e.g. Annual Report Collection 2024">
+                               value="{{ e($session->title ?? '') }}" placeholder="{{ __('e.g. Annual Report Collection 2024') }}">
                     </div>
 
                     <div class="mb-3">
@@ -104,7 +104,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="repository_id" class="form-label">Repository</label>
+                        <label for="repository_id" class="form-label">{{ __('Repository') }}</label>
                         <select class="form-select" id="repository_id" name="repository_id">
                             <option value="">— Select repository —</option>
                             @foreach($repositories as $repo)
@@ -120,39 +120,39 @@
                 <div class="card-header"><h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>Hierarchy Placement</h5></div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label">Where should imported records be placed?</label>
+                        <label class="form-label">{{ __('Where should imported records be placed?') }}</label>
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="radio" name="parent_placement" id="placement_top" value="top_level" @checked($placementVal === 'top_level')>
-                            <label class="form-check-label" for="placement_top">Top-level (directly under root)</label>
+                            <label class="form-check-label" for="placement_top">{{ __('Top-level (directly under root)') }}</label>
                         </div>
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="radio" name="parent_placement" id="placement_existing" value="existing" @checked($placementVal === 'existing')>
-                            <label class="form-check-label" for="placement_existing">Under an existing record</label>
+                            <label class="form-check-label" for="placement_existing">{{ __('Under an existing record') }}</label>
                         </div>
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="radio" name="parent_placement" id="placement_new" value="new" @checked($placementVal === 'new')>
-                            <label class="form-check-label" for="placement_new">Create a new parent record</label>
+                            <label class="form-check-label" for="placement_new">{{ __('Create a new parent record') }}</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="parent_placement" id="placement_csv" value="csv_hierarchy" @checked($placementVal === 'csv_hierarchy')>
-                            <label class="form-check-label" for="placement_csv">Use hierarchy from CSV (legacyId/parentId)</label>
+                            <label class="form-check-label" for="placement_csv">{{ __('Use hierarchy from CSV (legacyId/parentId)') }}</label>
                         </div>
                     </div>
 
                     <div id="existing-parent-panel" class="mb-3" style="display:none;">
-                        <label for="parent_search" class="form-label">Search for parent record</label>
-                        <input type="text" class="form-control" id="parent_search" placeholder="Type to search..." autocomplete="off">
+                        <label for="parent_search" class="form-label">{{ __('Search for parent record') }}</label>
+                        <input type="text" class="form-control" id="parent_search" placeholder="{{ __('Type to search...') }}" autocomplete="off">
                         <input type="hidden" name="parent_id" id="parent_id" value="{{ $session->parent_id ?? '' }}">
                         <div id="parent_results" class="list-group mt-1"></div>
                     </div>
 
                     <div id="new-parent-panel" style="display:none;">
                         <div class="mb-3">
-                            <label for="new_parent_title" class="form-label">New parent title</label>
+                            <label for="new_parent_title" class="form-label">{{ __('New parent title') }}</label>
                             <input type="text" class="form-control" id="new_parent_title" name="new_parent_title" value="{{ e($session->new_parent_title ?? '') }}">
                         </div>
                         <div class="mb-3">
-                            <label for="new_parent_level" class="form-label">Level of description</label>
+                            <label for="new_parent_level" class="form-label">{{ __('Level of description') }}</label>
                             <select class="form-select" id="new_parent_level" name="new_parent_level">
                                 @foreach(['Fonds', 'Collection', 'Series', 'Subfonds'] as $lvl)
                                     <option value="{{ $lvl }}" @selected(($session->new_parent_level ?? 'Fonds') === $lvl)>{{ $lvl }}</option>
@@ -171,29 +171,29 @@
                 <div class="card-body">
                     <div class="form-check mb-2">
                         <input class="form-check-input" type="checkbox" id="output_create_records" name="output_create_records" value="1" @checked($session->output_create_records ?? true)>
-                        <label class="form-check-label" for="output_create_records">Create records</label>
+                        <label class="form-check-label" for="output_create_records">{{ __('Create records') }}</label>
                     </div>
                     <div class="form-check mb-2">
                         <input class="form-check-input" type="checkbox" id="output_generate_sip" name="output_generate_sip" value="1" @checked($session->output_generate_sip ?? false)>
-                        <label class="form-check-label" for="output_generate_sip">Generate SIP package</label>
+                        <label class="form-check-label" for="output_generate_sip">{{ __('Generate SIP package') }}</label>
                     </div>
                     <div class="form-check mb-2">
                         <input class="form-check-input" type="checkbox" id="output_generate_aip" name="output_generate_aip" value="1" @checked($session->output_generate_aip ?? false)>
-                        <label class="form-check-label" for="output_generate_aip">Generate AIP package</label>
+                        <label class="form-check-label" for="output_generate_aip">{{ __('Generate AIP package') }}</label>
                     </div>
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="output_generate_dip" name="output_generate_dip" value="1" @checked($session->output_generate_dip ?? false)>
-                        <label class="form-check-label" for="output_generate_dip">Generate DIP package</label>
+                        <label class="form-check-label" for="output_generate_dip">{{ __('Generate DIP package') }}</label>
                     </div>
                     <hr>
-                    <h6>Derivatives</h6>
+                    <h6>{{ __('Derivatives') }}</h6>
                     <div class="form-check mb-2">
                         <input class="form-check-input" type="checkbox" id="derivative_thumbnails" name="derivative_thumbnails" value="1" @checked($session->derivative_thumbnails ?? true)>
-                        <label class="form-check-label" for="derivative_thumbnails">Generate thumbnails</label>
+                        <label class="form-check-label" for="derivative_thumbnails">{{ __('Generate thumbnails') }}</label>
                     </div>
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="derivative_reference" name="derivative_reference" value="1" @checked($session->derivative_reference ?? true)>
-                        <label class="form-check-label" for="derivative_reference">Generate reference images</label>
+                        <label class="form-check-label" for="derivative_reference">{{ __('Generate reference images') }}</label>
                     </div>
                 </div>
             </div>

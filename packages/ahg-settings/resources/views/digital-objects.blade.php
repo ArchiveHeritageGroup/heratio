@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Digital object derivatives</h1>
+  <h1>{{ __('Digital object derivatives') }}</h1>
 @endsection
 
 @section('content')
@@ -18,18 +18,18 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="derivatives-heading">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#derivatives-collapse" aria-expanded="true" aria-controls="derivatives-collapse">
-              Digital object derivatives settings
+              {{ __('Digital object derivatives settings') }}
             </button>
           </h2>
           <div id="derivatives-collapse" class="accordion-collapse collapse show" aria-labelledby="derivatives-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">PDF page number for image derivative</label>
+                <label class="form-label">{{ __('PDF page number for image derivative') }}</label>
                 <input type="number" name="settings[digital_object_derivatives_pdf_page_number]" class="form-control" value="{{ e($settings['digital_object_derivatives_pdf_page_number'] ?? '1') }}" min="1">
                 <small class="text-muted">If the page number does not exist, the derivative will be generated from the previous closest one.</small>
               </div>
               <div class="mb-3">
-                <label class="form-label">Maximum length on longest edge (pixels)</label>
+                <label class="form-label">{{ __('Maximum length on longest edge (pixels)') }}</label>
                 <input type="number" name="settings[reference_image_maxwidth]" class="form-control" value="{{ e($settings['reference_image_maxwidth'] ?? '480') }}" min="100">
                 <small class="text-muted">The maximum number of pixels on the longest edge for derived reference images.</small>
               </div>

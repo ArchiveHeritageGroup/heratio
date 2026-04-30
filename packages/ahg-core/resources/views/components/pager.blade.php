@@ -1,5 +1,5 @@
 @if(isset($pager) && $pager->haveToPaginate())
-  <nav aria-label="Page navigation">
+  <nav aria-label="{{ __('Page navigation') }}">
 
     <div class="result-count text-center mb-2">
       Results {{ ($pager->getPage() - 1) * $pager->getMaxPerPage() + 1 }}
@@ -50,7 +50,7 @@
         </li>
       @else
         <li class="page-item">
-          <a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $pager->getNextPage()]) }}" title="Next">Next</a>
+          <a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $pager->getNextPage()]) }}" title="{{ __('Next') }}">Next</a>
         </li>
       @endif
     </ul>

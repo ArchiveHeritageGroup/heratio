@@ -101,7 +101,7 @@
         <i class="fas {{ $notif['icon'] }} me-2"></i>
         <span class="flex-grow-1">{{ $notif['message'] }}</span>
         <a href="{{ $notif['url'] }}" class="btn btn-sm btn-light ms-2">{{ $notif['action'] }}</a>
-        <button type="button" class="btn-close ms-2" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="btn-close ms-2" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
       </div>
     </div>
   @endforeach

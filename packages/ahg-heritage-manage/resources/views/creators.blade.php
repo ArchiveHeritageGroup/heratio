@@ -17,9 +17,9 @@
         <form method="get" action="{{ route('heritage.creators') }}">
           <div class="input-group input-group-lg">
             <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
-            <input type="text" class="form-control border-start-0" name="q" value="{{ $searchQuery ?? '' }}" placeholder="Search creators by name..." autocomplete="off">
+            <input type="text" class="form-control border-start-0" name="q" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search creators by name...') }}" autocomplete="off">
             @if(!empty($searchQuery))<a href="{{ route('heritage.creators') }}" class="btn btn-outline-secondary"><i class="fas fa-times"></i></a>@endif
-            <button type="submit" class="btn atom-btn-secondary">Search</button>
+            <button type="submit" class="btn atom-btn-secondary">{{ __('Search') }}</button>
           </div>
         </form>
       </div>

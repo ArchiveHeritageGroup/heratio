@@ -35,75 +35,75 @@
       </div>
       <div class="card-body">
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">Enable IIIF</label>
+          <label class="col-sm-3 col-form-label">{{ __('Enable IIIF') }}</label>
           <div class="col-sm-9">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="iiif_enabled"
                      name="settings[iiif_enabled]" value="true"
                      {{ ($settings['iiif_enabled'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="iiif_enabled">Enable IIIF viewer</label>
+              <label class="form-check-label" for="iiif_enabled">{{ __('Enable IIIF viewer') }}</label>
             </div>
           </div>
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label" for="iiif_viewer">Viewer Library</label>
+          <label class="col-sm-3 col-form-label" for="iiif_viewer">{{ __('Viewer Library') }}</label>
           <div class="col-sm-9">
             <select class="form-select" id="iiif_viewer" name="settings[iiif_viewer]">
-              <option value="openseadragon" {{ ($settings['iiif_viewer'] ?? 'openseadragon') === 'openseadragon' ? 'selected' : '' }}>OpenSeadragon</option>
-              <option value="mirador" {{ ($settings['iiif_viewer'] ?? 'openseadragon') === 'mirador' ? 'selected' : '' }}>Mirador</option>
-              <option value="leaflet" {{ ($settings['iiif_viewer'] ?? 'openseadragon') === 'leaflet' ? 'selected' : '' }}>Leaflet-IIIF</option>
+              <option value="openseadragon" {{ ($settings['iiif_viewer'] ?? 'openseadragon') === 'openseadragon' ? 'selected' : '' }}>{{ __('OpenSeadragon') }}</option>
+              <option value="mirador" {{ ($settings['iiif_viewer'] ?? 'openseadragon') === 'mirador' ? 'selected' : '' }}>{{ __('Mirador') }}</option>
+              <option value="leaflet" {{ ($settings['iiif_viewer'] ?? 'openseadragon') === 'leaflet' ? 'selected' : '' }}>{{ __('Leaflet-IIIF') }}</option>
             </select>
           </div>
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label" for="iiif_server_url">IIIF Server URL</label>
+          <label class="col-sm-3 col-form-label" for="iiif_server_url">{{ __('IIIF Server URL') }}</label>
           <div class="col-sm-9">
             <input type="url" class="form-control" id="iiif_server_url" name="settings[iiif_server_url]"
-                   value="{{ e($settings['iiif_server_url'] ?? '') }}" placeholder="https://iiif.example.com">
+                   value="{{ e($settings['iiif_server_url'] ?? '') }}" placeholder="{{ __('https://iiif.example.com') }}">
             <div class="form-text">External IIIF server URL (leave blank to use built-in)</div>
           </div>
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">Show Navigator</label>
+          <label class="col-sm-3 col-form-label">{{ __('Show Navigator') }}</label>
           <div class="col-sm-9">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="iiif_show_navigator"
                      name="settings[iiif_show_navigator]" value="true"
                      {{ ($settings['iiif_show_navigator'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="iiif_show_navigator">Show mini-map navigator</label>
+              <label class="form-check-label" for="iiif_show_navigator">{{ __('Show mini-map navigator') }}</label>
             </div>
           </div>
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">Enable Rotation</label>
+          <label class="col-sm-3 col-form-label">{{ __('Enable Rotation') }}</label>
           <div class="col-sm-9">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="iiif_show_rotation"
                      name="settings[iiif_show_rotation]" value="true"
                      {{ ($settings['iiif_show_rotation'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="iiif_show_rotation">Allow image rotation</label>
+              <label class="form-check-label" for="iiif_show_rotation">{{ __('Allow image rotation') }}</label>
             </div>
           </div>
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">Enable Fullscreen</label>
+          <label class="col-sm-3 col-form-label">{{ __('Enable Fullscreen') }}</label>
           <div class="col-sm-9">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="iiif_show_fullscreen"
                      name="settings[iiif_show_fullscreen]" value="true"
                      {{ ($settings['iiif_show_fullscreen'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="iiif_show_fullscreen">Allow fullscreen mode</label>
+              <label class="form-check-label" for="iiif_show_fullscreen">{{ __('Allow fullscreen mode') }}</label>
             </div>
           </div>
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label" for="iiif_max_zoom">Max Zoom Level</label>
+          <label class="col-sm-3 col-form-label" for="iiif_max_zoom">{{ __('Max Zoom Level') }}</label>
           <div class="col-sm-9">
             <input type="number" class="form-control" id="iiif_max_zoom" name="settings[iiif_max_zoom]"
                    value="{{ $settings['iiif_max_zoom'] ?? 10 }}" min="1" max="20" style="max-width:200px">
@@ -111,7 +111,7 @@
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label" for="iiif_default_zoom">Default Zoom</label>
+          <label class="col-sm-3 col-form-label" for="iiif_default_zoom">{{ __('Default Zoom') }}</label>
           <div class="col-sm-9">
             <input type="number" class="form-control" id="iiif_default_zoom" name="settings[iiif_default_zoom]"
                    value="{{ $settings['iiif_default_zoom'] ?? 1 }}" min="0" max="10" style="max-width:200px">
@@ -119,13 +119,13 @@
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">Enable Annotations</label>
+          <label class="col-sm-3 col-form-label">{{ __('Enable Annotations') }}</label>
           <div class="col-sm-9">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="iiif_enable_annotations"
                      name="settings[iiif_enable_annotations]" value="true"
                      {{ ($settings['iiif_enable_annotations'] ?? 'false') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="iiif_enable_annotations">Enable IIIF annotations (W3C model)</label>
+              <label class="form-check-label" for="iiif_enable_annotations">{{ __('Enable IIIF annotations (W3C model)') }}</label>
             </div>
           </div>
         </div>

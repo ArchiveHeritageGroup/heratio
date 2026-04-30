@@ -27,7 +27,7 @@
   @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
       {{ session('success') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
@@ -361,7 +361,7 @@
                     <label class="form-label">Remote GPU Server URL <span class="badge bg-secondary ms-1">Optional</span></label>
                     <input type="url" class="form-control" name="triposr_remote_url"
                            value="{{ e(getSetting3d($settings, 'triposr_remote_url')) }}"
-                           placeholder="https://gpu-server.example.com:5050">
+                           placeholder="{{ __('https://gpu-server.example.com:5050') }}">
                   </div>
                 </div>
                 <div class="col-md-4">
@@ -369,14 +369,14 @@
                     <label class="form-label">API Key <span class="badge bg-secondary ms-1">Optional</span></label>
                     @php $apiKey = getSetting3d($settings, 'triposr_remote_api_key'); @endphp
                     <input type="password" class="form-control" name="triposr_remote_api_key"
-                           value="{{ $apiKey ? '***' : '' }}" placeholder="API key">
+                           value="{{ $apiKey ? '***' : '' }}" placeholder="{{ __('API key') }}">
                   </div>
                 </div>
               </div>
             </div>
 
             <hr>
-            <h6 class="text-muted mb-3">Default Generation Options</h6>
+            <h6 class="text-muted mb-3">{{ __('Default Generation Options') }}</h6>
 
             <div class="row">
               <div class="col-md-4">

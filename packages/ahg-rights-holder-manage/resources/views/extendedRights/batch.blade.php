@@ -14,7 +14,7 @@
   {{-- Action Selection --}}
   <div class="card mb-4">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <h5 class="mb-0">1. Select Action</h5>
+      <h5 class="mb-0">{{ __('1. Select Action') }}</h5>
     </div>
     <div class="card-body">
       <div class="row">
@@ -49,7 +49,7 @@
   {{-- Object Selection --}}
   <div class="card mb-4">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <h5 class="mb-0">2. Select Objects</h5>
+      <h5 class="mb-0">{{ __('2. Select Objects') }}</h5>
     </div>
     <div class="card-body">
       <div class="mb-3">
@@ -74,7 +74,7 @@
   {{-- Rights Options --}}
   <div id="assign_options" class="card mb-4">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <h5 class="mb-0">3. Rights Details</h5>
+      <h5 class="mb-0">{{ __('3. Rights Details') }}</h5>
     </div>
     <div class="card-body">
       <div class="row">
@@ -133,16 +133,16 @@
   {{-- Embargo Options --}}
   <div id="embargo_options" class="card mb-4" style="display:none;">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <h5 class="mb-0">Embargo Details</h5>
+      <h5 class="mb-0">{{ __('Embargo Details') }}</h5>
     </div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-6 mb-3">
           <label for="embargo_type" class="form-label">Embargo Type <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="embargo_type" id="embargo_type" class="form-select">
-            <option value="full">Full (no access)</option>
-            <option value="metadata_only">Metadata only</option>
-            <option value="thumbnail_only">Thumbnail only</option>
+            <option value="full">{{ __('Full (no access)') }}</option>
+            <option value="metadata_only">{{ __('Metadata only') }}</option>
+            <option value="thumbnail_only">{{ __('Thumbnail only') }}</option>
           </select>
         </div>
         <div class="col-md-6 mb-3">

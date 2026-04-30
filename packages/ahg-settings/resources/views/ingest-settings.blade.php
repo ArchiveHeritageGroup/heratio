@@ -131,7 +131,7 @@
         {{-- Translation/Spellcheck language --}}
         <div class="row g-3 mt-2">
           <div class="col-md-4">
-            <label for="ingest_translate_from" class="form-label">Translate from</label>
+            <label for="ingest_translate_from" class="form-label">{{ __('Translate from') }}</label>
             <select class="form-select" id="ingest_translate_from" name="settings[ingest_translate_from]">
               @foreach (['en' => 'English', 'af' => 'Afrikaans', 'zu' => 'Zulu', 'xh' => 'Xhosa', 'st' => 'Sotho', 'fr' => 'French', 'de' => 'German', 'pt' => 'Portuguese', 'es' => 'Spanish', 'nl' => 'Dutch'] as $code => $name)
                 <option value="{{ $code }}" {{ ($settings['ingest_translate_from'] ?? 'en') === $code ? 'selected' : '' }}>{{ $name }}</option>
@@ -139,7 +139,7 @@
             </select>
           </div>
           <div class="col-md-4">
-            <label for="ingest_translate_to" class="form-label">Translate to</label>
+            <label for="ingest_translate_to" class="form-label">{{ __('Translate to') }}</label>
             <select class="form-select" id="ingest_translate_to" name="settings[ingest_translate_to]">
               @foreach (['af' => 'Afrikaans', 'en' => 'English', 'zu' => 'Zulu', 'xh' => 'Xhosa', 'st' => 'Sotho', 'fr' => 'French', 'de' => 'German', 'pt' => 'Portuguese', 'es' => 'Spanish', 'nl' => 'Dutch'] as $code => $name)
                 <option value="{{ $code }}" {{ ($settings['ingest_translate_to'] ?? 'af') === $code ? 'selected' : '' }}>{{ $name }}</option>
@@ -147,7 +147,7 @@
             </select>
           </div>
           <div class="col-md-4">
-            <label for="ingest_spellcheck_lang" class="form-label">Spellcheck language</label>
+            <label for="ingest_spellcheck_lang" class="form-label">{{ __('Spellcheck language') }}</label>
             <select class="form-select" id="ingest_spellcheck_lang" name="settings[ingest_spellcheck_lang]">
               @foreach (['en_ZA' => 'English (ZA)', 'en_US' => 'English (US)', 'en_GB' => 'English (UK)', 'af' => 'Afrikaans'] as $code => $name)
                 <option value="{{ $code }}" {{ ($settings['ingest_spellcheck_lang'] ?? 'en_ZA') === $code ? 'selected' : '' }}>{{ $name }}</option>
@@ -170,7 +170,7 @@
               <input class="form-check-input" type="checkbox" id="ingest_create_records"
                      name="settings[ingest_create_records]" value="true"
                      {{ ($settings['ingest_create_records'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="ingest_create_records">Create records</label>
+              <label class="form-check-label" for="ingest_create_records">{{ __('Create records') }}</label>
             </div>
           </div>
           <div class="col-md-6">
@@ -178,7 +178,7 @@
               <input class="form-check-input" type="checkbox" id="ingest_generate_sip"
                      name="settings[ingest_generate_sip]" value="true"
                      {{ ($settings['ingest_generate_sip'] ?? '') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="ingest_generate_sip">Generate SIP package</label>
+              <label class="form-check-label" for="ingest_generate_sip">{{ __('Generate SIP package') }}</label>
             </div>
           </div>
           <div class="col-md-6">
@@ -186,7 +186,7 @@
               <input class="form-check-input" type="checkbox" id="ingest_generate_aip"
                      name="settings[ingest_generate_aip]" value="true"
                      {{ ($settings['ingest_generate_aip'] ?? '') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="ingest_generate_aip">Generate AIP package</label>
+              <label class="form-check-label" for="ingest_generate_aip">{{ __('Generate AIP package') }}</label>
             </div>
           </div>
           <div class="col-md-6">
@@ -194,7 +194,7 @@
               <input class="form-check-input" type="checkbox" id="ingest_generate_dip"
                      name="settings[ingest_generate_dip]" value="true"
                      {{ ($settings['ingest_generate_dip'] ?? '') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="ingest_generate_dip">Generate DIP package</label>
+              <label class="form-check-label" for="ingest_generate_dip">{{ __('Generate DIP package') }}</label>
             </div>
           </div>
           <div class="col-md-6">
@@ -202,7 +202,7 @@
               <input class="form-check-input" type="checkbox" id="ingest_thumbnails"
                      name="settings[ingest_thumbnails]" value="true"
                      {{ ($settings['ingest_thumbnails'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="ingest_thumbnails">Generate thumbnails</label>
+              <label class="form-check-label" for="ingest_thumbnails">{{ __('Generate thumbnails') }}</label>
             </div>
           </div>
           <div class="col-md-6">
@@ -210,29 +210,29 @@
               <input class="form-check-input" type="checkbox" id="ingest_reference"
                      name="settings[ingest_reference]" value="true"
                      {{ ($settings['ingest_reference'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="ingest_reference">Generate reference images</label>
+              <label class="form-check-label" for="ingest_reference">{{ __('Generate reference images') }}</label>
             </div>
           </div>
         </div>
 
         <div class="row g-3 mt-2">
           <div class="col-md-6">
-            <label for="ingest_sip_path" class="form-label">Default SIP output path</label>
+            <label for="ingest_sip_path" class="form-label">{{ __('Default SIP output path') }}</label>
             <input type="text" class="form-control" id="ingest_sip_path" name="settings[ingest_sip_path]"
-                   value="{{ e($settings['ingest_sip_path'] ?? '') }}" placeholder="/uploads/sip">
+                   value="{{ e($settings['ingest_sip_path'] ?? '') }}" placeholder="{{ __('/uploads/sip') }}">
           </div>
           <div class="col-md-6">
-            <label for="ingest_aip_path" class="form-label">Default AIP output path</label>
+            <label for="ingest_aip_path" class="form-label">{{ __('Default AIP output path') }}</label>
             <input type="text" class="form-control" id="ingest_aip_path" name="settings[ingest_aip_path]"
-                   value="{{ e($settings['ingest_aip_path'] ?? '') }}" placeholder="/uploads/aip">
+                   value="{{ e($settings['ingest_aip_path'] ?? '') }}" placeholder="{{ __('/uploads/aip') }}">
           </div>
           <div class="col-md-6">
-            <label for="ingest_dip_path" class="form-label">Default DIP output path</label>
+            <label for="ingest_dip_path" class="form-label">{{ __('Default DIP output path') }}</label>
             <input type="text" class="form-control" id="ingest_dip_path" name="settings[ingest_dip_path]"
-                   value="{{ e($settings['ingest_dip_path'] ?? '') }}" placeholder="/uploads/dip">
+                   value="{{ e($settings['ingest_dip_path'] ?? '') }}" placeholder="{{ __('/uploads/dip') }}">
           </div>
           <div class="col-md-6">
-            <label for="ingest_default_sector" class="form-label">Default sector</label>
+            <label for="ingest_default_sector" class="form-label">{{ __('Default sector') }}</label>
             <select class="form-select" id="ingest_default_sector" name="settings[ingest_default_sector]">
               @foreach (['archive' => 'Archive', 'museum' => 'Museum', 'library' => 'Library', 'gallery' => 'Gallery', 'dam' => 'DAM'] as $val => $label)
                 <option value="{{ $val }}" {{ ($settings['ingest_default_sector'] ?? 'archive') === $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -240,7 +240,7 @@
             </select>
           </div>
           <div class="col-md-6">
-            <label for="ingest_default_standard" class="form-label">Default descriptive standard</label>
+            <label for="ingest_default_standard" class="form-label">{{ __('Default descriptive standard') }}</label>
             <select class="form-select" id="ingest_default_standard" name="settings[ingest_default_standard]">
               @foreach (['isadg' => 'ISAD(G)', 'dc' => 'Dublin Core', 'rad' => 'RAD', 'dacs' => 'DACS', 'spectrum' => 'SPECTRUM', 'cco' => 'CCO'] as $val => $label)
                 <option value="{{ $val }}" {{ ($settings['ingest_default_standard'] ?? 'isadg') === $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -261,7 +261,7 @@
         <div class="table-responsive">
           <table class="table table-sm mb-0">
             <thead class="table-light">
-              <tr><th>Service</th><th>Required Tool</th><th>Status</th></tr>
+              <tr><th>{{ __('Service') }}</th><th>{{ __('Required Tool') }}</th><th>{{ __('Status') }}</th></tr>
             </thead>
             <tbody>
               @php

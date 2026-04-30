@@ -18,7 +18,7 @@
   <div class="col-md-3 mb-3">
     <div class="card bg-primary text-white"><div class="card-body">
       <div class="d-flex justify-content-between align-items-center">
-        <div><h6 class="card-title mb-0">Total Items</h6><h2 class="mb-0">{{ number_format($_total) }}</h2></div>
+        <div><h6 class="card-title mb-0">{{ __('Total Items') }}</h6><h2 class="mb-0">{{ number_format($_total) }}</h2></div>
         <i class="fas fa-palette fa-2x opacity-50"></i>
       </div>
     </div></div>
@@ -26,7 +26,7 @@
   <div class="col-md-3 mb-3">
     <div class="card bg-success text-white"><div class="card-body">
       <div class="d-flex justify-content-between align-items-center">
-        <div><h6 class="card-title mb-0">With Media</h6><h2 class="mb-0">{{ number_format($_withMedia) }}</h2></div>
+        <div><h6 class="card-title mb-0">{{ __('With Media') }}</h6><h2 class="mb-0">{{ number_format($_withMedia) }}</h2></div>
         <i class="fas fa-image fa-2x opacity-50"></i>
       </div>
     </div></div>
@@ -34,7 +34,7 @@
   <div class="col-md-3 mb-3">
     <div class="card bg-info text-white"><div class="card-body">
       <div class="d-flex justify-content-between align-items-center">
-        <div><h6 class="card-title mb-0">Without Media</h6><h2 class="mb-0">{{ number_format($_withoutMedia) }}</h2></div>
+        <div><h6 class="card-title mb-0">{{ __('Without Media') }}</h6><h2 class="mb-0">{{ number_format($_withoutMedia) }}</h2></div>
         <i class="fas fa-image fa-2x opacity-50"></i>
       </div>
     </div></div>
@@ -42,7 +42,7 @@
   <div class="col-md-3 mb-3">
     <div class="card bg-warning text-dark"><div class="card-body">
       <div class="d-flex justify-content-between align-items-center">
-        <div><h6 class="card-title mb-0">Media Coverage</h6><h2 class="mb-0">{{ $_coverage }}%</h2></div>
+        <div><h6 class="card-title mb-0">{{ __('Media Coverage') }}</h6><h2 class="mb-0">{{ $_coverage }}%</h2></div>
         <i class="fas fa-chart-pie fa-2x opacity-50"></i>
       </div>
     </div></div>
@@ -50,7 +50,7 @@
   <div class="col-md-3 mb-3">
     <div class="card bg-secondary text-white"><div class="card-body">
       <div class="d-flex justify-content-between align-items-center">
-        <div><h6 class="card-title mb-0">Artists</h6><h2 class="mb-0">{{ number_format($totalArtists ?? 0) }}</h2></div>
+        <div><h6 class="card-title mb-0">{{ __('Artists') }}</h6><h2 class="mb-0">{{ number_format($totalArtists ?? 0) }}</h2></div>
         <i class="fas fa-user fa-2x opacity-50"></i>
       </div>
     </div></div>
@@ -58,7 +58,7 @@
   <div class="col-md-3 mb-3">
     <div class="card bg-dark text-white"><div class="card-body">
       <div class="d-flex justify-content-between align-items-center">
-        <div><h6 class="card-title mb-0">Active Loans</h6><h2 class="mb-0">{{ number_format($activeLoans ?? 0) }}</h2></div>
+        <div><h6 class="card-title mb-0">{{ __('Active Loans') }}</h6><h2 class="mb-0">{{ number_format($activeLoans ?? 0) }}</h2></div>
         <i class="fas fa-exchange-alt fa-2x opacity-50"></i>
       </div>
     </div></div>
@@ -124,12 +124,12 @@
           <table class="table table-hover mb-0">
             <thead>
               <tr>
-                <th>Identifier</th>
-                <th>Title</th>
-                <th>Artist</th>
-                <th>Date</th>
-                <th class="text-center">Media</th>
-                <th>Actions</th>
+                <th>{{ __('Identifier') }}</th>
+                <th>{{ __('Title') }}</th>
+                <th>{{ __('Artist') }}</th>
+                <th>{{ __('Date') }}</th>
+                <th class="text-center">{{ __('Media') }}</th>
+                <th>{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody>

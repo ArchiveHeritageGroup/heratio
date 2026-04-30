@@ -37,7 +37,7 @@
                 <div class="mb-3">
                   <label for="type_id" class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="type_id" id="type_id" class="form-select">
-                    <option value="">Select...</option>
+                    <option value="">{{ __('Select...') }}</option>
                     @foreach($typeChoices as $tid => $tname)
                       <option value="{{ $tid }}" {{ old('type_id', $storage->type_id ?? '') == $tid ? 'selected' : '' }}>{{ $tname }}</option>
                     @endforeach
@@ -49,7 +49,7 @@
               <label for="location" class="form-label">Location (legacy) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="location" id="location" class="form-control"
                      value="{{ old('location', $storage->location ?? '') }}"
-                     placeholder="Use extended location fields below instead">
+                     placeholder="{{ __('Use extended location fields below instead') }}">
               <small class="text-muted">For backwards compatibility. Use the detailed fields below.</small>
             </div>
           </div>
@@ -197,13 +197,13 @@
                 <div class="mb-3">
                   <label for="capacity_unit" class="form-label">Capacity Unit <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="capacity_unit" id="capacity_unit" class="form-select">
-                    <option value="">Select...</option>
-                    <option value="boxes" @selected(old('capacity_unit', $extendedData['capacity_unit'] ?? '') === 'boxes')>Boxes</option>
-                    <option value="files" @selected(old('capacity_unit', $extendedData['capacity_unit'] ?? '') === 'files')>Files</option>
-                    <option value="folders" @selected(old('capacity_unit', $extendedData['capacity_unit'] ?? '') === 'folders')>Folders</option>
-                    <option value="items" @selected(old('capacity_unit', $extendedData['capacity_unit'] ?? '') === 'items')>Items</option>
-                    <option value="volumes" @selected(old('capacity_unit', $extendedData['capacity_unit'] ?? '') === 'volumes')>Volumes</option>
-                    <option value="metres" @selected(old('capacity_unit', $extendedData['capacity_unit'] ?? '') === 'metres')>Linear metres</option>
+                    <option value="">{{ __('Select...') }}</option>
+                    <option value="boxes" @selected(old('capacity_unit', $extendedData['capacity_unit'] ?? '') === 'boxes')>{{ __('Boxes') }}</option>
+                    <option value="files" @selected(old('capacity_unit', $extendedData['capacity_unit'] ?? '') === 'files')>{{ __('Files') }}</option>
+                    <option value="folders" @selected(old('capacity_unit', $extendedData['capacity_unit'] ?? '') === 'folders')>{{ __('Folders') }}</option>
+                    <option value="items" @selected(old('capacity_unit', $extendedData['capacity_unit'] ?? '') === 'items')>{{ __('Items') }}</option>
+                    <option value="volumes" @selected(old('capacity_unit', $extendedData['capacity_unit'] ?? '') === 'volumes')>{{ __('Volumes') }}</option>
+                    <option value="metres" @selected(old('capacity_unit', $extendedData['capacity_unit'] ?? '') === 'metres')>{{ __('Linear metres') }}</option>
                   </select>
                 </div>
               </div>
@@ -257,10 +257,10 @@
             <div class="mb-3">
               <label for="status" class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="status" id="status" class="form-select">
-                <option value="active" @selected(old('status', $extendedData['status'] ?? 'active') === 'active')>Active</option>
-                <option value="full" @selected(old('status', $extendedData['status'] ?? '') === 'full')>Full</option>
-                <option value="maintenance" @selected(old('status', $extendedData['status'] ?? '') === 'maintenance')>Under Maintenance</option>
-                <option value="decommissioned" @selected(old('status', $extendedData['status'] ?? '') === 'decommissioned')>Decommissioned</option>
+                <option value="active" @selected(old('status', $extendedData['status'] ?? 'active') === 'active')>{{ __('Active') }}</option>
+                <option value="full" @selected(old('status', $extendedData['status'] ?? '') === 'full')>{{ __('Full') }}</option>
+                <option value="maintenance" @selected(old('status', $extendedData['status'] ?? '') === 'maintenance')>{{ __('Under Maintenance') }}</option>
+                <option value="decommissioned" @selected(old('status', $extendedData['status'] ?? '') === 'decommissioned')>{{ __('Decommissioned') }}</option>
               </select>
             </div>
           </div>
@@ -321,12 +321,12 @@
             <div class="mb-3">
               <label for="security_level" class="form-label">Security Level <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="security_level" id="security_level" class="form-select">
-                <option value="">Select...</option>
-                <option value="public" @selected(old('security_level', $extendedData['security_level'] ?? '') === 'public')>Public</option>
-                <option value="restricted" @selected(old('security_level', $extendedData['security_level'] ?? '') === 'restricted')>Restricted</option>
-                <option value="confidential" @selected(old('security_level', $extendedData['security_level'] ?? '') === 'confidential')>Confidential</option>
-                <option value="secure" @selected(old('security_level', $extendedData['security_level'] ?? '') === 'secure')>Secure</option>
-                <option value="vault" @selected(old('security_level', $extendedData['security_level'] ?? '') === 'vault')>Vault</option>
+                <option value="">{{ __('Select...') }}</option>
+                <option value="public" @selected(old('security_level', $extendedData['security_level'] ?? '') === 'public')>{{ __('Public') }}</option>
+                <option value="restricted" @selected(old('security_level', $extendedData['security_level'] ?? '') === 'restricted')>{{ __('Restricted') }}</option>
+                <option value="confidential" @selected(old('security_level', $extendedData['security_level'] ?? '') === 'confidential')>{{ __('Confidential') }}</option>
+                <option value="secure" @selected(old('security_level', $extendedData['security_level'] ?? '') === 'secure')>{{ __('Secure') }}</option>
+                <option value="vault" @selected(old('security_level', $extendedData['security_level'] ?? '') === 'vault')>{{ __('Vault') }}</option>
               </select>
             </div>
             <div class="mb-3">

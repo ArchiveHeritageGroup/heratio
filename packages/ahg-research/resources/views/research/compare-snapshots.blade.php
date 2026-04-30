@@ -5,8 +5,8 @@
 @endsection
 @section('title', 'Compare Snapshots')
 @section('content')
-<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Compare Snapshots</li></ol></nav>
-<h1 class="h2 mb-4">Compare Snapshots</h1>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Compare Snapshots</li></ol></nav>
+<h1 class="h2 mb-4">{{ __('Compare Snapshots') }}</h1>
 <div class="row mb-4">
     <div class="col-md-6"><div class="card"><div class="card-header bg-primary text-white"><h6 class="mb-0">{{ e($snapshotA->title ?? 'Snapshot A') }}</h6></div><div class="card-body"><small>Items: {{ (int)($snapshotA->item_count ?? 0) }} | Hash: <code>{{ Str::limit($snapshotA->hash_sha256 ?? '', 12, '') }}</code></small></div></div></div>
     <div class="col-md-6"><div class="card"><div class="card-header bg-info text-white"><h6 class="mb-0">{{ e($snapshotB->title ?? 'Snapshot B') }}</h6></div><div class="card-body"><small>Items: {{ (int)($snapshotB->item_count ?? 0) }} | Hash: <code>{{ Str::limit($snapshotB->hash_sha256 ?? '', 12, '') }}</code></small></div></div></div>

@@ -2,7 +2,7 @@
 @section('title', 'Donut — Document Understanding')
 @section('body-class', 'admin ai-services donut')
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item active">Donut</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item active">Donut</li></ol></nav>
 <h1><i class="fas fa-file-invoice me-2"></i>Document Understanding (Donut)</h1>
 <p class="text-muted mb-4">End-to-end document image understanding for FamilySearch ILM field extraction. Complements HTR by recognising form structure and typed metadata.</p>
 
@@ -77,7 +77,7 @@
   <div class="card-body">
     <div class="row">
       <div class="col-md-6">
-        <h5>Donut (Document Understanding Transformer)</h5>
+        <h5>{{ __('Donut (Document Understanding Transformer)') }}</h5>
         <ul>
           <li>End-to-end: image in, structured JSON out</li>
           <li>No separate OCR step — the model reads and understands form layout</li>
@@ -86,7 +86,7 @@
         </ul>
       </div>
       <div class="col-md-6">
-        <h5>Combined Pipeline (Donut + HTR)</h5>
+        <h5>{{ __('Combined Pipeline (Donut + HTR)') }}</h5>
         <ol>
           <li><strong>Donut</strong> classifies document type and extracts typed metadata fields</li>
           <li><strong>TrOCR (HTR)</strong> reads handwritten genealogical content</li>

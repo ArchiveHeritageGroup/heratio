@@ -48,7 +48,7 @@
       <form action="{{ route('informationobject.browse') }}" method="GET">
         <input type="hidden" name="collection" value="{{ $museum->id }}">
         <div class="input-group input-group-sm">
-          <input type="text" name="subquery" class="form-control" placeholder="Search...">
+          <input type="text" name="subquery" class="form-control" placeholder="{{ __('Search...') }}">
           <button class="btn atom-btn-white" type="submit">
             <i class="fas fa-search"></i>
           </button>
@@ -245,7 +245,7 @@
 
   {{-- Breadcrumb trail --}}
   @if($museum->parent_id != 1 && !empty($breadcrumbs))
-    <nav aria-label="Hierarchy">
+    <nav aria-label="{{ __('Hierarchy') }}">
       <ol class="breadcrumb">
         @foreach($breadcrumbs as $crumb)
           <li class="breadcrumb-item">
@@ -432,7 +432,7 @@
         {{ __('Object Identification') }}
       </a>
       @auth
-        <a href="{{ route('museum.edit', $museum->slug) }}#objectIdentification-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Object Identification">
+        <a href="{{ route('museum.edit', $museum->slug) }}#objectIdentification-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Object Identification') }}">
           <i class="fas fa-pencil-alt"></i>
         </a>
       @endauth
@@ -518,7 +518,7 @@
         {{ __('Title') }}
       </a>
       @auth
-        <a href="{{ route('museum.edit', $museum->slug) }}#title-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Title">
+        <a href="{{ route('museum.edit', $museum->slug) }}#title-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Title') }}">
           <i class="fas fa-pencil-alt"></i>
         </a>
       @endauth
@@ -547,7 +547,7 @@
           {{ __('Creator') }}
         </a>
         @auth
-          <a href="{{ route('museum.edit', $museum->slug) }}#creator-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Creator">
+          <a href="{{ route('museum.edit', $museum->slug) }}#creator-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Creator') }}">
             <i class="fas fa-pencil-alt"></i>
           </a>
         @endauth
@@ -600,7 +600,7 @@
           {{ __('Creation') }}
         </a>
         @auth
-          <a href="{{ route('museum.edit', $museum->slug) }}#creation-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Creation">
+          <a href="{{ route('museum.edit', $museum->slug) }}#creation-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Creation') }}">
             <i class="fas fa-pencil-alt"></i>
           </a>
         @endauth
@@ -713,7 +713,7 @@
           {{ __('Measurements') }}
         </a>
         @auth
-          <a href="{{ route('museum.edit', $museum->slug) }}#measurements-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Measurements">
+          <a href="{{ route('museum.edit', $museum->slug) }}#measurements-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Measurements') }}">
             <i class="fas fa-pencil-alt"></i>
           </a>
         @endauth
@@ -759,7 +759,7 @@
           {{ __('Materials / Techniques') }}
         </a>
         @auth
-          <a href="{{ route('museum.edit', $museum->slug) }}#materials-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Materials / Techniques">
+          <a href="{{ route('museum.edit', $museum->slug) }}#materials-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Materials / Techniques') }}">
             <i class="fas fa-pencil-alt"></i>
           </a>
         @endauth
@@ -833,7 +833,7 @@
           {{ __('Subject / Content') }}
         </a>
         @auth
-          <a href="{{ route('museum.edit', $museum->slug) }}#subjectContent-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Subject / Content">
+          <a href="{{ route('museum.edit', $museum->slug) }}#subjectContent-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Subject / Content') }}">
             <i class="fas fa-pencil-alt"></i>
           </a>
         @endauth
@@ -936,7 +936,7 @@
           {{ __('Edition / State') }}
         </a>
         @auth
-          <a href="{{ route('museum.edit', $museum->slug) }}#editionState-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Edition / State">
+          <a href="{{ route('museum.edit', $museum->slug) }}#editionState-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Edition / State') }}">
             <i class="fas fa-pencil-alt"></i>
           </a>
         @endauth
@@ -989,7 +989,7 @@
           {{ __('Inscriptions') }}
         </a>
         @auth
-          <a href="{{ route('museum.edit', $museum->slug) }}#inscriptions-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Inscriptions">
+          <a href="{{ route('museum.edit', $museum->slug) }}#inscriptions-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Inscriptions') }}">
             <i class="fas fa-pencil-alt"></i>
           </a>
         @endauth
@@ -1077,7 +1077,7 @@
           {{ __('Condition') }}
         </a>
         @auth
-          <a href="{{ route('museum.edit', $museum->slug) }}#condition-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Condition">
+          <a href="{{ route('museum.edit', $museum->slug) }}#condition-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Condition') }}">
             <i class="fas fa-pencil-alt"></i>
           </a>
         @endauth
@@ -1158,7 +1158,7 @@
           {{ __('Provenance / Location') }}
         </a>
         @auth
-          <a href="{{ route('museum.edit', $museum->slug) }}#provenanceLocation-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Provenance / Location">
+          <a href="{{ route('museum.edit', $museum->slug) }}#provenanceLocation-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Provenance / Location') }}">
             <i class="fas fa-pencil-alt"></i>
           </a>
         @endauth
@@ -1276,7 +1276,7 @@
           {{ __('Related Works') }}
         </a>
         @auth
-          <a href="{{ route('museum.edit', $museum->slug) }}#relatedWorks-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Related Works">
+          <a href="{{ route('museum.edit', $museum->slug) }}#relatedWorks-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Related Works') }}">
             <i class="fas fa-pencil-alt"></i>
           </a>
         @endauth
@@ -1322,7 +1322,7 @@
           {{ __('Cataloging') }}
         </a>
         @auth
-          <a href="{{ route('museum.edit', $museum->slug) }}#cataloging-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Cataloging">
+          <a href="{{ route('museum.edit', $museum->slug) }}#cataloging-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Cataloging') }}">
             <i class="fas fa-pencil-alt"></i>
           </a>
         @endauth
@@ -1367,7 +1367,7 @@
         {{ __('Record Info') }}
       </a>
       @auth
-        <a href="{{ route('museum.edit', $museum->slug) }}#recordInfo-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Record Info">
+        <a href="{{ route('museum.edit', $museum->slug) }}#recordInfo-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Record Info') }}">
           <i class="fas fa-pencil-alt"></i>
         </a>
       @endauth
@@ -1406,7 +1406,7 @@
   @include('ahg-core::components.digital-object', ['digitalObjects' => $digitalObjects ?? []])
 
   <div class="d-flex gap-1 mb-3">
-    <button class="btn btn-sm atom-btn-white" onclick="window.print()" title="Print">
+    <button class="btn btn-sm atom-btn-white" onclick="window.print()" title="{{ __('Print') }}">
       <i class="fas fa-print"></i>
     </button>
     @include('ahg-core::clipboard._button', ['slug' => $museum->slug, 'type' => 'informationObject'])

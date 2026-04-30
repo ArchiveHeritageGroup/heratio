@@ -14,7 +14,7 @@ $history = (array)($itemData['history'] ?? []);
     @include('ahg-heritage-manage::partials._admin-sidebar')
     @if($item)
     <div class="card border-0 shadow-sm mt-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">Item Info</h6></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">{{ __('Item Info') }}</h6></div>
       <div class="card-body">
         <small class="text-muted d-block mb-2">Reference Code</small><p class="mb-3">{{ $item->identifier ?? '-' }}</p>
         <small class="text-muted d-block mb-2">Level</small><p class="mb-3">{{ $item->level_of_description ?? '-' }}</p>
@@ -51,7 +51,7 @@ $history = (array)($itemData['history'] ?? []);
 
       <div class="d-flex justify-content-between">
         <a href="{{ route('heritage.custodian') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Cancel</a>
-        <div><button type="submit" name="form_action" value="save" class="btn atom-btn-secondary"><i class="fas fa-check me-2"></i>Save Changes</button><button type="submit" name="form_action" value="save_continue" class="btn atom-btn-white ms-2">Save & Continue</button></div>
+        <div><button type="submit" name="form_action" value="save" class="btn atom-btn-secondary"><i class="fas fa-check me-2"></i>Save Changes</button><button type="submit" name="form_action" value="save_continue" class="btn atom-btn-white ms-2">{{ __('Save & Continue') }}</button></div>
       </div>
     </form>
     @endif

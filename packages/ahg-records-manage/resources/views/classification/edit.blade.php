@@ -22,23 +22,23 @@
   @if($isEdit)@method('PUT')@endif
 
   <div class="col-md-8">
-    <label class="form-label">Name</label>
+    <label class="form-label">{{ __('Name') }}</label>
     <input type="text" name="name" class="form-control" value="{{ old('name', $rule->name ?? '') }}" required>
     <div class="form-text small">Human-readable label, e.g. "Tender folder → 2/1/1 (Construction)"</div>
   </div>
   <div class="col-md-4">
-    <label class="form-label">Priority</label>
+    <label class="form-label">{{ __('Priority') }}</label>
     <input type="number" name="priority" class="form-control" value="{{ old('priority', $rule->priority ?? 0) }}">
     <div class="form-text small">Higher number = evaluated first.</div>
   </div>
 
   <div class="col-12">
-    <label class="form-label">Description (optional)</label>
+    <label class="form-label">{{ __('Description (optional)') }}</label>
     <textarea name="description" rows="2" class="form-control">{{ old('description', $rule->description ?? '') }}</textarea>
   </div>
 
   <div class="col-md-4">
-    <label class="form-label">Rule type</label>
+    <label class="form-label">{{ __('Rule type') }}</label>
     <select name="rule_type" class="form-select" required>
       <option value="">— pick type —</option>
       @foreach($ruleTypes as $rt)
@@ -47,7 +47,7 @@
     </select>
   </div>
   <div class="col-md-8">
-    <label class="form-label">Match pattern</label>
+    <label class="form-label">{{ __('Match pattern') }}</label>
     <input type="text" name="match_pattern" class="form-control" value="{{ old('match_pattern', $rule->match_pattern ?? '') }}" required>
     <div class="form-text small">
       <strong>folder_path / mime_type:</strong> regex (e.g. <code>^/Projects/</code>, <code>^application/pdf</code>).<br>
@@ -58,7 +58,7 @@
   </div>
 
   <div class="col-md-6">
-    <label class="form-label">Target file plan node</label>
+    <label class="form-label">{{ __('Target file plan node') }}</label>
     <select name="fileplan_node_id" class="form-select" required>
       <option value="">— pick a node —</option>
       @foreach($fileplanNodes as $n)
@@ -69,7 +69,7 @@
     </select>
   </div>
   <div class="col-md-6">
-    <label class="form-label">Disposal class (optional override)</label>
+    <label class="form-label">{{ __('Disposal class (optional override)') }}</label>
     <select name="disposal_class_id" class="form-select">
       <option value="">— inherit from node —</option>
       @foreach($disposalClasses as $dc)
@@ -79,7 +79,7 @@
   </div>
 
   <div class="col-md-6">
-    <label class="form-label">Apply on</label>
+    <label class="form-label">{{ __('Apply on') }}</label>
     <select name="apply_on" class="form-select">
       <option value="declare" @selected(old('apply_on', $rule->apply_on ?? 'declare')==='declare')>declare (run when record is declared)</option>
       <option value="upload"  @selected(old('apply_on', $rule->apply_on ?? '')==='upload')>upload (run on document upload — needs DM)</option>
@@ -87,12 +87,12 @@
     </select>
   </div>
   <div class="col-md-6">
-    <label class="form-label">Active</label>
+    <label class="form-label">{{ __('Active') }}</label>
     <div class="form-check form-switch">
       <input type="hidden" name="is_active" value="0">
       <input type="checkbox" name="is_active" value="1" class="form-check-input"
              @checked(old('is_active', $rule->is_active ?? 1))>
-      <label class="form-check-label">Rule is active</label>
+      <label class="form-check-label">{{ __('Rule is active') }}</label>
     </div>
   </div>
 

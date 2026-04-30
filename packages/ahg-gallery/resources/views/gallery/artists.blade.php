@@ -43,12 +43,12 @@
       <table class="table table-bordered table-striped mb-0">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Nationality</th>
-            <th>Type</th>
-            <th>Medium / Specialty</th>
-            <th>Movement / Style</th>
-            <th>Active period</th>
+            <th>{{ __('Name') }}</th>
+            <th>{{ __('Nationality') }}</th>
+            <th>{{ __('Type') }}</th>
+            <th>{{ __('Medium / Specialty') }}</th>
+            <th>{{ __('Movement / Style') }}</th>
+            <th>{{ __('Active period') }}</th>
           </tr>
         </thead>
         <tbody>

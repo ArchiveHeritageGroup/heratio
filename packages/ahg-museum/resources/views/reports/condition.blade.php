@@ -8,7 +8,7 @@
 <div class="alert alert-info"><strong>{{ count($records) }}</strong> condition records found</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
-    <thead class="table-dark"><tr><th>Object</th><th>Condition</th><th>Date</th><th>Treatment</th><th>Notes</th></tr></thead>
+    <thead class="table-dark"><tr><th>{{ __('Object') }}</th><th>{{ __('Condition') }}</th><th>{{ __('Date') }}</th><th>{{ __('Treatment') }}</th><th>{{ __('Notes') }}</th></tr></thead>
     <tbody>
       @forelse($records as $r)
       <tr><td><strong>{{ e($r->title ?? '-') }}</strong></td><td><span class="badge bg-{{ in_array($r->condition_term ?? '', ['poor','critical']) ? 'danger' : 'success' }}">{{ ucfirst($r->condition_term ?? '-') }}</span></td><td>{{ $r->condition_date ? date('d M Y', strtotime($r->condition_date)) : '-' }}</td><td>{{ e($r->treatment ?? '-') }}</td><td>{{ Str::limit($r->condition_notes ?? '-', 60) }}</td></tr>

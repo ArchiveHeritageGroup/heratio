@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-layer-group me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">Edit Disposal Class</h1><span class="small text-muted">Schedule: {{ $schedule->schedule_ref }} — {{ $schedule->title }}</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Edit Disposal Class') }}</h1><span class="small text-muted">Schedule: {{ $schedule->schedule_ref }} — {{ $schedule->title }}</span></div>
   </div>
 @endsection
 @section('content')
@@ -13,7 +13,7 @@
 
 <form method="post" action="{{ route('records.classes.update', [$schedule->id, $class->id]) }}">@csrf @method('PUT')
 <div class="card mb-4">
-  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">Class Details</h5></div>
+  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Class Details') }}</h5></div>
   <div class="card-body">
     <div class="row">
       <div class="col-md-4 mb-3">
@@ -71,19 +71,19 @@
       <div class="col-md-3 mb-3 d-flex align-items-end">
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="disposal_confirmation_required" value="1" id="disposal_confirmation_required" {{ old('disposal_confirmation_required', $class->disposal_confirmation_required) ? 'checked' : '' }}>
-          <label class="form-check-label" for="disposal_confirmation_required">Disposal confirmation required</label>
+          <label class="form-check-label" for="disposal_confirmation_required">{{ __('Disposal confirmation required') }}</label>
         </div>
       </div>
       <div class="col-md-3 mb-3 d-flex align-items-end">
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="review_required" value="1" id="review_required" {{ old('review_required', $class->review_required) ? 'checked' : '' }}>
-          <label class="form-check-label" for="review_required">Review required before disposal</label>
+          <label class="form-check-label" for="review_required">{{ __('Review required before disposal') }}</label>
         </div>
       </div>
       <div class="col-md-3 mb-3 d-flex align-items-end">
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="is_active" value="1" id="is_active" {{ old('is_active', $class->is_active) ? 'checked' : '' }}>
-          <label class="form-check-label" for="is_active">Active</label>
+          <label class="form-check-label" for="is_active">{{ __('Active') }}</label>
         </div>
       </div>
     </div>
@@ -91,7 +91,7 @@
 </div>
 <section class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
   <a href="{{ route('records.schedules.show', $schedule->id) }}" class="btn atom-btn-outline-light">Cancel</a>
-  <button type="submit" class="btn atom-btn-outline-light">Save Changes</button>
+  <button type="submit" class="btn atom-btn-outline-light">{{ __('Save Changes') }}</button>
 </section>
 </form>
 @endsection

@@ -29,15 +29,15 @@
                     <table class="table table-sm table-striped mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>ID</th>
-                                <th>File</th>
-                                <th>Algorithm</th>
-                                <th>Status</th>
-                                <th>Expected</th>
-                                <th>Actual</th>
-                                <th>Checked At</th>
-                                <th>Checked By</th>
-                                <th>Duration</th>
+                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('File') }}</th>
+                                <th>{{ __('Algorithm') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Expected') }}</th>
+                                <th>{{ __('Actual') }}</th>
+                                <th>{{ __('Checked At') }}</th>
+                                <th>{{ __('Checked By') }}</th>
+                                <th>{{ __('Duration') }}</th>
                             </tr>
                         </thead>
                         <tbody>

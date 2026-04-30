@@ -8,7 +8,7 @@
 @endsection
 
 @section('title-block')
-  <h1 class="mb-0">Rights Administration</h1>
+  <h1 class="mb-0">{{ __('Rights Administration') }}</h1>
 @endsection
 
 @section('content')
@@ -32,7 +32,7 @@
 
   <div class="card">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <h5 class="mb-0">Quick Actions</h5>
+      <h5 class="mb-0">{{ __('Quick Actions') }}</h5>
     </div>
     <div class="card-body">
       <a href="{{ route('rights-admin.embargoes') }}" class="btn atom-btn-white me-2"><i class="fas fa-lock me-1"></i>Manage Embargoes</a>

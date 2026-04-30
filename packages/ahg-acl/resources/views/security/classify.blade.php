@@ -81,16 +81,16 @@
       </legend>
 
       <div class="mb-3">
-        <label for="reason" class="form-label">Reason for Classification</label>
+        <label for="reason" class="form-label">{{ __('Reason for Classification') }}</label>
         <textarea name="reason" id="reason" class="form-control" rows="3"
-                  placeholder="Explain why this classification level is appropriate...">{{ $currentClassification->reason ?? '' }}</textarea>
+                  placeholder="{{ __('Explain why this classification level is appropriate...') }}">{{ $currentClassification->reason ?? '' }}</textarea>
         <div class="form-text">Document the justification for this classification decision.</div>
       </div>
 
       <div class="mb-3">
-        <label for="handling_instructions" class="form-label">Special Handling Instructions</label>
+        <label for="handling_instructions" class="form-label">{{ __('Special Handling Instructions') }}</label>
         <textarea name="handling_instructions" id="handling_instructions" class="form-control" rows="2"
-                  placeholder="Any special handling requirements...">{{ $currentClassification->handlingInstructions ?? $currentClassification->handling_instructions ?? '' }}</textarea>
+                  placeholder="{{ __('Any special handling requirements...') }}">{{ $currentClassification->handlingInstructions ?? $currentClassification->handling_instructions ?? '' }}</textarea>
       </div>
     </fieldset>
 
@@ -102,7 +102,7 @@
 
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label for="review_date" class="form-label">Review Date</label>
+          <label for="review_date" class="form-label">{{ __('Review Date') }}</label>
           <input type="date" name="review_date" id="review_date" class="form-control"
                  value="{{ ($currentClassification && ($currentClassification->reviewDate ?? $currentClassification->review_date ?? null)) ? date('Y-m-d', strtotime($currentClassification->reviewDate ?? $currentClassification->review_date)) : '' }}"
                  min="{{ date('Y-m-d', strtotime('+1 day')) }}">
@@ -110,7 +110,7 @@
         </div>
 
         <div class="col-md-6 mb-3">
-          <label for="declassify_date" class="form-label">Auto-Declassify Date</label>
+          <label for="declassify_date" class="form-label">{{ __('Auto-Declassify Date') }}</label>
           <input type="date" name="declassify_date" id="declassify_date" class="form-control"
                  value="{{ ($currentClassification && ($currentClassification->declassifyDate ?? $currentClassification->declassify_date ?? null)) ? date('Y-m-d', strtotime($currentClassification->declassifyDate ?? $currentClassification->declassify_date)) : '' }}"
                  min="{{ date('Y-m-d', strtotime('+1 day')) }}">
@@ -119,7 +119,7 @@
       </div>
 
       <div class="mb-3">
-        <label for="declassify_to_id" class="form-label">Declassify To Level</label>
+        <label for="declassify_to_id" class="form-label">{{ __('Declassify To Level') }}</label>
         <select name="declassify_to_id" id="declassify_to_id" class="form-control">
           <option value="">-- Remove classification entirely --</option>
           @foreach($classifications ?? [] as $c)
@@ -155,9 +155,9 @@
       <ul class="list-unstyled d-flex gap-2">
         <li><a href="{{ route('acl.object-view', ['id' => $resource->id ?? 0]) }}" class="btn btn-secondary">Cancel</a></li>
         @if($currentClassification ?? null)
-          <li><button class="btn btn-danger" type="submit" name="action_type" value="declassify" formnovalidate>Declassify</button></li>
+          <li><button class="btn btn-danger" type="submit" name="action_type" value="declassify" formnovalidate>{{ __('Declassify') }}</button></li>
         @endif
-        <li><button class="btn btn-primary" type="submit" name="action_type" value="classify">Classify</button></li>
+        <li><button class="btn btn-primary" type="submit" name="action_type" value="classify">{{ __('Classify') }}</button></li>
       </ul>
     </section>
 

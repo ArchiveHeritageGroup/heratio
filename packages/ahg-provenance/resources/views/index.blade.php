@@ -15,11 +15,11 @@
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Record</th>
-                                <th>Events</th>
-                                <th>Earliest</th>
-                                <th>Latest</th>
-                                <th>Actions</th>
+                                <th>{{ __('Record') }}</th>
+                                <th>{{ __('Events') }}</th>
+                                <th>{{ __('Earliest') }}</th>
+                                <th>{{ __('Latest') }}</th>
+                                <th>{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>

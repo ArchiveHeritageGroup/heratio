@@ -22,7 +22,7 @@
         <form method="POST" action="{{ route('records.emails.upload') }}" enctype="multipart/form-data">
           @csrf
           <div class="mb-3">
-            <label class="form-label">EML file</label>
+            <label class="form-label">{{ __('EML file') }}</label>
             <input type="file" name="eml_file" class="form-control" accept=".eml,message/rfc822" required>
             <div class="form-text small">Up to 50 MB. The original file is preserved verbatim under <code>{{ rtrim(config('heratio.storage_path', '/storage'), '/') }}/rm/email-capture/</code>.</div>
           </div>

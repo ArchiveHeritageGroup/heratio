@@ -3,7 +3,7 @@
 @section('title', 'Research Statistics')
 
 @section('content')
-<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Statistics</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Statistics</li></ol></nav>
 
 <h1 class="h2 mb-4"><i class="fas fa-chart-bar text-primary me-2"></i>Research Statistics</h1>
 
@@ -11,9 +11,9 @@
 <div class="card mb-4">
     <div class="card-body">
         <form method="get" class="row g-3 align-items-end">
-            <div class="col-md-3"><label class="form-label">From</label><input type="date" name="date_from" class="form-control" value="{{ $dateFrom }}"></div>
-            <div class="col-md-3"><label class="form-label">To</label><input type="date" name="date_to" class="form-control" value="{{ $dateTo }}"></div>
-            <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Apply</button></div>
+            <div class="col-md-3"><label class="form-label">{{ __('From') }}</label><input type="date" name="date_from" class="form-control" value="{{ $dateFrom }}"></div>
+            <div class="col-md-3"><label class="form-label">{{ __('To') }}</label><input type="date" name="date_to" class="form-control" value="{{ $dateTo }}"></div>
+            <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">{{ __('Apply') }}</button></div>
             <div class="col-md-4 text-end">
                 <a href="?date_from={{ date('Y-m-01') }}&date_to={{ date('Y-m-d') }}" class="btn btn-outline-secondary btn-sm">This Month</a>
                 <a href="?date_from={{ date('Y-01-01') }}&date_to={{ date('Y-m-d') }}" class="btn btn-outline-secondary btn-sm">This Year</a>
@@ -105,7 +105,7 @@
             <div class="card-body p-0">
                 @if(!empty($mostViewed))
                 <table class="table table-hover mb-0">
-                    <thead class="table-light"><tr><th>Title</th><th class="text-end">Views</th></tr></thead>
+                    <thead class="table-light"><tr><th>{{ __('Title') }}</th><th class="text-end">{{ __('Views') }}</th></tr></thead>
                     <tbody>
                     @foreach($mostViewed as $item)
                         <tr>
@@ -127,7 +127,7 @@
             <div class="card-body p-0">
                 @if(!empty($mostCited))
                 <table class="table table-hover mb-0">
-                    <thead class="table-light"><tr><th>Title</th><th class="text-end">Citations</th></tr></thead>
+                    <thead class="table-light"><tr><th>{{ __('Title') }}</th><th class="text-end">{{ __('Citations') }}</th></tr></thead>
                     <tbody>
                     @foreach($mostCited as $item)
                         <tr>
@@ -151,7 +151,7 @@
     <div class="card-body p-0">
         @if(!empty($activeResearchers))
         <table class="table table-hover mb-0">
-            <thead class="table-light"><tr><th>Researcher</th><th>Institution</th><th class="text-center">Views</th><th class="text-center">Citations</th><th class="text-center">Bookings</th><th class="text-center">Evidence Sets</th></tr></thead>
+            <thead class="table-light"><tr><th>{{ __('Researcher') }}</th><th>{{ __('Institution') }}</th><th class="text-center">{{ __('Views') }}</th><th class="text-center">{{ __('Citations') }}</th><th class="text-center">{{ __('Bookings') }}</th><th class="text-center">{{ __('Evidence Sets') }}</th></tr></thead>
             <tbody>
             @foreach($activeResearchers as $r)
                 <tr>
@@ -175,7 +175,7 @@
 <div class="row">
     <div class="col-md-4 mb-4">
         <div class="card h-100">
-            <div class="card-header"><h6 class="mb-0">Researcher Types</h6></div>
+            <div class="card-header"><h6 class="mb-0">{{ __('Researcher Types') }}</h6></div>
             <ul class="list-group list-group-flush">
                 @forelse($stats['by_type'] ?? [] as $type)
                     <li class="list-group-item d-flex justify-content-between">{{ e($type->name ?? 'Unspecified') }}<span class="badge bg-secondary">{{ $type->count }}</span></li>
@@ -187,7 +187,7 @@
     </div>
     <div class="col-md-4 mb-4">
         <div class="card h-100">
-            <div class="card-header"><h6 class="mb-0">Projects by Status</h6></div>
+            <div class="card-header"><h6 class="mb-0">{{ __('Projects by Status') }}</h6></div>
             <ul class="list-group list-group-flush">
                 @forelse($stats['projects_by_status'] ?? [] as $s)
                     <li class="list-group-item d-flex justify-content-between">{{ ucfirst($s->status) }}<span class="badge bg-secondary">{{ $s->count }}</span></li>
@@ -199,7 +199,7 @@
     </div>
     <div class="col-md-4 mb-4">
         <div class="card h-100">
-            <div class="card-header"><h6 class="mb-0">Reproduction Requests</h6></div>
+            <div class="card-header"><h6 class="mb-0">{{ __('Reproduction Requests') }}</h6></div>
             <ul class="list-group list-group-flush">
                 @forelse($stats['reproductions_by_status'] ?? [] as $s)
                     <li class="list-group-item d-flex justify-content-between">{{ ucfirst(str_replace('_', ' ', $s->status)) }}<span class="badge bg-secondary">{{ $s->count }}</span></li>

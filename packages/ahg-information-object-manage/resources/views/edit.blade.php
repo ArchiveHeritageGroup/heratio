@@ -13,7 +13,7 @@
     @if($repoLogo)
       <div class="repository-logo mb-3 mx-auto">
         <a class="text-decoration-none" href="{{ url('/repository/' . $repoLogo) }}">
-          <img alt="Go to repository" class="img-fluid img-thumbnail border-4 shadow-sm bg-white"
+          <img alt="{{ __('Go to repository') }}" class="img-fluid img-thumbnail border-4 shadow-sm bg-white"
                src="/uploads/r/{{ $repoLogo }}/conf/logo.png"
                onerror="this.parentElement.style.display='none'">
         </a>
@@ -55,7 +55,7 @@
         @if($__formTemplates->count() > 1)
           <div class="dropdown d-inline-block ms-1">
             <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-              Other templates
+              {{ __('Other templates') }}
             </button>
             <ul class="dropdown-menu">
               @foreach($__formTemplates as $tpl)
@@ -100,7 +100,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="identity-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#identity-collapse" aria-expanded="false" aria-controls="identity-collapse">
-            Identity area
+            {{ __('Identity area') }}
           </button>
         </h2>
         <div id="identity-collapse" class="accordion-collapse collapse" aria-labelledby="identity-heading">
@@ -125,26 +125,26 @@
               <table class="table table-sm" id="altids-table">
                 <thead>
                   <tr>
-                    <th>Label</th>
-                    <th>Value</th>
+                    <th>{{ __('Label') }}</th>
+                    <th>{{ __('Value') }}</th>
                     <th style="width:80px"></th>
                   </tr>
                 </thead>
                 <tbody>
                   @foreach($alternativeIdentifiers as $aiIdx => $ai)
                     <tr>
-                      <td><input type="text" class="form-control form-control-sm" name="altIds[{{ $aiIdx }}][label]" value="{{ $ai->value ?? '' }}" placeholder="e.g. Former reference"></td>
+                      <td><input type="text" class="form-control form-control-sm" name="altIds[{{ $aiIdx }}][label]" value="{{ $ai->value ?? '' }}" placeholder="{{ __('e.g. Former reference') }}"></td>
                       <td><input type="text" class="form-control form-control-sm" name="altIds[{{ $aiIdx }}][value]" value="{{ $ai->value ?? '' }}"></td>
-                      <td><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row">Remove</button></td>
+                      <td><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row">{{ __('Remove') }}</button></td>
                     </tr>
                   @endforeach
                 </tbody>
               </table>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-altid-row">Add alternative identifier</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-altid-row">{{ __('Add alternative identifier') }}</button>
             </div>
 
             <div class="mb-3">
-              <label for="title" class="form-label">Title <span class="form-required text-danger" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="title" class="form-label">Title <span class="form-required text-danger" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title"
                      value="{{ old('title', $io->title) }}" required>
               @error('title')
@@ -171,11 +171,11 @@
               <table class="table table-sm" id="events-table">
                 <thead>
                   <tr>
-                    <th>Type</th>
-                    <th>Date</th>
-                    <th>Start</th>
-                    <th>End</th>
-                    <th>Actor</th>
+                    <th>{{ __('Type') }}</th>
+                    <th>{{ __('Date') }}</th>
+                    <th>{{ __('Start') }}</th>
+                    <th>{{ __('End') }}</th>
+                    <th>{{ __('Actor') }}</th>
                     <th style="width:80px"></th>
                   </tr>
                 </thead>
@@ -190,23 +190,23 @@
                           @endforeach
                         </select>
                       </td>
-                      <td><input type="text" class="form-control form-control-sm" name="events[{{ $idx }}][date]" value="{{ $evt->date_display ?? '' }}" placeholder="e.g. ca. 1900"></td>
+                      <td><input type="text" class="form-control form-control-sm" name="events[{{ $idx }}][date]" value="{{ $evt->date_display ?? '' }}" placeholder="{{ __('e.g. ca. 1900') }}"></td>
                       <td><input type="date" class="form-control form-control-sm" name="events[{{ $idx }}][startDate]" value="{{ $evt->start_date ?? '' }}"></td>
                       <td><input type="date" class="form-control form-control-sm" name="events[{{ $idx }}][endDate]" value="{{ $evt->end_date ?? '' }}"></td>
                       <td>
-                        <input type="text" class="form-control form-control-sm" name="events[{{ $idx }}][actorName]" value="{{ $evt->actor_name ?? '' }}" placeholder="Actor name">
+                        <input type="text" class="form-control form-control-sm" name="events[{{ $idx }}][actorName]" value="{{ $evt->actor_name ?? '' }}" placeholder="{{ __('Actor name') }}">
                         <input type="hidden" name="events[{{ $idx }}][actorId]" value="{{ $evt->actor_id ?? 0 }}">
                       </td>
-                      <td><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row">Remove</button></td>
+                      <td><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row">{{ __('Remove') }}</button></td>
                     </tr>
                   @endforeach
                 </tbody>
               </table>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-event-row">Add date</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-event-row">{{ __('Add date') }}</button>
             </div>
 
             <div class="mb-3">
-              <label for="level_of_description_id" class="form-label">Level of description <span class="form-required text-danger" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record the level of this unit of description. (ISAD 3.1.4)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="level_of_description_id" class="form-label">Level of description <span class="form-required text-danger" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record the level of this unit of description. (ISAD 3.1.4)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <select class="form-select" id="level_of_description_id" name="level_of_description_id">
                 <option value="">- Select -</option>
                 @foreach($levels as $level)
@@ -223,19 +223,19 @@
               <table class="table table-sm" id="childlevels-table">
                 <thead>
                   <tr>
-                    <th>Identifier</th>
-                    <th>Level</th>
-                    <th>Title</th>
+                    <th>{{ __('Identifier') }}</th>
+                    <th>{{ __('Level') }}</th>
+                    <th>{{ __('Title') }}</th>
                     <th style="width:80px"></th>
                   </tr>
                 </thead>
                 <tbody></tbody>
               </table>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-childlevel-row">Add child level</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-childlevel-row">{{ __('Add child level') }}</button>
             </div>
 
             <div class="mb-3">
-              <label for="extent_and_medium" class="form-label">Extent and medium <span class="form-required text-danger" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record the extent of the unit of description by giving the number of physical or logical units in arabic numerals and the unit of measurement. Give the specific medium (media) of the unit of description. Separate multiple extents with a linebreak. (ISAD 3.1.5)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="extent_and_medium" class="form-label">Extent and medium <span class="form-required text-danger" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record the extent of the unit of description by giving the number of physical or logical units in arabic numerals and the unit of measurement. Give the specific medium (media) of the unit of description. Separate multiple extents with a linebreak. (ISAD 3.1.5)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <textarea class="form-control" id="extent_and_medium" name="extent_and_medium" rows="3">{{ old('extent_and_medium', $io->extent_and_medium) }}</textarea>
             </div>
 
@@ -247,7 +247,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="context-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#context-collapse" aria-expanded="false" aria-controls="context-collapse">
-            Context area
+            {{ __('Context area') }}
           </button>
         </h2>
         <div id="context-collapse" class="accordion-collapse collapse" aria-labelledby="context-heading">
@@ -311,7 +311,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="content-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#content-collapse" aria-expanded="false" aria-controls="content-collapse">
-            Content and structure area
+            {{ __('Content and structure area') }}
           </button>
         </h2>
         <div id="content-collapse" class="accordion-collapse collapse" aria-labelledby="content-heading">
@@ -345,7 +345,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="conditions-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#conditions-collapse" aria-expanded="false" aria-controls="conditions-collapse">
-            Conditions of access and use area
+            {{ __('Conditions of access and use area') }}
           </button>
         </h2>
         <div id="conditions-collapse" class="accordion-collapse collapse" aria-labelledby="conditions-heading">
@@ -387,11 +387,11 @@
                         <option value="{{ $langCode }}" selected>{{ $langCode }}</option>
                       @endif
                     </select>
-                    <button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>
+                    <button type="button" class="btn btn-outline-danger btn-remove-ap">{{ __('Remove') }}</button>
                   </div>
                 @endforeach
               </div>
-              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-lang-row" data-target="languages-list" data-name="languages[]">Add language</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-lang-row" data-target="languages-list" data-name="languages[]">{{ __('Add language') }}</button>
               <span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record the language(s) of the materials comprising the unit of description. (ISAD 3.4.3)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span>
             </div>
 
@@ -418,11 +418,11 @@
                         <option value="{{ $scriptCode }}" selected>{{ $scriptCode }}</option>
                       @endif
                     </select>
-                    <button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>
+                    <button type="button" class="btn btn-outline-danger btn-remove-ap">{{ __('Remove') }}</button>
                   </div>
                 @endforeach
               </div>
-              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-script-row" data-target="scripts-list" data-name="scripts[]">Add script</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-script-row" data-target="scripts-list" data-name="scripts[]">{{ __('Add script') }}</button>
               <span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record the script(s) of the materials comprising the unit of description. (ISAD 3.4.3)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span>
             </div>
 
@@ -449,7 +449,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="allied-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#allied-collapse" aria-expanded="false" aria-controls="allied-collapse">
-            Allied materials area
+            {{ __('Allied materials area') }}
           </button>
         </h2>
         <div id="allied-collapse" class="accordion-collapse collapse" aria-labelledby="allied-heading">
@@ -478,12 +478,12 @@
                   <div class="input-group input-group-sm mb-1">
                     <input type="text" class="form-control" value="{{ $rd->title ?? '' }}" readonly>
                     <input type="hidden" name="relatedDescriptions[{{ $rdIdx }}][id]" value="{{ $rd->id }}">
-                    <button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>
+                    <button type="button" class="btn btn-outline-danger btn-remove-ap">{{ __('Remove') }}</button>
                   </div>
                 @endforeach
               </div>
               <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control" placeholder="Type to add related description..." autocomplete="off">
+                <input type="text" class="form-control" placeholder="{{ __('Type to add related description...') }}" autocomplete="off">
               </div>
               <span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="To create a relationship between this description and another description held in the system, begin typing the name of the related description and select it from the autocomplete drop-down menu when it appears below. Multiple relationships can be created."><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span>
             </div>
@@ -496,12 +496,12 @@
                   <div class="mb-1">
                     <div class="input-group input-group-sm">
                       <textarea class="form-control form-control-sm" name="publicationNotes[{{ $pnIdx }}][content]" rows="2">{{ $pn->content ?? '' }}</textarea>
-                      <button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>
+                      <button type="button" class="btn btn-outline-danger btn-remove-ap">{{ __('Remove') }}</button>
                     </div>
                   </div>
                 @endforeach
               </div>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-pubnote-row">Add publication note</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-pubnote-row">{{ __('Add publication note') }}</button>
             </div>
 
           </div>
@@ -512,7 +512,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="notes-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#notes-collapse" aria-expanded="false" aria-controls="notes-collapse">
-            Notes area
+            {{ __('Notes area') }}
           </button>
         </h2>
         <div id="notes-collapse" class="accordion-collapse collapse" aria-labelledby="notes-heading">
@@ -520,8 +520,8 @@
             <table class="table table-sm" id="notes-table">
               <thead>
                 <tr>
-                  <th style="width:30%">Type</th>
-                  <th>Content</th>
+                  <th style="width:30%">{{ __('Type') }}</th>
+                  <th>{{ __('Content') }}</th>
                   <th style="width:80px"></th>
                 </tr>
               </thead>
@@ -537,12 +537,12 @@
                       </select>
                     </td>
                     <td><textarea class="form-control form-control-sm" name="notes[{{ $nIdx }}][content]" rows="2">{{ $note->content ?? '' }}</textarea></td>
-                    <td><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row">Remove</button></td>
+                    <td><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row">{{ __('Remove') }}</button></td>
                   </tr>
                 @endforeach
               </tbody>
             </table>
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="add-note-row">Add note</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="add-note-row">{{ __('Add note') }}</button>
           </div>
         </div>
       </div>
@@ -551,7 +551,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="access-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#access-collapse" aria-expanded="false" aria-controls="access-collapse">
-            Access points
+            {{ __('Access points') }}
           </button>
         </h2>
         <div id="access-collapse" class="accordion-collapse collapse" aria-labelledby="access-heading">
@@ -648,7 +648,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="description-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#description-collapse" aria-expanded="false" aria-controls="description-collapse">
-            Description control area
+            {{ __('Description control area') }}
           </button>
         </h2>
         <div id="description-collapse" class="accordion-collapse collapse" aria-labelledby="description-heading">
@@ -714,11 +714,11 @@
                         <option value="{{ $ldCode }}" selected>{{ $ldCode }}</option>
                       @endif
                     </select>
-                    <button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>
+                    <button type="button" class="btn btn-outline-danger btn-remove-ap">{{ __('Remove') }}</button>
                   </div>
                 @endforeach
               </div>
-              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-lang-row" data-target="langs-of-desc-list" data-name="languagesOfDescription[]">Add language</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-lang-row" data-target="langs-of-desc-list" data-name="languagesOfDescription[]">{{ __('Add language') }}</button>
               <span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Indicate the language(s) used to create the description of the archival material."><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span>
             </div>
 
@@ -737,11 +737,11 @@
                         <option value="{{ $sdCode }}" selected>{{ $sdCode }}</option>
                       @endif
                     </select>
-                    <button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>
+                    <button type="button" class="btn btn-outline-danger btn-remove-ap">{{ __('Remove') }}</button>
                   </div>
                 @endforeach
               </div>
-              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-script-row" data-target="scripts-of-desc-list" data-name="scriptsOfDescription[]">Add script</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-script-row" data-target="scripts-of-desc-list" data-name="scriptsOfDescription[]">{{ __('Add script') }}</button>
               <span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Indicate the script(s) used to create the description of the archival material."><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span>
             </div>
 
@@ -764,12 +764,12 @@
                   <div class="mb-1">
                     <div class="input-group input-group-sm">
                       <textarea class="form-control form-control-sm" name="archivistNotes[{{ $anIdx }}][content]" rows="2">{{ $an->content ?? '' }}</textarea>
-                      <button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>
+                      <button type="button" class="btn btn-outline-danger btn-remove-ap">{{ __('Remove') }}</button>
                     </div>
                   </div>
                 @endforeach
               </div>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-archnote-row">Add archivist's note</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-archnote-row">{{ __("Add archivist's note") }}</button>
             </div>
 
           </div>
@@ -782,7 +782,7 @@
     <div class="accordion-item">
       <h2 class="accordion-header" id="security-heading">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#security-collapse" aria-expanded="false">
-          Security Classification
+          {{ __('Security Classification') }}
         </button>
       </h2>
       <div id="security-collapse" class="accordion-collapse collapse" aria-labelledby="security-heading">
@@ -826,7 +826,7 @@
     <div class="accordion-item">
       <h2 class="accordion-header" id="watermark-heading">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#watermark-collapse" aria-expanded="false">
-          Watermark Settings
+          {{ __('Watermark Settings') }}
         </button>
       </h2>
       <div id="watermark-collapse" class="accordion-collapse collapse" aria-labelledby="watermark-heading">
@@ -840,7 +840,7 @@
     <div class="accordion-item">
       <h2 class="accordion-header" id="admin-heading">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#admin-collapse" aria-expanded="false">
-          Administration area
+          {{ __('Administration area') }}
         </button>
       </h2>
       <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
@@ -858,8 +858,8 @@
           <div class="mb-3">
             <label for="publication_status_id" class="form-label">Publication status <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="publication_status_id" id="publication_status_id" class="form-select">
-              <option value="159" @selected(($publicationStatusId ?? 159) == 159)>Draft</option>
-              <option value="160" @selected(($publicationStatusId ?? 159) == 160)>Published</option>
+              <option value="159" @selected(($publicationStatusId ?? 159) == 159)>{{ __('Draft') }}</option>
+              <option value="160" @selected(($publicationStatusId ?? 159) == 160)>{{ __('Published') }}</option>
             </select>
           </div>
 

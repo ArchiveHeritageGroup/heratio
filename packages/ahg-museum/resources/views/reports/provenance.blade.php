@@ -8,7 +8,7 @@
 <div class="alert alert-info"><strong>{{ count($records) }}</strong> records with provenance</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
-    <thead class="table-dark"><tr><th>Object</th><th>Provenance</th><th>Legal Status</th><th>Rights Holder</th></tr></thead>
+    <thead class="table-dark"><tr><th>{{ __('Object') }}</th><th>{{ __('Provenance') }}</th><th>{{ __('Legal Status') }}</th><th>{{ __('Rights Holder') }}</th></tr></thead>
     <tbody>
       @forelse($records as $r)
       <tr><td><strong>{{ e($r->title ?? '-') }}</strong></td><td>{{ Str::limit($r->provenance_text ?? '-', 80) }}</td><td>{{ e($r->legal_status ?? '-') }}</td><td>{{ e($r->rights_holder ?? '-') }}</td></tr>

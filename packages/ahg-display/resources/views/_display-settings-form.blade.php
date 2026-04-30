@@ -49,7 +49,7 @@ $moduleLabels = [
                                 <small class="text-muted">@php echo $module; @endphp</small>
                             </div>
                             @if($isLocked)
-                                <span class="badge bg-warning text-dark" title="User override disabled">
+                                <span class="badge bg-warning text-dark" title="{{ __('User override disabled') }}">
                                     <i class="bi bi-lock-fill"></i>
                                 </span>
                             @endif
@@ -77,7 +77,7 @@ $moduleLabels = [
                                                @php echo !$isAvailable ? 'disabled opacity-25' : ''; @endphp"
                                         data-module="@php echo $module; @endphp"
                                         data-mode="@php echo $mode; @endphp"
-                                        title="@php echo $info['name']; @endphp@php echo !$isAvailable ? ' (disabled)' : ''; @endphp">
+                                        title="{{ __("@php echo $info['name']; @endphp@php echo !$isAvailable ? ' (disabled)' : ''; @endphp") }}">
                                     <i class="bi @php echo $info['icon']; @endphp"></i>
                                 </button>
                             @php endforeach; @endphp
@@ -187,9 +187,9 @@ $moduleLabels = [
                         <div class="col-md-4">
                             <label class="form-label">{{ __('Card Size') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                             <select name="card_size" id="editCardSize" class="form-select">
-                                <option value="small">Small</option>
-                                <option value="medium">Medium</option>
-                                <option value="large">Large</option>
+                                <option value="small">{{ __('Small') }}</option>
+                                <option value="medium">{{ __('Medium') }}</option>
+                                <option value="large">{{ __('Large') }}</option>
                             </select>
                         </div>
                         
@@ -197,10 +197,10 @@ $moduleLabels = [
                         <div class="col-md-4">
                             <label class="form-label">{{ __('Default Sort') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                             <select name="sort_field" id="editSortField" class="form-select">
-                                <option value="updated_at">Last Updated</option>
-                                <option value="created_at">Date Created</option>
-                                <option value="title">Title</option>
-                                <option value="reference_code">Reference Code</option>
+                                <option value="updated_at">{{ __('Last Updated') }}</option>
+                                <option value="created_at">{{ __('Date Created') }}</option>
+                                <option value="title">{{ __('Title') }}</option>
+                                <option value="reference_code">{{ __('Reference Code') }}</option>
                             </select>
                         </div>
                         
@@ -247,7 +247,7 @@ $moduleLabels = [
                 <button type="button" class="btn btn-outline-warning" id="resetModuleBtn">
                     <i class="bi bi-arrow-counterclockwise me-1"></i> Reset to Default
                 </button>
-                <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                 <button type="button" class="btn atom-btn-white" id="saveDisplaySettings">
                     <i class="bi bi-save me-1"></i> Save Settings
                 </button>

@@ -12,7 +12,7 @@ $resourceId = $resource->id ?? null;
 $resourceSlug = $resource->slug ?? null; @endphp
 
 <div class="digital-object-actions mb-3">
-    <div class="btn-group" role="group" aria-label="Digital object actions">
+    <div class="btn-group" role="group" aria-label="{{ __('Digital object actions') }}">
         <!-- Standard Upload -->
         <a href="{{ route('digitalobject.edit', ['informationObject' => $resourceSlug]) }}"
            class="btn btn-outline-primary btn-sm">
@@ -25,7 +25,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                 class="btn btn-outline-secondary btn-sm"
                 data-bs-toggle="modal"
                 data-bs-target="#tiffPdfMergeModal"
-                title="Upload multiple TIFF/image files and merge into a single PDF/A document">
+                title="{{ __('Upload multiple TIFF/image files and merge into a single PDF/A document') }}">
             <i class="fas fa-layer-group me-1"></i>
             Merge to PDF
         </button>
@@ -41,7 +41,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                     <i class="fas fa-file-pdf me-2"></i>
                     Merge Images to PDF
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
             </div>
 
             <div class="modal-body">
@@ -57,10 +57,10 @@ $resourceSlug = $resource->slug ?? null; @endphp
                     <div class="col-md-4">
                         <label for="tpmPdfStandard" class="form-label">PDF Standard <span class="badge bg-secondary ms-1">Optional</span></label>
                         <select id="tpmPdfStandard" class="form-select form-select-sm">
-                            <option value="pdfa-2b" selected>PDF/A-2b (Recommended)</option>
-                            <option value="pdfa-1b">PDF/A-1b</option>
-                            <option value="pdfa-3b">PDF/A-3b</option>
-                            <option value="pdf">Standard PDF</option>
+                            <option value="pdfa-2b" selected>{{ __('PDF/A-2b (Recommended)') }}</option>
+                            <option value="pdfa-1b">{{ __('PDF/A-1b') }}</option>
+                            <option value="pdfa-3b">{{ __('PDF/A-3b') }}</option>
+                            <option value="pdf">{{ __('Standard PDF') }}</option>
                         </select>
                     </div>
                     <div class="col-md-4">

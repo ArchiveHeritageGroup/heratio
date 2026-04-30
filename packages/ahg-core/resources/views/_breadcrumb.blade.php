@@ -1,4 +1,4 @@
-<nav aria-label="breadcrumb" id="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}" id="breadcrumb">
   <ol class="breadcrumb">
     @foreach($objects as $object)
       @if(isset($object->parent))

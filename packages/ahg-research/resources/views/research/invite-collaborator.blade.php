@@ -8,7 +8,7 @@
 @section('title', 'Invite Collaborator')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
@@ -31,20 +31,20 @@
 <div class="row">
     <div class="col-md-8">
         <div class="card mb-4">
-            <div class="card-header"><h6 class="mb-0">Send Invitation</h6></div>
+            <div class="card-header"><h6 class="mb-0">{{ __('Send Invitation') }}</h6></div>
             <div class="card-body">
                 <form method="POST">
                     @csrf
                     <div class="mb-3">
                         <label class="form-label">Email Address <span class="text-danger">*</span></label>
-                        <input type="email" name="email" class="form-control" required placeholder="researcher@example.com">
+                        <input type="email" name="email" class="form-control" required placeholder="{{ __('researcher@example.com') }}">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Role</label>
+                        <label class="form-label">{{ __('Role') }}</label>
                         <select name="role" class="form-select">
-                            <option value="contributor">Contributor</option>
-                            <option value="reviewer">Reviewer</option>
-                            <option value="editor">Editor</option>
+                            <option value="contributor">{{ __('Contributor') }}</option>
+                            <option value="reviewer">{{ __('Reviewer') }}</option>
+                            <option value="editor">{{ __('Editor') }}</option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-paper-plane me-1"></i>Invite</button>
@@ -54,7 +54,7 @@
     </div>
     <div class="col-md-4">
         <div class="card">
-            <div class="card-header"><h6 class="mb-0">Current Collaborators</h6></div>
+            <div class="card-header"><h6 class="mb-0">{{ __('Current Collaborators') }}</h6></div>
             <ul class="list-group list-group-flush">
                 @forelse($collaborators ?? [] as $c)
                 <li class="list-group-item d-flex justify-content-between align-items-center">

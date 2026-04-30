@@ -47,12 +47,12 @@
         <thead>
           <tr>
             <th class="sortable">
-              <a title="Sort" class="sortable" href="{{ storageSortUrl('name', $currentSort, $baseParams) }}">Name</a>
+              <a title="{{ __('Sort') }}" class="sortable" href="{{ storageSortUrl('name', $currentSort, $baseParams) }}">Name</a>
             </th>
             <th class="sortable">
-              <a title="Sort" class="sortable" href="{{ storageSortUrl('location', $currentSort, $baseParams) }}">Location</a>
+              <a title="{{ __('Sort') }}" class="sortable" href="{{ storageSortUrl('location', $currentSort, $baseParams) }}">Location</a>
             </th>
-            <th>Type</th>
+            <th>{{ __('Type') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -76,8 +76,8 @@
 
   @auth
     <section class="actions mb-3">
-      <a class="btn atom-btn-outline-light" href="{{ route('physicalobject.create') }}" title="Add new">Add new</a>
-      <a class="btn atom-btn-outline-light" href="{{ url('/physicalobject/holdingsReportExport') }}" title="Export storage report">Export storage report</a>
+      <a class="btn atom-btn-outline-light" href="{{ route('physicalobject.create') }}" title="{{ __('Add new') }}">Add new</a>
+      <a class="btn atom-btn-outline-light" href="{{ url('/physicalobject/holdingsReportExport') }}" title="{{ __('Export storage report') }}">Export storage report</a>
     </section>
   @endauth
 

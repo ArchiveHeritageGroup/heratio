@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'rooms'])@endsection
 @section('title', 'Room Details')
 @section('content')
-<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.rooms') }}">Rooms</a></li><li class="breadcrumb-item active">{{ e($room->name ?? '') }}</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.rooms') }}">Rooms</a></li><li class="breadcrumb-item active">{{ e($room->name ?? '') }}</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-door-open text-primary me-2"></i>{{ e($room->name ?? 'Room') }}</h1>
 <div class="row"><div class="col-md-8">
 <div class="card mb-4"><div class="card-header" style="background:var(--ahg-primary);color:#fff">Room Information</div><div class="card-body">
@@ -18,13 +18,13 @@
 </div></div>
 @if(!empty($seats))
 <div class="card mb-4"><div class="card-header">Seats ({{ count($seats) }})</div><div class="card-body p-0">
-    <table class="table table-sm mb-0"><thead class="table-light"><tr><th>Seat</th><th>Type</th><th>Status</th></tr></thead><tbody>
+    <table class="table table-sm mb-0"><thead class="table-light"><tr><th>{{ __('Seat') }}</th><th>{{ __('Type') }}</th><th>{{ __('Status') }}</th></tr></thead><tbody>
         @foreach($seats as $s)<tr><td>{{ e($s->label ?? 'Seat #' . $s->id) }}</td><td>{{ e($s->equipment_type ?? 'standard') }}</td><td><span class="badge bg-{{ ($s->is_occupied ?? false) ? 'danger' : 'success' }}">{{ ($s->is_occupied ?? false) ? 'Occupied' : 'Available' }}</span></td></tr>@endforeach
     </tbody></table>
 </div></div>
 @endif
 </div><div class="col-md-4">
-<div class="card mb-4"><div class="card-header"><h6 class="mb-0">Opening Hours</h6></div><div class="card-body small">
+<div class="card mb-4"><div class="card-header"><h6 class="mb-0">{{ __('Opening Hours') }}</h6></div><div class="card-body small">
     @if(!empty($room->opening_hours)){{ e($room->opening_hours) }}@else <span class="text-muted">Not specified</span>@endif
 </div></div>
 <div class="d-flex flex-column gap-2">

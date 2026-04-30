@@ -47,18 +47,18 @@
               <input class="form-check-input" type="checkbox" id="dp_enabled"
                      name="dp_enabled" value="1"
                      {{ ($settings['dp_enabled'] ?? 'true') === 'true' || ($settings['dp_enabled'] ?? '') === '1' ? 'checked' : '' }}>
-              <label class="form-check-label fw-bold" for="dp_enabled">Enable Data Protection Module</label>
+              <label class="form-check-label fw-bold" for="dp_enabled">{{ __('Enable Data Protection Module') }}</label>
             </div>
             <div class="form-text">Enable data protection module</div>
           </div>
           <div class="col-md-6">
-            <label for="dp_default_regulation" class="form-label fw-bold">Default Regulation</label>
+            <label for="dp_default_regulation" class="form-label fw-bold">{{ __('Default Regulation') }}</label>
             <select class="form-select" id="dp_default_regulation" name="dp_default_regulation">
               @php $curReg = $settings['dp_default_regulation'] ?? 'popia'; @endphp
-              <option value="popia" {{ $curReg === 'popia' ? 'selected' : '' }}>POPIA (South Africa)</option>
-              <option value="gdpr" {{ $curReg === 'gdpr' ? 'selected' : '' }}>GDPR (European Union)</option>
-              <option value="paia" {{ $curReg === 'paia' ? 'selected' : '' }}>PAIA (South Africa)</option>
-              <option value="ccpa" {{ $curReg === 'ccpa' ? 'selected' : '' }}>CCPA (California)</option>
+              <option value="popia" {{ $curReg === 'popia' ? 'selected' : '' }}>{{ __('POPIA (South Africa)') }}</option>
+              <option value="gdpr" {{ $curReg === 'gdpr' ? 'selected' : '' }}>{{ __('GDPR (European Union)') }}</option>
+              <option value="paia" {{ $curReg === 'paia' ? 'selected' : '' }}>{{ __('PAIA (South Africa)') }}</option>
+              <option value="ccpa" {{ $curReg === 'ccpa' ? 'selected' : '' }}>{{ __('CCPA (California)') }}</option>
             </select>
           </div>
         </div>
@@ -69,14 +69,14 @@
               <input class="form-check-input" type="checkbox" id="dp_notify_overdue"
                      name="dp_notify_overdue" value="1"
                      {{ ($settings['dp_notify_overdue'] ?? 'true') === 'true' || ($settings['dp_notify_overdue'] ?? '') === '1' ? 'checked' : '' }}>
-              <label class="form-check-label fw-bold" for="dp_notify_overdue">Notify Overdue</label>
+              <label class="form-check-label fw-bold" for="dp_notify_overdue">{{ __('Notify Overdue') }}</label>
             </div>
             <div class="form-text">Send email notifications for overdue requests</div>
           </div>
           <div class="col-md-6">
-            <label for="dp_notify_email" class="form-label fw-bold">Notification Email</label>
+            <label for="dp_notify_email" class="form-label fw-bold">{{ __('Notification Email') }}</label>
             <input type="email" class="form-control" id="dp_notify_email" name="dp_notify_email"
-                   value="{{ $settings['dp_notify_email'] ?? '' }}" placeholder="dpo@example.com">
+                   value="{{ $settings['dp_notify_email'] ?? '' }}" placeholder="{{ __('dpo@example.com') }}">
           </div>
         </div>
       </div>
@@ -90,7 +90,7 @@
       <div class="card-body">
         <div class="row mb-3">
           <div class="col-md-4">
-            <label for="dp_popia_fee" class="form-label fw-bold">POPIA Request Fee</label>
+            <label for="dp_popia_fee" class="form-label fw-bold">{{ __('POPIA Request Fee') }}</label>
             <div class="input-group">
               <span class="input-group-text">R</span>
               <input type="number" class="form-control" id="dp_popia_fee" name="dp_popia_fee"
@@ -99,7 +99,7 @@
             <div class="form-text">Standard request fee (R50 per regulation)</div>
           </div>
           <div class="col-md-4">
-            <label for="dp_popia_fee_special" class="form-label fw-bold">Special Category Fee</label>
+            <label for="dp_popia_fee_special" class="form-label fw-bold">{{ __('Special Category Fee') }}</label>
             <div class="input-group">
               <span class="input-group-text">R</span>
               <input type="number" class="form-control" id="dp_popia_fee_special" name="dp_popia_fee_special"
@@ -108,7 +108,7 @@
             <div class="form-text">Fee for special categories of personal info (R140)</div>
           </div>
           <div class="col-md-4">
-            <label for="dp_popia_response_days" class="form-label fw-bold">Response Days</label>
+            <label for="dp_popia_response_days" class="form-label fw-bold">{{ __('Response Days') }}</label>
             <div class="input-group">
               <input type="number" class="form-control" id="dp_popia_response_days" name="dp_popia_response_days"
                      value="{{ $settings['dp_popia_response_days'] ?? '30' }}" min="1" max="90">

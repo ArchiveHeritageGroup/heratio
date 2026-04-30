@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid mt-3">
-  <nav aria-label="breadcrumb"><ol class="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">Security Dashboard</a></li>
     <li class="breadcrumb-item active">Compartments</li>
   </ol></nav>
@@ -15,7 +15,7 @@
     <div class="card-body table-responsive">
       <table class="table table-striped table-hover">
         <thead>
-          <tr><th>Name</th><th>Code</th><th>Description</th><th>Users</th><th>Status</th><th>Actions</th></tr>
+          <tr><th>{{ __('Name') }}</th><th>{{ __('Code') }}</th><th>{{ __('Description') }}</th><th>{{ __('Users') }}</th><th>{{ __('Status') }}</th><th>{{ __('Actions') }}</th></tr>
         </thead>
         <tbody>
           @forelse($compartments ?? [] as $comp)

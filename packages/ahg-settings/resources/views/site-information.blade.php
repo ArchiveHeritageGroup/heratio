@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Site information</h1>
+  <h1>{{ __('Site information') }}</h1>
 @endsection
 
 @section('content')
@@ -18,7 +18,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="site-information-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#site-information-collapse" aria-expanded="false">
-              Site information settings
+              {{ __('Site information settings') }}
             </button>
           </h2>
           <div id="site-information-collapse" class="accordion-collapse collapse" aria-labelledby="site-information-heading">

@@ -21,7 +21,7 @@
 <div class="container-fluid">
   <div class="row mb-4">
     <div class="col">
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
           <li class="breadcrumb-item"><a href="{{ route('nmmz.hia') }}">Heritage Impact Assessments</a></li>
@@ -37,7 +37,7 @@
     @csrf
     <div class="col-lg-8">
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Project Information</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Project Information') }}</h5></div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-8">
@@ -45,16 +45,16 @@
               <input type="text" name="project_name" class="form-control" required>
             </div>
             <div class="col-md-4">
-              <label class="form-label">Project Type</label>
+              <label class="form-label">{{ __('Project Type') }}</label>
               <select name="project_type" class="form-select">
-                <option value="">Select...</option>
-                <option value="construction">Construction</option>
-                <option value="mining">Mining</option>
-                <option value="infrastructure">Infrastructure</option>
-                <option value="agriculture">Agriculture</option>
-                <option value="tourism">Tourism Development</option>
-                <option value="energy">Energy</option>
-                <option value="other">Other</option>
+                <option value="">{{ __('Select...') }}</option>
+                <option value="construction">{{ __('Construction') }}</option>
+                <option value="mining">{{ __('Mining') }}</option>
+                <option value="infrastructure">{{ __('Infrastructure') }}</option>
+                <option value="agriculture">{{ __('Agriculture') }}</option>
+                <option value="tourism">{{ __('Tourism Development') }}</option>
+                <option value="energy">{{ __('Energy') }}</option>
+                <option value="other">{{ __('Other') }}</option>
               </select>
             </div>
             <div class="col-12">
@@ -62,20 +62,20 @@
               <textarea name="project_description" class="form-control" rows="4" required></textarea>
             </div>
             <div class="col-12">
-              <label class="form-label">Project Location</label>
+              <label class="form-label">{{ __('Project Location') }}</label>
               <textarea name="project_location" class="form-control" rows="2"></textarea>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Province</label>
+              <label class="form-label">{{ __('Province') }}</label>
               <select name="province" class="form-select">
-                <option value="">Select...</option>
+                <option value="">{{ __('Select...') }}</option>
                 @foreach($provinces as $p)
                   <option value="{{ $p }}">{{ $p }}</option>
                 @endforeach
               </select>
             </div>
             <div class="col-md-6">
-              <label class="form-label">District</label>
+              <label class="form-label">{{ __('District') }}</label>
               <input type="text" name="district" class="form-control">
             </div>
           </div>
@@ -83,7 +83,7 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Developer Information</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Developer Information') }}</h5></div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
@@ -91,11 +91,11 @@
               <input type="text" name="developer_name" class="form-control" required>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Contact Phone</label>
+              <label class="form-label">{{ __('Contact Phone') }}</label>
               <input type="tel" name="developer_contact" class="form-control">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Contact Email</label>
+              <label class="form-label">{{ __('Contact Email') }}</label>
               <input type="email" name="developer_email" class="form-control">
             </div>
           </div>
@@ -103,34 +103,34 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Assessment Details</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Assessment Details') }}</h5></div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Assessor Name</label>
+              <label class="form-label">{{ __('Assessor Name') }}</label>
               <input type="text" name="assessor_name" class="form-control">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Assessor Qualification</label>
-              <input type="text" name="assessor_qualification" class="form-control" placeholder="e.g., PhD Archaeology">
+              <label class="form-label">{{ __('Assessor Qualification') }}</label>
+              <input type="text" name="assessor_qualification" class="form-control" placeholder="{{ __('e.g., PhD Archaeology') }}">
             </div>
             <div class="col-md-6">
               <label class="form-label">Impact Level <span class="text-danger">*</span></label>
               <select name="impact_level" class="form-select" required>
-                <option value="">Select...</option>
-                <option value="low">Low - No significant heritage resources</option>
-                <option value="medium">Medium - Some heritage resources present</option>
-                <option value="high">High - Significant heritage resources at risk</option>
-                <option value="critical">Critical - Major heritage site threatened</option>
+                <option value="">{{ __('Select...') }}</option>
+                <option value="low">{{ __('Low - No significant heritage resources') }}</option>
+                <option value="medium">{{ __('Medium - Some heritage resources present') }}</option>
+                <option value="high">{{ __('High - Significant heritage resources at risk') }}</option>
+                <option value="critical">{{ __('Critical - Major heritage site threatened') }}</option>
               </select>
             </div>
             <div class="col-12">
-              <label class="form-label">Impact Description</label>
-              <textarea name="impact_description" class="form-control" rows="4" placeholder="Describe potential impacts on heritage resources"></textarea>
+              <label class="form-label">{{ __('Impact Description') }}</label>
+              <textarea name="impact_description" class="form-control" rows="4" placeholder="{{ __('Describe potential impacts on heritage resources') }}"></textarea>
             </div>
             <div class="col-12">
-              <label class="form-label">Proposed Mitigation Measures</label>
-              <textarea name="mitigation_measures" class="form-control" rows="4" placeholder="Describe proposed measures to protect or mitigate impact"></textarea>
+              <label class="form-label">{{ __('Proposed Mitigation Measures') }}</label>
+              <textarea name="mitigation_measures" class="form-control" rows="4" placeholder="{{ __('Describe proposed measures to protect or mitigate impact') }}"></textarea>
             </div>
           </div>
         </div>

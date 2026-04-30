@@ -27,7 +27,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">Vendor Management</a></li>
             <li class="breadcrumb-item"><a href="{{ route('ahgvendor.list') }}">Vendors</a></li>
@@ -67,19 +67,19 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                         <div class="col-md-6">
                             <table class="table table-sm">
                                 <tr>
-                                    <th width="40%">Vendor Code</th>
+                                    <th width="40%">{{ __('Vendor Code') }}</th>
                                     <td><code>{{ e($vendor->vendor_code) }}</code></td>
                                 </tr>
                                 <tr>
-                                    <th>Type</th>
+                                    <th>{{ __('Type') }}</th>
                                     <td>{{ ucfirst($vendor->vendor_type) }}</td>
                                 </tr>
                                 <tr>
-                                    <th>Registration #</th>
+                                    <th>{{ __('Registration #') }}</th>
                                     <td>{{ e($vendor->registration_number ?? '-') }}</td>
                                 </tr>
                                 <tr>
-                                    <th>VAT Number</th>
+                                    <th>{{ __('VAT Number') }}</th>
                                     <td>{{ e($vendor->vat_number ?? '-') }}</td>
                                 </tr>
                             </table>
@@ -87,15 +87,15 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                         <div class="col-md-6">
                             <table class="table table-sm">
                                 <tr>
-                                    <th width="40%">Phone</th>
+                                    <th width="40%">{{ __('Phone') }}</th>
                                     <td>{{ e($vendor->phone ?? '-') }}</td>
                                 </tr>
                                 <tr>
-                                    <th>Alt. Phone</th>
+                                    <th>{{ __('Alt. Phone') }}</th>
                                     <td>{{ e($vendor->phone_alt ?? '-') }}</td>
                                 </tr>
                                 <tr>
-                                    <th>Email</th>
+                                    <th>{{ __('Email') }}</th>
                                     <td>
                                         @if ($vendor->email)
                                         <a href="mailto:{{ $vendor->email }}">{{ e($vendor->email) }}</a>
@@ -103,7 +103,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th>Website</th>
+                                    <th>{{ __('Website') }}</th>
                                     <td>
                                         @if ($vendor->website)
                                         <a href="{{ $vendor->website }}" target="_blank">{{ e($vendor->website) }}</a>
@@ -161,12 +161,12 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Position</th>
-                                    <th>Phone</th>
-                                    <th>Email</th>
-                                    <th>Primary</th>
-                                    <th>Actions</th>
+                                    <th>{{ __('Name') }}</th>
+                                    <th>{{ __('Position') }}</th>
+                                    <th>{{ __('Phone') }}</th>
+                                    <th>{{ __('Email') }}</th>
+                                    <th>{{ __('Primary') }}</th>
+                                    <th>{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -188,7 +188,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                                     <td>
                                         <form method="post" action="{{ route('ahgvendor.delete-contact', ['slug' => $vendor->slug, 'contactId' => $contact->id]) }}" class="d-inline" onsubmit="return confirm('Delete this contact?');">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
@@ -224,11 +224,11 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Transaction #</th>
-                                    <th>Service</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Cost</th>
+                                    <th>{{ __('Transaction #') }}</th>
+                                    <th>{{ __('Service') }}</th>
+                                    <th>{{ __('Date') }}</th>
+                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Cost') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -315,15 +315,15 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                     @if (!empty($vendor->has_insurance))
                     <table class="table table-sm mb-0">
                         <tr>
-                            <th>Provider</th>
+                            <th>{{ __('Provider') }}</th>
                             <td>{{ e($vendor->insurance_provider ?? '-') }}</td>
                         </tr>
                         <tr>
-                            <th>Policy #</th>
+                            <th>{{ __('Policy #') }}</th>
                             <td>{{ e($vendor->insurance_policy_number ?? '-') }}</td>
                         </tr>
                         <tr>
-                            <th>Expiry</th>
+                            <th>{{ __('Expiry') }}</th>
                             <td>
                                 @if (!empty($vendor->insurance_expiry_date))
                                     @php $expired = strtotime($vendor->insurance_expiry_date) < time(); @endphp
@@ -335,7 +335,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                             </td>
                         </tr>
                         <tr>
-                            <th>Coverage</th>
+                            <th>{{ __('Coverage') }}</th>
                             <td>
                                 @if (!empty($vendor->insurance_coverage_amount))
                                 R{{ number_format($vendor->insurance_coverage_amount, 2) }}
@@ -358,19 +358,19 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                 <div class="card-body">
                     <table class="table table-sm mb-0">
                         <tr>
-                            <th>Bank</th>
+                            <th>{{ __('Bank') }}</th>
                             <td>{{ e($vendor->bank_name) }}</td>
                         </tr>
                         <tr>
-                            <th>Branch</th>
+                            <th>{{ __('Branch') }}</th>
                             <td>{{ e($vendor->bank_branch ?? '-') }}</td>
                         </tr>
                         <tr>
-                            <th>Account #</th>
+                            <th>{{ __('Account #') }}</th>
                             <td>{{ e($vendor->bank_account_number ?? '-') }}</td>
                         </tr>
                         <tr>
-                            <th>Branch Code</th>
+                            <th>{{ __('Branch Code') }}</th>
                             <td>{{ e($vendor->bank_branch_code ?? '-') }}</td>
                         </tr>
                     </table>
@@ -417,50 +417,50 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
             <form method="post" action="{{ route('ahgvendor.add-contact', ['slug' => $vendor->slug]) }}">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Contact</h5>
+                    <h5 class="modal-title">{{ __('Add Contact') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Name *</label>
+                        <label class="form-label">{{ __('Name *') }}</label>
                         <input type="text" name="contact_name" class="form-control" required>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Position</label>
+                            <label class="form-label">{{ __('Position') }}</label>
                             <input type="text" name="position" class="form-control">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Department</label>
+                            <label class="form-label">{{ __('Department') }}</label>
                             <input type="text" name="department" class="form-control">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Phone</label>
+                            <label class="form-label">{{ __('Phone') }}</label>
                             <input type="text" name="contact_phone" class="form-control">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Mobile</label>
+                            <label class="form-label">{{ __('Mobile') }}</label>
                             <input type="text" name="mobile" class="form-control">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Email</label>
+                        <label class="form-label">{{ __('Email') }}</label>
                         <input type="email" name="contact_email" class="form-control">
                     </div>
                     <div class="form-check mb-3">
                         <input type="checkbox" name="is_primary" value="1" class="form-check-input" id="isPrimary">
-                        <label class="form-check-label" for="isPrimary">Primary Contact</label>
+                        <label class="form-check-label" for="isPrimary">{{ __('Primary Contact') }}</label>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Notes</label>
+                        <label class="form-label">{{ __('Notes') }}</label>
                         <textarea name="contact_notes" class="form-control" rows="2"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Contact</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ __('Add Contact') }}</button>
                 </div>
             </form>
         </div>

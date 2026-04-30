@@ -43,33 +43,33 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-4">
-            <label for="ftp_protocol" class="form-label fw-bold">Protocol</label>
+            <label for="ftp_protocol" class="form-label fw-bold">{{ __('Protocol') }}</label>
             <select class="form-select" id="ftp_protocol" name="ftp_protocol">
               @php $curProto = $settings['ftp_protocol'] ?? 'sftp'; @endphp
-              <option value="sftp" {{ $curProto === 'sftp' ? 'selected' : '' }}>SFTP (SSH)</option>
-              <option value="ftp" {{ $curProto === 'ftp' ? 'selected' : '' }}>FTP</option>
+              <option value="sftp" {{ $curProto === 'sftp' ? 'selected' : '' }}>{{ __('SFTP (SSH)') }}</option>
+              <option value="ftp" {{ $curProto === 'ftp' ? 'selected' : '' }}>{{ __('FTP') }}</option>
             </select>
             <div class="form-text">SFTP recommended for security</div>
           </div>
           <div class="col-md-5">
-            <label for="ftp_host" class="form-label fw-bold">Host</label>
+            <label for="ftp_host" class="form-label fw-bold">{{ __('Host') }}</label>
             <input type="text" class="form-control" id="ftp_host" name="ftp_host"
                    value="{{ $settings['ftp_host'] ?? '' }}" placeholder="192.168.0.112">
           </div>
           <div class="col-md-3">
-            <label for="ftp_port" class="form-label fw-bold">Port</label>
+            <label for="ftp_port" class="form-label fw-bold">{{ __('Port') }}</label>
             <input type="number" class="form-control" id="ftp_port" name="ftp_port"
                    value="{{ $settings['ftp_port'] ?? '22' }}" min="1" max="65535">
           </div>
           <div class="col-md-4">
-            <label for="ftp_username" class="form-label fw-bold">Username</label>
+            <label for="ftp_username" class="form-label fw-bold">{{ __('Username') }}</label>
             <input type="text" class="form-control" id="ftp_username" name="ftp_username"
                    value="{{ $settings['ftp_username'] ?? '' }}">
           </div>
           <div class="col-md-4">
-            <label for="ftp_password" class="form-label fw-bold">Password</label>
+            <label for="ftp_password" class="form-label fw-bold">{{ __('Password') }}</label>
             <input type="password" class="form-control" id="ftp_password" name="ftp_password"
-                   value="{{ $settings['ftp_password'] ?? '' }}" placeholder="Leave blank to keep current">
+                   value="{{ $settings['ftp_password'] ?? '' }}" placeholder="{{ __('Leave blank to keep current') }}">
           </div>
           <div class="col-md-4">
             <label class="form-label">&nbsp;</label>
@@ -89,15 +89,15 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-6">
-            <label for="ftp_remote_path" class="form-label fw-bold">Remote Base Path</label>
+            <label for="ftp_remote_path" class="form-label fw-bold">{{ __('Remote Base Path') }}</label>
             <input type="text" class="form-control" id="ftp_remote_path" name="ftp_remote_path"
-                   value="{{ $settings['ftp_remote_path'] ?? '/uploads' }}" placeholder="/uploads">
+                   value="{{ $settings['ftp_remote_path'] ?? '/uploads' }}" placeholder="{{ __('/uploads') }}">
             <div class="form-text">Path as seen by the SFTP/FTP user (e.g. /uploads). Used for uploading and listing files.</div>
           </div>
           <div class="col-md-6">
-            <label for="ftp_disk_path" class="form-label fw-bold">Server Disk Path</label>
+            <label for="ftp_disk_path" class="form-label fw-bold">{{ __('Server Disk Path') }}</label>
             <input type="text" class="form-control" id="ftp_disk_path" name="ftp_disk_path"
-                   value="{{ $settings['ftp_disk_path'] ?? '' }}" placeholder="/sftp/ftpuser/uploads">
+                   value="{{ $settings['ftp_disk_path'] ?? '' }}" placeholder="{{ __('/sftp/ftpuser/uploads') }}">
             <div class="form-text">Actual filesystem path on the server where files land. Shown to users for the CSV digitalObjectPath column.</div>
           </div>
         </div>
@@ -116,7 +116,7 @@
               <input class="form-check-input" type="checkbox" id="ftp_passive_mode"
                      name="ftp_passive_mode" value="1"
                      {{ ($settings['ftp_passive_mode'] ?? 'true') === 'true' || ($settings['ftp_passive_mode'] ?? '') === '1' ? 'checked' : '' }}>
-              <label class="form-check-label fw-bold" for="ftp_passive_mode">Passive Mode</label>
+              <label class="form-check-label fw-bold" for="ftp_passive_mode">{{ __('Passive Mode') }}</label>
             </div>
             <div class="form-text">Enable passive mode for FTP connections (recommended for firewalled servers). Only applies to FTP, not SFTP.</div>
           </div>

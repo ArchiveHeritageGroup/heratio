@@ -19,7 +19,7 @@
       <div class="table-responsive">
         <table class="table table-hover">
           <thead class="table-dark">
-            <tr><th>Name</th><th>Slug</th><th>Description</th><th>Values</th><th>Actions</th></tr>
+            <tr><th>{{ __('Name') }}</th><th>{{ __('Slug') }}</th><th>{{ __('Description') }}</th><th>{{ __('Values') }}</th><th>{{ __('Actions') }}</th></tr>
           </thead>
           <tbody>
             @foreach($dropdowns as $dd)

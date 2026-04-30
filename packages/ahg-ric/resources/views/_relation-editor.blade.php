@@ -19,12 +19,12 @@
     <table class="table table-sm table-striped mb-2">
         <thead>
             <tr>
-                <th>Direction</th>
-                <th>Related Entity</th>
-                <th>Relation Type</th>
-                <th>Dates</th>
-                <th>Certainty</th>
-                <th>Evidence</th>
+                <th>{{ __('Direction') }}</th>
+                <th>{{ __('Related Entity') }}</th>
+                <th>{{ __('Relation Type') }}</th>
+                <th>{{ __('Dates') }}</th>
+                <th>{{ __('Certainty') }}</th>
+                <th>{{ __('Evidence') }}</th>
                 <th></th>
             </tr>
         </thead>
@@ -35,13 +35,13 @@
         <h6 class="mb-2" id="ric-rel-form-title"><i class="fas fa-plus-circle"></i> Add Relation</h6>
         <div class="row g-2 align-items-end">
             <div class="col-md-4">
-                <label class="form-label form-label-sm">Target Entity</label>
-                <input type="text" id="ric-rel-target-search" class="form-control form-control-sm" placeholder="Search entities..." autocomplete="off">
+                <label class="form-label form-label-sm">{{ __('Target Entity') }}</label>
+                <input type="text" id="ric-rel-target-search" class="form-control form-control-sm" placeholder="{{ __('Search entities...') }}" autocomplete="off">
                 <input type="hidden" id="ric-rel-target-id">
                 <div id="ric-rel-autocomplete" class="list-group position-absolute" style="z-index:1050; display:none; max-height:200px; overflow-y:auto;"></div>
             </div>
             <div class="col-md-3">
-                <label class="form-label form-label-sm">Relation Type</label>
+                <label class="form-label form-label-sm">{{ __('Relation Type') }}</label>
                 <select id="ric-rel-type" class="form-select form-select-sm">
                     <option value="">-- Select --</option>
                     @foreach($ricRelationTypes as $rt)
@@ -50,11 +50,11 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <label class="form-label form-label-sm">Start</label>
+                <label class="form-label form-label-sm">{{ __('Start') }}</label>
                 <input type="date" id="ric-rel-start" class="form-control form-control-sm">
             </div>
             <div class="col-md-2">
-                <label class="form-label form-label-sm">End</label>
+                <label class="form-label form-label-sm">{{ __('End') }}</label>
                 <input type="date" id="ric-rel-end" class="form-control form-control-sm">
             </div>
             <div class="col-md-1">
@@ -63,7 +63,7 @@
                 </button>
             </div>
             <div class="col-md-3">
-                <label class="form-label form-label-sm">Certainty</label>
+                <label class="form-label form-label-sm">{{ __('Certainty') }}</label>
                 <select id="ric-rel-certainty" class="form-select form-select-sm">
                     <option value="">-- Unspecified --</option>
                     @foreach($ricCertaintyLevels as $cl)
@@ -72,11 +72,11 @@
                 </select>
             </div>
             <div class="col-md-8">
-                <label class="form-label form-label-sm">Evidence</label>
-                <input type="text" id="ric-rel-evidence" class="form-control form-control-sm" placeholder="Source citation, record identifier, or note supporting this relation">
+                <label class="form-label form-label-sm">{{ __('Evidence') }}</label>
+                <input type="text" id="ric-rel-evidence" class="form-control form-control-sm" placeholder="{{ __('Source citation, record identifier, or note supporting this relation') }}">
             </div>
             <div class="col-md-1">
-                <button type="button" id="ric-rel-cancel" class="btn btn-sm btn-outline-secondary w-100 d-none" onclick="ricCancelEdit()" title="Cancel edit">
+                <button type="button" id="ric-rel-cancel" class="btn btn-sm btn-outline-secondary w-100 d-none" onclick="ricCancelEdit()" title="{{ __('Cancel edit') }}">
                     <i class="fas fa-times"></i>
                 </button>
             </div>

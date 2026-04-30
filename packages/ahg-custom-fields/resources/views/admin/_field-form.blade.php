@@ -21,7 +21,7 @@
                 <label for="cf-machine-name" class="form-label">Machine Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                 <input type="text" class="form-control" id="cf-machine-name" name="machine_name"
                        value="{{ $def->machine_name ?? old('machine_name', '') }}" required
-                       pattern="[a-z0-9_]+" title="Lowercase letters, numbers, and underscores only">
+                       pattern="[a-z0-9_]+" title="{{ __('Lowercase letters, numbers, and underscores only') }}">
                 <div class="form-text">Used internally. Lowercase letters, numbers, underscores only.</div>
             </div>
 
@@ -49,7 +49,7 @@
             <div class="mb-3">
                 <label for="cf-options" class="form-label">Options (for dropdown/multi-select) <span class="badge bg-secondary ms-1">Optional</span></label>
                 <textarea class="form-control" id="cf-options" name="options" rows="3"
-                          placeholder="One option per line">{{ $def->options ?? old('options', '') }}</textarea>
+                          placeholder="{{ __('One option per line') }}">{{ $def->options ?? old('options', '') }}</textarea>
                 <div class="form-text">One option per line. Only used for dropdown and multi-select field types.</div>
             </div>
 
@@ -69,7 +69,7 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Settings</h6>
+                    <h6 class="mb-0">{{ __('Settings') }}</h6>
                 </div>
                 <div class="card-body">
                     <div class="form-check mb-3">

@@ -19,11 +19,11 @@
 @endphp
 @if($showButton)
 <div class="dropdown d-inline-block">
-  <button class="btn btn-sm btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Add to my collection">
+  <button class="btn btn-sm btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="{{ __('Add to my collection') }}">
     <i class="fas fa-folder-plus"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><h6 class="dropdown-header">Add to Collection</h6></li>
+    <li><h6 class="dropdown-header">{{ __('Add to Collection') }}</h6></li>
     @if(count($collections) > 0)
       @foreach($collections as $col)
         <li>

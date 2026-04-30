@@ -96,7 +96,7 @@ php artisan preservation:convert --mime-type=image/jpeg --format=tiff --limit=50
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">
             <thead><tr>
-              <th>File</th><th>Source</th><th>Target</th><th>Status</th><th>Tool</th><th>Created</th>
+              <th>{{ __('File') }}</th><th>{{ __('Source') }}</th><th>{{ __('Target') }}</th><th>{{ __('Status') }}</th><th>{{ __('Tool') }}</th><th>{{ __('Created') }}</th>
             </tr></thead>
             <tbody>
               @forelse($recentConversions ?? [] as $conv)

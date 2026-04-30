@@ -16,7 +16,7 @@
 
 @section('content')
 <div class="container-fluid px-4 py-3">
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">Statistics</a></li>
             <li class="breadcrumb-item active">Geographic Distribution</li>
@@ -34,7 +34,7 @@
         <div class="card-body py-2">
             <form method="get" class="row g-3 align-items-center">
                 <div class="col-auto">
-                    <label class="form-label mb-0">Period:</label>
+                    <label class="form-label mb-0">{{ __('Period:') }}</label>
                 </div>
                 <div class="col-auto">
                     <input type="date" name="start" class="form-control form-control-sm" value="{{ $startDate }}">
@@ -44,7 +44,7 @@
                     <input type="date" name="end" class="form-control form-control-sm" value="{{ $endDate }}">
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+                    <button type="submit" class="btn btn-sm btn-primary">{{ __('Apply') }}</button>
                 </div>
             </form>
         </div>
@@ -57,11 +57,11 @@
                     <thead class="table-light">
                         <tr>
                             <th style="width: 60px">#</th>
-                            <th style="width: 80px">Code</th>
-                            <th>Country</th>
-                            <th class="text-end" style="width: 150px">Total Requests</th>
-                            <th class="text-end" style="width: 150px">Unique Visitors</th>
-                            <th style="width: 200px">Distribution</th>
+                            <th style="width: 80px">{{ __('Code') }}</th>
+                            <th>{{ __('Country') }}</th>
+                            <th class="text-end" style="width: 150px">{{ __('Total Requests') }}</th>
+                            <th class="text-end" style="width: 150px">{{ __('Unique Visitors') }}</th>
+                            <th style="width: 200px">{{ __('Distribution') }}</th>
                         </tr>
                     </thead>
                     <tbody>

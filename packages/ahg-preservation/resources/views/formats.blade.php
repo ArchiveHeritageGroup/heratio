@@ -20,16 +20,16 @@
                     <table class="table table-sm table-striped mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>ID</th>
-                                <th>PUID</th>
-                                <th>Format Name</th>
-                                <th>Version</th>
-                                <th>MIME Type</th>
-                                <th>Extension</th>
-                                <th>Risk Level</th>
-                                <th>Action</th>
-                                <th>Preservation</th>
-                                <th>Objects</th>
+                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('PUID') }}</th>
+                                <th>{{ __('Format Name') }}</th>
+                                <th>{{ __('Version') }}</th>
+                                <th>{{ __('MIME Type') }}</th>
+                                <th>{{ __('Extension') }}</th>
+                                <th>{{ __('Risk Level') }}</th>
+                                <th>{{ __('Action') }}</th>
+                                <th>{{ __('Preservation') }}</th>
+                                <th>{{ __('Objects') }}</th>
                             </tr>
                         </thead>
                         <tbody>

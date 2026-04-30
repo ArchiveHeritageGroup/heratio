@@ -19,10 +19,10 @@ Required vars:
     <div class="position-relative">
         <input type="text" id="{{ $uid }}-search" class="form-control" autocomplete="off"
                value="{{ $currentLabel ?? '' }}"
-               placeholder="Start typing to search…">
+               placeholder="{{ __('Start typing to search…') }}">
         <input type="hidden" id="{{ $uid }}-id" name="{{ $name }}" value="{{ $currentId ?? '' }}">
         <button type="button" class="btn btn-sm btn-link position-absolute" style="right: 0.3rem; top: 0.35rem; display: {{ $currentId ? '' : 'none' }};"
-                id="{{ $uid }}-clear" title="Clear selection"><i class="fas fa-times"></i></button>
+                id="{{ $uid }}-clear" title="{{ __('Clear selection') }}"><i class="fas fa-times"></i></button>
         <div class="list-group position-absolute w-100" id="{{ $uid }}-ac" style="z-index:1050; display:none; max-height:240px; overflow-y:auto;"></div>
     </div>
     @isset($hint)<div class="form-text">{!! $hint !!}</div>@endisset

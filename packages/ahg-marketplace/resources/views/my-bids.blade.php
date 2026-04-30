@@ -21,11 +21,11 @@
         <table class="table table-hover mb-0 align-middle">
           <thead class="table-light">
             <tr>
-              <th>Lot</th>
-              <th class="text-end">Winning bid</th>
-              <th>Auction ended</th>
-              <th>Payment</th>
-              <th class="text-center" style="width:160px;">Action</th>
+              <th>{{ __('Lot') }}</th>
+              <th class="text-end">{{ __('Winning bid') }}</th>
+              <th>{{ __('Auction ended') }}</th>
+              <th>{{ __('Payment') }}</th>
+              <th class="text-center" style="width:160px;">{{ __('Action') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -77,12 +77,12 @@
         <table class="table table-hover mb-0 align-middle">
           <thead class="table-light">
             <tr>
-              <th>Lot</th>
-              <th class="text-end">Your bid</th>
-              <th class="text-end">Current top bid</th>
-              <th>Auction ends</th>
-              <th>Status</th>
-              <th class="text-center">Listing</th>
+              <th>{{ __('Lot') }}</th>
+              <th class="text-end">{{ __('Your bid') }}</th>
+              <th class="text-end">{{ __('Current top bid') }}</th>
+              <th>{{ __('Auction ends') }}</th>
+              <th>{{ __('Status') }}</th>
+              <th class="text-center">{{ __('Listing') }}</th>
             </tr>
           </thead>
           <tbody>

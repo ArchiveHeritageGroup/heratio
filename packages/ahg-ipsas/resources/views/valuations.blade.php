@@ -25,7 +25,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
                     <li class="breadcrumb-item active">Valuations</li>
@@ -47,18 +47,18 @@
             <form method="get" class="row g-3">
                 <div class="col-md-3">
                     <select name="type" class="form-select">
-                        <option value="">All Types</option>
-                        <option value="initial" {{ 'initial' === $currentType ? 'selected' : '' }}>Initial</option>
-                        <option value="revaluation" {{ 'revaluation' === $currentType ? 'selected' : '' }}>Revaluation</option>
-                        <option value="impairment" {{ 'impairment' === $currentType ? 'selected' : '' }}>Impairment</option>
-                        <option value="reversal" {{ 'reversal' === $currentType ? 'selected' : '' }}>Reversal</option>
+                        <option value="">{{ __('All Types') }}</option>
+                        <option value="initial" {{ 'initial' === $currentType ? 'selected' : '' }}>{{ __('Initial') }}</option>
+                        <option value="revaluation" {{ 'revaluation' === $currentType ? 'selected' : '' }}>{{ __('Revaluation') }}</option>
+                        <option value="impairment" {{ 'impairment' === $currentType ? 'selected' : '' }}>{{ __('Impairment') }}</option>
+                        <option value="reversal" {{ 'reversal' === $currentType ? 'selected' : '' }}>{{ __('Reversal') }}</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <input type="number" name="year" class="form-control" placeholder="Year" value="{{ $currentYear }}">
+                    <input type="number" name="year" class="form-control" placeholder="{{ __('Year') }}" value="{{ $currentYear }}">
                 </div>
                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+                    <button type="submit" class="btn btn-outline-primary w-100">{{ __('Filter') }}</button>
                 </div>
             </form>
         </div>
@@ -76,14 +76,14 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Asset</th>
-                            <th>Type</th>
-                            <th>Basis</th>
-                            <th>Previous Value</th>
-                            <th>New Value</th>
-                            <th>Change</th>
-                            <th>Valuer</th>
+                            <th>{{ __('Date') }}</th>
+                            <th>{{ __('Asset') }}</th>
+                            <th>{{ __('Type') }}</th>
+                            <th>{{ __('Basis') }}</th>
+                            <th>{{ __('Previous Value') }}</th>
+                            <th>{{ __('New Value') }}</th>
+                            <th>{{ __('Change') }}</th>
+                            <th>{{ __('Valuer') }}</th>
                         </tr>
                     </thead>
                     <tbody>

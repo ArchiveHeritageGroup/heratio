@@ -159,10 +159,10 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>PUID</th>
-                            <th>Format Name</th>
-                            <th class="text-end">Count</th>
-                            <th>Distribution</th>
+                            <th>{{ __('PUID') }}</th>
+                            <th>{{ __('Format Name') }}</th>
+                            <th class="text-end">{{ __('Count') }}</th>
+                            <th>{{ __('Distribution') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -211,7 +211,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">
             <thead><tr>
-              <th>File</th><th>PUID</th><th>Format</th><th>MIME</th><th>Confidence</th><th>Basis</th><th>Tool</th><th>Date</th>
+              <th>{{ __('File') }}</th><th>{{ __('PUID') }}</th><th>{{ __('Format') }}</th><th>{{ __('MIME') }}</th><th>{{ __('Confidence') }}</th><th>{{ __('Basis') }}</th><th>{{ __('Tool') }}</th><th>{{ __('Date') }}</th>
             </tr></thead>
             <tbody>
               @forelse($identifications ?? [] as $id)
@@ -265,7 +265,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
-                    <h6>Batch Identification</h6>
+                    <h6>{{ __('Batch Identification') }}</h6>
                     <pre class="bg-dark text-light p-3 rounded"><code># Check status
 php artisan preservation:identify --status
 
@@ -279,13 +279,13 @@ php artisan preservation:identify --dry-run
 php artisan preservation:identify --all --limit=1000</code></pre>
                 </div>
                 <div class="col-md-6">
-                    <h6>Single Object</h6>
+                    <h6>{{ __('Single Object') }}</h6>
                     <pre class="bg-dark text-light p-3 rounded"><code># Identify specific object
 php artisan preservation:identify --object-id=123
 
 # Force re-identification
 php artisan preservation:identify --object-id=123 --reidentify</code></pre>
-                    <h6 class="mt-3">Cron Schedule</h6>
+                    <h6 class="mt-3">{{ __('Cron Schedule') }}</h6>
                     <pre class="bg-dark text-light p-3 rounded"><code># Daily identification at 1am
 0 1 * * * cd /usr/share/nginx/heratio && \
   php artisan preservation:identify --limit=500</code></pre>

@@ -16,29 +16,29 @@
     {{-- Task Details --}}
     <div class="col-lg-8 mb-4">
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">Task Details</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Task Details') }}</h5></div>
         <div class="card-body">
           <div class="row mb-3">
             <div class="col-md-6">
               <table class="table table-bordered table-sm table-borderless">
                 <tr>
-                  <th class="text-muted" style="width:40%">Workflow</th>
+                  <th class="text-muted" style="width:40%">{{ __('Workflow') }}</th>
                   <td>{{ $task->workflow_name }}</td>
                 </tr>
                 <tr>
-                  <th class="text-muted">Step</th>
+                  <th class="text-muted">{{ __('Step') }}</th>
                   <td>{{ $task->step_name }}</td>
                 </tr>
                 <tr>
-                  <th class="text-muted">Step Type</th>
+                  <th class="text-muted">{{ __('Step Type') }}</th>
                   <td><span class="badge bg-secondary">{{ ucfirst($task->step_type) }}</span></td>
                 </tr>
                 <tr>
-                  <th class="text-muted">Action Required</th>
+                  <th class="text-muted">{{ __('Action Required') }}</th>
                   <td>{{ str_replace('_', ' ', ucfirst($task->action_required)) }}</td>
                 </tr>
                 <tr>
-                  <th class="text-muted">Object</th>
+                  <th class="text-muted">{{ __('Object') }}</th>
                   <td>
                     <span class="badge bg-secondary">{{ $task->object_type }}</span>
                     @if($task->object_type === 'information_object')
@@ -53,7 +53,7 @@
             <div class="col-md-6">
               <table class="table table-bordered table-sm table-borderless">
                 <tr>
-                  <th class="text-muted" style="width:40%">Status</th>
+                  <th class="text-muted" style="width:40%">{{ __('Status') }}</th>
                   <td>
                     @if($task->status === 'completed')
                       <span class="badge bg-success">Completed</span>
@@ -67,7 +67,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <th class="text-muted">Priority</th>
+                  <th class="text-muted">{{ __('Priority') }}</th>
                   <td>
                     @if($task->priority === 'high')
                       <span class="badge bg-danger">High</span>
@@ -79,15 +79,15 @@
                   </td>
                 </tr>
                 <tr>
-                  <th class="text-muted">Assigned To</th>
+                  <th class="text-muted">{{ __('Assigned To') }}</th>
                   <td>{{ $task->assigned_name ?? $task->assigned_username ?? 'Unassigned' }}</td>
                 </tr>
                 <tr>
-                  <th class="text-muted">Submitted By</th>
+                  <th class="text-muted">{{ __('Submitted By') }}</th>
                   <td>{{ $task->submitted_name ?? $task->submitted_username ?? '-' }}</td>
                 </tr>
                 <tr>
-                  <th class="text-muted">Due Date</th>
+                  <th class="text-muted">{{ __('Due Date') }}</th>
                   <td>
                     @if($task->due_date)
                       @if($task->due_date < now()->toDateString() && $task->status !== 'completed')
@@ -101,7 +101,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <th class="text-muted">Decision</th>
+                  <th class="text-muted">{{ __('Decision') }}</th>
                   <td>
                     @if($task->decision === 'approved')
                       <span class="badge bg-success">Approved</span>
@@ -118,21 +118,21 @@
 
           @if($task->instructions)
             <div class="mb-3">
-              <h6>Instructions</h6>
+              <h6>{{ __('Instructions') }}</h6>
               <div class="bg-light p-3 rounded">{!! nl2br(e($task->instructions)) !!}</div>
             </div>
           @endif
 
           @if($task->decision_comment)
             <div class="mb-3">
-              <h6>Decision Comment</h6>
+              <h6>{{ __('Decision Comment') }}</h6>
               <div class="bg-light p-3 rounded">{!! nl2br(e($task->decision_comment)) !!}</div>
             </div>
           @endif
 
           @if($task->step_checklist)
             <div class="mb-3">
-              <h6>Checklist</h6>
+              <h6>{{ __('Checklist') }}</h6>
               <div class="bg-light p-3 rounded">{!! nl2br(e($task->step_checklist)) !!}</div>
             </div>
           @endif
@@ -142,7 +142,7 @@
       {{-- Action Buttons --}}
       @if($task->status !== 'completed')
         <div class="card mt-3">
-          <div class="card-header"><h5 class="mb-0">Actions</h5></div>
+          <div class="card-header"><h5 class="mb-0">{{ __('Actions') }}</h5></div>
           <div class="card-body">
             @if($task->assigned_to === null && $task->pool_enabled)
               {{-- Claim --}}
@@ -154,7 +154,7 @@
               {{-- Approve / Reject / Release --}}
               <div class="mb-3">
                 <label for="comment" class="form-label">Comment <span class="badge bg-danger ms-1">Required</span></label>
-                <textarea id="comment" class="form-control" rows="3" form="approve-form" name="comment" placeholder="Optional comment for approval, required for rejection..."></textarea>
+                <textarea id="comment" class="form-control" rows="3" form="approve-form" name="comment" placeholder="{{ __('Optional comment for approval, required for rejection...') }}"></textarea>
               </div>
 
               <div class="d-flex gap-2 flex-wrap">
@@ -242,33 +242,33 @@
     {{-- Sidebar --}}
     <div class="col-lg-4">
       <div class="card mb-3">
-        <div class="card-header"><h6 class="mb-0">Timestamps</h6></div>
+        <div class="card-header"><h6 class="mb-0">{{ __('Timestamps') }}</h6></div>
         <div class="card-body">
           <table class="table table-bordered table-sm table-borderless mb-0">
             <tr>
-              <th class="text-muted">Created</th>
+              <th class="text-muted">{{ __('Created') }}</th>
               <td>{{ $task->created_at }}</td>
             </tr>
             @if($task->claimed_at)
               <tr>
-                <th class="text-muted">Claimed</th>
+                <th class="text-muted">{{ __('Claimed') }}</th>
                 <td>{{ $task->claimed_at }}</td>
               </tr>
             @endif
             @if($task->decision_at)
               <tr>
-                <th class="text-muted">Decided</th>
+                <th class="text-muted">{{ __('Decided') }}</th>
                 <td>{{ $task->decision_at }}</td>
               </tr>
             @endif
             @if($task->escalated_at)
               <tr>
-                <th class="text-muted">Escalated</th>
+                <th class="text-muted">{{ __('Escalated') }}</th>
                 <td>{{ $task->escalated_at }}</td>
               </tr>
             @endif
             <tr>
-              <th class="text-muted">Updated</th>
+              <th class="text-muted">{{ __('Updated') }}</th>
               <td>{{ $task->updated_at }}</td>
             </tr>
           </table>
@@ -276,26 +276,26 @@
       </div>
 
       <div class="card mb-3">
-        <div class="card-header"><h6 class="mb-0">Metadata</h6></div>
+        <div class="card-header"><h6 class="mb-0">{{ __('Metadata') }}</h6></div>
         <div class="card-body">
           <table class="table table-bordered table-sm table-borderless mb-0">
             <tr>
-              <th class="text-muted">Task ID</th>
+              <th class="text-muted">{{ __('Task ID') }}</th>
               <td>{{ $task->id }}</td>
             </tr>
             <tr>
-              <th class="text-muted">Retry Count</th>
+              <th class="text-muted">{{ __('Retry Count') }}</th>
               <td>{{ $task->retry_count }}</td>
             </tr>
             @if($task->previous_task_id)
               <tr>
-                <th class="text-muted">Previous Task</th>
+                <th class="text-muted">{{ __('Previous Task') }}</th>
                 <td><a href="{{ route('workflow.task', $task->previous_task_id) }}">#{{ $task->previous_task_id }}</a></td>
               </tr>
             @endif
             @if($task->queue_id)
               <tr>
-                <th class="text-muted">Queue ID</th>
+                <th class="text-muted">{{ __('Queue ID') }}</th>
                 <td>{{ $task->queue_id }}</td>
               </tr>
             @endif
@@ -305,7 +305,7 @@
 
       @if($task->object_type === 'information_object')
         <div class="card">
-          <div class="card-header"><h6 class="mb-0">Publish Readiness</h6></div>
+          <div class="card-header"><h6 class="mb-0">{{ __('Publish Readiness') }}</h6></div>
           <div class="card-body text-center">
             <a href="{{ route('workflow.publish-readiness', $task->object_id) }}" class="btn atom-btn-white">
               <i class="fas fa-clipboard-check"></i> Check Publish Gates

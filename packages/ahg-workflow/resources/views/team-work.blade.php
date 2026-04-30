@@ -2,10 +2,10 @@
 @section('title', 'Team Work')
 @section('body-class', 'browse')
 @section('content')
-  <div class="multiline-header d-flex align-items-center mb-3"><i class="fas fa-3x fa-users me-3" aria-hidden="true"></i><div class="d-flex flex-column"><h1 class="mb-0">Team Work</h1></div></div>
+  <div class="multiline-header d-flex align-items-center mb-3"><i class="fas fa-3x fa-users me-3" aria-hidden="true"></i><div class="d-flex flex-column"><h1 class="mb-0">{{ __('Team Work') }}</h1></div></div>
   @if(isset($rows) && count($rows))
     <div class="table-responsive"><table class="table table-bordered table-hover mb-0">
-      <thead><tr><th>#</th><th>Member</th><th>Tasks</th><th>Completed</th><th>Overdue</th><th>Avg Duration</th></tr></thead>
+      <thead><tr><th>#</th><th>{{ __('Member') }}</th><th>{{ __('Tasks') }}</th><th>{{ __('Completed') }}</th><th>{{ __('Overdue') }}</th><th>{{ __('Avg Duration') }}</th></tr></thead>
       <tbody>@foreach($rows as $row)<tr>@foreach((array)$row as $v)<td>{{ $v }}</td>@endforeach</tr>@endforeach</tbody>
     </table></div>
     @if(isset($pager))@include('ahg-core::components.pager', ['pager' => $pager])@endif

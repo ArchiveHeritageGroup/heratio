@@ -4,7 +4,7 @@
 @section('body-class', 'library-reports subjects')
 @section('sidebar')
 <div class="sidebar-content">
-  <h4>Library Reports</h4>
+  <h4>{{ __('Library Reports') }}</h4>
   <ul class="list-unstyled">
     <li><a href="{{ route('library.report-catalogue') }}"><i class="fas fa-book me-2"></i>Catalogue</a></li>
     <li><a href="{{ route('library.report-creators') }}"><i class="fas fa-user-edit me-2"></i>Creators</a></li>
@@ -21,7 +21,7 @@
 <div class="alert alert-info"><strong>{{ count($subjects) }}</strong> subjects found</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
-    <thead class="table-dark"><tr><th>Subject</th><th class="text-end">Items</th></tr></thead>
+    <thead class="table-dark"><tr><th>{{ __('Subject') }}</th><th class="text-end">{{ __('Items') }}</th></tr></thead>
     <tbody>
       @forelse($subjects as $s)
       <tr><td><strong>{{ e($s->name ?? '') }}</strong></td><td class="text-end"><span class="badge bg-primary">{{ $s->item_count ?? 0 }}</span></td></tr>

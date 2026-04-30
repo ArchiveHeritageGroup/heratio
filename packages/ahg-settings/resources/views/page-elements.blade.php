@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Default page elements</h1>
+  <h1>{{ __('Default page elements') }}</h1>
 @endsection
 
 @section('content')
@@ -22,7 +22,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="default-page-elements-heading">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#default-page-elements-collapse" aria-expanded="true" aria-controls="default-page-elements-collapse">
-              Default page elements settings
+              {{ __('Default page elements settings') }}
             </button>
           </h2>
           <div id="default-page-elements-collapse" class="accordion-collapse collapse show" aria-labelledby="default-page-elements-heading">

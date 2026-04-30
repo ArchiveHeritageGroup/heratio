@@ -11,7 +11,7 @@
     <div class="col-md-9">
 
       {{-- Breadcrumb --}}
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ url('/') }}"><i class="fas fa-home"></i></a></li>
           @if(request('object_id'))
@@ -31,7 +31,7 @@
       <div class="multiline-header d-flex align-items-center mb-3">
         <i class="fas fa-3x fa-exchange-alt me-3" aria-hidden="true"></i>
         <div class="d-flex flex-column">
-          <h1 class="mb-0">Loan Management</h1>
+          <h1 class="mb-0">{{ __('Loan Management') }}</h1>
           <span class="small text-muted">
             @if($loans->total())
               Showing {{ number_format($loans->total()) }} loan{{ $loans->total() !== 1 ? 's' : '' }}
@@ -58,26 +58,26 @@
             {{-- Search --}}
             <div class="col-auto">
               <input type="text" name="search" class="form-control form-control-sm"
-                     placeholder="Search loans..." value="{{ $params['search'] ?? '' }}">
+                     placeholder="{{ __('Search loans...') }}" value="{{ $params['search'] ?? '' }}">
             </div>
 
             {{-- Type select --}}
             <div class="col-auto">
               <select name="type" class="form-select form-select-sm">
-                <option value="">All Types</option>
-                <option value="out" {{ ($params['type'] ?? '') === 'out' ? 'selected' : '' }}>Loans Out</option>
-                <option value="in" {{ ($params['type'] ?? '') === 'in' ? 'selected' : '' }}>Loans In</option>
+                <option value="">{{ __('All Types') }}</option>
+                <option value="out" {{ ($params['type'] ?? '') === 'out' ? 'selected' : '' }}>{{ __('Loans Out') }}</option>
+                <option value="in" {{ ($params['type'] ?? '') === 'in' ? 'selected' : '' }}>{{ __('Loans In') }}</option>
               </select>
             </div>
 
             {{-- Status select --}}
             <div class="col-auto">
               <select name="status" class="form-select form-select-sm">
-                <option value="">All Statuses</option>
-                <option value="pending" {{ ($params['status'] ?? '') === 'pending' ? 'selected' : '' }}>Pending</option>
-                <option value="approved" {{ ($params['status'] ?? '') === 'approved' ? 'selected' : '' }}>Approved</option>
-                <option value="on_loan" {{ ($params['status'] ?? '') === 'on_loan' ? 'selected' : '' }}>Active</option>
-                <option value="returned" {{ ($params['status'] ?? '') === 'returned' ? 'selected' : '' }}>Returned</option>
+                <option value="">{{ __('All Statuses') }}</option>
+                <option value="pending" {{ ($params['status'] ?? '') === 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+                <option value="approved" {{ ($params['status'] ?? '') === 'approved' ? 'selected' : '' }}>{{ __('Approved') }}</option>
+                <option value="on_loan" {{ ($params['status'] ?? '') === 'on_loan' ? 'selected' : '' }}>{{ __('Active') }}</option>
+                <option value="returned" {{ ($params['status'] ?? '') === 'returned' ? 'selected' : '' }}>{{ __('Returned') }}</option>
               </select>
             </div>
 
@@ -86,7 +86,7 @@
               <div class="form-check mb-0">
                 <input type="checkbox" name="overdue" value="1" id="filter-overdue" class="form-check-input"
                        {{ !empty($params['overdue']) ? 'checked' : '' }}>
-                <label for="filter-overdue" class="form-check-label small">Overdue</label>
+                <label for="filter-overdue" class="form-check-label small">{{ __('Overdue') }}</label>
               </div>
             </div>
 
@@ -119,14 +119,14 @@
               <table class="table table-bordered table-striped table-hover mb-0">
                 <thead>
                   <tr>
-                    <th>Loan #</th>
-                    <th>Type</th>
-                    <th>Partner Institution</th>
-                    <th>Purpose</th>
-                    <th>Status</th>
-                    <th>End Date</th>
-                    <th class="text-center">Objects</th>
-                    <th class="text-center">Actions</th>
+                    <th>{{ __('Loan #') }}</th>
+                    <th>{{ __('Type') }}</th>
+                    <th>{{ __('Partner Institution') }}</th>
+                    <th>{{ __('Purpose') }}</th>
+                    <th>{{ __('Status') }}</th>
+                    <th>{{ __('End Date') }}</th>
+                    <th class="text-center">{{ __('Objects') }}</th>
+                    <th class="text-center">{{ __('Actions') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -186,10 +186,10 @@
                       </td>
                       <td class="text-center">
                         <div class="btn-group btn-group-sm">
-                          <a href="{{ route('loan.show', $loan->id) }}" class="btn btn-outline-primary" title="View">
+                          <a href="{{ route('loan.show', $loan->id) }}" class="btn btn-outline-primary" title="{{ __('View') }}">
                             <i class="fas fa-eye"></i>
                           </a>
-                          <a href="{{ route('loan.edit', $loan->id) }}" class="btn btn-outline-secondary" title="Edit">
+                          <a href="{{ route('loan.edit', $loan->id) }}" class="btn btn-outline-secondary" title="{{ __('Edit') }}">
                             <i class="fas fa-pencil-alt"></i>
                           </a>
                         </div>
@@ -202,7 +202,7 @@
           @else
             <div class="text-center py-5">
               <i class="fas fa-exchange-alt fa-3x text-muted mb-3"></i>
-              <h5 class="text-muted">No loans found</h5>
+              <h5 class="text-muted">{{ __('No loans found') }}</h5>
               <p class="text-muted">Create a new loan to get started.</p>
             </div>
           @endif

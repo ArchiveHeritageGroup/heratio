@@ -23,7 +23,7 @@ foreach ($transitions as $transKey => $transDef) {
 
 <h1>{{ __('General Workflow') }}: {{ $workflowConfig->name ?? ucwords(str_replace('_', ' ', $procedureType)) }}</h1>
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('homepage') }}">{{ __('Home') }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('ahgspectrum.dashboard') }}">{{ __('Spectrum Dashboard') }}</a></li>

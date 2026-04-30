@@ -16,7 +16,7 @@ $pages = $requestData['pages'] ?? 1;
 
     <div class="card border-0 shadow-sm mt-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h6 class="mb-0">Statistics</h6>
+        <h6 class="mb-0">{{ __('Statistics') }}</h6>
       </div>
       <div class="card-body">
         <div class="d-flex justify-content-between mb-2">
@@ -46,7 +46,7 @@ $pages = $requestData['pages'] ?? 1;
     <!-- Pending Requests -->
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">Pending Requests</h5>
+        <h5 class="mb-0">{{ __('Pending Requests') }}</h5>
         <span class="badge bg-warning text-dark">{{ number_format($total) }} pending</span>
       </div>
       <div class="card-body p-0">
@@ -104,7 +104,7 @@ $pages = $requestData['pages'] ?? 1;
           <form method="post">
             @csrf
             <div class="modal-header bg-success text-white">
-              <h5 class="modal-title">Approve Request</h5>
+              <h5 class="modal-title">{{ __('Approve Request') }}</h5>
               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -121,8 +121,8 @@ $pages = $requestData['pages'] ?? 1;
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn atom-btn-outline-success">Approve Access</button>
+              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+              <button type="submit" class="btn atom-btn-outline-success">{{ __('Approve Access') }}</button>
             </div>
           </form>
         </div>
@@ -136,7 +136,7 @@ $pages = $requestData['pages'] ?? 1;
           <form method="post">
             @csrf
             <div class="modal-header bg-danger text-white">
-              <h5 class="modal-title">Deny Request</h5>
+              <h5 class="modal-title">{{ __('Deny Request') }}</h5>
               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -148,8 +148,8 @@ $pages = $requestData['pages'] ?? 1;
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn atom-btn-outline-danger">Deny Request</button>
+              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+              <button type="submit" class="btn atom-btn-outline-danger">{{ __('Deny Request') }}</button>
             </div>
           </form>
         </div>

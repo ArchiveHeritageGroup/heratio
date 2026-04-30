@@ -12,9 +12,9 @@ if (!$actorId) return;
     <span><i class="fas fa-project-diagram me-1"></i>Relationship Graph</span>
     <div>
       <select id="graph-depth" class="form-select form-select-sm d-inline-block" style="width:auto">
-        <option value="1">Depth 1</option>
-        <option value="2">Depth 2</option>
-        <option value="3">Depth 3</option>
+        <option value="1">{{ __('Depth 1') }}</option>
+        <option value="2">{{ __('Depth 2') }}</option>
+        <option value="3">{{ __('Depth 3') }}</option>
       </select>
       <button class="btn btn-sm atom-btn-white" id="btn-load-graph">
         <i class="fas fa-sync"></i>

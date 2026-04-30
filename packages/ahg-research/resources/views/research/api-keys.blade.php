@@ -3,7 +3,7 @@
 @section('title', 'API Keys')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item active">API Keys</li>
@@ -27,7 +27,7 @@
 
 <div class="card">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">Your API Keys</h5>
+        <h5 class="mb-0">{{ __('Your API Keys') }}</h5>
     </div>
     <div class="card-body p-0">
         @if(count($apiKeys) > 0)
@@ -35,13 +35,13 @@
             <table class="table table-bordered table-striped table-hover mb-0">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Key</th>
-                        <th>Created</th>
-                        <th>Last Used</th>
-                        <th>Expires</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th>{{ __('Name') }}</th>
+                        <th>{{ __('Key') }}</th>
+                        <th>{{ __('Created') }}</th>
+                        <th>{{ __('Last Used') }}</th>
+                        <th>{{ __('Expires') }}</th>
+                        <th>{{ __('Status') }}</th>
+                        <th>{{ __('Action') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,7 +81,7 @@
                                 @csrf
                                 <input type="hidden" name="form_action" value="revoke">
                                 <input type="hidden" name="key_id" value="{{ $key->id }}">
-                                <button type="submit" class="btn atom-btn-outline-danger btn-sm" title="Revoke"><i class="fas fa-ban me-1"></i>Revoke</button>
+                                <button type="submit" class="btn atom-btn-outline-danger btn-sm" title="{{ __('Revoke') }}"><i class="fas fa-ban me-1"></i>Revoke</button>
                             </form>
                             @else
                             <span class="text-muted">-</span>
@@ -103,15 +103,15 @@
 
 {{-- API Documentation --}}
 <div class="card mt-4">
-    <div class="card-header"><h5 class="mb-0">API Documentation</h5></div>
+    <div class="card-header"><h5 class="mb-0">{{ __('API Documentation') }}</h5></div>
     <div class="card-body">
-        <h6>Authentication</h6>
+        <h6>{{ __('Authentication') }}</h6>
         <p>Include your API key in the <code>X-API-Key</code> header or as an <code>api_key</code> query parameter.</p>
         <pre class="bg-light p-3 rounded"><code>curl -H "X-API-Key: YOUR_API_KEY" {{ url('/api/research/profile') }}</code></pre>
 
-        <h6 class="mt-4">Available Endpoints</h6>
+        <h6 class="mt-4">{{ __('Available Endpoints') }}</h6>
         <table class="table table-sm">
-            <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+            <thead><tr><th>{{ __('Method') }}</th><th>{{ __('Endpoint') }}</th><th>{{ __('Description') }}</th></tr></thead>
             <tbody>
                 <tr><td><span class="badge bg-success">GET</span></td><td>/profile</td><td>Get your researcher profile</td></tr>
                 <tr><td><span class="badge bg-success">GET</span></td><td>/projects</td><td>List your projects</td></tr>
@@ -132,11 +132,11 @@
 {{-- Generate New Key Modal --}}
 <div class="modal fade" id="generateKeyModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
     <form method="POST">@csrf<input type="hidden" name="form_action" value="generate">
-    <div class="modal-header"><h5 class="modal-title">Generate New API Key</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-header"><h5 class="modal-title">{{ __('Generate New API Key') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
         <div class="mb-3">
             <label class="form-label">Key Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
-            <input type="text" class="form-control" name="name" required placeholder="e.g. My Research App">
+            <input type="text" class="form-control" name="name" required placeholder="{{ __('e.g. My Research App') }}">
             <div class="form-text">A descriptive name to identify this key.</div>
         </div>
         <div class="mb-3">
@@ -154,7 +154,7 @@
             <i class="fas fa-exclamation-triangle me-2"></i>The API key will only be shown once after generation. Make sure to copy it immediately.
         </div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary"><i class="fas fa-key me-1"></i>Generate</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-key me-1"></i>Generate</button></div>
     </form>
 </div></div></div>
 @endsection

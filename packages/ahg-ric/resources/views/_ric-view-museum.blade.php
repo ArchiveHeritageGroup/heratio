@@ -35,12 +35,12 @@
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">RiC Role</th><td>Cultural object / heritage asset</td></tr>
-        @if(! empty($museum->object_type))<tr><th class="text-muted">Object type</th><td>{{ $museum->object_type }}</td></tr>@endif
-        @if(! empty($museum->material))<tr><th class="text-muted">Material</th><td>{{ $museum->material }}</td></tr>@endif
-        @if(! empty($museum->date_created))<tr><th class="text-muted">Date created</th><td>{{ $museum->date_created }}</td></tr>@endif
-        @if(! empty($museum->place_of_origin))<tr><th class="text-muted">rico:hasOrigin</th><td>{{ $museum->place_of_origin }}</td></tr>@endif
-        @if(! empty($museum->accession_number))<tr><th class="text-muted">Accession number</th><td><code>{{ $museum->accession_number }}</code></td></tr>@endif
+        <tr><th class="text-muted" style="width:35%">{{ __('RiC Role') }}</th><td>Cultural object / heritage asset</td></tr>
+        @if(! empty($museum->object_type))<tr><th class="text-muted">{{ __('Object type') }}</th><td>{{ $museum->object_type }}</td></tr>@endif
+        @if(! empty($museum->material))<tr><th class="text-muted">{{ __('Material') }}</th><td>{{ $museum->material }}</td></tr>@endif
+        @if(! empty($museum->date_created))<tr><th class="text-muted">{{ __('Date created') }}</th><td>{{ $museum->date_created }}</td></tr>@endif
+        @if(! empty($museum->place_of_origin))<tr><th class="text-muted">{{ __('rico:hasOrigin') }}</th><td>{{ $museum->place_of_origin }}</td></tr>@endif
+        @if(! empty($museum->accession_number))<tr><th class="text-muted">{{ __('Accession number') }}</th><td><code>{{ $museum->accession_number }}</code></td></tr>@endif
       </table>
     </div>
   </div>

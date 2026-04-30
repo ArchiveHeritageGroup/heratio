@@ -62,22 +62,22 @@
     {{-- Job Details --}}
     <div class="card mb-4">
         <div class="card-header">
-            <h5 class="mb-0">Job Details</h5>
+            <h5 class="mb-0">{{ __('Job Details') }}</h5>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
                     <table class="table table-borderless">
                         <tr>
-                            <th width="40%">Name:</th>
+                            <th width="40%">{{ __('Name:') }}</th>
                             <td>{{ $job->name ?? 'N/A' }}</td>
                         </tr>
                         <tr>
-                            <th>Type:</th>
+                            <th>{{ __('Type:') }}</th>
                             <td><span class="badge bg-secondary">{{ $job->type ?? 'N/A' }}</span></td>
                         </tr>
                         <tr>
-                            <th>Status:</th>
+                            <th>{{ __('Status:') }}</th>
                             <td>
                                 @switch($job->status_id)
                                     @case(183) <span class="badge bg-warning text-dark">Pending</span> @break
@@ -94,19 +94,19 @@
                 <div class="col-md-6">
                     <table class="table table-borderless">
                         <tr>
-                            <th width="40%">Created:</th>
+                            <th width="40%">{{ __('Created:') }}</th>
                             <td>{{ $job->created_at ?? '-' }}</td>
                         </tr>
                         <tr>
-                            <th>Started:</th>
+                            <th>{{ __('Started:') }}</th>
                             <td>{{ $job->started_at ?? '-' }}</td>
                         </tr>
                         <tr>
-                            <th>Completed:</th>
+                            <th>{{ __('Completed:') }}</th>
                             <td>{{ $job->completed_at ?? '-' }}</td>
                         </tr>
                         <tr>
-                            <th>Duration:</th>
+                            <th>{{ __('Duration:') }}</th>
                             <td>
                                 @if(!empty($job->duration))
                                     {{ $job->duration }} seconds
@@ -146,7 +146,7 @@
     @if(!empty($job->output))
     <div class="card mb-4">
         <div class="card-header">
-            <h5 class="mb-0">Output</h5>
+            <h5 class="mb-0">{{ __('Output') }}</h5>
         </div>
         <div class="card-body">
             <pre class="bg-dark text-light p-3" style="max-height: 300px; overflow-y: auto;"><code>{{ is_string($job->output) ? $job->output : json_encode($job->output, JSON_PRETTY_PRINT) }}</code></pre>
@@ -158,7 +158,7 @@
     @if(!empty($job->download_path))
     <div class="card mb-4">
         <div class="card-header">
-            <h5 class="mb-0">Download</h5>
+            <h5 class="mb-0">{{ __('Download') }}</h5>
         </div>
         <div class="card-body">
             <a href="{{ $job->download_path }}" class="btn btn-primary">

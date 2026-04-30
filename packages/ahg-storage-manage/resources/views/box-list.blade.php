@@ -23,11 +23,11 @@
       <table class="table table-bordered sticky-enabled mb-0">
         <thead>
           <tr>
-            <th>Reference code</th>
-            <th>Title</th>
-            <th>Date(s)</th>
-            <th>Part of</th>
-            <th>Conditions governing access</th>
+            <th>{{ __('Reference code') }}</th>
+            <th>{{ __('Title') }}</th>
+            <th>{{ __('Date(s)') }}</th>
+            <th>{{ __('Part of') }}</th>
+            <th>{{ __('Conditions governing access') }}</th>
           </tr>
         </thead>
         <tbody>

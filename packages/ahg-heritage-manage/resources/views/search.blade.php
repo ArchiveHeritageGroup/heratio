@@ -33,7 +33,7 @@
                     <input type="text"
                            name="q"
                            class="form-control"
-                           placeholder="Search..."
+                           placeholder="{{ __('Search...') }}"
                            value="{{ $query }}">
                     <button class="btn atom-btn-outline-success" type="submit">
                         <i class="fas fa-search"></i>
@@ -54,7 +54,7 @@
     @if (!empty($filters))
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-transparent border-0 pb-0" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="card-title h6 mb-0">Active Filters</h5>
+            <h5 class="card-title h6 mb-0">{{ __('Active Filters') }}</h5>
         </div>
         <div class="card-body">
             @foreach ($filters as $filterCode => $filterValues)
@@ -167,7 +167,7 @@
     @if (empty($searchResults))
     <div class="text-center py-5">
         <i class="fas fa-search display-1 text-muted mb-4"></i>
-        <h2 class="h4">No results found</h2>
+        <h2 class="h4">{{ __('No results found') }}</h2>
         <p class="text-muted">
             @if ($query)
                 We couldn't find anything matching "{{ $query }}".
@@ -290,7 +290,7 @@
 
     <!-- Pagination -->
     @if ($totalPages > 1)
-    <nav aria-label="Search results pagination" class="mt-4">
+    <nav aria-label="{{ __('Search results pagination') }}" class="mt-4">
         <ul class="pagination justify-content-center">
             <!-- Previous -->
             <li class="page-item {{ $currentPage <= 1 ? 'disabled' : '' }}">

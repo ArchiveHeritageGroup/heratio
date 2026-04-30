@@ -23,7 +23,7 @@
         {{-- Object Selection --}}
         <div class="card mb-4">
           <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-            <h5 class="mb-0">Target Object</h5>
+            <h5 class="mb-0">{{ __('Target Object') }}</h5>
           </div>
           <div class="card-body">
             <div class="mb-3">
@@ -39,7 +39,7 @@
         {{-- Embargo Details --}}
         <div class="card mb-4">
           <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-            <h5 class="mb-0">Embargo Details</h5>
+            <h5 class="mb-0">{{ __('Embargo Details') }}</h5>
           </div>
           <div class="card-body">
             <div class="row">
@@ -72,7 +72,7 @@
                        value="{{ old('start_date', $embargo->start_date ?? date('Y-m-d')) }}">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">End Date</label>
+                <label class="form-label">{{ __('End Date') }}</label>
                 <input type="date" name="end_date" class="form-control"
                        value="{{ old('end_date', $embargo->end_date ?? '') }}">
                 <small class="form-text text-muted">Leave empty for indefinite embargo</small>
@@ -90,7 +90,7 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Reason Note</label>
+              <label class="form-label">{{ __('Reason Note') }}</label>
               <textarea name="reason_note" class="form-control" rows="3">{{ old('reason_note', $embargo->reason_note ?? '') }}</textarea>
             </div>
           </div>
@@ -99,17 +99,17 @@
         {{-- Review Settings --}}
         <div class="card mb-4">
           <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-            <h5 class="mb-0">Review Settings</h5>
+            <h5 class="mb-0">{{ __('Review Settings') }}</h5>
           </div>
           <div class="card-body">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Review Date</label>
+                <label class="form-label">{{ __('Review Date') }}</label>
                 <input type="date" name="review_date" class="form-control"
                        value="{{ old('review_date', $embargo->review_date ?? '') }}">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Review Interval (months)</label>
+                <label class="form-label">{{ __('Review Interval (months)') }}</label>
                 <input type="number" name="review_interval_months" class="form-control" min="1" max="120"
                        value="{{ old('review_interval_months', $embargo->review_interval_months ?? 12) }}">
               </div>
@@ -120,18 +120,18 @@
         {{-- Notification Settings --}}
         <div class="card mb-4">
           <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-            <h5 class="mb-0">Notifications</h5>
+            <h5 class="mb-0">{{ __('Notifications') }}</h5>
           </div>
           <div class="card-body">
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label class="form-label">Notify Before (days)</label>
+                <label class="form-label">{{ __('Notify Before (days)') }}</label>
                 <input type="number" name="notify_before_days" class="form-control" min="1" max="365"
                        value="{{ old('notify_before_days', $embargo->notify_before_days ?? 30) }}">
               </div>
               <div class="col-md-8 mb-3">
-                <label class="form-label">Notification Emails</label>
-                <input type="text" name="notify_emails" class="form-control" placeholder="email1@example.com, email2@example.com"
+                <label class="form-label">{{ __('Notification Emails') }}</label>
+                <input type="text" name="notify_emails" class="form-control" placeholder="{{ __('email1@example.com, email2@example.com') }}"
                        value="{{ old('notify_emails', isset($embargo->notify_emails) ? implode(', ', json_decode($embargo->notify_emails, true) ?? []) : '') }}">
                 <small class="form-text text-muted">Comma-separated list of emails</small>
               </div>
@@ -142,11 +142,11 @@
         {{-- Internal Note --}}
         <div class="card mb-4">
           <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-            <h5 class="mb-0">Internal Note</h5>
+            <h5 class="mb-0">{{ __('Internal Note') }}</h5>
           </div>
           <div class="card-body">
             <textarea name="internal_note" class="form-control" rows="3"
-                      placeholder="Internal notes not visible to users">{{ old('internal_note', $embargo->internal_note ?? '') }}</textarea>
+                      placeholder="{{ __('Internal notes not visible to users') }}">{{ old('internal_note', $embargo->internal_note ?? '') }}</textarea>
           </div>
         </div>
 
@@ -157,7 +157,7 @@
         @if(isset($embargo) && isset($embargoLog) && count($embargoLog) > 0)
         <div class="card mb-4">
           <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-            <h5 class="mb-0">History</h5>
+            <h5 class="mb-0">{{ __('History') }}</h5>
           </div>
           <div class="card-body p-0">
             <ul class="list-group list-group-flush">
@@ -178,7 +178,7 @@
 
         <div class="card">
           <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-            <h5 class="mb-0">Embargo Types</h5>
+            <h5 class="mb-0">{{ __('Embargo Types') }}</h5>
           </div>
           <div class="card-body">
             <dl class="mb-0">

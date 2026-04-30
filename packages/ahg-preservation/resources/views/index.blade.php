@@ -21,7 +21,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0 text-white-50">Digital Objects</h6>
+                                <h6 class="mb-0 text-white-50">{{ __('Digital Objects') }}</h6>
                                 <h2 class="mb-0">{{ number_format($stats->total_objects) }}</h2>
                                 @if(isset($stats->total_size_formatted))
                                     <small>{{ $stats->total_size_formatted }}</small>
@@ -37,7 +37,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0 text-white-50">Checksum Coverage</h6>
+                                <h6 class="mb-0 text-white-50">{{ __('Checksum Coverage') }}</h6>
                                 @php
                                     $coverage = $stats->total_objects > 0
                                         ? round(($stats->objects_with_checksums / $stats->total_objects) * 100, 1)
@@ -56,7 +56,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0 text-white-50">Fixity Checks</h6>
+                                <h6 class="mb-0 text-white-50">{{ __('Fixity Checks') }}</h6>
                                 <h2 class="mb-0">{{ number_format($stats->fixity_checks_run) }}</h2>
                                 <small>{{ number_format($stats->fixity_failures) }} failures</small>
                             </div>
@@ -70,7 +70,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0 text-white-50">At-Risk Formats</h6>
+                                <h6 class="mb-0 text-white-50">{{ __('At-Risk Formats') }}</h6>
                                 <h2 class="mb-0">{{ number_format($stats->at_risk_formats) }}</h2>
                                 <small>{{ number_format($stats->virus_scans) }} virus scans ({{ number_format($stats->clean_scans) }} clean)</small>
                             </div>
@@ -129,9 +129,9 @@
                             <table class="table table-bordered table-sm table-striped mb-0">
                                 <thead>
                                     <tr>
-                                        <th>File</th>
-                                        <th>Status</th>
-                                        <th>Checked</th>
+                                        <th>{{ __('File') }}</th>
+                                        <th>{{ __('Status') }}</th>
+                                        <th>{{ __('Checked') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -179,11 +179,11 @@
                             <table class="table table-bordered table-sm table-striped mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Date/Time</th>
-                                        <th>Type</th>
-                                        <th>File</th>
-                                        <th>Outcome</th>
-                                        <th>Detail</th>
+                                        <th>{{ __('Date/Time') }}</th>
+                                        <th>{{ __('Type') }}</th>
+                                        <th>{{ __('File') }}</th>
+                                        <th>{{ __('Outcome') }}</th>
+                                        <th>{{ __('Detail') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -225,12 +225,12 @@
                     <table class="table table-bordered table-sm table-striped mb-0">
                         <thead>
                             <tr>
-                                <th>Format</th>
-                                <th>PUID</th>
-                                <th>MIME Type</th>
-                                <th>Risk Level</th>
-                                <th>Action</th>
-                                <th>Objects</th>
+                                <th>{{ __('Format') }}</th>
+                                <th>{{ __('PUID') }}</th>
+                                <th>{{ __('MIME Type') }}</th>
+                                <th>{{ __('Risk Level') }}</th>
+                                <th>{{ __('Action') }}</th>
+                                <th>{{ __('Objects') }}</th>
                             </tr>
                         </thead>
                         <tbody>

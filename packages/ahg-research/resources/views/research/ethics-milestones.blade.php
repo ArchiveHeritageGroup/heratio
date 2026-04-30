@@ -8,7 +8,7 @@
 @section('title', 'Ethics Milestones')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
@@ -39,11 +39,11 @@
                 <thead class="table-light">
                     <tr>
                         <th>#</th>
-                        <th>Title</th>
-                        <th>Status</th>
-                        <th>Due Date</th>
-                        <th>Created</th>
-                        <th>Actions</th>
+                        <th>{{ __('Title') }}</th>
+                        <th>{{ __('Status') }}</th>
+                        <th>{{ __('Due Date') }}</th>
+                        <th>{{ __('Created') }}</th>
+                        <th>{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -63,7 +63,7 @@
                         <td class="small">{{ $m->created_at ?? '' }}</td>
                         <td>
                             <div class="d-flex gap-1">
-                                <button class="btn btn-sm btn-outline-secondary edit-milestone-btn" title="Edit"
+                                <button class="btn btn-sm btn-outline-secondary edit-milestone-btn" title="{{ __('Edit') }}"
                                     data-id="{{ $m->id }}"
                                     data-title="{{ e($m->title ?? '') }}"
                                     data-description="{{ e($m->description ?? '') }}"
@@ -75,7 +75,7 @@
                                     @csrf
                                     <input type="hidden" name="form_action" value="approve">
                                     <input type="hidden" name="milestone_id" value="{{ $m->id }}">
-                                    <button class="btn btn-sm btn-outline-success" title="Approve"><i class="fas fa-check"></i></button>
+                                    <button class="btn btn-sm btn-outline-success" title="{{ __('Approve') }}"><i class="fas fa-check"></i></button>
                                 </form>
                                 @endif
                                 @if(($m->status ?? '') !== 'rejected')
@@ -83,7 +83,7 @@
                                     @csrf
                                     <input type="hidden" name="form_action" value="reject">
                                     <input type="hidden" name="milestone_id" value="{{ $m->id }}">
-                                    <button class="btn btn-sm btn-outline-warning" title="Reject"><i class="fas fa-times"></i></button>
+                                    <button class="btn btn-sm btn-outline-warning" title="{{ __('Reject') }}"><i class="fas fa-times"></i></button>
                                 </form>
                                 @endif
                                 @if(($m->status ?? '') !== 'completed')
@@ -91,14 +91,14 @@
                                     @csrf
                                     <input type="hidden" name="form_action" value="complete">
                                     <input type="hidden" name="milestone_id" value="{{ $m->id }}">
-                                    <button class="btn btn-sm btn-outline-primary" title="Complete"><i class="fas fa-flag-checkered"></i></button>
+                                    <button class="btn btn-sm btn-outline-primary" title="{{ __('Complete') }}"><i class="fas fa-flag-checkered"></i></button>
                                 </form>
                                 @endif
                                 <form method="POST" class="d-inline" onsubmit="return confirm('Delete this milestone?')">
                                     @csrf
                                     <input type="hidden" name="form_action" value="delete">
                                     <input type="hidden" name="milestone_id" value="{{ $m->id }}">
-                                    <button class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}"><i class="fas fa-trash"></i></button>
                                 </form>
                             </div>
                         </td>
@@ -121,7 +121,7 @@
                 @csrf
                 <input type="hidden" name="form_action" value="create">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Ethics Milestone</h5>
+                    <h5 class="modal-title">{{ __('Add Ethics Milestone') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -130,17 +130,17 @@
                         <input type="text" name="title" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Description</label>
+                        <label class="form-label">{{ __('Description') }}</label>
                         <textarea name="description" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Due Date</label>
+                        <label class="form-label">{{ __('Due Date') }}</label>
                         <input type="date" name="due_date" class="form-control">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Milestone</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ __('Add Milestone') }}</button>
                 </div>
             </form>
         </div>
@@ -156,7 +156,7 @@
                 <input type="hidden" name="form_action" value="edit">
                 <input type="hidden" name="milestone_id" id="edit-milestone-id">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Milestone</h5>
+                    <h5 class="modal-title">{{ __('Edit Milestone') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -165,17 +165,17 @@
                         <input type="text" name="title" id="edit-title" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Description</label>
+                        <label class="form-label">{{ __('Description') }}</label>
                         <textarea name="description" id="edit-description" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Due Date</label>
+                        <label class="form-label">{{ __('Due Date') }}</label>
                         <input type="date" name="due_date" id="edit-due-date" class="form-control">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ __('Save Changes') }}</button>
                 </div>
             </form>
         </div>

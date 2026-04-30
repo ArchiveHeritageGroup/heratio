@@ -48,19 +48,19 @@
   <div class="card-body py-2">
     <div class="row align-items-end">
       <div class="col-md-5">
-        <label class="form-label small fw-bold">Folder with images + CSV</label>
-        <input type="text" id="ba-folder" class="form-control form-control-sm" value="/usr/share/nginx/heratio/FamilySearch/" placeholder="/path/to/images">
+        <label class="form-label small fw-bold">{{ __('Folder with images + CSV') }}</label>
+        <input type="text" id="ba-folder" class="form-control form-control-sm" value="/usr/share/nginx/heratio/FamilySearch/" placeholder="{{ __('/path/to/images') }}">
       </div>
       <div class="col-md-5">
         <label class="form-label small fw-bold">Spreadsheet <span class="text-muted fw-normal">(optional)</span></label>
         <select id="ba-spreadsheet" class="form-select form-select-sm">
-          <option value="__none__">No spreadsheet (images only)</option>
+          <option value="__none__">{{ __('No spreadsheet (images only)') }}</option>
         </select>
       </div>
       <div class="col-md-2">
-        <label class="form-label small fw-bold">Form type</label>
+        <label class="form-label small fw-bold">{{ __('Form type') }}</label>
         <select id="ba-form-type" class="form-select form-select-sm">
-          <option value="auto">Auto-detect</option>
+          <option value="auto">{{ __('Auto-detect') }}</option>
         </select>
       </div>
       <div class="col-md-2">
@@ -84,9 +84,9 @@
           <span id="ba-counter" class="badge bg-light text-dark me-2">0/0</span>
           <span id="ba-auto-status" class="ba-auto-badge d-none">AUTO</span>
           <div class="btn-group btn-group-sm me-2">
-            <button class="btn btn-light" id="ba-tool-hand" title="Pan (H)" onclick="baSetTool('hand')"><i class="fas fa-hand-paper"></i></button>
-            <button class="btn btn-light" id="ba-tool-draw" title="Draw (R)" onclick="baSetTool('draw')"><i class="fas fa-vector-square"></i></button>
-            <button class="btn btn-light" id="ba-tool-select" title="Select/Move (V)" onclick="baSetTool('select')"><i class="fas fa-mouse-pointer"></i></button>
+            <button class="btn btn-light" id="ba-tool-hand" title="{{ __('Pan (H)') }}" onclick="baSetTool('hand')"><i class="fas fa-hand-paper"></i></button>
+            <button class="btn btn-light" id="ba-tool-draw" title="{{ __('Draw (R)') }}" onclick="baSetTool('draw')"><i class="fas fa-vector-square"></i></button>
+            <button class="btn btn-light" id="ba-tool-select" title="{{ __('Select/Move (V)') }}" onclick="baSetTool('select')"><i class="fas fa-mouse-pointer"></i></button>
           </div>
           <button class="btn btn-sm btn-light" onclick="baZoomIn()"><i class="fas fa-search-plus"></i></button>
           <button class="btn btn-sm btn-light" onclick="baZoomOut()"><i class="fas fa-search-minus"></i></button>
@@ -102,20 +102,20 @@
       <div>
         <div class="form-check form-switch d-inline-block me-1" style="vertical-align:middle">
           <input class="form-check-input" type="checkbox" id="ba-auto-detect" checked style="cursor:pointer">
-          <label class="form-check-label small" for="ba-auto-detect" style="cursor:pointer" title="Auto-detect printed labels on each image">Detect</label>
+          <label class="form-check-label small" for="ba-auto-detect" style="cursor:pointer" title="{{ __('Auto-detect printed labels on each image') }}">{{ __('Detect') }}</label>
         </div>
         <div class="form-check form-switch d-inline-block me-1" style="vertical-align:middle">
           <input class="form-check-input" type="checkbox" id="ba-auto-recog" onchange="baToggleAutoRecog(this.checked)" style="cursor:pointer">
-          <label class="form-check-label small" for="ba-auto-recog" style="cursor:pointer">Auto</label>
+          <label class="form-check-label small" for="ba-auto-recog" style="cursor:pointer">{{ __('Auto') }}</label>
         </div>
-        <button class="btn btn-sm btn-outline-success" onclick="baDonutPrefill()" id="ba-donut-btn" title="Donut: pre-fill ILM fields from document image"><i class="fas fa-file-invoice me-1"></i>Donut</button>
-        <button class="btn btn-sm btn-outline-danger" onclick="baRecognise()" id="ba-recognise-btn" title="HTR: recognise text in drawn boxes"><i class="fas fa-brain me-1"></i>Recognise</button>
-        <button class="btn btn-sm btn-outline-info" onclick="ocrAndPlace(images[imgIdx]); redraw();" title="OCR the form to detect printed labels"><i class="fas fa-eye me-1"></i>Detect labels</button>
-        <button class="btn btn-sm btn-outline-secondary" onclick="baStartCropDraw()" id="ba-crop-draw-btn" title="Draw crop rectangle"><i class="fas fa-crop-alt me-1"></i>Mark area</button>
-        <button class="btn btn-sm btn-outline-dark d-none" onclick="baDoCrop()" id="ba-crop-do-btn" title="Crop to marked area"><i class="fas fa-cut me-1"></i>Crop now</button>
-        <button class="btn btn-sm btn-outline-primary" onclick="baAutoPlace()" id="ba-autoplace-btn" title="Re-apply saved positions"><i class="fas fa-magic me-1"></i>Auto-place</button>
-        <button class="btn btn-sm btn-outline-secondary" onclick="baResetPositions()" title="Clear saved positions"><i class="fas fa-undo me-1"></i>Reset</button>
-        <button class="btn btn-sm btn-outline-warning" onclick="baMigrateToServer()" id="ba-migrate-btn" title="Push browser positions to server"><i class="fas fa-cloud-upload-alt me-1"></i>Sync to server</button>
+        <button class="btn btn-sm btn-outline-success" onclick="baDonutPrefill()" id="ba-donut-btn" title="{{ __('Donut: pre-fill ILM fields from document image') }}"><i class="fas fa-file-invoice me-1"></i>Donut</button>
+        <button class="btn btn-sm btn-outline-danger" onclick="baRecognise()" id="ba-recognise-btn" title="{{ __('HTR: recognise text in drawn boxes') }}"><i class="fas fa-brain me-1"></i>Recognise</button>
+        <button class="btn btn-sm btn-outline-info" onclick="ocrAndPlace(images[imgIdx]); redraw();" title="{{ __('OCR the form to detect printed labels') }}"><i class="fas fa-eye me-1"></i>Detect labels</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="baStartCropDraw()" id="ba-crop-draw-btn" title="{{ __('Draw crop rectangle') }}"><i class="fas fa-crop-alt me-1"></i>Mark area</button>
+        <button class="btn btn-sm btn-outline-dark d-none" onclick="baDoCrop()" id="ba-crop-do-btn" title="{{ __('Crop to marked area') }}"><i class="fas fa-cut me-1"></i>Crop now</button>
+        <button class="btn btn-sm btn-outline-primary" onclick="baAutoPlace()" id="ba-autoplace-btn" title="{{ __('Re-apply saved positions') }}"><i class="fas fa-magic me-1"></i>Auto-place</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="baResetPositions()" title="{{ __('Clear saved positions') }}"><i class="fas fa-undo me-1"></i>Reset</button>
+        <button class="btn btn-sm btn-outline-warning" onclick="baMigrateToServer()" id="ba-migrate-btn" title="{{ __('Push browser positions to server') }}"><i class="fas fa-cloud-upload-alt me-1"></i>Sync to server</button>
         <button class="btn btn-sm atom-btn-white" onclick="baSkip()"><i class="fas fa-forward me-1"></i>Skip</button>
       </div>
       <button class="btn btn-sm atom-btn-outline-success" onclick="baSaveAndNext()" id="ba-save-btn" disabled><i class="fas fa-save me-1"></i>Save & Next</button>

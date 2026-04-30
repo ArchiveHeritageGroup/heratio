@@ -27,7 +27,7 @@
         <table class="table table-striped table-hover mb-0">
           <thead>
             <tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-              <th>Title</th><th>Expiry Date</th><th>Days Remaining</th><th>Restriction</th><th>Actions</th>
+              <th>{{ __('Title') }}</th><th>{{ __('Expiry Date') }}</th><th>{{ __('Days Remaining') }}</th><th>{{ __('Restriction') }}</th><th>{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -53,7 +53,7 @@
               </td>
               <td>{{ ($embargo->embargo_type ?? '') . ' - ' . ($embargo->reason ?? '-') }}</td>
               <td>
-                <a href="{{ route('extended-rights.lift-embargo', $embargo->id) }}" class="btn btn-sm btn-outline-success" title="Lift Embargo"><i class="fas fa-unlock"></i></a>
+                <a href="{{ route('extended-rights.lift-embargo', $embargo->id) }}" class="btn btn-sm btn-outline-success" title="{{ __('Lift Embargo') }}"><i class="fas fa-unlock"></i></a>
               </td>
             </tr>
             @endforeach

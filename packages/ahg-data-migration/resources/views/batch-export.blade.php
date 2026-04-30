@@ -9,12 +9,12 @@
 <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-download me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-        <h1 class="mb-0">Batch Export</h1>
+        <h1 class="mb-0">{{ __('Batch Export') }}</h1>
         <span class="small text-muted">Export existing records to sector-specific CSV format</span>
     </div>
 </div>
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
         <li class="breadcrumb-item active">Batch Export</li>
@@ -68,7 +68,7 @@
                     <div class="col-md-6">
                         <label class="form-label">Repository <span class="badge bg-secondary ms-1">Optional</span></label>
                         <select name="repository_id" id="repositorySelect" class="form-select">
-                            <option value="">All repositories</option>
+                            <option value="">{{ __('All repositories') }}</option>
                             @foreach (($repositories ?? []) as $repo)
                                 <option value="{{ $repo->id }}">{{ $repo->name ?? $repo->authorized_form_of_name ?? ('#' . $repo->id) }}</option>
                             @endforeach
@@ -87,7 +87,7 @@
                 <div class="row g-3 mt-2">
                     <div class="col-md-6">
                         <label class="form-label">Parent Record Slug (Scope) <span class="badge bg-secondary ms-1">Optional</span></label>
-                        <input type="text" name="parent_slug" id="parentSlug" class="form-control" placeholder="e.g. my-fonds-123">
+                        <input type="text" name="parent_slug" id="parentSlug" class="form-control" placeholder="{{ __('e.g. my-fonds-123') }}">
                         <small class="text-muted">Export only children of this record</small>
                     </div>
                     <div class="col-md-6 d-flex align-items-end">
@@ -122,7 +122,7 @@
 
 <div class="card mb-4">
     <div class="card-header">
-        <h6 class="mb-0">Format Descriptions</h6>
+        <h6 class="mb-0">{{ __('Format Descriptions') }}</h6>
     </div>
     <div class="card-body">
         <dl class="row mb-0">

@@ -24,13 +24,13 @@
   <table class="table table-striped table-hover">
     <thead class="table-dark">
       <tr>
-        <th>Object</th>
-        <th>Type</th>
-        <th>Value</th>
-        <th>Date</th>
-        <th>Valid Until</th>
-        <th>Appraiser</th>
-        <th>Current</th>
+        <th>{{ __('Object') }}</th>
+        <th>{{ __('Type') }}</th>
+        <th>{{ __('Value') }}</th>
+        <th>{{ __('Date') }}</th>
+        <th>{{ __('Valid Until') }}</th>
+        <th>{{ __('Appraiser') }}</th>
+        <th>{{ __('Current') }}</th>
       </tr>
     </thead>
     <tbody>

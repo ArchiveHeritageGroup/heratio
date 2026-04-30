@@ -16,7 +16,7 @@
       <div class="card mb-3">
         <div class="card-body">
           <table class="table">
-            <thead><tr><th>Name</th><th>Value</th></tr></thead>
+            <thead><tr><th>{{ __('Name') }}</th><th>{{ __('Value') }}</th></tr></thead>
             <tbody>
               <tr>
                 <td><label class="form-label">Bulk data directory <span class="badge bg-secondary ms-1">Optional</span></label></td>

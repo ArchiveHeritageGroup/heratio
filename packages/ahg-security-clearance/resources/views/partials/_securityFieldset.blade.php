@@ -15,9 +15,9 @@
     <div id="securityFieldsetBody" class="accordion-collapse collapse">
       <div class="accordion-body">
         <div class="mb-3">
-          <label class="form-label">Classification Level</label>
+          <label class="form-label">{{ __('Classification Level') }}</label>
           <select name="security_classification_id" class="form-select">
-            <option value="">Public (no classification)</option>
+            <option value="">{{ __('Public (no classification)') }}</option>
             @foreach($classifications ?? [] as $cl)
               <option value="{{ $cl->id }}" {{ ($currentClassification->id ?? 0) == $cl->id ? 'selected' : '' }}
                       style="color: {{ $cl->color ?? '#333' }}">
@@ -27,7 +27,7 @@
           </select>
         </div>
         <div class="mb-3">
-          <label class="form-label">Classification Reason</label>
+          <label class="form-label">{{ __('Classification Reason') }}</label>
           <textarea name="security_reason" class="form-control" rows="2">{{ $currentClassification->reason ?? '' }}</textarea>
         </div>
         @if(!empty($objectId))

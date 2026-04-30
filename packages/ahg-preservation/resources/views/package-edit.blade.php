@@ -32,13 +32,13 @@
                     <label class="form-label">Package Name <span class="badge bg-danger ms-1">Required</span></label>
                     <input type="text" name="name" class="form-control" required
                            value="{{ old('name', $package->name ?? '') }}"
-                           placeholder="e.g., Annual Reports 2024 SIP">
+                           placeholder="{{ __('e.g., Annual Reports 2024 SIP') }}">
                   </div>
 
                   <div class="mb-3">
                     <label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
                     <textarea name="description" class="form-control" rows="3"
-                              placeholder="Brief description of package contents">{{ old('description', $package->description ?? '') }}</textarea>
+                              placeholder="{{ __('Brief description of package contents') }}">{{ old('description', $package->description ?? '') }}</textarea>
                   </div>
 
                   @if(!($package ?? null))
@@ -46,19 +46,19 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Package Type <span class="badge bg-danger ms-1">Required</span></label>
                         <select name="package_type" class="form-select" required>
-                            <option value="">Select type...</option>
-                            <option value="SIP" {{ old('package_type') == 'SIP' ? 'selected' : '' }}>SIP - Submission Information Package</option>
-                            <option value="AIP" {{ old('package_type') == 'AIP' ? 'selected' : '' }}>AIP - Archival Information Package</option>
-                            <option value="DIP" {{ old('package_type') == 'DIP' ? 'selected' : '' }}>DIP - Dissemination Information Package</option>
+                            <option value="">{{ __('Select type...') }}</option>
+                            <option value="SIP" {{ old('package_type') == 'SIP' ? 'selected' : '' }}>{{ __('SIP - Submission Information Package') }}</option>
+                            <option value="AIP" {{ old('package_type') == 'AIP' ? 'selected' : '' }}>{{ __('AIP - Archival Information Package') }}</option>
+                            <option value="DIP" {{ old('package_type') == 'DIP' ? 'selected' : '' }}>{{ __('DIP - Dissemination Information Package') }}</option>
                         </select>
                         <div class="form-text">SIP for ingest, AIP for storage, DIP for access</div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Package Format <span class="badge bg-secondary ms-1">Optional</span></label>
                         <select name="package_format" class="form-select">
-                            <option value="bagit" selected>BagIt (Recommended)</option>
-                            <option value="zip">ZIP Archive</option>
-                            <option value="tar">TAR Archive</option>
+                            <option value="bagit" selected>{{ __('BagIt (Recommended)') }}</option>
+                            <option value="zip">{{ __('ZIP Archive') }}</option>
+                            <option value="tar">{{ __('TAR Archive') }}</option>
                         </select>
                     </div>
                   </div>
@@ -66,10 +66,10 @@
                   <div class="mb-3">
                     <label class="form-label">Checksum Algorithm <span class="badge bg-secondary ms-1">Optional</span></label>
                     <select name="manifest_algorithm" class="form-select">
-                        <option value="sha256" selected>SHA-256 (Recommended)</option>
-                        <option value="sha512">SHA-512</option>
-                        <option value="sha1">SHA-1</option>
-                        <option value="md5">MD5</option>
+                        <option value="sha256" selected>{{ __('SHA-256 (Recommended)') }}</option>
+                        <option value="sha512">{{ __('SHA-512') }}</option>
+                        <option value="sha1">{{ __('SHA-1') }}</option>
+                        <option value="md5">{{ __('MD5') }}</option>
                     </select>
                   </div>
                   @else
@@ -91,21 +91,21 @@
                     <label class="form-label">Originator <span class="badge bg-secondary ms-1">Optional</span></label>
                     <input type="text" name="originator" class="form-control"
                            value="{{ old('originator', $package->originator ?? '') }}"
-                           placeholder="Organization creating this package">
+                           placeholder="{{ __('Organization creating this package') }}">
                   </div>
 
                   <div class="mb-3">
                     <label class="form-label">Submission Agreement <span class="badge bg-secondary ms-1">Optional</span></label>
                     <input type="text" name="submission_agreement" class="form-control"
                            value="{{ old('submission_agreement', $package->submission_agreement ?? '') }}"
-                           placeholder="Reference to submission agreement">
+                           placeholder="{{ __('Reference to submission agreement') }}">
                   </div>
 
                   <div class="mb-3">
                     <label class="form-label">Retention Period <span class="badge bg-secondary ms-1">Optional</span></label>
                     <input type="text" name="retention_period" class="form-control"
                            value="{{ old('retention_period', $package->retention_period ?? '') }}"
-                           placeholder="e.g., Permanent, 10 years, etc.">
+                           placeholder="{{ __('e.g., Permanent, 10 years, etc.') }}">
                   </div>
                 </div>
               </div>
@@ -129,9 +129,9 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label">Add Digital Object</label>
+                        <label class="form-label">{{ __('Add Digital Object') }}</label>
                         <div class="input-group">
-                            <input type="number" id="objectIdInput" class="form-control" placeholder="Enter digital object ID">
+                            <input type="number" id="objectIdInput" class="form-control" placeholder="{{ __('Enter digital object ID') }}">
                             <button type="button" class="btn atom-btn-white" onclick="addObject()">
                                 <i class="fas fa-plus me-1"></i>Add
                             </button>
@@ -144,10 +144,10 @@
                         <table class="table table-bordered table-sm table-striped">
                             <thead>
                                 <tr>
-                                    <th>File</th>
-                                    <th>Format</th>
-                                    <th>Size</th>
-                                    <th class="text-end">Actions</th>
+                                    <th>{{ __('File') }}</th>
+                                    <th>{{ __('Format') }}</th>
+                                    <th>{{ __('Size') }}</th>
+                                    <th class="text-end">{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>

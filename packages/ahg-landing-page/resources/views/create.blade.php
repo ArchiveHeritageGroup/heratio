@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="container py-4" style="max-width: 600px;">
-  <nav aria-label="breadcrumb" class="mb-4">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-4">
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
         <a href="{{ route('landing-page.list') }}">Landing Pages</a>
@@ -35,7 +35,7 @@
           <label class="form-label" for="name">Page Name <span class="text-danger">*</span></label>
           <input type="text" name="name" id="name" class="form-control" required
                  value="{{ old('name', '') }}"
-                 placeholder="e.g., Home Page, About Us">
+                 placeholder="{{ __('e.g., Home Page, About Us') }}">
           <div class="form-text">Internal name for this landing page</div>
         </div>
 
@@ -45,17 +45,17 @@
             <span class="input-group-text">/</span>
             <input type="text" name="slug" id="slug" class="form-control" required
                    value="{{ old('slug', '') }}"
-                   placeholder="e.g., home, about-us"
+                   placeholder="{{ __('e.g., home, about-us') }}"
                    pattern="[a-z0-9\-]+"
-                   title="Lowercase letters, numbers, and hyphens only">
+                   title="{{ __('Lowercase letters, numbers, and hyphens only') }}">
           </div>
           <div class="form-text">URL-friendly identifier (auto-generated if left empty)</div>
         </div>
 
         <div class="mb-3">
-          <label class="form-label" for="description">Description</label>
+          <label class="form-label" for="description">{{ __('Description') }}</label>
           <textarea name="description" id="description" class="form-control" rows="3"
-                    placeholder="Brief description of this page's purpose">{{ old('description', '') }}</textarea>
+                    placeholder="{{ __("Brief description of this page's purpose") }}">{{ old('description', '') }}</textarea>
         </div>
 
         <div class="mb-3">

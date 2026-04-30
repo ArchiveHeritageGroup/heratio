@@ -53,12 +53,12 @@
     <div class="col-md-6 mb-4">
         <div class="card h-100">
             <div class="card-header bg-info text-white">
-                <h5 class="mb-0">Recent Audit Logs</h5>
+                <h5 class="mb-0">{{ __('Recent Audit Logs') }}</h5>
             </div>
             <div class="card-body">
                 @if(!empty($recentLogs))
                     <table class="table table-sm">
-                        <thead><tr><th>Action</th><th>User</th><th>Time</th></tr></thead>
+                        <thead><tr><th>{{ __('Action') }}</th><th>{{ __('User') }}</th><th>{{ __('Time') }}</th></tr></thead>
                         <tbody>
                         @foreach($recentLogs as $log)
                             <tr>
@@ -78,12 +78,12 @@
     <div class="col-md-6 mb-4">
         <div class="card h-100">
             <div class="card-header">
-                <h5 class="mb-0">Retention Schedules (NARSSA)</h5>
+                <h5 class="mb-0">{{ __('Retention Schedules (NARSSA)') }}</h5>
             </div>
             <div class="card-body">
                 @if(!empty($retentionSchedules))
                     <table class="table table-sm">
-                        <thead><tr><th>Ref</th><th>Type</th><th>Period</th></tr></thead>
+                        <thead><tr><th>{{ __('Ref') }}</th><th>{{ __('Type') }}</th><th>{{ __('Period') }}</th></tr></thead>
                         <tbody>
                         @foreach($retentionSchedules as $s)
                             <tr>

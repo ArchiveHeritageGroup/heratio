@@ -8,7 +8,7 @@
 @section('title', 'Share Project')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
@@ -32,7 +32,7 @@
     <div class="card-body">
         @if(!empty($project->share_token))
             <div class="mb-3">
-                <label class="form-label fw-bold">Share URL</label>
+                <label class="form-label fw-bold">{{ __('Share URL') }}</label>
                 <div class="input-group">
                     <input type="text" class="form-control" id="shareUrl" value="{{ url('/research/shared/' . $project->share_token) }}" readonly>
                     <button type="button" class="btn btn-outline-secondary" onclick="navigator.clipboard.writeText(document.getElementById('shareUrl').value); this.innerHTML='<i class=\'fas fa-check\'></i> Copied'; setTimeout(function(){ document.querySelector('#shareUrl + button').innerHTML='<i class=\'fas fa-copy\'></i> Copy'; }, 2000);">

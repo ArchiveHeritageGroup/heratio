@@ -19,7 +19,7 @@
   @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
       {{ session('success') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
@@ -30,12 +30,12 @@
           <thead>
             <tr>
               <th style="width:60px"></th>
-              <th>Model</th>
-              <th>Object</th>
-              <th>Format</th>
-              <th>Size</th>
-              <th>Status</th>
-              <th style="width:100px">Actions</th>
+              <th>{{ __('Model') }}</th>
+              <th>{{ __('Object') }}</th>
+              <th>{{ __('Format') }}</th>
+              <th>{{ __('Size') }}</th>
+              <th>{{ __('Status') }}</th>
+              <th style="width:100px">{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -85,10 +85,10 @@
               </td>
               <td>
                 <div class="btn-group btn-group-sm">
-                  <a href="{{ route('admin.3d-models.view', $m->id) }}" class="btn atom-btn-white" title="View">
+                  <a href="{{ route('admin.3d-models.view', $m->id) }}" class="btn atom-btn-white" title="{{ __('View') }}">
                     <i class="fas fa-eye"></i>
                   </a>
-                  <a href="{{ route('admin.3d-models.edit', $m->id) }}" class="btn atom-btn-white" title="Edit">
+                  <a href="{{ route('admin.3d-models.edit', $m->id) }}" class="btn atom-btn-white" title="{{ __('Edit') }}">
                     <i class="fas fa-edit"></i>
                   </a>
                 </div>
@@ -101,7 +101,7 @@
     </div>
 
     @if(($totalPages ?? 1) > 1)
-      <nav class="mt-3" aria-label="3D models pagination">
+      <nav class="mt-3" aria-label="{{ __('3D models pagination') }}">
         <ul class="pagination justify-content-center">
           @if($page > 1)
             <li class="page-item">
@@ -125,7 +125,7 @@
     <div class="card">
       <div class="card-body text-center py-5">
         <i class="fas fa-cube fa-4x text-muted mb-3 d-block"></i>
-        <h4>No 3D Models Yet</h4>
+        <h4>{{ __('No 3D Models Yet') }}</h4>
         <p class="text-muted">Upload 3D models from individual object pages.</p>
       </div>
     </div>

@@ -6,12 +6,12 @@
 <div class="multiline-header d-flex align-items-center mb-3">
   <i class="fas fa-3x fa-undo me-3" aria-hidden="true"></i>
   <div class="d-flex flex-column">
-    <h1 class="mb-0">Restore from Backup</h1>
+    <h1 class="mb-0">{{ __('Restore from Backup') }}</h1>
     <span class="small text-muted">Restore data from an existing backup</span>
   </div>
 </div>
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Admin</a></li>
     <li class="breadcrumb-item"><a href="{{ route('backup.index') }}">Backup &amp; Restore</a></li>
@@ -145,7 +145,7 @@
     <div id="backup-details" class="d-none">
       <div class="card bg-light mb-3">
         <div class="card-body">
-          <h6 class="card-title">Backup Details</h6>
+          <h6 class="card-title">{{ __('Backup Details') }}</h6>
           <table class="table table-bordered table-sm table-borderless mb-0">
             <tr>
               <td class="text-muted" style="width:100px;">File</td>
@@ -167,7 +167,7 @@
         </div>
       </div>
 
-      <h6>Select Components to Restore</h6>
+      <h6>{{ __('Select Components to Restore') }}</h6>
       <div class="mb-3">
         <div class="form-check mb-2" id="restore-comp-database-wrap" style="display:none;">
           <input class="form-check-input restore-component" type="checkbox" id="restore-comp-database" value="database">

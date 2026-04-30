@@ -13,8 +13,8 @@
 </head>
 <body>
     <div class="print-controls no-print">
-        <button onclick="window.print()">Print</button>
-        <button onclick="window.close()">Close</button>
+        <button onclick="window.print()">{{ __('Print') }}</button>
+        <button onclick="window.close()">{{ __('Close') }}</button>
     </div>
     {!! $html ?? '<p>No call slips to print.</p>' !!}
 </body>

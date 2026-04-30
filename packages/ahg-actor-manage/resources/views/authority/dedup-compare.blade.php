@@ -11,7 +11,7 @@
   $fields = $comparison['comparison'] ?? [];
 @endphp
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
@@ -37,7 +37,7 @@
       <table class="table table-sm mb-0">
         <thead>
           <tr>
-            <th style="width:20%">Field</th>
+            <th style="width:20%">{{ __('Field') }}</th>
             <th style="width:38%">Primary: {{ e($primary->authorized_form_of_name ?? '') }}</th>
             <th style="width:38%">Secondary: {{ e($secondary->authorized_form_of_name ?? '') }}</th>
             <th style="width:4%"></th>

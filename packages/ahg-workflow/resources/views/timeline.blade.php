@@ -2,7 +2,7 @@
 @section('title', 'Workflow Timeline')
 @section('body-class', 'workflow timeline')
 @section('content')
-  <div class="multiline-header d-flex align-items-center mb-3"><i class="fas fa-3x fa-stream me-3" aria-hidden="true"></i><div class="d-flex flex-column"><h1 class="mb-0">Workflow Timeline</h1></div></div>
+  <div class="multiline-header d-flex align-items-center mb-3"><i class="fas fa-3x fa-stream me-3" aria-hidden="true"></i><div class="d-flex flex-column"><h1 class="mb-0">{{ __('Workflow Timeline') }}</h1></div></div>
   <div class="timeline">
     @forelse($events ?? [] as $event)
     <div class="timeline-item d-flex mb-3">

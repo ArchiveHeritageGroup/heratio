@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-chart-bar me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Duplicate Detection Report</h1>
+      <h1 class="mb-0">{{ __('Duplicate Detection Report') }}</h1>
       <span class="small text-muted">Statistics and breakdown</span>
     </div>
     <div class="ms-auto">
@@ -68,11 +68,11 @@
               <table class="table table-bordered table-striped mb-0">
                 <thead>
                   <tr>
-                    <th>Month</th>
-                    <th class="text-end">Detected</th>
-                    <th class="text-end">Merged</th>
-                    <th class="text-end">Dismissed</th>
-                    <th>Resolution Rate</th>
+                    <th>{{ __('Month') }}</th>
+                    <th class="text-end">{{ __('Detected') }}</th>
+                    <th class="text-end">{{ __('Merged') }}</th>
+                    <th class="text-end">{{ __('Dismissed') }}</th>
+                    <th>{{ __('Resolution Rate') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -117,7 +117,7 @@
                       {{ Str::limit($cluster->title ?? 'Untitled', 35) }}
                     </a>
                   </div>
-                  <span class="badge bg-warning rounded-pill" title="Duplicate pairs">{{ $cluster->duplicate_count }}</span>
+                  <span class="badge bg-warning rounded-pill" title="{{ __('Duplicate pairs') }}">{{ $cluster->duplicate_count }}</span>
                 </li>
               @endforeach
             </ul>
@@ -138,11 +138,11 @@
           <table class="table table-bordered table-striped mb-0">
             <thead>
               <tr>
-                <th>Method</th>
-                <th class="text-end">Total</th>
-                <th class="text-end">Avg Score</th>
-                <th class="text-end">Confirmed</th>
-                <th class="text-end">Dismissed</th>
+                <th>{{ __('Method') }}</th>
+                <th class="text-end">{{ __('Total') }}</th>
+                <th class="text-end">{{ __('Avg Score') }}</th>
+                <th class="text-end">{{ __('Confirmed') }}</th>
+                <th class="text-end">{{ __('Dismissed') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -169,15 +169,15 @@
       <p>Use the CLI to export detailed reports:</p>
       <div class="row">
         <div class="col-md-6">
-          <h6>CSV Export</h6>
+          <h6>{{ __('CSV Export') }}</h6>
           <pre class="bg-light p-3 rounded">php artisan dedupe:report --format=csv --output=duplicates.csv</pre>
         </div>
         <div class="col-md-6">
-          <h6>JSON Export</h6>
+          <h6>{{ __('JSON Export') }}</h6>
           <pre class="bg-light p-3 rounded">php artisan dedupe:report --format=json --output=duplicates.json</pre>
         </div>
       </div>
-      <h6 class="mt-3">Filter Options</h6>
+      <h6 class="mt-3">{{ __('Filter Options') }}</h6>
       <pre class="bg-light p-3 rounded">php artisan dedupe:report --status=pending --min-score=0.9 --limit=500</pre>
     </div>
   </div>

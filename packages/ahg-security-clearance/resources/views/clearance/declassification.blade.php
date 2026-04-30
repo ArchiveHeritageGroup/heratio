@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid mt-3">
-  <nav aria-label="breadcrumb"><ol class="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">Security Dashboard</a></li>
     <li class="breadcrumb-item active">Declassification</li>
   </ol></nav>
@@ -25,12 +25,12 @@
     <input type="hidden" name="object_id" value="{{ $object->id }}">
 
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0">Declassification Options</h5></div>
+      <div class="card-header"><h5 class="mb-0">{{ __('Declassification Options') }}</h5></div>
       <div class="card-body">
         <div class="mb-3">
-          <label class="form-label">Downgrade To</label>
+          <label class="form-label">{{ __('Downgrade To') }}</label>
           <select name="target_classification_id" class="form-select">
-            <option value="0">Public (remove classification)</option>
+            <option value="0">{{ __('Public (remove classification)') }}</option>
             @foreach($classifications ?? [] as $cl)
               @if(($cl->level ?? 0) < ($currentClassification->level ?? 99))
               <option value="{{ $cl->id }}" style="color: {{ $cl->color ?? '#333' }}">{{ e($cl->name) }} (Level {{ $cl->level }})</option>
@@ -40,26 +40,26 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Effective Date</label>
+          <label class="form-label">{{ __('Effective Date') }}</label>
           <div class="form-check mb-2">
             <input type="radio" name="schedule_type" value="immediate" class="form-check-input" id="immediate" checked>
-            <label class="form-check-label" for="immediate">Immediate</label>
+            <label class="form-check-label" for="immediate">{{ __('Immediate') }}</label>
           </div>
           <div class="form-check mb-2">
             <input type="radio" name="schedule_type" value="scheduled" class="form-check-input" id="scheduled">
-            <label class="form-check-label" for="scheduled">Scheduled</label>
+            <label class="form-check-label" for="scheduled">{{ __('Scheduled') }}</label>
           </div>
           <input type="date" name="scheduled_date" class="form-control mt-2" id="scheduledDate" disabled>
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Reason for Declassification</label>
+          <label class="form-label">{{ __('Reason for Declassification') }}</label>
           <textarea name="reason" class="form-control" rows="3" required></textarea>
         </div>
 
         <div class="form-check mb-3">
           <input type="checkbox" name="apply_to_children" value="1" class="form-check-input" id="applyChildren">
-          <label class="form-check-label" for="applyChildren">Apply to all child records</label>
+          <label class="form-check-label" for="applyChildren">{{ __('Apply to all child records') }}</label>
         </div>
       </div>
     </div>

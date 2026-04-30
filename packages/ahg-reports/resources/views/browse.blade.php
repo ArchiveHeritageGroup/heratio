@@ -12,24 +12,24 @@
     <div class="card-body">
 
       <div class="mb-3">
-        <label class="form-label fw-bold">Strong Rooms:</label>
+        <label class="form-label fw-bold">{{ __('Strong Rooms:') }}</label>
         <select name="dropd" id="dropd" class="form-select form-select-sm" onchange="setStrongroomCookie()">
-          <option value="Select">Select</option>
+          <option value="Select">{{ __('Select') }}</option>
           @foreach($strongrooms ?? [] as $room)
             <option value="{{ $room }}">{{ $room }}</option>
           @endforeach
-          <option value="All">All</option>
+          <option value="All">{{ __('All') }}</option>
         </select>
       </div>
 
       <div class="mb-3">
-        <label class="form-label fw-bold">Location:</label>
+        <label class="form-label fw-bold">{{ __('Location:') }}</label>
         <select name="dropl" id="dropl" class="form-select form-select-sm" onchange="setLocationCookie()">
-          <option value="Select">Select</option>
+          <option value="Select">{{ __('Select') }}</option>
           @foreach($locations ?? [] as $loc)
             <option value="{{ $loc }}">{{ $loc }}</option>
           @endforeach
-          <option value="All">All</option>
+          <option value="All">{{ __('All') }}</option>
         </select>
       </div>
 
@@ -94,8 +94,8 @@
     <table class="table table-sm table-bordered mb-0">
       <thead>
         <tr>
-          <th style="background:var(--ahg-primary);color:#fff">Action</th>
-          <th style="background:var(--ahg-primary);color:#fff">Description</th>
+          <th style="background:var(--ahg-primary);color:#fff">{{ __('Action') }}</th>
+          <th style="background:var(--ahg-primary);color:#fff">{{ __('Description') }}</th>
         </tr>
       </thead>
       <tbody>

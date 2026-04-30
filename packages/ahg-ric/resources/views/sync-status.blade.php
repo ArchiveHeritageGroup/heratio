@@ -22,7 +22,7 @@
   <form method="GET" action="{{ route('ric.sync-status') }}" class="row g-2 mb-3">
     <div class="col-auto">
       <select name="entity_type" class="form-select form-select-sm" onchange="this.form.submit()">
-        <option value="">All Entity Types</option>
+        <option value="">{{ __('All Entity Types') }}</option>
         @foreach($entityTypes as $et)
           <option value="{{ $et }}" {{ $entityType === $et ? 'selected' : '' }}>
             {{ ucfirst(str_replace('_', ' ', $et)) }}
@@ -32,7 +32,7 @@
     </div>
     <div class="col-auto">
       <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-        <option value="">All Statuses</option>
+        <option value="">{{ __('All Statuses') }}</option>
         @foreach($statuses as $s)
           <option value="{{ $s }}" {{ $status === $s ? 'selected' : '' }}>
             {{ ucfirst($s) }}
@@ -52,11 +52,11 @@
       <table class="table table-bordered table-striped mb-0">
         <thead>
           <tr>
-            <th>RiC URI</th>
-            <th>Entity Type</th>
-            <th>Entity ID</th>
-            <th>Status</th>
-            <th>Last Synced</th>
+            <th>{{ __('RiC URI') }}</th>
+            <th>{{ __('Entity Type') }}</th>
+            <th>{{ __('Entity ID') }}</th>
+            <th>{{ __('Status') }}</th>
+            <th>{{ __('Last Synced') }}</th>
           </tr>
         </thead>
         <tbody>

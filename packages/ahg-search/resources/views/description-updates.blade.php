@@ -81,7 +81,7 @@
         <div class="col-md-3">
           <label for="user" class="form-label">User <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="user" id="user" class="form-select">
-            <option value="">All users</option>
+            <option value="">{{ __('All users') }}</option>
             @foreach($users as $userId => $displayName)
               <option value="{{ $userId }}" {{ (string) $userName === (string) $userId ? 'selected' : '' }}>{{ $displayName }}</option>
             @endforeach
@@ -90,7 +90,7 @@
 
         {{-- Buttons --}}
         <div class="col-md-9 d-flex align-items-end gap-2">
-          <button type="submit" class="btn atom-btn-outline-light">Search</button>
+          <button type="submit" class="btn atom-btn-outline-light">{{ __('Search') }}</button>
           <a href="{{ route('search.descriptionUpdates') }}" class="btn atom-btn-outline-light">Reset</a>
         </div>
       </div>
@@ -106,9 +106,9 @@
     <table class="table table-bordered mb-0">
       <thead>
         <tr>
-          <th>Title</th>
-          <th>Repository</th>
-          <th>Created</th>
+          <th>{{ __('Title') }}</th>
+          <th>{{ __('Repository') }}</th>
+          <th>{{ __('Created') }}</th>
         </tr>
       </thead>
       <tbody>

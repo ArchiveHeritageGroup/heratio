@@ -25,7 +25,7 @@
       {{-- New Config Form (collapsed) --}}
       <div class="collapse mb-4" id="newConfigForm">
         <div class="card card-body bg-light">
-          <h6 class="mb-3">Add New LLM Configuration</h6>
+          <h6 class="mb-3">{{ __('Add New LLM Configuration') }}</h6>
           <form method="POST" action="{{ route('admin.ai.config') }}">
             @csrf
             <input type="hidden" name="_action" value="create_config">
@@ -34,26 +34,26 @@
               <div class="col-md-4">
                 <label class="form-label">Provider <span class="badge bg-danger ms-1">Required</span></label>
                 <select name="provider" class="form-select" required id="newProvider" onchange="updateNewConfigDefaults()">
-                  <option value="ollama">Ollama (Local)</option>
-                  <option value="openai">OpenAI</option>
-                  <option value="anthropic">Anthropic</option>
+                  <option value="ollama">{{ __('Ollama (Local)') }}</option>
+                  <option value="openai">{{ __('OpenAI') }}</option>
+                  <option value="anthropic">{{ __('Anthropic') }}</option>
                 </select>
               </div>
               <div class="col-md-4">
                 <label class="form-label">Name <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" name="name" class="form-control" required placeholder="e.g., Local Ollama" id="newConfigName">
+                <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g., Local Ollama') }}" id="newConfigName">
               </div>
               <div class="col-md-4">
                 <label class="form-label">Model <span class="badge bg-danger ms-1">Required</span></label>
-                <input type="text" name="model" class="form-control" required id="newConfigModel" placeholder="e.g., llama3.1:8b">
+                <input type="text" name="model" class="form-control" required id="newConfigModel" placeholder="{{ __('e.g., llama3.1:8b') }}">
               </div>
               <div class="col-md-6">
                 <label class="form-label">Endpoint URL <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="url" name="endpoint_url" class="form-control" id="newConfigEndpoint" placeholder="http://localhost:11434">
+                <input type="url" name="endpoint_url" class="form-control" id="newConfigEndpoint" placeholder="{{ __('http://localhost:11434') }}">
               </div>
               <div class="col-md-6">
                 <label class="form-label">API Key <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="password" name="api_key" class="form-control" placeholder="Leave blank for Ollama" id="newConfigApiKey">
+                <input type="password" name="api_key" class="form-control" placeholder="{{ __('Leave blank for Ollama') }}" id="newConfigApiKey">
               </div>
               <div class="col-md-3">
                 <label class="form-label">Max Tokens <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -204,7 +204,7 @@
           <div class="col-md-6">
             <label class="form-label">AI API URL <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="url" name="settings_general[api_url]" class="form-control"
-                   value="{{ $generalSettings->get('api_url')->setting_value ?? '' }}" placeholder="http://192.168.0.112:5004/ai/v1">
+                   value="{{ $generalSettings->get('api_url')->setting_value ?? '' }}" placeholder="{{ __('http://192.168.0.112:5004/ai/v1') }}">
           </div>
           <div class="col-md-3">
             <label class="form-label">API Key <span class="badge bg-secondary ms-1">Optional</span></label>

@@ -3,7 +3,7 @@
   class="d-flex flex-grow-1 my-2"
   role="search"
   action="{{ route('glam.browse') }}">
-  <h2 class="visually-hidden">Search</h2>
+  <h2 class="visually-hidden">{{ __('Search') }}</h2>
   <input type="hidden" name="topLod" value="0">
   <input type="hidden" name="sort" value="relevance">
   <div class="input-group flex-nowrap">
@@ -64,10 +64,10 @@
       name="query"
       autocomplete="off"
       value="{{ request('query') }}"
-      placeholder="Search"
+      placeholder="{{ __('Search') }}"
       data-url="{{ url('/search/autocomplete') }}"
       data-bs-toggle="dropdown"
-      aria-label="Search"
+      aria-label="{{ __('Search') }}"
       aria-expanded="false">
     <ul id="search-box-results" class="dropdown-menu mt-2" aria-labelledby="search-box-input"></ul>
     <button class="btn btn-sm atom-btn-secondary" type="submit">

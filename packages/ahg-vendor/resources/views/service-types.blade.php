@@ -23,7 +23,7 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">Vendor Management</a></li>
             <li class="breadcrumb-item active">Service Types</li>
@@ -54,7 +54,7 @@
                         <th class="sortable" data-sort="name" style="cursor:pointer">Name <i class="fas fa-sort text-muted"></i></th>
                         <th class="sortable" data-sort="description" style="cursor:pointer">Description <i class="fas fa-sort text-muted"></i></th>
                         <th class="sortable" data-sort="status" style="cursor:pointer">Status <i class="fas fa-sort text-muted"></i></th>
-                        <th class="text-end" style="width: 120px;">Actions</th>
+                        <th class="text-end" style="width: 120px;">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -75,13 +75,13 @@
                                     data-name="{{ e($type->name) }}"
                                     data-description="{{ e($type->description ?? '') }}"
                                     data-active="{{ ($type->is_active ?? true) ? '1' : '0' }}"
-                                    title="Edit">
+                                    title="{{ __('Edit') }}">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-danger delete-type-btn"
                                     data-id="{{ $type->id }}"
                                     data-name="{{ e($type->name) }}"
-                                    title="Delete">
+                                    title="{{ __('Delete') }}">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -116,20 +116,20 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Name <span class="text-danger">*</span></label>
-                        <input type="text" name="name" class="form-control" required placeholder="e.g., Conservation, Digitisation, Storage">
+                        <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g., Conservation, Digitisation, Storage') }}">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="2" placeholder="Brief description of this service type"></textarea>
+                        <label class="form-label">{{ __('Description') }}</label>
+                        <textarea name="description" class="form-control" rows="2" placeholder="{{ __('Brief description of this service type') }}"></textarea>
                     </div>
                     <div class="form-check">
                         <input type="checkbox" name="is_active" class="form-check-input" id="addIsActive" value="1" checked>
-                        <label class="form-check-label" for="addIsActive">Active</label>
+                        <label class="form-check-label" for="addIsActive">{{ __('Active') }}</label>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Service Type</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ __('Add Service Type') }}</button>
                 </div>
             </form>
         </div>
@@ -154,17 +154,17 @@
                         <input type="text" name="name" id="editTypeName" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Description</label>
+                        <label class="form-label">{{ __('Description') }}</label>
                         <textarea name="description" id="editTypeDescription" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="form-check">
                         <input type="checkbox" name="is_active" class="form-check-input" id="editIsActive" value="1">
-                        <label class="form-check-label" for="editIsActive">Active</label>
+                        <label class="form-check-label" for="editIsActive">{{ __('Active') }}</label>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ __('Save Changes') }}</button>
                 </div>
             </form>
         </div>
@@ -188,8 +188,8 @@
                     <p class="text-danger mb-0"><small>This action cannot be undone. Transactions using this type will not be affected.</small></p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="submit" class="btn btn-danger">{{ __('Delete') }}</button>
                 </div>
             </form>
         </div>

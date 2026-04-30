@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container py-4">
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('ahgprivacy.index') }}">{{ __('Privacy') }}</a></li>
             <li class="breadcrumb-item active">{{ __('Check Status') }}</li>
@@ -71,7 +71,7 @@ $statusClasses = [
                 <div class="row">
                     <div class="col-md-5 mb-3">
                         <label class="form-label">{{ __('Reference Number') }}</label>
-                        <input type="text" name="reference" class="form-control" placeholder="DSAR-202501-0001" value="{{ request('reference') }}">
+                        <input type="text" name="reference" class="form-control" placeholder="{{ __('DSAR-202501-0001') }}" value="{{ request('reference') }}">
                     </div>
                     <div class="col-md-5 mb-3">
                         <label class="form-label">{{ __('Email Address') }}</label>

@@ -24,7 +24,7 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">Vendor Management</a></li>
             <li class="breadcrumb-item"><a href="{{ route('ahgvendor.transactions') }}">Transactions</a></li>
@@ -56,9 +56,9 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Vendor *</label>
+                                <label class="form-label">{{ __('Vendor *') }}</label>
                                 <select name="vendor_id" class="form-select" required>
-                                    <option value="">Select vendor...</option>
+                                    <option value="">{{ __('Select vendor...') }}</option>
                                     @foreach (($vendors ?? []) as $vendor)
                                     <option value="{{ $vendor->id }}" {{ ($form['vendor_id'] ?? '') == $vendor->id ? 'selected' : '' }}>
                                         {{ e($vendor->name) }}
@@ -67,9 +67,9 @@
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Service Type *</label>
+                                <label class="form-label">{{ __('Service Type *') }}</label>
                                 <select name="service_type_id" class="form-select" required>
-                                    <option value="">Select service...</option>
+                                    <option value="">{{ __('Select service...') }}</option>
                                     @foreach (($serviceTypes ?? []) as $service)
                                     <option value="{{ $service->id }}" {{ ($form['service_type_id'] ?? '') == $service->id ? 'selected' : '' }}>
                                         {{ e($service->name) }}
@@ -80,25 +80,25 @@
                         </div>
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Request Date *</label>
+                                <label class="form-label">{{ __('Request Date *') }}</label>
                                 <input type="date" name="request_date" class="form-control" value="{{ e($form['request_date'] ?? date('Y-m-d')) }}" required>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Due Date</label>
+                                <label class="form-label">{{ __('Due Date') }}</label>
                                 <input type="date" name="due_date" class="form-control" value="{{ e($form['due_date'] ?? '') }}">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Priority</label>
+                                <label class="form-label">{{ __('Priority') }}</label>
                                 <select name="priority" class="form-select">
-                                    <option value="normal">Normal</option>
-                                    <option value="low">Low</option>
-                                    <option value="high">High</option>
-                                    <option value="urgent">Urgent</option>
+                                    <option value="normal">{{ __('Normal') }}</option>
+                                    <option value="low">{{ __('Low') }}</option>
+                                    <option value="high">{{ __('High') }}</option>
+                                    <option value="urgent">{{ __('Urgent') }}</option>
                                 </select>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
+                            <label class="form-label">{{ __('Description') }}</label>
                             <textarea name="description" class="form-control" rows="2">{{ e($form['description'] ?? '') }}</textarea>
                         </div>
                     </div>
@@ -117,9 +117,9 @@
 
                         {{-- Search Box --}}
                         <div class="mb-3">
-                            <label class="form-label">Search GLAM Items</label>
+                            <label class="form-label">{{ __('Search GLAM Items') }}</label>
                             <div class="input-group">
-                                <input type="text" id="glamSearch" class="form-control" placeholder="Type title or identifier to search..." autocomplete="off">
+                                <input type="text" id="glamSearch" class="form-control" placeholder="{{ __('Type title or identifier to search...') }}" autocomplete="off">
                                 <button type="button" class="btn btn-outline-secondary" onclick="clearSearch()">
                                     <i class="fas fa-times"></i>
                                 </button>
@@ -132,10 +132,10 @@
                             <table class="table table-sm" id="selectedItemsTable" style="display: none;">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>Item</th>
-                                        <th width="120">Condition</th>
-                                        <th width="120">Value (R)</th>
-                                        <th width="50">Actions</th>
+                                        <th>{{ __('Item') }}</th>
+                                        <th width="120">{{ __('Condition') }}</th>
+                                        <th width="120">{{ __('Value (R)') }}</th>
+                                        <th width="50">{{ __('Actions') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody id="selectedItemsBody">
@@ -155,7 +155,7 @@
                         <i class="fas fa-sticky-note me-2"></i>Notes
                     </div>
                     <div class="card-body">
-                        <textarea name="notes" class="form-control" rows="3" placeholder="Additional notes about this transaction...">{{ e($form['notes'] ?? '') }}</textarea>
+                        <textarea name="notes" class="form-control" rows="3" placeholder="{{ __('Additional notes about this transaction...') }}">{{ e($form['notes'] ?? '') }}</textarea>
                     </div>
                 </div>
             </div>
@@ -168,7 +168,7 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label class="form-label">Estimated Cost</label>
+                            <label class="form-label">{{ __('Estimated Cost') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text">R</span>
                                 <input type="number" name="estimated_cost" class="form-control" step="0.01" value="{{ $form['estimated_cost'] ?? '' }}">
@@ -184,8 +184,8 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label class="form-label">Reference Number</label>
-                            <input type="text" name="reference_number" class="form-control" value="{{ e($form['reference_number'] ?? '') }}" placeholder="Optional external reference">
+                            <label class="form-label">{{ __('Reference Number') }}</label>
+                            <input type="text" name="reference_number" class="form-control" value="{{ e($form['reference_number'] ?? '') }}" placeholder="{{ __('Optional external reference') }}">
                         </div>
                     </div>
                 </div>

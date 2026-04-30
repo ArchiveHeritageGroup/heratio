@@ -5,7 +5,7 @@
 
 @section('title-block')
   <div class="multiline-header d-flex flex-column mb-3">
-    <h1 class="mb-0" aria-describedby="heading-label">View rights holder</h1>
+    <h1 class="mb-0" aria-describedby="heading-label">{{ __('View rights holder') }}</h1>
     <span class="small" id="heading-label">{{ $rightsHolder->authorized_form_of_name ?: '[Untitled]' }}</span>
   </div>
 @endsection
@@ -41,7 +41,7 @@
 
       @if($rightsHolder->authorized_form_of_name)
         <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Authorized form of name</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Authorized form of name') }}</h3>
           <div class="col-9 p-2">{{ $rightsHolder->authorized_form_of_name }}</div>
         </div>
       @endif
@@ -60,7 +60,7 @@
             {{-- Contact person with primary badge --}}
             @if($contactItem->contact_person)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">&nbsp;</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('&nbsp;') }}</h3>
                 <div class="col-9 p-2">
                   <span class="text-primary">{{ $contactItem->contact_person }}</span>
                   @if($contactItem->primary_contact)
@@ -73,7 +73,7 @@
             {{-- Contact type --}}
             @if($contactItem->contact_type ?? null)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Type</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Type') }}</h3>
                 <div class="col-9 p-2">{{ $contactItem->contact_type }}</div>
               </div>
             @endif
@@ -81,35 +81,35 @@
             {{-- Address group --}}
             @if($contactItem->street_address || ($contactItem->city ?? null) || ($contactItem->region ?? null) || $contactItem->country_code || $contactItem->postal_code)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Address</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Address') }}</h3>
                 <div class="col-9 p-2">
                   @if($contactItem->street_address)
                     <div class="field row g-0">
-                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">Street address</h4>
+                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">{{ __('Street address') }}</h4>
                       <div class="col-9 p-1">{{ $contactItem->street_address }}</div>
                     </div>
                   @endif
                   @if($contactItem->city ?? null)
                     <div class="field row g-0">
-                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">City</h4>
+                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">{{ __('City') }}</h4>
                       <div class="col-9 p-1">{{ $contactItem->city }}</div>
                     </div>
                   @endif
                   @if($contactItem->region ?? null)
                     <div class="field row g-0">
-                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">Region</h4>
+                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">{{ __('Region') }}</h4>
                       <div class="col-9 p-1">{{ $contactItem->region }}</div>
                     </div>
                   @endif
                   @if($contactItem->country_code)
                     <div class="field row g-0">
-                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">Country</h4>
+                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">{{ __('Country') }}</h4>
                       <div class="col-9 p-1">{{ $contactItem->country_code }}</div>
                     </div>
                   @endif
                   @if($contactItem->postal_code)
                     <div class="field row g-0">
-                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">Postal code</h4>
+                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">{{ __('Postal code') }}</h4>
                       <div class="col-9 p-1">{{ $contactItem->postal_code }}</div>
                     </div>
                   @endif
@@ -120,7 +120,7 @@
             {{-- Telephone --}}
             @if($contactItem->telephone)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Telephone</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Telephone') }}</h3>
                 <div class="col-9 p-2">{{ $contactItem->telephone }}</div>
               </div>
             @endif
@@ -128,7 +128,7 @@
             {{-- Fax --}}
             @if($contactItem->fax)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Fax</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Fax') }}</h3>
                 <div class="col-9 p-2">{{ $contactItem->fax }}</div>
               </div>
             @endif
@@ -136,7 +136,7 @@
             {{-- Email --}}
             @if($contactItem->email)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Email</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Email') }}</h3>
                 <div class="col-9 p-2">{{ $contactItem->email }}</div>
               </div>
             @endif
@@ -152,7 +152,7 @@
             {{-- Note --}}
             @if($contactItem->note ?? null)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Note</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Note') }}</h3>
                 <div class="col-9 p-2">{{ $contactItem->note }}</div>
               </div>
             @endif
@@ -172,17 +172,17 @@
           <table class="table table-bordered table-striped table-sm mb-0">
             <thead>
               <tr>
-                <th>Basis</th>
-                <th>Start date</th>
-                <th>End date</th>
-                <th>Rights note</th>
-                <th>Copyright status</th>
-                <th>Copyright jurisdiction</th>
-                <th>Copyright note</th>
-                <th>License terms</th>
-                <th>License note</th>
-                <th>Statute jurisdiction</th>
-                <th>Statute note</th>
+                <th>{{ __('Basis') }}</th>
+                <th>{{ __('Start date') }}</th>
+                <th>{{ __('End date') }}</th>
+                <th>{{ __('Rights note') }}</th>
+                <th>{{ __('Copyright status') }}</th>
+                <th>{{ __('Copyright jurisdiction') }}</th>
+                <th>{{ __('Copyright note') }}</th>
+                <th>{{ __('License terms') }}</th>
+                <th>{{ __('License note') }}</th>
+                <th>{{ __('Statute jurisdiction') }}</th>
+                <th>{{ __('Statute note') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -218,7 +218,7 @@
             {{-- Linked information object --}}
             @if($er->object_title || $er->object_slug)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Information object</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Information object') }}</h3>
                 <div class="col-9 p-2">
                   @if($er->object_slug)
                     <a href="{{ route('informationobject.show', $er->object_slug) }}">{{ $er->object_title ?: '[Untitled]' }}</a>
@@ -232,7 +232,7 @@
             {{-- Rights statement --}}
             @if($er->rights_statement_name || $er->rights_statement_code)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rights statement</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Rights statement') }}</h3>
                 <div class="col-9 p-2">
                   @if($er->rights_statement_uri)
                     <a href="{{ $er->rights_statement_uri }}" target="_blank">{{ $er->rights_statement_name ?: $er->rights_statement_code }}</a>
@@ -249,7 +249,7 @@
             {{-- Creative Commons license --}}
             @if($er->cc_license_code || $er->cc_license_uri)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Creative Commons license</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Creative Commons license') }}</h3>
                 <div class="col-9 p-2">
                   @if($er->cc_license_uri)
                     <a href="{{ $er->cc_license_uri }}" target="_blank">{{ $er->cc_license_code }}</a>
@@ -264,7 +264,7 @@
             {{-- Rights holder name --}}
             @if($er->rights_holder)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rights holder</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Rights holder') }}</h3>
                 <div class="col-9 p-2">
                   {{ $er->rights_holder }}
                   @if($er->rights_holder_uri)
@@ -277,7 +277,7 @@
             {{-- Rights date / Expiry date --}}
             @if($er->rights_date || $er->expiry_date)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Dates</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Dates') }}</h3>
                 <div class="col-9 p-2">
                   @if($er->rights_date)
                     <span>From: {{ $er->rights_date }}</span>
@@ -292,7 +292,7 @@
             {{-- Primary flag --}}
             @if($er->is_primary)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Primary</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Primary') }}</h3>
                 <div class="col-9 p-2"><span class="badge bg-primary">Primary rights record</span></div>
               </div>
             @endif
@@ -300,7 +300,7 @@
             {{-- Rights note --}}
             @if($er->rights_note)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rights note</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Rights note') }}</h3>
                 <div class="col-9 p-2">{{ $er->rights_note }}</div>
               </div>
             @endif
@@ -308,7 +308,7 @@
             {{-- Usage conditions --}}
             @if($er->usage_conditions)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Usage conditions</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Usage conditions') }}</h3>
                 <div class="col-9 p-2">{{ $er->usage_conditions }}</div>
               </div>
             @endif
@@ -316,7 +316,7 @@
             {{-- Copyright notice --}}
             @if($er->copyright_notice)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Copyright notice</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Copyright notice') }}</h3>
                 <div class="col-9 p-2">{{ $er->copyright_notice }}</div>
               </div>
             @endif
@@ -324,7 +324,7 @@
             {{-- TK Labels --}}
             @if(isset($extendedRightsTkLabels[$er->id]) && $extendedRightsTkLabels[$er->id]->isNotEmpty())
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">TK Labels</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('TK Labels') }}</h3>
                 <div class="col-9 p-2">
                   @foreach($extendedRightsTkLabels[$er->id] as $tkLabel)
                     <span class="badge me-1 mb-1" style="background-color:{{ $tkLabel->color ?: '#6c757d' }};">
@@ -342,7 +342,7 @@
             {{-- Created / Updated timestamps --}}
             @if($er->created_at || $er->updated_at)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Timestamps</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Timestamps') }}</h3>
                 <div class="col-9 p-2">
                   @if($er->created_at)
                     <small class="text-muted">Created: {{ $er->created_at }}</small>

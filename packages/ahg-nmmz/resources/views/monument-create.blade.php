@@ -21,7 +21,7 @@
 <div class="container-fluid">
   <div class="row mb-4">
     <div class="col">
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
           <li class="breadcrumb-item"><a href="{{ route('nmmz.monuments') }}">National Monuments</a></li>
@@ -36,7 +36,7 @@
     @csrf
     <div class="col-lg-8">
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Monument Information</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Monument Information') }}</h5></div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-8">
@@ -44,53 +44,53 @@
               <input type="text" name="name" class="form-control" required>
             </div>
             <div class="col-md-4">
-              <label class="form-label">Category</label>
+              <label class="form-label">{{ __('Category') }}</label>
               <select name="category_id" class="form-select">
-                <option value="">Select...</option>
+                <option value="">{{ __('Select...') }}</option>
                 @foreach($categories as $cat)
                   <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                 @endforeach
               </select>
             </div>
             <div class="col-12">
-              <label class="form-label">Description</label>
+              <label class="form-label">{{ __('Description') }}</label>
               <textarea name="description" class="form-control" rows="4"></textarea>
             </div>
             <div class="col-12">
-              <label class="form-label">Historical Significance</label>
-              <textarea name="historical_significance" class="form-control" rows="3" placeholder="Describe the historical and cultural significance"></textarea>
+              <label class="form-label">{{ __('Historical Significance') }}</label>
+              <textarea name="historical_significance" class="form-control" rows="3" placeholder="{{ __('Describe the historical and cultural significance') }}"></textarea>
             </div>
           </div>
         </div>
       </div>
 
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Location</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Location') }}</h5></div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Province</label>
+              <label class="form-label">{{ __('Province') }}</label>
               <select name="province" class="form-select">
-                <option value="">Select...</option>
+                <option value="">{{ __('Select...') }}</option>
                 @foreach($provinces as $p)
                   <option value="{{ $p }}">{{ $p }}</option>
                 @endforeach
               </select>
             </div>
             <div class="col-md-6">
-              <label class="form-label">District</label>
+              <label class="form-label">{{ __('District') }}</label>
               <input type="text" name="district" class="form-control">
             </div>
             <div class="col-12">
-              <label class="form-label">Location Description</label>
+              <label class="form-label">{{ __('Location Description') }}</label>
               <textarea name="location_description" class="form-control" rows="2"></textarea>
             </div>
             <div class="col-md-6">
-              <label class="form-label">GPS Latitude</label>
+              <label class="form-label">{{ __('GPS Latitude') }}</label>
               <input type="text" name="gps_latitude" class="form-control" placeholder="-17.8252">
             </div>
             <div class="col-md-6">
-              <label class="form-label">GPS Longitude</label>
+              <label class="form-label">{{ __('GPS Longitude') }}</label>
               <input type="text" name="gps_longitude" class="form-control" placeholder="31.0335">
             </div>
           </div>
@@ -98,46 +98,46 @@
       </div>
 
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">Legal &amp; Protection Status</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Legal &amp; Protection Status') }}</h5></div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-4">
-              <label class="form-label">Protection Level</label>
+              <label class="form-label">{{ __('Protection Level') }}</label>
               <select name="protection_level" class="form-select">
-                <option value="national">National</option>
-                <option value="provincial">Provincial</option>
-                <option value="local">Local</option>
-                <option value="world_heritage">World Heritage</option>
+                <option value="national">{{ __('National') }}</option>
+                <option value="provincial">{{ __('Provincial') }}</option>
+                <option value="local">{{ __('Local') }}</option>
+                <option value="world_heritage">{{ __('World Heritage') }}</option>
               </select>
             </div>
             <div class="col-md-4">
-              <label class="form-label">Legal Status</label>
+              <label class="form-label">{{ __('Legal Status') }}</label>
               <select name="legal_status" class="form-select">
-                <option value="proposed">Proposed</option>
-                <option value="provisional">Provisional</option>
-                <option value="gazetted">Gazetted</option>
+                <option value="proposed">{{ __('Proposed') }}</option>
+                <option value="provisional">{{ __('Provisional') }}</option>
+                <option value="gazetted">{{ __('Gazetted') }}</option>
               </select>
             </div>
             <div class="col-md-4">
-              <label class="form-label">Ownership Type</label>
+              <label class="form-label">{{ __('Ownership Type') }}</label>
               <select name="ownership_type" class="form-select">
-                <option value="">Select...</option>
-                <option value="state">State</option>
-                <option value="private">Private</option>
-                <option value="communal">Communal</option>
-                <option value="church">Church/Religious</option>
-                <option value="mixed">Mixed</option>
+                <option value="">{{ __('Select...') }}</option>
+                <option value="state">{{ __('State') }}</option>
+                <option value="private">{{ __('Private') }}</option>
+                <option value="communal">{{ __('Communal') }}</option>
+                <option value="church">{{ __('Church/Religious') }}</option>
+                <option value="mixed">{{ __('Mixed') }}</option>
               </select>
             </div>
             <div class="col-md-4">
-              <label class="form-label">Condition Rating</label>
+              <label class="form-label">{{ __('Condition Rating') }}</label>
               <select name="condition_rating" class="form-select">
-                <option value="">Select...</option>
-                <option value="excellent">Excellent</option>
-                <option value="good">Good</option>
-                <option value="fair">Fair</option>
-                <option value="poor">Poor</option>
-                <option value="critical">Critical</option>
+                <option value="">{{ __('Select...') }}</option>
+                <option value="excellent">{{ __('Excellent') }}</option>
+                <option value="good">{{ __('Good') }}</option>
+                <option value="fair">{{ __('Fair') }}</option>
+                <option value="poor">{{ __('Poor') }}</option>
+                <option value="critical">{{ __('Critical') }}</option>
               </select>
             </div>
           </div>

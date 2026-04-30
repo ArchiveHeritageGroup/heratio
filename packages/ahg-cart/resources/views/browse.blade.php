@@ -34,10 +34,10 @@
       <table class="table mb-0 align-middle">
         <thead class="table-light">
           <tr>
-            <th style="width:80px;">&nbsp;</th>
-            <th>Listing</th>
-            <th>Seller</th>
-            <th class="text-end">Price</th>
+            <th style="width:80px;">{{ __('&nbsp;') }}</th>
+            <th>{{ __('Listing') }}</th>
+            <th>{{ __('Seller') }}</th>
+            <th class="text-end">{{ __('Price') }}</th>
             <th class="text-center" style="width:60px;"></th>
           </tr>
         </thead>
@@ -66,7 +66,7 @@
               <td class="text-center">
                 <form method="post" action="{{ route('cart.remove', $m->cart_id) }}" class="d-inline">
                   @csrf
-                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove">
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Remove') }}">
                     <i class="fas fa-times"></i>
                   </button>
                 </form>
@@ -76,7 +76,7 @@
         </tbody>
         <tfoot class="table-light">
           <tr>
-            <th colspan="3" class="text-end">Subtotal</th>
+            <th colspan="3" class="text-end">{{ __('Subtotal') }}</th>
             <th class="text-end">{{ $marketplaceCart['currency'] }} {{ number_format($marketplaceCart['subtotal'], 2) }}</th>
             <th></th>
           </tr>
@@ -124,10 +124,10 @@
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
-          <th>Item</th>
-          @if($isEcommerce)<th>Product</th><th>Price</th>@endif
-          <th>Date added</th>
-          <th style="width:80px">Actions</th>
+          <th>{{ __('Item') }}</th>
+          @if($isEcommerce)<th>{{ __('Product') }}</th><th>{{ __('Price') }}</th>@endif
+          <th>{{ __('Date added') }}</th>
+          <th style="width:80px">{{ __('Actions') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -139,7 +139,7 @@
           @if($isEcommerce)
             <td>
               <select name="product_{{ $item->id }}" class="form-select form-select-sm product-select" data-item-id="{{ $item->id }}">
-                <option value="">Select product...</option>
+                <option value="">{{ __('Select product...') }}</option>
                 @foreach($productTypes as $pt)
                   @php $price = $pricing->firstWhere('product_type_id', $pt->id); @endphp
                   <option value="{{ $pt->id }}" data-price="{{ $price->price ?? 0 }}" {{ $item->product_type_id == $pt->id ? 'selected' : '' }}>
@@ -154,7 +154,7 @@
           <td>
             <form method="post" action="{{ route('cart.remove', $item->id) }}" class="d-inline">
               @csrf
-              <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove"><i class="fas fa-times"></i></button>
+              <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="{{ __('Remove') }}"><i class="fas fa-times"></i></button>
             </form>
           </td>
         </tr>

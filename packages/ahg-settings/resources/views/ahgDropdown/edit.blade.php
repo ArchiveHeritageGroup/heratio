@@ -22,7 +22,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Slug <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="text" name="slug" class="form-control" value="{{ $dropdown->slug ?? '' }}" placeholder="Auto-generated from name">
+            <input type="text" name="slug" class="form-control" value="{{ $dropdown->slug ?? '' }}" placeholder="{{ __('Auto-generated from name') }}">
           </div>
           <div class="mb-3">
             <label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -40,7 +40,7 @@
           <div id="dropdown-values">
             @foreach($values ?? [] as $i => $value)
               <div class="input-group mb-2 dropdown-value-row">
-                <input type="text" name="values[]" class="form-control" value="{{ $value->value ?? $value }}" placeholder="Value">
+                <input type="text" name="values[]" class="form-control" value="{{ $value->value ?? $value }}" placeholder="{{ __('Value') }}">
                 <button type="button" class="btn atom-btn-outline-danger remove-value-btn"><i class="fas fa-times"></i></button>
               </div>
             @endforeach

@@ -8,7 +8,7 @@
 <div class="container mt-4">
   <div class="row">
     <div class="col-lg-10 mx-auto">
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
           <li class="breadcrumb-item"><a href="{{ route('acl.security-index') }}">Security Clearances</a></li>
@@ -75,7 +75,7 @@
           @if($clearance ?? null)
             <div class="card mt-3">
               <div class="card-header">
-                <h6 class="mb-0">Clearance Details</h6>
+                <h6 class="mb-0">{{ __('Clearance Details') }}</h6>
               </div>
               <ul class="list-group list-group-flush">
                 <li class="list-group-item d-flex justify-content-between">
@@ -116,11 +116,11 @@
                   <table class="table table-sm table-hover mb-0">
                     <thead class="table-light">
                       <tr>
-                        <th>Object</th>
-                        <th>Type</th>
-                        <th>Scope</th>
-                        <th>Access</th>
-                        <th>Granted</th>
+                        <th>{{ __('Object') }}</th>
+                        <th>{{ __('Type') }}</th>
+                        <th>{{ __('Scope') }}</th>
+                        <th>{{ __('Access') }}</th>
+                        <th>{{ __('Granted') }}</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -225,7 +225,7 @@
           <p>Granting clearance to: <strong>{{ e($targetUser->username ?? '') }}</strong></p>
 
           <div class="mb-3">
-            <label for="classification_id" class="form-label">Clearance Level</label>
+            <label for="classification_id" class="form-label">{{ __('Clearance Level') }}</label>
             <select class="form-select" name="classification_id" required>
               <option value="0">-- Revoke Clearance --</option>
               @foreach($classifications ?? [] as $c)
@@ -237,18 +237,18 @@
           </div>
 
           <div class="mb-3">
-            <label for="expires_at" class="form-label">Expires (optional)</label>
+            <label for="expires_at" class="form-label">{{ __('Expires (optional)') }}</label>
             <input type="date" class="form-control" name="expires_at"
                    value="{{ ($clearance && ($clearance->expires_at ?? null)) ? date('Y-m-d', strtotime($clearance->expires_at)) : '' }}">
           </div>
 
           <div class="mb-3">
-            <label for="notes" class="form-label">Notes</label>
-            <textarea class="form-control" name="notes" rows="2" placeholder="Reason for change..."></textarea>
+            <label for="notes" class="form-label">{{ __('Notes') }}</label>
+            <textarea class="form-control" name="notes" rows="2" placeholder="{{ __('Reason for change...') }}"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="submit" class="btn btn-success">
             <i class="fas fa-check me-1"></i> Save Changes
           </button>

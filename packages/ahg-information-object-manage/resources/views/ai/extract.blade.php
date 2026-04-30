@@ -27,7 +27,7 @@
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
           <span><i class="bi bi-list-check me-1"></i>Extracted Entities</span>
-          <button class="btn btn-sm atom-btn-outline-success" onclick="approveAll()">Approve All</button>
+          <button class="btn btn-sm atom-btn-outline-success" onclick="approveAll()">{{ __('Approve All') }}</button>
         </div>
         <div class="card-body" id="nerResultsBody"></div>
       </div>

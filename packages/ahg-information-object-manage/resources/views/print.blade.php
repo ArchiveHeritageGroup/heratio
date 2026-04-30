@@ -20,7 +20,7 @@
   @endif
 
   {{-- ===== 1. Identity area ===== --}}
-  <h2 class="section-heading">Identity area</h2>
+  <h2 class="section-heading">{{ __('Identity area') }}</h2>
 
   @if($io->identifier)
     <div class="field-row">
@@ -72,7 +72,7 @@
   @endif
 
   {{-- ===== 2. Context area ===== --}}
-  <h2 class="section-heading">Context area</h2>
+  <h2 class="section-heading">{{ __('Context area') }}</h2>
 
   @if(isset($creators) && $creators->isNotEmpty())
     @foreach($creators as $creator)
@@ -134,7 +134,7 @@
   @endif
 
   {{-- ===== 3. Content and structure area ===== --}}
-  <h2 class="section-heading">Content and structure area</h2>
+  <h2 class="section-heading">{{ __('Content and structure area') }}</h2>
 
   @if($io->scope_and_content)
     <div class="field-row">
@@ -165,7 +165,7 @@
   @endif
 
   {{-- ===== 4. Conditions of access and use area ===== --}}
-  <h2 class="section-heading">Conditions of access and use area</h2>
+  <h2 class="section-heading">{{ __('Conditions of access and use area') }}</h2>
 
   @if($io->access_conditions)
     <div class="field-row">
@@ -227,7 +227,7 @@
   @endif
 
   {{-- ===== 5. Allied materials area ===== --}}
-  <h2 class="section-heading">Allied materials area</h2>
+  <h2 class="section-heading">{{ __('Allied materials area') }}</h2>
 
   @if($io->location_of_originals)
     <div class="field-row">
@@ -260,7 +260,7 @@
   @endif
 
   {{-- ===== 6. Notes area ===== --}}
-  <h2 class="section-heading">Notes area</h2>
+  <h2 class="section-heading">{{ __('Notes area') }}</h2>
 
   @if(isset($notes) && $notes->isNotEmpty())
     @foreach($notes->where('type_id', 137) as $note)
@@ -281,7 +281,7 @@
   @endif
 
   {{-- ===== 7. Access points ===== --}}
-  <h2 class="section-heading">Access points</h2>
+  <h2 class="section-heading">{{ __('Access points') }}</h2>
 
   @if(isset($subjects) && $subjects->isNotEmpty())
     <div class="field-row">
@@ -328,7 +328,7 @@
   @endif
 
   {{-- ===== 8. Description control area ===== --}}
-  <h2 class="section-heading">Description control area</h2>
+  <h2 class="section-heading">{{ __('Description control area') }}</h2>
 
   @if($io->description_identifier ?? null)
     <div class="field-row">
@@ -412,7 +412,7 @@
 
   {{-- ===== 9. Rights area ===== --}}
   @if(isset($rights) && (is_countable($rights) ? count($rights) > 0 : !empty($rights)))
-    <h2 class="section-heading">Rights area</h2>
+    <h2 class="section-heading">{{ __('Rights area') }}</h2>
     @foreach($rights as $right)
       <div class="field-row">
         <div class="field-label">{{ $right->basis ?? 'Right' }}</div>
@@ -431,7 +431,7 @@
 
   {{-- ===== 10. Accession area ===== --}}
   @if(isset($accessions) && (is_countable($accessions) ? count($accessions) > 0 : !empty($accessions)))
-    <h2 class="section-heading">Accession area</h2>
+    <h2 class="section-heading">{{ __('Accession area') }}</h2>
     @foreach($accessions as $accession)
       <div class="field-row">
         <div class="field-label">Accession</div>
@@ -459,7 +459,7 @@
 
   {{-- ===== 12. Publication status ===== --}}
   @if(isset($publicationStatus) && $publicationStatus)
-    <h2 class="section-heading">Administration</h2>
+    <h2 class="section-heading">{{ __('Administration') }}</h2>
     <div class="field-row">
       <div class="field-label">Publication status</div>
       <div class="field-value">{{ $publicationStatus }}</div>
@@ -472,8 +472,8 @@
     <table>
       <thead>
         <tr>
-          <th>Title</th>
-          <th style="width: 150px;">Level</th>
+          <th>{{ __('Title') }}</th>
+          <th style="width: 150px;">{{ __('Level') }}</th>
         </tr>
       </thead>
       <tbody>

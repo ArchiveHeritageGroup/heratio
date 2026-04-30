@@ -11,7 +11,7 @@
     <div class="col-md-3">
       <div class="card bg-primary text-white">
         <div class="card-body">
-          <h5 class="card-title">Pending Requests</h5>
+          <h5 class="card-title">{{ __('Pending Requests') }}</h5>
           <h2>{{ $statistics['pending_requests'] ?? 0 }}</h2>
           <small>Awaiting review</small>
         </div>
@@ -20,7 +20,7 @@
     <div class="col-md-3">
       <div class="card bg-warning text-dark">
         <div class="card-body">
-          <h5 class="card-title">Expiring Clearances</h5>
+          <h5 class="card-title">{{ __('Expiring Clearances') }}</h5>
           <h2>{{ $statistics['expiring_clearances'] ?? 0 }}</h2>
           <small>Within 30 days</small>
         </div>
@@ -29,7 +29,7 @@
     <div class="col-md-3">
       <div class="card bg-danger text-white">
         <div class="card-body">
-          <h5 class="card-title">Recent Denials</h5>
+          <h5 class="card-title">{{ __('Recent Denials') }}</h5>
           <h2>{{ $statistics['recent_denials'] ?? 0 }}</h2>
           <small>Last 7 days</small>
         </div>
@@ -38,7 +38,7 @@
     <div class="col-md-3">
       <div class="card bg-info text-white">
         <div class="card-body">
-          <h5 class="card-title">Reviews Due</h5>
+          <h5 class="card-title">{{ __('Reviews Due') }}</h5>
           <h2>{{ $statistics['reviews_due'] ?? 0 }}</h2>
           <small>Declassifications</small>
         </div>
@@ -55,7 +55,7 @@
         </div>
         <div class="card-body">
           <table class="table table-sm">
-            <thead><tr><th>Level</th><th>Users</th></tr></thead>
+            <thead><tr><th>{{ __('Level') }}</th><th>{{ __('Users') }}</th></tr></thead>
             <tbody>
               @foreach($statistics['clearances_by_level'] ?? [] as $level)
               <tr>
@@ -78,7 +78,7 @@
         </div>
         <div class="card-body">
           <table class="table table-sm">
-            <thead><tr><th>Classification</th><th>Objects</th></tr></thead>
+            <thead><tr><th>{{ __('Classification') }}</th><th>{{ __('Objects') }}</th></tr></thead>
             <tbody>
               @foreach($statistics['objects_by_level'] ?? [] as $level)
               <tr>
@@ -102,7 +102,7 @@
     <div class="card-body">
       <table class="table table-striped">
         <thead>
-          <tr><th>User</th><th>Object</th><th>Type</th><th>Priority</th><th>Requested</th><th>Actions</th></tr>
+          <tr><th>{{ __('User') }}</th><th>{{ __('Object') }}</th><th>{{ __('Type') }}</th><th>{{ __('Priority') }}</th><th>{{ __('Requested') }}</th><th>{{ __('Actions') }}</th></tr>
         </thead>
         <tbody>
           @foreach($pendingRequests as $req)
@@ -136,7 +136,7 @@
     <div class="card-body">
       <table class="table table-striped">
         <thead>
-          <tr><th>User</th><th>Clearance</th><th>Expires</th><th>Days Left</th><th>Renewal Status</th><th>Actions</th></tr>
+          <tr><th>{{ __('User') }}</th><th>{{ __('Clearance') }}</th><th>{{ __('Expires') }}</th><th>{{ __('Days Left') }}</th><th>{{ __('Renewal Status') }}</th><th>{{ __('Actions') }}</th></tr>
         </thead>
         <tbody>
           @foreach($expiringClearances as $exp)
@@ -171,7 +171,7 @@
     </div>
     <div class="card-body">
       <table class="table table-striped">
-        <thead><tr><th>Object</th><th>Current</th><th>Downgrade To</th><th>Scheduled Date</th></tr></thead>
+        <thead><tr><th>{{ __('Object') }}</th><th>{{ __('Current') }}</th><th>{{ __('Downgrade To') }}</th><th>{{ __('Scheduled Date') }}</th></tr></thead>
         <tbody>
           @foreach($dueDeclassifications as $dec)
           <tr>

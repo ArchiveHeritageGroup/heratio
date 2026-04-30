@@ -26,9 +26,9 @@
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">RiC Concept</th><td>rico:Instantiation (Physical Carrier)</td></tr>
-        @if($typeName ?? null)<tr><th class="text-muted">Type</th><td>{{ $typeName }}</td></tr>@endif
-        @if($storage->location ?? null)<tr><th class="text-muted">Location</th><td>{{ $storage->location }}</td></tr>@endif
+        <tr><th class="text-muted" style="width:35%">{{ __('RiC Concept') }}</th><td>rico:Instantiation (Physical Carrier)</td></tr>
+        @if($typeName ?? null)<tr><th class="text-muted">{{ __('Type') }}</th><td>{{ $typeName }}</td></tr>@endif
+        @if($storage->location ?? null)<tr><th class="text-muted">{{ __('Location') }}</th><td>{{ $storage->location }}</td></tr>@endif
       </table>
     </div>
   </div>

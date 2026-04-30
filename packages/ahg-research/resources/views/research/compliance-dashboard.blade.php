@@ -8,7 +8,7 @@
 @section('title', 'Compliance Dashboard')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
@@ -42,7 +42,7 @@
                     };
                 @endphp
                 <i class="{{ $esIcon }} fa-2x mb-2"></i>
-                <h6>Ethics Status</h6>
+                <h6>{{ __('Ethics Status') }}</h6>
                 <span class="badge bg-{{ match($ethicsStatus ?? '') { 'approved' => 'success', 'pending' => 'warning', 'rejected' => 'danger', default => 'secondary' } }}">{{ ucfirst($ethicsStatus ?? 'Unknown') }}</span>
             </div>
         </div>
@@ -51,7 +51,7 @@
         <div class="card">
             <div class="card-body text-center">
                 <i class="fas fa-balance-scale text-primary fa-2x mb-2"></i>
-                <h6>ODRL Policies</h6>
+                <h6>{{ __('ODRL Policies') }}</h6>
                 <h3 class="mb-0">{{ $odrlPolicyCount ?? 0 }}</h3>
             </div>
         </div>
@@ -60,7 +60,7 @@
         <div class="card">
             <div class="card-body text-center">
                 <i class="fas fa-lock text-warning fa-2x mb-2"></i>
-                <h6>Max Security Level</h6>
+                <h6>{{ __('Max Security Level') }}</h6>
                 <span class="badge bg-warning">{{ ucfirst($sensitivitySummary['max_level'] ?? 'N/A') }}</span>
             </div>
         </div>
@@ -69,7 +69,7 @@
         <div class="card">
             <div class="card-body text-center">
                 <i class="fas fa-chart-pie text-info fa-2x mb-2"></i>
-                <h6>Compliance Score</h6>
+                <h6>{{ __('Compliance Score') }}</h6>
                 <span class="badge bg-info">--</span>
             </div>
         </div>
@@ -79,7 +79,7 @@
 {{-- Ethics Milestones --}}
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0">Ethics Milestones</h6>
+        <h6 class="mb-0">{{ __('Ethics Milestones') }}</h6>
         <a href="{{ route('research.ethicsMilestones', $project->id ?? 0) }}" class="btn btn-sm btn-outline-primary">Manage</a>
     </div>
     <div class="card-body p-0">
@@ -87,7 +87,7 @@
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead class="table-light">
-                    <tr><th>Title</th><th>Type</th><th>Status</th><th>Created</th></tr>
+                    <tr><th>{{ __('Title') }}</th><th>{{ __('Type') }}</th><th>{{ __('Status') }}</th><th>{{ __('Created') }}</th></tr>
                 </thead>
                 <tbody>
                     @foreach($ethicsMilestones as $m)
@@ -110,7 +110,7 @@
 {{-- ODRL Policies --}}
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0">ODRL Policies</h6>
+        <h6 class="mb-0">{{ __('ODRL Policies') }}</h6>
         <a href="{{ route('research.odrlPolicies') }}" class="btn btn-sm btn-outline-primary">Manage</a>
     </div>
     <div class="card-body p-0">
@@ -118,7 +118,7 @@
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead class="table-light">
-                    <tr><th>Policy</th><th>Type</th><th>Status</th></tr>
+                    <tr><th>{{ __('Policy') }}</th><th>{{ __('Type') }}</th><th>{{ __('Status') }}</th></tr>
                 </thead>
                 <tbody>
                     @foreach($odrlPolicies as $p)
@@ -139,7 +139,7 @@
 
 {{-- Sensitivity Breakdown --}}
 <div class="card mb-4">
-    <div class="card-header"><h6 class="mb-0">Sensitivity Breakdown</h6></div>
+    <div class="card-header"><h6 class="mb-0">{{ __('Sensitivity Breakdown') }}</h6></div>
     <div class="card-body">
         @if(!empty($sensitivityBreakdown) && count($sensitivityBreakdown) > 0)
             @foreach($sensitivityBreakdown as $level => $count)

@@ -13,7 +13,7 @@
   $levelColors = ['stub' => 'danger', 'minimal' => 'warning', 'partial' => 'info', 'full' => 'success'];
 @endphp
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
@@ -29,9 +29,9 @@
   <div class="card-body">
     <form method="get" action="{{ route('actor.workqueue') }}" class="row g-2 align-items-end">
       <div class="col-md-2">
-        <label class="form-label">Level</label>
+        <label class="form-label">{{ __('Level') }}</label>
         <select name="level" class="form-select form-select-sm">
-          <option value="">All</option>
+          <option value="">{{ __('All') }}</option>
           @foreach ($levels as $lvl)
             <option value="{{ $lvl }}" {{ ($filters['level'] ?? '') === $lvl ? 'selected' : '' }}>
               {{ ucfirst($lvl) }}
@@ -40,9 +40,9 @@
         </select>
       </div>
       <div class="col-md-2">
-        <label class="form-label">Assigned to</label>
+        <label class="form-label">{{ __('Assigned to') }}</label>
         <select name="assigned_to" class="form-select form-select-sm">
-          <option value="">All</option>
+          <option value="">{{ __('All') }}</option>
           @foreach ($users as $u)
             <option value="{{ $u->id }}" {{ ($filters['assigned_to'] ?? '') == $u->id ? 'selected' : '' }}>
               {{ $u->name }}
@@ -51,7 +51,7 @@
         </select>
       </div>
       <div class="col-md-2">
-        <label class="form-label">Max score</label>
+        <label class="form-label">{{ __('Max score') }}</label>
         <input type="number" name="max_score" class="form-control form-control-sm"
                value="{{ $filters['max_score'] ?? '' }}" min="0" max="100">
       </div>
@@ -73,12 +73,12 @@
     <table class="table table-hover table-striped mb-0">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Level</th>
-          <th class="text-center">Score</th>
-          <th class="text-center">IDs</th>
-          <th class="text-center">Rels</th>
-          <th>Assigned to</th>
+          <th>{{ __('Name') }}</th>
+          <th>{{ __('Level') }}</th>
+          <th class="text-center">{{ __('Score') }}</th>
+          <th class="text-center">{{ __('IDs') }}</th>
+          <th class="text-center">{{ __('Rels') }}</th>
+          <th>{{ __('Assigned to') }}</th>
           <th></th>
         </tr>
       </thead>
@@ -115,7 +115,7 @@
               </td>
               <td>
                 @if ($item->slug)
-                  <a href="{{ route('actor.show', $item->slug) }}" class="btn btn-sm atom-btn-white" title="View">
+                  <a href="{{ route('actor.show', $item->slug) }}" class="btn btn-sm atom-btn-white" title="{{ __('View') }}">
                     <i class="fas fa-eye"></i>
                   </a>
                 @endif

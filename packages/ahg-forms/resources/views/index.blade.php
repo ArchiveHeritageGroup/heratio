@@ -89,7 +89,7 @@
     <!-- Templates List -->
     <div class="card">
         <div class="card-header">
-            <h5 class="mb-0">Form Templates</h5>
+            <h5 class="mb-0">{{ __('Form Templates') }}</h5>
         </div>
         <div class="card-body p-0">
             @if($templates->isEmpty())
@@ -101,11 +101,11 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>Fields</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>{{ __('Name') }}</th>
+                            <th>{{ __('Type') }}</th>
+                            <th>{{ __('Fields') }}</th>
+                            <th>{{ __('Status') }}</th>
+                            <th>{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -142,23 +142,23 @@
                                 <td>
                                     <div class="btn-group btn-group-sm">
                                         <a href="{{ route('forms.builder', $template->id) }}"
-                                           class="btn btn-outline-primary" title="Edit Fields">
+                                           class="btn btn-outline-primary" title="{{ __('Edit Fields') }}">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <a href="{{ route('forms.template.create', ['edit' => $template->id]) }}"
-                                           class="btn btn-outline-secondary" title="Settings">
+                                           class="btn btn-outline-secondary" title="{{ __('Settings') }}">
                                             <i class="fas fa-cog"></i>
                                         </a>
                                         <form method="POST" action="{{ route('forms.index') }}" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="action" value="duplicate">
                                             <input type="hidden" name="id" value="{{ $template->id }}">
-                                            <button type="submit" class="btn btn-outline-info btn-sm" title="Clone">
+                                            <button type="submit" class="btn btn-outline-info btn-sm" title="{{ __('Clone') }}">
                                                 <i class="fas fa-copy"></i>
                                             </button>
                                         </form>
                                         <a href="{{ route('forms.index', ['export' => $template->id]) }}"
-                                           class="btn btn-outline-success" title="Export JSON">
+                                           class="btn btn-outline-success" title="{{ __('Export JSON') }}">
                                             <i class="fas fa-download"></i>
                                         </a>
                                         @if(empty($template->is_system))
@@ -167,7 +167,7 @@
                                                 @csrf
                                                 <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="id" value="{{ $template->id }}">
-                                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" title="{{ __('Delete') }}">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>

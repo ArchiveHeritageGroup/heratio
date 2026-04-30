@@ -5,7 +5,7 @@
 @section('title-block')<h1><i class="fas fa-hand-holding me-2"></i>Acquisitions Report</h1>@endsection
 @section('content')
 <div class="alert alert-info"><strong>{{ count($items) }}</strong> acquisitions found</div>
-<div class="table-responsive"><table class="table table-striped table-hover"><thead class="table-dark"><tr><th>Object</th><th>Date</th><th>Method</th><th>Source</th></tr></thead><tbody>
+<div class="table-responsive"><table class="table table-striped table-hover"><thead class="table-dark"><tr><th>{{ __('Object') }}</th><th>{{ __('Date') }}</th><th>{{ __('Method') }}</th><th>{{ __('Source') }}</th></tr></thead><tbody>
 @forelse($items as $a)<tr><td><strong>{{ e($a->object_title ?? '-') }}</strong></td><td>{{ $a->acquisition_date ? date('d M Y', strtotime($a->acquisition_date)) : '-' }}</td><td>{{ e($a->method ?? '-') }}</td><td>{{ e($a->source ?? '-') }}</td></tr>
 @empty<tr><td colspan="4" class="text-muted text-center py-4">No acquisitions found.</td></tr>@endforelse
 </tbody></table></div>

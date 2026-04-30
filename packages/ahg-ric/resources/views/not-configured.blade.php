@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-project-diagram me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">RiC Dashboard</h1>
+      <h1 class="mb-0">{{ __('RiC Dashboard') }}</h1>
       <span class="small text-muted">Records in Contexts</span>
     </div>
   </div>

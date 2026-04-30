@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('content')
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
@@ -12,19 +12,19 @@
 </nav>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">Knowledge Graph</h1>
+    <h1 class="h2">{{ __('Knowledge Graph') }}</h1>
     <div class="d-flex gap-2">
-        <input type="text" id="nodeSearch" class="form-control form-control-sm" style="width:160px;" placeholder="Search nodes...">
+        <input type="text" id="nodeSearch" class="form-control form-control-sm" style="width:160px;" placeholder="{{ __('Search nodes...') }}">
         <select id="filterType" class="form-select form-select-sm" style="width:auto;">
-            <option value="">All Types</option>
-            <option value="biographical">Biographical</option>
-            <option value="chronological">Chronological</option>
-            <option value="spatial">Spatial</option>
-            <option value="relational">Relational</option>
-            <option value="attributive">Attributive</option>
+            <option value="">{{ __('All Types') }}</option>
+            <option value="biographical">{{ __('Biographical') }}</option>
+            <option value="chronological">{{ __('Chronological') }}</option>
+            <option value="spatial">{{ __('Spatial') }}</option>
+            <option value="relational">{{ __('Relational') }}</option>
+            <option value="attributive">{{ __('Attributive') }}</option>
         </select>
         <div class="btn-group btn-group-sm">
-            <button id="exportGraphMLBtn" class="btn btn-outline-secondary" title="Export GraphML"><i class="fas fa-download me-1"></i>GraphML</button>
+            <button id="exportGraphMLBtn" class="btn btn-outline-secondary" title="{{ __('Export GraphML') }}"><i class="fas fa-download me-1"></i>GraphML</button>
         </div>
         <a href="{{ route('research.assertions', $project->id) }}" class="btn btn-sm btn-outline-primary">List View</a>
     </div>
@@ -48,16 +48,16 @@
             <div class="card-body p-0 position-relative">
                 <div id="graphContainer" style="width:100%; height:600px; background:#fafafa;"></div>
                 <div class="position-absolute bottom-0 end-0 p-2 d-flex gap-1">
-                    <button id="zoomIn" class="btn btn-sm btn-light border" title="Zoom in"><i class="fas fa-plus"></i></button>
-                    <button id="zoomOut" class="btn btn-sm btn-light border" title="Zoom out"><i class="fas fa-minus"></i></button>
-                    <button id="zoomReset" class="btn btn-sm btn-light border" title="Reset"><i class="fas fa-expand"></i></button>
+                    <button id="zoomIn" class="btn btn-sm btn-light border" title="{{ __('Zoom in') }}"><i class="fas fa-plus"></i></button>
+                    <button id="zoomOut" class="btn btn-sm btn-light border" title="{{ __('Zoom out') }}"><i class="fas fa-minus"></i></button>
+                    <button id="zoomReset" class="btn btn-sm btn-light border" title="{{ __('Reset') }}"><i class="fas fa-expand"></i></button>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-lg-4">
         <div class="card" id="detailPanel">
-            <div class="card-header"><h5 class="mb-0">Node Details</h5></div>
+            <div class="card-header"><h5 class="mb-0">{{ __('Node Details') }}</h5></div>
             <div class="card-body" id="detailContent">
                 <p class="text-muted mb-0">Click a node to see details.</p>
             </div>

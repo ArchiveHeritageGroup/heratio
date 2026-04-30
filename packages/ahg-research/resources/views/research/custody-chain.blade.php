@@ -5,7 +5,7 @@
 @endsection
 @section('title', 'Custody Chain')
 @section('content')
-<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.retrievalQueue') }}">Retrieval Queue</a></li><li class="breadcrumb-item active">Custody Chain</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.retrievalQueue') }}">Retrieval Queue</a></li><li class="breadcrumb-item active">Custody Chain</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-link text-primary me-2"></i>Chain of Custody</h1>
 <div class="card mb-4">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-box me-2"></i>Item Details</div>
@@ -23,7 +23,7 @@
     <div class="card-body p-0">
         @if(!empty($chain))
         <table class="table table-striped mb-0">
-            <thead class="table-light"><tr><th>Date</th><th>Action</th><th>From</th><th>To</th><th>Staff</th><th>Notes</th></tr></thead>
+            <thead class="table-light"><tr><th>{{ __('Date') }}</th><th>{{ __('Action') }}</th><th>{{ __('From') }}</th><th>{{ __('To') }}</th><th>{{ __('Staff') }}</th><th>{{ __('Notes') }}</th></tr></thead>
             <tbody>
                 @foreach($chain as $entry)
                 <tr>

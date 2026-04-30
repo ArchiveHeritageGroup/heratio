@@ -35,7 +35,7 @@
       </div>
       <div class="card-body">
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label" for="photo_upload_path">Upload Path</label>
+          <label class="col-sm-3 col-form-label" for="photo_upload_path">{{ __('Upload Path') }}</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="photo_upload_path" name="settings[photo_upload_path]"
                    value="{{ e($settings['photo_upload_path'] ?? config('heratio.uploads_path', base_path('uploads')) . '/condition_photos') }}">
@@ -44,7 +44,7 @@
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label" for="photo_max_upload_size">Max Upload Size</label>
+          <label class="col-sm-3 col-form-label" for="photo_max_upload_size">{{ __('Max Upload Size') }}</label>
           <div class="col-sm-9">
             <select class="form-select" id="photo_max_upload_size" name="settings[photo_max_upload_size]">
               <option value="5242880" {{ ($settings['photo_max_upload_size'] ?? '10485760') == '5242880' ? 'selected' : '' }}>5 MB</option>
@@ -56,33 +56,33 @@
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">Create Thumbnails</label>
+          <label class="col-sm-3 col-form-label">{{ __('Create Thumbnails') }}</label>
           <div class="col-sm-9">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="photo_create_thumbnails"
                      name="settings[photo_create_thumbnails]" value="true"
                      {{ ($settings['photo_create_thumbnails'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="photo_create_thumbnails">Auto-create thumbnails on upload</label>
+              <label class="form-check-label" for="photo_create_thumbnails">{{ __('Auto-create thumbnails on upload') }}</label>
             </div>
           </div>
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">Thumbnail Sizes</label>
+          <label class="col-sm-3 col-form-label">{{ __('Thumbnail Sizes') }}</label>
           <div class="col-sm-9">
             <div class="row">
               <div class="col-4">
-                <label class="small">Small</label>
+                <label class="small">{{ __('Small') }}</label>
                 <input type="number" class="form-control" name="settings[photo_thumbnail_small]"
                        value="{{ $settings['photo_thumbnail_small'] ?? 150 }}" min="50" max="300">
               </div>
               <div class="col-4">
-                <label class="small">Medium</label>
+                <label class="small">{{ __('Medium') }}</label>
                 <input type="number" class="form-control" name="settings[photo_thumbnail_medium]"
                        value="{{ $settings['photo_thumbnail_medium'] ?? 300 }}" min="100" max="600">
               </div>
               <div class="col-4">
-                <label class="small">Large</label>
+                <label class="small">{{ __('Large') }}</label>
                 <input type="number" class="form-control" name="settings[photo_thumbnail_large]"
                        value="{{ $settings['photo_thumbnail_large'] ?? 600 }}" min="300" max="1200">
               </div>
@@ -92,7 +92,7 @@
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label" for="photo_jpeg_quality">JPEG Quality</label>
+          <label class="col-sm-3 col-form-label" for="photo_jpeg_quality">{{ __('JPEG Quality') }}</label>
           <div class="col-sm-9">
             <input type="range" class="form-range" id="photo_jpeg_quality" name="settings[photo_jpeg_quality]"
                    min="60" max="100" value="{{ $settings['photo_jpeg_quality'] ?? 85 }}">
@@ -101,25 +101,25 @@
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">Extract EXIF</label>
+          <label class="col-sm-3 col-form-label">{{ __('Extract EXIF') }}</label>
           <div class="col-sm-9">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="photo_extract_exif"
                      name="settings[photo_extract_exif]" value="true"
                      {{ ($settings['photo_extract_exif'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="photo_extract_exif">Extract camera info from EXIF data</label>
+              <label class="form-check-label" for="photo_extract_exif">{{ __('Extract camera info from EXIF data') }}</label>
             </div>
           </div>
         </div>
 
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">Auto-rotate</label>
+          <label class="col-sm-3 col-form-label">{{ __('Auto-rotate') }}</label>
           <div class="col-sm-9">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="photo_auto_rotate"
                      name="settings[photo_auto_rotate]" value="true"
                      {{ ($settings['photo_auto_rotate'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="photo_auto_rotate">Auto-rotate based on EXIF orientation</label>
+              <label class="form-check-label" for="photo_auto_rotate">{{ __('Auto-rotate based on EXIF orientation') }}</label>
             </div>
           </div>
         </div>

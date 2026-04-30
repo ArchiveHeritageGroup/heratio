@@ -10,7 +10,7 @@
     <div class="card-body">
       <form method="GET" class="row g-2">
         <div class="col-md-8">
-          <input type="text" name="q" class="form-control" value="{{ e($query ?? '') }}" placeholder="Search by title, identifier, or scope..." autofocus>
+          <input type="text" name="q" class="form-control" value="{{ e($query ?? '') }}" placeholder="{{ __('Search by title, identifier, or scope...') }}" autofocus>
         </div>
         <div class="col-md-2">
           <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i> Search</button>
@@ -25,7 +25,7 @@
   <div class="card">
     <div class="card-body table-responsive">
       <table class="table table-striped table-hover">
-        <thead><tr><th>ID</th><th>Identifier</th><th>Title</th><th>Actions</th></tr></thead>
+        <thead><tr><th>{{ __('ID') }}</th><th>{{ __('Identifier') }}</th><th>{{ __('Title') }}</th><th>{{ __('Actions') }}</th></tr></thead>
         <tbody>
           @forelse($results as $row)
           <tr>

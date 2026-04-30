@@ -117,8 +117,8 @@
                                 <br>
                                 <form method="POST" action="{{ route('records.disposal.recommend', $action->id) }}" class="mt-2">
                                     @csrf
-                                    <input type="text" name="comment" class="form-control form-control-sm mb-1" placeholder="Comment (optional)">
-                                    <button type="submit" class="btn btn-info btn-sm">Recommend</button>
+                                    <input type="text" name="comment" class="form-control form-control-sm mb-1" placeholder="{{ __('Comment (optional)') }}">
+                                    <button type="submit" class="btn btn-info btn-sm">{{ __('Recommend') }}</button>
                                 </form>
                             @endif
                         </div>
@@ -144,8 +144,8 @@
                                 <br>
                                 <form method="POST" action="{{ route('records.disposal.approve', $action->id) }}" class="mt-2">
                                     @csrf
-                                    <input type="text" name="comment" class="form-control form-control-sm mb-1" placeholder="Comment (optional)">
-                                    <button type="submit" class="btn btn-primary btn-sm">Approve</button>
+                                    <input type="text" name="comment" class="form-control form-control-sm mb-1" placeholder="{{ __('Comment (optional)') }}">
+                                    <button type="submit" class="btn btn-primary btn-sm">{{ __('Approve') }}</button>
                                 </form>
                             @endif
                         </div>
@@ -174,7 +174,7 @@
                                     <br>
                                     <form method="POST" action="{{ route('records.disposal.clearLegal', $action->id) }}" class="mt-2">
                                         @csrf
-                                        <button type="submit" class="btn btn-success btn-sm">Clear Legal</button>
+                                        <button type="submit" class="btn btn-success btn-sm">{{ __('Clear Legal') }}</button>
                                     </form>
                                 @endif
                             @endif
@@ -205,7 +205,7 @@
                                 <form method="POST" action="{{ route('records.disposal.execute', $action->id) }}" class="mt-2"
                                     onsubmit="return confirm('Are you sure you want to execute this disposal action? This cannot be undone.');">
                                     @csrf
-                                    <button type="submit" class="btn btn-dark btn-sm">Execute</button>
+                                    <button type="submit" class="btn btn-dark btn-sm">{{ __('Execute') }}</button>
                                 </form>
                             @endif
                         </div>
@@ -223,12 +223,12 @@
                 <div class="d-flex gap-2 flex-wrap">
                     @if (in_array($action->status, ['pending', 'recommended', 'approved', 'cleared']))
                         <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal">
-                            Reject
+                            {{ __('Reject') }}
                         </button>
                     @endif
                     @if (in_array($action->status, ['pending', 'recommended']))
                         <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#cancelModal">
-                            Cancel
+                            {{ __('Cancel') }}
                         </button>
                     @endif
                 </div>
@@ -309,18 +309,18 @@
             <form method="POST" action="{{ route('records.disposal.reject', $action->id) }}">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title">Reject Disposal Action</h5>
+                    <h5 class="modal-title">{{ __('Reject Disposal Action') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="reject-reason" class="form-label">Reason for Rejection</label>
+                        <label for="reject-reason" class="form-label">{{ __('Reason for Rejection') }}</label>
                         <textarea name="reason" id="reject-reason" class="form-control" rows="3" required></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-danger">Reject</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
+                    <button type="submit" class="btn btn-danger">{{ __('Reject') }}</button>
                 </div>
             </form>
         </div>
@@ -334,18 +334,18 @@
             <form method="POST" action="{{ route('records.disposal.reject', $action->id) }}">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title">Cancel Disposal Action</h5>
+                    <h5 class="modal-title">{{ __('Cancel Disposal Action') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="cancel-reason" class="form-label">Reason for Cancellation</label>
+                        <label for="cancel-reason" class="form-label">{{ __('Reason for Cancellation') }}</label>
                         <textarea name="reason" id="cancel-reason" class="form-control" rows="3" required></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-warning">Cancel Disposal</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
+                    <button type="submit" class="btn btn-warning">{{ __('Cancel Disposal') }}</button>
                 </div>
             </form>
         </div>

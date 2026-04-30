@@ -108,13 +108,13 @@
         <table class="table table-bordered table-striped mb-0">
           <thead>
             <tr>
-              <th>Record Title</th>
-              <th>Action</th>
-              <th>Status</th>
-              <th>Attempts</th>
-              <th>Scheduled</th>
-              <th>Error</th>
-              <th class="text-end">Actions</th>
+              <th>{{ __('Record Title') }}</th>
+              <th>{{ __('Action') }}</th>
+              <th>{{ __('Status') }}</th>
+              <th>{{ __('Attempts') }}</th>
+              <th>{{ __('Scheduled') }}</th>
+              <th>{{ __('Error') }}</th>
+              <th class="text-end">{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -164,7 +164,7 @@
                 </td>
                 <td class="text-end">
                   @if($item['status'] === 'failed')
-                    <a href="{{ route('doi.queue', ['retry' => $item['id']]) }}" class="btn btn-sm btn-outline-secondary" title="Retry">
+                    <a href="{{ route('doi.queue', ['retry' => $item['id']]) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Retry') }}">
                       <i class="fas fa-redo"></i>
                     </a>
                   @endif

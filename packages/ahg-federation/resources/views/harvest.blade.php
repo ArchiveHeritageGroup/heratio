@@ -6,7 +6,7 @@
 <div class="container-fluid py-3">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb mb-1">
                     <li class="breadcrumb-item"><a href="{{ route('federation.index') }}">Federation</a></li>
                     <li class="breadcrumb-item active">Harvest</li>
@@ -29,7 +29,7 @@
 
     <div class="card">
         <div class="card-header">
-            <h6 class="mb-0">Run Harvest</h6>
+            <h6 class="mb-0">{{ __('Run Harvest') }}</h6>
         </div>
         <div class="card-body">
             <form method="post" action="{{ route('federation.runHarvest') }}">
@@ -39,7 +39,7 @@
                         <label for="peer_id" class="form-label">Select Peer <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                         <select class="form-select" id="peer_id" name="peer_id" required>
                             <option value="">-- Select peer --</option>
-                            <option value="all">All active peers</option>
+                            <option value="all">{{ __('All active peers') }}</option>
                             @foreach($peers as $peer)
                                 @if($peer->is_active ?? false)
                                     <option value="{{ $peer->id }}">{{ $peer->name }}</option>

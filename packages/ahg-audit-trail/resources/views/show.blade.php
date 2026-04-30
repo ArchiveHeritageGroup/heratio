@@ -18,7 +18,7 @@
         <tbody>
           @if($table === 'ahg_audit_log')
             <tr>
-              <th style="width: 200px;">ID</th>
+              <th style="width: 200px;">{{ __('ID') }}</th>
               <td>{{ $entry->id }}</td>
             </tr>
             <tr>
@@ -26,7 +26,7 @@
               <td>{{ $entry->uuid ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Action</th>
+              <th>{{ __('Action') }}</th>
               <td>
                 @php
                   $badgeClass = match($entry->action ?? '') {
@@ -40,63 +40,63 @@
               </td>
             </tr>
             <tr>
-              <th>Entity type</th>
+              <th>{{ __('Entity type') }}</th>
               <td>{{ $entry->entity_type ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Entity ID</th>
+              <th>{{ __('Entity ID') }}</th>
               <td>{{ $entry->entity_id ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Entity slug</th>
+              <th>{{ __('Entity slug') }}</th>
               <td>{{ $entry->entity_slug ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Entity title</th>
+              <th>{{ __('Entity title') }}</th>
               <td>{{ $entry->entity_title ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>User</th>
+              <th>{{ __('User') }}</th>
               <td>{{ $entry->username ?? 'N/A' }} ({{ $entry->user_email ?? '' }})</td>
             </tr>
             <tr>
-              <th>User ID</th>
+              <th>{{ __('User ID') }}</th>
               <td>{{ $entry->user_id ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>IP address</th>
+              <th>{{ __('IP address') }}</th>
               <td>{{ $entry->ip_address ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>User agent</th>
+              <th>{{ __('User agent') }}</th>
               <td class="text-break small">{{ $entry->user_agent ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Session ID</th>
+              <th>{{ __('Session ID') }}</th>
               <td>{{ $entry->session_id ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Module</th>
+              <th>{{ __('Module') }}</th>
               <td>{{ $entry->module ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Action name</th>
+              <th>{{ __('Action name') }}</th>
               <td>{{ $entry->action_name ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Request method</th>
+              <th>{{ __('Request method') }}</th>
               <td>{{ $entry->request_method ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Request URI</th>
+              <th>{{ __('Request URI') }}</th>
               <td class="text-break">{{ $entry->request_uri ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Security classification</th>
+              <th>{{ __('Security classification') }}</th>
               <td>{{ $entry->security_classification ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Status</th>
+              <th>{{ __('Status') }}</th>
               <td>
                 @if($entry->status)
                   @php
@@ -113,25 +113,25 @@
               </td>
             </tr>
             <tr>
-              <th>Error message</th>
+              <th>{{ __('Error message') }}</th>
               <td>{{ $entry->error_message ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Culture</th>
+              <th>{{ __('Culture') }}</th>
               <td>{{ $entry->culture_id ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Created at</th>
+              <th>{{ __('Created at') }}</th>
               <td>{{ $entry->created_at ? \Carbon\Carbon::parse($entry->created_at)->format('Y-m-d H:i:s') : 'N/A' }}</td>
             </tr>
           @else
             {{-- audit_log fallback --}}
             <tr>
-              <th style="width: 200px;">ID</th>
+              <th style="width: 200px;">{{ __('ID') }}</th>
               <td>{{ $entry->id }}</td>
             </tr>
             <tr>
-              <th>Action</th>
+              <th>{{ __('Action') }}</th>
               <td>
                 @php
                   $badgeClass = match($entry->action ?? '') {
@@ -145,43 +145,43 @@
               </td>
             </tr>
             <tr>
-              <th>Table name</th>
+              <th>{{ __('Table name') }}</th>
               <td>{{ $entry->table_name ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Record ID</th>
+              <th>{{ __('Record ID') }}</th>
               <td>{{ $entry->record_id ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Field name</th>
+              <th>{{ __('Field name') }}</th>
               <td>{{ $entry->field_name ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>User</th>
+              <th>{{ __('User') }}</th>
               <td>{{ $entry->username ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>User ID</th>
+              <th>{{ __('User ID') }}</th>
               <td>{{ $entry->user_id ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>IP address</th>
+              <th>{{ __('IP address') }}</th>
               <td>{{ $entry->ip_address ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>User agent</th>
+              <th>{{ __('User agent') }}</th>
               <td class="text-break small">{{ $entry->user_agent ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Module</th>
+              <th>{{ __('Module') }}</th>
               <td>{{ $entry->module ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Action description</th>
+              <th>{{ __('Action description') }}</th>
               <td>{{ $entry->action_description ?? 'N/A' }}</td>
             </tr>
             <tr>
-              <th>Created at</th>
+              <th>{{ __('Created at') }}</th>
               <td>{{ $entry->created_at ? \Carbon\Carbon::parse($entry->created_at)->format('Y-m-d H:i:s') : 'N/A' }}</td>
             </tr>
           @endif
@@ -195,7 +195,7 @@
     @if($entry->old_values)
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0">Old values</h5>
+          <h5 class="mb-0">{{ __('Old values') }}</h5>
         </div>
         <div class="card-body p-0">
           <pre class="mb-0 p-3" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">{{ json_encode(json_decode($entry->old_values), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) ?: $entry->old_values }}</pre>
@@ -206,7 +206,7 @@
     @if($entry->new_values)
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0">New values</h5>
+          <h5 class="mb-0">{{ __('New values') }}</h5>
         </div>
         <div class="card-body p-0">
           <pre class="mb-0 p-3" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">{{ json_encode(json_decode($entry->new_values), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) ?: $entry->new_values }}</pre>
@@ -217,7 +217,7 @@
     @if($entry->changed_fields)
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0">Changed fields</h5>
+          <h5 class="mb-0">{{ __('Changed fields') }}</h5>
         </div>
         <div class="card-body p-0">
           <pre class="mb-0 p-3" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">{{ json_encode(json_decode($entry->changed_fields), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) ?: $entry->changed_fields }}</pre>
@@ -228,7 +228,7 @@
     @if($entry->metadata)
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0">Metadata</h5>
+          <h5 class="mb-0">{{ __('Metadata') }}</h5>
         </div>
         <div class="card-body p-0">
           <pre class="mb-0 p-3" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">{{ json_encode(json_decode($entry->metadata), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) ?: $entry->metadata }}</pre>
@@ -239,7 +239,7 @@
     @if($entry->old_value)
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0">Old value</h5>
+          <h5 class="mb-0">{{ __('Old value') }}</h5>
         </div>
         <div class="card-body p-0">
           <pre class="mb-0 p-3" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">{{ $entry->old_value }}</pre>
@@ -250,7 +250,7 @@
     @if($entry->new_value)
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0">New value</h5>
+          <h5 class="mb-0">{{ __('New value') }}</h5>
         </div>
         <div class="card-body p-0">
           <pre class="mb-0 p-3" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">{{ $entry->new_value }}</pre>
@@ -261,7 +261,7 @@
     @if($entry->old_record)
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0">Old record (full)</h5>
+          <h5 class="mb-0">{{ __('Old record (full)') }}</h5>
         </div>
         <div class="card-body p-0">
           <pre class="mb-0 p-3" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">{{ json_encode(json_decode($entry->old_record), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) ?: $entry->old_record }}</pre>
@@ -272,7 +272,7 @@
     @if($entry->new_record)
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0">New record (full)</h5>
+          <h5 class="mb-0">{{ __('New record (full)') }}</h5>
         </div>
         <div class="card-body p-0">
           <pre class="mb-0 p-3" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">{{ json_encode(json_decode($entry->new_record), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) ?: $entry->new_record }}</pre>

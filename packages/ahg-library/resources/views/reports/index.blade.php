@@ -11,7 +11,7 @@
 
 @section('sidebar')
 <div class="sidebar-content">
-  <h4>Library Reports</h4>
+  <h4>{{ __('Library Reports') }}</h4>
   <ul class="list-unstyled">
     <li><a href="{{ route('library.report-catalogue') }}"><i class="fas fa-book me-2"></i>Catalogue</a></li>
     <li><a href="{{ route('library.report-creators') }}"><i class="fas fa-user-edit me-2"></i>Creators</a></li>

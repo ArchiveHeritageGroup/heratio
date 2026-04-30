@@ -23,7 +23,7 @@
     <div class="card-body">
         @if(!empty($requests))
             <table class="table table-striped">
-                <thead><tr><th>Reference</th><th>Type</th><th>Subject</th><th>Received</th><th>Deadline</th><th>Status</th><th>Actions</th></tr></thead>
+                <thead><tr><th>{{ __('Reference') }}</th><th>{{ __('Type') }}</th><th>{{ __('Subject') }}</th><th>{{ __('Received') }}</th><th>{{ __('Deadline') }}</th><th>{{ __('Status') }}</th><th>{{ __('Actions') }}</th></tr></thead>
                 <tbody>
                 @foreach($requests as $r)
                     @php
@@ -50,8 +50,8 @@
                             <span class="badge bg-{{ $statusClass }}">{{ ucfirst($r->status ?? 'pending') }}</span>
                         </td>
                         <td>
-                            <button class="btn btn-sm btn-outline-success" onclick="updateDsarStatus({{ $r->id }}, 'completed')" title="Mark Complete"><i class="fas fa-check"></i></button>
-                            <button class="btn btn-sm btn-outline-info" onclick="updateDsarStatus({{ $r->id }}, 'in_progress')" title="In Progress"><i class="fas fa-spinner"></i></button>
+                            <button class="btn btn-sm btn-outline-success" onclick="updateDsarStatus({{ $r->id }}, 'completed')" title="{{ __('Mark Complete') }}"><i class="fas fa-check"></i></button>
+                            <button class="btn btn-sm btn-outline-info" onclick="updateDsarStatus({{ $r->id }}, 'in_progress')" title="{{ __('In Progress') }}"><i class="fas fa-spinner"></i></button>
                         </td>
                     </tr>
                 @endforeach
@@ -82,12 +82,12 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('Request Type') }} *</label>
                             <select name="request_type" class="form-select" required>
-                                <option value="access">Access (POPIA S23 / GDPR Art.15)</option>
-                                <option value="rectification">Rectification (POPIA S24 / GDPR Art.16)</option>
-                                <option value="erasure">Erasure (POPIA S24 / GDPR Art.17)</option>
-                                <option value="restriction">Restriction (GDPR Art.18)</option>
-                                <option value="portability">Portability (GDPR Art.20)</option>
-                                <option value="objection">Objection (POPIA S11(3) / GDPR Art.21)</option>
+                                <option value="access">{{ __('Access (POPIA S23 / GDPR Art.15)') }}</option>
+                                <option value="rectification">{{ __('Rectification (POPIA S24 / GDPR Art.16)') }}</option>
+                                <option value="erasure">{{ __('Erasure (POPIA S24 / GDPR Art.17)') }}</option>
+                                <option value="restriction">{{ __('Restriction (GDPR Art.18)') }}</option>
+                                <option value="portability">{{ __('Portability (GDPR Art.20)') }}</option>
+                                <option value="objection">{{ __('Objection (POPIA S11(3) / GDPR Art.21)') }}</option>
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -110,20 +110,20 @@
                             <label class="form-label">{{ __('ID Verification Type') }}</label>
                             <select name="data_subject_id_type" class="form-select">
                                 <option value="">-- Select --</option>
-                                <option value="id_document">ID Document</option>
-                                <option value="passport">Passport</option>
-                                <option value="drivers_license">Driver's License</option>
-                                <option value="other">Other</option>
+                                <option value="id_document">{{ __('ID Document') }}</option>
+                                <option value="passport">{{ __('Passport') }}</option>
+                                <option value="drivers_license">{{ __("Driver's License") }}</option>
+                                <option value="other">{{ __('Other') }}</option>
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('Assigned To') }}</label>
-                            <input type="text" name="assigned_to_name" class="form-control" placeholder="Staff member name">
+                            <input type="text" name="assigned_to_name" class="form-control" placeholder="{{ __('Staff member name') }}">
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">{{ __('Notes') }}</label>
-                        <textarea name="notes" class="form-control" rows="3" placeholder="Details of the request..."></textarea>
+                        <textarea name="notes" class="form-control" rows="3" placeholder="{{ __('Details of the request...') }}"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -4,7 +4,7 @@
 
 @section('content')
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('ahgspectrum.dashboard') }}">{{ __('Spectrum') }}</a></li>
         <li class="breadcrumb-item active">{{ __('Export') }}</li>

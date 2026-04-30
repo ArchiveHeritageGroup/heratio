@@ -26,7 +26,7 @@
   <small class="text-muted">- {{ $formatInfo['name'] ?? strtoupper($format) }}</small>
 </h1>
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('ahgmetadataexport.index') }}">Metadata Export</a></li>
     <li class="breadcrumb-item active" aria-current="page">Bulk Export</li>
@@ -44,7 +44,7 @@
   <div class="col-md-8">
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title mb-0">Export Settings</h3>
+        <h3 class="card-title mb-0">{{ __('Export Settings') }}</h3>
       </div>
       <div class="card-body">
         <form action="{{ route('ahgmetadataexport.bulk') }}?format={{ $format }}" method="post">
@@ -55,7 +55,7 @@
           <div class="mb-3">
             <label for="repository_id" class="form-label">Repository <span class="text-danger">*</span></label>
             <select name="repository_id" id="repository_id" class="form-select" required>
-              <option value="">Select repository...</option>
+              <option value="">{{ __('Select repository...') }}</option>
               @foreach($repositories as $repo)
                 <option value="{{ $repo->id }}">
                   {{ $repo->authorizedFormOfName ?? $repo->name ?? $repo->id }}
@@ -67,12 +67,12 @@
 
           <hr>
 
-          <h4>Export Options</h4>
+          <h4>{{ __('Export Options') }}</h4>
 
           <div class="mb-3">
             <div class="form-check">
               <input type="checkbox" name="include_children" value="1" id="include_children" class="form-check-input" checked>
-              <label class="form-check-label" for="include_children">Include child records</label>
+              <label class="form-check-label" for="include_children">{{ __('Include child records') }}</label>
               <div class="form-text">Export the full hierarchy including all descendants.</div>
             </div>
           </div>
@@ -80,7 +80,7 @@
           <div class="mb-3">
             <div class="form-check">
               <input type="checkbox" name="include_digital_objects" value="1" id="include_digital_objects" class="form-check-input" checked>
-              <label class="form-check-label" for="include_digital_objects">Include digital objects</label>
+              <label class="form-check-label" for="include_digital_objects">{{ __('Include digital objects') }}</label>
               <div class="form-text">Include references to attached digital objects.</div>
             </div>
           </div>
@@ -88,13 +88,13 @@
           <div class="mb-3">
             <div class="form-check">
               <input type="checkbox" name="include_drafts" value="1" id="include_drafts" class="form-check-input">
-              <label class="form-check-label" for="include_drafts">Include draft records</label>
+              <label class="form-check-label" for="include_drafts">{{ __('Include draft records') }}</label>
               <div class="form-text">Also export records with draft publication status.</div>
             </div>
           </div>
 
           <div class="mb-3">
-            <label for="max_depth" class="form-label">Maximum Depth</label>
+            <label for="max_depth" class="form-label">{{ __('Maximum Depth') }}</label>
             <input type="number" name="max_depth" id="max_depth" class="form-control" value="0" min="0" max="99">
             <div class="form-text">Limit hierarchy depth (0 = unlimited).</div>
           </div>
@@ -117,7 +117,7 @@
   <div class="col-md-4">
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title mb-0">Format Information</h3>
+        <h3 class="card-title mb-0">{{ __('Format Information') }}</h3>
       </div>
       <div class="card-body">
         <dl>
@@ -131,7 +131,7 @@
 
     <div class="card mt-4">
       <div class="card-header">
-        <h3 class="card-title mb-0">Export Information</h3>
+        <h3 class="card-title mb-0">{{ __('Export Information') }}</h3>
       </div>
       <div class="card-body">
         <p class="small text-muted">

@@ -14,7 +14,7 @@ if ($style === 'large') {
     <div class="{{ $style === 'large' ? 'input-group input-group-lg' : 'input-group' }}">
       <input type="text" name="query" class="{{ $inputClass }}"
              placeholder="{{ e($placeholder) }}"
-             aria-label="Search">
+             aria-label="{{ __('Search') }}">
       <button type="submit" class="btn btn-primary">
         <i class="bi bi-search"></i>
         @if ($style !== 'minimal')

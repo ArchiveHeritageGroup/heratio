@@ -4,7 +4,7 @@
 @section('body-class', 'library-reports creators')
 @section('sidebar')
 <div class="sidebar-content">
-  <h4>Library Reports</h4>
+  <h4>{{ __('Library Reports') }}</h4>
   <ul class="list-unstyled">
     <li><a href="{{ route('library.report-catalogue') }}"><i class="fas fa-book me-2"></i>Catalogue</a></li>
     <li><a href="{{ route('library.report-creators') }}"><i class="fas fa-user-edit me-2"></i>Creators</a></li>
@@ -21,7 +21,7 @@
 <div class="alert alert-info"><strong>{{ count($creators) }}</strong> creators found</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
-    <thead class="table-dark"><tr><th>Name</th><th class="text-end">Items</th></tr></thead>
+    <thead class="table-dark"><tr><th>{{ __('Name') }}</th><th class="text-end">{{ __('Items') }}</th></tr></thead>
     <tbody>
       @forelse($creators as $c)
       <tr><td><strong>{{ e($c->name ?? '') }}</strong></td><td class="text-end"><span class="badge bg-primary">{{ $c->work_count ?? 0 }}</span></td></tr>

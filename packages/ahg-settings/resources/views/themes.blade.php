@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-palette me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">List themes</h1>
+      <h1 class="mb-0">{{ __('List themes') }}</h1>
       <span class="small text-muted">Customize colours, logo, branding, and custom CSS</span>
     </div>
   </div>
@@ -91,9 +91,9 @@
           <div class="col-md-3 mb-3">
             <label class="form-label">Text Alignment <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="ahg_descbar_align" class="form-select">
-              <option value="left" {{ ($settings['ahg_descbar_align'] ?? 'left') === 'left' ? 'selected' : '' }}>Left</option>
-              <option value="center" {{ ($settings['ahg_descbar_align'] ?? '') === 'center' ? 'selected' : '' }}>Centre</option>
-              <option value="right" {{ ($settings['ahg_descbar_align'] ?? '') === 'right' ? 'selected' : '' }}>Right</option>
+              <option value="left" {{ ($settings['ahg_descbar_align'] ?? 'left') === 'left' ? 'selected' : '' }}>{{ __('Left') }}</option>
+              <option value="center" {{ ($settings['ahg_descbar_align'] ?? '') === 'center' ? 'selected' : '' }}>{{ __('Centre') }}</option>
+              <option value="right" {{ ($settings['ahg_descbar_align'] ?? '') === 'right' ? 'selected' : '' }}>{{ __('Right') }}</option>
             </select>
           </div>
         </div>
@@ -177,7 +177,7 @@
             <label class="form-label">Preview <span class="badge bg-secondary ms-1">Optional</span></label>
             <div class="card">
               <div class="card-header bg-primary text-white" id="preview-header">
-                <h5 class="mb-0" style="color: inherit !important;">Sample Card Header</h5>
+                <h5 class="mb-0" style="color: inherit !important;">{{ __('Sample Card Header') }}</h5>
               </div>
               <div class="card-body"><p class="mb-0 text-muted">Card body content</p></div>
             </div>
@@ -258,35 +258,35 @@
         </div>
         <div class="mb-3">
           <label class="form-label">Disclaimer <span class="badge bg-secondary ms-1">Optional</span></label>
-          <textarea class="form-control" name="ahg_footer_disclaimer" rows="2" placeholder="Research use only...">{{ $settings['ahg_footer_disclaimer'] ?? '' }}</textarea>
+          <textarea class="form-control" name="ahg_footer_disclaimer" rows="2" placeholder="{{ __('Research use only...') }}">{{ $settings['ahg_footer_disclaimer'] ?? '' }}</textarea>
         </div>
         <div class="row">
           <div class="col-md-4 mb-3">
             <label class="form-label">System Name <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="text" class="form-control" name="ahg_footer_system_name" value="{{ $settings['ahg_footer_system_name'] ?? '' }}" placeholder="Public Service Information System">
+            <input type="text" class="form-control" name="ahg_footer_system_name" value="{{ $settings['ahg_footer_system_name'] ?? '' }}" placeholder="{{ __('Public Service Information System') }}">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Organisation Name <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="text" class="form-control" name="ahg_footer_org_name" value="{{ $settings['ahg_footer_org_name'] ?? '' }}" placeholder="The Archive and Heritage Group">
+            <input type="text" class="form-control" name="ahg_footer_org_name" value="{{ $settings['ahg_footer_org_name'] ?? '' }}" placeholder="{{ __('The Archive and Heritage Group') }}">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Organisation URL <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="url" class="form-control" name="ahg_footer_org_url" value="{{ $settings['ahg_footer_org_url'] ?? '' }}" placeholder="https://theahg.co.za">
+            <input type="url" class="form-control" name="ahg_footer_org_url" value="{{ $settings['ahg_footer_org_url'] ?? '' }}" placeholder="{{ __('https://theahg.co.za') }}">
           </div>
         </div>
         <div class="mb-3">
           <label class="form-label">Standards Badges <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="text" class="form-control" name="ahg_footer_standards" value="{{ $settings['ahg_footer_standards'] ?? '' }}" placeholder="ISAD(G), RiC-O, OAIS/BagIt, WCAG 2.1 AA">
+          <input type="text" class="form-control" name="ahg_footer_standards" value="{{ $settings['ahg_footer_standards'] ?? '' }}" placeholder="{{ __('ISAD(G), RiC-O, OAIS/BagIt, WCAG 2.1 AA') }}">
           <div class="form-text">Comma-separated list of standards. Each becomes a badge.</div>
         </div>
         <div class="mb-3">
           <label class="form-label">Policy Links <span class="badge bg-secondary ms-1">Optional</span></label>
-          <textarea class="form-control font-monospace" name="ahg_footer_links" rows="4" placeholder="Privacy policy|/privacy&#10;Terms of use|/terms">{{ $settings['ahg_footer_links'] ?? '' }}</textarea>
+          <textarea class="form-control font-monospace" name="ahg_footer_links" rows="4" placeholder="{{ __('Privacy policy|/privacy&#10;Terms of use|/terms') }}">{{ $settings['ahg_footer_links'] ?? '' }}</textarea>
           <div class="form-text">One per line: <code>Label|/url</code></div>
         </div>
         <div class="mb-3">
           <label class="form-label">Utility Links <span class="badge bg-secondary ms-1">Optional</span></label>
-          <textarea class="form-control font-monospace" name="ahg_footer_utility_links" rows="2" placeholder="Help|/help&#10;Contact|/contact">{{ $settings['ahg_footer_utility_links'] ?? '' }}</textarea>
+          <textarea class="form-control font-monospace" name="ahg_footer_utility_links" rows="2" placeholder="{{ __('Help|/help&#10;Contact|/contact') }}">{{ $settings['ahg_footer_utility_links'] ?? '' }}</textarea>
           <div class="form-text">One per line: <code>Label|/url</code></div>
         </div>
       </div>
@@ -390,7 +390,7 @@
             <div class="form-text">Sidebar card header text</div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Preview</label>
+            <label class="form-label">{{ __('Preview') }}</label>
             <div class="border rounded p-2" style="font-size: 0.85rem;">
               <div class="fw-bold mb-1" style="font-size: 0.82rem;">Card Header</div>
               <div>Sidebar body text sample</div>
@@ -404,7 +404,7 @@
     <div class="card mb-4">
       <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-code me-2"></i>Custom CSS</h5></div>
       <div class="card-body">
-        <textarea class="form-control font-monospace" name="ahg_custom_css" rows="8" placeholder="/* Add custom CSS overrides here */">{{ $settings['ahg_custom_css'] ?? '' }}</textarea>
+        <textarea class="form-control font-monospace" name="ahg_custom_css" rows="8" placeholder="{{ __('/* Add custom CSS overrides here */') }}">{{ $settings['ahg_custom_css'] ?? '' }}</textarea>
         <div class="form-text">CSS entered here will be appended to the generated theme stylesheet.</div>
       </div>
     </div>

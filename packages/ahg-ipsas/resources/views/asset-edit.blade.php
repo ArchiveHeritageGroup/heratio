@@ -22,7 +22,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.assets') }}">Assets</a></li>
@@ -38,7 +38,7 @@
         @csrf
         <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Asset Details</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Asset Details') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
@@ -46,15 +46,15 @@
                             <input type="text" name="title" class="form-control" required value="{{ $asset->title ?? '' }}">
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Description</label>
+                            <label class="form-label">{{ __('Description') }}</label>
                             <textarea name="description" class="form-control" rows="3">{{ $asset->description ?? '' }}</textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Location</label>
+                            <label class="form-label">{{ __('Location') }}</label>
                             <input type="text" name="location" class="form-control" value="{{ $asset->location ?? '' }}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Status</label>
+                            <label class="form-label">{{ __('Status') }}</label>
                             <select name="status" class="form-select">
                                 <option value="active" {{ 'active' === ($asset->status ?? '') ? 'selected' : '' }}>Active</option>
                                 <option value="on_loan" {{ 'on_loan' === ($asset->status ?? '') ? 'selected' : '' }}>On Loan</option>
@@ -69,11 +69,11 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Condition &amp; Risk</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Condition &amp; Risk') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Condition Rating</label>
+                            <label class="form-label">{{ __('Condition Rating') }}</label>
                             <select name="condition_rating" class="form-select">
                                 <option value="excellent" {{ 'excellent' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>Excellent</option>
                                 <option value="good" {{ 'good' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>Good</option>
@@ -83,9 +83,9 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Risk Level</label>
+                            <label class="form-label">{{ __('Risk Level') }}</label>
                             <select name="risk_level" class="form-select">
-                                <option value="">Not Assessed</option>
+                                <option value="">{{ __('Not Assessed') }}</option>
                                 <option value="low" {{ 'low' === ($asset->risk_level ?? '') ? 'selected' : '' }}>Low</option>
                                 <option value="medium" {{ 'medium' === ($asset->risk_level ?? '') ? 'selected' : '' }}>Medium</option>
                                 <option value="high" {{ 'high' === ($asset->risk_level ?? '') ? 'selected' : '' }}>High</option>
@@ -93,7 +93,7 @@
                             </select>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Risk Notes</label>
+                            <label class="form-label">{{ __('Risk Notes') }}</label>
                             <textarea name="risk_notes" class="form-control" rows="2">{{ $asset->risk_notes ?? '' }}</textarea>
                         </div>
                     </div>

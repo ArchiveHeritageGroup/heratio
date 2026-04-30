@@ -10,7 +10,7 @@
 @section('content')
 
   {{-- ===== 1. Identity area (ISDIAH 5.1) ===== --}}
-  <h2 class="section-heading">Identity area</h2>
+  <h2 class="section-heading">{{ __('Identity area') }}</h2>
 
   @if($repository->authorized_form_of_name)
     <div class="field-row">
@@ -65,7 +65,7 @@
 
   {{-- ===== 2. Contact area (ISDIAH 5.2) ===== --}}
   @if($contacts->isNotEmpty())
-    <h2 class="section-heading">Contact area</h2>
+    <h2 class="section-heading">{{ __('Contact area') }}</h2>
     @foreach($contacts as $contact)
       <div class="contact-block">
         @if($contact->contact_person) <div><strong>Contact person:</strong> {{ $contact->contact_person }}</div> @endif
@@ -84,7 +84,7 @@
 
   {{-- ===== 3. Description area (ISDIAH 5.3) ===== --}}
   @if($repository->history || $repository->geocultural_context || $repository->mandates || $repository->internal_structures || $repository->collecting_policies || $repository->buildings)
-    <h2 class="section-heading">Description area</h2>
+    <h2 class="section-heading">{{ __('Description area') }}</h2>
     @foreach([
       'history' => 'History',
       'geocultural_context' => 'Geographical and cultural context',
@@ -104,7 +104,7 @@
 
   {{-- ===== 4. Holdings and finding aids (ISDIAH 5.3 cont.) ===== --}}
   @if($repository->holdings || $repository->finding_aids)
-    <h2 class="section-heading">Holdings and finding aids</h2>
+    <h2 class="section-heading">{{ __('Holdings and finding aids') }}</h2>
 
     @if($repository->holdings)
       <div class="field-row">
@@ -123,7 +123,7 @@
 
   {{-- ===== 5. Access area (ISDIAH 5.4) ===== --}}
   @if($repository->opening_times || $repository->access_conditions || $repository->disabled_access)
-    <h2 class="section-heading">Access area</h2>
+    <h2 class="section-heading">{{ __('Access area') }}</h2>
     @foreach([
       'opening_times' => 'Opening times',
       'access_conditions' => 'Conditions and requirements',
@@ -140,7 +140,7 @@
 
   {{-- ===== 6. Services area (ISDIAH 5.5) ===== --}}
   @if($repository->research_services || $repository->reproduction_services || $repository->public_facilities)
-    <h2 class="section-heading">Services area</h2>
+    <h2 class="section-heading">{{ __('Services area') }}</h2>
     @foreach([
       'research_services' => 'Research services',
       'reproduction_services' => 'Reproduction services',
@@ -156,7 +156,7 @@
   @endif
 
   {{-- ===== 7. Control area (ISDIAH 5.6) ===== --}}
-  <h2 class="section-heading">Control area</h2>
+  <h2 class="section-heading">{{ __('Control area') }}</h2>
 
   @foreach([
     'desc_institution_identifier' => 'Description identifier',
@@ -223,7 +223,7 @@
 
   {{-- ===== 8. Access points ===== --}}
   @if(($thematicAreas ?? collect())->isNotEmpty() || ($geographicSubregions ?? collect())->isNotEmpty())
-    <h2 class="section-heading">Access points</h2>
+    <h2 class="section-heading">{{ __('Access points') }}</h2>
 
     @if(($thematicAreas ?? collect())->isNotEmpty())
       <div class="field-row">

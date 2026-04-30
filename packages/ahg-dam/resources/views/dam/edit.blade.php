@@ -35,7 +35,7 @@
           <div class="col-md-6 mb-3">
             <label for="title" class="form-label">
               Title
-              <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+              <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror"
                    value="{{ old('title', $asset->title ?? '') }}">
             @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -44,9 +44,9 @@
           <div class="col-md-6 mb-3">
             <label for="identifier" class="form-label">
               Identifier / Reference code
-              <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+              <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <input type="text" name="identifier" id="identifier" class="form-control @error('identifier') is-invalid @enderror"
-                   value="{{ old('identifier', $asset->identifier ?? '') }}" placeholder="e.g., DAM-2024-001">
+                   value="{{ old('identifier', $asset->identifier ?? '') }}" placeholder="{{ __('e.g., DAM-2024-001') }}">
             @error('identifier') <div class="invalid-feedback">{{ $message }}</div> @enderror
             <div class="form-text text-muted small">A unique identifier for this DAM asset within the repository.</div>
           </div>
@@ -139,7 +139,7 @@
         <div class="mb-3">
           <label for="genre" class="form-label">Genre <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="genre" id="genre" class="form-control"
-                 value="{{ old('genre', $asset->genre ?? '') }}" placeholder="e.g., Documentary, Portrait">
+                 value="{{ old('genre', $asset->genre ?? '') }}" placeholder="{{ __('e.g., Documentary, Portrait') }}">
           <div class="form-text text-muted small">The genre or category of the content.</div>
         </div>
 
@@ -175,7 +175,7 @@
           <div class="col-md-5 mb-3">
             <label for="production_company" class="form-label">Production company <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="production_company" id="production_company" class="form-control"
-                   value="{{ old('production_company', $asset->production_company ?? '') }}" placeholder="e.g., African Film Productions">
+                   value="{{ old('production_company', $asset->production_company ?? '') }}" placeholder="{{ __('e.g., African Film Productions') }}">
           </div>
           <div class="col-md-4 mb-3">
             <label for="distributor" class="form-label">Distributor / Broadcaster <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -188,17 +188,17 @@
           <div class="col-md-3 mb-3">
             <label for="broadcast_date" class="form-label">Broadcast / Release Date <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="broadcast_date" id="broadcast_date" class="form-control"
-                   value="{{ old('broadcast_date', $asset->broadcast_date ?? '') }}" placeholder="e.g., 1954">
+                   value="{{ old('broadcast_date', $asset->broadcast_date ?? '') }}" placeholder="{{ __('e.g., 1954') }}">
           </div>
           <div class="col-md-3 mb-3">
             <label for="production_country" class="form-label">Production Country <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="production_country" id="production_country" class="form-control"
-                   value="{{ old('production_country', $asset->production_country ?? '') }}" placeholder="e.g., South Africa">
+                   value="{{ old('production_country', $asset->production_country ?? '') }}" placeholder="{{ __('e.g., South Africa') }}">
           </div>
           <div class="col-md-2 mb-3">
             <label for="production_country_code" class="form-label">Country Code <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="production_country_code" id="production_country_code" class="form-control" maxlength="3"
-                   value="{{ old('production_country_code', $asset->production_country_code ?? '') }}" placeholder="ZAF">
+                   value="{{ old('production_country_code', $asset->production_country_code ?? '') }}" placeholder="{{ __('ZAF') }}">
           </div>
           <div class="col-md-2 mb-3">
             <label for="season_number" class="form-label">Season <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -221,7 +221,7 @@
           <div class="col-md-6 mb-3">
             <label for="awards" class="form-label">Awards / Recognition <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="awards" id="awards_input" class="form-control"
-                   value="{{ old('awards', $asset->awards ?? '') }}" placeholder="e.g., Nominated for Golden Calf Award">
+                   value="{{ old('awards', $asset->awards ?? '') }}" placeholder="{{ __('e.g., Nominated for Golden Calf Award') }}">
           </div>
         </div>
 
@@ -239,10 +239,10 @@
             @foreach($asset->credits as $i => $credit)
               <div class="row credit-row mb-2">
                 <div class="col-md-4">
-                  <input type="text" name="credit_role[]" class="form-control" placeholder="Role (e.g., Director)" value="{{ $credit['role'] ?? '' }}">
+                  <input type="text" name="credit_role[]" class="form-control" placeholder="{{ __('Role (e.g., Director)') }}" value="{{ $credit['role'] ?? '' }}">
                 </div>
                 <div class="col-md-6">
-                  <input type="text" name="credit_name[]" class="form-control" placeholder="Name" value="{{ $credit['name'] ?? '' }}">
+                  <input type="text" name="credit_name[]" class="form-control" placeholder="{{ __('Name') }}" value="{{ $credit['name'] ?? '' }}">
                 </div>
                 <div class="col-md-2">
                   <button type="button" class="btn atom-btn-outline-danger btn-sm remove-credit"><i class="fas fa-times"></i></button>
@@ -252,10 +252,10 @@
           @else
             <div class="row credit-row mb-2">
               <div class="col-md-4">
-                <input type="text" name="credit_role[]" class="form-control" placeholder="Role (e.g., Director)">
+                <input type="text" name="credit_role[]" class="form-control" placeholder="{{ __('Role (e.g., Director)') }}">
               </div>
               <div class="col-md-6">
-                <input type="text" name="credit_name[]" class="form-control" placeholder="Name">
+                <input type="text" name="credit_name[]" class="form-control" placeholder="{{ __('Name') }}">
               </div>
               <div class="col-md-2">
                 <button type="button" class="btn atom-btn-outline-danger btn-sm remove-credit"><i class="fas fa-times"></i></button>
@@ -380,7 +380,7 @@
           <div class="mb-3">
             <label for="iptc_keywords" class="form-label">Keywords <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="iptc_keywords" id="iptc_keywords" class="form-control"
-                   value="{{ old('keywords', $asset->keywords ?? '') }}" placeholder="Comma-separated">
+                   value="{{ old('keywords', $asset->keywords ?? '') }}" placeholder="{{ __('Comma-separated') }}">
             <div class="form-text text-muted small">Keywords or tags describing the content, comma-separated.</div>
           </div>
 
@@ -455,7 +455,7 @@
             <div class="col-md-6 mb-3">
               <label for="iptc_country_code" class="form-label">Country code <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="iptc_country_code" id="iptc_country_code" class="form-control" maxlength="10"
-                     value="{{ old('country_code', $asset->country_code ?? '') }}" placeholder="ISO 3166-1 alpha-3">
+                     value="{{ old('country_code', $asset->country_code ?? '') }}" placeholder="{{ __('ISO 3166-1 alpha-3') }}">
               <div class="form-text text-muted small">ISO 3166-1 country code (e.g., ZAF, GBR, USA).</div>
             </div>
           </div>
@@ -490,7 +490,7 @@
           <div class="mb-3">
             <label for="iptc_copyright_notice" class="form-label">Copyright notice <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="iptc_copyright_notice" id="iptc_copyright_notice" class="form-control"
-                   value="{{ old('copyright_notice', $asset->copyright_notice ?? '') }}" placeholder="&copy; 2024 Photographer Name">
+                   value="{{ old('copyright_notice', $asset->copyright_notice ?? '') }}" placeholder="{{ __('&copy; 2024 Photographer Name') }}">
             <div class="form-text text-muted small">The copyright notice text (e.g., &copy; Year Name).</div>
           </div>
 
@@ -626,7 +626,7 @@
             <div class="col-md-4 mb-3">
               <label for="iptc_artwork_date" class="form-label">Artwork date <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="iptc_artwork_date" id="iptc_artwork_date" class="form-control"
-                     value="{{ old('artwork_date', $asset->artwork_date ?? '') }}" placeholder="e.g., 1889">
+                     value="{{ old('artwork_date', $asset->artwork_date ?? '') }}" placeholder="{{ __('e.g., 1889') }}">
               <div class="form-text text-muted small">The date the artwork or object was created.</div>
             </div>
             <div class="col-md-4 mb-3">
@@ -692,7 +692,7 @@
             <div class="row mb-2">
               <div class="col-md-4">
                 <label class="form-label small">Title <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" class="form-control form-control-sm" name="version_title[]" value="{{ $v->title }}" placeholder="e.g., Kuddes van die veld">
+                <input type="text" class="form-control form-control-sm" name="version_title[]" value="{{ $v->title }}" placeholder="{{ __('e.g., Kuddes van die veld') }}">
               </div>
               <div class="col-md-2">
                 <label class="form-label small">Type <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -707,11 +707,11 @@
               </div>
               <div class="col-md-2">
                 <label class="form-label small">Language <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" class="form-control form-control-sm" name="version_language[]" value="{{ $v->language_name }}" placeholder="Afrikaans">
+                <input type="text" class="form-control form-control-sm" name="version_language[]" value="{{ $v->language_name }}" placeholder="{{ __('Afrikaans') }}">
               </div>
               <div class="col-md-2">
                 <label class="form-label small">ISO Code <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" class="form-control form-control-sm" name="version_language_code[]" value="{{ $v->language_code }}" maxlength="3" placeholder="afr">
+                <input type="text" class="form-control form-control-sm" name="version_language_code[]" value="{{ $v->language_code }}" maxlength="3" placeholder="{{ __('afr') }}">
               </div>
               <div class="col-md-2">
                 <label class="form-label small">Year <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -721,7 +721,7 @@
             <div class="row">
               <div class="col-md-11">
                 <label class="form-label small">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" class="form-control form-control-sm" name="version_notes[]" value="{{ $v->notes }}" placeholder="Additional information about this version">
+                <input type="text" class="form-control form-control-sm" name="version_notes[]" value="{{ $v->notes }}" placeholder="{{ __('Additional information about this version') }}">
               </div>
               <div class="col-md-1 d-flex align-items-end">
                 <button type="button" class="btn btn-sm btn-outline-danger btn-remove-version w-100"><i class="fas fa-times"></i></button>
@@ -785,19 +785,19 @@
               </div>
               <div class="col-md-2">
                 <label class="form-label small">Format Details <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" class="form-control form-control-sm" name="holding_format_details[]" value="{{ $h->format_details }}" placeholder="Color, sound, ratio">
+                <input type="text" class="form-control form-control-sm" name="holding_format_details[]" value="{{ $h->format_details }}" placeholder="{{ __('Color, sound, ratio') }}">
               </div>
               <div class="col-md-3">
                 <label class="form-label small">Institution <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" class="form-control form-control-sm" name="holding_institution[]" value="{{ $h->holding_institution }}" placeholder="e.g., NFVSA, WCPLS">
+                <input type="text" class="form-control form-control-sm" name="holding_institution[]" value="{{ $h->holding_institution }}" placeholder="{{ __('e.g., NFVSA, WCPLS') }}">
               </div>
               <div class="col-md-3">
                 <label class="form-label small">Location <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" class="form-control form-control-sm" name="holding_location[]" value="{{ $h->holding_location }}" placeholder="Department/vault">
+                <input type="text" class="form-control form-control-sm" name="holding_location[]" value="{{ $h->holding_location }}" placeholder="{{ __('Department/vault') }}">
               </div>
               <div class="col-md-2">
                 <label class="form-label small">Accession # <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" class="form-control form-control-sm" name="holding_accession[]" value="{{ $h->accession_number }}" placeholder="Ref number">
+                <input type="text" class="form-control form-control-sm" name="holding_accession[]" value="{{ $h->accession_number }}" placeholder="{{ __('Ref number') }}">
               </div>
             </div>
             <div class="row mb-2">
@@ -826,7 +826,7 @@
               </div>
               <div class="col-md-3">
                 <label class="form-label small">Access URL <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="url" class="form-control form-control-sm" name="holding_url[]" value="{{ $h->access_url }}" placeholder="Streaming/download URL">
+                <input type="url" class="form-control form-control-sm" name="holding_url[]" value="{{ $h->access_url }}" placeholder="{{ __('Streaming/download URL') }}">
               </div>
               <div class="col-md-2">
                 <label class="form-label small">Verified Date <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -843,11 +843,11 @@
             <div class="row">
               <div class="col-md-6">
                 <label class="form-label small">Access Notes <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" class="form-control form-control-sm" name="holding_access_notes[]" value="{{ $h->access_notes }}" placeholder="How to request, viewing conditions">
+                <input type="text" class="form-control form-control-sm" name="holding_access_notes[]" value="{{ $h->access_notes }}" placeholder="{{ __('How to request, viewing conditions') }}">
               </div>
               <div class="col-md-5">
                 <label class="form-label small">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" class="form-control form-control-sm" name="holding_notes[]" value="{{ $h->notes }}" placeholder="Additional notes">
+                <input type="text" class="form-control form-control-sm" name="holding_notes[]" value="{{ $h->notes }}" placeholder="{{ __('Additional notes') }}">
               </div>
               <div class="col-md-1 d-flex align-items-end">
                 <button type="button" class="btn btn-sm btn-outline-danger btn-remove-holding w-100"><i class="fas fa-times"></i></button>
@@ -910,11 +910,11 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label small">URL <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="url" class="form-control form-control-sm" name="link_url[]" value="{{ $l->url }}" placeholder="https://...">
+                <input type="url" class="form-control form-control-sm" name="link_url[]" value="{{ $l->url }}" placeholder="{{ __('https://...') }}">
               </div>
               <div class="col-md-3">
                 <label class="form-label small">Title <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" class="form-control form-control-sm" name="link_title[]" value="{{ $l->title }}" placeholder="Link display text">
+                <input type="text" class="form-control form-control-sm" name="link_title[]" value="{{ $l->title }}" placeholder="{{ __('Link display text') }}">
               </div>
               <div class="col-md-2">
                 <label class="form-label small">Verified <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -930,15 +930,15 @@
             <div class="row">
               <div class="col-md-2">
                 <label class="form-label small">Person <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" class="form-control form-control-sm" name="link_person[]" value="{{ $l->person_name }}" placeholder="e.g., Donald Swanson">
+                <input type="text" class="form-control form-control-sm" name="link_person[]" value="{{ $l->person_name }}" placeholder="{{ __('e.g., Donald Swanson') }}">
               </div>
               <div class="col-md-2">
                 <label class="form-label small">Role <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" class="form-control form-control-sm" name="link_role[]" value="{{ $l->person_role }}" placeholder="Director, Actor">
+                <input type="text" class="form-control form-control-sm" name="link_role[]" value="{{ $l->person_role }}" placeholder="{{ __('Director, Actor') }}">
               </div>
               <div class="col-md-7">
                 <label class="form-label small">Description <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" class="form-control form-control-sm" name="link_description[]" value="{{ $l->description }}" placeholder="What this link provides">
+                <input type="text" class="form-control form-control-sm" name="link_description[]" value="{{ $l->description }}" placeholder="{{ __('What this link provides') }}">
               </div>
               <div class="col-md-1 d-flex align-items-end">
                 <button type="button" class="btn btn-sm btn-outline-danger btn-remove-link w-100"><i class="fas fa-times"></i></button>

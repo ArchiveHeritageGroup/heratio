@@ -8,7 +8,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('reports.dashboard') }}">Reports</a></li>
                     <li class="breadcrumb-item active">Checksums &amp; Integrity</li>
@@ -92,13 +92,13 @@
                     <table class="table table-sm table-hover mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>ID</th>
-                                <th>Job Name</th>
-                                <th>User</th>
-                                <th class="text-center">Files</th>
-                                <th class="text-center">Status</th>
-                                <th>Created</th>
-                                <th class="text-end">Actions</th>
+                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Job Name') }}</th>
+                                <th>{{ __('User') }}</th>
+                                <th class="text-center">{{ __('Files') }}</th>
+                                <th class="text-center">{{ __('Status') }}</th>
+                                <th>{{ __('Created') }}</th>
+                                <th class="text-end">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -138,11 +138,11 @@
                                     <td><small>{{ date('M j, g:i A', strtotime($job->created_at)) }}</small></td>
                                     <td class="text-end">
                                         @if ($job->status === 'completed' && !empty($job->output_path))
-                                            <a href="{{ url('/tiff-pdf-merge/download/' . $job->id) }}" class="btn btn-sm btn-success" title="Download PDF">
+                                            <a href="{{ url('/tiff-pdf-merge/download/' . $job->id) }}" class="btn btn-sm btn-success" title="{{ __('Download PDF') }}">
                                                 <i class="fas fa-download"></i>
                                             </a>
                                         @endif
-                                        <a href="{{ url('/tiff-pdf-merge/view/' . $job->id) }}" class="btn btn-sm atom-btn-outline-secondary" title="View Details">
+                                        <a href="{{ url('/tiff-pdf-merge/view/' . $job->id) }}" class="btn btn-sm atom-btn-outline-secondary" title="{{ __('View Details') }}">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     </td>

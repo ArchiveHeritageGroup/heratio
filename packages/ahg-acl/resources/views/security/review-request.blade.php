@@ -17,7 +17,7 @@
   <div class="col-md-8">
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0">Request Details</h5>
+        <h5 class="mb-0">{{ __('Request Details') }}</h5>
       </div>
       <div class="card-body">
         <dl class="row">
@@ -53,7 +53,7 @@
 
         <hr>
 
-        <h6>Justification</h6>
+        <h6>{{ __('Justification') }}</h6>
         <div class="bg-light p-3 rounded">
           {!! nl2br(e($accessRequest->justification ?? $accessRequest->reason ?? '')) !!}
         </div>
@@ -64,19 +64,19 @@
   <div class="col-md-4">
     <div class="card">
       <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Review Decision</h5>
+        <h5 class="mb-0">{{ __('Review Decision') }}</h5>
       </div>
       <div class="card-body">
         <form method="post" action="{{ route('acl.review-request', ['id' => $accessRequest->id ?? 0]) }}">
           @csrf
           <div class="mb-3">
-            <label class="form-label">Access Duration (hours)</label>
+            <label class="form-label">{{ __('Access Duration (hours)') }}</label>
             <input type="number" name="duration_hours" class="form-control"
                    value="{{ $accessRequest->duration_hours ?? 24 }}" min="1" max="720">
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Review Notes</label>
+            <label class="form-label">{{ __('Review Notes') }}</label>
             <textarea name="notes" class="form-control" rows="3"></textarea>
           </div>
 
@@ -95,7 +95,7 @@
     {{-- User Clearance Info --}}
     <div class="card mt-3">
       <div class="card-header">
-        <h6 class="mb-0">User Clearance Info</h6>
+        <h6 class="mb-0">{{ __('User Clearance Info') }}</h6>
       </div>
       <div class="card-body">
         <a href="{{ route('acl.view-classification', ['id' => $accessRequest->user_id ?? 0]) }}" class="btn btn-sm btn-outline-primary">

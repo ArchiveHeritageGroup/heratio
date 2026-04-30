@@ -15,12 +15,12 @@
       <div>
         <form method="get" class="d-inline-flex gap-2">
           <select name="sector" class="form-select form-select-sm" style="width:auto;">
-            <option value="">All Sectors</option>
+            <option value="">{{ __('All Sectors') }}</option>
             @foreach($sectors ?? [] as $code => $label)
               <option value="{{ $code }}" {{ ($sectorFilter ?? '') === $code ? 'selected' : '' }}>{{ $label }}</option>
             @endforeach
           </select>
-          <button type="submit" class="btn btn-sm atom-btn-white">Filter</button>
+          <button type="submit" class="btn btn-sm atom-btn-white">{{ __('Filter') }}</button>
         </form>
       </div>
       <a href="{{ route('settings.numbering-scheme-edit') }}" class="btn atom-btn-white"><i class="fas fa-plus me-1"></i>Add Scheme</a>
@@ -32,7 +32,7 @@
       <div class="table-responsive">
         <table class="table table-hover">
           <thead class="table-dark">
-            <tr><th>Name</th><th>Sector</th><th>Pattern</th><th>Preview</th><th>Counter</th><th>Reset</th><th class="text-center">Default</th><th class="text-center">Active</th><th>Actions</th></tr>
+            <tr><th>{{ __('Name') }}</th><th>{{ __('Sector') }}</th><th>{{ __('Pattern') }}</th><th>{{ __('Preview') }}</th><th>{{ __('Counter') }}</th><th>{{ __('Reset') }}</th><th class="text-center">{{ __('Default') }}</th><th class="text-center">{{ __('Active') }}</th><th>{{ __('Actions') }}</th></tr>
           </thead>
           <tbody>
             @foreach($schemes as $scheme)

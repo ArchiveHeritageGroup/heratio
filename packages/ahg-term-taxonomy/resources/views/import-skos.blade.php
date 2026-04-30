@@ -11,14 +11,14 @@
 @section('title', 'Import SKOS')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url('/taxonomy/browse') }}">Taxonomies</a></li>
         <li class="breadcrumb-item active">Import SKOS</li>
     </ol>
 </nav>
 
-<h1>Import SKOS</h1>
+<h1>{{ __('Import SKOS') }}</h1>
 <p class="text-muted">Upload a SKOS RDF/XML file to import concepts as terms in a taxonomy.</p>
 
 @if(session('error'))
@@ -46,7 +46,7 @@
         </div>
 
         <div class="mb-3">
-            <label for="skos_file" class="form-label">SKOS RDF/XML file</label>
+            <label for="skos_file" class="form-label">{{ __('SKOS RDF/XML file') }}</label>
             <input type="file" class="form-control" name="skos_file" id="skos_file" accept=".rdf,.xml,.skos">
             <div class="form-text">Standard SKOS RDF/XML format (.rdf or .xml)</div>
         </div>
@@ -54,8 +54,8 @@
         <div class="mb-3 text-center text-muted small">— OR —</div>
 
         <div class="mb-3">
-            <label for="skos_url" class="form-label">Remote resource URL</label>
-            <input type="url" class="form-control" name="skos_url" id="skos_url" placeholder="https://example.org/scheme.rdf">
+            <label for="skos_url" class="form-label">{{ __('Remote resource URL') }}</label>
+            <input type="url" class="form-control" name="skos_url" id="skos_url" placeholder="{{ __('https://example.org/scheme.rdf') }}">
             <div class="form-text">Fetch SKOS RDF/XML directly from a URL (e.g. published vocabularies)</div>
         </div>
     </div>

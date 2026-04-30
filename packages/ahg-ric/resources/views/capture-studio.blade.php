@@ -70,7 +70,7 @@
 <div class="search-bar">
     <div class="input-group">
         <span class="input-group-text"><i class="fas fa-search"></i></span>
-        <input type="text" id="capture-search" class="form-control" placeholder="Find a RiC entity across all types…" autocomplete="off">
+        <input type="text" id="capture-search" class="form-control" placeholder="{{ __('Find a RiC entity across all types…') }}" autocomplete="off">
     </div>
     <div id="capture-search-results" class="list-group position-absolute mt-1" style="z-index: 100; max-width: 560px; max-height: 400px; overflow-y: auto; display: none;"></div>
 </div>
@@ -99,7 +99,7 @@
 <div class="relation-strip">
     <div class="relation-icon"><i class="fas fa-link"></i></div>
     <div class="relation-text">
-        <h4>Relations between entities</h4>
+        <h4>{{ __('Relations between entities') }}</h4>
         <div class="rel-count">{{ number_format($relationCount) }} canonical <code>rico:*</code> relations across the triple store.</div>
     </div>
     <a href="{{ route('ric.relations.browse') }}" class="btn btn-outline-primary btn-sm">Browse all relations</a>
@@ -115,9 +115,9 @@
             <table class="table table-sm table-hover recent-table">
                 <thead>
                     <tr>
-                        <th>Type</th>
-                        <th>Label</th>
-                        <th>Created</th>
+                        <th>{{ __('Type') }}</th>
+                        <th>{{ __('Label') }}</th>
+                        <th>{{ __('Created') }}</th>
                         <th></th>
                     </tr>
                 </thead>

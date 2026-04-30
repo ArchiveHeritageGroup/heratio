@@ -39,9 +39,9 @@
     }
 @endphp
 
-<h1>Commit &amp; Report</h1>
+<h1>{{ __('Commit &amp; Report') }}</h1>
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">Ingestion Manager</a></li>
         <li class="breadcrumb-item">{{ $session->title ?? ('Session #' . ($session->id ?? '')) }}</li>
@@ -192,8 +192,8 @@
                         <table class="table table-sm mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Row / Stage</th>
-                                    <th>Error</th>
+                                    <th>{{ __('Row / Stage') }}</th>
+                                    <th>{{ __('Error') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -222,7 +222,7 @@
     <div class="card mb-4">
         <div class="card-body text-center py-5">
             <i class="fas fa-rocket fa-3x text-primary mb-3"></i>
-            <h5>Ready to commit</h5>
+            <h5>{{ __('Ready to commit') }}</h5>
             <p class="text-muted">This will create records in Heratio based on your validated data.</p>
             <form method="post" action="{{ route('ingest.commit', ['id' => $session->id ?? 0]) }}">
                 @csrf

@@ -96,22 +96,22 @@
             <form method="GET" class="row g-3">
                 <div class="col-md-3">
                     <select name="status" class="form-select">
-                        <option value="">All Status</option>
-                        <option value="pending" {{ ($filters['status'] ?? '') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="running" {{ ($filters['status'] ?? '') == 'running' ? 'selected' : '' }}>Running</option>
-                        <option value="completed" {{ ($filters['status'] ?? '') == 'completed' ? 'selected' : '' }}>Completed</option>
-                        <option value="failed" {{ ($filters['status'] ?? '') == 'failed' ? 'selected' : '' }}>Failed</option>
-                        <option value="cancelled" {{ ($filters['status'] ?? '') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                        <option value="">{{ __('All Status') }}</option>
+                        <option value="pending" {{ ($filters['status'] ?? '') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+                        <option value="running" {{ ($filters['status'] ?? '') == 'running' ? 'selected' : '' }}>{{ __('Running') }}</option>
+                        <option value="completed" {{ ($filters['status'] ?? '') == 'completed' ? 'selected' : '' }}>{{ __('Completed') }}</option>
+                        <option value="failed" {{ ($filters['status'] ?? '') == 'failed' ? 'selected' : '' }}>{{ __('Failed') }}</option>
+                        <option value="cancelled" {{ ($filters['status'] ?? '') == 'cancelled' ? 'selected' : '' }}>{{ __('Cancelled') }}</option>
                     </select>
                 </div>
                 <div class="col-md-3">
                     <select name="sort" class="form-select">
-                        <option value="date" {{ ($filters['sort'] ?? 'date') == 'date' ? 'selected' : '' }}>Sort by Date</option>
-                        <option value="name" {{ ($filters['sort'] ?? '') == 'name' ? 'selected' : '' }}>Sort by Name</option>
+                        <option value="date" {{ ($filters['sort'] ?? 'date') == 'date' ? 'selected' : '' }}>{{ __('Sort by Date') }}</option>
+                        <option value="name" {{ ($filters['sort'] ?? '') == 'name' ? 'selected' : '' }}>{{ __('Sort by Name') }}</option>
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <button type="submit" class="btn btn-primary">{{ __('Filter') }}</button>
                     <a href="{{ route('jobs.browse') }}" class="btn btn-outline-secondary">Clear</a>
                 </div>
                 <div class="col-md-3 text-end">
@@ -133,14 +133,14 @@
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th>Completed</th>
-                            <th>Duration</th>
-                            <th>Actions</th>
+                            <th>{{ __('ID') }}</th>
+                            <th>{{ __('Name') }}</th>
+                            <th>{{ __('Type') }}</th>
+                            <th>{{ __('Status') }}</th>
+                            <th>{{ __('Created') }}</th>
+                            <th>{{ __('Completed') }}</th>
+                            <th>{{ __('Duration') }}</th>
+                            <th>{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>

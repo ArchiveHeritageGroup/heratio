@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Finding Aid settings</h1>
+  <h1>{{ __('Finding Aid settings') }}</h1>
 @endsection
 
 @section('content')
@@ -22,7 +22,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="finding-aid-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#finding-aid-collapse" aria-expanded="true" aria-controls="finding-aid-collapse">
-            Finding Aid settings
+            {{ __('Finding Aid settings') }}
           </button>
         </h2>
         <div id="finding-aid-collapse" class="accordion-collapse collapse show" aria-labelledby="finding-aid-heading">
@@ -33,29 +33,29 @@
               <fieldset>
                 <legend class="fs-6">Finding Aids enabled</legend>
                 <input class="form-check-input" type="radio" name="finding_aid[finding_aids_enabled]" id="finding_aid_finding_aids_enabled_1" value="1" {{ $settings['finding_aids_enabled'] === '1' ? 'checked="checked"' : '' }}>
-                <label class="form-check-label" for="finding_aid_finding_aids_enabled_1">Enabled</label>
+                <label class="form-check-label" for="finding_aid_finding_aids_enabled_1">{{ __('Enabled') }}</label>
                 <input class="form-check-input" type="radio" name="finding_aid[finding_aids_enabled]" id="finding_aid_finding_aids_enabled_0" value="0" {{ $settings['finding_aids_enabled'] !== '1' ? 'checked="checked"' : '' }}>
-                <label class="form-check-label" for="finding_aid_finding_aids_enabled_0">Disabled</label>
+                <label class="form-check-label" for="finding_aid_finding_aids_enabled_0">{{ __('Disabled') }}</label>
               </fieldset>
               <div class="form-text">When disabled: Finding Aid links are not displayed, Finding Aid generation is disabled, and the 'Advanced Search &gt; Finding Aid' filter is hidden</div>
             </div>
 
             {{-- Finding Aid format (select) --}}
             <div class="mb-3">
-              <label for="finding_aid_finding_aid_format" class="form-label">Finding Aid format</label>
+              <label for="finding_aid_finding_aid_format" class="form-label">{{ __('Finding Aid format') }}</label>
               <select name="finding_aid[finding_aid_format]" id="finding_aid_finding_aid_format" class="form-select">
                 <option value="pdf" {{ $settings['finding_aid_format'] === 'pdf' ? 'selected="selected"' : '' }}>PDF</option>
-                <option value="rtf" {{ $settings['finding_aid_format'] === 'rtf' ? 'selected="selected"' : '' }}>RTF</option>
+                <option value="rtf" {{ $settings['finding_aid_format'] === 'rtf' ? 'selected="selected"' : '' }}>{{ __('RTF') }}</option>
               </select>
               <div class="form-text">Choose the file format for generated Finding Aids (PDF or 'Rich Text Format')</div>
             </div>
 
             {{-- Finding Aid model (select) --}}
             <div class="mb-3">
-              <label for="finding_aid_finding_aid_model" class="form-label">Finding Aid model</label>
+              <label for="finding_aid_finding_aid_model" class="form-label">{{ __('Finding Aid model') }}</label>
               <select name="finding_aid[finding_aid_model]" id="finding_aid_finding_aid_model" class="form-select">
-                <option value="inventory-summary" {{ $settings['finding_aid_model'] === 'inventory-summary' ? 'selected="selected"' : '' }}>Inventory summary</option>
-                <option value="full-details" {{ $settings['finding_aid_model'] === 'full-details' ? 'selected="selected"' : '' }}>Full details</option>
+                <option value="inventory-summary" {{ $settings['finding_aid_model'] === 'inventory-summary' ? 'selected="selected"' : '' }}>{{ __('Inventory summary') }}</option>
+                <option value="full-details" {{ $settings['finding_aid_model'] === 'full-details' ? 'selected="selected"' : '' }}>{{ __('Full details') }}</option>
               </select>
               <div class="form-text">
                 Finding Aid model:<br>
@@ -69,9 +69,9 @@
               <fieldset>
                 <legend class="fs-6">Generate Finding Aid from public records</legend>
                 <input class="form-check-input" type="radio" name="finding_aid[public_finding_aid]" id="finding_aid_public_finding_aid_1" value="1" {{ $settings['public_finding_aid'] === '1' ? 'checked="checked"' : '' }}>
-                <label class="form-check-label" for="finding_aid_public_finding_aid_1">Yes</label>
+                <label class="form-check-label" for="finding_aid_public_finding_aid_1">{{ __('Yes') }}</label>
                 <input class="form-check-input" type="radio" name="finding_aid[public_finding_aid]" id="finding_aid_public_finding_aid_0" value="0" {{ $settings['public_finding_aid'] !== '1' ? 'checked="checked"' : '' }}>
-                <label class="form-check-label" for="finding_aid_public_finding_aid_0">No</label>
+                <label class="form-check-label" for="finding_aid_public_finding_aid_0">{{ __('No') }}</label>
               </fieldset>
               <div class="form-text">When set to 'yes' generated Finding Aids will exclude unpublished records and hidden elements</div>
             </div>

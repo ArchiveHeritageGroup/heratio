@@ -22,7 +22,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.assets') }}">Assets</a></li>
@@ -37,7 +37,7 @@
         @csrf
         <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Asset Details</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Asset Details') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
@@ -45,20 +45,20 @@
                             <input type="text" name="title" class="form-control" required>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Description</label>
+                            <label class="form-label">{{ __('Description') }}</label>
                             <textarea name="description" class="form-control" rows="3"></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Category</label>
+                            <label class="form-label">{{ __('Category') }}</label>
                             <select name="category_id" class="form-select">
-                                <option value="">Select...</option>
+                                <option value="">{{ __('Select...') }}</option>
                                 @foreach($categories as $cat)
                                     <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Location</label>
+                            <label class="form-label">{{ __('Location') }}</label>
                             <input type="text" name="location" class="form-control">
                         </div>
                     </div>
@@ -66,65 +66,65 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Acquisition</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Acquisition') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Acquisition Date</label>
+                            <label class="form-label">{{ __('Acquisition Date') }}</label>
                             <input type="date" name="acquisition_date" class="form-control">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Acquisition Method</label>
+                            <label class="form-label">{{ __('Acquisition Method') }}</label>
                             <select name="acquisition_method" class="form-select">
-                                <option value="purchase">Purchase</option>
-                                <option value="donation">Donation</option>
-                                <option value="bequest">Bequest</option>
-                                <option value="transfer">Transfer</option>
-                                <option value="exchange">Exchange</option>
-                                <option value="found">Found/Discovered</option>
+                                <option value="purchase">{{ __('Purchase') }}</option>
+                                <option value="donation">{{ __('Donation') }}</option>
+                                <option value="bequest">{{ __('Bequest') }}</option>
+                                <option value="transfer">{{ __('Transfer') }}</option>
+                                <option value="exchange">{{ __('Exchange') }}</option>
+                                <option value="found">{{ __('Found/Discovered') }}</option>
                             </select>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Acquisition Source</label>
+                            <label class="form-label">{{ __('Acquisition Source') }}</label>
                             <input type="text" name="acquisition_source" class="form-control">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Acquisition Cost</label>
+                            <label class="form-label">{{ __('Acquisition Cost') }}</label>
                             <input type="number" name="acquisition_cost" class="form-control" step="0.01" min="0">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Currency</label>
-                            <input type="text" name="acquisition_currency" class="form-control" maxlength="3" value="{{ $defaultCurrency }}" placeholder="ISO 4217 code (e.g. USD, EUR, GBP)">
+                            <label class="form-label">{{ __('Currency') }}</label>
+                            <input type="text" name="acquisition_currency" class="form-control" maxlength="3" value="{{ $defaultCurrency }}" placeholder="{{ __('ISO 4217 code (e.g. USD, EUR, GBP)') }}">
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Valuation</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Valuation') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Valuation Basis</label>
+                            <label class="form-label">{{ __('Valuation Basis') }}</label>
                             <select name="valuation_basis" class="form-select">
-                                <option value="historical_cost">Historical Cost</option>
-                                <option value="fair_value">Fair Value</option>
-                                <option value="nominal">Nominal Value</option>
-                                <option value="not_recognized">Not Recognized</option>
+                                <option value="historical_cost">{{ __('Historical Cost') }}</option>
+                                <option value="fair_value">{{ __('Fair Value') }}</option>
+                                <option value="nominal">{{ __('Nominal Value') }}</option>
+                                <option value="not_recognized">{{ __('Not Recognized') }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Current Value</label>
+                            <label class="form-label">{{ __('Current Value') }}</label>
                             <input type="number" name="current_value" class="form-control" step="0.01" min="0">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Condition Rating</label>
+                            <label class="form-label">{{ __('Condition Rating') }}</label>
                             <select name="condition_rating" class="form-select">
-                                <option value="excellent">Excellent</option>
-                                <option value="good">Good</option>
-                                <option value="fair">Fair</option>
-                                <option value="poor">Poor</option>
-                                <option value="critical">Critical</option>
+                                <option value="excellent">{{ __('Excellent') }}</option>
+                                <option value="good">{{ __('Good') }}</option>
+                                <option value="fair">{{ __('Fair') }}</option>
+                                <option value="poor">{{ __('Poor') }}</option>
+                                <option value="critical">{{ __('Critical') }}</option>
                             </select>
                         </div>
                     </div>

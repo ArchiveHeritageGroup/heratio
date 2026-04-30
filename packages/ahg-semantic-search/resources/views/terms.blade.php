@@ -45,13 +45,13 @@
         <div class="card-body">
             <form method="get" class="row g-3">
                 <div class="col-md-4">
-                    <label class="form-label">Search</label>
-                    <input type="text" class="form-control" name="q" value="{{ $q }}" placeholder="Search terms...">
+                    <label class="form-label">{{ __('Search') }}</label>
+                    <input type="text" class="form-control" name="q" value="{{ $q }}" placeholder="{{ __('Search terms...') }}">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Source</label>
+                    <label class="form-label">{{ __('Source') }}</label>
                     <select class="form-select" name="source">
-                        <option value="">All Sources</option>
+                        <option value="">{{ __('All Sources') }}</option>
                         @foreach($sources as $source)
                         <option value="{{ $source->source ?? '' }}" {{ $sourceParam === ($source->source ?? '') ? 'selected' : '' }}>
                             {{ ucfirst($source->source ?? '') }} ({{ number_format($source->count ?? 0) }})
@@ -82,11 +82,11 @@
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Term</th>
-                            <th>Source</th>
-                            <th>Domain</th>
-                            <th>Synonyms</th>
-                            <th>Created</th>
+                            <th>{{ __('Term') }}</th>
+                            <th>{{ __('Source') }}</th>
+                            <th>{{ __('Domain') }}</th>
+                            <th>{{ __('Synonyms') }}</th>
+                            <th>{{ __('Created') }}</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -136,7 +136,7 @@
         </div>
         @if($totalPages > 1)
         <div class="card-footer">
-            <nav aria-label="Term pagination">
+            <nav aria-label="{{ __('Term pagination') }}">
                 <ul class="pagination justify-content-center mb-0">
                     @php
                         $baseParams = [];

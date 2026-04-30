@@ -190,20 +190,20 @@
     <div class="card-body">
       <div class="mb-3">
         <label for="aiTestInput" class="form-label">Input Text <span class="badge bg-secondary ms-1">Optional</span></label>
-        <textarea class="form-control" id="aiTestInput" rows="4" placeholder="Enter text to test AI services...">The National Archives of South Africa in Pretoria holds the records of Jan van Riebeeck from 1652. The Dutch East India Company (VOC) established a refreshment station at the Cape of Good Hope on 6 April 1652.</textarea>
+        <textarea class="form-control" id="aiTestInput" rows="4" placeholder="{{ __('Enter text to test AI services...') }}">The National Archives of South Africa in Pretoria holds the records of Jan van Riebeeck from 1652. The Dutch East India Company (VOC) established a refreshment station at the Cape of Good Hope on 6 April 1652.</textarea>
       </div>
 
       <div class="mb-3">
         <label for="aiTargetLang" class="form-label">Target Language (for translation) <span class="badge bg-secondary ms-1">Optional</span></label>
         <select class="form-select form-select-sm w-auto d-inline-block" id="aiTargetLang">
-          <option value="af">Afrikaans</option>
-          <option value="fr">French</option>
-          <option value="nl">Dutch</option>
-          <option value="de">German</option>
-          <option value="pt">Portuguese</option>
-          <option value="es">Spanish</option>
-          <option value="zu">Zulu</option>
-          <option value="xh">Xhosa</option>
+          <option value="af">{{ __('Afrikaans') }}</option>
+          <option value="fr">{{ __('French') }}</option>
+          <option value="nl">{{ __('Dutch') }}</option>
+          <option value="de">{{ __('German') }}</option>
+          <option value="pt">{{ __('Portuguese') }}</option>
+          <option value="es">{{ __('Spanish') }}</option>
+          <option value="zu">{{ __('Zulu') }}</option>
+          <option value="xh">{{ __('Xhosa') }}</option>
         </select>
       </div>
 
@@ -258,12 +258,12 @@
       <table class="table table-bordered table-striped table-hover mb-0">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Provider</th>
-            <th>Model</th>
-            <th>Status</th>
-            <th>Default</th>
-            <th>Endpoint</th>
+            <th>{{ __('Name') }}</th>
+            <th>{{ __('Provider') }}</th>
+            <th>{{ __('Model') }}</th>
+            <th>{{ __('Status') }}</th>
+            <th>{{ __('Default') }}</th>
+            <th>{{ __('Endpoint') }}</th>
           </tr>
         </thead>
         <tbody>

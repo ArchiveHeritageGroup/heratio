@@ -15,12 +15,12 @@
     <div class="multiline-header d-flex align-items-center mb-3">
       <i class="fas fa-3x fa-fingerprint me-3" aria-hidden="true"></i>
       <div class="d-flex flex-column flex-grow-1">
-        <h1 class="mb-0">DOI Management</h1>
+        <h1 class="mb-0">{{ __('DOI Management') }}</h1>
         <span class="small text-muted">DataCite Integration Dashboard</span>
       </div>
       <div class="d-flex gap-2">
         <div class="btn-group">
-          <a href="{{ route('doi.report') }}?format=csv" class="btn btn-outline-secondary btn-sm" title="Export CSV">
+          <a href="{{ route('doi.report') }}?format=csv" class="btn btn-outline-secondary btn-sm" title="{{ __('Export CSV') }}">
             <i class="fas fa-file-csv me-1"></i> Export
           </a>
           <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
@@ -143,17 +143,17 @@
     </div>
 
     {{-- Recent DOIs --}}
-    <h3 class="mb-3">Recently Minted DOIs</h3>
+    <h3 class="mb-3">{{ __('Recently Minted DOIs') }}</h3>
     @if(count($recentDois))
       <div class="table-responsive mb-3">
         <table class="table table-bordered table-striped mb-0">
           <thead>
             <tr>
-              <th>DOI</th>
-              <th>Record Title</th>
-              <th>Status</th>
-              <th>Minted</th>
-              <th class="text-end">Actions</th>
+              <th>{{ __('DOI') }}</th>
+              <th>{{ __('Record Title') }}</th>
+              <th>{{ __('Status') }}</th>
+              <th>{{ __('Minted') }}</th>
+              <th class="text-end">{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>

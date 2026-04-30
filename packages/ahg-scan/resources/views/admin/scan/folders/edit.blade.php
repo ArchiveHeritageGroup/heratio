@@ -4,7 +4,7 @@
 @section('content')
 <h1>{{ $folder->id ? 'Edit watched folder' : 'New watched folder' }}</h1>
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Admin</a></li>
         <li class="breadcrumb-item"><a href="{{ route('scan.dashboard') }}">Scan</a></li>
@@ -45,7 +45,7 @@
 
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">Layout</label>
+                    <label class="form-label">{{ __('Layout') }}</label>
                     <select name="layout" class="form-select">
                         <option value="path" {{ old('layout', $folder->layout) === 'path' ? 'selected' : '' }}>Path as destination</option>
                         <option value="flat-sidecar" {{ old('layout', $folder->layout) === 'flat-sidecar' ? 'selected' : '' }}>Flat files + XML sidecar</option>
@@ -56,12 +56,12 @@
                     </div>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">Quiet period (seconds)</label>
+                    <label class="form-label">{{ __('Quiet period (seconds)') }}</label>
                     <input type="number" name="min_quiet_seconds" value="{{ old('min_quiet_seconds', $folder->min_quiet_seconds) }}" min="1" max="3600" class="form-control">
                     <div class="form-text">File must be idle for this long before ingest.</div>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">Enabled</label>
+                    <label class="form-label">{{ __('Enabled') }}</label>
                     <div class="form-check form-switch mt-2">
                         <input type="hidden" name="enabled" value="0">
                         <input type="checkbox" name="enabled" value="1" class="form-check-input" {{ old('enabled', $folder->enabled) ? 'checked' : '' }}>
@@ -76,7 +76,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Sector</label>
+                    <label class="form-label">{{ __('Sector') }}</label>
                     <select name="sector" class="form-select">
                         @foreach(['archive','library','gallery','museum'] as $s)
                             <option value="{{ $s }}" {{ old('sector', $folder->sector ?? 'archive') === $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
@@ -84,14 +84,14 @@
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Standard</label>
+                    <label class="form-label">{{ __('Standard') }}</label>
                     <input type="text" name="standard" value="{{ old('standard', $folder->standard ?? 'isadg') }}" class="form-control" maxlength="32">
                     <div class="form-text">e.g. isadg, rad, dacs, marc21, mods, lido, spectrum, dwc</div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Default parent (fallback if path doesn't resolve)</label>
+                    <label class="form-label">{{ __("Default parent (fallback if path doesn't resolve)") }}</label>
                     <select name="parent_id" class="form-select">
                         <option value="">— None (require path-resolution) —</option>
                         @foreach($parents as $p)
@@ -100,7 +100,7 @@
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Repository</label>
+                    <label class="form-label">{{ __('Repository') }}</label>
                     <select name="repository_id" class="form-select">
                         <option value="">— None —</option>
                         @foreach($repositories as $r)
@@ -157,11 +157,11 @@
             <div class="form-check form-switch mb-3">
                 <input type="hidden" name="notify_on_failure" value="0">
                 <input type="checkbox" name="notify_on_failure" value="1" class="form-check-input" id="nof" {{ old('notify_on_failure', $folder->notify_on_failure ?? 0) ? 'checked' : '' }}>
-                <label class="form-check-label" for="nof">Email on final failure — notify only after all retries have been exhausted.</label>
+                <label class="form-check-label" for="nof">{{ __('Email on final failure — notify only after all retries have been exhausted.') }}</label>
             </div>
             <div class="mb-2">
-                <label class="form-label">Recipients</label>
-                <input type="text" name="notify_emails" value="{{ old('notify_emails', $folder->notify_emails ?? '') }}" class="form-control" maxlength="1024" placeholder="archivist@example.org, ops@example.org">
+                <label class="form-label">{{ __('Recipients') }}</label>
+                <input type="text" name="notify_emails" value="{{ old('notify_emails', $folder->notify_emails ?? '') }}" class="form-control" maxlength="1024" placeholder="{{ __('archivist@example.org, ops@example.org') }}">
                 <div class="form-text">Comma-separated email addresses. Leave empty to disable.</div>
             </div>
         </div>
@@ -172,7 +172,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">On success</label>
+                    <label class="form-label">{{ __('On success') }}</label>
                     <select name="disposition_success" class="form-select">
                         <option value="move" {{ old('disposition_success', $folder->disposition_success) === 'move' ? 'selected' : '' }}>Move to archive folder</option>
                         <option value="leave" {{ old('disposition_success', $folder->disposition_success) === 'leave' ? 'selected' : '' }}>Leave in place</option>
@@ -180,7 +180,7 @@
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">On failure</label>
+                    <label class="form-label">{{ __('On failure') }}</label>
                     <select name="disposition_failure" class="form-select">
                         <option value="quarantine" {{ old('disposition_failure', $folder->disposition_failure) === 'quarantine' ? 'selected' : '' }}>Move to quarantine</option>
                         <option value="leave" {{ old('disposition_failure', $folder->disposition_failure) === 'leave' ? 'selected' : '' }}>Leave in place</option>

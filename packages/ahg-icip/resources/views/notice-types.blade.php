@@ -16,7 +16,7 @@
 
 @section('content')
 <div class="container-xxl">
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.dashboard') }}">ICIP</a></li>
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.notices') }}">Cultural Notices</a></li>
@@ -40,18 +40,18 @@
   <div class="row">
     <div class="col-lg-8">
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">Notice Types</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Notice Types') }}</h5></div>
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover mb-0">
               <thead class="table-light">
                 <tr>
-                  <th>Code</th>
-                  <th>Name</th>
-                  <th>Severity</th>
-                  <th>Options</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <th>{{ __('Code') }}</th>
+                  <th>{{ __('Name') }}</th>
+                  <th>{{ __('Severity') }}</th>
+                  <th>{{ __('Options') }}</th>
+                  <th>{{ __('Status') }}</th>
+                  <th>{{ __('Actions') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -73,9 +73,9 @@
                     <td><i class="bi {{ $severityIcon }} me-1"></i>{{ $type->name }}</td>
                     <td><span class="badge {{ $severityClass }}">{{ ucfirst($type->severity) }}</span></td>
                     <td>
-                      @if($type->requires_acknowledgement)<span class="badge bg-secondary" title="Requires Acknowledgement">ACK</span>@endif
-                      @if($type->blocks_access)<span class="badge bg-dark" title="Blocks Access">BLOCK</span>@endif
-                      @if($type->display_public)<span class="badge bg-light text-dark" title="Shown to Public">PUB</span>@endif
+                      @if($type->requires_acknowledgement)<span class="badge bg-secondary" title="{{ __('Requires Acknowledgement') }}">ACK</span>@endif
+                      @if($type->blocks_access)<span class="badge bg-dark" title="{{ __('Blocks Access') }}">BLOCK</span>@endif
+                      @if($type->display_public)<span class="badge bg-light text-dark" title="{{ __('Shown to Public') }}">PUB</span>@endif
                     </td>
                     <td>
                       @if($type->is_active)<span class="badge bg-success">Active</span>
@@ -100,7 +100,7 @@
       </div>
 
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">Add Notice Type</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Add Notice Type') }}</h5></div>
         <div class="card-body">
           <form method="post">
             @csrf
@@ -108,29 +108,29 @@
             <div class="row">
               <div class="col-md-4 mb-3">
                 <label class="form-label">Code <span class="text-danger">*</span></label>
-                <input type="text" name="code" class="form-control" required placeholder="e.g., custom_notice">
+                <input type="text" name="code" class="form-control" required placeholder="{{ __('e.g., custom_notice') }}">
                 <div class="form-text">Unique identifier (lowercase, no spaces)</div>
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">Name <span class="text-danger">*</span></label>
-                <input type="text" name="name" class="form-control" required placeholder="e.g., Custom Notice">
+                <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g., Custom Notice') }}">
               </div>
               <div class="col-md-4 mb-3">
-                <label class="form-label">Severity</label>
+                <label class="form-label">{{ __('Severity') }}</label>
                 <select name="severity" class="form-select">
-                  <option value="info">Info</option>
-                  <option value="warning" selected>Warning</option>
-                  <option value="critical">Critical</option>
+                  <option value="info">{{ __('Info') }}</option>
+                  <option value="warning" selected>{{ __('Warning') }}</option>
+                  <option value="critical">{{ __('Critical') }}</option>
                 </select>
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Description</label>
-              <input type="text" name="description" class="form-control" placeholder="Brief description of when to use this notice">
+              <label class="form-label">{{ __('Description') }}</label>
+              <input type="text" name="description" class="form-control" placeholder="{{ __('Brief description of when to use this notice') }}">
             </div>
             <div class="mb-3">
-              <label class="form-label">Default Text</label>
-              <textarea name="default_text" class="form-control" rows="3" placeholder="Default notice text shown to users"></textarea>
+              <label class="form-label">{{ __('Default Text') }}</label>
+              <textarea name="default_text" class="form-control" rows="3" placeholder="{{ __('Default notice text shown to users') }}"></textarea>
             </div>
             <div class="row mb-3">
               <div class="col-md-6">
@@ -156,18 +156,18 @@
               <div class="col-md-6">
                 <div class="form-check">
                   <input type="checkbox" name="display_public" value="1" class="form-check-input" id="dispPublic" checked>
-                  <label class="form-check-label" for="dispPublic">Display to Public</label>
+                  <label class="form-check-label" for="dispPublic">{{ __('Display to Public') }}</label>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-check">
                   <input type="checkbox" name="display_staff" value="1" class="form-check-input" id="dispStaff" checked>
-                  <label class="form-check-label" for="dispStaff">Display to Staff</label>
+                  <label class="form-check-label" for="dispStaff">{{ __('Display to Staff') }}</label>
                 </div>
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Display Order</label>
+              <label class="form-label">{{ __('Display Order') }}</label>
               <input type="number" name="display_order" class="form-control" value="100" style="max-width: 100px;">
             </div>
             <button type="submit" class="btn btn-primary">
@@ -180,7 +180,7 @@
 
     <div class="col-lg-4">
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">Legend</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Legend') }}</h5></div>
         <div class="card-body small">
           <p><strong>Severity Levels:</strong></p>
           <ul>

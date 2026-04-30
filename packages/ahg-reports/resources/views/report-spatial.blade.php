@@ -17,7 +17,7 @@
     @include('ahg-reports::_menu')
   </div>
   <div class="col-md-9">
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('reports.index') }}">Reports</a></li>
         <li class="breadcrumb-item active">Spatial Analysis Export</li>
@@ -43,7 +43,7 @@
             </div>
             <div class="card-body">
               <div class="mb-3">
-                <label for="coordinate_source" class="form-label">Where are coordinates stored?</label>
+                <label for="coordinate_source" class="form-label">{{ __('Where are coordinates stored?') }}</label>
                 <select class="form-select" id="coordinate_source" name="coordinate_source" onchange="togglePropertyFields()">
                   @foreach ($coordinateSources as $value => $label)
                     <option value="{{ $value }}">{{ $label }}</option>
@@ -55,13 +55,13 @@
               <div id="propertyFields" class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="latitude_property" class="form-label">Latitude Property Name</label>
+                    <label for="latitude_property" class="form-label">{{ __('Latitude Property Name') }}</label>
                     <input type="text" class="form-control" id="latitude_property" name="latitude_property" value="latitude">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="longitude_property" class="form-label">Longitude Property Name</label>
+                    <label for="longitude_property" class="form-label">{{ __('Longitude Property Name') }}</label>
                     <input type="text" class="form-control" id="longitude_property" name="longitude_property" value="longitude">
                   </div>
                 </div>
@@ -78,7 +78,7 @@
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="places" class="form-label">Place Access Points (Countries)</label>
+                    <label for="places" class="form-label">{{ __('Place Access Points (Countries)') }}</label>
                     <select class="form-select" id="places" name="places[]" multiple size="6">
                       @foreach ($availablePlaces as $id => $name)
                         <option value="{{ $name }}"
@@ -92,7 +92,7 @@
                 </div>
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="level_of_description" class="form-label">Level of Description</label>
+                    <label for="level_of_description" class="form-label">{{ __('Level of Description') }}</label>
                     <select class="form-select" id="level_of_description" name="level_of_description">
                       <option value="">-- All Levels --</option>
                       @foreach ($availableLevels as $id => $name)
@@ -105,9 +105,9 @@
               </div>
 
               <div class="mb-3">
-                <label for="subject_filter_terms" class="form-label">Subject Access Point Filter</label>
+                <label for="subject_filter_terms" class="form-label">{{ __('Subject Access Point Filter') }}</label>
                 <textarea class="form-control" id="subject_filter_terms" name="subject_filter_terms" rows="4"
-                  placeholder="Enter subject terms to filter by (one per line)...">brush painted
+                  placeholder="{{ __('Enter subject terms to filter by (one per line)...') }}">brush painted
 finger painted
 engraving
 pecking
@@ -150,14 +150,14 @@ Khoi</textarea>
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="painted_terms" class="form-label">Painted Tradition Terms</label>
+                    <label for="painted_terms" class="form-label">{{ __('Painted Tradition Terms') }}</label>
                     <textarea class="form-control" id="painted_terms" name="painted_terms" rows="6">{{ $defaultPaintedTerms }}</textarea>
                     <div class="form-text">One term per line. Records with these subjects = is_painted: TRUE</div>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="engraved_terms" class="form-label">Engraved Tradition Terms</label>
+                    <label for="engraved_terms" class="form-label">{{ __('Engraved Tradition Terms') }}</label>
                     <textarea class="form-control" id="engraved_terms" name="engraved_terms" rows="6">{{ $defaultEngravedTerms }}</textarea>
                     <div class="form-text">One term per line. Records with these subjects = is_engraved: TRUE</div>
                   </div>
@@ -255,7 +255,7 @@ Khoi</textarea>
                       @php
                       $value = $row[$key] ?? '';
                       if ($key === 'subjects_concatenated' && strlen($value) > 50) {
-                          echo '<span title="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars(substr($value, 0, 50), ENT_QUOTES, 'UTF-8') . '...</span>';
+                          echo '<span title="{{ __("' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '") }}">' . htmlspecialchars(substr($value, 0, 50), ENT_QUOTES, 'UTF-8') . '...</span>';
                       } elseif ($key === 'is_painted' || $key === 'is_engraved') {
                           $badgeClass = $value === 'TRUE' ? 'bg-success' : 'bg-secondary';
                           echo '<span class="badge ' . $badgeClass . '">' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '</span>';

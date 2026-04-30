@@ -35,7 +35,7 @@
     @else
       <div class="table-responsive">
         <table class="table table-sm">
-          <thead><tr><th>ID</th><th>Source</th><th>Status</th><th>Created</th></tr></thead>
+          <thead><tr><th>{{ __('ID') }}</th><th>{{ __('Source') }}</th><th>{{ __('Status') }}</th><th>{{ __('Created') }}</th></tr></thead>
           <tbody>
             @foreach($mergeJobs ?? [] as $job)
               <tr>

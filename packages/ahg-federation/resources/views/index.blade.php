@@ -60,11 +60,11 @@
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Name</th>
-                                <th>Base URL</th>
-                                <th>Status</th>
-                                <th>Last Harvest</th>
-                                <th>Actions</th>
+                                <th>{{ __('Name') }}</th>
+                                <th>{{ __('Base URL') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Last Harvest') }}</th>
+                                <th>{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>

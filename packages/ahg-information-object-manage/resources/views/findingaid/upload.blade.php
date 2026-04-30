@@ -42,7 +42,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="load-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#load-collapse" aria-expanded="true" aria-controls="load-collapse">
-            Upload finding aid
+            {{ __('Upload finding aid') }}
           </button>
         </h2>
         <div id="load-collapse" class="accordion-collapse collapse show" aria-labelledby="load-heading">

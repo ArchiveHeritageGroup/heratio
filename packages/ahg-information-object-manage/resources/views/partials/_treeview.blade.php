@@ -6,7 +6,7 @@
 <div class="card mb-3" id="treeview-card">
   <div class="card-header fw-bold d-flex justify-content-between align-items-center">
     <span><i class="fas fa-sitemap me-1"></i> {{ __('Hierarchy') }}</span>
-    <button class="btn btn-sm btn-link p-0 text-muted" id="treeview-refresh" title="Refresh">
+    <button class="btn btn-sm btn-link p-0 text-muted" id="treeview-refresh" title="{{ __('Refresh') }}">
       <i class="fas fa-sync-alt"></i>
     </button>
   </div>

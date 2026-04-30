@@ -7,12 +7,12 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-eye me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Import Preview</h1>
+      <h1 class="mb-0">{{ __('Import Preview') }}</h1>
       <span class="small text-muted">Review transformed data before importing</span>
     </div>
   </div>
 
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
       <li class="breadcrumb-item"><a href="{{ route('data-migration.map') }}">Map Fields</a></li>

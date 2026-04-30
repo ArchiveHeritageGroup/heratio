@@ -5,7 +5,7 @@
 
 @section('content')
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
@@ -31,10 +31,10 @@
     <table class="table table-hover mb-0">
       <thead>
         <tr>
-          <th>Source</th>
-          <th>Identifier</th>
-          <th>Label</th>
-          <th>Verified</th>
+          <th>{{ __('Source') }}</th>
+          <th>{{ __('Identifier') }}</th>
+          <th>{{ __('Label') }}</th>
+          <th>{{ __('Verified') }}</th>
           <th></th>
         </tr>
       </thead>
@@ -88,7 +88,7 @@
   <div class="card-body">
     <div class="row g-2 mb-3">
       <div class="col-md-4">
-        <input type="text" id="lookup-query" class="form-control" placeholder="Search name...">
+        <input type="text" id="lookup-query" class="form-control" placeholder="{{ __('Search name...') }}">
       </div>
       <div class="col-auto">
         <button class="btn atom-btn-white" onclick="searchAuthority('wikidata')">
@@ -96,7 +96,7 @@
         </button>
       </div>
       <div class="col-auto">
-        <button class="btn atom-btn-white" onclick="searchAuthority('viaf')">VIAF</button>
+        <button class="btn atom-btn-white" onclick="searchAuthority('viaf')">{{ __('VIAF') }}</button>
       </div>
       <div class="col-auto">
         <button class="btn atom-btn-white" onclick="searchAuthority('ulan')">ULAN</button>
@@ -109,9 +109,9 @@
       <table class="table table-sm table-hover">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Label</th>
-            <th>Description</th>
+            <th>{{ __('ID') }}</th>
+            <th>{{ __('Label') }}</th>
+            <th>{{ __('Description') }}</th>
             <th></th>
           </tr>
         </thead>
@@ -126,34 +126,34 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add External Identifier</h5>
+        <h5 class="modal-title">{{ __('Add External Identifier') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Source</label>
+          <label class="form-label">{{ __('Source') }}</label>
           <select id="add-id-type" class="form-select">
             @foreach (array_keys($uriPatterns) as $type)
               <option value="{{ $type }}">{{ strtoupper($type) }}</option>
             @endforeach
-            <option value="uri">Other URI</option>
+            <option value="uri">{{ __('Other URI') }}</option>
           </select>
         </div>
         <div class="mb-3">
-          <label class="form-label">Identifier Value</label>
-          <input type="text" id="add-id-value" class="form-control" placeholder="Q12345">
+          <label class="form-label">{{ __('Identifier Value') }}</label>
+          <input type="text" id="add-id-value" class="form-control" placeholder="{{ __('Q12345') }}">
         </div>
         <div class="mb-3">
-          <label class="form-label">Label (optional)</label>
+          <label class="form-label">{{ __('Label (optional)') }}</label>
           <input type="text" id="add-id-label" class="form-control">
         </div>
         <div class="mb-3">
-          <label class="form-label">URI (auto-constructed if blank)</label>
+          <label class="form-label">{{ __('URI (auto-constructed if blank)') }}</label>
           <input type="text" id="add-id-uri" class="form-control">
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
         <button type="button" class="btn atom-btn-white" id="btn-save-identifier">
           <i class="fas fa-save me-1"></i>Save
         </button>

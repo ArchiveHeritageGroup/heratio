@@ -9,20 +9,20 @@
         @include('ahg-ric::entities._hierarchy', ['entity' => $entity, 'hierarchy' => $hierarchy, 'entityType' => 'rule'])
 
         <section class="mb-3">
-            <h2 class="h6 text-muted">Details</h2>
+            <h2 class="h6 text-muted">{{ __('Details') }}</h2>
             <table class="table table-sm">
-                <tr><th style="width:180px">Type</th><td><span class="badge bg-warning text-dark">{{ $entity->type_id ?? 'Not set' }}</span></td></tr>
-                <tr><th>Jurisdiction</th><td>{{ $entity->jurisdiction ?? '' }}</td></tr>
-                <tr><th>Start Date</th><td>{{ $entity->start_date ?? '' }}</td></tr>
-                <tr><th>End Date</th><td>{{ $entity->end_date ?? '' }}</td></tr>
-                @if($entity->description)<tr><th>Description</th><td>{!! nl2br(e($entity->description)) !!}</td></tr>@endif
-                @if($entity->legislation)<tr><th>Legislation</th><td>{!! nl2br(e($entity->legislation)) !!}</td></tr>@endif
-                @if($entity->sources)<tr><th>Sources</th><td>{!! nl2br(e($entity->sources)) !!}</td></tr>@endif
+                <tr><th style="width:180px">{{ __('Type') }}</th><td><span class="badge bg-warning text-dark">{{ $entity->type_id ?? 'Not set' }}</span></td></tr>
+                <tr><th>{{ __('Jurisdiction') }}</th><td>{{ $entity->jurisdiction ?? '' }}</td></tr>
+                <tr><th>{{ __('Start Date') }}</th><td>{{ $entity->start_date ?? '' }}</td></tr>
+                <tr><th>{{ __('End Date') }}</th><td>{{ $entity->end_date ?? '' }}</td></tr>
+                @if($entity->description)<tr><th>{{ __('Description') }}</th><td>{!! nl2br(e($entity->description)) !!}</td></tr>@endif
+                @if($entity->legislation)<tr><th>{{ __('Legislation') }}</th><td>{!! nl2br(e($entity->legislation)) !!}</td></tr>@endif
+                @if($entity->sources)<tr><th>{{ __('Sources') }}</th><td>{!! nl2br(e($entity->sources)) !!}</td></tr>@endif
             </table>
         </section>
 
         <section>
-            <h2 class="h6 text-muted">Relations</h2>
+            <h2 class="h6 text-muted">{{ __('Relations') }}</h2>
             @include('ahg-ric::_relation-editor', ['recordId' => $entity->id])
         </section>
     </div>

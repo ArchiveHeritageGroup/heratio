@@ -8,20 +8,20 @@
 @endsection
 
 @section('title-block')
-  <h1 class="mb-0">Orphan Works</h1>
+  <h1 class="mb-0">{{ __('Orphan Works') }}</h1>
 @endsection
 
 @section('content')
 <div class="card">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h5 class="mb-0">Orphan Work Designations</h5>
+    <h5 class="mb-0">{{ __('Orphan Work Designations') }}</h5>
   </div>
   <div class="card-body p-0">
     @if(isset($orphanWorks) && count($orphanWorks) > 0)
       <table class="table table-striped table-hover mb-0">
         <thead>
           <tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-            <th>Object</th><th>Designation Date</th><th>Search Status</th><th>Actions</th>
+            <th>{{ __('Object') }}</th><th>{{ __('Designation Date') }}</th><th>{{ __('Search Status') }}</th><th>{{ __('Actions') }}</th>
           </tr>
         </thead>
         <tbody>

@@ -16,7 +16,7 @@
 
 {{-- Stats --}}
     <div class="row mb-4">
-      <div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body"><h6 class="mb-0 text-white-50">Total Reports</h6><h2 class="mb-0">{{ $statistics['total_reports'] ?? 0 }}</h2></div></div></div>
+      <div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body"><h6 class="mb-0 text-white-50">{{ __('Total Reports') }}</h6><h2 class="mb-0">{{ $statistics['total_reports'] ?? 0 }}</h2></div></div></div>
       @foreach(array_slice($statistics['by_source'] ?? [], 0, 3) as $source => $count)
       <div class="col-md-3"><div class="card bg-{{ ['success','info','warning'][$loop->index % 3] }} text-white"><div class="card-body"><h6 class="mb-0 text-white-50">{{ ucfirst($source) }}</h6><h2 class="mb-0">{{ $count }}</h2></div></div></div>
       @endforeach
@@ -24,7 +24,7 @@
 
     {{-- Search --}}
     <div class="mb-3">
-      <input type="text" class="form-control" id="searchReports" placeholder="Search reports...">
+      <input type="text" class="form-control" id="searchReports" placeholder="{{ __('Search reports...') }}">
     </div>
 
     {{-- Reports Table --}}
@@ -37,7 +37,7 @@
       <div class="table-responsive">
         <table class="table table-hover mb-0">
           <thead><tr>
-            <th width="40"></th><th>Name</th><th>Source</th><th>Status</th><th>Visibility</th><th>Updated</th><th width="200">Actions</th>
+            <th width="40"></th><th>{{ __('Name') }}</th><th>{{ __('Source') }}</th><th>{{ __('Status') }}</th><th>{{ __('Visibility') }}</th><th>{{ __('Updated') }}</th><th width="200">{{ __('Actions') }}</th>
           </tr></thead>
           <tbody>
             @foreach($categoryReports as $report)
@@ -60,8 +60,8 @@
               <td><small class="text-muted">{{ isset($report->updated_at) ? \Carbon\Carbon::parse($report->updated_at)->format('Y-m-d H:i') : '-' }}</small></td>
               <td>
                 <div class="btn-group btn-group-sm">
-                  <a href="{{ route('reports.builder.preview', $report->id) }}" class="btn btn-outline-primary" title="View"><i class="fas fa-eye me-1"></i>View</a>
-                  <a href="{{ route('reports.builder.edit', $report->id) }}" class="btn btn-outline-secondary" title="Edit"><i class="fas fa-pencil-alt me-1"></i>Edit</a>
+                  <a href="{{ route('reports.builder.preview', $report->id) }}" class="btn btn-outline-primary" title="{{ __('View') }}"><i class="fas fa-eye me-1"></i>View</a>
+                  <a href="{{ route('reports.builder.edit', $report->id) }}" class="btn btn-outline-secondary" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt me-1"></i>Edit</a>
                 </div>
               </td>
             </tr>

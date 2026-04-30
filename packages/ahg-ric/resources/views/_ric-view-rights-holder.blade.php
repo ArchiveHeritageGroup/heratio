@@ -26,7 +26,7 @@
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">RiC Role</th><td>Rights holder / Access authority</td></tr>
+        <tr><th class="text-muted" style="width:35%">{{ __('RiC Role') }}</th><td>Rights holder / Access authority</td></tr>
       </table>
     </div>
   </div>

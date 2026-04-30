@@ -4,7 +4,7 @@
 @section('body-class', 'admin three-d-reports models')
 @section('sidebar')
 <div class="sidebar-content">
-  <h4>3D Reports</h4>
+  <h4>{{ __('3D Reports') }}</h4>
   <ul class="list-unstyled">
     <li><a href="{{ route('iiif.three-d-reports.models') }}"><i class="fas fa-cube me-2"></i>3D Models</a></li>
     <li><a href="{{ route('iiif.three-d-reports.hotspots') }}"><i class="fas fa-map-pin me-2"></i>Hotspots</a></li>
@@ -20,7 +20,7 @@
 <div class="alert alert-info"><strong>{{ count($items) }}</strong> models found</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
-    <thead class="table-dark"><tr><th>Model</th><th>Object</th><th>Format</th><th>Size</th><th>Thumb</th><th>AR</th><th>Public</th></tr></thead>
+    <thead class="table-dark"><tr><th>{{ __('Model') }}</th><th>{{ __('Object') }}</th><th>{{ __('Format') }}</th><th>{{ __('Size') }}</th><th>{{ __('Thumb') }}</th><th>{{ __('AR') }}</th><th>{{ __('Public') }}</th></tr></thead>
     <tbody>
       @forelse($items as $m)
       <tr>

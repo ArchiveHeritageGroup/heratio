@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid py-3">
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $resource->slug) }}">{{ $resource->title ?? $resource->slug }}</a></li>
             <li class="breadcrumb-item"><a href="{{ route('provenance.view', $resource->slug) }}">Provenance</a></li>

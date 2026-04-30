@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Storage service</h1>
+  <h1>{{ __('Storage service') }}</h1>
 @endsection
 
 @section('content')
@@ -18,7 +18,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="storage-config-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#storage-config-collapse" aria-expanded="false" aria-controls="storage-config-collapse">
-              Storage service configuration
+              {{ __('Storage service configuration') }}
             </button>
           </h2>
           <div id="storage-config-collapse" class="accordion-collapse collapse" aria-labelledby="storage-config-heading">
@@ -41,16 +41,16 @@
                 <label class="form-label">Storage service type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="settings[storage_service_type]" class="form-select">
                   <option value="">-- Select --</option>
-                  <option value="archivematica" {{ ($settings['storage_service_type'] ?? '') == 'archivematica' ? 'selected' : '' }}>Archivematica</option>
-                  <option value="preservica" {{ ($settings['storage_service_type'] ?? '') == 'preservica' ? 'selected' : '' }}>Preservica</option>
-                  <option value="dspace" {{ ($settings['storage_service_type'] ?? '') == 'dspace' ? 'selected' : '' }}>DSpace</option>
-                  <option value="custom" {{ ($settings['storage_service_type'] ?? '') == 'custom' ? 'selected' : '' }}>Custom</option>
+                  <option value="archivematica" {{ ($settings['storage_service_type'] ?? '') == 'archivematica' ? 'selected' : '' }}>{{ __('Archivematica') }}</option>
+                  <option value="preservica" {{ ($settings['storage_service_type'] ?? '') == 'preservica' ? 'selected' : '' }}>{{ __('Preservica') }}</option>
+                  <option value="dspace" {{ ($settings['storage_service_type'] ?? '') == 'dspace' ? 'selected' : '' }}>{{ __('DSpace') }}</option>
+                  <option value="custom" {{ ($settings['storage_service_type'] ?? '') == 'custom' ? 'selected' : '' }}>{{ __('Custom') }}</option>
                 </select>
               </div>
 
               <div class="mb-3">
                 <label class="form-label">Storage service URL <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="url" name="settings[storage_service_url]" class="form-control" value="{{ e($settings['storage_service_url']) }}" placeholder="https://storage.example.com">
+                <input type="url" name="settings[storage_service_url]" class="form-control" value="{{ e($settings['storage_service_url']) }}" placeholder="{{ __('https://storage.example.com') }}">
                 <small class="text-muted">Full URL of the storage service API endpoint</small>
               </div>
 

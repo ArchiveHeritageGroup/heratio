@@ -145,7 +145,7 @@
 
 <hr class="my-4">
 
-<h2 class="h5 mb-3">Quick links</h2>
+<h2 class="h5 mb-3">{{ __('Quick links') }}</h2>
 <div class="d-flex gap-2 flex-wrap">
   <a href="{{ route('records.fileplan.import') }}" class="btn btn-sm btn-outline-success"><i class="fas fa-file-upload me-1"></i>Import file plan (CSV / spreadsheet)</a>
   <a href="{{ route('records.schedules.create') }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus me-1"></i>New retention schedule</a>

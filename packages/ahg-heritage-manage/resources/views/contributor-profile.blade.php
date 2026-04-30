@@ -16,7 +16,7 @@ $statsByType = $profile['stats_by_type'] ?? [];
     <!-- Profile Card -->
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-body text-center">
-        @if(!empty($contributor['avatar_url']))<img src="{{ $contributor['avatar_url'] }}" class="rounded-circle mb-3" width="100" height="100" alt="Avatar">
+        @if(!empty($contributor['avatar_url']))<img src="{{ $contributor['avatar_url'] }}" class="rounded-circle mb-3" width="100" height="100" alt="{{ __('Avatar') }}">
         @else<div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:100px;height:100px;"><i class="fas fa-user display-3" style="color:var(--ahg-primary)"></i></div>@endif
         <h4 class="mb-1">{{ $contributor['display_name'] ?? 'Contributor' }}</h4>
         <span class="badge bg-{{ match($contributor['trust_level'] ?? 'new') { 'expert'=>'primary','trusted'=>'success','contributor'=>'info',default=>'secondary' } }} mb-2">{{ ucfirst($contributor['trust_level'] ?? 'new') }} Contributor</span>
@@ -53,7 +53,7 @@ $statsByType = $profile['stats_by_type'] ?? [];
 
     @if(!empty($statsByType))
     <div class="card border-0 shadow-sm mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Contributions by Type</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Contributions by Type') }}</h5></div>
       <div class="card-body">
         <div class="row g-3">
           @foreach($statsByType as $stat)
@@ -65,7 +65,7 @@ $statsByType = $profile['stats_by_type'] ?? [];
     @endif
 
     <div class="card border-0 shadow-sm">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Recent Contributions</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Recent Contributions') }}</h5></div>
       @if(empty($recentContributions))
       <div class="card-body text-center text-muted py-5"><i class="fas fa-inbox display-4 mb-3 d-block"></i><p>No approved contributions yet.</p></div>
       @else

@@ -4,7 +4,7 @@
 
 @section('content')
 
-  <nav aria-label="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
       <li class="breadcrumb-item">Import</li>
@@ -30,7 +30,7 @@
       <p class="mb-2">Files uploaded here are stored at the remote path shown below. In your CSV import file, set the <code>digitalObjectPath</code> column to:</p>
       <div class="bg-white border rounded p-3 mb-2">
         <code id="path-prefix" class="fs-5 text-primary user-select-all">{{ $diskPath }}/</code><code class="fs-5 text-muted">your-filename.ext</code>
-        <button type="button" class="btn btn-sm atom-btn-white ms-3" id="copy-path-btn" title="Copy path prefix">
+        <button type="button" class="btn btn-sm atom-btn-white ms-3" id="copy-path-btn" title="{{ __('Copy path prefix') }}">
           <i class="fa fa-copy"></i>
         </button>
       </div>
@@ -86,10 +86,10 @@
           <table class="table table-bordered table-striped table-hover mb-0" id="files-table">
             <thead>
               <tr>
-                <th>Filename</th>
-                <th class="text-end" style="width:120px">Size</th>
-                <th style="width:180px">Modified</th>
-                <th class="text-center" style="width:80px">Actions</th>
+                <th>{{ __('Filename') }}</th>
+                <th class="text-end" style="width:120px">{{ __('Size') }}</th>
+                <th style="width:180px">{{ __('Modified') }}</th>
+                <th class="text-center" style="width:80px">{{ __('Actions') }}</th>
               </tr>
             </thead>
             <tbody id="files-tbody">
@@ -102,7 +102,7 @@
                     <td class="text-end">{{ \AhgFtpUpload\Services\FtpService::formatBytes($file['size']) }}</td>
                     <td>{{ $file['modified'] }}</td>
                     <td class="text-center">
-                      <button type="button" class="btn btn-sm atom-btn-outline-danger delete-file-btn" data-filename="{{ $file['name'] }}" title="Delete">
+                      <button type="button" class="btn btn-sm atom-btn-outline-danger delete-file-btn" data-filename="{{ $file['name'] }}" title="{{ __('Delete') }}">
                         <i class="fa fa-trash"></i>
                       </button>
                     </td>

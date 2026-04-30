@@ -2,7 +2,7 @@
 @section('title', 'Elasticsearch Integration')
 @section('body-class', 'admin')
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('display.index') }}">Display</a></li>
         <li class="breadcrumb-item active">Elasticsearch Reindex</li>
@@ -63,7 +63,7 @@
                 <form method="post" action="{{ route('displaySearch.reindex') }}">
                     @csrf
                     <div class="mb-3">
-                        <label class="form-label">Batch Size</label>
+                        <label class="form-label">{{ __('Batch Size') }}</label>
                         <select name="batch_size" class="form-select" style="width: auto;">
                             <option value="50">50 (slower, less memory)</option>
                             <option value="100" selected>100 (recommended)</option>

@@ -3,7 +3,7 @@
 @section('body-class', 'admin records')
 
 @section('title-block')
-<h1>Import File Plan - Step 2: Map Columns</h1>
+<h1>{{ __('Import File Plan - Step 2: Map Columns') }}</h1>
 @endsection
 
 @section('content')
@@ -27,9 +27,9 @@
                 <table class="table table-sm table-bordered">
                     <thead>
                         <tr>
-                            <th>Target Field</th>
-                            <th>Spreadsheet Column</th>
-                            <th>Required</th>
+                            <th>{{ __('Target Field') }}</th>
+                            <th>{{ __('Spreadsheet Column') }}</th>
+                            <th>{{ __('Required') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -104,7 +104,7 @@
 
     <div class="d-flex justify-content-between">
         <a href="{{ route('records.fileplan.import') }}" class="btn btn-secondary">Back</a>
-        <button type="submit" class="btn btn-primary">Next: Preview</button>
+        <button type="submit" class="btn btn-primary">{{ __('Next: Preview') }}</button>
     </div>
 </form>
 @endsection

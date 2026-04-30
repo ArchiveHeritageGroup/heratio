@@ -35,8 +35,8 @@
 </head>
 <body>
   <div class="no-print">
-    <button class="print-btn" onclick="window.print()">Print this page</button>
-    <button class="print-btn" onclick="window.close()">Close</button>
+    <button class="print-btn" onclick="window.print()">{{ __('Print this page') }}</button>
+    <button class="print-btn" onclick="window.close()">{{ __('Close') }}</button>
   </div>
 
   <h1>
@@ -69,11 +69,11 @@
   <table>
     <thead>
       <tr>
-        <th style="width:120px">Identifier</th>
-        <th>Title</th>
-        <th style="width:100px">Level</th>
-        <th style="width:80px">Type</th>
-        <th style="width:250px">Scope and Content</th>
+        <th style="width:120px">{{ __('Identifier') }}</th>
+        <th>{{ __('Title') }}</th>
+        <th style="width:100px">{{ __('Level') }}</th>
+        <th style="width:80px">{{ __('Type') }}</th>
+        <th style="width:250px">{{ __('Scope and Content') }}</th>
       </tr>
     </thead>
     <tbody>

@@ -5,7 +5,7 @@
 
 @section('content')
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
@@ -31,10 +31,10 @@
     <table class="table table-hover mb-0">
       <thead>
         <tr>
-          <th>Actor A</th>
-          <th>Actor B</th>
-          <th class="text-center">Score</th>
-          <th>Match</th>
+          <th>{{ __('Actor A') }}</th>
+          <th>{{ __('Actor B') }}</th>
+          <th class="text-center">{{ __('Score') }}</th>
+          <th>{{ __('Match') }}</th>
           <th></th>
         </tr>
       </thead>

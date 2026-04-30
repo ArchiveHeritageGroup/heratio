@@ -108,7 +108,7 @@
           <label class="form-label">{{ __('Commission split (artist %)') }}</label>
           <input type="number" step="0.01" min="0" max="100" name="default_commission_split" class="form-control"
                  value="{{ old('default_commission_split', $a->default_commission_split ?? '') }}"
-                 placeholder="e.g. 70">
+                 placeholder="{{ __('e.g. 70') }}">
           <small class="text-muted">{{ __('Optional — what % of net revenue the artist receives.') }}</small>
         </div>
       </div>

@@ -12,7 +12,7 @@ $total = $historyData['total'] ?? 0;
   <div class="col-md-3">
     @include('ahg-heritage-manage::partials._admin-sidebar')
     <div class="mt-4">
-      <h6 class="text-muted mb-3">Quick Filters</h6>
+      <h6 class="text-muted mb-3">{{ __('Quick Filters') }}</h6>
       <div class="list-group">
         <a href="?" class="list-group-item list-group-item-action {{ !request('action_type') ? 'active' : '' }}">All Actions</a>
         @foreach(['create','update','delete'] as $at)
@@ -27,7 +27,7 @@ $total = $historyData['total'] ?? 0;
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-body">
         <form method="get" class="row g-3">
-          <div class="col-md-4"><label class="form-label">Search <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="search" value="{{ request('search','') }}" placeholder="User, object, or action..."></div>
+          <div class="col-md-4"><label class="form-label">Search <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="search" value="{{ request('search','') }}" placeholder="{{ __('User, object, or action...') }}"></div>
           <div class="col-md-3"><label class="form-label">From Date <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" class="form-control" name="date_from" value="{{ request('date_from','') }}"></div>
           <div class="col-md-3"><label class="form-label">To Date <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" class="form-control" name="date_to" value="{{ request('date_to','') }}"></div>
           <div class="col-md-2 d-flex align-items-end"><button type="submit" class="btn atom-btn-secondary w-100"><i class="fas fa-search me-1"></i>Filter</button></div>
@@ -37,7 +37,7 @@ $total = $historyData['total'] ?? 0;
 
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">Audit Log</h5><span class="badge bg-secondary">{{ number_format($total) }} entries</span>
+        <h5 class="mb-0">{{ __('Audit Log') }}</h5><span class="badge bg-secondary">{{ number_format($total) }} entries</span>
       </div>
       <div class="card-body p-0">
         @if(empty($logs))
@@ -45,7 +45,7 @@ $total = $historyData['total'] ?? 0;
         @else
         <div class="table-responsive">
           <table class="table table-hover mb-0">
-            <thead class="table-light"><tr><th style="width:140px">Timestamp</th><th>User</th><th>Action</th><th>Object</th><th>Changes</th><th></th></tr></thead>
+            <thead class="table-light"><tr><th style="width:140px">{{ __('Timestamp') }}</th><th>{{ __('User') }}</th><th>{{ __('Action') }}</th><th>{{ __('Object') }}</th><th>{{ __('Changes') }}</th><th></th></tr></thead>
             <tbody>
               @foreach($logs as $log)
               @php $color = ['create'=>'success','update'=>'primary','delete'=>'danger','view'=>'info','approve'=>'success','deny'=>'danger'][$log->action] ?? 'secondary'; @endphp

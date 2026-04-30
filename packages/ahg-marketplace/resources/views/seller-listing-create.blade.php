@@ -26,7 +26,7 @@
 @endphp
 
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('ahgmarketplace.browse') }}">{{ __('Marketplace') }}</a></li>
@@ -213,8 +213,8 @@
             <label for="markup_type" class="form-label">{{ __('Markup') }}</label>
             <select id="markup_type" name="markup_type" class="form-select">
               <option value="percentage" {{ old('markup_type', 'percentage') === 'percentage' ? 'selected' : '' }}>%</option>
-              <option value="fixed"      {{ old('markup_type') === 'fixed' ? 'selected' : '' }}>Fixed</option>
-              <option value="none"       {{ old('markup_type') === 'none' ? 'selected' : '' }}>None</option>
+              <option value="fixed"      {{ old('markup_type') === 'fixed' ? 'selected' : '' }}>{{ __('Fixed') }}</option>
+              <option value="none"       {{ old('markup_type') === 'none' ? 'selected' : '' }}>{{ __('None') }}</option>
             </select>
           </div>
           <div class="col-md-1">

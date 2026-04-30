@@ -59,7 +59,7 @@
 
           {{-- Documentation identifier --}}
           @if(($right['identifier_type'] ?? null) || ($right['identifier_value'] ?? null) || ($right['identifier_role'] ?? null))
-            <h6 class="text-muted mt-2">Documentation identifier</h6>
+            <h6 class="text-muted mt-2">{{ __('Documentation identifier') }}</h6>
             <dl class="row">
               @if($right['identifier_type'] ?? null)<dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ $right['identifier_type'] }}</dd>@endif
               @if($right['identifier_value'] ?? null)<dt class="col-sm-3">Value</dt><dd class="col-sm-9">{{ $right['identifier_value'] }}</dd>@endif
@@ -69,11 +69,11 @@
 
           {{-- Granted rights --}}
           @if(!empty($right['granted_rights']))
-            <h6 class="text-muted mt-3">Granted rights</h6>
+            <h6 class="text-muted mt-3">{{ __('Granted rights') }}</h6>
             <table class="table table-sm table-bordered">
               <thead>
                 <tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-                  <th>Act</th><th>Restriction</th><th>Start date</th><th>End date</th><th>Notes</th>
+                  <th>{{ __('Act') }}</th><th>{{ __('Restriction') }}</th><th>{{ __('Start date') }}</th><th>{{ __('End date') }}</th><th>{{ __('Notes') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -112,7 +112,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="addRightsHeading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#addRightsCollapse" aria-expanded="false" aria-controls="addRightsCollapse">
-            Add new rights record
+            {{ __('Add new rights record') }}
           </button>
         </h2>
         <div id="addRightsCollapse" class="accordion-collapse collapse" aria-labelledby="addRightsHeading" data-bs-parent="#addRightsAccordion">
@@ -126,14 +126,14 @@
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="rightsBasisHeading">
                     <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#rightsBasisCollapse" aria-expanded="true" aria-controls="rightsBasisCollapse">
-                      Rights basis
+                      {{ __('Rights basis') }}
                     </button>
                   </h2>
                   <div id="rightsBasisCollapse" class="accordion-collapse collapse show" aria-labelledby="rightsBasisHeading">
                     <div class="accordion-body">
 
                       <div class="mb-3">
-                        <label for="basis_id" class="form-label">Basis</label>
+                        <label for="basis_id" class="form-label">{{ __('Basis') }}</label>
                         <select class="form-select" id="basis_id" name="basis_id" required>
                           <option value="">-- Select basis --</option>
                           @if(isset($basisTerms))
@@ -147,9 +147,9 @@
                       {{-- Copyright fields (conditional) --}}
                       <div id="copyright-fields" class="d-none">
                         <hr>
-                        <h6>Copyright</h6>
+                        <h6>{{ __('Copyright') }}</h6>
                         <div class="mb-3">
-                          <label for="copyright_status_id" class="form-label">Copyright status</label>
+                          <label for="copyright_status_id" class="form-label">{{ __('Copyright status') }}</label>
                           <select class="form-select" id="copyright_status_id" name="copyright_status_id">
                             <option value="">-- Select --</option>
                             @if(isset($copyrightStatusTerms))
@@ -160,15 +160,15 @@
                           </select>
                         </div>
                         <div class="mb-3">
-                          <label for="copyright_status_date" class="form-label">Copyright status date</label>
+                          <label for="copyright_status_date" class="form-label">{{ __('Copyright status date') }}</label>
                           <input type="date" class="form-control" id="copyright_status_date" name="copyright_status_date">
                         </div>
                         <div class="mb-3">
-                          <label for="copyright_jurisdiction" class="form-label">Copyright jurisdiction</label>
+                          <label for="copyright_jurisdiction" class="form-label">{{ __('Copyright jurisdiction') }}</label>
                           <input type="text" class="form-control" id="copyright_jurisdiction" name="copyright_jurisdiction" maxlength="1024">
                         </div>
                         <div class="mb-3">
-                          <label for="copyright_note" class="form-label">Copyright note</label>
+                          <label for="copyright_note" class="form-label">{{ __('Copyright note') }}</label>
                           <textarea class="form-control" id="copyright_note" name="copyright_note" rows="2"></textarea>
                         </div>
                       </div>
@@ -176,13 +176,13 @@
                       {{-- License fields (conditional) --}}
                       <div id="license-fields" class="d-none">
                         <hr>
-                        <h6>License</h6>
+                        <h6>{{ __('License') }}</h6>
                         <div class="mb-3">
-                          <label for="license_terms" class="form-label">License terms</label>
+                          <label for="license_terms" class="form-label">{{ __('License terms') }}</label>
                           <textarea class="form-control" id="license_terms" name="license_terms" rows="2"></textarea>
                         </div>
                         <div class="mb-3">
-                          <label for="license_note" class="form-label">License note</label>
+                          <label for="license_note" class="form-label">{{ __('License note') }}</label>
                           <textarea class="form-control" id="license_note" name="license_note" rows="2"></textarea>
                         </div>
                       </div>
@@ -190,17 +190,17 @@
                       {{-- Statute fields (conditional) --}}
                       <div id="statute-fields" class="d-none">
                         <hr>
-                        <h6>Statute</h6>
+                        <h6>{{ __('Statute') }}</h6>
                         <div class="mb-3">
-                          <label for="statute_jurisdiction" class="form-label">Statute jurisdiction</label>
+                          <label for="statute_jurisdiction" class="form-label">{{ __('Statute jurisdiction') }}</label>
                           <input type="text" class="form-control" id="statute_jurisdiction" name="statute_jurisdiction">
                         </div>
                         <div class="mb-3">
-                          <label for="statute_determination_date" class="form-label">Statute determination date</label>
+                          <label for="statute_determination_date" class="form-label">{{ __('Statute determination date') }}</label>
                           <input type="date" class="form-control" id="statute_determination_date" name="statute_determination_date">
                         </div>
                         <div class="mb-3">
-                          <label for="statute_note" class="form-label">Statute note</label>
+                          <label for="statute_note" class="form-label">{{ __('Statute note') }}</label>
                           <textarea class="form-control" id="statute_note" name="statute_note" rows="2"></textarea>
                         </div>
                       </div>
@@ -210,47 +210,47 @@
                       <div class="row">
                         <div class="col-md-6">
                           <div class="mb-3">
-                            <label for="start_date" class="form-label">Start date</label>
+                            <label for="start_date" class="form-label">{{ __('Start date') }}</label>
                             <input type="date" class="form-control" id="start_date" name="start_date">
                           </div>
                         </div>
                         <div class="col-md-6">
                           <div class="mb-3">
-                            <label for="end_date" class="form-label">End date</label>
+                            <label for="end_date" class="form-label">{{ __('End date') }}</label>
                             <input type="date" class="form-control" id="end_date" name="end_date">
                           </div>
                         </div>
                       </div>
 
                       <div class="mb-3">
-                        <label for="rights_holder_name" class="form-label">Rights holder</label>
-                        <input type="text" class="form-control" id="rights_holder_name" name="rights_holder_name" autocomplete="off" placeholder="Type to search rights holders...">
+                        <label for="rights_holder_name" class="form-label">{{ __('Rights holder') }}</label>
+                        <input type="text" class="form-control" id="rights_holder_name" name="rights_holder_name" autocomplete="off" placeholder="{{ __('Type to search rights holders...') }}">
                         <div id="rights-holder-autocomplete" class="list-group mt-1" style="position:relative;z-index:1000;"></div>
                       </div>
 
                       <div class="mb-3">
-                        <label for="rights_note" class="form-label">Rights note</label>
+                        <label for="rights_note" class="form-label">{{ __('Rights note') }}</label>
                         <textarea class="form-control" id="rights_note" name="rights_note" rows="2"></textarea>
                       </div>
 
                       <hr>
-                      <h6>Documentation identifier</h6>
+                      <h6>{{ __('Documentation identifier') }}</h6>
                       <div class="row">
                         <div class="col-md-4">
                           <div class="mb-3">
-                            <label for="identifier_type" class="form-label">Type</label>
+                            <label for="identifier_type" class="form-label">{{ __('Type') }}</label>
                             <input type="text" class="form-control" id="identifier_type" name="identifier_type">
                           </div>
                         </div>
                         <div class="col-md-4">
                           <div class="mb-3">
-                            <label for="identifier_value" class="form-label">Value</label>
+                            <label for="identifier_value" class="form-label">{{ __('Value') }}</label>
                             <input type="text" class="form-control" id="identifier_value" name="identifier_value">
                           </div>
                         </div>
                         <div class="col-md-4">
                           <div class="mb-3">
-                            <label for="identifier_role" class="form-label">Role</label>
+                            <label for="identifier_role" class="form-label">{{ __('Role') }}</label>
                             <input type="text" class="form-control" id="identifier_role" name="identifier_role">
                           </div>
                         </div>
@@ -266,7 +266,7 @@
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="grantedRightsHeading">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#grantedRightsCollapse" aria-expanded="false" aria-controls="grantedRightsCollapse">
-                      Granted rights
+                      {{ __('Granted rights') }}
                     </button>
                   </h2>
                   <div id="grantedRightsCollapse" class="accordion-collapse collapse" aria-labelledby="grantedRightsHeading">
@@ -277,7 +277,7 @@
                           <div class="row">
                             <div class="col-md-4">
                               <div class="mb-3">
-                                <label class="form-label">Act</label>
+                                <label class="form-label">{{ __('Act') }}</label>
                                 <select class="form-select" name="granted_act[]">
                                   <option value="">-- Select act --</option>
                                   @if(isset($actTerms))
@@ -290,11 +290,11 @@
                             </div>
                             <div class="col-md-4">
                               <div class="mb-3">
-                                <label class="form-label">Restriction</label>
+                                <label class="form-label">{{ __('Restriction') }}</label>
                                 <select class="form-select" name="granted_restriction[]">
-                                  <option value="0">Allow</option>
-                                  <option value="1" selected>Disallow</option>
-                                  <option value="2">Conditional</option>
+                                  <option value="0">{{ __('Allow') }}</option>
+                                  <option value="1" selected>{{ __('Disallow') }}</option>
+                                  <option value="2">{{ __('Conditional') }}</option>
                                 </select>
                               </div>
                             </div>
@@ -302,28 +302,28 @@
                           <div class="row">
                             <div class="col-md-3">
                               <div class="mb-3">
-                                <label class="form-label">Start date</label>
+                                <label class="form-label">{{ __('Start date') }}</label>
                                 <input type="date" class="form-control" name="granted_start_date[]">
                               </div>
                             </div>
                             <div class="col-md-3">
                               <div class="mb-3">
-                                <label class="form-label">End date</label>
+                                <label class="form-label">{{ __('End date') }}</label>
                                 <input type="date" class="form-control" name="granted_end_date[]">
                               </div>
                             </div>
                             <div class="col-md-6">
                               <div class="mb-3">
-                                <label class="form-label">Notes</label>
+                                <label class="form-label">{{ __('Notes') }}</label>
                                 <textarea class="form-control" name="granted_notes[]" rows="1"></textarea>
                               </div>
                             </div>
                           </div>
-                          <button type="button" class="btn btn-sm btn-outline-danger remove-granted-right">Delete</button>
+                          <button type="button" class="btn btn-sm btn-outline-danger remove-granted-right">{{ __('Delete') }}</button>
                         </div>
                       </div>
 
-                      <button type="button" class="btn btn-sm btn-outline-secondary" id="add-granted-right">Add granted right</button>
+                      <button type="button" class="btn btn-sm btn-outline-secondary" id="add-granted-right">{{ __('Add granted right') }}</button>
 
                     </div>
                   </div>

@@ -23,7 +23,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="options-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#options-collapse" aria-expanded="true" aria-controls="options-collapse">
-            CSV Validation options
+            {{ __('CSV Validation options') }}
           </button>
         </h2>
         <div id="options-collapse" class="accordion-collapse collapse show" aria-labelledby="options-heading">
@@ -32,11 +32,11 @@
               <label class="form-label" for="object-type-select">Type <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" name="objectType" id="object-type-select">
                 <option value="informationObject" {{ (isset($objectType) && $objectType === 'informationObject') ? 'selected' : '' }}>{{ config('app.ui_label_informationobject', 'Archival description') }}</option>
-                <option value="accession" {{ (isset($objectType) && $objectType === 'accession') ? 'selected' : '' }}>Accession</option>
+                <option value="accession" {{ (isset($objectType) && $objectType === 'accession') ? 'selected' : '' }}>{{ __('Accession') }}</option>
                 <option value="authorityRecord" {{ (isset($objectType) && $objectType === 'authorityRecord') ? 'selected' : '' }}>{{ config('app.ui_label_actor', 'Authority record') }}</option>
-                <option value="authorityRecordRelationship" {{ (isset($objectType) && $objectType === 'authorityRecordRelationship') ? 'selected' : '' }}>Authority record relationship</option>
-                <option value="event" {{ (isset($objectType) && $objectType === 'event') ? 'selected' : '' }}>Event</option>
-                <option value="repository" {{ (isset($objectType) && $objectType === 'repository') ? 'selected' : '' }}>Repository</option>
+                <option value="authorityRecordRelationship" {{ (isset($objectType) && $objectType === 'authorityRecordRelationship') ? 'selected' : '' }}>{{ __('Authority record relationship') }}</option>
+                <option value="event" {{ (isset($objectType) && $objectType === 'event') ? 'selected' : '' }}>{{ __('Event') }}</option>
+                <option value="repository" {{ (isset($objectType) && $objectType === 'repository') ? 'selected' : '' }}>{{ __('Repository') }}</option>
               </select>
             </div>
           </div>
@@ -45,7 +45,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="select-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#select-collapse" aria-expanded="true" aria-controls="select-collapse">
-            Select file
+            {{ __('Select file') }}
           </button>
         </h2>
         <div id="select-collapse" class="accordion-collapse collapse show" aria-labelledby="select-heading">
@@ -100,9 +100,9 @@
           <table class="table table-bordered table-striped table-hover">
             <thead>
               <tr>
-                <th>Column name</th>
-                <th style="width: 120px">Status</th>
-                <th>Message</th>
+                <th>{{ __('Column name') }}</th>
+                <th style="width: 120px">{{ __('Status') }}</th>
+                <th>{{ __('Message') }}</th>
               </tr>
             </thead>
             <tbody>

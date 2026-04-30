@@ -7,7 +7,7 @@
     {{-- Header --}}
     <div class="d-flex align-items-center mb-4">
         <i class="fas fa-tree fa-lg text-primary me-2"></i>
-        <h1 class="h3 mb-0">PageIndex Discovery</h1>
+        <h1 class="h3 mb-0">{{ __('PageIndex Discovery') }}</h1>
     </div>
 
     {{-- Search Form --}}
@@ -16,18 +16,18 @@
             <form id="pageindex-search-form" method="GET" action="{{ route('ahgdiscovery.pageindex') }}">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-7">
-                        <label for="pageindex-query" class="form-label">Search query</label>
+                        <label for="pageindex-query" class="form-label">{{ __('Search query') }}</label>
                         <input type="text" class="form-control" id="pageindex-query" name="q"
-                               value="{{ $query }}" placeholder="Enter a natural language search query..."
+                               value="{{ $query }}" placeholder="{{ __('Enter a natural language search query...') }}"
                                autocomplete="off">
                     </div>
                     <div class="col-md-3">
-                        <label for="pageindex-type" class="form-label">Type filter</label>
+                        <label for="pageindex-type" class="form-label">{{ __('Type filter') }}</label>
                         <select class="form-select" id="pageindex-type" name="type">
-                            <option value="all" {{ $type === 'all' ? 'selected' : '' }}>All</option>
-                            <option value="ead" {{ $type === 'ead' ? 'selected' : '' }}>EAD Finding Aids</option>
-                            <option value="pdf" {{ $type === 'pdf' ? 'selected' : '' }}>PDF Documents</option>
-                            <option value="rico" {{ $type === 'rico' ? 'selected' : '' }}>RiC-O Metadata</option>
+                            <option value="all" {{ $type === 'all' ? 'selected' : '' }}>{{ __('All') }}</option>
+                            <option value="ead" {{ $type === 'ead' ? 'selected' : '' }}>{{ __('EAD Finding Aids') }}</option>
+                            <option value="pdf" {{ $type === 'pdf' ? 'selected' : '' }}>{{ __('PDF Documents') }}</option>
+                            <option value="rico" {{ $type === 'rico' ? 'selected' : '' }}>{{ __('RiC-O Metadata') }}</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -147,7 +147,7 @@
                         <div class="border rounded p-3 mb-2">
                             {{-- Breadcrumb path --}}
                             @if (!empty($match['breadcrumb']))
-                            <nav aria-label="Node path" class="mb-2">
+                            <nav aria-label="{{ __('Node path') }}" class="mb-2">
                                 <ol class="breadcrumb breadcrumb-sm mb-0" style="font-size: 0.85rem;">
                                     @foreach ($match['breadcrumb'] as $crumb)
                                     <li class="breadcrumb-item">

@@ -16,7 +16,7 @@
 
 @section('content')
 <div class="container-fluid px-4 py-3">
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">Statistics</a></li>
             <li class="breadcrumb-item active">Views Report</li>
@@ -34,7 +34,7 @@
         <div class="card-body py-2">
             <form method="get" class="row g-3 align-items-center">
                 <div class="col-auto">
-                    <label class="form-label mb-0">Period:</label>
+                    <label class="form-label mb-0">{{ __('Period:') }}</label>
                 </div>
                 <div class="col-auto">
                     <input type="date" name="start" class="form-control form-control-sm" value="{{ $startDate }}">
@@ -45,12 +45,12 @@
                 </div>
                 <div class="col-auto">
                     <select name="group" class="form-select form-select-sm">
-                        <option value="day" {{ ($groupBy ?? 'day') === 'day' ? 'selected' : '' }}>Daily</option>
-                        <option value="month" {{ ($groupBy ?? 'day') === 'month' ? 'selected' : '' }}>Monthly</option>
+                        <option value="day" {{ ($groupBy ?? 'day') === 'day' ? 'selected' : '' }}>{{ __('Daily') }}</option>
+                        <option value="month" {{ ($groupBy ?? 'day') === 'month' ? 'selected' : '' }}>{{ __('Monthly') }}</option>
                     </select>
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+                    <button type="submit" class="btn btn-sm btn-primary">{{ __('Apply') }}</button>
                 </div>
             </form>
         </div>
@@ -60,7 +60,7 @@
         <div class="col-lg-8 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">Views Chart</h5>
+                    <h5 class="mb-0">{{ __('Views Chart') }}</h5>
                 </div>
                 <div class="card-body">
                     <canvas id="viewsChart" height="300"></canvas>
@@ -70,15 +70,15 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">Data Table</h5>
+                    <h5 class="mb-0">{{ __('Data Table') }}</h5>
                 </div>
                 <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
                     <table class="table table-sm table-hover mb-0">
                         <thead class="table-light sticky-top">
                             <tr>
-                                <th>Period</th>
-                                <th class="text-end">Total</th>
-                                <th class="text-end">Unique</th>
+                                <th>{{ __('Period') }}</th>
+                                <th class="text-end">{{ __('Total') }}</th>
+                                <th class="text-end">{{ __('Unique') }}</th>
                             </tr>
                         </thead>
                         <tbody>

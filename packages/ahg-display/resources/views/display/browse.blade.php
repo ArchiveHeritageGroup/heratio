@@ -80,7 +80,7 @@
   <div class="row">
 
     {{-- ========== SIDEBAR (LEFT COLUMN) ========== --}}
-    <div id="sidebar" class="col-md-3" role="complementary" aria-label="Filters and navigation">
+    <div id="sidebar" class="col-md-3" role="complementary" aria-label="{{ __('Filters and navigation') }}">
 
       {{-- Sidebar header --}}
       <div class="card mb-3 glam-filter-header">
@@ -89,7 +89,7 @@
         </div>
       </div>
 
-      <nav aria-label="Filter results">
+      <nav aria-label="{{ __('Filter results') }}">
 
       {{-- GLAM Type facet (open by default) --}}
       <div class="card mb-2">
@@ -356,7 +356,7 @@
         <h5 class="modal-title" id="semanticSearchModalLabel">
           <i class="fas fa-brain me-2"></i> Semantic Search
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
       </div>
       <form method="GET" action="{{ route('glam.browse') }}">
         {{-- Preserve existing filter params --}}
@@ -369,7 +369,7 @@
           <div class="mb-3">
             <label for="semantic-query" class="form-label fw-bold">Search query <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" class="form-control form-control-lg" id="semantic-query" name="query"
-                   value="{{ $queryFilter ?? '' }}" placeholder="Enter your search terms..."
+                   value="{{ $queryFilter ?? '' }}" placeholder="{{ __('Enter your search terms...') }}"
                    autofocus>
           </div>
           <div class="mb-3">
@@ -394,7 +394,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
           <button type="submit" class="btn atom-btn-outline-success">
             <i class="fas fa-search me-1"></i> Search
           </button>

@@ -58,7 +58,7 @@
     </div>
   </div>
 
-  <nav aria-label="breadcrumb" class="mb-4">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-4">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
       <li class="breadcrumb-item"><a href="{{ url('/' . $io->slug) }}">{{ $io->title ?? $io->slug }}</a></li>

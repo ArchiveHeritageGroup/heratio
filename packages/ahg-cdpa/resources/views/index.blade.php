@@ -274,11 +274,11 @@
                 <div class="card-body">
                     @if ($license)
                         <table class="table table-sm mb-0">
-                            <tr><th>License Number</th><td>{{ $license->license_number }}</td></tr>
-                            <tr><th>Tier</th><td><span class="badge bg-info">{{ strtoupper($license->tier) }}</span></td></tr>
-                            <tr><th>Organization</th><td>{{ $license->organization_name }}</td></tr>
-                            <tr><th>Expiry Date</th><td>{{ $license->expiry_date }}</td></tr>
-                            <tr><th>Status</th><td>
+                            <tr><th>{{ __('License Number') }}</th><td>{{ $license->license_number }}</td></tr>
+                            <tr><th>{{ __('Tier') }}</th><td><span class="badge bg-info">{{ strtoupper($license->tier) }}</span></td></tr>
+                            <tr><th>{{ __('Organization') }}</th><td>{{ $license->organization_name }}</td></tr>
+                            <tr><th>{{ __('Expiry Date') }}</th><td>{{ $license->expiry_date }}</td></tr>
+                            <tr><th>{{ __('Status') }}</th><td>
                                 <span class="badge bg-{{ $licenseStatusLabel === 'Active' ? 'success' : 'warning' }}">
                                     {{ $licenseStatusLabel }}
                                 </span>
@@ -306,11 +306,11 @@
                 <div class="card-body">
                     @if ($dpo)
                         <table class="table table-sm mb-0">
-                            <tr><th>Name</th><td>{{ $dpo->name }}</td></tr>
-                            <tr><th>Email</th><td>{{ $dpo->email }}</td></tr>
-                            <tr><th>Phone</th><td>{{ $dpo->phone ?? '-' }}</td></tr>
-                            <tr><th>Appointed</th><td>{{ $dpo->appointment_date }}</td></tr>
-                            <tr><th>DPO Registration</th><td>
+                            <tr><th>{{ __('Name') }}</th><td>{{ $dpo->name }}</td></tr>
+                            <tr><th>{{ __('Email') }}</th><td>{{ $dpo->email }}</td></tr>
+                            <tr><th>{{ __('Phone') }}</th><td>{{ $dpo->phone ?? '-' }}</td></tr>
+                            <tr><th>{{ __('Appointed') }}</th><td>{{ $dpo->appointment_date }}</td></tr>
+                            <tr><th>{{ __('DPO Registration') }}</th><td>
                                 <span class="badge bg-{{ $dpo->form_dp2_submitted ? 'success' : 'warning' }}">
                                     {{ $dpo->form_dp2_submitted ? 'Submitted' : 'Not Submitted' }}
                                 </span>

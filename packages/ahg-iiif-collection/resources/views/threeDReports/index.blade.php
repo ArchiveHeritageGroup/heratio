@@ -10,7 +10,7 @@
 
 @section('sidebar')
 <div class="sidebar-content">
-    <h4>3D Reports</h4>
+    <h4>{{ __('3D Reports') }}</h4>
     <ul class="list-unstyled">
         <li><a href="{{ route('iiif.three-d-reports.models') }}"><i class="fas fa-cube me-2"></i>3D Models</a></li>
         <li><a href="{{ route('iiif.three-d-reports.hotspots') }}"><i class="fas fa-map-pin me-2"></i>Hotspots</a></li>

@@ -28,7 +28,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="import-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#import-collapse" aria-expanded="true" aria-controls="import-collapse">
-            Import options
+            {{ __('Import options') }}
           </button>
         </h2>
         <div id="import-collapse" class="accordion-collapse collapse show" aria-labelledby="import-heading">
@@ -48,7 +48,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="select-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#select-collapse" aria-expanded="true" aria-controls="select-collapse">
-            Select source
+            {{ __('Select source') }}
           </button>
         </h2>
         <div id="select-collapse" class="accordion-collapse collapse show" aria-labelledby="select-heading">
@@ -60,7 +60,7 @@
 
             <div class="mb-3">
               <label for="url-input" class="form-label">Or a remote resource <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input class="form-control" type="text" id="url-input" name="url" placeholder="https://" value="{{ old('url') }}">
+              <input class="form-control" type="text" id="url-input" name="url" placeholder="{{ __('https://') }}" value="{{ old('url') }}">
             </div>
           </div>
         </div>

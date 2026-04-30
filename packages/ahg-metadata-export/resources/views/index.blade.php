@@ -15,7 +15,7 @@
 @section('title', 'Metadata Export')
 
 @section('content')
-<h1>Metadata Export</h1>
+<h1>{{ __('Metadata Export') }}</h1>
 
 <div class="alert alert-info">
   <i class="fa fa-info-circle"></i>
@@ -28,7 +28,7 @@
 
 <div class="row">
   <div class="col-md-8">
-    <h2>Select Export Format</h2>
+    <h2>{{ __('Select Export Format') }}</h2>
     <div class="card mb-4">
       <div class="card-header">
         <h3 class="card-title mb-0">Supported Formats
@@ -67,14 +67,14 @@
   <div class="col-md-4">
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title mb-0">Quick Export</h3>
+        <h3 class="card-title mb-0">{{ __('Quick Export') }}</h3>
       </div>
       <div class="card-body">
         <form action="{{ route('ahgmetadataexport.preview') }}" method="get">
           <div class="mb-3">
-            <label for="format" class="form-label">Format</label>
+            <label for="format" class="form-label">{{ __('Format') }}</label>
             <select name="format" id="format" class="form-select" required>
-              <option value="">Select format...</option>
+              <option value="">{{ __('Select format...') }}</option>
               @foreach(($formats ?? []) as $code => $format)
                 <option value="{{ $code }}">{{ $format['name'] ?? $code }}</option>
               @endforeach
@@ -82,20 +82,20 @@
           </div>
 
           <div class="mb-3">
-            <label for="slug" class="form-label">Record Slug</label>
+            <label for="slug" class="form-label">{{ __('Record Slug') }}</label>
             <input type="text" name="slug" id="slug" class="form-control" required
-                   placeholder="e.g., my-fonds">
+                   placeholder="{{ __('e.g., my-fonds') }}">
             <div class="form-text">Enter the slug of the record to export.</div>
           </div>
 
           <div class="mb-3">
             <div class="form-check">
               <input type="checkbox" name="include_children" value="1" id="include_children" class="form-check-input" checked>
-              <label class="form-check-label" for="include_children">Include children</label>
+              <label class="form-check-label" for="include_children">{{ __('Include children') }}</label>
             </div>
             <div class="form-check">
               <input type="checkbox" name="include_digital_objects" value="1" id="include_digital_objects" class="form-check-input" checked>
-              <label class="form-check-label" for="include_digital_objects">Include digital objects</label>
+              <label class="form-check-label" for="include_digital_objects">{{ __('Include digital objects') }}</label>
             </div>
           </div>
 
@@ -108,7 +108,7 @@
 
     <div class="card mt-4">
       <div class="card-header">
-        <h3 class="card-title mb-0">CLI Usage</h3>
+        <h3 class="card-title mb-0">{{ __('CLI Usage') }}</h3>
       </div>
       <div class="card-body">
         <p class="small text-muted">For bulk exports, use the command line:</p>

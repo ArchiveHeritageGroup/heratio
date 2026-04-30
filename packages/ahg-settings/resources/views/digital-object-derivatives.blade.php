@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Digital object derivatives</h1>
+  <h1>{{ __('Digital object derivatives') }}</h1>
 @endsection
 
 @section('content')
@@ -15,7 +15,7 @@
       @csrf
       <div class="accordion mb-3">
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#derivatives-collapse">Digital object derivatives settings</button></h2>
+          <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#derivatives-collapse">{{ __('Digital object derivatives settings') }}</button></h2>
           <div id="derivatives-collapse" class="accordion-collapse collapse show">
             <div class="accordion-body">
               <div class="mb-3">

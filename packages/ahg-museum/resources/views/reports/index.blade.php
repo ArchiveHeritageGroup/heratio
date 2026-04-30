@@ -4,7 +4,7 @@
 @section('body-class', 'museum-reports index')
 @section('sidebar')
 <div class="sidebar-content">
-  <h4>Museum Reports</h4>
+  <h4>{{ __('Museum Reports') }}</h4>
   <ul class="list-unstyled">
     <li><a href="{{ route('museum.report-objects') }}"><i class="fas fa-cube me-2"></i>Objects</a></li>
     <li><a href="{{ route('museum.report-creators') }}"><i class="fas fa-user-edit me-2"></i>Creators</a></li>

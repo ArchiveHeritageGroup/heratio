@@ -20,14 +20,14 @@ $archivalCollections = (array) ($archivalCollections ?? []);
         <form action="{{ route('heritage.admin-featured-collections') }}" method="post">@csrf
           <input type="hidden" name="featured_action" value="add">
           <div class="row g-3">
-            <div class="col-md-4"><label for="source_type" class="form-label">Collection Type <span class="badge bg-danger ms-1">Required</span></label><select class="form-select" id="source_type" name="source_type" required onchange="toggleSourceOptions(this.value)"><option value="">Select type...</option><option value="archival">Archival Collection (Fonds)</option><option value="iiif">IIIF Collection (Manifest)</option></select></div>
-            <div class="col-md-4" id="archival_select_wrapper" style="display:none"><label for="archival_source_id" class="form-label">Select Archival Collection <span class="badge bg-danger ms-1">Required</span></label><select class="form-select" id="archival_source_id" name="source_id_archival"><option value="">Select collection...</option>@foreach($archivalCollections as $c)<option value="{{ $c->id }}">{{ $c->title }}</option>@endforeach</select></div>
-            <div class="col-md-4" id="iiif_select_wrapper" style="display:none"><label for="iiif_source_id" class="form-label">Select IIIF Collection <span class="badge bg-danger ms-1">Required</span></label><select class="form-select" id="iiif_source_id" name="source_id_iiif"><option value="">Select collection...</option>@foreach($iiifCollections as $c)<option value="{{ $c->id }}">{{ $c->name }}</option>@endforeach</select></div>
+            <div class="col-md-4"><label for="source_type" class="form-label">Collection Type <span class="badge bg-danger ms-1">Required</span></label><select class="form-select" id="source_type" name="source_type" required onchange="toggleSourceOptions(this.value)"><option value="">{{ __('Select type...') }}</option><option value="archival">{{ __('Archival Collection (Fonds)') }}</option><option value="iiif">{{ __('IIIF Collection (Manifest)') }}</option></select></div>
+            <div class="col-md-4" id="archival_select_wrapper" style="display:none"><label for="archival_source_id" class="form-label">Select Archival Collection <span class="badge bg-danger ms-1">Required</span></label><select class="form-select" id="archival_source_id" name="source_id_archival"><option value="">{{ __('Select collection...') }}</option>@foreach($archivalCollections as $c)<option value="{{ $c->id }}">{{ $c->title }}</option>@endforeach</select></div>
+            <div class="col-md-4" id="iiif_select_wrapper" style="display:none"><label for="iiif_source_id" class="form-label">Select IIIF Collection <span class="badge bg-danger ms-1">Required</span></label><select class="form-select" id="iiif_source_id" name="source_id_iiif"><option value="">{{ __('Select collection...') }}</option>@foreach($iiifCollections as $c)<option value="{{ $c->id }}">{{ $c->name }}</option>@endforeach</select></div>
             <div class="col-md-4"><label for="display_order" class="form-label">Display Order <span class="badge bg-secondary ms-1">Optional</span></label><input type="number" class="form-control" id="display_order" name="display_order" value="100" min="1"></div>
           </div>
           <div class="row g-3 mt-2">
-            <div class="col-md-6"><label for="title" class="form-label">Override Title <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" id="title" name="title" placeholder="Leave blank to use original"></div>
-            <div class="col-md-6"><label for="description" class="form-label">Override Description <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" id="description" name="description" placeholder="Leave blank to use original"></div>
+            <div class="col-md-6"><label for="title" class="form-label">Override Title <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" id="title" name="title" placeholder="{{ __('Leave blank to use original') }}"></div>
+            <div class="col-md-6"><label for="description" class="form-label">Override Description <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" id="description" name="description" placeholder="{{ __('Leave blank to use original') }}"></div>
           </div>
           <div class="mt-3"><button type="submit" class="btn atom-btn-secondary" id="add_btn" disabled><i class="fas fa-plus me-1"></i>Add to Featured</button></div>
         </form>
@@ -45,7 +45,7 @@ $archivalCollections = (array) ($archivalCollections ?? []);
         @else
         <div class="table-responsive">
           <table class="table table-hover mb-0">
-            <thead class="table-light"><tr><th style="width:60px">Order</th><th>Collection</th><th>Type</th><th>Custom Title</th><th style="width:100px">Status</th><th style="width:150px">Actions</th></tr></thead>
+            <thead class="table-light"><tr><th style="width:60px">{{ __('Order') }}</th><th>{{ __('Collection') }}</th><th>{{ __('Type') }}</th><th>{{ __('Custom Title') }}</th><th style="width:100px">{{ __('Status') }}</th><th style="width:150px">{{ __('Actions') }}</th></tr></thead>
             <tbody>
               @foreach($featured as $item)
               <tr>

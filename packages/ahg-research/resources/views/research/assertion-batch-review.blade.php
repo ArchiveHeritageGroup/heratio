@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('content')
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
@@ -27,13 +27,13 @@
         <div class="card-body py-2 d-flex justify-content-between align-items-center">
             <div>
                 <input type="checkbox" id="selectAll" class="form-check-input me-2">
-                <label for="selectAll" class="form-check-label">Select All</label>
+                <label for="selectAll" class="form-check-label">{{ __('Select All') }}</label>
             </div>
             <div class="d-flex gap-2">
                 <select name="new_status" class="form-select form-select-sm" style="width:auto;">
-                    <option value="verified">Verify</option>
-                    <option value="disputed">Dispute</option>
-                    <option value="retracted">Retract</option>
+                    <option value="verified">{{ __('Verify') }}</option>
+                    <option value="disputed">{{ __('Dispute') }}</option>
+                    <option value="retracted">{{ __('Retract') }}</option>
                 </select>
                 <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-check-double me-1"></i>Apply to Selected</button>
             </div>
@@ -45,13 +45,13 @@
             <thead class="table-light">
                 <tr>
                     <th style="width:40px;"></th>
-                    <th>Subject</th>
-                    <th>Predicate</th>
-                    <th>Object</th>
-                    <th>Type</th>
-                    <th>Evidence</th>
-                    <th>Created</th>
-                    <th>Actions</th>
+                    <th>{{ __('Subject') }}</th>
+                    <th>{{ __('Predicate') }}</th>
+                    <th>{{ __('Object') }}</th>
+                    <th>{{ __('Type') }}</th>
+                    <th>{{ __('Evidence') }}</th>
+                    <th>{{ __('Created') }}</th>
+                    <th>{{ __('Actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -76,8 +76,8 @@
                     <td><small>{{ $a->created_at ?? '' }}</small></td>
                     <td>
                         <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-outline-success single-verify" data-id="{{ $a->id }}" title="Verify"><i class="fas fa-check"></i></button>
-                            <button type="button" class="btn btn-outline-danger single-dispute" data-id="{{ $a->id }}" title="Dispute"><i class="fas fa-times"></i></button>
+                            <button type="button" class="btn btn-outline-success single-verify" data-id="{{ $a->id }}" title="{{ __('Verify') }}"><i class="fas fa-check"></i></button>
+                            <button type="button" class="btn btn-outline-danger single-dispute" data-id="{{ $a->id }}" title="{{ __('Dispute') }}"><i class="fas fa-times"></i></button>
                         </div>
                     </td>
                 </tr>

@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Global settings</h1>
+  <h1>{{ __('Global settings') }}</h1>
 @endsection
 
 @section('content')
@@ -16,7 +16,7 @@
       <div class="accordion mb-3" id="globalAccordion">
         {{-- Version --}}
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#version-collapse">Version</button></h2>
+          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#version-collapse">{{ __('Version') }}</button></h2>
           <div id="version-collapse" class="accordion-collapse collapse">
             <div class="accordion-body">
               <div class="mb-3">
@@ -34,7 +34,7 @@
 
         {{-- Search and browse --}}
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#search-collapse">Search and browse</button></h2>
+          <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#search-collapse">{{ __('Search and browse') }}</button></h2>
           <div id="search-collapse" class="accordion-collapse collapse show">
             <div class="accordion-body">
               <div class="mb-3">
@@ -84,7 +84,7 @@
 
         {{-- Presentation --}}
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#presentation-collapse">Presentation</button></h2>
+          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#presentation-collapse">{{ __('Presentation') }}</button></h2>
           <div id="presentation-collapse" class="accordion-collapse collapse">
             <div class="accordion-body">
               <div class="form-check mb-3">
@@ -103,7 +103,7 @@
 
         {{-- Multi-repository --}}
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#multirepo-collapse">Multi-repository</button></h2>
+          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#multirepo-collapse">{{ __('Multi-repository') }}</button></h2>
           <div id="multirepo-collapse" class="accordion-collapse collapse">
             <div class="accordion-body">
               <div class="form-check mb-3">
@@ -122,7 +122,7 @@
 
         {{-- Permalinks --}}
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#permalinks-collapse">Permalinks</button></h2>
+          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#permalinks-collapse">{{ __('Permalinks') }}</button></h2>
           <div id="permalinks-collapse" class="accordion-collapse collapse">
             <div class="accordion-body">
               <div class="mb-3">
@@ -144,7 +144,7 @@
 
         {{-- System --}}
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#system-collapse">System</button></h2>
+          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#system-collapse">{{ __('System') }}</button></h2>
           <div id="system-collapse" class="accordion-collapse collapse">
             <div class="accordion-body">
               <div class="form-check mb-3">
@@ -165,8 +165,8 @@
               <div class="mb-3">
                 <label class="form-label">Default publication status <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="settings[defaultPubStatus]" class="form-select">
-                  <option value="159" {{ ($settings['defaultPubStatus'] ?? '') == '159' ? 'selected' : '' }}>Draft</option>
-                  <option value="160" {{ ($settings['defaultPubStatus'] ?? '') == '160' ? 'selected' : '' }}>Published</option>
+                  <option value="159" {{ ($settings['defaultPubStatus'] ?? '') == '159' ? 'selected' : '' }}>{{ __('Draft') }}</option>
+                  <option value="160" {{ ($settings['defaultPubStatus'] ?? '') == '160' ? 'selected' : '' }}>{{ __('Published') }}</option>
                 </select>
               </div>
             </div>
@@ -175,7 +175,7 @@
 
         {{-- Integrations --}}
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#integrations-collapse">Integrations</button></h2>
+          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#integrations-collapse">{{ __('Integrations') }}</button></h2>
           <div id="integrations-collapse" class="accordion-collapse collapse">
             <div class="accordion-body">
               <div class="mb-3">

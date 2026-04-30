@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>OAI repository settings</h1>
+  <h1>{{ __('OAI repository settings') }}</h1>
 @endsection
 
 @section('content')
@@ -17,7 +17,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOai">
-              OAI-PMH settings
+              {{ __('OAI-PMH settings') }}
             </button>
           </h2>
           <div id="collapseOai" class="accordion-collapse collapse show" data-bs-parent="#settingsAccordion">
@@ -26,8 +26,8 @@
               <div class="mb-3">
                 <label class="form-label">Enable OAI authentication <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="settings[oai_authentication_enabled]" class="form-select">
-                  <option value="0" {{ ($settings['oai_authentication_enabled'] ?? '') == '0' ? 'selected' : '' }}>No</option>
-                  <option value="1" {{ ($settings['oai_authentication_enabled'] ?? '') == '1' ? 'selected' : '' }}>Yes</option>
+                  <option value="0" {{ ($settings['oai_authentication_enabled'] ?? '') == '0' ? 'selected' : '' }}>{{ __('No') }}</option>
+                  <option value="1" {{ ($settings['oai_authentication_enabled'] ?? '') == '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
                 </select>
               </div>
               <div class="mb-3">
@@ -54,8 +54,8 @@
               <div class="mb-3">
                 <label class="form-label">Enable additional sets <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="settings[oai_additional_sets_enabled]" class="form-select">
-                  <option value="0" {{ ($settings['oai_additional_sets_enabled'] ?? '') == '0' ? 'selected' : '' }}>No</option>
-                  <option value="1" {{ ($settings['oai_additional_sets_enabled'] ?? '') == '1' ? 'selected' : '' }}>Yes</option>
+                  <option value="0" {{ ($settings['oai_additional_sets_enabled'] ?? '') == '0' ? 'selected' : '' }}>{{ __('No') }}</option>
+                  <option value="1" {{ ($settings['oai_additional_sets_enabled'] ?? '') == '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
                 </select>
               </div>
             </div>

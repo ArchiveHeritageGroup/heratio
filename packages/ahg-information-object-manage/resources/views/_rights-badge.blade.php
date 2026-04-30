@@ -29,11 +29,11 @@ if (!$rights) {
 
 <div class="rights-badge position-absolute bottom-0 end-0 m-2" style="z-index:10;">
   @if($rights->cc_code)
-    <a href="@php echo $rights->cc_uri; @endphp" target="_blank" title="@php echo $rights->cc_code; @endphp" class="d-inline-block">
+    <a href="@php echo $rights->cc_uri; @endphp" target="_blank" title="{{ __('@php echo $rights->cc_code; @endphp') }}" class="d-inline-block">
       <img src="@php echo $rights->cc_icon; @endphp" alt="@php echo $rights->cc_code; @endphp" style="height:20px;">
     </a>
   @elseif($rights->rs_code)
-    <a href="@php echo $rights->rs_uri; @endphp" target="_blank" class="badge bg-dark text-decoration-none" title="@php echo $rights->rs_code; @endphp">
+    <a href="@php echo $rights->rs_uri; @endphp" target="_blank" class="badge bg-dark text-decoration-none" title="{{ __('@php echo $rights->rs_code; @endphp') }}">
       <i class="fas fa-copyright"></i> @php echo $rights->rs_code; @endphp
     </a>
   @endif

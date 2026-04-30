@@ -59,8 +59,8 @@
                   Loan Type <span class="text-danger">*</span>
                  <span class="badge bg-danger ms-1">Required</span></label>
                 <select name="loan_type" id="loan_type" class="form-select @error('loan_type') is-invalid @enderror" required>
-                  <option value="out" {{ old('loan_type', request('type', 'out')) === 'out' ? 'selected' : '' }}>Outgoing (lending)</option>
-                  <option value="in" {{ old('loan_type', request('type', 'out')) === 'in' ? 'selected' : '' }}>Incoming (borrowing)</option>
+                  <option value="out" {{ old('loan_type', request('type', 'out')) === 'out' ? 'selected' : '' }}>{{ __('Outgoing (lending)') }}</option>
+                  <option value="in" {{ old('loan_type', request('type', 'out')) === 'in' ? 'selected' : '' }}>{{ __('Incoming (borrowing)') }}</option>
                 </select>
                 @error('loan_type')
                   <div class="invalid-feedback">{{ $message }}</div>
@@ -74,10 +74,10 @@
                 <select name="sector" id="sector" class="form-select @error('sector') is-invalid @enderror" required>
                   @php $sectorVal = old('sector', request('sector', '')); @endphp
                   <option value="">-- Select sector --</option>
-                  <option value="museum" {{ $sectorVal === 'museum' ? 'selected' : '' }}>Museum</option>
-                  <option value="archive" {{ $sectorVal === 'archive' ? 'selected' : '' }}>Archive</option>
-                  <option value="library" {{ $sectorVal === 'library' ? 'selected' : '' }}>Library</option>
-                  <option value="gallery" {{ $sectorVal === 'gallery' ? 'selected' : '' }}>Gallery</option>
+                  <option value="museum" {{ $sectorVal === 'museum' ? 'selected' : '' }}>{{ __('Museum') }}</option>
+                  <option value="archive" {{ $sectorVal === 'archive' ? 'selected' : '' }}>{{ __('Archive') }}</option>
+                  <option value="library" {{ $sectorVal === 'library' ? 'selected' : '' }}>{{ __('Library') }}</option>
+                  <option value="gallery" {{ $sectorVal === 'gallery' ? 'selected' : '' }}>{{ __('Gallery') }}</option>
                 </select>
                 @error('sector')
                   <div class="invalid-feedback">{{ $message }}</div>
@@ -87,13 +87,13 @@
               <div class="col-md-4 mb-3">
                 <label for="purpose" class="form-label">Purpose <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="purpose" id="purpose" class="form-select @error('purpose') is-invalid @enderror">
-                  <option value="exhibition" {{ old('purpose', 'exhibition') === 'exhibition' ? 'selected' : '' }}>Exhibition</option>
-                  <option value="research" {{ old('purpose') === 'research' ? 'selected' : '' }}>Research</option>
-                  <option value="conservation" {{ old('purpose') === 'conservation' ? 'selected' : '' }}>Conservation</option>
-                  <option value="photography" {{ old('purpose') === 'photography' ? 'selected' : '' }}>Photography</option>
-                  <option value="education" {{ old('purpose') === 'education' ? 'selected' : '' }}>Education</option>
-                  <option value="display" {{ old('purpose') === 'display' ? 'selected' : '' }}>Display</option>
-                  <option value="other" {{ old('purpose') === 'other' ? 'selected' : '' }}>Other</option>
+                  <option value="exhibition" {{ old('purpose', 'exhibition') === 'exhibition' ? 'selected' : '' }}>{{ __('Exhibition') }}</option>
+                  <option value="research" {{ old('purpose') === 'research' ? 'selected' : '' }}>{{ __('Research') }}</option>
+                  <option value="conservation" {{ old('purpose') === 'conservation' ? 'selected' : '' }}>{{ __('Conservation') }}</option>
+                  <option value="photography" {{ old('purpose') === 'photography' ? 'selected' : '' }}>{{ __('Photography') }}</option>
+                  <option value="education" {{ old('purpose') === 'education' ? 'selected' : '' }}>{{ __('Education') }}</option>
+                  <option value="display" {{ old('purpose') === 'display' ? 'selected' : '' }}>{{ __('Display') }}</option>
+                  <option value="other" {{ old('purpose') === 'other' ? 'selected' : '' }}>{{ __('Other') }}</option>
                 </select>
                 @error('purpose')
                   <div class="invalid-feedback">{{ $message }}</div>
@@ -104,7 +104,7 @@
             <div class="mb-3">
               <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror"
-                     value="{{ old('title', $prefill['title'] ?? '') }}" placeholder="Descriptive title for this loan">
+                     value="{{ old('title', $prefill['title'] ?? '') }}" placeholder="{{ __('Descriptive title for this loan') }}">
               @error('title')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
@@ -113,7 +113,7 @@
             <div class="mb-3">
               <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="description" id="description" class="form-control @error('description') is-invalid @enderror"
-                        rows="3" placeholder="Description of the loan...">{{ old('description', $prefill['description'] ?? '') }}</textarea>
+                        rows="3" placeholder="{{ __('Description of the loan...') }}">{{ old('description', $prefill['description'] ?? '') }}</textarea>
               @error('description')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
@@ -122,7 +122,7 @@
             <div class="mb-3">
               <label for="notes" class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="notes" id="notes" class="form-control @error('notes') is-invalid @enderror"
-                        rows="2" placeholder="Internal notes...">{{ old('notes') }}</textarea>
+                        rows="2" placeholder="{{ __('Internal notes...') }}">{{ old('notes') }}</textarea>
               @error('notes')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
@@ -254,11 +254,11 @@
               <div class="col-md-4 mb-3">
                 <label for="insurance_type" class="form-label">Insurance Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="insurance_type" id="insurance_type" class="form-select @error('insurance_type') is-invalid @enderror">
-                  <option value="borrower" {{ old('insurance_type', 'borrower') === 'borrower' ? 'selected' : '' }}>Borrower</option>
-                  <option value="lender" {{ old('insurance_type') === 'lender' ? 'selected' : '' }}>Lender</option>
-                  <option value="shared" {{ old('insurance_type') === 'shared' ? 'selected' : '' }}>Shared</option>
-                  <option value="waived" {{ old('insurance_type') === 'waived' ? 'selected' : '' }}>Waived</option>
-                  <option value="government_indemnity" {{ old('insurance_type') === 'government_indemnity' ? 'selected' : '' }}>Government Indemnity</option>
+                  <option value="borrower" {{ old('insurance_type', 'borrower') === 'borrower' ? 'selected' : '' }}>{{ __('Borrower') }}</option>
+                  <option value="lender" {{ old('insurance_type') === 'lender' ? 'selected' : '' }}>{{ __('Lender') }}</option>
+                  <option value="shared" {{ old('insurance_type') === 'shared' ? 'selected' : '' }}>{{ __('Shared') }}</option>
+                  <option value="waived" {{ old('insurance_type') === 'waived' ? 'selected' : '' }}>{{ __('Waived') }}</option>
+                  <option value="government_indemnity" {{ old('insurance_type') === 'government_indemnity' ? 'selected' : '' }}>{{ __('Government Indemnity') }}</option>
                 </select>
                 @error('insurance_type')
                   <div class="invalid-feedback">{{ $message }}</div>
@@ -269,10 +269,10 @@
                 <label for="insurance_value" class="form-label">Insurance Value <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="input-group">
                   <select name="insurance_currency" class="form-select" style="max-width: 80px;">
-                    <option value="ZAR" {{ old('insurance_currency', 'ZAR') === 'ZAR' ? 'selected' : '' }}>ZAR</option>
-                    <option value="USD" {{ old('insurance_currency') === 'USD' ? 'selected' : '' }}>USD</option>
-                    <option value="EUR" {{ old('insurance_currency') === 'EUR' ? 'selected' : '' }}>EUR</option>
-                    <option value="GBP" {{ old('insurance_currency') === 'GBP' ? 'selected' : '' }}>GBP</option>
+                    <option value="ZAR" {{ old('insurance_currency', 'ZAR') === 'ZAR' ? 'selected' : '' }}>{{ __('ZAR') }}</option>
+                    <option value="USD" {{ old('insurance_currency') === 'USD' ? 'selected' : '' }}>{{ __('USD') }}</option>
+                    <option value="EUR" {{ old('insurance_currency') === 'EUR' ? 'selected' : '' }}>{{ __('EUR') }}</option>
+                    <option value="GBP" {{ old('insurance_currency') === 'GBP' ? 'selected' : '' }}>{{ __('GBP') }}</option>
                   </select>
                   <input type="number" name="insurance_value" id="insurance_value"
                          class="form-control @error('insurance_value') is-invalid @enderror"
@@ -309,10 +309,10 @@
                 <label for="loan_fee" class="form-label">Loan Fee <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="input-group">
                   <select name="loan_fee_currency" class="form-select" style="max-width: 80px;">
-                    <option value="ZAR" {{ old('loan_fee_currency', 'ZAR') === 'ZAR' ? 'selected' : '' }}>ZAR</option>
-                    <option value="USD" {{ old('loan_fee_currency') === 'USD' ? 'selected' : '' }}>USD</option>
-                    <option value="EUR" {{ old('loan_fee_currency') === 'EUR' ? 'selected' : '' }}>EUR</option>
-                    <option value="GBP" {{ old('loan_fee_currency') === 'GBP' ? 'selected' : '' }}>GBP</option>
+                    <option value="ZAR" {{ old('loan_fee_currency', 'ZAR') === 'ZAR' ? 'selected' : '' }}>{{ __('ZAR') }}</option>
+                    <option value="USD" {{ old('loan_fee_currency') === 'USD' ? 'selected' : '' }}>{{ __('USD') }}</option>
+                    <option value="EUR" {{ old('loan_fee_currency') === 'EUR' ? 'selected' : '' }}>{{ __('EUR') }}</option>
+                    <option value="GBP" {{ old('loan_fee_currency') === 'GBP' ? 'selected' : '' }}>{{ __('GBP') }}</option>
                   </select>
                   <input type="number" name="loan_fee" id="loan_fee"
                          class="form-control @error('loan_fee') is-invalid @enderror"

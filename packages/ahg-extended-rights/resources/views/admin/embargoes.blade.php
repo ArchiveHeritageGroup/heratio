@@ -39,13 +39,13 @@
       <table class="table table-hover mb-0">
         <thead class="table-light">
           <tr>
-            <th>Object</th>
-            <th>Type</th>
-            <th>Reason</th>
-            <th>Start</th>
-            <th>End</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th>{{ __('Object') }}</th>
+            <th>{{ __('Type') }}</th>
+            <th>{{ __('Reason') }}</th>
+            <th>{{ __('Start') }}</th>
+            <th>{{ __('End') }}</th>
+            <th>{{ __('Status') }}</th>
+            <th>{{ __('Actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -89,15 +89,15 @@
             </td>
             <td>
               <div class="btn-group btn-group-sm">
-                <a href="{{ route('ext-rights-admin.embargo-edit', $embargo->id) }}" class="btn btn-outline-secondary" title="Edit">
+                <a href="{{ route('ext-rights-admin.embargo-edit', $embargo->id) }}" class="btn btn-outline-secondary" title="{{ __('Edit') }}">
                   <i class="fas fa-edit"></i>
                 </a>
                 @if(($embargo->status ?? '') === 'active')
-                <button type="button" class="btn btn-outline-success" title="Lift"
+                <button type="button" class="btn btn-outline-success" title="{{ __('Lift') }}"
                         data-bs-toggle="modal" data-bs-target="#liftModal{{ $embargo->id }}">
                   <i class="fas fa-unlock"></i>
                 </button>
-                <button type="button" class="btn btn-outline-warning" title="Extend"
+                <button type="button" class="btn btn-outline-warning" title="{{ __('Extend') }}"
                         data-bs-toggle="modal" data-bs-target="#extendModal{{ $embargo->id }}">
                   <i class="fas fa-calendar-plus"></i>
                 </button>
@@ -111,19 +111,19 @@
                     <form action="{{ route('ext-rights-admin.embargo-lift', $embargo->id) }}" method="post">
                       @csrf
                       <div class="modal-header">
-                        <h5 class="modal-title">Lift Embargo</h5>
+                        <h5 class="modal-title">{{ __('Lift Embargo') }}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                       </div>
                       <div class="modal-body">
                         <p>Are you sure you want to lift this embargo?</p>
                         <div class="mb-3">
-                          <label class="form-label">Reason for lifting</label>
+                          <label class="form-label">{{ __('Reason for lifting') }}</label>
                           <textarea name="lift_reason" class="form-control" rows="3"></textarea>
                         </div>
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">Lift Embargo</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                        <button type="submit" class="btn btn-success">{{ __('Lift Embargo') }}</button>
                       </div>
                     </form>
                   </div>
@@ -137,24 +137,24 @@
                     <form action="{{ route('ext-rights-admin.embargo-extend', $embargo->id) }}" method="post">
                       @csrf
                       <div class="modal-header">
-                        <h5 class="modal-title">Extend Embargo</h5>
+                        <h5 class="modal-title">{{ __('Extend Embargo') }}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                       </div>
                       <div class="modal-body">
                         <div class="mb-3">
-                          <label class="form-label">New End Date</label>
+                          <label class="form-label">{{ __('New End Date') }}</label>
                           <input type="date" name="new_end_date" class="form-control" required
                                  min="{{ date('Y-m-d') }}"
                                  value="{{ $embargo->end_date ? \Carbon\Carbon::parse($embargo->end_date)->addYear()->format('Y-m-d') : \Carbon\Carbon::now()->addYear()->format('Y-m-d') }}">
                         </div>
                         <div class="mb-3">
-                          <label class="form-label">Reason for extension</label>
+                          <label class="form-label">{{ __('Reason for extension') }}</label>
                           <textarea name="extend_reason" class="form-control" rows="3"></textarea>
                         </div>
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-warning">Extend Embargo</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                        <button type="submit" class="btn btn-warning">{{ __('Extend Embargo') }}</button>
                       </div>
                     </form>
                   </div>

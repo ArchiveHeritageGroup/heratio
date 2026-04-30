@@ -28,9 +28,9 @@
     $requiredFields = $requiredFields ?? [];
 @endphp
 
-<h1>Map &amp; Enrich</h1>
+<h1>{{ __('Map &amp; Enrich') }}</h1>
 
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">Ingestion Manager</a></li>
         <li class="breadcrumb-item">{{ $session->title ?? ('Session #' . ($session->id ?? '')) }}</li>
@@ -82,15 +82,15 @@
                     <div id="counter-options" style="display:none;">
                         <div class="row">
                             <div class="col-md-4 mb-2">
-                                <label class="form-label small">Prefix</label>
-                                <input type="text" class="form-control form-control-sm" name="metadata[_counter_prefix]" placeholder="e.g. OBJ-">
+                                <label class="form-label small">{{ __('Prefix') }}</label>
+                                <input type="text" class="form-control form-control-sm" name="metadata[_counter_prefix]" placeholder="{{ __('e.g. OBJ-') }}">
                             </div>
                             <div class="col-md-4 mb-2">
-                                <label class="form-label small">Start Number</label>
+                                <label class="form-label small">{{ __('Start Number') }}</label>
                                 <input type="number" class="form-control form-control-sm" name="metadata[_counter_start]" value="1" min="1">
                             </div>
                             <div class="col-md-4 mb-2">
-                                <label class="form-label small">Padding (digits)</label>
+                                <label class="form-label small">{{ __('Padding (digits)') }}</label>
                                 <input type="number" class="form-control form-control-sm" name="metadata[_counter_padding]" value="4" min="1" max="10">
                             </div>
                         </div>
@@ -198,14 +198,14 @@
         <form method="post" action="{{ route('ingest.map', ['id' => $session->id ?? 0]) }}" class="d-flex align-items-center">
             @csrf
             <input type="hidden" name="form_action" value="load_profile">
-            <label class="form-label mb-0 me-2 text-nowrap">Load saved profile:</label>
+            <label class="form-label mb-0 me-2 text-nowrap">{{ __('Load saved profile:') }}</label>
             <select class="form-select form-select-sm me-2" name="mapping_profile_id" style="max-width: 300px;">
                 <option value="">— Select —</option>
                 @foreach($savedProfiles as $p)
                     <option value="{{ $p->id }}">{{ $p->name }} ({{ $p->target_type }})</option>
                 @endforeach
             </select>
-            <button type="submit" class="btn btn-outline-secondary btn-sm">Load</button>
+            <button type="submit" class="btn btn-outline-secondary btn-sm">{{ __('Load') }}</button>
         </form>
     </div>
 </div>
@@ -229,11 +229,11 @@
                         <table class="table table-sm table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width: 30%">Source Column</th>
-                                    <th style="width: 30%">Target Field</th>
-                                    <th style="width: 15%">Default</th>
-                                    <th style="width: 15%">Transform</th>
-                                    <th style="width: 10%">Ignore</th>
+                                    <th style="width: 30%">{{ __('Source Column') }}</th>
+                                    <th style="width: 30%">{{ __('Target Field') }}</th>
+                                    <th style="width: 15%">{{ __('Default') }}</th>
+                                    <th style="width: 15%">{{ __('Transform') }}</th>
+                                    <th style="width: 10%">{{ __('Ignore') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -258,11 +258,11 @@
                                             <input type="text" class="form-control form-control-sm"
                                                    name="default_value[{{ $map->id }}]"
                                                    value="{{ $map->default_value ?? '' }}"
-                                                   placeholder="default">
+                                                   placeholder="{{ __('default') }}">
                                         </td>
                                         <td>
                                             <select class="form-select form-select-sm" name="transform[{{ $map->id }}]">
-                                                <option value="">None</option>
+                                                <option value="">{{ __('None') }}</option>
                                                 @foreach(['trim', 'uppercase', 'lowercase', 'titlecase', 'date_iso', 'strip_html'] as $t)
                                                     <option value="{{ $t }}" {{ ($map->transform ?? '') === $t ? 'selected' : '' }}>{{ $t }}</option>
                                                 @endforeach
@@ -310,9 +310,9 @@
                 </div>
                 <div class="card-body">
                     <select class="form-select form-select-sm" name="do_match_strategy">
-                        <option value="filename">Match by filename</option>
-                        <option value="legacyId">Match by legacyId</option>
-                        <option value="title">Match by title</option>
+                        <option value="filename">{{ __('Match by filename') }}</option>
+                        <option value="legacyId">{{ __('Match by legacyId') }}</option>
+                        <option value="title">{{ __('Match by title') }}</option>
                     </select>
                     <small class="text-muted">How to match digital objects from ZIP to CSV rows</small>
                 </div>
@@ -320,7 +320,7 @@
 
             <div class="card">
                 <div class="card-body">
-                    <h6>Legend</h6>
+                    <h6>{{ __('Legend') }}</h6>
                     <div class="d-flex align-items-center mb-1">
                         <span class="d-inline-block me-2 rounded" style="width:16px;height:16px;background:rgba(25,135,84,0.1);border:1px solid rgba(25,135,84,0.3)"></span>
                         <small>Mapped (auto or manual)</small>

@@ -10,9 +10,9 @@
     <div>
         <form method="get" class="d-inline">
             <select name="period" class="form-select form-select-sm d-inline-block" style="width: auto;" onchange="this.form.submit()">
-                <option value="7 days" {{ ($period ?? '') === '7 days' ? 'selected' : '' }}>Last 7 Days</option>
-                <option value="30 days" {{ ($period ?? '30 days') === '30 days' ? 'selected' : '' }}>Last 30 Days</option>
-                <option value="90 days" {{ ($period ?? '') === '90 days' ? 'selected' : '' }}>Last 90 Days</option>
+                <option value="7 days" {{ ($period ?? '') === '7 days' ? 'selected' : '' }}>{{ __('Last 7 Days') }}</option>
+                <option value="30 days" {{ ($period ?? '30 days') === '30 days' ? 'selected' : '' }}>{{ __('Last 30 Days') }}</option>
+                <option value="90 days" {{ ($period ?? '') === '90 days' ? 'selected' : '' }}>{{ __('Last 90 Days') }}</option>
             </select>
         </form>
         <a href="{{ route('acl.security-dashboard') }}" class="btn btn-sm btn-primary ms-2">
@@ -60,7 +60,7 @@
                 <canvas id="clearancesChart" height="200"></canvas>
                 <table class="table table-sm mt-3">
                     <thead>
-                        <tr><th>Level</th><th class="text-end">Users</th></tr>
+                        <tr><th>{{ __('Level') }}</th><th class="text-end">{{ __('Users') }}</th></tr>
                     </thead>
                     <tbody>
                         @foreach($clearancesByLevel ?? [] as $level)
@@ -87,7 +87,7 @@
                 <canvas id="objectsChart" height="200"></canvas>
                 <table class="table table-sm mt-3">
                     <thead>
-                        <tr><th>Level</th><th class="text-end">Objects</th></tr>
+                        <tr><th>{{ __('Level') }}</th><th class="text-end">{{ __('Objects') }}</th></tr>
                     </thead>
                     <tbody>
                         @foreach($objectsByLevel ?? [] as $level)
@@ -137,10 +137,10 @@
         <table class="table table-hover table-striped mb-0">
             <thead class="table-light">
                 <tr>
-                    <th>Date</th>
-                    <th>User</th>
-                    <th>Action</th>
-                    <th>Object</th>
+                    <th>{{ __('Date') }}</th>
+                    <th>{{ __('User') }}</th>
+                    <th>{{ __('Action') }}</th>
+                    <th>{{ __('Object') }}</th>
                 </tr>
             </thead>
             <tbody>

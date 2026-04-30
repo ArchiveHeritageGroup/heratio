@@ -23,10 +23,10 @@
         <table class="table table-hover table-striped mb-0">
             <thead class="table-light">
                 <tr>
-                    <th>Name</th>
-                    <th>Code</th>
-                    <th>Description</th>
-                    <th class="text-center">Users</th>
+                    <th>{{ __('Name') }}</th>
+                    <th>{{ __('Code') }}</th>
+                    <th>{{ __('Description') }}</th>
+                    <th class="text-center">{{ __('Users') }}</th>
                 </tr>
             </thead>
             <tbody>

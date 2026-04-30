@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-shield-alt me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">Destruction Certificates</h1><span class="small text-muted">Digital object integrity management</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Destruction Certificates') }}</h1><span class="small text-muted">Digital object integrity management</span></div>
   </div>
 @endsection
 @section('content')
@@ -14,12 +14,12 @@
 @endif
 
 <div class="card">
-  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">Destruction Certificates</h5></div>
+  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Destruction Certificates') }}</h5></div>
   <div class="card-body p-0">
     @if(count($certificates) > 0)
     <table class="table table-striped table-hover mb-0">
       <thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        <th>Certificate #</th><th>IO</th><th>Title</th><th>Method</th><th>Authorized By</th><th>Date</th><th>Actions</th>
+        <th>{{ __('Certificate #') }}</th><th>{{ __('IO') }}</th><th>{{ __('Title') }}</th><th>{{ __('Method') }}</th><th>{{ __('Authorized By') }}</th><th>{{ __('Date') }}</th><th>{{ __('Actions') }}</th>
       </tr></thead>
       <tbody>
         @foreach($certificates as $c)
@@ -32,7 +32,7 @@
           <td>{{ $cert->authorized_by }}</td>
           <td>{{ $cert->destruction_date }}</td>
           <td>
-            <a href="{{ route('integrity.certificates.view', ['id' => $cert->id]) }}" class="btn btn-sm btn-outline-secondary" title="View"><i class="fas fa-eye"></i></a>
+            <a href="{{ route('integrity.certificates.view', ['id' => $cert->id]) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('View') }}"><i class="fas fa-eye"></i></a>
           </td>
         </tr>
         @endforeach

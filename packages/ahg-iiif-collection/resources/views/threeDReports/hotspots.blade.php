@@ -8,7 +8,7 @@
 <div class="alert alert-info"><strong>{{ count($items) }}</strong> hotspots found</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
-    <thead class="table-dark"><tr><th>Title</th><th>Type</th><th>Model</th><th>Object</th><th>Position</th><th>Visible</th></tr></thead>
+    <thead class="table-dark"><tr><th>{{ __('Title') }}</th><th>{{ __('Type') }}</th><th>{{ __('Model') }}</th><th>{{ __('Object') }}</th><th>{{ __('Position') }}</th><th>{{ __('Visible') }}</th></tr></thead>
     <tbody>
       @forelse($items as $h)
       <tr>

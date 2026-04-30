@@ -8,7 +8,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-compass me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Discover</h1>
+      <h1 class="mb-0">{{ __('Discover') }}</h1>
       <span class="text-muted">Search across collections using natural language</span>
     </div>
   </div>
@@ -23,13 +23,13 @@
           </span>
           <input type="text" name="q" id="discovery-query"
                  class="form-control border-start-0 ps-0"
-                 placeholder="Ask a question... e.g. &quot;photographs of District Six in the 1960s&quot;"
+                 placeholder="{{ __('Ask a question... e.g. &quot;photographs of District Six in the 1960s&quot;') }}"
                  value="{{ e($query ?? '') }}" autocomplete="off" autofocus>
           <select name="type" class="form-select" style="max-width: 200px;">
-            <option value="all" {{ ($type ?? '') === 'all' ? 'selected' : '' }}>All types</option>
-            <option value="information_object" {{ ($type ?? '') === 'information_object' ? 'selected' : '' }}>Archival descriptions</option>
-            <option value="actor" {{ ($type ?? '') === 'actor' ? 'selected' : '' }}>Authority records</option>
-            <option value="repository" {{ ($type ?? '') === 'repository' ? 'selected' : '' }}>Repositories</option>
+            <option value="all" {{ ($type ?? '') === 'all' ? 'selected' : '' }}>{{ __('All types') }}</option>
+            <option value="information_object" {{ ($type ?? '') === 'information_object' ? 'selected' : '' }}>{{ __('Archival descriptions') }}</option>
+            <option value="actor" {{ ($type ?? '') === 'actor' ? 'selected' : '' }}>{{ __('Authority records') }}</option>
+            <option value="repository" {{ ($type ?? '') === 'repository' ? 'selected' : '' }}>{{ __('Repositories') }}</option>
           </select>
           <button id="discovery-search-btn" class="btn btn-primary px-4" type="submit">
             <i class="fas fa-search me-1"></i> Discover
@@ -44,13 +44,13 @@
       <div class="mt-3 d-flex align-items-center gap-2">
         <small class="text-muted me-1"><i class="fas fa-sliders-h me-1"></i>Search mode:</small>
         <div class="btn-group btn-group-sm" role="group" id="discovery-mode-group">
-          <button type="button" class="btn btn-outline-primary active" data-mode="standard" title="Keyword search">
+          <button type="button" class="btn btn-outline-primary active" data-mode="standard" title="{{ __('Keyword search') }}">
             <i class="fas fa-search me-1"></i>Standard
           </button>
-          <button type="button" class="btn btn-outline-primary" data-mode="semantic" title="Standard + NER entity matching">
+          <button type="button" class="btn btn-outline-primary" data-mode="semantic" title="{{ __('Standard + NER entity matching') }}">
             <i class="fas fa-brain me-1"></i>Semantic
           </button>
-          <button type="button" class="btn btn-outline-primary" data-mode="vector" title="Standard + Semantic + vector similarity">
+          <button type="button" class="btn btn-outline-primary" data-mode="vector" title="{{ __('Standard + Semantic + vector similarity') }}">
             <i class="fas fa-project-diagram me-1"></i>Vector
           </button>
         </div>
@@ -100,10 +100,10 @@
         <span class="text-muted ms-2" id="result-time"></span>
       </div>
       <div class="btn-group btn-group-sm" role="group">
-        <button type="button" class="btn btn-outline-secondary active" id="view-grouped" title="Group by collection">
+        <button type="button" class="btn btn-outline-secondary active" id="view-grouped" title="{{ __('Group by collection') }}">
           <i class="fas fa-layer-group"></i>
         </button>
-        <button type="button" class="btn btn-outline-secondary" id="view-flat" title="Flat list">
+        <button type="button" class="btn btn-outline-secondary" id="view-flat" title="{{ __('Flat list') }}">
           <i class="fas fa-list"></i>
         </button>
       </div>
@@ -117,13 +117,13 @@
   {{-- No Results --}}
   <div id="discovery-no-results" class="text-center py-5 d-none">
     <i class="fas fa-search fa-3x text-muted mb-3"></i>
-    <h4 class="text-muted">No results found</h4>
+    <h4 class="text-muted">{{ __('No results found') }}</h4>
     <p class="text-muted">Try different keywords or a broader search term.</p>
   </div>
 
   {{-- AJAX Pagination --}}
   <div id="discovery-pagination" class="d-none">
-    <nav aria-label="Discovery results pagination">
+    <nav aria-label="{{ __('Discovery results pagination') }}">
       <ul class="pagination justify-content-center" id="pagination-list"></ul>
     </nav>
   </div>
@@ -135,7 +135,7 @@
       @if (!empty($counts))
       <div class="col-md-3">
         <div class="card mb-3">
-          <div class="card-header"><h6 class="mb-0">Entity Type</h6></div>
+          <div class="card-header"><h6 class="mb-0">{{ __('Entity Type') }}</h6></div>
           <div class="list-group list-group-flush">
             <a href="?q={{ urlencode($query) }}&type=all" class="list-group-item list-group-item-action d-flex justify-content-between {{ ($type ?? '') === 'all' ? 'active' : '' }}">
               All <span class="badge bg-secondary">{{ array_sum($counts) }}</span>

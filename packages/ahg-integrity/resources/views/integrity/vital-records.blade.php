@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-star me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">Vital Records</h1><span class="small text-muted">Critical records requiring periodic review</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Vital Records') }}</h1><span class="small text-muted">Critical records requiring periodic review</span></div>
   </div>
 @endsection
 @section('content')
@@ -19,20 +19,20 @@
 <div class="row mb-4">
   <div class="col-md-5">
     <div class="card">
-      <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">Flag as Vital Record</h5></div>
+      <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Flag as Vital Record') }}</h5></div>
       <div class="card-body">
         <form method="POST" action="{{ route('integrity.vital-records.flag') }}">
           @csrf
           <div class="mb-3">
-            <label for="information_object_id" class="form-label">Information Object ID</label>
-            <input type="number" class="form-control" id="information_object_id" name="information_object_id" required min="1" placeholder="Enter IO ID">
+            <label for="information_object_id" class="form-label">{{ __('Information Object ID') }}</label>
+            <input type="number" class="form-control" id="information_object_id" name="information_object_id" required min="1" placeholder="{{ __('Enter IO ID') }}">
           </div>
           <div class="mb-3">
-            <label for="reason" class="form-label">Reason</label>
-            <textarea class="form-control" id="reason" name="reason" rows="2" required maxlength="2000" placeholder="Why is this a vital record?"></textarea>
+            <label for="reason" class="form-label">{{ __('Reason') }}</label>
+            <textarea class="form-control" id="reason" name="reason" rows="2" required maxlength="2000" placeholder="{{ __('Why is this a vital record?') }}"></textarea>
           </div>
           <div class="mb-3">
-            <label for="review_cycle_days" class="form-label">Review Cycle (days)</label>
+            <label for="review_cycle_days" class="form-label">{{ __('Review Cycle (days)') }}</label>
             <input type="number" class="form-control" id="review_cycle_days" name="review_cycle_days" required min="1" max="3650" value="365">
           </div>
           <button type="submit" class="btn atom-btn-white"><i class="fas fa-star me-1"></i>Flag as Vital</button>
@@ -62,7 +62,7 @@
       <div class="card-body">
         <form method="GET" action="{{ route('integrity.vital-records') }}" class="row g-2 align-items-end">
           <div class="col-md-8">
-            <label for="repository_id" class="form-label">Filter by Repository</label>
+            <label for="repository_id" class="form-label">{{ __('Filter by Repository') }}</label>
             <select class="form-select" id="repository_id" name="repository_id">
               <option value="">-- All Repositories --</option>
               @foreach($repositories as $repo)
@@ -88,7 +88,7 @@
     <table class="table table-striped table-hover mb-0">
       <thead>
         <tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-          <th>ID</th><th>IO ID</th><th>IO Title</th><th>Reason</th><th>Review Cycle</th><th>Next Review</th><th>Last Reviewed</th><th>Actions</th>
+          <th>{{ __('ID') }}</th><th>{{ __('IO ID') }}</th><th>{{ __('IO Title') }}</th><th>{{ __('Reason') }}</th><th>{{ __('Review Cycle') }}</th><th>{{ __('Next Review') }}</th><th>{{ __('Last Reviewed') }}</th><th>{{ __('Actions') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -113,11 +113,11 @@
           <td>
             <form method="POST" action="{{ route('integrity.vital-records.review', $rec->id) }}" class="d-inline">
               @csrf
-              <button type="submit" class="btn btn-sm btn-success" title="Mark as reviewed"><i class="fas fa-check"></i></button>
+              <button type="submit" class="btn btn-sm btn-success" title="{{ __('Mark as reviewed') }}"><i class="fas fa-check"></i></button>
             </form>
             <form method="POST" action="{{ route('integrity.vital-records.unflag', $rec->information_object_id) }}" class="d-inline ms-1">
               @csrf
-              <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove vital flag" onclick="return confirm('Remove vital record flag?')"><i class="fas fa-times"></i></button>
+              <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Remove vital flag') }}" onclick="return confirm('Remove vital record flag?')"><i class="fas fa-times"></i></button>
             </form>
           </td>
         </tr>

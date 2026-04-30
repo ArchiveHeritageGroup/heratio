@@ -58,18 +58,18 @@
       <input type="hidden" name="object_id" id="addItemObjectId" value="">
       <div class="row g-3">
         <div class="col-md-5">
-          <label class="form-label">Search for item</label>
+          <label class="form-label">{{ __('Search for item') }}</label>
           <select id="itemSearchSelect"></select>
         </div>
         <div class="col-md-3">
-          <label class="form-label">Notes (optional)</label>
-          <textarea name="notes" class="form-control" rows="2" placeholder="Add a note..."></textarea>
+          <label class="form-label">{{ __('Notes (optional)') }}</label>
+          <textarea name="notes" class="form-control" rows="2" placeholder="{{ __('Add a note...') }}"></textarea>
         </div>
         <div class="col-md-2">
           <label class="form-label d-block">&nbsp;</label>
           <div class="form-check">
             <input type="checkbox" name="include_descendants" value="1" class="form-check-input" id="includeDescendants">
-            <label class="form-check-label small" for="includeDescendants">Include children</label>
+            <label class="form-check-label small" for="includeDescendants">{{ __('Include children') }}</label>
           </div>
         </div>
         <div class="col-md-2">
@@ -89,11 +89,11 @@
     <table class="table table-hover mb-0">
       <thead class="table-light">
         <tr>
-          <th>Title</th>
-          <th>Level</th>
-          <th width="30%">Notes</th>
-          <th>Added</th>
-          <th width="100">Actions</th>
+          <th>{{ __('Title') }}</th>
+          <th>{{ __('Level') }}</th>
+          <th width="30%">{{ __('Notes') }}</th>
+          <th>{{ __('Added') }}</th>
+          <th width="100">{{ __('Actions') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -147,11 +147,11 @@
       <div class="modal-content">
         <div class="modal-header"><h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Evidence Set</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
-          <div class="mb-3"><label class="form-label">Name *</label><input type="text" name="name" class="form-control" value="{{ e($collection->name) }}" required></div>
-          <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3">{{ e($collection->description ?? '') }}</textarea></div>
-          <div class="form-check"><input type="checkbox" name="is_public" value="1" class="form-check-input" id="isPublic" {{ ($collection->is_public ?? false) ? 'checked' : '' }}><label class="form-check-label" for="isPublic">Public</label></div>
+          <div class="mb-3"><label class="form-label">{{ __('Name *') }}</label><input type="text" name="name" class="form-control" value="{{ e($collection->name) }}" required></div>
+          <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="3">{{ e($collection->description ?? '') }}</textarea></div>
+          <div class="form-check"><input type="checkbox" name="is_public" value="1" class="form-check-input" id="isPublic" {{ ($collection->is_public ?? false) ? 'checked' : '' }}><label class="form-check-label" for="isPublic">{{ __('Public') }}</label></div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button></div>
       </div>
     </form>
   </div>
@@ -168,11 +168,11 @@
         <div class="modal-header"><h5 class="modal-title"><i class="fas fa-sticky-note me-2"></i>Edit Notes</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
           <p class="text-muted mb-2"><small><i class="fas fa-file-alt me-1"></i><span id="editNotesItemTitle"></span></small></p>
-          <label class="form-label">Notes</label>
-          <textarea name="notes" id="editNotesTextarea" class="form-control" rows="6" placeholder="Add your research notes here..."></textarea>
+          <label class="form-label">{{ __('Notes') }}</label>
+          <textarea name="notes" id="editNotesTextarea" class="form-control" rows="6" placeholder="{{ __('Add your research notes here...') }}"></textarea>
           <small class="text-muted">Use these notes to track research progress, observations, or relevant information.</small>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Notes</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Notes</button></div>
       </div>
     </form>
   </div>
@@ -187,7 +187,7 @@
       <div class="modal-content">
         <div class="modal-header bg-danger text-white"><h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Delete</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
         <div class="modal-body"><p>Delete this evidence set?</p><p class="text-danger"><strong>{{ e($collection->name) }}</strong></p></div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-danger"><i class="fas fa-trash me-1"></i>Delete</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-danger"><i class="fas fa-trash me-1"></i>Delete</button></div>
       </div>
     </form>
   </div>

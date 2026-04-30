@@ -10,7 +10,7 @@ $agreements = $agreements ?? [];
   <div class="card-body">
 
     @if(count($agreements) > 0)
-    <h6 class="text-muted">Donor Agreements</h6>
+    <h6 class="text-muted">{{ __('Donor Agreements') }}</h6>
     <ul class="list-unstyled mb-3">
       @foreach($agreements as $agreement)
         <li class="mb-2">
@@ -28,7 +28,7 @@ $agreements = $agreements ?? [];
     @endif
 
     @if(count($provenance) > 0)
-    <h6 class="text-muted">Custody History</h6>
+    <h6 class="text-muted">{{ __('Custody History') }}</h6>
     <div class="provenance-timeline">
       @foreach($provenance as $i => $record)
         <div class="provenance-item d-flex mb-2">

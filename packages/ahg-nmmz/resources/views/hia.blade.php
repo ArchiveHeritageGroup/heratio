@@ -23,7 +23,7 @@
 <div class="container-fluid">
   <div class="row mb-4">
     <div class="col">
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
           <li class="breadcrumb-item active">Heritage Impact Assessments</li>
@@ -44,23 +44,23 @@
       <form method="get" class="row g-3">
         <div class="col-md-3">
           <select name="status" class="form-select">
-            <option value="">All Status</option>
-            <option value="pending" @selected($currentStatus === 'pending')>Pending Review</option>
-            <option value="approved" @selected($currentStatus === 'approved')>Approved</option>
-            <option value="rejected" @selected($currentStatus === 'rejected')>Rejected</option>
-            <option value="conditions" @selected($currentStatus === 'conditions')>Approved with Conditions</option>
+            <option value="">{{ __('All Status') }}</option>
+            <option value="pending" @selected($currentStatus === 'pending')>{{ __('Pending Review') }}</option>
+            <option value="approved" @selected($currentStatus === 'approved')>{{ __('Approved') }}</option>
+            <option value="rejected" @selected($currentStatus === 'rejected')>{{ __('Rejected') }}</option>
+            <option value="conditions" @selected($currentStatus === 'conditions')>{{ __('Approved with Conditions') }}</option>
           </select>
         </div>
         <div class="col-md-3">
           <select name="province" class="form-select">
-            <option value="">All Provinces</option>
+            <option value="">{{ __('All Provinces') }}</option>
             @foreach($provinces as $p)
               <option value="{{ $p }}" @selected(request('province') === $p)>{{ $p }}</option>
             @endforeach
           </select>
         </div>
         <div class="col-md-2">
-          <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+          <button type="submit" class="btn btn-outline-primary w-100">{{ __('Filter') }}</button>
         </div>
       </form>
     </div>
@@ -78,14 +78,14 @@
         <table class="table table-hover mb-0">
           <thead>
             <tr>
-              <th>Reference #</th>
-              <th>Project Name</th>
-              <th>Developer</th>
-              <th>Province</th>
-              <th>Impact Level</th>
-              <th>Status</th>
-              <th>Submitted</th>
-              <th>Actions</th>
+              <th>{{ __('Reference #') }}</th>
+              <th>{{ __('Project Name') }}</th>
+              <th>{{ __('Developer') }}</th>
+              <th>{{ __('Province') }}</th>
+              <th>{{ __('Impact Level') }}</th>
+              <th>{{ __('Status') }}</th>
+              <th>{{ __('Submitted') }}</th>
+              <th>{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>

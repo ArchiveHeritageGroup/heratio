@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'institutions'])@endsection
 @section('title', ($isNew ?? true) ? 'Add Institution' : 'Edit Institution')
 @section('content')
-<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.institutions') }}">Institutions</a></li><li class="breadcrumb-item active">{{ ($isNew ?? true) ? 'Add' : 'Edit' }}</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.institutions') }}">Institutions</a></li><li class="breadcrumb-item active">{{ ($isNew ?? true) ? 'Add' : 'Edit' }}</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-university text-primary me-2"></i>{{ ($isNew ?? true) ? 'Add Institution' : 'Edit Institution' }}</h1>
 <div class="card">
     <div class="card-body">

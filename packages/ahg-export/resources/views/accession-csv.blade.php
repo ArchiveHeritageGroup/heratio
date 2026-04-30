@@ -4,9 +4,9 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <h1>Accession CSV Export</h1>
+    <h1>{{ __('Accession CSV Export') }}</h1>
 
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Admin</a></li>
             <li class="breadcrumb-item"><a href="{{ route('export.index') }}">Export</a></li>
@@ -62,7 +62,7 @@
                 <div class="card-body">
                     <p><strong>Total accessions:</strong> {{ number_format($accessionCount) }}</p>
                     <hr>
-                    <h6>Exported Columns</h6>
+                    <h6>{{ __('Exported Columns') }}</h6>
                     <small class="text-muted">
                         accessionNumber, title, acquisitionDate, sourceOfAcquisition,
                         locationInformation, receivedExtentUnits, scopeAndContent,
@@ -80,7 +80,7 @@
 
             <div class="card">
                 <div class="card-body">
-                    <h6>Re-import</h6>
+                    <h6>{{ __('Re-import') }}</h6>
                     <p class="text-muted mb-0">
                         The exported CSV can be re-imported using the Ingest wizard (Admin &gt; Ingest &gt; New &gt; Accessions) or the command:
                         <br><code>php artisan csv:accession-import filename.csv</code>

@@ -28,14 +28,14 @@
             <input type="hidden" name="return" value="{{ $returnUrl }}">
 
             <div class="mb-3">
-              <label class="form-label">Verification Code</label>
+              <label class="form-label">{{ __('Verification Code') }}</label>
               <input type="text" name="code" class="form-control form-control-lg text-center" maxlength="6"
                      pattern="[0-9]{6}" placeholder="000000" autofocus required
                      style="letter-spacing: 0.5em; font-size: 1.5em;">
             </div>
 
             <div class="d-grid">
-              <button type="submit" class="btn btn-primary btn-lg">Verify</button>
+              <button type="submit" class="btn btn-primary btn-lg">{{ __('Verify') }}</button>
             </div>
           </form>
 

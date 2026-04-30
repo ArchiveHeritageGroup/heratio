@@ -6,7 +6,7 @@
 @section('content')
 <div class="container py-4">
 
-  <nav aria-label="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
       <li class="breadcrumb-item active">My Access Requests</li>
@@ -60,12 +60,12 @@
           <table class="table table-bordered table-hover mb-0">
             <thead>
               <tr>
-                <th>Object</th>
-                <th>Type</th>
-                <th>Scope</th>
-                <th>Access</th>
-                <th>Granted</th>
-                <th>Expires</th>
+                <th>{{ __('Object') }}</th>
+                <th>{{ __('Type') }}</th>
+                <th>{{ __('Scope') }}</th>
+                <th>{{ __('Access') }}</th>
+                <th>{{ __('Granted') }}</th>
+                <th>{{ __('Expires') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -127,11 +127,11 @@
           <table class="table table-bordered table-hover mb-0">
             <thead>
               <tr>
-                <th>Type</th>
-                <th>Requested</th>
-                <th>Urgency</th>
-                <th>Status</th>
-                <th>Submitted</th>
+                <th>{{ __('Type') }}</th>
+                <th>{{ __('Requested') }}</th>
+                <th>{{ __('Urgency') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Submitted') }}</th>
               </tr>
             </thead>
             <tbody>

@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1>Inventory</h1>
+  <h1>{{ __('Inventory') }}</h1>
 @endsection
 
 @section('content')
@@ -18,7 +18,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="inventory-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#inventory-collapse" aria-expanded="false" aria-controls="inventory-collapse">
-              Inventory settings
+              {{ __('Inventory settings') }}
             </button>
           </h2>
           <div id="inventory-collapse" class="accordion-collapse collapse" aria-labelledby="inventory-heading">

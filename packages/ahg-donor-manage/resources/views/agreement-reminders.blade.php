@@ -2,10 +2,10 @@
 @section('title', 'Agreement Reminders')
 @section('body-class', 'browse')
 @section('content')
-  <div class="multiline-header d-flex align-items-center mb-3"><i class="fas fa-3x fa-bell me-3" aria-hidden="true"></i><div class="d-flex flex-column"><h1 class="mb-0">Agreement Reminders</h1></div></div>
+  <div class="multiline-header d-flex align-items-center mb-3"><i class="fas fa-3x fa-bell me-3" aria-hidden="true"></i><div class="d-flex flex-column"><h1 class="mb-0">{{ __('Agreement Reminders') }}</h1></div></div>
   @if(isset($rows) && count($rows))
     <div class="table-responsive"><table class="table table-bordered table-hover mb-0">
-      <thead><tr><th>#</th><th>Donor</th><th>Agreement</th><th>Expires</th><th>Status</th></tr></thead>
+      <thead><tr><th>#</th><th>{{ __('Donor') }}</th><th>{{ __('Agreement') }}</th><th>{{ __('Expires') }}</th><th>{{ __('Status') }}</th></tr></thead>
       <tbody>@foreach($rows as $row)<tr>@foreach((array)$row as $v)<td>{{ $v }}</td>@endforeach</tr>@endforeach</tbody>
     </table></div>
     @if(isset($pager))@include('ahg-core::components.pager', ['pager' => $pager])@endif

@@ -47,12 +47,12 @@
       <table class="table table-bordered table-striped mb-0">
         <thead>
           <tr>
-            <th>Entity</th>
-            <th>Operation</th>
-            <th>Priority</th>
-            <th>Scheduled</th>
-            <th>Status</th>
-            <th>Error</th>
+            <th>{{ __('Entity') }}</th>
+            <th>{{ __('Operation') }}</th>
+            <th>{{ __('Priority') }}</th>
+            <th>{{ __('Scheduled') }}</th>
+            <th>{{ __('Status') }}</th>
+            <th>{{ __('Error') }}</th>
           </tr>
         </thead>
         <tbody>

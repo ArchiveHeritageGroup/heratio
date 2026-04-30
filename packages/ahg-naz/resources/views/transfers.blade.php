@@ -13,7 +13,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
                     <li class="breadcrumb-item active">Records Transfers</li>
@@ -53,14 +53,14 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Transfer #</th>
-                            <th>Agency</th>
-                            <th>Type</th>
-                            <th>Proposed Date</th>
-                            <th>Quantity</th>
-                            <th>Restricted</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>{{ __('Transfer #') }}</th>
+                            <th>{{ __('Agency') }}</th>
+                            <th>{{ __('Type') }}</th>
+                            <th>{{ __('Proposed Date') }}</th>
+                            <th>{{ __('Quantity') }}</th>
+                            <th>{{ __('Restricted') }}</th>
+                            <th>{{ __('Status') }}</th>
+                            <th>{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -52,7 +52,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label" for="semantic_expansion_limit">Expansion Limit</label>
+                            <label class="form-label" for="semantic_expansion_limit">{{ __('Expansion Limit') }}</label>
                             <input type="number" class="form-control" id="semantic_expansion_limit"
                                    name="semantic_expansion_limit"
                                    value="{{ $config['semantic_expansion_limit'] ?? 5 }}" min="1" max="20">
@@ -60,7 +60,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label" for="semantic_min_weight">Minimum Weight</label>
+                            <label class="form-label" for="semantic_min_weight">{{ __('Minimum Weight') }}</label>
                             <input type="number" class="form-control" id="semantic_min_weight"
                                    name="semantic_min_weight"
                                    value="{{ $config['semantic_min_weight'] ?? 0.6 }}"
@@ -141,14 +141,14 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label" for="semantic_ollama_endpoint">Ollama Endpoint</label>
+                            <label class="form-label" for="semantic_ollama_endpoint">{{ __('Ollama Endpoint') }}</label>
                             <input type="url" class="form-control" id="semantic_ollama_endpoint"
                                    name="semantic_ollama_endpoint"
                                    value="{{ $config['semantic_ollama_endpoint'] ?? 'http://localhost:11434' }}">
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label" for="semantic_ollama_model">Ollama Model</label>
+                            <label class="form-label" for="semantic_ollama_model">{{ __('Ollama Model') }}</label>
                             <select class="form-select" id="semantic_ollama_model" name="semantic_ollama_model">
                                 @php
                                     $models = ['nomic-embed-text', 'mxbai-embed-large', 'all-minilm', 'snowflake-arctic-embed'];
@@ -175,7 +175,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label" for="semantic_es_synonyms_path">Synonyms File Path</label>
+                                    <label class="form-label" for="semantic_es_synonyms_path">{{ __('Synonyms File Path') }}</label>
                                     <input type="text" class="form-control" id="semantic_es_synonyms_path"
                                            name="semantic_es_synonyms_path"
                                            value="{{ $config['semantic_es_synonyms_path'] ?? '/etc/elasticsearch/synonyms/ahg_synonyms.txt' }}">
@@ -184,7 +184,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Export Synonyms</label>
+                                    <label class="form-label">{{ __('Export Synonyms') }}</label>
                                     <div>
                                         <button type="button" class="btn btn-outline-primary sync-btn" data-type="elasticsearch">
                                             <i class="fas fa-file-export me-1"></i>Export to Elasticsearch

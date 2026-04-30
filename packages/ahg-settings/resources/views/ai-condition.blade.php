@@ -37,7 +37,7 @@
 
     {{-- Statistics --}}
     <div class="card mb-3">
-        <div class="card-header py-2"><h6 class="mb-0">Statistics</h6></div>
+        <div class="card-header py-2"><h6 class="mb-0">{{ __('Statistics') }}</h6></div>
         <div class="card-body py-2 small">
             <div class="d-flex justify-content-between mb-1">
                 <span>Total Assessments</span>
@@ -83,7 +83,7 @@
         <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-plug me-2"></i>Service Connection</h6></div>
         <div class="card-body">
             <div class="row mb-3">
-                <label class="col-sm-3 col-form-label col-form-label-sm">Service URL</label>
+                <label class="col-sm-3 col-form-label col-form-label-sm">{{ __('Service URL') }}</label>
                 <div class="col-sm-7">
                     <input type="url" class="form-control form-control-sm" name="ai_condition_service_url"
                            value="{{ e($settings['ai_condition_service_url'] ?? '') }}">
@@ -95,7 +95,7 @@
                 </div>
             </div>
             <div class="row mb-3">
-                <label class="col-sm-3 col-form-label col-form-label-sm">API Key</label>
+                <label class="col-sm-3 col-form-label col-form-label-sm">{{ __('API Key') }}</label>
                 <div class="col-sm-9">
                     <input type="text" class="form-control form-control-sm" name="ai_condition_api_key"
                            value="{{ e($settings['ai_condition_api_key'] ?? '') }}">
@@ -109,7 +109,7 @@
         <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Assessment Defaults</h6></div>
         <div class="card-body">
             <div class="row mb-3">
-                <label class="col-sm-3 col-form-label col-form-label-sm">Min Confidence</label>
+                <label class="col-sm-3 col-form-label col-form-label-sm">{{ __('Min Confidence') }}</label>
                 <div class="col-sm-9">
                     <input type="number" class="form-control form-control-sm" name="ai_condition_min_confidence"
                            value="{{ e($settings['ai_condition_min_confidence'] ?? '0.5') }}"
@@ -118,27 +118,27 @@
                 </div>
             </div>
             <div class="row mb-3">
-                <label class="col-sm-3 col-form-label col-form-label-sm">Overlay Enabled</label>
+                <label class="col-sm-3 col-form-label col-form-label-sm">{{ __('Overlay Enabled') }}</label>
                 <div class="col-sm-9">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" name="ai_condition_overlay_enabled" value="1"
                                {{ ($settings['ai_condition_overlay_enabled'] ?? '0') === '1' ? 'checked' : '' }}>
-                        <label class="form-check-label small">Generate annotated overlay images with bounding boxes</label>
+                        <label class="form-check-label small">{{ __('Generate annotated overlay images with bounding boxes') }}</label>
                     </div>
                 </div>
             </div>
             <div class="row mb-3">
-                <label class="col-sm-3 col-form-label col-form-label-sm">Auto-Scan on Upload</label>
+                <label class="col-sm-3 col-form-label col-form-label-sm">{{ __('Auto-Scan on Upload') }}</label>
                 <div class="col-sm-9">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" name="ai_condition_auto_scan" value="1"
                                {{ ($settings['ai_condition_auto_scan'] ?? '0') === '1' ? 'checked' : '' }}>
-                        <label class="form-check-label small">Automatically scan digital objects when uploaded</label>
+                        <label class="form-check-label small">{{ __('Automatically scan digital objects when uploaded') }}</label>
                     </div>
                 </div>
             </div>
             <div class="row mb-3">
-                <label class="col-sm-3 col-form-label col-form-label-sm">Alert Grade</label>
+                <label class="col-sm-3 col-form-label col-form-label-sm">{{ __('Alert Grade') }}</label>
                 <div class="col-sm-9">
                     <select class="form-select form-select-sm" name="ai_condition_notify_grade">
                         @foreach(['excellent','good','fair','poor','critical'] as $g)
@@ -174,14 +174,14 @@
             <table class="table table-sm table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>Name</th>
-                        <th>Organization</th>
-                        <th>Tier</th>
-                        <th class="text-center">Usage</th>
-                        <th>API Key</th>
-                        <th class="text-center">Training</th>
-                        <th class="text-center">Status</th>
-                        <th class="text-end">Actions</th>
+                        <th>{{ __('Name') }}</th>
+                        <th>{{ __('Organization') }}</th>
+                        <th>{{ __('Tier') }}</th>
+                        <th class="text-center">{{ __('Usage') }}</th>
+                        <th>{{ __('API Key') }}</th>
+                        <th class="text-center">{{ __('Training') }}</th>
+                        <th class="text-center">{{ __('Status') }}</th>
+                        <th class="text-end">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -201,7 +201,7 @@
                             <div class="form-check form-switch d-inline-block">
                                 <input class="form-check-input" type="checkbox" {{ !empty($c->can_contribute_training) ? 'checked' : '' }}
                                     onchange="toggleTraining({{ $c->id }}, this.checked ? 1 : 0)"
-                                    title="Allow client to contribute training data">
+                                    title="{{ __('Allow client to contribute training data') }}">
                             </div>
                             @else
                             <span class="text-muted">-</span>
@@ -253,13 +253,13 @@
             <table class="table table-sm table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>Client</th>
-                        <th class="text-center">Contributions</th>
-                        <th class="text-center">Pending</th>
-                        <th class="text-center">Approved</th>
-                        <th>Consent Document</th>
-                        <th class="text-center">Training Status</th>
-                        <th class="text-end">Actions</th>
+                        <th>{{ __('Client') }}</th>
+                        <th class="text-center">{{ __('Contributions') }}</th>
+                        <th class="text-center">{{ __('Pending') }}</th>
+                        <th class="text-center">{{ __('Approved') }}</th>
+                        <th>{{ __('Consent Document') }}</th>
+                        <th class="text-center">{{ __('Training Status') }}</th>
+                        <th class="text-end">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -315,7 +315,7 @@
                         <td class="text-end">
                             @if(!$ac->training_approved)
                                 <button type="button" class="btn btn-sm btn-success" onclick="approveTraining({{ $ac->id }}, '{{ e($ac->name) }}')"
-                                    {{ empty($ac->training_approval_doc) ? 'disabled title="Upload consent document first"' : '' }}>
+                                    {{ empty($ac->training_approval_doc) ? 'disabled title="{{ __('Upload consent document first') }}"' : '' }}>
                                     <i class="fas fa-check me-1"></i>Approve
                                 </button>
                             @else
@@ -355,7 +355,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                 <button type="button" class="btn btn-primary" onclick="submitConsent()">
                     <i class="fas fa-upload me-1"></i>Upload
                 </button>
@@ -379,7 +379,7 @@
                     <input type="text" class="form-control form-control-sm" name="name" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Organization</label>
+                    <label class="form-label">{{ __('Organization') }}</label>
                     <input type="text" class="form-control form-control-sm" name="organization">
                 </div>
                 <div class="mb-3">
@@ -387,22 +387,22 @@
                     <input type="email" class="form-control form-control-sm" name="email" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Tier</label>
+                    <label class="form-label">{{ __('Tier') }}</label>
                     <select class="form-select form-select-sm" name="tier">
-                        <option value="free">Free (50/month)</option>
-                        <option value="standard">Standard (500/month)</option>
-                        <option value="pro">Professional (5000/month)</option>
-                        <option value="enterprise">Enterprise (Unlimited)</option>
+                        <option value="free">{{ __('Free (50/month)') }}</option>
+                        <option value="standard">{{ __('Standard (500/month)') }}</option>
+                        <option value="pro">{{ __('Professional (5000/month)') }}</option>
+                        <option value="enterprise">{{ __('Enterprise (Unlimited)') }}</option>
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Monthly Limit</label>
+                    <label class="form-label">{{ __('Monthly Limit') }}</label>
                     <input type="number" class="form-control form-control-sm" name="monthly_limit" value="50">
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-success">Create</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                <button type="submit" class="btn btn-success">{{ __('Create') }}</button>
             </div>
         </form>
     </div>

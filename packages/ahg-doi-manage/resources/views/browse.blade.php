@@ -61,12 +61,12 @@
         <table class="table table-bordered table-striped mb-0">
           <thead>
             <tr>
-              <th>DOI</th>
-              <th>Record</th>
-              <th>Status</th>
-              <th>Minted</th>
-              <th>Last Sync</th>
-              <th class="text-end">Actions</th>
+              <th>{{ __('DOI') }}</th>
+              <th>{{ __('Record') }}</th>
+              <th>{{ __('Status') }}</th>
+              <th>{{ __('Minted') }}</th>
+              <th>{{ __('Last Sync') }}</th>
+              <th class="text-end">{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -102,10 +102,10 @@
                 <td>{{ !empty($doi['last_sync_at']) ? \Carbon\Carbon::parse($doi['last_sync_at'])->format('Y-m-d') : '-' }}</td>
                 <td class="text-end">
                   <div class="btn-group btn-group-sm">
-                    <a href="{{ route('doi.view', $doi['id']) }}" class="btn btn-outline-secondary" title="View">
+                    <a href="{{ route('doi.view', $doi['id']) }}" class="btn btn-outline-secondary" title="{{ __('View') }}">
                       <i class="fas fa-eye"></i>
                     </a>
-                    <a href="{{ route('doi.view', $doi['id']) }}?sync=1" class="btn btn-outline-secondary" title="Sync">
+                    <a href="{{ route('doi.view', $doi['id']) }}?sync=1" class="btn btn-outline-secondary" title="{{ __('Sync') }}">
                       <i class="fas fa-sync"></i>
                     </a>
                   </div>

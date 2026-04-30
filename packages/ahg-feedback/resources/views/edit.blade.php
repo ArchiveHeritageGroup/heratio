@@ -17,7 +17,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-2x fa-comment-alt me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Edit Feedback</h1>
+      <h1 class="mb-0">{{ __('Edit Feedback') }}</h1>
       <span class="small text-muted">#{{ $feedback->id }}</span>
     </div>
   </div>
@@ -122,7 +122,7 @@
             <div class="mb-3">
               <label class="form-label fw-semibold">Admin Notes <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="admin_notes" class="form-control" rows="4"
-                        placeholder="Internal notes about this feedback...">{{ old('admin_notes', $feedback->unique_identifier) }}</textarea>
+                        placeholder="{{ __('Internal notes about this feedback...') }}">{{ old('admin_notes', $feedback->unique_identifier) }}</textarea>
             </div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Completed At <span class="badge bg-secondary ms-1">Optional</span></label>

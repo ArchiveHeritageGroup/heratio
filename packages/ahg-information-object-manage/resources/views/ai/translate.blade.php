@@ -20,15 +20,15 @@
   <div class="mb-3">
     <label class="form-label" for="target-language">Target language <span class="badge bg-secondary ms-1">Optional</span></label>
     <select class="form-select" id="target-language" style="max-width: 300px;">
-      <option value="af">Afrikaans</option>
-      <option value="en" selected>English</option>
-      <option value="fr">French</option>
-      <option value="de">German</option>
-      <option value="nl">Dutch</option>
-      <option value="pt">Portuguese</option>
-      <option value="es">Spanish</option>
-      <option value="zu">Zulu</option>
-      <option value="xh">Xhosa</option>
+      <option value="af">{{ __('Afrikaans') }}</option>
+      <option value="en" selected>{{ __('English') }}</option>
+      <option value="fr">{{ __('French') }}</option>
+      <option value="de">{{ __('German') }}</option>
+      <option value="nl">{{ __('Dutch') }}</option>
+      <option value="pt">{{ __('Portuguese') }}</option>
+      <option value="es">{{ __('Spanish') }}</option>
+      <option value="zu">{{ __('Zulu') }}</option>
+      <option value="xh">{{ __('Xhosa') }}</option>
     </select>
   </div>
 

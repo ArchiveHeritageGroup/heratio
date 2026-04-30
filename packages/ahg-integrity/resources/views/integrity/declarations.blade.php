@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-file-signature me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">Record Declarations</h1><span class="small text-muted">Formal record declaration workflow</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Record Declarations') }}</h1><span class="small text-muted">Formal record declaration workflow</span></div>
   </div>
 @endsection
 @section('content')
@@ -19,13 +19,13 @@
 <div class="row mb-4">
   <div class="col-md-4">
     <div class="card">
-      <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">Declare a Record</h5></div>
+      <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Declare a Record') }}</h5></div>
       <div class="card-body">
         <form method="POST" action="{{ route('integrity.declare-record') }}">
           @csrf
           <div class="mb-3">
-            <label for="information_object_id" class="form-label">Information Object ID</label>
-            <input type="number" class="form-control" id="information_object_id" name="information_object_id" required min="1" placeholder="Enter IO ID">
+            <label for="information_object_id" class="form-label">{{ __('Information Object ID') }}</label>
+            <input type="number" class="form-control" id="information_object_id" name="information_object_id" required min="1" placeholder="{{ __('Enter IO ID') }}">
           </div>
           <button type="submit" class="btn atom-btn-white"><i class="fas fa-file-signature me-1"></i>Submit Declaration</button>
         </form>
@@ -35,7 +35,7 @@
   <div class="col-md-8">
     <div class="card">
       <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        <h5 class="mb-0">Summary</h5>
+        <h5 class="mb-0">{{ __('Summary') }}</h5>
       </div>
       <div class="card-body">
         <div class="row text-center">
@@ -70,7 +70,7 @@
         <table class="table table-striped table-hover mb-0">
           <thead>
             <tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-              <th>ID</th><th>IO ID</th><th>IO Title</th><th>Status</th><th>Created</th><th>Actions</th>
+              <th>{{ __('ID') }}</th><th>{{ __('IO ID') }}</th><th>{{ __('IO Title') }}</th><th>{{ __('Status') }}</th><th>{{ __('Created') }}</th><th>{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -105,7 +105,7 @@
         <table class="table table-striped table-hover mb-0">
           <thead>
             <tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-              <th>ID</th><th>IO ID</th><th>IO Title</th><th>Status</th><th>Declared By</th><th>Declared At</th>
+              <th>{{ __('ID') }}</th><th>{{ __('IO ID') }}</th><th>{{ __('IO Title') }}</th><th>{{ __('Status') }}</th><th>{{ __('Declared By') }}</th><th>{{ __('Declared At') }}</th>
             </tr>
           </thead>
           <tbody>

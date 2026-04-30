@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'documentTemplates'])@endsection
 @section('title', ($isNew ?? true) ? 'New Document Template' : 'Edit Document Template')
 @section('content')
-<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.documentTemplates') }}">Document Templates</a></li><li class="breadcrumb-item active">{{ ($isNew ?? true) ? 'New' : 'Edit' }}</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.documentTemplates') }}">Document Templates</a></li><li class="breadcrumb-item active">{{ ($isNew ?? true) ? 'New' : 'Edit' }}</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-file-alt text-primary me-2"></i>{{ ($isNew ?? true) ? 'New Document Template' : 'Edit Document Template' }}</h1>
 <div class="card">
     <div class="card-body">

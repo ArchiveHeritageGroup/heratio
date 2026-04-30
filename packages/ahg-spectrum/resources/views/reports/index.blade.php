@@ -4,7 +4,7 @@
 @section('body-class', 'admin spectrum-reports')
 @section('sidebar')
 <div class="sidebar-content">
-  <h4>Spectrum Reports</h4>
+  <h4>{{ __('Spectrum Reports') }}</h4>
   <ul class="list-unstyled">
     <li><a href="{{ route('ahgspectrum.report-object-entry') }}"><i class="fas fa-sign-in-alt me-2"></i>Object Entry</a></li>
     <li><a href="{{ route('ahgspectrum.report-loans') }}"><i class="fas fa-exchange-alt me-2"></i>Loans</a></li>

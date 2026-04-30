@@ -18,7 +18,7 @@
 @endphp
 
 @section('content')
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('ahgmarketplace.browse') }}">{{ __('Marketplace') }}</a></li>
@@ -114,7 +114,7 @@
           <div class="row mb-3">
             <div class="col-md-6">
               <label for="website" class="form-label">{{ __('Website') }}</label>
-              <input type="url" class="form-control" id="website" name="website" value="{{ $seller->website ?? '' }}" placeholder="https://" maxlength="255">
+              <input type="url" class="form-control" id="website" name="website" value="{{ $seller->website ?? '' }}" placeholder="{{ __('https://') }}" maxlength="255">
             </div>
             <div class="col-md-6">
               <label for="instagram" class="form-label">{{ __('Instagram') }}</label>

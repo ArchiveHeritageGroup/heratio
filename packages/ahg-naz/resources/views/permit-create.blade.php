@@ -18,7 +18,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.permits') }}">Permits</a></li>
@@ -33,13 +33,13 @@
         @csrf
         <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Researcher</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Researcher') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label">Select Researcher <span class="text-danger">*</span></label>
                             <select name="researcher_id" class="form-select" required>
-                                <option value="">Select...</option>
+                                <option value="">{{ __('Select...') }}</option>
                                 @foreach(($researchers ?? []) as $r)
                                     <option value="{{ $r->id }}">{{ $r->first_name }} {{ $r->last_name }} ({{ ucfirst($r->researcher_type) }})</option>
                                 @endforeach
@@ -50,7 +50,7 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Research Details</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Research Details') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
@@ -58,15 +58,15 @@
                             <input type="text" name="research_topic" class="form-control" required>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Research Purpose</label>
+                            <label class="form-label">{{ __('Research Purpose') }}</label>
                             <textarea name="research_purpose" class="form-control" rows="3"></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Permit Type</label>
+                            <label class="form-label">{{ __('Permit Type') }}</label>
                             <select name="permit_type" class="form-select">
-                                <option value="general">General</option>
-                                <option value="restricted">Restricted Access</option>
-                                <option value="special">Special Permission</option>
+                                <option value="general">{{ __('General') }}</option>
+                                <option value="restricted">{{ __('Restricted Access') }}</option>
+                                <option value="special">{{ __('Special Permission') }}</option>
                             </select>
                         </div>
                     </div>
@@ -74,7 +74,7 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Validity Period</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Validity Period') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -90,24 +90,24 @@
             </div>
 
             <div class="card">
-                <div class="card-header"><h5 class="mb-0">Fees</h5></div>
+                <div class="card-header"><h5 class="mb-0">{{ __('Fees') }}</h5></div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label class="form-label">Fee Amount</label>
+                            <label class="form-label">{{ __('Fee Amount') }}</label>
                             <input type="number" name="fee_amount" class="form-control" step="0.01" min="0" value="0">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Currency</label>
+                            <label class="form-label">{{ __('Currency') }}</label>
                             <select name="fee_currency" class="form-select">
-                                <option value="USD">USD</option>
-                                <option value="ZWL">ZWL</option>
+                                <option value="USD">{{ __('USD') }}</option>
+                                <option value="ZWL">{{ __('ZWL') }}</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <div class="form-check mt-4">
                                 <input class="form-check-input" type="checkbox" name="fee_paid" id="fee_paid">
-                                <label class="form-check-label" for="fee_paid">Fee Paid</label>
+                                <label class="form-check-label" for="fee_paid">{{ __('Fee Paid') }}</label>
                             </div>
                         </div>
                     </div>

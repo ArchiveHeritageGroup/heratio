@@ -5,7 +5,7 @@
 @endsection
 @section('title', 'Custody Checkout')
 @section('content')
-<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.retrievalQueue') }}">Retrieval Queue</a></li><li class="breadcrumb-item active">Checkout</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.retrievalQueue') }}">Retrieval Queue</a></li><li class="breadcrumb-item active">Checkout</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-box-open text-primary me-2"></i>Custody Checkout</h1>
 <div class="card">
     <div class="card-body">
@@ -21,7 +21,7 @@
                 <div class="col-md-4"><label class="form-label">Checkout Date <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" name="checkout_date" class="form-control" value="{{ date('Y-m-d') }}"></div>
                 <div class="col-md-4"><label class="form-label">Expected Return <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" name="expected_return" class="form-control" value="{{ date('Y-m-d', strtotime('+1 day')) }}"></div>
                 <div class="col-md-4"><label class="form-label">Condition <span class="badge bg-secondary ms-1">Optional</span></label>
-                    <select name="condition" class="form-select"><option value="good">Good</option><option value="fair">Fair</option><option value="fragile">Fragile</option></select>
+                    <select name="condition" class="form-select"><option value="good">{{ __('Good') }}</option><option value="fair">{{ __('Fair') }}</option><option value="fragile">{{ __('Fragile') }}</option></select>
                 </div>
             </div>
             <div class="mb-3"><label class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="notes" class="form-control" rows="2"></textarea></div>

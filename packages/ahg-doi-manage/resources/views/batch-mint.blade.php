@@ -36,7 +36,7 @@
         @csrf
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Records Without DOIs</h5>
+                <h5 class="mb-0">{{ __('Records Without DOIs') }}</h5>
                 <div>
                     <button type="button" id="doi-select-all" class="btn btn-sm atom-btn-outline-secondary">
                         <i class="fas fa-check-square me-1"></i> Select All
@@ -60,8 +60,8 @@
                                 <th style="width: 40px;">
                                     <input type="checkbox" class="form-check-input" id="doi-check-all">
                                 </th>
-                                <th>Title</th>
-                                <th>ID</th>
+                                <th>{{ __('Title') }}</th>
+                                <th>{{ __('ID') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -89,11 +89,11 @@
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col">
-                            <label class="form-label">Initial DOI State</label>
+                            <label class="form-label">{{ __('Initial DOI State') }}</label>
                             <select name="state" class="form-select" style="max-width: 200px;">
-                                <option value="findable">Findable (Recommended)</option>
-                                <option value="registered">Registered</option>
-                                <option value="draft">Draft</option>
+                                <option value="findable">{{ __('Findable (Recommended)') }}</option>
+                                <option value="registered">{{ __('Registered') }}</option>
+                                <option value="draft">{{ __('Draft') }}</option>
                             </select>
                             <div class="form-text">
                                 Findable = publicly discoverable, Registered = resolvable but not indexed, Draft = not yet active

@@ -6,7 +6,7 @@
 <div class="heritage-explore py-4">
   <div class="container">
     @if(!isset($currentCategory))
-    <div class="row mb-4"><div class="col-12"><h1 class="display-5 fw-bold mb-3">Explore Our Collections</h1><p class="lead text-muted">Discover archives through different perspectives</p></div></div>
+    <div class="row mb-4"><div class="col-12"><h1 class="display-5 fw-bold mb-3">{{ __('Explore Our Collections') }}</h1><p class="lead text-muted">Discover archives through different perspectives</p></div></div>
 
     <div class="row g-4">
       @foreach($categories ?? [] as $cat)
@@ -20,7 +20,7 @@
     </div>
 
     @else
-    <nav aria-label="breadcrumb" class="mb-4"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('heritage.landing') }}">Heritage</a></li><li class="breadcrumb-item"><a href="{{ route('heritage.explore') }}">Explore</a></li><li class="breadcrumb-item active">{{ $currentCategory['name'] }}</li></ol></nav>
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-4"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('heritage.landing') }}">Heritage</a></li><li class="breadcrumb-item"><a href="{{ route('heritage.explore') }}">Explore</a></li><li class="breadcrumb-item active">{{ $currentCategory['name'] }}</li></ol></nav>
 
     <div class="row mb-4"><div class="col-12">
       <h1 class="display-5 fw-bold mb-2"><i class="{{ $currentCategory['icon'] ?? 'fas fa-compass' }} me-2"></i>{{ $currentCategory['name'] }}</h1>

@@ -28,24 +28,24 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="inheritance-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#inheritance-collapse" aria-expanded="true" aria-controls="inheritance-collapse">
-            Inheritance options
+            {{ __('Inheritance options') }}
           </button>
         </h2>
         <div id="inheritance-collapse" class="accordion-collapse collapse show" aria-labelledby="inheritance-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="all_or_digital_only" class="form-label">All descendants or just digital objects</label>
+              <label for="all_or_digital_only" class="form-label">{{ __('All descendants or just digital objects') }}</label>
               <select name="all_or_digital_only" id="all_or_digital_only" class="form-select">
-                <option value="all" {{ old('all_or_digital_only', $allOrDigitalOnly ?? 'all') === 'all' ? 'selected' : '' }}>All descendants</option>
-                <option value="digital_only" {{ old('all_or_digital_only', $allOrDigitalOnly ?? '') === 'digital_only' ? 'selected' : '' }}>Digital objects only</option>
+                <option value="all" {{ old('all_or_digital_only', $allOrDigitalOnly ?? 'all') === 'all' ? 'selected' : '' }}>{{ __('All descendants') }}</option>
+                <option value="digital_only" {{ old('all_or_digital_only', $allOrDigitalOnly ?? '') === 'digital_only' ? 'selected' : '' }}>{{ __('Digital objects only') }}</option>
               </select>
             </div>
 
             <div class="mb-3">
-              <label for="overwrite_or_combine" class="form-label">Overwrite or combine rights</label>
+              <label for="overwrite_or_combine" class="form-label">{{ __('Overwrite or combine rights') }}</label>
               <select name="overwrite_or_combine" id="overwrite_or_combine" class="form-select">
-                <option value="combine" {{ old('overwrite_or_combine', $overwriteOrCombine ?? 'combine') === 'combine' ? 'selected' : '' }}>Combine</option>
-                <option value="overwrite" {{ old('overwrite_or_combine', $overwriteOrCombine ?? '') === 'overwrite' ? 'selected' : '' }}>Overwrite</option>
+                <option value="combine" {{ old('overwrite_or_combine', $overwriteOrCombine ?? 'combine') === 'combine' ? 'selected' : '' }}>{{ __('Combine') }}</option>
+                <option value="overwrite" {{ old('overwrite_or_combine', $overwriteOrCombine ?? '') === 'overwrite' ? 'selected' : '' }}>{{ __('Overwrite') }}</option>
               </select>
               <div class="form-text">Set if you want to combine the current set of rights with any existing rights, or remove the existing rights and apply these new rights.</div>
             </div>

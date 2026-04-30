@@ -21,7 +21,7 @@ $total = $requestData['total'] ?? 0;
     <h1><i class="fas fa-key me-2"></i>My Access Requests</h1>
 
     <div class="card border-0 shadow-sm">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Your Access Requests</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Your Access Requests') }}</h5></div>
       <div class="card-body p-0">
         @if(empty($requests))
         <div class="text-center text-muted py-5"><i class="fas fa-inbox fs-1 mb-3 d-block"></i><p>No access requests found.</p></div>

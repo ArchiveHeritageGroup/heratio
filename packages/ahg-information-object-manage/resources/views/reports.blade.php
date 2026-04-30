@@ -24,7 +24,7 @@
     <div class="col-md-9">
 
       <div class="multiline-header d-flex flex-column mb-3">
-        <h1 class="mb-0">Reports</h1>
+        <h1 class="mb-0">{{ __('Reports') }}</h1>
         <span class="small text-muted">{{ $io->title ?? 'Untitled' }}</span>
       </div>
 
@@ -32,7 +32,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="reports-heading">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#reports-collapse" aria-expanded="true" aria-controls="reports-collapse">
-              Reports
+              {{ __('Reports') }}
             </button>
           </h2>
           <div id="reports-collapse" class="accordion-collapse collapse show" aria-labelledby="reports-heading">

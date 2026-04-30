@@ -9,7 +9,7 @@
 
 <div class="container-fluid py-3">
 
-  <nav aria-label="breadcrumb" class="mb-3">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item"><a href="@php echo route('researcher.dashboard') @endphp">Researcher</a></li>
       <li class="breadcrumb-item"><a href="{{ route('researcher.viewSubmission', ['id' => $submission->id]) }}">@php echo htmlspecialchars($submission->title) @endphp</a></li>
@@ -68,7 +68,7 @@
             <div class="mb-3">
               <label class="form-label fw-bold">Parent Record (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="hidden" name="parent_object_id" id="parentObjectId" value="@php echo $submission->parent_object_id ?? '' @endphp">
-              <input type="text" class="form-control" id="parentSearch" placeholder="Type to search for a parent record..." autocomplete="off"
+              <input type="text" class="form-control" id="parentSearch" placeholder="{{ __('Type to search for a parent record...') }}" autocomplete="off"
                      value="@php echo htmlspecialchars($parentTitle) @endphp">
               <small class="text-muted">Place this submission under an existing archival record. Leave blank for root level.</small>
               <div id="parentResults" class="list-group mt-1" style="display:none; position:absolute; z-index:999; max-height:200px; overflow-y:auto;"></div>

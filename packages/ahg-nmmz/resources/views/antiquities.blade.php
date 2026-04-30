@@ -22,7 +22,7 @@
 <div class="container-fluid">
   <div class="row mb-4">
     <div class="col">
-      <nav aria-label="breadcrumb">
+      <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
           <li class="breadcrumb-item active">Antiquities</li>
@@ -43,7 +43,7 @@
       <form method="get" class="row g-3">
         <div class="col-md-3">
           <select name="type" class="form-select">
-            <option value="">All Types</option>
+            <option value="">{{ __('All Types') }}</option>
             @foreach(['ceramic' => 'Ceramic','stone' => 'Stone','metal' => 'Metal','bone' => 'Bone/Ivory','textile' => 'Textile','wooden' => 'Wooden','document' => 'Document','other' => 'Other'] as $k => $v)
               <option value="{{ $k }}" @selected(($filters['object_type'] ?? null) === $k)>{{ $v }}</option>
             @endforeach
@@ -51,18 +51,18 @@
         </div>
         <div class="col-md-3">
           <select name="status" class="form-select">
-            <option value="">All Status</option>
-            <option value="in_collection" @selected(($filters['status'] ?? null) === 'in_collection')>In Collection</option>
-            <option value="on_loan" @selected(($filters['status'] ?? null) === 'on_loan')>On Loan</option>
-            <option value="missing" @selected(($filters['status'] ?? null) === 'missing')>Missing</option>
-            <option value="exported" @selected(($filters['status'] ?? null) === 'exported')>Exported</option>
+            <option value="">{{ __('All Status') }}</option>
+            <option value="in_collection" @selected(($filters['status'] ?? null) === 'in_collection')>{{ __('In Collection') }}</option>
+            <option value="on_loan" @selected(($filters['status'] ?? null) === 'on_loan')>{{ __('On Loan') }}</option>
+            <option value="missing" @selected(($filters['status'] ?? null) === 'missing')>{{ __('Missing') }}</option>
+            <option value="exported" @selected(($filters['status'] ?? null) === 'exported')>{{ __('Exported') }}</option>
           </select>
         </div>
         <div class="col-md-3">
-          <input type="text" name="q" class="form-control" placeholder="Search..." value="{{ $filters['search'] ?? '' }}">
+          <input type="text" name="q" class="form-control" placeholder="{{ __('Search...') }}" value="{{ $filters['search'] ?? '' }}">
         </div>
         <div class="col-md-2">
-          <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+          <button type="submit" class="btn btn-outline-primary w-100">{{ __('Filter') }}</button>
         </div>
       </form>
     </div>
@@ -80,14 +80,14 @@
         <table class="table table-hover mb-0">
           <thead>
             <tr>
-              <th>Accession #</th>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Material</th>
-              <th>Estimated Age</th>
-              <th>Condition</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>{{ __('Accession #') }}</th>
+              <th>{{ __('Name') }}</th>
+              <th>{{ __('Type') }}</th>
+              <th>{{ __('Material') }}</th>
+              <th>{{ __('Estimated Age') }}</th>
+              <th>{{ __('Condition') }}</th>
+              <th>{{ __('Status') }}</th>
+              <th>{{ __('Actions') }}</th>
             </tr>
           </thead>
           <tbody>

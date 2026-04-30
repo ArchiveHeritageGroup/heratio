@@ -8,7 +8,7 @@
 @section('title', 'Batch Checkout')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.retrievalQueue') }}">Retrieval Queue</a></li>
@@ -25,7 +25,7 @@
         <div class="card-body p-0">
             <table class="table table-hover mb-0">
                 <thead class="table-light">
-                    <tr><th><input type="checkbox" id="selectAll"></th><th>Item</th><th>Researcher</th><th>Requested</th><th>Location</th></tr>
+                    <tr><th><input type="checkbox" id="selectAll"></th><th>{{ __('Item') }}</th><th>{{ __('Researcher') }}</th><th>{{ __('Requested') }}</th><th>{{ __('Location') }}</th></tr>
                 </thead>
                 <tbody>
                     @foreach($pendingItems ?? [] as $item)

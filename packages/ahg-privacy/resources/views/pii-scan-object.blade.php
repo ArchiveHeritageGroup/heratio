@@ -77,7 +77,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <h5 class="mb-0">Overall Risk Score</h5>
+                <h5 class="mb-0">{{ __('Overall Risk Score') }}</h5>
                 <span class="badge @php
 if ($scanResult['risk_score'] >= 70) echo 'bg-danger';
                     elseif ($scanResult['risk_score'] >= 40) echo 'bg-warning text-dark';
@@ -115,11 +115,11 @@ if ($scanResult['risk_score'] >= 70) echo 'bg-danger';
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Type</th>
-                                    <th>Value</th>
-                                    <th class="text-center">Confidence</th>
-                                    <th class="text-center">Risk</th>
-                                    <th>Source</th>
+                                    <th>{{ __('Type') }}</th>
+                                    <th>{{ __('Value') }}</th>
+                                    <th class="text-center">{{ __('Confidence') }}</th>
+                                    <th class="text-center">{{ __('Risk') }}</th>
+                                    <th>{{ __('Source') }}</th>
                                 </tr>
                             </thead>
                             <tbody>

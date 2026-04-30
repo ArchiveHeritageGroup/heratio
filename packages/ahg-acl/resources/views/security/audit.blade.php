@@ -13,36 +13,36 @@
     <form method="get" action="">
       <div class="row">
         <div class="col-md-2">
-          <label class="form-label">Date From</label>
+          <label class="form-label">{{ __('Date From') }}</label>
           <input type="date" name="date_from" class="form-control" value="{{ e($filters['date_from'] ?? '') }}">
         </div>
         <div class="col-md-2">
-          <label class="form-label">Date To</label>
+          <label class="form-label">{{ __('Date To') }}</label>
           <input type="date" name="date_to" class="form-control" value="{{ e($filters['date_to'] ?? '') }}">
         </div>
         <div class="col-md-2">
-          <label class="form-label">Action</label>
+          <label class="form-label">{{ __('Action') }}</label>
           <select name="form_action" class="form-select">
-            <option value="">All</option>
-            <option value="view" {{ (($filters['form_action'] ?? '') === 'view') ? 'selected' : '' }}>View</option>
-            <option value="download" {{ (($filters['form_action'] ?? '') === 'download') ? 'selected' : '' }}>Download</option>
-            <option value="print" {{ (($filters['form_action'] ?? '') === 'print') ? 'selected' : '' }}>Print</option>
-            <option value="classify" {{ (($filters['form_action'] ?? '') === 'classify') ? 'selected' : '' }}>Classify</option>
-            <option value="access_denied" {{ (($filters['form_action'] ?? '') === 'access_denied') ? 'selected' : '' }}>Denied</option>
+            <option value="">{{ __('All') }}</option>
+            <option value="view" {{ (($filters['form_action'] ?? '') === 'view') ? 'selected' : '' }}>{{ __('View') }}</option>
+            <option value="download" {{ (($filters['form_action'] ?? '') === 'download') ? 'selected' : '' }}>{{ __('Download') }}</option>
+            <option value="print" {{ (($filters['form_action'] ?? '') === 'print') ? 'selected' : '' }}>{{ __('Print') }}</option>
+            <option value="classify" {{ (($filters['form_action'] ?? '') === 'classify') ? 'selected' : '' }}>{{ __('Classify') }}</option>
+            <option value="access_denied" {{ (($filters['form_action'] ?? '') === 'access_denied') ? 'selected' : '' }}>{{ __('Denied') }}</option>
           </select>
         </div>
         <div class="col-md-2">
-          <label class="form-label">Result</label>
+          <label class="form-label">{{ __('Result') }}</label>
           <select name="access_granted" class="form-select">
-            <option value="">All</option>
-            <option value="granted" {{ (($filters['access_granted'] ?? '') === 'granted') ? 'selected' : '' }}>Granted</option>
-            <option value="denied" {{ (($filters['access_granted'] ?? '') === 'denied') ? 'selected' : '' }}>Denied</option>
+            <option value="">{{ __('All') }}</option>
+            <option value="granted" {{ (($filters['access_granted'] ?? '') === 'granted') ? 'selected' : '' }}>{{ __('Granted') }}</option>
+            <option value="denied" {{ (($filters['access_granted'] ?? '') === 'denied') ? 'selected' : '' }}>{{ __('Denied') }}</option>
           </select>
         </div>
         <div class="col-md-2">
-          <label class="form-label">Classification</label>
+          <label class="form-label">{{ __('Classification') }}</label>
           <select name="classification_id" class="form-select">
-            <option value="">All</option>
+            <option value="">{{ __('All') }}</option>
             @foreach($classifications ?? [] as $c)
             <option value="{{ $c->id }}" {{ ($c->id == ($filters['classification_id'] ?? '')) ? 'selected' : '' }}>
               {{ e($c->name) }}
@@ -51,7 +51,7 @@
           </select>
         </div>
         <div class="col-md-2 d-flex align-items-end">
-          <button type="submit" class="btn btn-primary w-100">Filter</button>
+          <button type="submit" class="btn btn-primary w-100">{{ __('Filter') }}</button>
         </div>
       </div>
     </form>
@@ -72,13 +72,13 @@
     <table class="table table-striped table-sm">
       <thead>
         <tr>
-          <th>Date/Time</th>
-          <th>User</th>
-          <th>Object</th>
-          <th>Classification</th>
-          <th>Action</th>
-          <th>Result</th>
-          <th>IP Address</th>
+          <th>{{ __('Date/Time') }}</th>
+          <th>{{ __('User') }}</th>
+          <th>{{ __('Object') }}</th>
+          <th>{{ __('Classification') }}</th>
+          <th>{{ __('Action') }}</th>
+          <th>{{ __('Result') }}</th>
+          <th>{{ __('IP Address') }}</th>
         </tr>
       </thead>
       <tbody>

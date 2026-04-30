@@ -23,7 +23,7 @@
 
 <div class="row">
   <div class="col-md-8">
-    <nav aria-label="breadcrumb">
+    <nav aria-label="{{ __('breadcrumb') }}">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">Exhibitions</a></li>
         <li class="breadcrumb-item"><a href="{{ route('exhibition.show', ['id' => $exId]) }}">{{ $exhibition->title ?? '' }}</a></li>
@@ -32,7 +32,7 @@
     </nav>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1>Storylines &amp; Narratives</h1>
+      <h1>{{ __('Storylines &amp; Narratives') }}</h1>
       <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addStorylineModal">
         <i class="fas fa-plus"></i> Create Storyline
       </button>
@@ -42,7 +42,7 @@
       <div class="card">
         <div class="card-body text-center py-5">
           <i class="fas fa-book fa-3x text-muted mb-3"></i>
-          <h5>No storylines created yet</h5>
+          <h5>{{ __('No storylines created yet') }}</h5>
           <p class="text-muted">Create narrative journeys through your exhibition with storylines.</p>
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStorylineModal">
             <i class="fas fa-plus"></i> Create First Storyline
@@ -96,7 +96,7 @@
   <div class="col-md-4">
     <div class="card mb-3">
       <div class="card-header">
-        <h5 class="mb-0">Exhibition Info</h5>
+        <h5 class="mb-0">{{ __('Exhibition Info') }}</h5>
       </div>
       <div class="card-body">
         <h6>{{ $exhibition->title ?? '' }}</h6>
@@ -111,7 +111,7 @@
 
     <div class="card mb-3">
       <div class="card-header">
-        <h5 class="mb-0">Storyline Types</h5>
+        <h5 class="mb-0">{{ __('Storyline Types') }}</h5>
       </div>
       <div class="card-body">
         <ul class="list-unstyled small mb-0">
@@ -128,7 +128,7 @@
 
     <div class="card">
       <div class="card-header">
-        <h5 class="mb-0">Tips</h5>
+        <h5 class="mb-0">{{ __('Tips') }}</h5>
       </div>
       <div class="card-body">
         <p class="small text-muted mb-2"><strong>Storylines</strong> create narrative paths through your exhibition.</p>
@@ -147,7 +147,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Create Storyline</h5>
+        <h5 class="modal-title">{{ __('Create Storyline') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form method="post" action="{{ route('exhibition.storylines', ['id' => $exId]) }}">
@@ -158,41 +158,41 @@
             <input type="text" name="title" class="form-control" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Type</label>
+            <label class="form-label">{{ __('Type') }}</label>
             <select name="type" class="form-select">
-              <option value="general">General</option>
-              <option value="guided_tour">Guided Tour</option>
-              <option value="self_guided">Self-Guided</option>
-              <option value="educational">Educational</option>
-              <option value="accessible">Accessible</option>
-              <option value="highlights">Highlights</option>
-              <option value="thematic">Thematic</option>
+              <option value="general">{{ __('General') }}</option>
+              <option value="guided_tour">{{ __('Guided Tour') }}</option>
+              <option value="self_guided">{{ __('Self-Guided') }}</option>
+              <option value="educational">{{ __('Educational') }}</option>
+              <option value="accessible">{{ __('Accessible') }}</option>
+              <option value="highlights">{{ __('Highlights') }}</option>
+              <option value="thematic">{{ __('Thematic') }}</option>
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Description</label>
+            <label class="form-label">{{ __('Description') }}</label>
             <textarea name="description" class="form-control" rows="3"></textarea>
           </div>
           <div class="mb-3">
-            <label class="form-label">Target Audience</label>
+            <label class="form-label">{{ __('Target Audience') }}</label>
             <select name="target_audience" class="form-select">
               <option value="">-- All visitors --</option>
-              <option value="general">General Public</option>
-              <option value="families">Families with Children</option>
-              <option value="schools">School Groups</option>
-              <option value="adults">Adults</option>
-              <option value="experts">Experts/Specialists</option>
-              <option value="accessible">Accessibility Needs</option>
+              <option value="general">{{ __('General Public') }}</option>
+              <option value="families">{{ __('Families with Children') }}</option>
+              <option value="schools">{{ __('School Groups') }}</option>
+              <option value="adults">{{ __('Adults') }}</option>
+              <option value="experts">{{ __('Experts/Specialists') }}</option>
+              <option value="accessible">{{ __('Accessibility Needs') }}</option>
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Estimated Duration (minutes)</label>
+            <label class="form-label">{{ __('Estimated Duration (minutes)') }}</label>
             <input type="number" name="duration_minutes" class="form-control" min="5" step="5">
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create Storyline</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="submit" class="btn btn-primary">{{ __('Create Storyline') }}</button>
         </div>
       </form>
     </div>

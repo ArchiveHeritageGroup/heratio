@@ -25,7 +25,7 @@
 <div class="row mb-3">
     <div class="col-md-6">
         <form method="get" class="input-group input-group-sm">
-            <input type="text" name="q" class="form-control" placeholder="Search notes..." value="{{ e($query ?? '') }}">
+            <input type="text" name="q" class="form-control" placeholder="{{ __('Search notes...') }}" value="{{ e($query ?? '') }}">
             <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
             @if($query ?? '')
                 <a href="{{ route('research.annotations') }}" class="btn btn-outline-secondary">Clear</a>
@@ -87,7 +87,7 @@
                         data-object-title="{{ e($ann->object_title ?? '') }}"
                         data-visibility="{{ $ann->visibility ?? 'private' }}"
                         data-tags="{{ e($ann->tags ?? '') }}"
-                        title="Edit"><i class="fas fa-edit"></i></button>
+                        title="{{ __('Edit') }}"><i class="fas fa-edit"></i></button>
                     <form method="POST" action="{{ route('research.annotations.destroy', $ann->id) }}" class="d-inline" onsubmit="return confirm('Delete?')">
                         @csrf
                         @method('DELETE')
@@ -137,9 +137,9 @@
                         <i class="fas fa-clock me-1"></i>{{ date('M j, Y H:i', strtotime($ann->created_at)) }}
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        <a href="{{ url('/research/exportNotes?format=pdf&ids=' . $ann->id) }}" class="text-danger" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
-                        <a href="{{ url('/research/exportNotes?format=csv&ids=' . $ann->id) }}" class="text-success" title="Export CSV"><i class="fas fa-file-csv"></i></a>
-                        <a href="#note-{{ $ann->id }}" class="text-muted" title="Permalink"><i class="fas fa-hashtag"></i></a>
+                        <a href="{{ url('/research/exportNotes?format=pdf&ids=' . $ann->id) }}" class="text-danger" title="{{ __('Export PDF') }}"><i class="fas fa-file-pdf"></i></a>
+                        <a href="{{ url('/research/exportNotes?format=csv&ids=' . $ann->id) }}" class="text-success" title="{{ __('Export CSV') }}"><i class="fas fa-file-csv"></i></a>
+                        <a href="#note-{{ $ann->id }}" class="text-muted" title="{{ __('Permalink') }}"><i class="fas fa-hashtag"></i></a>
                     </div>
                 </div>
             </div>
@@ -150,7 +150,7 @@
 @else
 <div class="text-center py-5">
     <i class="fas fa-sticky-note fa-4x text-muted mb-3 opacity-50"></i>
-    <h4 class="text-muted">No notes yet</h4>
+    <h4 class="text-muted">{{ __('No notes yet') }}</h4>
     <p class="text-muted">Add notes to items while browsing or create standalone notes here.</p>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#annotationModal"><i class="fas fa-plus me-1"></i>Create Your First Note</button>
 </div>
@@ -169,20 +169,20 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3"><label class="form-label">Title</label><input type="text" name="title" id="annTitle" class="form-control" placeholder="Optional title..."></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Title') }}</label><input type="text" name="title" id="annTitle" class="form-control" placeholder="{{ __('Optional title...') }}"></div>
                     <div class="mb-3">
-                        <label class="form-label">Visibility</label>
+                        <label class="form-label">{{ __('Visibility') }}</label>
                         <select name="visibility" id="annVisibility" class="form-select">
-                            <option value="private">Private - only you</option>
-                            <option value="shared">Shared - project collaborators</option>
-                            <option value="public">Public - all researchers</option>
+                            <option value="private">{{ __('Private - only you') }}</option>
+                            <option value="shared">{{ __('Shared - project collaborators') }}</option>
+                            <option value="public">{{ __('Public - all researchers') }}</option>
                         </select>
                     </div>
-                    <div class="mb-3"><label class="form-label">Note Content *</label><textarea name="content" id="annContent" class="form-control" rows="6" required></textarea></div>
-                    <div class="mb-3"><label class="form-label">Tags</label><input type="text" name="tags" id="annTags" class="form-control" placeholder="Comma-separated tags..."><small class="text-muted">e.g. genealogy, 19th century, photographs</small></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Note Content *') }}</label><textarea name="content" id="annContent" class="form-control" rows="6" required></textarea></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Tags') }}</label><input type="text" name="tags" id="annTags" class="form-control" placeholder="{{ __('Comma-separated tags...') }}"><small class="text-muted">e.g. genealogy, 19th century, photographs</small></div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                     <button type="submit" class="btn btn-primary" id="annotationSubmitBtn"><i class="fas fa-save me-1"></i>Save Note</button>
                 </div>
             </form>
@@ -197,10 +197,10 @@
             <div class="modal-header"><h5 class="modal-title"><i class="fas fa-file-export me-2"></i>Export Notes</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Select Notes to Export</label>
+                    <label class="form-label fw-bold">{{ __('Select Notes to Export') }}</label>
                     <div class="form-check mb-2 border-bottom pb-2">
                         <input class="form-check-input" type="checkbox" id="exportSelectAll" checked>
-                        <label class="form-check-label fw-bold" for="exportSelectAll">Select All</label>
+                        <label class="form-check-label fw-bold" for="exportSelectAll">{{ __('Select All') }}</label>
                     </div>
                     @if(!empty($annotations))
                     <div style="max-height:300px; overflow-y:auto;">
@@ -214,7 +214,7 @@
                     @endif
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Format</label>
+                    <label class="form-label fw-bold">{{ __('Format') }}</label>
                     <div class="d-flex gap-2">
                         <button type="button" class="btn btn-outline-danger flex-fill export-btn" data-format="pdf"><i class="fas fa-file-pdf me-1"></i>PDF</button>
                         <button type="button" class="btn btn-outline-success flex-fill export-btn" data-format="csv"><i class="fas fa-file-csv me-1"></i>CSV</button>

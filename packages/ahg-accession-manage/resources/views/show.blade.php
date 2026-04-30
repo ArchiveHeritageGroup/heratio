@@ -5,7 +5,7 @@
 
 @section('title-block')
   <div class="multiline-header d-flex flex-column mb-3">
-    <h1 class="mb-0" aria-describedby="heading-label">View accession record</h1>
+    <h1 class="mb-0" aria-describedby="heading-label">{{ __('View accession record') }}</h1>
     <span class="small" id="heading-label">{{ $accession->title ?: $accession->identifier ?: '[Untitled]' }}</span>
   </div>
 @endsection
@@ -20,7 +20,7 @@
 
   {{-- Print + Clipboard --}}
   <div class="d-flex gap-1 mb-3">
-    <button class="btn btn-sm atom-btn-white" onclick="window.print()" title="Print">
+    <button class="btn btn-sm atom-btn-white" onclick="window.print()" title="{{ __('Print') }}">
       <i class="fas fa-print me-1"></i>Print
     </button>
     @include('ahg-core::clipboard._button', ['slug' => $accession->slug, 'type' => 'accession'])
@@ -86,21 +86,21 @@
       <div class="d-flex p-3 border-bottom text-primary">
         Basic info
         @auth
-          <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+          <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
         @endauth
       </div>
     </h2>
     <div id="basic-collapse">
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Accession number</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Accession number') }}</h3>
         <div class="col-9 p-2">{{ $accession->identifier }}</div>
       </div>
 
       {{-- Alternative identifiers --}}
       @if(isset($alternativeIdentifiers) && $alternativeIdentifiers->isNotEmpty())
         <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Alternative identifier(s)</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Alternative identifier(s)') }}</h3>
           <div class="col-9 p-2">
             <ul class="m-0 ms-1 ps-3">
               @foreach($alternativeIdentifiers as $altId)
@@ -112,17 +112,17 @@
       @endif
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Acquisition date</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Acquisition date') }}</h3>
         <div class="col-9 p-2">{{ $accession->date ? \Carbon\Carbon::parse($accession->date)->format('Y-m-d') : '' }}</div>
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Immediate source of acquisition</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Immediate source of acquisition') }}</h3>
         <div class="col-9 p-2">{!! nl2br(e($accession->source_of_acquisition ?? '')) !!}</div>
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Location information</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Location information') }}</h3>
         <div class="col-9 p-2">{!! nl2br(e($accession->location_information ?? '')) !!}</div>
       </div>
 
@@ -135,7 +135,7 @@
       <div class="d-flex p-3 border-bottom text-primary">
         Donor/Transferring body area
         @auth
-          <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+          <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
         @endauth
       </div>
     </h2>
@@ -144,7 +144,7 @@
       @if(isset($donors) && count($donors) > 0)
         @foreach($donors as $donorItem)
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related donor</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Related donor') }}</h3>
             <div class="col-9 p-2">
               <a href="{{ route('donor.show', $donorItem->slug) }}">{{ $donorItem->name }}</a>
             </div>
@@ -154,61 +154,61 @@
               <div class="ms-4 mb-2 ps-3 border-start">
                 @if($contactItem->contact_person)
                   <div class="field row g-0">
-                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Contact person</h3>
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Contact person') }}</h3>
                     <div class="col-9 p-2">{{ $contactItem->contact_person }}</div>
                   </div>
                 @endif
                 @if($contactItem->street_address)
                   <div class="field row g-0">
-                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Street address</h3>
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Street address') }}</h3>
                     <div class="col-9 p-2">{{ $contactItem->street_address }}</div>
                   </div>
                 @endif
                 @if($contactItem->city)
                   <div class="field row g-0">
-                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">City</h3>
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('City') }}</h3>
                     <div class="col-9 p-2">{{ $contactItem->city }}</div>
                   </div>
                 @endif
                 @if($contactItem->region)
                   <div class="field row g-0">
-                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Region/province</h3>
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Region/province') }}</h3>
                     <div class="col-9 p-2">{{ $contactItem->region }}</div>
                   </div>
                 @endif
                 @if($contactItem->postal_code)
                   <div class="field row g-0">
-                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Postal code</h3>
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Postal code') }}</h3>
                     <div class="col-9 p-2">{{ $contactItem->postal_code }}</div>
                   </div>
                 @endif
                 @if($contactItem->country_code)
                   <div class="field row g-0">
-                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Country</h3>
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Country') }}</h3>
                     <div class="col-9 p-2">{{ $contactItem->country_code }}</div>
                   </div>
                 @endif
                 @if($contactItem->telephone)
                   <div class="field row g-0">
-                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Telephone</h3>
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Telephone') }}</h3>
                     <div class="col-9 p-2">{{ $contactItem->telephone }}</div>
                   </div>
                 @endif
                 @if($contactItem->fax)
                   <div class="field row g-0">
-                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Fax</h3>
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Fax') }}</h3>
                     <div class="col-9 p-2">{{ $contactItem->fax }}</div>
                   </div>
                 @endif
                 @if($contactItem->email)
                   <div class="field row g-0">
-                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Email</h3>
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Email') }}</h3>
                     <div class="col-9 p-2">{{ $contactItem->email }}</div>
                   </div>
                 @endif
                 @if($contactItem->website)
                   <div class="field row g-0">
-                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Website</h3>
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Website') }}</h3>
                     <div class="col-9 p-2"><a href="{{ $contactItem->website }}" target="_blank">{{ $contactItem->website }}</a></div>
                   </div>
                 @endif
@@ -218,7 +218,7 @@
         @endforeach
       @elseif(isset($donor) && $donor)
         <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related donor</h3>
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Related donor') }}</h3>
           <div class="col-9 p-2">
             <a href="{{ route('donor.show', $donor->slug) }}">{{ $donor->name }}</a>
           </div>
@@ -234,29 +234,29 @@
       <div class="d-flex p-3 border-bottom text-primary">
         Administrative area
         @auth
-          <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+          <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
         @endauth
       </div>
     </h2>
     <div id="admin-collapse">
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Acquisition type</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Acquisition type') }}</h3>
         <div class="col-9 p-2">{{ ($accession->acquisition_type_id && isset($termNames[$accession->acquisition_type_id])) ? $termNames[$accession->acquisition_type_id] : '' }}</div>
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Resource type</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Resource type') }}</h3>
         <div class="col-9 p-2">{{ ($accession->resource_type_id && isset($termNames[$accession->resource_type_id])) ? $termNames[$accession->resource_type_id] : '' }}</div>
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Title</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Title') }}</h3>
         <div class="col-9 p-2">{{ $accession->title ?? '' }}</div>
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Creators</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Creators') }}</h3>
         <div class="col-9 p-2">
           @if(isset($creators) && count($creators) > 0)
             <ul class="m-0 ms-1 ps-3">
@@ -269,7 +269,7 @@
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Date(s)</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Date(s)') }}</h3>
         <div class="col-9 p-2">
           @if(isset($dates) && count($dates) > 0)
             <ul class="m-0 ms-1 ps-3">
@@ -282,7 +282,7 @@
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Event(s)</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Event(s)') }}</h3>
         <div class="col-9 p-2">
           @if(isset($accessionEvents) && count($accessionEvents) > 0)
             <ul class="m-0 ms-1 ps-3">
@@ -300,47 +300,47 @@
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Archival/Custodial history</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Archival/Custodial history') }}</h3>
         <div class="col-9 p-2">{!! nl2br(e($accession->archival_history ?? '')) !!}</div>
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Scope and content</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Scope and content') }}</h3>
         <div class="col-9 p-2">{!! nl2br(e($accession->scope_and_content ?? '')) !!}</div>
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Appraisal, destruction and scheduling</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Appraisal, destruction and scheduling') }}</h3>
         <div class="col-9 p-2">{!! nl2br(e($accession->appraisal ?? '')) !!}</div>
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Physical condition</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Physical condition') }}</h3>
         <div class="col-9 p-2">{!! nl2br(e($accession->physical_characteristics ?? '')) !!}</div>
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Received extent units</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Received extent units') }}</h3>
         <div class="col-9 p-2">{!! nl2br(e($accession->received_extent_units ?? '')) !!}</div>
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Processing status</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Processing status') }}</h3>
         <div class="col-9 p-2">{{ ($accession->processing_status_id && isset($termNames[$accession->processing_status_id])) ? $termNames[$accession->processing_status_id] : '' }}</div>
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Processing priority</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Processing priority') }}</h3>
         <div class="col-9 p-2">{{ ($accession->processing_priority_id && isset($termNames[$accession->processing_priority_id])) ? $termNames[$accession->processing_priority_id] : '' }}</div>
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Processing notes</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Processing notes') }}</h3>
         <div class="col-9 p-2">{!! nl2br(e($accession->processing_notes ?? '')) !!}</div>
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Accruals</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Accruals') }}</h3>
         <div class="col-9 p-2">
           @if(isset($accruals) && count($accruals) > 0)
             <ul class="m-0 ms-1 ps-3">
@@ -353,7 +353,7 @@
       </div>
 
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Accrual to</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Accrual to') }}</h3>
         <div class="col-9 p-2">
           @if(isset($accrualTo) && count($accrualTo) > 0)
             <ul class="m-0 ms-1 ps-3">
@@ -367,21 +367,21 @@
 
       @if($accession->created_at ?? null)
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Date created</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Date created') }}</h3>
         <div class="col-9 p-2">{{ \Carbon\Carbon::parse($accession->created_at)->format('j F Y') }}</div>
       </div>
       @endif
 
       @if($accession->updated_at ?? null)
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Date modified</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Date modified') }}</h3>
         <div class="col-9 p-2">{{ \Carbon\Carbon::parse($accession->updated_at)->format('j F Y') }}</div>
       </div>
       @endif
 
       @if(isset($sourceLangName) && $sourceLangName)
       <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Source language</h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Source language') }}</h3>
         <div class="col-9 p-2">{{ $sourceLangName }}</div>
       </div>
       @endif
@@ -400,7 +400,7 @@
       @if(isset($rights) && count($rights) > 0)
         @foreach($rights as $right)
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rights</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Rights') }}</h3>
             <div class="col-9 p-2">
               @if($right->basis_name ?? null) <div>Basis: {{ $right->basis_name }}</div> @endif
               @if($right->start_date || $right->end_date) <div>{{ $right->start_date ?? '?' }} - {{ $right->end_date ?? '?' }}</div> @endif
@@ -418,7 +418,7 @@
       <div class="d-flex p-3 border-bottom text-primary">
         {{ config('app.ui_label_informationobject', 'Archival description') }} area
         @auth
-          <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+          <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
         @endauth
       </div>
     </h2>
@@ -447,7 +447,7 @@
       @if(isset($deaccessions) && $deaccessions->isNotEmpty())
         @foreach($deaccessions as $deaccession)
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Deaccession</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Deaccession') }}</h3>
             <div class="col-9 p-2">
               <a href="{{ url('/deaccession/' . $deaccession->slug) }}">{{ $deaccession->identifier ?: $deaccession->description ?: '[Untitled]' }}</a>
             </div>
@@ -495,7 +495,7 @@
       <li>
         <div class="dropup">
           <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            More
+            {{ __('More') }}
           </button>
           <ul class="dropdown-menu mb-2">
             <li><a href="{{ route('informationobject.create', ['accession' => $accession->id]) }}" class="dropdown-item">Create {{ config('atom.ui_label_informationobject', 'archival description') }}</a></li>

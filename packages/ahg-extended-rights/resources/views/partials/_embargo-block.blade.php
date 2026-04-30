@@ -3,7 +3,7 @@
 @if(!empty($embargo))
 <div class="embargo-block text-center p-4 bg-light border rounded">
   <i class="fas fa-lock fa-3x text-danger mb-3"></i>
-  <h5>Content Under Embargo</h5>
+  <h5>{{ __('Content Under Embargo') }}</h5>
   <p class="text-muted">
     @if($embargo->embargo_type === 'full')
       This record and all associated content is embargoed.

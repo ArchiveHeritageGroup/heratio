@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-clone me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Duplicate Detection</h1>
+      <h1 class="mb-0">{{ __('Duplicate Detection') }}</h1>
       <span class="small text-muted">Configuration required</span>
     </div>
   </div>
