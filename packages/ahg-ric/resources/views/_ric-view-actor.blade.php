@@ -118,7 +118,7 @@
       @if($relatedAgents->count())
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-users me-1"></i> Related Agents (isAssociatedWith)
+          <i class="fas fa-users me-1"></i> {{ __('Related Agents (isAssociatedWith)') }}
         </div>
         <div class="list-group list-group-flush">
           @foreach($relatedAgents as $rel)
@@ -137,7 +137,7 @@
       @if($repositories->count())
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-building me-1"></i> Maintains (isHolderOf)
+          <i class="fas fa-building me-1"></i> {{ __('Maintains (isHolderOf)') }}
         </div>
         <div class="list-group list-group-flush">
           @foreach($repositories as $repo)
@@ -157,7 +157,7 @@
       @if($places->count())
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-map-marker-alt me-1"></i> Places
+          <i class="fas fa-map-marker-alt me-1"></i> {{ __('Places') }}
         </div>
         <div class="card-body">
           @foreach($places as $place)
@@ -170,7 +170,7 @@
       {{-- Actions --}}
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-bolt me-1"></i> Actions
+          <i class="fas fa-bolt me-1"></i> {{ __('Actions') }}
         </div>
         <div class="card-body">
           <a href="{{ route('ric.explorer') }}?id={{ $actor->id }}" class="btn btn-sm btn-outline-success w-100 mb-2 text-start">

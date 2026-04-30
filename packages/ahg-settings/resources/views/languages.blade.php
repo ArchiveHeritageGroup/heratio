@@ -23,7 +23,7 @@
 
             <div class="alert alert-info">
               <i class="fas fa-info-circle me-2"></i>
-              Adding or removing languages requires rebuilding the search index.
+              {{ __('Adding or removing languages requires rebuilding the search index.') }}
             </div>
 
             {{-- Current languages --}}

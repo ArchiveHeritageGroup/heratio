@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1><i class="fas fa-hashtag me-2"></i>Sector Numbering Schemes</h1>
+  <h1><i class="fas fa-hashtag me-2"></i>{{ __('Sector Numbering Schemes') }}</h1>
 @endsection
 
 @section('content')
@@ -18,7 +18,7 @@
     </div>
 
     <div class="card mb-4">
-      <div class="card-header bg-secondary text-white"><i class="fas fa-globe me-2"></i>Current Global Identifier Settings (Reference)</div>
+      <div class="card-header bg-secondary text-white"><i class="fas fa-globe me-2"></i>{{ __('Current Global Identifier Settings (Reference)') }}</div>
       <div class="card-body">
         <dl class="row small mb-0">
           <dt class="col-sm-3">Mask Enabled</dt>
@@ -74,7 +74,7 @@
           </div>
         </div>
       @empty
-        <div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>No GLAM/DAM sectors detected. Enable sector plugins to configure numbering.</div>
+        <div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('No GLAM/DAM sectors detected. Enable sector plugins to configure numbering.') }}</div>
       @endforelse
 
       <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>

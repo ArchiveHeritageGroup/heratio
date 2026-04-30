@@ -58,7 +58,7 @@
 @include('ahg-ric::_ric-api-base')
 @endonce
 <section class="studio-hero">
-    <h1><i class="fas fa-cube me-2"></i>OpenRiC Capture Studio</h1>
+    <h1><i class="fas fa-cube me-2"></i>{{ __('OpenRiC Capture Studio') }}</h1>
     <p>Focused workspace for creating Records-in-Contexts entities: Places, Rules, Activities, Instantiations, and the relations between them. Every entity you create here is immediately served through the OpenRiC API and visible to external clients.</p>
     <div class="hero-meta">
         API base: <code>{{ $ricApiBase }}</code>
@@ -107,7 +107,7 @@
 </div>
 
 <section class="recent-section">
-    <h2><i class="fas fa-history me-2"></i>Recent captures</h2>
+    <h2><i class="fas fa-history me-2"></i>{{ __('Recent captures') }}</h2>
     @if($recent->isEmpty())
         <p class="text-muted">No entities have been captured yet. Pick a type above to create the first one.</p>
     @else

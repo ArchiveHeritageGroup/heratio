@@ -9,7 +9,7 @@
         <div>
             <h1 class="h3 mb-1">
                 <i class="fas fa-tree text-primary me-2"></i>
-                PageIndex Build
+                {{ __('PageIndex Build') }}
             </h1>
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb mb-0">
@@ -79,7 +79,7 @@
     @if ($status && $status['status'] === 'ready')
     <div class="card mb-4">
         <div class="card-header">
-            <i class="fas fa-info-circle me-1"></i> Index Details
+            <i class="fas fa-info-circle me-1"></i> {{ __('Index Details') }}
         </div>
         <div class="card-body">
             <table class="table table-sm table-borderless mb-0">

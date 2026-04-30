@@ -109,7 +109,7 @@
 @if($assessment)
 {{-- Latest Assessment --}}
 <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Latest Assessment</h5></div>
+    <div class="card-header"><h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>{{ __('Latest Assessment') }}</h5></div>
     <div class="card-body">
         <div class="row">
             <div class="col-md-3">
@@ -152,7 +152,7 @@
 @if(!empty($qualityMetrics))
 {{-- Quality Metrics --}}
 <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0"><i class="fas fa-star me-2"></i>Quality Metrics</h5></div>
+    <div class="card-header"><h5 class="mb-0"><i class="fas fa-star me-2"></i>{{ __('Quality Metrics') }}</h5></div>
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-sm">
@@ -197,7 +197,7 @@
 @if(count($assessmentHistory) > 1)
 {{-- Assessment History --}}
 <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0"><i class="fas fa-history me-2"></i>Assessment History</h5></div>
+    <div class="card-header"><h5 class="mb-0"><i class="fas fa-history me-2"></i>{{ __('Assessment History') }}</h5></div>
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-sm">

@@ -28,7 +28,7 @@
           <li class="breadcrumb-item active">Antiquities</li>
         </ol>
       </nav>
-      <h1><i class="fas fa-vase me-2"></i>Antiquities Register</h1>
+      <h1><i class="fas fa-vase me-2"></i>{{ __('Antiquities Register') }}</h1>
       <p class="text-muted">Objects over 100 years old</p>
     </div>
     <div class="col-auto">

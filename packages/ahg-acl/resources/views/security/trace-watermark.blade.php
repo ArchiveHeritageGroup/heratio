@@ -5,7 +5,7 @@
 
 @section('content')
 
-<h1><i class="fas fa-search"></i> Trace Watermark</h1>
+<h1><i class="fas fa-search"></i> {{ __('Trace Watermark') }}</h1>
 
 <div class="card mb-4">
   <div class="card-body">
@@ -30,7 +30,7 @@
   @if($watermark)
   <div class="card">
     <div class="card-header bg-success text-white">
-      <h5 class="mb-0"><i class="fas fa-check-circle"></i> Watermark Found</h5>
+      <h5 class="mb-0"><i class="fas fa-check-circle"></i> {{ __('Watermark Found') }}</h5>
     </div>
     <div class="card-body">
       <table class="table table-borderless">

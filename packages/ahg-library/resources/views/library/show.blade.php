@@ -116,7 +116,7 @@
   @if($item->material_type)
   <div class="card mb-3">
     <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
-      <i class="fas fa-book me-1"></i> Library
+      <i class="fas fa-book me-1"></i> {{ __('Library') }}
     </div>
     <div class="list-group list-group-flush">
       <a href="{{ route('library.browse', ['material_type' => $item->material_type]) }}" class="list-group-item list-group-item-action small">
@@ -130,7 +130,7 @@
   @if($item->openlibrary_url || $item->ebook_preview_url || $item->openlibrary_id || $item->goodreads_id || $item->librarything_id)
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
-        <i class="fas fa-external-link-alt me-1"></i> External links
+        <i class="fas fa-external-link-alt me-1"></i> {{ __('External links') }}
       </div>
       <div class="list-group list-group-flush">
         @if($item->openlibrary_url)
@@ -165,7 +165,7 @@
   @auth
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
-        <i class="fas fa-clipboard-check me-1"></i> Collections Management
+        <i class="fas fa-clipboard-check me-1"></i> {{ __('Collections Management') }}
       </div>
       <div class="list-group list-group-flush">
         @if(\Illuminate\Support\Facades\Route::has('io.condition'))
@@ -202,7 +202,7 @@
     @if(\Illuminate\Support\Facades\Route::has('io.ai.review'))
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
-          <i class="fas fa-brain me-1"></i> Named Entity Recognition
+          <i class="fas fa-brain me-1"></i> {{ __('Named Entity Recognition') }}
         </div>
         <div class="list-group list-group-flush">
           <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#nerModal">
@@ -227,7 +227,7 @@
   @endphp
   <div class="card mb-3">
     <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
-      <i class="fas fa-copyright me-1"></i> Rights
+      <i class="fas fa-copyright me-1"></i> {{ __('Rights') }}
     </div>
     {{-- Status badges --}}
     <div class="card-body py-2">
@@ -363,12 +363,16 @@
   {{-- Basic Information --}}
   <section class="card mb-4">
     <div class="card-header bg-primary text-white">
-      <h5 class="mb-0"><i class="fas fa-book me-2"></i>Basic Information</h5>
+      <h5 class="mb-0"><i class="fas fa-book me-2"></i>{{ __('Basic Information') }}</h5>
     </div>
     <div class="card-body">
       <dl class="row mb-0">
         <dt class="col-sm-4">Title</dt>
-        <dd class="col-sm-8">{{ $item->title ?: '[Untitled]' }}</dd>
+        <dd class="col-sm-8">
+          {{ $item->title ?: '[Untitled]' }}
+          {{-- ICIP cultural-sensitivity badge (issue #36 Phase 2b). --}}
+          @include('ahg-translation::components.icip-sensitivity-badge', ['uri' => $item->icip_sensitivity ?? null])
+        </dd>
 
         @if($item->subtitle)
           <dt class="col-sm-4">Subtitle</dt>
@@ -407,7 +411,7 @@
   @if($creators->isNotEmpty())
     <section class="card mb-4">
       <div class="card-header bg-secondary text-white">
-        <h5 class="mb-0"><i class="fas fa-users me-2"></i>Creators / Authors</h5>
+        <h5 class="mb-0"><i class="fas fa-users me-2"></i>{{ __('Creators / Authors') }}</h5>
       </div>
       <div class="card-body">
         <ul class="list-unstyled mb-0">
@@ -431,7 +435,7 @@
   @if($item->isbn || $item->issn || $item->doi || $item->lccn || $item->oclc_number || $item->barcode || $item->openlibrary_id)
     <section class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-barcode me-2"></i>Standard Identifiers</h5>
+        <h5 class="mb-0"><i class="fas fa-barcode me-2"></i>{{ __('Standard Identifiers') }}</h5>
       </div>
       <div class="card-body">
         <dl class="row mb-0">
@@ -484,7 +488,7 @@
   @if($item->call_number || $item->dewey_decimal || $item->classification_scheme || $item->shelf_location || $item->copy_number || $item->volume_designation || $item->classification_number || $item->cutter_number)
     <section class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>Classification</h5>
+        <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>{{ __('Classification') }}</h5>
       </div>
       <div class="card-body">
         <dl class="row mb-0">
@@ -536,7 +540,7 @@
   @if($item->publisher || $item->publication_place || $item->publication_date || $item->edition || $item->edition_statement || $item->series_title)
     <section class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-building me-2"></i>Publication Information</h5>
+        <h5 class="mb-0"><i class="fas fa-building me-2"></i>{{ __('Publication Information') }}</h5>
       </div>
       <div class="card-body">
         <dl class="row mb-0">
@@ -583,7 +587,7 @@
   @if($item->pagination || $item->dimensions || $item->physical_details)
     <section class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-ruler me-2"></i>Physical Description</h5>
+        <h5 class="mb-0"><i class="fas fa-ruler me-2"></i>{{ __('Physical Description') }}</h5>
       </div>
       <div class="card-body">
         <dl class="row mb-0">
@@ -610,7 +614,7 @@
   @if($subjects->isNotEmpty())
     <section class="card mb-4">
       <div class="card-header bg-info text-white">
-        <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Subjects</h5>
+        <h5 class="mb-0"><i class="fas fa-tags me-2"></i>{{ __('Subjects') }}</h5>
       </div>
       <div class="card-body">
         @foreach($subjects as $subject)
@@ -637,7 +641,7 @@
   @if(!empty($summary) || !empty($scopeAndContent) || !empty($contentsNote))
     <section class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-align-left me-2"></i>Content</h5>
+        <h5 class="mb-0"><i class="fas fa-align-left me-2"></i>{{ __('Content') }}</h5>
       </div>
       <div class="card-body">
         @if(!empty($summary))
@@ -662,7 +666,7 @@
   @if($item->general_note || $item->bibliography_note)
     <section class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Notes</h5>
+        <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>{{ __('Notes') }}</h5>
       </div>
       <div class="card-body">
         @if($item->general_note)
@@ -748,7 +752,7 @@
   @if($hasAnyRights || auth()->check())
   <section class="card mb-4">
     <div class="card-header text-white" style="background:var(--ahg-primary);">
-      <h5 class="mb-0"><i class="fas fa-copyright me-2"></i>Rights & Access</h5>
+      <h5 class="mb-0"><i class="fas fa-copyright me-2"></i>{{ __('Rights & Access') }}</h5>
     </div>
     <div class="card-body">
 
@@ -946,7 +950,7 @@
 
     <section class="card mb-3">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff;">
-        <h5 class="mb-0"><i class="fas fa-image me-2"></i>Cover</h5>
+        <h5 class="mb-0"><i class="fas fa-image me-2"></i>{{ __('Cover') }}</h5>
       </div>
       <div class="card-body text-center p-2">
         @if($isPdf)
@@ -1197,7 +1201,7 @@
     {{-- No digital object but cover_url exists: show cover image --}}
     <div class="card mb-3">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff;">
-        <h5 class="mb-0"><i class="fas fa-image me-2"></i>Cover</h5>
+        <h5 class="mb-0"><i class="fas fa-image me-2"></i>{{ __('Cover') }}</h5>
       </div>
       <div class="card-body text-center p-2">
         <a href="{{ $item->cover_url_original ?: $item->cover_url }}" target="_blank">
@@ -1286,7 +1290,7 @@
   @if(!empty($cleanIsbn))
     <section class="card mb-3">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-barcode me-2"></i>ISBN Barcode</h5>
+        <h5 class="mb-0"><i class="fas fa-barcode me-2"></i>{{ __('ISBN Barcode') }}</h5>
       </div>
       <div class="card-body text-center">
         <style>#isbn-barcode rect { fill: #ffffff !important; } #isbn-barcode g rect { fill: #000000 !important; }</style>
@@ -1363,7 +1367,7 @@
   {{-- Related Records --}}
   <section class="card mb-3">
     <div class="card-header">
-      <h5 class="mb-0"><i class="fas fa-link me-2"></i>Related records</h5>
+      <h5 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Related records') }}</h5>
     </div>
     <div class="card-body">
       @if($parentItem ?? null)
@@ -1398,7 +1402,7 @@
   @if($physicalObjects->isNotEmpty())
     <section class="card mb-3">
       <div class="card-header bg-warning">
-        <h5 class="mb-0"><i class="fas fa-warehouse me-2"></i>Physical storage</h5>
+        <h5 class="mb-0"><i class="fas fa-warehouse me-2"></i>{{ __('Physical storage') }}</h5>
       </div>
       <div class="card-body">
         @foreach($physicalObjects as $po)
@@ -1493,7 +1497,7 @@
   @if($item->ebook_preview_url)
     <section class="card mb-3">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-tablet-alt me-2"></i>E-book Access</h5>
+        <h5 class="mb-0"><i class="fas fa-tablet-alt me-2"></i>{{ __('E-book Access') }}</h5>
       </div>
       <div class="card-body">
         <a href="{{ $item->ebook_preview_url }}" target="_blank" class="btn btn-outline-primary w-100">
@@ -1507,7 +1511,7 @@
   @if($item->openlibrary_url || $item->goodreads_id || $item->librarything_id)
     <section class="card mb-3">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-external-link-alt me-2"></i>External Links</h5>
+        <h5 class="mb-0"><i class="fas fa-external-link-alt me-2"></i>{{ __('External Links') }}</h5>
       </div>
       <div class="card-body">
         @if($item->openlibrary_url)
@@ -1552,7 +1556,7 @@
     @if($provRecord || auth()->check())
     <section class="card mb-3">
       <div class="card-header bg-secondary text-white">
-        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Provenance & Chain of Custody</h5>
+        <h5 class="mb-0"><i class="fas fa-history me-2"></i>{{ __('Provenance & Chain of Custody') }}</h5>
       </div>
       <div class="card-body">
         @if($provRecord)
@@ -1599,7 +1603,7 @@
   {{-- Export --}}
   <div class="card mb-3">
     <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-      <i class="fas fa-file-export me-1"></i> Export
+      <i class="fas fa-file-export me-1"></i> {{ __('Export') }}
     </div>
     <div class="list-group list-group-flush">
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.dc'))
@@ -1645,7 +1649,7 @@
   {{-- Print card --}}
   <div class="card mb-3">
     <div class="card-header fw-bold">
-      <i class="fas fa-print me-1"></i> Print
+      <i class="fas fa-print me-1"></i> {{ __('Print') }}
     </div>
     <div class="list-group list-group-flush">
       <a href="javascript:window.print();" class="list-group-item list-group-item-action small">
@@ -1727,7 +1731,7 @@
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="modal-title"><i class="fas fa-brain me-2"></i>Extract Entities (NER)</h5>
+          <h5 class="modal-title"><i class="fas fa-brain me-2"></i>{{ __('Extract Entities (NER)') }}</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">

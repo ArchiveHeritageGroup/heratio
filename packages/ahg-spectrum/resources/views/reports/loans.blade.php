@@ -2,7 +2,7 @@
 @extends('theme::layouts.2col')
 @section('title', 'Loans Report')
 @section('sidebar')<div class="sidebar-content"><a href="{{ route('ahgspectrum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back') }}</a></div>@endsection
-@section('title-block')<h1><i class="fas fa-exchange-alt me-2"></i>Loans Report</h1>@endsection
+@section('title-block')<h1><i class="fas fa-exchange-alt me-2"></i>{{ __('Loans Report') }}</h1>@endsection
 @section('content')
 <h5>{{ __('Loans In') }}</h5>
 <div class="table-responsive mb-4"><table class="table table-striped table-hover"><thead class="table-dark"><tr><th>{{ __('Object') }}</th><th>{{ __('Lender') }}</th><th>{{ __('Start') }}</th><th>{{ __('End') }}</th><th>{{ __('Status') }}</th></tr></thead><tbody>

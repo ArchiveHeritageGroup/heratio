@@ -5,7 +5,7 @@
 @section('content')
 <div class="container-fluid py-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2><i class="bi bi-input-cursor-text"></i> Custom Fields</h2>
+        <h2><i class="bi bi-input-cursor-text"></i> {{ __('Custom Fields') }}</h2>
         <div>
             <a href="{{ route('customFields.export') }}" class="atom-btn-white me-2"><i class="bi bi-download me-1"></i>{{ __('Export') }}</a>
             <a href="{{ route('customFields.add') }}" class="atom-btn-white"><i class="bi bi-plus me-1"></i>{{ __('Add Field') }}</a>

@@ -20,7 +20,7 @@
                     <li class="breadcrumb-item active">Research Permits</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-id-card me-2"></i>Research Permits</h1>
+            <h1><i class="fas fa-id-card me-2"></i>{{ __('Research Permits') }}</h1>
             <p class="text-muted">Foreign researchers: fee applies &mdash; Local researchers: free</p>
         </div>
         <div class="col-auto">

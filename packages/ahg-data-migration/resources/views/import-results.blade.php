@@ -22,7 +22,7 @@
   @if(!empty($result))
     @if(!empty($result['success']) && $result['success'])
       <div class="alert alert-success">
-        <i class="fas fa-check-circle"></i> Import completed successfully.
+        <i class="fas fa-check-circle"></i> {{ __('Import completed successfully.') }}
       </div>
     @else
       <div class="alert alert-danger">
@@ -66,7 +66,7 @@
     </div>
   @else
     <div class="alert alert-warning">
-      <i class="fas fa-exclamation-triangle"></i> No import results available. Results are only available immediately after an import operation.
+      <i class="fas fa-exclamation-triangle"></i> {{ __('No import results available. Results are only available immediately after an import operation.') }}
     </div>
   @endif
 
@@ -74,7 +74,7 @@
   @if($job)
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-clipboard-list"></i> Job Details</h5>
+        <h5 class="mb-0"><i class="fas fa-clipboard-list"></i> {{ __('Job Details') }}</h5>
       </div>
       <div class="card-body">
         <table class="table table-bordered mb-0">

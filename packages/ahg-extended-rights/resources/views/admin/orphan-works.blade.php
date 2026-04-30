@@ -9,7 +9,7 @@
 
 @section('title-block')
   <div class="d-flex justify-content-between align-items-center">
-    <h1 class="mb-0"><i class="fas fa-search me-2"></i>Orphan Works Due Diligence</h1>
+    <h1 class="mb-0"><i class="fas fa-search me-2"></i>{{ __('Orphan Works Due Diligence') }}</h1>
     <a href="{{ route('ext-rights-admin.orphan-work-new') }}" class="btn btn-sm btn-primary">
       <i class="fas fa-plus me-1"></i> {{ __('New Search') }}
     </a>
@@ -117,7 +117,7 @@
 
       <p class="text-muted mb-0">
         <i class="fas fa-info-circle me-1"></i>
-        Document each search step thoroughly, including negative results. This documentation may be required to demonstrate due diligence.
+        {{ __('Document each search step thoroughly, including negative results. This documentation may be required to demonstrate due diligence.') }}
       </p>
     </div>
   </div>

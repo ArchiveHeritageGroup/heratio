@@ -5,7 +5,7 @@
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-2">
-    <h1 class="mb-0"><i class="fas fa-photo-video"></i> Media Processing</h1>
+    <h1 class="mb-0"><i class="fas fa-photo-video"></i> {{ __('Media Processing') }}</h1>
     <div>
       <a href="{{ route('media-processing.watermark-settings') }}" class="btn atom-btn-white">
         <i class="fas fa-stamp"></i> {{ __('Watermark Settings') }}
@@ -107,7 +107,7 @@
   {{-- Action Buttons --}}
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-tools"></i> Batch Operations</h5>
+      <h5 class="mb-0"><i class="fas fa-tools"></i> {{ __('Batch Operations') }}</h5>
     </div>
     <div class="card-body">
       <div class="row g-3">
@@ -158,7 +158,7 @@
   @if($missingDerivatives->isNotEmpty())
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-exclamation-circle text-warning"></i> Masters Missing Derivatives</h5>
+      <h5 class="mb-0"><i class="fas fa-exclamation-circle text-warning"></i> {{ __('Masters Missing Derivatives') }}</h5>
       <span class="badge bg-warning text-dark">{{ $missingDerivatives->count() }} shown</span>
     </div>
     <div class="card-body p-0">
@@ -226,7 +226,7 @@
   {{-- Recent Derivatives Table --}}
   <div class="card shadow-sm">
     <div class="card-header bg-white d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-history"></i> Recent Derivatives</h5>
+      <h5 class="mb-0"><i class="fas fa-history"></i> {{ __('Recent Derivatives') }}</h5>
       <span class="badge bg-secondary">{{ $recentDerivatives->count() }} shown</span>
     </div>
     <div class="card-body p-0">

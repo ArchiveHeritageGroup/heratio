@@ -1,7 +1,7 @@
 @extends('theme::layouts.1col')
 @section('title', 'IIIF Compliance Dashboard')
 @section('body-class', 'admin iiif validation')
-@section('title-block')<h1 class="mb-0"><i class="fas fa-check-double me-2"></i>IIIF Compliance Dashboard</h1>@endsection
+@section('title-block')<h1 class="mb-0"><i class="fas fa-check-double me-2"></i>{{ __('IIIF Compliance Dashboard') }}</h1>@endsection
 @section('content')
 <div class="row mb-4">
   <div class="col-md-3"><div class="card text-center border-primary"><div class="card-body py-3"><h3 class="text-primary mb-0">{{ $stats['total'] ?? 0 }}</h3><small class="text-muted">{{ __('Objects Validated') }}</small></div></div></div>

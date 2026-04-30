@@ -30,7 +30,7 @@
   @if(count($transformedRows) > 0)
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-table"></i> Transformed Data</h5>
+        <h5 class="mb-0"><i class="fas fa-table"></i> {{ __('Transformed Data') }}</h5>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
@@ -59,7 +59,7 @@
     </div>
   @else
     <div class="alert alert-warning">
-      <i class="fas fa-exclamation-triangle"></i> No data to preview. Check that your mapping has at least one column mapped to a target field.
+      <i class="fas fa-exclamation-triangle"></i> {{ __('No data to preview. Check that your mapping has at least one column mapped to a target field.') }}
     </div>
   @endif
 

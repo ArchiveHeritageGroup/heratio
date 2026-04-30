@@ -63,7 +63,7 @@ $statusColors = [
         <div class="col-md-8">
             {{-- Transaction Details --}}
             <div class="card mb-4">
-                <div class="card-header"><i class="fas fa-info-circle me-2"></i>Transaction Details</div>
+                <div class="card-header"><i class="fas fa-info-circle me-2"></i>{{ __('Transaction Details') }}</div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -144,14 +144,14 @@ $statusColors = [
             </div>
 
             @if (!empty($transaction->notes))
-            <div class="card mb-4"><div class="card-header"><i class="fas fa-sticky-note me-2"></i>Notes</div><div class="card-body">{!! nl2br(e($transaction->notes)) !!}</div></div>
+            <div class="card mb-4"><div class="card-header"><i class="fas fa-sticky-note me-2"></i>{{ __('Notes') }}</div><div class="card-body">{!! nl2br(e($transaction->notes)) !!}</div></div>
             @endif
         </div>
 
         <div class="col-md-4">
             {{-- Costs --}}
             <div class="card mb-4">
-                <div class="card-header"><i class="fas fa-dollar-sign me-2"></i>Cost Summary</div>
+                <div class="card-header"><i class="fas fa-dollar-sign me-2"></i>{{ __('Cost Summary') }}</div>
                 <div class="card-body">
                     <table class="table table-sm mb-0">
                         <tr><th>{{ __('Estimated') }}</th><td class="text-end">{{ $transaction->estimated_cost ? 'R' . number_format($transaction->estimated_cost, 2) : '-' }}</td></tr>
@@ -163,7 +163,7 @@ $statusColors = [
 
             {{-- Invoice --}}
             <div class="card mb-4">
-                <div class="card-header"><i class="fas fa-file-invoice-dollar me-2"></i>Invoice</div>
+                <div class="card-header"><i class="fas fa-file-invoice-dollar me-2"></i>{{ __('Invoice') }}</div>
                 <div class="card-body">
                     <table class="table table-sm mb-0">
                         <tr><th>{{ __('Invoice #') }}</th><td>{{ e($transaction->invoice_number ?? '-') }}</td></tr>
@@ -175,7 +175,7 @@ $statusColors = [
 
             {{-- Record Info --}}
             <div class="card">
-                <div class="card-header"><i class="fas fa-info me-2"></i>Record Info</div>
+                <div class="card-header"><i class="fas fa-info me-2"></i>{{ __('Record Info') }}</div>
                 <div class="card-body">
                     <small class="text-muted">
                         @if (!empty($transaction->created_at))

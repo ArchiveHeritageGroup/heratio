@@ -32,7 +32,7 @@
         @if($feedback->parent_id)
         <div class="card shadow-sm mb-3">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <i class="fas fa-link me-2"></i>Related Record
+            <i class="fas fa-link me-2"></i>{{ __('Related Record') }}
           </div>
           <div class="card-body">
             <a href="{{ url('/' . $feedback->parent_id) }}" class="btn atom-btn-white w-100">
@@ -45,7 +45,7 @@
         {{-- Feedback Details (readonly) --}}
         <div class="card shadow-sm mb-3">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <i class="fas fa-comment-alt me-2"></i>Feedback Details
+            <i class="fas fa-comment-alt me-2"></i>{{ __('Feedback Details') }}
           </div>
           <div class="card-body">
             <div class="mb-3">
@@ -82,7 +82,7 @@
         {{-- Contact Info (readonly) --}}
         <div class="card shadow-sm mb-3">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <i class="fas fa-address-card me-2"></i>Contact Information
+            <i class="fas fa-address-card me-2"></i>{{ __('Contact Information') }}
           </div>
           <div class="card-body">
             <div class="row">
@@ -109,7 +109,7 @@
         {{-- Admin Actions --}}
         <div class="card shadow-sm mb-3">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <i class="fas fa-cog me-2"></i>Admin Actions
+            <i class="fas fa-cog me-2"></i>{{ __('Admin Actions') }}
           </div>
           <div class="card-body">
             <div class="mb-3">

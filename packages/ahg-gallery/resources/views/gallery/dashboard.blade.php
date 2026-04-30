@@ -2,7 +2,7 @@
 @section('title', 'Gallery Dashboard')
 @section('body-class', 'gallery dashboard')
 @section('title-block')
-  <h1 class="mb-0"><i class="fas fa-palette me-2"></i>Gallery Management</h1>
+  <h1 class="mb-0"><i class="fas fa-palette me-2"></i>{{ __('Gallery Management') }}</h1>
   <span class="small text-muted">{{ __('Manage artwork and gallery items using CCO cataloguing standards') }}</span>
 @endsection
 @section('content')
@@ -70,7 +70,7 @@
   <div class="col-md-4">
     <div class="card mb-4">
       <div class="card-header bg-dark text-white">
-        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>{{ __('Quick Actions') }}</h5>
       </div>
       <div class="card-body">
         {{-- PSIS-cloned buttons --}}
@@ -104,7 +104,7 @@
 
     <div class="card mb-4">
       <div class="card-header bg-dark text-white">
-        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>About CCO</h5>
+        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About CCO') }}</h5>
       </div>
       <div class="card-body">
         <p class="small">Cataloguing Cultural Objects (CCO) is a standard for describing cultural works and their images.</p>
@@ -117,7 +117,7 @@
   <div class="col-md-8">
     <div class="card">
       <div class="card-header bg-dark text-white">
-        <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Recent Gallery Items</h5>
+        <h5 class="mb-0"><i class="fas fa-clock me-2"></i>{{ __('Recent Gallery Items') }}</h5>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">

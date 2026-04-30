@@ -25,7 +25,7 @@
 
               <div class="card mb-3">
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                    <i class="fas fa-cog me-1"></i> Schedule Configuration
+                    <i class="fas fa-cog me-1"></i> {{ __('Schedule Configuration') }}
                 </div>
                 <div class="card-body">
                   <div class="row">
@@ -64,7 +64,7 @@
                   </div>
 
                   <hr>
-                  <h6 class="text-muted mb-3"><i class="fas fa-clock"></i> Schedule Timing</h6>
+                  <h6 class="text-muted mb-3"><i class="fas fa-clock"></i> {{ __('Schedule Timing') }}</h6>
 
                   <div class="row">
                     <div class="col-md-6 mb-3">
@@ -88,7 +88,7 @@
                   </div>
 
                   <hr>
-                  <h6 class="text-muted mb-3"><i class="fas fa-sliders-h"></i> Execution Settings</h6>
+                  <h6 class="text-muted mb-3"><i class="fas fa-sliders-h"></i> {{ __('Execution Settings') }}</h6>
 
                   <div class="row">
                     <div class="col-md-4 mb-3">
@@ -114,7 +114,7 @@
                   </div>
 
                   <hr>
-                  <h6 class="text-muted mb-3"><i class="fas fa-bell"></i> Notifications</h6>
+                  <h6 class="text-muted mb-3"><i class="fas fa-bell"></i> {{ __('Notifications') }}</h6>
 
                   <div class="row">
                     <div class="col-md-4 mb-3">
@@ -151,7 +151,7 @@
             {{-- Cron Help --}}
             <div class="card mb-4">
                 <div class="card-header bg-info text-white">
-                    <h6 class="mb-0"><i class="fas fa-question-circle me-1"></i> Cron Format</h6>
+                    <h6 class="mb-0"><i class="fas fa-question-circle me-1"></i> {{ __('Cron Format') }}</h6>
                 </div>
                 <div class="card-body">
                     <pre class="bg-light p-2 rounded small"> ┌───────────── minute (0 - 59)
@@ -177,7 +177,7 @@
             {{-- Recent Runs --}}
             <div class="card mb-4">
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                    <h6 class="mb-0"><i class="fas fa-history me-1"></i> Recent Runs</h6>
+                    <h6 class="mb-0"><i class="fas fa-history me-1"></i> {{ __('Recent Runs') }}</h6>
                 </div>
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
@@ -207,7 +207,7 @@
             {{-- Schedule Statistics --}}
             <div class="card">
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                    <h6 class="mb-0"><i class="fas fa-chart-bar me-1"></i> Statistics</h6>
+                    <h6 class="mb-0"><i class="fas fa-chart-bar me-1"></i> {{ __('Statistics') }}</h6>
                 </div>
                 <div class="card-body">
                     <dl class="row mb-0">

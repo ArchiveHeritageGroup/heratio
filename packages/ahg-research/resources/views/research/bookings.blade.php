@@ -13,7 +13,7 @@
     </div>
   @endif
 
-  <h1 class="mb-4"><i class="fas fa-calendar-alt me-2"></i>Manage Bookings</h1>
+  <h1 class="mb-4"><i class="fas fa-calendar-alt me-2"></i>{{ __('Manage Bookings') }}</h1>
 
   {{-- Pending Confirmation --}}
   @if(count($pendingBookings ?? []) > 0)

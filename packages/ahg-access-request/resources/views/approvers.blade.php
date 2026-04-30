@@ -32,7 +32,7 @@
                 <div class="col-lg-8">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>Current Approvers</h5>
+                            <h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>{{ __('Current Approvers') }}</h5>
                         </div>
                         <div class="card-body p-0">
                             @if($approvers->isEmpty())
@@ -76,7 +76,7 @@
                 <div class="col-lg-4">
                     <div class="card">
                         <div class="card-header">
-                            <h6 class="mb-0"><i class="fas fa-plus me-2"></i>Add Approver</h6>
+                            <h6 class="mb-0"><i class="fas fa-plus me-2"></i>{{ __('Add Approver') }}</h6>
                         </div>
                         <div class="card-body">
                             <form method="post" action="{{ route('accessRequest.addApprover') }}">

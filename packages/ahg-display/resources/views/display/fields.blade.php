@@ -159,7 +159,7 @@
     </div>
   @else
     <div class="alert alert-info">
-      <i class="fas fa-info-circle me-2"></i>No field mappings have been configured.
+      <i class="fas fa-info-circle me-2"></i>{{ __('No field mappings have been configured.') }}
     </div>
   @endif
 </div>

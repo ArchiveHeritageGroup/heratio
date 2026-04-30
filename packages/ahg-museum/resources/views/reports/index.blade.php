@@ -17,7 +17,7 @@
   <a href="{{ url('/glam/browse') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Browse') }}</a>
 </div>
 @endsection
-@section('title-block')<h1><i class="fas fa-landmark me-2"></i>Museum Reports Dashboard</h1>@endsection
+@section('title-block')<h1><i class="fas fa-landmark me-2"></i>{{ __('Museum Reports Dashboard') }}</h1>@endsection
 @section('content')
 <div class="museum-reports-dashboard">
   <div class="row mb-4">
@@ -28,7 +28,7 @@
   <div class="row mb-4">
     <div class="col-md-6">
       <div class="card h-100">
-        <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-shapes me-2"></i>By Work Type</h5></div>
+        <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-shapes me-2"></i>{{ __('By Work Type') }}</h5></div>
         <ul class="list-group list-group-flush">
           @forelse($stats['byWorkType'] ?? [] as $type)
           <li class="list-group-item d-flex justify-content-between">{{ e($type->work_type ?? '') }} <span class="badge bg-primary">{{ $type->count ?? 0 }}</span></li>
@@ -40,7 +40,7 @@
     </div>
     <div class="col-md-6">
       <div class="card h-100">
-        <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>By Condition</h5></div>
+        <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>{{ __('By Condition') }}</h5></div>
         <ul class="list-group list-group-flush">
           @forelse($stats['byCondition'] ?? [] as $cond)
           <li class="list-group-item d-flex justify-content-between">{{ ucfirst($cond->condition_term ?? '') }} <span class="badge bg-{{ in_array($cond->condition_term ?? '', ['poor','critical']) ? 'danger' : 'success' }}">{{ $cond->count ?? 0 }}</span></li>

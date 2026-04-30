@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-user-shield me-2"></i>Data Protection</h1>
+<h1><i class="fas fa-user-shield me-2"></i>{{ __('Data Protection') }}</h1>
 <p class="text-muted">POPIA / GDPR compliance and data handling</p>
 @endsection
 
@@ -38,7 +38,7 @@
     {{-- Card 1: Data Protection Compliance --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Data Protection Compliance</h5>
+        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>{{ __('Data Protection Compliance') }}</h5>
       </div>
       <div class="card-body">
         <div class="row mb-3">
@@ -85,7 +85,7 @@
     {{-- Card 2: POPIA/PAIA Settings --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-gavel me-2"></i>POPIA / PAIA Settings</h5>
+        <h5 class="mb-0"><i class="fas fa-gavel me-2"></i>{{ __('POPIA / PAIA Settings') }}</h5>
       </div>
       <div class="card-body">
         <div class="row mb-3">

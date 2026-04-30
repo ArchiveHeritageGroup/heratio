@@ -3,14 +3,14 @@
 @section('body-class', 'edit')
 @section('content')
   <div class="multiline-header d-flex align-items-center mb-3"><i class="fas fa-3x fa-file-signature me-3" aria-hidden="true"></i><div class="d-flex flex-column"><h1 class="mb-0">Edit Agreement: {{ $record->title ?? $record->agreement_number ?? '' }}</h1></div></div>
-  <div class="card"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-edit me-2"></i>Edit Agreement</div>
+  <div class="card"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-edit me-2"></i>{{ __('Edit Agreement') }}</div>
   <div class="card-body"><form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">@csrf
     @include('ahg-donor-manage::_agreement-form')
     <div class="d-flex gap-2 mt-3"><button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i> {{ __('Save') }}</button><a href="{{ route('donor.agreement.view', $record->id) }}" class="btn atom-btn-white"><i class="fas fa-times me-1"></i> {{ __('Cancel') }}</a></div>
   </form></div></div>
 
   @if($documents->isNotEmpty())
-  <div class="card mt-3"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-paperclip me-2"></i>Documents</div>
+  <div class="card mt-3"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-paperclip me-2"></i>{{ __('Documents') }}</div>
   <div class="card-body"><table class="table table-sm table-striped mb-0">
     <thead><tr><th>{{ __('Filename') }}</th><th>{{ __('Type') }}</th><th>{{ __('Size') }}</th><th>{{ __('Uploaded') }}</th></tr></thead>
     <tbody>
@@ -22,7 +22,7 @@
   @endif
 
   @if($linkedRecords->isNotEmpty())
-  <div class="card mt-3"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-link me-2"></i>Linked Records</div>
+  <div class="card mt-3"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-link me-2"></i>{{ __('Linked Records') }}</div>
   <div class="card-body"><table class="table table-sm table-striped mb-0">
     <thead><tr><th>{{ __('Identifier') }}</th><th>{{ __('Title') }}</th></tr></thead>
     <tbody>
@@ -34,7 +34,7 @@
   @endif
 
   @if($linkedAccessions->isNotEmpty())
-  <div class="card mt-3"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-archive me-2"></i>Linked Accessions</div>
+  <div class="card mt-3"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-archive me-2"></i>{{ __('Linked Accessions') }}</div>
   <div class="card-body"><table class="table table-sm table-striped mb-0">
     <thead><tr><th>{{ __('Identifier') }}</th><th>{{ __('Title') }}</th></tr></thead>
     <tbody>

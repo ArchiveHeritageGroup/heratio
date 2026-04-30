@@ -23,7 +23,7 @@
   {{-- Status and Progress --}}
   <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Progress</h5>
+      <h5 class="mb-0"><i class="fas fa-chart-bar"></i> {{ __('Progress') }}</h5>
       @if($job['status'] === 'completed')
         <span class="badge bg-success fs-6">{{ __('Completed') }}</span>
       @elseif($job['status'] === 'failed')
@@ -91,7 +91,7 @@
   {{-- Job Details --}}
   <div class="card mb-4">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-info-circle"></i> Job Details</h5>
+      <h5 class="mb-0"><i class="fas fa-info-circle"></i> {{ __('Job Details') }}</h5>
     </div>
     <div class="card-body">
       <table class="table table-bordered mb-0">

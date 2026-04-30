@@ -105,7 +105,7 @@
       {{-- Display Profiles by Domain --}}
       <div class="card mb-4">
         <div class="card-header d-flex align-items-center justify-content-between" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-palette me-2"></i>Display Profiles by Domain</h5>
+          <h5 class="mb-0"><i class="fas fa-palette me-2"></i>{{ __('Display Profiles by Domain') }}</h5>
           <a href="{{ route('glam.profiles') }}" class="btn btn-sm atom-btn-white">
             View all <i class="fas fa-arrow-right ms-1"></i>
           </a>
@@ -146,7 +146,7 @@
       {{-- Collection Types --}}
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-th-list me-2"></i>Collection Types</h5>
+          <h5 class="mb-0"><i class="fas fa-th-list me-2"></i>{{ __('Collection Types') }}</h5>
         </div>
         <div class="card-body">
           @if(!empty($collectionTypes) && count($collectionTypes))
@@ -178,7 +178,7 @@
       {{-- Quick Links --}}
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Quick Links</h5>
+          <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>{{ __('Quick Links') }}</h5>
         </div>
         <div class="list-group list-group-flush">
           <a href="{{ route('glam.profiles') }}" class="list-group-item list-group-item-action">
@@ -202,7 +202,7 @@
       {{-- By Type --}}
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>By Type</h5>
+          <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>{{ __('By Type') }}</h5>
         </div>
         <div class="list-group list-group-flush">
           @if(!empty($collectionTypes) && count($collectionTypes))

@@ -24,10 +24,10 @@ $history = (array)($itemData['history'] ?? []);
     @endif
   </div>
   <div class="col-md-9">
-    <h1><i class="fas fa-edit me-2"></i>Edit Item</h1>
+    <h1><i class="fas fa-edit me-2"></i>{{ __('Edit Item') }}</h1>
 
     @if(!$item)
-    <div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>Item not found.</div>
+    <div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Item not found.') }}</div>
     @else
     <form method="post">@csrf
       @foreach([

@@ -6,7 +6,7 @@
 @section('content')
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="fas fa-chart-bar me-2"></i>Security Reports</h1>
+    <h1><i class="fas fa-chart-bar me-2"></i>{{ __('Security Reports') }}</h1>
     <div>
         <form method="get" class="d-inline">
             <select name="period" class="form-select form-select-sm d-inline-block" style="width: auto;" onchange="this.form.submit()">
@@ -54,7 +54,7 @@
     <div class="col-md-6 mb-4">
         <div class="card h-100">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-users me-2"></i>User Clearances by Level</h5>
+                <h5 class="mb-0"><i class="fas fa-users me-2"></i>{{ __('User Clearances by Level') }}</h5>
             </div>
             <div class="card-body">
                 <canvas id="clearancesChart" height="200"></canvas>
@@ -81,7 +81,7 @@
     <div class="col-md-6 mb-4">
         <div class="card h-100">
             <div class="card-header bg-info text-white">
-                <h5 class="mb-0"><i class="fas fa-folder-open me-2"></i>Classified Objects by Level</h5>
+                <h5 class="mb-0"><i class="fas fa-folder-open me-2"></i>{{ __('Classified Objects by Level') }}</h5>
             </div>
             <div class="card-body">
                 <canvas id="objectsChart" height="200"></canvas>
@@ -108,7 +108,7 @@
 {{-- Access Requests --}}
 <div class="card mb-4">
     <div class="card-header bg-warning text-dark">
-        <h5 class="mb-0"><i class="fas fa-key me-2"></i>Access Requests</h5>
+        <h5 class="mb-0"><i class="fas fa-key me-2"></i>{{ __('Access Requests') }}</h5>
     </div>
     <div class="card-body">
         <div class="row text-center">
@@ -131,7 +131,7 @@
 {{-- Recent Security Activity --}}
 <div class="card">
     <div class="card-header bg-dark text-white">
-        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Security Activity</h5>
+        <h5 class="mb-0"><i class="fas fa-history me-2"></i>{{ __('Recent Security Activity') }}</h5>
     </div>
     <div class="card-body p-0">
         <table class="table table-hover table-striped mb-0">

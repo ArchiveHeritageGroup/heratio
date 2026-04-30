@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid mt-3">
-  <h1><i class="fas fa-shield-alt"></i> Security Dashboard</h1>
+  <h1><i class="fas fa-shield-alt"></i> {{ __('Security Dashboard') }}</h1>
 
 {{-- Statistics Cards --}}
   <div class="row mb-4">
@@ -51,7 +51,7 @@
     <div class="col-md-6 mb-4">
       <div class="card">
         <div class="card-header">
-          <h5 class="mb-0"><i class="fas fa-users"></i> User Clearances by Level</h5>
+          <h5 class="mb-0"><i class="fas fa-users"></i> {{ __('User Clearances by Level') }}</h5>
         </div>
         <div class="card-body">
           <table class="table table-sm">
@@ -74,7 +74,7 @@
     <div class="col-md-6 mb-4">
       <div class="card">
         <div class="card-header">
-          <h5 class="mb-0"><i class="fas fa-folder-open"></i> Objects by Classification</h5>
+          <h5 class="mb-0"><i class="fas fa-folder-open"></i> {{ __('Objects by Classification') }}</h5>
         </div>
         <div class="card-body">
           <table class="table table-sm">
@@ -97,7 +97,7 @@
   @if(!empty($pendingRequests))
   <div class="card mb-4">
     <div class="card-header bg-warning">
-      <h5 class="mb-0"><i class="fas fa-clock"></i> Pending Access Requests</h5>
+      <h5 class="mb-0"><i class="fas fa-clock"></i> {{ __('Pending Access Requests') }}</h5>
     </div>
     <div class="card-body">
       <table class="table table-striped">
@@ -131,7 +131,7 @@
   @if(!empty($expiringClearances))
   <div class="card mb-4">
     <div class="card-header bg-warning">
-      <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Expiring Clearances</h5>
+      <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> {{ __('Expiring Clearances') }}</h5>
     </div>
     <div class="card-body">
       <table class="table table-striped">
@@ -167,7 +167,7 @@
   @if(!empty($dueDeclassifications))
   <div class="card mb-4">
     <div class="card-header bg-info text-white">
-      <h5 class="mb-0"><i class="fas fa-unlock"></i> Due for Declassification</h5>
+      <h5 class="mb-0"><i class="fas fa-unlock"></i> {{ __('Due for Declassification') }}</h5>
     </div>
     <div class="card-body">
       <table class="table table-striped">
@@ -190,7 +190,7 @@
   {{-- Quick Links --}}
   <div class="card">
     <div class="card-header">
-      <h5 class="mb-0"><i class="fas fa-link"></i> Quick Links</h5>
+      <h5 class="mb-0"><i class="fas fa-link"></i> {{ __('Quick Links') }}</h5>
     </div>
     <div class="card-body">
       <div class="row">

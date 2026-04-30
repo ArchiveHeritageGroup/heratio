@@ -27,7 +27,7 @@
           </div>
         @elseif($embargoInfo['is_perpetual'] ?? false)
           <div class="alert alert-secondary d-inline-block mt-3">
-            <i class="fas fa-ban me-2"></i>This restriction is indefinite
+            <i class="fas fa-ban me-2"></i>{{ __('This restriction is indefinite') }}
           </div>
         @endif
 
@@ -38,7 +38,7 @@
 
         @auth
           <hr class="my-4">
-          <p class="text-muted small"><i class="fas fa-info-circle me-1"></i>If you believe you should have access to this record, please contact the repository administrator.</p>
+          <p class="text-muted small"><i class="fas fa-info-circle me-1"></i>{{ __('If you believe you should have access to this record, please contact the repository administrator.') }}</p>
         @endauth
       </div>
     </div>

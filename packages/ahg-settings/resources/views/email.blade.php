@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1><i class="fas fa-envelope me-2"></i>Email Settings</h1>
+  <h1><i class="fas fa-envelope me-2"></i>{{ __('Email Settings') }}</h1>
 @endsection
 
 @section('content')
@@ -16,7 +16,7 @@
       <div class="row">
         <div class="col-md-6">
           <div class="card mb-4">
-            <div class="card-header bg-primary text-white"><i class="fas fa-server me-2"></i>SMTP Configuration</div>
+            <div class="card-header bg-primary text-white"><i class="fas fa-server me-2"></i>{{ __('SMTP Configuration') }}</div>
             <div class="card-body">
               @foreach ($smtpSettings as $setting)
                 <div class="mb-3">
@@ -41,7 +41,7 @@
 
           {{-- Test Email --}}
           <div class="card mb-4">
-            <div class="card-header"><i class="fas fa-paper-plane me-2"></i>Test Email</div>
+            <div class="card-header"><i class="fas fa-paper-plane me-2"></i>{{ __('Test Email') }}</div>
             <div class="card-body">
               <p class="small text-muted">Save settings first, then send a test email to verify configuration.</p>
               <div class="input-group">
@@ -54,7 +54,7 @@
           </div>
 
           <div class="card mb-4">
-            <div class="card-header bg-info text-white"><i class="fas fa-bell me-2"></i>Notification Recipients</div>
+            <div class="card-header bg-info text-white"><i class="fas fa-bell me-2"></i>{{ __('Notification Recipients') }}</div>
             <div class="card-body">
               @foreach ($notificationSettings as $setting)
                 <div class="mb-3">
@@ -69,7 +69,7 @@
 
         <div class="col-md-6">
           <div class="card mb-4">
-            <div class="card-header bg-success text-white"><i class="fas fa-file-alt me-2"></i>Email Templates</div>
+            <div class="card-header bg-success text-white"><i class="fas fa-file-alt me-2"></i>{{ __('Email Templates') }}</div>
             <div class="card-body">
               <div class="alert alert-info small">
                 <strong>{{ __('Available placeholders:') }}</strong><br>
@@ -115,7 +115,7 @@
 
       {{-- Error Alert Configuration --}}
       <div class="card mb-4">
-        <div class="card-header bg-warning text-dark"><i class="fas fa-exclamation-triangle me-2"></i>Error Alert Configuration</div>
+        <div class="card-header bg-warning text-dark"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Error Alert Configuration') }}</div>
         <div class="card-body">
           <div class="mb-3">
             <label class="form-label">Enable Error Alerts <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
@@ -149,7 +149,7 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header bg-dark text-white"><i class="fas fa-bell me-2"></i>Notification Settings</div>
+        <div class="card-header bg-dark text-white"><i class="fas fa-bell me-2"></i>{{ __('Notification Settings') }}</div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <div>

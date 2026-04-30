@@ -37,7 +37,7 @@
 @if(!empty($renders))
 <div class="card mt-3" id="{{ $galleryId }}">
   <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-    <i class="fas fa-cube me-2"></i>Multi-Angle Views
+    <i class="fas fa-cube me-2"></i>{{ __('Multi-Angle Views') }}
   </div>
   <div class="card-body">
     <div class="row g-2">

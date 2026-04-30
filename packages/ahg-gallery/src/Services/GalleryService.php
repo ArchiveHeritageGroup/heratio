@@ -70,6 +70,7 @@ class GalleryService
                 'io.display_standard_id',
                 'io.collection_type_id',
                 'io.source_culture',
+                'io.icip_sensitivity',
                 DB::raw('COALESCE(i18n_cur.title, i18n_fb.title) AS title'),
                 DB::raw('COALESCE(i18n_cur.alternate_title, i18n_fb.alternate_title) AS alternate_title'),
                 DB::raw('COALESCE(i18n_cur.extent_and_medium, i18n_fb.extent_and_medium) AS extent_and_medium'),
@@ -323,7 +324,7 @@ class GalleryService
             ]);
 
             // Insert information_object
-            DB::table('information_object')->insert([
+            $ioInsert = [
                 'id' => $objectId,
                 'identifier' => $data['identifier'] ?? null,
                 'level_of_description_id' => !empty($data['level_of_description_id']) ? $data['level_of_description_id'] : null,
@@ -338,7 +339,11 @@ class GalleryService
                 'lft' => $newLft,
                 'rgt' => $newRgt,
                 'source_culture' => $culture,
-            ]);
+            ];
+            if (array_key_exists('icip_sensitivity', $data) && $data['icip_sensitivity'] !== '') {
+                $ioInsert['icip_sensitivity'] = $data['icip_sensitivity'];
+            }
+            DB::table('information_object')->insert($ioInsert);
 
             // Insert information_object_i18n
             DB::table('information_object_i18n')->insert([
@@ -447,18 +452,22 @@ class GalleryService
             $ioId = $io->id;
 
             // Update information_object
+            $ioUpdate = [
+                'identifier' => $data['identifier'] ?? null,
+                'level_of_description_id' => !empty($data['level_of_description_id']) ? $data['level_of_description_id'] : null,
+                'repository_id' => !empty($data['repository_id']) ? $data['repository_id'] : null,
+                'description_status_id' => !empty($data['description_status_id']) ? $data['description_status_id'] : null,
+                'description_detail_id' => !empty($data['description_detail_id']) ? $data['description_detail_id'] : null,
+                'description_identifier' => $data['description_identifier'] ?? null,
+                'source_standard' => $data['source_standard'] ?? null,
+                'display_standard_id' => !empty($data['display_standard_id']) ? $data['display_standard_id'] : null,
+            ];
+            if (array_key_exists('icip_sensitivity', $data)) {
+                $ioUpdate['icip_sensitivity'] = ($data['icip_sensitivity'] === '' ? null : $data['icip_sensitivity']);
+            }
             DB::table('information_object')
                 ->where('id', $ioId)
-                ->update([
-                    'identifier' => $data['identifier'] ?? null,
-                    'level_of_description_id' => !empty($data['level_of_description_id']) ? $data['level_of_description_id'] : null,
-                    'repository_id' => !empty($data['repository_id']) ? $data['repository_id'] : null,
-                    'description_status_id' => !empty($data['description_status_id']) ? $data['description_status_id'] : null,
-                    'description_detail_id' => !empty($data['description_detail_id']) ? $data['description_detail_id'] : null,
-                    'description_identifier' => $data['description_identifier'] ?? null,
-                    'source_standard' => $data['source_standard'] ?? null,
-                    'display_standard_id' => !empty($data['display_standard_id']) ? $data['display_standard_id'] : null,
-                ]);
+                ->update($ioUpdate);
 
             // Update information_object_i18n
             DB::table('information_object_i18n')

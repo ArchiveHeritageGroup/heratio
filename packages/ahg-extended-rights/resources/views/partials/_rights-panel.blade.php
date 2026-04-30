@@ -32,7 +32,7 @@
 <section id="rightsArea" class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
         <h5 class="mb-0">
-            <i class="fas fa-balance-scale me-2"></i>Rights
+            <i class="fas fa-balance-scale me-2"></i>{{ __('Rights') }}
         </h5>
         @if($canEdit)
             <a href="{{ route('ext-rights.add', $slug) }}" class="btn btn-sm btn-light">
@@ -117,7 +117,7 @@
         @if($extOrphanWork)
             <div class="alert alert-info mb-3">
                 <h6 class="alert-heading">
-                    <i class="fas fa-search me-2"></i>Orphan Work
+                    <i class="fas fa-search me-2"></i>{{ __('Orphan Work') }}
                 </h6>
                 <p class="mb-1">
                     <strong>{{ __('Status:') }}</strong>
@@ -140,7 +140,7 @@
         @if($extRights->count() === 0)
             <p class="text-muted mb-0">
                 <i class="fas fa-info-circle me-1"></i>
-                No rights records have been added.
+                {{ __('No rights records have been added.') }}
             </p>
         @else
             <div class="table-responsive">

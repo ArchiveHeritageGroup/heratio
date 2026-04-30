@@ -15,7 +15,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h1><i class="fas fa-magic me-2"></i>Image Animation Settings</h1>
+      <h1><i class="fas fa-magic me-2"></i>{{ __('Image Animation Settings') }}</h1>
       <p class="text-muted mb-0">AI image-to-video. Default: Stable Video Diffusion (works on the 8&nbsp;GB card with CPU offload). Swap to CogVideoX/WAN once the 24&nbsp;GB card is in.</p>
     </div>
   </div>

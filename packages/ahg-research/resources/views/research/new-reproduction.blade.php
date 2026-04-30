@@ -4,7 +4,7 @@
 @section('title', 'New Reproduction Request')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.reproductions') }}">Reproductions</a></li><li class="breadcrumb-item active">New Request</li></ol></nav>
-<h1 class="h2 mb-4"><i class="fas fa-copy text-primary me-2"></i>New Reproduction Request</h1>
+<h1 class="h2 mb-4"><i class="fas fa-copy text-primary me-2"></i>{{ __('New Reproduction Request') }}</h1>
 <div class="card"><div class="card-body">
     <form method="POST">@csrf
         <div class="mb-3"><label class="form-label">Item Reference <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="item_reference" class="form-control" required placeholder="{{ __('Enter item identifier or title') }}"></div>

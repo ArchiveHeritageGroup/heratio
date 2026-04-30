@@ -7,7 +7,7 @@
   <div class="col-md-3">@include('ahg-heritage-manage::partials._heritage-accounting-menu')</div>
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-cog me-2"></i>Accounting Settings</h1>
+      <h1><i class="fas fa-cog me-2"></i>{{ __('Accounting Settings') }}</h1>
       @if(Route::has('heritage.accounting.add'))
       <a href="{{ route('heritage.accounting.add') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-plus me-1"></i>{{ __('Add Asset') }}</a>
       @endif
@@ -28,7 +28,7 @@
     @endif
 
     <div class="card">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-cog me-2"></i>Accounting Settings</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-cog me-2"></i>{{ __('Accounting Settings') }}</div>
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">

@@ -14,7 +14,7 @@ $summary = (array)($contentData['summary'] ?? ['total_items'=>0,'total_views'=>0
 <div class="row">
   <div class="col-md-3">@include('ahg-heritage-manage::partials._admin-sidebar')</div>
   <div class="col-md-9">
-    <h1><i class="fas fa-chart-bar me-2"></i>Content Insights</h1>
+    <h1><i class="fas fa-chart-bar me-2"></i>{{ __('Content Insights') }}</h1>
 
     <div class="row g-4 mb-4">
       @foreach([['total_items','Total Items'],['total_views','Total Views (30d)'],['total_downloads','Downloads (30d)'],['avg_ctr','Avg Click-Through']] as [$key,$label])
@@ -25,7 +25,7 @@ $summary = (array)($contentData['summary'] ?? ['total_items'=>0,'total_views'=>0
     <div class="row g-4 mb-4">
       <div class="col-md-6">
         <div class="card border-0 shadow-sm h-100">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Top Performing</h5></div>
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-trophy me-2"></i>{{ __('Top Performing') }}</h5></div>
           <div class="card-body p-0">
             @if(!empty($topContent))
             <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>{{ __('Item') }}</th><th class="text-center">{{ __('Views') }}</th><th class="text-center">{{ __('Downloads') }}</th></tr></thead><tbody>
@@ -37,7 +37,7 @@ $summary = (array)($contentData['summary'] ?? ['total_items'=>0,'total_views'=>0
       </div>
       <div class="col-md-6">
         <div class="card border-0 shadow-sm h-100">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-eye-slash me-2"></i>Needs Attention</h5></div>
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-eye-slash me-2"></i>{{ __('Needs Attention') }}</h5></div>
           <div class="card-body p-0">
             @if(!empty($lowPerforming))
             <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>{{ __('Item') }}</th><th class="text-center">{{ __('Views') }}</th><th>{{ __('Issue') }}</th></tr></thead><tbody>
@@ -51,7 +51,7 @@ $summary = (array)($contentData['summary'] ?? ['total_items'=>0,'total_views'=>0
 
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Quality Issues</h5>
+        <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Quality Issues') }}</h5>
         <span class="badge bg-warning text-dark">{{ count($qualityIssues) }} items</span>
       </div>
       <div class="card-body p-0">

@@ -42,7 +42,7 @@
     @if($linkedIos->isNotEmpty())
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
-          <i class="fas fa-link me-1"></i> Linked descriptions
+          <i class="fas fa-link me-1"></i> {{ __('Linked descriptions') }}
         </div>
         <div class="list-group list-group-flush">
           @foreach($linkedIos as $io)
@@ -57,7 +57,7 @@
   @if(isset($donor) && $donor)
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
-        <i class="fas fa-user me-1"></i> Donor
+        <i class="fas fa-user me-1"></i> {{ __('Donor') }}
       </div>
       <div class="card-body py-2">
         <strong>{{ $donor->authorized_form_of_name ?? '' }}</strong>

@@ -6,7 +6,7 @@
 <div class="row">
   <div class="col-md-3">@include('ahg-heritage-manage::partials._heritage-accounting-menu')</div>
   <div class="col-md-9">
-    <h1><i class="fas fa-pencil-alt me-2"></i>Edit Rule</h1>
+    <h1><i class="fas fa-pencil-alt me-2"></i>{{ __('Edit Rule') }}</h1>
     <p class="text-muted">Edit an existing accounting rule.</p>
 
     @if($errors->any())
@@ -18,7 +18,7 @@
       @if(isset($item)) @method('PUT') @endif
 
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-pencil-alt me-2"></i>Edit Rule</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-pencil-alt me-2"></i>{{ __('Edit Rule') }}</div>
         <div class="card-body">
           <div class="mb-3"><label class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" class="form-control" required value="{{ old('name', $item->name ?? '') }}"></div>
           <div class="mb-3"><label class="form-label">Code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="code" class="form-control" value="{{ old('code', $item->code ?? '') }}"></div>

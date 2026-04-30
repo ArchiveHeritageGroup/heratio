@@ -6,7 +6,7 @@
 @section('content')
   {{-- Title bar with RIC Explorer button --}}
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0"><i class="fas fa-project-diagram me-1"></i> RiC Sync Dashboard</h1>
+    <h1 class="mb-0"><i class="fas fa-project-diagram me-1"></i> {{ __('RiC Sync Dashboard') }}</h1>
     <a href="{{ route('ric.explorer') }}" target="_blank" class="btn btn-outline-info btn-sm">
       <i class="fas fa-external-link-alt"></i> {{ __('RiC Explorer') }}
     </a>
@@ -159,7 +159,7 @@
           <button type="button" class="btn btn-success w-100 mb-2" onclick="runManualSync()" id="sync-btn" disabled title="{{ __('Checking sync configuration...') }}">
             <i class="fas fa-sync-alt"></i> {{ __('Sync to Fuseki') }}
           </button>
-          <div id="sync-readiness" class="small text-muted mb-2"><i class="fas fa-spinner fa-spin"></i> Checking configuration…</div>
+          <div id="sync-readiness" class="small text-muted mb-2"><i class="fas fa-spinner fa-spin"></i> {{ __('Checking configuration…') }}</div>
           <div id="sync-status" class="mb-2" style="display:none;"></div>
           <hr>
           <button type="button" class="btn btn-outline-primary w-100 mb-2" onclick="runIntegrityCheck()">
@@ -192,7 +192,7 @@
 
       {{-- SHACL Validation Results --}}
       <div class="card mt-3" id="shacl-results" style="display: none;">
-        <div class="card-header" ><h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>SHACL Validation Results</h5></div>
+        <div class="card-header" ><h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>{{ __('SHACL Validation Results') }}</h5></div>
         <div class="card-body" id="shacl-content"></div>
       </div>
     </div>

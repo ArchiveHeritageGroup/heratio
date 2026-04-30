@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid mt-3">
-  <h1><i class="fas fa-project-diagram"></i> GraphQL Playground</h1>
+  <h1><i class="fas fa-project-diagram"></i> {{ __('GraphQL Playground') }}</h1>
 
   <div class="row">
     {{-- Query Editor --}}

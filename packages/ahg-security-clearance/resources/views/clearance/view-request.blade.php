@@ -10,7 +10,7 @@
     <li class="breadcrumb-item active">Review</li>
   </ol></nav>
 
-  <h1><i class="fas fa-clipboard-check"></i> Review Access Request</h1>
+  <h1><i class="fas fa-clipboard-check"></i> {{ __('Review Access Request') }}</h1>
 
 <div class="row">
     <div class="col-md-6">

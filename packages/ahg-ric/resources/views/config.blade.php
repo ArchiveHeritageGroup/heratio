@@ -30,7 +30,7 @@
       <div class="col-md-6">
         <div class="card">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-plug me-2"></i>Fuseki Connection</h5>
+            <h5 class="mb-0"><i class="fas fa-plug me-2"></i>{{ __('Fuseki Connection') }}</h5>
           </div>
           <div class="card-body">
             <div class="mb-3">
@@ -62,7 +62,7 @@
       <div class="col-md-6">
         <div class="card">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-sync-alt me-2"></i>Sync Settings</h5>
+            <h5 class="mb-0"><i class="fas fa-sync-alt me-2"></i>{{ __('Sync Settings') }}</h5>
           </div>
           <div class="card-body">
             <div class="form-check form-switch mb-3">

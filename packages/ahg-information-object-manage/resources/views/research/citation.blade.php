@@ -14,7 +14,7 @@
   </nav>
 
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2 mb-0"><i class="fas fa-quote-right text-primary me-2"></i>Citation Generator</h1>
+    <h1 class="h2 mb-0"><i class="fas fa-quote-right text-primary me-2"></i>{{ __('Citation Generator') }}</h1>
     <a href="{{ route('informationobject.show', $io->slug) }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
   </div>
 
@@ -85,7 +85,7 @@
   </div>
 
   <div class="card mt-4 mb-4">
-    <div class="card-header"><h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Citation Information</h5></div>
+    <div class="card-header"><h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Citation Information') }}</h5></div>
     <div class="card-body">
       <table class="table table-borderless mb-0">
         <tr><th width="150">{{ __('Title:') }}</th><td>{{ $io->title }}</td></tr>
@@ -108,7 +108,7 @@
   </div>
 
   <div class="card mb-4">
-    <div class="card-header bg-light"><h5 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Citation Style Guide</h5></div>
+    <div class="card-header bg-light"><h5 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>{{ __('Citation Style Guide') }}</h5></div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-6">

@@ -9,7 +9,7 @@
 <div class="row">
   <div class="col-md-6">
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-info-circle me-2"></i>Entry Details</div>
+      <div class="card-header"><i class="fas fa-info-circle me-2"></i>{{ __('Entry Details') }}</div>
       <div class="card-body">
         @php $ac = match($entry->action ?? '') { 'create' => 'success', 'update' => 'warning', 'delete' => 'danger', default => 'secondary' }; @endphp
         <table class="table table-bordered mb-0">
@@ -28,7 +28,7 @@
   <div class="col-md-6">
     @if($entry->field_name ?? false)
       <div class="card mb-4">
-        <div class="card-header"><i class="fas fa-exchange-alt me-2"></i>Value Change</div>
+        <div class="card-header"><i class="fas fa-exchange-alt me-2"></i>{{ __('Value Change') }}</div>
         <div class="card-body">
           <div class="row">
             <div class="col-6">
@@ -45,7 +45,7 @@
     @endif
     @if(!empty($changes))
       <div class="card mb-4">
-        <div class="card-header"><i class="fas fa-list me-2"></i>All Changes</div>
+        <div class="card-header"><i class="fas fa-list me-2"></i>{{ __('All Changes') }}</div>
         <div class="card-body p-0">
           <table class="table table-striped mb-0">
             <thead><tr><th>{{ __('Field') }}</th><th>{{ __('Old') }}</th><th>{{ __('New') }}</th></tr></thead>

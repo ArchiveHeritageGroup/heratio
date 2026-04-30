@@ -15,7 +15,7 @@
 
   <h2 class="h4 mb-3">
     <i class="fas fa-edit me-2"></i>
-    Template-driven edit
+    {{ __('Template-driven edit') }}
   </h2>
 
   @include('ahg-forms::partials.render-form', [

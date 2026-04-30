@@ -173,12 +173,12 @@
         </div>
         <div class="card-body">
           <ul class="list-unstyled mb-0">
-            <li class="mb-2"><i class="fas fa-database me-2 text-primary"></i>Copyright registries</li>
-            <li class="mb-2"><i class="fas fa-users me-2 text-primary"></i>Author/artist societies</li>
-            <li class="mb-2"><i class="fas fa-book me-2 text-primary"></i>Publisher records</li>
-            <li class="mb-2"><i class="fas fa-archive me-2 text-primary"></i>Library catalogs</li>
-            <li class="mb-2"><i class="fas fa-globe me-2 text-primary"></i>Internet searches</li>
-            <li><i class="fas fa-newspaper me-2 text-primary"></i>Newspaper archives</li>
+            <li class="mb-2"><i class="fas fa-database me-2 text-primary"></i>{{ __('Copyright registries') }}</li>
+            <li class="mb-2"><i class="fas fa-users me-2 text-primary"></i>{{ __('Author/artist societies') }}</li>
+            <li class="mb-2"><i class="fas fa-book me-2 text-primary"></i>{{ __('Publisher records') }}</li>
+            <li class="mb-2"><i class="fas fa-archive me-2 text-primary"></i>{{ __('Library catalogs') }}</li>
+            <li class="mb-2"><i class="fas fa-globe me-2 text-primary"></i>{{ __('Internet searches') }}</li>
+            <li><i class="fas fa-newspaper me-2 text-primary"></i>{{ __('Newspaper archives') }}</li>
           </ul>
         </div>
       </div>

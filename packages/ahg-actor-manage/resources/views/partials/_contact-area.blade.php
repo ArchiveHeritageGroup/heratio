@@ -128,7 +128,7 @@
         </div>
 
         <hr>
-        <h6 class="text-muted mb-3"><i class="bi bi-geo-alt me-2"></i>Physical location</h6>
+        <h6 class="text-muted mb-3"><i class="bi bi-geo-alt me-2"></i>{{ __('Physical location') }}</h6>
 
         <div class="mb-3">
           <label class="form-label">Street address <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
@@ -308,7 +308,7 @@
         </div>
 
         <hr>
-        <h6 class="text-muted mb-3"><i class="bi bi-geo-alt me-2"></i>Physical location</h6>
+        <h6 class="text-muted mb-3"><i class="bi bi-geo-alt me-2"></i>{{ __('Physical location') }}</h6>
 
         <div class="mb-3">
           <label class="form-label">Street address <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

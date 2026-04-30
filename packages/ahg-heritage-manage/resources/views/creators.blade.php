@@ -7,7 +7,7 @@
   <div class="container">
     <div class="row mb-4">
       <div class="col-12">
-        <h1 class="display-5 fw-bold mb-3"><i class="fas fa-users me-2"></i>Creators & People</h1>
+        <h1 class="display-5 fw-bold mb-3"><i class="fas fa-users me-2"></i>{{ __('Creators & People') }}</h1>
         <p class="lead text-muted">Discover collections by the people who created them</p>
       </div>
     </div>
@@ -55,7 +55,7 @@
     </ul></nav>
     @endif
     @else
-    <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>No creators found.</div>
+    <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>{{ __('No creators found.') }}</div>
     @endif
   </div>
 </div>

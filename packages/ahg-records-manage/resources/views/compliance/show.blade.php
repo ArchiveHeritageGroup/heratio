@@ -101,7 +101,7 @@
 
 @if($assessment->status !== 'finalised')
   <div class="card border-success">
-    <div class="card-header bg-success text-white"><i class="fas fa-stamp me-1"></i> Sign off &amp; finalise</div>
+    <div class="card-header bg-success text-white"><i class="fas fa-stamp me-1"></i> {{ __('Sign off &amp; finalise') }}</div>
     <div class="card-body">
       <form method="POST" action="{{ route('records.compliance.finalize', $assessment->id) }}" class="row g-2 align-items-end">
         @csrf

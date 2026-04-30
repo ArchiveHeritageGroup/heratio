@@ -10,7 +10,7 @@
     <div class="col-md-3">
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-info-circle me-1"></i> Context
+          <i class="fas fa-info-circle me-1"></i> {{ __('Context') }}
         </div>
         <div class="list-group list-group-flush">
           <a href="{{ route('informationobject.show', $io->slug) }}" class="list-group-item list-group-item-action small">
@@ -24,7 +24,7 @@
 
       <div class="card mb-3">
         <div class="card-header fw-bold small" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-print me-1"></i> Actions
+          <i class="fas fa-print me-1"></i> {{ __('Actions') }}
         </div>
         <div class="card-body">
           <button onclick="window.print()" class="btn atom-btn-white btn-sm w-100 mb-2">
@@ -111,7 +111,7 @@
           </div>
         @else
           <div class="alert alert-info">
-            <i class="fas fa-info-circle me-1"></i> No physical storage locations linked to this description.
+            <i class="fas fa-info-circle me-1"></i> {{ __('No physical storage locations linked to this description.') }}
           </div>
         @endif
 
@@ -128,7 +128,7 @@
           @endforeach
         @else
           <div class="alert alert-info">
-            <i class="fas fa-info-circle me-1"></i> No physical objects linked for box labels.
+            <i class="fas fa-info-circle me-1"></i> {{ __('No physical objects linked for box labels.') }}
           </div>
         @endif
       @endif

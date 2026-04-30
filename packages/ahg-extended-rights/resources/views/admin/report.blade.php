@@ -111,7 +111,7 @@
     {{-- Data Table --}}
     @if(empty($data) || (is_object($data) && method_exists($data, 'isEmpty') && $data->isEmpty()))
     <div class="alert alert-info">
-      <i class="fas fa-info-circle me-2"></i>No data found for this report.
+      <i class="fas fa-info-circle me-2"></i>{{ __('No data found for this report.') }}
     </div>
     @else
     <div class="table-responsive">

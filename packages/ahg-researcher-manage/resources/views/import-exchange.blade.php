@@ -24,7 +24,7 @@
   @if($result)
     <div class="card border-success mb-4">
       <div class="card-header bg-success text-white">
-        <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Import Complete</h5>
+        <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>{{ __('Import Complete') }}</h5>
       </div>
       <div class="card-body">
         <p>Your exchange file has been imported as a <strong>draft submission</strong>. Review the items and submit for archivist approval.</p>
@@ -164,7 +164,7 @@
     <div class="col-lg-4">
       <div class="card">
         <div class="card-header">
-          <h6 class="mb-0"><i class="fas fa-list-check me-2"></i>Supported Collection Types</h6>
+          <h6 class="mb-0"><i class="fas fa-list-check me-2"></i>{{ __('Supported Collection Types') }}</h6>
         </div>
         <div class="card-body small">
           <dl class="row mb-0">

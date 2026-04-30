@@ -1,6 +1,6 @@
 <nav id="heritage-sidebar" class="list-group mb-3 sticky-top" style="top: 1rem;">
   <div class="list-group-item fw-bold small text-uppercase" style="background:var(--ahg-primary);color:#fff">
-    <i class="fas fa-tachometer-alt me-1"></i> Heritage Admin
+    <i class="fas fa-tachometer-alt me-1"></i> {{ __('Heritage Admin') }}
   </div>
 
   {{-- Dashboard --}}
@@ -42,7 +42,7 @@
 
   {{-- Contributions --}}
   <div class="list-group-item list-group-item-light fw-bold small text-uppercase mt-2">
-    <i class="fas fa-inbox me-1"></i> Contributions
+    <i class="fas fa-inbox me-1"></i> {{ __('Contributions') }}
   </div>
   <a href="{{ route('heritage.review-queue') }}"
      class="list-group-item list-group-item-action d-flex align-items-center{{ request()->routeIs('heritage.review-queue') ? ' active' : '' }}">
@@ -57,7 +57,7 @@
 
   {{-- Access Control --}}
   <div class="list-group-item list-group-item-light fw-bold small text-uppercase mt-2">
-    <i class="fas fa-shield-alt me-1"></i> Access Control
+    <i class="fas fa-shield-alt me-1"></i> {{ __('Access Control') }}
   </div>
   <a href="{{ route('heritage.admin-access-requests') }}"
      class="list-group-item list-group-item-action d-flex align-items-center{{ request()->routeIs('heritage.admin-access-requests') ? ' active' : '' }}">
@@ -77,7 +77,7 @@
 
   {{-- Custodian Tools --}}
   <div class="list-group-item list-group-item-light fw-bold small text-uppercase mt-2">
-    <i class="fas fa-tools me-1"></i> Custodian Tools
+    <i class="fas fa-tools me-1"></i> {{ __('Custodian Tools') }}
   </div>
   <a href="{{ route('heritage.custodian') }}"
      class="list-group-item list-group-item-action d-flex align-items-center{{ request()->routeIs('heritage.custodian') ? ' active' : '' }}">
@@ -97,7 +97,7 @@
 
   {{-- Content --}}
   <div class="list-group-item list-group-item-light fw-bold small text-uppercase mt-2">
-    <i class="fas fa-file-alt me-1"></i> Content
+    <i class="fas fa-file-alt me-1"></i> {{ __('Content') }}
   </div>
   <a href="{{ route('heritage.graph') }}"
      class="list-group-item list-group-item-action d-flex align-items-center{{ request()->routeIs('heritage.graph') ? ' active' : '' }}">
@@ -107,7 +107,7 @@
 
   {{-- Analytics --}}
   <div class="list-group-item list-group-item-light fw-bold small text-uppercase mt-2">
-    <i class="fas fa-chart-bar me-1"></i> Analytics
+    <i class="fas fa-chart-bar me-1"></i> {{ __('Analytics') }}
   </div>
   <a href="{{ route('heritage.analytics') }}"
      class="list-group-item list-group-item-action d-flex align-items-center{{ request()->routeIs('heritage.analytics') ? ' active' : '' }}">

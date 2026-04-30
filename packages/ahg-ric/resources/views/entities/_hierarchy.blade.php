@@ -12,7 +12,7 @@
 @endphp
 
 <section class="mb-3">
-    <h2 class="h6 text-muted"><i class="fas fa-sitemap me-1"></i> Hierarchy (isPartOf / hasPart)</h2>
+    <h2 class="h6 text-muted"><i class="fas fa-sitemap me-1"></i> {{ __('Hierarchy (isPartOf / hasPart)') }}</h2>
 
     <div class="border rounded p-3 bg-light">
         {{-- Parent --}}
@@ -95,7 +95,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="ricHierarchyModalTitle"><i class="fas fa-sitemap"></i> Set Hierarchy</h5>
+                <h5 class="modal-title" id="ricHierarchyModalTitle"><i class="fas fa-sitemap"></i> {{ __('Set Hierarchy') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">

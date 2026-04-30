@@ -19,7 +19,7 @@
 
 <div class="alert alert-info">
   <i class="fa fa-info-circle"></i>
-  Export archival descriptions to various international metadata standards.
+  {{ __('Export archival descriptions to various international metadata standards.') }}
 </div>
 
 @if(session('notice'))

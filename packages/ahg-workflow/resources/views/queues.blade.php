@@ -5,7 +5,7 @@
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0"><i class="fas fa-layer-group"></i> Workflow Queues</h1>
+    <h1 class="mb-0"><i class="fas fa-layer-group"></i> {{ __('Workflow Queues') }}</h1>
     <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('Dashboard') }}</a>
   </div>
 

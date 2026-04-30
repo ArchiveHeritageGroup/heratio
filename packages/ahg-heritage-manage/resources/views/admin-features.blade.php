@@ -7,7 +7,7 @@
   <div class="col-md-3">@include('ahg-heritage-manage::partials._admin-sidebar')</div>
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-toggle-on me-2"></i>Feature Toggles</h1>
+      <h1><i class="fas fa-toggle-on me-2"></i>{{ __('Feature Toggles') }}</h1>
     </div>
 
     @if(session('success'))
@@ -68,7 +68,7 @@
 
     <div class="alert alert-info mt-4">
       <i class="fas fa-info-circle me-2"></i>
-      Feature toggles control platform functionality. Disabled features will not be available to users.
+      {{ __('Feature toggles control platform functionality. Disabled features will not be available to users.') }}
     </div>
   </div>
 </div>

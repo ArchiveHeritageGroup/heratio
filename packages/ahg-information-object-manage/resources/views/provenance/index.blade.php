@@ -28,7 +28,7 @@
   @if($events->isNotEmpty())
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-link me-1"></i> Chain of Custody
+        <i class="fas fa-link me-1"></i> {{ __('Chain of Custody') }}
       </div>
       <div class="card-body">
         <div class="d-flex flex-wrap align-items-start justify-content-center gap-0">

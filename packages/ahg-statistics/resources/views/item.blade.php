@@ -97,7 +97,7 @@
         <div class="col-lg-8 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Views Over Time</h5>
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>{{ __('Views Over Time') }}</h5>
                 </div>
                 <div class="card-body">
                     <canvas id="viewsChart" height="250"></canvas>
@@ -108,7 +108,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-globe me-2"></i>Top Countries</h5>
+                    <h5 class="mb-0"><i class="fas fa-globe me-2"></i>{{ __('Top Countries') }}</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">

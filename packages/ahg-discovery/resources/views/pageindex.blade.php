@@ -53,7 +53,7 @@
         <div class="col-md-3">
             <div class="card mb-4">
                 <div class="card-header">
-                    <i class="fas fa-chart-bar me-1"></i> Index Stats
+                    <i class="fas fa-chart-bar me-1"></i> {{ __('Index Stats') }}
                 </div>
                 <div class="card-body">
                     <table class="table table-sm table-borderless mb-0">

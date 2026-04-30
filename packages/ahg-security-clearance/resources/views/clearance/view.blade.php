@@ -13,7 +13,7 @@
     {{-- User Info --}}
     <div class="col-md-4">
       <div class="card mb-3">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-user"></i> User Information</h5></div>
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-user"></i> {{ __('User Information') }}</h5></div>
         <div class="card-body">
           <p><strong>{{ __('Name:') }}</strong> {{ e($targetUser->authorized_form_of_name ?? $targetUser->username ?? '') }}</p>
           <p><strong>{{ __('Email:') }}</strong> {{ e($targetUser->email ?? '') }}</p>
@@ -29,7 +29,7 @@
 
       {{-- Current Clearance --}}
       <div class="card mb-3">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-shield-alt"></i> Current Clearance</h5></div>
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-shield-alt"></i> {{ __('Current Clearance') }}</h5></div>
         <div class="card-body">
           @if($clearance)
             <p><strong>{{ __('Level:') }}</strong> <span class="badge" style="background-color: {{ $clearance->color ?? '#666' }}">{{ e($clearance->classification_name ?? 'Unknown') }}</span></p>
@@ -47,7 +47,7 @@
 
       {{-- Grant / Update --}}
       <div class="card mb-3">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-edit"></i> Update Clearance</h5></div>
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-edit"></i> {{ __('Update Clearance') }}</h5></div>
         <div class="card-body">
           <form method="POST" action="{{ route('security-clearance.grant') }}">
             @csrf
@@ -82,7 +82,7 @@
     <div class="col-md-8">
       {{-- Access Grants --}}
       <div class="card mb-3">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-key"></i> Object Access Grants</h5></div>
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-key"></i> {{ __('Object Access Grants') }}</h5></div>
         <div class="card-body table-responsive">
           <table class="table table-sm table-striped">
             <thead><tr><th>{{ __('Object') }}</th><th>{{ __('Classification') }}</th><th>{{ __('Granted') }}</th><th>{{ __('Expires') }}</th><th>{{ __('Actions') }}</th></tr></thead>
@@ -112,7 +112,7 @@
 
       {{-- History --}}
       <div class="card mb-3">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-history"></i> Clearance History</h5></div>
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-history"></i> {{ __('Clearance History') }}</h5></div>
         <div class="card-body table-responsive">
           <table class="table table-sm table-striped">
             <thead><tr><th>{{ __('Action') }}</th><th>{{ __('Level') }}</th><th>{{ __('By') }}</th><th>{{ __('Notes') }}</th><th>{{ __('Date') }}</th></tr></thead>
@@ -139,7 +139,7 @@
 
       {{-- Admin: 2FA --}}
       <div class="card">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-mobile-alt"></i> Two-Factor Authentication</h5></div>
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-mobile-alt"></i> {{ __('Two-Factor Authentication') }}</h5></div>
         <div class="card-body">
           <form method="POST" action="{{ route('security-clearance.remove-2fa', ['id' => $targetUser->id]) }}"
                 onsubmit="return confirm('Remove 2FA for this user?')">

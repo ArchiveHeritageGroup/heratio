@@ -9,7 +9,7 @@
     <li class="breadcrumb-item active">Declassification</li>
   </ol></nav>
 
-  <h1><i class="fas fa-unlock"></i> Declassification</h1>
+  <h1><i class="fas fa-unlock"></i> {{ __('Declassification') }}</h1>
   <p>Object: <strong>{{ e($object->title ?? 'ID: ' . $object->id) }}</strong></p>
 
   @if($currentClassification)

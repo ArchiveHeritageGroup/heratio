@@ -21,10 +21,10 @@
   <a href="{{ route('dam.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back') }}</a>
 </div>
 @endsection
-@section('title-block')<h1><i class="fas fa-hdd me-2"></i>Storage Report</h1>@endsection
+@section('title-block')<h1><i class="fas fa-hdd me-2"></i>{{ __('Storage Report') }}</h1>@endsection
 @section('content')
 <div class="card">
-  <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-hdd me-2"></i>Storage by File Type</h5></div>
+  <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-hdd me-2"></i>{{ __('Storage by File Type') }}</h5></div>
   <div class="card-body p-0">
     <table class="table table-striped mb-0">
       <thead class="table-light"><tr><th>{{ __('MIME Type') }}</th><th class="text-end">{{ __('Files') }}</th><th class="text-end">{{ __('Size') }}</th></tr></thead>

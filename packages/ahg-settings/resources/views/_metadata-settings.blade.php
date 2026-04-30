@@ -1,7 +1,7 @@
 {{-- Metadata extraction settings partial --}}
 <div class="card mb-4">
   <div class="card-header" style="background:var(--ahg-primary);color:#fff;">
-    <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Metadata Extraction</h5>
+    <h5 class="mb-0"><i class="fas fa-tags me-2"></i>{{ __('Metadata Extraction') }}</h5>
   </div>
   <div class="card-body">
     <div class="form-check form-switch mb-3">

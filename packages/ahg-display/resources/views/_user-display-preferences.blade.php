@@ -82,7 +82,7 @@ $allModes = [
                         @if(!$canOverride)
                             <div class="alert alert-secondary">
                                 <i class="bi bi-lock me-2"></i>
-                                Display mode for this module is set by the administrator.
+                                {{ __('Display mode for this module is set by the administrator.') }}
                             </div>
                         @else
                             <form class="user-pref-form" data-module="@php echo $module; @endphp">

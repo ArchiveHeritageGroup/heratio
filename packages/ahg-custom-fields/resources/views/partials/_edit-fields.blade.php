@@ -2,7 +2,7 @@
 @if(isset($customFields) && $customFields->count())
     <div class="card mb-4">
         <div class="card-header">
-            <h6 class="mb-0"><i class="bi bi-input-cursor-text me-2"></i>Custom Fields</h6>
+            <h6 class="mb-0"><i class="bi bi-input-cursor-text me-2"></i>{{ __('Custom Fields') }}</h6>
         </div>
         <div class="card-body">
             @foreach($customFields as $field)

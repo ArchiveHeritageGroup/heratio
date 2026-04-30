@@ -21,7 +21,7 @@
                     <li class="breadcrumb-item active">Closure Periods</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-lock me-2"></i>Closure Periods</h1>
+            <h1><i class="fas fa-lock me-2"></i>{{ __('Closure Periods') }}</h1>
             <p class="text-muted">Section 10 &mdash; 25-year closure period for restricted records</p>
         </div>
         <div class="col-auto">

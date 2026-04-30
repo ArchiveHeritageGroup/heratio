@@ -31,7 +31,7 @@
     {{-- Database Info --}}
     <div class="card mb-4">
       <div class="card-header" >
-        <h5 class="mb-0"><i class="fas fa-database me-2"></i>Database Info</h5>
+        <h5 class="mb-0"><i class="fas fa-database me-2"></i>{{ __('Database Info') }}</h5>
       </div>
       <div class="card-body">
         <ul class="list-unstyled mb-0">
@@ -57,7 +57,7 @@
     {{-- Storage Info --}}
     <div class="card mb-4">
       <div class="card-header" >
-        <h5 class="mb-0"><i class="fas fa-folder me-2"></i>Storage</h5>
+        <h5 class="mb-0"><i class="fas fa-folder me-2"></i>{{ __('Storage') }}</h5>
       </div>
       <div class="card-body">
         <ul class="list-unstyled mb-0">
@@ -73,7 +73,7 @@
     {{-- Quick Actions --}}
     <div class="card mb-4">
       <div class="card-header" >
-        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>{{ __('Quick Actions') }}</h5>
       </div>
       <div class="card-body">
         <div class="d-grid gap-2">
@@ -93,7 +93,7 @@
     {{-- Scheduled Backups --}}
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center" >
-        <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Schedules</h5>
+        <h5 class="mb-0"><i class="fas fa-clock me-2"></i>{{ __('Schedules') }}</h5>
         <button type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#createScheduleModal">
           <i class="fas fa-plus"></i>
         </button>
@@ -141,7 +141,7 @@
   <div class="col-md-8">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center" >
-        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Backups</h5>
+        <h5 class="mb-0"><i class="fas fa-history me-2"></i>{{ __('Backups') }}</h5>
         <span class="badge bg-secondary">{{ $backupCount }}</span>
       </div>
       <div class="card-body p-0">
@@ -241,7 +241,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="createBackupModalLabel"><i class="fas fa-plus me-2"></i>Create Backup</h5>
+        <h5 class="modal-title" id="createBackupModalLabel"><i class="fas fa-plus me-2"></i>{{ __('Create Backup') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
       </div>
       <div class="modal-body">
@@ -295,7 +295,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title"><i class="fas fa-database me-2"></i>Database Backup</h5>
+        <h5 class="modal-title"><i class="fas fa-database me-2"></i>{{ __('Database Backup') }}</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -347,7 +347,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header bg-dark text-white">
-        <h5 class="modal-title"><i class="fas fa-archive me-2"></i>Full Backup</h5>
+        <h5 class="modal-title"><i class="fas fa-archive me-2"></i>{{ __('Full Backup') }}</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -404,7 +404,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="createScheduleModalLabel"><i class="fas fa-clock me-2"></i>Create Backup Schedule</h5>
+        <h5 class="modal-title" id="createScheduleModalLabel"><i class="fas fa-clock me-2"></i>{{ __('Create Backup Schedule') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">

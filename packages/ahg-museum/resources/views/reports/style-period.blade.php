@@ -3,7 +3,7 @@
 @section('title', 'Style & Period Report')
 @section('body-class', 'museum-reports style-period')
 @section('sidebar')<div class="sidebar-content"><a href="{{ route('museum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back') }}</a></div>@endsection
-@section('title-block')<h1><i class="fas fa-theater-masks me-2"></i>Style & Period Report</h1>@endsection
+@section('title-block')<h1><i class="fas fa-theater-masks me-2"></i>{{ __('Style & Period Report') }}</h1>@endsection
 @section('content')
 <div class="row">
   <div class="col-md-6 mb-4">

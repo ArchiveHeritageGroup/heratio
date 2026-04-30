@@ -9,7 +9,7 @@
 
 @section('content')
 
-  <h1 class="mb-4"><i class="fas fa-gavel me-2 text-primary"></i> My Bids &amp; Wins</h1>
+  <h1 class="mb-4"><i class="fas fa-gavel me-2 text-primary"></i> {{ __('My Bids &amp; Wins') }}</h1>
 
   {{-- Auctions you've won — pay-now CTA --}}
   @if(count($wonAuctions))

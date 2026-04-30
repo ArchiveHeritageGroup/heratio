@@ -25,7 +25,7 @@
                     <li class="breadcrumb-item active">New Transfer</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-truck me-2"></i>Create Records Transfer</h1>
+            <h1><i class="fas fa-truck me-2"></i>{{ __('Create Records Transfer') }}</h1>
         </div>
     </div>
 

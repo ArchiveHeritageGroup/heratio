@@ -6,7 +6,7 @@
 @section('content')
 
   <div class="multiline-header d-flex flex-column mb-3">
-    <h1 class="mb-0"><i class="fas fa-handshake me-2"></i>Create Loan</h1>
+    <h1 class="mb-0"><i class="fas fa-handshake me-2"></i>{{ __('Create Loan') }}</h1>
     <span class="small text-muted">{{ __('Create a new loan agreement') }}</span>
   </div>
 

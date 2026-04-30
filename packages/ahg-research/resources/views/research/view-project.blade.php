@@ -83,7 +83,7 @@
         {{-- Milestones --}}
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-flag me-2"></i>Milestones</h5>
+                <h5 class="mb-0"><i class="fas fa-flag me-2"></i>{{ __('Milestones') }}</h5>
                 @if($isOwner)
                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#milestone-add-form">
                     <i class="fas fa-plus me-1"></i> {{ __('Add') }}
@@ -167,7 +167,7 @@
 
         {{-- Timeline --}}
         <div class="card mb-4">
-            <div class="card-header"><h5 class="mb-0"><i class="fas fa-stream me-2"></i>Project Timeline</h5></div>
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-stream me-2"></i>{{ __('Project Timeline') }}</h5></div>
             <div class="card-body">
                 @php
                     $timelineItems = [];
@@ -321,7 +321,7 @@
         {{-- Reports --}}
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Reports</h5>
+                <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>{{ __('Reports') }}</h5>
                 <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#newProjectReportModal"><i class="fas fa-plus me-1"></i>{{ __('New Report') }}</button>
             </div>
             <div class="card-body p-0">
@@ -356,7 +356,7 @@
     <div class="col-md-4">
         {{-- Analysis Tools --}}
         <div class="card mb-4">
-            <div class="card-header bg-primary text-white"><h6 class="mb-0"><i class="fas fa-brain me-2"></i>Analysis Tools</h6></div>
+            <div class="card-header bg-primary text-white"><h6 class="mb-0"><i class="fas fa-brain me-2"></i>{{ __('Analysis Tools') }}</h6></div>
             <div class="list-group list-group-flush">
                 <a href="{{ url('/research/knowledge-graph/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-project-diagram me-2 text-primary"></i>{{ __('Knowledge Graph') }}</a>
                 <a href="{{ url('/research/assertions/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-quote-right me-2 text-success"></i>{{ __('Assertions') }}</a>
@@ -369,7 +369,7 @@
 
         {{-- Visualization --}}
         <div class="card mb-4">
-            <div class="card-header bg-info text-white"><h6 class="mb-0"><i class="fas fa-chart-area me-2"></i>Visualization</h6></div>
+            <div class="card-header bg-info text-white"><h6 class="mb-0"><i class="fas fa-chart-area me-2"></i>{{ __('Visualization') }}</h6></div>
             <div class="list-group list-group-flush">
                 <a href="{{ url('/research/timeline/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-stream me-2 text-primary"></i>{{ __('Timeline Builder') }}</a>
                 <a href="{{ url('/research/map/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-map-marked-alt me-2 text-success"></i>{{ __('Map Builder') }}</a>
@@ -379,7 +379,7 @@
 
         {{-- Research Output --}}
         <div class="card mb-4">
-            <div class="card-header bg-success text-white"><h6 class="mb-0"><i class="fas fa-file-export me-2"></i>Research Output</h6></div>
+            <div class="card-header bg-success text-white"><h6 class="mb-0"><i class="fas fa-file-export me-2"></i>{{ __('Research Output') }}</h6></div>
             <div class="list-group list-group-flush">
                 <a href="{{ route('research.reports', ['project_id' => $project->id]) }}" class="list-group-item list-group-item-action"><i class="fas fa-file-alt me-2 text-dark"></i>Reports ({{ count($reports ?? []) }})</a>
                 <a href="{{ url('/research/ro-crate/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-box me-2 text-primary"></i>{{ __('RO-Crate Package') }}</a>
@@ -393,7 +393,7 @@
         {{-- Collaborators --}}
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="mb-0"><i class="fas fa-users me-2"></i>Collaborators</h6>
+                <h6 class="mb-0"><i class="fas fa-users me-2"></i>{{ __('Collaborators') }}</h6>
                 @if($isOwner)
                 <a href="{{ url('/research/invite-collaborator/' . $project->id) }}" class="btn btn-sm btn-outline-primary">
                     <i class="fas fa-user-plus"></i>
@@ -433,7 +433,7 @@
 
         {{-- Recent Activity --}}
         <div class="card">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-history me-2"></i>Recent Activity</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-history me-2"></i>{{ __('Recent Activity') }}</h6></div>
             @if(!empty($activities))
             <ul class="list-group list-group-flush">
                 @foreach(array_slice($activities, 0, 10) as $activity)

@@ -125,7 +125,7 @@
     @if($job->status_id == 185 && !empty($job->error_message))
     <div class="card mb-4 border-danger">
         <div class="card-header bg-danger text-white">
-            <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Error Details</h5>
+            <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> {{ __('Error Details') }}</h5>
         </div>
         <div class="card-body">
             <div class="alert alert-danger mb-0">

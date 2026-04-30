@@ -18,7 +18,7 @@ $color = $levelColors[$level] ?? 'secondary';
 
 <div class="card mb-3 authority-completeness-panel">
   <div class="card-header py-2" style="background: var(--ahg-primary); color: #fff;">
-    <i class="fas fa-chart-bar me-1"></i>Completeness
+    <i class="fas fa-chart-bar me-1"></i>{{ __('Completeness') }}
   </div>
   <div class="card-body py-2">
     <div class="d-flex align-items-center">

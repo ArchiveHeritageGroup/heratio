@@ -190,7 +190,7 @@
 
       {{-- History Timeline --}}
       <div class="card mt-3">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-history"></i> Task History</h5></div>
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-history"></i> {{ __('Task History') }}</h5></div>
         <div class="card-body">
           @if(empty($task->history))
             <p class="text-muted mb-0">No history recorded.</p>

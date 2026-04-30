@@ -59,7 +59,7 @@
 
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-cloud-upload-alt me-2"></i>Upload File</h5>
+                    <h5 class="mb-0"><i class="fas fa-cloud-upload-alt me-2"></i>{{ __('Upload File') }}</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
@@ -99,7 +99,7 @@
     <div class="col-md-4">
         <div class="card mb-4">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Session Info</h5>
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Session Info') }}</h5>
             </div>
             <div class="card-body">
                 <ul class="list-unstyled mb-0">
@@ -113,7 +113,7 @@
         @if(!empty($files))
         <div class="card mb-4">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-file me-2"></i>Uploaded Files</h5>
+                <h5 class="mb-0"><i class="fas fa-file me-2"></i>{{ __('Uploaded Files') }}</h5>
             </div>
             <div class="card-body">
                 @foreach($files as $f)
@@ -131,7 +131,7 @@
 
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-download me-2"></i>CSV Templates</h5>
+                <h5 class="mb-0"><i class="fas fa-download me-2"></i>{{ __('CSV Templates') }}</h5>
             </div>
             <div class="card-body">
                 <a href="{{ route('ingest.template', ['sector' => $session->sector ?? 'archive']) }}"

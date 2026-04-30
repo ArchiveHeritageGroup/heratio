@@ -73,7 +73,7 @@
 
     <div class="col-md-4">
         <div class="card mb-4">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-cog me-2"></i>Actions</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-cog me-2"></i>{{ __('Actions') }}</h6></div>
             <div class="card-body d-grid gap-2">
                 @if($reproRequest->status === 'draft' && count($items) > 0)
                 <form method="POST">@csrf<input type="hidden" name="form_action" value="submit"><button class="btn btn-success w-100"><i class="fas fa-paper-plane me-1"></i>{{ __('Submit Request') }}</button></form>
@@ -85,7 +85,7 @@
             </div>
         </div>
         <div class="card">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Pricing</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Pricing') }}</h6></div>
             <div class="card-body small text-muted">
                 <p>Fees vary by type, size, resolution, quantity, urgency, and intended use.</p>
                 <p class="mb-0">A quote will be provided before processing.</p>

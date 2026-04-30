@@ -29,7 +29,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-images me-2"></i>Exhibitions Report</h1>
+<h1><i class="fas fa-images me-2"></i>{{ __('Exhibitions Report') }}</h1>
 @endsection
 
 @section('content')

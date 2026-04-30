@@ -23,7 +23,7 @@
 
             <div class="card">
                 <div class="card-header" style="background-color: var(--ahg-primary); color: #fff;">
-                    <h5 class="mb-0"><i class="fas fa-key me-2"></i>New Access Request</h5>
+                    <h5 class="mb-0"><i class="fas fa-key me-2"></i>{{ __('New Access Request') }}</h5>
                 </div>
                 <div class="card-body">
                     <form method="post" action="{{ route('accessRequest.store') }}">

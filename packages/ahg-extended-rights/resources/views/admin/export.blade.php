@@ -6,7 +6,7 @@
 <div class="container-fluid mt-3">
   @include('ahg-extended-rights::admin._sidebar')
 
-  <h1><i class="fas fa-file-export"></i> Export Rights Data</h1>
+  <h1><i class="fas fa-file-export"></i> {{ __('Export Rights Data') }}</h1>
 
   {{-- Single Object Export (cloned from PSIS exportSuccess) --}}
   <div class="row">

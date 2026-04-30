@@ -3,7 +3,7 @@
 @section('body-class', 'admin ric')
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0"><i class="fas fa-gavel me-2"></i>RiC Rules & Mandates</h1>
+    <h1 class="mb-0"><i class="fas fa-gavel me-2"></i>{{ __('RiC Rules & Mandates') }}</h1>
     <div class="d-flex gap-2">
         <a href="{{ route('ric.entities.create', ['rules']) }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> {{ __('Create Rule') }}</a>
         <a href="{{ route('ric.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> {{ __('RiC Dashboard') }}</a>

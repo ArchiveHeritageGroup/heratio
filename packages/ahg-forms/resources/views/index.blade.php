@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <h1><i class="fas fa-wpforms me-2"></i>Form Templates</h1>
+            <h1><i class="fas fa-wpforms me-2"></i>{{ __('Form Templates') }}</h1>
             <p class="text-muted">Manage configurable metadata entry forms</p>
         </div>
         <div class="col-auto">
@@ -60,7 +60,7 @@
         <div class="col-md-4">
             <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-list me-2"></i>Templates</h5>
+                    <h5 class="card-title"><i class="fas fa-list me-2"></i>{{ __('Templates') }}</h5>
                     <p class="card-text">Create and manage form templates with drag-drop field builder.</p>
                     <a href="{{ route('forms.templates') }}" class="btn btn-outline-primary">Manage Templates</a>
                 </div>
@@ -69,7 +69,7 @@
         <div class="col-md-4">
             <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-link me-2"></i>Assignments</h5>
+                    <h5 class="card-title"><i class="fas fa-link me-2"></i>{{ __('Assignments') }}</h5>
                     <p class="card-text">Assign templates to repositories and description levels.</p>
                     <a href="{{ route('forms.assignments') }}" class="btn btn-outline-primary">Manage Assignments</a>
                 </div>
@@ -78,7 +78,7 @@
         <div class="col-md-4">
             <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-book me-2"></i>Library</h5>
+                    <h5 class="card-title"><i class="fas fa-book me-2"></i>{{ __('Library') }}</h5>
                     <p class="card-text">Pre-built templates: ISAD-G, Dublin Core, Accession forms.</p>
                     <a href="{{ route('forms.library') }}" class="btn btn-outline-primary">Browse Library</a>
                 </div>

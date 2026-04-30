@@ -27,7 +27,7 @@
             <div class="col-lg-8">
                 {{-- Package Metadata --}}
                 <div class="card mb-4">
-                    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-info-circle"></i> Package Metadata</div>
+                    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-info-circle"></i> {{ __('Package Metadata') }}</div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
@@ -173,7 +173,7 @@
                 {{-- Timeline --}}
                 <div class="card mb-4">
                     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                        <i class="fas fa-calendar-alt me-1"></i> Timeline
+                        <i class="fas fa-calendar-alt me-1"></i> {{ __('Timeline') }}
                     </div>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between">
@@ -211,7 +211,7 @@
                 @if(($package->source_path ?? null) || ($package->export_path ?? null))
                 <div class="card mb-4">
                     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                        <i class="fas fa-folder me-1"></i> File Paths
+                        <i class="fas fa-folder me-1"></i> {{ __('File Paths') }}
                     </div>
                     <div class="card-body">
                         @if($package->source_path ?? null)
@@ -234,7 +234,7 @@
                 @if($parentPackage || !empty($childPackages))
                 <div class="card mb-4">
                     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                        <i class="fas fa-sitemap me-1"></i> Related Packages
+                        <i class="fas fa-sitemap me-1"></i> {{ __('Related Packages') }}
                     </div>
                     <ul class="list-group list-group-flush">
                         @if($parentPackage)
@@ -265,7 +265,7 @@
                 @if(($package->source_path ?? null) && is_dir($package->source_path ?? ''))
                 <div class="card">
                     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                        <i class="fas fa-file-code me-1"></i> BagIt Structure
+                        <i class="fas fa-file-code me-1"></i> {{ __('BagIt Structure') }}
                     </div>
                     <div class="card-body">
                         <pre class="mb-0 small bg-light p-2 rounded">{{ $package->uuid }}/

@@ -41,7 +41,7 @@
   {{-- Quick search within this collection --}}
   <div class="card mb-3">
     <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-      <i class="fas fa-search me-1"></i> Search within
+      <i class="fas fa-search me-1"></i> {{ __('Search within') }}
     </div>
     <div class="card-body p-2">
       <form action="{{ route('informationobject.browse') }}" method="GET">
@@ -64,7 +64,7 @@
     {{-- Collections Management --}}
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-archive me-1"></i> Collections Management
+        <i class="fas fa-archive me-1"></i> {{ __('Collections Management') }}
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('io.provenance', $io->slug) }}" class="list-group-item list-group-item-action small">
@@ -94,7 +94,7 @@
     @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgPreservationPlugin'))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-shield-alt me-1"></i> Digital Preservation (OAIS)
+        <i class="fas fa-shield-alt me-1"></i> {{ __('Digital Preservation (OAIS)') }}
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('io.preservation', $io->slug) }}" class="list-group-item list-group-item-action small">
@@ -109,7 +109,7 @@
     @if(class_exists(\AhgInformationObjectManage\Controllers\AiController::class) && \AhgCore\Services\MenuService::isPluginEnabled('ahgAIPlugin'))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-robot me-1"></i> AI Tools
+        <i class="fas fa-robot me-1"></i> {{ __('AI Tools') }}
       </div>
       <div class="list-group list-group-flush">
         <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#describeModal">
@@ -184,7 +184,7 @@
     @if(class_exists(\AhgInformationObjectManage\Controllers\PrivacyController::class) && \AhgCore\Services\MenuService::isPluginEnabled('ahgPrivacyPlugin'))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-user-shield me-1"></i> Privacy & PII
+        <i class="fas fa-user-shield me-1"></i> {{ __('Privacy & PII') }}
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('io.privacy.scan', $io->id) }}" class="list-group-item list-group-item-action small">
@@ -213,7 +213,7 @@
     @endphp
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
-        <i class="fas fa-copyright me-1"></i> Rights
+        <i class="fas fa-copyright me-1"></i> {{ __('Rights') }}
       </div>
       <div class="card-body py-2">
         @if($hasExtRights)
@@ -245,7 +245,7 @@
     @if(class_exists(\AhgInformationObjectManage\Controllers\ResearchController::class))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-graduation-cap me-1"></i> Research Tools
+        <i class="fas fa-graduation-cap me-1"></i> {{ __('Research Tools') }}
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('io.research.assessment', $io->slug) }}" class="list-group-item list-group-item-action small">
@@ -290,6 +290,10 @@
     @if($levelName)<span class="text-muted">{{ $levelName }}</span>@endif
     @if($io->identifier){{ $io->identifier }} - @endif
     {{ $io->title ?: '[Untitled]' }}
+    {{-- ICIP cultural-sensitivity badge (issue #36 Phase 2b) — visible to anyone
+         who can see the title; lets viewers know up-front whether the item
+         carries access restrictions before they engage with it. --}}
+    @include('ahg-translation::components.icip-sensitivity-badge', ['uri' => $io->icip_sensitivity ?? null])
   </h1>
 
   {{-- OCAP® overlay badges (rendered only if overlay enabled and the IO has ICIP signal) --}}
@@ -1646,7 +1650,7 @@
   @if(!empty($museumMetadata))
     <section id="museum-metadata" class="mb-4">
       <h2 class="fs-5 fw-bold border-bottom pb-2 mb-3">
-        <i class="fas fa-landmark me-1"></i> CCO / Museum metadata
+        <i class="fas fa-landmark me-1"></i> {{ __('CCO / Museum metadata') }}
       </h2>
 
       {{-- Object / Work section --}}
@@ -1880,7 +1884,7 @@
     {{-- Explore --}}
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-cogs me-1"></i> Explore
+        <i class="fas fa-cogs me-1"></i> {{ __('Explore') }}
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('informationobject.reports', $io->slug) }}" class="list-group-item list-group-item-action small">
@@ -1906,7 +1910,7 @@
     @auth
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-upload me-1"></i> Import
+          <i class="fas fa-upload me-1"></i> {{ __('Import') }}
         </div>
         <div class="list-group list-group-flush">
           <a href="{{ route('informationobject.import.xml', $io->slug) }}" class="list-group-item list-group-item-action small">
@@ -1923,7 +1927,7 @@
     @auth
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-store me-1"></i> Marketplace
+          <i class="fas fa-store me-1"></i> {{ __('Marketplace') }}
         </div>
         <div class="list-group list-group-flush">
           <a href="{{ route('ahgmarketplace.seller-listing-create', ['io' => $io->id]) }}" class="list-group-item list-group-item-action small">
@@ -1968,7 +1972,7 @@
     {{-- Export --}}
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-file-export me-1"></i> Export
+        <i class="fas fa-file-export me-1"></i> {{ __('Export') }}
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('informationobject.export.dc', $io->slug) }}" class="list-group-item list-group-item-action small">
@@ -2001,7 +2005,7 @@
     @auth
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-book me-1"></i> Finding aid
+          <i class="fas fa-book me-1"></i> {{ __('Finding aid') }}
         </div>
         <div class="list-group list-group-flush">
           @if(isset($findingAid) && $findingAid)
@@ -2033,7 +2037,7 @@
     @auth
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-tasks me-1"></i> Tasks
+          <i class="fas fa-tasks me-1"></i> {{ __('Tasks') }}
         </div>
         <div class="list-group list-group-flush">
           <form action="{{ route('informationobject.calculateDates', $io->slug) }}" method="POST" class="d-inline">
@@ -2053,7 +2057,7 @@
     @if(isset($subjects) && $subjects->isNotEmpty())
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-tag me-1"></i> Related subjects
+          <i class="fas fa-tag me-1"></i> {{ __('Related subjects') }}
         </div>
         <ul class="list-group list-group-flush">
           @foreach($subjects as $subject)
@@ -2071,7 +2075,7 @@
     @if((isset($creators) && $creators->isNotEmpty()) || (isset($nameAccessPoints) && $nameAccessPoints->isNotEmpty()))
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-users me-1"></i> Related people and organizations
+          <i class="fas fa-users me-1"></i> {{ __('Related people and organizations') }}
         </div>
         <ul class="list-group list-group-flush">
           @if(isset($creators) && $creators->isNotEmpty())
@@ -2101,7 +2105,7 @@
     @if(isset($genres) && $genres->isNotEmpty())
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-masks-theater me-1"></i> Related genres
+          <i class="fas fa-masks-theater me-1"></i> {{ __('Related genres') }}
         </div>
         <ul class="list-group list-group-flush">
           @foreach($genres as $genre)
@@ -2115,7 +2119,7 @@
     @if(isset($places) && $places->isNotEmpty())
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-map-marker-alt me-1"></i> Related places
+          <i class="fas fa-map-marker-alt me-1"></i> {{ __('Related places') }}
         </div>
         <ul class="list-group list-group-flush">
           @foreach($places as $place)
@@ -2195,7 +2199,7 @@
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="modal-title"><i class="fas fa-eye me-2"></i>Describe Object/Image</h5>
+        <h5 class="modal-title"><i class="fas fa-eye me-2"></i>{{ __('Describe Object/Image') }}</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -2316,7 +2320,7 @@
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="modal-title"><i class="fas fa-brain me-2"></i>Extract Entities (NER)</h5>
+        <h5 class="modal-title"><i class="fas fa-brain me-2"></i>{{ __('Extract Entities (NER)') }}</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -2438,7 +2442,7 @@
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="modal-title"><i class="fas fa-file-alt me-2"></i>Generate Summary</h5>
+        <h5 class="modal-title"><i class="fas fa-file-alt me-2"></i>{{ __('Generate Summary') }}</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body" id="summaryModalBody">
@@ -2660,7 +2664,7 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
                 @php $i++; @endphp
               @endforeach
             </div>
-            <div class="alert alert-info py-2 mt-3 mb-0"><i class="fas fa-info-circle me-1"></i>Click "Translate" to preview translations before saving.</div>
+            <div class="alert alert-info py-2 mt-3 mb-0"><i class="fas fa-info-circle me-1"></i>{{ __('Click "Translate" to preview translations before saving.') }}</div>
           </div>
           {{-- Step 2 --}}
           <div id="translate-step2" style="display:none;">

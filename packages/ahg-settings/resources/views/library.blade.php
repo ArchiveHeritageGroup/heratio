@@ -12,10 +12,10 @@
 @endsection
 
 @section('content')
-  <h1><i class="fas fa-book me-2"></i>Library Settings</h1>
+  <h1><i class="fas fa-book me-2"></i>{{ __('Library Settings') }}</h1>
   <p class="text-muted">Loan rules, circulation, fines, patron defaults, OPAC, ISBN providers</p>
 
   <div class="alert alert-info">
-    <i class="fas fa-info-circle me-2"></i>This settings page is under development.
+    <i class="fas fa-info-circle me-2"></i>{{ __('This settings page is under development.') }}
   </div>
 @endsection

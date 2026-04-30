@@ -4,7 +4,7 @@
 @section('title', 'Audit Trail')
 
 @section('content')
-<h1><i class="fas fa-history text-primary me-2"></i>Audit Trail</h1>
+<h1><i class="fas fa-history text-primary me-2"></i>{{ __('Audit Trail') }}</h1>
 
 <div class="row mb-4">
   <div class="col-md-2">
@@ -30,7 +30,7 @@
 </div>
 
 <div class="card mb-4">
-  <div class="card-header"><i class="fas fa-filter me-2"></i>Filters</div>
+  <div class="card-header"><i class="fas fa-filter me-2"></i>{{ __('Filters') }}</div>
   <div class="card-body">
     <form method="get" class="row g-3">
       <div class="col-md-2">

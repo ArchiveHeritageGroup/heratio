@@ -5,7 +5,7 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Activity Log</li></ol></nav>
 
-<h1 class="h2 mb-4"><i class="fas fa-stream text-primary me-2"></i>Activity Log</h1>
+<h1 class="h2 mb-4"><i class="fas fa-stream text-primary me-2"></i>{{ __('Activity Log') }}</h1>
 
 {{-- Filters --}}
 <div class="card mb-4">

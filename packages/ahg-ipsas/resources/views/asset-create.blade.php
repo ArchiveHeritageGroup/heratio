@@ -29,7 +29,7 @@
                     <li class="breadcrumb-item active">New Asset</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-plus-circle me-2"></i>Register Heritage Asset</h1>
+            <h1><i class="fas fa-plus-circle me-2"></i>{{ __('Register Heritage Asset') }}</h1>
         </div>
     </div>
 
@@ -134,7 +134,7 @@
 
         <div class="col-lg-4">
             <div class="alert alert-info">
-                <h6><i class="fas fa-info-circle"></i> IPSAS Compliance</h6>
+                <h6><i class="fas fa-info-circle"></i> {{ __('IPSAS Compliance') }}</h6>
                 <p class="small mb-0">Assets are recognized under IPSAS 17 (Property, Plant and Equipment) and IPSAS 31 (Intangible Assets). Choose the appropriate valuation basis based on asset type and available information.</p>
             </div>
             <div class="card">

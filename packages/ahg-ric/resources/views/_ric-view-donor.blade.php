@@ -45,7 +45,7 @@
     <div class="col-md-8">
       @if($accessions->count())
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-inbox me-1"></i> Accessions (donated)</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-inbox me-1"></i> {{ __('Accessions (donated)') }}</div>
         <div class="list-group list-group-flush">
           @foreach($accessions as $acc)
             <a href="{{ url('/' . $acc->slug) }}" class="list-group-item list-group-item-action"><i class="fas fa-inbox text-info me-1"></i>{{ $acc->title ?: '[Untitled]' }}</a>
@@ -56,7 +56,7 @@
 
       @if($relatedDescriptions->count())
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-alt me-1"></i> Related Descriptions</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-alt me-1"></i> {{ __('Related Descriptions') }}</div>
         <div class="list-group list-group-flush">
           @foreach($relatedDescriptions as $desc)
             <a href="{{ url('/' . $desc->slug) }}" class="list-group-item list-group-item-action">{{ $desc->title }}</a>
@@ -68,7 +68,7 @@
 
     <div class="col-md-4">
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bolt me-1"></i> Actions</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bolt me-1"></i> {{ __('Actions') }}</div>
         <div class="card-body">
           <a href="/explorer" class="btn btn-sm btn-outline-success w-100 mb-2"><i class="fas fa-project-diagram me-1"></i>{{ __('Open in Graph Explorer') }}</a>
         </div>

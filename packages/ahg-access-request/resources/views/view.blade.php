@@ -97,7 +97,7 @@
                 <div class="col-lg-4">
                     <div class="card">
                         <div class="card-header">
-                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Request Info</h6>
+                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Request Info') }}</h6>
                         </div>
                         <div class="card-body small">
                             <p><strong>{{ __('Object:') }}</strong> {{ $accessRequest->object_slug ?? 'General request' }}</p>

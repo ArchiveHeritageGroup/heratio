@@ -28,7 +28,7 @@
     {{-- ===== 1. Identification ===== --}}
     <div class="card mb-3">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-id-card me-1"></i> Identification
+        <i class="fas fa-id-card me-1"></i> {{ __('Identification') }}
       </div>
       <div class="card-body">
         <div class="row">
@@ -102,7 +102,7 @@
     {{-- ===== 2. Asset Type & Classification ===== --}}
     <div class="card mb-3">
       <div class="card-header border-primary" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-tag me-1"></i> Asset Type &amp; Classification
+        <i class="fas fa-tag me-1"></i> {{ __('Asset Type &amp; Classification') }}
       </div>
       <div class="card-body">
         <div class="mb-3">
@@ -160,7 +160,7 @@
     {{-- ===== 3. Production Details ===== --}}
     <div class="card mb-3 field-video" style="display:none;">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-film me-1"></i> Production Details
+        <i class="fas fa-film me-1"></i> {{ __('Production Details') }}
       </div>
       <div class="card-body">
         <div class="row">
@@ -231,7 +231,7 @@
     {{-- ===== 4. Production Credits ===== --}}
     <div class="card mb-3 field-video field-audio" style="display:none;">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-users me-1"></i> Production Credits
+        <i class="fas fa-users me-1"></i> {{ __('Production Credits') }}
       </div>
       <div class="card-body">
         <div id="credits-container">
@@ -272,7 +272,7 @@
     {{-- ===== 5. Language ===== --}}
     <div class="card mb-3 field-video field-audio" style="display:none;">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-language me-1"></i> Language
+        <i class="fas fa-language me-1"></i> {{ __('Language') }}
       </div>
       <div class="card-body">
         <div class="row">
@@ -500,6 +500,18 @@
             <div class="form-text text-muted small">Free-text instructions on how the asset can be used legally.</div>
           </div>
 
+          {{-- ICIP cultural-sensitivity classification (issue #36 Phase 2b) --}}
+          <div class="mb-3">
+            <label for="icip_sensitivity" class="form-label">{{ __('ICIP cultural-sensitivity classification') }}
+              <span class="badge bg-info text-dark ms-1" title="{{ __('Indigenous Cultural and Intellectual Property') }}">ICIP</span>
+            </label>
+            @include('ahg-translation::components.icip-sensitivity-select', [
+                'name' => 'icip_sensitivity',
+                'value' => old('icip_sensitivity', $asset->icip_sensitivity ?? null),
+            ])
+            <small class="form-text text-muted">{{ __('Cultural-sensitivity classification per ICIP protocols. Determines who may view, reproduce, or transmit this item.') }}</small>
+          </div>
+
           <div class="row">
             <div class="col-md-4 mb-3">
               <label for="iptc_license_type" class="form-label">License type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
@@ -681,7 +693,7 @@
     {{-- ===== 13. Alternative Versions ===== --}}
     <div class="card mb-3">
       <div class="card-header" style="background:#17a2b8;color:#fff">
-        <i class="fas fa-language me-1"></i> Alternative Versions
+        <i class="fas fa-language me-1"></i> {{ __('Alternative Versions') }}
       </div>
       <div class="card-body">
         <p class="text-muted small">Other language versions, formats, or edits of this work</p>
@@ -739,7 +751,7 @@
     {{-- ===== 14. Format Holdings & Access ===== --}}
     <div class="card mb-3">
       <div class="card-header" style="background:#6c757d;color:#fff">
-        <i class="fas fa-archive me-1"></i> Format Holdings &amp; Access
+        <i class="fas fa-archive me-1"></i> {{ __('Format Holdings &amp; Access') }}
       </div>
       <div class="card-body">
         <p class="text-muted small">Physical formats held at institutions</p>
@@ -865,7 +877,7 @@
     {{-- ===== 15. External References ===== --}}
     <div class="card mb-3">
       <div class="card-header" style="background:#28a745;color:#fff">
-        <i class="fas fa-external-link-alt me-1"></i> External References
+        <i class="fas fa-external-link-alt me-1"></i> {{ __('External References') }}
       </div>
       <div class="card-body">
         <p class="text-muted small">Links to ESAT, IMDb, Wikipedia, and other databases</p>
@@ -959,7 +971,7 @@
     </div>
 
     <div class="alert alert-info mt-4">
-      <i class="fas fa-info-circle"></i> After creating the asset, you can attach digital files through the standard interface.
+      <i class="fas fa-info-circle"></i> {{ __('After creating the asset, you can attach digital files through the standard interface.') }}
     </div>
   </form>
 @endsection

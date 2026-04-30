@@ -10,7 +10,7 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h4 class="mb-1"><i class="bi bi-cloud-upload me-2"></i>Researcher Workspace</h4>
+      <h4 class="mb-1"><i class="bi bi-cloud-upload me-2"></i>{{ __('Researcher Workspace') }}</h4>
       <p class="text-muted mb-0">Upload collections, describe records, and submit for archivist review</p>
     </div>
     <div>
@@ -88,7 +88,7 @@
     <div class="{{ $hasResearch ? 'col-lg-8' : 'col-12' }}">
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Submissions</h6>
+          <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>{{ __('Recent Submissions') }}</h6>
           <a href="{{ route('researcher.submissions') }}" class="btn btn-sm btn-outline-primary">
             View All
           </a>
@@ -159,7 +159,7 @@
       @if($researcherProfile)
       <div class="card mb-3">
         <div class="card-header bg-info text-white">
-          <h6 class="mb-0"><i class="bi bi-person-badge me-2"></i>Researcher Profile</h6>
+          <h6 class="mb-0"><i class="bi bi-person-badge me-2"></i>{{ __('Researcher Profile') }}</h6>
         </div>
         <div class="card-body py-2">
           <strong>{{ e($researcherProfile->first_name . ' ' . $researcherProfile->last_name) }}</strong>
@@ -180,7 +180,7 @@
       @if(!empty($projects))
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h6 class="mb-0"><i class="bi bi-journal-text me-2"></i>My Projects</h6>
+          <h6 class="mb-0"><i class="bi bi-journal-text me-2"></i>{{ __('My Projects') }}</h6>
           <span class="badge bg-secondary">{{ count($projects) }}</span>
         </div>
         <div class="list-group list-group-flush">
@@ -209,7 +209,7 @@
       @if(!empty($collections))
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h6 class="mb-0"><i class="bi bi-collection me-2"></i>My Collections</h6>
+          <h6 class="mb-0"><i class="bi bi-collection me-2"></i>{{ __('My Collections') }}</h6>
           <span class="badge bg-secondary">{{ count($collections) }}</span>
         </div>
         <div class="list-group list-group-flush">
@@ -237,7 +237,7 @@
       @if(!empty($annotations))
       <div class="card mb-3">
         <div class="card-header">
-          <h6 class="mb-0"><i class="bi bi-sticky me-2"></i>Recent Notes</h6>
+          <h6 class="mb-0"><i class="bi bi-sticky me-2"></i>{{ __('Recent Notes') }}</h6>
         </div>
         <div class="list-group list-group-flush">
           @foreach($annotations as $ann)

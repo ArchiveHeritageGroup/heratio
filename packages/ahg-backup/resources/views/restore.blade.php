@@ -42,7 +42,7 @@
 <div class="row mb-4">
   <div class="col-md-4">
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-database me-2"></i>Database Info</h5></div>
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-database me-2"></i>{{ __('Database Info') }}</h5></div>
       <div class="card-body">
         <ul class="list-unstyled mb-0">
           <li><strong>{{ __('Host:') }}</strong> {{ $dbConfig['host'] ?? 'localhost' }}</li>
@@ -59,7 +59,7 @@
     </div>
 
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-folder me-2"></i>Storage</h5></div>
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-folder me-2"></i>{{ __('Storage') }}</h5></div>
       <div class="card-body">
         <ul class="list-unstyled mb-0">
           <li><strong>{{ __('Path:') }}</strong> <code class="small">{{ $backupPath ?? '' }}</code></li>
@@ -72,7 +72,7 @@
     </div>
 
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5></div>
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-bolt me-2"></i>{{ __('Quick Actions') }}</h5></div>
       <div class="card-body">
         <div class="d-grid gap-2">
           <a href="{{ route('backup.index') }}?quick=database" class="btn atom-btn-outline-primary btn-sm">
@@ -90,7 +90,7 @@
 
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Schedules</h5>
+        <h5 class="mb-0"><i class="fas fa-clock me-2"></i>{{ __('Schedules') }}</h5>
         <a href="{{ route('backup.settings') }}" class="btn btn-sm atom-btn-outline-secondary"><i class="fas fa-plus"></i></a>
       </div>
       <div class="card-body p-0">
@@ -123,7 +123,7 @@
 
 @if(count($backups) > 0)
 <div class="card mb-4">
-  <div class="card-header" ><i class="fas fa-file-archive me-1"></i> Select Backup</div>
+  <div class="card-header" ><i class="fas fa-file-archive me-1"></i> {{ __('Select Backup') }}</div>
   <div class="card-body">
     <div class="mb-3">
       <label for="backup-select" class="form-label">Available Backups <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

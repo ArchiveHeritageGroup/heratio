@@ -5,7 +5,7 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Statistics</li></ol></nav>
 
-<h1 class="h2 mb-4"><i class="fas fa-chart-bar text-primary me-2"></i>Research Statistics</h1>
+<h1 class="h2 mb-4"><i class="fas fa-chart-bar text-primary me-2"></i>{{ __('Research Statistics') }}</h1>
 
 {{-- Date Filter --}}
 <div class="card mb-4">
@@ -48,7 +48,7 @@
 <div class="row mb-4">
     <div class="col-md-6">
         <div class="card h-100">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-project-diagram me-2"></i>Projects & Collections</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-project-diagram me-2"></i>{{ __('Projects & Collections') }}</h6></div>
             <div class="card-body p-0">
                 <table class="table table-sm mb-0">
                     <tbody>
@@ -64,7 +64,7 @@
     </div>
     <div class="col-md-6">
         <div class="card h-100">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Bookings & Materials</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-calendar-check me-2"></i>{{ __('Bookings & Materials') }}</h6></div>
             <div class="card-body p-0">
                 <table class="table table-sm mb-0">
                     <tbody>
@@ -85,13 +85,13 @@
 <div class="row mb-4">
     <div class="col-md-6 mb-4">
         <div class="card h-100">
-            <div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Registrations Over Time</h5></div>
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>{{ __('Registrations Over Time') }}</h5></div>
             <div class="card-body"><canvas id="registrationsChart" height="250"></canvas></div>
         </div>
     </div>
     <div class="col-md-6 mb-4">
         <div class="card h-100">
-            <div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Bookings by Room</h5></div>
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>{{ __('Bookings by Room') }}</h5></div>
             <div class="card-body"><canvas id="bookingsChart" height="250"></canvas></div>
         </div>
     </div>
@@ -101,7 +101,7 @@
 <div class="row">
     <div class="col-md-6 mb-4">
         <div class="card h-100">
-            <div class="card-header"><h5 class="mb-0"><i class="fas fa-fire me-2"></i>Most Active Items</h5></div>
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-fire me-2"></i>{{ __('Most Active Items') }}</h5></div>
             <div class="card-body p-0">
                 @if(!empty($mostViewed))
                 <table class="table table-hover mb-0">
@@ -123,7 +123,7 @@
     </div>
     <div class="col-md-6 mb-4">
         <div class="card h-100">
-            <div class="card-header"><h5 class="mb-0"><i class="fas fa-quote-right me-2"></i>Most Cited Items</h5></div>
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-quote-right me-2"></i>{{ __('Most Cited Items') }}</h5></div>
             <div class="card-body p-0">
                 @if(!empty($mostCited))
                 <table class="table table-hover mb-0">
@@ -147,7 +147,7 @@
 
 {{-- Most Active Researchers (Views + Citations columns added per PSIS) --}}
 <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0"><i class="fas fa-users me-2"></i>Most Active Researchers</h5></div>
+    <div class="card-header"><h5 class="mb-0"><i class="fas fa-users me-2"></i>{{ __('Most Active Researchers') }}</h5></div>
     <div class="card-body p-0">
         @if(!empty($activeResearchers))
         <table class="table table-hover mb-0">

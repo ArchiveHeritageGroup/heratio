@@ -6,7 +6,7 @@
 <div class="container-fluid py-3">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>Federation Dashboard</h4>
+            <h4 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>{{ __('Federation Dashboard') }}</h4>
             <p class="text-muted mb-0">Manage federated peer repositories and OAI-PMH harvesting</p>
         </div>
         <div>
@@ -48,7 +48,7 @@
 
     <div class="card">
         <div class="card-header">
-            <h6 class="mb-0"><i class="bi bi-hdd-network me-2"></i>Peers</h6>
+            <h6 class="mb-0"><i class="bi bi-hdd-network me-2"></i>{{ __('Peers') }}</h6>
         </div>
         <div class="card-body p-0">
             @if($peers->isEmpty())

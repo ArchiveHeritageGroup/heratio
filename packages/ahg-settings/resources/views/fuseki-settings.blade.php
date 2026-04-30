@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-project-diagram me-2"></i>Fuseki / RIC Triplestore</h1>
+<h1><i class="fas fa-project-diagram me-2"></i>{{ __('Fuseki / RIC Triplestore') }}</h1>
 <p class="text-muted">Apache Fuseki RDF triplestore synchronisation</p>
 @endsection
 
@@ -38,7 +38,7 @@
     {{-- Card 1: Fuseki Connection --}}
     <div class="card mb-4">
       <div class="card-header bg-primary text-white">
-        <h5 class="mb-0"><i class="fas fa-server me-2"></i>Fuseki Connection</h5>
+        <h5 class="mb-0"><i class="fas fa-server me-2"></i>{{ __('Fuseki Connection') }}</h5>
       </div>
       <div class="card-body">
         <div class="row g-3">
@@ -72,7 +72,7 @@
     {{-- Card 2: RIC Sync Settings --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-sync-alt me-2"></i>RIC Sync Settings</h5>
+        <h5 class="mb-0"><i class="fas fa-sync-alt me-2"></i>{{ __('RIC Sync Settings') }}</h5>
       </div>
       <div class="card-body">
         <div class="row g-3">
@@ -138,7 +138,7 @@
     {{-- Card 3: Integrity Check Settings --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-check-double me-2"></i>Integrity Check Settings</h5>
+        <h5 class="mb-0"><i class="fas fa-check-double me-2"></i>{{ __('Integrity Check Settings') }}</h5>
       </div>
       <div class="card-body">
         <div class="row g-3">
@@ -165,7 +165,7 @@
     {{-- Card 4: Quick Actions --}}
     <div class="card mb-4">
       <div class="card-header bg-secondary text-white">
-        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>{{ __('Quick Actions') }}</h5>
       </div>
       <div class="card-body">
         <div class="d-flex flex-wrap gap-2">

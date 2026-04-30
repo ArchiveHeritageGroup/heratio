@@ -9,7 +9,7 @@
     </ol>
 </nav>
 
-<h1 class="h2 mb-4"><i class="fas fa-sync text-primary me-2"></i>Elasticsearch Integration</h1>
+<h1 class="h2 mb-4"><i class="fas fa-sync text-primary me-2"></i>{{ __('Elasticsearch Integration') }}</h1>
 
 @if(session('success'))
 <div class="alert alert-success">{{ session('success') }}</div>
@@ -23,18 +23,18 @@
     <div class="col-md-8">
         <div class="card mb-4">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-database me-2"></i>Mapping Status</h5>
+                <h5 class="mb-0"><i class="fas fa-database me-2"></i>{{ __('Mapping Status') }}</h5>
             </div>
             <div class="card-body">
                 @if($hasMapping ?? false)
                 <div class="alert alert-success mb-3">
                     <i class="fas fa-check-circle me-2"></i>
-                    Display fields are present in the Elasticsearch mapping.
+                    {{ __('Display fields are present in the Elasticsearch mapping.') }}
                 </div>
                 @else
                 <div class="alert alert-warning mb-3">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    Display fields are NOT in the Elasticsearch mapping. You need to update the mapping first.
+                    {{ __('Display fields are NOT in the Elasticsearch mapping. You need to update the mapping first.') }}
                 </div>
 
                 <form method="post" action="{{ route('displaySearch.updateMapping') }}">
@@ -49,7 +49,7 @@
 
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-sync me-2"></i>Reindex Display Data</h5>
+                <h5 class="mb-0"><i class="fas fa-sync me-2"></i>{{ __('Reindex Display Data') }}</h5>
             </div>
             <div class="card-body">
                 <p>This will update all existing Elasticsearch documents with display-specific fields (object type, profile, etc.).</p>
@@ -87,7 +87,7 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-header bg-info text-white">
-                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>About ES Integration</h5>
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About ES Integration') }}</h5>
             </div>
             <div class="card-body">
                 <p>The Display plugin adds these fields to Elasticsearch:</p>
@@ -111,7 +111,7 @@
 
         <div class="card mt-4">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-terminal me-2"></i>CLI Alternative</h5>
+                <h5 class="mb-0"><i class="fas fa-terminal me-2"></i>{{ __('CLI Alternative') }}</h5>
             </div>
             <div class="card-body">
                 <p class="small">You can also reindex via command line:</p>

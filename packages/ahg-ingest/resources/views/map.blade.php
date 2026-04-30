@@ -70,7 +70,7 @@
             {{-- Identifier Counter Option --}}
             <div class="card mb-3 border-info">
                 <div class="card-header bg-info bg-opacity-10">
-                    <h6 class="mb-0"><i class="fas fa-sort-numeric-down me-2"></i>Identifier Counter / Suffix</h6>
+                    <h6 class="mb-0"><i class="fas fa-sort-numeric-down me-2"></i>{{ __('Identifier Counter / Suffix') }}</h6>
                 </div>
                 <div class="card-body">
                     <div class="form-check mb-2">
@@ -143,7 +143,7 @@
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-eye me-2"></i>Files Preview</h5>
+                    <h5 class="mb-0"><i class="fas fa-eye me-2"></i>{{ __('Files Preview') }}</h5>
                 </div>
                 <div class="card-body">
                     @if(!empty($sampleRows))
@@ -167,7 +167,7 @@
 
             <div class="card">
                 <div class="card-body">
-                    <h6><i class="fas fa-info-circle me-2"></i>About Directory Import</h6>
+                    <h6><i class="fas fa-info-circle me-2"></i>{{ __('About Directory Import') }}</h6>
                     <ul class="small text-muted mb-0">
                         <li>One record per file in the directory</li>
                         <li>Titles auto-generated from filenames</li>
@@ -219,7 +219,7 @@
         <div class="col-md-8">
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-columns me-2"></i>Column Mapping</h5>
+                    <h5 class="mb-0"><i class="fas fa-columns me-2"></i>{{ __('Column Mapping') }}</h5>
                     <span class="badge bg-info">
                         {{ count($mappings) }} columns
                     </span>
@@ -285,7 +285,7 @@
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-eye me-2"></i>Data Preview</h5>
+                    <h5 class="mb-0"><i class="fas fa-eye me-2"></i>{{ __('Data Preview') }}</h5>
                 </div>
                 <div class="card-body">
                     @if(!empty($sampleRows))
@@ -306,7 +306,7 @@
 
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-link me-2"></i>Digital Object Matching</h5>
+                    <h5 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Digital Object Matching') }}</h5>
                 </div>
                 <div class="card-body">
                     <select class="form-select form-select-sm" name="do_match_strategy">

@@ -7,7 +7,7 @@
 
 {{-- Actions --}}
 <div class="card mb-3">
-    <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-tools me-1"></i> Actions</h6></div>
+    <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-tools me-1"></i> {{ __('Actions') }}</h6></div>
     <div class="card-body p-2">
         <a href="{{ $browseRoute }}" class="btn btn-outline-secondary btn-sm w-100 mb-1 text-start">
             <i class="fas fa-arrow-left me-1"></i> Browse {{ ucfirst($typeSlug) }}
@@ -33,7 +33,7 @@
 
 {{-- Metadata --}}
 <div class="card">
-    <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-info-circle me-1"></i> Metadata</h6></div>
+    <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-info-circle me-1"></i> {{ __('Metadata') }}</h6></div>
     <div class="card-body p-2">
         <table class="table table-sm table-borderless mb-0" style="font-size:0.85rem">
             <tr><td class="text-muted">RiC-O Type</td><td><code>rico:{{ $ricOType }}</code></td></tr>

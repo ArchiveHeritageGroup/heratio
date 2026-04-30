@@ -12,10 +12,10 @@ $archivalCollections = (array) ($archivalCollections ?? []);
 <div class="row">
   <div class="col-md-3">@include('ahg-heritage-manage::partials._admin-sidebar')</div>
   <div class="col-md-9">
-    <h1><i class="fas fa-star me-2"></i>Featured Collections</h1>
+    <h1><i class="fas fa-star me-2"></i>{{ __('Featured Collections') }}</h1>
 
 <div class="card border-0 shadow-sm mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-plus me-2"></i>Add Collection to Featured</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-plus me-2"></i>{{ __('Add Collection to Featured') }}</h5></div>
       <div class="card-body">
         <form action="{{ route('heritage.admin-featured-collections') }}" method="post">@csrf
           <input type="hidden" name="featured_action" value="add">
@@ -36,7 +36,7 @@ $archivalCollections = (array) ($archivalCollections ?? []);
 
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>Current Featured Collections</h5>
+        <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('Current Featured Collections') }}</h5>
         <span class="badge bg-light text-dark">{{ count($featured) }} collections</span>
       </div>
       <div class="card-body p-0">

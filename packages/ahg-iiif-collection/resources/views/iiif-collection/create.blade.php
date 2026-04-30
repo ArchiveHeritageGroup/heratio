@@ -4,7 +4,7 @@
 <div class="sidebar-content">
     <div class="card">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-link me-2"></i>Quick Links</h5>
+            <h5 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Quick Links') }}</h5>
         </div>
         <div class="card-body">
             <a href="{{ route('iiif-collection.index') }}" class="btn atom-btn-white w-100">
@@ -16,7 +16,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-plus-circle me-2"></i>Create Collection</h1>
+<h1><i class="fas fa-plus-circle me-2"></i>{{ __('Create Collection') }}</h1>
 @endsection
 
 @section('content')
@@ -26,7 +26,7 @@
 
         <div class="card mb-4">
             <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>Collection Details</h5>
+                <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('Collection Details') }}</h5>
             </div>
             <div class="card-body">
                 <div class="row">

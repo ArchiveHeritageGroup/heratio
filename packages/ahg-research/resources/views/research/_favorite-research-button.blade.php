@@ -35,7 +35,7 @@
         <span class="visually-hidden">{{ __('Choose folder') }}</span>
     </button>
     <ul class="dropdown-menu dropdown-menu-end" id="{{ $uid }}-menu" style="min-width:200px;">
-        <li><h6 class="dropdown-header"><i class="fas fa-folder me-1"></i>Add to folder</h6></li>
+        <li><h6 class="dropdown-header"><i class="fas fa-folder me-1"></i>{{ __('Add to folder') }}</h6></li>
         <li><hr class="dropdown-divider"></li>
         <li class="px-3 py-1 text-muted small">Loading folders...</li>
     </ul>

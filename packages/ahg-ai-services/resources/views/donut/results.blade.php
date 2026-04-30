@@ -3,7 +3,7 @@
 @section('body-class', 'admin ai-services donut')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.donut.dashboard') }}">Donut</a></li><li class="breadcrumb-item active">Results</li></ol></nav>
-<h1><i class="fas fa-check-circle me-2"></i>Extraction Results</h1>
+<h1><i class="fas fa-check-circle me-2"></i>{{ __('Extraction Results') }}</h1>
 
 <div class="card mb-4">
   <div class="card-header" style="background: var(--ahg-primary); color: white;">
@@ -61,7 +61,7 @@
 </div>
 
 <div class="card">
-  <div class="card-header"><i class="fas fa-code me-2"></i>Raw JSON</div>
+  <div class="card-header"><i class="fas fa-code me-2"></i>{{ __('Raw JSON') }}</div>
   <div class="card-body">
     <pre class="mb-0" style="max-height:300px; overflow:auto;"><code>{{ json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</code></pre>
   </div>

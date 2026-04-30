@@ -5,7 +5,7 @@
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0"><i class="fas fa-tasks me-2" aria-hidden="true"></i>Workflow Dashboard</h1>
+    <h1 class="h3 mb-0"><i class="fas fa-tasks me-2" aria-hidden="true"></i>{{ __('Workflow Dashboard') }}</h1>
     <a href="{{ route('workflow.admin') }}" class="btn btn-outline-primary">
       <i class="fas fa-cog me-1" aria-hidden="true"></i>{{ __('Manage Workflows') }}
     </a>
@@ -82,7 +82,7 @@
     <div class="col-lg-6 mb-4">
       <div class="card h-100">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0"><i class="fas fa-clipboard-check me-2" aria-hidden="true"></i>My Tasks</h5>
+          <h5 class="mb-0"><i class="fas fa-clipboard-check me-2" aria-hidden="true"></i>{{ __('My Tasks') }}</h5>
           <a href="{{ route('workflow.my-tasks') }}" class="btn btn-sm btn-outline-secondary">View All</a>
         </div>
         <div class="card-body p-0">
@@ -118,7 +118,7 @@
     <div class="col-lg-6 mb-4">
       <div class="card h-100">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0"><i class="fas fa-layer-group me-2" aria-hidden="true"></i>Available Tasks</h5>
+          <h5 class="mb-0"><i class="fas fa-layer-group me-2" aria-hidden="true"></i>{{ __('Available Tasks') }}</h5>
           <a href="{{ route('workflow.pool') }}" class="btn btn-sm btn-outline-secondary">Browse Pool</a>
         </div>
         <div class="card-body p-0">
@@ -155,7 +155,7 @@
   {{-- Recent Activity --}}
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <h5 class="mb-0"><i class="fas fa-history me-2" aria-hidden="true"></i>Recent Activity</h5>
+      <h5 class="mb-0"><i class="fas fa-history me-2" aria-hidden="true"></i>{{ __('Recent Activity') }}</h5>
       <a href="{{ route('workflow.history') }}" class="btn btn-sm btn-outline-secondary">View All</a>
     </div>
     <div class="card-body p-0">

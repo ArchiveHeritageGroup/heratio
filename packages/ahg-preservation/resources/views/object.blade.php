@@ -13,11 +13,11 @@
       </ol>
     </nav>
 
-    <h1><i class="fas fa-file me-2"></i>Preservation Object Details</h1>
+    <h1><i class="fas fa-file me-2"></i>{{ __('Preservation Object Details') }}</h1>
 
     {{-- Object Info --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-info-circle me-2"></i>Digital Object Information</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-info-circle me-2"></i>{{ __('Digital Object Information') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-6">
@@ -35,7 +35,7 @@
           <div class="col-md-6">
             @if($formatInfo ?? null)
             <div class="alert {{ ($formatInfo->risk_level ?? '') === 'low' ? 'alert-success' : (in_array($formatInfo->risk_level ?? '', ['high','critical']) ? 'alert-danger' : 'alert-warning') }}">
-              <h6><i class="fas fa-file-code me-1"></i>Format Information</h6>
+              <h6><i class="fas fa-file-code me-1"></i>{{ __('Format Information') }}</h6>
               <p class="mb-1"><strong>{{ $formatInfo->format_name ?? '' }}</strong></p>
               <p class="mb-1">Risk: <strong>{{ ucfirst($formatInfo->risk_level ?? 'unknown') }}</strong></p>
               @if($formatInfo->is_preservation_format ?? false) <span class="badge bg-success">{{ __('Preservation Format') }}</span> @endif
@@ -56,7 +56,7 @@
 
     {{-- Checksums --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-fingerprint me-2"></i>Checksums</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-fingerprint me-2"></i>{{ __('Checksums') }}</div>
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
@@ -89,7 +89,7 @@
 
     {{-- Fixity Check History --}}
     <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-check-double me-2"></i>Fixity Check History</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-check-double me-2"></i>{{ __('Fixity Check History') }}</div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-bordered table-sm table-striped mb-0">
@@ -132,7 +132,7 @@
 
     {{-- PREMIS Events --}}
     <div class="card">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-history me-2"></i>PREMIS Events</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-history me-2"></i>{{ __('PREMIS Events') }}</div>
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">

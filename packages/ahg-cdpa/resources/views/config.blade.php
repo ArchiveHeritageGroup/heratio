@@ -37,7 +37,7 @@
                     <li class="breadcrumb-item active">Configuration</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-cog me-2"></i>CDPA Configuration</h1>
+            <h1><i class="fas fa-cog me-2"></i>{{ __('CDPA Configuration') }}</h1>
             <p class="text-muted">Configure plugin settings for CDPA compliance</p>
         </div>
     </div>

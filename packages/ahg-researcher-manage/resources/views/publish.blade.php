@@ -15,7 +15,7 @@
         <!-- Confirmation -->
         <div class="card">
           <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="bi bi-globe me-2"></i>Publish to AtoM to Heratio</h5>
+            <h5 class="mb-0"><i class="bi bi-globe me-2"></i>{{ __('Publish to AtoM to Heratio') }}</h5>
           </div>
           <div class="card-body">
             <div class="alert alert-warning">
@@ -52,7 +52,7 @@
         <!-- Results -->
         <div class="card border-success mb-4">
           <div class="card-header bg-success text-white">
-            <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Publication Complete</h5>
+            <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>{{ __('Publication Complete') }}</h5>
           </div>
           <div class="card-body">
 
@@ -79,7 +79,7 @@
             <!-- Created Records -->
             @if(!empty($publishResult['created_objects']))
             <div class="card mb-3">
-              <div class="card-header"><h6 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Created Records</h6></div>
+              <div class="card-header"><h6 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>{{ __('Created Records') }}</h6></div>
               <div class="card-body p-0">
                 <div class="table-responsive">
                   <table class="table table-sm table-hover mb-0">
@@ -116,7 +116,7 @@
             <!-- Created Creators -->
             @if(!empty($publishResult['created_actors']))
             <div class="card mb-3">
-              <div class="card-header"><h6 class="mb-0"><i class="bi bi-person me-2"></i>Created Creators</h6></div>
+              <div class="card-header"><h6 class="mb-0"><i class="bi bi-person me-2"></i>{{ __('Created Creators') }}</h6></div>
               <div class="card-body p-0">
                 <ul class="list-group list-group-flush">
                   @php foreach ($publishResult['created_actors'] as $actor): @endphp
@@ -130,7 +130,7 @@
             <!-- Created Repositories -->
             @if(!empty($publishResult['created_repos']))
             <div class="card mb-3">
-              <div class="card-header"><h6 class="mb-0"><i class="bi bi-building me-2"></i>Created Repositories</h6></div>
+              <div class="card-header"><h6 class="mb-0"><i class="bi bi-building me-2"></i>{{ __('Created Repositories') }}</h6></div>
               <div class="card-body p-0">
                 <ul class="list-group list-group-flush">
                   @php foreach ($publishResult['created_repos'] as $repo): @endphp
@@ -144,7 +144,7 @@
             <!-- Errors -->
             @if(!empty($publishResult['errors']))
             <div class="card border-danger">
-              <div class="card-header bg-danger text-white"><h6 class="mb-0"><i class="bi bi-exclamation-circle me-2"></i>Errors</h6></div>
+              <div class="card-header bg-danger text-white"><h6 class="mb-0"><i class="bi bi-exclamation-circle me-2"></i>{{ __('Errors') }}</h6></div>
               <div class="card-body p-0">
                 <ul class="list-group list-group-flush">
                   @php foreach ($publishResult['errors'] as $err): @endphp

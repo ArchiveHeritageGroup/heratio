@@ -47,7 +47,7 @@
 {{-- Shared Collections --}}
 @if(!empty($sharedCollections))
 <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>Shared Collections</h5></div>
+    <div class="card-header"><h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('Shared Collections') }}</h5></div>
     <div class="card-body p-0">
         <table class="table table-hover mb-0">
             <thead class="table-light"><tr><th>{{ __('Collection') }}</th><th>{{ __('Items') }}</th><th>{{ __('Owner') }}</th></tr></thead>
@@ -71,7 +71,7 @@
         {{-- Discussions --}}
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Discussions</h5>
+                <h5 class="mb-0"><i class="fas fa-comments me-2"></i>{{ __('Discussions') }}</h5>
                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#newDiscussionModal">
                     <i class="fas fa-plus me-1"></i> {{ __('New Discussion') }}
                 </button>
@@ -125,7 +125,7 @@
         {{-- Resources --}}
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-folder-open me-2"></i>Shared Resources</h5>
+                <h5 class="mb-0"><i class="fas fa-folder-open me-2"></i>{{ __('Shared Resources') }}</h5>
                 @if(in_array($myRole, ['owner', 'admin', 'editor']))
                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addResourceModal">
                     <i class="fas fa-plus me-1"></i> {{ __('Add Resource') }}
@@ -182,7 +182,7 @@
     <div class="col-md-4">
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="mb-0"><i class="fas fa-users me-2"></i>Members</h6>
+                <h6 class="mb-0"><i class="fas fa-users me-2"></i>{{ __('Members') }}</h6>
                 @if(in_array($myRole, ['owner', 'admin']))
                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#inviteModal"><i class="fas fa-user-plus"></i></button>
                 @endif
@@ -231,7 +231,7 @@
         </div>
 
         <div class="card">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>About</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About') }}</h6></div>
             <div class="card-body">
                 <p class="mb-2"><strong>{{ __('Created:') }}</strong> {{ date('M j, Y', strtotime($workspace->created_at)) }}</p>
                 <p class="mb-0"><strong>{{ __('Your role:') }}</strong> {{ ucfirst($myRole) }}</p>

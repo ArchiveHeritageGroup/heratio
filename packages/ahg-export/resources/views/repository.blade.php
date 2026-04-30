@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <h1><i class="bi bi-building me-2"></i>Export Repositories</h1>
+    <h1><i class="bi bi-building me-2"></i>{{ __('Export Repositories') }}</h1>
 
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
@@ -18,7 +18,7 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="bi bi-download me-2"></i>Export Settings</h5>
+                    <h5 class="mb-0"><i class="bi bi-download me-2"></i>{{ __('Export Settings') }}</h5>
                 </div>
                 <div class="card-body">
                     <form method="post">
@@ -61,7 +61,7 @@
         <div class="col-lg-4">
             <div class="card mb-3">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Statistics</h6>
+                    <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>{{ __('Statistics') }}</h6>
                 </div>
                 <div class="card-body">
                     <dl class="mb-0">
@@ -73,7 +73,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="bi bi-list-ul me-2"></i>Exported Fields</h6>
+                    <h6 class="mb-0"><i class="bi bi-list-ul me-2"></i>{{ __('Exported Fields') }}</h6>
                 </div>
                 <div class="card-body small">
                     <ul class="mb-0">

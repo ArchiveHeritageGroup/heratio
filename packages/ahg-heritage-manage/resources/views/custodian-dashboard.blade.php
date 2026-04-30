@@ -5,7 +5,7 @@
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-2">
-    <h1 class="mb-0"><i class="fas fa-hard-hat"></i> Custodian Dashboard</h1>
+    <h1 class="mb-0"><i class="fas fa-hard-hat"></i> {{ __('Custodian Dashboard') }}</h1>
   </div>
   <p class="text-muted mb-4">Batch operations, activity monitoring, and contributor tracking</p>
 
@@ -17,7 +17,7 @@
       {{-- Batch Jobs stats card in sidebar --}}
       <div class="card shadow-sm mt-3">
         <div class="card-header bg-white" >
-          <h6 class="mb-0"><i class="fas fa-tasks"></i> Batch Jobs</h6>
+          <h6 class="mb-0"><i class="fas fa-tasks"></i> {{ __('Batch Jobs') }}</h6>
         </div>
         <div class="card-body p-0">
           <ul class="list-group list-group-flush">
@@ -83,7 +83,7 @@
       {{-- Activity by Category --}}
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white" >
-          <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Activity by Category (30 days)</h5>
+          <h5 class="mb-0"><i class="fas fa-chart-pie"></i> {{ __('Activity by Category (30 days)') }}</h5>
         </div>
         <div class="card-body">
           @if($activityByCategory->isNotEmpty())
@@ -127,7 +127,7 @@
       {{-- Top Contributors --}}
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white" >
-          <h5 class="mb-0"><i class="fas fa-trophy"></i> Top Contributors (30 days)</h5>
+          <h5 class="mb-0"><i class="fas fa-trophy"></i> {{ __('Top Contributors (30 days)') }}</h5>
         </div>
         <div class="card-body p-0">
           @if($topContributors->isNotEmpty())
@@ -175,7 +175,7 @@
       {{-- Recent Activity --}}
       <div class="card shadow-sm">
         <div class="card-header bg-white d-flex justify-content-between align-items-center" >
-          <h5 class="mb-0"><i class="fas fa-stream"></i> Recent Activity</h5>
+          <h5 class="mb-0"><i class="fas fa-stream"></i> {{ __('Recent Activity') }}</h5>
           <a href="{{ route('heritage.custodian-history') }}" class="btn btn-sm btn-outline-primary">View All</a>
         </div>
         <div class="card-body p-0">

@@ -1759,6 +1759,12 @@ class InformationObjectController extends Controller
             $ioUpdate['display_standard_id'] = $request->input('display_standard_id') ?: null;
         }
 
+        // ICIP cultural-sensitivity URI (issue #36 Phase 2b) — canonical column on information_object.
+        if ($request->has('icip_sensitivity')) {
+            $icip = $request->input('icip_sensitivity');
+            $ioUpdate['icip_sensitivity'] = ($icip === '' ? null : $icip);
+        }
+
         DB::table('information_object')
             ->where('id', $ioId)
             ->update($ioUpdate);

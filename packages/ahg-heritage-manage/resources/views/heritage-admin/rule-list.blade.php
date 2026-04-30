@@ -7,12 +7,12 @@
   <div class="col-md-3">@include('ahg-heritage-manage::partials._heritage-accounting-menu')</div>
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-gavel me-2"></i>Accounting Rules</h1>
+      <h1><i class="fas fa-gavel me-2"></i>{{ __('Accounting Rules') }}</h1>
     </div>
     <p class="text-muted">Manage heritage accounting rules.</p>
 
     <div class="card">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-gavel me-2"></i>Accounting Rules</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-gavel me-2"></i>{{ __('Accounting Rules') }}</div>
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">

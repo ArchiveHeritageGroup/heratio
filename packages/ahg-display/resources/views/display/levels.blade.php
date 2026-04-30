@@ -153,7 +153,7 @@
         </table>
       @else
         <div class="p-3 text-muted">
-          <i class="fas fa-info-circle me-2"></i>No levels of description found.
+          <i class="fas fa-info-circle me-2"></i>{{ __('No levels of description found.') }}
         </div>
       @endif
     </div>

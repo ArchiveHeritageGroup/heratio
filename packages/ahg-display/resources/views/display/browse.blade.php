@@ -85,7 +85,7 @@
       {{-- Sidebar header --}}
       <div class="card mb-3 glam-filter-header">
         <div class="card-body py-2 text-white text-center">
-          <i class="fas fa-filter"></i> Narrow your results by:
+          <i class="fas fa-filter"></i> {{ __('Narrow your results by:') }}
         </div>
       </div>
 
@@ -354,7 +354,7 @@
     <div class="modal-content">
       <div class="modal-header glam-filter-header">
         <h5 class="modal-title" id="semanticSearchModalLabel">
-          <i class="fas fa-brain me-2"></i> Semantic Search
+          <i class="fas fa-brain me-2"></i> {{ __('Semantic Search') }}
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
       </div>

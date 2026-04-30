@@ -19,7 +19,7 @@
                 <i class="fas fa-brain me-2"></i>{{ __('Semantic Search') }}
             </a>
             <i class="fas fa-chevron-right mx-2 small text-muted"></i>
-            Settings
+            {{ __('Settings') }}
         </h1>
     </div>
 
@@ -38,7 +38,7 @@
             <div class="col-md-6 mb-4">
                 <div class="card h-100">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-cog me-2"></i>General Settings</h5>
+                        <h5 class="mb-0"><i class="fas fa-cog me-2"></i>{{ __('General Settings') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="form-check form-switch mb-3">
@@ -95,7 +95,7 @@
             <div class="col-md-6 mb-4">
                 <div class="card h-100">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-database me-2"></i>Data Sources</h5>
+                        <h5 class="mb-0"><i class="fas fa-database me-2"></i>{{ __('Data Sources') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="form-check form-switch mb-3">
@@ -169,7 +169,7 @@
             <div class="col-md-12 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fab fa-searchengin me-2"></i>Elasticsearch Integration</h5>
+                        <h5 class="mb-0"><i class="fab fa-searchengin me-2"></i>{{ __('Elasticsearch Integration') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="row">

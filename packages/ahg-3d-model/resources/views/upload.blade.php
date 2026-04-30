@@ -31,7 +31,7 @@
     </ol>
   </nav>
 
-  <h1><i class="fas fa-upload me-2"></i>Upload 3D Model</h1>
+  <h1><i class="fas fa-upload me-2"></i>{{ __('Upload 3D Model') }}</h1>
   <p class="text-muted">Add a 3D model to: <strong>{{ e($object->title ?? 'Object') }}</strong></p>
 
   @if(session('error'))

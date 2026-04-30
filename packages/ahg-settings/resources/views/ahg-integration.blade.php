@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-  <h1><i class="fas fa-cloud me-2"></i>AHG Central Integration</h1>
+  <h1><i class="fas fa-cloud me-2"></i>{{ __('AHG Central Integration') }}</h1>
 @endsection
 
 @section('content')
@@ -27,7 +27,7 @@
 
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-cloud me-2"></i>About AHG Central</h5>
+        <h5 class="mb-0"><i class="fas fa-cloud me-2"></i>{{ __('About AHG Central') }}</h5>
       </div>
       <div class="card-body">
         <p class="mb-2">AHG Central is a cloud service provided by The Archive and Heritage Group that enhances your instance with:</p>
@@ -45,7 +45,7 @@
 
       <div class="card mb-4">
         <div class="card-header">
-          <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Connection Settings</h5>
+          <h5 class="mb-0"><i class="fas fa-cog me-2"></i>{{ __('Connection Settings') }}</h5>
         </div>
         <div class="card-body">
           <div class="mb-3">
@@ -83,7 +83,7 @@
 
       <div class="card mb-4">
         <div class="card-header">
-          <h5 class="mb-0"><i class="fas fa-plug me-2"></i>Test Connection</h5>
+          <h5 class="mb-0"><i class="fas fa-plug me-2"></i>{{ __('Test Connection') }}</h5>
         </div>
         <div class="card-body">
           <p class="mb-3">Test the connection to AHG Central before saving your settings.</p>
@@ -95,7 +95,7 @@
 
       <div class="card mb-4">
         <div class="card-header">
-          <h5 class="mb-0"><i class="fas fa-terminal me-2"></i>Environment Variables (Legacy)</h5>
+          <h5 class="mb-0"><i class="fas fa-terminal me-2"></i>{{ __('Environment Variables (Legacy)') }}</h5>
         </div>
         <div class="card-body">
           <p class="text-muted mb-3">Previously, AHG Central was configured via environment variables. Database settings (above) take precedence over environment variables.</p>

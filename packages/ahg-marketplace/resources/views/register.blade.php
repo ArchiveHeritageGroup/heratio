@@ -12,7 +12,7 @@
   <div class="text-center mb-4">
     <h1 class="mb-2">
       <i class="fas fa-store me-2 text-primary"></i>
-      Join the Heratio Marketplace
+      {{ __('Join the Heratio Marketplace') }}
     </h1>
     <p class="lead text-muted">Buy, sell, or both — choose how you want to get started.</p>
   </div>
@@ -36,7 +36,7 @@
           </ul>
           <p class="small text-muted mb-4">
             <i class="fas fa-info-circle me-1"></i>
-            No extra signup needed &mdash; your Heratio account is your buyer account.
+            {{ __('No extra signup needed &mdash; your Heratio account is your buyer account.') }}
           </p>
           <div class="d-grid">
             @if($isAuthenticated)
@@ -70,7 +70,7 @@
           </ul>
           <p class="small text-muted mb-4">
             <i class="fas fa-info-circle me-1"></i>
-            Sellers complete a short profile (display name, contact, payout method) and accept the marketplace terms.
+            {{ __('Sellers complete a short profile (display name, contact, payout method) and accept the marketplace terms.') }}
           </p>
           <div class="d-grid">
             @if($existingSeller)
@@ -94,7 +94,7 @@
 
   <div class="text-center text-muted small">
     <i class="fas fa-lightbulb me-1"></i>
-    You can be both &mdash; register as a buyer now, and add a seller profile any time from your dashboard.
+    {{ __('You can be both &mdash; register as a buyer now, and add a seller profile any time from your dashboard.') }}
   </div>
 
 @endsection

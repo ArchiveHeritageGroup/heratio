@@ -49,7 +49,7 @@
     </ol>
   </nav>
 
-  <h1><i class="fas fa-draw-polygon me-2"></i>Annotate Condition Photo</h1>
+  <h1><i class="fas fa-draw-polygon me-2"></i>{{ __('Annotate Condition Photo') }}</h1>
 
   <div class="object-info">
     <strong>{{ $conditionCheck->identifier ?? '' }}</strong>
@@ -102,7 +102,7 @@
   <div class="col-lg-3">
     <div class="annotation-list-panel card">
       <div class="card-header panel-header">
-        <i class="fas fa-list me-1"></i> Annotations
+        <i class="fas fa-list me-1"></i> {{ __('Annotations') }}
       </div>
       <div class="card-body" id="annotation-list">
         @if(empty($annotations))
@@ -130,7 +130,7 @@
 
     <div class="card mt-3">
       <div class="card-header">
-        <i class="fas fa-info-circle me-1"></i> Photo Details
+        <i class="fas fa-info-circle me-1"></i> {{ __('Photo Details') }}
       </div>
       <div class="card-body">
         @if(!empty($photo->original_name))

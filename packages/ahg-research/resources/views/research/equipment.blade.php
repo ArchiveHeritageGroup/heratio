@@ -14,7 +14,7 @@
     <div class="alert alert-success alert-dismissible fade show">{!! session('success') !!}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 @endif
 
-<h1 class="mb-4"><i class="fas fa-tools me-2"></i>Reading Room Equipment</h1>
+<h1 class="mb-4"><i class="fas fa-tools me-2"></i>{{ __('Reading Room Equipment') }}</h1>
 
 {{-- Room Selector + Type Counts --}}
 <div class="row mb-4">
@@ -91,7 +91,7 @@
     {{-- Equipment Types Sidebar --}}
     <div class="col-md-4">
         <div class="card">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-list me-2"></i>Equipment Types</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-list me-2"></i>{{ __('Equipment Types') }}</h6></div>
             <div class="card-body">
                 <ul class="list-unstyled mb-0 small">
                     @foreach($equipmentTypes as $code => $label)

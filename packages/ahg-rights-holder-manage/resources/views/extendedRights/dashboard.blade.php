@@ -4,7 +4,7 @@
 @section('body-class', 'extended-rights dashboard')
 
 @section('title-block')
-  <h1 class="mb-0"><i class="fas fa-copyright me-2"></i>Extended Rights Dashboard</h1>
+  <h1 class="mb-0"><i class="fas fa-copyright me-2"></i>{{ __('Extended Rights Dashboard') }}</h1>
 @endsection
 
 @section('content')

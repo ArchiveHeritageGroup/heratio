@@ -40,7 +40,7 @@
             @if($previewUrl || $isVideo || $isAudio)
             <div class="card mb-4">
                 <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0"><i class="fas fa-eye me-2"></i>Preview</h5>
+                    <h5 class="mb-0"><i class="fas fa-eye me-2"></i>{{ __('Preview') }}</h5>
                 </div>
                 <div class="card-body text-center bg-light" style="min-height:200px;">
                     @if($isImage && $previewUrl)
@@ -77,7 +77,7 @@
 
             {{-- Master --}}
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0"><i class="fas fa-file me-2"></i>Master</h5></div>
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-file me-2"></i>{{ __('Master') }}</h5></div>
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -122,7 +122,7 @@
 
             {{-- Reference representation --}}
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0"><i class="fas fa-image me-2"></i>Reference representation</h5></div>
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-image me-2"></i>{{ __('Reference representation') }}</h5></div>
                 <div class="card-body">
                     @if($referenceImage)
                         <div class="row align-items-center">
@@ -148,7 +148,7 @@
 
             {{-- Thumbnail representation --}}
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0"><i class="fas fa-th-large me-2"></i>Thumbnail representation</h5></div>
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-th-large me-2"></i>{{ __('Thumbnail representation') }}</h5></div>
                 <div class="card-body">
                     @if($thumbnailImage)
                         <div class="row align-items-center">
@@ -177,7 +177,7 @@
         {{-- Sidebar --}}
         <div class="col-lg-4">
             <div class="card mb-4">
-                <div class="card-header bg-info text-white"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Info</h6></div>
+                <div class="card-header bg-info text-white"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Info') }}</h6></div>
                 <div class="card-body">
                     <table class="table table-sm table-borderless mb-0">
                         <tr><td class="text-muted">ID</td><td><strong>{{ $do->id }}</strong></td></tr>
@@ -193,7 +193,7 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><h6 class="mb-0"><i class="fas fa-layer-group me-2"></i>Derivatives</h6></div>
+                <div class="card-header"><h6 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('Derivatives') }}</h6></div>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex justify-content-between">Reference <span class="badge bg-{{ $referenceImage ? 'success' : 'secondary' }}"><i class="fas fa-{{ $referenceImage ? 'check' : 'minus' }}"></i></span></li>
                     <li class="list-group-item d-flex justify-content-between">Thumbnail <span class="badge bg-{{ $thumbnailImage ? 'success' : 'secondary' }}"><i class="fas fa-{{ $thumbnailImage ? 'check' : 'minus' }}"></i></span></li>

@@ -9,7 +9,7 @@
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="mb-0"><i class="fas fa-magic me-2"></i> Classification Rules</h1>
+  <h1 class="mb-0"><i class="fas fa-magic me-2"></i> {{ __('Classification Rules') }}</h1>
   <div>
     <a href="{{ route('records.classification.create') }}" class="btn btn-sm btn-success"><i class="fas fa-plus me-1"></i>{{ __('New rule') }}</a>
     <form method="POST" action="{{ route('records.classification.run-batch') }}" class="d-inline" onsubmit="return confirm('Run classification across up to 1,000 unclassified records? This may take a while.');">
@@ -83,7 +83,7 @@
 
 @if(! empty($stats))
 <div class="card">
-  <div class="card-header bg-light"><i class="fas fa-fire me-1"></i> Top firing rules (last 50)</div>
+  <div class="card-header bg-light"><i class="fas fa-fire me-1"></i> {{ __('Top firing rules (last 50)') }}</div>
   <table class="table table-sm mb-0">
     <thead class="table-light"><tr><th>{{ __('Rule') }}</th><th>{{ __('Type') }}</th><th class="text-end">{{ __('Fires') }}</th><th>{{ __('Last') }}</th></tr></thead>
     <tbody>

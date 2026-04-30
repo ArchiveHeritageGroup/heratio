@@ -84,7 +84,7 @@
                 </div>
                 <div id="post-processing-info" class="alert alert-info mb-3" style="display: none;">
                     <i class="fas fa-cogs me-2"></i>
-                    Records created. Running post-processing (derivatives, packages, indexing)...
+                    {{ __('Records created. Running post-processing (derivatives, packages, indexing)...') }}
                 </div>
                 <div class="row text-center">
                     <div class="col">
@@ -164,19 +164,19 @@
 
                 @if(!empty($job->sip_package_id))
                     <div class="alert alert-info mb-2">
-                        <i class="fas fa-box me-1"></i>SIP (Submission Information Package) generated
+                        <i class="fas fa-box me-1"></i>{{ __('SIP (Submission Information Package) generated') }}
                     </div>
                 @endif
 
                 @if(!empty($job->aip_package_id))
                     <div class="alert alert-success mb-2">
-                        <i class="fas fa-archive me-1"></i>AIP (Archival Information Package) generated
+                        <i class="fas fa-archive me-1"></i>{{ __('AIP (Archival Information Package) generated') }}
                     </div>
                 @endif
 
                 @if(!empty($job->dip_package_id))
                     <div class="alert alert-info mb-2">
-                        <i class="fas fa-box-open me-1"></i>DIP (Dissemination Information Package) generated
+                        <i class="fas fa-box-open me-1"></i>{{ __('DIP (Dissemination Information Package) generated') }}
                     </div>
                 @endif
             </div>
@@ -185,7 +185,7 @@
         @if(!empty($errorList))
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2 text-danger"></i>Error Log</h5>
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2 text-danger"></i>{{ __('Error Log') }}</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">

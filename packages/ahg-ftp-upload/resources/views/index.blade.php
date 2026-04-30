@@ -12,11 +12,11 @@
     </ol>
   </nav>
 
-  <h1 class="mb-4"><i class="fa fa-upload me-2"></i>FTP Upload</h1>
+  <h1 class="mb-4"><i class="fa fa-upload me-2"></i>{{ __('FTP Upload') }}</h1>
 
   @if(!$configured)
     <div class="alert alert-warning">
-      <h5><i class="fa fa-exclamation-triangle me-2"></i>FTP/SFTP Not Configured</h5>
+      <h5><i class="fa fa-exclamation-triangle me-2"></i>{{ __('FTP/SFTP Not Configured') }}</h5>
       <p class="mb-2">Please configure the FTP/SFTP connection settings before using this page.</p>
       <a href="{{ url('/admin/settings/ftp') }}" class="btn atom-btn-white">
         <i class="fa fa-cog me-1"></i>{{ __('Configure FTP Settings') }}
@@ -26,7 +26,7 @@
 
     <!-- CSV Path Info -->
     <div class="alert alert-info border-start border-4 border-primary">
-      <h5><i class="fa fa-info-circle me-2"></i>Important: CSV Digital Object Path</h5>
+      <h5><i class="fa fa-info-circle me-2"></i>{{ __('Important: CSV Digital Object Path') }}</h5>
       <p class="mb-2">Files uploaded here are stored at the remote path shown below. In your CSV import file, set the <code>digitalObjectPath</code> column to:</p>
       <div class="bg-white border rounded p-3 mb-2">
         <code id="path-prefix" class="fs-5 text-primary user-select-all">{{ $diskPath }}/</code><code class="fs-5 text-muted">your-filename.ext</code>
@@ -71,7 +71,7 @@
     <!-- File Listing -->
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fa fa-folder-open me-2"></i>Remote Files</h5>
+        <h5 class="mb-0"><i class="fa fa-folder-open me-2"></i>{{ __('Remote Files') }}</h5>
         <button type="button" class="btn btn-sm atom-btn-white" id="refresh-btn">
           <i class="fa fa-sync-alt me-1"></i>{{ __('Refresh') }}
         </button>

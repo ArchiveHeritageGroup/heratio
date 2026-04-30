@@ -5,7 +5,7 @@
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-2">
-    <h1 class="mb-0"><i class="fas fa-stamp"></i> Watermark Settings</h1>
+    <h1 class="mb-0"><i class="fas fa-stamp"></i> {{ __('Watermark Settings') }}</h1>
     <a href="{{ route('media-processing.index') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left"></i> {{ __('Back to Media Processing') }}
     </a>
@@ -24,7 +24,7 @@
     <div class="col-lg-8">
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-cog"></i> Global Watermark Settings</h5>
+          <h5 class="mb-0"><i class="fas fa-cog"></i> {{ __('Global Watermark Settings') }}</h5>
         </div>
         <div class="card-body">
           <form method="POST" action="{{ route('media-processing.watermark-settings') }}">
@@ -130,7 +130,7 @@
       {{-- Watermark Position Preview --}}
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-crosshairs"></i> Position Reference</h5>
+          <h5 class="mb-0"><i class="fas fa-crosshairs"></i> {{ __('Position Reference') }}</h5>
         </div>
         <div class="card-body">
           <div class="position-preview-grid mx-auto" style="max-width: 400px;">
@@ -160,7 +160,7 @@
       {{-- Upload Custom Watermark --}}
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-upload"></i> Upload Custom Watermark</h5>
+          <h5 class="mb-0"><i class="fas fa-upload"></i> {{ __('Upload Custom Watermark') }}</h5>
         </div>
         <div class="card-body">
           <form method="POST" action="{{ route('media-processing.watermark-settings') }}" enctype="multipart/form-data">
@@ -209,7 +209,7 @@
       {{-- Existing Custom Watermarks --}}
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-images"></i> Custom Watermarks</h5>
+          <h5 class="mb-0"><i class="fas fa-images"></i> {{ __('Custom Watermarks') }}</h5>
         </div>
         <div class="card-body p-0">
           @forelse($customWatermarks as $cw)
@@ -239,7 +239,7 @@
       {{-- System Watermark Types --}}
       <div class="card shadow-sm">
         <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-shield-alt"></i> System Watermark Types</h5>
+          <h5 class="mb-0"><i class="fas fa-shield-alt"></i> {{ __('System Watermark Types') }}</h5>
         </div>
         <div class="card-body p-0">
           @foreach($watermarkTypes as $type)

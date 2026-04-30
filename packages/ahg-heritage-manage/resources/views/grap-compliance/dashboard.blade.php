@@ -152,12 +152,12 @@
                 </div>
                 <div class="card-body">
                     <ul class="list-unstyled mb-0">
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Recognition (103.14-25)</li>
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Measurement (103.26-51)</li>
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Depreciation (103.52-60)</li>
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Impairment (103.61-67)</li>
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Derecognition (103.68-73)</li>
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Disclosure (103.74-82)</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>{{ __('Recognition (103.14-25)') }}</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>{{ __('Measurement (103.26-51)') }}</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>{{ __('Depreciation (103.52-60)') }}</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>{{ __('Impairment (103.61-67)') }}</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>{{ __('Derecognition (103.68-73)') }}</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>{{ __('Disclosure (103.74-82)') }}</li>
                     </ul>
                 </div>
             </div>

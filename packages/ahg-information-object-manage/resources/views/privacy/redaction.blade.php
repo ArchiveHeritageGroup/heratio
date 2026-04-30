@@ -139,7 +139,7 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
       <h4 class="mb-1">
-        <i class="fas fa-eraser me-2"></i>Visual Redaction Editor
+        <i class="fas fa-eraser me-2"></i>{{ __('Visual Redaction Editor') }}
       </h4>
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb mb-0">
@@ -320,7 +320,7 @@
       {{-- How to Use --}}
       <div class="card help-card mt-3">
         <div class="card-header bg-transparent fw-bold" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-question-circle me-1"></i> How to Use
+          <i class="fas fa-question-circle me-1"></i> {{ __('How to Use') }}
         </div>
         <div class="card-body small">
           <ol class="ps-3 mb-0">

@@ -15,7 +15,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="ricEntityModalTitle"><i class="fas fa-plus"></i> Create RiC Entity</h5>
+                <h5 class="modal-title" id="ricEntityModalTitle"><i class="fas fa-plus"></i> {{ __('Create RiC Entity') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">

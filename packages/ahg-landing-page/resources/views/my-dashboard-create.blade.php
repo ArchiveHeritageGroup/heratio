@@ -16,7 +16,7 @@
 
   <div class="card">
     <div class="card-header">
-      <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Create Personal Dashboard</h5>
+      <h5 class="mb-0"><i class="bi bi-plus-circle"></i> {{ __('Create Personal Dashboard') }}</h5>
     </div>
     <div class="card-body">
       @if ($errors->any())
@@ -35,7 +35,7 @@
       @if (!$hasDashboards)
         <div class="alert alert-info">
           <i class="bi bi-info-circle"></i>
-          This will be your first dashboard. It will be set as your default.
+          {{ __('This will be your first dashboard. It will be set as your default.') }}
         </div>
       @endif
 

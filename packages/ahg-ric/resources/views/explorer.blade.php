@@ -105,7 +105,7 @@
     <div class="modal-dialog">
       <div class="modal-content" style="background:#2a2a3e; color:#e0e0e0;">
         <div class="modal-header" style="border-color:#444;">
-          <h5 class="modal-title" id="ricCreateEntityLabel"><i class="fas fa-plus me-2"></i>New RiC Entity</h5>
+          <h5 class="modal-title" id="ricCreateEntityLabel"><i class="fas fa-plus me-2"></i>{{ __('New RiC Entity') }}</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">

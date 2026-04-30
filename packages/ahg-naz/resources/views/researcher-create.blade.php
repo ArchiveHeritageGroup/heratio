@@ -25,7 +25,7 @@
                     <li class="breadcrumb-item active">Register</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-user-plus me-2"></i>Register Researcher</h1>
+            <h1><i class="fas fa-user-plus me-2"></i>{{ __('Register Researcher') }}</h1>
         </div>
     </div>
 
@@ -106,7 +106,7 @@
 
         <div class="col-lg-4">
             <div class="alert alert-info">
-                <h6><i class="fas fa-info-circle"></i> Permit Fees</h6>
+                <h6><i class="fas fa-info-circle"></i> {{ __('Permit Fees') }}</h6>
                 <p class="small mb-0">Foreign researchers: US$200<br>Local researchers: Free</p>
             </div>
             <div class="card">

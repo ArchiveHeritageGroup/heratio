@@ -28,7 +28,7 @@
           <li class="breadcrumb-item active">Archaeological Sites</li>
         </ol>
       </nav>
-      <h1><i class="fas fa-map-marker-alt me-2"></i>Archaeological Sites</h1>
+      <h1><i class="fas fa-map-marker-alt me-2"></i>{{ __('Archaeological Sites') }}</h1>
       <p class="text-muted">Protected archaeological sites</p>
     </div>
     <div class="col-auto">

@@ -4,7 +4,7 @@
 @section('title', 'My Requests')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">My Requests</li></ol></nav>
-<h1 class="h2 mb-4"><i class="fas fa-inbox text-primary me-2"></i>My Requests</h1>
+<h1 class="h2 mb-4"><i class="fas fa-inbox text-primary me-2"></i>{{ __('My Requests') }}</h1>
 <div class="row mb-4">
     <div class="col-md-3"><div class="card bg-warning text-dark"><div class="card-body text-center"><h3 class="mb-0">{{ $stats['pending'] ?? 0 }}</h3><small>{{ __('Pending') }}</small></div></div></div>
     <div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body text-center"><h3 class="mb-0">{{ $stats['in_progress'] ?? 0 }}</h3><small>{{ __('In Progress') }}</small></div></div></div>

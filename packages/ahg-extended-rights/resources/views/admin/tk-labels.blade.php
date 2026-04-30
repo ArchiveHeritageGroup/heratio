@@ -9,7 +9,7 @@
 
 @section('title-block')
   <div class="d-flex justify-content-between align-items-center">
-    <h1 class="mb-0"><i class="fas fa-tags me-2"></i>Traditional Knowledge Labels</h1>
+    <h1 class="mb-0"><i class="fas fa-tags me-2"></i>{{ __('Traditional Knowledge Labels') }}</h1>
     <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#assignModal">
       <i class="fas fa-plus me-1"></i> {{ __('Assign Label') }}
     </button>

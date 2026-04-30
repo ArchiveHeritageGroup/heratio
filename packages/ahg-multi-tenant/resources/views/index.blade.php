@@ -35,7 +35,7 @@
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">
           <i class="fas fa-building me-2"></i>
-          Multi-Tenant Administration
+          {{ __('Multi-Tenant Administration') }}
         </h1>
         <a href="{{ route('tenant.create') }}" class="btn btn-primary">
           <i class="fas fa-plus me-2"></i>{{ __('Create Tenant') }}
@@ -113,7 +113,7 @@
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
           <h5 class="mb-0">
             <i class="fas fa-building me-2"></i>
-            Tenants
+            {{ __('Tenants') }}
           </h5>
           <form class="d-flex gap-2" method="get" action="{{ route('tenant.index') }}">
             <select name="status" class="form-select form-select-sm" style="width: 150px;">
@@ -217,7 +217,7 @@
       <div class="mt-4">
         <div class="card bg-light">
           <div class="card-body">
-            <h6><i class="fas fa-info-circle me-2"></i> About Multi-Tenancy</h6>
+            <h6><i class="fas fa-info-circle me-2"></i> {{ __('About Multi-Tenancy') }}</h6>
             <ul class="mb-0 small">
               <li><strong>{{ __('Tenant:') }}</strong> An organization or customer with their own settings, users, and access controls</li>
               <li><strong>{{ __('Status:') }}</strong>

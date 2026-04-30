@@ -12,7 +12,7 @@
 @endsection
 
 @section('title-block')
-  <h1><i class="fas fa-tasks me-2"></i>Background Jobs</h1>
+  <h1><i class="fas fa-tasks me-2"></i>{{ __('Background Jobs') }}</h1>
   <p class="text-muted small mb-0">Job queue and scheduling settings</p>
 @endsection
 
@@ -29,7 +29,7 @@
 
     {{-- Background Job Settings --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Background Job Settings</h5></div>
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-cogs me-2"></i>{{ __('Background Job Settings') }}</h5></div>
       <div class="card-body">
         <div class="row mb-3">
           <label class="col-sm-3 col-form-label">{{ __('Enable Jobs') }}</label>
@@ -112,7 +112,7 @@
 
     {{-- Job Queue Status --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Job Queue Status</h5></div>
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>{{ __('Job Queue Status') }}</h5></div>
       <div class="card-body">
         <div class="alert alert-info mb-0">
           <i class="fas fa-info-circle me-1"></i>

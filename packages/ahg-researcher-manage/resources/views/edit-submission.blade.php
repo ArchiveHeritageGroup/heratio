@@ -22,7 +22,7 @@
 
       <div class="card">
         <div class="card-header bg-primary text-white">
-          <h5 class="mb-0"><i class="bi bi-pencil me-2"></i>Edit Submission</h5>
+          <h5 class="mb-0"><i class="bi bi-pencil me-2"></i>{{ __('Edit Submission') }}</h5>
         </div>
         <div class="card-body">
 

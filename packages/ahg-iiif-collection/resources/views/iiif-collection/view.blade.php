@@ -118,7 +118,7 @@ foreach ($collection->items as $item) {
 <div class="sidebar-content">
     <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Actions</h5>
+            <h5 class="mb-0"><i class="fas fa-cog me-2"></i>{{ __('Actions') }}</h5>
         </div>
         <div class="card-body">
             <a href="{{ route('iiif-collection.manifest', $collection->slug) }}" class="btn atom-btn-white w-100 mb-2" target="_blank">
@@ -148,7 +148,7 @@ foreach ($collection->items as $item) {
 
     <div class="card">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Details</h5>
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Details') }}</h5>
         </div>
         <div class="card-body">
             <dl class="mb-0">
@@ -227,7 +227,7 @@ foreach ($collection->items as $item) {
     @if(!empty($collection->subcollections))
     <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-folder me-2"></i>Subcollections</h5>
+            <h5 class="mb-0"><i class="fas fa-folder me-2"></i>{{ __('Subcollections') }}</h5>
         </div>
         <div class="card-body">
             <div class="row row-cols-1 row-cols-md-3 g-3">

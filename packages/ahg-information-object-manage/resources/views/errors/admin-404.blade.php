@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="alert alert-danger mb-4">
-  <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Record Not Found (404)</h4>
+  <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Record Not Found (404)') }}</h4>
   <p>The URL <code>/{{ $diagnostics['slug'] }}</code> could not be resolved to a record.</p>
 </div>
 

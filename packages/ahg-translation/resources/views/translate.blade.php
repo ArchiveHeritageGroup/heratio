@@ -104,7 +104,7 @@
 
       <div class="alert alert-info py-2 mt-3 mb-0">
         <i class="fas fa-info-circle me-1"></i>
-        Click "Translate" to preview translations before saving.
+        {{ __('Click "Translate" to preview translations before saving.') }}
       </div>
     </div>
   </div>
@@ -112,7 +112,7 @@
   {{-- STEP 2: Review Translations --}}
   <div class="card mb-4 shadow-sm" id="step2-card" style="display:none;">
     <div class="card-header bg-secondary text-white">
-      <h5 class="mb-0"><i class="fas fa-eye me-2"></i>Step 2: Review & Approve</h5>
+      <h5 class="mb-0"><i class="fas fa-eye me-2"></i>{{ __('Step 2: Review & Approve') }}</h5>
     </div>
     <div class="card-body">
       <div class="alert alert-warning py-2 mb-3">

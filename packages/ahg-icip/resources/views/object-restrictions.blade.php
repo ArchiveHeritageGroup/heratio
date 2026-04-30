@@ -24,7 +24,7 @@
     </ol>
   </nav>
 
-  <h1 class="mb-4"><i class="bi bi-lock me-2"></i>Manage Access Restrictions</h1>
+  <h1 class="mb-4"><i class="bi bi-lock me-2"></i>{{ __('Manage Access Restrictions') }}</h1>
 
   @if(session('notice'))
     <div class="alert alert-success alert-dismissible fade show">

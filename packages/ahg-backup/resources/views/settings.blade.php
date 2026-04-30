@@ -28,7 +28,7 @@
 @endif
 
 <div class="card">
-  <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-sliders-h me-1"></i> Settings</div>
+  <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-sliders-h me-1"></i> {{ __('Settings') }}</div>
   <div class="card-body">
     <form method="post" action="{{ route('backup.saveSettings') }}">
       @csrf

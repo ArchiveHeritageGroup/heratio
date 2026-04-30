@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid py-3">
-    <h4 class="mb-4"><i class="bi bi-clock-history me-2"></i>Provenance Records</h4>
+    <h4 class="mb-4"><i class="bi bi-clock-history me-2"></i>{{ __('Provenance Records') }}</h4>
 
     <div class="card">
         <div class="card-body p-0">

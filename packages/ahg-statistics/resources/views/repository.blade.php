@@ -79,7 +79,7 @@
 
     <div class="card">
         <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Top Items in Repository</h5>
+            <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>{{ __('Top Items in Repository') }}</h5>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">

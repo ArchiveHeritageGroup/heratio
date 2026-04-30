@@ -49,7 +49,7 @@
 
       <h1 class="h3 mb-3">
         <i class="fas fa-images me-2"></i>
-        Condition Photos
+        {{ __('Condition Photos') }}
       </h1>
 
       <div class="mb-3">
@@ -65,7 +65,7 @@
   @if($canEdit)
   <div class="card mb-4">
     <div class="card-header bg-primary text-white">
-      <h5 class="mb-0"><i class="fas fa-upload me-2"></i>Upload Photos</h5>
+      <h5 class="mb-0"><i class="fas fa-upload me-2"></i>{{ __('Upload Photos') }}</h5>
     </div>
     <div class="card-body">
       <form id="upload-form" action="{{ route('condition.photo.upload') }}" method="post" enctype="multipart/form-data">
@@ -114,7 +114,7 @@
 
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <h5 class="mb-0"><i class="fas fa-th me-2"></i>Photos</h5>
+      <h5 class="mb-0"><i class="fas fa-th me-2"></i>{{ __('Photos') }}</h5>
       <span class="badge bg-secondary">{{ count($photos) }}</span>
     </div>
     <div class="card-body">

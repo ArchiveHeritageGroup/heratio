@@ -15,7 +15,7 @@
   <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 @endif
 
-<h1><i class="fas fa-briefcase text-primary me-2"></i>My Workspace</h1>
+<h1><i class="fas fa-briefcase text-primary me-2"></i>{{ __('My Workspace') }}</h1>
 
 {{-- Status Alerts --}}
 @php
@@ -169,7 +169,7 @@
     </div>
 
     <div class="card">
-      <div class="card-header bg-secondary text-white py-2"><i class="fas fa-history me-2"></i>Recent Visits</div>
+      <div class="card-header bg-secondary text-white py-2"><i class="fas fa-history me-2"></i>{{ __('Recent Visits') }}</div>
       @if(!empty($pastBookings))
         <ul class="list-group list-group-flush">
           @foreach(array_slice($pastBookings, 0, 3) as $booking)
@@ -281,11 +281,11 @@
 {{-- Quick Tips --}}
 <div class="card border-info mt-2">
   <div class="card-body py-3">
-    <h6 class="card-title"><i class="fas fa-lightbulb text-info me-2"></i>Research Tips</h6>
+    <h6 class="card-title"><i class="fas fa-lightbulb text-info me-2"></i>{{ __('Research Tips') }}</h6>
     <div class="row small text-muted">
-      <div class="col-md-4"><i class="fas fa-plus-circle me-1"></i> Use "Add to Evidence Set" button while browsing to save items</div>
-      <div class="col-md-4"><i class="fas fa-bookmark me-1"></i> Save searches to quickly re-run them later</div>
-      <div class="col-md-4"><i class="fas fa-file-pdf me-1"></i> Generate finding aids from your evidence sets</div>
+      <div class="col-md-4"><i class="fas fa-plus-circle me-1"></i> {{ __('Use "Add to Evidence Set" button while browsing to save items') }}</div>
+      <div class="col-md-4"><i class="fas fa-bookmark me-1"></i> {{ __('Save searches to quickly re-run them later') }}</div>
+      <div class="col-md-4"><i class="fas fa-file-pdf me-1"></i> {{ __('Generate finding aids from your evidence sets') }}</div>
     </div>
   </div>
 </div>
@@ -298,7 +298,7 @@
         @csrf
         <input type="hidden" name="booking_action" value="create_collection">
         <div class="modal-header">
-          <h5 class="modal-title"><i class="fas fa-folder-plus me-2"></i>Create New Evidence Set</h5>
+          <h5 class="modal-title"><i class="fas fa-folder-plus me-2"></i>{{ __('Create New Evidence Set') }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">

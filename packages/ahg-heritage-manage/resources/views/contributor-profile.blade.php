@@ -27,7 +27,7 @@ $statsByType = $profile['stats_by_type'] ?? [];
 
     <!-- Stats -->
     <div class="card border-0 shadow-sm mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Statistics</h6></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>{{ __('Statistics') }}</h6></div>
       <div class="card-body">
         <div class="row g-3 text-center">
           <div class="col-4"><div class="h4 mb-0" style="color:var(--ahg-primary)">{{ number_format($contributor['approved_contributions'] ?? 0) }}</div><small class="text-muted">{{ __('Approved') }}</small></div>
@@ -39,7 +39,7 @@ $statsByType = $profile['stats_by_type'] ?? [];
 
     @if(!empty($badges))
     <div class="card border-0 shadow-sm">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-award me-2"></i>Badges Earned</h6></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-award me-2"></i>{{ __('Badges Earned') }}</h6></div>
       <ul class="list-group list-group-flush">
         @foreach($badges as $badge)
         <li class="list-group-item d-flex align-items-center"><i class="fas {{ $badge['icon'] ?? 'fa-award' }} fs-4 text-{{ $badge['color'] ?? 'primary' }} me-3"></i><div><strong>{{ $badge['name'] }}</strong><div class="small text-muted">{{ $badge['description'] ?? '' }}</div></div></li>
@@ -49,7 +49,7 @@ $statsByType = $profile['stats_by_type'] ?? [];
     @endif
   </div>
   <div class="col-md-8">
-    <h1><i class="fas fa-user me-2"></i>Contributor Profile</h1>
+    <h1><i class="fas fa-user me-2"></i>{{ __('Contributor Profile') }}</h1>
 
     @if(!empty($statsByType))
     <div class="card border-0 shadow-sm mb-4">

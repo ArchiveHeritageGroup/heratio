@@ -15,7 +15,7 @@ $layout = $params['layout'] ?? 'card';
             <div class="facets-sidebar sticky-top" style="top: 20px;">
                 <div class="card">
                     <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filter Results</h5>
+                        <h5 class="mb-0"><i class="fas fa-filter me-2"></i>{{ __('Filter Results') }}</h5>
                     </div>
                     <div class="card-body">
                         <!-- Search within results -->
@@ -139,7 +139,7 @@ $layout = $params['layout'] ?? 'card';
             @else
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>
-                    No results found. Try adjusting your filters or search terms.
+                    {{ __('No results found. Try adjusting your filters or search terms.') }}
                 </div>
             @endif
         </div>

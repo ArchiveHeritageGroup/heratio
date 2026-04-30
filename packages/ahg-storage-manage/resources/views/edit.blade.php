@@ -22,7 +22,7 @@
         {{-- Basic Information --}}
         <div class="card mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-warehouse me-2"></i>Basic Information</h5>
+            <h5 class="mb-0"><i class="fas fa-warehouse me-2"></i>{{ __('Basic Information') }}</h5>
           </div>
           <div class="card-body">
             <div class="row">
@@ -58,7 +58,7 @@
         {{-- Extended Location --}}
         <div class="card mb-4">
           <div class="card-header bg-success text-white">
-            <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Details</h5>
+            <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>{{ __('Location Details') }}</h5>
           </div>
           <div class="card-body">
             <div class="row">
@@ -143,7 +143,7 @@
         {{-- Dimensions --}}
         <div class="card mb-4">
           <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-ruler-combined me-2"></i>Dimensions (cm)</h5>
+            <h5 class="mb-0"><i class="fas fa-ruler-combined me-2"></i>{{ __('Dimensions (cm)') }}</h5>
           </div>
           <div class="card-body">
             <div class="row">
@@ -175,7 +175,7 @@
         {{-- Capacity Tracking --}}
         <div class="card mb-4">
           <div class="card-header bg-info text-white">
-            <h5 class="mb-0"><i class="fas fa-boxes me-2"></i>Capacity Tracking</h5>
+            <h5 class="mb-0"><i class="fas fa-boxes me-2"></i>{{ __('Capacity Tracking') }}</h5>
           </div>
           <div class="card-body">
             <div class="row">
@@ -251,7 +251,7 @@
         {{-- Status --}}
         <div class="card mb-4">
           <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-toggle-on me-2"></i>Status</h5>
+            <h5 class="mb-0"><i class="fas fa-toggle-on me-2"></i>{{ __('Status') }}</h5>
           </div>
           <div class="card-body">
             <div class="mb-3">
@@ -269,7 +269,7 @@
         {{-- Environmental --}}
         <div class="card mb-4">
           <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-thermometer-half me-2"></i>Environmental</h5>
+            <h5 class="mb-0"><i class="fas fa-thermometer-half me-2"></i>{{ __('Environmental') }}</h5>
           </div>
           <div class="card-body">
             <div class="mb-3 form-check">
@@ -315,7 +315,7 @@
         {{-- Security --}}
         <div class="card mb-4">
           <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Security</h5>
+            <h5 class="mb-0"><i class="fas fa-lock me-2"></i>{{ __('Security') }}</h5>
           </div>
           <div class="card-body">
             <div class="mb-3">
@@ -339,7 +339,7 @@
         {{-- Notes --}}
         <div class="card mb-4">
           <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Notes</h5>
+            <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>{{ __('Notes') }}</h5>
           </div>
           <div class="card-body">
             <div class="mb-3">

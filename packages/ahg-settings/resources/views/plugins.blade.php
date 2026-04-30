@@ -11,7 +11,7 @@
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="mb-0"><i class="fas fa-puzzle-piece"></i> Plugin Management</h1>
+  <h1 class="mb-0"><i class="fas fa-puzzle-piece"></i> {{ __('Plugin Management') }}</h1>
   <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">
     <i class="fas fa-arrow-left me-1"></i>{{ __('Back to AHG Settings') }}
   </a>
@@ -171,7 +171,7 @@
   @empty
   <div class="col-12">
     <div class="alert alert-info">
-      <i class="fas fa-info-circle me-2"></i>No plugins found in database.
+      <i class="fas fa-info-circle me-2"></i>{{ __('No plugins found in database.') }}
     </div>
   </div>
   @endforelse

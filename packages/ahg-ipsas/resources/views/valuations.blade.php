@@ -31,7 +31,7 @@
                     <li class="breadcrumb-item active">Valuations</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-calculator me-2"></i>Asset Valuations</h1>
+            <h1><i class="fas fa-calculator me-2"></i>{{ __('Asset Valuations') }}</h1>
             <p class="text-muted">Track asset value changes for IPSAS compliance</p>
         </div>
         <div class="col-auto">

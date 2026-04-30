@@ -28,7 +28,7 @@
           <li class="breadcrumb-item active">New Assessment</li>
         </ol>
       </nav>
-      <h1><i class="fas fa-clipboard-check me-2"></i>Heritage Impact Assessment</h1>
+      <h1><i class="fas fa-clipboard-check me-2"></i>{{ __('Heritage Impact Assessment') }}</h1>
       <p class="text-muted">Submit HIA</p>
     </div>
   </div>
@@ -139,7 +139,7 @@
 
     <div class="col-lg-4">
       <div class="alert alert-warning">
-        <h6><i class="fas fa-exclamation-triangle me-1"></i> Important</h6>
+        <h6><i class="fas fa-exclamation-triangle me-1"></i> {{ __('Important') }}</h6>
         <ul class="small mb-0">
           <li>HIAs are required for developments that may impact heritage sites</li>
           <li>Assessment must be conducted by qualified professional</li>

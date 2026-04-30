@@ -28,7 +28,7 @@
                     <li class="breadcrumb-item active">Controller License</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-id-card me-2"></i>Controller License</h1>
+            <h1><i class="fas fa-id-card me-2"></i>{{ __('Controller License') }}</h1>
             <p class="text-muted">Data Controller Registration under CDPA [Chapter 12:07]</p>
         </div>
         <div class="col-auto">

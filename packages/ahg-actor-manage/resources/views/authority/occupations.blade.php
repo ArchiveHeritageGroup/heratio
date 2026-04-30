@@ -17,7 +17,7 @@
   </ol>
 </nav>
 
-<h1 class="mb-4"><i class="fas fa-briefcase me-2"></i>Structured Occupations</h1>
+<h1 class="mb-4"><i class="fas fa-briefcase me-2"></i>{{ __('Structured Occupations') }}</h1>
 
 <div class="card mb-3">
   <div class="card-header d-flex justify-content-between" style="background: var(--ahg-primary); color: #fff;">

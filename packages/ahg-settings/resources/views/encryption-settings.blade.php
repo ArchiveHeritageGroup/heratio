@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-lock me-2"></i>Encryption</h1>
+<h1><i class="fas fa-lock me-2"></i>{{ __('Encryption') }}</h1>
 <p class="text-muted">Field-level encryption and key management</p>
 @endsection
 
@@ -38,7 +38,7 @@
     {{-- Card 1: Encryption Configuration --}}
     <div class="card mb-4">
       <div class="card-header bg-dark text-white">
-        <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Encryption Configuration</h5>
+        <h5 class="mb-0"><i class="fas fa-lock me-2"></i>{{ __('Encryption Configuration') }}</h5>
       </div>
       <div class="card-body">
         @php
@@ -81,7 +81,7 @@
     {{-- Card 2: Layer 1 — Digital Object Encryption --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-file-shield me-2"></i>Layer 1: Digital Object Encryption</h5>
+        <h5 class="mb-0"><i class="fas fa-file-shield me-2"></i>{{ __('Layer 1: Digital Object Encryption') }}</h5>
       </div>
       <div class="card-body">
         <p class="text-muted mb-3">Encrypts uploaded files (masters and derivatives) on disk using {{ $algoName }}.</p>
@@ -112,7 +112,7 @@
     {{-- Card 3: Layer 2 — Database Field Encryption --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-database me-2"></i>Layer 2: Database Field Encryption</h5>
+        <h5 class="mb-0"><i class="fas fa-database me-2"></i>{{ __('Layer 2: Database Field Encryption') }}</h5>
       </div>
       <div class="card-body">
         <p class="text-muted mb-3">Transparent encryption of sensitive database columns. Toggle categories below, then run the CLI to encrypt existing data.</p>
@@ -189,7 +189,7 @@
     {{-- Card 4: Compliance --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-gavel me-2"></i>Compliance</h5>
+        <h5 class="mb-0"><i class="fas fa-gavel me-2"></i>{{ __('Compliance') }}</h5>
       </div>
       <div class="card-body">
         <p class="mb-2">Encryption at rest satisfies requirements from:</p>

@@ -4,7 +4,7 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li><li class="breadcrumb-item active">Extract</li></ol></nav>
 @include('ahg-ai-services::htr._nav')
-<h1><i class="fas fa-file-import me-2"></i>Extract Vital Record</h1>
+<h1><i class="fas fa-file-import me-2"></i>{{ __('Extract Vital Record') }}</h1>
 
 <div class="card">
   <div class="card-body">

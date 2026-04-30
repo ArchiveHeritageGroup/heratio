@@ -16,7 +16,7 @@
     </ol>
 </nav>
 
-<h1 class="h2 mb-4"><i class="fas fa-tools text-primary me-2"></i>Book Equipment</h1>
+<h1 class="h2 mb-4"><i class="fas fa-tools text-primary me-2"></i>{{ __('Book Equipment') }}</h1>
 
 <div class="row">
     <div class="col-md-8">

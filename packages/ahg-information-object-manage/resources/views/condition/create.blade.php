@@ -13,7 +13,7 @@
     </ol>
   </nav>
 
-  <h1 class="h3 mb-4"><i class="fas fa-clipboard-check me-2"></i>New Condition Report</h1>
+  <h1 class="h3 mb-4"><i class="fas fa-clipboard-check me-2"></i>{{ __('New Condition Report') }}</h1>
 
   @if($errors->any())
     <div class="alert alert-danger">
@@ -26,7 +26,7 @@
 
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-info-circle me-1"></i> General Information
+        <i class="fas fa-info-circle me-1"></i> {{ __('General Information') }}
       </div>
       <div class="card-body">
         <div class="row g-3">
@@ -54,7 +54,7 @@
 
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-thermometer-half me-1"></i> Condition Assessment
+        <i class="fas fa-thermometer-half me-1"></i> {{ __('Condition Assessment') }}
       </div>
       <div class="card-body">
         <div class="row g-3">
@@ -83,7 +83,7 @@
 
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-exclamation-triangle me-1"></i> Damage
+        <i class="fas fa-exclamation-triangle me-1"></i> {{ __('Damage') }}
       </div>
       <div class="card-body">
         <div id="damage-rows">
@@ -120,7 +120,7 @@
 
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-sticky-note me-1"></i> Notes
+        <i class="fas fa-sticky-note me-1"></i> {{ __('Notes') }}
       </div>
       <div class="card-body">
         <div class="mb-3">

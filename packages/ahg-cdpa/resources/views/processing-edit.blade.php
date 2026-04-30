@@ -25,7 +25,7 @@
                     <li class="breadcrumb-item active">Edit Activity</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-cogs me-2"></i>Edit Processing Activity</h1>
+            <h1><i class="fas fa-cogs me-2"></i>{{ __('Edit Processing Activity') }}</h1>
         </div>
     </div>
 

@@ -15,7 +15,7 @@ $versions = $contribution['versions'] ?? [];
 <div class="row">
   <div class="col-md-4">
     <div class="card border-0 shadow-sm mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-file me-2"></i>Item Context</h6></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-file me-2"></i>{{ __('Item Context') }}</h6></div>
       @if(!empty($item['thumbnail']))<img src="{{ $item['thumbnail'] }}" class="card-img-top" alt="{{ $item['title'] ?? 'Item' }}" onerror="this.style.display='none'">@endif
       <div class="card-body">
         <h6 class="card-title">{{ $item['title'] ?? 'Untitled' }}</h6>
@@ -23,7 +23,7 @@ $versions = $contribution['versions'] ?? [];
       </div>
     </div>
     <div class="card border-0 shadow-sm mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-user me-2"></i>Contributor</h6></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-user me-2"></i>{{ __('Contributor') }}</h6></div>
       <div class="card-body">
         <div class="d-flex align-items-center mb-3">
           <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2" style="width:40px;height:40px"><i class="fas fa-user" style="color:var(--ahg-primary)"></i></div>
@@ -38,7 +38,7 @@ $versions = $contribution['versions'] ?? [];
     </div>
   </div>
   <div class="col-md-8">
-    <h1><i class="fas fa-clipboard-check me-2"></i>Review Contribution</h1>
+    <h1><i class="fas fa-clipboard-check me-2"></i>{{ __('Review Contribution') }}</h1>
 
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
@@ -71,7 +71,7 @@ $versions = $contribution['versions'] ?? [];
     </div>
 
     <div class="card border-0 shadow-sm">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-check-square me-2"></i>Decision</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-check-square me-2"></i>{{ __('Decision') }}</h5></div>
       <div class="card-body">
         <form method="post" action="{{ route('heritage.review-contribution', $contribution['id'] ?? 0) }}">@csrf
           <div class="mb-3"><label for="notes" class="form-label">Review Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea class="form-control" name="notes" rows="3" placeholder="{{ __('Add any notes for the contributor...') }}"></textarea><div class="form-text">These notes will be visible to the contributor.</div></div>

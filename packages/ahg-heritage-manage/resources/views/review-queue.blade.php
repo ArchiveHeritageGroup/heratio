@@ -14,7 +14,7 @@ $total = $queueData['total'] ?? 0;
   <div class="col-md-3">
     @include('ahg-heritage-manage::partials._admin-sidebar')
     <div class="card border-0 shadow-sm mt-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-filter me-2"></i>Filter by Type</h6></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-filter me-2"></i>{{ __('Filter by Type') }}</h6></div>
       <div class="list-group list-group-flush">
         <a href="{{ route('heritage.review-queue') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ !request('type')?'active':'' }}">All Types <span class="badge bg-primary">{{ $total }}</span></a>
         @foreach($countsByType as $type)
@@ -24,7 +24,7 @@ $total = $queueData['total'] ?? 0;
     </div>
   </div>
   <div class="col-md-9">
-    <h1><i class="fas fa-inbox me-2"></i>Review Queue</h1>
+    <h1><i class="fas fa-inbox me-2"></i>{{ __('Review Queue') }}</h1>
 
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">

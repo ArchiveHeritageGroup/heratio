@@ -40,7 +40,7 @@
 
     {{-- Source Files --}}
     <div class="card">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-files me-2"></i>Source Files</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-files me-2"></i>{{ __('Source Files') }}</div>
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">

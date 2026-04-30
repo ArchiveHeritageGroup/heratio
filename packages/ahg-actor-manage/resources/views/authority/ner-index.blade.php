@@ -20,7 +20,7 @@
   </ol>
 </nav>
 
-<h1 class="mb-4"><i class="fas fa-robot me-2"></i>NER-to-Authority Pipeline</h1>
+<h1 class="mb-4"><i class="fas fa-robot me-2"></i>{{ __('NER-to-Authority Pipeline') }}</h1>
 
 {{-- Stats --}}
 <div class="row g-3 mb-4">
@@ -61,7 +61,7 @@
 {{-- Pending NER Entities --}}
 <div class="card mb-3">
   <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-    <i class="fas fa-magic me-1"></i>Pending NER Entities (not yet stubbed)
+    <i class="fas fa-magic me-1"></i>{{ __('Pending NER Entities (not yet stubbed)') }}
   </div>
   <div class="card-body p-0">
     <table class="table table-sm table-hover mb-0">
@@ -101,7 +101,7 @@
 {{-- Existing Stubs --}}
 <div class="card mb-3">
   <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-    <i class="fas fa-user-clock me-1"></i>Authority Stubs
+    <i class="fas fa-user-clock me-1"></i>{{ __('Authority Stubs') }}
   </div>
   <div class="card-body p-0">
     <table class="table table-sm table-hover mb-0">

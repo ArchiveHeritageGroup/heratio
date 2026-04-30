@@ -98,7 +98,7 @@
     </div>
   @else
     <div class="alert alert-info">
-      <i class="fas fa-info-circle"></i> No migration jobs found.
+      <i class="fas fa-info-circle"></i> {{ __('No migration jobs found.') }}
     </div>
   @endif
 @endsection

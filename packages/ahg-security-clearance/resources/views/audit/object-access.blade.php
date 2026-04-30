@@ -10,7 +10,7 @@
     <li class="breadcrumb-item active">Object Access</li>
   </ol></nav>
 
-  <h1><i class="fas fa-folder-open"></i> Object Access Audit</h1>
+  <h1><i class="fas fa-folder-open"></i> {{ __('Object Access Audit') }}</h1>
 
   {{-- Object Search --}}
   <div class="card mb-4">

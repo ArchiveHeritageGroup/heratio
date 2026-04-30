@@ -4,12 +4,12 @@
 
 @section('content')
 <div class="container-fluid mt-3">
-  <h1><i class="fas fa-file-alt"></i> My Access Requests</h1>
+  <h1><i class="fas fa-file-alt"></i> {{ __('My Access Requests') }}</h1>
 
 {{-- Current Clearance --}}
   @if(!empty($currentClearance))
   <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0"><i class="fas fa-shield-alt"></i> My Clearance</h5></div>
+    <div class="card-header"><h5 class="mb-0"><i class="fas fa-shield-alt"></i> {{ __('My Clearance') }}</h5></div>
     <div class="card-body">
       <p><strong>{{ __('Level:') }}</strong> <span class="badge" style="background-color: {{ $currentClearance->color ?? '#666' }}">{{ e($currentClearance->classification_name ?? 'None') }}</span></p>
       <p><strong>{{ __('Expires:') }}</strong> {{ $currentClearance->expires_at ?? 'Never' }}</p>

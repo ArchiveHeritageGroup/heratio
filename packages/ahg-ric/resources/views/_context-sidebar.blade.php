@@ -6,7 +6,7 @@
 @if($viewMode === 'ric' && !empty($resourceId))
 <section id="ric-context-sidebar" class="card mb-3">
   <div class="card-header bg-success text-white py-2">
-    <h6 class="mb-0"><i class="fas fa-sitemap me-2"></i>RiC Context</h6>
+    <h6 class="mb-0"><i class="fas fa-sitemap me-2"></i>{{ __('RiC Context') }}</h6>
   </div>
   <div class="card-body p-0" id="ric-context-body">
     <div class="text-center py-3">

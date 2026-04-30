@@ -14,7 +14,7 @@
       @csrf
 
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-info-circle me-2"></i>Dropdown Details</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-info-circle me-2"></i>{{ __('Dropdown Details') }}</div>
         <div class="card-body">
           <div class="mb-3">
             <label class="form-label">Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>

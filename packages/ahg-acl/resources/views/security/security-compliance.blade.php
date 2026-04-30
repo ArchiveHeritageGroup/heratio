@@ -9,7 +9,7 @@
     <div class="col-md-12">
         <h1 class="h3 mb-4">
             <i class="fas fa-shield-alt me-2"></i>
-            Security Compliance Dashboard
+            {{ __('Security Compliance Dashboard') }}
         </h1>
     </div>
 </div>

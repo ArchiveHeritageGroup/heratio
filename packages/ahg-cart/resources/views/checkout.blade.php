@@ -3,7 +3,7 @@
 @section('body-class', 'cart checkout')
 
 @section('content')
-<h1><i class="fas fa-credit-card me-2"></i>Checkout</h1>
+<h1><i class="fas fa-credit-card me-2"></i>{{ __('Checkout') }}</h1>
 
 <form method="post" action="{{ route('cart.checkout') }}">
   @csrf
@@ -12,7 +12,7 @@
       @if($isEcommerce)
         {{-- E-Commerce checkout form --}}
         <div class="card mb-4">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>Billing Information</div>
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>{{ __('Billing Information') }}</div>
           <div class="card-body">
             <div class="row">
               <div class="col-md-6 mb-3">
@@ -41,7 +41,7 @@
       @else
         {{-- Standard (Request to Publish) form --}}
         <div class="card mb-4">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-paper-plane me-2"></i>Request to Publish</div>
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-paper-plane me-2"></i>{{ __('Request to Publish') }}</div>
           <div class="card-body">
             <div class="row">
               <div class="col-md-6 mb-3">
@@ -91,7 +91,7 @@
 
     <div class="col-md-4">
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-list me-2"></i>Order Summary</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-list me-2"></i>{{ __('Order Summary') }}</div>
         <div class="card-body">
           <ul class="list-unstyled mb-3">
             @foreach($items as $item)

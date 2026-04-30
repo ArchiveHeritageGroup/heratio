@@ -13,7 +13,7 @@
     </div>
   @endif
 
-  <h1 class="mb-4"><i class="fas fa-user-plus me-2"></i>Researcher Registration</h1>
+  <h1 class="mb-4"><i class="fas fa-user-plus me-2"></i>{{ __('Researcher Registration') }}</h1>
   <p class="text-muted mb-4">Create an account and register as a researcher to access the reading rooms and research tools.</p>
 
   @if($errors->any())
@@ -31,7 +31,7 @@
 
     {{-- Account Creation --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-key me-2"></i>Account Details</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-key me-2"></i>{{ __('Account Details') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-6 mb-3">
@@ -58,7 +58,7 @@
 
     {{-- Personal Information --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>Personal Information</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>{{ __('Personal Information') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-2 mb-3">
@@ -92,7 +92,7 @@
 
     {{-- Identification --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-id-card me-2"></i>Identification</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-id-card me-2"></i>{{ __('Identification') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
@@ -118,7 +118,7 @@
 
     {{-- Affiliation --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-university me-2"></i>Affiliation</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-university me-2"></i>{{ __('Affiliation') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
@@ -157,7 +157,7 @@
 
     {{-- Research --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-microscope me-2"></i>Research</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-microscope me-2"></i>{{ __('Research') }}</div>
       <div class="card-body">
         <div class="mb-3">
           <label for="research_interests" class="form-label">Research Interests <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

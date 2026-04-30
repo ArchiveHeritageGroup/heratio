@@ -15,7 +15,7 @@
   <a href="{{ route('dam.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a>
 </div>
 @endsection
-@section('title-block')<h1><i class="fas fa-info-circle me-2"></i>Metadata Report</h1>@endsection
+@section('title-block')<h1><i class="fas fa-info-circle me-2"></i>{{ __('Metadata Report') }}</h1>@endsection
 @section('content')
 <div class="alert alert-info"><strong>{{ count($rows) }}</strong> assets found</div>
 <div class="table-responsive">

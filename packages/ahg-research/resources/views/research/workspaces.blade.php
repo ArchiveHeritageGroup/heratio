@@ -15,7 +15,7 @@
 </nav>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2"><i class="fas fa-users-cog text-primary me-2"></i>Research Workspaces</h1>
+    <h1 class="h2"><i class="fas fa-users-cog text-primary me-2"></i>{{ __('Research Workspaces') }}</h1>
     <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createWorkspaceModal">
         <i class="fas fa-plus me-1"></i> {{ __('New Workspace') }}
     </button>

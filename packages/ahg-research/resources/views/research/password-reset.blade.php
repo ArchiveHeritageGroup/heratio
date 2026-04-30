@@ -3,7 +3,7 @@
 @section('title', 'Set New Password')
 @section('content')
 <div class="row justify-content-center"><div class="col-md-6">
-<div class="card"><div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-key me-2"></i>Set New Password</h5></div>
+<div class="card"><div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-key me-2"></i>{{ __('Set New Password') }}</h5></div>
 <div class="card-body">
 <form method="POST">@csrf
         <input type="hidden" name="token" value="{{ $token ?? '' }}">

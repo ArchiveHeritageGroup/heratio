@@ -23,7 +23,7 @@
   </ol>
 </nav>
 
-<h1 class="mb-4"><i class="fas fa-columns me-2"></i>Compare Authority Records</h1>
+<h1 class="mb-4"><i class="fas fa-columns me-2"></i>{{ __('Compare Authority Records') }}</h1>
 
 @if (!$primary || !$secondary)
   <div class="alert alert-warning">Could not load both records for comparison.</div>
@@ -31,7 +31,7 @@
 
   <div class="card mb-3">
     <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-      <i class="fas fa-columns me-1"></i>Field Comparison
+      <i class="fas fa-columns me-1"></i>{{ __('Field Comparison') }}
     </div>
     <div class="card-body p-0">
       <table class="table table-sm mb-0">

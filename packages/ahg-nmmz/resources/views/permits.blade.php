@@ -27,7 +27,7 @@
           <li class="breadcrumb-item active">Export Permits</li>
         </ol>
       </nav>
-      <h1><i class="fas fa-file-export me-2"></i>Export Permits</h1>
+      <h1><i class="fas fa-file-export me-2"></i>{{ __('Export Permits') }}</h1>
       <p class="text-muted">Export permit applications</p>
     </div>
     <div class="col-auto">

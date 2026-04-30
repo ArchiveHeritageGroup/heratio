@@ -25,7 +25,7 @@
                     <li class="breadcrumb-item active">New Closure</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-lock me-2"></i>Create Closure Period</h1>
+            <h1><i class="fas fa-lock me-2"></i>{{ __('Create Closure Period') }}</h1>
         </div>
     </div>
 
@@ -85,7 +85,7 @@
 
         <div class="col-lg-4">
             <div class="alert alert-info">
-                <h6><i class="fas fa-info-circle"></i> Section 10</h6>
+                <h6><i class="fas fa-info-circle"></i> {{ __('Section 10') }}</h6>
                 <p class="small mb-0">Records are closed for 25 years from date of creation under the NAZ Act.</p>
             </div>
             <div class="card">

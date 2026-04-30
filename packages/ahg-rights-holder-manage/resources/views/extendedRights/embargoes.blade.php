@@ -53,7 +53,7 @@
         </tbody>
       </table>
     @else
-      <div class="alert alert-info"><i class="fas fa-info-circle"></i> No active embargoes found.</div>
+      <div class="alert alert-info"><i class="fas fa-info-circle"></i> {{ __('No active embargoes found.') }}</div>
     @endif
   </div>
 </div>

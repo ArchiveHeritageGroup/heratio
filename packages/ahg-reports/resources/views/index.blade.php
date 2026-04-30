@@ -6,7 +6,7 @@
 <div class="row">
   <div class="col-md-3">@include('ahg-reports::_menu')</div>
   <div class="col-md-9">
-    <h1><i class="fas fa-chart-bar me-2"></i>Reports</h1>
+    <h1><i class="fas fa-chart-bar me-2"></i>{{ __('Reports') }}</h1>
     <p class="text-muted">Select a report from the sidebar menu to get started.</p>
 
     <div class="row">

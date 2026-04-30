@@ -14,11 +14,11 @@
   </ol>
 </nav>
 
-<h1 class="mb-4"><i class="fas fa-sitemap me-2"></i>Browse by Function</h1>
+<h1 class="mb-4"><i class="fas fa-sitemap me-2"></i>{{ __('Browse by Function') }}</h1>
 
 <div class="card">
   <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-    <i class="fas fa-sitemap me-1"></i>ISDF Functions
+    <i class="fas fa-sitemap me-1"></i>{{ __('ISDF Functions') }}
   </div>
   <div class="card-body p-0">
     <table class="table table-hover mb-0">

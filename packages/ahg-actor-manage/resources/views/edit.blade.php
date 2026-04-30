@@ -437,6 +437,29 @@
         </div>
       </div>
 
+      {{-- ===== Cultural sensitivity (ICIP) ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="icip-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#icip-collapse" aria-expanded="false" aria-controls="icip-collapse">
+            {{ __('Cultural sensitivity') }}
+          </button>
+        </h2>
+        <div id="icip-collapse" class="accordion-collapse collapse" aria-labelledby="icip-heading">
+          <div class="accordion-body">
+            <div class="mb-3">
+                <label for="icip_sensitivity" class="form-label">{{ __('ICIP cultural-sensitivity classification') }}
+                    <span class="badge bg-info text-dark ms-1" title="{{ __('Indigenous Cultural and Intellectual Property') }}">ICIP</span>
+                </label>
+                @include('ahg-translation::components.icip-sensitivity-select', [
+                    'name' => 'icip_sensitivity',
+                    'value' => old('icip_sensitivity', $actor->icip_sensitivity ?? null),
+                ])
+                <small class="form-text text-muted">{{ __('Cultural-sensitivity classification per ICIP protocols. Determines who may view, reproduce, or transmit this item.') }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {{-- ===== Control area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="control-heading">

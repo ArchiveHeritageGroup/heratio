@@ -7,7 +7,7 @@
   <div class="container">
     <div class="row mb-4">
       <div class="col-12">
-        <h1 class="display-5 fw-bold mb-3"><i class="fas fa-layer-group me-2"></i>Featured Collections</h1>
+        <h1 class="display-5 fw-bold mb-3"><i class="fas fa-layer-group me-2"></i>{{ __('Featured Collections') }}</h1>
         <p class="lead text-muted">Curated collections highlighting our most significant holdings</p>
       </div>
     </div>
@@ -46,7 +46,7 @@
       @endforeach
     </div>
     @else
-    <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>No featured collections available yet. Check back soon!</div>
+    <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>{{ __('No featured collections available yet. Check back soon!') }}</div>
     @endif
   </div>
 </div>

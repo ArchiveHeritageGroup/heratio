@@ -14,7 +14,7 @@
   </ol>
 </nav>
 
-<h1 class="mb-4"><i class="fas fa-clone me-2"></i>Authority Deduplication</h1>
+<h1 class="mb-4"><i class="fas fa-clone me-2"></i>{{ __('Authority Deduplication') }}</h1>
 
 <div class="row g-3 mb-4">
   <div class="col-md-3">
@@ -53,7 +53,7 @@
 
 <div class="card mb-3">
   <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-    <i class="fas fa-search me-1"></i>Run Dedup Scan
+    <i class="fas fa-search me-1"></i>{{ __('Run Dedup Scan') }}
   </div>
   <div class="card-body">
     <form method="post" action="{{ route('actor.dedup.scan') }}">
@@ -76,7 +76,7 @@
 
 <div class="card mb-3">
   <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-    <i class="fas fa-terminal me-1"></i>CLI Scan
+    <i class="fas fa-terminal me-1"></i>{{ __('CLI Scan') }}
   </div>
   <div class="card-body">
     <p class="text-muted">For large datasets, run the dedup scan via CLI:</p>

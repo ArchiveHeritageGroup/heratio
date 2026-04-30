@@ -109,7 +109,7 @@
       <div class="col-lg-4">
         <div class="card">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Rule Type Help</h5>
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Rule Type Help') }}</h5>
           </div>
           <div class="card-body" id="ruleHelp">
             <p class="text-muted">Select a rule type to see configuration options.</p>
@@ -118,7 +118,7 @@
 
         <div class="card mt-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-code me-2"></i>Example Configs</h5>
+            <h5 class="mb-0"><i class="fas fa-code me-2"></i>{{ __('Example Configs') }}</h5>
           </div>
           <div class="card-body">
             <p><strong>{{ __('Title Similarity:') }}</strong></p>

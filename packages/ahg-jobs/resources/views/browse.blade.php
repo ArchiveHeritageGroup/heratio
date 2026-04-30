@@ -29,7 +29,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-md-6">
-            <h1><i class="bi bi-list-task"></i> Jobs</h1>
+            <h1><i class="bi bi-list-task"></i> {{ __('Jobs') }}</h1>
         </div>
         <div class="col-md-6 text-end">
             <a href="{{ route('jobs.export-csv') }}" class="btn btn-outline-secondary">

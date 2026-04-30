@@ -44,7 +44,7 @@
     <div class="col-md-8">
       @if($donors->count())
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-hand-holding-heart me-1"></i> Donors / Source (provenance)</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-hand-holding-heart me-1"></i> {{ __('Donors / Source (provenance)') }}</div>
         <div class="list-group list-group-flush">
           @foreach($donors as $d)
             <a href="{{ url('/' . $d->slug) }}" class="list-group-item list-group-item-action"><i class="fas fa-user text-danger me-1"></i>{{ $d->name }}</a>
@@ -55,7 +55,7 @@
 
       @if($linkedDescriptions->count())
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-alt me-1"></i> Linked Descriptions</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-alt me-1"></i> {{ __('Linked Descriptions') }}</div>
         <div class="list-group list-group-flush">
           @foreach($linkedDescriptions as $desc)
             <a href="{{ url('/' . $desc->slug) }}" class="list-group-item list-group-item-action"><i class="fas fa-file-alt text-info me-1"></i>{{ $desc->title }}</a>
@@ -67,7 +67,7 @@
 
     <div class="col-md-4">
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bolt me-1"></i> Actions</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bolt me-1"></i> {{ __('Actions') }}</div>
         <div class="card-body">
           <a href="/explorer" class="btn btn-sm btn-outline-success w-100 mb-2"><i class="fas fa-project-diagram me-1"></i>{{ __('Open in Graph Explorer') }}</a>
           <a href="/ric-api/relations/{{ $accession->id }}" class="btn btn-sm btn-outline-info w-100" target="_blank"><i class="fas fa-code me-1"></i>{{ __('View Relations JSON') }}</a>

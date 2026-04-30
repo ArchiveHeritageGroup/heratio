@@ -10,7 +10,7 @@
     >
       <h1 class="h2 mb-0 p-3 border-bottom d-flex align-items-center">
         <i class="fa fa-check-circle"></i>
-        Verifying Your Humanity
+        {{ __('Verifying Your Humanity') }}
       </h1>
       <div class="p-3">
         <p>

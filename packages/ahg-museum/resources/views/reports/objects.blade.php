@@ -17,7 +17,7 @@
   <a href="{{ route('museum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a>
 </div>
 @endsection
-@section('title-block')<h1><i class="fas fa-cube me-2"></i>Objects Report</h1>@endsection
+@section('title-block')<h1><i class="fas fa-cube me-2"></i>{{ __('Objects Report') }}</h1>@endsection
 @section('content')
 <div class="alert alert-info"><strong>{{ count($objects) }}</strong> objects found</div>
 <div class="table-responsive">

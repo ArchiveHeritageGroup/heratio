@@ -54,7 +54,7 @@
     {{-- Select Primary Record --}}
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-star me-2"></i>Step 1: Select Primary Record</h5>
+        <h5 class="mb-0"><i class="fas fa-star me-2"></i>{{ __('Step 1: Select Primary Record') }}</h5>
       </div>
       <div class="card-body">
         <p class="text-muted mb-4">The primary record will be kept. The secondary record's data will be merged into it.</p>
@@ -128,30 +128,30 @@
     {{-- What Will Happen --}}
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Step 2: Review Merge Actions</h5>
+        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Step 2: Review Merge Actions') }}</h5>
       </div>
       <div class="card-body">
         <p>The following actions will be performed:</p>
         <ul class="list-group list-group-flush">
           <li class="list-group-item">
             <i class="fas fa-file me-2 text-primary"></i>
-            Digital objects from the secondary record will be transferred to the primary record
+            {{ __('Digital objects from the secondary record will be transferred to the primary record') }}
           </li>
           <li class="list-group-item">
             <i class="fas fa-sitemap me-2 text-primary"></i>
-            Child records from the secondary record will be moved under the primary record
+            {{ __('Child records from the secondary record will be moved under the primary record') }}
           </li>
           <li class="list-group-item">
             <i class="fas fa-link me-2 text-primary"></i>
-            The secondary record's slug will redirect to the primary record
+            {{ __("The secondary record's slug will redirect to the primary record") }}
           </li>
           <li class="list-group-item">
             <i class="fas fa-archive me-2 text-primary"></i>
-            The secondary record will be archived (not deleted) for audit purposes
+            {{ __('The secondary record will be archived (not deleted) for audit purposes') }}
           </li>
           <li class="list-group-item">
             <i class="fas fa-history me-2 text-primary"></i>
-            A merge log entry will be created for compliance and auditing
+            {{ __('A merge log entry will be created for compliance and auditing') }}
           </li>
         </ul>
       </div>
@@ -160,7 +160,7 @@
     {{-- Confirmation --}}
     <div class="card mb-4">
       <div class="card-header bg-danger text-white">
-        <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Step 3: Confirm Merge</h5>
+        <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>{{ __('Step 3: Confirm Merge') }}</h5>
       </div>
       <div class="card-body">
         <div class="form-check mb-3">

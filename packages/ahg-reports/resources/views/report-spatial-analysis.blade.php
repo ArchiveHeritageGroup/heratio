@@ -9,7 +9,7 @@
   </div>
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-map-marker-alt me-2"></i>Spatial Analysis Report</h1>
+      <h1><i class="fas fa-map-marker-alt me-2"></i>{{ __('Spatial Analysis Report') }}</h1>
       <div>
         <a href="{{ route('reports.select') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Reports') }}</a>
         @if(!empty($results))
@@ -20,7 +20,7 @@
 
     {{-- Filter --}}
     <div class="card mb-3">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-filter me-2"></i>Filter Options</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-filter me-2"></i>{{ __('Filter Options') }}</div>
       <div class="card-body">
         <form method="get" class="row g-3">
           <div class="col-md-3">

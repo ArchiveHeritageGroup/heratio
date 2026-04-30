@@ -107,7 +107,7 @@
     </div>
   @else
     <div class="alert alert-info">
-      <i class="fas fa-info-circle me-2"></i>No display profiles have been configured.
+      <i class="fas fa-info-circle me-2"></i>{{ __('No display profiles have been configured.') }}
     </div>
   @endif
 </div>

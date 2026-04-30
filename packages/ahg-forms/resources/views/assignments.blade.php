@@ -11,7 +11,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <h1><i class="fas fa-link me-2"></i>Form Assignments</h1>
+            <h1><i class="fas fa-link me-2"></i>{{ __('Form Assignments') }}</h1>
             <p class="text-muted">Assign form templates to repositories and description levels</p>
         </div>
         <div class="col-auto">
@@ -88,7 +88,7 @@
 
     <div class="card mt-4">
         <div class="card-body">
-            <h5><i class="fas fa-info-circle me-2"></i>How Assignments Work</h5>
+            <h5><i class="fas fa-info-circle me-2"></i>{{ __('How Assignments Work') }}</h5>
             <p class="mb-2">
                 When editing a record, the system selects the best matching form template based on:
             </p>

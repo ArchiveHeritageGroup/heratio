@@ -132,7 +132,7 @@
   @elseif($results !== null)
     <div class="alert alert-info">
       <i class="fas fa-info-circle" aria-hidden="true"></i>
-      No description updates found matching the current filters.
+      {{ __('No description updates found matching the current filters.') }}
     </div>
   @endif
 @endsection

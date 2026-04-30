@@ -18,7 +18,7 @@ $total = $requestData['total'] ?? 0;
     </div>
   </div>
   <div class="col-md-9">
-    <h1><i class="fas fa-key me-2"></i>My Access Requests</h1>
+    <h1><i class="fas fa-key me-2"></i>{{ __('My Access Requests') }}</h1>
 
     <div class="card border-0 shadow-sm">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Your Access Requests') }}</h5></div>

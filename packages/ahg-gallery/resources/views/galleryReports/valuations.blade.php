@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-coins me-2"></i>Valuations Report</h1>
+<h1><i class="fas fa-coins me-2"></i>{{ __('Valuations Report') }}</h1>
 @endsection
 
 @section('content')

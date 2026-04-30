@@ -24,7 +24,7 @@
   @endif
 
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="fas fa-user-cog me-2"></i>My Profile</h1>
+    <h1><i class="fas fa-user-cog me-2"></i>{{ __('My Profile') }}</h1>
     <div>
       {{-- Status Badge --}}
       @php
@@ -74,7 +74,7 @@
 
     {{-- Personal Information --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>Personal Information</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>{{ __('Personal Information') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-2 mb-3">
@@ -111,7 +111,7 @@
 
     {{-- Identification (read-only) --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-id-card me-2"></i>Identification</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-id-card me-2"></i>{{ __('Identification') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
@@ -148,7 +148,7 @@
 
     {{-- Affiliation --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-university me-2"></i>Affiliation</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-university me-2"></i>{{ __('Affiliation') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
@@ -184,7 +184,7 @@
 
     {{-- Research --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-microscope me-2"></i>Research</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-microscope me-2"></i>{{ __('Research') }}</div>
       <div class="card-body">
         <div class="mb-3">
           <label for="research_interests" class="form-label">Research Interests <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
@@ -209,7 +209,7 @@
   <div class="col-md-4">
     {{-- Recent Bookings --}}
     <div class="card mb-3">
-      <div class="card-header bg-info text-white"><h6 class="mb-0"><i class="fas fa-calendar me-2"></i>Recent Bookings</h6></div>
+      <div class="card-header bg-info text-white"><h6 class="mb-0"><i class="fas fa-calendar me-2"></i>{{ __('Recent Bookings') }}</h6></div>
       @if(!empty($recentBookings))
         <ul class="list-group list-group-flush">
           @foreach(array_slice((array)$recentBookings, 0, 5) as $b)
@@ -226,7 +226,7 @@
 
     {{-- Evidence Sets --}}
     <div class="card mb-3">
-      <div class="card-header bg-primary text-white"><h6 class="mb-0"><i class="fas fa-layer-group me-2"></i>Evidence Sets</h6></div>
+      <div class="card-header bg-primary text-white"><h6 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('Evidence Sets') }}</h6></div>
       @if(!empty($recentCollections))
         <ul class="list-group list-group-flush">
           @foreach($recentCollections as $c)
@@ -244,7 +244,7 @@
     {{-- API Access --}}
     @if(($researcher->status ?? '') === 'approved')
     <div class="card mb-3">
-      <div class="card-header bg-dark text-white"><h6 class="mb-0"><i class="fas fa-key me-2"></i>API Access</h6></div>
+      <div class="card-header bg-dark text-white"><h6 class="mb-0"><i class="fas fa-key me-2"></i>{{ __('API Access') }}</h6></div>
       <div class="card-body">
         <p class="small text-muted mb-2">Access your research data programmatically via REST API.</p>
         <a href="{{ url('/research/apiKeys') }}" class="btn btn-sm btn-outline-dark w-100"><i class="fas fa-key me-1"></i>{{ __('Manage API Keys') }}</a>
@@ -254,7 +254,7 @@
 
     {{-- Quick Links --}}
     <div class="card">
-      <div class="card-header bg-secondary text-white"><h6 class="mb-0"><i class="fas fa-link me-2"></i>Quick Links</h6></div>
+      <div class="card-header bg-secondary text-white"><h6 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Quick Links') }}</h6></div>
       <ul class="list-group list-group-flush">
         <li class="list-group-item"><a href="{{ route('research.projects') }}"><i class="fas fa-project-diagram me-2"></i>{{ __('My Projects') }}</a></li>
         <li class="list-group-item"><a href="{{ route('research.bibliographies') }}"><i class="fas fa-book me-2"></i>{{ __('Bibliographies') }}</a></li>

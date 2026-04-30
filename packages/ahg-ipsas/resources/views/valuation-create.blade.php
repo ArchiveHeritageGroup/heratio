@@ -28,7 +28,7 @@
                     <li class="breadcrumb-item active">New Valuation</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-calculator me-2"></i>Record Valuation</h1>
+            <h1><i class="fas fa-calculator me-2"></i>{{ __('Record Valuation') }}</h1>
         </div>
     </div>
 
@@ -136,7 +136,7 @@
 
         <div class="col-lg-4">
             <div class="alert alert-info">
-                <h6><i class="fas fa-info-circle"></i> IPSAS Valuation</h6>
+                <h6><i class="fas fa-info-circle"></i> {{ __('IPSAS Valuation') }}</h6>
                 <p class="small mb-0">Record valuation changes as required by IPSAS 17 and IPSAS 21 (Impairment of Non-Cash-Generating Assets). Ensure proper documentation and valuer credentials for audit compliance.</p>
             </div>
             <div class="card">

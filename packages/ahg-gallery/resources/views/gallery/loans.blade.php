@@ -1,7 +1,7 @@
 @extends('theme::layouts.1col')
 @section('title', 'Gallery Loans')
 @section('body-class', 'gallery loans')
-@section('title-block')<h1 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Gallery Loans</h1>@endsection
+@section('title-block')<h1 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>{{ __('Gallery Loans') }}</h1>@endsection
 @section('content')
 @auth<div class="mb-3"><a href="{{ route('gallery.loans.create') }}" class="btn atom-btn-white"><i class="fas fa-plus me-1"></i>{{ __('Create Loan') }}</a></div>@endauth
 <div class="card">

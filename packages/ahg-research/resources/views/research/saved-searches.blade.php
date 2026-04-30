@@ -18,7 +18,7 @@
     <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 @endif
 
-<h1 class="h2 mb-4"><i class="fas fa-search text-primary me-2"></i>Saved Searches</h1>
+<h1 class="h2 mb-4"><i class="fas fa-search text-primary me-2"></i>{{ __('Saved Searches') }}</h1>
 
 <div class="card mb-4">
     @if(count($savedSearches ?? []) > 0)
@@ -91,7 +91,7 @@
 
 {{-- Save New Search --}}
 <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-plus me-2"></i>Save a New Search</div>
+    <div class="card-header"><i class="fas fa-plus me-2"></i>{{ __('Save a New Search') }}</div>
     <div class="card-body">
         <form action="{{ route('research.savedSearches.store') }}" method="POST">
             @csrf
@@ -121,7 +121,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header"><h5 class="modal-title">{{ __('Search Result Diff') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body" id="diffBody"><div class="text-center"><i class="fas fa-spinner fa-spin"></i> Computing diff...</div></div>
+            <div class="modal-body" id="diffBody"><div class="text-center"><i class="fas fa-spinner fa-spin"></i> {{ __('Computing diff...') }}</div></div>
         </div>
     </div>
 </div>

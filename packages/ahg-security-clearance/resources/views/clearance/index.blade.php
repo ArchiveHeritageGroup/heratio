@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid mt-3">
-  <h1><i class="fas fa-user-shield"></i> Security Clearances</h1>
+  <h1><i class="fas fa-user-shield"></i> {{ __('Security Clearances') }}</h1>
 
 {{-- Stats --}}
   <div class="row mb-4">

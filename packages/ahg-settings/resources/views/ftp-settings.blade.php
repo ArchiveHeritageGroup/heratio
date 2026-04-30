@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-server me-2"></i>FTP / SFTP Upload</h1>
+<h1><i class="fas fa-server me-2"></i>{{ __('FTP / SFTP Upload') }}</h1>
 <p class="text-muted">FTP / SFTP connection settings</p>
 @endsection
 
@@ -38,7 +38,7 @@
     {{-- Card 1: FTP / SFTP Connection --}}
     <div class="card mb-4">
       <div class="card-header bg-primary text-white">
-        <h5 class="mb-0"><i class="fas fa-server me-2"></i>FTP / SFTP Connection</h5>
+        <h5 class="mb-0"><i class="fas fa-server me-2"></i>{{ __('FTP / SFTP Connection') }}</h5>
       </div>
       <div class="card-body">
         <div class="row g-3">
@@ -84,7 +84,7 @@
     {{-- Card 2: Remote Path --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-folder-open me-2"></i>Remote Path</h5>
+        <h5 class="mb-0"><i class="fas fa-folder-open me-2"></i>{{ __('Remote Path') }}</h5>
       </div>
       <div class="card-body">
         <div class="row g-3">
@@ -107,7 +107,7 @@
     {{-- Card 3: Options --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Options</h5>
+        <h5 class="mb-0"><i class="fas fa-cog me-2"></i>{{ __('Options') }}</h5>
       </div>
       <div class="card-body">
         <div class="row g-3">

@@ -34,7 +34,7 @@
   <div class="card mb-4">
     <div class="card-header bg-light d-flex justify-content-between align-items-center">
       <h5 class="mb-0">
-        <i class="fas fa-shield-alt me-2"></i>Security Classification
+        <i class="fas fa-shield-alt me-2"></i>{{ __('Security Classification') }}
       </h5>
       <a href="{{ route('acl.classify', ['id' => $resource->id ?? 0]) }}" class="btn btn-sm btn-primary">
         <i class="fas fa-edit me-1"></i>{{ ($classification ?? null) ? 'Reclassify' : 'Classify' }}
@@ -128,7 +128,7 @@
     <div class="card">
       <div class="card-header bg-light">
         <h5 class="mb-0">
-          <i class="fas fa-history me-2"></i>Classification History
+          <i class="fas fa-history me-2"></i>{{ __('Classification History') }}
         </h5>
       </div>
       <div class="card-body p-0">
@@ -177,12 +177,12 @@
         @csrf
         <input type="hidden" name="object_id" value="{{ $resource->id ?? '' }}">
         <div class="modal-header bg-success text-white">
-          <h5 class="modal-title"><i class="fas fa-unlock me-2"></i>Remove Classification</h5>
+          <h5 class="modal-title"><i class="fas fa-unlock me-2"></i>{{ __('Remove Classification') }}</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <p>Are you sure you want to remove the security classification from this record?</p>
-          <p class="text-success"><i class="fas fa-globe me-1"></i>This record will become publicly accessible.</p>
+          <p class="text-success"><i class="fas fa-globe me-1"></i>{{ __('This record will become publicly accessible.') }}</p>
           <div class="mb-3">
             <label class="form-label">Reason <span class="text-danger">*</span></label>
             <textarea name="reason" class="form-control" rows="2" required placeholder="{{ __('Enter reason for declassification...') }}"></textarea>

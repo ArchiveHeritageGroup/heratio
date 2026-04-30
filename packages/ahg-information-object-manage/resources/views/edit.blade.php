@@ -361,6 +361,18 @@
               <textarea class="form-control" id="reproduction_conditions" name="reproduction_conditions" rows="3">{{ old('reproduction_conditions', $io->reproduction_conditions) }}</textarea>
             </div>
 
+            {{-- ICIP cultural-sensitivity classification (issue #36 Phase 2b) --}}
+            <div class="mb-3">
+                <label for="icip_sensitivity" class="form-label">{{ __('ICIP cultural-sensitivity classification') }}
+                    <span class="badge bg-info text-dark ms-1" title="{{ __('Indigenous Cultural and Intellectual Property') }}">ICIP</span>
+                </label>
+                @include('ahg-translation::components.icip-sensitivity-select', [
+                    'name' => 'icip_sensitivity',
+                    'value' => old('icip_sensitivity', $io->icip_sensitivity ?? null),
+                ])
+                <small class="form-text text-muted">{{ __('Cultural-sensitivity classification per ICIP protocols. Determines who may view, reproduce, or transmit this item.') }}</small>
+            </div>
+
             {{-- Language(s) of material - multi-row select --}}
             @php
               $languageOptions = [

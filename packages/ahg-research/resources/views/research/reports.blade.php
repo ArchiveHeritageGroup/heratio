@@ -15,7 +15,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1><i class="fas fa-file-alt text-primary me-2"></i>Research Reports</h1>
+    <h1><i class="fas fa-file-alt text-primary me-2"></i>{{ __('Research Reports') }}</h1>
     <a href="{{ route('research.reportTemplates') }}" class="btn btn-outline-secondary btn-sm me-1"><i class="fas fa-layer-group me-1"></i>{{ __('Templates') }}</a>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newReportModal"><i class="fas fa-plus me-1"></i>{{ __('New Report') }}</button>
 </div>
@@ -98,7 +98,7 @@
         @csrf
         <input type="hidden" name="form_action" value="create">
         <input type="hidden" name="template_type" id="selectedTemplate" value="custom">
-        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-file-alt me-2"></i>Create New Report</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-file-alt me-2"></i>{{ __('Create New Report') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
             {{-- Step 1: Template --}}
             <h6 class="mb-3"><span class="badge bg-primary me-2">1</span>Choose a Template</h6>

@@ -10,7 +10,7 @@
     <div class="col-md-6">
       <div class="card border-danger">
         <div class="card-header bg-danger text-white">
-          <h4 class="mb-0"><i class="fas fa-ban"></i> Access Denied</h4>
+          <h4 class="mb-0"><i class="fas fa-ban"></i> {{ __('Access Denied') }}</h4>
         </div>
         <div class="card-body text-center">
           <i class="fas fa-lock fa-5x text-danger mb-4"></i>

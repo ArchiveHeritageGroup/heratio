@@ -202,7 +202,7 @@
     @if(!empty($overdueItems))
       <div class="card mb-3 border-danger">
         <div class="card-header bg-danger text-white">
-          <h5 class="mb-0"><i class="fas fa-triangle-exclamation me-2"></i> Overdue Items</h5>
+          <h5 class="mb-0"><i class="fas fa-triangle-exclamation me-2"></i> {{ __('Overdue Items') }}</h5>
         </div>
         <ul class="list-group list-group-flush">
           @foreach(array_slice($overdueItems, 0, 5) as $item)

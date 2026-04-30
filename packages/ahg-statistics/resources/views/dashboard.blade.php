@@ -17,7 +17,7 @@
 @section('content')
 <div class="container-fluid px-4 py-3">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0"><i class="fas fa-chart-bar me-2"></i>Usage Statistics</h1>
+        <h1 class="h3 mb-0"><i class="fas fa-chart-bar me-2"></i>{{ __('Usage Statistics') }}</h1>
         <div class="d-flex gap-2">
             <a href="{{ route('statistics.export', ['type' => 'views', 'start' => $startDate, 'end' => $endDate]) }}" class="btn btn-outline-secondary">
                 <i class="fas fa-download me-1"></i>{{ __('Export CSV') }}
@@ -112,7 +112,7 @@
         <div class="col-lg-8">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Views Over Time</h5>
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>{{ __('Views Over Time') }}</h5>
                     <a href="{{ route('statistics.views', ['start' => $startDate, 'end' => $endDate]) }}" class="btn btn-sm btn-outline-secondary">Details</a>
                 </div>
                 <div class="card-body">
@@ -123,7 +123,7 @@
         <div class="col-lg-4">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-globe me-2"></i>Top Countries</h5>
+                    <h5 class="mb-0"><i class="fas fa-globe me-2"></i>{{ __('Top Countries') }}</h5>
                     <a href="{{ route('statistics.geographic', ['start' => $startDate, 'end' => $endDate]) }}" class="btn btn-sm btn-outline-secondary">All</a>
                 </div>
                 <div class="card-body p-0">
@@ -147,7 +147,7 @@
         <div class="col-lg-6 mb-4">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Top Viewed Items</h5>
+                    <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>{{ __('Top Viewed Items') }}</h5>
                     <a href="{{ route('statistics.topItems', ['type' => 'view', 'start' => $startDate, 'end' => $endDate]) }}" class="btn btn-sm btn-outline-secondary">View All</a>
                 </div>
                 <div class="card-body p-0">
@@ -188,7 +188,7 @@
         <div class="col-lg-6 mb-4">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-download me-2"></i>Top Downloads</h5>
+                    <h5 class="mb-0"><i class="fas fa-download me-2"></i>{{ __('Top Downloads') }}</h5>
                     <a href="{{ route('statistics.topItems', ['type' => 'download', 'start' => $startDate, 'end' => $endDate]) }}" class="btn btn-sm btn-outline-secondary">View All</a>
                 </div>
                 <div class="card-body p-0">

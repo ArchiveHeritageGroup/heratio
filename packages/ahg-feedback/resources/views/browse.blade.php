@@ -16,7 +16,7 @@
     <div class="col-md-3">
       <div class="card mb-3">
         <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-filter me-1"></i> Filter
+          <i class="fas fa-filter me-1"></i> {{ __('Filter') }}
         </div>
         <div class="list-group list-group-flush">
           <a href="{{ route('feedback.browse', array_merge(request()->except('status', 'page'), ['status' => 'all'])) }}"
@@ -163,7 +163,7 @@
         @include('ahg-core::components.pager', ['pager' => $pager])
       @else
         <div class="alert alert-info">
-          <i class="fas fa-info-circle me-2"></i>No feedback items found for the selected filter.
+          <i class="fas fa-info-circle me-2"></i>{{ __('No feedback items found for the selected filter.') }}
         </div>
       @endif
     </div>

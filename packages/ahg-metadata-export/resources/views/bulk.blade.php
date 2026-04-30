@@ -141,7 +141,7 @@
 
         <div class="alert alert-info small">
           <i class="fa fa-info-circle"></i>
-          For very large repositories, consider using the CLI command for better performance.
+          {{ __('For very large repositories, consider using the CLI command for better performance.') }}
         </div>
 
         <pre class="bg-light p-2 small"><code>php artisan metadata:export \

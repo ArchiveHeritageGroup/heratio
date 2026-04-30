@@ -326,6 +326,8 @@ class LibraryController extends Controller
             'publication_date', 'series_title', 'series_number', 'pages',
             'dimensions', 'physical_details', 'scope_and_content',
             'table_of_contents', 'general_note', 'bibliography_note', 'language',
+            // ICIP cultural-sensitivity URI (issue #36 Phase 2b) — persisted to information_object.icip_sensitivity.
+            'icip_sensitivity',
         ]);
 
         // Map scope_and_content from abstract field

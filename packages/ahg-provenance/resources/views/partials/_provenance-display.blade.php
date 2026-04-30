@@ -2,7 +2,7 @@
 @if(isset($provenance) && $provenance)
     <div class="card mb-3">
         <div class="card-header">
-            <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>Provenance</h6>
+            <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>{{ __('Provenance') }}</h6>
         </div>
         <div class="card-body">
             @if($provenance['record'] ?? false)

@@ -16,12 +16,12 @@
     </ol>
 </nav>
 
-<h1 class="h2 mb-4"><i class="fas fa-chair text-primary me-2"></i>Assign Seat</h1>
+<h1 class="h2 mb-4"><i class="fas fa-chair text-primary me-2"></i>{{ __('Assign Seat') }}</h1>
 
 <div class="row">
     <div class="col-md-6">
         <div class="card mb-4">
-            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>Researcher</div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>{{ __('Researcher') }}</div>
             <div class="card-body">
                 <dl class="row mb-0">
                     <dt class="col-sm-4">Name</dt><dd class="col-sm-8">{{ e(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) }}</dd>
@@ -33,7 +33,7 @@
     </div>
     <div class="col-md-6">
         <div class="card mb-4">
-            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-chair me-2"></i>Available Seats</div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-chair me-2"></i>{{ __('Available Seats') }}</div>
             <div class="card-body">
                 <form method="POST">
                     @csrf

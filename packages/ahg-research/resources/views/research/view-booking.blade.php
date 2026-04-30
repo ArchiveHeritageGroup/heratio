@@ -14,7 +14,7 @@
   @endif
 
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="fas fa-calendar-check me-2"></i>Booking Detail</h1>
+    <h1><i class="fas fa-calendar-check me-2"></i>{{ __('Booking Detail') }}</h1>
     @php
       $bsc = ['confirmed' => 'success', 'pending' => 'warning', 'cancelled' => 'danger', 'checked_in' => 'primary', 'checked_out' => 'secondary', 'no_show' => 'dark'];
     @endphp
@@ -23,7 +23,7 @@
 
   {{-- Schedule Info --}}
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-clock me-2"></i>Schedule</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-clock me-2"></i>{{ __('Schedule') }}</div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-6">
@@ -52,7 +52,7 @@
 
   {{-- Researcher Info --}}
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>Researcher</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>{{ __('Researcher') }}</div>
     <div class="card-body">
       <dl class="row mb-0">
         <dt class="col-sm-3">Name</dt>
@@ -75,7 +75,7 @@
 
   {{-- Purpose --}}
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-clipboard me-2"></i>Purpose</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-clipboard me-2"></i>{{ __('Purpose') }}</div>
     <div class="card-body">
       <p>{{ e($booking->purpose ?? 'Not specified') }}</p>
       @if($booking->notes ?? false)
@@ -88,7 +88,7 @@
 
   {{-- Materials Requested --}}
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-archive me-2"></i>Materials Requested</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-archive me-2"></i>{{ __('Materials Requested') }}</div>
     <div class="card-body">
       @if(count($materials ?? []) > 0)
         <div class="table-responsive">
@@ -129,7 +129,7 @@
 
   {{-- Action Buttons --}}
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-cogs me-2"></i>Actions</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-cogs me-2"></i>{{ __('Actions') }}</div>
     <div class="card-body d-flex flex-wrap gap-2">
       @if($isAdmin ?? false)
         @if(($booking->status ?? '') === 'pending')

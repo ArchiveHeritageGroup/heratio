@@ -9,5 +9,5 @@
       <tbody>@foreach($rows as $row)<tr>@foreach((array)$row as $v)<td>{{ $v }}</td>@endforeach</tr>@endforeach</tbody>
     </table></div>
     @if(isset($pager))@include('ahg-core::components.pager', ['pager' => $pager])@endif
-  @else<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>No records found.</div>@endif
+  @else<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>{{ __('No records found.') }}</div>@endif
 @endsection

@@ -133,7 +133,7 @@
     @else
       <div class="alert alert-info">
         <i class="fas fa-info-circle" aria-hidden="true"></i>
-        No records found matching the search pattern.
+        {{ __('No records found matching the search pattern.') }}
       </div>
     @endif
   @endif

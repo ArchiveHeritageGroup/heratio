@@ -4,7 +4,7 @@
 @section('title', 'Source Assessment')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Source Assessment</li></ol></nav>
-<h1 class="h2 mb-4"><i class="fas fa-microscope text-primary me-2"></i>Source Assessment</h1>
+<h1 class="h2 mb-4"><i class="fas fa-microscope text-primary me-2"></i>{{ __('Source Assessment') }}</h1>
 <div class="row"><div class="col-md-8">
 <div class="card mb-4"><div class="card-header" style="background:var(--ahg-primary);color:#fff">Assessment Details</div><div class="card-body">
     <form method="POST">@csrf <input type="hidden" name="object_id" value="{{ $objectId ?? 0 }}">

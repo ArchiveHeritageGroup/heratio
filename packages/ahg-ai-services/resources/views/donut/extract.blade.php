@@ -3,7 +3,7 @@
 @section('body-class', 'admin ai-services donut')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.donut.dashboard') }}">Donut</a></li><li class="breadcrumb-item active">Extract</li></ol></nav>
-<h1><i class="fas fa-file-import me-2"></i>Extract ILM Fields</h1>
+<h1><i class="fas fa-file-import me-2"></i>{{ __('Extract ILM Fields') }}</h1>
 
 @if(session('error'))
 <div class="alert alert-danger">{{ session('error') }}</div>

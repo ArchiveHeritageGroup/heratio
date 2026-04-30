@@ -4,7 +4,7 @@
 @section('body-class', 'extended-rights expiring-embargoes')
 
 @section('title-block')
-  <h1 class="mb-0"><i class="fas fa-clock me-2"></i>Expiring Embargoes</h1>
+  <h1 class="mb-0"><i class="fas fa-clock me-2"></i>{{ __('Expiring Embargoes') }}</h1>
 @endsection
 
 @section('content')

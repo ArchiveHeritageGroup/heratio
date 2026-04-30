@@ -25,7 +25,7 @@
       {{-- Feedback Type & Content --}}
       <div class="card shadow-sm mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-comment-alt me-2"></i>Your Feedback
+          <i class="fas fa-comment-alt me-2"></i>{{ __('Your Feedback') }}
         </div>
         <div class="card-body">
           <div class="mb-3">
@@ -55,7 +55,7 @@
       {{-- Contact Details --}}
       <div class="card shadow-sm mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-address-card me-2"></i>Your Contact Details
+          <i class="fas fa-address-card me-2"></i>{{ __('Your Contact Details') }}
         </div>
         <div class="card-body">
           <p class="text-muted small mb-3">Please provide your contact details so we can follow up if needed.</p>

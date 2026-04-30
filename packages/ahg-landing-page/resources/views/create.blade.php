@@ -16,7 +16,7 @@
 
   <div class="card">
     <div class="card-header">
-      <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Create New Landing Page</h5>
+      <h5 class="mb-0"><i class="bi bi-plus-circle"></i> {{ __('Create New Landing Page') }}</h5>
     </div>
     <div class="card-body">
       @if ($errors->any())

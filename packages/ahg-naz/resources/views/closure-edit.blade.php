@@ -25,7 +25,7 @@
                     <li class="breadcrumb-item active">Edit Closure</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-lock me-2"></i>Edit Closure Period</h1>
+            <h1><i class="fas fa-lock me-2"></i>{{ __('Edit Closure Period') }}</h1>
         </div>
     </div>
 

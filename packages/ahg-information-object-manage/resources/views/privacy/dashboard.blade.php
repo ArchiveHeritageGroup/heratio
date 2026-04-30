@@ -51,7 +51,7 @@
   </div>
 
   {{-- DSAR Row --}}
-  <h5 class="mb-3"><i class="fas fa-file-alt me-2"></i>Data Subject Access Requests (DSARs)</h5>
+  <h5 class="mb-3"><i class="fas fa-file-alt me-2"></i>{{ __('Data Subject Access Requests (DSARs)') }}</h5>
   <div class="row g-3 mb-4">
     <div class="col-md-2">
       <div class="card border-0 shadow-sm">
@@ -98,7 +98,7 @@
   {{-- Breaches & Processing Activities --}}
   <div class="row g-4 mb-4">
     <div class="col-md-6">
-      <h5 class="mb-3"><i class="fas fa-exclamation-triangle me-2"></i>Data Breaches</h5>
+      <h5 class="mb-3"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Data Breaches') }}</h5>
       <div class="row g-3">
         <div class="col-md-4">
           <div class="card border-0 shadow-sm">
@@ -128,7 +128,7 @@
     </div>
 
     <div class="col-md-6">
-      <h5 class="mb-3"><i class="fas fa-clipboard-list me-2"></i>Processing Activities (ROPA)</h5>
+      <h5 class="mb-3"><i class="fas fa-clipboard-list me-2"></i>{{ __('Processing Activities (ROPA)') }}</h5>
       <div class="row g-3">
         <div class="col-md-4">
           <div class="card border-0 shadow-sm">
@@ -163,7 +163,7 @@
     <div class="col-lg-8">
       {{-- Your Rights --}}
       <div class="card mb-4">
-        <div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="fas fa-balance-scale me-2"></i>Your Privacy Rights</h5></div>
+        <div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="fas fa-balance-scale me-2"></i>{{ __('Your Privacy Rights') }}</h5></div>
         <div class="card-body">
           <p>Under applicable data protection laws, you have the following rights regarding your personal information:</p>
           <ul class="list-group list-group-flush">
@@ -178,7 +178,7 @@
 
       {{-- How We Use Data --}}
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-database me-2"></i>How We Process Your Data</h5></div>
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-database me-2"></i>{{ __('How We Process Your Data') }}</h5></div>
         <div class="card-body">
           <p>We collect and process personal information for the following purposes:</p>
           <ul>
@@ -196,7 +196,7 @@
     <div class="col-lg-4">
       {{-- Take Action --}}
       <div class="card mb-4 border-primary">
-        <div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Take Action</h5></div>
+        <div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="fas fa-bolt me-2"></i>{{ __('Take Action') }}</h5></div>
         <div class="card-body d-grid gap-3">
           <a href="{{ url('/privacy/dsar-request') }}" class="btn btn-primary btn-lg"><i class="fas fa-file-alt me-2"></i>{{ __('Submit Data Request') }}</a>
           <a href="{{ url('/privacy/complaint') }}" class="btn btn-warning btn-lg"><i class="fas fa-exclamation-circle me-2"></i>{{ __('Lodge Complaint') }}</a>
@@ -206,7 +206,7 @@
 
       {{-- Request Types --}}
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-list me-2"></i>Request Types</h5></div>
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-list me-2"></i>{{ __('Request Types') }}</h5></div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item d-flex justify-content-between align-items-center">Access Request <span class="badge bg-primary rounded-pill">{{ __('DSAR') }}</span></li>
           <li class="list-group-item d-flex justify-content-between align-items-center">Correction Request <span class="badge bg-info rounded-pill">{{ __('DSAR') }}</span></li>
@@ -217,7 +217,7 @@
 
       {{-- Supported Jurisdictions --}}
       <div class="card">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-globe me-2"></i>Supported Jurisdictions</h5></div>
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-globe me-2"></i>{{ __('Supported Jurisdictions') }}</h5></div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item">POPIA (South Africa)</li>
           <li class="list-group-item">NDPA (Nigeria)</li>

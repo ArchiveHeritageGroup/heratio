@@ -9,7 +9,7 @@
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="mb-0"><i class="fas fa-plus me-2"></i> New Compliance Assessment</h1>
+  <h1 class="mb-0"><i class="fas fa-plus me-2"></i> {{ __('New Compliance Assessment') }}</h1>
   <a href="{{ route('records.compliance.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
 </div>
 

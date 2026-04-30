@@ -5,12 +5,12 @@
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0"><i class="fas fa-exclamation-triangle text-danger"></i> Overdue Tasks</h1>
+    <h1 class="mb-0"><i class="fas fa-exclamation-triangle text-danger"></i> {{ __('Overdue Tasks') }}</h1>
     <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('Dashboard') }}</a>
   </div>
 
   @if(count($tasks) === 0)
-    <div class="alert alert-success"><i class="fas fa-check-circle"></i> No overdue tasks found.</div>
+    <div class="alert alert-success"><i class="fas fa-check-circle"></i> {{ __('No overdue tasks found.') }}</div>
   @else
     <div class="alert alert-warning">
       <strong>{{ count($tasks) }}</strong> task(s) are past their due date.

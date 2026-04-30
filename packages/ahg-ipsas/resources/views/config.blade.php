@@ -27,7 +27,7 @@
                     <li class="breadcrumb-item active">Configuration</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-cog me-2"></i>IPSAS Configuration</h1>
+            <h1><i class="fas fa-cog me-2"></i>{{ __('IPSAS Configuration') }}</h1>
             <p class="text-muted">Configure heritage asset accounting settings</p>
         </div>
     </div>
@@ -133,7 +133,7 @@
 
         <div class="col-lg-4">
             <div class="alert alert-info">
-                <h6><i class="fas fa-info-circle"></i> IPSAS Heritage Assets</h6>
+                <h6><i class="fas fa-info-circle"></i> {{ __('IPSAS Heritage Assets') }}</h6>
                 <ul class="small mb-0">
                     <li>Heritage assets may be recognized at nominal value (IPSAS 17)</li>
                     <li>Depreciation typically not applied to heritage items</li>

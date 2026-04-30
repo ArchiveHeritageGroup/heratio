@@ -18,7 +18,7 @@
   <a href="{{ route('reports.dashboard') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a>
 </div>
 @endsection
-@section('title-block')<h1><i class="fas fa-clipboard-list me-2"></i>Spectrum Reports Dashboard</h1>@endsection
+@section('title-block')<h1><i class="fas fa-clipboard-list me-2"></i>{{ __('Spectrum Reports Dashboard') }}</h1>@endsection
 @section('content')
 <div class="spectrum-dashboard">
   <div class="row mb-4">
@@ -30,7 +30,7 @@
   <div class="row">
     <div class="col-md-6">
       <div class="card h-100">
-        <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Procedure Summary</h5></div>
+        <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>{{ __('Procedure Summary') }}</h5></div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item d-flex justify-content-between"><span>{{ __('Object Entry') }}</span><span class="badge bg-primary">{{ $stats['objectEntry'] ?? 0 }}</span></li>
           <li class="list-group-item d-flex justify-content-between"><span>{{ __('Object Exit') }}</span><span class="badge bg-secondary">{{ $stats['objectExit'] ?? 0 }}</span></li>
@@ -44,7 +44,7 @@
     </div>
     <div class="col-md-6">
       <div class="card h-100">
-        <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Activity</h5></div>
+        <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-history me-2"></i>{{ __('Recent Activity') }}</h5></div>
         <ul class="list-group list-group-flush">
           @forelse($recentActivity ?? [] as $a)
           <li class="list-group-item"><small class="text-muted">{{ $a->action_date ?? '-' }}</small><br>{{ $a->action ?? $a->event_type ?? '-' }}</li>

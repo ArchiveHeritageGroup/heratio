@@ -14,7 +14,7 @@
 @endsection
 
 @section('content')
-<h2><i class="fas fa-volume-up me-2"></i>Text-to-Speech Settings</h2>
+<h2><i class="fas fa-volume-up me-2"></i>{{ __('Text-to-Speech Settings') }}</h2>
 <p class="text-muted">Configure the read-aloud accessibility feature for record detail pages.</p>
 
 @if(session('notice') || session('success'))
@@ -29,7 +29,7 @@
 
   {{-- General --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-cog me-2"></i>General</div>
+    <div class="card-header"><i class="fas fa-cog me-2"></i>{{ __('General') }}</div>
     <div class="card-body">
       <div class="mb-3">
         <div class="form-check form-switch">
@@ -75,7 +75,7 @@
 
   {{-- Fields to Read per Sector --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-list-check me-2"></i>Fields to Read per Sector</div>
+    <div class="card-header"><i class="fas fa-list-check me-2"></i>{{ __('Fields to Read per Sector') }}</div>
     <div class="card-body">
       <p class="text-muted mb-3">Select which metadata fields the TTS engine will read for each GLAM/DAM sector.</p>
 
@@ -122,7 +122,7 @@
 
   {{-- Voice Settings (Heratio extra) --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-sliders-h me-2"></i>Voice Settings</div>
+    <div class="card-header"><i class="fas fa-sliders-h me-2"></i>{{ __('Voice Settings') }}</div>
     <div class="card-body">
       <div class="mb-3">
         <label class="form-label">{{ __('Default Voice') }}</label>

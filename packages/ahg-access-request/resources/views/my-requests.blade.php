@@ -21,7 +21,7 @@
             @endif
 
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4><i class="fas fa-list me-2"></i>My Access Requests</h4>
+                <h4><i class="fas fa-list me-2"></i>{{ __('My Access Requests') }}</h4>
                 <a href="{{ route('accessRequest.create') }}" class="atom-btn-white">
                     <i class="fas fa-plus me-1"></i>{{ __('New Request') }}
                 </a>

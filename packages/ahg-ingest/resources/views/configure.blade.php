@@ -51,7 +51,7 @@
         {{-- Left Column: Core Settings --}}
         <div class="col-md-8">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0"><i class="fas fa-cog me-2"></i>Ingest Settings</h5></div>
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-cog me-2"></i>{{ __('Ingest Settings') }}</h5></div>
                 <div class="card-body">
                     <div class="mb-3">
                         <label for="title" class="form-label">{{ __('Session Title') }}</label>
@@ -117,7 +117,7 @@
 
             {{-- Hierarchy Placement --}}
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>Hierarchy Placement</h5></div>
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>{{ __('Hierarchy Placement') }}</h5></div>
                 <div class="card-body">
                     <div class="mb-3">
                         <label class="form-label">{{ __('Where should imported records be placed?') }}</label>
@@ -167,7 +167,7 @@
         {{-- Right Column: Output Options --}}
         <div class="col-md-4">
             <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Output Options</h5></div>
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-cogs me-2"></i>{{ __('Output Options') }}</h5></div>
                 <div class="card-body">
                     <div class="form-check mb-2">
                         <input class="form-check-input" type="checkbox" id="output_create_records" name="output_create_records" value="1" @checked($session->output_create_records ?? true)>
@@ -202,7 +202,7 @@
 
     {{-- Full-width: Processing Options --}}
     <div class="card mb-4">
-        <div class="card-header bg-info text-white"><h5 class="mb-0"><i class="fas fa-brain me-2"></i>Processing Options</h5></div>
+        <div class="card-header bg-info text-white"><h5 class="mb-0"><i class="fas fa-brain me-2"></i>{{ __('Processing Options') }}</h5></div>
         <div class="card-body">
             <p class="text-muted mb-3">Select AI and processing actions to run on ingested records after commit.</p>
             <div class="row">

@@ -226,7 +226,7 @@
 
       {{-- Statistics card --}}
       <div class="card mb-3">
-        <div class="card-header"><i class="fas fa-chart-bar me-1"></i> Statistics</div>
+        <div class="card-header"><i class="fas fa-chart-bar me-1"></i> {{ __('Statistics') }}</div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item d-flex justify-content-between">
             Total Loans
@@ -261,7 +261,7 @@
       @if($overdue->count())
         <div class="card mb-3 border-danger">
           <div class="card-header bg-danger text-white">
-            <i class="fas fa-exclamation-triangle me-1"></i> Overdue Loans
+            <i class="fas fa-exclamation-triangle me-1"></i> {{ __('Overdue Loans') }}
           </div>
           <ul class="list-group list-group-flush">
             @foreach($overdue as $ol)
@@ -286,7 +286,7 @@
       @if($dueSoon->count())
         <div class="card mb-3 border-warning">
           <div class="card-header bg-warning text-dark">
-            <i class="fas fa-clock me-1"></i> Due Within 30 Days
+            <i class="fas fa-clock me-1"></i> {{ __('Due Within 30 Days') }}
           </div>
           <ul class="list-group list-group-flush">
             @foreach($dueSoon as $dl)
@@ -309,7 +309,7 @@
 
       {{-- Quick Actions card --}}
       <div class="card mb-3">
-        <div class="card-header"><i class="fas fa-bolt me-1"></i> Quick Actions</div>
+        <div class="card-header"><i class="fas fa-bolt me-1"></i> {{ __('Quick Actions') }}</div>
         <div class="list-group list-group-flush">
           <a href="{{ route('loan.create', array_filter(['type' => 'out', 'sector' => request('sector'), 'object_id' => request('object_id')])) }}"
              class="list-group-item list-group-item-action">

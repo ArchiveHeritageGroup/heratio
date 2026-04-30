@@ -64,7 +64,7 @@
   <div class="col-md-5">
     @php $tr = session('test_result'); $tm = session('test_meta'); @endphp
     <div class="card border-info mb-3">
-      <div class="card-header bg-info text-white"><i class="fas fa-vial me-1"></i> Dry-run test</div>
+      <div class="card-header bg-info text-white"><i class="fas fa-vial me-1"></i> {{ __('Dry-run test') }}</div>
       <div class="card-body">
         <p class="text-muted small mb-2">Enter sample metadata; the engine returns whether this rule alone would fire (without consulting other rules and without writing anything).</p>
         @if($tr !== null)

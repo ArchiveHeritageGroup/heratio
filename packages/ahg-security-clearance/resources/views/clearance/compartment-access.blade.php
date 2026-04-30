@@ -10,7 +10,7 @@
     <li class="breadcrumb-item active">Access Grants</li>
   </ol></nav>
 
-  <h1><i class="fas fa-key"></i> Compartment Access Grants</h1>
+  <h1><i class="fas fa-key"></i> {{ __('Compartment Access Grants') }}</h1>
 
 <div class="card">
     <div class="card-body table-responsive">

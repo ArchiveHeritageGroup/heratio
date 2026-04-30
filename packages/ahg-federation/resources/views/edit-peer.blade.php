@@ -34,7 +34,7 @@
             <div class="col-md-8">
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Basic Information</h6>
+                        <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>{{ __('Basic Information') }}</h6>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
@@ -71,7 +71,7 @@
 
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h6 class="mb-0"><i class="bi bi-gear me-2"></i>Harvest Settings</h6>
+                        <h6 class="mb-0"><i class="bi bi-gear me-2"></i>{{ __('Harvest Settings') }}</h6>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
@@ -93,7 +93,7 @@
             <div class="col-md-4">
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h6 class="mb-0"><i class="bi bi-save me-2"></i>Actions</h6>
+                        <h6 class="mb-0"><i class="bi bi-save me-2"></i>{{ __('Actions') }}</h6>
                     </div>
                     <div class="card-body">
                         <button type="submit" class="atom-btn-white w-100 mb-2">

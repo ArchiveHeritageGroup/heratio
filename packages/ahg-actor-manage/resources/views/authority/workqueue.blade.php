@@ -22,7 +22,7 @@
   </ol>
 </nav>
 
-<h1 class="mb-4"><i class="fas fa-tasks me-2"></i>Authority Workqueue</h1>
+<h1 class="mb-4"><i class="fas fa-tasks me-2"></i>{{ __('Authority Workqueue') }}</h1>
 
 {{-- Filters --}}
 <div class="card mb-3">

@@ -90,7 +90,7 @@
         {{-- Viewer Settings --}}
         <div class="card mb-4">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-eye me-2"></i>Viewer Settings
+            <i class="fas fa-eye me-2"></i>{{ __('Viewer Settings') }}
           </div>
           <div class="card-body">
             <div class="row">
@@ -171,7 +171,7 @@
         {{-- AR Settings --}}
         <div class="card mb-4">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-mobile-alt me-2"></i>Augmented Reality
+            <i class="fas fa-mobile-alt me-2"></i>{{ __('Augmented Reality') }}
           </div>
           <div class="card-body">
             <div class="form-check mb-3">
@@ -197,7 +197,7 @@
         {{-- Upload Settings --}}
         <div class="card mb-4">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-upload me-2"></i>Upload Settings
+            <i class="fas fa-upload me-2"></i>{{ __('Upload Settings') }}
           </div>
           <div class="card-body">
             <div class="row">
@@ -246,7 +246,7 @@
         {{-- Annotations --}}
         <div class="card mb-4">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-map-marker-alt me-2"></i>Annotations & Hotspots
+            <i class="fas fa-map-marker-alt me-2"></i>{{ __('Annotations & Hotspots') }}
           </div>
           <div class="card-body">
             <div class="form-check">
@@ -263,7 +263,7 @@
         {{-- Watermark --}}
         <div class="card mb-4">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-stamp me-2"></i>Watermark
+            <i class="fas fa-stamp me-2"></i>{{ __('Watermark') }}
           </div>
           <div class="card-body">
             <div class="form-check mb-3">
@@ -308,7 +308,7 @@
             @else
               <div class="alert alert-warning small mb-3">
                 <i class="fas fa-exclamation-triangle me-1"></i>
-                TripoSR service not responding. Check if the service is running.
+                {{ __('TripoSR service not responding. Check if the service is running.') }}
               </div>
             @endif
 
@@ -353,7 +353,7 @@
             <div id="triposr_remote_config" style="display: {{ getSetting3d($settings, 'triposr_mode') == 'remote' ? 'block' : 'none' }};">
               <div class="alert alert-info small mb-3">
                 <i class="fas fa-info-circle me-1"></i>
-                Configure remote GPU server for faster processing. The local server will auto-fallback if remote fails.
+                {{ __('Configure remote GPU server for faster processing. The local server will auto-fallback if remote fails.') }}
               </div>
               <div class="row">
                 <div class="col-md-8">
@@ -442,7 +442,7 @@
         {{-- Format Distribution --}}
         <div class="card mb-4">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-chart-pie me-2"></i>Format Distribution
+            <i class="fas fa-chart-pie me-2"></i>{{ __('Format Distribution') }}
           </div>
           <div class="card-body">
             @if(empty($formatStats))
@@ -456,7 +456,7 @@
         {{-- Quick Links --}}
         <div class="card">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-link me-2"></i>Quick Links
+            <i class="fas fa-link me-2"></i>{{ __('Quick Links') }}
           </div>
           <div class="list-group list-group-flush">
             <a href="{{ route('admin.3d-models.index') }}" class="list-group-item list-group-item-action">

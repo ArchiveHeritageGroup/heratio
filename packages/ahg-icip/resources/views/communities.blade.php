@@ -24,7 +24,7 @@
   </nav>
 
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="bi bi-people me-2"></i>Community Registry</h1>
+    <h1><i class="bi bi-people me-2"></i>{{ __('Community Registry') }}</h1>
     <a href="{{ route('ahgicip.community-edit') }}" class="btn btn-primary">
       <i class="bi bi-plus-circle me-1"></i> {{ __('Add Community') }}
     </a>

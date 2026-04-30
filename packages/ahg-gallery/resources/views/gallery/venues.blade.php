@@ -1,7 +1,7 @@
 @extends('theme::layouts.1col')
 @section('title', 'Gallery Venues')
 @section('body-class', 'gallery venues')
-@section('title-block')<h1 class="mb-0"><i class="fas fa-building me-2"></i>Venues</h1>@endsection
+@section('title-block')<h1 class="mb-0"><i class="fas fa-building me-2"></i>{{ __('Venues') }}</h1>@endsection
 @section('content')
 @auth<div class="mb-3"><a href="{{ route('gallery.venues.create') }}" class="btn atom-btn-white"><i class="fas fa-plus me-1"></i>{{ __('Create Venue') }}</a></div>@endauth
 <div class="card">

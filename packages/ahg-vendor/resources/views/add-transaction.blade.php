@@ -32,7 +32,7 @@
         </ol>
     </nav>
 
-    <h1 class="h2 mb-4"><i class="fas fa-plus-circle me-2"></i>New Vendor Transaction</h1>
+    <h1 class="h2 mb-4"><i class="fas fa-plus-circle me-2"></i>{{ __('New Vendor Transaction') }}</h1>
 
     @if (!empty($formErrors))
     <div class="alert alert-danger">
@@ -51,7 +51,7 @@
                 {{-- Basic Info --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-info-circle me-2"></i>Transaction Details
+                        <i class="fas fa-info-circle me-2"></i>{{ __('Transaction Details') }}
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -112,7 +112,7 @@
                     <div class="card-body">
                         <div class="alert alert-info mb-3">
                             <i class="fas fa-info-circle me-2"></i>
-                            Search and add archival items to this transaction. You can add multiple items.
+                            {{ __('Search and add archival items to this transaction. You can add multiple items.') }}
                         </div>
 
                         {{-- Search Box --}}
@@ -152,7 +152,7 @@
                 {{-- Notes --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-sticky-note me-2"></i>Notes
+                        <i class="fas fa-sticky-note me-2"></i>{{ __('Notes') }}
                     </div>
                     <div class="card-body">
                         <textarea name="notes" class="form-control" rows="3" placeholder="{{ __('Additional notes about this transaction...') }}">{{ e($form['notes'] ?? '') }}</textarea>
@@ -164,7 +164,7 @@
                 {{-- Cost Estimate --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-dollar-sign me-2"></i>Cost Estimate
+                        <i class="fas fa-dollar-sign me-2"></i>{{ __('Cost Estimate') }}
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
@@ -180,7 +180,7 @@
                 {{-- Reference --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-hashtag me-2"></i>Reference
+                        <i class="fas fa-hashtag me-2"></i>{{ __('Reference') }}
                     </div>
                     <div class="card-body">
                         <div class="mb-3">

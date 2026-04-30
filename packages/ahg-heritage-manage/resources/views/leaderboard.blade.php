@@ -12,7 +12,7 @@ $period = $period ?? '';
 <div class="row">
   <div class="col-md-4">
     <div class="card border-0 shadow-sm mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Community Stats</h6></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>{{ __('Community Stats') }}</h6></div>
       <div class="card-body">
         <div class="d-flex justify-content-between mb-2"><span>{{ __('Total Contributions') }}</span><strong>{{ number_format($stats['total'] ?? 0) }}</strong></div>
         <div class="d-flex justify-content-between mb-2"><span>{{ __('Approved') }}</span><strong class="text-success">{{ number_format($stats['approved'] ?? 0) }}</strong></div>
@@ -24,7 +24,7 @@ $period = $period ?? '';
     </div>
     @if(!empty($stats['by_type']))
     <div class="card border-0 shadow-sm">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>By Type</h6></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>{{ __('By Type') }}</h6></div>
       <ul class="list-group list-group-flush">
         @foreach($stats['by_type'] as $type)
         <li class="list-group-item d-flex justify-content-between align-items-center"><span><i class="fas {{ $type['icon'] }} me-2"></i>{{ $type['name'] }}</span><span class="badge bg-primary">{{ number_format($type['total']) }}</span></li>
@@ -34,7 +34,7 @@ $period = $period ?? '';
     @endif
   </div>
   <div class="col-md-8">
-    <h1><i class="fas fa-trophy me-2"></i>Contributor Leaderboard</h1>
+    <h1><i class="fas fa-trophy me-2"></i>{{ __('Contributor Leaderboard') }}</h1>
 
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">

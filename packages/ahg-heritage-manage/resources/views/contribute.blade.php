@@ -27,7 +27,7 @@
     @endif
   </div>
   <div class="col-md-8">
-    <h1><i class="fas fa-edit me-2"></i>Contribute</h1>
+    <h1><i class="fas fa-edit me-2"></i>{{ __('Contribute') }}</h1>
 
     <div class="card border-0 shadow-sm">
       <div class="card-body">

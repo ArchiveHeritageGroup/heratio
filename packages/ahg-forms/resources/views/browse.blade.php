@@ -18,7 +18,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <h1><i class="fas fa-wpforms me-2"></i>Browse Form Templates</h1>
+            <h1><i class="fas fa-wpforms me-2"></i>{{ __('Browse Form Templates') }}</h1>
             <p class="text-muted">View and search available form templates</p>
         </div>
         <div class="col-auto">

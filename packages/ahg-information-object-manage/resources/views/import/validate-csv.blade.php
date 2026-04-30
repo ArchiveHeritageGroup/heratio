@@ -88,7 +88,7 @@
 
         @if($missingCount === 0 && $invalidCount === 0)
           <div class="alert alert-success">
-            <i class="fas fa-check-circle me-2"></i>All columns are valid and all required columns are present. This CSV is ready for import.
+            <i class="fas fa-check-circle me-2"></i>{{ __('All columns are valid and all required columns are present. This CSV is ready for import.') }}
           </div>
         @elseif($missingCount > 0)
           <div class="alert alert-warning">

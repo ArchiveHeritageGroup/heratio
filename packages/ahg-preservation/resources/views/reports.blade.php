@@ -10,7 +10,7 @@
     </div>
     <div class="col-md-9">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h1 class="mb-0"><i class="fas fa-chart-bar"></i> Preservation Reports</h1>
+            <h1 class="mb-0"><i class="fas fa-chart-bar"></i> {{ __('Preservation Reports') }}</h1>
         </div>
         <p class="text-muted mb-3">Identify objects requiring preservation attention</p>
 

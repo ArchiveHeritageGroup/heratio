@@ -111,7 +111,7 @@
     <div class="col-md-4">
         {{-- Annotation Form --}}
         <div class="card mb-4" id="annotationForm" style="display:none;">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-edit me-2"></i>New Annotation</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-edit me-2"></i>{{ __('New Annotation') }}</h6></div>
             <div class="card-body">
                 <form method="POST" action="{{ route('research.annotations.store') }}">
                     @csrf
@@ -150,7 +150,7 @@
 
         {{-- Layers Panel --}}
         <div class="card mb-4">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-layer-group me-2"></i>Layers</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('Layers') }}</h6></div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span><i class="fas fa-image me-2 text-primary"></i>{{ __('Base Image') }}</span>
@@ -165,7 +165,7 @@
 
         {{-- Object Info --}}
         <div class="card mb-4">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Object Info</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Object Info') }}</h6></div>
             <div class="card-body">
                 <dl class="row mb-0 small">
                     <dt class="col-sm-4">Title</dt><dd class="col-sm-8">{{ e($objectTitle ?? 'N/A') }}</dd>

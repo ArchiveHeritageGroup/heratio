@@ -44,7 +44,7 @@
   <ul class="dropdown-menu dropdown-menu-lg-end mt-2" aria-labelledby="user-menu">
 
     {{-- Profile Section --}}
-    <li><h6 class="dropdown-header"><i class="fas fa-user me-1"></i>Profile</h6></li>
+    <li><h6 class="dropdown-header"><i class="fas fa-user me-1"></i>{{ __('Profile') }}</h6></li>
     <li>
       <a class="dropdown-item" href="{{ url('/user/profile') }}">
         <i class="fas fa-id-card me-2"></i>{{ __('My Profile') }}
@@ -58,7 +58,7 @@
 
     {{-- Spectrum Tasks Section --}}
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header"><i class="fas fa-tasks me-1"></i>Tasks</h6></li>
+    <li><h6 class="dropdown-header"><i class="fas fa-tasks me-1"></i>{{ __('Tasks') }}</h6></li>
     <li>
       <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('ahgspectrum.my-tasks') }}">
         <span><i class="fas fa-clipboard-list me-2"></i>{{ __('My Tasks') }}</span>
@@ -75,7 +75,7 @@
 
     {{-- Research Section --}}
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header"><i class="fas fa-book-reader me-1"></i>Research</h6></li>
+    <li><h6 class="dropdown-header"><i class="fas fa-book-reader me-1"></i>{{ __('Research') }}</h6></li>
     <li>
       <a class="dropdown-item" href="{{ url('/research/dashboard') }}">
         <i class="fas fa-folder-open me-2"></i>{{ __('My Workspace') }}
@@ -98,7 +98,7 @@
 
     {{-- Security Section --}}
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header"><i class="fas fa-shield-alt me-1"></i>Security</h6></li>
+    <li><h6 class="dropdown-header"><i class="fas fa-shield-alt me-1"></i>{{ __('Security') }}</h6></li>
     <li>
       <a class="dropdown-item" href="{{ route('security.my-requests') }}">
         <i class="fas fa-key me-2"></i>{{ __('My Access Requests') }}
@@ -123,7 +123,7 @@
     {{-- Admin Notifications --}}
     @if($isAdmin && ($pendingResearcherCount > 0 || $pendingBookingCount > 0))
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header"><i class="fas fa-bell me-1"></i>Notifications</h6></li>
+    <li><h6 class="dropdown-header"><i class="fas fa-bell me-1"></i>{{ __('Notifications') }}</h6></li>
     @if($pendingResearcherCount > 0)
     <li>
       <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ url('/research/researchers') }}">

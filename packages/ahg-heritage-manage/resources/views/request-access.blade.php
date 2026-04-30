@@ -15,7 +15,7 @@
     <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i><strong>{{ __('Why request access?') }}</strong><br>Some items may have restricted access due to privacy, copyright, or cultural sensitivity. Your request will be reviewed by our team.</div>
   </div>
   <div class="col-md-8">
-    <h1><i class="fas fa-key me-2"></i>Request Access</h1>
+    <h1><i class="fas fa-key me-2"></i>{{ __('Request Access') }}</h1>
 
     @if(!auth()->check())
     <div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i><strong>{{ __('Login Required') }}</strong><br>You must be logged in to request access. <a href="{{ route('user.login') }}" class="alert-link">Login here</a></div>

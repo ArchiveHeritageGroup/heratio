@@ -103,7 +103,7 @@
 
   <div class="card mt-4">
     <div class="card-header">
-      <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>About Detection Rules</h5>
+      <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About Detection Rules') }}</h5>
     </div>
     <div class="card-body">
       <div class="row">

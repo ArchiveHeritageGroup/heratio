@@ -14,7 +14,7 @@
   @endif
 
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="fas fa-layer-group me-2"></i>Evidence Sets</h1>
+    <h1><i class="fas fa-layer-group me-2"></i>{{ __('Evidence Sets') }}</h1>
     <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createCollectionModal">
       <i class="fas fa-plus me-1"></i>{{ __('New Collection') }}
     </button>
@@ -69,7 +69,7 @@
         <form action="{{ route('research.collections.store') }}" method="POST">
           @csrf
           <div class="modal-header">
-            <h5 class="modal-title"><i class="fas fa-layer-group me-2"></i>New Collection</h5>
+            <h5 class="modal-title"><i class="fas fa-layer-group me-2"></i>{{ __('New Collection') }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">

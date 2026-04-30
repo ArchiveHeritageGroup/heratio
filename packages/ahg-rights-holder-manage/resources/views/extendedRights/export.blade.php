@@ -4,7 +4,7 @@
 @section('body-class', 'extended-rights export')
 
 @section('title-block')
-  <h1 class="mb-0"><i class="fas fa-download me-2"></i>Export Rights Data</h1>
+  <h1 class="mb-0"><i class="fas fa-download me-2"></i>{{ __('Export Rights Data') }}</h1>
 @endsection
 
 @section('content')

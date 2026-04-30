@@ -50,7 +50,7 @@
 
   <div class="col-md-5">
     <div class="card border-primary mb-3">
-      <div class="card-header bg-primary text-white"><i class="fas fa-tags me-1"></i> Classify</div>
+      <div class="card-header bg-primary text-white"><i class="fas fa-tags me-1"></i> {{ __('Classify') }}</div>
       <div class="card-body">
         @if($email->fileplan_code)
           <div class="mb-2 small text-muted">Currently classified to <strong>{{ $email->fileplan_code }} — {{ $email->fileplan_title }}</strong>@if($email->disposal_class_ref) under disposal class <code>{{ $email->disposal_class_ref }}</code>@endif</div>
@@ -78,7 +78,7 @@
 
     @if(! $email->information_object_id)
     <div class="card border-success">
-      <div class="card-header bg-success text-white"><i class="fas fa-flag me-1"></i> Declare as record</div>
+      <div class="card-header bg-success text-white"><i class="fas fa-flag me-1"></i> {{ __('Declare as record') }}</div>
       <div class="card-body small">
         <p>Declares this email as an <code>information_object</code>. The record becomes part of the archival catalogue and the disposal class (if classified) is applied. The <em>Declare</em> action is irreversible without admin intervention.</p>
         <form method="POST" action="{{ route('records.emails.declare', $email->id) }}" onsubmit="return confirm('Declare this email as a record? It will become part of the archival catalogue.');">

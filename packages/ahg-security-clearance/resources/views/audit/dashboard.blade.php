@@ -9,7 +9,7 @@
     <li class="breadcrumb-item active">Audit Dashboard</li>
   </ol></nav>
 
-  <h1><i class="fas fa-history"></i> Security Audit Dashboard</h1>
+  <h1><i class="fas fa-history"></i> {{ __('Security Audit Dashboard') }}</h1>
 
   {{-- Period Filter --}}
   <form method="GET" class="mb-3">

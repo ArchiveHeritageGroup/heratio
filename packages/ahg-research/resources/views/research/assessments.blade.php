@@ -10,7 +10,7 @@
     </ol>
 </nav>
 
-<h1 class="h2 mb-4"><i class="fas fa-clipboard-check text-primary me-2"></i>Source Assessments</h1>
+<h1 class="h2 mb-4"><i class="fas fa-clipboard-check text-primary me-2"></i>{{ __('Source Assessments') }}</h1>
 
 @if(!empty($assessments))
 <div class="card">

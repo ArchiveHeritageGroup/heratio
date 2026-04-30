@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <h1><i class="bi bi-archive me-2"></i>Export Archival Descriptions</h1>
+    <h1><i class="bi bi-archive me-2"></i>{{ __('Export Archival Descriptions') }}</h1>
 
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
@@ -18,7 +18,7 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-header" style="background-color: var(--ahg-primary); color: #fff;">
-                    <h5 class="mb-0"><i class="bi bi-download me-2"></i>Export Settings</h5>
+                    <h5 class="mb-0"><i class="bi bi-download me-2"></i>{{ __('Export Settings') }}</h5>
                 </div>
                 <div class="card-body">
                     <form method="post" action="{{ route('export.archival') }}">
@@ -77,7 +77,7 @@
         <div class="col-lg-4">
             <div class="card mb-3">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>Export Tips</h6>
+                    <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>{{ __('Export Tips') }}</h6>
                 </div>
                 <div class="card-body small">
                     <p><strong>{{ __('CSV Export:') }}</strong> Best for bulk data extraction and spreadsheet analysis.</p>

@@ -115,7 +115,7 @@
 {{-- REPRODUCTION REQUESTS                                          --}}
 {{-- ============================================================ --}}
 @if(!$hasMarketplace && $items->isEmpty())
-  <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Your cart is empty. Browse the collection and add items.</div>
+  <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>{{ __('Your cart is empty. Browse the collection and add items.') }}</div>
 @elseif($hasReproductions)
   <h4 class="mb-2"><i class="fas fa-images me-1 text-secondary"></i> Reproduction requests ({{ $items->count() }})</h4>
 @endif

@@ -120,7 +120,7 @@
     <div class="col-md-7">
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between">
-                <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>Hierarchy Preview</h5>
+                <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>{{ __('Hierarchy Preview') }}</h5>
                 <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-expand-all">
                     <i class="fas fa-expand-alt me-1"></i>{{ __('Expand All') }}
                 </button>
@@ -139,7 +139,7 @@
     <div class="col-md-5">
         <div class="card mb-4" id="detail-panel">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Record Details</h5>
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Record Details') }}</h5>
             </div>
             <div class="card-body" id="detail-content">
                 <p class="text-muted">Click a record in the tree to view details</p>
@@ -149,7 +149,7 @@
         @if(!empty($session->output_generate_sip) || !empty($session->output_generate_dip))
         <div class="card mb-4">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-box me-2"></i>Package Estimates</h5>
+                <h5 class="mb-0"><i class="fas fa-box me-2"></i>{{ __('Package Estimates') }}</h5>
             </div>
             <div class="card-body">
                 @if(!empty($session->output_generate_sip))

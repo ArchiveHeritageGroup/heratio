@@ -45,7 +45,7 @@
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center"
          >
-      <h5 class="mb-0"><i class="fas fa-cloud-upload-alt"></i> Data Migration Tool</h5>
+      <h5 class="mb-0"><i class="fas fa-cloud-upload-alt"></i> {{ __('Data Migration Tool') }}</h5>
       <div>
         <a href="{{ route('data-migration.batch-export') }}" class="btn btn-sm btn-outline-light me-2">
           <i class="fas fa-download me-1"></i>{{ __('Batch Export') }}

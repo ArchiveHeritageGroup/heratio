@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-tags me-2"></i>Metadata Extraction</h1>
+<h1><i class="fas fa-tags me-2"></i>{{ __('Metadata Extraction') }}</h1>
 <p class="text-muted">Automatic metadata extraction from uploaded files</p>
 @endsection
 
@@ -32,10 +32,10 @@
     {{-- Metadata Extraction --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Metadata Extraction</h5>
+        <h5 class="mb-0"><i class="fas fa-tags me-2"></i>{{ __('Metadata Extraction') }}</h5>
       </div>
       <div class="card-body">
-        <div class="alert alert-info"><i class="fas fa-info-circle me-1"></i> Configure automatic metadata extraction.</div>
+        <div class="alert alert-info"><i class="fas fa-info-circle me-1"></i> {{ __('Configure automatic metadata extraction.') }}</div>
 
         <div class="row mb-3">
           <label class="col-sm-3 col-form-label">{{ __('Extract on Upload') }}</label>
@@ -65,7 +65,7 @@
     {{-- File Types --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-file me-2"></i>File Types</h5>
+        <h5 class="mb-0"><i class="fas fa-file me-2"></i>{{ __('File Types') }}</h5>
       </div>
       <div class="card-body">
         <div class="row">
@@ -105,7 +105,7 @@
     {{-- Field Mapping --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-random me-2"></i>Field Mapping</h5>
+        <h5 class="mb-0"><i class="fas fa-random me-2"></i>{{ __('Field Mapping') }}</h5>
       </div>
       <div class="card-body">
         <p class="text-muted">Configure where extracted metadata is saved:</p>

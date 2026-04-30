@@ -25,7 +25,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-book-reader me-2"></i>Library Reports Dashboard</h1>
+<h1><i class="fas fa-book-reader me-2"></i>{{ __('Library Reports Dashboard') }}</h1>
 @endsection
 
 @section('content')
@@ -75,7 +75,7 @@
     <div class="col-md-6">
       <div class="card h-100">
         <div class="card-header bg-dark text-white">
-          <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>By Material Type</h5>
+          <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('By Material Type') }}</h5>
         </div>
         <ul class="list-group list-group-flush">
           @forelse($stats['byType'] ?? [] as $type)
@@ -94,7 +94,7 @@
     <div class="col-md-6">
       <div class="card h-100">
         <div class="card-header bg-dark text-white">
-          <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Quick Stats</h5>
+          <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>{{ __('Quick Stats') }}</h5>
         </div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item d-flex justify-content-between align-items-center">

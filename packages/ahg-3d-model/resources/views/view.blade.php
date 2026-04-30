@@ -163,7 +163,7 @@
     <div class="col-md-6">
       <div class="card">
         <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-          <i class="fas fa-info-circle me-2"></i>Model Information
+          <i class="fas fa-info-circle me-2"></i>{{ __('Model Information') }}
         </div>
         <div class="card-body">
           <table class="table table-sm mb-0">
@@ -224,7 +224,7 @@
   {{-- IIIF Info --}}
   <div class="card mt-4">
     <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-      <i class="fas fa-link me-2"></i>IIIF 3D Manifest
+      <i class="fas fa-link me-2"></i>{{ __('IIIF 3D Manifest') }}
     </div>
     <div class="card-body">
       <p>Access the IIIF 3D manifest for this model:</p>

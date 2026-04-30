@@ -24,7 +24,7 @@
     @endif
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h2"><i class="fas fa-building me-2"></i>Vendors</h1>
+        <h1 class="h2"><i class="fas fa-building me-2"></i>{{ __('Vendors') }}</h1>
         <div>
             <a href="{{ route('ahgvendor.index') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-tachometer-alt me-1"></i>{{ __('Dashboard') }}
@@ -194,7 +194,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete</h5>
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Confirm Delete') }}</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">

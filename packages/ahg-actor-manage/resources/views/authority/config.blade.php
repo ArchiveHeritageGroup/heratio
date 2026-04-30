@@ -23,7 +23,7 @@
   </ol>
 </nav>
 
-<h1 class="mb-4"><i class="fas fa-cog me-2"></i>Authority Plugin Configuration</h1>
+<h1 class="mb-4"><i class="fas fa-cog me-2"></i>{{ __('Authority Plugin Configuration') }}</h1>
 
 @if (session('success'))
   <div class="alert alert-success">{{ session('success') }}</div>
@@ -35,7 +35,7 @@
   {{-- External Authority Sources --}}
   <div class="card mb-3">
     <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-      <i class="fas fa-globe me-1"></i>External Authority Sources
+      <i class="fas fa-globe me-1"></i>{{ __('External Authority Sources') }}
     </div>
     <div class="card-body">
       <div class="row g-3">
@@ -75,7 +75,7 @@
   {{-- Completeness & Quality --}}
   <div class="card mb-3">
     <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-      <i class="fas fa-chart-bar me-1"></i>Completeness & Quality
+      <i class="fas fa-chart-bar me-1"></i>{{ __('Completeness & Quality') }}
     </div>
     <div class="card-body">
       <div class="form-check form-switch mb-3">
@@ -100,7 +100,7 @@
   {{-- NER Pipeline --}}
   <div class="card mb-3">
     <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-      <i class="fas fa-robot me-1"></i>NER Pipeline
+      <i class="fas fa-robot me-1"></i>{{ __('NER Pipeline') }}
     </div>
     <div class="card-body">
       <div class="form-check form-switch mb-3">
@@ -123,7 +123,7 @@
   {{-- Merge / Dedup --}}
   <div class="card mb-3">
     <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-      <i class="fas fa-clone me-1"></i>Merge & Deduplication
+      <i class="fas fa-clone me-1"></i>{{ __('Merge & Deduplication') }}
     </div>
     <div class="card-body">
       <div class="form-check form-switch mb-3">
@@ -146,7 +146,7 @@
   {{-- ISDF Functions --}}
   <div class="card mb-3">
     <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-      <i class="fas fa-sitemap me-1"></i>ISDF Functions
+      <i class="fas fa-sitemap me-1"></i>{{ __('ISDF Functions') }}
     </div>
     <div class="card-body">
       <div class="form-check form-switch">

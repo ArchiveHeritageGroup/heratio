@@ -5,7 +5,7 @@
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-2">
-    <h1 class="mb-0"><i class="fas fa-chart-line"></i> Analytics Dashboard</h1>
+    <h1 class="mb-0"><i class="fas fa-chart-line"></i> {{ __('Analytics Dashboard') }}</h1>
   </div>
   <p class="text-muted mb-4">Usage statistics, search performance, and access control metrics</p>
 
@@ -76,7 +76,7 @@
       {{-- Search Performance --}}
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white">
-          <h5 class="mb-0"><i class="fas fa-search-plus"></i> Search Performance</h5>
+          <h5 class="mb-0"><i class="fas fa-search-plus"></i> {{ __('Search Performance') }}</h5>
         </div>
         <div class="card-body">
           <div class="row text-center">
@@ -110,7 +110,7 @@
       @if(isset($metricTotals) && !empty($metricTotals))
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white">
-          <h5 class="mb-0"><i class="fas fa-calendar-day"></i> Daily Tracked Metrics</h5>
+          <h5 class="mb-0"><i class="fas fa-calendar-day"></i> {{ __('Daily Tracked Metrics') }}</h5>
         </div>
         <div class="card-body">
           <div class="row text-center">
@@ -130,7 +130,7 @@
       {{-- Access Control --}}
       <div class="card shadow-sm">
         <div class="card-header bg-white">
-          <h5 class="mb-0"><i class="fas fa-shield-alt"></i> Access Control</h5>
+          <h5 class="mb-0"><i class="fas fa-shield-alt"></i> {{ __('Access Control') }}</h5>
         </div>
         <div class="card-body">
           <div class="row text-center">
@@ -168,7 +168,7 @@
       {{-- Trends Chart --}}
       <div class="card shadow-sm mt-4">
         <div class="card-header bg-white">
-          <h5 class="mb-0"><i class="fas fa-chart-area"></i> Search & Click Trends</h5>
+          <h5 class="mb-0"><i class="fas fa-chart-area"></i> {{ __('Search & Click Trends') }}</h5>
         </div>
         <div class="card-body">
           @if(!empty($trendSearches) && count($trendSearches) > 0)

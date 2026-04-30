@@ -1,6 +1,6 @@
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar')@endsection
-@section('title-block')<h1><i class="fas fa-walking me-2"></i>Walk-in Researcher Registration</h1>@endsection
+@section('title-block')<h1><i class="fas fa-walking me-2"></i>{{ __('Walk-in Researcher Registration') }}</h1>@endsection
 @section('content')
 <div class="card mb-3">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Select Reading Room') }}</h5></div>
@@ -73,7 +73,7 @@
 
     <div class="col-md-5">
         <div class="card">
-            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Register Walk-in Visitor</h5></div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>{{ __('Register Walk-in Visitor') }}</h5></div>
             <div class="card-body">
                 <form method="POST">
                     @csrf
@@ -145,14 +145,14 @@
 @endif
 
 <div class="card mt-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>About Walk-In Visitors</h6></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About Walk-In Visitors') }}</h6></div>
     <div class="card-body">
         <p class="text-muted mb-2">Walk-in visitors are unregistered users who need quick access to the reading room.</p>
         <ul class="mb-0 small">
-            <li><i class="fas fa-times-circle text-danger me-1"></i>They do not have a researcher account</li>
-            <li><i class="fas fa-times-circle text-danger me-1"></i>Cannot request materials in advance</li>
-            <li><i class="fas fa-eye text-info me-1"></i>Limited to browsing open-access materials</li>
-            <li><i class="fas fa-user-plus text-success me-1"></i>Can be converted to registered researchers if needed</li>
+            <li><i class="fas fa-times-circle text-danger me-1"></i>{{ __('They do not have a researcher account') }}</li>
+            <li><i class="fas fa-times-circle text-danger me-1"></i>{{ __('Cannot request materials in advance') }}</li>
+            <li><i class="fas fa-eye text-info me-1"></i>{{ __('Limited to browsing open-access materials') }}</li>
+            <li><i class="fas fa-user-plus text-success me-1"></i>{{ __('Can be converted to registered researchers if needed') }}</li>
         </ul>
     </div>
 </div>

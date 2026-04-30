@@ -77,6 +77,7 @@ class MuseumService
                 'information_object.lft',
                 'information_object.rgt',
                 'information_object.source_culture',
+                'information_object.icip_sensitivity',
                 DB::raw('COALESCE(ioi_cur.title, ioi_fb.title) AS title'),
                 DB::raw('COALESCE(ioi_cur.alternate_title, ioi_fb.alternate_title) AS alternate_title'),
                 DB::raw('COALESCE(ioi_cur.scope_and_content, ioi_fb.scope_and_content) AS scope_and_content'),
@@ -166,7 +167,6 @@ class MuseumService
                 'museum_metadata.style',
                 'museum_metadata.period',
                 'museum_metadata.cultural_group',
-                'museum_metadata.icip_sensitivity',
                 'museum_metadata.movement',
                 'museum_metadata.school',
                 'museum_metadata.dynasty',
@@ -361,7 +361,7 @@ class MuseumService
             ]);
 
             // Insert into information_object table
-            DB::table('information_object')->insert([
+            $ioInsert = [
                 'id' => $objectId,
                 'identifier' => $data['identifier'] ?? null,
                 'level_of_description_id' => $data['level_of_description_id'] ?: null,
@@ -371,7 +371,11 @@ class MuseumService
                 'lft' => $newLft,
                 'rgt' => $newRgt,
                 'source_culture' => $this->culture,
-            ]);
+            ];
+            if (array_key_exists('icip_sensitivity', $data) && $data['icip_sensitivity'] !== '') {
+                $ioInsert['icip_sensitivity'] = $data['icip_sensitivity'];
+            }
+            DB::table('information_object')->insert($ioInsert);
 
             // Insert into information_object_i18n table
             DB::table('information_object_i18n')->insert([
@@ -529,13 +533,18 @@ class MuseumService
             $ioId = $record->id;
 
             // Update information_object
+            $ioUpdate = [
+                'identifier' => $data['identifier'] ?? null,
+                'level_of_description_id' => $data['level_of_description_id'] ?: null,
+                'repository_id' => $data['repository_id'] ?: null,
+            ];
+            // ICIP cultural-sensitivity URI lives on information_object (canonical column).
+            if (array_key_exists('icip_sensitivity', $data)) {
+                $ioUpdate['icip_sensitivity'] = ($data['icip_sensitivity'] === '' ? null : $data['icip_sensitivity']);
+            }
             DB::table('information_object')
                 ->where('id', $ioId)
-                ->update([
-                    'identifier' => $data['identifier'] ?? null,
-                    'level_of_description_id' => $data['level_of_description_id'] ?: null,
-                    'repository_id' => $data['repository_id'] ?: null,
-                ]);
+                ->update($ioUpdate);
 
             // Update information_object_i18n
             DB::table('information_object_i18n')
@@ -793,9 +802,6 @@ class MuseumService
         'historical_context', 'architectural_context', 'archaeological_context',
         'object_class', 'object_category', 'object_sub_category', 'edition_number',
         'edition_size',
-        // ICIP cultural-sensitivity URI (issue #36 Phase 2b) — stored as full
-        // SKOS URI; resolved via VocabularyResolverService at render time.
-        'icip_sensitivity',
     ];
 
     /**

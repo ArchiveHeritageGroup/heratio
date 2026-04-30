@@ -16,7 +16,7 @@
   <a href="{{ route('library.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a>
 </div>
 @endsection
-@section('title-block')<h1><i class="fas fa-building me-2"></i>Publishers</h1>@endsection
+@section('title-block')<h1><i class="fas fa-building me-2"></i>{{ __('Publishers') }}</h1>@endsection
 @section('content')
 <div class="alert alert-info"><strong>{{ count($publishers) }}</strong> publishers found</div>
 <div class="table-responsive">

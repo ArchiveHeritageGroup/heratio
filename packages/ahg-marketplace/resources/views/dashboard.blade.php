@@ -125,7 +125,7 @@
 
   {{-- Quick actions --}}
   <div class="card mb-4">
-    <div class="card-header fw-bold"><i class="fas fa-bolt me-1"></i> Quick actions</div>
+    <div class="card-header fw-bold"><i class="fas fa-bolt me-1"></i> {{ __('Quick actions') }}</div>
     <div class="card-body">
       <div class="d-flex flex-wrap gap-2">
         <a href="{{ route('ahgmarketplace.seller-listings') }}" class="btn btn-outline-primary btn-sm">
@@ -317,7 +317,7 @@
 
   {{-- Profile summary --}}
   <div class="card mt-4">
-    <div class="card-header fw-bold"><i class="fas fa-id-card me-1"></i> Profile</div>
+    <div class="card-header fw-bold"><i class="fas fa-id-card me-1"></i> {{ __('Profile') }}</div>
     <div class="card-body">
       <div class="row g-3 small">
         <div class="col-md-4">

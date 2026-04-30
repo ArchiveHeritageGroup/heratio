@@ -33,7 +33,7 @@
 
     <div class="alert alert-info">
       <i class="bi bi-info-circle me-2"></i>
-      Export archival descriptions in EAD 2002 XML format. Select a top-level record (fonds/collection) to export with its hierarchy.
+      {{ __('Export archival descriptions in EAD 2002 XML format. Select a top-level record (fonds/collection) to export with its hierarchy.') }}
     </div>
 
     <form action="{{ route('export.ead') }}" method="post">

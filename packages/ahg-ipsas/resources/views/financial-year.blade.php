@@ -167,7 +167,7 @@
     </div>
     @else
     <div class="alert alert-info">
-        <i class="fas fa-info-circle me-2"></i>No financial data available for this year.
+        <i class="fas fa-info-circle me-2"></i>{{ __('No financial data available for this year.') }}
     </div>
     @endif
 </div>

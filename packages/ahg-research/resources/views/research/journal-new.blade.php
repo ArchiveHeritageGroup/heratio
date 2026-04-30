@@ -5,7 +5,7 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.journal') }}">Journal</a></li><li class="breadcrumb-item active">New Entry</li></ol></nav>
 <div class="row"><div class="col-md-8">
-<div class="card"><div class="card-header"><h5 class="mb-0"><i class="fas fa-book me-2"></i>New Journal Entry</h5></div>
+<div class="card"><div class="card-header"><h5 class="mb-0"><i class="fas fa-book me-2"></i>{{ __('New Journal Entry') }}</h5></div>
 <div class="card-body">
     <form method="POST" id="entryForm">@csrf <input type="hidden" name="content" id="entryContentHidden" value="">
         <div class="row mb-3">

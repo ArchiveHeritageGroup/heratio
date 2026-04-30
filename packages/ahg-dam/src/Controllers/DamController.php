@@ -319,6 +319,8 @@ class DamController extends Controller
             'artwork_title', 'artwork_creator', 'artwork_date',
             'artwork_source', 'artwork_copyright',
             'iptc_title', 'job_id', 'instructions',
+            // ICIP cultural-sensitivity URI (issue #36 Phase 2b) — persisted to information_object.icip_sensitivity.
+            'icip_sensitivity',
         ]);
 
         $this->service->update($slug, $data);

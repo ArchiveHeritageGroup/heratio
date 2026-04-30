@@ -9,7 +9,7 @@
   ])
 
   <div class="alert alert-info">
-    <i class="fas fa-info-circle me-1"></i> No annotations recorded for this description.
+    <i class="fas fa-info-circle me-1"></i> {{ __('No annotations recorded for this description.') }}
   </div>
 
   <button class="btn atom-btn-outline-success" onclick="alert('Annotation creation form — migration in progress'); return false;">

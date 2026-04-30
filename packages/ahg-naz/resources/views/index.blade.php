@@ -15,7 +15,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <h1><i class="fas fa-landmark me-2"></i>NAZ Compliance Dashboard</h1>
+            <h1><i class="fas fa-landmark me-2"></i>{{ __('NAZ Compliance Dashboard') }}</h1>
             <p class="text-muted">National Archives of Zimbabwe Act [Chapter 25:06] &mdash; 25-Year Rule</p>
         </div>
         <div class="col-auto">
@@ -95,7 +95,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-link me-2"></i>Quick Actions</h5>
+                    <h5 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Quick Actions') }}</h5>
                 </div>
                 <div class="list-group list-group-flush">
                     <a href="{{ route('ahgnaz.closures') }}" class="list-group-item list-group-item-action">
@@ -136,7 +136,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Pending Permits</h5>
+                    <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>{{ __('Pending Permits') }}</h5>
                     <a href="{{ route('ahgnaz.permit-create') }}" class="btn btn-sm btn-primary">
                         <i class="fas fa-plus"></i>
                     </a>
@@ -181,7 +181,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Expiring Closures</h5>
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>{{ __('Expiring Closures') }}</h5>
                     <a href="{{ route('ahgnaz.closure-create') }}" class="btn btn-sm btn-primary">
                         <i class="fas fa-plus"></i>
                     </a>
@@ -226,11 +226,11 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>Compliance Issues &amp; Warnings</h5>
+                        <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>{{ __('Compliance Issues &amp; Warnings') }}</h5>
                     </div>
                     <div class="card-body">
                         @if (!empty($compliance['issues']))
-                            <h6 class="text-danger"><i class="fas fa-times-circle me-1"></i>Issues (Require Immediate Action)</h6>
+                            <h6 class="text-danger"><i class="fas fa-times-circle me-1"></i>{{ __('Issues (Require Immediate Action)') }}</h6>
                             <ul class="list-unstyled mb-3">
                                 @foreach ($compliance['issues'] as $issue)
                                     <li class="mb-1"><i class="fas fa-exclamation-circle text-danger me-1"></i> {{ $issue }}</li>
@@ -238,7 +238,7 @@
                             </ul>
                         @endif
                         @if (!empty($compliance['warnings']))
-                            <h6 class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Warnings</h6>
+                            <h6 class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>{{ __('Warnings') }}</h6>
                             <ul class="list-unstyled mb-0">
                                 @foreach ($compliance['warnings'] as $warning)
                                     <li class="mb-1"><i class="fas fa-exclamation-triangle text-warning me-1"></i> {{ $warning }}</li>
@@ -255,7 +255,7 @@
         <div class="col-12">
             <div class="card bg-light">
                 <div class="card-body">
-                    <h6><i class="fas fa-gavel me-2"></i>Key Legislation Reference</h6>
+                    <h6><i class="fas fa-gavel me-2"></i>{{ __('Key Legislation Reference') }}</h6>
                     <div class="row">
                         <div class="col-md-4">
                             <strong>{{ __('Section 10 &mdash; Closure Period:') }}</strong>

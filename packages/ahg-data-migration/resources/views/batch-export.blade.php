@@ -38,7 +38,7 @@
 
 <div class="card shadow-sm mb-4">
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-download me-2"></i>Batch Export Records</h5>
+        <h5 class="mb-0"><i class="fas fa-download me-2"></i>{{ __('Batch Export Records') }}</h5>
         <a href="{{ route('data-migration.index') }}" class="btn btn-sm atom-btn-outline-light">
             <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Import') }}
         </a>
@@ -146,7 +146,7 @@
 
 <div class="card">
     <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-database me-2"></i>Record Counts</h5>
+        <h5 class="mb-0"><i class="fas fa-database me-2"></i>{{ __('Record Counts') }}</h5>
     </div>
     <div class="card-body">
         <div class="row g-3">

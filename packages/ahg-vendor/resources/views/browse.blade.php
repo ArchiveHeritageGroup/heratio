@@ -24,7 +24,7 @@
     @endif
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h2"><i class="fas fa-truck me-2"></i>Vendor Management</h1>
+        <h1 class="h2"><i class="fas fa-truck me-2"></i>{{ __('Vendor Management') }}</h1>
         <div>
             <a href="{{ route('ahgvendor.list') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-building me-1"></i>{{ __('All Vendors') }}
@@ -240,7 +240,7 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
-                    <i class="fas fa-chart-pie me-2"></i>Transaction Status Distribution
+                    <i class="fas fa-chart-pie me-2"></i>{{ __('Transaction Status Distribution') }}
                 </div>
                 <div class="card-body">
                     @php
@@ -276,7 +276,7 @@
             {{-- Quick Actions --}}
             <div class="card mt-4">
                 <div class="card-header">
-                    <i class="fas fa-bolt me-2"></i>Quick Actions
+                    <i class="fas fa-bolt me-2"></i>{{ __('Quick Actions') }}
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">

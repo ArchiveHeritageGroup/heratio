@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1><i class="fas fa-cloud-upload-alt me-2"></i>Preservation & Backup Settings</h1>
+  <h1><i class="fas fa-cloud-upload-alt me-2"></i>{{ __('Preservation & Backup Settings') }}</h1>
 @endsection
 
 @section('content')

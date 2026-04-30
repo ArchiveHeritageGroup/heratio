@@ -9,7 +9,7 @@
   <div class="col-lg-3 col-md-4 mb-4">
     <div class="card mb-3">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Dropdown Manager</h5>
+        <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>{{ __('Dropdown Manager') }}</h5>
       </div>
       <div class="card-body">
         <p class="text-muted small mb-3">Manage controlled vocabularies (dropdowns) used throughout the system.</p>
@@ -140,7 +140,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Create Taxonomy</h5>
+        <h5 class="modal-title"><i class="fas fa-plus me-2"></i>{{ __('Create Taxonomy') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -175,7 +175,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-pen me-2"></i>Rename Taxonomy</h5>
+        <h5 class="modal-title"><i class="fas fa-pen me-2"></i>{{ __('Rename Taxonomy') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -198,7 +198,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-arrows-alt me-2"></i>Move to Section</h5>
+        <h5 class="modal-title"><i class="fas fa-arrows-alt me-2"></i>{{ __('Move to Section') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">

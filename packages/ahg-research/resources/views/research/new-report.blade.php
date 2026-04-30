@@ -4,7 +4,7 @@
 @section('title', 'New Report')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.reports') }}">Reports</a></li><li class="breadcrumb-item active">New Report</li></ol></nav>
-<h1 class="h2 mb-4"><i class="fas fa-file-alt text-primary me-2"></i>New Report</h1>
+<h1 class="h2 mb-4"><i class="fas fa-file-alt text-primary me-2"></i>{{ __('New Report') }}</h1>
 <div class="card"><div class="card-body">
     <form method="POST">@csrf
         <div class="row mb-3">

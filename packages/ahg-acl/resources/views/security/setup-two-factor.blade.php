@@ -10,14 +10,14 @@
     <div class="card">
       <div class="card-header bg-primary text-white">
         <h4 class="mb-0">
-          <i class="fas fa-mobile-alt"></i> Set Up Two-Factor Authentication
+          <i class="fas fa-mobile-alt"></i> {{ __('Set Up Two-Factor Authentication') }}
         </h4>
       </div>
       <div class="card-body">
 
         <div class="alert alert-info">
           <i class="fas fa-info-circle"></i>
-          Your security clearance requires two-factor authentication. Follow the steps below to set up your authenticator app.
+          {{ __('Your security clearance requires two-factor authentication. Follow the steps below to set up your authenticator app.') }}
         </div>
 
         <h5>{{ __('Step 1: Scan the QR Code') }}</h5>

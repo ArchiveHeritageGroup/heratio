@@ -6,7 +6,7 @@
 @section('content')
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="fas fa-project-diagram me-2"></i>Security Compartments</h1>
+    <h1><i class="fas fa-project-diagram me-2"></i>{{ __('Security Compartments') }}</h1>
     <a href="{{ route('acl.security-dashboard') }}" class="btn btn-primary">
         <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}
     </a>
@@ -14,7 +14,7 @@
 
 <div class="card">
     <div class="card-header bg-primary text-white">
-        <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Compartments</h5>
+        <h5 class="mb-0"><i class="fas fa-lock me-2"></i>{{ __('Compartments') }}</h5>
     </div>
     <div class="card-body p-0">
         @if(empty($compartments) || (is_countable($compartments) && count($compartments) === 0))

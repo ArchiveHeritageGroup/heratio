@@ -192,7 +192,7 @@
     <div class="col-md-4">
         {{-- Report Info --}}
         <div class="card mb-4">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Report Info</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Report Info') }}</h6></div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item d-flex justify-content-between"><span class="text-muted">{{ __('Author') }}</span><span>{{ e(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) }}</span></li>
                 <li class="list-group-item d-flex justify-content-between"><span class="text-muted">{{ __('Created') }}</span><span>{{ date('M j, Y', strtotime($report->created_at)) }}</span></li>
@@ -204,7 +204,7 @@
         {{-- Delete Report --}}
         <div class="card border-danger">
             <div class="card-body">
-                <h6 class="card-title text-danger"><i class="fas fa-trash me-1"></i>Delete Report</h6>
+                <h6 class="card-title text-danger"><i class="fas fa-trash me-1"></i>{{ __('Delete Report') }}</h6>
                 <p class="small text-muted">This will permanently delete the report and all its sections.</p>
                 <form method="POST" onsubmit="return confirm('Are you sure? This cannot be undone.')">
                     @csrf

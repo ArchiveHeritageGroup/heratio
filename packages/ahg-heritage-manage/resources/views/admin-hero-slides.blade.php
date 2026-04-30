@@ -11,7 +11,7 @@ $editSlideData = isset($editSlide) && $editSlide ? (array)$editSlide : null;
 <div class="row">
   <div class="col-md-3">@include('ahg-heritage-manage::partials._admin-sidebar')</div>
   <div class="col-md-9">
-    <h1><i class="fas fa-images me-2"></i>Hero Slides Management</h1>
+    <h1><i class="fas fa-images me-2"></i>{{ __('Hero Slides Management') }}</h1>
 
 <div class="card border-0 shadow-sm mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h2 class="h5 mb-0">{{ $editSlideData ? 'Edit Hero Slide' : 'Add New Hero Slide' }}</h2></div>
@@ -76,7 +76,7 @@ $editSlideData = isset($editSlide) && $editSlide ? (array)$editSlide : null;
       </div>
       <div class="card-body">
         @if(empty($slidesArray))
-        <p class="text-muted text-center py-4"><i class="fas fa-images fs-1 d-block mb-2"></i>No hero slides configured yet.</p>
+        <p class="text-muted text-center py-4"><i class="fas fa-images fs-1 d-block mb-2"></i>{{ __('No hero slides configured yet.') }}</p>
         @else
         <div class="table-responsive">
           <table class="table table-hover align-middle">

@@ -5,7 +5,7 @@
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-2">
-    <h1 class="mb-0"><i class="fas fa-tachometer-alt"></i> Heritage Admin Dashboard</h1>
+    <h1 class="mb-0"><i class="fas fa-tachometer-alt"></i> {{ __('Heritage Admin Dashboard') }}</h1>
   </div>
   <p class="text-muted mb-4">Manage heritage site configuration, access control, and content</p>
 
@@ -103,7 +103,7 @@
       @if(isset($tenants) && $tenants->count() > 0)
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-building"></i> Tenants</h5>
+          <h5 class="mb-0"><i class="fas fa-building"></i> {{ __('Tenants') }}</h5>
         </div>
         <div class="card-body p-0">
           <table class="table table-bordered table-hover mb-0">
@@ -145,7 +145,7 @@
         <div class="col-md-6">
           <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-transparent">
-              <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+              <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>{{ __('Quick Actions') }}</h5>
             </div>
             <div class="card-body">
               <div class="d-grid gap-2">
@@ -168,7 +168,7 @@
         <div class="col-md-6">
           <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-transparent">
-              <h5 class="mb-0"><i class="fas fa-users me-2"></i>Trust Level Distribution</h5>
+              <h5 class="mb-0"><i class="fas fa-users me-2"></i>{{ __('Trust Level Distribution') }}</h5>
             </div>
             <div class="card-body">
               @if(!empty($trustDistribution) && count($trustDistribution) > 0)
@@ -189,7 +189,7 @@
       {{-- System Overview --}}
       <div class="card shadow-sm">
         <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-info-circle"></i> System Overview</h5>
+          <h5 class="mb-0"><i class="fas fa-info-circle"></i> {{ __('System Overview') }}</h5>
         </div>
         <div class="card-body">
           <table class="table table-bordered table-sm table-borderless mb-0">

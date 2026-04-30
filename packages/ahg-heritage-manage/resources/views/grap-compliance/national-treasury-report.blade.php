@@ -12,7 +12,7 @@
 <div class="row">
   <div class="col-md-3">@include('ahg-heritage-manage::partials._heritage-accounting-menu')</div>
   <div class="col-md-9">
-    <h1><i class="fas fa-balance-scale me-2"></i>GRAP 103 National Treasury Report</h1>
+    <h1><i class="fas fa-balance-scale me-2"></i>{{ __('GRAP 103 National Treasury Report') }}</h1>
     <p class="text-muted">{{ __('Heritage asset disclosures for National Treasury submission per GRAP 103.') }}</p>
 
     @if(session('success'))

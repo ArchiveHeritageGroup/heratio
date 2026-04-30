@@ -4,7 +4,7 @@
 @section('title', 'Generate Finding Aid')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.reports') }}">Reports</a></li><li class="breadcrumb-item active">Finding Aid</li></ol></nav>
-<h1 class="h2 mb-4"><i class="fas fa-sitemap text-primary me-2"></i>Generate Finding Aid</h1>
+<h1 class="h2 mb-4"><i class="fas fa-sitemap text-primary me-2"></i>{{ __('Generate Finding Aid') }}</h1>
 <div class="row">
     <div class="col-md-8">
         <div class="card mb-4">

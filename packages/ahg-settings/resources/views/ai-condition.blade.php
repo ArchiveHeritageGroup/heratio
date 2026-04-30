@@ -14,7 +14,7 @@
     {{-- Action buttons --}}
     <div class="card mb-3">
         <div class="card-header bg-primary text-white py-2">
-            <h6 class="mb-0"><i class="fas fa-robot me-1"></i>AI Condition</h6>
+            <h6 class="mb-0"><i class="fas fa-robot me-1"></i>{{ __('AI Condition') }}</h6>
         </div>
         <div class="card-body py-2">
             @if(\Route::has('admin.ai.condition.assess'))
@@ -61,7 +61,7 @@
 @endsection
 
 @section('title-block')
-<h1 class="h3 mb-0"><i class="fas fa-robot me-2"></i>AI Condition Assessment</h1>
+<h1 class="h3 mb-0"><i class="fas fa-robot me-2"></i>{{ __('AI Condition Assessment') }}</h1>
 <p class="text-muted small mb-3">Settings and API client management</p>
 @endsection
 
@@ -80,7 +80,7 @@
     <input type="hidden" name="form_action" value="save_settings">
 
     <div class="card mb-3">
-        <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-plug me-2"></i>Service Connection</h6></div>
+        <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-plug me-2"></i>{{ __('Service Connection') }}</h6></div>
         <div class="card-body">
             <div class="row mb-3">
                 <label class="col-sm-3 col-form-label col-form-label-sm">{{ __('Service URL') }}</label>
@@ -106,7 +106,7 @@
     </div>
 
     <div class="card mb-3">
-        <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Assessment Defaults</h6></div>
+        <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-sliders-h me-2"></i>{{ __('Assessment Defaults') }}</h6></div>
         <div class="card-body">
             <div class="row mb-3">
                 <label class="col-sm-3 col-form-label col-form-label-sm">{{ __('Min Confidence') }}</label>
@@ -159,7 +159,7 @@
 {{-- API Clients --}}
 <div class="card mb-3">
     <div class="card-header py-2 d-flex justify-content-between align-items-center">
-        <h6 class="mb-0"><i class="fas fa-key me-2"></i>API Clients</h6>
+        <h6 class="mb-0"><i class="fas fa-key me-2"></i>{{ __('API Clients') }}</h6>
         <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addClientModal">
             <i class="fas fa-plus me-1"></i>{{ __('Add Client') }}
         </button>
@@ -167,7 +167,7 @@
     <div class="card-body p-0">
         @if(empty($clients) || count($clients) === 0)
         <div class="p-3 text-center text-muted small">
-            <i class="fas fa-info-circle me-1"></i>No API clients configured.
+            <i class="fas fa-info-circle me-1"></i>{{ __('No API clients configured.') }}
         </div>
         @else
         <div class="table-responsive">
@@ -233,7 +233,7 @@
 {{-- Training Data Approval --}}
 <div class="card mb-3">
     <div class="card-header py-2 d-flex justify-content-between align-items-center">
-        <h6 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Client Training Data Approval</h6>
+        <h6 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>{{ __('Client Training Data Approval') }}</h6>
     </div>
     <div class="card-body">
         <p class="small text-muted mb-3">
@@ -246,7 +246,7 @@
 
         @if($approvalClients->isEmpty())
         <div class="text-center text-muted small py-3">
-            <i class="fas fa-info-circle me-1"></i>No clients have training contributions enabled. Toggle the Training switch in the API Clients table above.
+            <i class="fas fa-info-circle me-1"></i>{{ __('No clients have training contributions enabled. Toggle the Training switch in the API Clients table above.') }}
         </div>
         @else
         <div class="table-responsive">
@@ -341,7 +341,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-file-upload me-2"></i>Upload Consent Document</h5>
+                <h5 class="modal-title"><i class="fas fa-file-upload me-2"></i>{{ __('Upload Consent Document') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -370,7 +370,7 @@
         <form class="modal-content" method="POST" action="{{ url('/admin/ai/condition/client/save') }}">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Add API Client</h5>
+                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>{{ __('Add API Client') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">

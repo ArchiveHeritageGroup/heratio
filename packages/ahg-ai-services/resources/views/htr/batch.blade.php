@@ -4,7 +4,7 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li><li class="breadcrumb-item active">Batch</li></ol></nav>
 @include('ahg-ai-services::htr._nav')
-<h1><i class="fas fa-layer-group me-2"></i>Batch HTR Processing</h1>
+<h1><i class="fas fa-layer-group me-2"></i>{{ __('Batch HTR Processing') }}</h1>
 
 <div class="card mb-4">
   <div class="card-body">

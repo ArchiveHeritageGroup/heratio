@@ -26,7 +26,7 @@
 
   {{-- Personal Info --}}
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>Personal Information</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>{{ __('Personal Information') }}</div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-6">
@@ -55,7 +55,7 @@
 
   {{-- Affiliation --}}
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-university me-2"></i>Affiliation</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-university me-2"></i>{{ __('Affiliation') }}</div>
     <div class="card-body">
       <dl class="row mb-0">
         <dt class="col-sm-3">Affiliation Type</dt>
@@ -74,7 +74,7 @@
 
   {{-- Research Interests --}}
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-microscope me-2"></i>Research Interests</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-microscope me-2"></i>{{ __('Research Interests') }}</div>
     <div class="card-body">
       <p>{{ e($researcher->research_interests ?? 'Not specified') }}</p>
       @if($researcher->current_project ?? false)
@@ -87,7 +87,7 @@
 
   {{-- Booking History --}}
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-calendar-alt me-2"></i>Booking History</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-calendar-alt me-2"></i>{{ __('Booking History') }}</div>
     <div class="card-body">
       @if(count($bookings ?? []) > 0)
         <div class="table-responsive">
@@ -130,7 +130,7 @@
 
   {{-- Admin Actions --}}
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-cogs me-2"></i>Admin Actions</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-cogs me-2"></i>{{ __('Admin Actions') }}</div>
     <div class="card-body d-flex flex-wrap gap-2">
       @if(($researcher->status ?? '') === 'pending')
         <form action="{{ route('research.researchers.approve', $researcher->id) }}" method="POST" class="d-inline">

@@ -7,7 +7,7 @@
   <div class="col-md-3">@include('ahg-preservation::_menu')</div>
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-list me-2"></i>TIFF/PDF Merge Jobs</h1>
+      <h1><i class="fas fa-list me-2"></i>{{ __('TIFF/PDF Merge Jobs') }}</h1>
       <a href="{{ route('preservation.tiffpdfmerge.index') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-plus me-1"></i>{{ __('New Merge') }}</a>
     </div>
 

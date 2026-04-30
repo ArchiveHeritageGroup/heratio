@@ -13,7 +13,7 @@
     </nav>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="mb-0"><i class="bi bi-bar-chart-steps me-2"></i>Provenance Timeline</h4>
+        <h4 class="mb-0"><i class="bi bi-bar-chart-steps me-2"></i>{{ __('Provenance Timeline') }}</h4>
         <a href="{{ route('provenance.view', $resource->slug) }}" class="atom-btn-white">
             <i class="bi bi-arrow-left me-1"></i>{{ __('Back to Provenance') }}
         </a>

@@ -1,7 +1,7 @@
 {{-- External RIC Tools Links --}}
 <div class="card mt-3">
   <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-    <h5 class="mb-0"><i class="fas fa-external-link-alt"></i> RIC Tools</h5>
+    <h5 class="mb-0"><i class="fas fa-external-link-alt"></i> {{ __('RIC Tools') }}</h5>
   </div>
   <div class="card-body">
     <div class="d-grid gap-2">

@@ -51,7 +51,7 @@
 
 {{-- Add Item --}}
 <div class="card mb-4">
-  <div class="card-header bg-success text-white py-2"><i class="fas fa-plus me-2"></i>Add Item to Evidence Set</div>
+  <div class="card-header bg-success text-white py-2"><i class="fas fa-plus me-2"></i>{{ __('Add Item to Evidence Set') }}</div>
   <div class="card-body">
     <form action="{{ route('research.collections.addItem', $collection->id) }}" method="POST">
       @csrf
@@ -145,7 +145,7 @@
       @csrf
       @method('PUT')
       <div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Evidence Set</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-edit me-2"></i>{{ __('Edit Evidence Set') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
           <div class="mb-3"><label class="form-label">{{ __('Name *') }}</label><input type="text" name="name" class="form-control" value="{{ e($collection->name) }}" required></div>
           <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="3">{{ e($collection->description ?? '') }}</textarea></div>
@@ -165,7 +165,7 @@
       <input type="hidden" name="booking_action" value="update_notes">
       <input type="hidden" name="object_id" id="editNotesObjectId" value="">
       <div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-sticky-note me-2"></i>Edit Notes</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-sticky-note me-2"></i>{{ __('Edit Notes') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
           <p class="text-muted mb-2"><small><i class="fas fa-file-alt me-1"></i><span id="editNotesItemTitle"></span></small></p>
           <label class="form-label">{{ __('Notes') }}</label>
@@ -185,7 +185,7 @@
       @csrf
       @method('DELETE')
       <div class="modal-content">
-        <div class="modal-header bg-danger text-white"><h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Delete</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+        <div class="modal-header bg-danger text-white"><h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Delete') }}</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
         <div class="modal-body"><p>Delete this evidence set?</p><p class="text-danger"><strong>{{ e($collection->name) }}</strong></p></div>
         <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-danger"><i class="fas fa-trash me-1"></i>{{ __('Delete') }}</button></div>
       </div>

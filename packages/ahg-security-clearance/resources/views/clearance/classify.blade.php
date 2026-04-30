@@ -9,7 +9,7 @@
     <li class="breadcrumb-item active">Classify</li>
   </ol></nav>
 
-  <h1><i class="fas fa-lock"></i> Classify Record</h1>
+  <h1><i class="fas fa-lock"></i> {{ __('Classify Record') }}</h1>
   <p>Object: <strong>{{ e($object->title ?? 'ID: ' . $object->id) }}</strong></p>
 
   @if($currentClassification)

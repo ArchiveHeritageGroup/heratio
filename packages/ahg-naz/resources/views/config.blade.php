@@ -28,7 +28,7 @@
                     <li class="breadcrumb-item active">Configuration</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-cog me-2"></i>NAZ Configuration</h1>
+            <h1><i class="fas fa-cog me-2"></i>{{ __('NAZ Configuration') }}</h1>
         </div>
     </div>
 

@@ -150,7 +150,7 @@
         </div>
 
         <div class="card mt-3">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>About</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About') }}</h6></div>
             <div class="card-body small text-muted">
                 <p>Source assessment evaluates the reliability and authenticity of archival sources for research purposes.</p>
                 <ul class="mb-0">

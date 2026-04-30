@@ -8,7 +8,7 @@
 
 @section('content')
 <div class="container my-4">
-  <h1 class="h3 mb-3"><i class="fas fa-shield-alt me-2"></i>OCAP® Overlay</h1>
+  <h1 class="h3 mb-3"><i class="fas fa-shield-alt me-2"></i>{{ __('OCAP® Overlay') }}</h1>
 
   <div class="alert alert-warning">
     <strong>{{ __('OCAP overlay is disabled.') }}</strong>

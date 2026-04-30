@@ -12,7 +12,7 @@
 
       <div class="card">
         <div class="card-header bg-success text-white">
-          <h5 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Create New Submission</h5>
+          <h5 class="mb-0"><i class="bi bi-plus-circle me-2"></i>{{ __('Create New Submission') }}</h5>
         </div>
         <div class="card-body">
 

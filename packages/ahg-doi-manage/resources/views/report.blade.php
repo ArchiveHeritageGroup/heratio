@@ -7,7 +7,7 @@
   @if(!($tablesExist ?? false))
     <div class="alert alert-warning">
       <i class="fas fa-exclamation-triangle me-2"></i>
-      The DOI management tables have not been created yet. Please run the database migration to set up DOI management.
+      {{ __('The DOI management tables have not been created yet. Please run the database migration to set up DOI management.') }}
     </div>
   @else
     <div class="multiline-header d-flex align-items-center mb-3">
@@ -88,7 +88,7 @@
         {{-- Monthly Stats --}}
         <div class="card mb-4">
           <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-            <i class="fas fa-calendar me-2"></i>Monthly Minting
+            <i class="fas fa-calendar me-2"></i>{{ __('Monthly Minting') }}
           </div>
           <div class="card-body">
             @if(count($monthlyStats))
@@ -133,7 +133,7 @@
         {{-- By Repository --}}
         <div class="card mb-4">
           <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-            <i class="fas fa-building me-2"></i>DOIs by Repository
+            <i class="fas fa-building me-2"></i>{{ __('DOIs by Repository') }}
           </div>
           <div class="card-body">
             @if(count($byRepository))
@@ -176,7 +176,7 @@
     {{-- Export Options --}}
     <div class="card">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-download me-2"></i>Export Options
+        <i class="fas fa-download me-2"></i>{{ __('Export Options') }}
       </div>
       <div class="card-body">
         <form method="get" action="{{ route('doi.report') }}" class="row g-3">

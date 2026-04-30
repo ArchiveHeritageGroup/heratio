@@ -39,7 +39,7 @@
   @if(count($savedMappings) > 0)
     <div class="card mb-3">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h6 class="mb-0"><i class="fas fa-folder-open"></i> Load Saved Mapping</h6>
+        <h6 class="mb-0"><i class="fas fa-folder-open"></i> {{ __('Load Saved Mapping') }}</h6>
       </div>
       <div class="card-body">
         <div class="d-flex flex-wrap gap-2">
@@ -58,7 +58,7 @@
   {{-- Mapping table --}}
   <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-columns"></i> Column Mapping</h5>
+      <h5 class="mb-0"><i class="fas fa-columns"></i> {{ __('Column Mapping') }}</h5>
       <div class="d-flex gap-2">
         <button type="button" class="btn btn-sm atom-btn-outline-success" id="autoMapBtn" title="{{ __('Auto-map columns by name matching') }}">
           <i class="fas fa-magic"></i> {{ __('Auto Map') }}
@@ -135,7 +135,7 @@
   {{-- Save mapping & action buttons --}}
   <div class="card mb-4">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <h6 class="mb-0"><i class="fas fa-save"></i> Save Mapping &amp; Actions</h6>
+      <h6 class="mb-0"><i class="fas fa-save"></i> {{ __('Save Mapping &amp; Actions') }}</h6>
     </div>
     <div class="card-body">
       <div class="row mb-3">

@@ -86,7 +86,7 @@
     {{-- Marketplace (admin) --}}
     <div class="card mb-3">
       <div class="card-header fw-bold">
-        <i class="fas fa-store me-1"></i> Marketplace
+        <i class="fas fa-store me-1"></i> {{ __('Marketplace') }}
       </div>
       @if($marketplaceListing ?? null)
         <div class="card-body p-2 small">
@@ -135,6 +135,8 @@
   <h1 class="mb-2">
     @if($artwork->work_type)<span class="badge bg-secondary me-1">{{ $artwork->work_type }}</span>@endif
     {{ $artwork->title ?: '[Untitled]' }}
+    {{-- ICIP cultural-sensitivity badge (issue #36 Phase 2b). --}}
+    @include('ahg-translation::components.icip-sensitivity-badge', ['uri' => $artwork->icip_sensitivity ?? null])
   </h1>
 
   @if(!empty($breadcrumbs))

@@ -4,7 +4,7 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li><li class="breadcrumb-item active">Training</li></ol></nav>
 @include('ahg-ai-services::htr._nav')
-<h1><i class="fas fa-graduation-cap me-2"></i>HTR Model Training</h1>
+<h1><i class="fas fa-graduation-cap me-2"></i>{{ __('HTR Model Training') }}</h1>
 
 <div class="card mb-4">
   <div class="card-header" style="background: var(--ahg-primary); color: white;">Annotation Counts</div>
@@ -41,7 +41,7 @@
 @if(isset($status['training_active']) && $status['training_active'])
 <div class="alert alert-info"><i class="fas fa-spinner fa-spin me-2"></i>Training is in progress... <span id="training-progress">{{ $status['training_progress'] ?? '' }}</span></div>
 @else
-<div class="alert alert-secondary"><i class="fas fa-circle me-2"></i>No training running.</div>
+<div class="alert alert-secondary"><i class="fas fa-circle me-2"></i>{{ __('No training running.') }}</div>
 @endif
 </div>
 

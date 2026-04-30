@@ -2,7 +2,7 @@
 @extends('theme::layouts.2col')
 @section('title', 'Valuations Report')
 @section('sidebar')<div class="sidebar-content"><a href="{{ route('ahgspectrum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back') }}</a></div>@endsection
-@section('title-block')<h1><i class="fas fa-dollar-sign me-2"></i>Valuations Report</h1>@endsection
+@section('title-block')<h1><i class="fas fa-dollar-sign me-2"></i>{{ __('Valuations Report') }}</h1>@endsection
 @section('content')
 <div class="alert alert-info"><strong>{{ count($items) }}</strong> valuations found</div>
 <div class="table-responsive"><table class="table table-striped table-hover"><thead class="table-dark"><tr><th>{{ __('Object') }}</th><th>{{ __('Date') }}</th><th>{{ __('Value') }}</th><th>{{ __('Type') }}</th><th>{{ __('Valuator') }}</th></tr></thead><tbody>

@@ -12,7 +12,7 @@
                     <li class="breadcrumb-item active">Peers</li>
                 </ol>
             </nav>
-            <h4 class="mb-0"><i class="bi bi-hdd-network me-2"></i>Federation Peers</h4>
+            <h4 class="mb-0"><i class="bi bi-hdd-network me-2"></i>{{ __('Federation Peers') }}</h4>
         </div>
         <a href="{{ route('federation.addPeer') }}" class="atom-btn-white">
             <i class="bi bi-plus-circle me-1"></i>{{ __('Add Peer') }}

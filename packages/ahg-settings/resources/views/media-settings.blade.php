@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-play-circle me-2"></i>Media Player</h1>
+<h1><i class="fas fa-play-circle me-2"></i>{{ __('Media Player') }}</h1>
 <p class="text-muted">Media player behaviour and display options</p>
 @endsection
 
@@ -31,7 +31,7 @@
 
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-play-circle me-2"></i>Media Player Configuration</h5>
+        <h5 class="mb-0"><i class="fas fa-play-circle me-2"></i>{{ __('Media Player Configuration') }}</h5>
       </div>
       <div class="card-body">
         <div class="row mb-3">

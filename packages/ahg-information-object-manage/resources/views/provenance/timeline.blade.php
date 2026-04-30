@@ -16,7 +16,7 @@
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h4 class="mb-1"><i class="bi bi-bar-chart-steps me-2"></i>Provenance Timeline</h4>
+      <h4 class="mb-1"><i class="bi bi-bar-chart-steps me-2"></i>{{ __('Provenance Timeline') }}</h4>
       <p class="text-muted mb-0">{{ $io->title ?? $io->slug }}</p>
     </div>
     <div>
@@ -36,7 +36,7 @@
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0">
         <i class="bi bi-calendar-range me-2"></i>
-        Visual Timeline
+        {{ __('Visual Timeline') }}
       </h5>
     </div>
     <div class="card-body">
@@ -64,7 +64,7 @@
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0">
         <i class="bi bi-list-ul me-2"></i>
-        Provenance Events
+        {{ __('Provenance Events') }}
       </h5>
       <span class="badge bg-secondary">{{ $events->count() }}</span>
     </div>

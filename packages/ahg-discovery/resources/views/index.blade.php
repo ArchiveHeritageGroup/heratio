@@ -70,7 +70,7 @@
   @if (!empty($popularTopics))
   <div id="discovery-popular" class="mb-4">
     <h5 class="text-muted mb-3">
-      <i class="fas fa-fire-alt me-1"></i> Popular searches
+      <i class="fas fa-fire-alt me-1"></i> {{ __('Popular searches') }}
     </h5>
     <div class="d-flex flex-wrap gap-2">
       @foreach ($popularTopics as $topic)

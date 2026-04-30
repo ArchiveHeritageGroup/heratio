@@ -3,7 +3,7 @@
 @section('content')
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><i class="fas fa-clipboard-check me-2"></i>PII Review Queue</h1>
+        <h1><i class="fas fa-clipboard-check me-2"></i>{{ __('PII Review Queue') }}</h1>
         <a href="{{ route('ahgprivacy.pii-scan') }}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Scanner') }}
         </a>
@@ -130,7 +130,7 @@ $conf = round($entity->confidence * 100);
     <!-- Legend -->
     <div class="card mt-4">
         <div class="card-body">
-            <h6><i class="fas fa-info-circle me-2"></i>Review Actions</h6>
+            <h6><i class="fas fa-info-circle me-2"></i>{{ __('Review Actions') }}</h6>
             <div class="row">
                 <div class="col-md-4">
                     <span class="badge bg-success me-2"><i class="fas fa-check"></i></span>
@@ -151,7 +151,7 @@ $conf = round($entity->confidence * 100);
     <!-- Entity Sources Legend -->
     <div class="card mt-3">
         <div class="card-body">
-            <h6><i class="fas fa-tags me-2"></i>Entity Sources</h6>
+            <h6><i class="fas fa-tags me-2"></i>{{ __('Entity Sources') }}</h6>
             <div class="row">
                 <div class="col-md-6">
                     <p class="mb-2"><strong>{{ __('Extracted Entities (NER/Regex)') }}</strong></p>

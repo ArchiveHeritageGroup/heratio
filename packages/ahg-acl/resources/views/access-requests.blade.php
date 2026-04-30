@@ -14,7 +14,7 @@
   </nav>
 
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-key me-2"></i> Security Access Requests</h2>
+    <h2><i class="fas fa-key me-2"></i> {{ __('Security Access Requests') }}</h2>
     <a href="{{ route('acl.groups') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> {{ __('Back to ACL') }}
     </a>
@@ -190,7 +190,7 @@
        ═══════════════════════════════════════════════════════════════ --}}
   <div class="mt-5">
     <div class="multiline-header d-flex flex-column mb-3">
-      <h3 class="mb-0"><i class="fas fa-history me-2"></i> Access Request History</h3>
+      <h3 class="mb-0"><i class="fas fa-history me-2"></i> {{ __('Access Request History') }}</h3>
       <span class="small text-muted">{{ __('Full audit trail of all access request actions') }}</span>
     </div>
 
@@ -270,7 +270,7 @@
       @if (empty($logs) || $logs->isEmpty())
         <div class="card-body text-center text-muted py-5">
           <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
-          No audit log entries found.
+          {{ __('No audit log entries found.') }}
         </div>
       @else
         <div class="table-responsive">

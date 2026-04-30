@@ -36,7 +36,7 @@
 
       <h1 class="mb-4">
         <i class="fas fa-star text-warning me-2"></i>
-        Super Users
+        {{ __('Super Users') }}
       </h1>
 
       @if(session('notice'))
@@ -60,7 +60,7 @@
             <div class="card-header bg-warning text-dark">
               <h5 class="mb-0">
                 <i class="fas fa-star me-2"></i>
-                Current Super Users
+                {{ __('Current Super Users') }}
               </h5>
             </div>
             <div class="card-body p-0">
@@ -95,7 +95,7 @@
             <div class="card-header bg-primary text-white">
               <h5 class="mb-0">
                 <i class="fas fa-user-plus me-2"></i>
-                Available Users
+                {{ __('Available Users') }}
               </h5>
             </div>
             <div class="card-body p-0">

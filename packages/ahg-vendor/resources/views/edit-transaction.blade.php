@@ -58,7 +58,7 @@
                 {{-- Basic Information --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-info-circle me-2"></i>Transaction Details
+                        <i class="fas fa-info-circle me-2"></i>{{ __('Transaction Details') }}
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -129,7 +129,7 @@
                 {{-- Dates --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-calendar me-2"></i>Dates
+                        <i class="fas fa-calendar me-2"></i>{{ __('Dates') }}
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -155,7 +155,7 @@
                 {{-- Costs --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-dollar-sign me-2"></i>Costs
+                        <i class="fas fa-dollar-sign me-2"></i>{{ __('Costs') }}
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -182,7 +182,7 @@
                 {{-- Notes --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-sticky-note me-2"></i>Notes
+                        <i class="fas fa-sticky-note me-2"></i>{{ __('Notes') }}
                     </div>
                     <div class="card-body">
                         <textarea name="notes" class="form-control" rows="4">{{ e($transaction->notes ?? '') }}</textarea>
@@ -194,7 +194,7 @@
                 {{-- Invoice Details --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-file-invoice-dollar me-2"></i>Invoice Details
+                        <i class="fas fa-file-invoice-dollar me-2"></i>{{ __('Invoice Details') }}
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
@@ -226,7 +226,7 @@
                 {{-- Assignment --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-user me-2"></i>Assignment
+                        <i class="fas fa-user me-2"></i>{{ __('Assignment') }}
                     </div>
                     <div class="card-body">
                         <div class="mb-3">

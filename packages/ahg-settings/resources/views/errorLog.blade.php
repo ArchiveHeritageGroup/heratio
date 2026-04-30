@@ -4,7 +4,7 @@
 @section('body-class', 'admin settings error-log')
 
 @section('content')
-  <h1><i class="fas fa-exclamation-triangle text-danger me-2"></i>System Error Log</h1>
+  <h1><i class="fas fa-exclamation-triangle text-danger me-2"></i>{{ __('System Error Log') }}</h1>
 
   {{-- Stats Row --}}
   <div class="row mb-3">

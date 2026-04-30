@@ -9,7 +9,7 @@
     <li class="breadcrumb-item active">Compartments</li>
   </ol></nav>
 
-  <h1><i class="fas fa-project-diagram"></i> Security Compartments</h1>
+  <h1><i class="fas fa-project-diagram"></i> {{ __('Security Compartments') }}</h1>
 
 <div class="card">
     <div class="card-body table-responsive">

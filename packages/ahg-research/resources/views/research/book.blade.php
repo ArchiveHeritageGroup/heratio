@@ -15,7 +15,7 @@
     </div>
   @endif
 
-  <h1 class="mb-4"><i class="fas fa-calendar-plus me-2"></i>Book Reading Room</h1>
+  <h1 class="mb-4"><i class="fas fa-calendar-plus me-2"></i>{{ __('Book Reading Room') }}</h1>
 
   @if($errors->any())
     <div class="alert alert-danger">
@@ -34,7 +34,7 @@
 
     {{-- Reading Room Selection --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-door-open me-2"></i>Select Reading Room</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-door-open me-2"></i>{{ __('Select Reading Room') }}</div>
       <div class="card-body">
         <div class="row">
           @forelse($rooms ?? [] as $room)
@@ -73,7 +73,7 @@
 
     {{-- Date & Time --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-clock me-2"></i>Date &amp; Time</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-clock me-2"></i>{{ __('Date &amp; Time') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
@@ -94,7 +94,7 @@
 
     {{-- Purpose --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-clipboard me-2"></i>Purpose</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-clipboard me-2"></i>{{ __('Purpose') }}</div>
       <div class="card-body">
         <div class="mb-3">
           <label for="purpose" class="form-label">Purpose of Visit <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
@@ -109,7 +109,7 @@
 
     {{-- Material Requests --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-archive me-2"></i>Material Requests</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-archive me-2"></i>{{ __('Material Requests') }}</div>
       <div class="card-body">
         <p class="text-muted small">Search and select archival materials you would like to have prepared for your visit.</p>
         <select id="material-select" name="materials[]" multiple placeholder="{{ __('Type to search records...') }}"></select>
@@ -131,7 +131,7 @@
     @if($researcher ?? false)
     <div class="card mb-4">
       <div class="card-header small fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-user-graduate me-1"></i> Your Information
+        <i class="fas fa-user-graduate me-1"></i> {{ __('Your Information') }}
       </div>
       <div class="card-body">
         <h6 class="mb-1">{{ e(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) }}</h6>
@@ -145,14 +145,14 @@
     {{-- Information Notice --}}
     <div class="card mb-4">
       <div class="card-header small fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-info-circle me-1"></i> Information
+        <i class="fas fa-info-circle me-1"></i> {{ __('Information') }}
       </div>
       <ul class="list-group list-group-flush small">
-        <li class="list-group-item"><i class="fas fa-check-circle text-warning me-2"></i>Bookings require confirmation</li>
-        <li class="list-group-item"><i class="fas fa-id-card text-primary me-2"></i>Bring valid ID on visit day</li>
-        <li class="list-group-item"><i class="fas fa-clock text-danger me-2"></i>Cancel at least 24h in advance</li>
-        <li class="list-group-item"><i class="fas fa-archive text-success me-2"></i>Request materials in advance for faster service</li>
-        <li class="list-group-item"><i class="fas fa-phone text-info me-2"></i>Contact the reading room for special requirements</li>
+        <li class="list-group-item"><i class="fas fa-check-circle text-warning me-2"></i>{{ __('Bookings require confirmation') }}</li>
+        <li class="list-group-item"><i class="fas fa-id-card text-primary me-2"></i>{{ __('Bring valid ID on visit day') }}</li>
+        <li class="list-group-item"><i class="fas fa-clock text-danger me-2"></i>{{ __('Cancel at least 24h in advance') }}</li>
+        <li class="list-group-item"><i class="fas fa-archive text-success me-2"></i>{{ __('Request materials in advance for faster service') }}</li>
+        <li class="list-group-item"><i class="fas fa-phone text-info me-2"></i>{{ __('Contact the reading room for special requirements') }}</li>
       </ul>
     </div>
   </div>

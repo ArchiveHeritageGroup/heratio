@@ -29,7 +29,7 @@
           <li class="breadcrumb-item active">National Monuments</li>
         </ol>
       </nav>
-      <h1><i class="fas fa-monument me-2"></i>National Monuments</h1>
+      <h1><i class="fas fa-monument me-2"></i>{{ __('National Monuments') }}</h1>
       <p class="text-muted">Protected heritage sites (jurisdiction-specific module)</p>
     </div>
     <div class="col-auto">

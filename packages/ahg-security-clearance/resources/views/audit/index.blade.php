@@ -10,7 +10,7 @@
     <li class="breadcrumb-item active">Full Log</li>
   </ol></nav>
 
-  <h1><i class="fas fa-list"></i> Security Audit Log</h1>
+  <h1><i class="fas fa-list"></i> {{ __('Security Audit Log') }}</h1>
   <p class="text-muted">{{ $total ?? 0 }} total entries</p>
 
   {{-- Filters --}}

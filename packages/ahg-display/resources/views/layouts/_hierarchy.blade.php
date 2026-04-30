@@ -74,6 +74,6 @@ $children = $data['children'] ?? [];
 </div>
 @else
 <div class="alert alert-light">
-    <i class="fas fa-info-circle me-2"></i>No child items
+    <i class="fas fa-info-circle me-2"></i>{{ __('No child items') }}
 </div>
 @endif

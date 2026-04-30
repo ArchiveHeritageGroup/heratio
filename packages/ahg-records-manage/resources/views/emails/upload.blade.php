@@ -9,7 +9,7 @@
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="mb-0"><i class="fas fa-upload me-2"></i> Capture an Email</h1>
+  <h1 class="mb-0"><i class="fas fa-upload me-2"></i> {{ __('Capture an Email') }}</h1>
   <a href="{{ route('records.emails.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to queue') }}</a>
 </div>
 
@@ -33,7 +33,7 @@
   </div>
   <div class="col-md-5">
     <div class="card border-info">
-      <div class="card-header bg-info text-white"><i class="fas fa-info-circle me-1"></i> What happens</div>
+      <div class="card-header bg-info text-white"><i class="fas fa-info-circle me-1"></i> {{ __('What happens') }}</div>
       <div class="card-body small">
         <ol class="mb-0 ps-3">
           <li>EML is parsed (headers + body, multipart text/html, attachment counts).</li>

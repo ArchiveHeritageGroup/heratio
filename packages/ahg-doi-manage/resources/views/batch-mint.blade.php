@@ -8,7 +8,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <h1><i class="fas fa-plus me-2"></i>Batch Mint DOIs</h1>
+            <h1><i class="fas fa-plus me-2"></i>{{ __('Batch Mint DOIs') }}</h1>
             <p class="text-muted">Queue multiple records for DOI minting</p>
         </div>
         <div class="col-auto">

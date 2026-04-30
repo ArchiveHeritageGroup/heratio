@@ -8,7 +8,7 @@
 
 @section('content')
 <div class="container my-4" style="max-width:760px;">
-  <h1 class="h3 mb-3"><i class="fas fa-shield-alt me-2"></i>OCAP® Settings</h1>
+  <h1 class="h3 mb-3"><i class="fas fa-shield-alt me-2"></i>{{ __('OCAP® Settings') }}</h1>
 
   @if(session('success'))
     <div class="alert alert-success">{{ session('success') }}</div>

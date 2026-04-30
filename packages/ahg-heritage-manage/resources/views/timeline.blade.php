@@ -6,7 +6,7 @@
 <div class="heritage-timeline py-4">
   <div class="container">
     @if(!isset($currentPeriod))
-    <div class="row mb-4"><div class="col-12"><h1 class="display-5 fw-bold mb-3"><i class="fas fa-history me-2"></i>Journey Through Time</h1><p class="lead text-muted">Explore our collections by historical period</p></div></div>
+    <div class="row mb-4"><div class="col-12"><h1 class="display-5 fw-bold mb-3"><i class="fas fa-history me-2"></i>{{ __('Journey Through Time') }}</h1><p class="lead text-muted">Explore our collections by historical period</p></div></div>
 
     @if(!empty($periods ?? []))
     <div class="row g-4">
@@ -65,7 +65,7 @@
     </ul></nav>
     @endif
     @else
-    <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>No items found for this period.</div>
+    <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>{{ __('No items found for this period.') }}</div>
     @endif
     @endif
   </div>

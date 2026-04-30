@@ -3,7 +3,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="modal-title" id="tiffPdfMergeModalLabel"><i class="fas fa-file-pdf me-2"></i>TIFF/PDF Merge</h5>
+        <h5 class="modal-title" id="tiffPdfMergeModalLabel"><i class="fas fa-file-pdf me-2"></i>{{ __('TIFF/PDF Merge') }}</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <form method="post" action="{{ Route::has('preservation.tiffpdfmerge.store') ? route('preservation.tiffpdfmerge.store') : '#' }}" enctype="multipart/form-data">

@@ -60,7 +60,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
             {{-- Vendor Details --}}
             <div class="card mb-4">
                 <div class="card-header">
-                    <i class="fas fa-info-circle me-2"></i>Vendor Details
+                    <i class="fas fa-info-circle me-2"></i>{{ __('Vendor Details') }}
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -129,7 +129,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
             {{-- Services --}}
             <div class="card mb-4">
                 <div class="card-header">
-                    <i class="fas fa-tools me-2"></i>Services Provided
+                    <i class="fas fa-tools me-2"></i>{{ __('Services Provided') }}
                 </div>
                 <div class="card-body">
                     @if ($services && (is_array($services) ? count($services) > 0 : $services->count() > 0))
@@ -282,7 +282,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
             {{-- Stats --}}
             <div class="card mb-4">
                 <div class="card-header">
-                    <i class="fas fa-chart-bar me-2"></i>Statistics
+                    <i class="fas fa-chart-bar me-2"></i>{{ __('Statistics') }}
                 </div>
                 <div class="card-body">
                     <div class="row text-center">
@@ -309,7 +309,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
             {{-- Insurance --}}
             <div class="card mb-4">
                 <div class="card-header">
-                    <i class="fas fa-shield-alt me-2"></i>Insurance
+                    <i class="fas fa-shield-alt me-2"></i>{{ __('Insurance') }}
                 </div>
                 <div class="card-body">
                     @if (!empty($vendor->has_insurance))
@@ -344,7 +344,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                         </tr>
                     </table>
                     @else
-                    <p class="text-muted mb-0"><i class="fas fa-exclamation-triangle text-warning me-1"></i>No insurance on file</p>
+                    <p class="text-muted mb-0"><i class="fas fa-exclamation-triangle text-warning me-1"></i>{{ __('No insurance on file') }}</p>
                     @endif
                 </div>
             </div>
@@ -353,7 +353,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
             @if (!empty($vendor->bank_name))
             <div class="card mb-4">
                 <div class="card-header">
-                    <i class="fas fa-university me-2"></i>Banking Details
+                    <i class="fas fa-university me-2"></i>{{ __('Banking Details') }}
                 </div>
                 <div class="card-body">
                     <table class="table table-sm mb-0">
@@ -382,7 +382,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
             @if (!empty($vendor->notes))
             <div class="card mb-4">
                 <div class="card-header">
-                    <i class="fas fa-sticky-note me-2"></i>Notes
+                    <i class="fas fa-sticky-note me-2"></i>{{ __('Notes') }}
                 </div>
                 <div class="card-body">
                     {!! nl2br(e($vendor->notes)) !!}
@@ -393,7 +393,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
             {{-- Meta --}}
             <div class="card">
                 <div class="card-header">
-                    <i class="fas fa-info me-2"></i>Record Info
+                    <i class="fas fa-info me-2"></i>{{ __('Record Info') }}
                 </div>
                 <div class="card-body">
                     <small class="text-muted">

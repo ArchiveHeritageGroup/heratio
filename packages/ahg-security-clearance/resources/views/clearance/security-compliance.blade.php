@@ -9,7 +9,7 @@
     <li class="breadcrumb-item active">Compliance</li>
   </ol></nav>
 
-  <h1><i class="fas fa-clipboard-check"></i> Security Compliance</h1>
+  <h1><i class="fas fa-clipboard-check"></i> {{ __('Security Compliance') }}</h1>
 
   {{-- Compliance Stats --}}
   <div class="row mb-4">

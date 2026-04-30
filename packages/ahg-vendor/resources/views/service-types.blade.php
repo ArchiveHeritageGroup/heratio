@@ -31,7 +31,7 @@
     </nav>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><i class="fas fa-tags me-2"></i>Service Types</h1>
+        <h1><i class="fas fa-tags me-2"></i>{{ __('Service Types') }}</h1>
         <div>
             <a href="{{ route('ahgvendor.index') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}
@@ -44,7 +44,7 @@
 
     <div class="card">
         <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Available Service Types</h5>
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>{{ __('Available Service Types') }}</h5>
         </div>
         <div class="card-body p-0">
             @if (!empty($serviceTypes) && count($serviceTypes) > 0)
@@ -110,7 +110,7 @@
                 @csrf
                 <input type="hidden" name="form_action" value="add">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Add Service Type</h5>
+                    <h5 class="modal-title"><i class="fas fa-plus me-2"></i>{{ __('Add Service Type') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -145,7 +145,7 @@
                 <input type="hidden" name="form_action" value="edit">
                 <input type="hidden" name="id" id="editTypeId">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Service Type</h5>
+                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>{{ __('Edit Service Type') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -180,7 +180,7 @@
                 <input type="hidden" name="form_action" value="delete">
                 <input type="hidden" name="id" id="deleteTypeId">
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Delete Service Type</h5>
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Delete Service Type') }}</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">

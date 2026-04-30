@@ -20,7 +20,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-photo-video me-2"></i>Digital Asset Management Reports</h1>
+<h1><i class="fas fa-photo-video me-2"></i>{{ __('Digital Asset Management Reports') }}</h1>
 @endsection
 
 @php
@@ -46,7 +46,7 @@ if (!function_exists('damFormatBytes')) {
   <div class="row mb-4">
     <div class="col-md-6">
       <div class="card h-100">
-        <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>By File Type</h5></div>
+        <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>{{ __('By File Type') }}</h5></div>
         <ul class="list-group list-group-flush">
           @forelse($stats['byMimeType'] ?? [] as $type)
           <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -61,7 +61,7 @@ if (!function_exists('damFormatBytes')) {
     </div>
     <div class="col-md-6">
       <div class="card h-100">
-        <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Metadata Coverage</h5></div>
+        <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>{{ __('Metadata Coverage') }}</h5></div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item d-flex justify-content-between align-items-center"><span><i class="fas fa-info-circle me-2 text-muted"></i>{{ __('With Extracted Metadata') }}</span><span class="badge bg-success">{{ $stats['withMetadata'] ?? 0 }}</span></li>
           <li class="list-group-item d-flex justify-content-between align-items-center"><span><i class="fas fa-camera me-2 text-muted"></i>{{ __('With IPTC Data') }}</span><span class="badge bg-info">{{ $stats['withIptc'] ?? 0 }}</span></li>

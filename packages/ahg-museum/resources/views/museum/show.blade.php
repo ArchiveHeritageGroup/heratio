@@ -42,7 +42,7 @@
   {{-- Quick search within this collection --}}
   <div class="card mb-3">
     <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-      <i class="fas fa-search me-1"></i> Search within
+      <i class="fas fa-search me-1"></i> {{ __('Search within') }}
     </div>
     <div class="card-body p-2">
       <form action="{{ route('informationobject.browse') }}" method="GET">
@@ -63,7 +63,7 @@
     @if(class_exists(\AhgInformationObjectManage\Controllers\ProvenanceController::class))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-archive me-1"></i> Collections Management
+        <i class="fas fa-archive me-1"></i> {{ __('Collections Management') }}
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('io.provenance', $museum->slug) }}" class="list-group-item list-group-item-action small">
@@ -93,7 +93,7 @@
     @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgPreservationPlugin'))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-shield-alt me-1"></i> Digital Preservation (OAIS)
+        <i class="fas fa-shield-alt me-1"></i> {{ __('Digital Preservation (OAIS)') }}
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('io.preservation', $museum->slug) }}" class="list-group-item list-group-item-action small">
@@ -107,7 +107,7 @@
     @if(class_exists(\AhgInformationObjectManage\Controllers\AiController::class) && \AhgCore\Services\MenuService::isPluginEnabled('ahgAIPlugin'))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-robot me-1"></i> AI Tools
+        <i class="fas fa-robot me-1"></i> {{ __('AI Tools') }}
       </div>
       <div class="list-group list-group-flush">
         <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#describeModal">
@@ -133,7 +133,7 @@
     @if(class_exists(\AhgInformationObjectManage\Controllers\PrivacyController::class) && \AhgCore\Services\MenuService::isPluginEnabled('ahgPrivacyPlugin'))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-user-shield me-1"></i> Privacy & PII
+        <i class="fas fa-user-shield me-1"></i> {{ __('Privacy & PII') }}
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('io.privacy.scan', $museum->id) }}" class="list-group-item list-group-item-action small">
@@ -161,7 +161,7 @@
     @endphp
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
-        <i class="fas fa-copyright me-1"></i> Rights
+        <i class="fas fa-copyright me-1"></i> {{ __('Rights') }}
       </div>
       <div class="card-body py-2">
         @if($hasExtRights)
@@ -192,7 +192,7 @@
     @if(class_exists(\AhgInformationObjectManage\Controllers\ResearchController::class))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-graduation-cap me-1"></i> Research Tools
+        <i class="fas fa-graduation-cap me-1"></i> {{ __('Research Tools') }}
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('io.research.assessment', $museum->slug) }}" class="list-group-item list-group-item-action small">

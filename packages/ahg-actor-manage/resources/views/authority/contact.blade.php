@@ -1,7 +1,7 @@
 @extends('ahg-theme-b5::layout.1col')
 
 @section('title')
-  <h1><i class="fas fa-address-book me-2"></i>Contact Information</h1>
+  <h1><i class="fas fa-address-book me-2"></i>{{ __('Contact Information') }}</h1>
 @endsection
 
 @section('before-content')

@@ -13,7 +13,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1>
         <a href="{{ route('research.workspace') }}" class="btn btn-outline-secondary btn-sm me-2"><i class="fas fa-arrow-left"></i></a>
-        <i class="fas fa-sticky-note text-warning me-2"></i>My Notes & Annotations
+        <i class="fas fa-sticky-note text-warning me-2"></i>{{ __('My Notes & Annotations') }}
     </h1>
     <div class="d-flex gap-2">
         <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#exportNotesModal"><i class="fas fa-file-export me-1"></i>{{ __('Export') }}</button>
@@ -165,7 +165,7 @@
                 <input type="hidden" name="_method" id="annotationMethod" value="POST">
                 <input type="hidden" name="annotation_id" id="annotationId" value="">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="annotationModalTitle"><i class="fas fa-sticky-note me-2"></i>New Note</h5>
+                    <h5 class="modal-title" id="annotationModalTitle"><i class="fas fa-sticky-note me-2"></i>{{ __('New Note') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -194,7 +194,7 @@
 <div class="modal fade" id="exportNotesModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title"><i class="fas fa-file-export me-2"></i>Export Notes</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header"><h5 class="modal-title"><i class="fas fa-file-export me-2"></i>{{ __('Export Notes') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <div class="mb-3">
                     <label class="form-label fw-bold">{{ __('Select Notes to Export') }}</label>

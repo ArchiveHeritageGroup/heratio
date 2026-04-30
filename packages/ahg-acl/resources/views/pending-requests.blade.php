@@ -65,7 +65,7 @@
 
   <div class="card">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Pending Access Requests</h5>
+      <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>{{ __('Pending Access Requests') }}</h5>
     </div>
     <div class="card-body p-0">
       @if($requests->isEmpty())

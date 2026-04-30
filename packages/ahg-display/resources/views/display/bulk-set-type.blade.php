@@ -110,7 +110,7 @@
                 </div>
               @else
                 <div class="alert alert-warning mb-0">
-                  <i class="fas fa-exclamation-triangle me-2"></i>No collection types defined.
+                  <i class="fas fa-exclamation-triangle me-2"></i>{{ __('No collection types defined.') }}
                 </div>
               @endif
               @error('type')
@@ -136,7 +136,7 @@
     <div class="col-md-4">
       <div class="card">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>About Object Types</h5>
+          <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About Object Types') }}</h5>
         </div>
         <div class="card-body">
           <p>Object types determine how records are displayed:</p>

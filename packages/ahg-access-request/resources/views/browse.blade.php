@@ -27,7 +27,7 @@
             @endif
 
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4><i class="fas fa-lock me-2"></i>Access Requests</h4>
+                <h4><i class="fas fa-lock me-2"></i>{{ __('Access Requests') }}</h4>
                 <div>
                     <a href="{{ route('accessRequest.pending') }}" class="atom-btn-white">
                         <i class="fas fa-clock me-1"></i>{{ __('Pending') }}

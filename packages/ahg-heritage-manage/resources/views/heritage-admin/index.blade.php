@@ -7,12 +7,12 @@
   <div class="col-md-3">@include('ahg-heritage-manage::partials._heritage-accounting-menu')</div>
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-cog me-2"></i>Heritage Administration</h1>
+      <h1><i class="fas fa-cog me-2"></i>{{ __('Heritage Administration') }}</h1>
     </div>
     <p class="text-muted">Heritage asset administration panel.</p>
 
     <div class="card">
-      <div class="card-header" ><i class="fas fa-cog me-2"></i>Heritage Administration</div>
+      <div class="card-header" ><i class="fas fa-cog me-2"></i>{{ __('Heritage Administration') }}</div>
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">

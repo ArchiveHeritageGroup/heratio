@@ -28,7 +28,7 @@
           <li class="breadcrumb-item active">Register Monument</li>
         </ol>
       </nav>
-      <h1><i class="fas fa-monument me-2"></i>Register National Monument</h1>
+      <h1><i class="fas fa-monument me-2"></i>{{ __('Register National Monument') }}</h1>
     </div>
   </div>
 

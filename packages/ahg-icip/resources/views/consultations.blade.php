@@ -24,7 +24,7 @@
   </nav>
 
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="bi bi-chat-dots me-2"></i>Consultation Log</h1>
+    <h1><i class="bi bi-chat-dots me-2"></i>{{ __('Consultation Log') }}</h1>
     <a href="{{ route('ahgicip.consultation-edit') }}" class="btn btn-primary">
       <i class="bi bi-plus-circle me-1"></i> {{ __('Log Consultation') }}
     </a>

@@ -5,7 +5,7 @@ $agreements = $agreements ?? [];
 @if(count($provenance) > 0 || count($agreements) > 0)
 <section id="provenance-area" class="card mb-3">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h4 class="mb-0"><i class="fas fa-history me-2"></i>Provenance</h4>
+    <h4 class="mb-0"><i class="fas fa-history me-2"></i>{{ __('Provenance') }}</h4>
   </div>
   <div class="card-body">
 

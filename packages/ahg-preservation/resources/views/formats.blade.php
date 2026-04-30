@@ -10,7 +10,7 @@
     </div>
     <div class="col-md-9">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h1 class="mb-0"><i class="fas fa-file-code"></i> Format Registry</h1>
+            <h1 class="mb-0"><i class="fas fa-file-code"></i> {{ __('Format Registry') }}</h1>
         </div>
         <p class="text-muted mb-3">Known file formats, risk assessment, and preservation actions</p>
 

@@ -12,6 +12,6 @@
         <p class="small text-muted mb-0">{{ $event->description ?? '' }}</p>
       </div></div></div>
     </div>
-    @empty<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>No timeline events.</div>@endforelse
+    @empty<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>{{ __('No timeline events.') }}</div>@endforelse
   </div>
 @endsection

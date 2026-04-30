@@ -9,7 +9,7 @@
 
 @section('title-block')
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0"><i class="fas fa-clock me-2"></i>Cron Jobs</h1>
+    <h1 class="mb-0"><i class="fas fa-clock me-2"></i>{{ __('Cron Jobs') }}</h1>
     <div>
       <form action="{{ route('settings.cron-seed') }}" method="POST" class="d-inline">
         @csrf
@@ -267,7 +267,7 @@
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <a class="text-decoration-none" data-bs-toggle="collapse" href="#cron-reference">
-          <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Cron Syntax Quick Reference</h5>
+          <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Cron Syntax Quick Reference') }}</h5>
         </a>
       </div>
       <div id="cron-reference" class="collapse">
@@ -307,7 +307,7 @@
 
     {{-- System crontab info --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-terminal me-2"></i>System Crontab</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-terminal me-2"></i>{{ __('System Crontab') }}</h5></div>
       <div class="card-body">
         <p class="mb-2">Only one system crontab entry is needed:</p>
         <div class="bg-dark text-light p-3 rounded">

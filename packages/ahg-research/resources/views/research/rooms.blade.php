@@ -7,7 +7,7 @@
         <li class="breadcrumb-item active">Reading Rooms</li>
     </ol>
 </nav>
-<h1><i class="fas fa-door-open me-2"></i>Reading Rooms</h1>
+<h1><i class="fas fa-door-open me-2"></i>{{ __('Reading Rooms') }}</h1>
 @endsection
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -66,7 +66,7 @@
 @else
 <div class="alert alert-info">
     <i class="fas fa-info-circle me-1"></i>
-    No reading rooms configured. Add one to enable researcher bookings.
+    {{ __('No reading rooms configured. Add one to enable researcher bookings.') }}
 </div>
 @endif
 @endsection

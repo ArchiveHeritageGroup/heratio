@@ -21,7 +21,7 @@
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0">
         <i class="fas fa-project-diagram me-2"></i>
-        Semantic Search
+        {{ __('Semantic Search') }}
       </h5>
       <small>{{ __('Search the archives using natural language') }}</small>
     </div>

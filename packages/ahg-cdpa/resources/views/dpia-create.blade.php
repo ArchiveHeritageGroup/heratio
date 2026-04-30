@@ -25,7 +25,7 @@
                     <li class="breadcrumb-item active">New DPIA</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-clipboard-check me-2"></i>New Data Protection Impact Assessment</h1>
+            <h1><i class="fas fa-clipboard-check me-2"></i>{{ __('New Data Protection Impact Assessment') }}</h1>
         </div>
     </div>
 
@@ -90,7 +90,7 @@
 
         <div class="col-lg-4">
             <div class="alert alert-info">
-                <h6><i class="fas fa-info-circle me-1"></i> When is DPIA Required?</h6>
+                <h6><i class="fas fa-info-circle me-1"></i> {{ __('When is DPIA Required?') }}</h6>
                 <ul class="small mb-0">
                     <li>Large-scale processing</li>
                     <li>Systematic monitoring</li>

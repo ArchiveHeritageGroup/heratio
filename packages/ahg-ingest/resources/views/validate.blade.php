@@ -93,7 +93,7 @@
 @if(!empty($validationErrors))
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Issues</h5>
+        <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Issues') }}</h5>
         <span class="badge bg-secondary">{{ count($validationErrors) }} issues</span>
     </div>
     <div class="card-body p-0">
@@ -151,7 +151,7 @@
 </div>
 @else
     <div class="alert alert-success">
-        <i class="fas fa-check-circle me-2"></i>All rows passed validation.
+        <i class="fas fa-check-circle me-2"></i>{{ __('All rows passed validation.') }}
     </div>
 @endif
 

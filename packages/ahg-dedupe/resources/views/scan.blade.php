@@ -72,7 +72,7 @@
     <div class="col-lg-4">
       <div class="card">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>About Scanning</h5>
+          <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About Scanning') }}</h5>
         </div>
         <div class="card-body">
           <p>The duplicate scan will:</p>
@@ -87,7 +87,7 @@
 
       <div class="card mt-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-terminal me-2"></i>CLI Commands</h5>
+          <h5 class="mb-0"><i class="fas fa-terminal me-2"></i>{{ __('CLI Commands') }}</h5>
         </div>
         <div class="card-body">
           <p class="mb-2"><strong>{{ __('Full system scan:') }}</strong></p>

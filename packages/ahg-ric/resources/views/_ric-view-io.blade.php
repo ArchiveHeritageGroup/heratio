@@ -132,7 +132,7 @@
       @if($creators->count())
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-user me-1"></i> Creators and Agents (hasOrHadCreator)
+          <i class="fas fa-user me-1"></i> {{ __('Creators and Agents (hasOrHadCreator)') }}
         </div>
         <div class="list-group list-group-flush">
           @foreach($creators as $creator)
@@ -150,7 +150,7 @@
       @if($relatedRecords->count())
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-link me-1"></i> Related Records (isAssociatedWith)
+          <i class="fas fa-link me-1"></i> {{ __('Related Records (isAssociatedWith)') }}
         </div>
         <div class="list-group list-group-flush">
           @foreach($relatedRecords as $rel)
@@ -169,7 +169,7 @@
       @if($subjects->count())
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-tags me-1"></i> Subjects (hasOrHadSubject)
+          <i class="fas fa-tags me-1"></i> {{ __('Subjects (hasOrHadSubject)') }}
         </div>
         <div class="card-body">
           @foreach($subjects as $subj)
@@ -183,7 +183,7 @@
       @if($places->count())
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-map-marker-alt me-1"></i> Places (isAssociatedWithPlace)
+          <i class="fas fa-map-marker-alt me-1"></i> {{ __('Places (isAssociatedWithPlace)') }}
         </div>
         <div class="card-body">
           @foreach($places as $place)
@@ -213,7 +213,7 @@
       @if($ricProvenanceEntries->isNotEmpty())
         <div class="card mb-3">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <i class="fas fa-history me-1"></i> Provenance &amp; Chain of Custody
+            <i class="fas fa-history me-1"></i> {{ __('Provenance &amp; Chain of Custody') }}
           </div>
           <div class="card-body px-3 py-2">
             @foreach($ricProvenanceEntries as $i => $entry)

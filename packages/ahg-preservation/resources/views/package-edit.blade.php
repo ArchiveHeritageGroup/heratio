@@ -177,7 +177,7 @@
                     @else
                     <div class="text-center text-muted py-3">
                         <i class="fas fa-inbox fa-2x d-block mb-2 opacity-25"></i>
-                        No objects added yet
+                        {{ __('No objects added yet') }}
                     </div>
                     @endif
                 </div>
@@ -190,7 +190,7 @@
             {{-- Package Info --}}
             <div class="card mb-4">
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                    <i class="fas fa-info-circle me-1"></i> Package Info
+                    <i class="fas fa-info-circle me-1"></i> {{ __('Package Info') }}
                 </div>
                 <div class="card-body">
                     <dl class="row mb-0">
@@ -215,7 +215,7 @@
             {{-- Actions --}}
             <div class="card mb-4">
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                    <i class="fas fa-bolt me-1"></i> Actions
+                    <i class="fas fa-bolt me-1"></i> {{ __('Actions') }}
                 </div>
                 <div class="card-body">
                     @if($package->status === 'draft' && ($package->object_count ?? 0) > 0)
@@ -269,7 +269,7 @@
             @if(!empty($package->events) && count($package->events) > 0)
             <div class="card">
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                    <i class="fas fa-history me-1"></i> Recent Events
+                    <i class="fas fa-history me-1"></i> {{ __('Recent Events') }}
                 </div>
                 <ul class="list-group list-group-flush">
                     @foreach(collect($package->events)->take(5) as $event)
@@ -293,16 +293,16 @@
             {{-- Help Card for New Package --}}
             <div class="card">
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                    <i class="fas fa-question-circle me-1"></i> OAIS Package Types
+                    <i class="fas fa-question-circle me-1"></i> {{ __('OAIS Package Types') }}
                 </div>
                 <div class="card-body">
-                    <h6 class="text-info"><i class="fas fa-arrow-circle-right me-1"></i>SIP - Submission</h6>
+                    <h6 class="text-info"><i class="fas fa-arrow-circle-right me-1"></i>{{ __('SIP - Submission') }}</h6>
                     <p class="small text-muted mb-3">Package used to submit content to the archive. Contains the digital objects and metadata.</p>
 
-                    <h6 class="text-success"><i class="fas fa-archive me-1"></i>AIP - Archival</h6>
+                    <h6 class="text-success"><i class="fas fa-archive me-1"></i>{{ __('AIP - Archival') }}</h6>
                     <p class="small text-muted mb-3">Package stored in the archive for long-term preservation. Created from a validated SIP.</p>
 
-                    <h6 class="text-warning"><i class="fas fa-share-square me-1"></i>DIP - Dissemination</h6>
+                    <h6 class="text-warning"><i class="fas fa-share-square me-1"></i>{{ __('DIP - Dissemination') }}</h6>
                     <p class="small text-muted mb-0">Package created for user access. Derived from an AIP with access-optimized formats.</p>
                 </div>
             </div>

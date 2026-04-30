@@ -32,7 +32,7 @@
         </ol>
     </nav>
 
-    <h1 class="h2 mb-4"><i class="fas fa-plus-circle me-2"></i>Add New Vendor</h1>
+    <h1 class="h2 mb-4"><i class="fas fa-plus-circle me-2"></i>{{ __('Add New Vendor') }}</h1>
 
     @if (!empty($formErrors))
     <div class="alert alert-danger">
@@ -51,7 +51,7 @@
                 {{-- Basic Information --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-info-circle me-2"></i>Basic Information
+                        <i class="fas fa-info-circle me-2"></i>{{ __('Basic Information') }}
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -84,7 +84,7 @@
                 {{-- Address --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-map-marker-alt me-2"></i>Address
+                        <i class="fas fa-map-marker-alt me-2"></i>{{ __('Address') }}
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
@@ -115,7 +115,7 @@
                 {{-- Contact --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-phone me-2"></i>Contact Details
+                        <i class="fas fa-phone me-2"></i>{{ __('Contact Details') }}
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -148,7 +148,7 @@
                 {{-- Banking --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-university me-2"></i>Banking Details
+                        <i class="fas fa-university me-2"></i>{{ __('Banking Details') }}
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -179,7 +179,7 @@
                 {{-- Insurance --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-shield-alt me-2"></i>Insurance Details
+                        <i class="fas fa-shield-alt me-2"></i>{{ __('Insurance Details') }}
                     </div>
                     <div class="card-body">
                         <div class="form-check mb-3">
@@ -210,7 +210,7 @@
                 {{-- Services --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-tools me-2"></i>Services Offered
+                        <i class="fas fa-tools me-2"></i>{{ __('Services Offered') }}
                     </div>
                     <div class="card-body">
                         <p class="text-muted small">Select services this vendor provides:</p>
@@ -226,7 +226,7 @@
                 {{-- Notes --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <i class="fas fa-sticky-note me-2"></i>Notes
+                        <i class="fas fa-sticky-note me-2"></i>{{ __('Notes') }}
                     </div>
                     <div class="card-body">
                         <textarea name="notes" class="form-control" rows="5" placeholder="{{ __('Internal notes about this vendor...') }}">{{ e($form['notes'] ?? '') }}</textarea>

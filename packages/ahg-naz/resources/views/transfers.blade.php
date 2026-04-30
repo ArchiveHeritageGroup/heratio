@@ -19,7 +19,7 @@
                     <li class="breadcrumb-item active">Records Transfers</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-truck me-2"></i>Records Transfers</h1>
+            <h1><i class="fas fa-truck me-2"></i>{{ __('Records Transfers') }}</h1>
             <p class="text-muted">Transfers of records to the National Archives of Zimbabwe</p>
         </div>
         <div class="col-auto">

@@ -24,7 +24,7 @@
     </ol>
   </nav>
 
-  <h1 class="mb-4"><i class="bi bi-file-earmark-check me-2"></i>Manage Consent</h1>
+  <h1 class="mb-4"><i class="bi bi-file-earmark-check me-2"></i>{{ __('Manage Consent') }}</h1>
 
   @if(session('notice'))
     <div class="alert alert-success alert-dismissible fade show">

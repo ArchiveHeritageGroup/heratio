@@ -25,7 +25,7 @@
                     <li class="breadcrumb-item active">New Permit</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-id-card me-2"></i>Issue Research Permit</h1>
+            <h1><i class="fas fa-id-card me-2"></i>{{ __('Issue Research Permit') }}</h1>
         </div>
     </div>
 
@@ -117,7 +117,7 @@
 
         <div class="col-lg-4">
             <div class="alert alert-info">
-                <h6><i class="fas fa-info-circle"></i> Permit Fees</h6>
+                <h6><i class="fas fa-info-circle"></i> {{ __('Permit Fees') }}</h6>
                 <ul class="small mb-0">
                     <li>Foreign researchers: US$200</li>
                     <li>Local researchers: Free</li>

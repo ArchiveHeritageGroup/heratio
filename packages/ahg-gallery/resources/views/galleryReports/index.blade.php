@@ -23,7 +23,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-paint-brush me-2"></i>Gallery Reports Dashboard</h1>
+<h1><i class="fas fa-paint-brush me-2"></i>{{ __('Gallery Reports Dashboard') }}</h1>
 @endsection
 
 @section('content')
@@ -33,7 +33,7 @@
     <div class="col-12">
       <div class="card">
         <div class="card-header bg-primary text-white">
-          <h5 class="mb-0"><i class="fas fa-images me-2"></i>Exhibitions</h5>
+          <h5 class="mb-0"><i class="fas fa-images me-2"></i>{{ __('Exhibitions') }}</h5>
         </div>
         <div class="card-body">
           <div class="row text-center">
@@ -67,7 +67,7 @@
     <div class="col-md-6">
       <div class="card h-100">
         <div class="card-header bg-success text-white">
-          <h5 class="mb-0"><i class="fas fa-palette me-2"></i>Artists</h5>
+          <h5 class="mb-0"><i class="fas fa-palette me-2"></i>{{ __('Artists') }}</h5>
         </div>
         <div class="card-body">
           <div class="row text-center">
@@ -90,7 +90,7 @@
     <div class="col-md-6">
       <div class="card h-100">
         <div class="card-header bg-info text-white">
-          <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Loans</h5>
+          <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>{{ __('Loans') }}</h5>
         </div>
         <div class="card-body">
           <div class="row text-center">
@@ -129,7 +129,7 @@
     <div class="col-12">
       <div class="card">
         <div class="card-header bg-warning text-dark">
-          <h5 class="mb-0"><i class="fas fa-coins me-2"></i>Valuations</h5>
+          <h5 class="mb-0"><i class="fas fa-coins me-2"></i>{{ __('Valuations') }}</h5>
         </div>
         <div class="card-body">
           <div class="row text-center">

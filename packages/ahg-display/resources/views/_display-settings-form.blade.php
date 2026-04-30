@@ -263,7 +263,7 @@ $moduleLabels = [
             <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="bi bi-clock-history me-2"></i>
-                    Display Settings Change Log
+                    {{ __('Display Settings Change Log') }}
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>

@@ -10,7 +10,7 @@
   </ol>
 </nav>
 @include('ahg-ai-services::htr._nav')
-<h1><i class="fas fa-database me-2"></i>Training Data Sources</h1>
+<h1><i class="fas fa-database me-2"></i>{{ __('Training Data Sources') }}</h1>
 
 {{-- Training Stats Summary --}}
 <div class="row mb-4">
@@ -34,12 +34,12 @@
 {{-- FamilySearch Credentials --}}
 <div class="card mb-4">
   <div class="card-header" style="background: var(--ahg-primary); color: white;">
-    <i class="fas fa-key me-2"></i>FamilySearch API Configuration
+    <i class="fas fa-key me-2"></i>{{ __('FamilySearch API Configuration') }}
   </div>
   <div class="card-body">
     @if($fsConfigured)
       <div class="alert alert-success mb-0">
-        <i class="fas fa-check-circle me-2"></i>FamilySearch API credentials are configured.
+        <i class="fas fa-check-circle me-2"></i>{{ __('FamilySearch API credentials are configured.') }}
       </div>
     @else
       <div class="alert alert-warning mb-3">
@@ -71,7 +71,7 @@
 {{-- FamilySearch Collections --}}
 <div class="card mb-4">
   <div class="card-header" style="background: var(--ahg-primary); color: white;">
-    <i class="fas fa-tree me-2"></i>FamilySearch Collections — SA Vital Records
+    <i class="fas fa-tree me-2"></i>{{ __('FamilySearch Collections — SA Vital Records') }}
   </div>
   <div class="card-body p-0">
     <table class="table table-hover mb-0">
@@ -125,7 +125,7 @@
 {{-- Internet Archive Collections --}}
 <div class="card mb-4">
   <div class="card-header" style="background: var(--ahg-primary); color: white;">
-    <i class="fas fa-archive me-2"></i>Internet Archive Collections
+    <i class="fas fa-archive me-2"></i>{{ __('Internet Archive Collections') }}
   </div>
   <div class="card-body p-0">
     <table class="table table-hover mb-0">
@@ -167,7 +167,7 @@
 {{-- Active Download Jobs --}}
 <div class="card mb-4" id="jobs-card" @if(empty($jobs)) style="display:none;" @endif>
   <div class="card-header" style="background: var(--ahg-primary); color: white;">
-    <i class="fas fa-tasks me-2"></i>Download Jobs
+    <i class="fas fa-tasks me-2"></i>{{ __('Download Jobs') }}
   </div>
   <div class="card-body p-0">
     <table class="table table-hover mb-0" id="jobs-table">

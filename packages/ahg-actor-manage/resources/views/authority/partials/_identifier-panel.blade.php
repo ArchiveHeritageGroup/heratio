@@ -13,7 +13,7 @@ if (empty($identifiers)) return;
 
 <div class="card mb-3 authority-identifier-panel">
   <div class="card-header py-2" style="background: var(--ahg-primary); color: #fff;">
-    <i class="fas fa-link me-1"></i>External Identifiers
+    <i class="fas fa-link me-1"></i>{{ __('External Identifiers') }}
   </div>
   <div class="card-body py-2">
     @foreach ($identifiers as $ident)

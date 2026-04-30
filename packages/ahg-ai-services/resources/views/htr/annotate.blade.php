@@ -12,7 +12,7 @@
 @include('ahg-ai-services::htr._nav')
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="mb-0"><i class="fas fa-pen-square me-2"></i>ILM Annotate</h1>
+  <h1 class="mb-0"><i class="fas fa-pen-square me-2"></i>{{ __('ILM Annotate') }}</h1>
   <div class="d-flex gap-2">
     <a href="{{ route('admin.ai.htr.sources') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-database me-1"></i>{{ __('Sources') }}</a>
     <a href="{{ route('admin.ai.htr.bulkAnnotate') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-magic me-1"></i>{{ __('Bulk Annotate') }}</a>
@@ -155,7 +155,7 @@
     {{-- Document-level: Record Type --}}
     <div class="card mb-3" id="rectype-card">
       <div class="card-header py-2" style="background: var(--ahg-primary); color: white;">
-        <i class="fas fa-file-alt me-1"></i>Record Type (document level)
+        <i class="fas fa-file-alt me-1"></i>{{ __('Record Type (document level)') }}
       </div>
       <div class="card-body py-2">
         <select id="record-type" class="form-select form-select-sm">
@@ -180,7 +180,7 @@
       <div class="card-body p-0" id="ann-panel" style="max-height:40vh; overflow-y:auto;">
         <div class="text-center text-muted py-3" id="no-ann">
           <i class="fas fa-draw-polygon d-block mb-2"></i>
-          Draw a box around the event year, then event place
+          {{ __('Draw a box around the event year, then event place') }}
         </div>
       </div>
     </div>
@@ -188,7 +188,7 @@
     {{-- Quick place --}}
     <div class="card mb-3">
       <div class="card-header py-2" style="background: var(--ahg-primary); color: white;">
-        <i class="fas fa-map-marker-alt me-1"></i>Quick Place
+        <i class="fas fa-map-marker-alt me-1"></i>{{ __('Quick Place') }}
       </div>
       <div class="card-body p-2" id="quick-place"></div>
     </div>
@@ -196,7 +196,7 @@
     {{-- Session --}}
     <div class="card mb-3">
       <div class="card-header py-2" style="background: var(--ahg-primary); color: white;">
-        <i class="fas fa-chart-bar me-1"></i>Session
+        <i class="fas fa-chart-bar me-1"></i>{{ __('Session') }}
       </div>
       <div class="card-body py-2">
         <div class="d-flex gap-3 small">
@@ -210,7 +210,7 @@
     {{-- How to annotate --}}
     <div class="card">
       <div class="card-header py-2" style="background: var(--ahg-primary); color: white;">
-        <i class="fas fa-question-circle me-1"></i>How to Annotate
+        <i class="fas fa-question-circle me-1"></i>{{ __('How to Annotate') }}
       </div>
       <div class="card-body py-2 small">
         <div class="fw-bold mb-1">Type A — Single Form (Death Cert):</div>

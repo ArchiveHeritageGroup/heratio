@@ -12,7 +12,7 @@
                     <li class="breadcrumb-item active">Harvest Logs</li>
                 </ol>
             </nav>
-            <h4 class="mb-0"><i class="bi bi-journal-text me-2"></i>Harvest Logs</h4>
+            <h4 class="mb-0"><i class="bi bi-journal-text me-2"></i>{{ __('Harvest Logs') }}</h4>
         </div>
     </div>
 

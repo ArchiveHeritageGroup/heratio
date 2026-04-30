@@ -14,7 +14,7 @@
   @if($orphanWork)
   <div class="card mb-4">
     <div class="card-header bg-info text-white">
-      <h5 class="mb-0"><i class="fas fa-search me-2"></i>Orphan Work Status</h5>
+      <h5 class="mb-0"><i class="fas fa-search me-2"></i>{{ __('Orphan Work Status') }}</h5>
     </div>
     <div class="card-body">
       <dl class="row mb-0">

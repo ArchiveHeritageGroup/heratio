@@ -6,7 +6,7 @@
 <div class="row">
   <div class="col-md-3">@include('ahg-preservation::_menu')</div>
   <div class="col-md-9">
-    <h1><i class="fas fa-fingerprint me-2"></i>Format Identification</h1>
+    <h1><i class="fas fa-fingerprint me-2"></i>{{ __('Format Identification') }}</h1>
     <p class="text-muted">Identify file formats using PRONOM registry and DROID/Siegfried.</p>
 
     {{-- Siegfried Status --}}
@@ -18,7 +18,7 @@
         <div class="card-header {{ $siegfriedAvailable ? 'bg-success' : 'bg-danger' }} text-white">
             <h5 class="mb-0">
                 <i class="fas {{ $siegfriedAvailable ? 'fa-check-circle' : 'fa-times-circle' }}"></i>
-                Siegfried - PRONOM Format Identification
+                {{ __('Siegfried - PRONOM Format Identification') }}
             </h5>
         </div>
         <div class="card-body">
@@ -60,7 +60,7 @@
         <div class="col-md-4 mb-4">
             <div class="card h-100">
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                    <h6 class="mb-0"><i class="fas fa-chart-pie me-1"></i> By Confidence</h6>
+                    <h6 class="mb-0"><i class="fas fa-chart-pie me-1"></i> {{ __('By Confidence') }}</h6>
                 </div>
                 <div class="card-body">
                     @php $byConfidence = $byConfidence ?? []; @endphp
@@ -90,7 +90,7 @@
         <div class="col-md-4 mb-4">
             <div class="card h-100">
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                    <h6 class="mb-0"><i class="fas fa-shield-alt me-1"></i> Registry by Risk</h6>
+                    <h6 class="mb-0"><i class="fas fa-shield-alt me-1"></i> {{ __('Registry by Risk') }}</h6>
                 </div>
                 <div class="card-body">
                     @php $formatsByRisk = $formatsByRisk ?? []; @endphp
@@ -120,7 +120,7 @@
         <div class="col-md-4 mb-4">
             <div class="card h-100">
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                    <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-1"></i> With Warnings</h6>
+                    <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-1"></i> {{ __('With Warnings') }}</h6>
                 </div>
                 <div class="card-body">
                     @php $withWarnings = $withWarnings ?? 0; @endphp
@@ -151,7 +151,7 @@
     {{-- Top 10 Identified Formats --}}
     <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h6 class="mb-0"><i class="fas fa-list-ol me-1"></i> Top 10 Identified Formats</h6>
+            <h6 class="mb-0"><i class="fas fa-list-ol me-1"></i> {{ __('Top 10 Identified Formats') }}</h6>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -206,7 +206,7 @@
 
     {{-- Recent Identifications --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-list me-2"></i>Recent Identifications</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-list me-2"></i>{{ __('Recent Identifications') }}</div>
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">
@@ -260,7 +260,7 @@
     {{-- CLI Commands --}}
     <div class="card border-info">
         <div class="card-header bg-info text-white">
-            <h6 class="mb-0"><i class="fas fa-terminal me-1"></i> CLI Commands</h6>
+            <h6 class="mb-0"><i class="fas fa-terminal me-1"></i> {{ __('CLI Commands') }}</h6>
         </div>
         <div class="card-body">
             <div class="row">

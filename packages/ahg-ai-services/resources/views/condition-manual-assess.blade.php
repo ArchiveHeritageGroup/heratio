@@ -12,7 +12,7 @@
   <div class="sidebar-content">
     <div class="card mb-3">
       <div class="card-header bg-primary text-white py-2">
-        <h6 class="mb-0"><i class="fas fa-clipboard-check me-1"></i>Manual Assessment</h6>
+        <h6 class="mb-0"><i class="fas fa-clipboard-check me-1"></i>{{ __('Manual Assessment') }}</h6>
       </div>
       <div class="card-body py-2 small">
         <p class="text-muted mb-2">Record a condition assessment manually without AI. Fill in the condition grade, damages, and recommendations based on physical inspection.</p>
@@ -25,7 +25,7 @@
 @endsection
 
 @section('title-block')
-  <h1 class="h3 mb-0"><i class="fas fa-clipboard-check me-2"></i>Manual Condition Assessment</h1>
+  <h1 class="h3 mb-0"><i class="fas fa-clipboard-check me-2"></i>{{ __('Manual Condition Assessment') }}</h1>
   <p class="text-muted small mb-3">Record a manual condition assessment without AI</p>
 @endsection
 

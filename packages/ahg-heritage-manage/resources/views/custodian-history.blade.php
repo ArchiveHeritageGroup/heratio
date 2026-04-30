@@ -22,7 +22,7 @@ $total = $historyData['total'] ?? 0;
     </div>
   </div>
   <div class="col-md-9">
-    <h1><i class="fas fa-history me-2"></i>Audit Trail</h1>
+    <h1><i class="fas fa-history me-2"></i>{{ __('Audit Trail') }}</h1>
 
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-body">

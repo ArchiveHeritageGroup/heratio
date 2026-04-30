@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-archive me-2"></i>Spectrum / Collections</h1>
+<h1><i class="fas fa-archive me-2"></i>{{ __('Spectrum / Collections') }}</h1>
 <p class="text-muted">Spectrum collections management procedures</p>
 @endsection
 
@@ -31,7 +31,7 @@
 
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-archive me-2"></i>Collections Management</h5>
+        <h5 class="mb-0"><i class="fas fa-archive me-2"></i>{{ __('Collections Management') }}</h5>
       </div>
       <div class="card-body">
         <div class="row mb-3">

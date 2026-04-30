@@ -40,7 +40,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <h1><i class="fas fa-monument me-2"></i>NMMZ Compliance Dashboard</h1>
+            <h1><i class="fas fa-monument me-2"></i>{{ __('NMMZ Compliance Dashboard') }}</h1>
             <p class="text-muted">National Museums and Monuments of Zimbabwe Act [Chapter 25:11]</p>
         </div>
         <div class="col-auto">
@@ -120,7 +120,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-link me-2"></i>Quick Actions</h5>
+                    <h5 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Quick Actions') }}</h5>
                 </div>
                 <div class="list-group list-group-flush">
                     <a href="{{ route('nmmz.monuments') }}" class="list-group-item list-group-item-action">
@@ -154,7 +154,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-monument me-2"></i>Recent Monuments</h5>
+                    <h5 class="mb-0"><i class="fas fa-monument me-2"></i>{{ __('Recent Monuments') }}</h5>
                     <a href="{{ route('nmmz.monument.create') }}" class="btn btn-sm btn-primary">
                         <i class="fas fa-plus"></i>
                     </a>
@@ -182,7 +182,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-file-export me-2"></i>Pending Permits</h5>
+                    <h5 class="mb-0"><i class="fas fa-file-export me-2"></i>{{ __('Pending Permits') }}</h5>
                     <a href="{{ route('nmmz.permit.create') }}" class="btn btn-sm btn-primary">
                         <i class="fas fa-plus"></i>
                     </a>
@@ -190,7 +190,7 @@
                 <div class="card-body p-0">
                     @if(empty($pendingPermits) || (is_object($pendingPermits) && method_exists($pendingPermits, 'isEmpty') && $pendingPermits->isEmpty()))
                         <div class="p-3 text-center text-success">
-                            <i class="fas fa-check-circle"></i> No pending permits
+                            <i class="fas fa-check-circle"></i> {{ __('No pending permits') }}
                         </div>
                     @else
                         <ul class="list-group list-group-flush">
@@ -220,7 +220,7 @@
             <div class="col-12">
                 <div class="card border-warning">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>Compliance Issues</h5>
+                        <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>{{ __('Compliance Issues') }}</h5>
                     </div>
                     <div class="card-body">
                         @if(!empty($compliance['issues']))

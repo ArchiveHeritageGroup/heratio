@@ -10,13 +10,13 @@
     </div>
     <div class="col-md-9">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h1 class="mb-0"><i class="fas fa-database"></i> Backup & Replication</h1>
+            <h1 class="mb-0"><i class="fas fa-database"></i> {{ __('Backup & Replication') }}</h1>
         </div>
         <p class="text-muted mb-3">Replication targets, sync logs, and backup verifications</p>
 
         {{-- Replication Targets --}}
         <div class="card mb-4">
-            <div class="card-header"><i class="fas fa-server"></i> Replication Targets</div>
+            <div class="card-header"><i class="fas fa-server"></i> {{ __('Replication Targets') }}</div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-sm table-striped mb-0">
@@ -75,7 +75,7 @@
 
         {{-- Recent Replication Logs --}}
         <div class="card mb-4">
-            <div class="card-header"><i class="fas fa-sync-alt"></i> Recent Replication Logs</div>
+            <div class="card-header"><i class="fas fa-sync-alt"></i> {{ __('Recent Replication Logs') }}</div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-sm table-striped mb-0">
@@ -141,7 +141,7 @@
 
         {{-- Backup Verifications --}}
         <div class="card mb-4">
-            <div class="card-header"><i class="fas fa-check-square"></i> Recent Backup Verifications</div>
+            <div class="card-header"><i class="fas fa-check-square"></i> {{ __('Recent Backup Verifications') }}</div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-sm table-striped mb-0">

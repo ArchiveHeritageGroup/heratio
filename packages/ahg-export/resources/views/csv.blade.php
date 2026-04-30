@@ -14,7 +14,7 @@
 
             <div class="alert alert-info">
                 <i class="bi bi-info-circle me-2"></i>
-                Export archival descriptions in CSV format compatible with AtoM import.
+                {{ __('Export archival descriptions in CSV format compatible with AtoM import.') }}
             </div>
 
             <form action="{{ route('export.csv') }}" method="post">

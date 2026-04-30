@@ -13,7 +13,7 @@
     {{-- Hero Search --}}
     <div class="card bg-light mb-4">
       <div class="card-body text-center py-5">
-        <h1 class="mb-3"><i class="fas fa-question-circle me-2"></i>Help Center</h1>
+        <h1 class="mb-3"><i class="fas fa-question-circle me-2"></i>{{ __('Help Center') }}</h1>
         <p class="lead mb-4">Search the documentation or browse by category</p>
         <div class="row justify-content-center">
           <div class="col-lg-8 col-md-10">
@@ -31,7 +31,7 @@
       <div class="card-body">
         <div class="row align-items-center">
           <div class="col-md-8">
-            <h5 class="card-title mb-1"><i class="fas fa-book me-2"></i>Documentation Portal</h5>
+            <h5 class="card-title mb-1"><i class="fas fa-book me-2"></i>{{ __('Documentation Portal') }}</h5>
             <p class="card-text text-muted mb-0">Full user guides, technical reference, plugin documentation, and API reference.</p>
           </div>
           <div class="col-md-4 text-md-end mt-2 mt-md-0">

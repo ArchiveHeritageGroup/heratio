@@ -19,7 +19,7 @@
                     <li class="breadcrumb-item active">Data Subject Requests</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-user-clock me-2"></i>Data Subject Requests</h1>
+            <h1><i class="fas fa-user-clock me-2"></i>{{ __('Data Subject Requests') }}</h1>
             <p class="text-muted">Statutory response deadline per CDPA requirements</p>
         </div>
         <div class="col-auto">

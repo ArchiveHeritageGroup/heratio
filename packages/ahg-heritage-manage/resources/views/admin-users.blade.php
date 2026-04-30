@@ -13,7 +13,7 @@ $pages = $userData['pages'] ?? 1;
 <div class="row">
   <div class="col-md-3">@include('ahg-heritage-manage::partials._admin-sidebar')</div>
   <div class="col-md-9">
-    <h1><i class="fas fa-users me-2"></i>User Management</h1>
+    <h1><i class="fas fa-users me-2"></i>{{ __('User Management') }}</h1>
 
     <!-- Search -->
     <div class="card border-0 shadow-sm mb-4">

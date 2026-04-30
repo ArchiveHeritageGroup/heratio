@@ -33,7 +33,7 @@
   </nav>
 
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0"><i class="fas fa-clipboard-check me-2"></i>Condition Report</h1>
+    <h1 class="h3 mb-0"><i class="fas fa-clipboard-check me-2"></i>{{ __('Condition Report') }}</h1>
     <a href="{{ route('io.condition', $io->slug) }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}
     </a>
@@ -42,7 +42,7 @@
   {{-- Report Summary --}}
   <div class="card mb-4">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <i class="fas fa-star me-1"></i> Report Summary
+      <i class="fas fa-star me-1"></i> {{ __('Report Summary') }}
     </div>
     <div class="card-body">
       <div class="row g-3">
@@ -80,7 +80,7 @@
   @if($report->summary || $report->recommendations || $report->environmental_notes || $report->handling_notes || $report->display_notes || $report->storage_notes)
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-sticky-note me-1"></i> Notes
+        <i class="fas fa-sticky-note me-1"></i> {{ __('Notes') }}
       </div>
       <div class="card-body">
         @if($report->summary)
@@ -144,7 +144,7 @@
   {{-- Photos --}}
   <div class="card mb-4" id="photos">
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-images me-2"></i>Photos</h5>
+      <h5 class="mb-0"><i class="fas fa-images me-2"></i>{{ __('Photos') }}</h5>
       <span class="badge bg-light text-dark">{{ $photos->count() }}</span>
     </div>
     <div class="card-body">
@@ -152,7 +152,7 @@
       {{-- Upload form --}}
       @auth
         <div class="border rounded p-3 mb-4 bg-light">
-          <h6><i class="fas fa-upload me-1"></i>Upload Photo</h6>
+          <h6><i class="fas fa-upload me-1"></i>{{ __('Upload Photo') }}</h6>
           <form method="POST" action="{{ route('io.condition.photo.upload', $report->id) }}" enctype="multipart/form-data">
             @csrf
             <div class="row g-2 align-items-end">
@@ -257,7 +257,7 @@
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-draw-polygon me-2"></i>Annotate Photo</h5>
+        <h5 class="modal-title"><i class="fas fa-draw-polygon me-2"></i>{{ __('Annotate Photo') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-0">
@@ -278,7 +278,7 @@
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header bg-success text-white">
-        <h5 class="modal-title"><i class="fas fa-robot me-2"></i>AI Condition Scan</h5>
+        <h5 class="modal-title"><i class="fas fa-robot me-2"></i>{{ __('AI Condition Scan') }}</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">

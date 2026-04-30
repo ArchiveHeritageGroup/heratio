@@ -6,7 +6,7 @@
 <div class="container-fluid mt-3">
   @include('ahg-extended-rights::admin._sidebar')
 
-  <h1><i class="fas fa-search"></i> Browse Rights</h1>
+  <h1><i class="fas fa-search"></i> {{ __('Browse Rights') }}</h1>
 
   {{-- Filters --}}
   <div class="card mb-4">

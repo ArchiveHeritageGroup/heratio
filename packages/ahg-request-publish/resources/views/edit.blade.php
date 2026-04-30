@@ -33,7 +33,7 @@
         <div class="card shadow-sm mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="card-title mb-0">
-              <i class="fas fa-info-circle me-2"></i>Request Information
+              <i class="fas fa-info-circle me-2"></i>{{ __('Request Information') }}
             </h5>
           </div>
           <div class="card-body">
@@ -83,7 +83,7 @@
         <div class="card shadow-sm mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="card-title mb-0">
-              <i class="fas fa-file-alt me-2"></i>Requested Item
+              <i class="fas fa-file-alt me-2"></i>{{ __('Requested Item') }}
             </h5>
           </div>
           <div class="card-body">
@@ -116,7 +116,7 @@
         <div class="card shadow-sm mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="card-title mb-0">
-              <i class="fas fa-clipboard-list me-2"></i>Request Details
+              <i class="fas fa-clipboard-list me-2"></i>{{ __('Request Details') }}
             </h5>
           </div>
           <div class="card-body">
@@ -147,7 +147,7 @@
         <div class="card shadow-sm mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="card-title mb-0">
-              <i class="fas fa-reply me-2"></i>Admin Response
+              <i class="fas fa-reply me-2"></i>{{ __('Admin Response') }}
             </h5>
           </div>
           <div class="card-body">
@@ -165,7 +165,7 @@
         <div class="card shadow-sm mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="card-title mb-0">
-              <i class="fas fa-flag me-2"></i>Status
+              <i class="fas fa-flag me-2"></i>{{ __('Status') }}
             </h5>
           </div>
           <div class="card-body">
@@ -199,7 +199,7 @@
         <div class="card shadow-sm mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="card-title mb-0">
-              <i class="fas fa-cogs me-2"></i>Actions
+              <i class="fas fa-cogs me-2"></i>{{ __('Actions') }}
             </h5>
           </div>
           <div class="card-body">
@@ -218,7 +218,7 @@
         <div class="card shadow-sm">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="card-title mb-0">
-              <i class="fas fa-history me-2"></i>Timeline
+              <i class="fas fa-history me-2"></i>{{ __('Timeline') }}
             </h5>
           </div>
           <div class="card-body">

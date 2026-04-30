@@ -7,7 +7,7 @@
   <div class="col-md-3">
     @include('ahg-reports::_menu')
     <div class="card mb-3">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-filter me-2"></i>Filters</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-filter me-2"></i>{{ __('Filters') }}</div>
       <div class="card-body">
         <form method="get" action="{{ route('reports.activity') }}">
           <div class="mb-3">
@@ -51,7 +51,7 @@
   </div>
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-history me-2"></i>User Activity</h1>
+      <h1><i class="fas fa-history me-2"></i>{{ __('User Activity') }}</h1>
       <span class="badge bg-primary fs-6">{{ number_format($total) }} results</span>
     </div>
     @if(!$auditTable)

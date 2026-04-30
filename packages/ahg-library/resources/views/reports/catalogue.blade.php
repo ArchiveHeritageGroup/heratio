@@ -23,7 +23,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-book me-2"></i>Catalogue Report</h1>
+<h1><i class="fas fa-book me-2"></i>{{ __('Catalogue Report') }}</h1>
 @endsection
 
 @section('content')

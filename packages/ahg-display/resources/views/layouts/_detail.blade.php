@@ -42,7 +42,7 @@ $colContent = $colImage > 0 && $colImage < 12 ? 12 - $colImage : 12;
         @if(!empty($fields['description']))
         <section class="field-section description-section mb-4">
             <h5 class="section-title border-bottom pb-2 mb-3">
-                <i class="fas fa-align-left text-muted me-2"></i>Description
+                <i class="fas fa-align-left text-muted me-2"></i>{{ __('Description') }}
             </h5>
             @foreach($fields['description'] as $field)
             <div class="field-block mb-3">
@@ -57,7 +57,7 @@ $colContent = $colImage > 0 && $colImage < 12 ? 12 - $colImage : 12;
         @if(!empty($fields['context']))
         <section class="field-section context-section mb-4">
             <h5 class="section-title border-bottom pb-2 mb-3">
-                <i class="fas fa-history text-muted me-2"></i>Context
+                <i class="fas fa-history text-muted me-2"></i>{{ __('Context') }}
             </h5>
             @foreach($fields['context'] as $field)
             <div class="field-block mb-3">
@@ -72,7 +72,7 @@ $colContent = $colImage > 0 && $colImage < 12 ? 12 - $colImage : 12;
         @if(!empty($fields['access']))
         <section class="field-section access-section mb-4">
             <h5 class="section-title border-bottom pb-2 mb-3">
-                <i class="fas fa-lock-open text-muted me-2"></i>Access & Use
+                <i class="fas fa-lock-open text-muted me-2"></i>{{ __('Access & Use') }}
             </h5>
             @foreach($fields['access'] as $field)
             <div class="field-block mb-3">
@@ -87,7 +87,7 @@ $colContent = $colImage > 0 && $colImage < 12 ? 12 - $colImage : 12;
         @if(!empty($fields['technical']))
         <section class="field-section technical-section mb-4">
             <h5 class="section-title border-bottom pb-2 mb-3">
-                <i class="fas fa-cog text-muted me-2"></i>Technical Details
+                <i class="fas fa-cog text-muted me-2"></i>{{ __('Technical Details') }}
             </h5>
             <dl class="row mb-0">
                 @foreach($fields['technical'] as $field)

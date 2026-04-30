@@ -83,7 +83,7 @@
   <div class="col-md-5">
     @if($isOpen)
       <div class="card border-primary mb-3">
-        <div class="card-header bg-primary text-white"><i class="fas fa-check-circle me-1"></i> Complete review</div>
+        <div class="card-header bg-primary text-white"><i class="fas fa-check-circle me-1"></i> {{ __('Complete review') }}</div>
         <div class="card-body">
           <form method="POST" action="{{ route('records.reviews.complete', $review->id) }}">
             @csrf

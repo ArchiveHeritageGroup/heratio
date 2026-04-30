@@ -52,7 +52,7 @@
 
         {{-- ─── Step 1: Scope ─────────────────────────────────────── --}}
         <div class="wizard-panel" data-step="1">
-          <h5 class="mb-3"><i class="fas fa-bullseye me-2"></i>What to Export</h5>
+          <h5 class="mb-3"><i class="fas fa-bullseye me-2"></i>{{ __('What to Export') }}</h5>
           <p class="text-muted mb-3">Select the scope of descriptions to include in the portable viewer.</p>
 
           <div class="row mb-3">
@@ -105,7 +105,7 @@
 
         {{-- ─── Step 2: Content ───────────────────────────────────── --}}
         <div class="wizard-panel" data-step="2" style="display:none;">
-          <h5 class="mb-3"><i class="fas fa-copy me-2"></i>Content Options</h5>
+          <h5 class="mb-3"><i class="fas fa-copy me-2"></i>{{ __('Content Options') }}</h5>
           <p class="text-muted mb-3">Choose the export type and which content to include.</p>
 
           <div class="row mb-4">
@@ -246,7 +246,7 @@
 
         {{-- ─── Step 3: Configure ─────────────────────────────────── --}}
         <div class="wizard-panel" data-step="3" style="display:none;">
-          <h5 class="mb-3"><i class="fas fa-sliders-h me-2"></i>Configuration</h5>
+          <h5 class="mb-3"><i class="fas fa-sliders-h me-2"></i>{{ __('Configuration') }}</h5>
           <p class="text-muted mb-3">Set the title, language, and optional branding for the viewer.</p>
 
           <div class="row mb-3">
@@ -293,7 +293,7 @@
 
         {{-- ─── Step 4: Generate ──────────────────────────────────── --}}
         <div class="wizard-panel" data-step="4" style="display:none;">
-          <h5 class="mb-3"><i class="fas fa-check-square me-2"></i>Review &amp; Generate</h5>
+          <h5 class="mb-3"><i class="fas fa-check-square me-2"></i>{{ __('Review &amp; Generate') }}</h5>
           <p class="text-muted mb-3">Review your export settings and start generation.</p>
 
           <div class="card mb-3">
@@ -329,7 +329,7 @@
   {{-- Progress panel --}}
   <div class="card mb-4" id="progress-panel" style="display:none;">
     <div class="card-header">
-      <h5 class="mb-0"><i class="fas fa-hourglass-half me-2"></i>Export Progress</h5>
+      <h5 class="mb-0"><i class="fas fa-hourglass-half me-2"></i>{{ __('Export Progress') }}</h5>
     </div>
     <div class="card-body">
       <div class="progress mb-3" style="height: 25px;">
@@ -357,7 +357,7 @@
   {{-- Past exports --}}
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <h5 class="mb-0"><i class="fas fa-history me-2"></i>Past Exports</h5>
+      <h5 class="mb-0"><i class="fas fa-history me-2"></i>{{ __('Past Exports') }}</h5>
       <button class="btn btn-sm btn-outline-secondary" id="btn-refresh-list">
         <i class="fas fa-sync-alt"></i>
       </button>
@@ -433,7 +433,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><i class="fas fa-link me-2"></i>Share Download Link</h5>
+          <h5 class="modal-title"><i class="fas fa-link me-2"></i>{{ __('Share Download Link') }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">

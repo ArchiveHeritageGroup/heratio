@@ -9,12 +9,12 @@
   </div>
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1 class="mb-0"><i class="fas fa-list me-2"></i>Dropdown Manager</h1>
+      <h1 class="mb-0"><i class="fas fa-list me-2"></i>{{ __('Dropdown Manager') }}</h1>
       <a href="{{ route('settings.dropdown.store') }}" class="btn atom-btn-white"><i class="fas fa-plus me-1"></i>{{ __('Add Dropdown') }}</a>
     </div>
 
     @if($dropdowns->isEmpty())
-      <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>No dropdowns configured. Click "Add Dropdown" to create one.</div>
+      <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>{{ __('No dropdowns configured. Click "Add Dropdown" to create one.') }}</div>
     @else
       <div class="table-responsive">
         <table class="table table-hover">

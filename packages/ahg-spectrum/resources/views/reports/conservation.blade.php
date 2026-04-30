@@ -2,7 +2,7 @@
 @extends('theme::layouts.2col')
 @section('title', 'Conservation Report')
 @section('sidebar')<div class="sidebar-content"><a href="{{ route('ahgspectrum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back') }}</a></div>@endsection
-@section('title-block')<h1><i class="fas fa-tools me-2"></i>Conservation Report</h1>@endsection
+@section('title-block')<h1><i class="fas fa-tools me-2"></i>{{ __('Conservation Report') }}</h1>@endsection
 @section('content')
 <div class="alert alert-info"><strong>{{ count($items) }}</strong> conservation treatments found</div>
 <div class="table-responsive"><table class="table table-striped table-hover"><thead class="table-dark"><tr><th>{{ __('Object') }}</th><th>{{ __('Date') }}</th><th>{{ __('Treatment') }}</th><th>{{ __('Conservator') }}</th><th>{{ __('Status') }}</th></tr></thead><tbody>

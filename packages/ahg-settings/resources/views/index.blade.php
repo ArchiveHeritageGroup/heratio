@@ -247,7 +247,7 @@
   @if($damEnabled && \Route::has('tiffpdfmerge.index'))
   <div class="card mt-4 border-primary">
     <div class="card-header bg-primary text-white">
-      <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>Quick Access: TIFF to PDF Merge</h5>
+      <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('Quick Access: TIFF to PDF Merge') }}</h5>
     </div>
     <div class="card-body">
       <div class="row align-items-center">

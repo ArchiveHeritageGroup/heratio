@@ -69,7 +69,7 @@
   {{-- Most Active Users --}}
   <div class="card mb-4">
     <div class="card-header">
-      <h5 class="mb-0"><i class="fas fa-users me-2"></i>Most Active Users</h5>
+      <h5 class="mb-0"><i class="fas fa-users me-2"></i>{{ __('Most Active Users') }}</h5>
     </div>
     <div class="card-body p-0">
       @if($mostActiveUsers->count())
@@ -106,7 +106,7 @@
   {{-- Recent Failed Actions --}}
   <div class="card mb-4">
     <div class="card-header">
-      <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Recent Failed Actions</h5>
+      <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Recent Failed Actions') }}</h5>
     </div>
     <div class="card-body p-0">
       @if($recentFailed->count())

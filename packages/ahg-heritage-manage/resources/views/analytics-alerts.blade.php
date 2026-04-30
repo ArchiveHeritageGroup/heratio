@@ -30,7 +30,7 @@ $stats = $alertData['stats'] ?? [];
     </div>
   </div>
   <div class="col-md-9">
-    <h1><i class="fas fa-bell me-2"></i>Alerts & Notifications</h1>
+    <h1><i class="fas fa-bell me-2"></i>{{ __('Alerts & Notifications') }}</h1>
 
     <div class="row g-4 mb-4">
       @foreach([['critical','Critical','danger','fas fa-exclamation-circle'],['warning','Warnings','warning','fas fa-exclamation-triangle'],['info','Info','info','fas fa-info-circle']] as [$key,$label,$color,$icon])

@@ -7,7 +7,7 @@
   <div class="col-md-3">@include('ahg-preservation::_menu')</div>
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-2">
-        <h1 class="mb-0"><i class="fas fa-sync-alt me-2"></i>Format Conversion</h1>
+        <h1 class="mb-0"><i class="fas fa-sync-alt me-2"></i>{{ __('Format Conversion') }}</h1>
         <div class="text-end">
             <span class="text-muted">{{ __('Pending conversions:') }}</span>
             <span class="badge bg-{{ ($pendingConversions ?? 0) > 0 ? 'warning' : 'success' }} ms-2">
@@ -51,19 +51,19 @@
 
     {{-- Supported Conversions --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-diagram-project me-2"></i>Supported Conversions</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-diagram-project me-2"></i>{{ __('Supported Conversions') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-6">
-            <h6><i class="fas fa-image me-2"></i>Images (ImageMagick)</h6>
+            <h6><i class="fas fa-image me-2"></i>{{ __('Images (ImageMagick)') }}</h6>
             <ul class="small mb-3"><li>JPEG, PNG, BMP, GIF &rarr; TIFF (uncompressed)</li></ul>
-            <h6><i class="fas fa-music me-2"></i>Audio (FFmpeg)</h6>
+            <h6><i class="fas fa-music me-2"></i>{{ __('Audio (FFmpeg)') }}</h6>
             <ul class="small mb-3"><li>MP3, AAC, OGG &rarr; WAV (PCM)</li></ul>
           </div>
           <div class="col-md-6">
-            <h6><i class="fas fa-file-pdf me-2"></i>Documents</h6>
+            <h6><i class="fas fa-file-pdf me-2"></i>{{ __('Documents') }}</h6>
             <ul class="small mb-3"><li>PDF &rarr; PDF/A (Ghostscript)</li><li>DOC, DOCX, XLS, PPT &rarr; PDF/A (LibreOffice)</li></ul>
-            <h6><i class="fas fa-film me-2"></i>Video (FFmpeg)</h6>
+            <h6><i class="fas fa-film me-2"></i>{{ __('Video (FFmpeg)') }}</h6>
             <ul class="small mb-0"><li>Various &rarr; MKV/FFV1 (lossless)</li></ul>
           </div>
         </div>
@@ -72,7 +72,7 @@
 
     {{-- CLI Commands --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-terminal me-2"></i>CLI Commands</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-terminal me-2"></i>{{ __('CLI Commands') }}</div>
       <div class="card-body">
         <p class="mb-2">Run format conversions from the command line:</p>
         <pre class="bg-dark text-light p-3 rounded mb-0"><code># Show available tools and statistics
@@ -91,7 +91,7 @@ php artisan preservation:convert --mime-type=image/jpeg --format=tiff --limit=50
 
     {{-- Recent Conversions --}}
     <div class="card">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-list me-2"></i>Recent Conversions</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-list me-2"></i>{{ __('Recent Conversions') }}</div>
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">

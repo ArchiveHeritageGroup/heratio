@@ -8,7 +8,7 @@
     <div class="col-md-6">
       <div class="card border-danger">
         <div class="card-header bg-danger text-white text-center">
-          <h3 class="mb-0"><i class="fas fa-lock"></i> Access Denied</h3>
+          <h3 class="mb-0"><i class="fas fa-lock"></i> {{ __('Access Denied') }}</h3>
         </div>
         <div class="card-body text-center">
           <p class="lead">You do not have sufficient security clearance to access this resource.</p>

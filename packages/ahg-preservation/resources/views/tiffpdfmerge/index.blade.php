@@ -7,7 +7,7 @@
   <div class="col-md-3">@include('ahg-preservation::_menu')</div>
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-file-pdf me-2"></i>TIFF/PDF Merge Tool</h1>
+      <h1><i class="fas fa-file-pdf me-2"></i>{{ __('TIFF/PDF Merge Tool') }}</h1>
       <a href="{{ route('preservation.tiffpdfmerge.browse') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-list me-1"></i>{{ __('Browse Jobs') }}</a>
     </div>
     <p class="text-muted">Merge multiple TIFF or image files into a single PDF or multi-page TIFF document.</p>

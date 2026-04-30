@@ -3,7 +3,7 @@
 @section('body-class', 'cart orders')
 
 @section('content')
-<h1><i class="fas fa-receipt me-2"></i>My Orders</h1>
+<h1><i class="fas fa-receipt me-2"></i>{{ __('My Orders') }}</h1>
 
 @if($orders->isEmpty())
   <div class="alert alert-info">You have no orders yet.</div>

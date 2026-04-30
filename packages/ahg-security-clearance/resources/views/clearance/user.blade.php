@@ -13,7 +13,7 @@
     <div class="col-md-5">
       {{-- Current Clearance --}}
       <div class="card mb-3">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-shield-alt"></i> Current Clearance</h5></div>
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-shield-alt"></i> {{ __('Current Clearance') }}</h5></div>
         <div class="card-body">
           @if($clearance)
             <p><span class="badge" style="background-color: {{ $clearance->color ?? '#666' }}; font-size: 1.1em;">{{ e($clearance->classification_name ?? '') }}</span></p>
@@ -30,7 +30,7 @@
 
       {{-- Update Form --}}
       <div class="card mb-3">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-edit"></i> Update Clearance</h5></div>
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-edit"></i> {{ __('Update Clearance') }}</h5></div>
         <div class="card-body">
           <form method="POST" action="{{ route('security-clearance.user-update', ['slug' => $targetUser->slug]) }}">
             @csrf
@@ -62,7 +62,7 @@
       {{-- Revoke --}}
       @if($clearance)
       <div class="card mb-3">
-        <div class="card-header bg-danger text-white"><h5 class="mb-0"><i class="fas fa-ban"></i> Revoke Clearance</h5></div>
+        <div class="card-header bg-danger text-white"><h5 class="mb-0"><i class="fas fa-ban"></i> {{ __('Revoke Clearance') }}</h5></div>
         <div class="card-body">
           <form method="POST" action="{{ route('security-clearance.user-update', ['slug' => $targetUser->slug]) }}"
                 onsubmit="return confirm('Are you sure you want to revoke this clearance?')">
@@ -82,7 +82,7 @@
     <div class="col-md-7">
       {{-- History --}}
       <div class="card">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-history"></i> Clearance History</h5></div>
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-history"></i> {{ __('Clearance History') }}</h5></div>
         <div class="card-body table-responsive">
           <table class="table table-sm table-striped">
             <thead><tr><th>{{ __('Action') }}</th><th>{{ __('Level') }}</th><th>{{ __('By') }}</th><th>{{ __('Notes') }}</th><th>{{ __('Date') }}</th></tr></thead>

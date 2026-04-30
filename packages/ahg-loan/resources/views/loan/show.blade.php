@@ -141,7 +141,7 @@
   {{-- Loan Details --}}
   <div class="card mb-4">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Loan Details</h5>
+      <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Loan Details') }}</h5>
     </div>
     <div class="card-body">
       <div class="row">
@@ -392,7 +392,7 @@
           </table>
         </div>
       @else
-        <p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i>No objects added to this loan yet.</p>
+        <p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i>{{ __('No objects added to this loan yet.') }}</p>
       @endif
     </div>
   </div>
@@ -461,7 +461,7 @@
           </table>
         </div>
       @else
-        <p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i>No documents uploaded yet.</p>
+        <p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i>{{ __('No documents uploaded yet.') }}</p>
       @endif
     </div>
   </div>
@@ -498,7 +498,7 @@
           </table>
         </div>
       @else
-        <p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i>No extensions recorded.</p>
+        <p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i>{{ __('No extensions recorded.') }}</p>
       @endif
     </div>
   </div>
@@ -709,7 +709,7 @@
   {{-- Status History --}}
   <div class="card mb-4">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-history me-2"></i>Status History</h5>
+      <h5 class="mb-0"><i class="fas fa-history me-2"></i>{{ __('Status History') }}</h5>
     </div>
     <div class="card-body">
       @if(count($loan->status_history))

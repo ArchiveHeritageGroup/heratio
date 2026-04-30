@@ -11,7 +11,7 @@
       <a href="{{ route('settings.index') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to AHG Settings') }}</a>
     </div>
 
-    <h1><i class="fas fa-photo-video text-info"></i> Digital Asset Management Tools</h1>
+    <h1><i class="fas fa-photo-video text-info"></i> {{ __('Digital Asset Management Tools') }}</h1>
     <p class="text-muted">Tools for managing digital assets, images, and documents</p>
 
     @include('ahg-settings::_tiff-pdf-merge-settings')

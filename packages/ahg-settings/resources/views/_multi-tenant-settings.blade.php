@@ -1,7 +1,7 @@
 {{-- Multi-tenant settings partial --}}
 <div class="card mb-4">
   <div class="card-header" style="background:var(--ahg-primary);color:#fff;">
-    <h5 class="mb-0"><i class="fas fa-building me-2"></i>Multi-Tenancy</h5>
+    <h5 class="mb-0"><i class="fas fa-building me-2"></i>{{ __('Multi-Tenancy') }}</h5>
   </div>
   <div class="card-body">
     <div class="form-check form-switch mb-3">

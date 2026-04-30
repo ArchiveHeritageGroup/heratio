@@ -14,7 +14,7 @@
 @section('content')
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h2"><i class="fas fa-brain me-2"></i>Semantic Search</h1>
+        <h1 class="h2"><i class="fas fa-brain me-2"></i>{{ __('Semantic Search') }}</h1>
         <div class="d-flex gap-2">
             <a href="{{ route('semantic-search.config') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-cog me-1"></i>{{ __('Settings') }}
@@ -152,7 +152,7 @@
         <div class="col-md-6">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>{{ __('Quick Actions') }}</h5>
                 </div>
                 <div class="card-body">
                     <div class="row g-2">
@@ -187,7 +187,7 @@
         <div class="col-md-6">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-flask me-2"></i>Test Query Expansion</h5>
+                    <h5 class="mb-0"><i class="fas fa-flask me-2"></i>{{ __('Test Query Expansion') }}</h5>
                 </div>
                 <div class="card-body">
                     <div class="input-group mb-3">

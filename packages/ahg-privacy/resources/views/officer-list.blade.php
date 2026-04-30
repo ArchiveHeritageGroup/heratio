@@ -47,7 +47,7 @@
         <div class="col-12">
             <div class="alert alert-info">
                 <i class="fas fa-info-circle me-2"></i>
-                No privacy officers configured. Add an Information Officer to comply with applicable data protection requirements.
+                {{ __('No privacy officers configured. Add an Information Officer to comply with applicable data protection requirements.') }}
             </div>
         </div>
         @else
@@ -100,7 +100,7 @@
     {{-- Registration Info --}}
     <div class="card mt-4">
         <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Registration Requirements</h5>
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Registration Requirements') }}</h5>
         </div>
         <div class="card-body">
             <div class="row">

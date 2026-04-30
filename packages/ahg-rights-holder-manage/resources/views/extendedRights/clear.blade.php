@@ -4,13 +4,13 @@
 @section('body-class', 'extended-rights clear')
 
 @section('title-block')
-  <h1 class="mb-0"><i class="fas fa-eraser me-2"></i>Clear Extended Rights</h1>
+  <h1 class="mb-0"><i class="fas fa-eraser me-2"></i>{{ __('Clear Extended Rights') }}</h1>
 @endsection
 
 @section('content')
 <div class="card">
   <div class="card-header bg-warning">
-    <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Confirm Clear Rights</h4>
+    <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Confirm Clear Rights') }}</h4>
   </div>
   <div class="card-body">
     <p class="lead">Are you sure you want to clear all extended rights from this record?</p>

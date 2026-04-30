@@ -3,7 +3,7 @@
 <section id="ric-explorer-panel" class="card mb-3">
   <div class="card-header bg-success text-white d-flex justify-content-between align-items-center py-2">
     <h6 class="mb-0">
-      <i class="fas fa-project-diagram me-2"></i>RiC Explorer
+      <i class="fas fa-project-diagram me-2"></i>{{ __('RiC Explorer') }}
     </h6>
     <div class="btn-group btn-group-sm">
       <button type="button" class="btn btn-light btn-sm" id="ric-load-btn">

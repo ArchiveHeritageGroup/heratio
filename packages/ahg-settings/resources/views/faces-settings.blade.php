@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-user-circle me-2"></i>Face Detection</h1>
+<h1><i class="fas fa-user-circle me-2"></i>{{ __('Face Detection') }}</h1>
 <p class="text-muted">Face detection and recognition settings</p>
 @endsection
 
@@ -38,11 +38,11 @@
     {{-- Card 1: Face Detection --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>Face Detection</h5>
+        <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>{{ __('Face Detection') }}</h5>
       </div>
       <div class="card-body">
         <div class="alert alert-warning mb-3">
-          <i class="fas fa-exclamation-triangle me-1"></i> Experimental feature.
+          <i class="fas fa-exclamation-triangle me-1"></i> {{ __('Experimental feature.') }}
         </div>
 
         <div class="row mb-3">

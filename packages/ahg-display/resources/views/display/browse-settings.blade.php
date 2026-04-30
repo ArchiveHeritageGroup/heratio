@@ -42,7 +42,7 @@
 
   <div class="card">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Browse Preferences</h5>
+      <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>{{ __('Browse Preferences') }}</h5>
     </div>
     <div class="card-body">
       <form method="POST" action="{{ route('glam.browse.settings') }}">

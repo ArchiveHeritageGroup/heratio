@@ -9,7 +9,7 @@
 </nav>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2"><i class="fas fa-book text-primary me-2"></i>My Bibliographies</h1>
+    <h1 class="h2"><i class="fas fa-book text-primary me-2"></i>{{ __('My Bibliographies') }}</h1>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBibModal">
         <i class="fas fa-plus me-1"></i> {{ __('New Bibliography') }}
     </button>

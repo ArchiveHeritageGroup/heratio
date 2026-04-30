@@ -23,7 +23,7 @@
         </ol>
     </nav>
 
-    <h1 class="h3 mb-4"><i class="fas fa-cog me-2"></i>Statistics Settings</h1>
+    <h1 class="h3 mb-4"><i class="fas fa-cog me-2"></i>{{ __('Statistics Settings') }}</h1>
 
     @if(session('notice'))
         <div class="alert alert-success alert-dismissible fade show">
@@ -112,7 +112,7 @@
         <div class="col-lg-4">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-database me-1"></i>Database Statistics</h6>
+                    <h6 class="mb-0"><i class="fas fa-database me-1"></i>{{ __('Database Statistics') }}</h6>
                 </div>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex justify-content-between">
@@ -132,7 +132,7 @@
 
             <div class="card bg-light">
                 <div class="card-body">
-                    <h6><i class="fas fa-terminal me-1"></i>CLI Commands</h6>
+                    <h6><i class="fas fa-terminal me-1"></i>{{ __('CLI Commands') }}</h6>
                     <p class="small text-muted mb-2">Run these via cron for scheduled processing:</p>
                     <code class="d-block small mb-2">php artisan statistics:aggregate --all</code>
                     <code class="d-block small mb-2">php artisan statistics:report --type=summary</code>

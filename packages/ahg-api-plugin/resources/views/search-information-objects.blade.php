@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid mt-3">
-  <h1><i class="fas fa-search"></i> API — Search Information Objects</h1>
+  <h1><i class="fas fa-search"></i> {{ __('API — Search Information Objects') }}</h1>
 
   <div class="card mb-4">
     <div class="card-body">

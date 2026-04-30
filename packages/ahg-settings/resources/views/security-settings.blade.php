@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-shield-alt me-2"></i>Security & Access Control</h1>
+<h1><i class="fas fa-shield-alt me-2"></i>{{ __('Security & Access Control') }}</h1>
 <p class="text-muted">Password policy, account lockout, session security, and access control settings</p>
 @endsection
 
@@ -31,7 +31,7 @@
 
     {{-- Card 1: Password Policy --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-key me-2"></i>Password Policy</div>
+      <div class="card-header"><i class="fas fa-key me-2"></i>{{ __('Password Policy') }}</div>
       <div class="card-body">
         <p class="text-muted mb-3">Configure password expiry and history requirements. These settings are enforced by the PasswordPolicyService (ISO 27001 A.9.4.3).</p>
         <div class="row">
@@ -85,7 +85,7 @@
 
     {{-- Card 2: Account Lockout --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-lock me-2"></i>Account Lockout</div>
+      <div class="card-header"><i class="fas fa-lock me-2"></i>{{ __('Account Lockout') }}</div>
       <div class="card-body">
         <p class="text-muted mb-3">Brute force protection settings. Managed by LoginSecurityService (OWASP A07).</p>
         <div class="row">
@@ -120,7 +120,7 @@
 
     {{-- Card 3: Session Security --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-clock me-2"></i>Session Security</div>
+      <div class="card-header"><i class="fas fa-clock me-2"></i>{{ __('Session Security') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4">
@@ -145,10 +145,10 @@
 
     {{-- Card 4: Security Status --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-info-circle me-2"></i>Security Status</div>
+      <div class="card-header"><i class="fas fa-info-circle me-2"></i>{{ __('Security Status') }}</div>
       <div class="card-body">
         <div class="alert alert-info mb-0">
-          <h6><i class="fas fa-shield-alt me-2"></i>Active Security Features</h6>
+          <h6><i class="fas fa-shield-alt me-2"></i>{{ __('Active Security Features') }}</h6>
           <ul class="mb-0 mt-2">
             <li><strong>{{ __('Session Fixation Prevention') }}</strong> — Session ID regenerated on login</li>
             <li><strong>{{ __('CSRF Protection') }}</strong> — Enforced on all state-changing requests</li>

@@ -16,7 +16,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h4 class="mb-1">
-        <i class="fas fa-user-shield me-2"></i>PII Scan Results
+        <i class="fas fa-user-shield me-2"></i>{{ __('PII Scan Results') }}
       </h4>
       <p class="text-muted mb-0">
         Personally Identifiable Information detected in
@@ -128,7 +128,7 @@
   <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <h6 class="mb-0"><i class="fas fa-tachometer-alt me-1"></i> Risk Score</h6>
+        <h6 class="mb-0"><i class="fas fa-tachometer-alt me-1"></i> {{ __('Risk Score') }}</h6>
         <span class="badge bg-{{ $riskColor }} fs-6">{{ $riskScore }}/100 &mdash; {{ $riskLabel }}</span>
       </div>
       <div class="progress" style="height: 12px;">
@@ -150,7 +150,7 @@
       <div class="col-md-8">
         <div class="card border-0 shadow-sm">
           <div class="card-header bg-white fw-bold" style="background:var(--ahg-primary);color:#fff">
-            <i class="fas fa-list me-1"></i> Detected Entities
+            <i class="fas fa-list me-1"></i> {{ __('Detected Entities') }}
           </div>
           <div class="card-body p-0">
             <div class="table-responsive">
@@ -214,7 +214,7 @@
         {{-- Save Results Card --}}
         <div class="card border-0 shadow-sm mb-3">
           <div class="card-header bg-white fw-bold" style="background:var(--ahg-primary);color:#fff">
-            <i class="fas fa-save me-1"></i> Save Results
+            <i class="fas fa-save me-1"></i> {{ __('Save Results') }}
           </div>
           <div class="card-body">
             <p class="text-muted small">Save this scan result to the record for future reference and compliance tracking.</p>
@@ -231,7 +231,7 @@
         {{-- By Type Summary --}}
         <div class="card border-0 shadow-sm mb-3">
           <div class="card-header bg-white fw-bold" style="background:var(--ahg-primary);color:#fff">
-            <i class="fas fa-chart-pie me-1"></i> By Type
+            <i class="fas fa-chart-pie me-1"></i> {{ __('By Type') }}
           </div>
           <div class="card-body p-0">
             <table class="table table-bordered table-sm mb-0">
@@ -258,7 +258,7 @@
         {{-- Fields Scanned --}}
         <div class="card border-0 shadow-sm mb-3">
           <div class="card-header bg-white fw-bold" style="background:var(--ahg-primary);color:#fff">
-            <i class="fas fa-search me-1"></i> Fields Scanned
+            <i class="fas fa-search me-1"></i> {{ __('Fields Scanned') }}
           </div>
           <div class="card-body">
             @if(!empty($fieldsSanned))
@@ -279,7 +279,7 @@
         {{-- Quick Actions --}}
         <div class="card border-0 shadow-sm">
           <div class="card-header bg-white fw-bold" style="background:var(--ahg-primary);color:#fff">
-            <i class="fas fa-bolt me-1"></i> Quick Actions
+            <i class="fas fa-bolt me-1"></i> {{ __('Quick Actions') }}
           </div>
           <div class="card-body">
             <div class="d-grid gap-2">

@@ -141,7 +141,7 @@
   @if($aips->isNotEmpty() || $premisObjects->isNotEmpty())
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i> Packages</h5>
+        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i> {{ __('Packages') }}</h5>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
@@ -227,7 +227,7 @@
     @if($premisObjects->isNotEmpty())
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-cube me-2"></i> PREMIS Objects</h5>
+          <h5 class="mb-0"><i class="fas fa-cube me-2"></i> {{ __('PREMIS Objects') }}</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
@@ -291,7 +291,7 @@
     <div class="modal-content">
       <form action="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}" method="GET">
         <div class="modal-header">
-          <h5 class="modal-title" id="createPackageModalLabel"><i class="fas fa-plus me-2"></i> Create Preservation Package</h5>
+          <h5 class="modal-title" id="createPackageModalLabel"><i class="fas fa-plus me-2"></i> {{ __('Create Preservation Package') }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
         </div>
         <div class="modal-body">

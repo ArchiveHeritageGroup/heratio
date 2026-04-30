@@ -12,7 +12,7 @@
 
     <div class="card mb-4">
         <div class="card-header" style="background-color: var(--ahg-primary); color: #fff;">
-            <h4 class="mb-0"><i class="fas fa-file-export me-2"></i>Export Data</h4>
+            <h4 class="mb-0"><i class="fas fa-file-export me-2"></i>{{ __('Export Data') }}</h4>
         </div>
     </div>
 
@@ -20,7 +20,7 @@
         <div class="col-md-4 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-archive me-2"></i>Archival Descriptions</h5>
+                    <h5 class="mb-0"><i class="fas fa-archive me-2"></i>{{ __('Archival Descriptions') }}</h5>
                 </div>
                 <div class="card-body">
                     <p class="text-muted">Export archival descriptions in various formats.</p>
@@ -42,7 +42,7 @@
         <div class="col-md-4 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Authority Records</h5>
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>{{ __('Authority Records') }}</h5>
                 </div>
                 <div class="card-body">
                     <p class="text-muted">Export authority records (people, organizations, families).</p>
@@ -61,7 +61,7 @@
         <div class="col-md-4 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-building me-2"></i>Repositories</h5>
+                    <h5 class="mb-0"><i class="fas fa-building me-2"></i>{{ __('Repositories') }}</h5>
                 </div>
                 <div class="card-body">
                     <p class="text-muted">Export repository/institution records.</p>
@@ -79,7 +79,7 @@
         <div class="col-md-4 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Accessions</h5>
+                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>{{ __('Accessions') }}</h5>
                 </div>
                 <div class="card-body">
                     <p class="text-muted">Export accession records to CSV. Compatible with ingest wizard re-import.</p>

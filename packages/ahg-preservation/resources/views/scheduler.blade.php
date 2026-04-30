@@ -10,7 +10,7 @@
     </div>
     <div class="col-md-9">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h1 class="mb-0"><i class="fas fa-clock"></i> Workflow Scheduler</h1>
+            <h1 class="mb-0"><i class="fas fa-clock"></i> {{ __('Workflow Scheduler') }}</h1>
             <a href="{{ route('preservation.schedule-edit', 0) }}" class="btn btn-sm atom-btn-white">
                 <i class="fas fa-plus me-1"></i>{{ __('New Schedule') }}
             </a>
@@ -81,7 +81,7 @@
             <div class="col-lg-8">
                 <div class="card mb-4">
                     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                        <h6 class="mb-0"><i class="fas fa-list me-1"></i> Configured Schedules</h6>
+                        <h6 class="mb-0"><i class="fas fa-list me-1"></i> {{ __('Configured Schedules') }}</h6>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -172,7 +172,7 @@
                 {{-- Recent Runs --}}
                 <div class="card">
                     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                        <h6 class="mb-0"><i class="fas fa-history me-1"></i> Recent Runs</h6>
+                        <h6 class="mb-0"><i class="fas fa-history me-1"></i> {{ __('Recent Runs') }}</h6>
                     </div>
                     <div class="card-body p-0">
                         @php $recentRuns = $recentRuns ?? collect(); @endphp
@@ -238,7 +238,7 @@
                 {{-- Upcoming Schedules --}}
                 <div class="card mb-4">
                     <div class="card-header bg-info text-white">
-                        <h6 class="mb-0"><i class="fas fa-calendar-alt me-1"></i> Upcoming Runs</h6>
+                        <h6 class="mb-0"><i class="fas fa-calendar-alt me-1"></i> {{ __('Upcoming Runs') }}</h6>
                     </div>
                     <div class="card-body">
                         @php
@@ -264,7 +264,7 @@
                 {{-- CLI Command Reference --}}
                 <div class="card border-secondary">
                     <div class="card-header bg-secondary text-white">
-                        <h6 class="mb-0"><i class="fas fa-terminal me-1"></i> CLI Command</h6>
+                        <h6 class="mb-0"><i class="fas fa-terminal me-1"></i> {{ __('CLI Command') }}</h6>
                     </div>
                     <div class="card-body">
                         <p class="small text-muted">Run the scheduler via cron to execute due workflows:</p>

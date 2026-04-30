@@ -1,7 +1,7 @@
 {{-- Recent Additions Partial --}}
 <section class="heritage-recent-additions py-5">
   <div class="container">
-    <h2 class="text-center mb-4"><i class="fas fa-clock me-2"></i>Recently Added</h2>
+    <h2 class="text-center mb-4"><i class="fas fa-clock me-2"></i>{{ __('Recently Added') }}</h2>
     <div class="row">
       @forelse($recentItems ?? [] as $item)
       <div class="col-md-3 mb-3">

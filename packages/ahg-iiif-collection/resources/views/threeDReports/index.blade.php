@@ -78,7 +78,7 @@ if (!function_exists('threeDFmtBytes')) {
         <div class="col-md-6">
             <div class="card h-100">
                 <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>By Format</h5>
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>{{ __('By Format') }}</h5>
                 </div>
                 <ul class="list-group list-group-flush">
                     @if (empty($stats['byFormat']) || (is_countable($stats['byFormat']) && count($stats['byFormat']) === 0))
@@ -97,7 +97,7 @@ if (!function_exists('threeDFmtBytes')) {
         <div class="col-md-6">
             <div class="card h-100">
                 <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Coverage</h5>
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>{{ __('Coverage') }}</h5>
                 </div>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex justify-content-between">

@@ -1,7 +1,7 @@
 @extends('theme::layouts.1col')
 @section('title', 'Media Processing Queue')
 @section('body-class', 'admin media-settings queue')
-@section('title-block')<h1 class="mb-0"><i class="fas fa-tasks me-2"></i>Media Processing Queue</h1>@endsection
+@section('title-block')<h1 class="mb-0"><i class="fas fa-tasks me-2"></i>{{ __('Media Processing Queue') }}</h1>@endsection
 @section('content')
 <div class="card"><div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Queue Status') }}</h5></div>
 <div class="card-body">

@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1><i class="fas fa-server me-2"></i>System Information</h1>
+  <h1><i class="fas fa-server me-2"></i>{{ __('System Information') }}</h1>
 @endsection
 
 @section('content')

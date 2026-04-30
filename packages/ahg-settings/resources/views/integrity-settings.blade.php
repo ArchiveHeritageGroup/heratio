@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-check-double me-2"></i>Integrity</h1>
+<h1><i class="fas fa-check-double me-2"></i>{{ __('Integrity') }}</h1>
 <p class="text-muted">Fixity checking and integrity monitoring</p>
 @endsection
 
@@ -32,7 +32,7 @@
     {{-- Integrity Verification Defaults --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Integrity Verification Defaults</h5>
+        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>{{ __('Integrity Verification Defaults') }}</h5>
       </div>
       <div class="card-body">
         <div class="row g-3">
@@ -109,7 +109,7 @@
     {{-- Notification Defaults --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Notification Defaults</h5>
+        <h5 class="mb-0"><i class="fas fa-bell me-2"></i>{{ __('Notification Defaults') }}</h5>
       </div>
       <div class="card-body">
         <div class="row g-3">
@@ -158,7 +158,7 @@
     {{-- Quick Links --}}
     <div class="card mb-4 border-info">
       <div class="card-header bg-info text-white">
-        <h5 class="mb-0"><i class="fas fa-link me-2"></i>Quick Links</h5>
+        <h5 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Quick Links') }}</h5>
       </div>
       <div class="card-body">
         <div class="row g-2">

@@ -8,7 +8,7 @@
     <div class="col-md-7">
       <div class="card border-warning">
         <div class="card-header bg-warning text-dark text-center">
-          <h3 class="mb-0"><i class="fas fa-ban"></i> Access Restricted — Embargo</h3>
+          <h3 class="mb-0"><i class="fas fa-ban"></i> {{ __('Access Restricted — Embargo') }}</h3>
         </div>
         <div class="card-body">
           <p class="lead text-center">This record is currently under embargo and cannot be accessed.</p>

@@ -4,7 +4,7 @@
 @section('body-class', 'extended-rights batch')
 
 @section('title-block')
-  <h1 class="mb-0"><i class="fas fa-layer-group me-2"></i>Batch Rights Assignment</h1>
+  <h1 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('Batch Rights Assignment') }}</h1>
 @endsection
 
 @section('content')

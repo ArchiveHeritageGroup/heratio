@@ -3,7 +3,7 @@
 @section('content')
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><i class="fas fa-user-shield me-2"></i>PII Detection Scanner</h1>
+        <h1><i class="fas fa-user-shield me-2"></i>{{ __('PII Detection Scanner') }}</h1>
         <a href="{{ route('ahgprivacy.index') }}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}
         </a>
@@ -57,7 +57,7 @@
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-search me-2"></i>Run PII Scan</h5>
+                    <h5 class="mb-0"><i class="fas fa-search me-2"></i>{{ __('Run PII Scan') }}</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('ahgprivacy.pii-scan-run') }}" method="post">
@@ -90,7 +90,7 @@
             @if(!empty($stats['by_type']))
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Entities by Type</h5>
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>{{ __('Entities by Type') }}</h5>
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-sm mb-0">
@@ -124,7 +124,7 @@ $badges = [
             <!-- Quick Actions -->
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>{{ __('Quick Actions') }}</h5>
                 </div>
                 <div class="card-body">
                     <a href="{{ route('ahgprivacy.pii-review') }}" class="btn btn-outline-warning w-100 mb-2">
@@ -141,7 +141,7 @@ $badges = [
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>High-Risk Objects</h5>
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('High-Risk Objects') }}</h5>
                 </div>
                 <div class="card-body p-0">
                     @if(empty($highRiskObjects) || count($highRiskObjects) === 0)
@@ -193,12 +193,12 @@ $badges = [
 <div class="container-fluid mt-4">
     <div class="card">
         <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>PII Types Detected</h5>
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('PII Types Detected') }}</h5>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    <h6 class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>High Risk</h6>
+                    <h6 class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>{{ __('High Risk') }}</h6>
                     <ul class="list-unstyled small">
                         <li><strong>{{ __('SA_ID') }}</strong> - South African ID Numbers</li>
                         <li><strong>{{ __('NG_NIN') }}</strong> - Nigerian National ID</li>
@@ -208,7 +208,7 @@ $badges = [
                     </ul>
                 </div>
                 <div class="col-md-4">
-                    <h6 class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Medium Risk</h6>
+                    <h6 class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>{{ __('Medium Risk') }}</h6>
                     <ul class="list-unstyled small">
                         <li><strong>{{ __('PERSON') }}</strong> - Names (via NER)</li>
                         <li><strong>{{ __('EMAIL') }}</strong> - Email Addresses</li>
@@ -217,7 +217,7 @@ $badges = [
                     </ul>
                 </div>
                 <div class="col-md-4">
-                    <h6 class="text-secondary"><i class="fas fa-info-circle me-1"></i>Low Risk</h6>
+                    <h6 class="text-secondary"><i class="fas fa-info-circle me-1"></i>{{ __('Low Risk') }}</h6>
                     <ul class="list-unstyled small">
                         <li><strong>{{ __('ORG') }}</strong> - Organizations (via NER)</li>
                         <li><strong>{{ __('GPE') }}</strong> - Places (via NER)</li>

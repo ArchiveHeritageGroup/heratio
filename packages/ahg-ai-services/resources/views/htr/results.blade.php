@@ -4,7 +4,7 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li><li class="breadcrumb-item active">Results</li></ol></nav>
 @include('ahg-ai-services::htr._nav')
-<h1><i class="fas fa-clipboard-check me-2"></i>Extraction Results</h1>
+<h1><i class="fas fa-clipboard-check me-2"></i>{{ __('Extraction Results') }}</h1>
 
 <div class="row">
   {{-- Image with field overlays --}}
@@ -33,7 +33,7 @@
     {{-- ILM Card --}}
     <div class="card mb-3">
       <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff;">
-        <i class="fas fa-tree me-1"></i>FamilySearch ILM Output
+        <i class="fas fa-tree me-1"></i>{{ __('FamilySearch ILM Output') }}
       </div>
       <div class="card-body">
         @php
@@ -60,7 +60,7 @@
     {{-- Detected Fields --}}
     <div class="card mb-3">
       <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff;">
-        <i class="fas fa-list me-1"></i>Extracted Fields
+        <i class="fas fa-list me-1"></i>{{ __('Extracted Fields') }}
       </div>
       <div class="card-body p-0">
         @forelse($fields as $i => $field)

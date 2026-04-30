@@ -11,7 +11,7 @@
 <div class="sidebar-content">
   <div class="card mb-3">
     <div class="card-header bg-primary text-white">
-      <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>About</h5>
+      <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About') }}</h5>
     </div>
     <div class="card-body">
       <p class="small text-muted mb-0">Configure IIIF image display and homepage featured collections.</p>
@@ -19,7 +19,7 @@
   </div>
   <div class="card">
     <div class="card-header bg-light">
-      <h5 class="mb-0"><i class="fas fa-link me-2"></i>Quick Links</h5>
+      <h5 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Quick Links') }}</h5>
     </div>
     <div class="list-group list-group-flush">
       @if(\Route::has('iiif-collection.index'))
@@ -36,7 +36,7 @@
 @endsection
 
 @section('title-block')
-  <h1><i class="fas fa-images me-2"></i>Carousel Settings</h1>
+  <h1><i class="fas fa-images me-2"></i>{{ __('Carousel Settings') }}</h1>
 @endsection
 
 @section('content')
@@ -53,7 +53,7 @@
     {{-- Homepage Featured Collection --}}
     <div class="card mb-4">
       <div class="card-header bg-success text-white">
-        <h5 class="mb-0"><i class="fas fa-home me-2"></i>Homepage Featured Collection</h5>
+        <h5 class="mb-0"><i class="fas fa-home me-2"></i>{{ __('Homepage Featured Collection') }}</h5>
       </div>
       <div class="card-body">
         <div class="row">
@@ -119,7 +119,7 @@
     {{-- Record Page Viewer --}}
     <div class="card mb-4">
       <div class="card-header bg-primary text-white">
-        <h5 class="mb-0"><i class="fas fa-tv me-2"></i>Record Page Viewer</h5>
+        <h5 class="mb-0"><i class="fas fa-tv me-2"></i>{{ __('Record Page Viewer') }}</h5>
       </div>
       <div class="card-body">
         <div class="row">
@@ -148,7 +148,7 @@
     {{-- Carousel Options --}}
     <div class="card mb-4" id="carouselOptions">
       <div class="card-header bg-light">
-        <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Carousel Options</h5>
+        <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>{{ __('Carousel Options') }}</h5>
       </div>
       <div class="card-body">
         <div class="row">
@@ -183,7 +183,7 @@
     {{-- Appearance --}}
     <div class="card mb-4">
       <div class="card-header bg-light">
-        <h5 class="mb-0"><i class="fas fa-palette me-2"></i>Appearance</h5>
+        <h5 class="mb-0"><i class="fas fa-palette me-2"></i>{{ __('Appearance') }}</h5>
       </div>
       <div class="card-body">
         <div class="row">
@@ -213,7 +213,7 @@
     {{-- Display Locations --}}
     <div class="card mb-4">
       <div class="card-header bg-light">
-        <h5 class="mb-0"><i class="fas fa-eye me-2"></i>Display Locations</h5>
+        <h5 class="mb-0"><i class="fas fa-eye me-2"></i>{{ __('Display Locations') }}</h5>
       </div>
       <div class="card-body">
         <div class="row">

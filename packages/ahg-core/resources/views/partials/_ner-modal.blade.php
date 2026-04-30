@@ -8,7 +8,7 @@
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="modal-title"><i class="fas fa-brain me-2"></i>Extract Entities (NER)</h5>
+        <h5 class="modal-title"><i class="fas fa-brain me-2"></i>{{ __('Extract Entities (NER)') }}</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">

@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <h1><i class="bi bi-person-badge me-2"></i>Export Authority Records</h1>
+    <h1><i class="bi bi-person-badge me-2"></i>{{ __('Export Authority Records') }}</h1>
 
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
@@ -18,7 +18,7 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="bi bi-download me-2"></i>Export Settings</h5>
+                    <h5 class="mb-0"><i class="bi bi-download me-2"></i>{{ __('Export Settings') }}</h5>
                 </div>
                 <div class="card-body">
                     <form method="post">
@@ -72,7 +72,7 @@
         <div class="col-lg-4">
             <div class="card mb-3">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Statistics</h6>
+                    <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>{{ __('Statistics') }}</h6>
                 </div>
                 <div class="card-body">
                     <dl class="mb-0">
@@ -84,7 +84,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>About EAC-CPF</h6>
+                    <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>{{ __('About EAC-CPF') }}</h6>
                 </div>
                 <div class="card-body small">
                     <p><strong>{{ __('EAC-CPF') }}</strong> (Encoded Archival Context - Corporate Bodies, Persons, and Families) is an XML standard for encoding contextual information about the creators of archival materials.</p>

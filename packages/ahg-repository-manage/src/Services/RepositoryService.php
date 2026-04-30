@@ -86,6 +86,7 @@ class RepositoryService
                 'actor.source_standard',
                 'actor.corporate_body_identifiers',
                 'actor.parent_id',
+                'actor.icip_sensitivity',
                 // Actor i18n (ISAAR) — culture fallback
                 DB::raw('COALESCE(ai_cur.authorized_form_of_name, ai_fb.authorized_form_of_name) AS authorized_form_of_name'),
                 DB::raw('COALESCE(ai_cur.dates_of_existence, ai_fb.dates_of_existence) AS dates_of_existence'),
@@ -458,12 +459,16 @@ class RepositoryService
             DB::table('slug')->insert(['object_id' => $id, 'slug' => $slug]);
 
             // 3. Create actor record (class table inheritance)
-            DB::table('actor')->insert([
+            $actorInsert = [
                 'id' => $id,
                 'entity_type_id' => TermId::ACTOR_ENTITY_CORPORATE_BODY, // repositories are always corporate bodies
                 'parent_id' => 3, // Actor::ROOT_ID
                 'source_culture' => $this->culture,
-            ]);
+            ];
+            if (array_key_exists('icip_sensitivity', $data) && $data['icip_sensitivity'] !== '') {
+                $actorInsert['icip_sensitivity'] = $data['icip_sensitivity'];
+            }
+            DB::table('actor')->insert($actorInsert);
 
             // 4. Create repository record
             DB::table('repository')->insert([
@@ -555,6 +560,16 @@ class RepositoryService
             }
             if (!empty($repoUpdate)) {
                 DB::table('repository')->where('id', $id)->update($repoUpdate);
+            }
+
+            // 1b. Update actor record (ICIP cultural-sensitivity URI lives on
+            // actor for repository entities — class-table-inheritance parent).
+            if (array_key_exists('icip_sensitivity', $data)) {
+                $value = $data['icip_sensitivity'];
+                if ($value === '') {
+                    $value = null;
+                }
+                DB::table('actor')->where('id', $id)->update(['icip_sensitivity' => $value]);
             }
 
             // 2. Update actor_i18n (ISAAR fields) — upsert

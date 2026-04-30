@@ -15,7 +15,7 @@
 
     <div class="card">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-link me-2"></i>Add External Manifest</h5>
+            <h5 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Add External Manifest') }}</h5>
         </div>
         <div class="card-body">
             <form method="POST" action="{{ route('iiif-collection.add-items', $collection->id) }}">
@@ -38,7 +38,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-plus-circle me-2"></i>Add Items to Collection</h1>
+<h1><i class="fas fa-plus-circle me-2"></i>{{ __('Add Items to Collection') }}</h1>
 <h2>{{ e($collection->display_name) }}</h2>
 @endsection
 
@@ -46,7 +46,7 @@
 <div class="add-items-form">
     <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-search me-2"></i>Search & Add Objects</h5>
+            <h5 class="mb-0"><i class="fas fa-search me-2"></i>{{ __('Search & Add Objects') }}</h5>
         </div>
         <div class="card-body">
             <form method="POST" id="addItemsForm" action="{{ route('iiif-collection.add-items', $collection->id) }}">

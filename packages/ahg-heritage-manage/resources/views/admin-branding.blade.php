@@ -11,7 +11,7 @@ $branding = (array) ($branding ?? []);
   <div class="col-md-3">@include('ahg-heritage-manage::partials._admin-sidebar')</div>
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-palette me-2"></i>Branding Configuration</h1>
+      <h1><i class="fas fa-palette me-2"></i>{{ __('Branding Configuration') }}</h1>
     </div>
 
     @if(session('success'))

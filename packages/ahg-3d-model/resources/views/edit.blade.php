@@ -16,7 +16,7 @@
     </ol>
   </nav>
 
-  <h1><i class="fas fa-edit me-2"></i>Edit 3D Model Settings</h1>
+  <h1><i class="fas fa-edit me-2"></i>{{ __('Edit 3D Model Settings') }}</h1>
 
   @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
@@ -32,7 +32,7 @@
         {{-- Preview --}}
         <div class="card mb-4">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-eye me-2"></i>Preview
+            <i class="fas fa-eye me-2"></i>{{ __('Preview') }}
           </div>
           <div class="card-body p-0">
             <model-viewer
@@ -55,7 +55,7 @@
         {{-- Basic Info --}}
         <div class="card mb-4">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-info-circle me-2"></i>Basic Information
+            <i class="fas fa-info-circle me-2"></i>{{ __('Basic Information') }}
           </div>
           <div class="card-body">
             <div class="mb-3">
@@ -78,7 +78,7 @@
         {{-- Viewer Settings --}}
         <div class="card mb-4">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-sliders-h me-2"></i>Viewer Settings
+            <i class="fas fa-sliders-h me-2"></i>{{ __('Viewer Settings') }}
           </div>
           <div class="card-body">
             <div class="row">
@@ -149,7 +149,7 @@
         {{-- AR Settings --}}
         <div class="card mb-4">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-mobile-alt me-2"></i>Augmented Reality (AR)
+            <i class="fas fa-mobile-alt me-2"></i>{{ __('Augmented Reality (AR)') }}
           </div>
           <div class="card-body">
             <div class="form-check mb-3">
@@ -188,7 +188,7 @@
         {{-- Status --}}
         <div class="card mb-4">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-toggle-on me-2"></i>Status
+            <i class="fas fa-toggle-on me-2"></i>{{ __('Status') }}
           </div>
           <div class="card-body">
             <div class="form-check mb-3">
@@ -207,7 +207,7 @@
         {{-- File Info --}}
         <div class="card mb-4">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-file me-2"></i>File Info
+            <i class="fas fa-file me-2"></i>{{ __('File Info') }}
           </div>
           <div class="card-body">
             <table class="table table-sm mb-0">
@@ -251,7 +251,7 @@
         {{-- Danger Zone --}}
         <div class="card border-danger">
           <div class="card-header bg-danger text-white">
-            <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Danger Zone</h5>
+            <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Danger Zone') }}</h5>
           </div>
           <div class="card-body">
             <p class="small text-muted">Permanently delete this 3D model and all associated data.</p>

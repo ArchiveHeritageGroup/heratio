@@ -10,13 +10,13 @@
     <div class="card">
       <div class="card-header bg-danger text-white">
         <h4 class="mb-0">
-          <i class="fas fa-shield-alt"></i> Two-Factor Authentication Required
+          <i class="fas fa-shield-alt"></i> {{ __('Two-Factor Authentication Required') }}
         </h4>
       </div>
       <div class="card-body">
         <div class="alert alert-warning">
           <i class="fas fa-exclamation-triangle"></i>
-          Your clearance level requires two-factor authentication to access classified materials.
+          {{ __('Your clearance level requires two-factor authentication to access classified materials.') }}
         </div>
 
         @if(isset($clearance) && $clearance)

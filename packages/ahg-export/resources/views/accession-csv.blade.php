@@ -18,7 +18,7 @@
         <div class="col-md-8">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-file-csv me-2"></i>Export Accession Records</h5>
+                    <h5 class="mb-0"><i class="fas fa-file-csv me-2"></i>{{ __('Export Accession Records') }}</h5>
                 </div>
                 <div class="card-body">
                     <p class="text-muted">Export accession records to CSV format. The output matches the ingest accession import format for round-trip compatibility.</p>
@@ -57,7 +57,7 @@
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Summary</h5>
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Summary') }}</h5>
                 </div>
                 <div class="card-body">
                     <p><strong>{{ __('Total accessions:') }}</strong> {{ number_format($accessionCount) }}</p>

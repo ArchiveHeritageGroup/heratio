@@ -4,7 +4,7 @@
 @section('body-class', 'extended-rights embargo-status')
 
 @section('title-block')
-  <h1 class="mb-0"><i class="fas fa-lock me-2"></i>Embargo Status</h1>
+  <h1 class="mb-0"><i class="fas fa-lock me-2"></i>{{ __('Embargo Status') }}</h1>
 @endsection
 
 @section('content')
@@ -17,7 +17,7 @@
       @include('ahg-rights-holder-manage::extendedRights._embargo-status', ['embargo' => $embargo ?? null])
     @else
       <div class="alert alert-info">
-        <i class="fas fa-info-circle me-2"></i>No object specified. Please select a record to view its embargo status.
+        <i class="fas fa-info-circle me-2"></i>{{ __('No object specified. Please select a record to view its embargo status.') }}
       </div>
       <h5 class="mt-4">{{ __('View All Embargoes') }}</h5>
       <p>You can view and manage all embargoes from the embargoes list.</p>

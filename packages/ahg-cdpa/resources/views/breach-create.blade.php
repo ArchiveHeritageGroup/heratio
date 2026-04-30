@@ -25,7 +25,7 @@
                     <li class="breadcrumb-item active">Report Breach</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-exclamation-triangle me-2"></i>Report Data Breach</h1>
+            <h1><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Report Data Breach') }}</h1>
         </div>
     </div>
 

@@ -12,7 +12,7 @@
   {{-- Expiring Soon Alert --}}
   @if(isset($expiringEmbargoes) && count($expiringEmbargoes) > 0)
     <div class="alert alert-warning">
-      <h5><i class="fas fa-exclamation-triangle"></i> Embargoes Expiring Within 30 Days</h5>
+      <h5><i class="fas fa-exclamation-triangle"></i> {{ __('Embargoes Expiring Within 30 Days') }}</h5>
       <ul class="mb-0">
         @foreach($expiringEmbargoes->take(5) as $embargo)
           <li>

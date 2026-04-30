@@ -39,7 +39,7 @@
           <div class="card">
             <div class="card-header bg-primary text-white">
               <h5 class="mb-0">
-                <i class="fas fa-shield-alt me-2"></i>Security Clearance Settings
+                <i class="fas fa-shield-alt me-2"></i>{{ __('Security Clearance Settings') }}
               </h5>
             </div>
             <div class="card-body">
@@ -67,7 +67,7 @@
               @else
                 <div class="alert alert-warning mb-4">
                   <i class="fas fa-exclamation-triangle me-2"></i>
-                  This user does not have a security clearance. They can only access public documents.
+                  {{ __('This user does not have a security clearance. They can only access public documents.') }}
                 </div>
               @endif
 
@@ -139,7 +139,7 @@
           {{-- Classification Guide --}}
           <div class="card mb-4">
             <div class="card-header bg-light">
-              <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Classification Levels</h6>
+              <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Classification Levels') }}</h6>
             </div>
             <ul class="list-group list-group-flush">
               <li class="list-group-item d-flex justify-content-between"><span class="badge bg-success">{{ __('Public') }}</span><small class="text-muted">{{ __('Level 0') }}</small></li>
@@ -155,7 +155,7 @@
           @if(!empty($history))
             <div class="card">
               <div class="card-header bg-light">
-                <h6 class="mb-0"><i class="fas fa-history me-2"></i>Change History</h6>
+                <h6 class="mb-0"><i class="fas fa-history me-2"></i>{{ __('Change History') }}</h6>
               </div>
               <ul class="list-group list-group-flush">
                 @foreach(array_slice(is_array($history) ? $history : $history->toArray(), 0, 5) as $record)
@@ -192,7 +192,7 @@
         @csrf
         <input type="hidden" name="user_id" value="{{ $user->id ?? '' }}">
         <div class="modal-header bg-danger text-white">
-          <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Revoke Clearance</h5>
+          <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Revoke Clearance') }}</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">

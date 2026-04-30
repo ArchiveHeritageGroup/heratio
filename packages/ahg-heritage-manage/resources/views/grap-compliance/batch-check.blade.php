@@ -6,7 +6,7 @@
 <div class="row">
   <div class="col-md-3">@include('ahg-heritage-manage::partials._heritage-accounting-menu')</div>
   <div class="col-md-9">
-    <h1><i class="fas fa-check-double me-2"></i>Batch Compliance Check</h1>
+    <h1><i class="fas fa-check-double me-2"></i>{{ __('Batch Compliance Check') }}</h1>
     <p class="text-muted">Run compliance checks across all heritage assets.</p>
 
     @if(session('success'))
@@ -28,7 +28,7 @@
     </div>
 
     <div class="card">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-check-double me-2"></i>Batch Compliance Check</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-check-double me-2"></i>{{ __('Batch Compliance Check') }}</div>
       <div class="card-body">
         @if(!empty($items))
         <div class="table-responsive">

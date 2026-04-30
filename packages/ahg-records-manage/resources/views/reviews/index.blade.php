@@ -10,7 +10,7 @@
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="mb-0"><i class="fas fa-eye me-2"></i> Review Queue</h1>
+  <h1 class="mb-0"><i class="fas fa-eye me-2"></i> {{ __('Review Queue') }}</h1>
   <a href="{{ route('records.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Records dashboard') }}</a>
 </div>
 

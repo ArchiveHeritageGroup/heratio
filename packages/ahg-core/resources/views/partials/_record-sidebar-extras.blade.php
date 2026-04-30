@@ -52,7 +52,7 @@
 @if($__provRecord || auth()->check())
   <div class="card mb-3">
     <div class="card-header bg-secondary text-white fw-bold">
-      <i class="fas fa-history me-1"></i> Provenance
+      <i class="fas fa-history me-1"></i> {{ __('Provenance') }}
     </div>
     <div class="card-body py-2">
       @if($__provRecord && $__provRecord->current_status)
@@ -79,7 +79,7 @@
 @endphp
   <div class="card mb-3">
     <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
-      <i class="fas fa-copyright me-1"></i> Rights
+      <i class="fas fa-copyright me-1"></i> {{ __('Rights') }}
     </div>
     <div class="card-body py-2">
       @if($__hasExtRights)<span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>{{ __('Extended rights') }}</span>@endif
@@ -130,7 +130,7 @@
 @if($__slug)
   <div class="card mb-3">
     <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
-      <i class="fas fa-file-export me-1"></i> Export
+      <i class="fas fa-file-export me-1"></i> {{ __('Export') }}
     </div>
     <div class="list-group list-group-flush">
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.dc'))

@@ -48,7 +48,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <h1><i class="fas fa-coins me-2"></i>Heritage Asset Management</h1>
+            <h1><i class="fas fa-coins me-2"></i>{{ __('Heritage Asset Management') }}</h1>
             <p class="text-muted">IPSAS-Compliant Heritage Asset Accounting</p>
         </div>
         <div class="col-auto">
@@ -123,7 +123,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-link me-2"></i>Quick Actions</h5>
+                    <h5 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Quick Actions') }}</h5>
                 </div>
                 <div class="list-group list-group-flush">
                     <a href="{{ route('ipsas.assets') }}" class="list-group-item list-group-item-action">
@@ -157,7 +157,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Valuation Basis</h5>
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>{{ __('Valuation Basis') }}</h5>
                 </div>
                 <div class="card-body">
                     @if(!empty($statsValuationBasis))
@@ -180,7 +180,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-tags me-2"></i>By Category</h5>
+                    <h5 class="mb-0"><i class="fas fa-tags me-2"></i>{{ __('By Category') }}</h5>
                 </div>
                 <div class="card-body">
                     @if(is_countable($statsCategories) && count($statsCategories) > 0)
@@ -208,7 +208,7 @@
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Recently Added</h5>
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>{{ __('Recently Added') }}</h5>
                     <a href="{{ route('ipsas.asset.create') }}" class="btn btn-sm btn-primary">
                         <i class="fas fa-plus"></i>
                     </a>
@@ -244,12 +244,12 @@
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Expiring Insurance</h5>
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>{{ __('Expiring Insurance') }}</h5>
                 </div>
                 <div class="card-body p-0">
                     @if(empty($expiringInsurance) || (is_object($expiringInsurance) && method_exists($expiringInsurance, 'isEmpty') && $expiringInsurance->isEmpty()))
                         <div class="p-3 text-center text-success">
-                            <i class="fas fa-check-circle"></i> No policies expiring soon
+                            <i class="fas fa-check-circle"></i> {{ __('No policies expiring soon') }}
                         </div>
                     @else
                         <ul class="list-group list-group-flush">
@@ -282,7 +282,7 @@
             <div class="col-12">
                 <div class="card border-warning">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>Compliance Issues</h5>
+                        <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>{{ __('Compliance Issues') }}</h5>
                     </div>
                     <div class="card-body">
                         @if(!empty($compliance['issues']))
@@ -312,7 +312,7 @@
         <div class="col-12">
             <div class="card bg-light">
                 <div class="card-body">
-                    <h6><i class="fas fa-book me-2"></i>IPSAS Reference</h6>
+                    <h6><i class="fas fa-book me-2"></i>{{ __('IPSAS Reference') }}</h6>
                     <div class="row">
                         <div class="col-md-4">
                             <strong>{{ __('IPSAS 17:') }}</strong>

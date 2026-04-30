@@ -7,7 +7,7 @@
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
     <h5 class="mb-0">
-      <i class="bi bi-file-earmark-text me-2"></i>Extracted Text
+      <i class="bi bi-file-earmark-text me-2"></i>{{ __('Extracted Text') }}
     </h5>
     <a href="{{ route('pdf-tools.index') }}" class="btn atom-btn-white btn-sm">
       <i class="bi bi-arrow-left me-1"></i>{{ __('Back') }}

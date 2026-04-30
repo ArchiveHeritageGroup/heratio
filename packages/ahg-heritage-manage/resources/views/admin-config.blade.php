@@ -38,7 +38,7 @@ $heroImagesArray = $heroImages ?? [];
     </div>
   </div>
   <div class="col-md-9">
-    <h1><i class="fas fa-cog me-2"></i>Heritage Landing Configuration</h1>
+    <h1><i class="fas fa-cog me-2"></i>{{ __('Heritage Landing Configuration') }}</h1>
 
 <form action="{{ route('heritage.admin-config') }}" method="post">@csrf
 

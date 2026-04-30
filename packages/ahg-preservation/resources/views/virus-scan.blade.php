@@ -10,7 +10,7 @@
     </div>
     <div class="col-md-9">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h1 class="mb-0"><i class="fas fa-shield-virus"></i> Virus Scans</h1>
+            <h1 class="mb-0"><i class="fas fa-shield-virus"></i> {{ __('Virus Scans') }}</h1>
         </div>
         <p class="text-muted mb-3">Virus scanning results for digital objects</p>
 
@@ -103,7 +103,7 @@
         {{-- CLI Commands --}}
         <div class="card mb-4">
             <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                <i class="fas fa-terminal me-2"></i>CLI Commands
+                <i class="fas fa-terminal me-2"></i>{{ __('CLI Commands') }}
             </div>
             <div class="card-body">
                 <p class="mb-2">Run virus scans from the command line:</p>
@@ -124,7 +124,7 @@ php artisan preservation:virus-scan --limit=500</code></pre>
         {{-- Recent Scans --}}
         <div class="card">
             <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                <i class="fas fa-list me-2"></i>Recent Virus Scans
+                <i class="fas fa-list me-2"></i>{{ __('Recent Virus Scans') }}
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">

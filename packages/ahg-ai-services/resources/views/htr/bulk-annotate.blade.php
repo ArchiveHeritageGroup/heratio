@@ -32,7 +32,7 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
-    <h1 class="mb-0"><i class="fas fa-magic me-2"></i>Bulk Annotate</h1>
+    <h1 class="mb-0"><i class="fas fa-magic me-2"></i>{{ __('Bulk Annotate') }}</h1>
     <span class="small text-muted">{{ __('Draw boxes to map spreadsheet data to image regions') }}</span>
   </div>
   <div class="btn-group btn-group-sm">

@@ -64,7 +64,7 @@
 
         <!-- Identity Area (ISAD(G) 3.1) -->
         <div class="card mb-3" id="sectionIdentity">
-          <div class="card-header bg-primary text-white"><h6 class="mb-0"><i class="bi bi-card-heading me-2"></i>Identity Area</h6></div>
+          <div class="card-header bg-primary text-white"><h6 class="mb-0"><i class="bi bi-card-heading me-2"></i>{{ __('Identity Area') }}</h6></div>
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-8">
@@ -112,7 +112,7 @@
 
         <!-- Content Area (ISAD(G) 3.3) -->
         <div class="card mb-3" id="sectionContent">
-          <div class="card-header"><h6 class="mb-0"><i class="bi bi-file-text me-2"></i>Content and Structure</h6></div>
+          <div class="card-header"><h6 class="mb-0"><i class="bi bi-file-text me-2"></i>{{ __('Content and Structure') }}</h6></div>
           <div class="card-body">
             <div class="mb-3">
               <label class="form-label fw-bold">Scope and Content <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
@@ -123,7 +123,7 @@
 
         <!-- Access Points -->
         <div class="card mb-3" id="sectionAccessPoints">
-          <div class="card-header bg-info text-white"><h6 class="mb-0"><i class="bi bi-tags me-2"></i>Access Points</h6></div>
+          <div class="card-header bg-info text-white"><h6 class="mb-0"><i class="bi bi-tags me-2"></i>{{ __('Access Points') }}</h6></div>
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-6">
@@ -161,7 +161,7 @@
 
         <!-- Conditions Area (ISAD(G) 3.4) -->
         <div class="card mb-3" id="sectionConditions">
-          <div class="card-header"><h6 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Conditions of Access and Use</h6></div>
+          <div class="card-header"><h6 class="mb-0"><i class="bi bi-shield-lock me-2"></i>{{ __('Conditions of Access and Use') }}</h6></div>
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-6">
@@ -178,7 +178,7 @@
 
         <!-- Notes -->
         <div class="card mb-3">
-          <div class="card-header"><h6 class="mb-0"><i class="bi bi-sticky me-2"></i>Notes</h6></div>
+          <div class="card-header"><h6 class="mb-0"><i class="bi bi-sticky me-2"></i>{{ __('Notes') }}</h6></div>
           <div class="card-body">
             <textarea name="notes" class="form-control" rows="3">@php echo htmlspecialchars($item->notes ?? '') @endphp</textarea>
           </div>
@@ -186,7 +186,7 @@
 
         <!-- Repository fields (shown when item_type = repository) -->
         <div class="card mb-3" id="sectionRepository" style="display:none;">
-          <div class="card-header bg-warning"><h6 class="mb-0"><i class="bi bi-building me-2"></i>Repository Details</h6></div>
+          <div class="card-header bg-warning"><h6 class="mb-0"><i class="bi bi-building me-2"></i>{{ __('Repository Details') }}</h6></div>
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-12">
@@ -213,7 +213,7 @@
         @if($item)
         <div class="card mb-3 sticky-top" style="top: 1rem;">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <h6 class="mb-0"><i class="bi bi-paperclip me-2"></i>Files (@php echo count($itemFiles) @endphp)</h6>
+            <h6 class="mb-0"><i class="bi bi-paperclip me-2"></i>{{ __('Files (@php echo count($itemFiles) @endphp)') }}</h6>
           </div>
           <div class="card-body">
             <!-- Upload zone -->
@@ -250,7 +250,7 @@
         @else
           <div class="alert alert-info">
             <i class="bi bi-info-circle me-1"></i>
-            Save the item first, then you can upload files.
+            {{ __('Save the item first, then you can upload files.') }}
           </div>
         @endif
 

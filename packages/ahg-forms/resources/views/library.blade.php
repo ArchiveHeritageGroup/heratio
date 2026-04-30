@@ -18,7 +18,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <h1><i class="fas fa-book me-2"></i>Template Library</h1>
+            <h1><i class="fas fa-book me-2"></i>{{ __('Template Library') }}</h1>
             <p class="text-muted">Pre-built form templates ready to install</p>
         </div>
         <div class="col-auto">
@@ -66,7 +66,7 @@
 
     <div class="card mt-4">
         <div class="card-body">
-            <h5><i class="fas fa-info-circle me-2"></i>About Template Library</h5>
+            <h5><i class="fas fa-info-circle me-2"></i>{{ __('About Template Library') }}</h5>
             <p class="mb-0">
                 These pre-built templates follow international standards and best practices.
                 Install them to quickly set up common form configurations, then customize as needed.

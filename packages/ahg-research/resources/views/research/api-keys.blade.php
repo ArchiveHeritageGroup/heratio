@@ -15,7 +15,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2"><i class="fas fa-key text-primary me-2"></i>API Keys</h1>
+    <h1 class="h2"><i class="fas fa-key text-primary me-2"></i>{{ __('API Keys') }}</h1>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#generateKeyModal"><i class="fas fa-plus me-1"></i>{{ __('Generate Key') }}</button>
 </div>
 
@@ -95,7 +95,7 @@
         @else
         <div class="text-center text-muted py-4">
             <i class="fas fa-key fa-3x mb-3 d-block"></i>
-            No API keys yet. Generate one to access the research API.
+            {{ __('No API keys yet. Generate one to access the research API.') }}
         </div>
         @endif
     </div>
@@ -151,7 +151,7 @@
             <div class="form-text">Leave empty for no expiration.</div>
         </div>
         <div class="alert alert-warning mb-0">
-            <i class="fas fa-exclamation-triangle me-2"></i>The API key will only be shown once after generation. Make sure to copy it immediately.
+            <i class="fas fa-exclamation-triangle me-2"></i>{{ __('The API key will only be shown once after generation. Make sure to copy it immediately.') }}
         </div>
     </div>
     <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-key me-1"></i>{{ __('Generate') }}</button></div>

@@ -16,7 +16,7 @@
 @endphp
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="mb-0"><i class="fas fa-brain text-primary"></i> AI Services Settings</h1>
+  <h1 class="mb-0"><i class="fas fa-brain text-primary"></i> {{ __('AI Services Settings') }}</h1>
   <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">
     <i class="fas fa-arrow-left me-1"></i>{{ __('Back to AHG Settings') }}
   </a>
@@ -28,7 +28,7 @@
   {{-- ── General Settings ──────────────────────────────────────────── --}}
   <div class="card mb-4">
     <div class="card-header bg-primary text-white">
-      <h5 class="mb-0"><i class="fas fa-cog me-2"></i>General Settings</h5>
+      <h5 class="mb-0"><i class="fas fa-cog me-2"></i>{{ __('General Settings') }}</h5>
     </div>
     <div class="card-body">
       <div class="row mb-3">
@@ -91,7 +91,7 @@
   {{-- ── NER Settings ──────────────────────────────────────────────── --}}
   <div class="card mb-4">
     <div class="card-header bg-success text-white">
-      <h5 class="mb-0"><i class="fas fa-user-tag me-2"></i>Named Entity Recognition (NER)</h5>
+      <h5 class="mb-0"><i class="fas fa-user-tag me-2"></i>{{ __('Named Entity Recognition (NER)') }}</h5>
     </div>
     <div class="card-body">
       <div class="row mb-3">
@@ -153,7 +153,7 @@
   {{-- ── Summarization Settings ────────────────────────────────────── --}}
   <div class="card mb-4">
     <div class="card-header bg-info text-white">
-      <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Summarization</h5>
+      <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>{{ __('Summarization') }}</h5>
     </div>
     <div class="card-body">
       <div class="row mb-3">
@@ -210,7 +210,7 @@
   {{-- ── Spell Check Settings ──────────────────────────────────────── --}}
   <div class="card mb-4">
     <div class="card-header bg-warning text-dark">
-      <h5 class="mb-0"><i class="fas fa-spell-check me-2"></i>Spell Check</h5>
+      <h5 class="mb-0"><i class="fas fa-spell-check me-2"></i>{{ __('Spell Check') }}</h5>
     </div>
     <div class="card-body">
       <div class="row mb-3">
@@ -259,7 +259,7 @@
   {{-- ── Machine Translation Settings ─────────────────────────────── --}}
   <div class="card mb-4">
     <div class="card-header bg-secondary text-white">
-      <h5 class="mb-0"><i class="fas fa-language me-2"></i>Machine Translation (OPUS-MT)</h5>
+      <h5 class="mb-0"><i class="fas fa-language me-2"></i>{{ __('Machine Translation (OPUS-MT)') }}</h5>
     </div>
     <div class="card-body">
       <div class="row mb-3">
@@ -465,11 +465,11 @@
   {{-- ── Qdrant Vector Search Settings ─────────────────────────────── --}}
   <div class="card mb-4">
     <div class="card-header bg-dark text-white">
-      <h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>Qdrant Vector Search (Discovery Plugin)</h5>
+      <h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>{{ __('Qdrant Vector Search (Discovery Plugin)') }}</h5>
     </div>
     <div class="card-body">
       <div class="mb-4">
-        <h6 class="fw-bold mb-3"><i class="fas fa-heartbeat me-1"></i>Service Status</h6>
+        <h6 class="fw-bold mb-3"><i class="fas fa-heartbeat me-1"></i>{{ __('Service Status') }}</h6>
         @if($qdrantStatus['service'])
           <div class="alert alert-success py-2">
             <i class="fas fa-check-circle me-1"></i>

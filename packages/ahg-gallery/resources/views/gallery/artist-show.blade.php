@@ -197,7 +197,7 @@
       @if($artist->email || $artist->phone || $artist->website || $artist->studio_address)
         <div class="card mb-3">
           <div class="card-header fw-bold">
-            <i class="fas fa-address-card me-1"></i> Contact
+            <i class="fas fa-address-card me-1"></i> {{ __('Contact') }}
           </div>
           <div class="list-group list-group-flush">
             @if($artist->email)
@@ -230,7 +230,7 @@
       @if($artist->instagram || $artist->twitter || $artist->facebook)
         <div class="card mb-3">
           <div class="card-header fw-bold">
-            <i class="fas fa-share-alt me-1"></i> Social media
+            <i class="fas fa-share-alt me-1"></i> {{ __('Social media') }}
           </div>
           <div class="list-group list-group-flush">
             @if($artist->instagram)
@@ -258,7 +258,7 @@
       {{-- Status --}}
       <div class="card mb-3">
         <div class="card-header fw-bold">
-          <i class="fas fa-info-circle me-1"></i> Status
+          <i class="fas fa-info-circle me-1"></i> {{ __('Status') }}
         </div>
         <div class="card-body p-2">
           <span class="badge {{ $artist->is_active ? 'bg-success' : 'bg-secondary' }}">

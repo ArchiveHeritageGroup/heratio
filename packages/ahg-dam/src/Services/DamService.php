@@ -78,6 +78,7 @@ class DamService
                 'io.repository_id',
                 'io.level_of_description_id',
                 'io.source_culture',
+                'io.icip_sensitivity',
                 DB::raw('COALESCE(i18n_cur.title, i18n_fb.title) AS title'),
                 DB::raw('COALESCE(i18n_cur.scope_and_content, i18n_fb.scope_and_content) AS scope_and_content'),
                 DB::raw('COALESCE(i18n_cur.extent_and_medium, i18n_fb.extent_and_medium) AS extent_and_medium'),
@@ -254,7 +255,7 @@ class DamService
             ]);
 
             // 2. Create information_object record
-            DB::table('information_object')->insert([
+            $ioInsert = [
                 'id' => $id,
                 'identifier' => $data['identifier'] ?? null,
                 'parent_id' => $data['parent_id'] ?? 1,
@@ -262,7 +263,11 @@ class DamService
                 'level_of_description_id' => $data['level_of_description_id'] ?? null,
                 'source_standard' => 'dam',
                 'source_culture' => $this->culture,
-            ]);
+            ];
+            if (array_key_exists('icip_sensitivity', $data) && $data['icip_sensitivity'] !== '') {
+                $ioInsert['icip_sensitivity'] = $data['icip_sensitivity'];
+            }
+            DB::table('information_object')->insert($ioInsert);
 
             // 3. Create information_object_i18n record
             DB::table('information_object_i18n')->insert([
@@ -378,9 +383,13 @@ class DamService
         DB::transaction(function () use ($objectId, $data) {
             // 1. Update information_object
             $ioUpdate = [];
-            foreach (['identifier', 'parent_id', 'repository_id', 'level_of_description_id'] as $field) {
+            foreach (['identifier', 'parent_id', 'repository_id', 'level_of_description_id', 'icip_sensitivity'] as $field) {
                 if (array_key_exists($field, $data)) {
-                    $ioUpdate[$field] = $data[$field];
+                    $value = $data[$field];
+                    if ($field === 'icip_sensitivity' && $value === '') {
+                        $value = null;
+                    }
+                    $ioUpdate[$field] = $value;
                 }
             }
             if (!empty($ioUpdate)) {

@@ -15,7 +15,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2"><i class="fas fa-copy text-primary me-2"></i>Reproduction Requests</h1>
+    <h1 class="h2"><i class="fas fa-copy text-primary me-2"></i>{{ __('Reproduction Requests') }}</h1>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRequestModal"><i class="fas fa-plus me-1"></i>{{ __('New Request') }}</button>
 </div>
 
@@ -86,7 +86,7 @@
     <form method="POST">
         @csrf
         <input type="hidden" name="form_action" value="create">
-        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-copy me-2"></i>New Reproduction Request</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-copy me-2"></i>{{ __('New Reproduction Request') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
             <div class="mb-3">
                 <label class="form-label">{{ __('Purpose of Reproduction *') }}</label>

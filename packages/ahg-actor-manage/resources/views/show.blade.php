@@ -196,6 +196,8 @@
 
   <h1>
     {{ $actor->authorized_form_of_name }}@include('ahg-translation::components.badge', ['source' => $translationSources['authorized_form_of_name'] ?? null])
+    {{-- ICIP cultural-sensitivity badge (issue #36 Phase 2b). --}}
+    @include('ahg-translation::components.icip-sensitivity-badge', ['uri' => $actor->icip_sensitivity ?? null])
     @if($completeness ?? null)
       @php
         $levelColors = ['stub' => 'danger', 'minimal' => 'warning', 'partial' => 'info', 'full' => 'success'];

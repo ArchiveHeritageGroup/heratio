@@ -12,7 +12,7 @@
     <div class="alert alert-success alert-dismissible fade show">{!! session('success') !!}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 @endif
 
-<h1 class="mb-4"><i class="fas fa-chair me-2"></i>Reading Room Seats</h1>
+<h1 class="mb-4"><i class="fas fa-chair me-2"></i>{{ __('Reading Room Seats') }}</h1>
 
 {{-- Room Selector + Occupancy --}}
 <div class="row mb-4">
@@ -111,7 +111,7 @@
     {{-- Sidebar: Bulk Create + Seat Types --}}
     <div class="col-md-4">
         <div class="card mb-4">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-magic me-2"></i>Bulk Create Seats</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-magic me-2"></i>{{ __('Bulk Create Seats') }}</h6></div>
             <div class="card-body">
                 <form method="POST">
                     @csrf
@@ -139,7 +139,7 @@
             </div>
         </div>
         <div class="card">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Seat Types</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Seat Types') }}</h6></div>
             <div class="card-body">
                 <ul class="list-unstyled mb-0 small">
                     @foreach($seatTypes as $st)

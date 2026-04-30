@@ -17,7 +17,7 @@
   </ol>
 </nav>
 
-<h1 class="mb-4"><i class="fas fa-link me-2"></i>External Identifiers</h1>
+<h1 class="mb-4"><i class="fas fa-link me-2"></i>{{ __('External Identifiers') }}</h1>
 
 {{-- Existing Identifiers --}}
 <div class="card mb-3">
@@ -83,7 +83,7 @@
 {{-- Lookup Tools --}}
 <div class="card mb-3">
   <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-    <i class="fas fa-search me-1"></i>Search External Authorities
+    <i class="fas fa-search me-1"></i>{{ __('Search External Authorities') }}
   </div>
   <div class="card-body">
     <div class="row g-2 mb-3">

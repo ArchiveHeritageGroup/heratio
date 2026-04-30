@@ -16,7 +16,7 @@
     </ol>
 </nav>
 
-<h1 class="h2 mb-4"><i class="fas fa-box-open text-primary me-2"></i>Batch Checkout</h1>
+<h1 class="h2 mb-4"><i class="fas fa-box-open text-primary me-2"></i>{{ __('Batch Checkout') }}</h1>
 
 <form method="POST">
     @csrf

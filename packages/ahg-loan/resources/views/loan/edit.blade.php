@@ -6,7 +6,7 @@
 @section('content')
 
   <div class="multiline-header d-flex flex-column mb-3">
-    <h1 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Loan</h1>
+    <h1 class="mb-0"><i class="fas fa-edit me-2"></i>{{ __('Edit Loan') }}</h1>
     <span class="small text-muted">{{ $loan->loan_number }} - {{ $loan->title ?: $loan->partner_institution }}</span>
   </div>
 

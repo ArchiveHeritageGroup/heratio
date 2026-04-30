@@ -18,7 +18,7 @@
 
     {{-- Branding --}}
     <div class="card mb-4">
-      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-stamp me-2"></i>Branding</h5></div>
+      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-stamp me-2"></i>{{ __('Branding') }}</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-6 mb-3">
@@ -48,7 +48,7 @@
 
     {{-- Header / Navbar --}}
     <div class="card mb-4">
-      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-heading me-2"></i>Header / Navbar</h5></div>
+      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-heading me-2"></i>{{ __('Header / Navbar') }}</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -71,7 +71,7 @@
 
     {{-- Site Description Bar --}}
     <div class="card mb-4">
-      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-window-maximize me-2"></i>Site Description Bar</h5></div>
+      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-window-maximize me-2"></i>{{ __('Site Description Bar') }}</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -102,7 +102,7 @@
 
     {{-- Primary Colours --}}
     <div class="card mb-4">
-      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-tint me-2"></i>Primary Colours</h5></div>
+      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-tint me-2"></i>{{ __('Primary Colours') }}</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -132,7 +132,7 @@
 
     {{-- Page Background --}}
     <div class="card mb-4">
-      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-fill-drip me-2"></i>Page Background</h5></div>
+      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-fill-drip me-2"></i>{{ __('Page Background') }}</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -156,7 +156,7 @@
 
     {{-- Card Header --}}
     <div class="card mb-4">
-      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-square me-2"></i>Card Headers</h5></div>
+      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-square me-2"></i>{{ __('Card Headers') }}</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -188,7 +188,7 @@
 
     {{-- Buttons --}}
     <div class="card mb-4">
-      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-mouse-pointer me-2"></i>Buttons</h5></div>
+      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-mouse-pointer me-2"></i>{{ __('Buttons') }}</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -211,7 +211,7 @@
 
     {{-- Sidebar --}}
     <div class="card mb-4">
-      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-columns me-2"></i>Sidebar</h5></div>
+      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-columns me-2"></i>{{ __('Sidebar') }}</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -234,7 +234,7 @@
 
     {{-- Footer --}}
     <div class="card mb-4">
-      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-shoe-prints me-2"></i>Footer</h5></div>
+      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-shoe-prints me-2"></i>{{ __('Footer') }}</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -294,7 +294,7 @@
 
     {{-- Bootstrap Contextual Colours --}}
     <div class="card mb-4">
-      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-swatchbook me-2"></i>Contextual Colours</h5></div>
+      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-swatchbook me-2"></i>{{ __('Contextual Colours') }}</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -359,7 +359,7 @@
 
     {{-- Typography --}}
     <div class="card mb-4">
-      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-font me-2"></i>Typography</h5></div>
+      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-font me-2"></i>{{ __('Typography') }}</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -402,7 +402,7 @@
 
     {{-- Custom CSS --}}
     <div class="card mb-4">
-      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-code me-2"></i>Custom CSS</h5></div>
+      <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-code me-2"></i>{{ __('Custom CSS') }}</h5></div>
       <div class="card-body">
         <textarea class="form-control font-monospace" name="ahg_custom_css" rows="8" placeholder="{{ __('/* Add custom CSS overrides here */') }}">{{ $settings['ahg_custom_css'] ?? '' }}</textarea>
         <div class="form-text">CSS entered here will be appended to the generated theme stylesheet.</div>

@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1><i class="fas fa-hashtag me-2"></i>Numbering Schemes</h1>
+  <h1><i class="fas fa-hashtag me-2"></i>{{ __('Numbering Schemes') }}</h1>
 @endsection
 
 @section('content')
@@ -27,7 +27,7 @@
     </div>
 
     @if(empty($schemes))
-      <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>No numbering schemes configured. Click "Add Scheme" to create one.</div>
+      <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>{{ __('No numbering schemes configured. Click "Add Scheme" to create one.') }}</div>
     @else
       <div class="table-responsive">
         <table class="table table-hover">

@@ -30,7 +30,7 @@
                     <li class="breadcrumb-item active">Edit</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-edit me-2"></i>Edit Asset</h1>
+            <h1><i class="fas fa-edit me-2"></i>{{ __('Edit Asset') }}</h1>
         </div>
     </div>
 

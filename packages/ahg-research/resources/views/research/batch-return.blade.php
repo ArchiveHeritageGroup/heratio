@@ -16,7 +16,7 @@
     </ol>
 </nav>
 
-<h1 class="h2 mb-4"><i class="fas fa-undo text-primary me-2"></i>Batch Return</h1>
+<h1 class="h2 mb-4"><i class="fas fa-undo text-primary me-2"></i>{{ __('Batch Return') }}</h1>
 
 <form method="POST">
     @csrf

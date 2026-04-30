@@ -33,7 +33,7 @@
                     <li class="breadcrumb-item active">Asset Register</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-archive me-2"></i>Heritage Asset Register</h1>
+            <h1><i class="fas fa-archive me-2"></i>{{ __('Heritage Asset Register') }}</h1>
             <p class="text-muted">IPSAS-compliant asset inventory</p>
         </div>
         <div class="col-auto">

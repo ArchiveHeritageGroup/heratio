@@ -5,7 +5,7 @@
 
 @section('content')
 
-<h1><i class="fas fa-history"></i> Security Audit Log</h1>
+<h1><i class="fas fa-history"></i> {{ __('Security Audit Log') }}</h1>
 
 {{-- Filters --}}
 <div class="card mb-4">

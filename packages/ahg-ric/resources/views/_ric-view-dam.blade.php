@@ -47,7 +47,7 @@
 
   @if($siblings->count())
     <div class="card mb-3">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-layer-group me-1"></i> Sibling Instantiations</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-layer-group me-1"></i> {{ __('Sibling Instantiations') }}</div>
       <div class="list-group list-group-flush">
         @foreach($siblings as $s)
           <a href="{{ $s->slug ? url('/' . $s->slug) : '#' }}" class="list-group-item list-group-item-action">
@@ -59,7 +59,7 @@
   @endif
 
   <div class="card mb-3">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bolt me-1"></i> Actions</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bolt me-1"></i> {{ __('Actions') }}</div>
     <div class="card-body">
       <a href="/explorer" class="btn btn-sm btn-outline-success w-100 mb-2"><i class="fas fa-project-diagram me-1"></i>{{ __('Open in Graph Explorer') }}</a>
     </div>

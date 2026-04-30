@@ -107,7 +107,7 @@ $categories = [
                 @csrf
                 <input type="hidden" name="form_action" value="upload">
                 <div class="modal-header" style="background-color: #1a5f2a;">
-                    <h5 class="modal-title" style="color: #fff;"><i class="fas fa-upload me-2"></i>Upload Template</h5>
+                    <h5 class="modal-title" style="color: #fff;"><i class="fas fa-upload me-2"></i>{{ __('Upload Template') }}</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -151,7 +151,7 @@ $categories = [
                 <input type="hidden" name="form_action" value="replace">
                 <input type="hidden" name="id" id="replace_id">
                 <div class="modal-header" style="background-color: #d4a200;">
-                    <h5 class="modal-title" style="color: #fff;"><i class="fas fa-sync me-2"></i>Replace Template</h5>
+                    <h5 class="modal-title" style="color: #fff;"><i class="fas fa-sync me-2"></i>{{ __('Replace Template') }}</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">

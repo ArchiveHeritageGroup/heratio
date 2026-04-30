@@ -56,6 +56,6 @@
       Showing {{ count($rows) }} results
     </div>
   @else
-    <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>No records found.</div>
+    <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>{{ __('No records found.') }}</div>
   @endif
 @endsection

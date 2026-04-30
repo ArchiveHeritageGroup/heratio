@@ -23,7 +23,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-sort-alpha-down me-2"></i>Call Numbers Report</h1>
+<h1><i class="fas fa-sort-alpha-down me-2"></i>{{ __('Call Numbers Report') }}</h1>
 @endsection
 
 @section('content')

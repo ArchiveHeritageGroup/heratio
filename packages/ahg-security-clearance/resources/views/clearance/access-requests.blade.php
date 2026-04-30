@@ -9,7 +9,7 @@
     <li class="breadcrumb-item active">Access Requests</li>
   </ol></nav>
 
-  <h1><i class="fas fa-inbox"></i> Pending Access Requests</h1>
+  <h1><i class="fas fa-inbox"></i> {{ __('Pending Access Requests') }}</h1>
 
 {{-- Stats --}}
   <div class="row mb-4">

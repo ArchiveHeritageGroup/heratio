@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1><i class="fas fa-shield-alt me-2"></i>ICIP Settings</h1>
+  <h1><i class="fas fa-shield-alt me-2"></i>{{ __('ICIP Settings') }}</h1>
 @endsection
 
 @section('content')

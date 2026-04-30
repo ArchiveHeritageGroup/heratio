@@ -10,7 +10,7 @@
     </div>
     <div class="col-md-9">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h1 class="mb-0"><i class="fas fa-clipboard-list"></i> Preservation Policies</h1>
+            <h1 class="mb-0"><i class="fas fa-clipboard-list"></i> {{ __('Preservation Policies') }}</h1>
         </div>
         <p class="text-muted mb-3">Active and inactive preservation policies</p>
 
@@ -60,7 +60,7 @@
         {{-- CLI Commands --}}
         <div class="card">
             <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                <i class="fas fa-terminal me-2"></i>CLI Commands
+                <i class="fas fa-terminal me-2"></i>{{ __('CLI Commands') }}
             </div>
             <div class="card-body">
                 <p>Run fixity checks from command line:</p>

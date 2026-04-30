@@ -69,7 +69,7 @@
       <!-- Items Table -->
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h6 class="mb-0"><i class="bi bi-list-ul me-2"></i>Items (@php echo count($items) @endphp)</h6>
+          <h6 class="mb-0"><i class="bi bi-list-ul me-2"></i>{{ __('Items (@php echo count($items) @endphp)') }}</h6>
         </div>
         <div class="card-body p-0">
           @if(empty($items))
@@ -152,7 +152,7 @@
       @if(!empty($reviews))
       <div class="card mb-3">
         <div class="card-header">
-          <h6 class="mb-0"><i class="bi bi-chat-left-text me-2"></i>Review History</h6>
+          <h6 class="mb-0"><i class="bi bi-chat-left-text me-2"></i>{{ __('Review History') }}</h6>
         </div>
         <div class="card-body p-0">
           <div class="list-group list-group-flush">
@@ -189,7 +189,7 @@
       <!-- Info Card -->
       <div class="card mb-3">
         <div class="card-header bg-secondary text-white">
-          <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Submission Info</h6>
+          <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>{{ __('Submission Info') }}</h6>
         </div>
         <div class="card-body">
           <dl class="row mb-0 small">
@@ -242,7 +242,7 @@
       <!-- Actions Card -->
       <div class="card mb-3">
         <div class="card-header">
-          <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Actions</h6>
+          <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>{{ __('Actions') }}</h6>
         </div>
         <div class="card-body d-grid gap-2">
           @if($submission->status === 'draft')
@@ -279,7 +279,7 @@
           @if($submission->status === 'published')
             <div class="alert alert-success mb-0">
               <i class="bi bi-check-circle me-1"></i>
-              This submission has been published to AtoM to Heratio.
+              {{ __('This submission has been published to AtoM to Heratio.') }}
             </div>
           @endif
         </div>
@@ -288,7 +288,7 @@
       <!-- Access Points Legend -->
       <div class="card">
         <div class="card-header">
-          <h6 class="mb-0"><i class="bi bi-tags me-2"></i>Access Points Legend</h6>
+          <h6 class="mb-0"><i class="bi bi-tags me-2"></i>{{ __('Access Points Legend') }}</h6>
         </div>
         <div class="card-body small">
           <span class="badge bg-info text-dark me-1">S</span> Subjects

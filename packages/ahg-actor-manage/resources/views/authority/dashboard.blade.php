@@ -20,7 +20,7 @@
   </ol>
 </nav>
 
-<h1 class="mb-4"><i class="fas fa-id-card me-2"></i>Authority Records Dashboard</h1>
+<h1 class="mb-4"><i class="fas fa-id-card me-2"></i>{{ __('Authority Records Dashboard') }}</h1>
 
 {{-- KPI Cards --}}
 <div class="row g-3 mb-4">
@@ -63,7 +63,7 @@
   <div class="col-md-6">
     <div class="card">
       <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-        <i class="fas fa-chart-pie me-1"></i>Completeness by Level
+        <i class="fas fa-chart-pie me-1"></i>{{ __('Completeness by Level') }}
       </div>
       <div class="card-body">
         <canvas id="completenessChart" height="250"></canvas>
@@ -85,7 +85,7 @@
   <div class="col-md-6">
     <div class="card">
       <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-        <i class="fas fa-link me-1"></i>External Identifiers
+        <i class="fas fa-link me-1"></i>{{ __('External Identifiers') }}
       </div>
       <div class="card-body">
         @if (empty($identifierStats))
@@ -119,7 +119,7 @@
 {{-- Quick Actions --}}
 <div class="card mb-3">
   <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-    <i class="fas fa-bolt me-1"></i>Quick Actions
+    <i class="fas fa-bolt me-1"></i>{{ __('Quick Actions') }}
   </div>
   <div class="card-body">
     <div class="row g-2">

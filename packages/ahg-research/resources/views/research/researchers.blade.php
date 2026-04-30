@@ -6,7 +6,7 @@
 @endsection
 
 @section('title')
-  <h1><i class="fas fa-users text-primary me-2"></i>Researchers</h1>
+  <h1><i class="fas fa-users text-primary me-2"></i>{{ __('Researchers') }}</h1>
 @endsection
 
 @section('content')
@@ -24,7 +24,7 @@
     </div>
   @endif
 
-  <h1 class="h2 mb-4"><i class="fas fa-users text-primary me-2"></i>Manage Researchers</h1>
+  <h1 class="h2 mb-4"><i class="fas fa-users text-primary me-2"></i>{{ __('Manage Researchers') }}</h1>
 
   {{-- Status Filter Pills --}}
   @php $cs = $filter ?? 'all'; @endphp

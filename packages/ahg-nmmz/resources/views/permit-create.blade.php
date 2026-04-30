@@ -25,7 +25,7 @@
           <li class="breadcrumb-item active">New Application</li>
         </ol>
       </nav>
-      <h1><i class="fas fa-file-export me-2"></i>Export Permit Application</h1>
+      <h1><i class="fas fa-file-export me-2"></i>{{ __('Export Permit Application') }}</h1>
       <p class="text-muted">Apply to export antiquities or heritage objects</p>
     </div>
   </div>
@@ -133,7 +133,7 @@
 
     <div class="col-lg-4">
       <div class="alert alert-info">
-        <h6><i class="fas fa-info-circle me-1"></i> Important</h6>
+        <h6><i class="fas fa-info-circle me-1"></i> {{ __('Important') }}</h6>
         <ul class="small mb-0">
           <li>Export of antiquities requires jurisdictional approval</li>
           <li>Processing may take 2-4 weeks</li>

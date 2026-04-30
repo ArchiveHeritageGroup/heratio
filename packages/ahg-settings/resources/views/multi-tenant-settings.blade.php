@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-building me-2"></i>Multi-Tenancy</h1>
+<h1><i class="fas fa-building me-2"></i>{{ __('Multi-Tenancy') }}</h1>
 <p class="text-muted">Repository-based multi-tenancy with user hierarchy</p>
 @endsection
 
@@ -31,7 +31,7 @@
 
     <div class="card mb-4">
       <div class="card-header bg-primary text-white">
-        <h5 class="mb-0"><i class="fas fa-building me-2"></i>Multi-Tenancy Configuration</h5>
+        <h5 class="mb-0"><i class="fas fa-building me-2"></i>{{ __('Multi-Tenancy Configuration') }}</h5>
       </div>
       <div class="card-body">
         <p class="text-muted mb-4">Configure repository-based multi-tenancy. Each repository acts as a tenant with isolated user access and custom branding.</p>

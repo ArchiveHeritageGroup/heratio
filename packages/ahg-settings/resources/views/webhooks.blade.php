@@ -14,13 +14,13 @@
 @endsection
 
 @section('title-block')
-  <h1><i class="fas fa-broadcast-tower me-2"></i>Webhooks</h1>
+  <h1><i class="fas fa-broadcast-tower me-2"></i>{{ __('Webhooks') }}</h1>
 @endsection
 
 @section('content')
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="fas fa-broadcast-tower me-2"></i>Webhook Management</h5>
+        <h5 class="mb-0"><i class="fas fa-broadcast-tower me-2"></i>{{ __('Webhook Management') }}</h5>
         <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createWebhookModal">
           <i class="fas fa-plus me-1"></i>{{ __('Create Webhook') }}
         </button>

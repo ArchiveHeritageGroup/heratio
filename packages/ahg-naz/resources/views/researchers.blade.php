@@ -31,7 +31,7 @@
                     <li class="breadcrumb-item active">Researcher Registry</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-users me-2"></i>Researcher Registry</h1>
+            <h1><i class="fas fa-users me-2"></i>{{ __('Researcher Registry') }}</h1>
             <p class="text-muted">Registered researchers and their permit history</p>
         </div>
         <div class="col-auto">

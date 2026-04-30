@@ -13,7 +13,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-clipboard-check me-2"></i>Compliance</h1>
+<h1><i class="fas fa-clipboard-check me-2"></i>{{ __('Compliance') }}</h1>
 <p class="text-muted">Regulatory compliance settings</p>
 @endsection
 
@@ -30,7 +30,7 @@
 
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Regulatory Compliance</h5>
+        <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>{{ __('Regulatory Compliance') }}</h5>
       </div>
       <div class="card-body">
         <p class="text-muted mb-3">Configure regulatory compliance features. For detailed compliance management (DSARs, breaches, ROPA), see the Privacy Compliance module.</p>

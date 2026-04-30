@@ -29,7 +29,7 @@
   @if($menu->isProtected)
     <div class="alert alert-warning">
       <i class="fas fa-shield-alt me-1"></i>
-      This is a protected menu item. It cannot be deleted and its internal name cannot be changed.
+      {{ __('This is a protected menu item. It cannot be deleted and its internal name cannot be changed.') }}
     </div>
   @endif
 

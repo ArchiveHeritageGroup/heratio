@@ -53,7 +53,7 @@
       </ul></nav>
       @endif
     @else
-    <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>No items found in this category.</div>
+    <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>{{ __('No items found in this category.') }}</div>
     @endif
     @endif
   </div>

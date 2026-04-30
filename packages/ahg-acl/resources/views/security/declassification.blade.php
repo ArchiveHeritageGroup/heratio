@@ -5,13 +5,13 @@
 
 @section('content')
 
-<h1><i class="fas fa-unlock"></i> Declassification Management</h1>
+<h1><i class="fas fa-unlock"></i> {{ __('Declassification Management') }}</h1>
 
 {{-- Due Now --}}
 @if(!empty($dueDeclassifications))
 <div class="card mb-4 border-warning">
   <div class="card-header bg-warning">
-    <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Due for Declassification</h5>
+    <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> {{ __('Due for Declassification') }}</h5>
   </div>
   <div class="card-body">
     <table class="table table-striped">
@@ -55,14 +55,14 @@
 </div>
 @else
 <div class="alert alert-success mb-4">
-  <i class="fas fa-check-circle"></i> No declassifications currently due.
+  <i class="fas fa-check-circle"></i> {{ __('No declassifications currently due.') }}
 </div>
 @endif
 
 {{-- Scheduled --}}
 <div class="card">
   <div class="card-header">
-    <h5 class="mb-0"><i class="fas fa-calendar"></i> Scheduled Declassifications</h5>
+    <h5 class="mb-0"><i class="fas fa-calendar"></i> {{ __('Scheduled Declassifications') }}</h5>
   </div>
   <div class="card-body">
     @if(empty($scheduled))

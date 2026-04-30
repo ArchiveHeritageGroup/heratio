@@ -1,7 +1,7 @@
 @extends('theme::layouts.1col')
 @section('title', 'Gallery Valuations')
 @section('body-class', 'gallery valuations')
-@section('title-block')<h1 class="mb-0"><i class="fas fa-coins me-2"></i>Valuations</h1>@endsection
+@section('title-block')<h1 class="mb-0"><i class="fas fa-coins me-2"></i>{{ __('Valuations') }}</h1>@endsection
 @section('content')
 @auth<div class="mb-3"><a href="{{ route('gallery.valuations.create') }}" class="btn atom-btn-white"><i class="fas fa-plus me-1"></i>{{ __('Create Valuation') }}</a></div>@endauth
 <div class="card">

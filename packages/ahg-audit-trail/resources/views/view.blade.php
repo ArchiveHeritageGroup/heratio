@@ -12,7 +12,7 @@
       <tbody>@foreach($rows as $i => $row)<tr><td>{{ $i + 1 }}</td><td>{{ $row->action ?? $row->name ?? '-' }}</td><td>{{ $row->username ?? '-' }}</td><td>{{ $row->created_at ?? '-' }}</td><td><a href="#" class="btn btn-sm atom-btn-white"><i class="fas fa-eye"></i></a></td></tr>@endforeach</tbody>
     </table></div>
   @else
-    <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>No records found.</div>
+    <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>{{ __('No records found.') }}</div>
   @endif
   <div class="mt-3"><a href="{{ route('audit.browse') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i> {{ __('Back to Audit Trail') }}</a></div>
 @endsection

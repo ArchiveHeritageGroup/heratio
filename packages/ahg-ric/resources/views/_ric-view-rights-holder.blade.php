@@ -33,7 +33,7 @@
 
   @if($rights->count())
   <div class="card mb-3">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-alt me-1"></i> Related Descriptions (rights context)</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-alt me-1"></i> {{ __('Related Descriptions (rights context)') }}</div>
     <div class="list-group list-group-flush">
       @foreach($rights as $r)
         <a href="{{ url('/' . $r->slug) }}" class="list-group-item list-group-item-action">{{ $r->title }}</a>
@@ -43,7 +43,7 @@
   @endif
 
   <div class="card mb-3">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bolt me-1"></i> Actions</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bolt me-1"></i> {{ __('Actions') }}</div>
     <div class="card-body">
       <a href="/explorer" class="btn btn-sm btn-outline-success w-100 mb-2"><i class="fas fa-project-diagram me-1"></i>{{ __('Open in Graph Explorer') }}</a>
     </div>

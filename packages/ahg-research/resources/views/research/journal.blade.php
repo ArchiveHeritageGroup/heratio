@@ -2,7 +2,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'journal'])@endsection
 @section('title-block')
 <div class="d-flex justify-content-between align-items-center">
-  <h1><i class="fas fa-book text-primary me-2"></i>Research Journal</h1>
+  <h1><i class="fas fa-book text-primary me-2"></i>{{ __('Research Journal') }}</h1>
   <div class="d-flex gap-2">
     <div class="dropdown">
       <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -64,7 +64,7 @@
     @endforeach
 </div>
 @empty
-<div class="text-center text-muted py-4"><i class="fas fa-journal-whills fa-3x mb-3 d-block"></i>No journal entries yet. Start documenting your research!</div>
+<div class="text-center text-muted py-4"><i class="fas fa-journal-whills fa-3x mb-3 d-block"></i>{{ __('No journal entries yet. Start documenting your research!') }}</div>
 @endforelse
 
 <div class="modal fade" id="newEntryModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">

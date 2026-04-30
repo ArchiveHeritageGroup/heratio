@@ -6,7 +6,7 @@
 <div class="row">
   <div class="col-md-3">@include('ahg-reports::_menu')</div>
   <div class="col-md-9">
-    <h1><i class="fas fa-plus me-2"></i>Create New Report</h1>
+    <h1><i class="fas fa-plus me-2"></i>{{ __('Create New Report') }}</h1>
 
     <form method="post" action="{{ route('reports.builder.store') }}">
       @csrf

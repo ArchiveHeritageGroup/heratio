@@ -4,7 +4,7 @@
 @section('title', 'Evidence Viewer')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.collections') }}">Evidence Sets</a></li><li class="breadcrumb-item active">Evidence Viewer</li></ol></nav>
-<h1 class="h2 mb-4"><i class="fas fa-search-plus text-primary me-2"></i>Evidence Viewer</h1>
+<h1 class="h2 mb-4"><i class="fas fa-search-plus text-primary me-2"></i>{{ __('Evidence Viewer') }}</h1>
 <div class="row">
     <div class="col-md-8">
         <div class="card mb-4">
@@ -26,7 +26,7 @@
     </div>
     <div class="col-md-4">
         <div class="card mb-4">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Source Info</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Source Info') }}</h6></div>
             <div class="card-body">
                 <dl class="row mb-0 small">
                     <dt class="col-sm-4">Title</dt><dd class="col-sm-8">{{ e($source->title ?? 'N/A') }}</dd>
@@ -37,7 +37,7 @@
             </div>
         </div>
         <div class="card mb-4">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Notes</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>{{ __('Notes') }}</h6></div>
             <div class="card-body">
                 <form method="POST">@csrf
                     <textarea name="notes" class="form-control mb-2" rows="4">{{ e($notes ?? '') }}</textarea>
@@ -46,7 +46,7 @@
             </div>
         </div>
         <div class="card">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-tags me-2"></i>Tags</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-tags me-2"></i>{{ __('Tags') }}</h6></div>
             <div class="card-body">
                 @foreach($tags ?? [] as $tag)<span class="badge bg-light text-dark me-1 mb-1">{{ e($tag) }}</span>@endforeach
                 @if(empty($tags))<span class="text-muted small">{{ __('No tags') }}</span>@endif

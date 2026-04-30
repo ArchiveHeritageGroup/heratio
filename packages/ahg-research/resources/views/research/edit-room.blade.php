@@ -91,7 +91,7 @@
 
           {{-- Booking Policy --}}
           <div class="card mb-3">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Booking Policy</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-calendar-check me-2"></i>{{ __('Booking Policy') }}</h6></div>
             <div class="card-body">
               <div class="row g-3">
                 <div class="col-md-4">

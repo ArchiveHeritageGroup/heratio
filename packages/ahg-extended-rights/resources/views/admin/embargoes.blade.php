@@ -9,7 +9,7 @@
 
 @section('title-block')
   <div class="d-flex justify-content-between align-items-center">
-    <h1 class="mb-0"><i class="fas fa-clock me-2"></i>Embargo Management</h1>
+    <h1 class="mb-0"><i class="fas fa-clock me-2"></i>{{ __('Embargo Management') }}</h1>
     <a href="{{ route('ext-rights-admin.embargo-new') }}" class="btn btn-sm btn-primary">
       <i class="fas fa-plus me-1"></i> {{ __('New Embargo') }}
     </a>

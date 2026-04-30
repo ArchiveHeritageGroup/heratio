@@ -14,7 +14,7 @@
                     <li class="breadcrumb-item active">Checksums &amp; Integrity</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-fingerprint me-2"></i>Checksums &amp; Integrity</h1>
+            <h1><i class="fas fa-fingerprint me-2"></i>{{ __('Checksums &amp; Integrity') }}</h1>
             <p class="text-muted">TIFF-to-PDF merge jobs, checksum coverage and fixity verification</p>
         </div>
         <div class="col-auto">
@@ -34,7 +34,7 @@
     <div class="card mb-4" id="tiff-pdf-merge-section">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">
-                <i class="fas fa-layer-group me-2"></i>TIFF to PDF Merge Jobs
+                <i class="fas fa-layer-group me-2"></i>{{ __('TIFF to PDF Merge Jobs') }}
             </h5>
             <div>
                 <a href="{{ url('/tiff-pdf-merge/browse') }}" class="btn atom-btn-light btn-sm me-2">
@@ -87,7 +87,7 @@
             </div>
 
             @if ($recentJobs->count() > 0)
-                <h6 class="mb-3"><i class="fas fa-history me-2"></i>Recent Jobs</h6>
+                <h6 class="mb-3"><i class="fas fa-history me-2"></i>{{ __('Recent Jobs') }}</h6>
                 <div class="table-responsive">
                     <table class="table table-sm table-hover mb-0">
                         <thead class="table-light">

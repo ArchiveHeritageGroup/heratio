@@ -115,7 +115,7 @@
     </div>
   @else
     <div class="alert alert-info mb-4">
-      <i class="fas fa-info-circle me-2"></i>No physical storage containers linked to this record.
+      <i class="fas fa-info-circle me-2"></i>{{ __('No physical storage containers linked to this record.') }}
     </div>
   @endif
 
@@ -184,7 +184,7 @@
               </div>
             </div>
 
-            <h6 class="text-muted mb-2"><i class="fas fa-map-marker-alt me-1"></i>Location</h6>
+            <h6 class="text-muted mb-2"><i class="fas fa-map-marker-alt me-1"></i>{{ __('Location') }}</h6>
             <div class="row g-3 mb-3">
               <div class="col-md-3">
                 <label class="form-label">{{ __('Building') }}</label>
@@ -236,7 +236,7 @@
               </div>
             </div>
 
-            <h6 class="text-muted mb-2"><i class="fas fa-box me-1"></i>Capacity</h6>
+            <h6 class="text-muted mb-2"><i class="fas fa-box me-1"></i>{{ __('Capacity') }}</h6>
             <div class="row g-3 mb-3">
               <div class="col-md-3">
                 <label class="form-label">{{ __('Total capacity') }}</label>

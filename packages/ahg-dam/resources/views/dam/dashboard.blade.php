@@ -23,7 +23,7 @@
 @section('sidebar')
   <div class="card mb-3" style="background-color: #dc3545;">
     <div class="card-body py-2 text-white text-center">
-      <i class="fas fa-cog"></i> DAM Actions
+      <i class="fas fa-cog"></i> {{ __('DAM Actions') }}
     </div>
   </div>
 
@@ -47,7 +47,7 @@
 
   <div class="card mb-3" style="background-color: #ffc107;">
     <div class="card-body py-2 text-dark text-center">
-      <i class="fas fa-exchange-alt"></i> Licensing
+      <i class="fas fa-exchange-alt"></i> {{ __('Licensing') }}
     </div>
   </div>
 
@@ -108,7 +108,7 @@
   {{-- Quick Actions --}}
   <div class="card mb-4">
     <div class="card-header bg-light">
-      <i class="fas fa-bolt"></i> Quick Actions
+      <i class="fas fa-bolt"></i> {{ __('Quick Actions') }}
     </div>
     <div class="card-body">
       <div class="row">
@@ -136,7 +136,7 @@
   @if(!empty($mediaTypes))
   <div class="card mb-4">
     <div class="card-header bg-light">
-      <i class="fas fa-chart-bar"></i> Media Types
+      <i class="fas fa-chart-bar"></i> {{ __('Media Types') }}
     </div>
     <div class="card-body">
       <div class="row">

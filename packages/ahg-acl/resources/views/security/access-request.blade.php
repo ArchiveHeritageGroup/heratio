@@ -7,7 +7,7 @@
 
 <div class="row justify-content-center">
   <div class="col-md-8">
-    <h1><i class="fas fa-hand-paper"></i> Request Access</h1>
+    <h1><i class="fas fa-hand-paper"></i> {{ __('Request Access') }}</h1>
 
     <div class="card mb-4">
       <div class="card-header">
@@ -48,7 +48,7 @@
     @else
     <div class="alert alert-warning">
       <i class="fas fa-exclamation-triangle"></i>
-      You do not currently have a security clearance. Your request will need to be approved by a security officer.
+      {{ __('You do not currently have a security clearance. Your request will need to be approved by a security officer.') }}
     </div>
     @endif
 

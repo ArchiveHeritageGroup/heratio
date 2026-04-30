@@ -7,7 +7,7 @@
 
   <div class="card mb-3">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <i class="fas fa-chart-bar me-2"></i>Reports
+      <i class="fas fa-chart-bar me-2"></i>{{ __('Reports') }}
     </div>
     <div class="card-body">
 
@@ -77,7 +77,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-list me-2"></i>Browse Reports</h1>
+<h1><i class="fas fa-list me-2"></i>{{ __('Browse Reports') }}</h1>
 @endsection
 
 @section('content')
@@ -88,7 +88,7 @@
 
 <div class="card mb-3">
   <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-    <i class="fas fa-info-circle me-2"></i>Available Actions
+    <i class="fas fa-info-circle me-2"></i>{{ __('Available Actions') }}
   </div>
   <div class="card-body">
     <table class="table table-sm table-bordered mb-0">
@@ -124,7 +124,7 @@
 @section('right')
 <div class="card mb-3">
   <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-    <i class="fas fa-link me-2"></i>Quick Links
+    <i class="fas fa-link me-2"></i>{{ __('Quick Links') }}
   </div>
   <div class="list-group list-group-flush">
     <a href="{{ route('reports.dashboard') }}" class="list-group-item list-group-item-action">
@@ -165,7 +165,7 @@
 
 <div class="card mb-3">
   <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-    <i class="fas fa-clipboard-check me-2"></i>Audit Reports
+    <i class="fas fa-clipboard-check me-2"></i>{{ __('Audit Reports') }}
   </div>
   <div class="list-group list-group-flush">
     <a href="{{ route('reports.audit.actor') }}" class="list-group-item list-group-item-action">
@@ -194,7 +194,7 @@
 
 <div class="card mb-3">
   <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-    <i class="fas fa-wrench me-2"></i>Tools
+    <i class="fas fa-wrench me-2"></i>{{ __('Tools') }}
   </div>
   <div class="list-group list-group-flush">
     <a href="{{ route('reports.select') }}" class="list-group-item list-group-item-action">

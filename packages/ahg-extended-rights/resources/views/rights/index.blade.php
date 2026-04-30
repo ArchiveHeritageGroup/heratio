@@ -27,7 +27,7 @@
     <div class="card-header bg-{{ ($accessCheck['accessible'] ?? true) ? 'success' : 'warning' }} text-{{ ($accessCheck['accessible'] ?? true) ? 'white' : 'dark' }}">
       <h5 class="mb-0">
         <i class="fas fa-{{ ($accessCheck['accessible'] ?? true) ? 'check-circle' : 'exclamation-triangle' }} me-2"></i>
-        Access Status
+        {{ __('Access Status') }}
       </h5>
     </div>
     <div class="card-body">
@@ -77,7 +77,7 @@
   @if($embargo)
   <div class="card mb-4 border-danger">
     <div class="card-header bg-danger text-white">
-      <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Embargo</h5>
+      <h5 class="mb-0"><i class="fas fa-lock me-2"></i>{{ __('Embargo') }}</h5>
     </div>
     <div class="card-body">
       <dl class="row mb-0">
@@ -116,7 +116,7 @@
   @if(isset($tkLabels) && count($tkLabels) > 0)
   <div class="card mb-4">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Traditional Knowledge Labels</h5>
+      <h5 class="mb-0"><i class="fas fa-tags me-2"></i>{{ __('Traditional Knowledge Labels') }}</h5>
     </div>
     <div class="card-body">
       <div class="row">
@@ -155,7 +155,7 @@
   {{-- Rights Records --}}
   <div class="card mb-4">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <h5 class="mb-0"><i class="fas fa-file-contract me-2"></i>Rights Records</h5>
+      <h5 class="mb-0"><i class="fas fa-file-contract me-2"></i>{{ __('Rights Records') }}</h5>
     </div>
     <div class="card-body">
       @if(isset($rights) && count($rights) > 0)
@@ -244,7 +244,7 @@
   @if($orphanWork)
   <div class="card mb-4">
     <div class="card-header bg-info text-white">
-      <h5 class="mb-0"><i class="fas fa-search me-2"></i>Orphan Work Due Diligence</h5>
+      <h5 class="mb-0"><i class="fas fa-search me-2"></i>{{ __('Orphan Work Due Diligence') }}</h5>
     </div>
     <div class="card-body">
       <dl class="row mb-0">

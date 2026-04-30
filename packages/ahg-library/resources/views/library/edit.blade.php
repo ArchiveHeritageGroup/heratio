@@ -23,7 +23,7 @@
         {{-- ===== Basic Information ===== --}}
         <section class="card mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-book me-2"></i>Basic Information</h5>
+            <h5 class="mb-0"><i class="fas fa-book me-2"></i>{{ __('Basic Information') }}</h5>
           </div>
           <div class="card-body">
 
@@ -95,7 +95,7 @@
         {{-- ===== Creators / Authors ===== --}}
         <section class="card mb-4">
           <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-users me-2"></i>Creators / Authors</h5>
+            <h5 class="mb-0"><i class="fas fa-users me-2"></i>{{ __('Creators / Authors') }}</h5>
             <button type="button" class="btn btn-sm atom-btn-white" id="add-creator-btn">
               <i class="fas fa-plus me-1"></i>{{ __('Add') }}
             </button>
@@ -138,7 +138,7 @@
         {{-- ===== Standard Identifiers ===== --}}
         <section class="card mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-barcode me-2"></i>Standard Identifiers</h5>
+            <h5 class="mb-0"><i class="fas fa-barcode me-2"></i>{{ __('Standard Identifiers') }}</h5>
           </div>
           <div class="card-body">
 
@@ -230,7 +230,7 @@
         {{-- ===== Classification ===== --}}
         <section class="card mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>Classification</h5>
+            <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>{{ __('Classification') }}</h5>
           </div>
           <div class="card-body">
 
@@ -285,7 +285,7 @@
         {{-- ===== Publication Information ===== --}}
         <section class="card mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-building me-2"></i>Publication Information</h5>
+            <h5 class="mb-0"><i class="fas fa-building me-2"></i>{{ __('Publication Information') }}</h5>
           </div>
           <div class="card-body">
 
@@ -346,7 +346,7 @@
         {{-- ===== Physical Description ===== --}}
         <section class="card mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-ruler me-2"></i>Physical Description</h5>
+            <h5 class="mb-0"><i class="fas fa-ruler me-2"></i>{{ __('Physical Description') }}</h5>
           </div>
           <div class="card-body">
 
@@ -377,7 +377,7 @@
         {{-- ===== Subjects ===== --}}
         <section class="card mb-4">
           <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Subjects</h5>
+            <h5 class="mb-0"><i class="fas fa-tags me-2"></i>{{ __('Subjects') }}</h5>
             <div class="btn-group">
               <button type="button" class="btn btn-sm atom-btn-white" id="suggest-subjects-btn" title="{{ __('Get AI-powered subject suggestions') }}">
                 <i class="fas fa-magic me-1"></i>{{ __('Suggest') }}
@@ -414,7 +414,7 @@
         {{-- ===== Content ===== --}}
         <section class="card mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-align-left me-2"></i>Content</h5>
+            <h5 class="mb-0"><i class="fas fa-align-left me-2"></i>{{ __('Content') }}</h5>
           </div>
           <div class="card-body">
 
@@ -437,10 +437,29 @@
           </div>
         </section>
 
+        {{-- ===== Rights / ICIP cultural-sensitivity ===== --}}
+        <section class="card mb-4">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+            <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>{{ __('Rights & cultural sensitivity') }}</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+                <label for="icip_sensitivity" class="form-label">{{ __('ICIP cultural-sensitivity classification') }}
+                    <span class="badge bg-info text-dark ms-1" title="{{ __('Indigenous Cultural and Intellectual Property') }}">ICIP</span>
+                </label>
+                @include('ahg-translation::components.icip-sensitivity-select', [
+                    'name' => 'icip_sensitivity',
+                    'value' => old('icip_sensitivity', $item->icip_sensitivity ?? null),
+                ])
+                <small class="form-text text-muted">{{ __('Cultural-sensitivity classification per ICIP protocols. Determines who may view, reproduce, or transmit this item.') }}</small>
+            </div>
+          </div>
+        </section>
+
         {{-- ===== Notes ===== --}}
         <section class="card mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Notes</h5>
+            <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>{{ __('Notes') }}</h5>
           </div>
           <div class="card-body">
 
@@ -466,7 +485,7 @@
         {{-- ===== Actions ===== --}}
         <section class="card mb-4 sticky-top" style="top: 1rem; z-index: 100;">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-save me-2"></i>Actions</h5>
+            <h5 class="mb-0"><i class="fas fa-save me-2"></i>{{ __('Actions') }}</h5>
           </div>
           <div class="card-body">
             <button type="submit" class="btn atom-btn-outline-success w-100 mb-2">
@@ -488,7 +507,7 @@
         {{-- ===== Cover / Digital Object ===== --}}
         <section class="card mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-image me-2"></i>Cover / Digital Object</h5>
+            <h5 class="mb-0"><i class="fas fa-image me-2"></i>{{ __('Cover / Digital Object') }}</h5>
           </div>
           <div class="card-body text-center">
             @php
@@ -523,7 +542,7 @@
         @if(!empty($item->ebook_preview_url ?? old('ebook_preview_url')))
           <section class="card mb-4">
             <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-              <h5 class="mb-0"><i class="fas fa-tablet-alt me-2"></i>E-book Access</h5>
+              <h5 class="mb-0"><i class="fas fa-tablet-alt me-2"></i>{{ __('E-book Access') }}</h5>
             </div>
             <div class="card-body">
               <a href="{{ $item->ebook_preview_url ?? old('ebook_preview_url') }}" target="_blank" class="btn atom-btn-white w-100">
@@ -537,7 +556,7 @@
         @auth
         <section class="card mb-4">
           <div class="card-header" style="background-color: var(--ahg-primary, #005837); color: #fff;">
-            <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Item Physical Location</h5>
+            <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>{{ __('Item Physical Location') }}</h5>
           </div>
           <div class="card-body">
 
@@ -560,7 +579,7 @@
             </div>
 
             {{-- Location within container --}}
-            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-box me-2"></i>Location within container</h6>
+            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-box me-2"></i>{{ __('Location within container') }}</h6>
             <div class="row mb-3">
               <div class="col-md-2">
                 <label class="form-label">Box <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
@@ -606,7 +625,7 @@
             </div>
 
             {{-- Condition & Status --}}
-            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>Condition &amp; Status</h6>
+            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>{{ __('Condition &amp; Status') }}</h6>
             <div class="row mb-3">
               <div class="col-md-6">
                 <label class="form-label">Condition <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
@@ -648,7 +667,7 @@
         {{-- ===== Quick Links ===== --}}
         <section class="card mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-link me-2"></i>Quick Links</h5>
+            <h5 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Quick Links') }}</h5>
           </div>
           <div class="card-body">
             <a href="{{ route('library.browse') }}" class="btn atom-btn-white w-100 mb-2">
@@ -669,7 +688,7 @@
         @if($item && ($item->oclc_number || $item->openlibrary_id || $item->openlibrary_url))
         <section class="card mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-external-link-alt me-2"></i>External Catalogs</h5>
+            <h5 class="mb-0"><i class="fas fa-external-link-alt me-2"></i>{{ __('External Catalogs') }}</h5>
           </div>
           <div class="list-group list-group-flush">
             @if($item->oclc_number)

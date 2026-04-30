@@ -4,7 +4,7 @@
 @section('title', 'View Assertion')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Assertion</li></ol></nav>
-<h1 class="h2 mb-4"><i class="fas fa-gavel text-primary me-2"></i>Assertion</h1>
+<h1 class="h2 mb-4"><i class="fas fa-gavel text-primary me-2"></i>{{ __('Assertion') }}</h1>
 <div class="row"><div class="col-md-8">
 <div class="card mb-4"><div class="card-header" style="background:var(--ahg-primary);color:#fff">Claim</div><div class="card-body">
     <h5>{{ e($assertion->claim ?? '') }}</h5>

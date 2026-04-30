@@ -9,7 +9,7 @@
     <li class="breadcrumb-item active">Watermark Settings</li>
   </ol></nav>
 
-  <h1><i class="fas fa-stamp"></i> Watermark Settings</h1>
+  <h1><i class="fas fa-stamp"></i> {{ __('Watermark Settings') }}</h1>
 
 <form method="POST" action="{{ route('security-clearance.watermark-settings-store') }}">
     @csrf

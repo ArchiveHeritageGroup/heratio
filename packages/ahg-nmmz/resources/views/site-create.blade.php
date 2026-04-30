@@ -28,7 +28,7 @@
           <li class="breadcrumb-item active">Register Site</li>
         </ol>
       </nav>
-      <h1><i class="fas fa-map-marker-alt me-2"></i>Register Archaeological Site</h1>
+      <h1><i class="fas fa-map-marker-alt me-2"></i>{{ __('Register Archaeological Site') }}</h1>
     </div>
   </div>
 

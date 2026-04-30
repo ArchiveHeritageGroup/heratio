@@ -66,7 +66,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <h1><i class="fas fa-shield-alt me-2"></i>CDPA Compliance Dashboard</h1>
+            <h1><i class="fas fa-shield-alt me-2"></i>{{ __('CDPA Compliance Dashboard') }}</h1>
             <p class="text-muted">Cyber and Data Protection Act [Chapter 12:07] &mdash; regulator-administered</p>
         </div>
         <div class="col-auto">
@@ -142,7 +142,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-link me-2"></i>Quick Actions</h5>
+                    <h5 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Quick Actions') }}</h5>
                 </div>
                 <div class="list-group list-group-flush">
                     <a href="{{ route('ahgcdpa.license') }}" class="list-group-item list-group-item-action">
@@ -188,7 +188,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-user-clock me-2"></i>Pending Requests</h5>
+                    <h5 class="mb-0"><i class="fas fa-user-clock me-2"></i>{{ __('Pending Requests') }}</h5>
                     <a href="{{ route('ahgcdpa.request-create') }}" class="btn btn-sm btn-primary">
                         <i class="fas fa-plus"></i>
                     </a>
@@ -231,7 +231,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>Issues &amp; Warnings</h5>
+                    <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>{{ __('Issues &amp; Warnings') }}</h5>
                 </div>
                 <div class="card-body">
                     @if (empty($compliance['issues']) && empty($compliance['warnings']))
@@ -241,7 +241,7 @@
                         </div>
                     @else
                         @if (!empty($compliance['issues']))
-                            <h6 class="text-danger"><i class="fas fa-times-circle me-1"></i>Issues</h6>
+                            <h6 class="text-danger"><i class="fas fa-times-circle me-1"></i>{{ __('Issues') }}</h6>
                             <ul class="list-unstyled mb-3">
                                 @foreach ($compliance['issues'] as $issue)
                                     <li class="mb-1"><i class="fas fa-exclamation-circle text-danger me-1"></i> {{ $issue }}</li>
@@ -249,7 +249,7 @@
                             </ul>
                         @endif
                         @if (!empty($compliance['warnings']))
-                            <h6 class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Warnings</h6>
+                            <h6 class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>{{ __('Warnings') }}</h6>
                             <ul class="list-unstyled mb-0">
                                 @foreach ($compliance['warnings'] as $warning)
                                     <li class="mb-1"><i class="fas fa-exclamation-triangle text-warning me-1"></i> {{ $warning }}</li>
@@ -266,7 +266,7 @@
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Controller License</h5>
+                    <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>{{ __('Controller License') }}</h5>
                     <a href="{{ route('ahgcdpa.license-edit') }}" class="btn btn-sm atom-btn-outline-primary">
                         <i class="fas fa-edit"></i>
                     </a>
@@ -298,7 +298,7 @@
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>Data Protection Officer</h5>
+                    <h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>{{ __('Data Protection Officer') }}</h5>
                     <a href="{{ route('ahgcdpa.dpo-edit') }}" class="btn btn-sm atom-btn-outline-primary">
                         <i class="fas fa-edit"></i>
                     </a>

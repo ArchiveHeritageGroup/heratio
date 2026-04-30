@@ -5,7 +5,7 @@
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0"><i class="fas fa-shield-alt"></i> Publish Gate Rules</h1>
+    <h1 class="mb-0"><i class="fas fa-shield-alt"></i> {{ __('Publish Gate Rules') }}</h1>
     <div>
       <a href="{{ route('workflow.admin') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('Workflows') }}</a>
       <a href="{{ route('workflow.gates.edit') }}" class="btn atom-btn-outline-success"><i class="fas fa-plus"></i> {{ __('Create Rule') }}</a>

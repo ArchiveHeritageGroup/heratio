@@ -6,7 +6,7 @@
 <div class="row">
   <div class="col-md-3">@include('ahg-heritage-manage::partials._heritage-accounting-menu')</div>
   <div class="col-md-9">
-    <h1><i class="fas fa-book me-2"></i>Add Journal Entry</h1>
+    <h1><i class="fas fa-book me-2"></i>{{ __('Add Journal Entry') }}</h1>
     <p class="text-muted">Record an accounting journal entry.</p>
 
     @if($errors->any())
@@ -18,7 +18,7 @@
       @if(isset($asset)) @method('PUT') @endif
 
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-book me-2"></i>Add Journal Entry</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-book me-2"></i>{{ __('Add Journal Entry') }}</div>
         <div class="card-body">
           @foreach($fields ?? [] as $field)
           <div class="mb-3">

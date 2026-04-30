@@ -22,7 +22,7 @@ $total = $flagData['total'] ?? 0;
     </div>
   </div>
   <div class="col-md-9">
-    <h1><i class="fas fa-user-shield me-2"></i>POPIA/Privacy Flags</h1>
+    <h1><i class="fas fa-user-shield me-2"></i>{{ __('POPIA/Privacy Flags') }}</h1>
 
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-body">

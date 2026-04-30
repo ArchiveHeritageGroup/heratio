@@ -12,7 +12,7 @@
 @endsection
 
 @section('title-block')
-  <h1><i class="fas fa-id-card me-2"></i>Authority Records</h1>
+  <h1><i class="fas fa-id-card me-2"></i>{{ __('Authority Records') }}</h1>
   <p class="text-muted small mb-0">External linking, completeness, NER pipeline, merge/dedup, occupations, functions</p>
 @endsection
 
@@ -29,7 +29,7 @@
 
     {{-- Card 1: External Authority Sources --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-globe me-2"></i>External Authority Sources</div>
+      <div class="card-header"><i class="fas fa-globe me-2"></i>{{ __('External Authority Sources') }}</div>
       <div class="card-body">
         <p class="text-muted mb-3">Enable external authority file linking for reconciliation and enrichment.</p>
         <div class="row">
@@ -71,7 +71,7 @@
 
     {{-- Card 2: Completeness & Quality --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-chart-bar me-2"></i>Completeness &amp; Quality</div>
+      <div class="card-header"><i class="fas fa-chart-bar me-2"></i>{{ __('Completeness &amp; Quality') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-6">
@@ -98,7 +98,7 @@
 
     {{-- Card 3: NER Pipeline --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-robot me-2"></i>NER Pipeline</div>
+      <div class="card-header"><i class="fas fa-robot me-2"></i>{{ __('NER Pipeline') }}</div>
       <div class="card-body">
         <p class="text-muted mb-3">Configure how Named Entity Recognition creates authority record stubs.</p>
         <div class="row">
@@ -125,7 +125,7 @@
 
     {{-- Card 4: Merge & Deduplication --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-code-branch me-2"></i>Merge &amp; Deduplication</div>
+      <div class="card-header"><i class="fas fa-code-branch me-2"></i>{{ __('Merge &amp; Deduplication') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-6">
@@ -151,7 +151,7 @@
 
     {{-- Card 5: ISDF Functions --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-project-diagram me-2"></i>ISDF Functions</div>
+      <div class="card-header"><i class="fas fa-project-diagram me-2"></i>{{ __('ISDF Functions') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-6">

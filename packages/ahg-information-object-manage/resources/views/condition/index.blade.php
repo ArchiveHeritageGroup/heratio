@@ -33,7 +33,7 @@
     {{-- Latest Condition card --}}
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-star me-2"></i> Latest Condition</h5>
+        <h5 class="mb-0"><i class="fas fa-star me-2"></i> {{ __('Latest Condition') }}</h5>
       </div>
       <div class="card-body">
         <div class="row">

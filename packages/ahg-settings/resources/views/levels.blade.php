@@ -27,7 +27,7 @@ function levelsGetSectorIcon(string $sector): string {
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="mb-0"><i class="fas fa-layer-group me-2"></i>Levels of Description</h1>
+  <h1 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('Levels of Description') }}</h1>
   <a href="{{ route('term.browse', ['taxonomy' => 'levels-of-description']) }}" class="btn atom-btn-outline-success" target="_blank">
     <i class="fas fa-plus me-1"></i>{{ __('Add new term in Taxonomy') }}
   </a>
@@ -75,7 +75,7 @@ function levelsGetSectorIcon(string $sector): string {
           @if ($sectorAvailableLevels->isEmpty())
             <div class="alert alert-warning">
               <i class="fas fa-exclamation-triangle me-2"></i>
-              No levels available for this sector. The required terms may not exist in the database. Please add them via the Taxonomy.
+              {{ __('No levels available for this sector. The required terms may not exist in the database. Please add them via the Taxonomy.') }}
             </div>
           @else
             <div class="row">
@@ -113,7 +113,7 @@ function levelsGetSectorIcon(string $sector): string {
     @if ($sectorLevels->count() > 0)
     <div class="card">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-sort me-2"></i>Display Order</h5>
+        <h5 class="mb-0"><i class="fas fa-sort me-2"></i>{{ __('Display Order') }}</h5>
       </div>
       <div class="card-body">
         <form method="post" action="{{ route('settings.levels', ['sector' => $currentSector]) }}">
@@ -166,7 +166,7 @@ function levelsGetSectorIcon(string $sector): string {
     {{-- About Sectors --}}
     <div class="card mb-3">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>About Sectors</h5>
+        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About Sectors') }}</h5>
       </div>
       <div class="card-body small">
         <dl class="mb-0">
@@ -199,7 +199,7 @@ function levelsGetSectorIcon(string $sector): string {
     {{-- Quick Links --}}
     <div class="card">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-link me-2"></i>Quick Links</h5>
+        <h5 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Quick Links') }}</h5>
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('term.browse', ['taxonomy' => 'levels-of-description']) }}"

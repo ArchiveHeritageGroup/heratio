@@ -1,5 +1,5 @@
 <div class="card mb-3">
-  <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-chart-bar me-2"></i>Reports</div>
+  <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-chart-bar me-2"></i>{{ __('Reports') }}</div>
   <div class="list-group list-group-flush">
     <a href="{{ route('reports.dashboard') }}" class="list-group-item list-group-item-action{{ request()->routeIs('reports.dashboard') ? ' active' : '' }}"><i class="fas fa-tachometer-alt me-2" style="width:18px"></i>{{ __('Dashboard') }}</a>
     <a href="{{ route('reports.descriptions') }}" class="list-group-item list-group-item-action{{ request()->routeIs('reports.descriptions') ? ' active' : '' }}"><i class="fas fa-file-alt me-2" style="width:18px"></i>{{ __('Descriptions') }}</a>

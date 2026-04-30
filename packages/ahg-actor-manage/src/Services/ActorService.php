@@ -79,6 +79,7 @@ class ActorService
                 'actor.corporate_body_identifiers',
                 'actor.parent_id',
                 'actor.source_culture',
+                'actor.icip_sensitivity',
                 DB::raw('COALESCE(ai_cur.authorized_form_of_name, ai_fb.authorized_form_of_name) AS authorized_form_of_name'),
                 DB::raw('COALESCE(ai_cur.dates_of_existence, ai_fb.dates_of_existence) AS dates_of_existence'),
                 DB::raw('COALESCE(ai_cur.history, ai_fb.history) AS history'),
@@ -776,7 +777,7 @@ class ActorService
             ]);
 
             // 3. Create actor record
-            DB::table('actor')->insert([
+            $actorInsert = [
                 'id' => $id,
                 'entity_type_id' => $data['entity_type_id'] ?? null,
                 'description_status_id' => $data['description_status_id'] ?? null,
@@ -786,7 +787,11 @@ class ActorService
                 'corporate_body_identifiers' => $data['corporate_body_identifiers'] ?? null,
                 'parent_id' => 3, // Actor::ROOT_ID
                 'source_culture' => $this->culture,
-            ]);
+            ];
+            if (array_key_exists('icip_sensitivity', $data) && $data['icip_sensitivity'] !== '') {
+                $actorInsert['icip_sensitivity'] = $data['icip_sensitivity'];
+            }
+            DB::table('actor')->insert($actorInsert);
 
             // 4. Save actor_i18n (ISAAR fields)
             DB::table('actor_i18n')->insert([
@@ -837,11 +842,15 @@ class ActorService
             $actorFields = [
                 'entity_type_id', 'description_status_id', 'description_detail_id',
                 'description_identifier', 'source_standard', 'corporate_body_identifiers',
-                'parent_id',
+                'parent_id', 'icip_sensitivity',
             ];
             foreach ($actorFields as $field) {
                 if (array_key_exists($field, $data)) {
-                    $actorUpdate[$field] = $data[$field];
+                    $value = $data[$field];
+                    if ($field === 'icip_sensitivity' && $value === '') {
+                        $value = null;
+                    }
+                    $actorUpdate[$field] = $value;
                 }
             }
             if (!empty($actorUpdate)) {

@@ -21,7 +21,7 @@
             @endif
 
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4><i class="fas fa-clock me-2"></i>Pending Access Requests</h4>
+                <h4><i class="fas fa-clock me-2"></i>{{ __('Pending Access Requests') }}</h4>
                 <a href="{{ route('accessRequest.approvers') }}" class="btn btn-outline-secondary">
                     <i class="fas fa-user-shield me-1"></i>{{ __('Manage Approvers') }}
                 </a>

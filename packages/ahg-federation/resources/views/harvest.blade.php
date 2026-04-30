@@ -12,7 +12,7 @@
                     <li class="breadcrumb-item active">Harvest</li>
                 </ol>
             </nav>
-            <h4 class="mb-0"><i class="bi bi-cloud-download me-2"></i>Harvest Records</h4>
+            <h4 class="mb-0"><i class="bi bi-cloud-download me-2"></i>{{ __('Harvest Records') }}</h4>
         </div>
         <a href="{{ route('federation.log') }}" class="atom-btn-white">
             <i class="bi bi-journal-text me-1"></i>{{ __('View Logs') }}

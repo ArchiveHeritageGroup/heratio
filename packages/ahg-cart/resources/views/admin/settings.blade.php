@@ -3,7 +3,7 @@
 @section('body-class', 'admin settings')
 
 @section('content')
-<h1><i class="fas fa-store me-2"></i>E-Commerce Settings</h1>
+<h1><i class="fas fa-store me-2"></i>{{ __('E-Commerce Settings') }}</h1>
 
 @if(session('success'))
   <div class="alert alert-success alert-dismissible fade show">
@@ -47,7 +47,7 @@
 
       <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
-          <i class="fas fa-sliders-h me-2"></i>General Settings
+          <i class="fas fa-sliders-h me-2"></i>{{ __('General Settings') }}
         </div>
         <div class="card-body">
           <div class="row">
@@ -136,7 +136,7 @@
 
       <div class="card shadow-sm">
         <div class="card-header bg-success text-white">
-          <i class="fas fa-credit-card me-2"></i>PayFast Configuration
+          <i class="fas fa-credit-card me-2"></i>{{ __('PayFast Configuration') }}
         </div>
         <div class="card-body">
 
@@ -208,7 +208,7 @@
 
       <div class="card shadow-sm">
         <div class="card-header bg-warning text-dark">
-          <i class="fas fa-tags me-2"></i>Product Pricing
+          <i class="fas fa-tags me-2"></i>{{ __('Product Pricing') }}
         </div>
         <div class="card-body">
 

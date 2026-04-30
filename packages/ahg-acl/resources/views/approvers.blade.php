@@ -14,7 +14,7 @@
   </nav>
 
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-user-check me-2"></i> Access Request Approvers</h2>
+    <h2><i class="fas fa-user-check me-2"></i> {{ __('Access Request Approvers') }}</h2>
     <a href="{{ route('acl.groups') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> {{ __('Back to ACL') }}
     </a>
@@ -51,7 +51,7 @@
     <div class="col-lg-8 mb-4">
       <div class="card">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-list me-2"></i> Current Approvers</h5>
+          <h5 class="mb-0"><i class="fas fa-list me-2"></i> {{ __('Current Approvers') }}</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
@@ -118,7 +118,7 @@
     <div class="col-lg-4 mb-4">
       <div class="card">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i> Add Approver</h5>
+          <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i> {{ __('Add Approver') }}</h5>
         </div>
         <div class="card-body">
           <form action="{{ route('acl.add-approver') }}" method="POST">

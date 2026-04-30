@@ -25,7 +25,7 @@
                     <li class="breadcrumb-item active">New Request</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-user-clock me-2"></i>Log Data Subject Request</h1>
+            <h1><i class="fas fa-user-clock me-2"></i>{{ __('Log Data Subject Request') }}</h1>
         </div>
     </div>
 
@@ -101,7 +101,7 @@
 
         <div class="col-lg-4">
             <div class="alert alert-info">
-                <h6><i class="fas fa-info-circle me-1"></i> Response Deadline</h6>
+                <h6><i class="fas fa-info-circle me-1"></i> {{ __('Response Deadline') }}</h6>
                 <p class="small mb-0">Data subject requests must be responded to within 30 days under CDPA.</p>
             </div>
 

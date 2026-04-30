@@ -6,7 +6,7 @@
 @section('title', 'Custody Checkout')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.retrievalQueue') }}">Retrieval Queue</a></li><li class="breadcrumb-item active">Checkout</li></ol></nav>
-<h1 class="h2 mb-4"><i class="fas fa-box-open text-primary me-2"></i>Custody Checkout</h1>
+<h1 class="h2 mb-4"><i class="fas fa-box-open text-primary me-2"></i>{{ __('Custody Checkout') }}</h1>
 <div class="card">
     <div class="card-body">
         <form method="POST">

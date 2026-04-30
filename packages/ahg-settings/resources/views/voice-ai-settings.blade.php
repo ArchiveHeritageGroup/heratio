@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-microphone me-2"></i>Voice &amp; AI</h1>
+<h1><i class="fas fa-microphone me-2"></i>{{ __('Voice &amp; AI') }}</h1>
 <p class="text-muted">Voice interface and AI assistant settings</p>
 @endsection
 
@@ -32,7 +32,7 @@
     {{-- Voice Commands --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-microphone me-2"></i>Voice Commands</h5>
+        <h5 class="mb-0"><i class="fas fa-microphone me-2"></i>{{ __('Voice Commands') }}</h5>
       </div>
       <div class="card-body">
         <div class="row g-3">
@@ -138,7 +138,7 @@
     {{-- AI Image Description --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-brain me-2"></i>AI Image Description</h5>
+        <h5 class="mb-0"><i class="fas fa-brain me-2"></i>{{ __('AI Image Description') }}</h5>
       </div>
       <div class="card-body">
         <div class="row g-3">

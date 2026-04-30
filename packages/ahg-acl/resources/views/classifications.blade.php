@@ -14,7 +14,7 @@
   </nav>
 
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-shield-alt me-2"></i> Security Classifications</h2>
+    <h2><i class="fas fa-shield-alt me-2"></i> {{ __('Security Classifications') }}</h2>
     <a href="{{ route('acl.groups') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> {{ __('Back to ACL') }}
     </a>
@@ -22,7 +22,7 @@
 
   <div class="card">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i> Classification Levels</h5>
+      <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i> {{ __('Classification Levels') }}</h5>
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">

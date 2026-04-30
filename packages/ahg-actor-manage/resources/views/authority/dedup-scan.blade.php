@@ -17,7 +17,7 @@
   </ol>
 </nav>
 
-<h1 class="mb-4"><i class="fas fa-clone me-2"></i>Dedup Scan Results</h1>
+<h1 class="mb-4"><i class="fas fa-clone me-2"></i>{{ __('Dedup Scan Results') }}</h1>
 
 @if (session('success'))
   <div class="alert alert-success">{{ session('success') }}</div>

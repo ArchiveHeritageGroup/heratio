@@ -13,14 +13,14 @@
 @section('content')
 <div class="alert alert-info mb-4">
   <i class="fas fa-info-circle me-2"></i>
-  Lifting this embargo will immediately restore access to the record.
+  {{ __('Lifting this embargo will immediately restore access to the record.') }}
 </div>
 
 <form method="post" action="{{ route('embargo.lift', $embargo->id) }}">
   @csrf
   <div class="card mb-4">
     <div class="card-header bg-success text-white">
-      <h4 class="mb-0"><i class="fas fa-unlock me-2"></i>Confirm Lift Embargo</h4>
+      <h4 class="mb-0"><i class="fas fa-unlock me-2"></i>{{ __('Confirm Lift Embargo') }}</h4>
     </div>
     <div class="card-body">
       <div class="row mb-3">

@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-inbox me-2"></i>Accession Management</h1>
+<h1><i class="fas fa-inbox me-2"></i>{{ __('Accession Management') }}</h1>
 <p class="text-muted">Intake workflow, numbering, appraisal, container and rights settings</p>
 @endsection
 
@@ -32,7 +32,7 @@
     {{-- Intake Queue --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-inbox me-2"></i>Intake Queue</h5>
+        <h5 class="mb-0"><i class="fas fa-inbox me-2"></i>{{ __('Intake Queue') }}</h5>
       </div>
       <div class="card-body">
         <div class="row g-3">
@@ -96,7 +96,7 @@
     {{-- Containers & Rights --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-box me-2"></i>Containers &amp; Rights</h5>
+        <h5 class="mb-0"><i class="fas fa-box me-2"></i>{{ __('Containers &amp; Rights') }}</h5>
       </div>
       <div class="card-body">
         <div class="row g-3">

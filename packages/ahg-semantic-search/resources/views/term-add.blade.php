@@ -26,7 +26,7 @@
                 Terms
             </a>
             <i class="fas fa-chevron-right mx-2 small text-muted"></i>
-            Add Term
+            {{ __('Add Term') }}
         </h1>
     </div>
 

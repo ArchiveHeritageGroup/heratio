@@ -55,7 +55,7 @@
     <div class="col-md-8">
       @if($subFunctions->count())
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-sitemap me-1"></i> Sub-functions (hasPart)</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-sitemap me-1"></i> {{ __('Sub-functions (hasPart)') }}</div>
         <div class="list-group list-group-flush">
           @foreach($subFunctions as $sf)
             <a href="{{ url('/' . $sf->slug) }}" class="list-group-item list-group-item-action"><i class="fas fa-cog text-purple me-1"></i>{{ $sf->name }}</a>
@@ -66,7 +66,7 @@
 
       @if($relatedDescriptions->count())
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-alt me-1"></i> Related Descriptions</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-alt me-1"></i> {{ __('Related Descriptions') }}</div>
         <div class="list-group list-group-flush">
           @foreach($relatedDescriptions as $desc)
             <a href="{{ url('/' . $desc->slug) }}" class="list-group-item list-group-item-action"><i class="fas fa-file-alt text-info me-1"></i>{{ $desc->title }}</a>
@@ -77,7 +77,7 @@
 
       @if($relatedAgents->count())
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-users me-1"></i> Related Agents</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-users me-1"></i> {{ __('Related Agents') }}</div>
         <div class="list-group list-group-flush">
           @foreach($relatedAgents as $a)
             <a href="{{ url('/' . $a->slug) }}" class="list-group-item list-group-item-action"><i class="fas fa-user-circle text-danger me-1"></i>{{ $a->name }}</a>
@@ -89,7 +89,7 @@
 
     <div class="col-md-4">
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bolt me-1"></i> Actions</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bolt me-1"></i> {{ __('Actions') }}</div>
         <div class="card-body">
           <a href="/explorer" class="btn btn-sm btn-outline-success w-100 mb-2"><i class="fas fa-project-diagram me-1"></i>{{ __('Open in Graph Explorer') }}</a>
           <a href="/ric-api/relations/{{ $function->id }}" class="btn btn-sm btn-outline-info w-100" target="_blank"><i class="fas fa-code me-1"></i>{{ __('View Relations JSON') }}</a>

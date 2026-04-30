@@ -65,7 +65,7 @@
                 <div class="col-md-6 text-md-end">
                     @if ($action->has_active_hold)
                         <div class="alert alert-warning py-2 d-inline-block">
-                            <i class="fas fa-gavel"></i> Active Legal Hold
+                            <i class="fas fa-gavel"></i> {{ __('Active Legal Hold') }}
                         </div>
                     @endif
                 </div>

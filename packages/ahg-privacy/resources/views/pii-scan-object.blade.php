@@ -4,7 +4,7 @@
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1><i class="fas fa-user-shield me-2"></i>PII Scan Results</h1>
+            <h1><i class="fas fa-user-shield me-2"></i>{{ __('PII Scan Results') }}</h1>
             <p class="text-muted mb-0">{{ $object->title ?? 'Untitled' }}</p>
         </div>
         <div>
@@ -100,7 +100,7 @@ if ($scanResult['risk_score'] >= 70) echo 'bg-danger';
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Detected Entities</h5>
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>{{ __('Detected Entities') }}</h5>
                     @if(!empty($scanResult['entities']))
                     <span class="badge bg-light text-dark">{{ count($scanResult['entities']) }} found</span>
                     @endif
@@ -180,7 +180,7 @@ $risk = $entity['risk_level'] ?? 'low';
             @if(!empty($scanResult['entities']))
             <div class="card mb-4">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-save me-2"></i>Save Results</h5>
+                    <h5 class="mb-0"><i class="fas fa-save me-2"></i>{{ __('Save Results') }}</h5>
                 </div>
                 <div class="card-body">
                     <p class="small text-muted">Save detected PII to the review queue for manual verification and redaction decisions.</p>
@@ -198,7 +198,7 @@ $risk = $entity['risk_level'] ?? 'low';
             @if(!empty($scanResult['summary']['by_type']))
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>By Type</h5>
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>{{ __('By Type') }}</h5>
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-sm mb-0">
@@ -219,7 +219,7 @@ $risk = $entity['risk_level'] ?? 'low';
             @if(!empty($scanResult['fields_scanned']))
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Fields Scanned</h5>
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>{{ __('Fields Scanned') }}</h5>
                 </div>
                 <div class="card-body">
                     <ul class="list-unstyled mb-0">
@@ -234,7 +234,7 @@ $risk = $entity['risk_level'] ?? 'low';
             <!-- Quick Actions -->
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Actions</h5>
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>{{ __('Actions') }}</h5>
                 </div>
                 <div class="card-body">
                     <a href="{{ route('ahgprivacy.pii-review') }}" class="btn btn-outline-warning w-100 mb-2">

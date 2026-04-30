@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-compact-disc me-2"></i>Portable Export</h1>
+<h1><i class="fas fa-compact-disc me-2"></i>{{ __('Portable Export') }}</h1>
 <p class="text-muted">Standalone portable catalogue viewer for offline access</p>
 @endsection
 
@@ -31,7 +31,7 @@
 
     <div class="card mb-4">
       <div class="card-header bg-primary text-white">
-        <h5 class="mb-0"><i class="fas fa-compact-disc me-2"></i>Portable Export Configuration</h5>
+        <h5 class="mb-0"><i class="fas fa-compact-disc me-2"></i>{{ __('Portable Export Configuration') }}</h5>
       </div>
       <div class="card-body">
         <p class="text-muted mb-3">Configure defaults for standalone portable catalogue exports (CD/USB/ZIP distribution).</p>

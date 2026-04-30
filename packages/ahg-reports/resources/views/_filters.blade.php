@@ -1,5 +1,5 @@
 <div class="card mb-3">
-  <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-filter me-2"></i>Filters</div>
+  <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-filter me-2"></i>{{ __('Filters') }}</div>
   <div class="card-body">
     <form method="get" action="{{ $action }}">
       @if(isset($cultures))

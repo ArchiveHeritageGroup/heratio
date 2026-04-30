@@ -10,7 +10,7 @@
     <li class="breadcrumb-item active">Trace Watermark</li>
   </ol></nav>
 
-  <h1><i class="fas fa-search"></i> Trace Watermark</h1>
+  <h1><i class="fas fa-search"></i> {{ __('Trace Watermark') }}</h1>
   <p class="text-muted">Enter a watermark code to identify who downloaded the document.</p>
 
   <div class="card mb-4">

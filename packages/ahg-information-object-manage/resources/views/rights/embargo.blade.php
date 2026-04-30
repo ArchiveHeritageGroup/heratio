@@ -67,7 +67,7 @@
   <!-- Propagation Options -->
   <div class="card mb-4">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <h4 class="mb-0"><i class="fas fa-sitemap me-2"></i>Apply to Hierarchy</h4>
+      <h4 class="mb-0"><i class="fas fa-sitemap me-2"></i>{{ __('Apply to Hierarchy') }}</h4>
     </div>
     <div class="card-body">
       @php
@@ -86,12 +86,12 @@
         </div>
         <div class="alert alert-warning mb-0" id="propagation-warning" style="display: none;">
           <i class="fas fa-exclamation-triangle me-2"></i>
-          Warning: This action cannot be easily undone. Each child record will have its own embargo that must be lifted individually.
+          {{ __('Warning: This action cannot be easily undone. Each child record will have its own embargo that must be lifted individually.') }}
         </div>
       @else
         <p class="text-muted mb-0">
           <i class="fas fa-info-circle me-2"></i>
-          This record has no child records.
+          {{ __('This record has no child records.') }}
         </p>
       @endif
     </div>

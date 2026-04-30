@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-images me-2"></i>IIIF Viewer</h1>
+<h1><i class="fas fa-images me-2"></i>{{ __('IIIF Viewer') }}</h1>
 <p class="text-muted">IIIF image viewer and annotation settings</p>
 @endsection
 
@@ -31,7 +31,7 @@
 
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-images me-2"></i>IIIF Image Viewer</h5>
+        <h5 class="mb-0"><i class="fas fa-images me-2"></i>{{ __('IIIF Image Viewer') }}</h5>
       </div>
       <div class="card-body">
         <div class="row mb-3">

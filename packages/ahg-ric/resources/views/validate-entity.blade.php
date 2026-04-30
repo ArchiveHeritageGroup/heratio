@@ -11,7 +11,7 @@
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="mb-0"><i class="fas fa-check-double me-2"></i> SHACL Validation</h1>
+  <h1 class="mb-0"><i class="fas fa-check-double me-2"></i> {{ __('SHACL Validation') }}</h1>
   <a href="javascript:history.back()" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
 </div>
 
@@ -34,7 +34,7 @@
 @elseif($result['valid'] && empty($result['errors']) && empty($result['warnings']))
   <div class="card border-success mb-3">
     <div class="card-header bg-success text-white">
-      <i class="fas fa-check-circle me-2"></i>Validation passed
+      <i class="fas fa-check-circle me-2"></i>{{ __('Validation passed') }}
     </div>
     <div class="card-body">
       No mandatory-field violations and no SHACL constraint violations were detected for this record.

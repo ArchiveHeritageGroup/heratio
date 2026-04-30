@@ -361,7 +361,7 @@
     <form method="post" action="{{ route('favorites.folder.create') }}">
       @csrf
       <div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-folder-plus me-2"></i>New Folder</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-folder-plus me-2"></i>{{ __('New Folder') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
           <div class="mb-3"><label class="form-label">Folder Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" class="form-control" required maxlength="255"></div>
           <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="description" class="form-control" rows="2"></textarea></div>
@@ -393,7 +393,7 @@
       @csrf
       @if(!empty($params['folder_id']))<input type="hidden" name="folder_id" value="{{ $params['folder_id'] }}">@endif
       <div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-upload me-2"></i>Import Favorites</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-upload me-2"></i>{{ __('Import Favorites') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
           <div class="mb-3"><label class="form-label">Upload CSV <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="file" name="file" class="form-control" accept=".csv,.txt"><small class="text-muted">{{ __('CSV must contain a "slug" or "reference_code" column.') }}</small></div>
           <div class="text-center text-muted my-2">&mdash; or &mdash;</div>
@@ -412,7 +412,7 @@
     <form method="post" action="{{ route('favorites.folder.edit', $activeFolder->id) }}">
       @csrf
       <div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Folder</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-edit me-2"></i>{{ __('Edit Folder') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
           <div class="mb-3"><label class="form-label">Folder Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" class="form-control" value="{{ e($activeFolder->name) }}" required maxlength="255"></div>
           <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="description" class="form-control" rows="2">{{ e($activeFolder->description ?? '') }}</textarea></div>
@@ -427,7 +427,7 @@
 <div class="modal fade" id="shareInfoModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title"><i class="fas fa-share-alt me-2"></i>Folder is Shared</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header"><h5 class="modal-title"><i class="fas fa-share-alt me-2"></i>{{ __('Folder is Shared') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
         <div class="mb-3">
           <label class="form-label">Share Link <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

@@ -24,7 +24,7 @@
           <li class="breadcrumb-item active">Configuration</li>
         </ol>
       </nav>
-      <h1><i class="fas fa-cog me-2"></i>NMMZ Configuration</h1>
+      <h1><i class="fas fa-cog me-2"></i>{{ __('NMMZ Configuration') }}</h1>
       <p class="text-muted">Configure module settings (jurisdictional plugin)</p>
     </div>
   </div>

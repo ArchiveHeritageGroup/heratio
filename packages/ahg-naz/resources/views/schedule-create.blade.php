@@ -25,7 +25,7 @@
                     <li class="breadcrumb-item active">New Schedule</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-calendar-alt me-2"></i>Create Records Schedule</h1>
+            <h1><i class="fas fa-calendar-alt me-2"></i>{{ __('Create Records Schedule') }}</h1>
         </div>
     </div>
 

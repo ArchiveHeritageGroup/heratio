@@ -2,7 +2,7 @@
 @section('title', 'Confirm Delete')
 @section('body-class', 'delete')
 @section('content')
-  <div class="card border-danger"><div class="card-header bg-danger text-white"><i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete</div><div class="card-body">
+  <div class="card border-danger"><div class="card-header bg-danger text-white"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Confirm Delete') }}</div><div class="card-body">
     <p>Are you sure you want to delete <strong>{{ $record->name ?? $record->title ?? 'this record' }}</strong>?</p>
     <p class="text-danger">This action cannot be undone.</p>
     <form method="POST" action="{{ $deleteUrl ?? '#' }}">@csrf @method('DELETE')

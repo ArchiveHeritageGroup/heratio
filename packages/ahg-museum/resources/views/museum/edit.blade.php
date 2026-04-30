@@ -75,7 +75,7 @@
 
   @if($errors->any())
     <div class="alert alert-danger" role="alert">
-      <h5><i class="fas fa-exclamation-triangle"></i> Validation Errors</h5>
+      <h5><i class="fas fa-exclamation-triangle"></i> {{ __('Validation Errors') }}</h5>
       <ul class="mb-0">
         @foreach($errors->all() as $error)
           <li>{{ $error }}</li>
@@ -1207,7 +1207,7 @@
               </div>
             </div>
 
-            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-box me-2"></i>Location within container</h6>
+            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-box me-2"></i>{{ __('Location within container') }}</h6>
             <div class="row mb-3">
               <div class="col-md-2">
                 <label class="form-label">{{ __('Box') }}</label>
@@ -1251,7 +1251,7 @@
               </div>
             </div>
 
-            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>Condition &amp; Status</h6>
+            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>{{ __('Condition &amp; Status') }}</h6>
             <div class="row mb-3">
               <div class="col-md-3">
                 <label class="form-label">{{ __('Condition') }}</label>

@@ -30,7 +30,7 @@ $expiringEmbargoes = $expiringEmbargoes ?? [];
     @if(!empty($expiringEmbargoes))
     <div class="card border-0 shadow-sm mt-4">
       <div class="card-header bg-warning bg-opacity-10">
-        <h6 class="mb-0 text-warning"><i class="fas fa-clock me-2"></i>Expiring Soon</h6>
+        <h6 class="mb-0 text-warning"><i class="fas fa-clock me-2"></i>{{ __('Expiring Soon') }}</h6>
       </div>
       <ul class="list-group list-group-flush">
         @foreach(array_slice((array)$expiringEmbargoes, 0, 5) as $exp)
@@ -45,7 +45,7 @@ $expiringEmbargoes = $expiringEmbargoes ?? [];
   </div>
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-lock me-2"></i>Embargo Management</h1>
+      <h1><i class="fas fa-lock me-2"></i>{{ __('Embargo Management') }}</h1>
     </div>
 
     @if(session('success'))

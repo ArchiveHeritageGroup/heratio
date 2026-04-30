@@ -29,7 +29,7 @@
                     <li class="breadcrumb-item active">Insurance</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-shield-alt me-2"></i>Insurance Policies</h1>
+            <h1><i class="fas fa-shield-alt me-2"></i>{{ __('Insurance Policies') }}</h1>
             <p class="text-muted">Manage insurance coverage for heritage assets</p>
         </div>
     </div>

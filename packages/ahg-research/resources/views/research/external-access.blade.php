@@ -4,7 +4,7 @@
 @section('title', 'External Access')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">External Access</li></ol></nav>
-<h1 class="h2 mb-4"><i class="fas fa-globe text-primary me-2"></i>External Access</h1>
+<h1 class="h2 mb-4"><i class="fas fa-globe text-primary me-2"></i>{{ __('External Access') }}</h1>
 <div class="row">
     <div class="col-md-8">
         <div class="card mb-4">

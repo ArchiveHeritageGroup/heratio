@@ -16,7 +16,7 @@
   <div class="col-lg-3 col-md-4 mb-4">
     <div class="card mb-3">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Actions</h5>
+        <h5 class="mb-0"><i class="fas fa-cog me-2"></i>{{ __('Actions') }}</h5>
       </div>
       <div class="card-body">
         <a href="{{ route('dropdown.index') }}" class="btn atom-btn-white w-100 mb-2">
@@ -30,7 +30,7 @@
 
     <div class="card">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Info</h6>
+        <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Info') }}</h6>
       </div>
       <div class="card-body small">
         <div class="mb-2">
@@ -52,7 +52,7 @@
     @if(isset($columnMappings) && $columnMappings->isNotEmpty())
     <div class="card mt-3">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h6 class="mb-0"><i class="fas fa-link me-2"></i>Column Mappings</h6>
+        <h6 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Column Mappings') }}</h6>
       </div>
       <div class="card-body small p-2">
         <table class="table table-sm table-borderless mb-0">
@@ -158,7 +158,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Add Term</h5>
+        <h5 class="modal-title"><i class="fas fa-plus me-2"></i>{{ __('Add Term') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">

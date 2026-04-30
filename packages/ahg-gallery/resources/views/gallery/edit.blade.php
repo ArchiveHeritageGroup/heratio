@@ -52,7 +52,7 @@
 
   @if($errors->any())
     <div class="alert alert-danger" role="alert">
-      <h5><i class="fas fa-exclamation-triangle"></i> Validation Errors</h5>
+      <h5><i class="fas fa-exclamation-triangle"></i> {{ __('Validation Errors') }}</h5>
       <ul class="mb-0">
         @foreach($errors->all() as $error)
           <li>{{ $error }}</li>
@@ -1663,6 +1663,23 @@
               </div>
             </div>
 
+            {{-- icip_sensitivity: ICIP cultural-sensitivity classification (issue #36 Phase 2b) --}}
+            <div class="cco-field level-recommended" data-field="icip_sensitivity">
+              <div class="field-header">
+                <label for="icip_sensitivity">{{ __('ICIP cultural-sensitivity classification') }}</label>
+                <span class="field-badges">
+                  <span class="badge bg-info text-dark" title="{{ __('Indigenous Cultural and Intellectual Property') }}">ICIP</span>
+                </span>
+              </div>
+              <div class="field-input">
+                @include('ahg-translation::components.icip-sensitivity-select', [
+                    'name' => 'icip_sensitivity',
+                    'value' => old('icip_sensitivity', $artwork->icip_sensitivity ?? null),
+                ])
+                <small class="form-text text-muted">{{ __('Cultural-sensitivity classification per ICIP protocols. Determines who may view, reproduce, or transmit this item.') }}</small>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -1701,7 +1718,7 @@
               </div>
             </div>
 
-            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-box me-2"></i>Location within container</h6>
+            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-box me-2"></i>{{ __('Location within container') }}</h6>
             <div class="row mb-3">
               <div class="col-md-2">
                 <label class="form-label">Box <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
@@ -1745,7 +1762,7 @@
               </div>
             </div>
 
-            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>Condition &amp; Status</h6>
+            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>{{ __('Condition &amp; Status') }}</h6>
             <div class="row mb-3">
               <div class="col-md-3">
                 <label class="form-label">Condition <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

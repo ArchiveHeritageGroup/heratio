@@ -592,6 +592,8 @@ class ActorController extends Controller
             'functions', 'mandates', 'internal_structures', 'general_context',
             'rules', 'sources', 'revision_history', 'maintenance_notes',
             'contacts', 'other_names',
+            // ICIP cultural-sensitivity URI (issue #36 Phase 2b) — persisted to actor.icip_sensitivity.
+            'icip_sensitivity',
         ]);
 
         $this->service->update($actor->id, $data);

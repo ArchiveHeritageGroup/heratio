@@ -32,7 +32,7 @@
     </table>
 
     <div class="card card-body bg-light p-2 mt-2">
-        <h6 class="mb-2" id="ric-rel-form-title"><i class="fas fa-plus-circle"></i> Add Relation</h6>
+        <h6 class="mb-2" id="ric-rel-form-title"><i class="fas fa-plus-circle"></i> {{ __('Add Relation') }}</h6>
         <div class="row g-2 align-items-end">
             <div class="col-md-4">
                 <label class="form-label form-label-sm">{{ __('Target Entity') }}</label>

@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1><i class="fas fa-folder-open me-2"></i>Site Paths Setup</h1>
+  <h1><i class="fas fa-folder-open me-2"></i>{{ __('Site Paths Setup') }}</h1>
 @endsection
 
 @section('content')

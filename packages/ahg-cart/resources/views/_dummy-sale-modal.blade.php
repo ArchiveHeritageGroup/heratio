@@ -11,7 +11,7 @@
     <div class="modal-content">
       <div class="modal-header bg-warning bg-opacity-25">
         <h5 class="modal-title" id="dummySaleModalLabel">
-          <i class="fas fa-flask me-2 text-warning"></i> Demo sale (e-commerce disabled)
+          <i class="fas fa-flask me-2 text-warning"></i> {{ __('Demo sale (e-commerce disabled)') }}
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
       </div>

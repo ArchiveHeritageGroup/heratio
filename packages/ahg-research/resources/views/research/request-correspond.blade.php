@@ -4,7 +4,7 @@
 @section('title', 'Request Correspondence')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Correspondence</li></ol></nav>
-<h1 class="h2 mb-4"><i class="fas fa-envelope text-primary me-2"></i>Request Correspondence</h1>
+<h1 class="h2 mb-4"><i class="fas fa-envelope text-primary me-2"></i>{{ __('Request Correspondence') }}</h1>
 <div class="row"><div class="col-md-8">
 <div class="card mb-4"><div class="card-header" style="background:var(--ahg-primary);color:#fff">Messages</div>
     <div class="card-body">

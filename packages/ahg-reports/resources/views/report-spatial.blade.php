@@ -26,7 +26,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h1 class="h3 mb-1"><i class="bi bi-geo-alt me-2"></i>Spatial Analysis Export</h1>
+        <h1 class="h3 mb-1"><i class="bi bi-geo-alt me-2"></i>{{ __('Spatial Analysis Export') }}</h1>
         <p class="text-muted mb-0">Export site records with GPS coordinates for GIS/spatial analysis</p>
       </div>
     </div>
@@ -39,7 +39,7 @@
           {{-- Coordinate Source --}}
           <div class="card mb-4">
             <div class="card-header">
-              <h6 class="mb-0"><i class="bi bi-pin-map me-2"></i>Coordinate Source</h6>
+              <h6 class="mb-0"><i class="bi bi-pin-map me-2"></i>{{ __('Coordinate Source') }}</h6>
             </div>
             <div class="card-body">
               <div class="mb-3">
@@ -72,7 +72,7 @@
           {{-- Record Filters --}}
           <div class="card mb-4">
             <div class="card-header">
-              <h6 class="mb-0"><i class="bi bi-funnel me-2"></i>Record Filters</h6>
+              <h6 class="mb-0"><i class="bi bi-funnel me-2"></i>{{ __('Record Filters') }}</h6>
             </div>
             <div class="card-body">
               <div class="row">
@@ -142,7 +142,7 @@ Khoi</textarea>
           {{-- Tradition Classification --}}
           <div class="card mb-4">
             <div class="card-header">
-              <h6 class="mb-0"><i class="bi bi-tags me-2"></i>Tradition Classification</h6>
+              <h6 class="mb-0"><i class="bi bi-tags me-2"></i>{{ __('Tradition Classification') }}</h6>
             </div>
             <div class="card-body">
               <p class="text-muted small">Configure which subject terms indicate painted vs engraved traditions. The export will include <code>is_painted</code> and <code>is_engraved</code> boolean columns based on these terms.</p>
@@ -172,7 +172,7 @@ Khoi</textarea>
           {{-- Export Actions --}}
           <div class="card mb-4">
             <div class="card-header">
-              <h6 class="mb-0"><i class="bi bi-download me-2"></i>Export</h6>
+              <h6 class="mb-0"><i class="bi bi-download me-2"></i>{{ __('Export') }}</h6>
             </div>
             <div class="card-body">
               <div class="d-grid gap-2">
@@ -192,7 +192,7 @@ Khoi</textarea>
           {{-- Output Fields --}}
           <div class="card mb-4">
             <div class="card-header">
-              <h6 class="mb-0"><i class="bi bi-list-columns me-2"></i>Output Columns</h6>
+              <h6 class="mb-0"><i class="bi bi-list-columns me-2"></i>{{ __('Output Columns') }}</h6>
             </div>
             <div class="card-body p-0">
               <ul class="list-group list-group-flush">
@@ -211,7 +211,7 @@ Khoi</textarea>
           {{-- Help --}}
           <div class="card">
             <div class="card-header">
-              <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>Help</h6>
+              <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>{{ __('Help') }}</h6>
             </div>
             <div class="card-body small">
               <p><strong>{{ __('Use Case:') }}</strong> Overlay site locations onto geological maps to investigate relationships between surface geology and rock art traditions.</p>
@@ -233,7 +233,7 @@ Khoi</textarea>
     {{-- Preview Results --}}
     <div class="card mt-4">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0"><i class="bi bi-table me-2"></i>Preview Results</h6>
+        <h6 class="mb-0"><i class="bi bi-table me-2"></i>{{ __('Preview Results') }}</h6>
         <span class="badge bg-primary">{{ $previewData['count'] }} records (limited to 10)</span>
       </div>
       <div class="card-body p-0">

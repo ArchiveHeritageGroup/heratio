@@ -22,7 +22,7 @@
 
     {{-- Filters --}}
     <div class="card mb-3">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-filter me-2"></i>Filters</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-filter me-2"></i>{{ __('Filters') }}</div>
       <div class="card-body">
         <form method="get" class="row g-3">
           @if(isset($repositories))
@@ -77,7 +77,7 @@
     <div class="card">
       <div class="card-body p-0">
         @if(empty($results))
-          <div class="alert alert-info m-3"><i class="fas fa-info-circle me-2"></i>No results found. Try adjusting your filters.</div>
+          <div class="alert alert-info m-3"><i class="fas fa-info-circle me-2"></i>{{ __('No results found. Try adjusting your filters.') }}</div>
         @else
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">

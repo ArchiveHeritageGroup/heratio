@@ -34,7 +34,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1><i class="fas fa-bell text-primary me-2"></i>Notifications</h1>
+    <h1><i class="fas fa-bell text-primary me-2"></i>{{ __('Notifications') }}</h1>
     @if($unreadCount > 0)
     <form method="POST"><@csrf<input type="hidden" name="do" value="mark_all_read">
         <button type="submit" class="btn btn-outline-secondary btn-sm"><i class="fas fa-check-double me-1"></i>{{ __('Mark All Read') }}</button>
@@ -68,7 +68,7 @@
 @if($currentTab === 'preferences')
     {{-- Preferences --}}
     <div class="card">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Notification Preferences</h5></div>
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>{{ __('Notification Preferences') }}</h5></div>
         <div class="card-body">
             <form method="POST">
                 @csrf

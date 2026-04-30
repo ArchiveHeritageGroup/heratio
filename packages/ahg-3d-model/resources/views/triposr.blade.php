@@ -16,7 +16,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h1><i class="fas fa-magic me-2"></i>TripoSR Settings</h1>
+      <h1><i class="fas fa-magic me-2"></i>{{ __('TripoSR Settings') }}</h1>
       <p class="text-muted mb-0">Generate 3D models from 2D images using AI</p>
     </div>
     <div>
@@ -103,7 +103,7 @@
         {{-- Service Configuration --}}
         <div class="card mb-4">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-cog me-2"></i>Service Configuration
+            <i class="fas fa-cog me-2"></i>{{ __('Service Configuration') }}
           </div>
           <div class="card-body">
             <div class="row">
@@ -161,7 +161,7 @@
         <div class="card mb-4" id="remote_config_card"
              style="display: {{ getTripoSetting3d($settings, 'triposr_mode') == 'remote' ? 'block' : 'none' }};">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-server me-2"></i>Remote GPU Server
+            <i class="fas fa-server me-2"></i>{{ __('Remote GPU Server') }}
           </div>
           <div class="card-body">
             <div class="alert alert-info small mb-3">
@@ -193,7 +193,7 @@
         {{-- Generation Defaults --}}
         <div class="card mb-4">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-sliders-h me-2"></i>Default Generation Options
+            <i class="fas fa-sliders-h me-2"></i>{{ __('Default Generation Options') }}
           </div>
           <div class="card-body">
             <div class="row">
@@ -251,7 +251,7 @@
         {{-- Recent Jobs --}}
         <div class="card mb-4">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-history me-2"></i>Recent Jobs
+            <i class="fas fa-history me-2"></i>{{ __('Recent Jobs') }}
           </div>
           <div class="card-body p-0">
             @if(count($recentJobs ?? []) === 0)
@@ -290,7 +290,7 @@
         {{-- CLI Commands --}}
         <div class="card mb-4">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-terminal me-2"></i>CLI Commands
+            <i class="fas fa-terminal me-2"></i>{{ __('CLI Commands') }}
           </div>
           <div class="card-body">
             <div class="small">
@@ -312,7 +312,7 @@
         {{-- Quick Links --}}
         <div class="card">
           <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-            <i class="fas fa-link me-2"></i>Resources
+            <i class="fas fa-link me-2"></i>{{ __('Resources') }}
           </div>
           <div class="list-group list-group-flush">
             <a href="https://github.com/VAST-AI-Research/TripoSR" target="_blank" class="list-group-item list-group-item-action">

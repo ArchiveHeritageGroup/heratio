@@ -5,7 +5,7 @@
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0"><i class="fas fa-cog me-2"></i>Workflow Administration</h1>
+    <h1 class="h3 mb-0"><i class="fas fa-cog me-2"></i>{{ __('Workflow Administration') }}</h1>
     <div>
       <a href="{{ route('workflow.admin.create') }}" class="btn atom-btn-outline-success">
         <i class="fas fa-plus me-1"></i>{{ __('Create Workflow') }}
@@ -19,7 +19,7 @@
   {{-- Workflow Settings --}}
   <div class="card mb-4">
     <div class="card-header" style="background: var(--ahg-primary); color: white;">
-      <i class="fas fa-shield-alt me-1"></i>Workflow Settings
+      <i class="fas fa-shield-alt me-1"></i>{{ __('Workflow Settings') }}
     </div>
     <div class="card-body">
       <form method="POST" action="{{ route('workflow.admin.settings') }}">

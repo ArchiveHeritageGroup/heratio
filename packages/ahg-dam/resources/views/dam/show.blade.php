@@ -65,7 +65,10 @@
     @include('ahg-ric::_ric-view-dam', ['asset' => $asset])
   @else
 
-  <h1>{{ $asset->title ?: $asset->identifier ?: '[Untitled]' }}</h1>
+  <h1>{{ $asset->title ?: $asset->identifier ?: '[Untitled]' }}
+    {{-- ICIP cultural-sensitivity badge (issue #36 Phase 2b). --}}
+    @include('ahg-translation::components.icip-sensitivity-badge', ['uri' => $asset->icip_sensitivity ?? null])
+  </h1>
 
   {{-- Identification area --}}
   <section id="identificationArea" class="border-bottom">

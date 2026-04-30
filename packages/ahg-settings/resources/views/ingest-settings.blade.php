@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-file-import me-2"></i>Data Ingest</h1>
+<h1><i class="fas fa-file-import me-2"></i>{{ __('Data Ingest') }}</h1>
 <p class="text-muted">Data ingest pipeline and processing options</p>
 @endsection
 
@@ -32,7 +32,7 @@
     {{-- AI & Processing Defaults --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-brain me-2"></i>AI &amp; Processing Defaults</h5>
+        <h5 class="mb-0"><i class="fas fa-brain me-2"></i>{{ __('AI &amp; Processing Defaults') }}</h5>
       </div>
       <div class="card-body">
         <p class="text-muted mb-3">These defaults are pre-selected when creating a new ingest session. Users can override per session.</p>
@@ -161,7 +161,7 @@
     {{-- Output Defaults --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Output Defaults</h5>
+        <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>{{ __('Output Defaults') }}</h5>
       </div>
       <div class="card-body">
         <div class="row g-3">
@@ -254,7 +254,7 @@
     {{-- Service Availability --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>Service Availability</h5>
+        <h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>{{ __('Service Availability') }}</h5>
       </div>
       <div class="card-body">
         <p class="text-muted mb-3">Processing options require the corresponding services to be installed and running.</p>

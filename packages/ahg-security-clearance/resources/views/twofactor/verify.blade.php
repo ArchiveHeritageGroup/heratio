@@ -8,7 +8,7 @@
     <div class="col-md-5">
       <div class="card">
         <div class="card-header text-center">
-          <h4 class="mb-0"><i class="fas fa-mobile-alt"></i> Two-Factor Authentication</h4>
+          <h4 class="mb-0"><i class="fas fa-mobile-alt"></i> {{ __('Two-Factor Authentication') }}</h4>
         </div>
         <div class="card-body">
           @if(session('error'))

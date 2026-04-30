@@ -7,7 +7,7 @@
   <div class="container">
     <div class="row mb-4">
       <div class="col-12">
-        <h1 class="display-5 fw-bold mb-3"><i class="fas fa-chart-line me-2"></i>Trending Now</h1>
+        <h1 class="display-5 fw-bold mb-3"><i class="fas fa-chart-line me-2"></i>{{ __('Trending Now') }}</h1>
         <p class="lead text-muted">Popular items being viewed this week</p>
       </div>
     </div>
@@ -32,7 +32,7 @@
       @endforeach
     </div>
     @else
-    <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>No trending data available yet. Browse some items to get started!</div>
+    <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>{{ __('No trending data available yet. Browse some items to get started!') }}</div>
     @endif
   </div>
 </div>

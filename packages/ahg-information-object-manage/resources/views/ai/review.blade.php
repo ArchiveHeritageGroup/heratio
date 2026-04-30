@@ -6,7 +6,7 @@
 <div class="container py-4">
 
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="fas fa-brain me-2"></i>NER Review Dashboard</h1>
+    <h1><i class="fas fa-brain me-2"></i>{{ __('NER Review Dashboard') }}</h1>
   </div>
 
   @if($filterObjectId ?? null)
@@ -41,7 +41,7 @@
   {{-- Objects Table --}}
   <div class="card">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-list-check me-2"></i>Objects with Pending Entities</h5>
+      <h5 class="mb-0"><i class="fas fa-list-check me-2"></i>{{ __('Objects with Pending Entities') }}</h5>
     </div>
     <div class="card-body p-0">
       <table class="table table-bordered table-hover mb-0">
@@ -106,7 +106,7 @@
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title"><i class="fas fa-brain me-2"></i>Review Extracted Entities</h5>
+        <h5 class="modal-title"><i class="fas fa-brain me-2"></i>{{ __('Review Extracted Entities') }}</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body" id="reviewModalBody"></div>

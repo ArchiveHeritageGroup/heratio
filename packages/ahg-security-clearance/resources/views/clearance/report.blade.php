@@ -9,7 +9,7 @@
     <li class="breadcrumb-item active">Reports</li>
   </ol></nav>
 
-  <h1><i class="fas fa-chart-bar"></i> Security Reports</h1>
+  <h1><i class="fas fa-chart-bar"></i> {{ __('Security Reports') }}</h1>
 
   {{-- Period Filter --}}
   <form method="GET" class="mb-4">

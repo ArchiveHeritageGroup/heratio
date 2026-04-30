@@ -17,7 +17,7 @@
   </nav>
   <div class="card">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-cog"></i> Preservica Connection</h5>
+      <h5 class="mb-0"><i class="fas fa-cog"></i> {{ __('Preservica Connection') }}</h5>
     </div>
     <div class="card-body">
       <form method="POST" action="{{ route('data-migration.preservica-import') }}">

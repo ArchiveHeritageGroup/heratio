@@ -39,7 +39,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="tiffPdfMergeModalLabel">
                     <i class="fas fa-file-pdf me-2"></i>
-                    Merge Images to PDF
+                    {{ __('Merge Images to PDF') }}
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
             </div>

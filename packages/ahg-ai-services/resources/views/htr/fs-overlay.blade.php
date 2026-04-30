@@ -34,7 +34,7 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
-    <h1 class="mb-0"><i class="fas fa-layer-group me-2"></i>FS Overlay Annotate</h1>
+    <h1 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('FS Overlay Annotate') }}</h1>
     <span class="small text-muted">{{ __('Position field labels on document images — drag boxes to correct locations') }}</span>
   </div>
   <div class="btn-group btn-group-sm">

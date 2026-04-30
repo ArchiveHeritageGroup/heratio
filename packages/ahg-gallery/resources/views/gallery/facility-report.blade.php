@@ -1,7 +1,7 @@
 @extends('theme::layouts.1col')
 @section('title', 'Facility Report')
 @section('body-class', 'gallery facility-report')
-@section('title-block')<h1 class="mb-0"><i class="fas fa-building me-2"></i>Facility Report</h1>@endsection
+@section('title-block')<h1 class="mb-0"><i class="fas fa-building me-2"></i>{{ __('Facility Report') }}</h1>@endsection
 @section('content')
 <div class="card">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Facility Report Details') }}</h5></div>

@@ -18,7 +18,7 @@
         {{-- Header --}}
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h4 class="mb-1"><i class="bi bi-clock-history me-2"></i>Edit Provenance</h4>
+                <h4 class="mb-1"><i class="bi bi-clock-history me-2"></i>{{ __('Edit Provenance') }}</h4>
                 <p class="text-muted mb-0">{{ $resource->title ?? $resource->slug }}</p>
             </div>
             <div>
@@ -39,7 +39,7 @@
                 {{-- Provenance Summary --}}
                 <div class="card mb-4">
                     <div class="card-header bg-primary text-white">
-                        <h6 class="mb-0"><i class="bi bi-file-text me-2"></i>Provenance Summary</h6>
+                        <h6 class="mb-0"><i class="bi bi-file-text me-2"></i>{{ __('Provenance Summary') }}</h6>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
@@ -53,7 +53,7 @@
                 {{-- Acquisition Details --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h6 class="mb-0"><i class="bi bi-cart-check me-2"></i>Acquisition Details</h6>
+                        <h6 class="mb-0"><i class="bi bi-cart-check me-2"></i>{{ __('Acquisition Details') }}</h6>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
@@ -98,7 +98,7 @@
                 {{-- Chain of Custody Events --}}
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>Chain of Custody Events</h6>
+                        <h6 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>{{ __('Chain of Custody Events') }}</h6>
                         <button type="button" class="btn btn-sm btn-success" id="addEventBtn">
                             <i class="bi bi-plus-lg me-1"></i> {{ __('Add Event') }}
                         </button>
@@ -170,7 +170,7 @@
                 {{-- Research Notes --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h6 class="mb-0"><i class="bi bi-journal-text me-2"></i>Research Notes</h6>
+                        <h6 class="mb-0"><i class="bi bi-journal-text me-2"></i>{{ __('Research Notes') }}</h6>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
@@ -200,7 +200,7 @@
                 {{-- Supporting Documents --}}
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0"><i class="bi bi-file-earmark me-2"></i>Supporting Documents</h6>
+                        <h6 class="mb-0"><i class="bi bi-file-earmark me-2"></i>{{ __('Supporting Documents') }}</h6>
                         <button type="button" class="btn btn-sm btn-success" id="addDocumentBtn">
                             <i class="bi bi-plus me-1"></i>{{ __('Add Document') }}
                         </button>
@@ -230,7 +230,7 @@
 
                         {{-- New Documents Container --}}
                         <div id="documentsContainer"></div>
-                        <p class="text-muted small mt-2 mb-0"><i class="bi bi-info-circle me-1"></i>Click "Add Document" to add supporting documents. Documents will be uploaded when you save the form.</p>
+                        <p class="text-muted small mt-2 mb-0"><i class="bi bi-info-circle me-1"></i>{{ __('Click "Add Document" to add supporting documents. Documents will be uploaded when you save the form.') }}</p>
                     </div>
                 </div>
             </div>
@@ -241,7 +241,7 @@
                 {{-- Status --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h6 class="mb-0"><i class="bi bi-sliders me-2"></i>Status</h6>
+                        <h6 class="mb-0"><i class="bi bi-sliders me-2"></i>{{ __('Status') }}</h6>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
@@ -285,7 +285,7 @@
                 {{-- Current Owner/Holder --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h6 class="mb-0"><i class="bi bi-person me-2"></i>Current Owner/Holder</h6>
+                        <h6 class="mb-0"><i class="bi bi-person me-2"></i>{{ __('Current Owner/Holder') }}</h6>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
@@ -307,7 +307,7 @@
                 {{-- Nazi-Era Provenance --}}
                 <div class="card mb-4">
                     <div class="card-header bg-warning">
-                        <h6 class="mb-0"><i class="bi bi-shield-check me-2"></i>Nazi-Era Provenance</h6>
+                        <h6 class="mb-0"><i class="bi bi-shield-check me-2"></i>{{ __('Nazi-Era Provenance') }}</h6>
                     </div>
                     <div class="card-body">
                         <div class="form-check mb-3">
@@ -334,7 +334,7 @@
                 {{-- Cultural Property --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h6 class="mb-0"><i class="bi bi-globe me-2"></i>Cultural Property</h6>
+                        <h6 class="mb-0"><i class="bi bi-globe me-2"></i>{{ __('Cultural Property') }}</h6>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">

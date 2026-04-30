@@ -6,7 +6,7 @@
 <div class="row">
   <div class="col-md-3">@include('ahg-reports::_menu')</div>
   <div class="col-md-9">
-    <h1><i class="fas fa-clipboard-list me-2"></i>Select Report Type</h1>
+    <h1><i class="fas fa-clipboard-list me-2"></i>{{ __('Select Report Type') }}</h1>
 
     <div class="card mb-3">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">Report Type</div>

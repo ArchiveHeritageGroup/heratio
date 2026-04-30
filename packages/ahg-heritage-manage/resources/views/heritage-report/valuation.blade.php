@@ -7,7 +7,7 @@
   <div class="col-md-3">@include('ahg-heritage-manage::partials._heritage-accounting-menu')</div>
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-dollar-sign me-2"></i>Valuation Report</h1>
+      <h1><i class="fas fa-dollar-sign me-2"></i>{{ __('Valuation Report') }}</h1>
       <div>
         @if(!empty($items))
           <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn btn-sm atom-btn-outline-success"><i class="fas fa-file-csv me-1"></i>CSV</a>
@@ -19,7 +19,7 @@
 
     {{-- Filter --}}
     <div class="card mb-3">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-filter me-2"></i>Filters</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-filter me-2"></i>{{ __('Filters') }}</div>
       <div class="card-body">
         <form method="get" class="row g-3">
           <div class="col-md-3">
@@ -46,7 +46,7 @@
     </div>
 
     <div class="card">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-dollar-sign me-2"></i>Valuation Report</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-dollar-sign me-2"></i>{{ __('Valuation Report') }}</div>
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">

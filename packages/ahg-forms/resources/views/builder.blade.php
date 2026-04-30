@@ -39,7 +39,7 @@
         <div class="col-md-3">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-toolbox me-2"></i>Field Types</h5>
+                    <h5 class="mb-0"><i class="fas fa-toolbox me-2"></i>{{ __('Field Types') }}</h5>
                 </div>
                 <div class="card-body p-2">
                     <div class="field-palette">
@@ -54,33 +54,33 @@
 
             <div class="card mt-3">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-database me-2"></i>Archival Fields</h5>
+                    <h5 class="mb-0"><i class="fas fa-database me-2"></i>{{ __('Archival Fields') }}</h5>
                 </div>
                 <div class="card-body p-2">
                     <div class="field-palette">
                         <div class="palette-item atom-field" draggable="true" data-field-type="text" data-atom-field="title">
-                            <i class="fas fa-heading me-2"></i> Title
+                            <i class="fas fa-heading me-2"></i> {{ __('Title') }}
                         </div>
                         <div class="palette-item atom-field" draggable="true" data-field-type="text" data-atom-field="identifier">
-                            <i class="fas fa-barcode me-2"></i> Identifier
+                            <i class="fas fa-barcode me-2"></i> {{ __('Identifier') }}
                         </div>
                         <div class="palette-item atom-field" draggable="true" data-field-type="select" data-atom-field="level_of_description">
-                            <i class="fas fa-layer-group me-2"></i> Level
+                            <i class="fas fa-layer-group me-2"></i> {{ __('Level') }}
                         </div>
                         <div class="palette-item atom-field" draggable="true" data-field-type="textarea" data-atom-field="scope_and_content">
-                            <i class="fas fa-align-left me-2"></i> Scope & Content
+                            <i class="fas fa-align-left me-2"></i> {{ __('Scope & Content') }}
                         </div>
                         <div class="palette-item atom-field" draggable="true" data-field-type="textarea" data-atom-field="extent_and_medium">
-                            <i class="fas fa-ruler me-2"></i> Extent
+                            <i class="fas fa-ruler me-2"></i> {{ __('Extent') }}
                         </div>
                         <div class="palette-item atom-field" draggable="true" data-field-type="daterange" data-atom-field="dates">
-                            <i class="fas fa-calendar me-2"></i> Dates
+                            <i class="fas fa-calendar me-2"></i> {{ __('Dates') }}
                         </div>
                         <div class="palette-item atom-field" draggable="true" data-field-type="autocomplete" data-atom-field="creators">
-                            <i class="fas fa-user-edit me-2"></i> Creators
+                            <i class="fas fa-user-edit me-2"></i> {{ __('Creators') }}
                         </div>
                         <div class="palette-item atom-field" draggable="true" data-field-type="autocomplete" data-atom-field="subjects">
-                            <i class="fas fa-tags me-2"></i> Subjects
+                            <i class="fas fa-tags me-2"></i> {{ __('Subjects') }}
                         </div>
                     </div>
                 </div>
@@ -91,7 +91,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-th-list me-2"></i>Form Layout</h5>
+                    <h5 class="mb-0"><i class="fas fa-th-list me-2"></i>{{ __('Form Layout') }}</h5>
                     <span class="badge bg-info">{{ count($fields ?? []) }} fields</span>
                 </div>
                 <div class="card-body">
@@ -139,7 +139,7 @@
         <div class="col-md-3">
             <div class="card" id="field-properties-panel">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Field Properties</h5>
+                    <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>{{ __('Field Properties') }}</h5>
                 </div>
                 <div class="card-body">
                     <div id="no-field-selected" class="text-center text-muted py-4">

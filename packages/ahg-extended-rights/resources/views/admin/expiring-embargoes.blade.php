@@ -6,7 +6,7 @@
 <div class="container-fluid mt-3">
   @include('ahg-extended-rights::admin._sidebar')
 
-  <h1><i class="fas fa-clock"></i> Expiring Embargoes</h1>
+  <h1><i class="fas fa-clock"></i> {{ __('Expiring Embargoes') }}</h1>
 
   <form method="GET" class="mb-3">
     <div class="row">

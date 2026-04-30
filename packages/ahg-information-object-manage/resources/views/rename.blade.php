@@ -10,7 +10,7 @@
     <div class="col-md-3">
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-info-circle me-1"></i> Context
+          <i class="fas fa-info-circle me-1"></i> {{ __('Context') }}
         </div>
         <div class="list-group list-group-flush">
           <a href="{{ route('informationobject.show', $io->slug) }}" class="list-group-item list-group-item-action small">

@@ -142,7 +142,7 @@
     @else
       <div class="alert alert-info">
         <i class="bi bi-info-circle me-2"></i>
-        No metadata has been extracted for this digital object yet. Click "Extract Metadata" to begin.
+        {{ __('No metadata has been extracted for this digital object yet. Click "Extract Metadata" to begin.') }}
       </div>
     @endif
 

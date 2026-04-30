@@ -524,6 +524,8 @@ class RepositoryController extends Controller
             'parallel_name', 'other_name', 'maintenance_notes',
             // Contacts
             'contacts',
+            // ICIP cultural-sensitivity URI (issue #36 Phase 2b) — persisted to actor.icip_sensitivity.
+            'icip_sensitivity',
         ];
     }
 }

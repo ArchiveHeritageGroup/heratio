@@ -23,7 +23,7 @@
   {{-- Current Status Card --}}
   <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>My Security Status</h5>
+      <h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>{{ __('My Security Status') }}</h5>
     </div>
     <div class="card-body">
       <div class="row">
@@ -53,7 +53,7 @@
   @if($accessGrants->isNotEmpty())
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-key me-2"></i>My Access Grants</h5>
+        <h5 class="mb-0"><i class="fas fa-key me-2"></i>{{ __('My Access Grants') }}</h5>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
@@ -114,7 +114,7 @@
   {{-- Request History --}}
   <div class="card">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-history me-2"></i>Request History</h5>
+      <h5 class="mb-0"><i class="fas fa-history me-2"></i>{{ __('Request History') }}</h5>
     </div>
     <div class="card-body p-0">
       @if($requests->isEmpty())

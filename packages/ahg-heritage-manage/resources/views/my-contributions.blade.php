@@ -27,11 +27,11 @@ $badges = $profile['badges'] ?? [];
       @endforeach
     </div>
     @if(!empty($badges))
-    <div class="card border-0 shadow-sm"><div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-award me-2"></i>Badges</h6></div><div class="card-body"><div class="d-flex flex-wrap gap-2">@foreach($badges as $badge)<span class="badge bg-{{ $badge['color'] ?? 'primary' }}" title="{{ $badge['description'] ?? '' }}"><i class="fas {{ $badge['icon'] ?? 'fa-award' }} me-1"></i>{{ $badge['name'] }}</span>@endforeach</div></div></div>
+    <div class="card border-0 shadow-sm"><div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-award me-2"></i>{{ __('Badges') }}</h6></div><div class="card-body"><div class="d-flex flex-wrap gap-2">@foreach($badges as $badge)<span class="badge bg-{{ $badge['color'] ?? 'primary' }}" title="{{ $badge['description'] ?? '' }}"><i class="fas {{ $badge['icon'] ?? 'fa-award' }} me-1"></i>{{ $badge['name'] }}</span>@endforeach</div></div></div>
     @endif
   </div>
   <div class="col-md-8">
-    <h1><i class="fas fa-journal-whills me-2"></i>My Contributions</h1>
+    <h1><i class="fas fa-journal-whills me-2"></i>{{ __('My Contributions') }}</h1>
 
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">

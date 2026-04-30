@@ -3,7 +3,7 @@
 @section('title', 'Reset Password')
 @section('content')
 <div class="row justify-content-center"><div class="col-md-6">
-<div class="card"><div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-key me-2"></i>Reset Your Password</h5></div>
+<div class="card"><div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-key me-2"></i>{{ __('Reset Your Password') }}</h5></div>
 <div class="card-body">
 <p>Enter your email address and we will send you a link to reset your password.</p>
     <form method="POST">@csrf

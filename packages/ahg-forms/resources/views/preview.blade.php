@@ -47,7 +47,7 @@
                     @if($fields->isEmpty())
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
-                            This template has no fields yet. Add fields in the builder.
+                            {{ __('This template has no fields yet. Add fields in the builder.') }}
                         </div>
                     @else
                         <form>
@@ -147,7 +147,7 @@
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Template Info</h5>
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Template Info') }}</h5>
                 </div>
                 <div class="card-body">
                     <p><strong>{{ __('Name:') }}</strong> {{ $template->name ?? '' }}</p>
@@ -168,7 +168,7 @@
 
             <div class="card mt-3">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Field Summary</h5>
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>{{ __('Field Summary') }}</h5>
                 </div>
                 @php
                     $requiredCount = 0;

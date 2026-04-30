@@ -57,7 +57,7 @@
             @csrf
             <div class="card mb-4">
               <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-building me-2"></i>Tenant Information</h5>
+                <h5 class="mb-0"><i class="fas fa-building me-2"></i>{{ __('Tenant Information') }}</h5>
                 <span class="badge bg-{{ $status === 'active' ? 'success' : ($status === 'trial' ? 'info' : 'danger') }}">
                   {{ ucfirst($status) }}
                 </span>
@@ -140,7 +140,7 @@
         <div class="col-lg-6">
           <div class="card mb-4">
             <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-              <h5 class="mb-0"><i class="fas fa-users me-2"></i>Tenant Users</h5>
+              <h5 class="mb-0"><i class="fas fa-users me-2"></i>{{ __('Tenant Users') }}</h5>
               <span class="badge bg-light text-dark">{{ is_countable($users) ? count($users) : 0 }} users</span>
             </div>
             <div class="card-body p-0">

@@ -10,7 +10,7 @@
     </div>
     <div class="col-md-9">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h1 class="mb-0"><i class="fas fa-box"></i> OAIS Packages</h1>
+            <h1 class="mb-0"><i class="fas fa-box"></i> {{ __('OAIS Packages') }}</h1>
         </div>
         <p class="text-muted mb-3">Submission, Archival, and Dissemination Information Packages</p>
 

@@ -36,7 +36,7 @@ $pages = $requestData['pages'] ?? 1;
   </div>
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-key me-2"></i>Access Requests</h1>
+      <h1><i class="fas fa-key me-2"></i>{{ __('Access Requests') }}</h1>
     </div>
 
     @if(session('success'))

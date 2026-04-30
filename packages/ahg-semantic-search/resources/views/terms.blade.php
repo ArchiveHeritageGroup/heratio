@@ -33,7 +33,7 @@
                 <i class="fas fa-brain me-2"></i>{{ __('Semantic Search') }}
             </a>
             <i class="fas fa-chevron-right mx-2 small text-muted"></i>
-            Terms
+            {{ __('Terms') }}
         </h1>
         <a href="{{ route('semantic-search.term.add') }}" class="btn btn-primary">
             <i class="fas fa-plus me-1"></i>{{ __('Add Term') }}

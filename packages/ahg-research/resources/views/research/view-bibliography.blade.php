@@ -125,14 +125,14 @@
     {{-- Sidebar (right) --}}
     <div class="col-md-4">
         <div class="card mb-4">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>About</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About') }}</h6></div>
             <div class="card-body">
                 <p class="mb-2"><strong>{{ __('Created:') }}</strong> {{ date('M j, Y', strtotime($bibliography->created_at)) }}</p>
                 <p class="mb-0"><strong>{{ __('Updated:') }}</strong> {{ date('M j, Y', strtotime($bibliography->updated_at ?? $bibliography->created_at)) }}</p>
             </div>
         </div>
         <div class="card">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-cog me-2"></i>Actions</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-cog me-2"></i>{{ __('Actions') }}</h6></div>
             <div class="card-body">
                 <a href="{{ route('research.bibliographies') }}" class="btn btn-outline-secondary w-100 mb-2"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Bibliographies') }}</a>
                 <form method="POST" onsubmit="return confirm('Delete this bibliography and all entries?')">
@@ -232,7 +232,7 @@
 {{-- Import Modal --}}
 <div class="modal fade" id="importBibliographyModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
     <form method="POST" enctype="multipart/form-data">@csrf<input type="hidden" name="form_action" value="import">
-    <div class="modal-header"><h5 class="modal-title"><i class="fas fa-upload me-2"></i>Import Citations</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-header"><h5 class="modal-title"><i class="fas fa-upload me-2"></i>{{ __('Import Citations') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
         <div class="mb-3">
             <label class="form-label">{{ __('Format *') }}</label>
@@ -250,7 +250,7 @@
             <label class="form-label">{{ __('Paste Content') }}</label>
             <textarea name="import_content" class="form-control" rows="6" placeholder="{{ __('Paste BibTeX or RIS content here...') }}"></textarea>
         </div>
-        <div class="alert alert-info small mb-0"><i class="fas fa-info-circle me-1"></i>Entries will be added. Duplicate titles will be skipped.</div>
+        <div class="alert alert-info small mb-0"><i class="fas fa-info-circle me-1"></i>{{ __('Entries will be added. Duplicate titles will be skipped.') }}</div>
     </div>
     <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-success"><i class="fas fa-upload me-1"></i>{{ __('Import') }}</button></div>
     </form>

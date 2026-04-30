@@ -93,7 +93,7 @@
       {{-- Filter header --}}
       <div class="card mb-3">
         <div class="card-body py-2 text-white text-center" style="background:var(--ahg-primary);">
-          <i class="fas fa-filter"></i> Filter by:
+          <i class="fas fa-filter"></i> {{ __('Filter by:') }}
         </div>
       </div>
 

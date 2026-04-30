@@ -8,7 +8,7 @@
 @endsection
 
 @section('title-block')
-  <h1 class="mb-0"><i class="fas fa-balance-scale me-2"></i>Rights Statements &amp; Licenses</h1>
+  <h1 class="mb-0"><i class="fas fa-balance-scale me-2"></i>{{ __('Rights Statements &amp; Licenses') }}</h1>
 @endsection
 
 @section('content')

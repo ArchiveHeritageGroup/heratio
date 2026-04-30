@@ -25,7 +25,7 @@
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">
           <i class="fas fa-plus-circle me-2"></i>
-          Create Tenant
+          {{ __('Create Tenant') }}
         </h1>
         <a href="{{ route('tenant.index') }}" class="btn btn-outline-secondary">
           <i class="fas fa-arrow-left me-2"></i>{{ __('Back to List') }}
@@ -43,7 +43,7 @@
         @csrf
         <div class="card mb-4">
           <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="fas fa-building me-2"></i>Tenant Information</h5>
+            <h5 class="mb-0"><i class="fas fa-building me-2"></i>{{ __('Tenant Information') }}</h5>
           </div>
           <div class="card-body">
             <div class="row">
@@ -103,7 +103,7 @@
 
         <div class="card mb-4">
           <div class="card-header bg-secondary text-white">
-            <h5 class="mb-0"><i class="fas fa-address-card me-2"></i>Contact Information</h5>
+            <h5 class="mb-0"><i class="fas fa-address-card me-2"></i>{{ __('Contact Information') }}</h5>
           </div>
           <div class="card-body">
             <div class="row">
@@ -121,7 +121,7 @@
 
         <div class="card mb-4">
           <div class="card-header bg-info text-white">
-            <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Limits</h5>
+            <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>{{ __('Limits') }}</h5>
           </div>
           <div class="card-body">
             <div class="row">

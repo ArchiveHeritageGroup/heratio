@@ -1,7 +1,7 @@
 {{-- Activity Section Partial --}}
 <section class="heritage-activity-section py-5 bg-light">
   <div class="container">
-    <h2 class="text-center mb-4"><i class="fas fa-history me-2"></i>Recent Activity</h2>
+    <h2 class="text-center mb-4"><i class="fas fa-history me-2"></i>{{ __('Recent Activity') }}</h2>
     <div class="row">
       @forelse($recentActivity ?? [] as $activity)
       <div class="col-md-6 mb-3">

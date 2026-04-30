@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-th-large me-2"></i>Spaces Report</h1>
+<h1><i class="fas fa-th-large me-2"></i>{{ __('Spaces Report') }}</h1>
 @endsection
 
 @section('content')

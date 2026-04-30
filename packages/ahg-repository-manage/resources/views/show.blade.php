@@ -82,7 +82,10 @@
     @include('ahg-ric::_ric-view-repository', ['repository' => $repository])
   @else
 
-  <h1>{{ $repository->authorized_form_of_name }}@include('ahg-translation::components.badge', ['source' => $translationSources['authorized_form_of_name'] ?? null])</h1>
+  <h1>{{ $repository->authorized_form_of_name }}@include('ahg-translation::components.badge', ['source' => $translationSources['authorized_form_of_name'] ?? null])
+    {{-- ICIP cultural-sensitivity badge (issue #36 Phase 2b). --}}
+    @include('ahg-translation::components.icip-sensitivity-badge', ['uri' => $repository->icip_sensitivity ?? null])
+  </h1>
 
   {{-- Breadcrumb (matching AtoM) --}}
   <nav aria-label="{{ __('breadcrumb') }}">

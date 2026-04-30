@@ -76,7 +76,7 @@
         @if(!empty($locationParts) || !empty($shelfParts) || !empty($extendedData['barcode']) || !empty($extendedData['reference_code']))
         <div class="card mb-4">
           <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-            <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Details</h5>
+            <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>{{ __('Location Details') }}</h5>
           </div>
           <div class="card-body">
             @if(!empty($locationParts))
@@ -119,7 +119,7 @@
         @if(!empty($extendedData['width']) || !empty($extendedData['height']) || !empty($extendedData['depth']))
         <div class="card mb-4">
           <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-ruler-combined me-2"></i>Dimensions</h5>
+            <h5 class="mb-0"><i class="fas fa-ruler-combined me-2"></i>{{ __('Dimensions') }}</h5>
           </div>
           <div class="card-body">
             <dl class="row mb-0">
@@ -138,7 +138,7 @@
         @if(!empty($extendedData['total_capacity']) || !empty($extendedData['total_linear_metres']))
         <div class="card mb-4">
           <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-            <h5 class="mb-0"><i class="fas fa-boxes me-2"></i>Capacity</h5>
+            <h5 class="mb-0"><i class="fas fa-boxes me-2"></i>{{ __('Capacity') }}</h5>
           </div>
           <div class="card-body">
             @if(!empty($extendedData['total_capacity']))
@@ -210,7 +210,7 @@
         @if(!empty($extendedData['climate_controlled']) || !empty($extendedData['security_level']) || !empty($extendedData['temperature_min']))
         <div class="card mb-4">
           <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Environmental &amp; Security</h5>
+            <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>{{ __('Environmental &amp; Security') }}</h5>
           </div>
           <div class="card-body">
             <dl class="row mb-0">
@@ -247,7 +247,7 @@
         @if(!empty($extendedData['notes']))
         <div class="card mb-4">
           <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Notes</h5>
+            <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>{{ __('Notes') }}</h5>
           </div>
           <div class="card-body">
             {!! nl2br(e($extendedData['notes'])) !!}
@@ -264,7 +264,7 @@
       @if(!empty($extendedData['status']))
       <div class="card mb-4">
         <div class="card-header">
-          <h5 class="mb-0"><i class="fas fa-toggle-on me-2"></i>Status</h5>
+          <h5 class="mb-0"><i class="fas fa-toggle-on me-2"></i>{{ __('Status') }}</h5>
         </div>
         <div class="card-body text-center">
           @php
@@ -286,7 +286,7 @@
       @php $isAdmin = auth()->user()->is_admin; @endphp
       <div class="card mb-4">
         <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-          <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Actions</h5>
+          <h5 class="mb-0"><i class="fas fa-cog me-2"></i>{{ __('Actions') }}</h5>
         </div>
         <div class="card-body">
           <a href="{{ route('physicalobject.edit', $storage->slug) }}" class="btn atom-btn-outline-success w-100 mb-2">

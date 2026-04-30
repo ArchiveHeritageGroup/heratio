@@ -19,7 +19,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="fas fa-layer-group text-primary me-2"></i>Report Templates</h1>
+    <h1><i class="fas fa-layer-group text-primary me-2"></i>{{ __('Report Templates') }}</h1>
     <div>
         <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createTemplateModal"><i class="fas fa-plus me-1"></i>{{ __('New Template') }}</button>
         <a href="{{ route('research.reports') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>

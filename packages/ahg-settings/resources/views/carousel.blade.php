@@ -12,10 +12,10 @@
 @endsection
 
 @section('content')
-  <h1><i class="fas fa-images me-2"></i>Carousel Settings</h1>
+  <h1><i class="fas fa-images me-2"></i>{{ __('Carousel Settings') }}</h1>
   <p class="text-muted">Homepage carousel and slideshow configuration</p>
 
   <div class="alert alert-info">
-    <i class="fas fa-info-circle me-2"></i>This settings page is under development.
+    <i class="fas fa-info-circle me-2"></i>{{ __('This settings page is under development.') }}
   </div>
 @endsection

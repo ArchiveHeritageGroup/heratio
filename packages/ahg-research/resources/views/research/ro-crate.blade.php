@@ -24,7 +24,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2"><i class="fas fa-archive text-primary me-2"></i>RO-Crate</h1>
+    <h1 class="h2"><i class="fas fa-archive text-primary me-2"></i>{{ __('RO-Crate') }}</h1>
     <div class="d-flex gap-2">
         <button class="btn btn-primary btn-sm" disabled><i class="fas fa-download me-1"></i>{{ __('Download RO-Crate') }}</button>
         <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>

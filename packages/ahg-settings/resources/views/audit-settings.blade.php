@@ -7,7 +7,7 @@
 @endsection
 
 @section('title-block')
-  <h1><i class="fas fa-history me-2"></i>Audit Trail Settings</h1>
+  <h1><i class="fas fa-history me-2"></i>{{ __('Audit Trail Settings') }}</h1>
 @endsection
 
 @section('content')

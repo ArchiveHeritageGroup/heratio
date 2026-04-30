@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-camera me-2"></i>Condition Photos</h1>
+<h1><i class="fas fa-camera me-2"></i>{{ __('Condition Photos') }}</h1>
 <p class="text-muted">Photo upload and thumbnail settings</p>
 @endsection
 
@@ -31,7 +31,7 @@
 
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-camera me-2"></i>Photo Upload Settings</h5>
+        <h5 class="mb-0"><i class="fas fa-camera me-2"></i>{{ __('Photo Upload Settings') }}</h5>
       </div>
       <div class="card-body">
         <div class="row mb-3">

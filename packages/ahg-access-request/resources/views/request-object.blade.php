@@ -22,7 +22,7 @@
 
             <div class="card">
                 <div class="card-header" style="background-color: var(--ahg-primary); color: #fff;">
-                    <h5 class="mb-0"><i class="fas fa-lock-open me-2"></i>Request Access to Object</h5>
+                    <h5 class="mb-0"><i class="fas fa-lock-open me-2"></i>{{ __('Request Access to Object') }}</h5>
                 </div>
                 <div class="card-body">
                     <p class="text-muted">You are requesting access to the record: <strong>{{ $slug }}</strong></p>

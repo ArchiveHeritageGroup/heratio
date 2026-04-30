@@ -25,7 +25,7 @@
           <li class="breadcrumb-item active">Register Antiquity</li>
         </ol>
       </nav>
-      <h1><i class="fas fa-vase me-2"></i>Register Antiquity</h1>
+      <h1><i class="fas fa-vase me-2"></i>{{ __('Register Antiquity') }}</h1>
       <p class="text-muted">Objects over 100 years old are protected</p>
     </div>
   </div>

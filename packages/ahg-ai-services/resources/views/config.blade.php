@@ -5,7 +5,7 @@
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-2">
-    <h1 class="mb-0"><i class="fas fa-cog"></i> AI Configuration</h1>
+    <h1 class="mb-0"><i class="fas fa-cog"></i> {{ __('AI Configuration') }}</h1>
     <a href="{{ route('admin.ai.index') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left"></i> {{ __('Back to Dashboard') }}
     </a>

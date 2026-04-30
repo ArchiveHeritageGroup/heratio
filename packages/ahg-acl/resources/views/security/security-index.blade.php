@@ -59,7 +59,7 @@
 
       <div class="card">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-          <h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>User Security Clearances</h5>
+          <h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>{{ __('User Security Clearances') }}</h5>
           <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#bulkGrantModal">
             <i class="fas fa-users me-1"></i> {{ __('Bulk Grant') }}
           </button>
@@ -174,7 +174,7 @@
       <form method="post" action="{{ route('acl.set-clearance') }}">
         @csrf
         <div class="modal-header bg-success text-white">
-          <h5 class="modal-title"><i class="fas fa-key me-2"></i>Grant Security Clearance</h5>
+          <h5 class="modal-title"><i class="fas fa-key me-2"></i>{{ __('Grant Security Clearance') }}</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -222,13 +222,13 @@
         @csrf
         <input type="hidden" name="action_type" value="bulk_grant">
         <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title"><i class="fas fa-users me-2"></i>Bulk Grant Clearance</h5>
+          <h5 class="modal-title"><i class="fas fa-users me-2"></i>{{ __('Bulk Grant Clearance') }}</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <div class="alert alert-info">
             <i class="fas fa-info-circle me-1"></i>
-            Select users in the table, then choose a clearance level to grant to all selected users.
+            {{ __('Select users in the table, then choose a clearance level to grant to all selected users.') }}
           </div>
 
           <p><strong id="selectedCount">0</strong> users selected</p>

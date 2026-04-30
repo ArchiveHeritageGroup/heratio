@@ -8,14 +8,14 @@
 @section('title', 'Research Services')
 
 @section('content')
-<h1><i class="fas fa-book-reader text-primary me-2"></i>Research Services</h1>
+<h1><i class="fas fa-book-reader text-primary me-2"></i>{{ __('Research Services') }}</h1>
 
 {{-- Registration Banners --}}
   @guest
     <div class="alert alert-info mb-4">
       <div class="row align-items-center">
         <div class="col-md-8">
-          <h4><i class="fas fa-user-plus me-2"></i>Register as a Researcher</h4>
+          <h4><i class="fas fa-user-plus me-2"></i>{{ __('Register as a Researcher') }}</h4>
           <p class="mb-0">Create an account to book reading room visits, request materials, and save your research.</p>
         </div>
         <div class="col-md-4 text-md-end mt-3 mt-md-0">
@@ -35,7 +35,7 @@
       <div class="alert alert-warning mb-4">
         <div class="row align-items-center">
           <div class="col-md-8">
-            <h4><i class="fas fa-clipboard-list me-2"></i>Complete Your Researcher Profile</h4>
+            <h4><i class="fas fa-clipboard-list me-2"></i>{{ __('Complete Your Researcher Profile') }}</h4>
             <p class="mb-0">You need to complete your researcher registration to book reading room visits.</p>
           </div>
           <div class="col-md-4 text-md-end mt-3 mt-md-0">
@@ -45,14 +45,14 @@
       </div>
     @elseif(($researcher->status ?? '') === 'pending')
       <div class="alert alert-info mb-4">
-        <h4><i class="fas fa-clock me-2"></i>Registration Pending</h4>
+        <h4><i class="fas fa-clock me-2"></i>{{ __('Registration Pending') }}</h4>
         <p class="mb-0">Your researcher registration is being reviewed. You will be notified once approved.</p>
       </div>
     @elseif(($researcher->status ?? '') === 'expired')
       <div class="alert alert-danger mb-4">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <h4><i class="fas fa-exclamation-circle me-2"></i>Registration Expired</h4>
+            <h4><i class="fas fa-exclamation-circle me-2"></i>{{ __('Registration Expired') }}</h4>
             <p class="mb-0">Your researcher registration has expired. Please request a renewal to continue.</p>
           </div>
           <a href="{{ route('research.renewal') }}" class="btn atom-atom-btn-outline-danger"><i class="fas fa-sync-alt me-1"></i>{{ __('Request Renewal') }}</a>
@@ -62,7 +62,7 @@
       <div class="alert alert-danger mb-4">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <h4><i class="fas fa-times-circle me-2"></i>Registration Rejected</h4>
+            <h4><i class="fas fa-times-circle me-2"></i>{{ __('Registration Rejected') }}</h4>
             <p class="mb-0">
               Your registration was not approved.
               @if($researcher->rejection_reason ?? false)
@@ -144,7 +144,7 @@
               </a>
             </div>
           </div>
-          <p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>Project-specific tools (Knowledge Graph, Timeline, Map, AI Extraction) are available from each project page.</p>
+          <p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>{{ __('Project-specific tools (Knowledge Graph, Timeline, Map, AI Extraction) are available from each project page.') }}</p>
         </div>
       </div>
     @endif

@@ -1,6 +1,6 @@
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar')@endsection
-@section('title-block')<h1><i class="fas fa-journal-whills me-2"></i>Journal Entry</h1><h2>{{ e($entry->title ?: 'Untitled') }}</h2>@endsection
+@section('title-block')<h1><i class="fas fa-journal-whills me-2"></i>{{ __('Journal Entry') }}</h1><h2>{{ e($entry->title ?: 'Untitled') }}</h2>@endsection
 @section('content')
 <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">

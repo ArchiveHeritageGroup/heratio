@@ -161,7 +161,7 @@
 
           <div class="alert alert-info py-2 mt-3 mb-0">
             <i class="fas fa-info-circle me-1"></i>
-            Click "Translate" to preview translations before saving.
+            {{ __('Click "Translate" to preview translations before saving.') }}
           </div>
         </div>
 

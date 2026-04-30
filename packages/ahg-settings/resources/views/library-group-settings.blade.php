@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-book me-2"></i>Library Settings</h1>
+<h1><i class="fas fa-book me-2"></i>{{ __('Library Settings') }}</h1>
 <p class="text-muted">Loan rules, circulation, fines, patron defaults, OPAC, ISBN providers</p>
 @endsection
 
@@ -31,7 +31,7 @@
 
     {{-- Card 1: Circulation Defaults --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Circulation Defaults</h5></div>
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>{{ __('Circulation Defaults') }}</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
@@ -95,7 +95,7 @@
 
     {{-- Card 2: Patron Defaults --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-users me-2"></i>Patron Defaults</h5></div>
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-users me-2"></i>{{ __('Patron Defaults') }}</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -154,7 +154,7 @@
 
     {{-- Card 3: OPAC --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-globe me-2"></i>OPAC (Public Catalog)</h5></div>
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-globe me-2"></i>{{ __('OPAC (Public Catalog)') }}</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-6 mb-3">
@@ -217,7 +217,7 @@
 
     {{-- Card 4: Hold Settings --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-hand-paper me-2"></i>Hold Settings</h5></div>
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-hand-paper me-2"></i>{{ __('Hold Settings') }}</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
@@ -239,7 +239,7 @@
 
     {{-- Card 5: ISBN Providers --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-barcode me-2"></i>ISBN Providers</h5></div>
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-barcode me-2"></i>{{ __('ISBN Providers') }}</h5></div>
       <div class="card-body">
         <p class="text-muted mb-3">Manage ISBN lookup providers (Open Library, Google Books, WorldCat) for automatic metadata retrieval.</p>
         @if(\Route::has('library.isbn-providers'))

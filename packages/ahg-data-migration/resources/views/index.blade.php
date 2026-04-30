@@ -56,7 +56,7 @@
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center"
              >
-          <h5 class="mb-0"><i class="fas fa-map-signs"></i> Saved Mappings</h5>
+          <h5 class="mb-0"><i class="fas fa-map-signs"></i> {{ __('Saved Mappings') }}</h5>
           <span class="badge bg-light text-dark">{{ count($mappings) }}</span>
         </div>
         <div class="card-body p-0">
@@ -101,7 +101,7 @@
             </div>
           @else
             <div class="p-3 text-muted text-center">
-              <i class="fas fa-info-circle"></i> No saved mappings yet. Create one during import.
+              <i class="fas fa-info-circle"></i> {{ __('No saved mappings yet. Create one during import.') }}
             </div>
           @endif
         </div>
@@ -127,7 +127,7 @@
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center"
              >
-          <h5 class="mb-0"><i class="fas fa-history"></i> Recent Jobs</h5>
+          <h5 class="mb-0"><i class="fas fa-history"></i> {{ __('Recent Jobs') }}</h5>
           <a href="{{ route('data-migration.jobs') }}" class="badge bg-light text-dark text-decoration-none">
             View all
           </a>
@@ -172,7 +172,7 @@
             </div>
           @else
             <div class="p-3 text-muted text-center">
-              <i class="fas fa-info-circle"></i> No jobs yet.
+              <i class="fas fa-info-circle"></i> {{ __('No jobs yet.') }}
             </div>
           @endif
         </div>

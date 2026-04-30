@@ -9,7 +9,7 @@
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="mb-0"><i class="fas fa-envelope me-2"></i> Email Capture</h1>
+  <h1 class="mb-0"><i class="fas fa-envelope me-2"></i> {{ __('Email Capture') }}</h1>
   <div>
     <a href="{{ route('records.emails.upload-form') }}" class="btn btn-sm btn-success"><i class="fas fa-upload me-1"></i>{{ __('Upload .eml') }}</a>
     <a href="{{ route('records.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Records dashboard') }}</a>

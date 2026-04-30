@@ -7,7 +7,7 @@
     <div class="alert alert-success alert-dismissible fade show">{!! session('success') !!}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 @endif
 
-<h1 class="mb-4"><i class="fas fa-boxes-stacked me-2"></i>Material Retrieval Queue</h1>
+<h1 class="mb-4"><i class="fas fa-boxes-stacked me-2"></i>{{ __('Material Retrieval Queue') }}</h1>
 
 {{-- Dashboard Summary Cards --}}
 @php

@@ -29,7 +29,7 @@
           <li class="breadcrumb-item active">Heritage Impact Assessments</li>
         </ol>
       </nav>
-      <h1><i class="fas fa-clipboard-check me-2"></i>Heritage Impact Assessments</h1>
+      <h1><i class="fas fa-clipboard-check me-2"></i>{{ __('Heritage Impact Assessments') }}</h1>
       <p class="text-muted">HIA submissions</p>
     </div>
     <div class="col-auto">

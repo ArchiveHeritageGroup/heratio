@@ -205,7 +205,7 @@ class InformationObjectService
             ]);
 
             // 3. Insert information_object record
-            DB::table('information_object')->insert([
+            $ioInsert = [
                 'id' => $objectId,
                 'identifier' => $data['identifier'] ?? null,
                 'level_of_description_id' => !empty($data['level_of_description_id']) ? (int) $data['level_of_description_id'] : null,
@@ -220,7 +220,11 @@ class InformationObjectService
                 'lft' => $newLft,
                 'rgt' => $newRgt,
                 'source_culture' => $culture,
-            ]);
+            ];
+            if (array_key_exists('icip_sensitivity', $data) && $data['icip_sensitivity'] !== '') {
+                $ioInsert['icip_sensitivity'] = $data['icip_sensitivity'];
+            }
+            DB::table('information_object')->insert($ioInsert);
 
             // 4. Insert i18n record
             $i18nData = ['id' => $objectId, 'culture' => $culture];
@@ -280,12 +284,19 @@ class InformationObjectService
                 'identifier', 'level_of_description_id', 'collection_type_id',
                 'repository_id', 'description_status_id', 'description_detail_id',
                 'description_identifier', 'source_standard', 'display_standard_id',
+                'icip_sensitivity',
             ];
 
             $ioUpdate = [];
             foreach ($structuralFields as $field) {
                 if (array_key_exists($field, $data)) {
-                    $ioUpdate[$field] = $data[$field] ?: null;
+                    // ICIP cultural-sensitivity URI is preserved as-is when empty → null,
+                    // unlike other structural fields which use ?: null.
+                    if ($field === 'icip_sensitivity') {
+                        $ioUpdate[$field] = ($data[$field] === '' ? null : $data[$field]);
+                    } else {
+                        $ioUpdate[$field] = $data[$field] ?: null;
+                    }
                 }
             }
 
@@ -519,6 +530,7 @@ class InformationObjectService
             'information_object.lft',
             'information_object.rgt',
             'information_object.source_culture',
+            'information_object.icip_sensitivity',
         ];
 
         foreach (self::$i18nFields as $field) {

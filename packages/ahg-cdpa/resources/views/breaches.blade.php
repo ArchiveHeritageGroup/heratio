@@ -20,7 +20,7 @@
                     <li class="breadcrumb-item active">Breach Register</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-exclamation-triangle me-2"></i>Breach Register</h1>
+            <h1><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Breach Register') }}</h1>
             <p class="text-muted">Regulator notification required within the statutory window of discovery</p>
         </div>
         <div class="col-auto">

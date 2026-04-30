@@ -115,7 +115,7 @@
   {{-- Recent Verification Runs --}}
   <div class="card mb-4">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Verification Runs</h5>
+      <h5 class="mb-0"><i class="fas fa-history me-2"></i>{{ __('Recent Verification Runs') }}</h5>
     </div>
     <div class="card-body">
       @if(!$configured)
@@ -186,7 +186,7 @@
   {{-- Daily Verification Trend --}}
   @if(!empty($dailyTrend))
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Daily Verification Trend (30 days)</h5></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>{{ __('Daily Verification Trend (30 days)') }}</h5></div>
     <div class="card-body">
       <canvas id="trendChart" height="200"></canvas>
     </div>
@@ -211,7 +211,7 @@
   {{-- Repository Breakdown --}}
   @if(!empty($repoBreakdown))
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-building me-2"></i>Repository Breakdown</h5></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-building me-2"></i>{{ __('Repository Breakdown') }}</h5></div>
     <div class="card-body p-0">
       <table class="table table-bordered mb-0">
         <thead>
@@ -228,7 +228,7 @@
   {{-- Failure Type Breakdown --}}
   @if(!empty($failureTypes))
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Failure Types</h5></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Failure Types') }}</h5></div>
     <div class="card-body p-0">
       <table class="table table-bordered mb-0">
         <thead>

@@ -35,7 +35,7 @@
         <div class="col-md-4 mb-4">
           <div class="card">
             <div class="card-header bg-dark text-white">
-              <h5 class="mb-0"><i class="fas fa-user me-2"></i>User Profile</h5>
+              <h5 class="mb-0"><i class="fas fa-user me-2"></i>{{ __('User Profile') }}</h5>
             </div>
             <div class="card-body text-center">
               <div class="mb-3">
@@ -104,7 +104,7 @@
           {{-- Object Access Grants --}}
           <div class="card mb-4">
             <div class="card-header bg-success text-white">
-              <h5 class="mb-0"><i class="fas fa-folder-open me-2"></i>Object Access Grants</h5>
+              <h5 class="mb-0"><i class="fas fa-folder-open me-2"></i>{{ __('Object Access Grants') }}</h5>
             </div>
             <div class="card-body p-0">
               @if(empty($accessGrants))
@@ -170,7 +170,7 @@
           {{-- Clearance History --}}
           <div class="card">
             <div class="card-header">
-              <h5 class="mb-0"><i class="fas fa-history me-2"></i>Clearance History</h5>
+              <h5 class="mb-0"><i class="fas fa-history me-2"></i>{{ __('Clearance History') }}</h5>
             </div>
             <div class="card-body p-0">
               @if(empty($history))
@@ -217,7 +217,7 @@
       <form method="post" action="{{ route('acl.set-clearance') }}">
         @csrf
         <div class="modal-header bg-success text-white">
-          <h5 class="modal-title"><i class="fas fa-key me-2"></i>Grant Security Clearance</h5>
+          <h5 class="modal-title"><i class="fas fa-key me-2"></i>{{ __('Grant Security Clearance') }}</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
