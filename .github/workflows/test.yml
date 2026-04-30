@@ -264,8 +264,13 @@ jobs:
             fi
           done
       - name: Run Package Tests
+        # Hard fail. The previous form `|| echo "Package tests may need setup"`
+        # silently passed the job whenever phpunit returned non-zero, which
+        # made test failures invisible to the release gate. If the suite is
+        # genuinely empty, gate this step on a directory-presence check
+        # rather than swallowing phpunit's exit code.
         run: |
-          php -d pcov.enabled=1 ./vendor/bin/phpunit --testsuite=Package --colors=always --testdox || echo "Package tests may need setup"
+          php -d pcov.enabled=1 ./vendor/bin/phpunit --testsuite=Package --colors=always --testdox
 
   changed-files-coverage:
     name: Changed Files Coverage
@@ -335,10 +340,13 @@ jobs:
           path: ~/.cache/ms-playwright
       - run: npx playwright install chromium
       - name: Run Discovery Tests
+        # The PSIS crawler hits an external host (psis.theahg.co.za) and is
+        # informational — kept tolerant. Heratio crawler + parity scanner
+        # gate the release: any failure must fail the workflow.
         run: |
-          npx playwright test tests/e2e/00-discovery/psis-crawler.spec.ts --reporter=list || true
-          npx playwright test tests/e2e/00-discovery/heratio-crawler.spec.ts --reporter=list || true
-          npx playwright test tests/e2e/00-discovery/parity-scanner.spec.ts --reporter=list || true
+          npx playwright test tests/e2e/00-discovery/psis-crawler.spec.ts --reporter=list || echo "PSIS crawler advisory failure (external host)"
+          npx playwright test tests/e2e/00-discovery/heratio-crawler.spec.ts --reporter=list
+          npx playwright test tests/e2e/00-discovery/parity-scanner.spec.ts --reporter=list
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -363,11 +371,15 @@ jobs:
           path: ~/.cache/ms-playwright
       - run: npx playwright install chromium
       - name: Run Workflow Tests
+        # Hard fail on every workflow spec. The previous `|| true` form let
+        # broken golden-path flows ship silently. If a spec is intentionally
+        # skipped, mark it with `test.skip` in the spec file rather than
+        # swallowing exit codes here.
         run: |
-          npx playwright test tests/e2e/03-workflows/access-navigation.spec.ts --reporter=list || true
-          npx playwright test tests/e2e/03-workflows/browse-search.spec.ts --reporter=list || true
-          npx playwright test tests/e2e/03-workflows/crud-records.spec.ts --reporter=list || true
-          npx playwright test tests/e2e/04-search/search.spec.ts --reporter=list || true
+          npx playwright test tests/e2e/03-workflows/access-navigation.spec.ts --reporter=list
+          npx playwright test tests/e2e/03-workflows/browse-search.spec.ts --reporter=list
+          npx playwright test tests/e2e/03-workflows/crud-records.spec.ts --reporter=list
+          npx playwright test tests/e2e/04-search/search.spec.ts --reporter=list
       - uses: actions/upload-artifact@v4
         if: always()
         with:

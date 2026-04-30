@@ -152,16 +152,16 @@ jobs:
         run: npx playwright install chromium
 
       - name: Run PSIS Discovery
-        run: npx playwright test tests/e2e/00-discovery/psis-crawler.spec.ts --reporter=list || true
-        continue-on-error: true
+        # PSIS is an external reference host; tolerate failures so a PSIS
+        # outage doesn't block our release. Heratio's own crawler and the
+        # parity scanner are gating.
+        run: npx playwright test tests/e2e/00-discovery/psis-crawler.spec.ts --reporter=list || echo "PSIS crawler advisory failure (external host)"
 
       - name: Run Heratio Discovery
-        run: npx playwright test tests/e2e/00-discovery/heratio-crawler.spec.ts --reporter=list || true
-        continue-on-error: true
+        run: npx playwright test tests/e2e/00-discovery/heratio-crawler.spec.ts --reporter=list
 
       - name: Run Parity Scanner
-        run: npx playwright test tests/e2e/00-discovery/parity-scanner.spec.ts --reporter=list || true
-        continue-on-error: true
+        run: npx playwright test tests/e2e/00-discovery/parity-scanner.spec.ts --reporter=list
 
       - name: Upload discovery reports
         if: always()
@@ -202,16 +202,13 @@ jobs:
         run: npx playwright install chromium
 
       - name: Run Access & Navigation Tests
-        run: npx playwright test tests/e2e/03-workflows/access-navigation.spec.ts --reporter=list || true
-        continue-on-error: true
+        run: npx playwright test tests/e2e/03-workflows/access-navigation.spec.ts --reporter=list
 
       - name: Run Browse & Search Tests
-        run: npx playwright test tests/e2e/03-workflows/browse-search.spec.ts --reporter=list || true
-        continue-on-error: true
+        run: npx playwright test tests/e2e/03-workflows/browse-search.spec.ts --reporter=list
 
       - name: Run CRUD Tests
-        run: npx playwright test tests/e2e/03-workflows/crud-records.spec.ts --reporter=list || true
-        continue-on-error: true
+        run: npx playwright test tests/e2e/03-workflows/crud-records.spec.ts --reporter=list
 
       - name: Upload workflow test results
         if: always()
