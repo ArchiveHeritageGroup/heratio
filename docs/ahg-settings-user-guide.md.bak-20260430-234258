@@ -384,7 +384,7 @@ Configure AI-powered features for your archive:
 |  API Configuration                                           |
 |  +--------------------------------------------------------+ |
 |  | API URL:     [http://192.168.0.112:5004/ai/v1        ] | |
-|  | API Key:     [<your-api-key>              ] | |
+|  | API Key:     [ahg_ai_demo_internal_2026              ] | |
 |  | Timeout:     [60] seconds                              | |
 |  +--------------------------------------------------------+ |
 |                                                              |

@@ -59,3 +59,9 @@ playwright-report/
 /storage/app/reports/
 *.bak
 .km-ingest-staging/
+
+# MCP config — may contain API keys (KM_API_KEY etc.)
+.mcp.json
+
+# Claude Code per-user settings — may contain commands invoking sshpass with literals
+.claude/settings.local.json

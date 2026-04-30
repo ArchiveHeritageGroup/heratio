@@ -1095,7 +1095,7 @@ curl https://your-site.com/ai/llm/health
 |  Feature     | Setting Key              | Default Value         |
 +--------------|--------------------------|----------------------+
 |  general     | api_url                  | http://192.168.0.112:5004/ai/v1 |
-|  general     | api_key                  | <your-api-key> |
+|  general     | api_key                  | ahg_ai_demo_internal_2026 |
 |  general     | api_timeout              | 60                    |
 |  ner         | enabled                  | 1                     |
 |  ner         | confidence_threshold     | 0.85                  |

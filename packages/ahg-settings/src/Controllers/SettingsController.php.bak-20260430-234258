@@ -2452,7 +2452,7 @@ class SettingsController extends Controller
             'processing_mode' => 'job',
             'summary_field' => 'scopeAndContent',
             'api_url' => 'http://192.168.0.112:5004/ai/v1',
-            'api_key' => '<set in ahg_settings>',
+            'api_key' => 'ahg_ai_demo_internal_2026',
             'api_timeout' => '60',
             'auto_extract_on_upload' => '0',
             'ner_entity_types' => '["PERSON","ORG","GPE","DATE"]',

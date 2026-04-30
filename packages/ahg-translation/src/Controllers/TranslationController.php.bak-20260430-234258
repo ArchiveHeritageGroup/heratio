@@ -482,7 +482,7 @@ class TranslationController extends Controller
     public function health()
     {
         $endpoint = $this->getSetting('mt.endpoint', 'http://192.168.0.112:5004/ai/v1/translate');
-        $apiKey = $this->getSetting('mt.api_key', '<set in ahg_settings>');
+        $apiKey = $this->getSetting('mt.api_key', 'ahg_ai_demo_internal_2026');
 
         $ch = curl_init($endpoint);
         curl_setopt_array($ch, [
@@ -613,7 +613,7 @@ class TranslationController extends Controller
     private function translateText(string $text, string $sourceCulture, string $targetCulture, ?int $maxLength = null): array
     {
         $endpoint = $this->getSetting('mt.endpoint', 'http://192.168.0.112:5004/ai/v1/translate');
-        $apiKey = $this->getSetting('mt.api_key', '<set in ahg_settings>');
+        $apiKey = $this->getSetting('mt.api_key', 'ahg_ai_demo_internal_2026');
         $timeout = (int) $this->getSetting('mt.timeout_seconds', '60');
 
         $payloadData = [

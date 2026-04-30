@@ -192,9 +192,16 @@ else
     [[ -f .env.example ]] || die ".env.example missing — cannot bootstrap"
     cp .env.example .env
 
-    # render values
+    # render values + production-safe overrides
     sed -i \
         -e "s|^APP_URL=.*|APP_URL=https://${DOMAIN}|" \
+        -e "s|^APP_ENV=.*|APP_ENV=production|" \
+        -e "s|^APP_DEBUG=.*|APP_DEBUG=false|" \
+        -e "s|^LOG_LEVEL=.*|LOG_LEVEL=warning|" \
+        -e "s|^SESSION_SECURE_COOKIE=.*|SESSION_SECURE_COOKIE=true|" \
+        -e "s|^SESSION_HTTP_ONLY=.*|SESSION_HTTP_ONLY=true|" \
+        -e "s|^SESSION_SAME_SITE=.*|SESSION_SAME_SITE=lax|" \
+        -e "s|^SESSION_ENCRYPT=.*|SESSION_ENCRYPT=true|" \
         -e "s|^DB_HOST=.*|DB_HOST=${DB_HOST}|" \
         -e "s|^DB_DATABASE=.*|DB_DATABASE=${DB_NAME}|" \
         -e "s|^DB_USERNAME=.*|DB_USERNAME=${DB_USER}|" \
@@ -206,8 +213,16 @@ else
         -e "s|^ELASTICSEARCH_PREFIX=.*|ELASTICSEARCH_PREFIX=${ES_PREFIX}|" \
         .env
 
+    # Append session-cookie + DB-host hardening keys if not present in .env.example
+    grep -q "^SESSION_SECURE_COOKIE=" .env || echo "SESSION_SECURE_COOKIE=true" >> .env
+    grep -q "^SESSION_HTTP_ONLY="     .env || echo "SESSION_HTTP_ONLY=true"     >> .env
+    grep -q "^SESSION_SAME_SITE="     .env || echo "SESSION_SAME_SITE=lax"      >> .env
+
+    chmod 640 .env
+    chown root:www-data .env 2>/dev/null || true
+
     php artisan key:generate --no-interaction --force
-    ok ".env rendered + APP_KEY generated"
+    ok ".env rendered (production env, debug off, secure cookies) + APP_KEY generated"
 fi
 
 # Re-export key env values from .env so the rest of the script uses the
@@ -228,6 +243,12 @@ if mysql_run -e "USE \`$DB_NAME\`" &>/dev/null; then
 else
     mysql_run -e "CREATE DATABASE \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
     ok "created database $DB_NAME"
+fi
+
+# Security: warn if MySQL is bound to 0.0.0.0 (publicly reachable). Default
+# Ubuntu MySQL 8 bind is 127.0.0.1; this just catches misconfigured installs.
+if ss -tln | awk '{print $4}' | grep -qE "^0\.0\.0\.0:3306\$|^\[::]:3306\$"; then
+    warn "MySQL is bound to 0.0.0.0:3306 — publicly reachable. Recommend: set bind-address=127.0.0.1 in mysqld.cnf"
 fi
 
 # ============================================================================

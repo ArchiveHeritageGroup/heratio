@@ -25,12 +25,25 @@ server {
     error_log  /var/log/nginx/heratio_error.log;
 
     # ------------------------------------------------------------------
-    # Security headers
+    # Security headers — defaults sufficient for OWASP top-10 baseline.
+    # Tighten CSP / Permissions-Policy per deployment after testing.
+    # HSTS is OFF here (HTTP-only template); when you add SSL via certbot
+    # or otherwise, add the matching `Strict-Transport-Security` header
+    # in the 443 server block.
     # ------------------------------------------------------------------
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header X-Frame-Options          "SAMEORIGIN"                       always;
+    add_header X-Content-Type-Options   "nosniff"                          always;
+    add_header Referrer-Policy          "strict-origin-when-cross-origin"  always;
+    add_header Permissions-Policy       "geolocation=(), microphone=(), camera=(self), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()" always;
+    add_header Cross-Origin-Opener-Policy   "same-origin"                  always;
+    add_header Cross-Origin-Resource-Policy "same-site"                    always;
+    # Content-Security-Policy — start permissive (Heratio uses inline JS in
+    # several views + jsdelivr CDN for d3, OpenSeadragon, etc.). Tighten per
+    # deployment after a CSP audit.
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.gstatic.com; connect-src 'self' https:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none';" always;
+    # X-XSS-Protection is deprecated by modern browsers (use CSP above) but
+    # keeps legacy clients happy.
+    add_header X-XSS-Protection         "1; mode=block"                    always;
 
     # ------------------------------------------------------------------
     # Uploaded media — alias to HERATIO_STORAGE_PATH. The ^~ prefix is
@@ -77,7 +90,10 @@ server {
         try_files $uri =404;
     }
 
-    # Block sensitive files
-    location ~ /\.(?!well-known) { deny all; }
-    location = /.env             { deny all; }
+    # Block sensitive files / config / source artefacts
+    location ~ /\.(?!well-known)               { deny all; }
+    location = /.env                            { deny all; }
+    location ~* /(?:vendor|storage|database|config|bootstrap)/  { deny all; }
+    location ~* \.(env|sql|log|md|yml|yaml|lock|json5)$ { deny all; }
+    location ~* /(?:composer\.(json|lock)|package\.(json|lock))$ { deny all; }
 }

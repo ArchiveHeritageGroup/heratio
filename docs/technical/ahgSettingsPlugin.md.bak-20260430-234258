@@ -689,7 +689,7 @@ The `isEnabled()` method checks if integration is configured and enabled before 
 | translation_enabled | 1 | Enable translation |
 | processing_mode | job | 'job' or 'realtime' |
 | api_url | http://192.168.0.112:5004/ai/v1 | AI service endpoint |
-| api_key | <your-api-key> | API authentication |
+| api_key | ahg_ai_demo_internal_2026 | API authentication |
 | api_timeout | 60 | Request timeout seconds |
 | ner_entity_types | ["PERSON","ORG","GPE","DATE"] | Entities to extract |
 | translation_source_lang | en | Source language |

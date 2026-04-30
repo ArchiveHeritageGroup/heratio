@@ -211,7 +211,7 @@ INSERT INTO ahg_translation_settings (setting_key, setting_value) VALUES
 | mt.endpoint | http://127.0.0.1:5100/translate | NLLB-200 API endpoint URL |
 | mt.timeout_seconds | 30 | HTTP request timeout |
 | mt.target_culture | en | Default target language |
-| mt.api_key | <your-api-key> | API authentication key |
+| mt.api_key | ahg_ai_demo_internal_2026 | API authentication key |
 
 ---
 
