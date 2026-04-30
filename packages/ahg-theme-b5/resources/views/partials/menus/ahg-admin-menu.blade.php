@@ -48,6 +48,26 @@
     <li><a class="dropdown-item" href="{{ route('settings.index') }}"><i class="fas fa-cog me-2"></i>AHG Settings</a></li>
     <li><a class="dropdown-item" href="{{ route('dropdown.index') }}"><i class="fas fa-list me-2"></i>Dropdown Manager</a></li>
 
+    {{-- Translation --}}
+    @php
+      $pendingDrafts = 0;
+      try {
+          if (\Illuminate\Support\Facades\Schema::hasTable('ahg_translation_draft')) {
+              $pendingDrafts = \Illuminate\Support\Facades\DB::table('ahg_translation_draft')->where('status', 'draft')->count();
+          }
+      } catch (\Throwable $e) {}
+    @endphp
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">{{ __('Translation') }}</h6></li>
+    <li><a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('ahgtranslation.drafts') }}">
+      <span><i class="fas fa-language me-2"></i>{{ __('Translation drafts') }}</span>
+      @if($pendingDrafts > 0)
+        <span class="badge bg-warning text-dark rounded-pill">{{ $pendingDrafts }}</span>
+      @endif
+    </a></li>
+    <li><a class="dropdown-item" href="{{ route('ahgtranslation.languages') }}"><i class="fas fa-globe me-2"></i>{{ __('Languages') }}</a></li>
+    <li><a class="dropdown-item" href="{{ route('ahgtranslation.settings') }}"><i class="fas fa-cog me-2"></i>{{ __('Translation settings') }}</a></li>
+
     {{-- Security --}}
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">Security</h6></li>
