@@ -385,3 +385,42 @@ Install is "done" when:
 5. `/informationobject/browse` renders the empty GLAM grid at HTTP 200 with no PHP notices.
 6. `php artisan ahg:es-reindex --drop` completes with no errors against the empty DB.
 7. CI job `build-install-artifact` succeeds against a fresh MySQL 8 container and publishes `heratio-schema.sql` + `heratio-seeds.sql` release artifacts.
+
+---
+
+## 13. Addendum 2026-04-30 — recon refresh + Phase 1 kickoff
+
+Re-ran the schema diff against the current production `heratio` DB before starting the build.
+
+### Refreshed numbers vs §2.1
+
+| Bucket | 2026-04-17 plan | 2026-04-30 recon |
+|---|---:|---:|
+| Total `heratio` tables | 974 | **993** |
+| `ahg_*` sidecars | (not separated) | 163 |
+| Non-`ahg_*` (vanilla AtoM + un-prefixed Heratio additions) | 974 | 830 |
+| `ahg_dropdown` rows | 3,824 | (unchanged — verify before Phase 1 close) |
+| Vanilla AtoM tables (in `data/sql/*.schema.sql`) | (not measured) | **63** |
+
+**The headline:** of the 830 non-`ahg_` tables, **only ~63 are vanilla AtoM** — the surface that this plan must capture from upstream. The other ~767 are Heratio additions that just don't follow the `ahg_` prefix convention. They're already in our control; the plan's existing per-package install.sql consolidation handles them. Renaming to `ahg_*` is out of scope (cosmetic; high refactor cost across views/services).
+
+### AtoM seed fixture inventory (verified 2026-04-30)
+
+`/usr/share/nginx/archive/data/fixtures/`:
+
+| File | Lines | What it seeds |
+|---|---:|---|
+| `taxonomyTerms.yml` | 13,014 | All taxonomies + terms, multilingual |
+| `menus.yml` | 2,402 | Admin + public navigation |
+| `settings.yml` | 1,586 | System defaults |
+| `acl.yml` | 309 | ACL groups + permissions |
+| `staticPages.yml` | 101 | Home / About / Contact / Privacy / Terms |
+| `fixtures.yml` | 17 | Bootstrap (admin user, etc.) |
+
+Phase 2's YAML→SQL converter is the heaviest one-time work. The pre-existing plan §7 covers it; nothing changes here.
+
+### Phase 1 build kickoff
+
+Starting Phase 1 item #1: port `lib.model.schema.sql` → `database/core/00_core_schema.sql` with `CREATE TABLE IF NOT EXISTS` guards. Subsequent items (qbAclPlugin, qtAccessionPlugin, atom-framework) follow in 01–03.
+
+Verification gate before proceeding to Phase 2: the four `database/core/*.sql` files must (a) load cleanly on a fresh `heratio_standalone_test` DB, and (b) be no-op-safe when re-run on the existing production `heratio` DB.
