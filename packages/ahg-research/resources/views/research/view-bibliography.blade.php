@@ -3,7 +3,7 @@
 @section('title', $bibliography->name ?? 'Bibliography')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.bibliographies') }}">Bibliographies</a></li>
@@ -50,7 +50,7 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Entries</h5>
+                <h5 class="mb-0">{{ __('Entries') }}</h5>
                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addEntryModal">
                     <i class="fas fa-plus me-1"></i>Add Entry
                 </button>
@@ -86,7 +86,7 @@
                                             data-url="{{ e($entry->url ?? '') }}"
                                             data-entry_type="{{ e($entry->entry_type ?? 'book') }}"
                                             data-notes="{{ e($entry->notes ?? '') }}"
-                                            title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                                            title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></button>
                                         <form method="POST" class="d-inline" onsubmit="return confirm('Remove?')">
                                             @csrf
                                             <input type="hidden" name="form_action" value="remove_entry">
@@ -115,7 +115,7 @@
                     <div class="text-center text-muted py-5">
                         <i class="fas fa-list fa-2x mb-2"></i>
                         <p>No entries yet</p>
-                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addEntryModal">Add your first entry</button>
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addEntryModal">{{ __('Add your first entry') }}</button>
                     </div>
                 @endif
             </div>
@@ -148,76 +148,76 @@
 {{-- Add Entry Modal --}}
 <div class="modal fade" id="addEntryModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
     <form method="POST">@csrf<input type="hidden" name="form_action" value="add_entry">
-    <div class="modal-header"><h5 class="modal-title">Add Bibliography Entry</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-header"><h5 class="modal-title">{{ __('Add Bibliography Entry') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Title *</label><input type="text" class="form-control" name="title" required></div>
+        <div class="mb-3"><label class="form-label">{{ __('Title *') }}</label><input type="text" class="form-control" name="title" required></div>
         <div class="row">
-            <div class="col-md-8"><div class="mb-3"><label class="form-label">Authors</label><input type="text" class="form-control" name="authors" placeholder="Last, First; Last, First"></div></div>
-            <div class="col-md-4"><div class="mb-3"><label class="form-label">Year</label><input type="text" class="form-control" name="year" placeholder="e.g. 2024"></div></div>
+            <div class="col-md-8"><div class="mb-3"><label class="form-label">{{ __('Authors') }}</label><input type="text" class="form-control" name="authors" placeholder="{{ __('Last, First; Last, First') }}"></div></div>
+            <div class="col-md-4"><div class="mb-3"><label class="form-label">{{ __('Year') }}</label><input type="text" class="form-control" name="year" placeholder="{{ __('e.g. 2024') }}"></div></div>
         </div>
         <div class="row">
-            <div class="col-md-6"><div class="mb-3"><label class="form-label">Publication</label><input type="text" class="form-control" name="publication"></div></div>
-            <div class="col-md-3"><div class="mb-3"><label class="form-label">Volume</label><input type="text" class="form-control" name="volume"></div></div>
-            <div class="col-md-3"><div class="mb-3"><label class="form-label">Pages</label><input type="text" class="form-control" name="pages" placeholder="e.g. 1-25"></div></div>
+            <div class="col-md-6"><div class="mb-3"><label class="form-label">{{ __('Publication') }}</label><input type="text" class="form-control" name="publication"></div></div>
+            <div class="col-md-3"><div class="mb-3"><label class="form-label">{{ __('Volume') }}</label><input type="text" class="form-control" name="volume"></div></div>
+            <div class="col-md-3"><div class="mb-3"><label class="form-label">{{ __('Pages') }}</label><input type="text" class="form-control" name="pages" placeholder="{{ __('e.g. 1-25') }}"></div></div>
         </div>
         <div class="row">
-            <div class="col-md-6"><div class="mb-3"><label class="form-label">DOI</label><input type="text" class="form-control" name="doi" placeholder="10.xxxx/xxxxx"></div></div>
-            <div class="col-md-6"><div class="mb-3"><label class="form-label">URL</label><input type="url" class="form-control" name="url" placeholder="https://..."></div></div>
+            <div class="col-md-6"><div class="mb-3"><label class="form-label">{{ __('DOI') }}</label><input type="text" class="form-control" name="doi" placeholder="{{ __('10.xxxx/xxxxx') }}"></div></div>
+            <div class="col-md-6"><div class="mb-3"><label class="form-label">{{ __('URL') }}</label><input type="url" class="form-control" name="url" placeholder="{{ __('https://...') }}"></div></div>
         </div>
         <div class="row">
-            <div class="col-md-6"><div class="mb-3"><label class="form-label">Entry Type</label>
+            <div class="col-md-6"><div class="mb-3"><label class="form-label">{{ __('Entry Type') }}</label>
                 <select name="entry_type" class="form-select">
-                    <option value="book">Book</option><option value="article">Article</option><option value="chapter">Chapter</option>
-                    <option value="website">Website</option><option value="thesis">Thesis</option><option value="archival">Archival</option><option value="other">Other</option>
+                    <option value="book">{{ __('Book') }}</option><option value="article">{{ __('Article') }}</option><option value="chapter">{{ __('Chapter') }}</option>
+                    <option value="website">{{ __('Website') }}</option><option value="thesis">{{ __('Thesis') }}</option><option value="archival">{{ __('Archival') }}</option><option value="other">{{ __('Other') }}</option>
                 </select></div>
             </div>
-            <div class="col-md-6"><div class="mb-3"><label class="form-label">Archive Item ID</label><input type="number" class="form-control" name="object_id" placeholder="Optional — link to archive item"></div></div>
+            <div class="col-md-6"><div class="mb-3"><label class="form-label">{{ __('Archive Item ID') }}</label><input type="number" class="form-control" name="object_id" placeholder="{{ __('Optional — link to archive item') }}"></div></div>
         </div>
-        <div class="mb-3"><label class="form-label">Notes</label><textarea class="form-control" name="notes" rows="2"></textarea></div>
+        <div class="mb-3"><label class="form-label">{{ __('Notes') }}</label><textarea class="form-control" name="notes" rows="2"></textarea></div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Add Entry</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Add Entry</button></div>
     </form>
 </div></div></div>
 
 {{-- Edit Entry Modal --}}
 <div class="modal fade" id="editEntryModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
     <form method="POST">@csrf<input type="hidden" name="form_action" value="edit_entry"><input type="hidden" name="entry_id" id="editEntryId">
-    <div class="modal-header"><h5 class="modal-title">Edit Entry</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-header"><h5 class="modal-title">{{ __('Edit Entry') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Title *</label><input type="text" class="form-control" name="title" id="editTitle" required></div>
+        <div class="mb-3"><label class="form-label">{{ __('Title *') }}</label><input type="text" class="form-control" name="title" id="editTitle" required></div>
         <div class="row">
-            <div class="col-md-8"><div class="mb-3"><label class="form-label">Authors</label><input type="text" class="form-control" name="authors" id="editAuthors"></div></div>
-            <div class="col-md-4"><div class="mb-3"><label class="form-label">Year</label><input type="text" class="form-control" name="year" id="editDate"></div></div>
+            <div class="col-md-8"><div class="mb-3"><label class="form-label">{{ __('Authors') }}</label><input type="text" class="form-control" name="authors" id="editAuthors"></div></div>
+            <div class="col-md-4"><div class="mb-3"><label class="form-label">{{ __('Year') }}</label><input type="text" class="form-control" name="year" id="editDate"></div></div>
         </div>
         <div class="row">
-            <div class="col-md-6"><div class="mb-3"><label class="form-label">Publication</label><input type="text" class="form-control" name="publication" id="editContainerTitle"></div></div>
-            <div class="col-md-3"><div class="mb-3"><label class="form-label">Volume</label><input type="text" class="form-control" name="volume" id="editVolume"></div></div>
-            <div class="col-md-3"><div class="mb-3"><label class="form-label">Pages</label><input type="text" class="form-control" name="pages" id="editPages"></div></div>
+            <div class="col-md-6"><div class="mb-3"><label class="form-label">{{ __('Publication') }}</label><input type="text" class="form-control" name="publication" id="editContainerTitle"></div></div>
+            <div class="col-md-3"><div class="mb-3"><label class="form-label">{{ __('Volume') }}</label><input type="text" class="form-control" name="volume" id="editVolume"></div></div>
+            <div class="col-md-3"><div class="mb-3"><label class="form-label">{{ __('Pages') }}</label><input type="text" class="form-control" name="pages" id="editPages"></div></div>
         </div>
         <div class="row">
-            <div class="col-md-6"><div class="mb-3"><label class="form-label">DOI</label><input type="text" class="form-control" name="doi" id="editDoi"></div></div>
-            <div class="col-md-6"><div class="mb-3"><label class="form-label">URL</label><input type="url" class="form-control" name="url" id="editUrl"></div></div>
+            <div class="col-md-6"><div class="mb-3"><label class="form-label">{{ __('DOI') }}</label><input type="text" class="form-control" name="doi" id="editDoi"></div></div>
+            <div class="col-md-6"><div class="mb-3"><label class="form-label">{{ __('URL') }}</label><input type="url" class="form-control" name="url" id="editUrl"></div></div>
         </div>
-        <div class="mb-3"><label class="form-label">Entry Type</label>
+        <div class="mb-3"><label class="form-label">{{ __('Entry Type') }}</label>
             <select name="entry_type" id="editEntryType" class="form-select">
-                <option value="book">Book</option><option value="article">Article</option><option value="chapter">Chapter</option>
-                <option value="website">Website</option><option value="thesis">Thesis</option><option value="archival">Archival</option><option value="other">Other</option>
+                <option value="book">{{ __('Book') }}</option><option value="article">{{ __('Article') }}</option><option value="chapter">{{ __('Chapter') }}</option>
+                <option value="website">{{ __('Website') }}</option><option value="thesis">{{ __('Thesis') }}</option><option value="archival">{{ __('Archival') }}</option><option value="other">{{ __('Other') }}</option>
             </select>
         </div>
-        <div class="mb-3"><label class="form-label">Notes</label><textarea class="form-control" name="notes" id="editNotes" rows="2"></textarea></div>
+        <div class="mb-3"><label class="form-label">{{ __('Notes') }}</label><textarea class="form-control" name="notes" id="editNotes" rows="2"></textarea></div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button></div>
     </form>
 </div></div></div>
 
 {{-- Edit Bibliography Modal --}}
 <div class="modal fade" id="editBibModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
     <form method="POST">@csrf<input type="hidden" name="form_action" value="update">
-    <div class="modal-header"><h5 class="modal-title">Edit Bibliography</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-header"><h5 class="modal-title">{{ __('Edit Bibliography') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Name *</label><input type="text" class="form-control" name="name" value="{{ e($bibliography->name) }}" required></div>
-        <div class="mb-3"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="2">{{ e($bibliography->description ?? '') }}</textarea></div>
-        <div class="mb-3"><label class="form-label">Citation Style</label>
+        <div class="mb-3"><label class="form-label">{{ __('Name *') }}</label><input type="text" class="form-control" name="name" value="{{ e($bibliography->name) }}" required></div>
+        <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea class="form-control" name="description" rows="2">{{ e($bibliography->description ?? '') }}</textarea></div>
+        <div class="mb-3"><label class="form-label">{{ __('Citation Style') }}</label>
             <select name="citation_style" class="form-select">
                 @foreach(['chicago', 'apa', 'mla', 'harvard', 'ieee', 'vancouver'] as $s)
                 <option value="{{ $s }}" {{ ($bibliography->citation_style ?? 'chicago') === $s ? 'selected' : '' }}>{{ strtoupper($s) }}</option>
@@ -225,7 +225,7 @@
             </select>
         </div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button></div>
     </form>
 </div></div></div>
 
@@ -235,24 +235,24 @@
     <div class="modal-header"><h5 class="modal-title"><i class="fas fa-upload me-2"></i>Import Citations</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
         <div class="mb-3">
-            <label class="form-label">Format *</label>
+            <label class="form-label">{{ __('Format *') }}</label>
             <select name="format" class="form-select" required>
-                <option value="bibtex">BibTeX (.bib)</option>
-                <option value="ris">RIS (.ris)</option>
+                <option value="bibtex">{{ __('BibTeX (.bib)') }}</option>
+                <option value="ris">{{ __('RIS (.ris)') }}</option>
             </select>
         </div>
         <div class="mb-3">
-            <label class="form-label">Upload File</label>
+            <label class="form-label">{{ __('Upload File') }}</label>
             <input type="file" name="import_file" class="form-control" accept=".bib,.ris,.txt">
         </div>
         <div class="text-center text-muted my-2">&mdash; or &mdash;</div>
         <div class="mb-3">
-            <label class="form-label">Paste Content</label>
-            <textarea name="import_content" class="form-control" rows="6" placeholder="Paste BibTeX or RIS content here..."></textarea>
+            <label class="form-label">{{ __('Paste Content') }}</label>
+            <textarea name="import_content" class="form-control" rows="6" placeholder="{{ __('Paste BibTeX or RIS content here...') }}"></textarea>
         </div>
         <div class="alert alert-info small mb-0"><i class="fas fa-info-circle me-1"></i>Entries will be added. Duplicate titles will be skipped.</div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-success"><i class="fas fa-upload me-1"></i>Import</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-success"><i class="fas fa-upload me-1"></i>Import</button></div>
     </form>
 </div></div></div>
 

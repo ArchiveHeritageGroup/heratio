@@ -7,7 +7,7 @@
 @section('title', 'ODRL Policies')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item active">ODRL Policies</li>
@@ -15,7 +15,7 @@
 </nav>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">ODRL Policies</h1>
+    <h1 class="h2">{{ __('ODRL Policies') }}</h1>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPolicyModal"><i class="fas fa-plus me-1"></i>Create Policy</button>
 </div>
 
@@ -26,7 +26,7 @@
             <div class="col-auto">
                 <label class="form-label form-label-sm mb-0">Target Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="filter_target_type" class="form-select form-select-sm">
-                    <option value="">All</option>
+                    <option value="">{{ __('All') }}</option>
                     @foreach(['archival_description', 'collection', 'project', 'snapshot', 'annotation', 'assertion'] as $tt)
                     <option value="{{ $tt }}" {{ request('filter_target_type') === $tt ? 'selected' : '' }}>{{ ucfirst($tt) }}</option>
                     @endforeach
@@ -35,22 +35,22 @@
             <div class="col-auto">
                 <label class="form-label form-label-sm mb-0">Policy Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="filter_policy_type" class="form-select form-select-sm">
-                    <option value="">All</option>
-                    <option value="permission" {{ request('filter_policy_type') === 'permission' ? 'selected' : '' }}>Permission</option>
-                    <option value="prohibition" {{ request('filter_policy_type') === 'prohibition' ? 'selected' : '' }}>Prohibition</option>
-                    <option value="obligation" {{ request('filter_policy_type') === 'obligation' ? 'selected' : '' }}>Obligation</option>
+                    <option value="">{{ __('All') }}</option>
+                    <option value="permission" {{ request('filter_policy_type') === 'permission' ? 'selected' : '' }}>{{ __('Permission') }}</option>
+                    <option value="prohibition" {{ request('filter_policy_type') === 'prohibition' ? 'selected' : '' }}>{{ __('Prohibition') }}</option>
+                    <option value="obligation" {{ request('filter_policy_type') === 'obligation' ? 'selected' : '' }}>{{ __('Obligation') }}</option>
                 </select>
             </div>
             <div class="col-auto">
                 <label class="form-label form-label-sm mb-0">Action Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="filter_action_type" class="form-select form-select-sm">
-                    <option value="">All</option>
+                    <option value="">{{ __('All') }}</option>
                     @foreach(['use', 'reproduce', 'distribute', 'modify', 'archive', 'display'] as $at)
                     <option value="{{ $at }}" {{ request('filter_action_type') === $at ? 'selected' : '' }}>{{ ucfirst($at) }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-auto"><button type="submit" class="btn btn-outline-secondary btn-sm">Filter</button></div>
+            <div class="col-auto"><button type="submit" class="btn btn-outline-secondary btn-sm">{{ __('Filter') }}</button></div>
         </form>
     </div>
 </div>
@@ -63,12 +63,12 @@
         <thead>
             <tr>
                 <th>#</th>
-                <th>Target</th>
-                <th>Policy Type</th>
-                <th>Action</th>
-                <th>Constraints</th>
-                <th>Created</th>
-                <th>Actions</th>
+                <th>{{ __('Target') }}</th>
+                <th>{{ __('Policy Type') }}</th>
+                <th>{{ __('Action') }}</th>
+                <th>{{ __('Constraints') }}</th>
+                <th>{{ __('Created') }}</th>
+                <th>{{ __('Actions') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -112,7 +112,7 @@
                             'resolved' => $p->resolved_constraints ?? [],
                         ];
                     @endphp
-                    <button class="btn btn-sm btn-outline-secondary edit-policy-btn d-inline" title="Edit"
+                    <button class="btn btn-sm btn-outline-secondary edit-policy-btn d-inline" title="{{ __('Edit') }}"
                         data-policy='{!! json_encode($editData, JSON_HEX_APOS | JSON_HEX_QUOT) !!}'>
                         <i class="fas fa-edit"></i>
                     </button>
@@ -120,7 +120,7 @@
                         @csrf
                         <input type="hidden" name="form_action" value="delete">
                         <input type="hidden" name="policy_id" value="{{ (int) $p->id }}">
-                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}"><i class="fas fa-trash"></i></button>
                     </form>
                 </td>
             </tr>
@@ -151,74 +151,74 @@
         @csrf
         <input type="hidden" name="form_action" value="create">
         <div class="modal-header">
-          <h5 class="modal-title">Create ODRL Policy</h5>
+          <h5 class="modal-title">{{ __('Create ODRL Policy') }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Target Type * <span class="badge bg-danger ms-1">Required</span></label>
             <select name="target_type" id="policy-target-type" class="form-select" required>
-              <option value="">Select...</option>
-              <option value="archival_description">Archival Description</option>
-              <option value="collection">Collection</option>
-              <option value="project">Project</option>
-              <option value="snapshot">Snapshot</option>
-              <option value="annotation">Annotation</option>
-              <option value="assertion">Assertion</option>
+              <option value="">{{ __('Select...') }}</option>
+              <option value="archival_description">{{ __('Archival Description') }}</option>
+              <option value="collection">{{ __('Collection') }}</option>
+              <option value="project">{{ __('Project') }}</option>
+              <option value="snapshot">{{ __('Snapshot') }}</option>
+              <option value="annotation">{{ __('Annotation') }}</option>
+              <option value="assertion">{{ __('Assertion') }}</option>
             </select>
           </div>
           <input type="hidden" name="target_id" id="target-id-hidden" required>
           <div class="mb-3" id="target-id-wrapper" style="display:none;">
             <label class="form-label" id="target-id-label">Target * <span class="badge bg-danger ms-1">Required</span></label>
-            <select id="target-id-tomselect" placeholder="Select a target type first..."></select>
+            <select id="target-id-tomselect" placeholder="{{ __('Select a target type first...') }}"></select>
             <small class="text-muted" id="target-id-hint">Select a target type above to search</small>
           </div>
           <div class="mb-3">
             <label class="form-label">Policy Type * <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="policy_type" class="form-select">
-              <option value="permission">Permission</option>
-              <option value="prohibition">Prohibition</option>
-              <option value="obligation">Obligation</option>
+              <option value="permission">{{ __('Permission') }}</option>
+              <option value="prohibition">{{ __('Prohibition') }}</option>
+              <option value="obligation">{{ __('Obligation') }}</option>
             </select>
           </div>
           <div class="mb-3">
             <label class="form-label">Action Type * <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="action_type" class="form-select">
-              <option value="use">Use</option>
-              <option value="reproduce">Reproduce</option>
-              <option value="distribute">Distribute</option>
-              <option value="modify">Modify</option>
-              <option value="archive">Archive</option>
-              <option value="display">Display</option>
+              <option value="use">{{ __('Use') }}</option>
+              <option value="reproduce">{{ __('Reproduce') }}</option>
+              <option value="distribute">{{ __('Distribute') }}</option>
+              <option value="modify">{{ __('Modify') }}</option>
+              <option value="archive">{{ __('Archive') }}</option>
+              <option value="display">{{ __('Display') }}</option>
             </select>
           </div>
           <div class="mb-3">
             <label class="form-label">Constraints <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
           <div class="mb-3">
-            <label class="form-label small">Restrict to Researchers</label>
-            <select id="constraint-researchers" multiple placeholder="Search researchers..."></select>
+            <label class="form-label small">{{ __('Restrict to Researchers') }}</label>
+            <select id="constraint-researchers" multiple placeholder="{{ __('Search researchers...') }}"></select>
             <small class="text-muted">Leave empty to apply to all researchers</small>
           </div>
           <div class="row mb-3">
             <div class="col-md-6">
-              <label class="form-label small">Date From</label>
+              <label class="form-label small">{{ __('Date From') }}</label>
               <input type="date" id="constraint-date-from" class="form-control form-control-sm">
             </div>
             <div class="col-md-6">
-              <label class="form-label small">Date To</label>
+              <label class="form-label small">{{ __('Date To') }}</label>
               <input type="date" id="constraint-date-to" class="form-control form-control-sm">
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label small">Max Uses</label>
-            <input type="number" id="constraint-max-uses" class="form-control form-control-sm" min="1" placeholder="Unlimited">
+            <label class="form-label small">{{ __('Max Uses') }}</label>
+            <input type="number" id="constraint-max-uses" class="form-control form-control-sm" min="1" placeholder="{{ __('Unlimited') }}">
           </div>
           <input type="hidden" name="constraints_json" id="constraints-json-hidden">
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create Policy</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="submit" class="btn btn-primary">{{ __('Create Policy') }}</button>
         </div>
       </form>
     </div>
@@ -234,68 +234,68 @@
         <input type="hidden" name="form_action" value="update">
         <input type="hidden" name="policy_id" id="edit-policy-id">
         <div class="modal-header">
-          <h5 class="modal-title">Edit ODRL Policy</h5>
+          <h5 class="modal-title">{{ __('Edit ODRL Policy') }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Target Type *</label>
+            <label class="form-label">{{ __('Target Type *') }}</label>
             <select name="target_type" id="edit-target-type" class="form-select" required>
-              <option value="archival_description">Archival Description</option>
-              <option value="collection">Collection</option>
-              <option value="project">Project</option>
-              <option value="snapshot">Snapshot</option>
-              <option value="annotation">Annotation</option>
-              <option value="assertion">Assertion</option>
+              <option value="archival_description">{{ __('Archival Description') }}</option>
+              <option value="collection">{{ __('Collection') }}</option>
+              <option value="project">{{ __('Project') }}</option>
+              <option value="snapshot">{{ __('Snapshot') }}</option>
+              <option value="annotation">{{ __('Annotation') }}</option>
+              <option value="assertion">{{ __('Assertion') }}</option>
             </select>
           </div>
           <input type="hidden" name="target_id" id="edit-target-id-hidden">
           <div class="mb-3">
-            <label class="form-label" id="edit-target-label">Target *</label>
-            <select id="edit-target-tomselect" placeholder="Search..."></select>
+            <label class="form-label" id="edit-target-label">{{ __('Target *') }}</label>
+            <select id="edit-target-tomselect" placeholder="{{ __('Search...') }}"></select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Policy Type *</label>
+            <label class="form-label">{{ __('Policy Type *') }}</label>
             <select name="policy_type" id="edit-policy-type" class="form-select">
-              <option value="permission">Permission</option>
-              <option value="prohibition">Prohibition</option>
-              <option value="obligation">Obligation</option>
+              <option value="permission">{{ __('Permission') }}</option>
+              <option value="prohibition">{{ __('Prohibition') }}</option>
+              <option value="obligation">{{ __('Obligation') }}</option>
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Action Type *</label>
+            <label class="form-label">{{ __('Action Type *') }}</label>
             <select name="action_type" id="edit-action-type" class="form-select">
-              <option value="use">Use</option>
-              <option value="reproduce">Reproduce</option>
-              <option value="distribute">Distribute</option>
-              <option value="modify">Modify</option>
-              <option value="archive">Archive</option>
-              <option value="display">Display</option>
+              <option value="use">{{ __('Use') }}</option>
+              <option value="reproduce">{{ __('Reproduce') }}</option>
+              <option value="distribute">{{ __('Distribute') }}</option>
+              <option value="modify">{{ __('Modify') }}</option>
+              <option value="archive">{{ __('Archive') }}</option>
+              <option value="display">{{ __('Display') }}</option>
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label small">Restrict to Researchers</label>
-            <select id="edit-constraint-researchers" multiple placeholder="Search researchers..."></select>
+            <label class="form-label small">{{ __('Restrict to Researchers') }}</label>
+            <select id="edit-constraint-researchers" multiple placeholder="{{ __('Search researchers...') }}"></select>
           </div>
           <div class="row mb-3">
             <div class="col-md-6">
-              <label class="form-label small">Date From</label>
+              <label class="form-label small">{{ __('Date From') }}</label>
               <input type="date" id="edit-constraint-date-from" class="form-control form-control-sm">
             </div>
             <div class="col-md-6">
-              <label class="form-label small">Date To</label>
+              <label class="form-label small">{{ __('Date To') }}</label>
               <input type="date" id="edit-constraint-date-to" class="form-control form-control-sm">
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label small">Max Uses</label>
-            <input type="number" id="edit-constraint-max-uses" class="form-control form-control-sm" min="1" placeholder="Unlimited">
+            <label class="form-label small">{{ __('Max Uses') }}</label>
+            <input type="number" id="edit-constraint-max-uses" class="form-control form-control-sm" min="1" placeholder="{{ __('Unlimited') }}">
           </div>
           <input type="hidden" name="constraints_json" id="edit-constraints-json-hidden">
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="submit" class="btn btn-primary">{{ __('Save Changes') }}</button>
         </div>
       </form>
     </div>

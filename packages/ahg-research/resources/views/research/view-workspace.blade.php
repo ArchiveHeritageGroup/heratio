@@ -5,7 +5,7 @@
 @section('title', $workspace->name ?? 'Workspace')
 
 @section('content')
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.workspaces') }}">Workspaces</a></li>
@@ -32,13 +32,13 @@
     </div>
     <div class="d-flex gap-2">
         @if(in_array($myRole, ['owner', 'admin']))
-            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editWorkspaceModal" title="Edit workspace"><i class="fas fa-pencil-alt"></i></button>
+            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editWorkspaceModal" title="{{ __('Edit workspace') }}"><i class="fas fa-pencil-alt"></i></button>
         @endif
         @if($myRole === 'owner')
             <form method="POST" class="d-inline" onsubmit="return confirm('Delete this workspace and all its resources, members, and discussions?')">
                 @csrf
                 <input type="hidden" name="form_action" value="delete_workspace">
-                <button class="btn btn-sm btn-outline-danger" title="Delete workspace"><i class="fas fa-trash"></i></button>
+                <button class="btn btn-sm btn-outline-danger" title="{{ __('Delete workspace') }}"><i class="fas fa-trash"></i></button>
             </form>
         @endif
     </div>
@@ -50,7 +50,7 @@
     <div class="card-header"><h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>Shared Collections</h5></div>
     <div class="card-body p-0">
         <table class="table table-hover mb-0">
-            <thead class="table-light"><tr><th>Collection</th><th>Items</th><th>Owner</th></tr></thead>
+            <thead class="table-light"><tr><th>{{ __('Collection') }}</th><th>{{ __('Items') }}</th><th>{{ __('Owner') }}</th></tr></thead>
             <tbody>
             @foreach($sharedCollections as $c)
                 <tr>
@@ -101,12 +101,12 @@
                                             data-id="{{ (int) $disc->id }}"
                                             data-title="{{ e($disc->subject ?? $disc->title ?? '') }}"
                                             data-content="{{ e($disc->content ?? '') }}"
-                                            title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                                            title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></button>
                                         <form method="post" class="d-inline" onsubmit="return confirm('Delete this discussion?');">
                                             @csrf
                                             <input type="hidden" name="form_action" value="delete_discussion">
                                             <input type="hidden" name="discussion_id" value="{{ (int) $disc->id }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}"><i class="fas fa-trash"></i></button>
                                         </form>
                                     </div>
                                 </div>
@@ -140,7 +140,7 @@
                                 <div class="border rounded p-3 position-relative">
                                     @if(in_array($myRole, ['owner', 'admin', 'editor']))
                                     <div class="position-absolute top-0 end-0 m-2 d-flex gap-1">
-                                        <button class="btn btn-sm btn-outline-secondary edit-resource-btn" title="Edit"
+                                        <button class="btn btn-sm btn-outline-secondary edit-resource-btn" title="{{ __('Edit') }}"
                                             data-id="{{ (int) $res->id }}"
                                             data-title="{{ e($res->title ?? '') }}"
                                             data-resource_type="{{ $res->resource_type }}"
@@ -152,7 +152,7 @@
                                             @csrf
                                             <input type="hidden" name="form_action" value="remove_resource">
                                             <input type="hidden" name="resource_id" value="{{ (int) $res->id }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove"><i class="fas fa-times"></i></button>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Remove') }}"><i class="fas fa-times"></i></button>
                                         </form>
                                     </div>
                                     @endif
@@ -191,7 +191,7 @@
                 @if($owner)
                 <li class="list-group-item">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div>{{ e($owner->name) }} <i class="fas fa-crown text-warning ms-1" title="Owner"></i></div>
+                        <div>{{ e($owner->name) }} <i class="fas fa-crown text-warning ms-1" title="{{ __('Owner') }}"></i></div>
                         <span class="badge bg-warning text-dark">Owner</span>
                     </div>
                 </li>
@@ -218,7 +218,7 @@
                             @csrf
                             <input type="hidden" name="form_action" value="remove_member">
                             <input type="hidden" name="member_id" value="{{ (int) $member->id }}">
-                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove"><i class="fas fa-times"></i></button>
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Remove') }}"><i class="fas fa-times"></i></button>
                         </form>
                     </div>
                     @endif
@@ -247,12 +247,12 @@
             @csrf
             <input type="hidden" name="form_action" value="create_discussion">
             <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title">New Discussion</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-header"><h5 class="modal-title">{{ __('New Discussion') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
-                    <div class="mb-3"><label class="form-label">Title *</label><input type="text" name="title" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label">Content *</label><textarea name="content" class="form-control" rows="4" required></textarea></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Title *') }}</label><input type="text" name="title" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Content *') }}</label><textarea name="content" class="form-control" rows="4" required></textarea></div>
                 </div>
-                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Create Discussion</button></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary">{{ __('Create Discussion') }}</button></div>
             </div>
         </form>
     </div>
@@ -266,12 +266,12 @@
             <input type="hidden" name="form_action" value="edit_discussion">
             <input type="hidden" name="discussion_id" id="editDiscId">
             <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title">Edit Discussion</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-header"><h5 class="modal-title">{{ __('Edit Discussion') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
-                    <div class="mb-3"><label class="form-label">Title *</label><input type="text" name="title" id="editDiscTitle" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label">Content *</label><textarea name="content" id="editDiscContent" class="form-control" rows="4" required></textarea></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Title *') }}</label><input type="text" name="title" id="editDiscTitle" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Content *') }}</label><textarea name="content" id="editDiscContent" class="form-control" rows="4" required></textarea></div>
                 </div>
-                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save Changes</button></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary">{{ __('Save Changes') }}</button></div>
             </div>
         </form>
     </div>
@@ -284,12 +284,12 @@
             @csrf
             <input type="hidden" name="form_action" value="edit_workspace">
             <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title">Edit Workspace</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-header"><h5 class="modal-title">{{ __('Edit Workspace') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
-                    <div class="mb-3"><label class="form-label">Name *</label><input type="text" name="name" class="form-control" value="{{ e($workspace->name) }}" required></div>
-                    <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3">{{ e($workspace->description ?? '') }}</textarea></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Name *') }}</label><input type="text" name="name" class="form-control" value="{{ e($workspace->name) }}" required></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="3">{{ e($workspace->description ?? '') }}</textarea></div>
                     <div class="mb-3">
-                        <label class="form-label">Visibility</label>
+                        <label class="form-label">{{ __('Visibility') }}</label>
                         <select name="visibility" class="form-select">
                             <option value="private" {{ ($workspace->visibility ?? '') === 'private' ? 'selected' : '' }}>Private</option>
                             <option value="members" {{ ($workspace->visibility ?? '') === 'members' ? 'selected' : '' }}>Members Only</option>
@@ -297,7 +297,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save Changes</button></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary">{{ __('Save Changes') }}</button></div>
             </div>
         </form>
     </div>
@@ -314,23 +314,23 @@
             <input type="hidden" name="form_action" value="invite">
             <input type="hidden" name="email" id="inviteEmailHidden" value="">
             <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title">Invite Member</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-header"><h5 class="modal-title">{{ __('Invite Member') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Search Researcher *</label>
+                        <label class="form-label">{{ __('Search Researcher *') }}</label>
                         <select id="inviteResearcherSearch"></select>
                         <small class="text-muted">Type name or email of a registered researcher</small>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Role</label>
+                        <label class="form-label">{{ __('Role') }}</label>
                         <select name="role" class="form-select">
-                            <option value="member">Member - Can view and comment</option>
-                            <option value="editor">Editor - Can add resources</option>
-                            <option value="admin">Admin - Can manage members</option>
+                            <option value="member">{{ __('Member - Can view and comment') }}</option>
+                            <option value="editor">{{ __('Editor - Can add resources') }}</option>
+                            <option value="admin">{{ __('Admin - Can manage members') }}</option>
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Send Invitation</button></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary">{{ __('Send Invitation') }}</button></div>
             </div>
         </form>
     </div>
@@ -344,30 +344,30 @@
             <input type="hidden" name="form_action" value="add_resource">
             <input type="hidden" name="resource_id" id="resourceIdHidden" value="">
             <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title">Add Resource</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-header"><h5 class="modal-title">{{ __('Add Resource') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Resource Type *</label>
+                        <label class="form-label">{{ __('Resource Type *') }}</label>
                         <select name="resource_type" id="resourceTypeSelect" class="form-select" required>
-                            <option value="collection">Collection</option>
-                            <option value="saved_search">Saved Search</option>
-                            <option value="bibliography">Bibliography</option>
-                            <option value="object">Archive Object</option>
-                            <option value="external_link">External Link</option>
+                            <option value="collection">{{ __('Collection') }}</option>
+                            <option value="saved_search">{{ __('Saved Search') }}</option>
+                            <option value="bibliography">{{ __('Bibliography') }}</option>
+                            <option value="object">{{ __('Archive Object') }}</option>
+                            <option value="external_link">{{ __('External Link') }}</option>
                         </select>
                     </div>
-                    <div class="mb-3"><label class="form-label">Title *</label><input type="text" name="title" id="resourceTitleInput" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Title *') }}</label><input type="text" name="title" id="resourceTitleInput" class="form-control" required></div>
                     <div class="mb-3">
-                        <label class="form-label">External URL</label>
-                        <input type="url" name="external_url" id="externalUrlInput" class="form-control" placeholder="https://">
+                        <label class="form-label">{{ __('External URL') }}</label>
+                        <input type="url" name="external_url" id="externalUrlInput" class="form-control" placeholder="{{ __('https://') }}">
                     </div>
                     <div class="mb-3" id="resourceSearchGroup">
-                        <label class="form-label">Or search existing resource</label>
+                        <label class="form-label">{{ __('Or search existing resource') }}</label>
                         <select id="resourceSearch"></select>
                     </div>
-                    <div class="mb-3"><label class="form-label">Notes</label><textarea name="notes" class="form-control" rows="2"></textarea></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Notes') }}</label><textarea name="notes" class="form-control" rows="2"></textarea></div>
                 </div>
-                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Add Resource</button></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary">{{ __('Add Resource') }}</button></div>
             </div>
         </form>
     </div>
@@ -381,23 +381,23 @@
             <input type="hidden" name="form_action" value="edit_resource">
             <input type="hidden" name="resource_id" id="editResId">
             <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title">Edit Resource</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-header"><h5 class="modal-title">{{ __('Edit Resource') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
-                    <div class="mb-3"><label class="form-label">Title *</label><input type="text" name="title" id="editResTitle" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Title *') }}</label><input type="text" name="title" id="editResTitle" class="form-control" required></div>
                     <div class="mb-3">
-                        <label class="form-label">Type</label>
+                        <label class="form-label">{{ __('Type') }}</label>
                         <select name="resource_type" id="editResType" class="form-select">
-                            <option value="collection">Collection</option>
-                            <option value="saved_search">Saved Search</option>
-                            <option value="bibliography">Bibliography</option>
-                            <option value="object">Archive Object</option>
-                            <option value="external_link">External Link</option>
+                            <option value="collection">{{ __('Collection') }}</option>
+                            <option value="saved_search">{{ __('Saved Search') }}</option>
+                            <option value="bibliography">{{ __('Bibliography') }}</option>
+                            <option value="object">{{ __('Archive Object') }}</option>
+                            <option value="external_link">{{ __('External Link') }}</option>
                         </select>
                     </div>
-                    <div class="mb-3"><label class="form-label">URL (for external links)</label><input type="url" name="external_url" id="editResUrl" class="form-control" placeholder="https://"></div>
-                    <div class="mb-3"><label class="form-label">Notes</label><textarea name="notes" id="editResNotes" class="form-control" rows="2"></textarea></div>
+                    <div class="mb-3"><label class="form-label">{{ __('URL (for external links)') }}</label><input type="url" name="external_url" id="editResUrl" class="form-control" placeholder="{{ __('https://') }}"></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Notes') }}</label><textarea name="notes" id="editResNotes" class="form-control" rows="2"></textarea></div>
                 </div>
-                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save Changes</button></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary">{{ __('Save Changes') }}</button></div>
             </div>
         </form>
     </div>
