@@ -198,6 +198,9 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Commands\CronRunCommand::class,
                 \AhgCore\Commands\CronSeedCommand::class,
                 \AhgCore\Commands\CronStatusCommand::class,
+
+                // Standalone install bootstrap (Phase 1 #6)
+                \AhgCore\Commands\InstallBootstrapCommand::class,
             ]);
         }
     }
