@@ -15,4 +15,10 @@ Route::prefix('admin/translation')->middleware(['web', 'auth'])->group(function 
 
     Route::get('/languages', [\AhgTranslation\Controllers\TranslationController::class, 'languages'])->name('ahgtranslation.languages');
     Route::post('/languages', [\AhgTranslation\Controllers\TranslationController::class, 'addLanguage'])->name('ahgtranslation.addLanguage');
+
+    // Drafts review
+    Route::get('/drafts', [\AhgTranslation\Controllers\TranslationController::class, 'drafts'])->name('ahgtranslation.drafts');
+    Route::post('/drafts/{id}/approve', [\AhgTranslation\Controllers\TranslationController::class, 'draftApprove'])->name('ahgtranslation.draft-approve');
+    Route::post('/drafts/{id}/reject', [\AhgTranslation\Controllers\TranslationController::class, 'draftReject'])->name('ahgtranslation.draft-reject');
+    Route::post('/drafts/batch', [\AhgTranslation\Controllers\TranslationController::class, 'draftBatch'])->name('ahgtranslation.draft-batch');
 });

@@ -28,16 +28,19 @@
 namespace AhgActorManage\Services;
 
 use AhgCore\Constants\TermId;
+use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ActorService
 {
+    use WithCultureFallback;
+
     protected string $culture;
 
-    public function __construct(string $culture = 'en')
+    public function __construct(?string $culture = null)
     {
-        $this->culture = $culture;
+        $this->culture = $culture ?? (string) app()->getLocale();
     }
 
     /**
@@ -58,19 +61,12 @@ class ActorService
      */
     public function getById(int $id): ?object
     {
-        $fallback = config('app.fallback_locale', 'en');
-
+        // Culture-fallback i18n joins via WithCultureFallback trait — keeps
+        // the ai_cur / ai_fb alias names so the SELECT below stays readable.
         $actor = DB::table('actor')
             ->join('object', 'actor.id', '=', 'object.id')
             ->join('slug', 'actor.id', '=', 'slug.object_id')
-            ->leftJoin('actor_i18n as ai_cur', function ($j) {
-                $j->on('actor.id', '=', 'ai_cur.id')
-                    ->where('ai_cur.culture', '=', $this->culture);
-            })
-            ->leftJoin('actor_i18n as ai_fb', function ($j) use ($fallback) {
-                $j->on('actor.id', '=', 'ai_fb.id')
-                    ->where('ai_fb.culture', '=', $fallback);
-            })
+            ->tap(fn ($q) => $this->joinI18nWithFallback($q, 'actor_i18n', 'actor', aliasPrefix: 'ai'))
             ->where('actor.id', $id)
             ->where('object.class_name', 'QubitActor')
             ->select([

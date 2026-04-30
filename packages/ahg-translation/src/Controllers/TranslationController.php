@@ -845,4 +845,133 @@ class TranslationController extends Controller
             // Table may not exist yet
         }
     }
+
+    /**
+     * GET /admin/translation/drafts — list pending MT drafts with filters.
+     */
+    public function drafts(Request $request)
+    {
+        $status = (string) $request->query('status', 'draft');
+        $cultureFilter = (string) $request->query('target_culture', '');
+        $objectFilter = (int) $request->query('object_id', 0);
+        $perPage = max(10, min(200, (int) $request->query('per_page', 50)));
+
+        $q = DB::table('ahg_translation_draft as d')
+            ->leftJoin('object as o', 'o.id', '=', 'd.object_id')
+            ->leftJoin('slug as s', 's.object_id', '=', 'd.object_id')
+            ->leftJoin('users as u', 'u.id', '=', 'd.created_by_user_id')
+            ->select([
+                'd.*',
+                's.slug',
+                'o.class_name',
+                'u.email as created_by_email',
+            ])
+            ->orderByDesc('d.created_at');
+
+        if ($status !== 'all' && in_array($status, ['draft', 'applied', 'rejected'], true)) {
+            $q->where('d.status', $status);
+        }
+        if ($cultureFilter !== '') {
+            $q->where('d.target_culture', $cultureFilter);
+        }
+        if ($objectFilter > 0) {
+            $q->where('d.object_id', $objectFilter);
+        }
+
+        $total = (clone $q)->count();
+        $drafts = $q->limit($perPage)->get();
+
+        $cultures = DB::table('ahg_translation_draft')
+            ->select('target_culture')
+            ->groupBy('target_culture')
+            ->pluck('target_culture')
+            ->toArray();
+
+        return view('ahg-translation::drafts', [
+            'drafts' => $drafts,
+            'total' => $total,
+            'status' => $status,
+            'cultureFilter' => $cultureFilter,
+            'objectFilter' => $objectFilter,
+            'perPage' => $perPage,
+            'cultures' => $cultures,
+        ]);
+    }
+
+    /**
+     * POST /admin/translation/drafts/{id}/approve — apply a single draft to its target *_i18n row.
+     */
+    public function draftApprove(Request $request, int $id)
+    {
+        $draft = DB::table('ahg_translation_draft')->where('id', $id)->first();
+        if (!$draft) {
+            return back()->with('error', 'Draft not found');
+        }
+        if ($draft->status === 'applied') {
+            return back()->with('notice', 'Draft already applied');
+        }
+
+        // Re-use save() logic by invoking it with the draft's payload.
+        $req = new Request([
+            'object_id' => $draft->object_id,
+            'culture'   => $draft->target_culture,
+            'field'     => $draft->field_name,
+            'value'     => $draft->translated_text,
+            'confirmed' => 1,
+        ]);
+        $resp = $this->save($req);
+        $payload = $resp instanceof \Illuminate\Http\JsonResponse ? $resp->getData(true) : [];
+
+        if (($payload['ok'] ?? false) === true) {
+            DB::table('ahg_translation_draft')
+                ->where('id', $id)
+                ->update(['status' => 'applied', 'applied_at' => now()]);
+            return back()->with('success', "Draft #{$id} applied to {$draft->target_culture}.");
+        }
+        return back()->with('error', 'Apply failed: ' . ($payload['error'] ?? 'unknown'));
+    }
+
+    /**
+     * POST /admin/translation/drafts/{id}/reject — mark draft as rejected (does not apply).
+     */
+    public function draftReject(Request $request, int $id)
+    {
+        $updated = DB::table('ahg_translation_draft')
+            ->where('id', $id)
+            ->whereIn('status', ['draft', 'applied'])
+            ->update(['status' => 'rejected']);
+        return back()->with($updated ? 'success' : 'error',
+            $updated ? "Draft #{$id} rejected." : 'Draft not found or already rejected.');
+    }
+
+    /**
+     * POST /admin/translation/drafts/batch — bulk approve/reject by ID list.
+     */
+    public function draftBatch(Request $request)
+    {
+        $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
+        $action = (string) $request->input('action');
+        if (empty($ids) || ! in_array($action, ['approve', 'reject'], true)) {
+            return back()->with('error', 'No drafts selected or invalid action.');
+        }
+
+        $ok = 0;
+        $fail = 0;
+        foreach ($ids as $id) {
+            $sub = $action === 'approve'
+                ? $this->draftApprove($request, $id)
+                : $this->draftReject($request, $id);
+            // The sub-call returns redirect responses; treat anything non-error as success.
+            // Use session flash to count outcomes.
+            if (session()->has('error')) {
+                $fail++;
+                session()->forget('error');
+            } else {
+                $ok++;
+                session()->forget('success');
+                session()->forget('notice');
+            }
+        }
+        return back()->with('success', "Batch {$action}: {$ok} ok, {$fail} failed.");
+    }
 }

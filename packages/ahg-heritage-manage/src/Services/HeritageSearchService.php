@@ -40,9 +40,9 @@ class HeritageSearchService
     private string $culture = 'en';
     private int $limit = 10;
 
-    public function __construct(string $culture = 'en')
+    public function __construct(?string $culture = null)
     {
-        $this->culture = $culture;
+        $this->culture = $culture ?? (string) app()->getLocale();
     }
 
     /**

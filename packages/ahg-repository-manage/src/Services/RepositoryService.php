@@ -28,16 +28,19 @@
 namespace AhgRepositoryManage\Services;
 
 use AhgCore\Constants\TermId;
+use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class RepositoryService
 {
+    use WithCultureFallback;
+
     protected string $culture;
 
-    public function __construct(string $culture = 'en')
+    public function __construct(?string $culture = null)
     {
-        $this->culture = $culture;
+        $this->culture = $culture ?? (string) app()->getLocale();
     }
 
     /**
@@ -58,28 +61,14 @@ class RepositoryService
      */
     public function getById(int $id): ?object
     {
-        $fallback = config('app.fallback_locale', 'en');
-
+        // Two i18n tables — actor_i18n (ISAAR) + repository_i18n (ISDIAH).
+        // Each gets a current+fallback pair via WithCultureFallback trait.
         return DB::table('repository')
             ->join('actor', 'repository.id', '=', 'actor.id')
             ->join('object', 'repository.id', '=', 'object.id')
             ->join('slug', 'repository.id', '=', 'slug.object_id')
-            ->leftJoin('actor_i18n as ai_cur', function ($j) {
-                $j->on('repository.id', '=', 'ai_cur.id')
-                    ->where('ai_cur.culture', '=', $this->culture);
-            })
-            ->leftJoin('actor_i18n as ai_fb', function ($j) use ($fallback) {
-                $j->on('repository.id', '=', 'ai_fb.id')
-                    ->where('ai_fb.culture', '=', $fallback);
-            })
-            ->leftJoin('repository_i18n as ri_cur', function ($j) {
-                $j->on('repository.id', '=', 'ri_cur.id')
-                    ->where('ri_cur.culture', '=', $this->culture);
-            })
-            ->leftJoin('repository_i18n as ri_fb', function ($j) use ($fallback) {
-                $j->on('repository.id', '=', 'ri_fb.id')
-                    ->where('ri_fb.culture', '=', $fallback);
-            })
+            ->tap(fn ($q) => $this->joinI18nWithFallback($q, 'actor_i18n', 'repository', aliasPrefix: 'ai'))
+            ->tap(fn ($q) => $this->joinI18nWithFallback($q, 'repository_i18n', 'repository', aliasPrefix: 'ri'))
             ->where('repository.id', $id)
             ->where('object.class_name', 'QubitRepository')
             ->select([

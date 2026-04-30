@@ -27,16 +27,19 @@
 
 namespace AhgLibrary\Services;
 
+use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class LibraryService
 {
+    use WithCultureFallback;
+
     protected string $culture;
 
-    public function __construct(string $culture = 'en')
+    public function __construct(?string $culture = null)
     {
-        $this->culture = $culture;
+        $this->culture = $culture ?? (string) app()->getLocale();
     }
 
     /**
@@ -57,19 +60,11 @@ class LibraryService
      */
     public function getById(int $id): ?object
     {
-        $fallback = config('app.fallback_locale', 'en');
-
+        // Culture-fallback i18n joins via WithCultureFallback trait.
         return DB::table('information_object')
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
-            ->leftJoin('information_object_i18n as ioi_cur', function ($j) {
-                $j->on('information_object.id', '=', 'ioi_cur.id')
-                    ->where('ioi_cur.culture', '=', $this->culture);
-            })
-            ->leftJoin('information_object_i18n as ioi_fb', function ($j) use ($fallback) {
-                $j->on('information_object.id', '=', 'ioi_fb.id')
-                    ->where('ioi_fb.culture', '=', $fallback);
-            })
+            ->tap(fn ($q) => $this->joinI18nWithFallback($q, 'information_object_i18n', 'information_object', aliasPrefix: 'ioi'))
             ->leftJoin('library_item', 'information_object.id', '=', 'library_item.information_object_id')
             ->leftJoin('display_object_config', function ($j) {
                 $j->on('information_object.id', '=', 'display_object_config.object_id')

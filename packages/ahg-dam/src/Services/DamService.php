@@ -27,16 +27,19 @@
 
 namespace AhgDam\Services;
 
+use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class DamService
 {
+    use WithCultureFallback;
+
     protected string $culture;
 
-    public function __construct(string $culture = 'en')
+    public function __construct(?string $culture = null)
     {
-        $this->culture = $culture;
+        $this->culture = $culture ?? (string) app()->getLocale();
     }
 
     /**
@@ -57,8 +60,7 @@ class DamService
      */
     public function getById(int $id): ?object
     {
-        $fallback = config('app.fallback_locale', 'en');
-
+        // Culture-fallback i18n joins via WithCultureFallback trait.
         return DB::table('information_object as io')
             ->join('object as o', 'io.id', '=', 'o.id')
             ->join('slug', 'io.id', '=', 'slug.object_id')
@@ -66,14 +68,7 @@ class DamService
                 $j->on('io.id', '=', 'doc.object_id')
                     ->where('doc.object_type', '=', 'dam');
             })
-            ->leftJoin('information_object_i18n as i18n_cur', function ($j) {
-                $j->on('io.id', '=', 'i18n_cur.id')
-                    ->where('i18n_cur.culture', '=', $this->culture);
-            })
-            ->leftJoin('information_object_i18n as i18n_fb', function ($j) use ($fallback) {
-                $j->on('io.id', '=', 'i18n_fb.id')
-                    ->where('i18n_fb.culture', '=', $fallback);
-            })
+            ->tap(fn ($q) => $this->joinI18nWithFallback($q, 'information_object_i18n', 'io', aliasPrefix: 'i18n'))
             ->leftJoin('dam_iptc_metadata as iptc', 'io.id', '=', 'iptc.object_id')
             ->where('io.id', $id)
             ->select([

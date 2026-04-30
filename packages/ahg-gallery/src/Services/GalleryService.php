@@ -29,26 +29,25 @@ namespace AhgGallery\Services;
 
 use AhgCore\Constants\TermId;
 use AhgCore\Services\SettingHelper;
+use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class GalleryService
 {
+    use WithCultureFallback;
+
     /**
      * Get a single gallery artwork by its slug.
      * Joins information_object + i18n + slug + museum_metadata + display_object_config (object_type='gallery').
      */
-    public function getBySlug(string $slug, string $culture = 'en'): ?object
+    public function getBySlug(string $slug, ?string $culture = null): ?object
     {
-        $fallback = config('app.fallback_locale', 'en');
-
+        $culture = $culture ?? (string) app()->getLocale();
+        // Culture-fallback i18n joins via WithCultureFallback trait — culture is
+        // passed explicitly here since GalleryService doesn't store it on $this.
         $artwork = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i18n_cur', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n_cur.id')->where('i18n_cur.culture', '=', $culture);
-            })
-            ->leftJoin('information_object_i18n as i18n_fb', function ($j) use ($fallback) {
-                $j->on('io.id', '=', 'i18n_fb.id')->where('i18n_fb.culture', '=', $fallback);
-            })
+            ->tap(fn ($q) => $this->joinI18nWithFallback($q, 'information_object_i18n', 'io', aliasPrefix: 'i18n', culture: $culture))
             ->join('object as obj', 'io.id', '=', 'obj.id')
             ->join('slug', 'io.id', '=', 'slug.object_id')
             ->join('display_object_config as doc', function ($j) {

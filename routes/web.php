@@ -31,10 +31,12 @@ Route::post('/set-locale', function (\Illuminate\Http\Request $request) {
         \Illuminate\Support\Facades\App::setLocale($culture);
     }
     $redirectTo = (string) $request->input('redirect_to', '/');
-    if (! preg_match('#^https?://#i', $redirectTo) || str_starts_with($redirectTo, $request->getSchemeAndHttpHost())) {
-        return redirect($redirectTo);
-    }
-    return redirect('/');
+    $response = (! preg_match('#^https?://#i', $redirectTo) || str_starts_with($redirectTo, $request->getSchemeAndHttpHost()))
+        ? redirect($redirectTo)
+        : redirect('/');
+    // Year-long cookie so the locale survives logout / new sessions
+    // (mirrors AtoM's atom_culture cookie). Cleared by sending culture=en.
+    return $response->cookie('locale', $culture, 60 * 24 * 365, '/', null, true, false, false, 'lax');
 })->name('set-locale');
 
 // Authentication routes

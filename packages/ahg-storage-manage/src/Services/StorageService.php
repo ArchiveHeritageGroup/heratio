@@ -35,9 +35,9 @@ class StorageService
 {
     protected string $culture;
 
-    public function __construct(string $culture = 'en')
+    public function __construct(?string $culture = null)
     {
-        $this->culture = $culture;
+        $this->culture = $culture ?? (string) app()->getLocale();
     }
 
     public function getBySlug(string $slug): ?object

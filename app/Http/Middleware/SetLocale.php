@@ -12,7 +12,9 @@ class SetLocale
 {
     public function handle(Request $request, Closure $next)
     {
-        // Check for sf_culture parameter (AtoM compatibility)
+        // Resolution order (matches AtoM): URL param > session > cookie.
+        // The cookie is written by the POST /set-locale route so the choice
+        // survives logout and cookie-only visits.
         $culture = $request->query('sf_culture');
 
         if ($culture && $this->isValidCulture($culture)) {
@@ -20,6 +22,11 @@ class SetLocale
             session(['locale' => $culture]);
         } elseif ($sessionLocale = session('locale')) {
             App::setLocale($sessionLocale);
+        } elseif ($cookieLocale = $request->cookie('locale')) {
+            if ($this->isValidCulture($cookieLocale)) {
+                App::setLocale($cookieLocale);
+                session(['locale' => $cookieLocale]);
+            }
         }
 
         return $next($request);

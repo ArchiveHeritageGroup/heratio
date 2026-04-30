@@ -28,16 +28,19 @@
 namespace AhgMuseum\Services;
 
 use AhgCore\Services\SettingHelper;
+use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class MuseumService
 {
+    use WithCultureFallback;
+
     protected string $culture;
 
-    public function __construct(string $culture = 'en')
+    public function __construct(?string $culture = null)
     {
-        $this->culture = $culture;
+        $this->culture = $culture ?? (string) app()->getLocale();
     }
 
     /**
@@ -45,21 +48,18 @@ class MuseumService
      */
     public function getBySlug(string $slug): ?object
     {
-        // Culture fallback: prefer the requested culture, fall back to the
-        // record's source_culture (the language the record was originally
-        // authored in). Without this, requesting culture=fr on a record that
-        // only has culture=en data returns null and the page 404s.
-        $fallback = config('app.fallback_locale', 'en');
+        // Culture-fallback i18n joins via the WithCultureFallback trait — keeps
+        // the ioi_cur/ioi_fb alias names so the COALESCE expressions below stay
+        // readable. See packages/ahg-core/src/Traits/WithCultureFallback.php.
+        $q = DB::table('information_object');
+        [$cur, $fb] = $this->joinI18nWithFallback(
+            $q,
+            'information_object_i18n',
+            'information_object',
+            aliasPrefix: 'ioi'
+        );
 
-        $record = DB::table('information_object')
-            ->leftJoin('information_object_i18n as ioi_cur', function ($j) {
-                $j->on('ioi_cur.id', '=', 'information_object.id')
-                    ->where('ioi_cur.culture', '=', $this->culture);
-            })
-            ->leftJoin('information_object_i18n as ioi_fb', function ($j) use ($fallback) {
-                $j->on('ioi_fb.id', '=', 'information_object.id')
-                    ->where('ioi_fb.culture', '=', $fallback);
-            })
+        $record = $q
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->join('museum_metadata', 'information_object.id', '=', 'museum_metadata.object_id')
