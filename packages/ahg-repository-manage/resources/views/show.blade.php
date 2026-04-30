@@ -68,11 +68,21 @@
 
   @include('ahg-ric::_view-switch', ['standard' => 'ISDIAH'])
 
+  {{-- Translation-provenance bulk-load for AI-disclosure badges (issue #36 Phase 4).
+       Repository has two i18n tables (actor_i18n + repository_i18n); the helper
+       returns the merged latest-row map, so any field rendered below can opt in. --}}
+  @php
+    $translationSources = \AhgTranslation\Helpers\TranslationProvenance::forRecord(
+        (int) $repository->id,
+        app()->getLocale()
+    );
+  @endphp
+
   @if(session('ric_view_mode') === 'ric')
     @include('ahg-ric::_ric-view-repository', ['repository' => $repository])
   @else
 
-  <h1>{{ $repository->authorized_form_of_name }}</h1>
+  <h1>{{ $repository->authorized_form_of_name }}@include('ahg-translation::components.badge', ['source' => $translationSources['authorized_form_of_name'] ?? null])</h1>
 
   {{-- Breadcrumb (matching AtoM) --}}
   <nav aria-label="{{ __('breadcrumb') }}">
@@ -317,7 +327,7 @@
       @endif
     </h2>
 
-    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('History') }}</h3><div class="col-9 p-2">{!! ($repository->history ?? '') ? nl2br(e($repository->history)) : '' !!}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('History') }}</h3><div class="col-9 p-2">{!! ($repository->history ?? '') ? nl2br(e($repository->history)) : '' !!}@include('ahg-translation::components.badge', ['source' => $translationSources['history'] ?? null])</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Geographical and cultural context') }}</h3><div class="col-9 p-2">{!! ($repository->geocultural_context ?? '') ? nl2br(e($repository->geocultural_context)) : '' !!}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Mandates/Sources of authority') }}</h3><div class="col-9 p-2">{!! ($repository->mandates ?? '') ? nl2br(e($repository->mandates)) : '' !!}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Administrative structure') }}</h3><div class="col-9 p-2">{!! ($repository->internal_structures ?? '') ? nl2br(e($repository->internal_structures)) : '' !!}</div></div>

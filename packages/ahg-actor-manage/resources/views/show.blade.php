@@ -182,12 +182,20 @@
 
   @include('ahg-ric::_view-switch', ['standard' => 'ISAAR(CPF)'])
 
+  {{-- Translation-provenance bulk-load for AI-disclosure badges (issue #36 Phase 4) --}}
+  @php
+    $translationSources = \AhgTranslation\Helpers\TranslationProvenance::forRecord(
+        (int) $actor->id,
+        app()->getLocale()
+    );
+  @endphp
+
   @if(session('ric_view_mode') === 'ric')
     @include('ahg-ric::_ric-view-actor', ['actor' => $actor])
   @else
 
   <h1>
-    {{ $actor->authorized_form_of_name }}
+    {{ $actor->authorized_form_of_name }}@include('ahg-translation::components.badge', ['source' => $translationSources['authorized_form_of_name'] ?? null])
     @if($completeness ?? null)
       @php
         $levelColors = ['stub' => 'danger', 'minimal' => 'warning', 'partial' => 'info', 'full' => 'success'];
@@ -224,7 +232,7 @@
   <section id="descriptionArea" class="border-bottom">
     <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#description-collapse" class="text-primary text-decoration-none">Description area</a><a href="{{ route('actor.edit', $actor->slug) }}#description-collapse" class="ms-auto text-muted" title="{{ __('Edit Description area') }}"><i class="fas fa-pencil-alt fa-sm"></i></a>@else Description area @endauth</div></h2>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Dates of existence') }}</h3><div class="col-9 p-2">{{ $actor->dates_of_existence ?? '' }}</div></div>
-    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('History') }}</h3><div class="col-9 p-2">{!! ($actor->history ?? '') ? nl2br(e($actor->history)) : '' !!}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('History') }}</h3><div class="col-9 p-2">{!! ($actor->history ?? '') ? nl2br(e($actor->history)) : '' !!}@include('ahg-translation::components.badge', ['source' => $translationSources['history'] ?? null])</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Places') }}</h3><div class="col-9 p-2">{{ $actor->places ?? '' }}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Legal status') }}</h3><div class="col-9 p-2">{{ $actor->legal_status ?? '' }}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Functions, occupations and activities') }}</h3><div class="col-9 p-2">{{ $actor->functions ?? '' }}</div></div>
