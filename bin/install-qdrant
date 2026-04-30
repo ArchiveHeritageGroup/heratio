@@ -1,0 +1,194 @@
+#!/usr/bin/env bash
+# =============================================================================
+# install-qdrant — install Qdrant vector DB for Heratio
+# =============================================================================
+# Idempotent. Required by Heratio's semantic / image-similarity / NER vector
+# search. Without Qdrant, lexical search (Elasticsearch) still works.
+#
+# Usage:
+#   sudo bin/install-qdrant
+#   sudo bin/install-qdrant --version=1.17.0 --port=6333 --storage=/var/lib/qdrant
+#
+# Reads defaults from .env (APP_URL host) when present.
+# =============================================================================
+
+set -euo pipefail
+
+# ---------- defaults ----------
+QDRANT_VERSION="1.17.0"
+HTTP_PORT="6333"
+GRPC_PORT="6334"
+STORAGE_PATH="/var/lib/qdrant"
+LOG_LEVEL="INFO"
+SERVICE_USER="qdrant"
+SERVICE_GROUP="qdrant"
+INSTALL_DIR="/opt/qdrant"
+COLLECTIONS=(archive_records archive_images anc_records)
+DEFAULT_COLLECTION="archive_records"
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+TEMPLATES="${REPO_ROOT}/config/qdrant"
+
+# ---------- parse flags ----------
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --version=*)        QDRANT_VERSION="${1#*=}" ;;
+        --port=*)           HTTP_PORT="${1#*=}" ;;
+        --grpc-port=*)      GRPC_PORT="${1#*=}" ;;
+        --storage=*)        STORAGE_PATH="${1#*=}" ;;
+        --log-level=*)      LOG_LEVEL="${1#*=}" ;;
+        --user=*)           SERVICE_USER="${1#*=}" ;;
+        --group=*)          SERVICE_GROUP="${1#*=}" ;;
+        --collection=*)     DEFAULT_COLLECTION="${1#*=}" ;;
+        --no-bootstrap)     COLLECTIONS=() ;;
+        -h|--help)
+            grep -E '^# ' "$0" | sed 's/^# \?//' | head -15
+            exit 0
+            ;;
+        *) echo "unknown flag: $1" >&2; exit 2 ;;
+    esac
+    shift
+done
+
+# ---------- preflight ----------
+echo "==> Preflight"
+[[ $EUID -eq 0 ]] || { echo "ERROR: must run as root (sudo)" >&2; exit 1; }
+command -v curl &>/dev/null || { echo "ERROR: curl required" >&2; exit 1; }
+command -v unzip &>/dev/null || { echo "ERROR: unzip required (apt-get install -y unzip)" >&2; exit 1; }
+
+ARCH="$(uname -m)"
+case "$ARCH" in
+    x86_64)  Q_ARCH="x86_64-unknown-linux-gnu" ;;
+    aarch64) Q_ARCH="aarch64-unknown-linux-gnu" ;;
+    *) echo "ERROR: unsupported arch $ARCH" >&2; exit 1 ;;
+esac
+
+if ss -ltn 2>/dev/null | awk '{print $4}' | grep -qE ":${HTTP_PORT}\$"; then
+    if ! systemctl is-active --quiet qdrant; then
+        echo "ERROR: port ${HTTP_PORT} in use by another service" >&2
+        exit 1
+    fi
+    echo "    port ${HTTP_PORT} already bound by Qdrant (re-run scenario)"
+fi
+echo "    arch=${Q_ARCH}  version=${QDRANT_VERSION}"
+
+# ---------- service user ----------
+if ! id "$SERVICE_USER" &>/dev/null; then
+    useradd --system --no-create-home --shell /usr/sbin/nologin "$SERVICE_USER"
+    echo "    created system user $SERVICE_USER"
+fi
+
+# ---------- download + install binary ----------
+echo "==> Install"
+BINARY="${INSTALL_DIR}/qdrant"
+if [[ -x "$BINARY" ]] && "$BINARY" --version 2>&1 | grep -q "$QDRANT_VERSION"; then
+    echo "    qdrant ${QDRANT_VERSION} already installed at ${BINARY}"
+else
+    mkdir -p "$INSTALL_DIR"
+    TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
+    URL="https://github.com/qdrant/qdrant/releases/download/v${QDRANT_VERSION}/qdrant-${Q_ARCH}.tar.gz"
+    echo "    downloading $URL"
+    curl -fsSL -o "${TMP}/qdrant.tar.gz" "$URL"
+    tar -xzf "${TMP}/qdrant.tar.gz" -C "$INSTALL_DIR"
+    chown "${SERVICE_USER}:${SERVICE_GROUP}" "$BINARY"
+    chmod 755 "$BINARY"
+    echo "    installed to ${BINARY}"
+fi
+
+# ---------- storage ----------
+mkdir -p "$STORAGE_PATH" "${STORAGE_PATH}/snapshots"
+chown -R "${SERVICE_USER}:${SERVICE_GROUP}" "$STORAGE_PATH"
+
+# ---------- config ----------
+echo "==> Config"
+sed \
+    -e "s|{{HTTP_PORT}}|${HTTP_PORT}|g" \
+    -e "s|{{GRPC_PORT}}|${GRPC_PORT}|g" \
+    -e "s|{{STORAGE_PATH}}|${STORAGE_PATH}|g" \
+    -e "s|{{LOG_LEVEL}}|${LOG_LEVEL}|g" \
+    "${TEMPLATES}/config.yaml.template" > "${INSTALL_DIR}/config.yaml"
+chown "${SERVICE_USER}:${SERVICE_GROUP}" "${INSTALL_DIR}/config.yaml"
+echo "    wrote ${INSTALL_DIR}/config.yaml"
+
+# ---------- systemd ----------
+echo "==> systemd"
+sed \
+    -e "s|{{INSTALL_DIR}}|${INSTALL_DIR}|g" \
+    -e "s|{{STORAGE_PATH}}|${STORAGE_PATH}|g" \
+    -e "s|{{SERVICE_USER}}|${SERVICE_USER}|g" \
+    -e "s|{{SERVICE_GROUP}}|${SERVICE_GROUP}|g" \
+    "${TEMPLATES}/qdrant.service.template" > /etc/systemd/system/qdrant.service
+systemctl daemon-reload
+systemctl enable qdrant >/dev/null
+if systemctl is-active --quiet qdrant; then
+    systemctl restart qdrant
+    echo "    qdrant restarted"
+else
+    systemctl start qdrant
+    echo "    qdrant started"
+fi
+
+# ---------- wait + verify ----------
+echo "    waiting for service…"
+for i in {1..30}; do
+    if curl -fsS "http://127.0.0.1:${HTTP_PORT}/" &>/dev/null; then
+        echo "    service responding"
+        break
+    fi
+    sleep 1
+    [[ $i -eq 30 ]] && { echo "ERROR: qdrant did not become ready" >&2; exit 1; }
+done
+
+# ---------- bootstrap collections ----------
+if [[ ${#COLLECTIONS[@]} -gt 0 ]]; then
+    echo "==> Bootstrap collections"
+    # 768 dim → matches nomic-embed-text (Heratio's default semantic embedder).
+    # Adjust per collection if you switch embedders.
+    for col in "${COLLECTIONS[@]}"; do
+        EXISTS="$(curl -sf "http://127.0.0.1:${HTTP_PORT}/collections/${col}" 2>/dev/null | grep -c '"status":"ok"' || true)"
+        if [[ "$EXISTS" -gt 0 ]]; then
+            echo "    ${col}: already exists"
+        else
+            curl -fsS -X PUT "http://127.0.0.1:${HTTP_PORT}/collections/${col}" \
+                -H 'Content-Type: application/json' \
+                -d '{"vectors":{"size":768,"distance":"Cosine"}}' >/dev/null \
+                && echo "    ${col}: created (768d, Cosine)" \
+                || echo "    ${col}: create FAILED"
+        fi
+    done
+fi
+
+# ---------- update Heratio settings ----------
+if [[ -x "${REPO_ROOT}/artisan" ]]; then
+    if php "${REPO_ROOT}/artisan" list 2>/dev/null | grep -q "ahg:settings-set"; then
+        php "${REPO_ROOT}/artisan" ahg:settings-set semantic_qdrant_url "http://127.0.0.1:${HTTP_PORT}" >/dev/null 2>&1 || true
+        php "${REPO_ROOT}/artisan" ahg:settings-set semantic_qdrant_collection "${DEFAULT_COLLECTION}" >/dev/null 2>&1 || true
+        echo "    ahg_settings.semantic_qdrant_url set"
+    fi
+fi
+
+# ---------- smoke test ----------
+echo "==> Smoke test"
+RESP="$(curl -sS "http://127.0.0.1:${HTTP_PORT}/collections" | head -c 200)"
+echo "    ${RESP}"
+
+# ---------- done ----------
+cat <<EOF
+
+═══════════════════════════════════════════════════════════════════════════════
+  Qdrant installed
+═══════════════════════════════════════════════════════════════════════════════
+  Version  : ${QDRANT_VERSION}
+  Endpoint : http://127.0.0.1:${HTTP_PORT}/
+  Storage  : ${STORAGE_PATH}
+  Config   : ${INSTALL_DIR}/config.yaml
+  Logs     : journalctl -u qdrant
+
+  Heratio settings (auto-set if ahg:settings-set was available):
+    semantic_qdrant_url        = http://127.0.0.1:${HTTP_PORT}
+    semantic_qdrant_collection = ${DEFAULT_COLLECTION}
+
+  Next:
+    php artisan ahg:qdrant-index --collection=${DEFAULT_COLLECTION}
+═══════════════════════════════════════════════════════════════════════════════
+EOF

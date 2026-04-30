@@ -1,0 +1,21 @@
+[Unit]
+Description=Qdrant Vector Search Engine (Heratio)
+After=network.target
+Documentation=https://qdrant.tech/documentation/
+
+[Service]
+Type=simple
+User={{SERVICE_USER}}
+Group={{SERVICE_GROUP}}
+WorkingDirectory={{INSTALL_DIR}}
+ExecStart={{INSTALL_DIR}}/qdrant --config-path {{INSTALL_DIR}}/config.yaml
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+ProtectSystem=strict
+ReadWritePaths={{STORAGE_PATH}}
+
+[Install]
+WantedBy=multi-user.target

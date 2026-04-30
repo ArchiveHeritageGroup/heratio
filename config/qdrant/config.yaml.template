@@ -1,0 +1,29 @@
+# =============================================================================
+# Qdrant — Heratio config template
+# =============================================================================
+# Rendered by bin/install-qdrant. Placeholders:
+#   {{HTTP_PORT}}     — REST API port (default 6333)
+#   {{GRPC_PORT}}     — gRPC port (default 6334, optional)
+#   {{STORAGE_PATH}}  — on-disk storage dir (default /var/lib/qdrant)
+#   {{LOG_LEVEL}}     — INFO / DEBUG / WARN
+# =============================================================================
+
+storage:
+  storage_path: {{STORAGE_PATH}}
+  snapshots_path: {{STORAGE_PATH}}/snapshots
+  on_disk_payload: true
+
+service:
+  host: 127.0.0.1
+  http_port: {{HTTP_PORT}}
+  grpc_port: {{GRPC_PORT}}
+  enable_cors: true
+  max_request_size_mb: 32
+  max_workers: 0
+
+cluster:
+  enabled: false
+
+log_level: {{LOG_LEVEL}}
+
+telemetry_disabled: true

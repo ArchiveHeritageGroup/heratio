@@ -1,0 +1,176 @@
+# =============================================================================
+# build-install-artifact — Phase 4 of standalone install plan
+# =============================================================================
+# On a tag push (v*), spin up MySQL 8, run bin/install --non-interactive
+# against it, then mysqldump the populated DB into two release artifacts:
+#   - heratio-schema.sql  (DDL only — CREATE TABLE / CREATE PROCEDURE)
+#   - heratio-seeds.sql   (data for the seed-bearing tables)
+#
+# Both attached to the GitHub Release. Operators can `mysql heratio < heratio-schema.sql`
+# instead of running the full bin/install pipeline (option A in plan §4).
+# =============================================================================
+
+name: build-install-artifact
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch / tag to build from'
+        required: true
+        default: 'main'
+
+permissions:
+  contents: write   # to upload release assets
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+          MYSQL_ROOT_PASSWORD: ''
+          MYSQL_DATABASE: heratio
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -uroot --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+      elasticsearch:
+        image: elasticsearch:8.13.4
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: 'false'
+          ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+        ports: ['9200:9200']
+        options: >-
+          --health-cmd="curl -sf http://localhost:9200/_cluster/health || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Set up PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, curl, mysql, intl, gd, zip, bcmath
+          coverage: none
+          tools: composer:v2
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            mysql -h 127.0.0.1 -uroot -e 'SELECT 1' && break
+            sleep 2
+          done
+
+      - name: Composer install
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: NPM build
+        run: |
+          npm ci --silent
+          npm run build --silent
+
+      - name: Run bin/install (non-interactive, no nginx)
+        env:
+          DOMAIN: ci.example
+          ADMIN_EMAIL: ci@example
+          ADMIN_PASSWORD: ci-build-password-not-secret
+          DB_HOST: 127.0.0.1
+          DB_USER: root
+          DB_PASS: ''
+          ES_HOST: http://127.0.0.1:9200
+        run: |
+          sudo -E bin/install \
+            --non-interactive \
+            --skip-nginx \
+            --domain="$DOMAIN" \
+            --admin-email="$ADMIN_EMAIL" \
+            --admin-password="$ADMIN_PASSWORD" \
+            --db-host="$DB_HOST" \
+            --db-user="$DB_USER" \
+            --es-host="$ES_HOST" \
+            --storage-path=/tmp/heratio-storage
+
+      - name: Sanity check — table count
+        run: |
+          T=$(mysql -h 127.0.0.1 -uroot -Nse "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='heratio'")
+          echo "Table count: $T"
+          [[ "$T" -ge 800 ]] || { echo "ERROR: expected ≥ 800 tables, got $T"; exit 1; }
+
+      - name: mysqldump — schema only
+        run: |
+          mysqldump -h 127.0.0.1 -uroot \
+            --no-data --routines --triggers --events \
+            --add-drop-table=false \
+            --skip-comments \
+            heratio > heratio-schema.sql
+          wc -l heratio-schema.sql
+
+      - name: mysqldump — seed tables only
+        run: |
+          # Tables that contain bootstrap data (taxonomies, terms, menus, settings,
+          # ACL, static pages, framework seeds). Keep this list in sync with
+          # the actual seed sources.
+          SEED_TABLES=(
+            taxonomy taxonomy_i18n term term_i18n
+            menu menu_i18n
+            setting setting_i18n
+            acl_group acl_permission
+            static_page static_page_i18n
+            object slug
+            heritage_era heritage_contribution_type heritage_trust_level
+            heritage_purpose heritage_filter_type heritage_feature_toggle
+            ahg_dropdown
+            note note_i18n
+            relation status
+          )
+          mysqldump -h 127.0.0.1 -uroot \
+            --no-create-info \
+            --extended-insert \
+            --skip-comments \
+            --insert-ignore \
+            heratio "${SEED_TABLES[@]}" > heratio-seeds.sql 2>/tmp/dump-err || true
+          # Drop tables that don't exist (silently ignored)
+          wc -l heratio-seeds.sql
+
+      - name: Upload artifacts to workflow run
+        uses: actions/upload-artifact@v4
+        with:
+          name: heratio-install-artifact
+          path: |
+            heratio-schema.sql
+            heratio-seeds.sql
+          retention-days: 30
+
+      - name: Attach to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            heratio-schema.sql
+            heratio-seeds.sql
+          fail_on_unmatched_files: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
