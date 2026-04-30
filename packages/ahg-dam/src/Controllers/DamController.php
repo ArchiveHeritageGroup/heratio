@@ -84,13 +84,28 @@ class DamController extends Controller
             abort(404);
         }
 
+        $culture = app()->getLocale();
         $digitalObjects = \AhgCore\Services\DigitalObjectService::getForObject($asset->id);
         $relatedItems = $this->service->getRelatedItems($asset->id);
+
+        // Repository — needed by the cloned museum-style sidebar to render
+        // the institution logo + link at the top. Mirrors MuseumController::show.
+        $repository = null;
+        if (!empty($asset->repository_id)) {
+            $repository = \Illuminate\Support\Facades\DB::table('repository')
+                ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+                ->join('slug', 'repository.id', '=', 'slug.object_id')
+                ->where('repository.id', $asset->repository_id)
+                ->where('actor_i18n.culture', $culture)
+                ->select('repository.id', 'actor_i18n.authorized_form_of_name as name', 'slug.slug')
+                ->first();
+        }
 
         return view('ahg-dam::dam.show', [
             'asset' => $asset,
             'digitalObjects' => $digitalObjects,
             'relatedItems' => $relatedItems,
+            'repository' => $repository,
         ]);
     }
 

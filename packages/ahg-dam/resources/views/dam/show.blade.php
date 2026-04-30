@@ -4,15 +4,64 @@
 @section('body-class', 'view dam')
 
 @section('sidebar')
-  {{-- Related items (children) --}}
+
+  {{-- Repository logo --}}
+  @if(isset($repository) && $repository)
+    @php
+      $repoLogoPath = null;
+      $repoDigitalObject = \Illuminate\Support\Facades\DB::table('digital_object')
+        ->where('object_id', $repository->id)
+        ->first();
+      if ($repoDigitalObject) {
+        $repoLogoPath = \AhgCore\Services\DigitalObjectService::getUrl($repoDigitalObject);
+      }
+    @endphp
+    <div class="text-center mb-3">
+      @if($repoLogoPath)
+        <a href="{{ route('repository.show', $repository->slug) }}">
+          <img src="{{ $repoLogoPath }}" alt="{{ $repository->name }}" class="img-fluid" style="max-height:80px;">
+        </a>
+      @else
+        <a href="{{ route('repository.show', $repository->slug) }}" class="text-decoration-none">
+          <strong>{{ $repository->name }}</strong>
+        </a>
+      @endif
+    </div>
+  @endif
+
+  {{-- Static pages menu --}}
+  @include('ahg-menu-manage::_static-pages-menu')
+
+  {{-- Dynamic treeview hierarchy --}}
+  @include('ahg-io-manage::partials._treeview', ['io' => $asset])
+
+  {{-- Quick search within this collection --}}
+  <div class="card mb-3">
+    <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+      <i class="fas fa-search me-1"></i> {{ __('Search within') }}
+    </div>
+    <div class="card-body p-2">
+      <form action="{{ route('informationobject.browse') }}" method="GET">
+        <input type="hidden" name="collection" value="{{ $asset->id }}">
+        <div class="input-group input-group-sm">
+          <input type="text" name="subquery" class="form-control" placeholder="{{ __('Search...') }}">
+          <button class="btn atom-btn-white" type="submit">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {{-- Related items (children) — DAM-specific, kept for legacy reasons --}}
   @if($relatedItems->isNotEmpty())
     <div class="card mb-3">
-      <div class="card-header">
-        <h5 class="mb-0">{{ __('Related items') }}</h5>
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-sitemap me-1"></i> {{ __('Related items') }}
       </div>
       <ul class="list-group list-group-flush">
         @foreach($relatedItems as $item)
-          <li class="list-group-item">
+          <li class="list-group-item small">
             <a href="{{ route('informationobject.show', $item->slug) }}">{{ $item->title ?: '[Untitled]' }}</a>
             @if($item->identifier)
               <br><small class="text-muted">{{ $item->identifier }}</small>
@@ -25,8 +74,8 @@
 
   {{-- DAM navigation --}}
   <div class="card mb-3">
-    <div class="card-header">
-      <h5 class="mb-0">{{ __('DAM') }}</h5>
+    <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+      <i class="fas fa-folder-open me-1"></i> {{ __('DAM') }}
     </div>
     <div class="list-group list-group-flush">
       <a href="{{ route('dam.dashboard') }}" class="list-group-item list-group-item-action small">
@@ -42,6 +91,181 @@
       @endauth
     </div>
   </div>
+
+  @auth
+
+    {{-- Collections Management --}}
+    @if(class_exists(\AhgInformationObjectManage\Controllers\ProvenanceController::class))
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-archive me-1"></i> {{ __('Collections Management') }}
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('io.provenance', $asset->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-project-diagram me-1"></i> {{ __('Provenance') }}
+        </a>
+        <a href="{{ route('io.condition', $asset->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-clipboard-check me-1"></i> {{ __('Condition assessment') }}
+        </a>
+        @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgSpectrumPlugin'))
+        <a href="{{ route('io.spectrum', $asset->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-chart-bar me-1"></i> {{ __('Spectrum data') }}
+        </a>
+        @endif
+        @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgHeritageAccountingPlugin'))
+        <a href="{{ route('io.heritage', $asset->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-landmark me-1"></i> {{ __('Heritage Assets') }}
+        </a>
+        @endif
+        <a href="{{ route('io.research.citation', $asset->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-quote-left me-1"></i> {{ __('Cite this Record') }}
+        </a>
+      </div>
+    </div>
+    @endif
+
+    {{-- Digital Preservation (OAIS) --}}
+    @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgPreservationPlugin'))
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-shield-alt me-1"></i> {{ __('Digital Preservation (OAIS)') }}
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('io.preservation', $asset->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-box-open me-1"></i> {{ __('Preservation packages') }}
+        </a>
+      </div>
+    </div>
+    @endif
+
+    {{-- AI Tools --}}
+    @if(class_exists(\AhgInformationObjectManage\Controllers\AiController::class) && \AhgCore\Services\MenuService::isPluginEnabled('ahgAIPlugin'))
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-robot me-1"></i> {{ __('AI Tools') }}
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#describeModal">
+          <i class="fas fa-eye me-1"></i> {{ __('Describe Object/Image') }}
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#nerModal">
+          <i class="fas fa-brain me-1"></i> {{ __('Extract Entities (NER)') }}
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#summaryModal">
+          <i class="fas fa-file-alt me-1"></i> {{ __('Generate Summary') }}
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#ahgTranslateModal-{{ $asset->id }}">
+          <i class="fas fa-language me-1"></i> {{ __('Translate') }}
+        </a>
+        <a href="{{ route('io.ai.review') }}?object_id={{ $asset->id }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-list-check me-1"></i> {{ __('NER Review') }}
+        </a>
+      </div>
+    </div>
+    @endif
+
+    {{-- Privacy & PII --}}
+    @if(class_exists(\AhgInformationObjectManage\Controllers\PrivacyController::class) && \AhgCore\Services\MenuService::isPluginEnabled('ahgPrivacyPlugin'))
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-user-shield me-1"></i> {{ __('Privacy & PII') }}
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('io.privacy.scan', $asset->id) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-search me-1"></i> {{ __('Scan for PII') }}
+        </a>
+        @if(isset($digitalObjects) && !empty($digitalObjects['master']))
+          <a href="{{ route('io.privacy.redaction', $asset->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-eraser me-1"></i> {{ __('Visual Redaction') }}
+          </a>
+        @endif
+        <a href="{{ route('io.privacy.dashboard') }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-clipboard-check me-1"></i> {{ __('Privacy Dashboard') }}
+        </a>
+      </div>
+    </div>
+    @endif
+
+    {{-- Rights --}}
+    @php
+      $hasExtRights = \Illuminate\Support\Facades\Schema::hasTable('extended_rights')
+          && \Illuminate\Support\Facades\DB::table('extended_rights')->where('object_id', $asset->id)->exists();
+      $activeEmbargoSidebar = \Illuminate\Support\Facades\Schema::hasTable('embargo')
+          ? \Illuminate\Support\Facades\DB::table('embargo')->where('object_id', $asset->id)->where('is_active', 1)->first()
+          : null;
+    @endphp
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
+        <i class="fas fa-copyright me-1"></i> {{ __('Rights') }}
+      </div>
+      <div class="card-body py-2">
+        @if($hasExtRights)
+          <span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>{{ __('Extended rights applied') }}</span>
+        @endif
+        @if($activeEmbargoSidebar)
+          <span class="badge bg-danger me-1"><i class="fas fa-ban me-1"></i>{{ __('Under embargo') }}</span>
+        @endif
+        @if(!$hasExtRights && !$activeEmbargoSidebar)
+          <span class="badge bg-secondary"><i class="fas fa-info-circle me-1"></i>{{ __('No extended rights or embargo') }}</span>
+        @endif
+      </div>
+      <div class="list-group list-group-flush">
+        @if(\Illuminate\Support\Facades\Route::has('io.rights.manage'))
+          <a href="{{ route('io.rights.manage', $asset->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-copyright me-1"></i> {{ ($hasExtRights || $activeEmbargoSidebar) ? __('Edit rights') : __('Add rights') }}
+          </a>
+        @endif
+        @if(\Illuminate\Support\Facades\Route::has('io.rights.extended'))
+          <a href="{{ route('io.rights.extended', $asset->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-shield-alt me-1"></i> {{ $hasExtRights ? __('Edit extended rights') : __('Add extended rights') }}
+          </a>
+        @endif
+        @if(\Illuminate\Support\Facades\Route::has('io.rights.embargo'))
+          <a href="{{ route('io.rights.embargo', $asset->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-ban me-1"></i> {{ $activeEmbargoSidebar ? __('Manage embargo') : __('Add embargo') }}
+          </a>
+        @endif
+        @if(\Illuminate\Support\Facades\Route::has('io.rights.export'))
+          <a href="{{ route('io.rights.export', $asset->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-download me-1"></i> {{ __('Export rights (JSON-LD)') }}
+          </a>
+        @endif
+      </div>
+    </div>
+
+    {{-- Marketplace (Buy/Sell, gated on marketplace_enabled setting) --}}
+    @includeIf('marketplace::partials._add-to-marketplace', ['ioId' => $asset->id])
+
+    {{-- Research Tools --}}
+    @if(class_exists(\AhgInformationObjectManage\Controllers\ResearchController::class))
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-graduation-cap me-1"></i> {{ __('Research Tools') }}
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('io.research.assessment', $asset->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-clipboard-check me-1"></i> {{ __('Source Assessment') }}
+        </a>
+        <a href="{{ route('io.research.annotations', $asset->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-highlighter me-1"></i> {{ __('Annotation Studio') }}
+        </a>
+        <a href="{{ route('io.research.trust', $asset->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-star-half-alt me-1"></i> {{ __('Trust Score') }}
+        </a>
+        <a href="{{ route('io.research.dashboard') }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-graduation-cap me-1"></i> {{ __('Research Dashboard') }}
+        </a>
+      </div>
+    </div>
+    @endif
+
+  @endauth
+
+  {{-- Access points (subject / name / place) — sidebar mode --}}
+  @include('ahg-core::_subject-access-points', ['resource' => $asset, 'sidebar' => true])
+  @include('ahg-core::_place-access-points', ['resource' => $asset, 'sidebar' => true])
+  @include('ahg-core::_name-access-points', ['resource' => $asset, 'sidebar' => true])
+
 @endsection
 
 @section('right')

@@ -1924,7 +1924,7 @@
     @endauth
 
     {{-- Marketplace (auth + marketplace_enabled gate via shared partial) --}}
-    @includeIf('ahg-marketplace::partials._add-to-marketplace', ['ioId' => $io->id])
+    @includeIf('marketplace::partials._add-to-marketplace', ['ioId' => $io->id])
 
     {{-- Active Loans --}}
     @if(\Illuminate\Support\Facades\Schema::hasTable('ahg_loan'))

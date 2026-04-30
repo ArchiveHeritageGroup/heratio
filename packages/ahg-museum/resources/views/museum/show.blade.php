@@ -199,7 +199,7 @@
     </div>
 
     {{-- Marketplace (Buy/Sell, gated on marketplace_enabled setting) --}}
-    @includeIf('ahg-marketplace::partials._add-to-marketplace', ['ioId' => $museum->id])
+    @includeIf('marketplace::partials._add-to-marketplace', ['ioId' => $museum->id])
 
     {{-- Research Tools --}}
     @if(class_exists(\AhgInformationObjectManage\Controllers\ResearchController::class))
