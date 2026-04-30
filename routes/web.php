@@ -88,6 +88,31 @@ Route::get('/records/add', fn () => redirect('/informationobject/add'));
 Route::get('/records/autocomplete', fn () => redirect('/informationobject/autocomplete'));
 // Feedback routes are in ahg-feedback package
 
+// Public version endpoint — single source of truth for "what is deployed?"
+// Reads version.json (the same file the footer + ./bin/release write).
+// Returns JSON: { name, version, release_date, description, git_commit }.
+// Cache headers prevent CDN caching so a deploy is reflected immediately.
+Route::get('/version', function () {
+    $data = ['name' => 'Heratio', 'version' => null, 'release_date' => null, 'description' => null, 'git_commit' => null];
+    $file = base_path('version.json');
+    if (is_file($file)) {
+        $data = array_merge($data, json_decode((string) file_get_contents($file), true) ?: []);
+    }
+    $head = base_path('.git/HEAD');
+    if (is_file($head)) {
+        $ref = trim((string) file_get_contents($head));
+        if (str_starts_with($ref, 'ref: ')) {
+            $refFile = base_path('.git/' . substr($ref, 5));
+            if (is_file($refFile)) {
+                $data['git_commit'] = substr(trim((string) file_get_contents($refFile)), 0, 12);
+            }
+        } elseif (preg_match('/^[a-f0-9]{40}$/', $ref)) {
+            $data['git_commit'] = substr($ref, 0, 12);
+        }
+    }
+    return response()->json($data)->header('Cache-Control', 'no-store, max-age=0');
+})->name('version');
+
 // Homepage
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/homepage', [App\Http\Controllers\HomeController::class, 'index'])->name('homepage'); // AtoM alias
