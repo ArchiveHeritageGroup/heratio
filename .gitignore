@@ -45,6 +45,10 @@ __pycache__/
 # Local agent worktrees
 .claude/worktrees/
 
+# MCP server dependencies (each server's package.json is checked in,
+# node_modules is rebuilt by `npm install` on deploy)
+.claude/mcp-servers/*/node_modules/
+
 # Playwright + test runner artefacts
 test-results/
 playwright-report/
@@ -54,3 +58,4 @@ playwright-report/
 /storage/app/exports/
 /storage/app/reports/
 *.bak
+.km-ingest-staging/

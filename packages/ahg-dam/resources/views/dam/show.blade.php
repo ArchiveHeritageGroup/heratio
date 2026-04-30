@@ -275,10 +275,17 @@
     <button class="btn btn-sm atom-btn-white" onclick="window.print()" title="{{ __('Print') }}">
       <i class="fas fa-print"></i>
     </button>
-    @include('ahg-core::clipboard._button', ['slug' => $asset->slug, 'type' => 'informationObject'])
   </div>
 
-  @include('ahg-core::partials._record-sidebar-extras', ['objectId' => $asset->id, 'slug' => $asset->slug, 'title' => $asset->title])
+  @include('ahg-io-manage::partials._right-blocks', [
+    'record'           => $asset,
+    'slug'             => $asset->slug,
+    'type'             => 'informationObject',
+    'skipExport'       => true,
+    'skipActiveLoans'  => true,
+  ])
+
+  @include('ahg-core::partials._record-sidebar-extras', ['objectId' => $asset->id, 'slug' => $asset->slug, 'title' => $asset->title, 'hideNer' => true, 'hideRights' => true])
 
 @endsection
 

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "heratio-km": {
+      "command": "node",
+      "args": ["/usr/share/nginx/heratio/.claude/mcp-servers/heratio-km/index.js"],
+      "env": {
+        "KM_BASE_URL": "https://km.theahg.co.za",
+        "KM_TIMEOUT_MS": "180000"
+      }
+    }
+  }
+}

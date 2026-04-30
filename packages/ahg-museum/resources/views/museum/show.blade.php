@@ -1434,8 +1434,15 @@
     <button class="btn btn-sm atom-btn-white" onclick="window.print()" title="{{ __('Print') }}">
       <i class="fas fa-print"></i>
     </button>
-    @include('ahg-core::clipboard._button', ['slug' => $museum->slug, 'type' => 'informationObject'])
   </div>
+
+  @include('ahg-io-manage::partials._right-blocks', [
+    'record'           => $museum,
+    'slug'             => $museum->slug,
+    'type'             => 'informationObject',
+    'skipExport'       => true,
+    'skipActiveLoans'  => true,
+  ])
 
   @include('ahg-core::partials._record-sidebar-extras', ['objectId' => $museum->id, 'slug' => $museum->slug, 'title' => $museum->title, 'hideNer' => true, 'hideRights' => true])
 
