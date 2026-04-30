@@ -18,6 +18,8 @@
     </div>
   </div>
 
+  @include('ahg-display::partials._active-type-bar', ['type' => 'dam'])
+
   {{-- Search + Sort row --}}
   <div class="d-flex flex-wrap gap-2 mb-3">
     @include('ahg-core::components.inline-search', [

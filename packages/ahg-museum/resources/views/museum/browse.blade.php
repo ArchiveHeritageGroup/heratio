@@ -18,6 +18,8 @@
     </div>
   </div>
 
+  @include('ahg-display::partials._active-type-bar', ['type' => 'museum'])
+
   <div class="d-flex flex-wrap gap-2 mb-3">
     @include('ahg-core::components.inline-search', [
         'label' => 'Search museum objects',
