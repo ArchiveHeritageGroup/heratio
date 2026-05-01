@@ -118,27 +118,30 @@ OpenRiC powers the RiC capabilities within Heratio and is available as a standal
 
 ## Requirements
 
-| Requirement | Version |
-|---|---|
-| PHP | 8.3 or higher |
-| Laravel | 12 |
-| MySQL / MariaDB | 8.0+ / 10.3+ |
-| Nginx | 1.18+ |
-| Apache Jena Fuseki | 4.10+ (for RiC) |
-| Ollama (optional) | Latest stable |
+| Requirement | Version | Notes |
+|---|---|---|
+| PHP | 8.3 or higher | required for metal install |
+| Laravel | 12 | bundled in `composer.json` |
+| MySQL / MariaDB | 8.0+ / 10.3+ | utf8mb4 |
+| Nginx | 1.18+ | Apache works too |
+| Elasticsearch | 7.x or 8.x | prefix `heratio_` |
+| Apache Jena Fuseki | 4.10+ | optional, for RiC SPARQL endpoint |
+| Ollama | Latest stable | optional, remote — never bundled |
+| **Docker (alternative)** | **24+** with the Compose plugin | Scenario 3 below — replaces every row above |
 
 ---
 
 ## Installation
 
-Heratio supports two install scenarios.
+Heratio supports three install scenarios.
 
 | Scenario | When to use | Entry point |
 | --- | --- | --- |
 | **1. Overlay** onto an existing AtoM database | You already run AtoM and want to add Heratio without losing your catalogue, or you're cutting a customer over from AtoM | `./bin/install-overlay` |
 | **2. Standalone** clean install | No AtoM. New deployment from scratch | `./bin/install` *(in development — see [`docs/standalone-install-plan.md`](docs/standalone-install-plan.md))* |
+| **3. Docker** test stack | You want to try Heratio without touching the host — laptop demo, CI, throwaway evaluations, libvirt VMs | `docker compose -f docker/docker-compose.yml up -d --build` |
 
-Both paths share the same Laravel-side bootstrap (composer install, `.env`, `key:generate`, ServiceProvider auto-seed). The two scenarios differ only in how the database is brought to life.
+Scenarios 1 and 2 share the same Laravel-side bootstrap (composer install, `.env`, `key:generate`, ServiceProvider auto-seed). The two scenarios differ only in how the database is brought to life. Scenario 3 wraps Scenario 2's pipeline inside a containerised stack — same code, no host setup.
 
 ### Scenario 1 — Overlay onto existing AtoM
 
@@ -172,6 +175,44 @@ Full guide: [`docs/overlay-install-howto.md`](docs/overlay-install-howto.md)
 For a fresh deployment with no AtoM. Status: planning document committed; entry point `bin/install` under development. The plan ports AtoM's core schema + 81 AHG plugin install.sqls + 6 YAML fixtures into Heratio's own `database/core/`, `packages/*/database/`, and `database/seeds/` so a fresh box becomes a working Heratio in one command.
 
 See [`docs/standalone-install-plan.md`](docs/standalone-install-plan.md) for the full work plan.
+
+### Scenario 3 — Docker test stack
+
+A self-contained Compose stack — PHP 8.3 + nginx + MySQL 8 + Elasticsearch 8 — for laptops, CI, throwaway evaluations, and libvirt-VM deployments. No host setup beyond Docker. Cantaloupe (IIIF) and Ollama (AI) stay external by design — both are remote-only on production.
+
+**Quick start (any Docker host):**
+
+```bash
+git clone https://github.com/ArchiveHeritageGroup/heratio.git
+cd heratio
+cp docker/.env.docker.example docker/.env.docker
+# edit docker/.env.docker — set ADMIN_PASSWORD at minimum
+
+docker compose -f docker/docker-compose.yml --env-file docker/.env.docker up -d --build
+docker compose -f docker/docker-compose.yml logs -f heratio
+```
+
+First boot runs `docker/init.sh` which mirrors the standalone-install pipeline inside the container: generates `.env`, runs `key:generate`, loads `database/core/*.sql`, runs `heratio:install-bootstrap` passes 1+2, loads seeds, creates the admin user, and creates the `heratio_*` Elasticsearch indices. A marker at `storage/.heratio-installed` makes subsequent boots skip the schema/seed work — only pass-2 (idempotent) re-runs.
+
+Once the `heratio` container reports `healthy`, point a browser at `http://<host>:8088/` and log in with the admin credentials from your `.env.docker`.
+
+**Reset everything:**
+
+```bash
+docker compose -f docker/docker-compose.yml down -v   # -v drops MySQL + ES + uploads volumes
+```
+
+**Provision a fresh libvirt VM that hosts the stack** (works on any KVM host — downloads the Ubuntu 24.04 cloud image, cloud-inits Docker, deploys the repo, brings the stack up, prints the VM IP):
+
+```bash
+sudo bin/heratio-vm.sh                 # default name: heratio-test
+sudo bin/heratio-vm.sh --name h2       # custom name
+sudo bin/heratio-vm.sh --force         # destroy + rebuild
+```
+
+Defaults: 4 vCPU, 4 GB RAM, 40 GB disk, bridged networking on `br0`. Override with `--cpus / --ram / --disk / --bridge`.
+
+Full Docker reference (config files, supervisord layout, healthchecks, caveats): [`docker/README.md`](docker/README.md).
 
 ### Web server
 
