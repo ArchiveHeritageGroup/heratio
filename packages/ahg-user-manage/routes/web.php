@@ -13,6 +13,12 @@ Route::middleware(['web', 'auth'])->group(function () {
 });
 
 Route::middleware('admin')->group(function () {
+    // Per-user plugin GRANTS (capability — admin sets, not user)
+    Route::get( '/user/{slug}/plugins', [UserController::class, 'pluginGrants'])
+        ->name('user.plugin-grants');
+    Route::post('/user/{slug}/plugins', [UserController::class, 'savePluginGrants'])
+        ->name('user.plugin-grants.save');
+
     Route::get('/admin/users', [UserController::class, 'browse'])->name('user.browse');
     Route::get('/user/list', [UserController::class, 'browse'])->name('user.list'); // AtoM menu alias
     Route::get('/user/browse', [UserController::class, 'browse']); // Heratio alias

@@ -126,12 +126,17 @@ class MenuService
     }
 
     /**
-     * Get enabled plugins list from atom_plugin table.
+     * Get the list of plugins visible in the user's nav (issue #40 c5).
      *
-     * @param int|null $userId  When supplied, also filters out plugins the
-     *                          user has hidden in their nav (issue #40).
-     *                          When null, returns globally enabled plugins
-     *                          only — same as before.
+     * Layered model:
+     *   1. globally enabled  (atom_plugin.is_enabled = 1)             [admin]
+     *   2. NOT denied to this user (user_plugin_grant.mode = 'deny')  [admin]
+     *   3. NOT hidden by user (user_plugin_preference.is_hidden = 1)  [user]
+     *
+     * Plus: user_plugin_grant.mode = 'allow' can OPT IN to a plugin that's
+     * globally disabled (e.g. beta plugin opened to specific testers).
+     *
+     * @param int|null $userId  When null, returns globally enabled plugins only.
      */
     public static function getEnabledPlugins(?int $userId = null): array
     {
@@ -159,19 +164,63 @@ class MenuService
 
         $global = self::getEnabledPlugins(null);
 
+        // Layer 1: admin grants/denies
+        try {
+            $grants = DB::table('user_plugin_grant')
+                ->where('user_id', $userId)
+                ->whereIn('mode', ['allow', 'deny'])
+                ->get(['plugin_name', 'mode']);
+            $denied  = $grants->where('mode', 'deny')->pluck('plugin_name')->toArray();
+            $allowed = $grants->where('mode', 'allow')->pluck('plugin_name')->toArray();
+            $effective = array_values(array_unique(array_merge(
+                array_diff($global, $denied),
+                $allowed,
+            )));
+        } catch (\Exception $e) {
+            $effective = $global;
+        }
+
+        // Layer 2: user-level visibility (clutter reduction)
         try {
             $hidden = DB::table('user_plugin_preference')
                 ->where('user_id', $userId)
                 ->where('is_hidden', 1)
                 ->pluck('plugin_name')
                 ->toArray();
-            $perUserCache[$userId] = array_values(array_diff($global, $hidden));
+            $effective = array_values(array_diff($effective, $hidden));
         } catch (\Exception $e) {
-            // Table missing → fall back to global (no per-user filtering).
-            $perUserCache[$userId] = $global;
+            // table missing → no clutter filter
         }
 
-        return $perUserCache[$userId];
+        $perUserCache[$userId] = $effective;
+        return $effective;
+    }
+
+    /**
+     * Capability check — has admin granted this user access to the plugin?
+     * (Ignores the user's own visibility preference — that's nav clutter.)
+     * Used by middleware to 403 a request hitting a denied-plugin URL.
+     */
+    public static function isPluginAccessible(string $name, ?int $userId = null): bool
+    {
+        if (null === $userId && function_exists('auth')) {
+            try { $userId = auth()->user()?->id; } catch (\Throwable $e) {}
+        }
+        $global = in_array($name, self::getEnabledPlugins(null), true);
+        if ($userId === null) {
+            return $global;
+        }
+        try {
+            $grant = DB::table('user_plugin_grant')
+                ->where('user_id', $userId)
+                ->where('plugin_name', $name)
+                ->value('mode');
+            if ($grant === 'deny')  return false;
+            if ($grant === 'allow') return true;
+        } catch (\Exception $e) {
+            // table missing → fall back to global
+        }
+        return $global;
     }
 
     /**

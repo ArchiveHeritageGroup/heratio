@@ -33,6 +33,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.forbid' => \App\Http\Middleware\RequireAuthForbid::class,
             'admin' => \App\Http\Middleware\RequireAdmin::class,
             'acl' => \App\Http\Middleware\CheckAcl::class,
+            // Issue #40 c5 — gate plugin URLs by per-user grant
+            'plugin' => \AhgCore\Http\Middleware\PluginAccessMiddleware::class,
         ]);
 
         // Payment gateway webhooks — server-to-server, no CSRF token available

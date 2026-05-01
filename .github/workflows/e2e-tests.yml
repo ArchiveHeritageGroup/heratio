@@ -59,8 +59,10 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
-          extensions: pdo, pdo_mysql, mbstring, xml, gd, zip
+          # Heratio targets PHP 8.3 (per CLAUDE.md). spatie/laravel-csp 3.23+
+          # and maennchen/zipstream-php 3.2+ both require ^8.3.
+          php-version: '8.3'
+          extensions: pdo, pdo_mysql, mbstring, xml, gd, zip, intl, bcmath
           coverage: none
 
       - name: Install Composer dependencies
@@ -108,11 +110,20 @@ jobs:
       - name: Set test matrix
         id: set-matrix
         run: |
-          MATRIX='{
+          # Multi-line var into $GITHUB_OUTPUT requires the EOF heredoc syntax;
+          # plain `key=$VAR` only works for single-line values. The previous
+          # `echo "matrix=$MATRIX"` form rendered as 4 separate lines and
+          # GitHub rejected lines 2-4 as "Invalid format".
+          {
+            echo 'matrix<<MATRIX_EOF'
+            cat <<'JSON'
+          {
             "browser": ["chromium"],
             "suite": ["all"]
-          }'
-          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+          }
+          JSON
+            echo 'MATRIX_EOF'
+          } >> "$GITHUB_OUTPUT"
 
       - name: Upload Playwright cache
         uses: actions/upload-artifact@v4
@@ -238,11 +249,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download discovery reports
+        # `ignore-not-found` was rejected as "Unexpected input(s)" by the
+        # action version we run on. We get the same effect by adding
+        # `continue-on-error: true` — the report-generation step below
+        # already handles the absent-file case.
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: discovery-reports
           path: tests/e2e/reports/
-          ignore-not-found: true
 
       - name: Generate executive summary
         run: |

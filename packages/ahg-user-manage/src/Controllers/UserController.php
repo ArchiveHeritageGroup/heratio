@@ -950,6 +950,78 @@ class UserController extends Controller
         ]);
     }
 
+    // -------------------------------------------------------------------
+    // Admin: edit per-user plugin GRANTS (capability layer — issue #40 c5)
+    // -------------------------------------------------------------------
+
+    /** GET  /user/{slug}/plugins — admin grants/denies plugins per user. */
+    public function pluginGrants(string $slug)
+    {
+        $target = \Illuminate\Support\Facades\DB::table('user')
+            ->where('username', $slug)->orWhere('email', $slug)->first();
+        if (!$target) abort(404);
+
+        $allEnabled = \Illuminate\Support\Facades\DB::table('atom_plugin')
+            ->orderBy('category')->orderBy('name')
+            ->get(['name', 'category', 'description', 'is_enabled']);
+
+        $grants = \Illuminate\Support\Facades\DB::table('user_plugin_grant')
+            ->where('user_id', $target->id)
+            ->pluck('mode', 'plugin_name')
+            ->toArray();
+
+        return view('ahg-user-manage::plugin-grants', [
+            'target'  => $target,
+            'plugins' => $allEnabled,
+            'grants'  => $grants,    // [plugin_name => 'allow'|'deny']
+        ]);
+    }
+
+    /** POST /user/{slug}/plugins — apply admin grants. */
+    public function savePluginGrants(Request $request, string $slug)
+    {
+        $target = \Illuminate\Support\Facades\DB::table('user')
+            ->where('username', $slug)->orWhere('email', $slug)->first();
+        if (!$target) abort(404);
+
+        $validated = $request->validate([
+            'grants'   => 'array',
+            'grants.*' => 'in:inherit,allow,deny',
+        ]);
+        $grants = $validated['grants'] ?? [];
+
+        $globallyKnown = \Illuminate\Support\Facades\DB::table('atom_plugin')
+            ->pluck('name')->toArray();
+
+        $now      = now();
+        $adminId  = auth()->id();
+
+        // Replace ALL grants for this target user. Cleaner than per-row diff.
+        \Illuminate\Support\Facades\DB::table('user_plugin_grant')
+            ->where('user_id', $target->id)
+            ->delete();
+
+        $rows = [];
+        foreach ($grants as $name => $mode) {
+            if (!in_array($name, $globallyKnown, true)) continue;
+            if ($mode === 'inherit') continue;     // row absence = inherit
+            $rows[] = [
+                'user_id'     => $target->id,
+                'plugin_name' => $name,
+                'mode'        => $mode,
+                'granted_by'  => $adminId,
+                'created_at'  => $now,
+                'updated_at'  => $now,
+            ];
+        }
+        if ($rows) {
+            \Illuminate\Support\Facades\DB::table('user_plugin_grant')->insert($rows);
+        }
+
+        return redirect()->route('user.plugin-grants', $slug)
+            ->with('status', "Plugin grants updated for {$target->username}.");
+    }
+
     /**
      * Save the current user's plugin preferences.
      *   POST { hidden: ["ahgFooPlugin", "ahgBarPlugin", ...] }

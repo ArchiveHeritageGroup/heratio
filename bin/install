@@ -213,10 +213,27 @@ else
         -e "s|^ELASTICSEARCH_PREFIX=.*|ELASTICSEARCH_PREFIX=${ES_PREFIX}|" \
         .env
 
-    # Append session-cookie + DB-host hardening keys if not present in .env.example
-    grep -q "^SESSION_SECURE_COOKIE=" .env || echo "SESSION_SECURE_COOKIE=true" >> .env
-    grep -q "^SESSION_HTTP_ONLY="     .env || echo "SESSION_HTTP_ONLY=true"     >> .env
-    grep -q "^SESSION_SAME_SITE="     .env || echo "SESSION_SAME_SITE=lax"      >> .env
+    # Ensure every key the rest of the script reads back exists in .env. The
+    # default Laravel .env.example uses DB_CONNECTION=sqlite and omits most
+    # of these, so the `sed -i s|^KEY=...|KEY=value|` lines above silently
+    # no-op when KEY is absent. Re-add explicitly here.
+    ensure_env() { grep -q "^$1=" .env || echo "$1=$2" >> .env; }
+    ensure_env APP_ENV               production
+    ensure_env APP_DEBUG             false
+    ensure_env LOG_LEVEL             warning
+    ensure_env DB_CONNECTION         mysql
+    ensure_env DB_HOST               "${DB_HOST}"
+    ensure_env DB_DATABASE           "${DB_NAME}"
+    ensure_env DB_USERNAME           "${DB_USER}"
+    ensure_env DB_PASSWORD           "${DB_PASS}"
+    ensure_env HERATIO_STORAGE_PATH  "${STORAGE_PATH}"
+    ensure_env HERATIO_UPLOADS_PATH  "${STORAGE_PATH}"
+    ensure_env HERATIO_BACKUPS_PATH  "${STORAGE_PATH}/backups"
+    ensure_env ELASTICSEARCH_HOST    "${ES_HOST}"
+    ensure_env ELASTICSEARCH_PREFIX  "${ES_PREFIX}"
+    ensure_env SESSION_SECURE_COOKIE true
+    ensure_env SESSION_HTTP_ONLY     true
+    ensure_env SESSION_SAME_SITE     lax
 
     chmod 640 .env
     chown root:www-data .env 2>/dev/null || true
@@ -227,12 +244,16 @@ fi
 
 # Re-export key env values from .env so the rest of the script uses the
 # canonical values (in case the user kept an existing .env with different DB
-# settings).
-DB_NAME="$(grep -E '^DB_DATABASE=' .env | cut -d= -f2-)"
-DB_USER="$(grep -E '^DB_USERNAME=' .env | cut -d= -f2-)"
-DB_PASS="$(grep -E '^DB_PASSWORD=' .env | cut -d= -f2-)"
-DB_HOST="$(grep -E '^DB_HOST='     .env | cut -d= -f2-)"
-STORAGE_PATH="$(grep -E '^HERATIO_STORAGE_PATH=' .env | cut -d= -f2-)"
+# settings). `|| true` lets `set -euo pipefail` survive missing keys; the
+# `${var:-fallback}` expansion keeps the flag-supplied default when the .env
+# value is empty.
+get_env() { grep -E "^$1=" .env 2>/dev/null | tail -1 | cut -d= -f2- || true; }
+_v="$(get_env DB_DATABASE)";          DB_NAME="${_v:-$DB_NAME}"
+_v="$(get_env DB_USERNAME)";          DB_USER="${_v:-$DB_USER}"
+_v="$(get_env DB_PASSWORD)";          DB_PASS="${_v:-$DB_PASS}"
+_v="$(get_env DB_HOST)";              DB_HOST="${_v:-$DB_HOST}"
+_v="$(get_env HERATIO_STORAGE_PATH)"; STORAGE_PATH="${_v:-$STORAGE_PATH}"
+unset _v
 
 # ============================================================================
 # 5. DB create

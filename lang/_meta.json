@@ -320,7 +320,9 @@
             "first_seeded_at": "2026-04-30",
             "last_imported_at": "2026-04-30",
             "primary_source": "ahg",
-            "secondary_source": "atom-xliff"
+            "secondary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-05-01",
+            "mt_batch_count": 0
         }
     }
 }
