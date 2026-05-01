@@ -30,10 +30,13 @@ namespace AhgActorManage\Services;
 use AhgCore\Constants\TermId;
 use AhgCore\Services\AhgSettingsService;
 use AhgCore\Services\BrowseService;
+use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
 
 class ActorBrowseService extends BrowseService
 {
+    use WithCultureFallback;
+
     protected function getTable(): string
     {
         return 'actor';
@@ -49,15 +52,52 @@ class ActorBrowseService extends BrowseService
         return 'authorized_form_of_name';
     }
 
+    /**
+     * Override the parent's applySort / applySearch to reference the COALESCE
+     * of the two cultural i18n joins instead of `actor_i18n.<col>` (which the
+     * parent assumes from the old single-INNER-JOIN shape).
+     */
+    protected function applySort($query, string $sort, string $sortDir)
+    {
+        $coalesceName = "COALESCE(actor_cur.authorized_form_of_name, actor_fb.authorized_form_of_name)";
+        switch ($sort) {
+            case 'alphabetic':
+                $query->orderByRaw("{$coalesceName} {$sortDir}");
+                break;
+            case 'identifier':
+                $query->orderBy('actor.description_identifier', $sortDir);
+                $query->orderByRaw("{$coalesceName} {$sortDir}");
+                break;
+            case 'lastUpdated':
+            default:
+                $query->orderBy('object.updated_at', $sortDir);
+                break;
+        }
+        return $query;
+    }
+
+    protected function applySearch($query, string $subquery)
+    {
+        if ($subquery !== '') {
+            $query->whereRaw(
+                "COALESCE(actor_cur.authorized_form_of_name, actor_fb.authorized_form_of_name) LIKE ?",
+                ["%{$subquery}%"]
+            );
+        }
+        return $query;
+    }
+
     protected function getBaseSelect(): array
     {
+        // i18n columns are emitted via COALESCE(cur, fb) by getBaseJoins()
+        // below — see WithCultureFallback. Non-i18n columns stay direct.
         return [
             'actor.id',
-            'actor_i18n.authorized_form_of_name as name',
+            DB::raw('COALESCE(actor_cur.authorized_form_of_name, actor_fb.authorized_form_of_name) AS name'),
             'actor.entity_type_id',
             'actor.description_identifier as identifier',
-            'actor_i18n.dates_of_existence',
-            'actor_i18n.history',
+            DB::raw('COALESCE(actor_cur.dates_of_existence, actor_fb.dates_of_existence) AS dates_of_existence'),
+            DB::raw('COALESCE(actor_cur.history, actor_fb.history) AS history'),
             'object.updated_at',
             'slug.slug',
             DB::raw('(SELECT do_thumb.path FROM digital_object do_master JOIN digital_object do_thumb ON do_thumb.parent_id = do_master.id AND do_thumb.usage_id = 113 WHERE do_master.object_id = actor.id LIMIT 1) as thumbnail_path'),
@@ -66,17 +106,29 @@ class ActorBrowseService extends BrowseService
 
     protected function getBaseJoins($query)
     {
-        return $query
-            ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
+        // Culture-fallback: LEFT JOIN current locale + LEFT JOIN fallback (en),
+        // so a record with only English actor_i18n still appears when the user
+        // is browsing in af / xh / zu / etc. Required for the SA-language launch.
+        // See WithCultureFallback trait.
+        $this->joinI18nWithFallback($query, 'actor_i18n', 'actor', aliasPrefix: 'actor');
+
+        $query
             ->join('object', 'actor.id', '=', 'object.id')
             ->join('slug', 'actor.id', '=', 'slug.object_id')
-            ->where('actor_i18n.culture', $this->culture)
             ->where('object.class_name', 'QubitActor')
             ->where('actor.id', '!=', 3)  // Exclude root actor
             ->where('actor.id', '!=', 4)  // Exclude default actor
+            // Show the row if EITHER the current-culture name OR the fallback
+            // name is non-empty. Without this guard the page would show blank
+            // rows for actors that have no name in either locale.
             ->where(function ($q) {
-                $q->whereNotNull('actor_i18n.authorized_form_of_name')
-                  ->where('actor_i18n.authorized_form_of_name', '!=', '');
+                $q->where(function ($qq) {
+                    $qq->whereNotNull('actor_cur.authorized_form_of_name')
+                       ->where('actor_cur.authorized_form_of_name', '!=', '');
+                })->orWhere(function ($qq) {
+                    $qq->whereNotNull('actor_fb.authorized_form_of_name')
+                       ->where('actor_fb.authorized_form_of_name', '!=', '');
+                });
             });
 
         // Hide stub actors from public (unauthenticated) users

@@ -28,10 +28,13 @@
 namespace AhgTermTaxonomy\Services;
 
 use AhgCore\Services\BrowseService;
+use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
 
 class TermBrowseService extends BrowseService
 {
+    use WithCultureFallback;
+
     protected function getTable(): string
     {
         return 'term';
@@ -49,18 +52,28 @@ class TermBrowseService extends BrowseService
 
     protected function getBaseJoins($query)
     {
+        // Culture-fallback so terms with only English `term_i18n` show up
+        // when the user is browsing in af / xh / zu / etc.
+        $this->joinI18nWithFallback($query, 'term_i18n', 'term', aliasPrefix: 'term');
+
         return $query
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
             ->join('object', 'term.id', '=', 'object.id')
             ->join('slug', 'term.id', '=', 'slug.object_id')
-            ->where('term_i18n.culture', $this->culture);
+            // At least one culture must have a non-empty name.
+            ->where(function ($q) {
+                $q->where(function ($qq) {
+                    $qq->whereNotNull('term_cur.name')->where('term_cur.name', '!=', '');
+                })->orWhere(function ($qq) {
+                    $qq->whereNotNull('term_fb.name')->where('term_fb.name', '!=', '');
+                });
+            });
     }
 
     protected function getBaseSelect(): array
     {
         return [
             'term.id',
-            'term_i18n.name as name',
+            DB::raw('COALESCE(term_cur.name, term_fb.name) AS name'),
             'term.taxonomy_id',
             'object.updated_at',
             'slug.slug',
@@ -77,18 +90,19 @@ class TermBrowseService extends BrowseService
 
     protected function applySort($query, string $sort, string $sortDir)
     {
+        $name = "COALESCE(term_cur.name, term_fb.name)";
         switch ($sort) {
             case 'alphabetic':
-                $query->orderBy('term_i18n.name', $sortDir);
+                $query->orderByRaw("{$name} {$sortDir}");
                 break;
             case 'lastUpdated':
             default:
                 $query->orderBy('object.updated_at', $sortDir);
                 break;
         }
-
         return $query;
     }
+
 
     public function browse(array $params): array
     {
@@ -111,7 +125,16 @@ class TermBrowseService extends BrowseService
             $query->where('term.taxonomy_id', $this->taxonomyId);
         }
 
-        return parent::applySearch($query, $subquery);
+        // Search the COALESCE'd current+fallback name. parent::applySearch
+        // would target `term_i18n.name` which doesn't exist any more after
+        // we switched to LEFT JOIN cur + LEFT JOIN fb.
+        if ($subquery !== '') {
+            $query->whereRaw(
+                "COALESCE(term_cur.name, term_fb.name) LIKE ?",
+                ["%{$subquery}%"]
+            );
+        }
+        return $query;
     }
 
     protected function transformRow($row): array

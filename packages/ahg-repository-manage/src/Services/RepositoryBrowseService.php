@@ -28,10 +28,13 @@
 namespace AhgRepositoryManage\Services;
 
 use AhgCore\Services\BrowseService;
+use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
 
 class RepositoryBrowseService extends BrowseService
 {
+    use WithCultureFallback;
+
     protected function getTable(): string
     {
         return 'repository';
@@ -49,69 +52,89 @@ class RepositoryBrowseService extends BrowseService
 
     protected function getBaseSelect(): array
     {
+        // i18n columns via COALESCE(cur, fb) — see WithCultureFallback.
         return [
             'repository.id',
-            'actor_i18n.authorized_form_of_name as name',
+            DB::raw('COALESCE(actor_cur.authorized_form_of_name, actor_fb.authorized_form_of_name) AS name'),
             'actor.description_identifier as identifier',
             'object.updated_at',
             'slug.slug',
-            'ci18n.region',
-            'ci18n.city as locality',
+            DB::raw('COALESCE(ci_cur.region, ci_fb.region) AS region'),
+            DB::raw('COALESCE(ci_cur.city, ci_fb.city) AS locality'),
         ];
     }
 
     protected function getBaseJoins($query)
     {
-        return $query
-            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+        // Culture-fallback on actor_i18n (Repository extends Actor in CTI).
+        $this->joinI18nWithFallback($query, 'actor_i18n', 'repository', aliasPrefix: 'actor');
+
+        $query
             ->leftJoin('actor', 'repository.id', '=', 'actor.id')
             ->join('object', 'repository.id', '=', 'object.id')
             ->join('slug', 'repository.id', '=', 'slug.object_id')
-            ->leftJoin('contact_information as ci', 'repository.id', '=', 'ci.actor_id')
-            ->leftJoin('contact_information_i18n as ci18n', function ($j) {
-                $j->on('ci.id', '=', 'ci18n.id')
-                  ->where('ci18n.culture', '=', $this->culture);
+            ->leftJoin('contact_information as ci', 'repository.id', '=', 'ci.actor_id');
+
+        // Culture-fallback on contact_information_i18n too. Different join
+        // shape because contact_information rows are linked via ci.id, not
+        // repository.id, so we hand it the right parent table + column.
+        $this->joinI18nWithFallback(
+            $query, 'contact_information_i18n', 'ci',
+            parentColumn: 'id', i18nForeign: 'id', aliasPrefix: 'ci',
+        );
+
+        return $query
+            // Show the row if EITHER cur OR fb has a non-empty name.
+            ->where(function ($q) {
+                $q->where(function ($qq) {
+                    $qq->whereNotNull('actor_cur.authorized_form_of_name')
+                       ->where('actor_cur.authorized_form_of_name', '!=', '');
+                })->orWhere(function ($qq) {
+                    $qq->whereNotNull('actor_fb.authorized_form_of_name')
+                       ->where('actor_fb.authorized_form_of_name', '!=', '');
+                });
             })
-            ->where('actor_i18n.culture', $this->culture)
             ->where('repository.id', '!=', 6); // Exclude root repository
     }
 
     protected function applySort($query, string $sort, string $sortDir)
     {
+        $name   = "COALESCE(actor_cur.authorized_form_of_name, actor_fb.authorized_form_of_name)";
+        $region = "COALESCE(ci_cur.region, ci_fb.region)";
+        $city   = "COALESCE(ci_cur.city, ci_fb.city)";
         switch ($sort) {
             case 'alphabetic':
-                $query->orderBy('actor_i18n.authorized_form_of_name', $sortDir);
+                $query->orderByRaw("{$name} {$sortDir}");
                 break;
             case 'identifier':
                 $query->orderBy('actor.description_identifier', $sortDir);
-                $query->orderBy('actor_i18n.authorized_form_of_name', $sortDir);
+                $query->orderByRaw("{$name} {$sortDir}");
                 break;
             case 'region':
-                $query->orderBy('ci18n.region', $sortDir);
-                $query->orderBy('actor_i18n.authorized_form_of_name', 'asc');
+                $query->orderByRaw("{$region} {$sortDir}");
+                $query->orderByRaw("{$name} asc");
                 break;
             case 'locality':
-                $query->orderBy('ci18n.city', $sortDir);
-                $query->orderBy('actor_i18n.authorized_form_of_name', 'asc');
+                $query->orderByRaw("{$city} {$sortDir}");
+                $query->orderByRaw("{$name} asc");
                 break;
             case 'lastUpdated':
             default:
                 $query->orderBy('object.updated_at', $sortDir);
                 break;
         }
-
         return $query;
     }
 
     protected function applySearch($query, string $subquery)
     {
         if ($subquery !== '') {
-            $query->where(function ($q) use ($subquery) {
-                $q->where('actor_i18n.authorized_form_of_name', 'LIKE', "%{$subquery}%")
+            $name = "COALESCE(actor_cur.authorized_form_of_name, actor_fb.authorized_form_of_name)";
+            $query->where(function ($q) use ($subquery, $name) {
+                $q->whereRaw("{$name} LIKE ?", ["%{$subquery}%"])
                   ->orWhere('actor.description_identifier', 'LIKE', "%{$subquery}%");
             });
         }
-
         return $query;
     }
 
