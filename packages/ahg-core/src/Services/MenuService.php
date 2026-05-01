@@ -127,32 +127,88 @@ class MenuService
 
     /**
      * Get enabled plugins list from atom_plugin table.
+     *
+     * @param int|null $userId  When supplied, also filters out plugins the
+     *                          user has hidden in their nav (issue #40).
+     *                          When null, returns globally enabled plugins
+     *                          only — same as before.
      */
-    public static function getEnabledPlugins(): array
+    public static function getEnabledPlugins(?int $userId = null): array
     {
-        static $plugins = null;
-        if (null !== $plugins) {
-            return $plugins;
+        static $globalCache = null;
+        static $perUserCache = [];
+
+        if (null === $userId) {
+            if (null !== $globalCache) {
+                return $globalCache;
+            }
+            try {
+                $globalCache = DB::table('atom_plugin')
+                    ->where('is_enabled', 1)
+                    ->pluck('name')
+                    ->toArray();
+            } catch (\Exception $e) {
+                $globalCache = [];
+            }
+            return $globalCache;
         }
+
+        if (isset($perUserCache[$userId])) {
+            return $perUserCache[$userId];
+        }
+
+        $global = self::getEnabledPlugins(null);
 
         try {
-            $plugins = DB::table('atom_plugin')
-                ->where('is_enabled', 1)
-                ->pluck('name')
+            $hidden = DB::table('user_plugin_preference')
+                ->where('user_id', $userId)
+                ->where('is_hidden', 1)
+                ->pluck('plugin_name')
                 ->toArray();
+            $perUserCache[$userId] = array_values(array_diff($global, $hidden));
         } catch (\Exception $e) {
-            $plugins = [];
+            // Table missing → fall back to global (no per-user filtering).
+            $perUserCache[$userId] = $global;
         }
 
-        return $plugins;
+        return $perUserCache[$userId];
     }
 
     /**
-     * Check if a plugin is enabled.
+     * Check if a plugin is enabled (and visible to the user when $userId given).
      */
-    public static function isPluginEnabled(string $name): bool
+    public static function isPluginEnabled(string $name, ?int $userId = null): bool
     {
-        return in_array($name, self::getEnabledPlugins());
+        if (null === $userId && function_exists('auth')) {
+            try {
+                $u = auth()->user();
+                $userId = $u?->id;
+            } catch (\Throwable $e) {
+                // auth unavailable (CLI / boot) — fall through to global only.
+            }
+        }
+        return in_array($name, self::getEnabledPlugins($userId), true);
+    }
+
+    /**
+     * Toggle a plugin's per-user visibility. is_hidden=1 hides it; delete row
+     * (or pass false) to unhide.
+     */
+    public static function setUserPluginHidden(int $userId, string $pluginName, bool $hidden): void
+    {
+        if ($hidden) {
+            DB::table('user_plugin_preference')->updateOrInsert(
+                ['user_id' => $userId, 'plugin_name' => $pluginName],
+                ['is_hidden' => 1, 'updated_at' => now()]
+            );
+        } else {
+            DB::table('user_plugin_preference')
+                ->where('user_id', $userId)
+                ->where('plugin_name', $pluginName)
+                ->delete();
+        }
+        // Bust the per-user cache so the change is visible on the next call.
+        unset(self::$cache); // noop if not declared, kept for clarity
     }
 
     /**

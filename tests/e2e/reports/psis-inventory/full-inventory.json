@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-31T20:28:01.401Z",
+  "generatedAt": "2026-04-30T21:52:44.253Z",
   "baseUrl": "https://psis.theahg.co.za",
   "totalUniquePages": 5,
   "totalForms": 15,
@@ -15,35 +15,35 @@
     {
       "url": "https://psis.theahg.co.za/",
       "status": 200,
-      "title": "Archive",
+      "title": "AtoM/Heratio",
       "forms": 3,
       "buttons": 7
     },
     {
       "url": "https://psis.theahg.co.za/informationobject/browse",
       "status": 200,
-      "title": "Archive",
+      "title": "AtoM/Heratio",
       "forms": 4,
       "buttons": 21
     },
     {
       "url": "https://psis.theahg.co.za/informationobject/add",
       "status": 403,
-      "title": "Archive",
+      "title": "AtoM/Heratio",
       "forms": 2,
       "buttons": 7
     },
     {
       "url": "https://psis.theahg.co.za/actor/browse",
       "status": 200,
-      "title": "Archive",
+      "title": "AtoM/Heratio",
       "forms": 4,
       "buttons": 43
     },
     {
       "url": "https://psis.theahg.co.za/actor/add",
       "status": 403,
-      "title": "Archive",
+      "title": "AtoM/Heratio",
       "forms": 2,
       "buttons": 7
     }

@@ -2,36 +2,36 @@
   {
     "url": "https://heratio.theahg.co.za/",
     "status": 200,
-    "title": "Archive",
-    "forms": 4,
-    "buttons": 28
+    "title": "Heratio",
+    "forms": 22,
+    "buttons": 45
   },
   {
     "url": "https://heratio.theahg.co.za/records/browse",
     "status": 200,
-    "title": "Archival descriptions",
-    "forms": 10,
-    "buttons": 64
+    "title": "GLAM Browser",
+    "forms": 24,
+    "buttons": 58
   },
   {
     "url": "https://heratio.theahg.co.za/records/add",
     "status": 200,
     "title": "Log in - Heratio",
-    "forms": 5,
-    "buttons": 19
+    "forms": 23,
+    "buttons": 35
   },
   {
     "url": "https://heratio.theahg.co.za/actor/browse",
     "status": 200,
     "title": "Authority records",
-    "forms": 12,
-    "buttons": 62
+    "forms": 24,
+    "buttons": 53
   },
   {
     "url": "https://heratio.theahg.co.za/actor/add",
     "status": 403,
     "title": "403 - Forbidden",
-    "forms": 4,
-    "buttons": 17
+    "forms": 22,
+    "buttons": 33
   }
 ]

@@ -3,6 +3,15 @@
 use AhgUserManage\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
+// Per-user plugin preferences (issue #40) — any authenticated user can
+// manage their OWN nav clutter; no admin role required.
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::get('/user/profile/plugins',  [UserController::class, 'pluginPreferences'])
+        ->name('user.plugin-preferences');
+    Route::post('/user/profile/plugins', [UserController::class, 'savePluginPreferences'])
+        ->name('user.plugin-preferences.save');
+});
+
 Route::middleware('admin')->group(function () {
     Route::get('/admin/users', [UserController::class, 'browse'])->name('user.browse');
     Route::get('/user/list', [UserController::class, 'browse'])->name('user.list'); // AtoM menu alias

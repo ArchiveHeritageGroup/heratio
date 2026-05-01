@@ -916,4 +916,86 @@ class UserController extends Controller
 
         return view('ahg-user-manage::edit-researcher-acl', compact('user', 'permissions'));
     }
+
+    // -------------------------------------------------------------------
+    // Per-user plugin visibility (issue #40)
+    // -------------------------------------------------------------------
+
+    /**
+     * Show the current user's plugin-preference page — list of all globally
+     * enabled plugins with a checkbox per plugin to hide it from this user's
+     * nav. No admin privilege required (a user manages their OWN nav).
+     */
+    public function pluginPreferences()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $allEnabled = \Illuminate\Support\Facades\DB::table('atom_plugin')
+            ->where('is_enabled', 1)
+            ->orderBy('category')->orderBy('name')
+            ->get(['name', 'category', 'description']);
+
+        $hidden = \Illuminate\Support\Facades\DB::table('user_plugin_preference')
+            ->where('user_id', $user->id)
+            ->where('is_hidden', 1)
+            ->pluck('plugin_name')
+            ->toArray();
+
+        return view('ahg-user-manage::plugin-preferences', [
+            'plugins' => $allEnabled,
+            'hidden'  => $hidden,
+        ]);
+    }
+
+    /**
+     * Save the current user's plugin preferences.
+     *   POST { hidden: ["ahgFooPlugin", "ahgBarPlugin", ...] }
+     */
+    public function savePluginPreferences(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $validated = $request->validate([
+            'hidden'   => 'array',
+            'hidden.*' => 'string|max:255',
+        ]);
+        $hidden = $validated['hidden'] ?? [];
+
+        $globallyEnabled = \Illuminate\Support\Facades\DB::table('atom_plugin')
+            ->where('is_enabled', 1)
+            ->pluck('name')->toArray();
+
+        // Drop ALL existing prefs for this user, then re-insert the hidden ones.
+        // Cleaner than per-row diff and the table is tiny.
+        \Illuminate\Support\Facades\DB::table('user_plugin_preference')
+            ->where('user_id', $user->id)
+            ->delete();
+
+        $now = now();
+        $rows = [];
+        foreach ($hidden as $name) {
+            if (!in_array($name, $globallyEnabled, true)) {
+                continue;   // sanitise — only allow real plugin names
+            }
+            $rows[] = [
+                'user_id'     => $user->id,
+                'plugin_name' => $name,
+                'is_hidden'   => 1,
+                'created_at'  => $now,
+                'updated_at'  => $now,
+            ];
+        }
+        if ($rows) {
+            \Illuminate\Support\Facades\DB::table('user_plugin_preference')->insert($rows);
+        }
+
+        return redirect()->route('user.plugin-preferences')
+            ->with('status', 'Your plugin preferences have been saved.');
+    }
 }
