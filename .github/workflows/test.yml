@@ -52,6 +52,10 @@ jobs:
           php-version: '8.3'
           extensions: pdo, pdo_mysql, mbstring, xml, gd, zip, bcmath
           coverage: none
+      - name: Prepare .env.testing (copy template, blank placeholders)
+        run: |
+          cp .env.testing.example .env.testing
+          sed -i "s|<<set in your local .env.testing>>||g" .env.testing
       - run: composer install --no-interaction --prefer-dist
       - name: PHP Syntax Check
         # Per-file `php -l`. Any non-zero exit fails the job. The previous
@@ -87,6 +91,10 @@ jobs:
           php-version: '8.3'
           extensions: pdo, pdo_mysql, mbstring, xml, gd, zip, bcmath
           coverage: pcov
+      - name: Prepare .env.testing (copy template, blank placeholders)
+        run: |
+          cp .env.testing.example .env.testing
+          sed -i "s|<<set in your local .env.testing>>||g" .env.testing
       - run: composer install --no-interaction --prefer-dist
       - name: Create database
         run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
@@ -117,6 +125,10 @@ jobs:
           php-version: '8.3'
           extensions: pdo, pdo_mysql, mbstring, xml, gd, zip, bcmath
           coverage: pcov
+      - name: Prepare .env.testing (copy template, blank placeholders)
+        run: |
+          cp .env.testing.example .env.testing
+          sed -i "s|<<set in your local .env.testing>>||g" .env.testing
       - run: composer install --no-interaction --prefer-dist
       - name: Create database
         run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
@@ -148,6 +160,10 @@ jobs:
           php-version: '8.3'
           extensions: pdo, pdo_mysql, mbstring, xml, gd, zip, bcmath
           coverage: pcov
+      - name: Prepare .env.testing (copy template, blank placeholders)
+        run: |
+          cp .env.testing.example .env.testing
+          sed -i "s|<<set in your local .env.testing>>||g" .env.testing
       - run: composer install --no-interaction --prefer-dist
       - name: Create database
         run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
@@ -218,6 +234,10 @@ jobs:
         with:
           php-version: '8.3'
           extensions: pdo, pdo_mysql, mbstring, xml, gd, zip, bcmath
+      - name: Prepare .env.testing (copy template, blank placeholders)
+        run: |
+          cp .env.testing.example .env.testing
+          sed -i "s|<<set in your local .env.testing>>||g" .env.testing
       - run: composer install --no-interaction --prefer-dist
       - name: Create database
         run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
@@ -253,6 +273,10 @@ jobs:
           php-version: '8.3'
           extensions: pdo, pdo_mysql, mbstring, xml, gd, zip, bcmath
           coverage: pcov
+      - name: Prepare .env.testing (copy template, blank placeholders)
+        run: |
+          cp .env.testing.example .env.testing
+          sed -i "s|<<set in your local .env.testing>>||g" .env.testing
       - run: composer install --no-interaction --prefer-dist
       - name: Create database
         run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
@@ -338,7 +362,11 @@ jobs:
         with:
           name: playwright-cache
           path: ~/.cache/ms-playwright
-      - run: npx playwright install chromium
+      # actions/upload-artifact tars the cache and round-trip can drop exec
+      # bits, leaving chrome-headless-shell EACCES. Restore them and install
+      # any missing browsers (Firefox, WebKit) the spec config requires.
+      - run: chmod -R +x ~/.cache/ms-playwright 2>/dev/null || true
+      - run: npx playwright install --with-deps
       - name: Run Discovery Tests
         # The PSIS crawler hits an external host (psis.theahg.co.za) and is
         # informational — kept tolerant. Heratio crawler + parity scanner
