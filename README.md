@@ -178,9 +178,36 @@ See [`docs/standalone-install-plan.md`](docs/standalone-install-plan.md) for the
 
 ### Scenario 3 - Docker test stack
 
-A self-contained Compose stack - PHP 8.3 + nginx + MySQL 8 + Elasticsearch 8 - for laptops, CI, throwaway evaluations, and libvirt-VM deployments. No host setup beyond Docker. Cantaloupe (IIIF) and Ollama (AI) stay external by design - both are remote-only on production.
+A self-contained Compose stack - PHP 8.3 + nginx + MySQL 8 + Elasticsearch 8 - for clients, laptops, CI, throwaway evaluations, and libvirt VMs. Cantaloupe (IIIF) and Ollama (AI) stay external by design.
 
-**Quick start (any Docker host):**
+**AI / model policy:** The Heratio image contains **no model weights or AI runtimes**. Heratio is an AI client - HTR, NER, condition scan, and semantic search call out via HTTP to a separate Ollama / vLLM host you operate. The image is fully public on GHCR; nothing in Heratio itself is private. The `Dockerfile` asserts the AI-free invariant at build time and refuses to build if any model artefact is detected in the build context.
+
+#### 3a. Client install (prebuilt image, no source)
+
+For production demos, customer evaluations, and any "I just want it running" scenario. Pulls a versioned, prebuilt image from GitHub Container Registry. **No `git clone` required.**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ArchiveHeritageGroup/heratio/main/docker/install-heratio.sh | bash
+```
+
+Or pin to a specific version:
+
+```bash
+HERATIO_VERSION=v1.41.3 \
+    curl -fsSL https://raw.githubusercontent.com/ArchiveHeritageGroup/heratio/main/docker/install-heratio.sh | bash
+```
+
+The installer:
+1. Downloads `docker-compose.client.yml` and `.env.docker.example` into `./heratio/`
+2. Prompts for admin email + password + DB passwords + host port
+3. Sets `vm.max_map_count` if running as root (Elasticsearch requires it)
+4. `docker compose pull && up -d` - typical install completes in 30-60 s after the image is local
+
+Image: `ghcr.io/archiveheritagegroup/heratio:{latest,vX.Y.Z,X.Y}` - multi-arch (amd64 + arm64), so it runs on Apple Silicon clients too. Published by `.github/workflows/docker-publish.yml` on every release tag.
+
+#### 3b. Developer install (build from source)
+
+For contributors and local code-change testing.
 
 ```bash
 git clone https://github.com/ArchiveHeritageGroup/heratio.git
@@ -192,17 +219,19 @@ docker compose -f docker/docker-compose.yml --env-file docker/.env.docker up -d 
 docker compose -f docker/docker-compose.yml logs -f heratio
 ```
 
-First boot runs `docker/init.sh` which mirrors the standalone-install pipeline inside the container: generates `.env`, runs `key:generate`, loads `database/core/*.sql`, runs `heratio:install-bootstrap` passes 1+2, loads seeds, creates the admin user, and creates the `heratio_*` Elasticsearch indices. A marker at `storage/.heratio-installed` makes subsequent boots skip the schema/seed work - only pass-2 (idempotent) re-runs.
+First boot runs `docker/init.sh` which mirrors the standalone-install pipeline inside the container: generates `.env`, runs `key:generate`, loads `database/core/*.sql`, runs `heratio:install-bootstrap` passes 1+2, loads seeds, creates the admin user, and creates the `heratio_*` Elasticsearch indices. A marker at `storage/.heratio-installed` makes subsequent boots skip the schema/seed work.
 
-Once the `heratio` container reports `healthy`, point a browser at `http://<host>:8088/` and log in with the admin credentials from your `.env.docker`.
+Once the `heratio` container reports `healthy`, browse to `http://<host>:8088/` and log in.
 
-**Reset everything:**
+**Reset everything (drops MySQL + ES + uploads volumes):**
 
 ```bash
-docker compose -f docker/docker-compose.yml down -v   # -v drops MySQL + ES + uploads volumes
+docker compose -f docker/docker-compose.yml down -v
 ```
 
-**Provision a fresh libvirt VM that hosts the stack** (works on any KVM host - downloads the Ubuntu 24.04 cloud image, cloud-inits Docker, deploys the repo, brings the stack up, prints the VM IP):
+#### 3c. Provision a libvirt VM and deploy the stack inside it
+
+Any KVM host. Downloads the Ubuntu 24.04 cloud image, cloud-inits Docker, deploys the repo, brings the stack up, prints the VM IP:
 
 ```bash
 sudo bin/heratio-vm.sh                 # default name: heratio-test
@@ -210,9 +239,9 @@ sudo bin/heratio-vm.sh --name h2       # custom name
 sudo bin/heratio-vm.sh --force         # destroy + rebuild
 ```
 
-Defaults: 4 vCPU, 4 GB RAM, 40 GB disk, bridged networking on `br0`. Override with `--cpus / --ram / --disk / --bridge`.
+Defaults: 4 vCPU, 4 GB RAM, 40 GB disk, bridged on `br0`. Override with `--cpus / --ram / --disk / --bridge`.
 
-Full Docker reference (config files, supervisord layout, healthchecks, caveats): [`docker/README.md`](docker/README.md).
+Full Docker reference (config files, supervisord layout, healthchecks, caveats, AI-policy details): [`docker/README.md`](docker/README.md).
 
 ### Web server
 

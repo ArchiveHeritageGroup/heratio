@@ -55,6 +55,21 @@ RUN npm run build --silent \
  && chmod -R 0775 storage bootstrap/cache 2>/dev/null || true
 
 # --- runtime configs ---------------------------------------------------------
+# ── Build-time AI-leak guard ─────────────────────────────────────────────────
+# Per feedback_ai_remote_only.md: Heratio is an AI client, never a host.
+# This step fails the build if any model weights / AI binaries snuck through
+# .dockerignore. The published image is public on ghcr.io; we never want
+# to ship model weights inside it (license risk + multi-GB bloat + wrong
+# architectural signal).
+RUN ! find /var/www/heratio \
+        \( -name '*.safetensors' -o -name '*.gguf' -o -name '*.ggml' \
+           -o -name '*.pt' -o -name '*.pth' -o -name '*.onnx' \
+           -o -name '*.h5' -o -name '*.ckpt' -o -name '*.tflite' \
+           -o -path '*/models/*' -o -path '*/.cache/huggingface/*' \
+           -o -path '*/.cache/ollama/*' -o -path '*/llama.cpp/*' \) \
+        -type f -print -quit | grep -q .  \
+    || (echo "BUILD ABORTED: AI model artifact detected in build context (see .dockerignore)" && exit 1)
+
 COPY docker/nginx.conf      /etc/nginx/sites-available/heratio
 COPY docker/php-fpm.conf    /usr/local/etc/php-fpm.d/zz-heratio.conf
 COPY docker/php.ini         /usr/local/etc/php/conf.d/zz-heratio.ini

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Heratio first-boot bootstrap inside the container. Idempotent — safe to
+# Heratio first-boot bootstrap inside the container. Idempotent - safe to
 # run on every restart. Mirrors bin/install stages 4-13 but skipped where
 # the compose stack already provides the prerequisite (we don't manage MySQL
 # or nginx here, those run in their own services / via supervisord).
@@ -85,7 +85,7 @@ if [ ! -f "$MARKER" ]; then
     for sql in database/seeds/*.sql; do
         [ -f "$sql" ] || continue
         echo "[init]   $sql"
-        mysql_run < "$sql" 2>/dev/null | head -3 || echo "[init]   (warnings — continuing)"
+        mysql_run < "$sql" 2>/dev/null | head -3 || echo "[init]   (warnings - continuing)"
     done
 
     # ── Stage 9: admin user ──────────────────────────────────────────────────
@@ -104,9 +104,9 @@ VALUES (@uid, 'admin', '${ADMIN_EMAIL:-admin@heratio.test}', '${HASH}', '', 1);
 SQL
 
     touch "$MARKER"
-    echo "[init] schema loaded — marker written to $MARKER"
+    echo "[init] schema loaded - marker written to $MARKER"
 else
-    echo "[init] schema already loaded (marker present) — running pass-2 only"
+    echo "[init] schema already loaded (marker present) - running pass-2 only"
     php artisan heratio:install-bootstrap --pass=2 --no-interaction 2>&1 | tail -3 || true
 fi
 
@@ -117,7 +117,7 @@ if [ -n "${ELASTICSEARCH_HOST:-}" ]; then
     else
         echo "[init] creating ES indices"
         php artisan ahg:es-reindex --drop --no-interaction 2>&1 | tail -3 || \
-            echo "[init] ES create failed — try manually: php artisan ahg:es-reindex --drop"
+            echo "[init] ES create failed - try manually: php artisan ahg:es-reindex --drop"
     fi
 fi
 

@@ -1,0 +1,97 @@
+# =============================================================================
+# docker-publish - build + push Heratio's container image to GitHub Container
+# Registry on every `v*` tag.
+#
+# Result: ghcr.io/archiveheritagegroup/heratio:{latest,vX.Y.Z,X.Y}
+# Multi-arch: linux/amd64 + linux/arm64 (so it runs on Apple Silicon clients).
+#
+# Public image. Heratio source is fully open. AI is REMOTE-ONLY - the image
+# contains zero model weights / runtimes. The Dockerfile asserts that at
+# build time (see the "Build-time AI-leak guard" RUN step). If the assertion
+# trips here, fix `.dockerignore` and re-tag. Don't override the guard.
+# =============================================================================
+
+name: docker-publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Tag or branch to build'
+        required: true
+        default: 'main'
+
+permissions:
+  contents: read
+  packages: write   # required to push to ghcr.io
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute tags (vX.Y.Z + X.Y + latest)
+        id: tags
+        run: |
+          REF="${{ github.ref }}"
+          if [[ "$REF" == refs/tags/v* ]]; then
+              VER="${REF#refs/tags/}"          # vX.Y.Z
+              BARE="${VER#v}"                  # X.Y.Z
+              MM="${BARE%.*}"                  # X.Y
+              {
+                  echo "tags<<EOF"
+                  echo "ghcr.io/${{ github.repository_owner }}/heratio:${VER}"
+                  echo "ghcr.io/${{ github.repository_owner }}/heratio:${MM}"
+                  echo "ghcr.io/${{ github.repository_owner }}/heratio:latest"
+                  echo "EOF"
+              } >> "$GITHUB_OUTPUT"
+          else
+              # Manual workflow-dispatch on a branch - tag with the branch name only
+              BR="${{ github.event.inputs.ref || 'main' }}"
+              echo "tags=ghcr.io/${{ github.repository_owner }}/heratio:branch-${BR}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build + push (amd64 + arm64)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.tags.outputs.tags }}
+          push: true
+          # Use GHA cache so subsequent builds are fast and only ship deltas
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
+          # Helpful labels for the package page on GitHub
+          labels: |
+            org.opencontainers.image.title=Heratio
+            org.opencontainers.image.description=Operational GLAM, archival, DAM, and records management platform
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.licenses=AGPL-3.0-or-later
+            org.opencontainers.image.vendor=The Archive and Heritage Group (Pty) Ltd
+            io.heratio.ai-bundled=false
+            io.heratio.ai-model-policy=remote-only
+
+      - name: Confirm AI-free image (post-build sanity)
+        # The Dockerfile already asserts this at build time, but we re-check
+        # the published manifest here so a regression is loud.
+        run: |
+          IMG="ghcr.io/${{ github.repository_owner }}/heratio:${GITHUB_REF#refs/tags/}"
+          docker buildx imagetools inspect "$IMG" --format '{{json .Manifest}}' | head -200

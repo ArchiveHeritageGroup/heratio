@@ -23,3 +23,36 @@ docker/.env.docker
 docs/papers
 docs/images
 docs/assets
+
+# ─── HARD RULE: Heratio is an AI client, never a host ────────────────────────
+# Per feedback_ai_remote_only.md and project policy: AI features run on a
+# separate GPU host via HTTP. The Heratio container must NEVER bundle model
+# weights, AI runtimes, or large binary blobs - the published image at
+# ghcr.io/archiveheritagegroup/heratio is fully public, and shipping models
+# in it would (a) violate model licenses, (b) bloat the image by GBs, and
+# (c) imply a local LLM exists when there isn't one.
+#
+# These globs reject anything that looks like a model file or AI runtime
+# from sneaking into the build context, even if a developer accidentally
+# has them in their working tree.
+*.safetensors
+*.gguf
+*.ggml
+*.bin
+*.pt
+*.pth
+*.onnx
+*.h5
+*.ckpt
+*.tflite
+*.msgpack
+**/models/
+**/checkpoints/
+**/.cache/huggingface/
+**/.cache/torch/
+**/.cache/whisper/
+**/.cache/ollama/
+**/ollama/
+**/llama.cpp/
+**/whisper.cpp/
+**/transformers_cache/
