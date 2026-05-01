@@ -167,8 +167,9 @@ class MenuService
             return $perUserCache[$userId];
         }
 
-        $global  = self::getEnabledPlugins(null);
-        $isAdmin = self::userIsAdmin($userId);
+        $global    = self::getEnabledPlugins(null);
+        $isAdmin   = self::userIsAdmin($userId);
+        $adminOnly = self::adminOnlyPlugins();
 
         // Pull this user's per-grant rows once
         try {
@@ -184,14 +185,16 @@ class MenuService
 
         if ($isAdmin) {
             // Admin: full global set minus their own denies, plus any globally-
-            // disabled plugins the admin explicitly opted into.
+            // disabled plugins the admin explicitly opted into. admin_only
+            // doesn't affect admins.
             $effective = array_values(array_unique(array_merge(
                 array_diff($global, $denied),
                 $allowed,
             )));
         } else {
             // Non-admin: ONLY explicitly allowed plugins. Default = nothing.
-            $effective = $allowed;
+            // admin_only plugins are stripped even if explicitly granted.
+            $effective = array_values(array_diff($allowed, $adminOnly));
         }
 
         // User-level visibility (clutter reduction) — applies to both admin + user
@@ -241,14 +244,48 @@ class MenuService
             $grant = null;
         }
 
+        // admin_only check fires BEFORE the explicit grant — even an
+        // explicitly-allowed non-admin can't see an admin-only plugin.
+        $isAdmin = self::userIsAdmin($userId);
+        if (!$isAdmin && in_array($name, self::adminOnlyPlugins(), true)) {
+            return false;
+        }
+
         if ($grant === 'allow') return true;
         if ($grant === 'deny')  return false;
 
         // No explicit grant → admin gets the global state, non-admin gets nothing.
-        if (self::userIsAdmin($userId)) {
+        if ($isAdmin) {
             return in_array($name, self::getEnabledPlugins(null), true);
         }
         return false;
+    }
+
+    /**
+     * Names of plugins flagged admin_only=1 in atom_plugin. Cached per-request.
+     * When the column is missing (older DB), returns [].
+     */
+    private static function adminOnlyPlugins(): array
+    {
+        static $cache = null;
+        if (null !== $cache) return $cache;
+        try {
+            // Detect the column once; absence = legacy schema, no admin-only filter.
+            $hasCol = DB::selectOne(
+                "SELECT COUNT(*) AS n FROM information_schema.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE()
+                   AND TABLE_NAME   = 'atom_plugin'
+                   AND COLUMN_NAME  = 'admin_only'"
+            )->n ?? 0;
+            if (!$hasCol) return $cache = [];
+            $cache = DB::table('atom_plugin')
+                ->where('admin_only', 1)
+                ->pluck('name')
+                ->toArray();
+        } catch (\Throwable $e) {
+            $cache = [];
+        }
+        return $cache;
     }
 
     /**

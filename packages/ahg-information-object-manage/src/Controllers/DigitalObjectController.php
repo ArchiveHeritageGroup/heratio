@@ -43,18 +43,71 @@ class DigitalObjectController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
+    /**
+     * Render the dedicated "Link digital object" page (clone of AtoM
+     * object/addDigitalObject — accordion of upload / external URL /
+     * FTP-pick / merge).
+     */
+    public function addDigitalObject(string $slug)
+    {
+        $io = $this->getIO($slug);
+        if (!$io) {
+            abort(404);
+        }
+
+        // If a master already exists, send the user to the edit page (matches AtoM behaviour).
+        $existing = DB::table('digital_object')
+            ->where('object_id', $io->id)
+            ->where('usage_id', DigitalObjectService::USAGE_MASTER)
+            ->first();
+        if ($existing) {
+            return redirect()->route('io.digitalobject.show', $existing->id)
+                ->with('info', 'A digital object already exists. Edit it here, or delete first to attach a new one.');
+        }
+
+        $title = DB::table('information_object_i18n')
+            ->where('id', $io->id)
+            ->where('culture', app()->getLocale())
+            ->value('title');
+
+        $resourceDescription = trim(($io->identifier ? $io->identifier . ' - ' : '') . ($title ?: ''));
+
+        return view('ahg-io-manage::add-digital-object', [
+            'resource' => (object) [
+                'id' => $io->id,
+                'slug' => $slug,
+                'identifier' => $io->identifier ?? null,
+            ],
+            'resourceDescription' => $resourceDescription,
+        ]);
+    }
+
     public function upload(Request $request, string $slug)
     {
-        $request->validate([
-            'digital_object' => 'required|file|max:102400', // 100 MB
-        ]);
+        $hasFile = $request->hasFile('digital_object');
+        $hasUrl  = trim((string) $request->input('external_url')) !== '';
+        $hasFtp  = trim((string) $request->input('ftp_filename')) !== '';
+
+        if ($hasFtp && !$hasFile && !$hasUrl) {
+            $request->validate([
+                'ftp_filename' => 'required|string|max:512',
+            ]);
+        } elseif ($hasUrl && !$hasFile) {
+            $request->validate([
+                'external_url'  => ['required', 'string', 'max:2048', 'regex:#^(https?|ftp)://#i'],
+                'external_name' => 'nullable|string|max:255',
+            ]);
+        } else {
+            $request->validate([
+                'digital_object' => 'required|file|max:102400', // 100 MB
+            ]);
+        }
 
         $io = $this->getIO($slug);
         if (!$io) {
             abort(404);
         }
 
-        // Check if a digital object already exists for this IO
         $existing = DB::table('digital_object')
             ->where('object_id', $io->id)
             ->where('usage_id', DigitalObjectService::USAGE_MASTER)
@@ -66,19 +119,37 @@ class DigitalObjectController extends Controller
         }
 
         try {
-            $masterId = DigitalObjectService::upload($io->id, $request->file('digital_object'));
+            if ($hasFtp && !$hasFile && !$hasUrl) {
+                $ftp = \AhgFtpUpload\Services\FtpService::fromSettings();
+                $remote = $ftp->getRemotePath();
+                $proto = (string) (\Illuminate\Support\Facades\DB::table('ahg_settings')
+                    ->where('setting_key', 'ftp_protocol')->value('setting_value') ?: 'sftp');
+                $host = (string) (\Illuminate\Support\Facades\DB::table('ahg_settings')
+                    ->where('setting_key', 'ftp_host')->value('setting_value') ?: '');
+                $filename = trim((string) $request->input('ftp_filename'));
+                $url = ($proto === 'sftp' ? 'sftp' : 'ftp') . '://' . $host . rtrim($remote, '/') . '/' . ltrim($filename, '/');
+                DigitalObjectService::linkExternalUrl($io->id, $url, $filename);
+                $msg = 'Digital object linked from FTP/SFTP successfully.';
+            } elseif ($hasUrl) {
+                DigitalObjectService::linkExternalUrl(
+                    $io->id,
+                    trim((string) $request->input('external_url')),
+                    trim((string) $request->input('external_name')) ?: null
+                );
+                $msg = 'Digital object linked successfully.';
+            } else {
+                DigitalObjectService::upload($io->id, $request->file('digital_object'));
+                $msg = 'Digital object uploaded successfully.';
+            }
 
-            // Auto-scan for condition if enabled.
-            // Deferred: dispatch happens once the AI condition service ships. Scope-locked
-            // to HTR work for now, so the hook stays observable but inert.
             if (AhgSettingsService::getBool('ai_condition_auto_scan', false)) {
                 \Log::info('ai_condition_auto_scan: would dispatch condition scan for IO ' . $io->id);
             }
 
-            return redirect()->route('informationobject.edit', $slug)
-                ->with('success', 'Digital object uploaded successfully.');
+            return redirect()->route('informationobject.show', $slug)
+                ->with('success', $msg);
         } catch (\Exception $e) {
-            return redirect()->route('informationobject.edit', $slug)
+            return redirect()->route('informationobject.show', $slug)
                 ->with('error', 'Upload failed: ' . $e->getMessage());
         }
     }

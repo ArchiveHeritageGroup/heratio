@@ -163,6 +163,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/rights/embargo/{id}/lift', [ExtendedRightsController::class, 'liftEmbargo'])->name('io.rights.embargo.lift')->middleware('acl:update')->where('id', '[0-9]+');
     Route::get('/rights/export/{slug}', [ExtendedRightsController::class, 'exportJsonLd'])->name('io.rights.export');
 
+    // Dedicated "Add / Link digital object" page (clone of AtoM object/addDigitalObject)
+    Route::get('/{slug}/object/addDigitalObject', [DigitalObjectController::class, 'addDigitalObject'])
+        ->name('io.digitalobject.add')
+        ->middleware('acl:create')
+        ->where('slug', '[a-z0-9][a-z0-9-]*');
+
     // Digital Object upload/delete
     Route::post('/informationobject/{slug}/upload', [DigitalObjectController::class, 'upload'])->name('io.digitalobject.upload')->middleware('acl:create');
     Route::match(['get', 'post'], '/informationobject/{slug}/multiFileUpload', [DigitalObjectController::class, 'multiFileUpload'])->name('io.multiFileUpload');

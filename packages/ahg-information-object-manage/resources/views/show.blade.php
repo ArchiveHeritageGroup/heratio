@@ -70,9 +70,11 @@
         <a href="{{ route('io.provenance', $io->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-project-diagram me-1"></i> {{ __('Provenance') }}
         </a>
+        @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgConditionPlugin'))
         <a href="{{ route('io.condition', $io->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-clipboard-check me-1"></i> {{ __('Condition assessment') }}
         </a>
+        @endif
         @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgSpectrumPlugin'))
         <a href="{{ route('io.spectrum', $io->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-chart-bar me-1"></i> {{ __('Spectrum data') }}
@@ -2225,7 +2227,7 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
             </li>
           @else
             <li>
-              <a class="dropdown-item" href="{{ route('informationobject.edit', ['slug' => $io->slug, 'upload' => 1]) }}">
+              <a class="dropdown-item" href="{{ route('io.digitalobject.add', $io->slug) }}">
                 <i class="fas fa-link me-2"></i>{{ __('Link digital object') }}
               </a>
             </li>

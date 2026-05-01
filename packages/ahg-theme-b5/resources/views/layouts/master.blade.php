@@ -187,6 +187,45 @@
     });
     </script>
 
+    {{-- CSP-safe rebind of inline onsubmit="return confirm(...)" / onclick="return confirm(...)".
+         Strict CSP (script-src nonce) blocks inline event-handler attributes — extract the
+         confirm() message from the attribute and re-attach as a proper event listener. --}}
+    <script nonce="{{ $cspNonce }}">
+    (function () {
+      'use strict';
+      var rx = /confirm\(\s*(['"`])([\s\S]*?)\1\s*\)/;
+      function unescape(s) { return s.replace(/\\n/g, '\n').replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\\\/g, '\\'); }
+      function bind(selector, eventName) {
+        document.querySelectorAll(selector).forEach(function (el) {
+          var attr = el.getAttribute('on' + eventName);
+          if (!attr) return;
+          var m = attr.match(rx);
+          if (!m) return;
+          var msg = unescape(m[2]);
+          el.removeAttribute('on' + eventName);
+          el.addEventListener(eventName, function (ev) {
+            if (!window.confirm(msg)) { ev.preventDefault(); ev.stopPropagation(); return false; }
+          });
+        });
+        // Also support data-confirm="msg" as the modern alternative
+        document.querySelectorAll('[data-confirm]').forEach(function (el) {
+          if (el.__dataConfirmBound) return;
+          el.__dataConfirmBound = true;
+          var ev = (el.tagName === 'FORM') ? 'submit' : 'click';
+          el.addEventListener(ev, function (e) {
+            if (!window.confirm(el.getAttribute('data-confirm'))) { e.preventDefault(); e.stopPropagation(); return false; }
+          });
+        });
+      }
+      function run() { bind('form[onsubmit]', 'submit'); bind('button[onclick],a[onclick],input[onclick]', 'click'); }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', run);
+      } else {
+        run();
+      }
+    })();
+    </script>
+
     {{-- Floating Cart Tab — only visible when cart has items --}}
     @include('theme::partials.cart-tab')
 

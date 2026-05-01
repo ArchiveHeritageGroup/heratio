@@ -73,8 +73,8 @@
             <i class="fas fa-times-circle me-1"></i> {{ __('Delete digital object') }}
           </a>
         @else
-          <a href="{{ url('/' . $artwork->slug . '/object/addDigitalObject') }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-upload me-1"></i> {{ __('Add digital object') }}
+          <a href="{{ route('io.digitalobject.add', $artwork->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-link me-1"></i> {{ __('Link digital object') }}
           </a>
         @endif
         <a href="{{ url('/' . $artwork->slug . '/right/edit') }}" class="list-group-item list-group-item-action small">
@@ -172,7 +172,7 @@
   @else
 
   @if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}
+    <div class="alert alert-success">{{ session('success') }}</div>
   @endif
 
   {{-- Object/Work section --}}

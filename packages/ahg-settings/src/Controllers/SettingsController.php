@@ -1968,6 +1968,18 @@ class SettingsController extends Controller
                         ->update(['is_enabled' => 0, 'disabled_at' => now(), 'updated_at' => now()]);
                     return redirect()->route('settings.plugins')->with('success', "Plugin '{$pluginName}' disabled.");
                 }
+
+                // Issue #40 follow-up: admin-only toggle. When set, non-admin users
+                // never see this plugin in nav (regardless of user_plugin_grant).
+                if ($plugin && in_array($action, ['lock-to-admins', 'unlock-for-users'], true)) {
+                    $adminOnly = $action === 'lock-to-admins' ? 1 : 0;
+                    DB::table('atom_plugin')->where('name', $pluginName)
+                        ->update(['admin_only' => $adminOnly, 'updated_at' => now()]);
+                    $msg = $adminOnly ? "now admin-only — non-admins will not see it"
+                                      : "available to non-admins (subject to per-user grants)";
+                    return redirect()->route('settings.plugins')
+                        ->with('success', "Plugin '{$pluginName}' is {$msg}.");
+                }
             }
 
             return redirect()->route('settings.plugins');

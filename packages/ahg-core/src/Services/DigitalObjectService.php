@@ -257,6 +257,76 @@ class DigitalObjectService
     }
 
     /**
+     * Link an external URL (HTTP/HTTPS/FTP) as a digital object.
+     *
+     * No file is moved — the row stores the URL in `path` and the rendered name
+     * in `name`. Recognised media hosts (Sketchfab/YouTube/Vimeo) are tagged as
+     * MEDIA_OTHER so the read-side renders an external-link icon.
+     */
+    public static function linkExternalUrl(int $objectId, string $url, ?string $displayName = null): int
+    {
+        $url = trim($url);
+        if (!preg_match('#^(https?|ftp)://#i', $url)) {
+            throw new \RuntimeException('External URL must start with http://, https:// or ftp://.');
+        }
+
+        $name = $displayName ?: (basename(parse_url($url, PHP_URL_PATH) ?: '') ?: $url);
+        $mimeType = self::guessMimeFromUrl($url);
+        $mediaTypeId = self::resolveMediaTypeId($mimeType);
+
+        $now = now()->format('Y-m-d H:i:s');
+        $doObjectId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitDigitalObject',
+            'created_at' => $now,
+            'updated_at' => $now,
+            'serial_number' => 0,
+        ]);
+
+        DB::table('digital_object')->insert([
+            'id' => $doObjectId,
+            'object_id' => $objectId,
+            'usage_id' => self::USAGE_MASTER,
+            'mime_type' => $mimeType,
+            'media_type_id' => $mediaTypeId,
+            'name' => $name,
+            'path' => $url,
+            'byte_size' => 0,
+            'checksum' => null,
+            'checksum_type' => null,
+            'parent_id' => null,
+        ]);
+
+        return $doObjectId;
+    }
+
+    /**
+     * Best-effort MIME guess from a URL's extension.
+     */
+    protected static function guessMimeFromUrl(string $url): string
+    {
+        $ext = strtolower(pathinfo(parse_url($url, PHP_URL_PATH) ?: '', PATHINFO_EXTENSION));
+        return match ($ext) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'tif', 'tiff' => 'image/tiff',
+            'bmp' => 'image/bmp',
+            'webp' => 'image/webp',
+            'pdf' => 'application/pdf',
+            'mp3' => 'audio/mpeg',
+            'wav' => 'audio/wav',
+            'mp4' => 'video/mp4',
+            'mov' => 'video/quicktime',
+            'doc' => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'xls' => 'application/vnd.ms-excel',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'txt' => 'text/plain',
+            default => 'application/octet-stream',
+        };
+    }
+
+    /**
      * Delete a digital object and all its derivatives.
      *
      * Removes files from disk and database records.

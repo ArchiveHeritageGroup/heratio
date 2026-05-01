@@ -104,9 +104,11 @@
         <a href="{{ route('io.provenance', $asset->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-project-diagram me-1"></i> {{ __('Provenance') }}
         </a>
+        @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgConditionPlugin'))
         <a href="{{ route('io.condition', $asset->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-clipboard-check me-1"></i> {{ __('Condition assessment') }}
         </a>
+        @endif
         @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgSpectrumPlugin'))
         <a href="{{ route('io.spectrum', $asset->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-chart-bar me-1"></i> {{ __('Spectrum data') }}
@@ -562,6 +564,17 @@
         <a class="btn atom-btn-outline-success" href="{{ route('dam.create') }}">
           <i class="fas fa-plus me-1"></i>{{ __('Add new') }}
         </a>
+      </li>
+      <li>
+        @if(isset($digitalObjects) && ($digitalObjects['master'] ?? null))
+          <a class="btn atom-btn-outline-light" href="{{ route('io.digitalobject.show', $digitalObjects['master']->id) }}">
+            <i class="fas fa-photo-video me-1"></i>{{ __('Edit digital object') }}
+          </a>
+        @else
+          <a class="btn atom-btn-outline-light" href="{{ route('io.digitalobject.add', $asset->slug) }}">
+            <i class="fas fa-link me-1"></i>{{ __('Link digital object') }}
+          </a>
+        @endif
       </li>
       <li>
         <a class="btn atom-btn-outline-light" href="{{ route('ahgmarketplace.seller-listing-create', ['io' => $asset->id]) }}">

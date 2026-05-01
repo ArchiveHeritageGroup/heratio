@@ -144,7 +144,7 @@
           @endif
         </div>
       </div>
-      <div class="card-footer bg-white">
+      <div class="card-footer bg-white d-flex justify-content-between align-items-center">
         <form method="post" action="{{ route('settings.plugins') }}" class="d-inline">
           @csrf
           <input type="hidden" name="plugin_name" value="{{ e($plugin->name) }}">
@@ -165,6 +165,27 @@
             </button>
           @endif
         </form>
+
+        {{-- Issue #40 follow-up: admin-only toggle --}}
+        @if($isEnabled && empty($plugin->is_core))
+          <form method="post" action="{{ route('settings.plugins') }}" class="d-inline">
+            @csrf
+            <input type="hidden" name="plugin_name" value="{{ e($plugin->name) }}">
+            @if(($plugin->admin_only ?? 0))
+              <button type="submit" name="plugin_action" value="unlock-for-users"
+                      class="btn btn-sm btn-warning"
+                      title="{{ __('Currently admin-only — click to unlock for all users (subject to per-user grants)') }}">
+                <i class="fas fa-user-shield me-1"></i>{{ __('Admin-only') }}
+              </button>
+            @else
+              <button type="submit" name="plugin_action" value="lock-to-admins"
+                      class="btn btn-sm btn-outline-secondary"
+                      title="{{ __('Click to lock this plugin to admin users only — non-admins will not see it') }}">
+                <i class="fas fa-users me-1"></i>{{ __('All users') }}
+              </button>
+            @endif
+          </form>
+        @endif
       </div>
     </div>
   </div>

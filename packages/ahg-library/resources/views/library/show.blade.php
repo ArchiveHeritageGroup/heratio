@@ -1689,7 +1689,7 @@
       @php $doRecord = \Illuminate\Support\Facades\DB::table('digital_object')->where('object_id', $item->id)->first(); @endphp
       <li><a href="{{ url('/digitalobject/' . ($doRecord->id ?? 0) . '/edit') }}" class="btn atom-btn-outline-light"><i class="fas fa-edit me-1"></i>{{ __('Edit digital object') }}</a></li>
     @else
-      <li><a href="{{ url('/informationobject/' . $item->slug . '/upload') }}" class="btn atom-btn-outline-light"><i class="fas fa-upload me-1"></i>{{ __('Add digital object') }}</a></li>
+      <li><a href="{{ route('io.digitalobject.add', $item->slug) }}" class="btn atom-btn-outline-light"><i class="fas fa-link me-1"></i>{{ __('Link digital object') }}</a></li>
     @endif
     @if(\Illuminate\Support\Facades\Route::has('io.showUpdateStatus'))
       <li><a href="{{ route('io.showUpdateStatus', $item->slug) }}" class="btn atom-btn-outline-light"><i class="fas fa-eye me-1"></i>{{ __('Publication status') }}</a></li>
