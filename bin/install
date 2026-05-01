@@ -318,7 +318,7 @@ INSERT INTO actor (id, source_culture, description_status_id, description_detail
 VALUES (@uid, 'en', NULL, NULL, NULL);
 INSERT INTO actor_i18n (id, culture, authorized_form_of_name)
 VALUES (@uid, 'en', 'Administrator');
-INSERT INTO \`user\` (id, username, email, sha1_password, salt, active)
+INSERT INTO \`user\` (id, username, email, password_hash, salt, active)
 VALUES (@uid, 'admin', '${ADMIN_EMAIL}', '${HASH}', '', 1);
 SQL
     ok "admin created (email=$ADMIN_EMAIL — password printed at end)"
