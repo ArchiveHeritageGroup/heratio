@@ -1,0 +1,113 @@
+# =============================================================================
+# Heratio — full test stack
+#
+# Brings up: app (php-fpm + nginx via supervisor) + mysql 8 + elasticsearch 8.
+# Cantaloupe IIIF and Ollama are intentionally NOT included — they're
+# remote-only on production (per project policy) and not needed for app tests.
+#
+# Usage:
+#   cp .env.docker.example .env.docker
+#   docker compose --env-file .env.docker up -d --build
+#   docker compose logs -f heratio
+#
+# Reset everything (destroys data):
+#   docker compose down -v
+#
+# @copyright  Johan Pieterse / Plain Sailing
+# @license    AGPL-3.0-or-later
+# =============================================================================
+
+name: heratio
+
+services:
+  heratio:
+    build:
+      # Build context is the repo root so the Dockerfile can COPY composer.json,
+      # packages/, etc. The Dockerfile lives in docker/.
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: heratio:test
+    container_name: heratio-app
+    depends_on:
+      mysql:        { condition: service_healthy }
+      elasticsearch: { condition: service_healthy }
+    environment:
+      APP_ENV:                 ${APP_ENV:-local}
+      APP_DEBUG:               ${APP_DEBUG:-true}
+      APP_URL:                 ${APP_URL:-http://localhost:8088}
+      DB_CONNECTION:           mysql
+      DB_HOST:                 mysql
+      DB_PORT:                 3306
+      DB_DATABASE:             ${DB_DATABASE:-heratio}
+      DB_USERNAME:             ${DB_USERNAME:-heratio}
+      DB_PASSWORD:             ${DB_PASSWORD:-heratio-test}
+      ELASTICSEARCH_HOST:      http://elasticsearch:9200
+      ELASTICSEARCH_PREFIX:    heratio_
+      HERATIO_STORAGE_PATH:    /var/www/heratio/storage/uploads
+      HERATIO_UPLOADS_PATH:    /var/www/heratio/storage/uploads
+      HERATIO_BACKUPS_PATH:    /var/www/heratio/storage/backups
+      ADMIN_EMAIL:             ${ADMIN_EMAIL:-admin@heratio.test}
+      ADMIN_PASSWORD:          ${ADMIN_PASSWORD:-admin-please-change}
+    ports:
+      - "${HERATIO_PORT:-8088}:80"
+    volumes:
+      # Persist user uploads + backups across rebuilds
+      - heratio-storage:/var/www/heratio/storage/uploads
+      - heratio-backups:/var/www/heratio/storage/backups
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1/up"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: heratio-mysql
+    environment:
+      MYSQL_DATABASE:      ${DB_DATABASE:-heratio}
+      MYSQL_USER:          ${DB_USERNAME:-heratio}
+      MYSQL_PASSWORD:      ${DB_PASSWORD:-heratio-test}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root-test}
+    command:
+      # Heratio's AtoM-derived schema relies on row-level binlog format and
+      # default authentication that older clients understand. utf8mb4 is the
+      # only collation; the SQL files assume it.
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --max_allowed_packet=256M
+      - --innodb_buffer_pool_size=512M
+    volumes:
+      - heratio-mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-uroot", "-p${DB_ROOT_PASSWORD:-root-test}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  elasticsearch:
+    image: elasticsearch:8.13.4
+    container_name: heratio-es
+    environment:
+      discovery.type:            single-node
+      xpack.security.enabled:    'false'
+      ES_JAVA_OPTS:              '-Xms512m -Xmx512m'
+      cluster.routing.allocation.disk.threshold_enabled: 'false'
+    volumes:
+      - heratio-es:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cluster/health | grep -qE 'green|yellow'"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+    restart: unless-stopped
+
+volumes:
+  heratio-storage:
+  heratio-backups:
+  heratio-mysql:
+  heratio-es:
