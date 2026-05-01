@@ -429,8 +429,12 @@ class ActorBrowseService extends BrowseService
         $page = max(1, (int) ($params['page'] ?? 1));
         $limit = max(1, min(100, (int) ($params['limit'] ?? 30)));
         $skip = ($page - 1) * $limit;
-        $sort = $params['sort'] ?? 'alphabetic';
-        $sortDir = $params['sortDir'] ?? (($sort === 'lastUpdated') ? 'desc' : 'asc');
+        $sort = $params['sort'] ?: 'alphabetic';
+        // `?:` (Elvis) coalesces empty string + null. `??` only catches null,
+        // and the controller defaults sortDir to '' (not null), so plain `??`
+        // leaves it empty and Eloquent's orderBy throws "Order direction must
+        // be 'asc' or 'desc'". Apply the same fix to any sibling Browse service.
+        $sortDir = $params['sortDir'] ?: (($sort === 'lastUpdated') ? 'desc' : 'asc');
         $subquery = trim($params['subquery'] ?? '');
 
         try {

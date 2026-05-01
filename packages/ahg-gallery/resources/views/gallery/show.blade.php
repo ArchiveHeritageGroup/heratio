@@ -178,7 +178,7 @@
   {{-- Object/Work section --}}
   @if($artwork->work_type || $artwork->classification || $artwork->identifier)
     <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Object/Work</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Object/Work') }}</div></h2>
       <div class="field-list">
         @if($artwork->work_type)
           <div class="field text-break row g-0">
@@ -205,7 +205,7 @@
   {{-- Creator section --}}
   @if($artwork->creator_identity || $artwork->creator_role || $creators->isNotEmpty())
     <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Creator</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Creator') }}</div></h2>
       <div class="field-list">
         @if($artwork->creator_identity)
           <div class="field text-break row g-0">
@@ -234,7 +234,7 @@
   {{-- Creation section --}}
   @if($artwork->creation_date_display || $artwork->creation_date_earliest || $artwork->creation_date_latest || $artwork->creation_place || $artwork->style || $artwork->period || $artwork->movement || $artwork->school)
     <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Creation</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Creation') }}</div></h2>
       <div class="field-list">
         @if($artwork->creation_date_display)
           <div class="field text-break row g-0">
@@ -291,7 +291,7 @@
   {{-- Measurements section --}}
   @if($artwork->measurements || $artwork->dimensions)
     <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Measurements</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Measurements') }}</div></h2>
       <div class="field-list">
         @if($artwork->measurements)
           <div class="field text-break row g-0">
@@ -312,7 +312,7 @@
   {{-- Materials / Techniques section --}}
   @if($artwork->materials || $artwork->techniques)
     <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Materials / Techniques</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Materials / Techniques') }}</div></h2>
       <div class="field-list">
         @if($artwork->materials)
           <div class="field text-break row g-0">
@@ -333,7 +333,7 @@
   {{-- Subject / Description section --}}
   @if($artwork->scope_and_content)
     <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Subject</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Subject') }}</div></h2>
       <div class="field-list">
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Description
@@ -346,7 +346,7 @@
   {{-- Inscriptions section --}}
   @if($artwork->inscription || $artwork->mark_description)
     <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Inscriptions</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Inscriptions') }}</div></h2>
       <div class="field-list">
         @if($artwork->inscription)
           <div class="field text-break row g-0">
@@ -367,7 +367,7 @@
   {{-- Condition section --}}
   @if($artwork->condition_term || $artwork->condition_description)
     <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Condition</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Condition') }}</div></h2>
       <div class="field-list">
         @if($artwork->condition_term)
           <div class="field text-break row g-0">
@@ -388,7 +388,7 @@
   {{-- Provenance section --}}
   @if($artwork->provenance || $artwork->current_location || $artwork->rights_type || $artwork->rights_holder)
     <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Provenance</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Provenance') }}</div></h2>
       <div class="field-list">
         @if($artwork->provenance)
           <div class="field text-break row g-0">
@@ -421,7 +421,7 @@
   {{-- Access points --}}
   @if($subjects->isNotEmpty() || $places->isNotEmpty() || $genres->isNotEmpty())
     <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Access points</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Access points') }}</div></h2>
       <div class="field-list">
         @if($subjects->isNotEmpty())
           <div class="field text-break row g-0">
@@ -460,7 +460,7 @@
   {{-- Cataloging section --}}
   @if($artwork->cataloger_name || $artwork->cataloging_date || $repository)
     <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Cataloging</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Cataloging') }}</div></h2>
       <div class="field-list">
         @if($artwork->cataloger_name)
           <div class="field text-break row g-0">
@@ -489,7 +489,7 @@
   {{-- Notes --}}
   @if($notes->isNotEmpty())
     <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Notes</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Notes') }}</div></h2>
       @foreach($notes as $note)
         <div class="mb-2">
           @if(!empty($noteTypeNames[$note->type_id]))
@@ -516,7 +516,7 @@
 
   {{-- Administration --}}
   <section class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Administration</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Administration') }}</div></h2>
     <div class="field-list">
       @if($artwork->created_at)
         <div class="field text-break row g-0">

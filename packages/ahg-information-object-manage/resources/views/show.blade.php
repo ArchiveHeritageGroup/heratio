@@ -507,7 +507,7 @@
   <section id="identityArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#identity-collapse">
-        Identity area
+        {{ __('Identity area') }}
       </a>
       @auth
         <a href="{{ route('informationobject.edit', $io->slug) }}#identity-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Identity area') }}">
@@ -589,7 +589,7 @@
   <section id="contextArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#context-collapse">
-        Context area
+        {{ __('Context area') }}
       </a>
       @auth
         <a href="{{ route('informationobject.edit', $io->slug) }}#context-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Context area') }}">
@@ -621,9 +621,9 @@
               <div class="field text-break row g-0">
                 <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">
                   @if(isset($creator->entity_type_id) && $creator->entity_type_id == 131)
-                    Administrative history
+                    {{ __('Administrative history') }}
                   @else
-                    Biographical history
+                    {{ __('Biographical history') }}
                   @endif
                 </h3>
                 <div class="col-9 p-2">{!! nl2br(e($creator->history)) !!}</div>
@@ -688,7 +688,7 @@
   <section id="contentAndStructureArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#content-collapse">
-        Content and structure area
+        {{ __('Content and structure area') }}
       </a>
       @auth
         <a href="{{ route('informationobject.edit', $io->slug) }}#content-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Content and structure area') }}">
@@ -737,7 +737,7 @@
   <section id="conditionsOfAccessAndUseArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#conditions-collapse">
-        Conditions of access and use area
+        {{ __('Conditions of access and use area') }}
       </a>
       @auth
         <a href="{{ route('informationobject.edit', $io->slug) }}#conditions-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Conditions of access and use area') }}">
@@ -837,7 +837,7 @@
   <section id="alliedMaterialsArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#allied-collapse">
-        Allied materials area
+        {{ __('Allied materials area') }}
       </a>
       @auth
         <a href="{{ route('informationobject.edit', $io->slug) }}#allied-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Allied materials area') }}">
@@ -907,7 +907,7 @@
   <section id="notesArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#notes-collapse">
-        Notes area
+        {{ __('Notes area') }}
       </a>
       @auth
         <a href="{{ route('informationobject.edit', $io->slug) }}#notes-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Notes area') }}">
@@ -950,7 +950,7 @@
   <section id="accessPointsArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#access-collapse">
-        Access points
+        {{ __('Access points') }}
       </a>
       @auth
         <a href="{{ route('informationobject.edit', $io->slug) }}#access-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Access points') }}">
@@ -1048,7 +1048,7 @@
   <section id="descriptionControlArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#description-collapse">
-        Description control area
+        {{ __('Description control area') }}
       </a>
       @auth
         <a href="{{ route('informationobject.edit', $io->slug) }}#description-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Description control area') }}">
@@ -1405,7 +1405,7 @@
   @if(isset($provenanceEntries) && $provenanceEntries->isNotEmpty())
     <section class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        Provenance &amp; Chain of Custody
+        {{ __('Provenance &amp; Chain of Custody') }}
       </h2>
       <div class="provenance-chain px-3 py-2">
         @foreach($provenanceEntries as $i => $entry)
@@ -1468,7 +1468,7 @@
     <section class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
         <a class="text-decoration-none text-white" href="#digital-object-collapse">
-          Digital object metadata
+          {{ __('Digital object metadata') }}
         </a>
       </h2>
       <div id="digital-object-collapse">
@@ -1622,7 +1622,7 @@
   <section id="accessionArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#accession-collapse">
-        Accession area
+        {{ __('Accession area') }}
       </a>
       @auth
         <a href="{{ route('informationobject.edit', $io->slug) }}#accession-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit Accession area') }}">

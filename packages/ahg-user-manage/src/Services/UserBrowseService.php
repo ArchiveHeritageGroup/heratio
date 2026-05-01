@@ -72,7 +72,7 @@ class UserBrowseService extends BrowseService
         $page = max(1, (int) ($params['page'] ?? 1));
         $limit = max(1, min(100, (int) ($params['limit'] ?? 30)));
         $skip = ($page - 1) * $limit;
-        $sort = $params['sort'] ?? 'alphabetic';
+        $sort = $params['sort'] ?: 'alphabetic';
         $sortDir = ($sort === 'lastUpdated') ? 'desc' : ($params['sortDir'] ?? 'asc');
         $subquery = trim($params['subquery'] ?? '');
         $status = $params['status'] ?? 'active';

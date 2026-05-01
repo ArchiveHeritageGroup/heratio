@@ -387,7 +387,7 @@
   {{-- External identifiers area --}}
   @if(($externalIdentifiers ?? collect())->isNotEmpty())
   <section id="externalIdentifiersArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">External identifiers</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('External identifiers') }}</div></h2>
     @foreach($externalIdentifiers as $eid)
       <div class="field text-break row g-0">
         <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ ucfirst($eid->identifier_type) }}</h3>
@@ -412,7 +412,7 @@
   {{-- Structured occupations area --}}
   @if(($structuredOccupations ?? collect())->isNotEmpty())
   <section id="structuredOccupationsArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Structured occupations</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Structured occupations') }}</div></h2>
     @foreach($structuredOccupations as $socc)
       <div class="field text-break row g-0">
         <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Occupation') }}</h3>
@@ -433,7 +433,7 @@
   {{-- Completeness details area --}}
   @if($completeness ?? null)
   <section id="completenessArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Completeness</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Completeness') }}</div></h2>
     <div class="field text-break row g-0">
       <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Score') }}</h3>
       <div class="col-9 p-2">
@@ -515,7 +515,7 @@
       $doUploadedAt = \Illuminate\Support\Facades\DB::table('object')->where('id', $doMaster->id)->value('created_at');
     @endphp
     <section class="digitalObjectMetadata border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Digital object metadata</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Digital object metadata') }}</div></h2>
 
       {{-- Master file --}}
       <h4 class="h6 py-2 px-3 mb-0 border-bottom" style="background:#f5f5f5;">{{ __('Master file') }}</h4>

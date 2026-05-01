@@ -305,7 +305,7 @@
 
   {{-- Identification area --}}
   <section id="identificationArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Identification</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Identification') }}</div></h2>
     @if($asset->identifier)
       <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Identifier') }}</h3><div class="col-9 p-2">{{ $asset->identifier }}</div></div>
     @endif
@@ -320,7 +320,7 @@
   {{-- Asset Classification area --}}
   @if($asset->asset_type || $asset->genre || $asset->color_type)
     <section id="classificationArea" class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Asset Classification</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Asset Classification') }}</div></h2>
       @if($asset->asset_type)
         <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Asset type') }}</h3><div class="col-9 p-2"><span class="badge bg-secondary">{{ ucfirst(str_replace('_', ' ', $asset->asset_type)) }}</span></div></div>
       @endif
@@ -336,7 +336,7 @@
   {{-- Production area --}}
   @if($asset->production_company || $asset->distributor || $asset->broadcast_date || $asset->series_title || $asset->season_number || $asset->episode_number || $asset->awards || $asset->audio_language || $asset->subtitle_language)
     <section id="productionArea" class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Production</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Production') }}</div></h2>
       @if($asset->production_company)
         <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Production company') }}</h3><div class="col-9 p-2">{{ $asset->production_company }}</div></div>
       @endif
@@ -370,7 +370,7 @@
   {{-- Creator/Contact area --}}
   @if($asset->creator || $asset->creator_job_title || $asset->creator_email || $asset->creator_phone || $asset->creator_website || $asset->creator_city || $asset->creator_address)
     <section id="creatorArea" class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Creator / Contact</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Creator / Contact') }}</div></h2>
       @if($asset->creator)
         <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Creator') }}</h3><div class="col-9 p-2">{{ $asset->creator }}</div></div>
       @endif
@@ -398,7 +398,7 @@
   {{-- Content area --}}
   @if($asset->headline || $asset->duration_minutes || $asset->caption || $asset->keywords || $asset->iptc_subject_code || $asset->intellectual_genre || $asset->persons_shown || $asset->iptc_date_created)
     <section id="contentArea" class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Content</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Content') }}</div></h2>
       @if($asset->headline)
         <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Headline') }}</h3><div class="col-9 p-2">{{ $asset->headline }}</div></div>
       @endif
@@ -429,7 +429,7 @@
   {{-- Location area --}}
   @if($asset->city || $asset->state_province || $asset->sublocation || $asset->country || $asset->country_code || $asset->production_country || $asset->production_country_code)
     <section id="locationArea" class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Location</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Location') }}</div></h2>
       @if($asset->city)
         <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('City') }}</h3><div class="col-9 p-2">{{ $asset->city }}</div></div>
       @endif
@@ -457,7 +457,7 @@
   {{-- Rights area --}}
   @if($asset->credit_line || $asset->source || $asset->copyright_notice || $asset->rights_usage_terms || $asset->license_type || $asset->license_url || $asset->license_expiry || $asset->model_release_status || $asset->model_release_id || $asset->property_release_status || $asset->property_release_id)
     <section id="rightsArea" class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Rights</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Rights') }}</div></h2>
       @if($asset->credit_line)
         <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Credit line') }}</h3><div class="col-9 p-2">{{ $asset->credit_line }}</div></div>
       @endif
@@ -497,7 +497,7 @@
   {{-- Artwork/Object area --}}
   @if($asset->artwork_title || $asset->artwork_creator || $asset->artwork_date || $asset->artwork_source || $asset->artwork_copyright)
     <section id="artworkArea" class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Artwork / Object</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Artwork / Object') }}</div></h2>
       @if($asset->artwork_title)
         <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Artwork title') }}</h3><div class="col-9 p-2">{{ $asset->artwork_title }}</div></div>
       @endif
@@ -519,7 +519,7 @@
   {{-- Technical/Administrative area --}}
   @if($asset->iptc_title || $asset->job_id || $asset->instructions)
     <section id="technicalArea" class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Technical / Administrative</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Technical / Administrative') }}</div></h2>
       @if($asset->iptc_title)
         <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Title (IPTC Object Name)') }}</h3><div class="col-9 p-2">{{ $asset->iptc_title }}</div></div>
       @endif
@@ -534,7 +534,7 @@
 
   {{-- Administration area --}}
   <section id="adminArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Administration area</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Administration area') }}</div></h2>
     @if($asset->created_at)
       <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Created') }}</h3><div class="col-9 p-2">{{ \Carbon\Carbon::parse($asset->created_at)->format('Y-m-d H:i') }}</div></div>
     @endif

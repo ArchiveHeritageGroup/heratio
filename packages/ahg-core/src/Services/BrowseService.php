@@ -116,7 +116,7 @@ abstract class BrowseService
         $page = max(1, (int) ($params['page'] ?? 1));
         $limit = max(1, min(100, (int) ($params['limit'] ?? SettingHelper::hitsPerPage())));
         $skip = ($page - 1) * $limit;
-        $sort = $params['sort'] ?? 'lastUpdated';
+        $sort = $params['sort'] ?: 'lastUpdated';
         $sortDir = !empty($params['sortDir']) ? $params['sortDir'] : (($sort === 'lastUpdated') ? 'desc' : 'asc');
         $subquery = trim($params['subquery'] ?? '');
 
