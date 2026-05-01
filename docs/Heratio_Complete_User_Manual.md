@@ -1,4 +1,4 @@
-# Heratio — Complete User Manual
+# Heratio - Complete User Manual
 
 **Product:** Heratio Framework v2.8.2
 **Date:** 16 March 2026
@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-Heratio is a comprehensive modernization of Access to Memory (AtoM) 2.10 — the leading open-source archival management system. It transforms AtoM from a single-purpose archival tool into an enterprise-grade GLAM platform (Galleries, Libraries, Archives, Museums) and Digital Asset Management (DAM) system, adding approximately 300% more functionality through 80 modular plugins — without modifying a single core AtoM file.
+Heratio is a comprehensive modernization of Access to Memory (AtoM) 2.10 - the leading open-source archival management system. It transforms AtoM from a single-purpose archival tool into an enterprise-grade GLAM platform (Galleries, Libraries, Archives, Museums) and Digital Asset Management (DAM) system, adding approximately 300% more functionality through 80 modular plugins - without modifying a single core AtoM file.
 
 ### What Makes Heratio Different
 
@@ -64,14 +64,14 @@ Heratio is a comprehensive modernization of Access to Memory (AtoM) 2.10 — the
 
 ### Who Is This For?
 
-- **Archivists** — managing archival collections with full ISAD(G)/DACS/RAD support
-- **Librarians** — cataloguing with MARC-inspired fields, ISBN lookup, circulation management
-- **Museum curators** — CCO cataloguing, Spectrum 5.1 procedures, Getty AAT integration
-- **Gallery managers** — exhibition management, artist tracking, loan management
-- **Digital asset managers** — IPTC metadata, watermarks, batch processing
-- **Compliance officers** — POPIA/GDPR compliance, audit trails, security classification
-- **Researchers** — reading room booking, access requests, workspace management
-- **IT administrators** — backup scheduling, API management, system monitoring
+- **Archivists** - managing archival collections with full ISAD(G)/DACS/RAD support
+- **Librarians** - cataloguing with MARC-inspired fields, ISBN lookup, circulation management
+- **Museum curators** - CCO cataloguing, Spectrum 5.1 procedures, Getty AAT integration
+- **Gallery managers** - exhibition management, artist tracking, loan management
+- **Digital asset managers** - IPTC metadata, watermarks, batch processing
+- **Compliance officers** - POPIA/GDPR compliance, audit trails, security classification
+- **Researchers** - reading room booking, access requests, workspace management
+- **IT administrators** - backup scheduling, API management, system monitoring
 
 ---
 
@@ -108,11 +108,11 @@ The main navigation bar contains:
 
 The homepage displays:
 
-- **Welcome carousel** — featured collections with images
-- **Browse by GLAM type** — cards for Archive, Library, Museum, Gallery, DAM
-- **Browse by creator** — top creators with item counts
-- **Recent additions** — latest records added to the system
-- **Quick search** — search box with semantic search toggle
+- **Welcome carousel** - featured collections with images
+- **Browse by GLAM type** - cards for Archive, Library, Museum, Gallery, DAM
+- **Browse by creator** - top creators with item counts
+- **Recent additions** - latest records added to the system
+- **Quick search** - search box with semantic search toggle
 
 ---
 
@@ -151,10 +151,10 @@ The browse page shows records in a card layout with filtering:
 ```
 
 **View modes:**
-- **Card** — default, shows thumbnail + title + metadata + description excerpt
-- **Grid** — compact thumbnails in a grid
-- **Table** — spreadsheet-style with sortable columns and resizable headers
-- **Full width** — large images with full metadata
+- **Card** - default, shows thumbnail + title + metadata + description excerpt
+- **Grid** - compact thumbnails in a grid
+- **Table** - spreadsheet-style with sortable columns and resizable headers
+- **Full width** - large images with full metadata
 
 **Facet filters:**
 Each facet shows the count of matching records. Click to filter; click again to remove. Facets are collapsible (click the header to expand/collapse).
@@ -164,18 +164,18 @@ Each facet shows the count of matching records. Click to filter; click again to 
 **Access:** Search box > gear icon > "Advanced search"
 
 Fields:
-- **Any field** — searches across all text fields
-- **Title** — title field only
-- **Identifier / Reference code** — identifier fields
-- **Creator** — name access points
-- **Subject** — subject access points
-- **Place** — place access points
-- **Date range** — start and end dates
-- **Level of description** — dropdown (fonds, series, file, item, etc.)
-- **Repository** — dropdown of institutions
-- **Digital object** — has/doesn't have digital object
-- **Media type** — image, video, audio, text, application
-- **GLAM type** — archive, library, museum, gallery, DAM
+- **Any field** - searches across all text fields
+- **Title** - title field only
+- **Identifier / Reference code** - identifier fields
+- **Creator** - name access points
+- **Subject** - subject access points
+- **Place** - place access points
+- **Date range** - start and end dates
+- **Level of description** - dropdown (fonds, series, file, item, etc.)
+- **Repository** - dropdown of institutions
+- **Digital object** - has/doesn't have digital object
+- **Media type** - image, video, audio, text, application
+- **GLAM type** - archive, library, museum, gallery, DAM
 
 Operators: AND, OR, NOT between search fields.
 
@@ -192,9 +192,9 @@ Semantic search expands your query with related terms:
 **Access:** Search box > gear icon > "Semantic search" modal
 
 Natural language search using three strategies:
-1. **Direct match** — exact and fuzzy matching
-2. **Expanded match** — synonym and thesaurus expansion
-3. **Contextual match** — related concepts and time periods
+1. **Direct match** - exact and fuzzy matching
+2. **Expanded match** - synonym and thesaurus expansion
+3. **Contextual match** - related concepts and time periods
 
 Results are grouped by relevance with explanations of why each result matched.
 
@@ -220,35 +220,35 @@ Standard archival descriptions following ISAD(G):
 
 MARC-inspired cataloguing with integrated library system (ILS) features:
 
-- **Cataloguing** — bibliographic records with MARC-style fields
-- **ISBN Lookup** — auto-populate metadata from ISBN
-- **Circulation** — loans, returns, renewals, fines, patron management
-- **Cover images** — automatic cover image retrieval
+- **Cataloguing** - bibliographic records with MARC-style fields
+- **ISBN Lookup** - auto-populate metadata from ISBN
+- **Circulation** - loans, returns, renewals, fines, patron management
+- **Cover images** - automatic cover image retrieval
 
 ### 3.3 Museum (CCO)
 
 Cataloguing Culturual Objects standard with:
 
-- **Object identification** — object name, classification, materials, techniques
-- **Getty AAT** — linked vocabulary for materials, techniques, styles
-- **Condition assessment** — with photo documentation
-- **Spectrum 5.1** — UK Collections Trust procedures
+- **Object identification** - object name, classification, materials, techniques
+- **Getty AAT** - linked vocabulary for materials, techniques, styles
+- **Condition assessment** - with photo documentation
+- **Spectrum 5.1** - UK Collections Trust procedures
 
 ### 3.4 Gallery
 
 Exhibition and artwork management:
 
-- **Artist tracking** — biographical data, exhibitions, provenance
-- **Exhibition management** — planning, layout, loans, installation
-- **VRA Core** — Visual Resources Association metadata
+- **Artist tracking** - biographical data, exhibitions, provenance
+- **Exhibition management** - planning, layout, loans, installation
+- **VRA Core** - Visual Resources Association metadata
 
 ### 3.5 Digital Asset Management (DAM)
 
 Photo and media management:
 
-- **IPTC metadata** — automatic extraction and mapping
-- **Watermarking** — configurable watermarks on downloads
-- **Batch processing** — bulk metadata operations
+- **IPTC metadata** - automatic extraction and mapping
+- **Watermarking** - configurable watermarks on downloads
+- **Batch processing** - bulk metadata operations
 
 ---
 
@@ -276,11 +276,11 @@ Photo and media management:
 
 Upload digital objects to records:
 
-- **Images** — JPEG, PNG, TIFF, GIF, WebP (auto-generates thumbnails + reference copies)
-- **Documents** — PDF (rendered via IIIF viewer, OCR available)
-- **Video** — MP4, OGV, WebM (HTML5 player with transcription)
-- **Audio** — MP3, WAV, OGG (HTML5 player with waveform)
-- **3D Models** — GLB, GLTF (Google Model Viewer with AR support)
+- **Images** - JPEG, PNG, TIFF, GIF, WebP (auto-generates thumbnails + reference copies)
+- **Documents** - PDF (rendered via IIIF viewer, OCR available)
+- **Video** - MP4, OGV, WebM (HTML5 player with transcription)
+- **Audio** - MP3, WAV, OGG (HTML5 player with waveform)
+- **3D Models** - GLB, GLTF (Google Model Viewer with AR support)
 
 ### 4.4 Custom Fields
 
@@ -340,39 +340,39 @@ Manage controlled vocabularies and hierarchical term lists.
 
 High-resolution image viewing via OpenSeadragon or Mirador:
 
-- **Zoom** — scroll wheel or +/- buttons
-- **Pan** — click and drag
-- **Rotate** — rotation controls (if enabled)
-- **Full screen** — expand to full screen
-- **Navigator** — mini-map for orientation
-- **OCR overlay** — text overlay on scanned documents
+- **Zoom** - scroll wheel or +/- buttons
+- **Pan** - click and drag
+- **Rotate** - rotation controls (if enabled)
+- **Full screen** - expand to full screen
+- **Navigator** - mini-map for orientation
+- **OCR overlay** - text overlay on scanned documents
 
 ### 6.2 3D Model Viewer
 
 Google Model Viewer for GLB/GLTF files:
 
-- **Rotate** — click and drag to orbit
-- **Zoom** — scroll wheel
-- **AR** — "View in AR" on supported devices
-- **Hotspots** — clickable annotation points
-- **Auto-rotate** — optional continuous rotation
+- **Rotate** - click and drag to orbit
+- **Zoom** - scroll wheel
+- **AR** - "View in AR" on supported devices
+- **Hotspots** - clickable annotation points
+- **Auto-rotate** - optional continuous rotation
 
 ### 6.3 Media Player
 
 HTML5 audio/video player:
 
-- **Controls** — play, pause, seek, volume, playback speed
-- **Transcription** — synchronized subtitles/captions (VTT/SRT)
-- **Waveform** — visual audio waveform display
+- **Controls** - play, pause, seek, volume, playback speed
+- **Transcription** - synchronized subtitles/captions (VTT/SRT)
+- **Waveform** - visual audio waveform display
 
 ### 6.4 PDF Viewer
 
 Embedded PDF rendering via IIIF:
 
-- **Page navigation** — scroll or page number input
-- **Zoom** — configurable zoom levels
-- **Text search** — search within the PDF (if OCR'd)
-- **Download** — download original PDF
+- **Page navigation** - scroll or page number input
+- **Zoom** - configurable zoom levels
+- **Text search** - search within the PDF (if OCR'd)
+- **Download** - download original PDF
 
 ---
 
@@ -454,12 +454,12 @@ Experimental face detection and matching to authority records. Backends: OpenCV 
 ![wireframe](./images/wireframes/wireframe_92843b13.png)
 ```
 
-**Step 1 — Configure:** Select sector, standard, repository, parent, output packages, AI options
-**Step 2 — Upload:** CSV, ZIP, EAD, or server directory path
-**Step 3 — Map & Enrich:** Column mapping, auto-map, saved profiles, metadata extraction
-**Step 4 — Validate:** Required fields, dates, hierarchy, duplicates, checksums
-**Step 5 — Preview:** Hierarchical tree, approve/exclude records
-**Step 6 — Commit:** Background job execution, progress polling, completion report
+**Step 1 - Configure:** Select sector, standard, repository, parent, output packages, AI options
+**Step 2 - Upload:** CSV, ZIP, EAD, or server directory path
+**Step 3 - Map & Enrich:** Column mapping, auto-map, saved profiles, metadata extraction
+**Step 4 - Validate:** Required fields, dates, hierarchy, duplicates, checksums
+**Step 5 - Preview:** Hierarchical tree, approve/exclude records
+**Step 6 - Commit:** Background job execution, progress polling, completion report
 
 ### 8.2 CSV Import/Export
 
@@ -470,7 +470,7 @@ Experimental face detection and matching to authority records. Backends: OpenCV 
 
 **Access:** Clipboard > Portable Catalogue, or record view > Export > Portable Viewer
 
-Creates standalone HTML catalogue for CD/USB/ZIP distribution — works offline without a server.
+Creates standalone HTML catalogue for CD/USB/ZIP distribution - works offline without a server.
 
 ### 8.4 Metadata Export
 
@@ -512,9 +512,9 @@ Features: consent management, data subject requests, PII scanning, retention pol
 
 Bell-LaPadula mandatory access control:
 
-- **Classification levels** — Unclassified, Restricted, Confidential, Secret, Top Secret
-- **User clearance** — assigned per user, controls access to classified records
-- **Embargo** — time-based access restrictions
+- **Classification levels** - Unclassified, Restricted, Confidential, Secret, Top Secret
+- **User clearance** - assigned per user, controls access to classified records
+- **Embargo** - time-based access restrictions
 
 ### 9.3 Audit Trail
 
@@ -540,7 +540,7 @@ International Public Sector Accounting Standards for heritage assets.
 
 ### 10.3 Spectrum 5.1
 
-UK Collections Trust museum procedures — acquisition, loans, location/movement, condition checking.
+UK Collections Trust museum procedures - acquisition, loans, location/movement, condition checking.
 
 ---
 
@@ -598,10 +598,10 @@ Shared loan management for GLAM institutions with status tracking.
 
 Plan and manage exhibitions:
 
-- **Exhibition records** — dates, venues, themes, curators
-- **Storylines** — narrative flow with stops and media
-- **Object selection** — link exhibition to collection objects
-- **Loans** — manage incoming/outgoing exhibition loans
+- **Exhibition records** - dates, venues, themes, curators
+- **Storylines** - narrative flow with stops and media
+- **Object selection** - link exhibition to collection objects
+- **Loans** - manage incoming/outgoing exhibition loans
 
 ### 13.2 Landing Page Builder
 
@@ -649,7 +649,7 @@ SPARQL/Fuseki RiC-O triplestore integration for RiC (Records in Contexts) linked
 
 Centralized settings management with 21 sections and 200+ configurable options.
 
-#### General — Theme Configuration
+#### General - Theme Configuration
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -668,7 +668,7 @@ Centralized settings management with 21 sections and 200+ configurable options.
 | Show Branding | Toggle | On | Display AHG branding |
 | Custom CSS | Textarea | (empty) | Custom CSS styles |
 
-#### Spectrum — Collections Management
+#### Spectrum - Collections Management
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -681,7 +681,7 @@ Centralized settings management with 21 sections and 200+ configurable options.
 | Require Photos | Toggle | Off | Require photos for condition reports |
 | Email Notifications | Toggle | On | Task assignment notifications |
 
-#### Media — Media Player
+#### Media - Media Player
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -692,7 +692,7 @@ Centralized settings management with 21 sections and 200+ configurable options.
 | Default Volume | Slider | 0.8 | Volume level (0-1.0) |
 | Show Download | Toggle | Off | Download button |
 
-#### Photos — Photo Upload
+#### Photos - Photo Upload
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -706,7 +706,7 @@ Centralized settings management with 21 sections and 200+ configurable options.
 | Extract EXIF | Toggle | On | Read camera data |
 | Auto-rotate | Toggle | On | EXIF orientation |
 
-#### Data Protection — Compliance
+#### Data Protection - Compliance
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -718,7 +718,7 @@ Centralized settings management with 21 sections and 200+ configurable options.
 | Special Category Fee | ZAR | 140 | Special category fee |
 | Response Days | Days | 30 | Response deadline |
 
-#### IIIF — Image Viewer
+#### IIIF - Image Viewer
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -729,7 +729,7 @@ Centralized settings management with 21 sections and 200+ configurable options.
 | Enable Rotation | Toggle | On | Allow rotation |
 | Max Zoom Level | Number | 10 | Zoom limit (1-20) |
 
-#### Jobs — Background Processing
+#### Jobs - Background Processing
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -741,7 +741,7 @@ Centralized settings management with 21 sections and 200+ configurable options.
 | Notify on Failure | Toggle | On | Email on failure |
 | Notification Email | Email | (empty) | Failure alert email |
 
-#### Fuseki — RiC Triplestore
+#### Fuseki - RiC Triplestore
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -757,7 +757,7 @@ Centralized settings management with 21 sections and 200+ configurable options.
 | Integrity Schedule | Select | weekly | daily/weekly/monthly/disabled |
 | Orphan Retention | Days | 30 | Orphan cleanup period |
 
-#### Metadata — Extraction Configuration
+#### Metadata - Extraction Configuration
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -768,14 +768,14 @@ Centralized settings management with 21 sections and 200+ configurable options.
 
 *Field mapping is configurable per GLAM sector (ISAD, Museum, DAM) for: Title, Creator, Keywords, Description, Date, Copyright, Technical Data, GPS.*
 
-#### Faces — Face Detection
+#### Faces - Face Detection
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | Enable | Toggle | Off | Experimental feature |
 | Backend | Select | local | local (OpenCV), aws, azure |
 
-#### Ingest — Data Ingest Defaults
+#### Ingest - Data Ingest Defaults
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -831,7 +831,7 @@ Centralized settings management with 21 sections and 200+ configurable options.
 | Cloud Model | Text | claude-sonnet-4-20250514 | Cloud model ID |
 | Audit AI Calls | Toggle | On | Log to audit trail |
 
-#### Integrity — Verification
+#### Integrity - Verification
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -848,7 +848,7 @@ Centralized settings management with 21 sections and 200+ configurable options.
 | Alert Email | Email | (empty) | Notification recipient |
 | Webhook URL | URL | (empty) | Slack/Teams/PagerDuty |
 
-#### Accession — Intake Settings
+#### Accession - Intake Settings
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -860,7 +860,7 @@ Centralized settings management with 21 sections and 200+ configurable options.
 | Allow Container Barcodes | Toggle | Off | Barcode scanning |
 | Rights Inheritance | Toggle | Off | Inherit from donor agreement |
 
-#### Authority — Authority Records
+#### Authority - Authority Records
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -874,7 +874,7 @@ Centralized settings management with 21 sections and 200+ configurable options.
 | Dedup Threshold | Number | 0.80 | Similarity score |
 | Function Linking | Toggle | On | ISDF actor-function links |
 
-#### Security — Access Control
+#### Security - Access Control
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -889,7 +889,7 @@ Centralized settings management with 21 sections and 200+ configurable options.
 | Session Timeout | Minutes | 30 | Idle session timeout |
 | Login Attempt Retention | Hours | 24 | Log retention |
 
-#### Library — Circulation
+#### Library - Circulation
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -899,7 +899,7 @@ Centralized settings management with 21 sections and 200+ configurable options.
 | Currency | Text | ZAR | Currency code |
 | Auto Fine | Toggle | (varies) | Generate fines automatically |
 
-#### FTP — File Transfer
+#### FTP - File Transfer
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -927,9 +927,9 @@ See separate Backup Strategy documentation for full details on:
 
 **Access:** Admin > Reports, Admin > Statistics
 
-- **Reports Dashboard** — pre-built reports on collections, access, compliance
-- **Report Builder** — enterprise report builder with rich text, templates, SQL queries, Word/PDF/XLSX export
-- **Statistics** — usage tracking and trends
+- **Reports Dashboard** - pre-built reports on collections, access, compliance
+- **Report Builder** - enterprise report builder with rich text, templates, SQL queries, Word/PDF/XLSX export
+- **Statistics** - usage tracking and trends
 
 ### 15.4 Workflow
 
@@ -1044,4 +1044,4 @@ php symfony cc
 ---
 
 *Document generated 16 March 2026 by The Archive and Heritage Group (Pty) Ltd.*
-*Heratio Framework v2.8.2 — 80 plugins, 200+ settings, WCAG 2.1 AA compliant.*
+*Heratio Framework v2.8.2 - 80 plugins, 200+ settings, WCAG 2.1 AA compliant.*

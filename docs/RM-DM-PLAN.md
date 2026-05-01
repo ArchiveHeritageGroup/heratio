@@ -1,4 +1,4 @@
-# Heratio RM/DM — Functional Design
+# Heratio RM/DM - Functional Design
 
 ## Core Principle
 
@@ -25,7 +25,7 @@ The **business structure is an operational overlay** for navigation, filing conv
 
 ![Heratio architecture](rm_dm_assets/architecture.png)
 
-### Layer 1 — Business Interaction
+### Layer 1 - Business Interaction
 What business users see:
 - departments
 - projects
@@ -37,7 +37,7 @@ What business users see:
 - templates
 - operational dashboards
 
-### Layer 2 — RM Control
+### Layer 2 - RM Control
 What governs the record:
 - file plan
 - record category / folder
@@ -50,7 +50,7 @@ What governs the record:
 - copy status
 - disposition audit trail
 
-### Layer 3 — Archival / GLAM / Preservation
+### Layer 3 - Archival / GLAM / Preservation
 What preserves and contextualises records of continuing value:
 - transfer workflows
 - OAIS packaging
@@ -604,7 +604,7 @@ Services/
 
 ## Revised Execution Phases
 
-### Phase 1 — Foundation and governance
+### Phase 1 - Foundation and governance
 - package skeleton and migrations
 - NARSSA baseline seeder
 - file plan tree
@@ -616,7 +616,7 @@ Services/
 - copy status model
 - role-based views
 
-### Phase 2 — Filing and auto-classification
+### Phase 2 - Filing and auto-classification
 - filing wizard
 - profile resolver
 - rule engine
@@ -625,7 +625,7 @@ Services/
 - unfiled / exception handling
 - record categories / RM folders
 
-### Phase 3 — Retention, disposition, and transfer
+### Phase 3 - Retention, disposition, and transfer
 - retention schedules
 - disposal classes
 - cutoff handling
@@ -635,7 +635,7 @@ Services/
 - archive transfer packaging
 - stub / shell back-linking into DM
 
-### Phase 4 — Legal hold, vital records, integrity
+### Phase 4 - Legal hold, vital records, integrity
 - legal hold
 - freeze / override prevention
 - vital records registry
@@ -643,7 +643,7 @@ Services/
 - RM search
 - integrity monitoring
 
-### Phase 5 — Compliance and reporting
+### Phase 5 - Compliance and reporting
 - ISO 15489 reporting
 - MoReq2010 reporting
 - DoD 5015.2 reporting
@@ -730,8 +730,8 @@ The **A20** is the NARSSA appraisal decision form. When a disposal list is submi
 
 1. NARSSA appraises each record group on the list.
 2. NARSSA completes the A20, marking each group as either:
-   - **Transfer** — records of enduring value that the department must transfer to the archives
-   - **Destroy** — records with no enduring value that the department may destroy
+   - **Transfer** - records of enduring value that the department must transfer to the archives
+   - **Destroy** - records with no enduring value that the department may destroy
 3. The department receives the A20 with the disposal authority number.
 4. The department **transfers** all items marked for preservation.
 5. The department **destroys** the remainder.
@@ -785,7 +785,7 @@ CREATE TABLE rm_disposal_batch_item (
     date_range_start DATE,
     date_range_end DATE,
     proposed_action VARCHAR(50) COMMENT 'destroy, transfer',
-    narssa_decision VARCHAR(50) COMMENT 'destroy, transfer — set after A20 received',
+    narssa_decision VARCHAR(50) COMMENT 'destroy, transfer - set after A20 received',
     executed_at DATETIME,
     execution_certificate_path VARCHAR(500),
     created_at DATETIME
@@ -800,15 +800,15 @@ After a record is destroyed or transferred, the record content is removed but a 
 
 ### Why stubs exist
 
-- **Accountability** — proves the organisation disposed of the record properly, under authority, following due process
-- **Audit** — external auditors, the National Archivist, and courts can verify what was destroyed, when, by whom, and under what authority
-- **Completeness** — the file plan tree remains intact; gaps where records once existed are explained, not silent
-- **Legal defence** — if a record is requested in litigation or PAIA/FOI and it no longer exists, the stub proves lawful destruction (not spoliation)
-- **Chain of custody** — for transferred records, the stub links to the receiving institution and accession number
+- **Accountability** - proves the organisation disposed of the record properly, under authority, following due process
+- **Audit** - external auditors, the National Archivist, and courts can verify what was destroyed, when, by whom, and under what authority
+- **Completeness** - the file plan tree remains intact; gaps where records once existed are explained, not silent
+- **Legal defence** - if a record is requested in litigation or PAIA/FOI and it no longer exists, the stub proves lawful destruction (not spoliation)
+- **Chain of custody** - for transferred records, the stub links to the receiving institution and accession number
 
 ### Stub fields
 
-The stub retains metadata only — **no record content, no attachments, no binary files**.
+The stub retains metadata only - **no record content, no attachments, no binary files**.
 
 #### 1. Record Identification
 

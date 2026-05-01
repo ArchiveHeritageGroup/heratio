@@ -1,4 +1,4 @@
-# OpenRiC Core Discovery Profile — implementation plan
+# OpenRiC Core Discovery Profile - implementation plan
 
 **Status:** Draft 2026-04-19. Not yet ratified. For planning only.
 **Target spec version:** OpenRiC v0.3.0
@@ -15,18 +15,18 @@ Named profiles answer that. Each profile is a bounded conformance target with a 
 
 The six profiles sketched in the strategic roadmap (`docs/openric_future_direction_and_phased_roadmap.md` §2):
 
-1. **Core Discovery** — read-only Records, Agents, Repositories, vocabulary, autocomplete
-2. **Authority & Context** — Places, Rules, Activities as first-class
-3. **Provenance & Event** — Activity subclasses with the full event model
-4. **Digital Object Linkage** — Instantiations with checksum, MIME, IIIF pointers
-5. **Export-Only** — OAI-PMH + one-shot JSON-LD dumps
-6. **Round-Trip Editing** — full write surface with provenance-aware rules
+1. **Core Discovery** - read-only Records, Agents, Repositories, vocabulary, autocomplete
+2. **Authority & Context** - Places, Rules, Activities as first-class
+3. **Provenance & Event** - Activity subclasses with the full event model
+4. **Digital Object Linkage** - Instantiations with checksum, MIME, IIIF pointers
+5. **Export-Only** - OAI-PMH + one-shot JSON-LD dumps
+6. **Round-Trip Editing** - full write surface with provenance-aware rules
 
 **This plan is for #1 only.** Other profiles follow after Core Discovery has shipped, been implemented by the reference, and been reviewed.
 
 ---
 
-## Scope — what Core Discovery is and isn't
+## Scope - what Core Discovery is and isn't
 
 ### IN scope (must implement to claim conformance)
 
@@ -72,7 +72,7 @@ A Core Discovery response MUST include the fields marked *required*; MAY include
 **List responses:**
 - Envelope: `{"total": N, "limit": L, "offset": O, "items": [...]}`
 - Each item: minimum = `@id`, `@type`, a name/title
-- `Link` header for pagination (RFC 5988) — `rel="next"`, `rel="prev"`
+- `Link` header for pagination (RFC 5988) - `rel="next"`, `rel="prev"`
 
 ### Required HTTP behaviours
 
@@ -105,7 +105,7 @@ Servers declare profile support at `GET /`:
 }
 ```
 
-Profile versions track the spec version that introduced the profile (if Core Discovery v0.3 is unchanged in spec v0.4, the profile stays v0.3; when changed, it bumps to match). `conformance_level` is `"full"` or `"partial"` — partial requires a `"notes"` field explaining deviations.
+Profile versions track the spec version that introduced the profile (if Core Discovery v0.3 is unchanged in spec v0.4, the profile stays v0.3; when changed, it bumps to match). `conformance_level` is `"full"` or `"partial"` - partial requires a `"notes"` field explaining deviations.
 
 ---
 
@@ -116,7 +116,7 @@ Profile versions track the spec version that introduced the profile (if Core Dis
 | File | Purpose | Status |
 |---|---|---|
 | `spec/profiles/index.md` | Profile concept: what they are, how they compose, how versioning works | New |
-| `spec/profiles/core-discovery.md` | Normative Core Discovery definition — tables above, in spec prose | New |
+| `spec/profiles/core-discovery.md` | Normative Core Discovery definition - tables above, in spec prose | New |
 | `spec/conformance.md` | Updated to reference profile-based conformance claims | Edit |
 | `spec/viewing-api.md` | Tag every endpoint with its profile membership | Edit |
 
@@ -126,8 +126,8 @@ Profile versions track the spec version that introduced the profile (if Core Dis
 |---|---|---|
 | `openapi/openric.yaml` | Add `tags: [core-discovery]` to operations; add `profiles` field to service-description schema | Edit |
 | `schemas/service-description.schema.json` | Add `openric_conformance.profiles` array shape | Edit |
-| `shapes/profiles/core-discovery.shacl.ttl` | SHACL subset — only rules that apply to Core Discovery responses | New |
-| `fixtures/profiles/core-discovery/manifest.json` | Lists which of the 27 existing fixtures belong to Core Discovery (probably: fonds-minimal, fonds-with-children, agent-person-simple, agent-corporate-body, agent-family, record-list, record-multilingual, service-description, vocabulary, autocomplete-egypt, error-not-found — 11 fixtures) | New |
+| `shapes/profiles/core-discovery.shacl.ttl` | SHACL subset - only rules that apply to Core Discovery responses | New |
+| `fixtures/profiles/core-discovery/manifest.json` | Lists which of the 27 existing fixtures belong to Core Discovery (probably: fonds-minimal, fonds-with-children, agent-person-simple, agent-corporate-body, agent-family, record-list, record-multilingual, service-description, vocabulary, autocomplete-egypt, error-not-found - 11 fixtures) | New |
 
 ### C. Conformance probe
 
@@ -157,32 +157,32 @@ Profile versions track the spec version that introduced the profile (if Core Dis
 
 Each numbered step is a natural session boundary.
 
-### Session 1 — spec prose (2–3 hours)
+### Session 1 - spec prose (2–3 hours)
 
-1. Draft `spec/profiles/index.md` — concept, versioning, composition rules, declaration format
-2. Draft `spec/profiles/core-discovery.md` — the normative tables above in spec prose
+1. Draft `spec/profiles/index.md` - concept, versioning, composition rules, declaration format
+2. Draft `spec/profiles/core-discovery.md` - the normative tables above in spec prose
 3. Draft `profiles.md` site index + nav update + homepage card
 4. Open questions flagged inline as `<!-- TK: ... -->` comments for later decision
 5. **Deliverable:** a PR-ready spec draft the user can read, edit, and hand to Richard for review
 
-### Session 2 — machine artefacts (2 hours)
+### Session 2 - machine artefacts (2 hours)
 
-1. SHACL subset at `shapes/profiles/core-discovery.shacl.ttl` — extract only the shapes that apply to Record/Agent/Repository
+1. SHACL subset at `shapes/profiles/core-discovery.shacl.ttl` - extract only the shapes that apply to Record/Agent/Repository
 2. Update `schemas/service-description.schema.json` to include profiles array
 3. Add OpenAPI `tags: [core-discovery]` to the 10 in-scope operations
 4. Build fixture manifest at `fixtures/profiles/core-discovery/manifest.json`
 5. **Deliverable:** every machine-readable artefact knows which profile it belongs to
 
-### Session 3 — probe + reference impl (2 hours)
+### Session 3 - probe + reference impl (2 hours)
 
 1. Add `--profile core-discovery` flag to `conformance/probe.sh`
 2. Generate a pass/fail JSON output the badge generator can consume
 3. Build `conformance/badge/core-discovery.svg` generator (shields.io-compatible static SVG)
 4. Update Heratio `LinkedDataApiController::serviceDescription()` to emit the profiles declaration
-5. Run the probe against the reference — should pass with `conformance_level: full`
+5. Run the probe against the reference - should pass with `conformance_level: full`
 6. **Deliverable:** the reference implementation concretely claims and passes the profile
 
-### Optional Session 4 — polish (1 hour)
+### Optional Session 4 - polish (1 hour)
 
 1. Add a "Profiles" section to the proof page
 2. Add a badge to the reference API's homepage + README
@@ -196,14 +196,14 @@ These must be answered before Session 1 can ship. Good candidates for the Richar
 
 | # | Question | My current lean | Why it matters |
 |---|---|---|---|
-| Q1 | Profile name — "Core Discovery" vs "Discovery" vs "Read" vs "Browse" | Core Discovery | Readable, signals minimum-viable |
-| Q2 | Levels (numbered, strict superset) vs profiles (named, orthogonal axes) | Profiles | Our six profiles aren't a linear progression — Export-Only is not a subset of Round-Trip Editing |
+| Q1 | Profile name - "Core Discovery" vs "Discovery" vs "Read" vs "Browse" | Core Discovery | Readable, signals minimum-viable |
+| Q2 | Levels (numbered, strict superset) vs profiles (named, orthogonal axes) | Profiles | Our six profiles aren't a linear progression - Export-Only is not a subset of Round-Trip Editing |
 | Q3 | Include `/autocomplete` in Core Discovery? | Yes | Without it, "discovery" is only addressable navigation, not search |
 | Q4 | Include repositories in Core Discovery, or push to Authority profile? | Yes, include | Repositories are so entangled with records (every record has `rico:heldBy`) that separating them causes false negatives |
-| Q5 | Mandatory pagination limit in response envelope? | Yes — list responses MUST paginate | Prevents unbounded responses; gives clients a stable contract |
-| Q6 | Error shape — keep Heratio's current `success:false` envelope or switch to RFC 7807 `application/problem+json`? | Switch to RFC 7807 for spec, keep existing shape as "additionally allowed" | RFC 7807 is the HTTP-API standard; `success:false` is a custom Heratio-ism |
-| Q7 | SHACL strictness — closed shapes (fail on unknown predicates) or open? | Open | Implementations must be able to add private metadata without being flagged non-conformant |
-| Q8 | Version alignment — Core Discovery v0.3.0 releases with spec v0.3.0, or profiles have independent versions? | Track spec | Simpler; avoids N-dimensional version matrix |
+| Q5 | Mandatory pagination limit in response envelope? | Yes - list responses MUST paginate | Prevents unbounded responses; gives clients a stable contract |
+| Q6 | Error shape - keep Heratio's current `success:false` envelope or switch to RFC 7807 `application/problem+json`? | Switch to RFC 7807 for spec, keep existing shape as "additionally allowed" | RFC 7807 is the HTTP-API standard; `success:false` is a custom Heratio-ism |
+| Q7 | SHACL strictness - closed shapes (fail on unknown predicates) or open? | Open | Implementations must be able to add private metadata without being flagged non-conformant |
+| Q8 | Version alignment - Core Discovery v0.3.0 releases with spec v0.3.0, or profiles have independent versions? | Track spec | Simpler; avoids N-dimensional version matrix |
 
 ---
 
@@ -216,16 +216,16 @@ Core Discovery Profile v0.3.0 is done when:
 3. ✅ The spec prose is published at `openric.org/spec/profiles/core-discovery`
 4. ✅ The profile is listed on the Proof page, the homepage, and the nav
 5. ✅ Richard (or another reviewer in his spirit) has read the spec draft and pushed back on at least one decision
-6. ✅ One consumer besides Heratio can drive against a Core-Discovery-only server (this can be the upcoming `@openric/viewer` npm package — the viewer's read path is Core Discovery + optional Graph)
+6. ✅ One consumer besides Heratio can drive against a Core-Discovery-only server (this can be the upcoming `@openric/viewer` npm package - the viewer's read path is Core Discovery + optional Graph)
 
 ---
 
 ## What this plan deliberately does NOT cover
 
-- Other five profiles (Authority, Provenance, Digital Object, Export, Round-Trip) — each gets its own plan after Core Discovery ships
-- Profile composition rules in depth (how Authority *extends* Core Discovery, what happens when a server claims both) — deferred to the second-profile session
-- Badges beyond SVG (shields.io integration, README copy-paste snippets, a badge browser on openric.org) — polish, not core
-- A governance process for changing profiles (who decides a breaking profile change, RFC format, etc.) — the governance doc exists; profile-specific governance rules can wait until two profiles exist
+- Other five profiles (Authority, Provenance, Digital Object, Export, Round-Trip) - each gets its own plan after Core Discovery ships
+- Profile composition rules in depth (how Authority *extends* Core Discovery, what happens when a server claims both) - deferred to the second-profile session
+- Badges beyond SVG (shields.io integration, README copy-paste snippets, a badge browser on openric.org) - polish, not core
+- A governance process for changing profiles (who decides a breaking profile change, RFC format, etc.) - the governance doc exists; profile-specific governance rules can wait until two profiles exist
 
 ---
 

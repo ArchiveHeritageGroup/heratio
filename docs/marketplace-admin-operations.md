@@ -1,4 +1,4 @@
-# Marketplace — Admin Operations
+# Marketplace - Admin Operations
 
 Day-to-day operator playbook for the Heratio Marketplace: reviewing listings, verifying sellers, handling disputes, running payouts, and tuning the marketplace settings.
 
@@ -10,12 +10,12 @@ The admin area lives under **`/admin/marketplace/*`** and requires a user with t
 
 `/admin/marketplace/dashboard` is the at-a-glance view:
 
-- **Listings under review** — needs your action
-- **Sellers pending verification** — needs your action
-- **Disputes open** — needs your action
-- **Pending payouts (R)** — total seller balance ready to pay out
-- **GMV today / this month** — financial pulse
-- **Recent transactions** — last 10 paid
+- **Listings under review** - needs your action
+- **Sellers pending verification** - needs your action
+- **Disputes open** - needs your action
+- **Pending payouts (R)** - total seller balance ready to pay out
+- **GMV today / this month** - financial pulse
+- **Recent transactions** - last 10 paid
 
 The numbers under "needs your action" are the SLA you should keep at zero.
 
@@ -56,10 +56,10 @@ A rejected seller cannot list. They can re-apply after addressing your reason.
 Operator-managed lists at **`/admin/marketplace/categories`**:
 
 - Sectors (Gallery / Library / Archive / Museum / DAM) are configured at install time.
-- Categories within each sector are operator-edited — add/rename/disable.
+- Categories within each sector are operator-edited - add/rename/disable.
 - Sub-categories cascade from category.
 
-> Per project rule: **no enumerated values are hardcoded** — categories live in `ahg_dropdown` via the Dropdown Manager. The marketplace category page is just a friendlier UI over the same data.
+> Per project rule: **no enumerated values are hardcoded** - categories live in `ahg_dropdown` via the Dropdown Manager. The marketplace category page is just a friendlier UI over the same data.
 
 ---
 
@@ -69,14 +69,14 @@ Operator-managed lists at **`/admin/marketplace/categories`**:
 
 - Add/remove currencies the marketplace will accept.
 - Set the **primary** (sellers default to it; cross-listing prices on Browse are normalised to it).
-- Set FX rates — manual or via an FX feed (cron).
+- Set FX rates - manual or via an FX feed (cron).
 - Disable a currency to stop new listings choosing it without affecting existing ones.
 
 ---
 
 ## Transactions
 
-`/admin/marketplace/transactions` — every transaction across the platform with filters by:
+`/admin/marketplace/transactions` - every transaction across the platform with filters by:
 
 - Status (`pending_payment` / `paid` / `disputed` / `refunded` / `cancelled`)
 - Seller / buyer / listing
@@ -85,7 +85,7 @@ Operator-managed lists at **`/admin/marketplace/categories`**:
 
 Click into any row for the full detail: payment trail, ITN log, escrow countdown, payout batch reference.
 
-For disputes, mark the transaction **disputed** with a reason — that pauses the escrow countdown and tags the seller's payout view. Resolve by either marking **paid** (no refund) or **refunded** (refund processed externally; balance does not move to the seller).
+For disputes, mark the transaction **disputed** with a reason - that pauses the escrow countdown and tags the seller's payout view. Resolve by either marking **paid** (no refund) or **refunded** (refund processed externally; balance does not move to the seller).
 
 ---
 
@@ -106,7 +106,7 @@ That action:
 3. Generates a CSV in your operator's bank's import format.
 4. Emails each seller their batch reference + transactions.
 
-Process the CSV through your bank facility, then mark the batch **completed** in Heratio when the bank confirms. (No automatic bank transfer — Heratio is the system of record, your bank is the system of money.)
+Process the CSV through your bank facility, then mark the batch **completed** in Heratio when the bank confirms. (No automatic bank transfer - Heratio is the system of record, your bank is the system of money.)
 
 ### Paid
 Historical batches with download-CSV per batch.
@@ -115,12 +115,12 @@ Historical batches with download-CSV per batch.
 
 ## Reviews
 
-`/admin/marketplace/reviews` — buyer reviews of sellers, with content-moderation tools:
+`/admin/marketplace/reviews` - buyer reviews of sellers, with content-moderation tools:
 
-- **Approve** — visible publicly (default for ★3+).
-- **Hide** — kept on record, not shown publicly.
-- **Delete** — for clearly abusive content (audited).
-- **Reply on behalf** — operator can post a public reply if the seller is non-responsive.
+- **Approve** - visible publicly (default for ★3+).
+- **Hide** - kept on record, not shown publicly.
+- **Delete** - for clearly abusive content (audited).
+- **Reply on behalf** - operator can post a public reply if the seller is non-responsive.
 
 ---
 
@@ -163,7 +163,7 @@ Changes take effect immediately. Audit log records every change with admin user.
 
 ---
 
-## Common tasks — cookbook
+## Common tasks - cookbook
 
 | Task | Steps |
 | --- | --- |
@@ -177,7 +177,7 @@ Changes take effect immediately. Audit log records every change with admin user.
 
 ## See also
 
-- *Marketplace — Payments & Payouts*
-- *Marketplace — Seller Quick Start*
-- *Marketplace — Buyer Quick Start*
+- *Marketplace - Payments & Payouts*
+- *Marketplace - Seller Quick Start*
+- *Marketplace - Buyer Quick Start*
 - *Marketplace - User Guide* (the full end-user reference)

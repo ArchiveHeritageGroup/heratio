@@ -1,6 +1,6 @@
 # Heratio Documentation
 
-Documentation for **Heratio** — a standalone Laravel 12 GLAM (Gallery, Library, Archive, Museum) platform.
+Documentation for **Heratio** - a standalone Laravel 12 GLAM (Gallery, Library, Archive, Museum) platform.
 
 ## Sections
 

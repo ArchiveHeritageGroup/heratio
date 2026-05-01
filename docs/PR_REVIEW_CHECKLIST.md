@@ -1,4 +1,4 @@
-# Heratio — PR Review Checklist
+# Heratio - PR Review Checklist
 
 **Version:** 1.0
 **Date:** 2026-02-28
@@ -24,7 +24,7 @@ Use this checklist when reviewing pull requests for `atom-framework` and `atom-a
 
 ---
 
-## 2. Security — Shell Execution
+## 2. Security - Shell Execution
 
 - [ ] All `exec()`, `shell_exec()`, `system()`, `passthru()` calls use `escapeshellarg()` on external input
 - [ ] No `addslashes()` used in shell contexts
@@ -37,7 +37,7 @@ Use this checklist when reviewing pull requests for `atom-framework` and `atom-a
 
 ---
 
-## 3. Security — Outbound HTTP
+## 3. Security - Outbound HTTP
 
 - [ ] All outbound HTTP uses `HttpClientService` (no direct `curl_init()`)
 - [ ] No `CURLOPT_SSL_VERIFYPEER => false` in production code
@@ -49,7 +49,7 @@ Use this checklist when reviewing pull requests for `atom-framework` and `atom-a
 
 ---
 
-## 4. Security — CSRF
+## 4. Security - CSRF
 
 - [ ] All POST/PUT/DELETE forms include `<?php echo csrf_field() ?>`
 - [ ] AJAX handlers either use `csrf.js` or manually send `X-CSRF-TOKEN` header
@@ -61,19 +61,19 @@ Use this checklist when reviewing pull requests for `atom-framework` and `atom-a
 
 ---
 
-## 5. Security — Content Security Policy
+## 5. Security - Content Security Policy
 
 - [ ] All `<script>` tags include the CSP nonce snippet
 - [ ] All `<style>` tags include the CSP nonce snippet
 - [ ] No `'unsafe-inline'` added to CSP directives
 - [ ] New external CDN domains added to `config/app.yml` allowlists (documented in PR)
-- [ ] Inline event handlers (`onclick`, `onload`, etc.) are avoided — use event listeners
+- [ ] Inline event handlers (`onclick`, `onload`, etc.) are avoided - use event listeners
 
 **Reference:** [SECURITY_MODEL.md](docs/technical/SECURITY_MODEL.md)
 
 ---
 
-## 6. Security — Input Validation
+## 6. Security - Input Validation
 
 - [ ] User input is validated before use (type, length, format)
 - [ ] SQL queries use Laravel Query Builder parameterized methods (no raw string concatenation)
@@ -83,7 +83,7 @@ Use this checklist when reviewing pull requests for `atom-framework` and `atom-a
 
 ---
 
-## 7. Security — Database
+## 7. Security - Database
 
 - [ ] No `INSERT`, `UPDATE`, `DELETE`, `ALTER`, `DROP` without documented justification
 - [ ] Plugin Manager code uses PDO/Propel (not Laravel Query Builder)

@@ -15,21 +15,21 @@ preservation metadata, and rights.
 
 ## 1. Goals
 
-1. Operators can capture into Heratio **without using the web UI** — the
+1. Operators can capture into Heratio **without using the web UI** - the
    scanner/camera application or a shared folder is enough.
 2. Scans land against the **correct parent** (repository / fonds / series
-   / file / item / exhibition / collection / accession — sector-dependent)
+   / file / item / exhibition / collection / accession - sector-dependent)
    with no manual re-filing afterwards.
 3. Metadata travels with the file (sidecar or API payload) and flows into
-   the **sector-appropriate tables** — archive, library, gallery, museum
-   — not just the archival core. DAM (rights, technical metadata,
+   the **sector-appropriate tables** - archive, library, gallery, museum
+   - not just the archival core. DAM (rights, technical metadata,
    preservation) is handled for every asset, cross-cutting all sectors.
 4. Descriptive-standard-neutral on ingress: accepts our canonical XML plus
    common standards (EAD, MARC21, MODS, LIDO, Spectrum, DwC, Dublin Core,
    IPTC/XMP) via shipped transforms.
-5. Pipeline is **idempotent and resumable** — re-dropping a file is safe,
+5. Pipeline is **idempotent and resumable** - re-dropping a file is safe,
    failures quarantine rather than crash, and retries are one click.
-6. Every stage emits the right **PREMIS event** + technical metadata —
+6. Every stage emits the right **PREMIS event** + technical metadata -
    preservation record is complete at ingest, not bolted on later.
 7. Jurisdiction-neutral. Nothing in this plan is SA-specific; compliance
    hooks (POPIA, GDPR, GRAP, NAGPRA, CARE, etc.) sit on top as pluggable
@@ -43,7 +43,7 @@ preservation metadata, and rights.
 | **B. Scanner-app → API** | VueScan/NAPS2/ScanDirect with output hooks, custom scripts | API key | Chosen in scanner app (dropdown) |
 | **C. Heratio Capture desktop helper** | Ad-hoc scanning at an archivist's desk | API key (bound to user) | Browse tree in helper UI, drag & drop |
 
-All three modes feed the **same processing engine** — which is the existing
+All three modes feed the **same processing engine** - which is the existing
 `ahg-ingest` package, not a parallel pipeline (§2a). Choice of mode is
 per-station; a site can run all three.
 
@@ -60,11 +60,11 @@ map → validate → preview → commit):
 | `ingest_session` (parent, repository, sector, standard, parent_placement) | Destination + archival-standard config |
 | Processing flags (virus/OCR/NER/summarize/spellcheck/translate/face-detect/format-id) | Per-folder or per-API-key processing defaults |
 | Derivative flags (thumbnail, reference, normalize_format) | Derivative generation |
-| SIP/AIP/DIP output flags | OAIS packaging — free for scanned material |
+| SIP/AIP/DIP output flags | OAIS packaging - free for scanned material |
 | `ingest_job` (progress, error_log, manifest) | Run-level tracking |
 | `ingest_file` (staged file metadata) | Per-file record |
 | `ingest_row` (per-item processing) | Per-item outcome |
-| `ingest_mapping` (column→field + transforms) | **Skipped** — sidecar XML is self-describing |
+| `ingest_mapping` (column→field + transforms) | **Skipped** - sidecar XML is self-describing |
 
 **Mapping from scanner concepts to existing ingest tables:**
 
@@ -77,9 +77,9 @@ map → validate → preview → commit):
 
 **Operator experience:**
 
-- `/admin/ingest/*` — the existing wizard, **unchanged**. Still the right tool
+- `/admin/ingest/*` - the existing wizard, **unchanged**. Still the right tool
   for CSV/bulk one-offs.
-- `/admin/scan/*` — new UI, but it's a **filtered view** over the same
+- `/admin/scan/*` - new UI, but it's a **filtered view** over the same
   `ingest_session` / `ingest_job` / `ingest_file` tables
   (`WHERE session_kind <> 'wizard'`). Same data, different lens.
 
@@ -114,7 +114,7 @@ Sector is determined in this order:
 2. `ingest_session.sector` (from folder config or API session)
 3. Fallback: `archive`
 
-**No sector default is "SA-specific"** — the product stays jurisdiction-
+**No sector default is "SA-specific"** - the product stays jurisdiction-
 neutral. Compliance layers (GRAP 103 valuation for SA, GDPR erasure for EU,
 POPIA for SA, NAGPRA for US, CARE principles for Indigenous collections) sit
 **on top of** the sector tables as pluggable hooks.
@@ -122,7 +122,7 @@ POPIA for SA, NAGPRA for US, CARE principles for Indigenous collections) sit
 ### 2b.2 Descriptive-standard selection
 
 `ingest_session.standard` (default `isadg`) selects which field set the
-sidecar parser expects and validates against. Supported values — each maps
+sidecar parser expects and validates against. Supported values - each maps
 to a schema / XSLT pair shipped with `ahg-ingest`:
 
 ```
@@ -134,7 +134,7 @@ dam:        iptc | xmp | premis | schema-org
 ```
 
 Standards are a **Dropdown Manager** group (`ingest_standard`), seeded with
-the full list above — no hardcoding. New markets add entries without code
+the full list above - no hardcoding. New markets add entries without code
 changes.
 
 ### 2b.3 Rights and licensing (DAM cross-cutting)
@@ -165,7 +165,7 @@ genres, materials, techniques, taxonomy) are resolved against the
 | Vocabulary | Used by | Sidecar hint |
 |---|---|---|
 | AAT (Getty) | Archive, Gallery, Museum | `<subject vocab="aat" uri="...">Photographs</subject>` |
-| ULAN (Getty) | Archive, Gallery, Museum | Creators — `<creator vocab="ulan" uri="...">` |
+| ULAN (Getty) | Archive, Gallery, Museum | Creators - `<creator vocab="ulan" uri="...">` |
 | TGN (Getty) | All | Places |
 | LCSH | Library | Subjects |
 | LCNAF | Library | Names |
@@ -178,14 +178,14 @@ Resolution order for each value: exact URI match → label match in matching
 taxonomy → create-if-missing (only when session permits). Unresolvable
 values go to `ingest_row.error_message` and the file waits in review.
 
-## 3. Mode A — Drop folder
+## 3. Mode A - Drop folder
 
 ### 3.1 Folder layout
 
 Configured per watched folder (multiple can exist). Two layout styles are
 supported; operators pick one per folder:
 
-**Style 1 — Path-as-destination** (simplest, no sidecar needed)
+**Style 1 - Path-as-destination** (simplest, no sidecar needed)
 
 ```
 /mnt/nas/heratio/scan_inbox/<folder_code>/<parent_slug>/<identifier>/page_001.tiff
@@ -196,7 +196,7 @@ supported; operators pick one per folder:
 The directory `<identifier>` becomes the new IO identifier; parent is resolved
 from `<parent_slug>`. If `meta.xml` is present it overrides path-derived values.
 
-**Style 2 — Flat with sidecar** (for heterogeneous scans in one folder)
+**Style 2 - Flat with sidecar** (for heterogeneous scans in one folder)
 
 ```
 /mnt/nas/heratio/scan_inbox/<folder_code>/ARC-2026-0001.tiff
@@ -209,7 +209,7 @@ sorted) as one IO with an ordered sequence of digital objects.
 
 ### 3.2 Sidecar XML contract
 
-Heratio-owned schema — one envelope, per-sector profile inside. Every field
+Heratio-owned schema - one envelope, per-sector profile inside. Every field
 is optional except the sector/identity minimum the parser needs to resolve
 a destination.
 
@@ -270,7 +270,7 @@ a destination.
 </heratioScan>
 ```
 
-#### 3.2.2 `<archiveProfile>` — ISAD(G) / RAD / DACS / RiC
+#### 3.2.2 `<archiveProfile>` - ISAD(G) / RAD / DACS / RiC
 
 ```xml
 <archiveProfile>
@@ -295,7 +295,7 @@ a destination.
 </archiveProfile>
 ```
 
-#### 3.2.3 `<libraryProfile>` — MARC21 / MODS / RDA
+#### 3.2.3 `<libraryProfile>` - MARC21 / MODS / RDA
 
 ```xml
 <libraryProfile>
@@ -311,7 +311,7 @@ a destination.
   <seriesNumber>42</seriesNumber>
   <language>eng</language>
   <subjects>
-    <subject vocab="lcsh">African literature—20th century.</subject>
+    <subject vocab="lcsh">African literature-20th century.</subject>
   </subjects>
   <creators>
     <creator vocab="lcnaf" role="author">Smith, Johan, 1880-1954</creator>
@@ -322,7 +322,7 @@ a destination.
 </libraryProfile>
 ```
 
-#### 3.2.4 `<galleryProfile>` — CDWA / VRA Core / LIDO
+#### 3.2.4 `<galleryProfile>` - CDWA / VRA Core / LIDO
 
 ```xml
 <galleryProfile>
@@ -362,7 +362,7 @@ a destination.
 </galleryProfile>
 ```
 
-#### 3.2.5 `<museumProfile>` — Spectrum 5.1 / LIDO / Darwin Core
+#### 3.2.5 `<museumProfile>` - Spectrum 5.1 / LIDO / Darwin Core
 
 ```xml
 <museumProfile>
@@ -444,7 +444,7 @@ number) unless `<merge>replace</merge>` is set.
   fallback every 30 s on non-Linux hosts
 - On event → insert an `ingest_file` row against the folder's long-lived
   `ingest_session` (status = `pending`) → let the queue worker process (§5).
-  **Do not process inline in the watcher** — a slow OCR pass would back up
+  **Do not process inline in the watcher** - a slow OCR pass would back up
   new detections.
 - Lock file `<stem>.lock` while scanning is still writing (detect via
   "unchanged size for N seconds" heuristic, configurable)
@@ -457,7 +457,7 @@ Per folder config:
 - `move_on_failure` → `/mnt/nas/heratio/scan_inbox/.quarantine/<reason>/`
 - `delete_on_success` (not default; safer to archive and let a monthly job prune)
 
-## 4. Mode B — Scanner app direct to API
+## 4. Mode B - Scanner app direct to API
 
 Expose a small REST surface under `/api/v2/scan/*` (fits the existing
 `ahg-api` package). The scanner app (or a PowerShell/bash wrapper) hits these.
@@ -505,68 +505,68 @@ deriving → ocr → indexing → packaging → done
                                                                 ↘ failed
 ```
 
-State machine, not a script — each stage checkpoints on `ingest_file.stage`
+State machine, not a script - each stage checkpoints on `ingest_file.stage`
 so a crashed worker resumes from the last good state. Every stage that
 produces an observable outcome also emits an `oais_premis_event` row, so
 the preservation record is complete without extra work.
 
 ### 5.1 Stages
 
-1. **Virus scan** — `preservation_virus_scan` (existing table), ClamAV by
+1. **Virus scan** - `preservation_virus_scan` (existing table), ClamAV by
    default. Failure → quarantine, `ingest_file.status = failed:virus`.
    Emits `virusCheck` PREMIS event.
-2. **Format identification** — DROID / PRONOM against
+2. **Format identification** - DROID / PRONOM against
    `oais_pronom_format` + `preservation_format`. Records PUID, mime type,
    format-version on `preservation_identification`. Flags obsolete formats
    (`preservation_format_obsolescence`) for later migration planning
    (`preservation_migration_plan_object`). Emits `format identification`
    PREMIS event.
-3. **Fixity** — SHA-256 + optionally MD5/SHA-512 for legacy consumers.
+3. **Fixity** - SHA-256 + optionally MD5/SHA-512 for legacy consumers.
    Stores on `preservation_checksum` and `digital_object.checksum`. Emits
    `messageDigestCalculation` PREMIS event.
-4. **Extract embedded metadata** — IPTC/EXIF/XMP/XMP-RDF via ExifTool;
+4. **Extract embedded metadata** - IPTC/EXIF/XMP/XMP-RDF via ExifTool;
    technical metadata (MIX for images, textMD for text) via JHOVE when
    available. Stores on `media_metadata` + `dam_iptc_metadata` +
    `digital_object_metadata`. Merges with sidecar `<damAugmentation>`
    (sidecar wins on conflict).
-5. **Resolve or create IO** — match by `(parent_id, identifier)` first;
+5. **Resolve or create IO** - match by `(parent_id, identifier)` first;
    fallback to slug. Create if absent. Uses the same
    `InformationObjectService` the ingest wizard uses. Resolves
    controlled-vocabulary values (§2b.4).
-6. **Sector routing** — based on effective sector (§2b.1), write to
+6. **Sector routing** - based on effective sector (§2b.1), write to
    `library_item` / `gallery_artwork` / `museum_object` / `museum_metadata`
    using the matching sidecar profile. If the museum session has Spectrum
    enabled, also create `spectrum_object_entry` + `spectrum_acquisition`
    rows and move the object into the configured Spectrum workflow state
    (`spectrum_workflow_state`).
-7. **Create `digital_object`** — move staged file to canonical location
+7. **Create `digital_object`** - move staged file to canonical location
    (`{uploads_path}/r/<repo>/<hash>/<filename>`), link `dam_asset` row,
    write `digital_object.path`. Emits `replication` PREMIS event if a
    replication target is configured (`preservation_replication_target`).
-8. **Derivatives** — reference JPG (web), thumbnail, IIIF-ready
+8. **Derivatives** - reference JPG (web), thumbnail, IIIF-ready
    pyramid/JP2 (when source is TIFF; Cantaloupe picks them up via
    `delegates.rb`). For audio: waveform PNG + MP3 preview. For moving
    image: poster frame + MP4/480p preview. Honours
    `ingest_session.derivative_*` flags. Emits `creation (derivation)`
    PREMIS event per derivative.
-9. **OCR / HTR** — hand off to `ahg-ai-services` if source is text-bearing
+9. **OCR / HTR** - hand off to `ahg-ai-services` if source is text-bearing
    and `ingest_session.process_ocr = 1` (or sidecar `<ocr>force</ocr>`).
    HTR only on explicit opt-in (more expensive, routes to 192.168.0.78
    Ollama per server config). NER (`ingest_session.process_ner`) runs
    on OCR output and links recognised entities into `relation`.
-10. **Rights enforcement** — if sidecar sets embargo/ODRL/CC licence,
+10. **Rights enforcement** - if sidecar sets embargo/ODRL/CC licence,
     create/link rows (§2b.3). If `security_classification_id` is set and
-    no rights were supplied, halt here — file waits in review.
-11. **Index** — ES upsert into `heratio_qubitinformationobject` (and
+    no rights were supplied, halt here - file waits in review.
+11. **Index** - ES upsert into `heratio_qubitinformationobject` (and
     `heratio_qubitactor` for any newly-created creator/rights-holder
     records).
-12. **Packaging** — if the session has
+12. **Packaging** - if the session has
     `output_generate_sip/aip/dip = 1`, emit the package(s) via
     `preservation_package` + `preservation_package_object` to the
     configured output paths. DIP includes only access derivatives; AIP
     includes the master + PREMIS metadata + fixity manifest. Free benefit
     of reusing ingest.
-13. **Notify** — emit event for the scan dashboard; optionally email on
+13. **Notify** - emit event for the scan dashboard; optionally email on
     failure (per-folder or per-API-key setting).
 
 ### 5.2 Idempotency
@@ -576,14 +576,14 @@ the preservation record is complete without extra work.
   ingested as IO #nnn".
 - Stage transitions use `UPDATE ... WHERE status = <prev>` so two workers
   can't double-advance the same row.
-- Folder sessions never "close" — `ingest_session.status` stays `open` for
+- Folder sessions never "close" - `ingest_session.status` stays `open` for
   watched folders; each processed file creates/updates an `ingest_job` row
   for that batch, so dashboards still show meaningful progress per arrival
   batch.
 
 ### 5.3 Accepted file formats
 
-The scanner is format-agnostic — anything ExifTool + JHOVE can identify is
+The scanner is format-agnostic - anything ExifTool + JHOVE can identify is
 ingestable. Derivatives and preview generation vary by class.
 
 | Class | Examples | Derivatives | Notes |
@@ -596,13 +596,13 @@ ingestable. Derivatives and preview generation vary by class.
 | Audio | WAV, BWF, FLAC, MP3, AAC | MP3 128 kbps preview, waveform PNG | BWF carries broadcast metadata → `media_metadata` |
 | Moving image | MOV, MP4, MKV, MXF, DCP | MP4 480p preview, poster frame, HLS (optional) | Large; ingest async by default |
 | 3D / photogrammetry | GLB, OBJ, PLY, STL, USDZ, FBX | thumbnail (rendered preview) | Gallery / museum 3D capture; 3D viewer already in Heratio |
-| Structured data | MARC21 (.mrc), MODS-XML, EAD-XML, LIDO-XML, Darwin Core Archive (.zip) | — | Treated as descriptive-only records; create IO without digital object, or attach as auxiliary DO |
+| Structured data | MARC21 (.mrc), MODS-XML, EAD-XML, LIDO-XML, Darwin Core Archive (.zip) | - | Treated as descriptive-only records; create IO without digital object, or attach as auxiliary DO |
 | Email / MBOX | .eml, .mbox, .pst | text extract, attachment extraction | Born-digital archives |
-| Web archive | WARC, WACZ | replay pointer | Future — out of scope for v1 |
-| BagIt container | `.zip` / directory with `bag-info.txt` + `manifest-*.txt` | — | Ingest as a bundle: manifest rows become sibling IOs; bag-info maps to session metadata |
+| Web archive | WARC, WACZ | replay pointer | Future - out of scope for v1 |
+| BagIt container | `.zip` / directory with `bag-info.txt` + `manifest-*.txt` | - | Ingest as a bundle: manifest rows become sibling IOs; bag-info maps to session metadata |
 
 Format decisions flow from `preservation_format` and
-`preservation_migration_pathway` — obsolete formats (e.g. legacy PICT, WMF)
+`preservation_migration_pathway` - obsolete formats (e.g. legacy PICT, WMF)
 auto-flag for migration planning instead of being rejected.
 
 ## 6. Database additions
@@ -639,7 +639,7 @@ ALTER TABLE ingest_file
   ADD KEY ix_ingest_file_io (resolved_io_id);
 ```
 
-The `ingest_file` additions are harmless for the existing wizard flow — it
+The `ingest_file` additions are harmless for the existing wizard flow - it
 just leaves them at their defaults.
 
 ### 6.2 New tables
@@ -675,10 +675,10 @@ CREATE TABLE scan_session_token (
 `scan_folder` holds only what's specific to a watched-folder entry point
 (filesystem path, layout, disposition). **Processing config** (OCR, virus
 scan, SIP, derivatives, parent, sector, standard) lives on the associated
-`ingest_session` — operators configure it with the existing ingest config
+`ingest_session` - operators configure it with the existing ingest config
 screen, which means zero duplicated config UI.
 
-No ENUMs — `session_kind`, `status`, `stage`, `layout`, `disposition_*`
+No ENUMs - `session_kind`, `status`, `stage`, `layout`, `disposition_*`
 are VARCHARs with Dropdown Manager groups (`ingest_session_kind`,
 `ingest_file_status`, `ingest_file_stage`, `scan_folder_layout`,
 `scan_disposition`).
@@ -687,17 +687,17 @@ are VARCHARs with Dropdown Manager groups (`ingest_session_kind`,
 
 Split across two packages to keep responsibilities clean:
 
-**`ahg-ingest` (existing) — additions only:**
+**`ahg-ingest` (existing) - additions only:**
 
 - New columns on `ingest_session` / `ingest_file` (§6.1)
 - `IngestService` gains an `ingestFile(Session $s, $stagedPath, array $meta)`
-  method that the scanner callers use — same code path that the wizard's
+  method that the scanner callers use - same code path that the wizard's
   `commit` step uses, just invoked per file instead of per batch
 - `IngestJob` runner learns to run in "streaming" mode for sessions with
   `session_kind != 'wizard'` (no "complete when all files done" assumption)
-- No new UI — wizard is unchanged
+- No new UI - wizard is unchanged
 
-**`ahg-scan` (new) — entry points + UI for the continuous stream:**
+**`ahg-scan` (new) - entry points + UI for the continuous stream:**
 
 ```
 packages/ahg-scan/
@@ -732,7 +732,7 @@ packages/ahg-scan/
 ```
 
 Note: all processing services (derivatives, virus, OCR dispatch, IO/DO
-creation) stay in `ahg-ingest` — `ahg-scan` never re-implements them. If
+creation) stay in `ahg-ingest` - `ahg-scan` never re-implements them. If
 it's tempting to add one to `ahg-scan`, that's a signal it belongs in
 `ahg-ingest` instead.
 
@@ -758,7 +758,7 @@ know how to configure a watched folder's processing.
 
 Mode C helper app is a separate deliverable (§9), not a Heratio page.
 
-## 9. Mode C — Desktop Capture helper (phase 3)
+## 9. Mode C - Desktop Capture helper (phase 3)
 
 Small cross-platform app (Tauri preferred; Electron acceptable) that:
 
@@ -771,7 +771,7 @@ Small cross-platform app (Tauri preferred; Electron acceptable) that:
    upload/commit status.
 5. Big green **Commit to Heratio** button.
 
-Keeps Heratio clean — all scanner-app integration work lives in the helper,
+Keeps Heratio clean - all scanner-app integration work lives in the helper,
 and the helper talks only to the documented API (so third parties can build
 their own, e.g. a museum that wants a mobile capture app).
 
@@ -793,45 +793,45 @@ No hardcoded paths; all derived from `heratio.storage_path` per CLAUDE.md.
 ## 11. Phased delivery
 
 Scope is noticeably smaller than the original plan because the ingest engine
-exists — no new job runner, no new derivative service, no new IO/DO creation
+exists - no new job runner, no new derivative service, no new IO/DO creation
 path.
 
 | Phase | Scope | Duration (est.) | Exit criteria |
 |---|---|---|---|
-| **P1 — Ingest streaming mode** | `ingest_session.session_kind/auto_commit/source_ref` + `ingest_file` per-file state columns (§6.1). Teach `IngestService`/`IngestJob` to run in streaming mode. Add `ingestFile()` entry point that reuses the wizard's commit logic per file. | 1.5 weeks | Existing wizard unchanged; manually-inserted `ingest_file` rows on a `session_kind=watched_folder` session get processed end-to-end into IO + DO |
-| **P2 — Mode A watcher + dashboard + archive profile** | `scan_folder` table, `ScanWatchCommand`, admin dashboard (read-only filtered view of ingest), folder CRUD reusing `/ingest/configure`, Mode A path-layout, archive-sector sidecar profile | 2 weeks | Drop TIFF into folder with ISAD(G) sidecar → IO + DO + controlled-vocab resolution → dashboard shows throughput |
-| **P3 — Sector profiles (library / gallery / museum) + DAM augmentation** ✅ **DELIVERED 2026-04-24** | Library/gallery/museum sidecar parsers + sector-routing stage writing `library_item` / `gallery_artwork` / `museum_object` / `museum_metadata`, Spectrum workflow hook (opt-in per session), `damAugmentation` merge into `dam_iptc_metadata`, authority auto-creation for creators/artists (opt-out per session), controlled-vocab lookup (creation deferred to P7) | 3 weeks | ✅ End-to-end verified: library sidecar → `library_item` + creators + subjects + holdings; gallery sidecar → `gallery_artwork` + auto-created actor + `gallery_artist` + creation event + `gallery_valuation` + `museum_metadata`; museum sidecar → `museum_object` + `museum_metadata` + (when opted-in) `spectrum_object_entry` + `spectrum_acquisition` |
-| **P4 — PREMIS + format ID + rights enforcement** ✅ **DELIVERED 2026-04-24** | Siegfried-based PRONOM format-ID stage (+ `preservation_format_obsolescence` for at-risk formats), PREMIS event emission via `preservation_event` at every stage (virusCheck / formatIdentification / messageDigestCalculation / ingestion / creation(derivation)), rights-enforcement stage (`rights_statement` + `rights_cc_license` + `rights_embargo` + `rights_tk_label` + `object_rights_holder` + `research_rights_policy` binding), `awaiting_rights` hold state + admin "Release rights" resume action | 2 weeks | ✅ End-to-end: every ingested file has PREMIS event chain + PUID + checksum + fixity record; classified session with no sidecar rights → held for review; admin release resumes deriving + indexing. |
-| **P5 — Sidecar + Mode B API** ✅ **DELIVERED 2026-04-24** | Sidecar XML parser (envelope + archive profile, sector profiles preserved for P3), Mode A flat-sidecar layout, `scan_session_token` table, `/api/v2/scan/*` endpoints, wrapper scripts (ps1/sh/py) | 2.5 weeks | ✅ VueScan/NAPS2 post-scan hook creates fully-described IO via wrapper; archive sector fully round-trips. Library/gallery/museum profile *routing* (writing to sector tables) deferred to P3 as originally planned. |
-| **P6 — Reliability + Capture helper** ✅ **DELIVERED 2026-04-24** | Exponential retry/backoff ladder via `ahg:scan-retry-failed` (cron every 5 min; 15/60/240/1440/4320 minute defaults), bulk retry+discard on Inbox list, "Restore from quarantine" on detail view, per-folder email notifications on final failure, BagIt container ingest (zip+dir) with manifest-sha256/512 verification, Capture TUI helper (`heratio-capture.py`) as an interactive alternative to a full Tauri app | 4 weeks | ✅ End-to-end: BagIt zip with `External-Identifier` + `data/*` → one IO with multiple DOs; retry scheduler re-dispatches failed files after backoff windows; capture TUI browses destinations and uploads via the Scan API. Full Tauri/Electron desktop app remains on backlog (TUI covers the workflow). |
-| **P7 — Hardening** ✅ **DELIVERED 2026-04-24** | IIIF pyramid pre-generation (ImageMagick ptif), HTR integration via `AhgAiServices\HtrService` (gated by session `process_ocr`), `MediaDerivativeService` for audio (MP3 + waveform PNG via ffmpeg) / video (MP4 480p + poster) / 3D (delegates to existing `ThreeDThumbnailService`), audit_log rows on every scanner-created IO+DO, `AlternateFormatTransformer` framework with EAD-to-heratioScan XSLT shipped (MARC21/MODS/LIDO detected as pending). Bulk-ops delivered earlier in P6. | 3 weeks | ✅ End-to-end verified: EAD file → XSLT transform → full heratioScan with identifier / title / scope / dates / creators → IO created. WAV master → waveform thumbnail + MP3 reference DOs. TIFF master → pyramid TIFF derivative. Every scanner-created IO/DO has audit_log entry. |
+| **P1 - Ingest streaming mode** | `ingest_session.session_kind/auto_commit/source_ref` + `ingest_file` per-file state columns (§6.1). Teach `IngestService`/`IngestJob` to run in streaming mode. Add `ingestFile()` entry point that reuses the wizard's commit logic per file. | 1.5 weeks | Existing wizard unchanged; manually-inserted `ingest_file` rows on a `session_kind=watched_folder` session get processed end-to-end into IO + DO |
+| **P2 - Mode A watcher + dashboard + archive profile** | `scan_folder` table, `ScanWatchCommand`, admin dashboard (read-only filtered view of ingest), folder CRUD reusing `/ingest/configure`, Mode A path-layout, archive-sector sidecar profile | 2 weeks | Drop TIFF into folder with ISAD(G) sidecar → IO + DO + controlled-vocab resolution → dashboard shows throughput |
+| **P3 - Sector profiles (library / gallery / museum) + DAM augmentation** ✅ **DELIVERED 2026-04-24** | Library/gallery/museum sidecar parsers + sector-routing stage writing `library_item` / `gallery_artwork` / `museum_object` / `museum_metadata`, Spectrum workflow hook (opt-in per session), `damAugmentation` merge into `dam_iptc_metadata`, authority auto-creation for creators/artists (opt-out per session), controlled-vocab lookup (creation deferred to P7) | 3 weeks | ✅ End-to-end verified: library sidecar → `library_item` + creators + subjects + holdings; gallery sidecar → `gallery_artwork` + auto-created actor + `gallery_artist` + creation event + `gallery_valuation` + `museum_metadata`; museum sidecar → `museum_object` + `museum_metadata` + (when opted-in) `spectrum_object_entry` + `spectrum_acquisition` |
+| **P4 - PREMIS + format ID + rights enforcement** ✅ **DELIVERED 2026-04-24** | Siegfried-based PRONOM format-ID stage (+ `preservation_format_obsolescence` for at-risk formats), PREMIS event emission via `preservation_event` at every stage (virusCheck / formatIdentification / messageDigestCalculation / ingestion / creation(derivation)), rights-enforcement stage (`rights_statement` + `rights_cc_license` + `rights_embargo` + `rights_tk_label` + `object_rights_holder` + `research_rights_policy` binding), `awaiting_rights` hold state + admin "Release rights" resume action | 2 weeks | ✅ End-to-end: every ingested file has PREMIS event chain + PUID + checksum + fixity record; classified session with no sidecar rights → held for review; admin release resumes deriving + indexing. |
+| **P5 - Sidecar + Mode B API** ✅ **DELIVERED 2026-04-24** | Sidecar XML parser (envelope + archive profile, sector profiles preserved for P3), Mode A flat-sidecar layout, `scan_session_token` table, `/api/v2/scan/*` endpoints, wrapper scripts (ps1/sh/py) | 2.5 weeks | ✅ VueScan/NAPS2 post-scan hook creates fully-described IO via wrapper; archive sector fully round-trips. Library/gallery/museum profile *routing* (writing to sector tables) deferred to P3 as originally planned. |
+| **P6 - Reliability + Capture helper** ✅ **DELIVERED 2026-04-24** | Exponential retry/backoff ladder via `ahg:scan-retry-failed` (cron every 5 min; 15/60/240/1440/4320 minute defaults), bulk retry+discard on Inbox list, "Restore from quarantine" on detail view, per-folder email notifications on final failure, BagIt container ingest (zip+dir) with manifest-sha256/512 verification, Capture TUI helper (`heratio-capture.py`) as an interactive alternative to a full Tauri app | 4 weeks | ✅ End-to-end: BagIt zip with `External-Identifier` + `data/*` → one IO with multiple DOs; retry scheduler re-dispatches failed files after backoff windows; capture TUI browses destinations and uploads via the Scan API. Full Tauri/Electron desktop app remains on backlog (TUI covers the workflow). |
+| **P7 - Hardening** ✅ **DELIVERED 2026-04-24** | IIIF pyramid pre-generation (ImageMagick ptif), HTR integration via `AhgAiServices\HtrService` (gated by session `process_ocr`), `MediaDerivativeService` for audio (MP3 + waveform PNG via ffmpeg) / video (MP4 480p + poster) / 3D (delegates to existing `ThreeDThumbnailService`), audit_log rows on every scanner-created IO+DO, `AlternateFormatTransformer` framework with EAD-to-heratioScan XSLT shipped (MARC21/MODS/LIDO detected as pending). Bulk-ops delivered earlier in P6. | 3 weeks | ✅ End-to-end verified: EAD file → XSLT transform → full heratioScan with identifier / title / scope / dates / creators → IO created. WAV master → waveform thumbnail + MP3 reference DOs. TIFF master → pyramid TIFF derivative. Every scanner-created IO/DO has audit_log entry. |
 
 Total: ~18 weeks serial. P1 gates everything. P2 + P4 can overlap; P3 + P5
 can overlap with two developers. Sector coverage is the big expansion
-versus the earlier archive-only plan — it's where most of the sector value
+versus the earlier archive-only plan - it's where most of the sector value
 is delivered. SIP/AIP/DIP packaging still needs no new work.
 
 ## 12. Open questions
 
-1. **Sidecar format** — ~~stick with our own `heratioScan` XML, or also accept
+1. **Sidecar format** - ~~stick with our own `heratioScan` XML, or also accept
    METS?~~ **Resolved (2026-04-24)**: both. `heratioScan` is the canonical
    envelope; `mets-to-heratio.xsl` ships in the same transforms directory
    as EAD / MARC21 / MODS / LIDO and handles the common Archivematica-AIP
    and DSpace-AIP profiles (dmdSec with DC or MODS inside). Full METS
    flexibility (MARC-in-METS, PREMIS-in-METS, nested structMap) is out of
-   scope — operators with those should unwrap the dmdSec first.
-2. **Identifier collisions** — if two scans drop the same `identifier` under
+   scope - operators with those should unwrap the dmdSec first.
+2. **Identifier collisions** - if two scans drop the same `identifier` under
    the same parent, is that a duplicate page (add sequence) or a conflict
    (quarantine)? **Proposed**: default to "add sequence"; flag with
    `<merge>error</merge>` in sidecar to opt into strict.
-3. **Multi-file items** — is the unit of work a single TIFF/PDF, or a
+3. **Multi-file items** - is the unit of work a single TIFF/PDF, or a
    multi-file "bag" (many TIFFs = one item)? Plan above supports both via
    Style 1 directory-per-IO and Style 2 shared-stem.
-4. **Storage location for masters** — ~~one hash-bucketed pool
+4. **Storage location for masters** - ~~one hash-bucketed pool
    (`{uploads_path}/r/<repo>/<hash>/`) or separate `masters/` vs
    `derivatives/` roots?~~ **Resolved (2026-04-24)**: per-IO directory
    `{heratio.uploads_path}/<io_id>/` with `master_*`, `reference_*`,
-   `thumbnail_*` filename prefixes — matches the existing
+   `thumbnail_*` filename prefixes - matches the existing
    `DigitalObjectService::upload()` convention used by wizard uploads and
    by every legacy AtoM-derived ingest path. Keeps all derivatives next
    to their master on disk, which IIIF (Cantaloupe) and the DAM viewers
@@ -839,18 +839,18 @@ is delivered. SIP/AIP/DIP packaging still needs no new work.
    `IngestService::createDigitalObjectFromPath()`. The hash-bucketed
    pool was rejected because it would fork the filesystem convention
    for one entry point only.
-5. **TWAIN / WIA integration** — do we want the Mode C helper to drive the
+5. **TWAIN / WIA integration** - do we want the Mode C helper to drive the
    scanner directly (bypassing a third-party app), or always sit behind
-   VueScan/NAPS2? **Proposed**: never drive hardware directly in v1 — let
+   VueScan/NAPS2? **Proposed**: never drive hardware directly in v1 - let
    the scanner app do what it's good at.
-6. **Wizard "commit" semantics in streaming mode** — when
+6. **Wizard "commit" semantics in streaming mode** - when
    `session_kind=watched_folder` and `auto_commit=1`, a session never really
    "finishes". Dashboards need a meaningful grouping unit (day? arrival
    batch? manual "close batch" button?). **Proposed**: implicit batches
-   keyed on quiet-period — each run of the job runner for a session emits a
+   keyed on quiet-period - each run of the job runner for a session emits a
    new `ingest_job` row, closed when the file queue drains. Revisit after
    P2 dogfooding.
-7. **Spectrum workflow auto-activation** — ~~should a museum-sector scan
+7. **Spectrum workflow auto-activation** - ~~should a museum-sector scan
    automatically create `spectrum_object_entry` + `spectrum_acquisition`
    rows and enter the institution's configured Spectrum workflow?~~
    **Resolved (2026-04-24)**: opt-in per `scan_folder` / API session via
@@ -858,7 +858,7 @@ is delivered. SIP/AIP/DIP packaging still needs no new work.
    sidecar includes a `<spectrum>` block, the museum routing path creates
    both rows with `workflow_state='received'`. Exposed as a toggle in the
    folder edit form.
-8. **Authority-record creation** — ~~when a sidecar names a new creator
+8. **Authority-record creation** - ~~when a sidecar names a new creator
    (`<creator>` with no matching ULAN URI), do we auto-create an actor
    record, or hold the file?~~ **Resolved (2026-04-24)**: auto-create at
    `description_status_id=232` (Draft) by default via
@@ -867,32 +867,32 @@ is delivered. SIP/AIP/DIP packaging still needs no new work.
    later reconciliation with ULAN / LCNAF / ORCID. Operators can disable
    auto-creation per folder; missing creators then surface as soft
    warnings in the Inbox detail view rather than failing the ingest.
-9. **RAW format handling** — proprietary camera RAW (CR2/NEF/ARW etc.) is
+9. **RAW format handling** - proprietary camera RAW (CR2/NEF/ARW etc.) is
    opaque to most tools. Do we keep RAW as preservation master only and
    derive from an embedded JPEG, or require DNG conversion at ingest?
    **Proposed**: keep RAW + auto-convert to DNG as a preservation
    derivative (open, ISO-standard); deliver DNG to Cantaloupe. Flag as
    an open `preservation_migration_pathway` in case archival strategy
    changes.
-10. **BagIt semantics** — a `bag-info.txt` has several conventional fields
+10. **BagIt semantics** - a `bag-info.txt` has several conventional fields
     (`Source-Organization`, `Contact-Email`, `External-Identifier`). Do we
     map these to core IO fields or keep them as provenance metadata only?
     **Proposed**: treat `External-Identifier` as IO identifier; everything
     else goes into `media_metadata` as provenance. Map table shipped with
     the BagIt ingester.
-11. **Alternate descriptive-standard ingress** — ~~ship XSLTs for the
+11. **Alternate descriptive-standard ingress** - ~~ship XSLTs for the
     common four (EAD, MARC21-XML, MODS, LIDO)?~~ **Resolved (2026-04-24)**:
     all four shipped in `packages/ahg-scan/resources/transforms/`.
     `AlternateFormatTransformer` detects by root + namespace and applies
     the matching stylesheet. End-to-end verified with samples from each
     format producing populated IO + sector-specific rows
     (`library_item` / `gallery_artwork` / `museum_metadata`). METS is
-    the next candidate — same framework, drop in `mets-to-heratio.xsl`.
+    the next candidate - same framework, drop in `mets-to-heratio.xsl`.
 
 ## 12a. OAIS packaging (delivered between P6 and P7)
 
 The plan called packaging "a free benefit of reusing ingest." That was
-aspirational — there was no actual packager anywhere in Heratio when
+aspirational - there was no actual packager anywhere in Heratio when
 scanning work began. **Delivered 2026-04-24** as a standalone service
 `AhgIngest\Services\OaisPackagerService` usable from any context:
 
@@ -909,7 +909,7 @@ scanning work began. **Delivered 2026-04-24** as a standalone service
 Scanner pipeline wires packaging into `stagePackaging()` after
 indexing; honours session-level flags.
 
-**Wizard commit runner** — also delivered 2026-04-24 as
+**Wizard commit runner** - also delivered 2026-04-24 as
 `AhgIngest\Services\IngestCommitRunner` + `ahg:ingest-commit` artisan
 command + POST action on the commit page. Walks `ingest_row` rows,
 creates IOs via `InformationObjectService::create()`, attaches
@@ -921,7 +921,7 @@ its name says.
 ## 13. Out of scope
 
 - Driving scanner hardware directly from Heratio (no TWAIN/WIA/SANE)
-- Auto-cropping, deskewing, colour correction — belongs in the scanner app
-- Form-recognition / structured data extraction — separate AI pipeline
-- Importing from existing DAM systems — covered by the existing `ahg-ingest`
+- Auto-cropping, deskewing, colour correction - belongs in the scanner app
+- Form-recognition / structured data extraction - separate AI pipeline
+- Importing from existing DAM systems - covered by the existing `ahg-ingest`
   wizard (same engine the scanner uses, different entry point)

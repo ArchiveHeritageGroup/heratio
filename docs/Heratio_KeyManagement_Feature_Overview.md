@@ -1,4 +1,4 @@
-# Heratio — Key Management
+# Heratio - Key Management
 
 ## Feature Overview
 
@@ -16,37 +16,37 @@ Heratio Key Management is a standalone application for managing client API keys 
 ## Key Features
 
 ### Client Management
-- **Client Registry** — Register and manage client organizations using Heratio
-- **Contact Information** — Store client name, email, and organization details
-- **Status Control** — Activate or deactivate clients; deactivation automatically revokes all associated keys and tokens
+- **Client Registry** - Register and manage client organizations using Heratio
+- **Contact Information** - Store client name, email, and organization details
+- **Status Control** - Activate or deactivate clients; deactivation automatically revokes all associated keys and tokens
 
 ### API Key Management
-- **Secure Generation** — Cryptographically random API keys with `hk_api_` prefix for easy identification
-- **SHA-256 Hashed Storage** — Keys are hashed before storage; plaintext shown only once at generation
-- **Revocation** — Individual key revocation with timestamp tracking
-- **Scoping** — Keys scoped by name/purpose (e.g., "production", "staging", "development")
+- **Secure Generation** - Cryptographically random API keys with `hk_api_` prefix for easy identification
+- **SHA-256 Hashed Storage** - Keys are hashed before storage; plaintext shown only once at generation
+- **Revocation** - Individual key revocation with timestamp tracking
+- **Scoping** - Keys scoped by name/purpose (e.g., "production", "staging", "development")
 
 ### AI Server Token Management
-- **Dedicated AI Tokens** — Separate token type (`hk_ai_` prefix) for AI server authentication
-- **Independent Lifecycle** — AI tokens managed separately from API keys
-- **Service Isolation** — AI server access controlled independently from REST API access
+- **Dedicated AI Tokens** - Separate token type (`hk_ai_` prefix) for AI server authentication
+- **Independent Lifecycle** - AI tokens managed separately from API keys
+- **Service Isolation** - AI server access controlled independently from REST API access
 
 ### Web Interface
-- **Dashboard** — Overview cards showing total clients, active API keys, active AI tokens, and 30-day usage
-- **Client Management** — Create, view, and deactivate clients through the browser
-- **Key/Token Operations** — Generate, list, and revoke keys and tokens per client
-- **Responsive Design** — Bootstrap 5 interface, mobile-friendly
-- **Secure Access** — Password-protected admin login
+- **Dashboard** - Overview cards showing total clients, active API keys, active AI tokens, and 30-day usage
+- **Client Management** - Create, view, and deactivate clients through the browser
+- **Key/Token Operations** - Generate, list, and revoke keys and tokens per client
+- **Responsive Design** - Bootstrap 5 interface, mobile-friendly
+- **Secure Access** - Password-protected admin login
 
 ### CLI Interface
-- **12 Commands** — Full management capability from the command line
-- **Scriptable** — Suitable for automation and CI/CD integration
-- **Installation** — Built-in database installer (`keygen install`)
+- **12 Commands** - Full management capability from the command line
+- **Scriptable** - Suitable for automation and CI/CD integration
+- **Installation** - Built-in database installer (`keygen install`)
 
 ### Usage Tracking
-- **Request Logging** — Every API key and AI token validation logged with timestamp, IP, and endpoint
-- **Statistics** — Usage counts and last-used timestamps per key/token
-- **30-Day Metrics** — Dashboard shows recent activity trends
+- **Request Logging** - Every API key and AI token validation logged with timestamp, IP, and endpoint
+- **Statistics** - Usage counts and last-used timestamps per key/token
+- **30-Day Metrics** - Dashboard shows recent activity trends
 
 ## Architecture
 
@@ -74,8 +74,8 @@ Heratio Key Management is a standalone application for managing client API keys 
 | Table | Purpose |
 |-------|---------|
 | `client` | Client organizations (name, email, organization, status) |
-| `api_key` | REST API keys — hashed storage, scoped by name |
-| `ai_token` | AI server authentication tokens — hashed storage |
+| `api_key` | REST API keys - hashed storage, scoped by name |
+| `ai_token` | AI server authentication tokens - hashed storage |
 | `usage_log` | Validation/usage log with IP, endpoint, timestamp |
 
 ## CLI Commands
@@ -108,12 +108,12 @@ Heratio Key Management is a standalone application for managing client API keys 
 
 ## Security
 
-- **No plaintext key storage** — All keys and tokens stored as SHA-256 hashes
-- **One-time display** — Plaintext credentials shown only at generation time
-- **Cascade revocation** — Deactivating a client revokes all associated credentials
-- **Path protection** — Nginx blocks access to `/config/`, `/src/`, `/database/`, `/bin/`
-- **Session-based auth** — Web interface requires admin login
-- **Zero AtoM coupling** — Standalone app with no access to AtoM databases or configuration
+- **No plaintext key storage** - All keys and tokens stored as SHA-256 hashes
+- **One-time display** - Plaintext credentials shown only at generation time
+- **Cascade revocation** - Deactivating a client revokes all associated credentials
+- **Path protection** - Nginx blocks access to `/config/`, `/src/`, `/database/`, `/bin/`
+- **Session-based auth** - Web interface requires admin login
+- **Zero AtoM coupling** - Standalone app with no access to AtoM databases or configuration
 
 ## Deployment
 

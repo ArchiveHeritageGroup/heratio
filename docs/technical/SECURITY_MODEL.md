@@ -1,4 +1,4 @@
-# Heratio — Security Model
+# Heratio - Security Model
 
 **Version:** 1.0
 **Date:** 2026-02-28
@@ -167,8 +167,8 @@ See: [SHELL_EXECUTION_POLICY.md](SHELL_EXECUTION_POLICY.md)
 
 | Control | Implementation |
 |---------|----------------|
-| Audit trail | ahgAuditTrailPlugin — logs all CRUD operations |
-| PII detection | ahgPrivacyPlugin — scans for personal information |
+| Audit trail | ahgAuditTrailPlugin - logs all CRUD operations |
+| PII detection | ahgPrivacyPlugin - scans for personal information |
 | Access logging | Nginx access logs + application audit log |
 | Error logging | PHP error_log + ahgAuditTrailPlugin |
 | Backup integrity | Checksums in backup manifests |

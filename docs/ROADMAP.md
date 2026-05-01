@@ -178,8 +178,8 @@ php bin/semantic-search-cron.php export-es    # ES export
 **Plugin:** ahgPreservationPlugin
 
 **Implementation:**
-- MigrationPathwayService (507 lines) — pathway CRUD, recommendation engine, format assessment
-- MigrationPlanService (743 lines) — plan lifecycle (draft → approved → in_progress → completed), batch processing
+- MigrationPathwayService (507 lines) - pathway CRUD, recommendation engine, format assessment
+- MigrationPlanService (743 lines) - plan lifecycle (draft → approved → in_progress → completed), batch processing
 - 47 seed migration pathways across 5 tool families (ImageMagick, FFmpeg, Ghostscript, LibreOffice, Pandoc)
 - 32 PRONOM-registered format entries with risk levels
 - Format obsolescence tracking with urgency levels (critical, high, medium, low)
@@ -204,11 +204,11 @@ php bin/semantic-search-cron.php export-es    # ES export
 **Plugin:** ahgMetadataExportPlugin
 
 **Implementation:**
-- SchemaOrgExporter (636 lines) — maps ISAD(G) to Schema.org types (ArchiveComponent, Collection, Photograph, etc.)
-- AbstractRdfExporter — base class supporting RiC-O JSON-LD, Turtle, RiC-O (Records in Contexts Ontology)/RDF/XML, N-Triples output
-- RicoExporter — Records in Contexts (RIC-O) RiC-O JSON-LD
-- BibframeExporter — BIBFRAME RiC-O JSON-LD for library data
-- LinkedDataContentNegotiationFilter — `Accept: application/ld+json` → automatic 303 redirect
+- SchemaOrgExporter (636 lines) - maps ISAD(G) to Schema.org types (ArchiveComponent, Collection, Photograph, etc.)
+- AbstractRdfExporter - base class supporting RiC-O JSON-LD, Turtle, RiC-O (Records in Contexts Ontology)/RDF/XML, N-Triples output
+- RicoExporter - Records in Contexts (RIC-O) RiC-O JSON-LD
+- BibframeExporter - BIBFRAME RiC-O JSON-LD for library data
+- LinkedDataContentNegotiationFilter - `Accept: application/ld+json` → automatic 303 redirect
 - CORS headers, `Vary: Accept`, `Link: rel="alternate"` on HTML pages
 - EasyRiC-O (Records in Contexts Ontology)/RDF integration for parsing and serialization
 
@@ -232,12 +232,12 @@ php bin/semantic-search-cron.php export-es    # ES export
 **Standard:** IIIF Authentication API 1.0
 
 **Implementation:**
-- IiifAuthService (478 lines) — token management, access checks, 3-tier hierarchy
+- IiifAuthService (478 lines) - token management, access checks, 3-tier hierarchy
 - 4 auth profiles: login, clickthrough, kiosk (IP-based), external (SSO)
 - SHA-256 hashed token storage with HttpOnly/Secure/SameSite cookies
 - 3-level access hierarchy: object → repository → ancestor inheritance (MPTT, up to 20 levels)
 - Degraded access support (thumbnail-only with configurable width)
-- Manifest-level integration — auth service blocks injected into IIIF manifests
+- Manifest-level integration - auth service blocks injected into IIIF manifests
 - Comprehensive audit logging (`iiif_auth_access_log`)
 - Token cleanup for expired sessions
 
@@ -444,7 +444,7 @@ php bin/semantic-search-cron.php export-es    # ES export
 | 2026-01-21 | 1.6 | PII Detection complete (96/100) |
 | 2026-01-22 | 2.0 | SDKs created, Semantic Search plugin, renamed to ROADMAP.md (97/100) |
 | 2026-02-13 | 3.0 | Updated to 78 plugins, Heratio migration status, ahgIngestPlugin |
-| 2026-03-11 | 4.0 | **100/100 achieved** — Format Migration Pathways, RiC-O JSON-LD Export, IIIF Auth API confirmed complete. 80 plugins. |
+| 2026-03-11 | 4.0 | **100/100 achieved** - Format Migration Pathways, RiC-O JSON-LD Export, IIIF Auth API confirmed complete. 80 plugins. |
 
 ---
 

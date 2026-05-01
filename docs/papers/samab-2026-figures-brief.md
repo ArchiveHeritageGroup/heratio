@@ -1,4 +1,4 @@
-# SAMAB 2026 — Figures Designer Brief
+# SAMAB 2026 - Figures Designer Brief
 
 **Companion to:** `samab-2026-paper-full.md`
 **Audience:** A graphic designer with academic-figure experience (someone who knows how a journal figure should read at print and at screen size).
@@ -6,7 +6,7 @@
 **Style guide:**
 
 - Sans-serif typography throughout (e.g. Inter, IBM Plex Sans, or whatever the journal house style suggests).
-- Restrained colour palette — primary brand colour for "Heratio active region", neutral grey for context.
+- Restrained colour palette - primary brand colour for "Heratio active region", neutral grey for context.
 - Suggested palette: deep teal `#005A6E` (primary), warm amber `#E07A2C` (accent / AI flag), neutral slate `#3E4A52` (text), light grey `#E9ECEF` (panel fills), white background.
 - All arrows are clean, single-headed, 1pt stroke. Avoid clip-art icons; prefer simple geometric glyphs.
 - All figures must read at A5 width (~14 cm) without zooming, and reduce cleanly to greyscale.
@@ -16,7 +16,7 @@ Three figures follow. Each has an in-paper caption (use as-is or lightly edit) a
 
 ---
 
-## Figure 1 — Heratio architecture and the four AI capabilities
+## Figure 1 - Heratio architecture and the four AI capabilities
 
 **Where it goes:** End of Section 1 (Introduction) or beginning of Section 2 (Background). Establishes the system's surface before the four capability sections describe individual modules.
 
@@ -38,7 +38,7 @@ Three figures follow. Each has an in-paper caption (use as-is or lightly edit) a
         │             │             │                │
         ▼             ▼             ▼                ▼
 ┌────────────────────────────────────────────────────────────────┐
-│  HERATIO CORE — Laravel 12 / PHP 8.3                           │
+│  HERATIO CORE - Laravel 12 / PHP 8.3                           │
 │                                                                │
 │  ┌─────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────┐ │
 │  │Cataloguing  │Records   │ │Preserva- │ │RiC       │ │Display │ │
@@ -64,7 +64,7 @@ Three figures follow. Each has an in-paper caption (use as-is or lightly edit) a
 │        │              │              │              │          │
 │        ▼ proposes     ▼ proposes     ▼ prioritises  ▼ suggests │
 │        ▲ accept       ▲ accept       (no human-in-  ▲ accept   │
-│        │ /edit/reject │ /edit/reject  the-loop —    │ /edit/   │
+│        │ /edit/reject │ /edit/reject  the-loop -    │ /edit/   │
 │        │              │               cron runs     │ reject   │
 │        │              │               automatically)│          │
 │   👤 Cataloguer  👤 Conservator                  👤 Cataloguer │
@@ -93,14 +93,14 @@ Three figures follow. Each has an in-paper caption (use as-is or lightly edit) a
 
 - Three horizontal bands: **Public layer** (top), **Heratio core + AI** (middle, where AI is its own band shaded amber), **Data layer** (bottom). All boxes the same height within a band.
 - The four AI modules align directly under the four core modules they feed (description ↔ cataloguing, condition ↔ records management, fixity ↔ preservation, metadata/NER ↔ cataloguing+RiC).
-- Show a tiny human silhouette (👤 placeholder; designer to draw clean glyph) under three of the four AI modules, with up-arrows labelled "accept / edit / reject" — the human-in-the-loop signal. The fourth (Fixity) has no human icon — note this asymmetry visually because Section 5 explains why fixity is the only fully-automated AI capability.
+- Show a tiny human silhouette (👤 placeholder; designer to draw clean glyph) under three of the four AI modules, with up-arrows labelled "accept / edit / reject" - the human-in-the-loop signal. The fourth (Fixity) has no human icon - note this asymmetry visually because Section 5 explains why fixity is the only fully-automated AI capability.
 - Label the section numbers (§3, §4, §5, §6) on each AI module so readers can cross-reference to the paper text.
 - "Optional" tier (Fuseki, Cantaloupe) below the main data row, in lighter grey + dashed boundary, to convey "extends but not on the critical path".
 - Background colour: pure white. No drop shadows. Lines: 1pt grey for non-active flow, 1.5pt for active.
 
 ---
 
-## Figure 2 — AI Condition Assessment: heatmap output and review interface
+## Figure 2 - AI Condition Assessment: heatmap output and review interface
 
 **Where it goes:** Section 4.3 (Computer vision for damage typology detection) or 4.4 (Human-in-the-loop). Anchors the discussion of how the conservator interacts with the AI's output.
 
@@ -112,12 +112,12 @@ Three figures follow. Each has an in-paper caption (use as-is or lightly edit) a
 
 Two-panel figure, side-by-side, total width A5 (~14 cm).
 
-#### Panel (a) — Heatmap overlay (left, ~60 % of width)
+#### Panel (a) - Heatmap overlay (left, ~60 % of width)
 
 ```
 ┌──────────────────────────────┐
 │   [photograph: 19th-century   │
-│    SA archival document —     │
+│    SA archival document -     │
 │    aged paper, brown ink]     │
 │                               │
 │   ░░░░░░░░░░░░░░░░░  ← red   │
@@ -141,7 +141,7 @@ Two-panel figure, side-by-side, total width A5 (~14 cm).
 - Colour overlays at ~35 % opacity; the underlying photograph still visible through them.
 - Each region carries a tiny confidence label inset (e.g. "0.87"). Position below or beside the region with a thin leader line.
 
-#### Panel (b) — Spectrum-aligned condition record draft (right, ~40 %)
+#### Panel (b) - Spectrum-aligned condition record draft (right, ~40 %)
 
 A semi-realistic UI mockup of the Heratio condition-record edit form, in the institution's brand. Approximate fields:
 
@@ -149,7 +149,7 @@ A semi-realistic UI mockup of the Heratio condition-record edit form, in the ins
 ┌───────────────────────────────┐
 │ Condition Assessment   [DRAFT]│
 ├───────────────────────────────┤
-│ Object: [Rec ID — title]      │
+│ Object: [Rec ID - title]      │
 │                               │
 │ Overall grade   [Poor      ▾] │ <- model picked Poor; cataloguer can change
 │ Severity score  [ 62 ] / 100  │
@@ -186,13 +186,13 @@ A semi-realistic UI mockup of the Heratio condition-record edit form, in the ins
 ### Designer notes for Figure 2
 
 - Vertical alignment: the photograph in Panel (a) and the form in Panel (b) should be the same height; the legend in Panel (a) sits below the photograph.
-- The base photograph in Panel (a) needs to be authentic-feeling — aged paper, faint foxing, a small tear, a water stain. Not a contemporary image. SAMAB readers will recognise unrealistic substitutes.
+- The base photograph in Panel (a) needs to be authentic-feeling - aged paper, faint foxing, a small tear, a water stain. Not a contemporary image. SAMAB readers will recognise unrealistic substitutes.
 - Heatmap colours readable at greyscale: foxing (red) and water damage (blue) need to differentiate at print. Try varying texture/cross-hatch as well as hue if greyscale is critical for the print edition.
-- "DRAFT" badge in Panel (b) is the most important visual element after the photograph itself — it is the paper's argument visualised: AI proposes, conservator disposes.
+- "DRAFT" badge in Panel (b) is the most important visual element after the photograph itself - it is the paper's argument visualised: AI proposes, conservator disposes.
 
 ---
 
-## Figure 3 — Three-layer AI description flow for accessibility
+## Figure 3 - Three-layer AI description flow for accessibility
 
 **Where it goes:** Section 3.3 (Multi-modal description). Visualises how the same AI invocation produces three different lengths of description for three different consumption contexts.
 
@@ -202,7 +202,7 @@ A semi-realistic UI mockup of the Heratio condition-record edit form, in the ins
 
 ### Visual specification
 
-Vertical-flow diagram, A5 portrait or landscape (designer's choice — landscape probably reads better at print).
+Vertical-flow diagram, A5 portrait or landscape (designer's choice - landscape probably reads better at print).
 
 ```
   ┌─────────────────────────────────────────┐
@@ -254,7 +254,7 @@ Vertical-flow diagram, A5 portrait or landscape (designer's choice — landscape
                             │
                             ▼
   ┌────────────────────────────────────────────────────────┐
-  │  PUBLISH — written to data model, rendered in:         │
+  │  PUBLISH - written to data model, rendered in:         │
   │  · public object page                                  │
   │  · JSON-LD structured data (caption, altText)          │
   │  · HTML <img alt="...">                                │
@@ -265,14 +265,14 @@ Vertical-flow diagram, A5 portrait or landscape (designer's choice — landscape
 ### Designer notes for Figure 3
 
 - Top to bottom flow with the three-layer split prominent in the middle. The split visualises the paper's accessibility argument: one model run, three appropriately-sized outputs.
-- Use the example text exactly as drafted — these are illustrative content the SAMAB editor and audience will recognise as plausible (twentieth-century South African political photography), and they reinforce the bias-discussion in Section 8.1.
+- Use the example text exactly as drafted - these are illustrative content the SAMAB editor and audience will recognise as plausible (twentieth-century South African political photography), and they reinforce the bias-discussion in Section 8.1.
 - The "CATALOGUER REVIEW" panel is the visual anchor for the human-in-the-loop argument. Make the three buttons (Accept / Edit + accept / Reject) prominent and distinct.
 - Provenance-tag callout: small text beneath the buttons spelling out the four provenance values verbatim. This visualises Section 8.3 of the paper.
-- The "PUBLISH" panel at the bottom shows the four downstream surfaces. The point: accessibility is not a separable feature for a subset of users — it is the system's standard output.
+- The "PUBLISH" panel at the bottom shows the four downstream surfaces. The point: accessibility is not a separable feature for a subset of users - it is the system's standard output.
 
 ---
 
-## Optional Figure 4 — Ablation table (post-validation)
+## Optional Figure 4 - Ablation table (post-validation)
 
 If word-count permits and the validation pilots produce clean numbers, a small one-page table of per-strategy contribution would land well in Section 4.6 or in the Conclusion. Sketch:
 
@@ -290,10 +290,10 @@ Numbers come from the simulated-query runs described in the discovery work (`ahg
 
 ## Production checklist
 
-- [ ] Figure 1 — Heratio architecture (designer)
-- [ ] Figure 2 — Condition heatmap + review form (designer; supply real photo placeholder)
-- [ ] Figure 3 — Three-layer description flow (designer; example text as drafted)
-- [ ] Figure 4 — Ablation table (held for post-validation)
+- [ ] Figure 1 - Heratio architecture (designer)
+- [ ] Figure 2 - Condition heatmap + review form (designer; supply real photo placeholder)
+- [ ] Figure 3 - Three-layer description flow (designer; example text as drafted)
+- [ ] Figure 4 - Ablation table (held for post-validation)
 - [ ] Greyscale fallback proofs of Figs 1–3
 - [ ] All three figures sized at A5 width, 300 dpi PNG export
 - [ ] In-paper captions (above) used verbatim or lightly edited

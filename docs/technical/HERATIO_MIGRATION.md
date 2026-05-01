@@ -1,4 +1,4 @@
-# Heratio — Migration Technical Reference
+# Heratio - Migration Technical Reference
 
 **Version:** 2.8.2
 **Last Updated:** February 2026
@@ -7,7 +7,7 @@
 
 ## Overview
 
-The Heratio migration transforms AtoM from a Symfony 1.x/Propel monolith into a standalone Laravel-based platform. The migration is incremental — a kill-switch toggles between modes, and both Symfony and Heratio can serve pages simultaneously. Zero base AtoM modifications required.
+The Heratio migration transforms AtoM from a Symfony 1.x/Propel monolith into a standalone Laravel-based platform. The migration is incremental - a kill-switch toggles between modes, and both Symfony and Heratio can serve pages simultaneously. Zero base AtoM modifications required.
 
 ---
 

@@ -609,7 +609,7 @@ Model3D.formatBytes(5242880);  // '5.00 MB'
 
 ## Vendor Libraries (Local)
 
-All frontend libraries are served locally — no external CDN dependencies:
+All frontend libraries are served locally - no external CDN dependencies:
 
 | Library | Path | Version |
 |---------|------|---------|
@@ -634,7 +634,7 @@ Damage-type hotspots (`hotspot_type='damage'`) automatically link to the object'
 - When a damage hotspot is created without an explicit `link_url`, the system auto-generates: `/{slug}/condition`
 - Clicking a red damage hotspot in the viewer navigates to the condition assessment page
 - The condition plugin route `/:slug/condition` displays condition checks for that object
-- No database foreign key is required — linking is by URL convention
+- No database foreign key is required - linking is by URL convention
 
 ---
 
@@ -967,7 +967,7 @@ Context-aware prompts adjust vocabulary for GLAM sector: CCO (museum), ISAD(G) (
 ]); ?>
 ```
 
-Renders a thumbnail row with lightbox modal for the 6 views if renders exist. Purely additive — shows nothing if `{derivative_dir}/multiangle/` doesn't exist.
+Renders a thumbnail row with lightbox modal for the 6 views if renders exist. Purely additive - shows nothing if `{derivative_dir}/multiangle/` doesn't exist.
 
 ---
 
@@ -1007,7 +1007,7 @@ Blender 4.2+ renamed the render engine from `BLENDER_EEVEE` to `BLENDER_EEVEE_NE
 | Thumbnails not generating | Check Blender installed (`/snap/bin/blender --version`), verify script permissions |
 | Multi-angle renders missing | Run `php atom-framework/bin/atom 3d:multiangle --id=N`, check Blender logs |
 | AI describe returns empty | Check Ollama running (`curl localhost:11434`), verify LLM model pulled |
-| OBJ MIME type wrong | OBJ files often mislabeled as `application/x-tgif` — handled automatically |
+| OBJ MIME type wrong | OBJ files often mislabeled as `application/x-tgif` - handled automatically |
 | Blender snap permission | Snap Blender may need `--no-sandbox` or run as correct user |
 
 ---

@@ -8,26 +8,26 @@ Scans every `DB::table('X')->update([...])` / `->insert([...])` / `->updateOrIns
 
 ## Result
 
-**64 column-level gaps found across Heratio extension tables.** Most are in files I did NOT touch during Phase X (pre-existing drift between code and schema). Phase X.7.F scope is limited to gaps in files touched during X.1–X.9. The remaining ~58 gaps in untouched packages are documented below but not fixed — they belong to a per-package cleanup pass.
+**64 column-level gaps found across Heratio extension tables.** Most are in files I did NOT touch during Phase X (pre-existing drift between code and schema). Phase X.7.F scope is limited to gaps in files touched during X.1–X.9. The remaining ~58 gaps in untouched packages are documented below but not fixed - they belong to a per-package cleanup pass.
 
 ## Fixed in X.7.F (gaps in Phase-X-touched files)
 
 | Table | Column | Action |
 |---|---|---|
-| `ahg_ai_suggestion` | `reviewed_by`, `reviewed_at`, `notes` | **ALTER** — added all 3 columns (Heratio extension table, safe) |
-| `ahg_ai_job` | `attempts` | **Code fix** — renamed to `attempt_count` (real column) |
-| `nmmz_export_permit` | `conditions` | **Code fix** — renamed to `approval_conditions` (real column) |
-| `embargo_audit` | `changed_fields` | **Code fix** — removed key entirely; `old_values`/`new_values` JSON already captures the diff |
+| `ahg_ai_suggestion` | `reviewed_by`, `reviewed_at`, `notes` | **ALTER** - added all 3 columns (Heratio extension table, safe) |
+| `ahg_ai_job` | `attempts` | **Code fix** - renamed to `attempt_count` (real column) |
+| `nmmz_export_permit` | `conditions` | **Code fix** - renamed to `approval_conditions` (real column) |
+| `embargo_audit` | `changed_fields` | **Code fix** - removed key entirely; `old_values`/`new_values` JSON already captures the diff |
 
 ## Documented but not fixed (~58 gaps in untouched packages)
 
-These belong to packages that weren't modified during Phase X.1–X.9. Each is a latent bug — the moment the containing controller method runs, the insert/update will fail. Listed in `docs/x7-column-gaps-raw.txt` for future reference.
+These belong to packages that weren't modified during Phase X.1–X.9. Each is a latent bug - the moment the containing controller method runs, the insert/update will fail. Listed in `docs/x7-column-gaps-raw.txt` for future reference.
 
 **Packages with gaps:**
 
 | Package | Gap count | Notes |
 |---|---:|---|
-| ahg-webhooks (`ahg_webhook_delivery`) | 3 | missing `event`, `timestamp`, `data` — likely renamed during webhook refactor |
+| ahg-webhooks (`ahg_webhook_delivery`) | 3 | missing `event`, `timestamp`, `data` - likely renamed during webhook refactor |
 | ahg-integrity (`destruction_certificate`) | 3 | `files_deleted`, `disposal_action_id`, `action_type` |
 | ahg-extended-rights (`embargo`, `embargo_audit`) | 7 | `public_message`, `notes`, `reason`, `details`, etc. |
 | ahg-heritage-manage (`heritage_contribution`, `heritage_contributor`) | 5 | verification workflow fields |
@@ -43,7 +43,7 @@ These belong to packages that weren't modified during Phase X.1–X.9. Each is a
 | ahg-forms (`ahg_form_field`, `ahg_form_template`) | 2 | |
 | ahg-discovery (`ahg_discovery_log`) | 1 | |
 | ahg-dedupe (`ahg_dedupe_scan`) | 2 | |
-| ahg-actor-manage / ahg-ai-services (`actor_i18n`) | 1 | **⚠️ AtoM-base table** — must rewrite code, never ALTER. Writes `description_identifier` which does not exist on AtoM base. |
+| ahg-actor-manage / ahg-ai-services (`actor_i18n`) | 1 | **⚠️ AtoM-base table** - must rewrite code, never ALTER. Writes `description_identifier` which does not exist on AtoM base. |
 | ahg-api-v2 (`property`) | 2 | metadata extraction writes `created_at`/`updated_at` to a table that doesn't have them |
 
 ## Recommendation
@@ -51,7 +51,7 @@ These belong to packages that weren't modified during Phase X.1–X.9. Each is a
 X.7.F is complete for its stated scope (Phase-X-touched files). The remaining 58 gaps are:
 1. **Pre-existing** (not caused by X.1–X.9)
 2. **Dormant** in most cases (the features aren't linked from the dashboard; no live page exercises them)
-3. **Per-package cleanup work** — not suitable for a single mass-fix pass
+3. **Per-package cleanup work** - not suitable for a single mass-fix pass
 
 Suggested follow-up: when each of those packages is touched for a feature, run `php /tmp/x7/scan_cols.php packages /tmp/tables_existing.txt | grep <PackageFile>` as a pre-commit check, and fix the gaps in the files about to be modified.
 

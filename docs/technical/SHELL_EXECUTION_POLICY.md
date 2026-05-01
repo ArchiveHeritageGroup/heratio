@@ -1,4 +1,4 @@
-# Heratio — Shell Execution Policy
+# Heratio - Shell Execution Policy
 
 **Version:** 1.0
 **Date:** 2026-02-28
@@ -43,7 +43,7 @@ Every external value passed to a shell command MUST use `escapeshellarg()`:
 exec('ls ' . escapeshellarg($userPath));
 exec('cd ' . escapeshellarg($dir) . ' && git pull origin main 2>&1');
 
-// WRONG — command injection via $userPath
+// WRONG - command injection via $userPath
 exec("ls {$userPath}");
 exec("cd {$dir} && git pull origin main 2>&1");
 ```
@@ -53,10 +53,10 @@ exec("cd {$dir} && git pull origin main 2>&1");
 `addslashes()` is for SQL/string contexts only. It does NOT protect against shell injection:
 
 ```php
-// WRONG — addslashes does not escape shell metacharacters
+// WRONG - addslashes does not escape shell metacharacters
 $cmd = "mysqldump -p'" . addslashes($password) . "' " . addslashes($database);
 
-// CORRECT — use ShellCommandService
+// CORRECT - use ShellCommandService
 $cmd = ShellCommandService::buildMysqldumpCommand($host, $port, $user, $password, $db, $outFile);
 ```
 
@@ -65,13 +65,13 @@ $cmd = ShellCommandService::buildMysqldumpCommand($host, $port, $user, $password
 System service operations (restart, stop, status) MUST validate the service name:
 
 ```php
-// CORRECT — validates against allowlist
+// CORRECT - validates against allowlist
 if (ShellCommandService::isAllowedService($serviceName)) {
     $cmd = ShellCommandService::buildSystemctlCommand('restart', $serviceName);
     exec($cmd);
 }
 
-// WRONG — attacker could inject: "nginx; rm -rf /"
+// WRONG - attacker could inject: "nginx; rm -rf /"
 exec("systemctl restart {$serviceName}");
 ```
 
@@ -80,10 +80,10 @@ exec("systemctl restart {$serviceName}");
 Before `cd`-ing into a directory, validate with `realpath()`:
 
 ```php
-// CORRECT — validates directory exists and resolves symlinks
+// CORRECT - validates directory exists and resolves symlinks
 ShellCommandService::execInDir($directory, 'git status', $output, $code);
 
-// WRONG — $directory could contain "; malicious_command"
+// WRONG - $directory could contain "; malicious_command"
 exec("cd {$directory} && git status");
 ```
 
@@ -91,22 +91,22 @@ exec("cd {$directory} && git status");
 
 ## 4. Fixed Vulnerabilities (Issue #197)
 
-### 4.1 BackupService — Database Credentials (CRITICAL)
+### 4.1 BackupService - Database Credentials (CRITICAL)
 - **File:** `atom-framework/src/Services/BackupService.php`
 - **Problem:** `addslashes()` used for shell-context escaping of database host, port, user, password
 - **Fix:** Replaced with `ShellCommandService::buildMysqldumpCommand()` and `buildMysqlRestoreCommand()`
 
-### 4.2 ServiceManager — Unescaped Paths (CRITICAL)
+### 4.2 ServiceManager - Unescaped Paths (CRITICAL)
 - **File:** `atom-framework/packaging/wizard/lib/ServiceManager.php`
 - **Problem:** `$atomPath` used directly in `exec()` without escaping; service name not validated
 - **Fix:** Added `realpath()` validation, `escapeshellarg()`, and service name allowlist
 
-### 4.3 PluginFetcher — Unescaped Paths (HIGH)
+### 4.3 PluginFetcher - Unescaped Paths (HIGH)
 - **File:** `atom-framework/src/Extensions/PluginFetcher.php`
 - **Problem:** `$sourcePath`, `$targetPath`, `$repoUrl`, `$tempPath` unescaped in `exec()` calls
 - **Fix:** All paths wrapped in `escapeshellarg()`
 
-### 4.4 ExtensionCommand — Unescaped Paths (HIGH)
+### 4.4 ExtensionCommand - Unescaped Paths (HIGH)
 - **File:** `atom-framework/src/Console/ExtensionCommand.php`
 - **Problem:** `$ahgPluginsPath` and `$repoPath` unescaped in `exec()` calls
 - **Fix:** All paths wrapped in `escapeshellarg()`
@@ -118,16 +118,16 @@ exec("cd {$directory} && git status");
 The following locked plugins contain shell execution without adequate escaping. These cannot be modified per project policy and require remediation in future releases.
 
 ### 5.1 ahgBackupPlugin
-- **Risk:** Medium — backup/restore commands use paths that could be manipulated if settings are compromised
+- **Risk:** Medium - backup/restore commands use paths that could be manipulated if settings are compromised
 - **Location:** Plugin action classes
 - **Mitigation:** Settings stored in DB, only admin-accessible
 
 ### 5.2 ahgSecurityClearancePlugin
-- **Risk:** Low — limited shell usage
+- **Risk:** Low - limited shell usage
 - **Mitigation:** Admin-only functionality
 
 ### 5.3 ahgPreservationPlugin (if locked)
-- **Risk:** Medium — calls external tools (siegfried, clamdscan, tesseract)
+- **Risk:** Medium - calls external tools (siegfried, clamdscan, tesseract)
 - **Location:** Service classes
 - **Mitigation:** Input paths are system-generated, not user-supplied
 

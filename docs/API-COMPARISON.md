@@ -1,4 +1,4 @@
-# API Comparison — AtoM vs Heratio
+# API Comparison - AtoM vs Heratio
 
 Generated: 2026-03-17
 
@@ -37,7 +37,7 @@ Generated: 2026-03-17
 
 ---
 
-## What's MISSING — Priority Order
+## What's MISSING - Priority Order
 
 ### Priority 1: v1 CRUD (7 endpoints)
 
@@ -55,7 +55,7 @@ Generated: 2026-03-17
 
 | # | Method | URL | Purpose |
 |---|--------|-----|---------|
-| 1 | GET | `/api/v2` | API v2 root — list endpoints |
+| 1 | GET | `/api/v2` | API v2 root - list endpoints |
 | 2 | GET | `/api/v2/descriptions` | Browse descriptions |
 | 3 | POST | `/api/v2/descriptions` | Create description |
 | 4 | GET | `/api/v2/descriptions/{slug}` | Read description |

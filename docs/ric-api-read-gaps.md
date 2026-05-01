@@ -1,23 +1,23 @@
 # RiC API Read-Side Coverage Audit
 
 **Audit Date:** April 2026
-**Last updated:** 2026-04-18 *(9 of 11 gaps closed — all P0 + all P1; only P2 remain)*
+**Last updated:** 2026-04-18 *(9 of 11 gaps closed - all P0 + all P1; only P2 remain)*
 **Scope:** Heratio RiC package (`packages/ahg-ric/`) + dependent packages
 **Focus:** READ-only operations missing from `/api/ric/v1/*` public HTTP API
 
 ## Status
 
-- ✅ **API-R-1 List relations** — shipped 2026-04-18: `GET /api/ric/v1/relations?q=&page=&per_page=`
-- ✅ **API-R-2 Relations for entity** — shipped 2026-04-18: `GET /api/ric/v1/relations-for/{id}`
-- ✅ **API-R-3 Hierarchy** — shipped 2026-04-18: `GET /api/ric/v1/hierarchy/{id}?include=parent,children,siblings`
-- ✅ **API-R-4 Autocomplete** — shipped 2026-04-18: `GET /api/ric/v1/autocomplete?q=&types=&limit=`
-- ✅ **API-R-5 Vocabulary by taxonomy** — shipped 2026-04-18: `GET /api/ric/v1/vocabulary/{taxonomy}`
-- ✅ **API-R-6 Linked RiC entities for record** — shipped 2026-04-18: `GET /api/ric/v1/records/{id}/entities`
-- ✅ **API-R-7 Entity info card** — shipped 2026-04-18: `GET /api/ric/v1/entities/{id}/info`
-- ✅ **API-R-8 Relation types with domain/range filter** — shipped 2026-04-18: `GET /api/ric/v1/relation-types?domain=&range=`
-- ✅ **API-R-9 Places flat picker** — shipped 2026-04-18: `GET /api/ric/v1/places/flat?exclude_id=`
-- ⚠ **API-R-10 Full query params on browse endpoints** — deferred (P2)
-- ⚠ **API-R-11 Vocabulary discovery index** — deferred (P2)
+- ✅ **API-R-1 List relations** - shipped 2026-04-18: `GET /api/ric/v1/relations?q=&page=&per_page=`
+- ✅ **API-R-2 Relations for entity** - shipped 2026-04-18: `GET /api/ric/v1/relations-for/{id}`
+- ✅ **API-R-3 Hierarchy** - shipped 2026-04-18: `GET /api/ric/v1/hierarchy/{id}?include=parent,children,siblings`
+- ✅ **API-R-4 Autocomplete** - shipped 2026-04-18: `GET /api/ric/v1/autocomplete?q=&types=&limit=`
+- ✅ **API-R-5 Vocabulary by taxonomy** - shipped 2026-04-18: `GET /api/ric/v1/vocabulary/{taxonomy}`
+- ✅ **API-R-6 Linked RiC entities for record** - shipped 2026-04-18: `GET /api/ric/v1/records/{id}/entities`
+- ✅ **API-R-7 Entity info card** - shipped 2026-04-18: `GET /api/ric/v1/entities/{id}/info`
+- ✅ **API-R-8 Relation types with domain/range filter** - shipped 2026-04-18: `GET /api/ric/v1/relation-types?domain=&range=`
+- ✅ **API-R-9 Places flat picker** - shipped 2026-04-18: `GET /api/ric/v1/places/flat?exclude_id=`
+- ⚠ **API-R-10 Full query params on browse endpoints** - deferred (P2)
+- ⚠ **API-R-11 Vocabulary discovery index** - deferred (P2)
 
 ---
 
@@ -25,12 +25,12 @@
 
 The RiC API currently covers core entity retrieval (Places, Rules, Activities, Instantiations, Agents, Records, Functions, Repositories) and SPARQL access. However, significant operational gaps exist in:
 
-1. **Relations listing and filtering** — `/admin/ric/relations` browse with global relation search has no API equivalent.
-2. **Hierarchy and containment queries** — Parent/child/sibling walks are available only via service layer, not the API.
-3. **Autocomplete across all entity types** — Used in forms and relation editors; not exposed as a public endpoint.
-4. **Dropdown/taxonomy reads** — Type pickers (place_type, rule_type, activity_type, carrier_type) are admin-only; no public vocabulary endpoint.
-5. **Entity-to-entity linking context** — Record-level entity panels fetch linked Places, Rules, Activities, Instantiations; no single API endpoint aggregates this.
-6. **Relation types with domain/range filtering** — Used to validate relation creation; filtering is missing from the public API.
+1. **Relations listing and filtering** - `/admin/ric/relations` browse with global relation search has no API equivalent.
+2. **Hierarchy and containment queries** - Parent/child/sibling walks are available only via service layer, not the API.
+3. **Autocomplete across all entity types** - Used in forms and relation editors; not exposed as a public endpoint.
+4. **Dropdown/taxonomy reads** - Type pickers (place_type, rule_type, activity_type, carrier_type) are admin-only; no public vocabulary endpoint.
+5. **Entity-to-entity linking context** - Record-level entity panels fetch linked Places, Rules, Activities, Instantiations; no single API endpoint aggregates this.
+6. **Relation types with domain/range filtering** - Used to validate relation creation; filtering is missing from the public API.
 
 These gaps will require filling if Heratio's UI is to become a pure HTTP API consumer.
 
@@ -121,11 +121,11 @@ Comprehensive catalog of all supported taxonomies (RiC types, relation codes, et
 
 ## Out of Scope
 
-- **Write operations** (create, update, delete) — Covered in separate API-W audit.
-- **Sync/queue/integrity/orphan reads** — Admin-only operational endpoints; out of scope for public API.
-- **Semantic search** — Deferred to a future S (Search) audit.
-- **SHACL validation** — Covered under existing `POST /api/ric/v1/validate`.
-- **Dashboard metrics** — Admin-only charts and stats; out of scope.
+- **Write operations** (create, update, delete) - Covered in separate API-W audit.
+- **Sync/queue/integrity/orphan reads** - Admin-only operational endpoints; out of scope for public API.
+- **Semantic search** - Deferred to a future S (Search) audit.
+- **SHACL validation** - Covered under existing `POST /api/ric/v1/validate`.
+- **Dashboard metrics** - Admin-only charts and stats; out of scope.
 
 ---
 

@@ -3,7 +3,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Group (Pty) Ltd
 -->
 
-# Discovery — ablation Run #1 (no-AI baseline)
+# Discovery - ablation Run #1 (no-AI baseline)
 
 **Author:** Johan Pieterse, The Archive and Heritage Group (Pty) Ltd
 **Date:** 2026-04-28
@@ -47,7 +47,7 @@ Mean ± 95% bootstrap CI (1000 resamples, seeded). Best in column **bold**.
 | `kw_vector` | 752 | 676 | 1141 | 45 | 0 | 0 | 234 |
 | `full_hybrid` | 673 | 667 | 813 | 45 | 33 | 55 | 91 |
 
-## Per-query-type breakdown — `full_hybrid`
+## Per-query-type breakdown - `full_hybrid`
 
 Where each generator's queries are strongest / weakest. Same metric definitions as above.
 
@@ -60,11 +60,11 @@ Where each generator's queries are strongest / weakest. Same metric definitions 
 
 ## Caveats
 
-1. **Synthetic queries grounded on the indexed corpus measure system internals**, not generalisation to unseen user intent. The ground truth for Generator A (title) and C (scope-NP) is the source IO itself — by construction, the IO contains the query's seed text, so high recall is expected.
+1. **Synthetic queries grounded on the indexed corpus measure system internals**, not generalisation to unseen user intent. The ground truth for Generator A (title) and C (scope-NP) is the source IO itself - by construction, the IO contains the query's seed text, so high recall is expected.
 2. **Generator B (subject)** ground-truth is capped at 50 IOs per subject; for tags with thousands of uses, recall@100 caps at 1.0 even when the system retrieves more than 50 of them.
-3. **Generator D (typo)** ground-truth is `LIKE %canonical%` against title + scope, capped at 50 — measures recall against a literal-match baseline, not against an oracle.
-4. **No image strategy** — image-on-text-path is gated on `192.168.0.78` returning. The `full_hybrid` row therefore represents 4-strategy fusion, not 5-way.
-5. **CPU-only inference** — embedding latency includes Ollama on `192.168.0.112` (CPU). Vector strategy timings will improve substantially when GPU returns.
+3. **Generator D (typo)** ground-truth is `LIKE %canonical%` against title + scope, capped at 50 - measures recall against a literal-match baseline, not against an oracle.
+4. **No image strategy** - image-on-text-path is gated on `192.168.0.78` returning. The `full_hybrid` row therefore represents 4-strategy fusion, not 5-way.
+5. **CPU-only inference** - embedding latency includes Ollama on `192.168.0.112` (CPU). Vector strategy timings will improve substantially when GPU returns.
 6. **Run #2** will swap Generator C.1 (rule-based scope-NP) for C.2 (LLM-paraphrase via qwen3:8b), regenerated against the same query slots so ablation rows align across runs.
 
 ## Reproducing this run
@@ -90,4 +90,4 @@ php bin/discovery-ablation-report.php --dir=storage/discovery-eval/run-1 \
     --output=docs/papers/discovery-ablation-2026-04.md
 ```
 
-Determinism check (`bin/discovery-eval-verify.php --runs=2`) on the `full_hybrid` config produced byte-identical metric tuples and identical per-query top-10 ordering — see `docs/papers/discovery-implementation-notes.md` for the variance-source inventory.
+Determinism check (`bin/discovery-eval-verify.php --runs=2`) on the `full_hybrid` config produced byte-identical metric tuples and identical per-query top-10 ordering - see `docs/papers/discovery-implementation-notes.md` for the variance-source inventory.

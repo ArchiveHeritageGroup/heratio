@@ -7,7 +7,7 @@
 
 ## 1. Core Extension Tables (Heratio)
 
-**2 tables** — Plugin registry and centralized settings.
+**2 tables** - Plugin registry and centralized settings.
 
 ### Tables
 
@@ -82,7 +82,7 @@
 
 ## 2. Audit Trail ERD (ahgAuditTrailPlugin)
 
-**6 tables** — Comprehensive audit logging with field-level change tracking, access logging, and authentication events.
+**6 tables** - Comprehensive audit logging with field-level change tracking, access logging, and authentication events.
 
 ### Tables
 
@@ -94,7 +94,7 @@
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                ahgAuditTrailPlugin — Audit Trail ERD                                  │
+│                                ahgAuditTrailPlugin - Audit Trail ERD                                  │
 │                              Compliance/International Compliance Audit Logging                                    │
 └──────────────────────────────────────────────────────────────────────────────────────────────────────┘
 
@@ -215,7 +215,7 @@
      ahg_audit_authentication → login/logout/2FA events
 
    GLAM/DAM & INFORMATION OBJECT LINKS:
-     audit_log.object_id ──────────────► object.id (AtoM core — any entity)
+     audit_log.object_id ──────────────► object.id (AtoM core - any entity)
      ahg_audit_log.entity_type ────────► informationobject | actor | accession | repository | ...
      ahg_audit_log.entity_id ──────────► Polymorphic FK to any AtoM entity
      ahg_audit_access.object_id ───────► digital_object / information_object (file access)
@@ -241,7 +241,7 @@
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                           ahgPrivacyPlugin — Privacy & Compliance ERD                                     │
+│                           ahgPrivacyPlugin - Privacy & Compliance ERD                                     │
 │                        Compliance / GDPR / CCPA / PIPEDA / NDPA / DPA / CDPA (7 jurisdictions)                │
 └──────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 
@@ -580,7 +580,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                        ahgSecurityClearancePlugin — Entity Relationship Diagram                         │
+│                        ahgSecurityClearancePlugin - Entity Relationship Diagram                         │
 │                                     Security Classification                                      │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 
@@ -850,7 +850,7 @@ User can access a record when:
 
 ## 5. Condition Assessment ERD (ahgConditionPlugin)
 
-**8 tables** — Condition reporting, damage tracking, conservation, scheduling, and controlled vocabularies. Spectrum 5.1 compliant.
+**8 tables** - Condition reporting, damage tracking, conservation, scheduling, and controlled vocabularies. Spectrum 5.1 compliant.
 
 ### Tables
 
@@ -862,7 +862,7 @@ User can access a record when:
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                          ahgConditionPlugin — Condition Assessment ERD                                │
+│                          ahgConditionPlugin - Condition Assessment ERD                                │
 │                                   Spectrum 5.1 Compliance                                            │
 └──────────────────────────────────────────────────────────────────────────────────────────────────────┘
 
@@ -980,7 +980,7 @@ User can access a record when:
 
 ## 6. Loan Management ERD (ahgLoanPlugin)
 
-**20 tables** (4 base + 16 ahg_loan_*) — Full GLAM loan lifecycle: requests, objects, condition reports, facility reports, shipments, couriers, costs, notifications.
+**20 tables** (4 base + 16 ahg_loan_*) - Full GLAM loan lifecycle: requests, objects, condition reports, facility reports, shipments, couriers, costs, notifications.
 
 ### Tables
 
@@ -992,7 +992,7 @@ User can access a record when:
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                             ahgLoanPlugin — Loan Management ERD                                      │
+│                             ahgLoanPlugin - Loan Management ERD                                      │
 │                       Shared Loan System for GLAM Institutions                                       │
 └──────────────────────────────────────────────────────────────────────────────────────────────────────┘
 
@@ -1135,13 +1135,13 @@ User can access a record when:
   │  ahg_loan                                                                        │
   │    sector ENUM ─────────► museum | gallery | archive | library | dam             │
   │    exhibition_id ───────► exhibition.id (ahgExhibitionPlugin)                    │
-  │    repository_id ───────► repository.id (AtoM core — archival institution)       │
+  │    repository_id ───────► repository.id (AtoM core - archival institution)       │
   │    sector_data JSON ────► Sector-specific metadata (e.g. gallery provenance)     │
   │    internal_approver_id ► user.id                                                │
   │    created_by / updated_by ► user.id                                             │
   │                                                                                  │
   │  ahg_loan_object                                                                 │
-  │    information_object_id ► information_object.id (AtoM core — archival record)   │
+  │    information_object_id ► information_object.id (AtoM core - archival record)   │
   │    external_object_id ──► External ref for non-AtoM objects (gallery/museum)     │
   │    object_type ─────────► archive | museum_object | gallery_artwork | dam_asset  │
   │    condition_report_id ─► ahg_loan_condition_report.id                           │
@@ -1177,7 +1177,7 @@ User can access a record when:
 
 ```
   ════════════════════════════════════════════════════════════════════════════════════════
-  HERITAGE ACCOUNTING ERD — ahgHeritageAccountingPlugin (12 tables)
+  HERITAGE ACCOUNTING ERD - ahgHeritageAccountingPlugin (12 tables)
   Heritage Assets heritage asset accounting: recognition, valuation, depreciation, impairment
   ════════════════════════════════════════════════════════════════════════════════════════
 
@@ -1236,7 +1236,7 @@ User can access a record when:
                       │
                       │ 1:N
   ┌───────────────────▼─────────────────────────────────────────────────────────────────┐
-  │  heritage_asset (62 columns, 5 rows) — Central asset register                       │
+  │  heritage_asset (62 columns, 5 rows) - Central asset register                       │
   │─────────────────────────────────────────────────────────────────────────────────────│
   │ PK id                       int unsigned AUTO_INCREMENT                             │
   │ IX information_object_id    int → information_object.id                             │
@@ -1355,7 +1355,7 @@ User can access a record when:
   ═══════════════════════  JOURNAL & FINANCIAL TRACKING  ═════════════════════════════════
 
   ┌───────────────────────────────────────────────────────────────────────────────────┐
-  │  heritage_journal_entry (3 rows) — Double-entry accounting journal                 │
+  │  heritage_journal_entry (3 rows) - Double-entry accounting journal                 │
   │─────────────────────────────────────────────────────────────────────────────────────│
   │ PK id                       int unsigned AUTO_INCREMENT                             │
   │ FK heritage_asset_id        int unsigned → heritage_asset.id                        │
@@ -1436,7 +1436,7 @@ User can access a record when:
   └───────────────────────────────────────────────┘
 
   ════════════════════════════════════════════════════════════════════════════════════════
-  IPSAS 45 ERD — ahgIPSASPlugin (10 tables)
+  IPSAS 45 ERD - ahgIPSASPlugin (10 tables)
   International Public Sector Accounting Standards heritage asset management
   ════════════════════════════════════════════════════════════════════════════════════════
 
@@ -1602,7 +1602,7 @@ User can access a record when:
 
 ```
   ════════════════════════════════════════════════════════════════════════════════════════
-  IIIF INTEGRATION ERD — ahgIiifPlugin (16 tables)
+  IIIF INTEGRATION ERD - ahgIiifPlugin (16 tables)
   IIIF manifests, annotations, OCR, collections, auth services, 3D, validation
   ════════════════════════════════════════════════════════════════════════════════════════
 
@@ -1648,7 +1648,7 @@ User can access a record when:
   └──────────────────┬───────────────────────────────────────────────────────────────┘
                      │ 1:N
   ┌──────────────────▼───────────────────────────────────────────────────────────────┐
-  │  iiif_ocr_block (11 columns) — Word/line/paragraph coordinate blocks              │
+  │  iiif_ocr_block (11 columns) - Word/line/paragraph coordinate blocks              │
   │──────────────────────────────────────────────────────────────────────────────────│
   │ PK id                  int AUTO_INCREMENT                                         │
   │ FK ocr_id              int NOT NULL → iiif_ocr_text.id                            │
@@ -1699,7 +1699,7 @@ User can access a record when:
   ═══════════════════════  AUTH (IIIF Auth API 1.0)  ═══════════════════════════════════
 
   ┌──────────────────────────────────────────────────────────────────────────────────┐
-  │  iiif_auth_service (14 columns, 3 rows) — Auth service definitions                │
+  │  iiif_auth_service (14 columns, 3 rows) - Auth service definitions                │
   │──────────────────────────────────────────────────────────────────────────────────│
   │ PK id                  int unsigned AUTO_INCREMENT                                │
   │ UQ name                varchar(100) NOT NULL                                      │
@@ -1770,7 +1770,7 @@ User can access a record when:
   └──────────────────────────────────────┘  └──────────────────────────────────────┘
 
   ════════════════════════════════════════════════════════════════════════════════════════
-   No iiif_manifest or iiif_canvas tables exist — manifests are generated on-the-fly
+   No iiif_manifest or iiif_canvas tables exist - manifests are generated on-the-fly
    from information_object/digital_object data, cached in iiif_manifest_cache.
    iiif_annotation links to info objects by object_id (not manifest/canvas tables).
    iiif_ocr_text → iiif_ocr_block for coordinate-level OCR word/line positions.
@@ -1808,7 +1808,7 @@ Projects, Collections, Annotations, Bibliography, Evidence, Reports, API, Submis
 
 ```
   ════════════════════════════════════════════════════════════════════════════════════════
-  RESEARCH PORTAL ERD — ahgResearchPlugin (87 tables)
+  RESEARCH PORTAL ERD - ahgResearchPlugin (87 tables)
   Comprehensive research portal: registration, reading rooms, material requests,
   reproductions, projects, workspaces, annotations, bibliography, evidence, reports
   ════════════════════════════════════════════════════════════════════════════════════════
@@ -1938,7 +1938,7 @@ Projects, Collections, Annotations, Bibliography, Evidence, Reports, API, Submis
   ═══════════════════════  3. MATERIAL REQUESTS & CUSTODY  ════════════════════════════
 
   ┌───────────────────────────────────────────────────────────────────────────────────┐
-  │  research_material_request (38 columns) — Paging / retrieval / return tracking     │
+  │  research_material_request (38 columns) - Paging / retrieval / return tracking     │
   │─────────────────────────────────────────────────────────────────────────────────────│
   │ PK id                       int AUTO_INCREMENT                                     │
   │ IX booking_id / IX object_id int → information_object.id                           │
@@ -2289,7 +2289,7 @@ Projects, Collections, Annotations, Bibliography, Evidence, Reports, API, Submis
   ═══════════════════════  10. ACTIVITIES & EVENTS  ═══════════════════════════════════
 
   ┌───────────────────────────────────────────────────────────────────────────────────┐
-  │  research_activity (31 columns) — Classes, tours, filming, events, meetings        │
+  │  research_activity (31 columns) - Classes, tours, filming, events, meetings        │
   │─────────────────────────────────────────────────────────────────────────────────────│
   │ PK id / IX activity_type ENUM(class, tour, exhibit, loan, conservation,            │
   │                          photography, filming, event, meeting, other)              │
@@ -2418,7 +2418,7 @@ Projects, Collections, Annotations, Bibliography, Evidence, Reports, API, Submis
   ═══════════════════════  14. RESEARCHER SUBMISSIONS  ════════════════════════════════
 
   ┌───────────────────────────────────────────────────────────────────────────────────┐
-  │  researcher_submission (22 columns, 1 row) — User-contributed descriptions         │
+  │  researcher_submission (22 columns, 1 row) - User-contributed descriptions         │
   │─────────────────────────────────────────────────────────────────────────────────────│
   │ PK id bigint unsigned / IX researcher_id / IX user_id                              │
   │    title / description / repository_id / parent_object_id / IX project_id          │
@@ -2455,7 +2455,7 @@ Projects, Collections, Annotations, Bibliography, Evidence, Reports, API, Submis
   ════════════════════════════════════════════════════════════════════════════════════════
    NOTE: research_request and research_request_item tables DO NOT EXIST.
    Material requests use research_material_request (not a separate request entity).
-   The old ERD showed these non-existent tables — corrected in this version.
+   The old ERD showed these non-existent tables - corrected in this version.
 
    KEY RELATIONSHIPS:
    research_researcher → user.id (1:1 optional)
@@ -2503,7 +2503,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
 
 ```
   ════════════════════════════════════════════════════════════════════════════════════════
-  REGISTRY STANDARDS & CONFORMANCE ERD — ahgRegistryPlugin (32 tables)
+  REGISTRY STANDARDS & CONFORMANCE ERD - ahgRegistryPlugin (32 tables)
   Global GLAM software registry: standards, software, institutions, vendors, instances
   ════════════════════════════════════════════════════════════════════════════════════════
 
@@ -2543,7 +2543,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
   ═══════════════════════  2. SOFTWARE, COMPONENTS & RELEASES  ════════════════════════
 
   ┌───────────────────────────────────────────────────────────────────────────────────┐
-  │  registry_software (46 columns, 6 rows) — Software products in the registry        │
+  │  registry_software (46 columns, 6 rows) - Software products in the registry        │
   │─────────────────────────────────────────────────────────────────────────────────────│
   │ PK id                       bigint unsigned AUTO_INCREMENT                         │
   │ IX name / UQ slug / IX vendor_id                                                   │
@@ -2593,7 +2593,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
   ═══════════════════════  3. INSTITUTIONS  ════════════════════════════════════════════
 
   ┌───────────────────────────────────────────────────────────────────────────────────┐
-  │  registry_institution (43 columns, 184 rows) — GLAM institutions directory         │
+  │  registry_institution (43 columns, 184 rows) - GLAM institutions directory         │
   │─────────────────────────────────────────────────────────────────────────────────────│
   │ PK id                       bigint unsigned AUTO_INCREMENT                         │
   │ IX name / UQ slug                                                                  │
@@ -2626,7 +2626,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
   ═══════════════════════  4. VENDORS  ════════════════════════════════════════════════
 
   ┌───────────────────────────────────────────────────────────────────────────────────┐
-  │  registry_vendor (39 columns, 2 rows) — Service providers & developers             │
+  │  registry_vendor (39 columns, 2 rows) - Service providers & developers             │
   │─────────────────────────────────────────────────────────────────────────────────────│
   │ PK id                       bigint unsigned AUTO_INCREMENT                         │
   │ IX name / UQ slug / vendor_type json / specializations json                        │
@@ -2662,7 +2662,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
   ═══════════════════════  5. INSTANCES & SYNC  ═══════════════════════════════════════
 
   ┌───────────────────────────────────────────────────────────────────────────────────┐
-  │  registry_instance (28 columns, 168 rows) — Deployed software instances            │
+  │  registry_instance (28 columns, 168 rows) - Deployed software instances            │
   │─────────────────────────────────────────────────────────────────────────────────────│
   │ PK id                       bigint unsigned AUTO_INCREMENT                         │
   │ IX institution_id / name / url                                                     │
@@ -2820,7 +2820,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
      registry_tag, registry_review, registry_favorite all use entity_type + entity_id
 
    GLAM/DAM & INFORMATION OBJECT LINKS:
-     Registry is a STANDALONE subsystem — no direct information_object references.
+     Registry is a STANDALONE subsystem - no direct information_object references.
      registry_favorite.user_id ────────► user.id (AtoM user)
      registry_note.user_id ────────────► user.id
      registry_newsletter_subscriber.user_id ► user.id
@@ -3582,7 +3582,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
 
 ---
 
-## 19. CDPA — Zimbabwe (ahgCDPAPlugin)
+## 19. CDPA - Zimbabwe (ahgCDPAPlugin)
 
 **9 tables** | `tables_json`: `["cdpa_controller_license","cdpa_dpo","cdpa_processing_activity","cdpa_consent","cdpa_data_subject_request","cdpa_breach","cdpa_dpia","cdpa_audit_log","cdpa_config"]`
 
@@ -3647,7 +3647,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • cdpa_breach.reported_by ──► user.id
    • cdpa_dpia.approved_by ──► user.id
    • cdpa_audit_log.performed_by ──► user.id
-   NOTE: CDPA tables do not directly reference information_object — they track
+   NOTE: CDPA tables do not directly reference information_object - they track
    organizational compliance (data controller licenses, processing activities)
   ════════════════════════════════════════════════════════════════════════════════════════
 ![wireframe](./images/wireframes/wireframe_65d6e0a1.png)
@@ -3775,7 +3775,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
 
 ---
 
-## 21. NAZ — Zimbabwe (ahgNAZPlugin)
+## 21. NAZ - Zimbabwe (ahgNAZPlugin)
 
 **10 tables** | `tables_json`: `["naz_closure_period","naz_protected_record","naz_records_schedule","naz_transfer","naz_transfer_item","naz_researcher","naz_research_permit","naz_research_visit","naz_audit_log","naz_config"]`
 
@@ -4064,7 +4064,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
 
 ---
 
-## 25. Library System — Full ILS (ahgLibraryPlugin)
+## 25. Library System - Full ILS (ahgLibraryPlugin)
 
 **18 tables** | `tables_json`: `["library_item","library_item_creator","library_item_subject","library_copy","library_patron","library_checkout","library_hold","library_fine","library_loan_rule","library_budget","library_order","library_order_line","library_subscription","library_serial_issue","library_ill_request","library_settings","library_subject_authority","library_entity_subject_map"]`
 
@@ -4778,7 +4778,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • dam_format_holdings.information_object_id ──► information_object.id
    • dam_version_links.information_object_id ──► information_object.id
    • dam_version_links.created_by ──► user.id
-   NOTE: All DAM tables attach directly to information_object — DAM is a sector overlay
+   NOTE: All DAM tables attach directly to information_object - DAM is a sector overlay
   ════════════════════════════════════════════════════════════════════════════════════════
 ![wireframe](./images/wireframes/wireframe_a207ba1a.png)
 ```
@@ -4925,7 +4925,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
      - repository.id (entity_type='repository')
      - donor.id (entity_type='donor')
      - function.id (entity_type='function')
-   NOTE: EAV pattern — any entity type can have custom fields without schema changes
+   NOTE: EAV pattern - any entity type can have custom fields without schema changes
   ════════════════════════════════════════════════════════════════════════════════════════
 ![wireframe](./images/wireframes/wireframe_2887b7ed.png)
 ```
@@ -4995,7 +4995,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
 
   ════════════════════════════════════════════════════════════════════════════════════════
   GLAM/DAM & INFORMATION OBJECT LINKS:
-   • No direct FK references — stores global configuration key-value pairs
+   • No direct FK references - stores global configuration key-value pairs
    • Used by ALL plugins via AhgSettingsService::get('key', 'default')
   ════════════════════════════════════════════════════════════════════════════════════════
 ![wireframe](./images/wireframes/wireframe_2a3fc289.png)
@@ -5007,11 +5007,11 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
 
 ### 33.1 Information Object Links (object_id / information_object_id)
 
-All plugin tables that reference `information_object.id` — the central archival record in AtoM.
+All plugin tables that reference `information_object.id` - the central archival record in AtoM.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────────────┐
-│                    INFORMATION OBJECT — CROSS-PLUGIN RELATIONSHIPS                        │
+│                    INFORMATION OBJECT - CROSS-PLUGIN RELATIONSHIPS                        │
 ├──────────────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                           │
 │                          ┌────────────────────────┐                                      │
@@ -5058,7 +5058,7 @@ All plugin tables that reference `information_object.id` — the central archiva
 │  │ahg_ner_     │ │  resource       │ │custom_field_    │ │  record        │ ┌──────────┐ │
 │  │  extraction │ │research_quality_│ │  value           │ │donor_provenance│ │icip_     │ │
 │  │ahg_ai_job   │ │  metric         │ │  .object_id     │ └────────────────┘ │  tk_label│ │
-│  │ahg_ai_      │ │research_        │ │  (polymorphic — │                    │icip_     │ │
+│  │ahg_ai_      │ │research_        │ │  (polymorphic - │                    │icip_     │ │
 │  │  condition_ │ │  snapshot_item  │ │   any entity)    │ EXHIBITION        │  consent │ │
 │  │  assessment │ │research_        │ └─────────────────┘ ┌────────────────┐ │icip_     │ │
 │  │ahg_ai_      │ │  reproduction_  │                     │exhibition_     │ │  access_ │ │
@@ -5088,7 +5088,7 @@ All plugin tables that reference `information_object.id` — the central archiva
 
 ### 33.2 Repository Links (repository_id)
 
-Tables that link to `repository.id` — the archival institution in AtoM.
+Tables that link to `repository.id` - the archival institution in AtoM.
 
 | Plugin | Table | Column |
 |--------|-------|--------|
@@ -5106,7 +5106,7 @@ Tables that link to `repository.id` — the archival institution in AtoM.
 
 ### 33.3 Actor Links (actor_id)
 
-Tables that link to `actor.id` — persons, organizations, families in AtoM.
+Tables that link to `actor.id` - persons, organizations, families in AtoM.
 
 | Plugin | Table | Column |
 |--------|-------|--------|

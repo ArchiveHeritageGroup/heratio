@@ -1,4 +1,4 @@
-UNILISA 2027 — DRAFT ABSTRACT
+UNILISA 2027 - DRAFT ABSTRACT
 ================================
 
 Conference: 5th UNISA Biennial International Conference on Library and Information Science in Africa
@@ -31,13 +31,13 @@ AI-augmented workflows treat the human archivist as a mere reviewer of
 black-box output rather than a first-class collaborator.
 
 This paper presents Heratio, an open-source archival platform that
-integrates the full records lifecycle — from active document management
+integrates the full records lifecycle - from active document management
 through ISAD(G) description, ISO 15489-conformant retention and disposal,
 BagIt/OAIS preservation packaging, and RDF-graph-based discovery via the
-Records-in-Contexts (RiC-CM/RiC-O) ontology. Each AI capability —
+Records-in-Contexts (RiC-CM/RiC-O) ontology. Each AI capability -
 named-entity extraction, condition assessment from images, semantic
 similarity search via sentence embeddings, classification rule inference
-— operates under explicit human-in-the-loop confirmation and is
+- operates under explicit human-in-the-loop confirmation and is
 auditable end-to-end via PREMIS-shaped event logs. SHACL validation
 against curated RiC shapes ensures that the speed of AI-assisted ingest
 does not come at the cost of descriptive quality. Compliance frameworks

@@ -1,7 +1,7 @@
 # AtoM Upgrade Checklist
 
 Heratio is a standalone Laravel 12 application but ships with tooling that
-imports content from AtoM — XLIFF translations, schema patterns, taxonomy
+imports content from AtoM - XLIFF translations, schema patterns, taxonomy
 seeds, partial templates. When Heratio is installed onto a host that already
 runs AtoM (or when AtoM is later upgraded under a host running Heratio), the
 imported artefacts may drift from the AtoM source. This document is the
@@ -43,7 +43,7 @@ which AtoM version each translation was last imported from.
 
 ---
 
-## 2. UI string translations — XLIFF re-import
+## 2. UI string translations - XLIFF re-import
 
 The bulk of the multi-language platform is auto-managed by
 `php artisan ahg:translation-import-xliff`. The command is **idempotent and
@@ -65,7 +65,7 @@ php artisan ahg:translation-import-xliff \
 # Bust the cache so __() picks up the new strings
 php artisan view:clear
 
-# Coverage report — per-locale % of keys translated
+# Coverage report - per-locale % of keys translated
 php artisan ahg:translation-coverage
 ```
 
@@ -74,7 +74,7 @@ php artisan ahg:translation-coverage
 | Mode | Behaviour | When to use |
 |---|---|---|
 | `merge` (default) | Existing JSON values win over XLIFF source | Day-to-day, protect manual translations |
-| `prefer-source` | XLIFF source wins UNLESS `lang/_meta.json` flags the entry as `hand_edited: true` | After AtoM upgrade — AtoM's improved wording trickles in, your customisations stay |
+| `prefer-source` | XLIFF source wins UNLESS `lang/_meta.json` flags the entry as `hand_edited: true` | After AtoM upgrade - AtoM's improved wording trickles in, your customisations stay |
 | `overwrite` | XLIFF source ALWAYS wins (full replace) | Initial install, or recovery from corrupted JSON |
 
 ### Locale auto-discovery
@@ -88,7 +88,7 @@ end-user dropdown until added to `setting.i18n_languages`:
 INSERT INTO setting (scope, name, editable) VALUES ('i18n_languages', 'chr', 1);
 ```
 
-Or use `--auto-enable-threshold=70` on the import command — auto-inserts the
+Or use `--auto-enable-threshold=70` on the import command - auto-inserts the
 setting row when a locale reaches ≥70% coverage.
 
 ---
@@ -133,7 +133,7 @@ Decision per column:
 
 AtoM plugins (`/plugins/*/i18n/*`, `/atom-ahg-plugins/*/i18n/*`) ship their
 own translations. The `--source-extra` flag stacks these on top of the core
-XLIFFs. **Plugin translations override core when they collide** — same
+XLIFFs. **Plugin translations override core when they collide** - same
 behaviour as AtoM's runtime.
 
 ```bash
@@ -151,7 +151,7 @@ Add each unique base path to a `--source-extra` flag.
 
 Of Heratio's ~3290 `__()` keys, ~2000 don't exist in any AtoM XLIFF (RiC
 Explorer, AI Tools, Privacy Dashboard, Spectrum, Heritage Accounting, etc.).
-These are unaffected by an AtoM upgrade — they need their own translation
+These are unaffected by an AtoM upgrade - they need their own translation
 sourcing path:
 
 - Manual authorship in `lang/{locale}.json`
@@ -256,15 +256,15 @@ Track AtoM version specifics here as upgrades happen.
 
 ### AtoM 2.11 → 2.12
 
-- (placeholder — fill in when 2.12 ships)
+- (placeholder - fill in when 2.12 ships)
 
 ---
 
 ## Related documents
 
-- `CLAUDE.md` — Fresh Install Procedure (now references this checklist)
-- Issue #34 — Multi-language platform (audit + status)
-- Issue #35 — Translation service (MT workflow + `ahg_translation_*` tables)
+- `CLAUDE.md` - Fresh Install Procedure (now references this checklist)
+- Issue #34 - Multi-language platform (audit + status)
+- Issue #35 - Translation service (MT workflow + `ahg_translation_*` tables)
 - Heratio source-of-truth XLIFFs: `apps/qubit/i18n/{locale}/messages.xml` in
   the AtoM install referenced by `--source` (default
   `/usr/share/nginx/archive/apps/qubit/i18n`).

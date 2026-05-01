@@ -1,4 +1,4 @@
-# Heratio — IIIF Compliance Hardening
+# Heratio - IIIF Compliance Hardening
 
 ## Overview
 
@@ -50,11 +50,11 @@ This feature is part of the Heratio framework v2.8.2 by The Archive and Heritage
 ## Architecture
 
 ### Database Tables
-- `iiif_validation_result` — Stores validation results per object per check
+- `iiif_validation_result` - Stores validation results per object per check
 
 ### Services
-- `IiifValidationService` — Manifest validation, derivative checking, batch QC
-- `IiifManifestV3Service` — Enhanced with rights, provider, seeAlso, ImageService3
+- `IiifValidationService` - Manifest validation, derivative checking, batch QC
+- `IiifManifestV3Service` - Enhanced with rights, provider, seeAlso, ImageService3
 
 ### Access Points
 | URL | Purpose |

@@ -1,4 +1,4 @@
-# Heratio — IIIF AI Extraction
+# Heratio - IIIF AI Extraction
 
 ## Feature Overview
 
@@ -16,11 +16,11 @@ The IIIF AI Extraction module bridges the IIIF Viewer plugin (ahgIiifPlugin) wit
 ## Key Features
 
 ### Automated Extraction Pipeline
-- **OCR** — Extracts text from digitized documents (manuscripts, typed records, printed material) using Tesseract via the external AI server
-- **Named Entity Recognition** — Identifies persons, organizations, places, and dates from OCR text using spaCy NLP models
-- **Translation** — Translates extracted text between language pairs using Argos Translate
-- **Summarization** — Generates concise summaries of extracted text content
-- **Face Detection** — Detects human faces in photographic material for potential authority record matching
+- **OCR** - Extracts text from digitized documents (manuscripts, typed records, printed material) using Tesseract via the external AI server
+- **Named Entity Recognition** - Identifies persons, organizations, places, and dates from OCR text using spaCy NLP models
+- **Translation** - Translates extracted text between language pairs using Argos Translate
+- **Summarization** - Generates concise summaries of extracted text content
+- **Face Detection** - Detects human faces in photographic material for potential authority record matching
 
 ### Architecture
 - **External AI Server**: All AI processing is performed by a dedicated server (`http://<host>:5004/ai/v1`), keeping AtoM's web server lightweight
@@ -49,7 +49,7 @@ The IIIF AI Extraction module bridges the IIIF Viewer plugin (ahgIiifPlugin) wit
 
 | Table | Purpose |
 |-------|---------|
-| `ai_iiif_extraction` | Extraction job log — tracks each pipeline run per digital object |
+| `ai_iiif_extraction` | Extraction job log - tracks each pipeline run per digital object |
 | `ahg_ai_settings` | Consolidated AI settings (feature + setting_key + value) |
 | `iiif_ocr_text` | Full OCR text per digital object (existing) |
 | `iiif_ocr_block` | OCR text blocks with coordinates (existing) |
@@ -69,23 +69,23 @@ The IIIF AI Extraction module bridges the IIIF Viewer plugin (ahgIiifPlugin) wit
 
 ## Standards Compliance
 
-- **W3C Web Annotation Data Model** — NER and face detection results stored as IIIF annotations
-- **IIIF Presentation API 3.0** — Compatible with IIIF manifests and canvases
-- **OAIS** — Extracted metadata enriches Archival Information Packages (AIPs)
+- **W3C Web Annotation Data Model** - NER and face detection results stored as IIIF annotations
+- **IIIF Presentation API 3.0** - Compatible with IIIF manifests and canvases
+- **OAIS** - Extracted metadata enriches Archival Information Packages (AIPs)
 
 ## Use Cases
 
-1. **Bulk OCR of digitized collections** — Process thousands of scanned documents to make them full-text searchable
-2. **Automated entity extraction** — Identify people, places, and organizations mentioned in archival documents
-3. **Multi-language collections** — Translate extracted text for cross-language discovery
-4. **Photographic archives** — Detect faces in historical photographs for authority record linking
-5. **Collection summarization** — Generate concise descriptions of lengthy archival documents
+1. **Bulk OCR of digitized collections** - Process thousands of scanned documents to make them full-text searchable
+2. **Automated entity extraction** - Identify people, places, and organizations mentioned in archival documents
+3. **Multi-language collections** - Translate extracted text for cross-language discovery
+4. **Photographic archives** - Detect faces in historical photographs for authority record linking
+5. **Collection summarization** - Generate concise descriptions of lengthy archival documents
 
 ## Related Components
 
 - [AI Tools User Guide](ai-tools-user-guide.md)
 - [IIIF Integration User Guide](iiif-integration-user-guide.md)
-- [Data Ingest User Guide](data-ingest-user-guide.md) — Ingest pipeline can trigger AI extraction
+- [Data Ingest User Guide](data-ingest-user-guide.md) - Ingest pipeline can trigger AI extraction
 
 ---
 

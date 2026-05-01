@@ -408,7 +408,7 @@ The system can convert non-viewable formats for browser display:
 │  TXT, CSV, XML    →   Plain text view    Built-in          │
 │  SVG              →   Rendered image     Browser native     │
 │                                                             │
-│  Conversions are cached — fast on repeat views.             │
+│  Conversions are cached - fast on repeat views.             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ![wireframe](./images/wireframes/wireframe_22b963da.png)
@@ -477,7 +477,7 @@ Existing annotations appear as colored overlays on the image:
 
 ### What Are Collections?
 
-Collections are curated groups of IIIF manifests — your own records or external resources from other institutions.
+Collections are curated groups of IIIF manifests - your own records or external resources from other institutions.
 
 ### Browsing Collections
 ```
@@ -505,7 +505,7 @@ Collections are curated groups of IIIF manifests — your own records or externa
 1. Go to **IIIF Collections** (via admin menu)
 2. Click **New Collection**
 3. Fill in name, description, attribution
-4. Add items — search your records or paste external manifest URIs
+4. Add items - search your records or paste external manifest URIs
 5. Reorder items by drag-and-drop
 
 Each collection generates a IIIF Collection manifest at:

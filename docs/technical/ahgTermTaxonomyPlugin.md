@@ -92,7 +92,7 @@ ahgTermTaxonomyPlugin/
 │   └── routing.yml
 ├── extension.json
 ├── database/
-│   └── install.sql                     (empty — no custom tables)
+│   └── install.sql                     (empty - no custom tables)
 ├── modules/
 │   └── termTaxonomy/
 │       ├── actions/
@@ -100,8 +100,8 @@ ahgTermTaxonomyPlugin/
 │       ├── config/
 │       │   └── module.yml
 │       └── templates/
-│           ├── indexSuccess.php         (term browse — 3-col layout)
-│           └── taxonomyIndexSuccess.php (taxonomy browse — 2-col layout)
+│           ├── indexSuccess.php         (term browse - 3-col layout)
+│           └── taxonomyIndexSuccess.php (taxonomy browse - 2-col layout)
 └── lib/
     ├── Services/
     │   └── TermTaxonomyService.php     (all business logic)
@@ -455,11 +455,11 @@ The old plugin source files remain in `atom-ahg-plugins/ahgTermBrowsePlugin/` bu
 
 | Test | Expected |
 |------|----------|
-| `/taxonomy/35` (Subjects) | 200 — table with IO/actor counts |
-| `/taxonomy/42` (Places) | 200 — map-marker-alt icon |
-| `/taxonomy/78` (Genres) | 200 — table with IO/actor counts |
+| `/taxonomy/35` (Subjects) | 200 - table with IO/actor counts |
+| `/taxonomy/42` (Places) | 200 - map-marker-alt icon |
+| `/taxonomy/78` (Genres) | 200 - table with IO/actor counts |
 | `/taxonomy/36` (restricted) | 403 for anonymous |
-| `/term/photography` | 200 — term page with IO results |
+| `/term/photography` | 200 - term page with IO results |
 | Sort: `?sort=alphabetic` | Alphabetical ordering |
 | Search: `?subquery=test` | Filtered results |
 | Pagination: `?page=2` | Second page of results |

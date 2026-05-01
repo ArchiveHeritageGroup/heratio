@@ -34,7 +34,7 @@ All critical and high-priority findings have been remediated. Medium-priority it
 
 #### 1. Session Fixation (OWASP A07: Identification and Authentication Failures)
 - **Finding:** Session ID not regenerated on login transition
-- **Fix:** `AuthMiddleware.php` — `session_regenerate_id(true)` on login detection via `$_SESSION['_security_auth_id']` tracking
+- **Fix:** `AuthMiddleware.php` - `session_regenerate_id(true)` on login detection via `$_SESSION['_security_auth_id']` tracking
 - **File:** `atom-framework/src/Http/Middleware/AuthMiddleware.php`
 
 #### 2. CSRF Default Mode Set to 'log' (OWASP A01: Broken Access Control)
@@ -61,7 +61,7 @@ All critical and high-priority findings have been remediated. Medium-priority it
 
 #### 6. No Account Lockout (OWASP A07: Identification and Authentication Failures)
 - **Finding:** No brute force protection on login
-- **Fix:** `LoginSecurityService` — 5 failed attempts = 15-minute lockout
+- **Fix:** `LoginSecurityService` - 5 failed attempts = 15-minute lockout
 - **Files:** `atom-framework/src/Core/Security/LoginSecurityService.php`, `atom-framework/src/Services/AuthService.php`
 - **Table:** `login_attempt`
 
@@ -88,10 +88,10 @@ All critical and high-priority findings have been remediated. Medium-priority it
 #### 11. SSRF (Server-Side Request Forgery) (OWASP A10: SSRF)
 - **Finding:** 4 outbound HTTP locations lacked private IP/DNS rebinding protection
 - **Fixes applied:**
-  - `ahgReportBuilderPlugin/lib/LinkService.php` — Uses `HttpClientService` with SSRF protection; fallback adds IP validation, enables SSL verification, disables redirects
-  - `ahgAPIPlugin/lib/Services/WebhookService.php` — DNS pre-resolution, private IP blocking, redirect disabled, resolved IP pinning
-  - `ahgFederationPlugin/lib/HarvestClient.php` — Metadata host blocking, private IP blocking, SSL verification, response size limit, redirect disabled, IP pinning
-- **Not fixed (locked):** `ahgLibraryPlugin/web/cover-proxy.php` — plugin is locked per policy
+  - `ahgReportBuilderPlugin/lib/LinkService.php` - Uses `HttpClientService` with SSRF protection; fallback adds IP validation, enables SSL verification, disables redirects
+  - `ahgAPIPlugin/lib/Services/WebhookService.php` - DNS pre-resolution, private IP blocking, redirect disabled, resolved IP pinning
+  - `ahgFederationPlugin/lib/HarvestClient.php` - Metadata host blocking, private IP blocking, SSL verification, response size limit, redirect disabled, IP pinning
+- **Not fixed (locked):** `ahgLibraryPlugin/web/cover-proxy.php` - plugin is locked per policy
 
 ### Medium Priority (Remediated)
 
@@ -102,14 +102,14 @@ All critical and high-priority findings have been remediated. Medium-priority it
 
 #### 13. Password Expiry and History (ISO 27001 A.9.4.3)
 - **Finding:** No password expiry enforcement or reuse prevention
-- **Fix:** `PasswordPolicyService` — configurable expiry (default 90 days), history (default 5 passwords)
+- **Fix:** `PasswordPolicyService` - configurable expiry (default 90 days), history (default 5 passwords)
 - **File:** `atom-framework/src/Core/Security/PasswordPolicyService.php`
 - **Table:** `password_history`
 - **Settings:** `password_expiry_days`, `password_history_count`
 
 #### 14. Bell-LaPadula Star Property (ISO 27001 A.9.1, MLS)
 - **Finding:** Only Simple Security Property (no read-up) was enforced; Star Property (no write-down) was missing
-- **Fix:** Added `checkStarProperty()` to `AccessFilterService.checkAccess()` — prevents users with high clearance from writing to lower-classification objects
+- **Fix:** Added `checkStarProperty()` to `AccessFilterService.checkAccess()` - prevents users with high clearance from writing to lower-classification objects
 - **File:** `atom-framework/src/Services/Access/AccessFilterService.php`
 
 #### 15. MFA/2FA Backend (OWASP A07: Identification and Authentication Failures)

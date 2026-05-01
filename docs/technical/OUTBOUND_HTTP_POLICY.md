@@ -1,4 +1,4 @@
-# Heratio — Outbound HTTP / SSRF Protection Policy
+# Heratio - Outbound HTTP / SSRF Protection Policy
 
 **Version:** 1.0
 **Date:** 2026-02-28
@@ -94,7 +94,7 @@ The first resolved IP is pinned via `CURLOPT_RESOLVE` to prevent DNS changes bet
 
 ---
 
-## 4. XmlParserService — XXE Protection
+## 4. XmlParserService - XXE Protection
 
 ### API
 
@@ -121,9 +121,9 @@ $dom = XmlParserService::loadDom($xmlContent);
 ```
 
 ### Flags
-- `LIBXML_NONET` — Disables network access during parsing
-- `LIBXML_NOCDATA` — Merges CDATA sections into text nodes
-- `substituteEntities = false` — Prevents entity expansion on DOMDocument
+- `LIBXML_NONET` - Disables network access during parsing
+- `LIBXML_NOCDATA` - Merges CDATA sections into text nodes
+- `substituteEntities = false` - Prevents entity expansion on DOMDocument
 
 ---
 
@@ -150,12 +150,12 @@ $dom = XmlParserService::loadDom($xmlContent);
 
 ## 7. Fixed Vulnerabilities (Issue #197)
 
-### 7.1 LibraryCoverService — SSL Disabled (HIGH)
+### 7.1 LibraryCoverService - SSL Disabled (HIGH)
 - **File:** `atom-framework/src/Services/LibraryCoverService.php`
 - **Problem:** `CURLOPT_SSL_VERIFYPEER => false` on all outbound requests
 - **Fix:** Migrated to `HttpClientService::get()` (SSL on by default, SSRF protection)
 
-### 7.2 IsbnLookupService — No SSRF Protection (MEDIUM)
+### 7.2 IsbnLookupService - No SSRF Protection (MEDIUM)
 - **File:** `atom-framework/src/Services/IsbnLookupService.php`
 - **Problem:** Direct curl with no private IP checking
 - **Fix:** Migrated `httpGet()` to use `HttpClientService::get()`

@@ -1,10 +1,10 @@
-# Marketplace — Payments & Payouts
+# Marketplace - Payments & Payouts
 
 How money flows in the Heratio Marketplace: from buyer card to PayFast, into a held escrow, out to seller bank accounts on payout day.
 
 ---
 
-## Payment provider — PayFast
+## Payment provider - PayFast
 
 The marketplace integrates **PayFast** as its sole payment processor. Heratio never stores card details: the buyer is redirected to PayFast for entry, and the result is verified server-to-server.
 
@@ -16,16 +16,16 @@ Three things have to be configured in `/admin/marketplace/settings`:
 | **Merchant key** | PayFast dashboard |
 | **Passphrase** | PayFast dashboard (used to sign requests) |
 
-The site URL must be HTTPS in production — PayFast refuses ITN webhooks to plain HTTP.
+The site URL must be HTTPS in production - PayFast refuses ITN webhooks to plain HTTP.
 
 ---
 
-## Buyer flow — what happens at checkout
+## Buyer flow - what happens at checkout
 
 1. Buyer clicks **Buy Now** / completes an accepted offer / wins an auction.
 2. The marketplace creates a transaction in **`pending_payment`**.
 3. Buyer is redirected to PayFast's hosted payment page.
-4. Buyer pays — card, EFT, Snapscan, etc. (PayFast's choice).
+4. Buyer pays - card, EFT, Snapscan, etc. (PayFast's choice).
 5. PayFast posts an **ITN** (Instant Transaction Notification) to:
    ```
    POST /marketplace/payfast/notify
@@ -37,7 +37,7 @@ The site URL must be HTTPS in production — PayFast refuses ITN webhooks to pla
    - On success, transaction → **`paid`**.
 7. Buyer is redirected to `/marketplace/payment/return` (success) or `/marketplace/payment/cancel` (cancelled).
 
-The transaction is now visible to both parties — buyer at *My Purchases*, seller at *My Transactions*.
+The transaction is now visible to both parties - buyer at *My Purchases*, seller at *My Transactions*.
 
 ---
 
@@ -60,7 +60,7 @@ When a transaction passes its escrow window with no open dispute, its amount mov
 
 ### Self-service view
 
-- **`/marketplace/seller/payouts`** — every payout you've received with batch reference, amount, and the underlying transactions.
+- **`/marketplace/seller/payouts`** - every payout you've received with batch reference, amount, and the underlying transactions.
 
 ### Operator-driven batching
 
@@ -77,13 +77,13 @@ This iterates every seller with a positive available balance and produces:
 3. A CSV/PDF download for the operator's bank to process.
 4. An email to each seller with the reference and the underlying transactions.
 
-> Heratio does **not** initiate bank transfers automatically — the CSV is processed by the operator's banking facility (PayFast Pay-Outs, EFT export, or manual). The operator marks the payout as **paid** when the bank confirms; that flips the seller's balance from *available* to *paid out*.
+> Heratio does **not** initiate bank transfers automatically - the CSV is processed by the operator's banking facility (PayFast Pay-Outs, EFT export, or manual). The operator marks the payout as **paid** when the bank confirms; that flips the seller's balance from *available* to *paid out*.
 
 ---
 
 ## Refunds & disputes
 
-There is no "refund" button in Heratio's UI — refunds are processed manually by the operator:
+There is no "refund" button in Heratio's UI - refunds are processed manually by the operator:
 
 1. Buyer raises a dispute via the seller's contact form / enquiry.
 2. If unresolved, buyer emails the operator (admin contact).
@@ -104,7 +104,7 @@ The site primary currency is set in `/admin/marketplace/settings`. Additional cu
 - **Active / inactive** flag
 - **FX rate** (manual or fed by a scheduled task)
 
-Sellers pick from active currencies on the listing form. Buyers see prices converted to their preferred currency on Browse, but **pay in the listing's currency** at checkout — Heratio does not do live FX at the checkout stage.
+Sellers pick from active currencies on the listing form. Buyers see prices converted to their preferred currency on Browse, but **pay in the listing's currency** at checkout - Heratio does not do live FX at the checkout stage.
 
 ---
 
@@ -127,6 +127,6 @@ Each report exports as CSV.
 
 ## See also
 
-- *Marketplace — Admin Operations*
-- *Marketplace — Seller Quick Start*
-- *Marketplace — Buyer Quick Start*
+- *Marketplace - Admin Operations*
+- *Marketplace - Seller Quick Start*
+- *Marketplace - Buyer Quick Start*

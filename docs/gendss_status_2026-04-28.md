@@ -8,7 +8,7 @@ terms of the GNU Affero General Public License version 3 or (at your option)
 any later version. See <https://www.gnu.org/licenses/agpl-3.0.html>.
 -->
 
-# GenDSs 2026 paper — operational status snapshot
+# GenDSs 2026 paper - operational status snapshot
 
 **Author:** Johan Pieterse, The Archive and Heritage Group (Pty) Ltd
 **Date:** 2026-04-28
@@ -23,7 +23,7 @@ any later version. See <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 Both a Heratio-native package and the legacy AtoM plugin coexist on this server. They are two different code bases solving the same problem; the AtoM plugin still runs the production ANC pilot site (`psis.theahg.co.za` / `archive` DB), the Heratio package runs against the much smaller `heratio` DB.
 
-### 1.1 Heratio-side package — `packages/ahg-discovery/`
+### 1.1 Heratio-side package - `packages/ahg-discovery/`
 
 | Item | Value |
 |---|---|
@@ -67,14 +67,14 @@ The four retrieval strategies on the Heratio side:
 
 | Strategy | Implemented as | Input | Returns |
 |---|---|---|---|
-| **Keyword** | `DiscoveryController::keywordSearch()` (private) | `expandQuery()` output (keywords + phrases) | `[{object_id, es_score, highlights, slug}]`. **Not Elasticsearch — pure MySQL `LIKE %term%` against `information_object_i18n.title` and `.scope_and_content`** with a hand-rolled relevance score (`title=3, scope=1`). |
+| **Keyword** | `DiscoveryController::keywordSearch()` (private) | `expandQuery()` output (keywords + phrases) | `[{object_id, es_score, highlights, slug}]`. **Not Elasticsearch - pure MySQL `LIKE %term%` against `information_object_i18n.title` and `.scope_and_content`** with a hand-rolled relevance score (`title=3, scope=1`). |
 | **Entity (NER)** | `DiscoveryController::entitySearch()` | expansion entities + phrases + long keywords | `[{object_id, match_count, entity_types, matched_values}]` from `ahg_ner_entity` table (`LIKE %term%` on `entity_value`). |
 | **Hierarchical** | `DiscoveryController::hierarchicalSearch()` | top 20 results from keyword+entity | siblings (limit 5/parent) + children-of-fonds (limit 10) walked on `information_object` `parent_id`. |
 | **Vector** | `VectorSearchStrategy` → `\AhgSearch\Services\VectorSearchService` (`packages/ahg-search/src/Services/VectorSearchService.php`) | raw query string | `[{object_id, score, source:"vector", slug, title}]` from Qdrant `/points/search`, embedding via Ollama at `semantic_embedding_url` (default `http://192.168.0.78:11434`). |
 
-A fifth helper `ImageSearchStrategy` exists but its `search()` always returns `[]` for plain text — image search needs `$context['image_path']` or `$context['similar_to_object_id']`. It is not on the text-query path.
+A fifth helper `ImageSearchStrategy` exists but its `search()` always returns `[]` for plain text - image search needs `$context['image_path']` or `$context['similar_to_object_id']`. It is not on the text-query path.
 
-### 1.2 AtoM-side legacy plugin — `ahgDiscoveryPlugin`
+### 1.2 AtoM-side legacy plugin - `ahgDiscoveryPlugin`
 
 | Item | Value |
 |---|---|
@@ -95,34 +95,34 @@ Other relevant atom-side plugins are also enabled: `ahgAIPlugin v2.1.0`, `ahgSea
 The **Heratio port is not a faithful translation** of the AtoM plugin:
 
 * AtoM has **`ResultMerger`** with explicit 3-/4-/5-strategy weight tables (constants `WEIGHT_*_3S/_4S/_5S`). The Heratio controller has a hand-rolled `mergeResults()` that supports only keyword + entity + hierarchical, then post-applies **Reciprocal Rank Fusion (RRF, k=60)** for vector results in a separate pass (`rrfBoostWithVector()`). The two do not produce identical ranking.
-* AtoM's `QueryExpander` and Heratio's `expandQuery()` are byte-for-byte the same regex / stop-word logic (no LLM expansion). Both touch `ahg_thesaurus_synonym` if present — that table exists in `heratio` but I did not query its size.
+* AtoM's `QueryExpander` and Heratio's `expandQuery()` are byte-for-byte the same regex / stop-word logic (no LLM expansion). Both touch `ahg_thesaurus_synonym` if present - that table exists in `heratio` but I did not query its size.
 * **No LLM is used for query expansion in either implementation.** The only LLM call in this code base is `OllamaPageIndexClient` (PageIndex tree build + node retrieval), not the live `/discovery/search` path.
 
 ---
 
-## 2. Corpus and indexes — actual numbers
+## 2. Corpus and indexes - actual numbers
 
 ### 2.1 Fuseki (RiC-O)
 
 * **Local instance:** Apache Jena Fuseki 5.1.0 in Docker container `fuseki` (image `stain/jena-fuseki`), exposed on `0.0.0.0:3030`. Auth: `admin:admin123` (`ADMIN_PASSWORD` in container env).
-* **Datasets:** one — `/ric` (services: `query`, `sparql`, `update`, GSP-r, GSP-rw).
+* **Datasets:** one - `/ric` (services: `query`, `sparql`, `update`, GSP-r, GSP-rw).
 * **Endpoint used by code:** `http://192.168.0.112:3030/ric` (`ahg_settings.fuseki_endpoint`); `PageIndexService` and `RicSyncService` POST SPARQL to `/query` or `/sparql`.
 
-`SELECT (COUNT(*) AS ?c) WHERE { ?s ?p ?o }` on the local `/ric` dataset **timed out at 60s** — there is no full-triple count available without a longer-running scan; this is itself a finding (no aggregation index, ~M-scale store on cold cache).
+`SELECT (COUNT(*) AS ?c) WHERE { ?s ?p ?o }` on the local `/ric` dataset **timed out at 60s** - there is no full-triple count available without a longer-running scan; this is itself a finding (no aggregation index, ~M-scale store on cold cache).
 
 Per-class counts that did complete (each query bounded ≤30 s):
 
 | Class | Local Fuseki `/ric` | Remote `https://ric.theahg.co.za/sparql` |
 |---|---:|---:|
 | Total triples | **timeout >60 s** | 7,192 |
-| `rico:Record` | 648 | — (not queried) |
-| `rico:RecordSet` | 56 | — |
-| `rico:Place` | 21,272 | — |
-| `rico:CorporateBody` | 16 | — |
-| `rico:Person` | 26 | — |
-| `rico:Agent` | 0 | — |
-| `rico:Activity` | 0 | — |
-| `rico:Event` | 0 | — |
+| `rico:Record` | 648 | - (not queried) |
+| `rico:RecordSet` | 56 | - |
+| `rico:Place` | 21,272 | - |
+| `rico:CorporateBody` | 16 | - |
+| `rico:Person` | 26 | - |
+| `rico:Agent` | 0 | - |
+| `rico:Activity` | 0 | - |
+| `rico:Event` | 0 | - |
 
 The `ric.theahg.co.za` endpoint is the **OpenRiC v0.2.0 reference API** (route `/api/ric/v1/sparql`); it is intentionally tiny (proof corpus only, 7,192 triples). Do not conflate it with the local Fuseki, which is the operational store the pageindex code talks to.
 
@@ -131,7 +131,7 @@ Place modelling: `rico:Place → rico:hasPlaceName → [bnode] → rico:textualV
 ### 2.2 Qdrant
 
 * **Local instance:** docker container `qdrant` (image `qdrant/qdrant:latest`), `0.0.0.0:6333` (REST) and `:6334` (gRPC). Up 12 days.
-* **No remote Qdrant on 192.168.0.78** (Ollama port 11434 also closed — see §3).
+* **No remote Qdrant on 192.168.0.78** (Ollama port 11434 also closed - see §3).
 
 | Collection | points_count | indexed_vectors_count | dim | distance | inferred model |
 |---|---:|---:|---:|---|---|
@@ -178,7 +178,7 @@ For comparison the AtoM-side ES indices that the legacy `psis.theahg.co.za` site
 | `atom_qubitactor` | 12,215 |
 | `archive_qubitinformationobject` | 918 |
 
-The mapping on `heratio_qubitinformationobject` is the standard AtoM-derived one (`dynamic: strict`, per-language `i18n.{en,fr,es,...}.title/scopeAndContent` text fields with locale analysers, all `copy_to: all`). **This is the index the AtoM plugin's `KeywordSearchStrategy` would target — but Heratio's `DiscoveryController::keywordSearch()` does NOT use Elasticsearch at all; it uses MySQL `LIKE`.** That is a real architectural divergence.
+The mapping on `heratio_qubitinformationobject` is the standard AtoM-derived one (`dynamic: strict`, per-language `i18n.{en,fr,es,...}.title/scopeAndContent` text fields with locale analysers, all `copy_to: all`). **This is the index the AtoM plugin's `KeywordSearchStrategy` would target - but Heratio's `DiscoveryController::keywordSearch()` does NOT use Elasticsearch at all; it uses MySQL `LIKE`.** That is a real architectural divergence.
 
 ### 2.4 PageIndex tree
 
@@ -196,7 +196,7 @@ There is no `ead`, `ead_*`, or population in `finding_aid` anywhere:
 | heratio | 0 | none archival |
 | archive | not checked | not checked |
 
-The matches for `%ead%` (`integrity_dead_letter`, `research_reading_room*`) are unrelated word-substring hits. **There is no EAD source corpus loaded** — PageIndex's `extractEadContent()` reads from `information_object` + `_i18n`, not from EAD XML files.
+The matches for `%ead%` (`integrity_dead_letter`, `research_reading_room*`) are unrelated word-substring hits. **There is no EAD source corpus loaded** - PageIndex's `extractEadContent()` reads from `information_object` + `_i18n`, not from EAD XML files.
 
 For context the IO base table:
 
@@ -204,7 +204,7 @@ For context the IO base table:
 |---|---:|---:|---:|
 | atom | 454,393 | 322,067 | 132,326 |
 | heratio | 743 | n/a | n/a |
-| archive | not counted | — | — |
+| archive | not counted | - | - |
 
 ANC corpus is in `atom`; Heratio's `heratio` DB holds 743 demo / smoke-test rows.
 
@@ -214,13 +214,13 @@ ANC corpus is in `atom`; Heratio's `heratio` DB holds 743 demo / smoke-test rows
 
 ### 3.1 Service status
 
-* `systemctl status ollama` reports **`inactive (dead) since Tue 2026-04-28 11:01:50 SAST`** — i.e. Ollama on 192.168.0.112 stopped this morning, ~3 hours before this report was written. `Loaded` but `disabled`; binary at `/usr/local/bin/ollama`, override config at `/etc/systemd/system/ollama.service.d/override.conf` sets `OLLAMA_HOST=0.0.0.0`, `OLLAMA_KEEP_ALIVE=-1`, `OLLAMA_MAX_LOADED_MODELS=1`, `OLLAMA_NUM_PARALLEL=1`, **`CUDA_VISIBLE_DEVICES=`** (empty — i.e. CPU-only).
+* `systemctl status ollama` reports **`inactive (dead) since Tue 2026-04-28 11:01:50 SAST`** - i.e. Ollama on 192.168.0.112 stopped this morning, ~3 hours before this report was written. `Loaded` but `disabled`; binary at `/usr/local/bin/ollama`, override config at `/etc/systemd/system/ollama.service.d/override.conf` sets `OLLAMA_HOST=0.0.0.0`, `OLLAMA_KEEP_ALIVE=-1`, `OLLAMA_MAX_LOADED_MODELS=1`, `OLLAMA_NUM_PARALLEL=1`, **`CUDA_VISIBLE_DEVICES=`** (empty - i.e. CPU-only).
 * `curl http://192.168.0.112:11434/api/tags` → `HTTP 000` (no listener; ss shows no process on port 11434).
 * `curl http://192.168.0.78:11434/api/tags` → **connection refused**. The AI server's Ollama is also down. The brief states 192.168.0.78 hosts CLIP for image embeddings; today it is unreachable.
 
 ### 3.2 Models on disk (local 192.168.0.112)
 
-`ls /usr/share/ollama/.ollama/models/manifests/registry.ollama.ai/library/` — **the model the discovery code expects (`llama3.1:8b`) is NOT on disk.** Models actually pulled (~68 GB blob store):
+`ls /usr/share/ollama/.ollama/models/manifests/registry.ollama.ai/library/` - **the model the discovery code expects (`llama3.1:8b`) is NOT on disk.** Models actually pulled (~68 GB blob store):
 
 ```
 llava/7b
@@ -238,7 +238,7 @@ qwen3/32b
 
 ### 3.3 Live latency probe
 
-Not measurable today — both Ollama instances are down. No `POST /api/generate` was attempted because the connection refuses immediately.
+Not measurable today - both Ollama instances are down. No `POST /api/generate` was attempted because the connection refuses immediately.
 
 ### 3.4 Query expansion path
 
@@ -246,8 +246,8 @@ Not measurable today — both Ollama instances are down. No `POST /api/generate`
 
 | File | Class / method | LLM-backed? |
 |---|---|---|
-| `packages/ahg-discovery/src/Controllers/DiscoveryController.php:745` | `DiscoveryController::expandQuery()` | **No** — pure deterministic regex + stop words + thesaurus DB |
-| `packages/ahg-semantic-search/src/Services/SemanticSearchService.php:270` | `SemanticSearchService::expandQuery()` | "Ported from AtoM ahgSemanticSearchPlugin ThesaurusService" — thesaurus only |
+| `packages/ahg-discovery/src/Controllers/DiscoveryController.php:745` | `DiscoveryController::expandQuery()` | **No** - pure deterministic regex + stop words + thesaurus DB |
+| `packages/ahg-semantic-search/src/Services/SemanticSearchService.php:270` | `SemanticSearchService::expandQuery()` | "Ported from AtoM ahgSemanticSearchPlugin ThesaurusService" - thesaurus only |
 | `packages/ahg-display/src/Controllers/DisplayController.php:200` | calls `SemanticSearchService::expandQuery()` | thesaurus only |
 
 The Heratio Discovery query-expansion prompt is **not an LLM prompt at all**; it is the regex pipeline:
@@ -262,7 +262,7 @@ lookupSynonyms()      -> ahg_thesaurus_synonym lookups (synonym/use_for/related,
 
 The only Ollama prompts that exist anywhere in the code base are in `OllamaPageIndexClient`:
 
-* **System prompt (tree construction)** — verbatim from `OllamaPageIndexClient::getTreeConstructionSystemPrompt()`:
+* **System prompt (tree construction)** - verbatim from `OllamaPageIndexClient::getTreeConstructionSystemPrompt()`:
 
 ```
 You are a document structure analyser for an archival management system.
@@ -280,14 +280,14 @@ Each node in the tree MUST have:
 Rules:
 1. Preserve the original document hierarchy faithfully
 2. Every piece of content must belong to at least one node
-3. Summaries must be factual — do not invent information not in the source
+3. Summaries must be factual - do not invent information not in the source
 4. The root node represents the entire document
-5. Return ONLY valid JSON — no markdown, no explanation, no preamble
+5. Return ONLY valid JSON - no markdown, no explanation, no preamble
 
 Output format: a single JSON object representing the root node.
 ```
 
-* **System prompt (retrieval)** — verbatim from `getRetrievalSystemPrompt()`:
+* **System prompt (retrieval)** - verbatim from `getRetrievalSystemPrompt()`:
 
 ```
 You are a retrieval reasoning engine for an archival management system.
@@ -309,9 +309,9 @@ Output format (JSON only, no markdown):
 Rules:
 1. Return ALL relevant nodes, ranked by relevance (1.0 = perfect, 0.0 = irrelevant)
 2. Only include nodes with relevance >= 0.3
-3. Consider parent nodes as context — a child node inherits relevance from its parent
+3. Consider parent nodes as context - a child node inherits relevance from its parent
 4. The "reason" field must reference specific content from the node, not generic statements
-5. Return ONLY valid JSON — no markdown fences, no preamble
+5. Return ONLY valid JSON - no markdown fences, no preamble
 ```
 
 These prompts are wired only into the PageIndex routes (`/discovery/pageindex`, `/discovery/build`). They are **not** invoked by the live `/discovery/search` retrieval pipeline. Query expansion in the live retrieval path is regex-only.
@@ -322,12 +322,12 @@ These prompts are wired only into the PageIndex routes (`/discovery/pageindex`, 
 
 `grep` for `fusion|reciprocal|RRF|combine|merge|rerank` in `packages/ahg-discovery/`:
 
-* **`DiscoveryController::mergeResults()`** — weighted normalised sum across keyword/entity/hierarchical (no vector). Hard-coded weights:
+* **`DiscoveryController::mergeResults()`** - weighted normalised sum across keyword/entity/hierarchical (no vector). Hard-coded weights:
   ```
   hasEntity ? (kw 0.35, ent 0.40, hier 0.25) : (kw 0.70, ent 0, hier 0.30)
   multi-source bonus: score *= (1 + (sourceCount - 1) * 0.1)
   ```
-* **`DiscoveryController::rrfBoostWithVector()`** — Reciprocal Rank Fusion, **k=60** (Cormack et al., SIGIR 2009), applied as a *post-hoc* re-rank on the merger's output to fold in the vector strategy:
+* **`DiscoveryController::rrfBoostWithVector()`** - Reciprocal Rank Fusion, **k=60** (Cormack et al., SIGIR 2009), applied as a *post-hoc* re-rank on the merger's output to fold in the vector strategy:
   ```php
   foreach ($merged as &$row) {
       if (isset($vectorRank[$id])) {
@@ -355,7 +355,7 @@ The AtoM-side `ResultMerger` (`/usr/share/nginx/archive/atom-ahg-plugins/ahgDisc
 
 ---
 
-## 5. Latency — measured today
+## 5. Latency - measured today
 
 ### 5.1 Hardware
 
@@ -366,7 +366,7 @@ The AtoM-side `ResultMerger` (`/usr/share/nginx/archive/atom-ahg-plugins/ahgDisc
 | Memory | 251 GiB total, 159 GiB available, 1.0 GiB swap in use |
 | Kernel | Linux 6.8.0-107-generic |
 | PHP | 8.3.30 CLI |
-| Storage rotation | Mostly loop devices in `lsblk`; the data volume is on `/mnt/nas/heratio` (NFS / SAN — `lsblk` does not show it) |
+| Storage rotation | Mostly loop devices in `lsblk`; the data volume is on `/mnt/nas/heratio` (NFS / SAN - `lsblk` does not show it) |
 
 ### 5.2 Per-strategy timings for query **"Dakawa"**
 
@@ -375,19 +375,19 @@ Cold/warm where noted; **all warm runs are after the cold run primed caches.**
 | Step | Endpoint / call | Cold (ms) | Warm runs (ms) |
 |---|---|---:|---:|
 | Query expansion (regex + stop-words + thesaurus) | `DiscoveryController::expandQuery()` (logged in `ahg_discovery_log.strategy_breakdown`) | 12 | 11 |
-| Keyword retrieval — Heratio path (MySQL `LIKE` on `information_object_i18n.title/scope`) | controller `keywordSearch()` (logged) | 7 | 7 |
-| Keyword retrieval — equivalent Elasticsearch query against `atom_qubitinformationobject` (322 k docs) | `POST /atom_qubitinformationobject/_search` | 2,383 | **6 / 6 / 6 / 2 / 6** (server-side `took`, ≤9 ms wall) |
-| Keyword retrieval — same multi-LIKE against `atom.information_object_i18n` (455 k rows) | `mysql -e "SELECT ... LIKE '%Dakawa%' OR ..."` | 240 | 212 / 176 |
-| Entity retrieval — `LIKE` on `atom.ahg_ner_entity` (9.79 M rows, no FTS index) | `mysql -e "SELECT object_id, COUNT(*) FROM ahg_ner_entity WHERE entity_value LIKE '%Dakawa%' ..."` | **27,284** | 20,821 / 20,108 |
+| Keyword retrieval - Heratio path (MySQL `LIKE` on `information_object_i18n.title/scope`) | controller `keywordSearch()` (logged) | 7 | 7 |
+| Keyword retrieval - equivalent Elasticsearch query against `atom_qubitinformationobject` (322 k docs) | `POST /atom_qubitinformationobject/_search` | 2,383 | **6 / 6 / 6 / 2 / 6** (server-side `took`, ≤9 ms wall) |
+| Keyword retrieval - same multi-LIKE against `atom.information_object_i18n` (455 k rows) | `mysql -e "SELECT ... LIKE '%Dakawa%' OR ..."` | 240 | 212 / 176 |
+| Entity retrieval - `LIKE` on `atom.ahg_ner_entity` (9.79 M rows, no FTS index) | `mysql -e "SELECT object_id, COUNT(*) FROM ahg_ner_entity WHERE entity_value LIKE '%Dakawa%' ..."` | **27,284** | 20,821 / 20,108 |
 | Hierarchical expansion (sibling/child walk on top 20) | controller `hierarchicalSearch()` (logged) | 0 | 0 |
-| Vector retrieval — Qdrant `anc_records` `points/search` (raw, no embedding) | `POST :6333/.../points/search` (cold-loads 454 k-pt collection) | 5,521 | 1,034 / 6 / 23 / 81 |
-| Embedding for vector retrieval (Ollama all-minilm) | `POST 192.168.0.78:11434/api/embeddings` | **n/a — Ollama 78 unreachable today** | — |
+| Vector retrieval - Qdrant `anc_records` `points/search` (raw, no embedding) | `POST :6333/.../points/search` (cold-loads 454 k-pt collection) | 5,521 | 1,034 / 6 / 23 / 81 |
+| Embedding for vector retrieval (Ollama all-minilm) | `POST 192.168.0.78:11434/api/embeddings` | **n/a - Ollama 78 unreachable today** | - |
 | Local SPARQL entity retrieval (rico:Place CONTAINS lookup, no FTS index) | `POST :3030/ric/sparql` for `?nm rico:textualValue ?n . FILTER(CONTAINS(LCASE(?n),"dakawa"))` | **30,005 (timeout)** | 30,004 / 30,004 |
 | Re-ranking / fusion (`mergeResults` + `rrfBoostWithVector`) | controller `merge` step (logged) | 0 | 0 |
 
 ### 5.3 End-to-end via the actual Heratio HTTP endpoint
 
-`GET https://heratio.theahg.co.za/discovery/search?q=Dakawa&...` — this is the production code path. The `heratio` DB has only 743 IOs and **does not contain ANC content**; both calls return `total: 0` but the latency budget is real:
+`GET https://heratio.theahg.co.za/discovery/search?q=Dakawa&...` - this is the production code path. The `heratio` DB has only 743 IOs and **does not contain ANC content**; both calls return `total: 0` but the latency budget is real:
 
 | Mode | Total wall (s) | log_id | Per-strategy ms (from `strategy_breakdown` JSON) |
 |---|---:|---:|---|
@@ -423,18 +423,18 @@ role-credentials.json
 seed-urls.json
 ```
 
-— these are end-to-end smoke / parity fixtures (URL routing checks against the AtoM source), not retrieval-quality fixtures.
+- these are end-to-end smoke / parity fixtures (URL routing checks against the AtoM source), not retrieval-quality fixtures.
 
 There is **no `tests/` subdirectory under `packages/ahg-discovery/`** at all.
 
 What does exist for capturing retrieval data:
 
-* `ahg_discovery_log` table (heratio DB): 36 rows, schema includes `query_text, expanded_terms, result_count, clicked_object, clicked_at, dwell_ms, response_ms, session_id, keywords (JSON), strategy_breakdown (JSON), pre_merge_ranks (JSON), post_merge_ranks (JSON)`. 36 rows is roughly 50/50 smoke-test queries (`Department of Education`, `*`, `Dakawa`) — not a curated relevance set.
-* `ahg_discovery_log` table (archive DB): 14 rows, all 2026-02-26 between 08:58 and 14:56 — historical AtoM-plugin queries from a single afternoon's bring-up, not a pilot evaluation.
+* `ahg_discovery_log` table (heratio DB): 36 rows, schema includes `query_text, expanded_terms, result_count, clicked_object, clicked_at, dwell_ms, response_ms, session_id, keywords (JSON), strategy_breakdown (JSON), pre_merge_ranks (JSON), post_merge_ranks (JSON)`. 36 rows is roughly 50/50 smoke-test queries (`Department of Education`, `*`, `Dakawa`) - not a curated relevance set.
+* `ahg_discovery_log` table (archive DB): 14 rows, all 2026-02-26 between 08:58 and 14:56 - historical AtoM-plugin queries from a single afternoon's bring-up, not a pilot evaluation.
 * `ahg_discovery_cache` (heratio + archive): query-result cache, not for evaluation.
 * `ahg_pageindex_query_log`: schema present, 0 rows.
 
-There is no ground-truth `qrels` set of `(query, document_id, relevance_grade)` tuples anywhere in the repo or filesystem. No relevance-judgement UI — `grep` for `relevance|judge|assess` under `packages/ahg-discovery` and `packages/ahg-research` returns only the per-result `relevance` field on PageIndex matches (LLM-assigned, not human-judged).
+There is no ground-truth `qrels` set of `(query, document_id, relevance_grade)` tuples anywhere in the repo or filesystem. No relevance-judgement UI - `grep` for `relevance|judge|assess` under `packages/ahg-discovery` and `packages/ahg-research` returns only the per-result `relevance` field on PageIndex matches (LLM-assigned, not human-judged).
 
 **Conclusion:** the system can capture per-query telemetry but cannot today compute nDCG, MRR, or Recall@k against a fixed query set. A pilot evaluation needs the qrels set + the evaluation script to be built before any reportable numbers can be produced.
 
@@ -446,9 +446,9 @@ There is no ground-truth `qrels` set of `(query, document_id, relevance_grade)` 
 
 File: `/usr/share/nginx/heratio/packages/ahg-discovery/src/Services/DiscoveryQueryLogger.php`. Methods:
 
-* `logQuery(array $payload): ?int` — inserts one row into `ahg_discovery_log` and returns the new `id` so the JS click handler can correlate.
-* `logClick(?int $logId, int $clickedObjectId, ?string $sessionId)` — sets `clicked_object` + `clicked_at`.
-* `logDwell(int $logId, int $dwellMs)` — sets `dwell_ms` (clamped 0…3,600,000 ms).
+* `logQuery(array $payload): ?int` - inserts one row into `ahg_discovery_log` and returns the new `id` so the JS click handler can correlate.
+* `logClick(?int $logId, int $clickedObjectId, ?string $sessionId)` - sets `clicked_object` + `clicked_at`.
+* `logDwell(int $logId, int $dwellMs)` - sets `dwell_ms` (clamped 0…3,600,000 ms).
 
 Per-query the row carries:
 
@@ -468,11 +468,11 @@ Per-query the row carries:
 | `clicked_at` | `now()` on click | nullable datetime |
 | `dwell_ms` | from page-leave beacon | nullable uint |
 
-Confirmed live from row id=38: `strategy_breakdown` JSON contains six keys (expansion, keyword, entity, vector, hierarchical, merge), each with `ms` and `hits`. No Ollama prompt text or tokens are logged — only `OllamaPageIndexClient`'s internal `tokens_used` count is recorded into `ahg_pageindex_query_log` (model_used + response_ms + reasoning_text), and only when PageIndex is exercised; that table is currently empty.
+Confirmed live from row id=38: `strategy_breakdown` JSON contains six keys (expansion, keyword, entity, vector, hierarchical, merge), each with `ms` and `hits`. No Ollama prompt text or tokens are logged - only `OllamaPageIndexClient`'s internal `tokens_used` count is recorded into `ahg_pageindex_query_log` (model_used + response_ms + reasoning_text), and only when PageIndex is exercised; that table is currently empty.
 
 ### 7.2 Retention
 
-* No cron cleanup for `ahg_discovery_log` exists. `crontab -l` contains `ahg-facet-cache`, `atom-backup`, `atom-bot-watch`, `mysql-full-dump`, etc. — none touch the discovery log.
+* No cron cleanup for `ahg_discovery_log` exists. `crontab -l` contains `ahg-facet-cache`, `atom-backup`, `atom-bot-watch`, `mysql-full-dump`, etc. - none touch the discovery log.
 * No `discovery:prune` artisan command is registered (verified via `php artisan list | grep -i discov`).
 * The table will grow unbounded.
 
@@ -484,10 +484,10 @@ Things that **don't work yet**:
 
 * Ollama at `192.168.0.112:11434` is offline today (since 2026-04-28 11:01 SAST). PageIndex tree construction, PageIndex retrieval, and any LLM-mediated functionality are unreachable.
 * Ollama at `192.168.0.78:11434` is unreachable (connection refused). The default text-embedding endpoint AND the CLIP image-embedding endpoint both depend on it. Vector search cannot embed query strings → returns `[]`.
-* `llama3.1:8b` — the model the code targets — **is not pulled locally**. Available 8B-class substitutes on disk: `qwen3:8b`, `mistral:7b`. The default `OllamaPageIndexClient` constructor will fail health checks on a fresh restart until either the model is pulled or settings switch the default.
+* `llama3.1:8b` - the model the code targets - **is not pulled locally**. Available 8B-class substitutes on disk: `qwen3:8b`, `mistral:7b`. The default `OllamaPageIndexClient` constructor will fail health checks on a fresh restart until either the model is pulled or settings switch the default.
 * PageIndex tree table is empty (0 rows in every database). The `/discovery/pageindex` route always returns no matches. Nothing has been indexed via the LLM-driven tree builder.
-* `finding_aid` table is empty — there is no EAD-XML corpus to index. PageIndex's `extractEadContent()` would draw from `information_object` if invoked, but no invocation has happened.
-* Local Fuseki `SELECT (COUNT(*)) WHERE { ?s ?p ?o }` does not return within 60 s. Either the dataset is large enough that an unbounded count is genuinely slow, or the store needs a load — either way, baseline triple count is currently unknown.
+* `finding_aid` table is empty - there is no EAD-XML corpus to index. PageIndex's `extractEadContent()` would draw from `information_object` if invoked, but no invocation has happened.
+* Local Fuseki `SELECT (COUNT(*)) WHERE { ?s ?p ?o }` does not return within 60 s. Either the dataset is large enough that an unbounded count is genuinely slow, or the store needs a load - either way, baseline triple count is currently unknown.
 
 Things that **work but haven't been measured**:
 
@@ -499,28 +499,28 @@ Things that **work but haven't been measured**:
 
 Things that are **mocked, stubbed, or hard-coded**:
 
-* The Heratio `keywordSearch()` is **not Elasticsearch** — it's MySQL `LIKE %term%` with hand-rolled `CASE WHEN ... THEN 3 ELSE 0`-style scoring. Branded as "keyword retrieval" in the controller signature, but it does not use the heratio_qubitinformationobject ES index that exists right next to it. The index is sized correctly for the role (455 k docs, 221 MB) but is unused on this code path.
+* The Heratio `keywordSearch()` is **not Elasticsearch** - it's MySQL `LIKE %term%` with hand-rolled `CASE WHEN ... THEN 3 ELSE 0`-style scoring. Branded as "keyword retrieval" in the controller signature, but it does not use the heratio_qubitinformationobject ES index that exists right next to it. The index is sized correctly for the role (455 k docs, 221 MB) but is unused on this code path.
 * Merge weights in `DiscoveryController::mergeResults()` (0.35 / 0.40 / 0.25 etc.) and the RRF `k = 60` are PHP class constants. Not configurable through `ahg_settings` despite the file's comments in adjacent classes implying they should be.
-* `ahg_settings` is missing entries for `semantic_qdrant_collection`, `semantic_embedding_model`, `semantic_embedding_url`, `semantic_qdrant_url`, `semantic_timeout_ms` — the code falls back to defaults baked into `VectorSearchService`. Not broken, but not auditable from settings either.
+* `ahg_settings` is missing entries for `semantic_qdrant_collection`, `semantic_embedding_model`, `semantic_embedding_url`, `semantic_qdrant_url`, `semantic_timeout_ms` - the code falls back to defaults baked into `VectorSearchService`. Not broken, but not auditable from settings either.
 * `getHighLevelIds()` falls back to **hard-coded term IDs `[227, 228, 229, 231]`** (Fonds / Sub-fonds / Series / Sub-series) when the `term_i18n` lookup fails. These IDs are AtoM-instance-specific and will silently misbehave on a fresh install.
 * `enrichResults()` hard-codes `usage_id = 142` for thumbnail lookup and `TermId::EVENT_TYPE_CREATION` for creator/date queries. AtoM-derived constants; no defensive guard if the term ids were re-seeded.
-* The `archive_images` Qdrant payload schema (`object_id`, `mime_type`, `slug`, `title`) and the `anc_records` payload schema (`title`, `parent_id`, `slug`, `has_scope`, `has_transcript`, `database`) are documented only by example — there is no JSON Schema and no enforcement.
+* The `archive_images` Qdrant payload schema (`object_id`, `mime_type`, `slug`, `title`) and the `anc_records` payload schema (`title`, `parent_id`, `slug`, `has_scope`, `has_transcript`, `database`) are documented only by example - there is no JSON Schema and no enforcement.
 
 What needs to exist before a real pilot evaluation can run:
 
-1. A frozen **qrels set** — at least 20–50 representative ANC queries with graded relevance judgements over a fixed top-K from the union of all four strategies.
+1. A frozen **qrels set** - at least 20–50 representative ANC queries with graded relevance judgements over a fixed top-K from the union of all four strategies.
 2. An **evaluation harness** (`php artisan discovery:eval` or similar) that replays the qrels, captures per-strategy and fused rankings, and computes nDCG@10, MRR, Recall@K. Today nothing of the sort exists.
-3. **Ollama brought back online** with `llama3.1:8b` (or a chosen substitute) — and the choice of model recorded in `ahg_settings`, not just hard-coded.
+3. **Ollama brought back online** with `llama3.1:8b` (or a chosen substitute) - and the choice of model recorded in `ahg_settings`, not just hard-coded.
 4. **Discovery's keyword strategy switched from MySQL `LIKE` to Elasticsearch** (or, if MySQL is intentional, the paper needs to say MySQL, not Elasticsearch / OpenSearch).
 5. **Index the ANC corpus into either heratio's ES indices or directly run Discovery against the `atom` DB.** Today the heratio code base talks to a DB that does not contain the ANC content, so any benchmark numbers from `heratio.theahg.co.za` would be meaningless.
-6. **Build at least one PageIndex tree** (an EAD finding-aid for one ANC fonds — Dakawa Development Centre, ~20 k descendants — would be the obvious target). Until then, the LLM-driven retrieval paragraph in the paper is theoretical.
+6. **Build at least one PageIndex tree** (an EAD finding-aid for one ANC fonds - Dakawa Development Centre, ~20 k descendants - would be the obvious target). Until then, the LLM-driven retrieval paragraph in the paper is theoretical.
 7. **A SPARQL FTS / regex-acceleration plan for Fuseki.** Place / CorporateBody / Person lookups by string fragment time out at 30 s. Either `text:query` (Lucene index) or a denormalised lookup table is needed before entity-by-name SPARQL is on the critical path.
 8. **A `discovery:prune` artisan command + cron** so `ahg_discovery_log` doesn't grow unbounded once telemetry capture is turned on for real users.
-9. **A reproducible benchmark script** that pins the query set, the index versions, and the model checksums — so v1 of the pilot results can be replayed in v2.
+9. **A reproducible benchmark script** that pins the query set, the index versions, and the model checksums - so v1 of the pilot results can be replayed in v2.
 
 ### Pilot status as of 2026-04-28
 
-The ANC pilot is **in flight, not yet evaluable.** Today's progress: the `ahg_io_facet_denorm` sidecar (ADR-0001 Pattern C) was populated against the `atom` DB earlier today — `SELECT taxonomy_id, COUNT(*) FROM atom.ahg_io_facet_denorm GROUP BY taxonomy_id` confirms **2,410,881 rows for taxonomy_id=35 (Subjects) and 2,652,060 rows for taxonomy_id=42 (Places), 5,062,941 rows total**. The brief's "subject facet aggregate dropped from 7.6 s to 2.0 s on cold cache" is consistent with that population but is a Pattern-C facet-cache result, separate from the Discovery retrieval pipeline this report covers. No retrieval-quality numbers are available yet for the pilot.
+The ANC pilot is **in flight, not yet evaluable.** Today's progress: the `ahg_io_facet_denorm` sidecar (ADR-0001 Pattern C) was populated against the `atom` DB earlier today - `SELECT taxonomy_id, COUNT(*) FROM atom.ahg_io_facet_denorm GROUP BY taxonomy_id` confirms **2,410,881 rows for taxonomy_id=35 (Subjects) and 2,652,060 rows for taxonomy_id=42 (Places), 5,062,941 rows total**. The brief's "subject facet aggregate dropped from 7.6 s to 2.0 s on cold cache" is consistent with that population but is a Pattern-C facet-cache result, separate from the Discovery retrieval pipeline this report covers. No retrieval-quality numbers are available yet for the pilot.
 
 ---
 

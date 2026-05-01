@@ -1,4 +1,4 @@
-# Issue #198 — Implementation Plan
+# Issue #198 - Implementation Plan
 # Public Portal + Archives-led UX + Hard Multi-Tenancy + Governance/Hardening
 
 **The Archive and Heritage Group (Pty) Ltd**
@@ -11,7 +11,7 @@
 
 ## Executive Summary
 
-This plan addresses issue #198's five EPICs through a phased delivery over 6 milestones. Codebase analysis reveals the system is **60-70% ready** — substantial infrastructure exists for multi-tenancy (ahgMultiTenantPlugin v1.2.0), search (ahgDiscoveryPlugin + ahgSemanticSearchPlugin), rights enforcement (3-layer model), and research workflows (ahgResearchPlugin v3.0.0 with 87 tables). The primary gaps are **hard isolation** (uploads/search/cache/audit lack tenant_id), **search explainability UI**, **bulk edit operations**, and **security hardening** (unsafe `unserialize()`, missing upload MIME validation).
+This plan addresses issue #198's five EPICs through a phased delivery over 6 milestones. Codebase analysis reveals the system is **60-70% ready** - substantial infrastructure exists for multi-tenancy (ahgMultiTenantPlugin v1.2.0), search (ahgDiscoveryPlugin + ahgSemanticSearchPlugin), rights enforcement (3-layer model), and research workflows (ahgResearchPlugin v3.0.0 with 87 tables). The primary gaps are **hard isolation** (uploads/search/cache/audit lack tenant_id), **search explainability UI**, **bulk edit operations**, and **security hardening** (unsafe `unserialize()`, missing upload MIME validation).
 
 ---
 
@@ -41,7 +41,7 @@ This plan addresses issue #198's five EPICs through a phased delivery over 6 mil
 | Gap | Impact | EPIC |
 |-----|--------|------|
 | Upload paths not tenant-scoped (`/uploads/r/{objectId}/`) | Data leakage | C1 |
-| Elasticsearch — single global index, no tenant filter | Search leakage | C2 |
+| Elasticsearch - single global index, no tenant filter | Search leakage | C2 |
 | Cache keys have no tenant namespace | Cache contamination | C3 |
 | Audit tables missing `tenant_id` column | Compliance breach | C4 |
 | No search ranking explainability UI | UX gap | A2 |
@@ -60,7 +60,7 @@ This plan addresses issue #198's five EPICs through a phased delivery over 6 mil
 ## Milestone Plan
 
 ### M0: Immediate Security Fixes (Week 1)
-**Priority: CRITICAL — Do before any feature work**
+**Priority: CRITICAL - Do before any feature work**
 **Scope:** Issues #197 partial, #185 partial
 
 These are zero-feature-debt items that reduce risk immediately.
@@ -103,7 +103,7 @@ These are zero-feature-debt items that reduce risk immediately.
 **Plugin:** ahgMultiTenantPlugin (currently disabled)
 
 #### M1.1: Upload Isolation (C1)
-**Schema change:** Add `tenant_id INT NULL` to `digital_object` table (nullable for backward compat — existing objects get NULL = "default tenant")
+**Schema change:** Add `tenant_id INT NULL` to `digital_object` table (nullable for backward compat - existing objects get NULL = "default tenant")
 
 **Files to modify:**
 | File | Change |
@@ -116,7 +116,7 @@ These are zero-feature-debt items that reduce risk immediately.
 | `ahgMultiTenantPlugin/database/migrations/002_tenant_isolation.sql` | ALTER `digital_object` ADD `tenant_id`; ALTER audit tables ADD `tenant_id`; ALTER cache infrastructure |
 | `ahgMultiTenantPlugin/lib/Services/TenantFileService.php` | Tenant-aware upload path resolution, cleanup on tenant deletion, migration of existing uploads |
 
-**Data migration CLI:** `php symfony tenant:migrate-uploads` — assigns existing digital objects to default tenant, creates tenant subdirectories, moves files
+**Data migration CLI:** `php symfony tenant:migrate-uploads` - assigns existing digital objects to default tenant, creates tenant subdirectories, moves files
 
 #### M1.2: Search Isolation (C2)
 **Strategy:** Single index with mandatory tenant filter (simpler than per-tenant indexes; avoids reindex on tenant creation)
@@ -128,7 +128,7 @@ These are zero-feature-debt items that reduce risk immediately.
 | `ahgMultiTenantPlugin/lib/Filter/TenantQueryFilter.php` | Update `getElasticsearchFilter()` to use `tenant_id` (not just `repository.id`) |
 | `atom-framework/src/Services/Search/SearchService.php` | Inject tenant context into all search calls; apply filter before query execution |
 
-**Reindex CLI:** `php symfony tenant:reindex` — populates `tenant_id` field in ES for all existing documents
+**Reindex CLI:** `php symfony tenant:reindex` - populates `tenant_id` field in ES for all existing documents
 
 #### M1.3: Cache Isolation (C3)
 **Files to modify:**
@@ -177,9 +177,9 @@ mysql -u root archive -e "SELECT DISTINCT tenant_id FROM ahg_audit_log WHERE ten
 
 ---
 
-### M2: Public Portal VNext — Search & Browse (Weeks 6-9)
+### M2: Public Portal VNext - Search & Browse (Weeks 6-9)
 **Scope:** EPIC A2, A3 partial
-**Plugins:** ahgDisplayPlugin (bug fixes only — it's stable), ahgDiscoveryPlugin, ahgThemeB5Plugin overrides
+**Plugins:** ahgDisplayPlugin (bug fixes only - it's stable), ahgDiscoveryPlugin, ahgThemeB5Plugin overrides
 
 #### M2.1: Hierarchy-Aware Search Ranking (A2)
 **Strategy:** Boost ES scores for records whose parent fonds/series matches query terms.
@@ -207,7 +207,7 @@ mysql -u root archive -e "SELECT DISTINCT tenant_id FROM ahg_audit_log WHERE ten
 - Which synonyms/expansions contributed
 - Hierarchy context boost applied
 
-#### M2.3: Record View — Hierarchy Breadcrumb (A3)
+#### M2.3: Record View - Hierarchy Breadcrumb (A3)
 **New files:**
 | File | Purpose |
 |------|---------|
@@ -216,7 +216,7 @@ mysql -u root archive -e "SELECT DISTINCT tenant_id FROM ahg_audit_log WHERE ten
 
 **Implementation:** Use MPTT (`lft`/`rgt`) columns on `information_object` to walk the tree. Laravel QB query with `ancestor_slugs` for breadcrumb links.
 
-#### M2.4: Record View — Restrictions Banner (A3)
+#### M2.4: Record View - Restrictions Banner (A3)
 **New files:**
 | File | Purpose |
 |------|---------|
@@ -280,7 +280,7 @@ rollbackBulkEdit(int $jobId, int $userId): void
 - AhgAuditService: log all changes with `correlation_id`
 - WorkflowEventService: emit `bulk_edit_started`, `bulk_edit_completed`, `bulk_edit_rolled_back`
 
-#### M3.2: Authority Workbench — Merge with Rollback (B3)
+#### M3.2: Authority Workbench - Merge with Rollback (B3)
 **Extend ahgDedupePlugin:**
 
 **New tables:**
@@ -378,9 +378,9 @@ applyPolicy(int $objectId, string $derivativeType, ?int $userId): array
 **New file:** `ahgAccessRequestPlugin/modules/security/templates/requesterDashboardSuccess.php`
 
 **Implementation:** Aggregates across 3 request types:
-1. `access_request` (ahgAccessRequestPlugin) — restricted material access
-2. `request_to_publish` (ahgRequestToPublishPlugin) — publication requests
-3. `ahg_order` (ahgCartPlugin) — reproduction orders
+1. `access_request` (ahgAccessRequestPlugin) - restricted material access
+2. `request_to_publish` (ahgRequestToPublishPlugin) - publication requests
+3. `ahg_order` (ahgCartPlugin) - reproduction orders
 
 **UI:** Tabbed dashboard showing:
 - All requests with status (pending/approved/denied/completed)
@@ -445,9 +445,9 @@ run(string $command, array $args, array $options): ProcessResult
 **New files:**
 | File | Purpose |
 |------|---------|
-| `ahgAPIPlugin/modules/apiv2/actions/healthAction.class.php` | `GET /api/health` — full health check |
-| `ahgAPIPlugin/modules/apiv2/actions/healthLiveAction.class.php` | `GET /api/health/live` — liveness probe |
-| `ahgAPIPlugin/modules/apiv2/actions/healthReadyAction.class.php` | `GET /api/health/ready` — readiness probe |
+| `ahgAPIPlugin/modules/apiv2/actions/healthAction.class.php` | `GET /api/health` - full health check |
+| `ahgAPIPlugin/modules/apiv2/actions/healthLiveAction.class.php` | `GET /api/health/live` - liveness probe |
+| `ahgAPIPlugin/modules/apiv2/actions/healthReadyAction.class.php` | `GET /api/health/ready` - readiness probe |
 
 **Health checks:**
 - Database connection (SELECT 1)
@@ -491,7 +491,7 @@ heartbeat(int $jobId): void  // worker calls every 30s
 detectStale(int $timeoutMinutes): array  // find jobs without heartbeat
 ```
 
-**CLI:** `php symfony queue:worker --daemon` — persistent worker process
+**CLI:** `php symfony queue:worker --daemon` - persistent worker process
 
 **Systemd unit file:** `/etc/systemd/system/atom-worker.service`
 
@@ -504,9 +504,9 @@ detectStale(int $timeoutMinutes): array  // find jobs without heartbeat
 **New files:**
 | File | Purpose |
 |------|---------|
-| `ahgBackupPlugin/lib/task/backupScheduleTask.class.php` | CLI: `php symfony backup:schedule` — configurable daily/weekly |
+| `ahgBackupPlugin/lib/task/backupScheduleTask.class.php` | CLI: `php symfony backup:schedule` - configurable daily/weekly |
 | `ahgBackupPlugin/lib/task/backupCleanupTask.class.php` | CLI: `php symfony backup:cleanup --older-than=30d` |
-| `ahgBackupPlugin/lib/task/backupVerifyTask.class.php` | CLI: `php symfony backup:verify --last` — test restore to temp dir |
+| `ahgBackupPlugin/lib/task/backupVerifyTask.class.php` | CLI: `php symfony backup:verify --last` - test restore to temp dir |
 
 **Cron configuration:**
 ```cron
@@ -526,9 +526,9 @@ detectStale(int $timeoutMinutes): array  // find jobs without heartbeat
 |------|--------|
 | `ahgAuditTrailPlugin/lib/Services/AhgAuditService.php` | Add `sequence_hash` column computation (HMAC chain); add `archiveLogs(int $olderThanDays)` method |
 
-**New table:** `ahg_audit_archive` — cold storage for audit records older than 1 year
+**New table:** `ahg_audit_archive` - cold storage for audit records older than 1 year
 
-**New CLI:** `php symfony audit:verify-integrity` — verify HMAC chain is unbroken
+**New CLI:** `php symfony audit:verify-integrity` - verify HMAC chain is unbroken
 
 **Deliverable:** `./bin/release minor "Security hardening: HTTP policy, health endpoints, job queue, backup automation"`
 

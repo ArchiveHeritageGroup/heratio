@@ -1,4 +1,4 @@
-# Custom Fields — User Guide
+# Custom Fields - User Guide
 
 **Plugin:** ahgCustomFieldsPlugin
 
@@ -86,7 +86,7 @@ Fields within each entity type can be reordered by dragging:
 ### Deactivate (soft delete)
 1. Click the **trash icon** next to the field
 2. In the confirmation dialog, click **Delete**
-3. The field is deactivated — hidden from forms and views, but data is preserved
+3. The field is deactivated - hidden from forms and views, but data is preserved
 
 ### Permanently Delete (hard delete)
 1. Click the **trash icon** next to the field

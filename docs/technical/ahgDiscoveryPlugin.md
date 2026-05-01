@@ -9,7 +9,7 @@
 
 ## Overview
 
-Natural language discovery search across archival collections. Parses free-text queries into structured search terms, executes three parallel search strategies (keyword, NER entity, hierarchical), merges and ranks results, then enriches with metadata. No AI calls at runtime — uses existing OpenSearch index and NER data.
+Natural language discovery search across archival collections. Parses free-text queries into structured search terms, executes three parallel search strategies (keyword, NER entity, hierarchical), merges and ranks results, then enriches with metadata. No AI calls at runtime - uses existing OpenSearch index and NER data.
 
 ### Key Features
 
@@ -174,7 +174,7 @@ CREATE TABLE IF NOT EXISTS ahg_discovery_cache (
 
 ### ahg_discovery_log
 
-Search analytics — what people ask and what they click.
+Search analytics - what people ask and what they click.
 
 ```sql
 CREATE TABLE IF NOT EXISTS ahg_discovery_log (
@@ -462,7 +462,7 @@ Batch-fetches metadata for paginated results. All queries use Laravel Query Buil
 | ahgSecurityClearancePlugin | No | Future: security-filtered results |
 | OpenSearch / Elasticsearch | Yes | Keyword search strategy |
 
-All optional dependencies degrade gracefully — table existence is checked with `SHOW TABLES LIKE` before each query.
+All optional dependencies degrade gracefully - table existence is checked with `SHOW TABLES LIKE` before each query.
 
 ---
 

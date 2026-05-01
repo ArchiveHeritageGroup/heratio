@@ -1,4 +1,4 @@
-# Heratio image-to-video server — install
+# Heratio image-to-video server - install
 
 Runs on the AI host (Heratio convention: `192.168.0.78`). Listens on `:5052`.
 
@@ -11,7 +11,7 @@ Runs on the AI host (Heratio convention: `192.168.0.78`). Listens on `:5052`.
 
 When the bigger card lands, edit `server.py` to add a `_load_cogvideox()` /
 `_load_wan()` branch alongside `_load_svd()`, set `VIDEO_MODEL=cogvideox-2b`,
-restart the service. Heratio side needs no changes — it just sends the new
+restart the service. Heratio side needs no changes - it just sends the new
 model name in the `model=` form field.
 
 ## Install
@@ -27,7 +27,7 @@ scp -r ./* ahg@192.168.0.78:/opt/heratio-video-server/
 ssh ahg@192.168.0.78
 cd /opt/heratio-video-server
 
-# 2. Python venv (use the system Python 3.10 or 3.11 — torch wheels are matrixed against these)
+# 2. Python venv (use the system Python 3.10 or 3.11 - torch wheels are matrixed against these)
 python3 -m venv .venv
 . .venv/bin/activate
 pip install --upgrade pip
@@ -68,7 +68,7 @@ Symptoms → knobs:
 | `OutOfMemoryError` mid-generation | reduce `num_frames` to 8–10, drop `width`/`height` to `512x288` |
 | Generation takes > 10 min | drop `num_frames`, drop resolution, or accept it (offload trade-off) |
 | Motion is too jittery | lower `motion_bucket_id` (try 80) |
-| Subjects barely move | raise `motion_bucket_id` (try 180) — may add artifacts |
+| Subjects barely move | raise `motion_bucket_id` (try 180) - may add artifacts |
 | First request is very slow | model isn't pre-warmed; step 3 above |
 
 ## Heratio-side configuration
@@ -80,4 +80,4 @@ In Heratio: **Admin → Image Animation Settings**
 - `Frames`: 14
 - `FPS`: 7
 - `Motion bucket`: 127
-- `Request timeout`: 900 (15 min — generous headroom for the 8 GB CPU-offload path)
+- `Request timeout`: 900 (15 min - generous headroom for the 8 GB CPU-offload path)

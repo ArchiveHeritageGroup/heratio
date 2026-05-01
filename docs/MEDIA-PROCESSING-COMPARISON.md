@@ -1,4 +1,4 @@
-# Media Processing & Asset Services — AtoM vs Heratio
+# Media Processing & Asset Services - AtoM vs Heratio
 
 Generated: 2026-03-17
 
@@ -36,21 +36,21 @@ AtoM has 18 media/asset processing features across multiple plugins and framewor
 ## Packages to Create
 
 ### Priority 1 (Core media pipeline)
-- **ahg-3d-model** — 3D viewer, Blender thumbnails, multi-angle, AR.js, TripoSR
-- **ahg-media-processing** — Image derivatives (thumbnail/reference), watermarking, format conversion
-- **ahg-media-streaming** — FFmpeg transcoding, HTTP range streaming for video/audio
-- **ahg-metadata-extraction** — EXIF/IPTC/XMP/PDF metadata via ExifTool
-- **ahg-pdf-tools** — Text extraction (pdftotext), TIFF/PDF merge, PDF/A generation
+- **ahg-3d-model** - 3D viewer, Blender thumbnails, multi-angle, AR.js, TripoSR
+- **ahg-media-processing** - Image derivatives (thumbnail/reference), watermarking, format conversion
+- **ahg-media-streaming** - FFmpeg transcoding, HTTP range streaming for video/audio
+- **ahg-metadata-extraction** - EXIF/IPTC/XMP/PDF metadata via ExifTool
+- **ahg-pdf-tools** - Text extraction (pdftotext), TIFF/PDF merge, PDF/A generation
 
 ### Priority 2 (AI & intelligence)
-- **ahg-ai-services** — LLM integration (OpenAI/Anthropic/Ollama), NER, summarization, translation, spellcheck, transcription
-- **ahg-face-detection** — Face detection via OpenCV/cloud APIs, person linking
-- **ahg-ai-condition** — AI condition assessment with computer vision
+- **ahg-ai-services** - LLM integration (OpenAI/Anthropic/Ollama), NER, summarization, translation, spellcheck, transcription
+- **ahg-face-detection** - Face detection via OpenCV/cloud APIs, person linking
+- **ahg-ai-condition** - AI condition assessment with computer vision
 
 ### Priority 3 (Standards & compliance)
-- **ahg-metadata-export** — Export to BIBFRAME, LIDO, RiCO, VRA Core, Schema.org, PREMIS, EAD3, PBCore, EBUCore, MODS
-- **ahg-file-encryption** — Transparent file encryption at rest
-- **ahg-dam** — Full digital asset management features
+- **ahg-metadata-export** - Export to BIBFRAME, LIDO, RiCO, VRA Core, Schema.org, PREMIS, EAD3, PBCore, EBUCore, MODS
+- **ahg-file-encryption** - Transparent file encryption at rest
+- **ahg-dam** - Full digital asset management features
 
 ---
 

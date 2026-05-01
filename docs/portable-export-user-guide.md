@@ -2,7 +2,7 @@
 
 ## User Guide
 
-Export your catalogue as a self-contained, portable HTML/JS application on CD, USB, or downloadable ZIP. The viewer opens in any modern browser with no server, installation, or internet connection required — a "mini Heratio" for offline use.
+Export your catalogue as a self-contained, portable HTML/JS application on CD, USB, or downloadable ZIP. The viewer opens in any modern browser with no server, installation, or internet connection required - a "mini Heratio" for offline use.
 
 ---
 
@@ -139,9 +139,9 @@ Export your catalogue as a self-contained, portable HTML/JS application on CD, U
 
 ---
 
-## Creating an Export (Web UI — 4-Step Wizard)
+## Creating an Export (Web UI - 4-Step Wizard)
 
-### Step 1: Scope — What to Export
+### Step 1: Scope - What to Export
 ```
   +-----------------------------------------------------------+
   |  Step 1 of 4: Scope                                        |
@@ -157,7 +157,7 @@ Export your catalogue as a self-contained, portable HTML/JS application on CD, U
   +-----------------------------------------------------------+
 ```
 
-### Step 2: Content — Digital Objects & Mode
+### Step 2: Content - Digital Objects & Mode
 ```
   +-----------------------------------------------------------+
   |  Step 2 of 4: Content                                      |
@@ -169,7 +169,7 @@ Export your catalogue as a self-contained, portable HTML/JS application on CD, U
   |  Image Derivatives:                                         |
   |  [x] Thumbnails   (small previews, ~150px)                 |
   |  [x] References   (medium display, ~480-800px)             |
-  |  [ ] Masters      (original files — can be very large!)    |
+  |  [ ] Masters      (original files - can be very large!)    |
   |                                                             |
   |  Viewer Mode:                                               |
   |  [x] Read Only    (browse + search only)                    |
@@ -180,11 +180,11 @@ Export your catalogue as a self-contained, portable HTML/JS application on CD, U
 ```
 
 **About image derivatives:**
-- **Thumbnails** — Small preview images (~150px wide) used in search results and tree navigation
-- **References** — Medium-sized images (~480-800px) used for on-screen viewing in the detail panel
-- **Masters** — Original full-resolution files as uploaded. These can be very large (10-50+ MB each for high-res scans/TIFFs). Only include if you need print-quality originals for offline use. Excluding masters is recommended for most use cases.
+- **Thumbnails** - Small preview images (~150px wide) used in search results and tree navigation
+- **References** - Medium-sized images (~480-800px) used for on-screen viewing in the detail panel
+- **Masters** - Original full-resolution files as uploaded. These can be very large (10-50+ MB each for high-res scans/TIFFs). Only include if you need print-quality originals for offline use. Excluding masters is recommended for most use cases.
 
-### Step 3: Configure — Title, Language, Branding
+### Step 3: Configure - Title, Language, Branding
 ```
   +-----------------------------------------------------------+
   |  Step 3 of 4: Configure                                    |
@@ -503,7 +503,7 @@ Exports are automatically assigned an expiry date based on the retention period 
 Run the cleanup command periodically (e.g., via cron) to delete expired exports:
 
 ```bash
-# Add to crontab — runs daily at 2am
+# Add to crontab - runs daily at 2am
 0 2 * * * cd /usr/share/nginx/archive && php symfony portable:cleanup >> /var/log/portable-cleanup.log 2>&1
 ```
 
@@ -606,7 +606,7 @@ Use `--dry-run` to preview without deleting.
 |  TIP: Large exports with master files can be very large.     |
 |  Consider excluding masters for most use cases.              |
 +-------------------------------------------------------------+
-|  TIP: The CLI command is better for large exports — the      |
+|  TIP: The CLI command is better for large exports - the      |
 |  web UI launches the same process in the background.         |
 +-------------------------------------------------------------+
 |  TIP: Edit mode exports include import.js which adds ~5KB   |
@@ -621,7 +621,7 @@ Use `--dry-run` to preview without deleting.
 |  TIP: Set up portable:cleanup as a daily cron job to         |
 |  automatically remove expired exports and save disk space.   |
 +-------------------------------------------------------------+
-|  TIP: Use the clipboard export for targeted deliveries —     |
+|  TIP: Use the clipboard export for targeted deliveries -     |
 |  add specific items to clipboard, then export as portable.   |
 +-------------------------------------------------------------+
 |  TIP: Configure default settings at Admin > AHG Settings >   |

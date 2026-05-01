@@ -1,8 +1,8 @@
-# OpenRiC service — separate-DB migration plan
+# OpenRiC service - separate-DB migration plan
 
 **Status:** Planned, not yet executed. Phase 4.3 Option B + Phase 4.4.6 from the earlier split plan. A coordinated data change; schedule a maintenance window when you're ready.
 
-**Why:** Currently `heratio.theahg.co.za` and `ric.theahg.co.za` share one MySQL database. That's a *soft* boundary — either app could technically write to the other's tables. Separate-DB makes the boundary hard and matches how a third-party adopter would run the service.
+**Why:** Currently `heratio.theahg.co.za` and `ric.theahg.co.za` share one MySQL database. That's a *soft* boundary - either app could technically write to the other's tables. Separate-DB makes the boundary hard and matches how a third-party adopter would run the service.
 
 **When not to do this:** Before the split has been live for ≥ 2 weeks, or before a third-party adopter asks for the deployment recipe. No rush; the shared DB works.
 
@@ -10,8 +10,8 @@
 
 ## Target
 
-- **`heratio` database** — stays as-is. Loses the `ric_*` tables + relations to them.
-- **`openric_ric` database (new)** — owns `ric_place*`, `ric_rule*`, `ric_activity*`, `ric_instantiation*`, `ric_relation_meta`, and snapshot copies of the `object`, `slug`, `relation`, and `ahg_dropdown` rows the service reads. No writes to Heratio's DB.
+- **`heratio` database** - stays as-is. Loses the `ric_*` tables + relations to them.
+- **`openric_ric` database (new)** - owns `ric_place*`, `ric_rule*`, `ric_activity*`, `ric_instantiation*`, `ric_relation_meta`, and snapshot copies of the `object`, `slug`, `relation`, and `ahg_dropdown` rows the service reads. No writes to Heratio's DB.
 
 ## The awkward table: `object`
 
@@ -19,7 +19,7 @@
 
 - **A. Denormalise into `ric_object`.** Copy only the columns the service actually uses (`class_name`, timestamps). Add a `ric_object` table in the service DB with the same PK as `ric_*`. Rewrite the service's queries to use `ric_object` instead of `object`.
 - **B. Share the `object` table via a MySQL replication link.** Keeps it in sync; avoids query rewrites; adds infra complexity.
-- **C. Accept eventual consistency — CDC from Heratio.** Heratio emits change events; service applies them to its own copy of `object`. Most flexible; most work.
+- **C. Accept eventual consistency - CDC from Heratio.** Heratio emits change events; service applies them to its own copy of `object`. Most flexible; most work.
 
 **Recommended: A.** Simpler, self-contained, no replication infra. `object` is write-once-read-many; denormalising its minimal columns into `ric_object` is cheap.
 
@@ -32,7 +32,7 @@ The `relation` table links entities. `ric_relation_meta` is the RiC-specific met
 The vocabulary taxonomies live in `ahg_dropdown`. The service reads them frequently. Options:
 
 - Snapshot into a service-owned `openric_vocabulary` table. Refreshed on schedule or via a sync endpoint.
-- Or — only share the subset with `taxonomy LIKE 'ric_%'` via a view.
+- Or - only share the subset with `taxonomy LIKE 'ric_%'` via a view.
 
 **Recommended: snapshot.** Service owns its own vocabulary, refreshes on admin action.
 
@@ -63,7 +63,7 @@ for t in ric_place ric_place_i18n \
   mysqldump --no-data=0 heratio "$t" | mysql openric_ric  # data
 done
 
-# Denormalised snapshots — ric_object, ric_slug, ric_relation, openric_vocabulary
+# Denormalised snapshots - ric_object, ric_slug, ric_relation, openric_vocabulary
 mysql openric_ric <<'SQL'
 CREATE TABLE ric_object LIKE heratio.object;
 ALTER TABLE ric_object DROP INDEX class_name;  -- trim unused indexes
@@ -101,7 +101,7 @@ Scope: ~50 `DB::table(…)` calls across the package. Mechanical find-and-replac
 
 **Critically: Heratio's copy of the package is unchanged.** Heratio still writes `object`, `slug`, `relation` for its own (non-RiC) entities. The package split (Phase 4.4.4) resolves this cleanly.
 
-## Replication — how does Heratio see new RiC data?
+## Replication - how does Heratio see new RiC data?
 
 Three options:
 
@@ -130,9 +130,9 @@ Until the service code is pointed at the new DB in production, Heratio's schema 
 
 ## Open questions
 
-1. Do we need Heratio to continue seeing RiC data at all? If not, "do nothing" is the simplest replication answer — Heratio reads nothing from the RiC DB, just calls the service for whatever it needs to render.
+1. Do we need Heratio to continue seeing RiC data at all? If not, "do nothing" is the simplest replication answer - Heratio reads nothing from the RiC DB, just calls the service for whatever it needs to render.
 2. Is the service's DB user granted enough privileges to create its own schema changes, or is that a release-gated step for the operator?
-3. When Phase 4.4.4 (package split) lands, the separate-DB move becomes much more natural — the client package has no DB queries to update. Might be cleaner to do 4.4.4 first.
+3. When Phase 4.4.4 (package split) lands, the separate-DB move becomes much more natural - the client package has no DB queries to update. Might be cleaner to do 4.4.4 first.
 
 ---
 

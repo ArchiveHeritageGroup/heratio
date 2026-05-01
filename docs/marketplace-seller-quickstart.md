@@ -1,4 +1,4 @@
-# Marketplace — Seller Quick Start
+# Marketplace - Seller Quick Start
 
 How to register as a seller, get verified, list your first item, and manage offers, sales, and payouts.
 
@@ -11,7 +11,7 @@ Sellers register separately from buyers (different KYC requirements):
 1. Sign in.
 2. Go to **`/marketplace/seller/register`**.
 3. Fill out the seller form: legal name, trading name, bank details, tax/VAT number where required, sector, profile.
-4. Submit — your account enters **`pending_verification`**.
+4. Submit - your account enters **`pending_verification`**.
 
 A site admin reviews the application at `/admin/marketplace/seller-verify` and either **approves**, **rejects with reason**, or **requests more info**. You receive an email at each transition.
 
@@ -19,7 +19,7 @@ Edit your profile any time at **`/marketplace/seller/profile`**.
 
 ---
 
-## 2. Brokers — managing artists
+## 2. Brokers - managing artists
 
 A seller acting on behalf of multiple artists or estates uses the **Artist** management area at **`/marketplace/seller/artists`**:
 
@@ -38,7 +38,7 @@ Open **`/marketplace/seller/listing-create`**:
 | Field | Notes |
 | --- | --- |
 | Title, description | Plain text + Markdown supported |
-| Sector + category | Cascade — pick a sector, then a category from the marketplace dropdowns |
+| Sector + category | Cascade - pick a sector, then a category from the marketplace dropdowns |
 | Sale type | **Buy Now**, **Auction**, or **Open to offers** |
 | Price | Fixed (Buy Now) or starting + reserve (Auction) |
 | Currency | Defaults to site primary; admins set the available list at `/admin/marketplace/currencies` |
@@ -51,7 +51,7 @@ After save, upload images at **`/marketplace/seller/listing-images`** (drag-and-
 
 ---
 
-## 4. Publish — and be reviewed
+## 4. Publish - and be reviewed
 
 Publish from the listings page (`/marketplace/seller/listings`) → **Publish** (`POST /marketplace/seller/listing-publish`).
 
@@ -59,7 +59,7 @@ Depending on operator settings, listings either:
 - Go live immediately (low-touch operators), or
 - Enter `under_review` and wait for an admin pass at `/admin/marketplace/listing-review`.
 
-Withdraw at any time with **Withdraw** (`POST /marketplace/seller/listing-withdraw`) — this hides the listing from buyers but keeps the record.
+Withdraw at any time with **Withdraw** (`POST /marketplace/seller/listing-withdraw`) - this hides the listing from buyers but keeps the record.
 
 ---
 
@@ -119,7 +119,7 @@ Pre-sale questions land at **`/marketplace/seller/enquiries`**. Reply in-thread;
 
 ## See also
 
-- *Marketplace — Buyer Quick Start*
-- *Marketplace — Bidding & Auctions* (running an auction listing)
-- *Marketplace — Admin Operations* (what your admin reviewer sees)
-- *Marketplace — Payments & Payouts*
+- *Marketplace - Buyer Quick Start*
+- *Marketplace - Bidding & Auctions* (running an auction listing)
+- *Marketplace - Admin Operations* (what your admin reviewer sees)
+- *Marketplace - Payments & Payouts*

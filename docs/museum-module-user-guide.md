@@ -665,7 +665,7 @@ The museum module integrates with Getty vocabularies for standardized terminolog
 By default, autocomplete fields query the remote Getty SPARQL endpoint on every keystroke, which can be slow. To enable **instant local autocomplete**, sync AAT terms to a local database cache:
 
 ```bash
-# Initial sync — downloads ~1,000+ AAT terms across all categories
+# Initial sync - downloads ~1,000+ AAT terms across all categories
 php symfony museum:aat-sync
 
 # Deeper sync for more granular terms (depth 3)

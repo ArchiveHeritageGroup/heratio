@@ -1,8 +1,8 @@
-# Heratio Overlay Install — How-To
+# Heratio Overlay Install - How-To
 
 This guide covers **Scenario 1: overlaying Heratio onto an existing AtoM database**. If you have no AtoM and want a clean Heratio install, see [`standalone-install-plan.md`](standalone-install-plan.md) instead.
 
-The overlay approach **preserves every row** of your existing AtoM database. Heratio adds its own tables, adds missing columns to shared tables, and seeds its own settings + help — but never deletes, modifies, or drops anything that AtoM put there.
+The overlay approach **preserves every row** of your existing AtoM database. Heratio adds its own tables, adds missing columns to shared tables, and seeds its own settings + help - but never deletes, modifies, or drops anything that AtoM put there.
 
 ---
 
@@ -42,7 +42,7 @@ The overlay performs **eight stages**, in order:
 | 7 | ES reindex | Build / refresh `heratio_*` Elasticsearch indices | yes |
 | 8 | Smoke test | Curl key URLs and report status codes | n/a |
 
-Anything you've manually customised on the target — settings rows, theme colours, custom dropdowns, edited records — is **preserved** because every replicated INSERT uses `INSERT IGNORE` (unique-key conflicts no-op).
+Anything you've manually customised on the target - settings rows, theme colours, custom dropdowns, edited records - is **preserved** because every replicated INSERT uses `INSERT IGNORE` (unique-key conflicts no-op).
 
 ---
 
@@ -65,7 +65,7 @@ Always dry-run before applying:
 ./bin/install-overlay --target=customer_db --dry-run
 ```
 
-This prints every table that would be added, every column that would be created, and every row-replicate that would happen — without mutating the target.
+This prints every table that would be added, every column that would be created, and every row-replicate that would happen - without mutating the target.
 
 ### Skip flags
 
@@ -96,12 +96,12 @@ Each stage can be skipped if you've already done it manually or want to defer it
 
 After the overlay reports `Done`, walk through:
 
-1. **Log in** as the existing AtoM admin — credentials carry over (the overlay doesn't touch the `users` / `actor` tables).
-2. **`/admin/ahgSettings/plugins`** — verify the plugin grid renders. Some `atom_plugin` rows may need to be inserted if they didn't exist on the AtoM side; see "Plugin row sync" below.
-3. **`/admin/ahgSettings/themes`** — set the customer's brand palette and logo.
-4. **`/admin/dropdowns`** — confirm dropdowns are seeded (~3,800 rows is typical).
-5. **`/glam/browse`** — confirm records render with facets and counts.
-6. **One IO show page** — confirm the right sidebar (Provenance, Condition, AI Tools, etc.) renders only the panels for plugins that are enabled.
+1. **Log in** as the existing AtoM admin - credentials carry over (the overlay doesn't touch the `users` / `actor` tables).
+2. **`/admin/ahgSettings/plugins`** - verify the plugin grid renders. Some `atom_plugin` rows may need to be inserted if they didn't exist on the AtoM side; see "Plugin row sync" below.
+3. **`/admin/ahgSettings/themes`** - set the customer's brand palette and logo.
+4. **`/admin/dropdowns`** - confirm dropdowns are seeded (~3,800 rows is typical).
+5. **`/glam/browse`** - confirm records render with facets and counts.
+6. **One IO show page** - confirm the right sidebar (Provenance, Condition, AI Tools, etc.) renders only the panels for plugins that are enabled.
 
 ---
 
@@ -121,7 +121,7 @@ This is `INSERT IGNORE`, so existing customer-enabled plugin rows are preserved.
 
 ## Storage path notes
 
-If your existing AtoM uploads live at `/usr/share/nginx/<site>.atom-old/uploads/`, keep them in place and let the existing nginx alias chain serve them. No file move needed — Heratio's `digital_object` rows reference paths that already work.
+If your existing AtoM uploads live at `/usr/share/nginx/<site>.atom-old/uploads/`, keep them in place and let the existing nginx alias chain serve them. No file move needed - Heratio's `digital_object` rows reference paths that already work.
 
 For a fresh upload destination going forward, set:
 
@@ -148,23 +148,23 @@ HERATIO_STORAGE_PATH=/mnt/nas/heratio/<site>
 
 ## Roll-back
 
-The overlay is non-destructive — there's nothing to "undo". To remove Heratio without affecting AtoM data:
+The overlay is non-destructive - there's nothing to "undo". To remove Heratio without affecting AtoM data:
 
 1. Disable the Heratio nginx vhost (or change DNS back to AtoM).
-2. (Optional) Drop the Heratio-only tables that the overlay added — list them with:
+2. (Optional) Drop the Heratio-only tables that the overlay added - list them with:
    ```sql
    SELECT table_name FROM information_schema.tables
     WHERE table_schema = '<target_db>'
       AND table_name LIKE 'ahg\\_%';
    ```
-3. Heratio-added columns on shared tables (`information_object.heratio_*` etc.) can be left in place — they're nullable and ignored by AtoM.
+3. Heratio-added columns on shared tables (`information_object.heratio_*` etc.) can be left in place - they're nullable and ignored by AtoM.
 
 ---
 
 ## Related
 
-- [`standalone-install-plan.md`](standalone-install-plan.md) — Scenario 2: clean install with no AtoM
-- [`x7b-psis-install-sql-worklist.md`](x7b-psis-install-sql-worklist.md) — outstanding install.sql gaps per package
-- `database/tools/overlay-schema.sh` — schema-overlay helper (called by `bin/install-overlay`)
-- `database/tools/sync-columns.php` — column-delta helper (called by `bin/install-overlay`)
-- `bin/install-overlay` — the orchestration script
+- [`standalone-install-plan.md`](standalone-install-plan.md) - Scenario 2: clean install with no AtoM
+- [`x7b-psis-install-sql-worklist.md`](x7b-psis-install-sql-worklist.md) - outstanding install.sql gaps per package
+- `database/tools/overlay-schema.sh` - schema-overlay helper (called by `bin/install-overlay`)
+- `database/tools/sync-columns.php` - column-delta helper (called by `bin/install-overlay`)
+- `bin/install-overlay` - the orchestration script

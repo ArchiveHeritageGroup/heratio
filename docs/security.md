@@ -1,15 +1,15 @@
-# Heratio — Security Model & Operator Runbook
+# Heratio - Security Model & Operator Runbook
 
 One-pager. Read before exposing a Heratio instance to the public internet.
 
 ---
 
-## 1. Threat model — what Heratio protects against
+## 1. Threat model - what Heratio protects against
 
 | Threat | Layer | Mitigation in v1.37+ |
 |---|---|---|
-| SQL injection | App | Eloquent ORM parameterises everything. Manual `DB::raw()` paths exist in ~10 files (ported from AtoM Symfony) — review before public exposure. |
-| XSS (stored / reflected) | App | Blade auto-escapes `{{ … }}`. `{!! … !!}` raw output exists in views — audit those when extending. CSP blocks third-party scripts. |
+| SQL injection | App | Eloquent ORM parameterises everything. Manual `DB::raw()` paths exist in ~10 files (ported from AtoM Symfony) - review before public exposure. |
+| XSS (stored / reflected) | App | Blade auto-escapes `{{ … }}`. `{!! … !!}` raw output exists in views - audit those when extending. CSP blocks third-party scripts. |
 | CSRF | App | Laravel `VerifyCsrfToken` middleware on all POST/PUT/DELETE in the `web` group. |
 | Session hijacking | Transport + cookies | HTTPS (operator runs `certbot`), `SESSION_SECURE_COOKIE=true`, `SESSION_HTTP_ONLY=true`, `SESSION_ENCRYPT=true`, `SESSION_SAME_SITE=lax`. |
 | Click-jacking | Headers | `X-Frame-Options: SAMEORIGIN`, `Content-Security-Policy: frame-ancestors 'self'`. |
@@ -86,11 +86,11 @@ git -C /usr/share/nginx/heratio grep -InE "(Merlot@|AtoM@|password\s*[:=]\s*[A-Z
 | Cadence | Task |
 |---|---|
 | Each release | Run `gitleaks detect --source . --redact` (or pattern grep above) before tagging. |
-| Each release | `composer audit` — check for known CVEs in dependencies. |
+| Each release | `composer audit` - check for known CVEs in dependencies. |
 | Weekly | Review `tail /usr/share/nginx/heratio/storage/logs/laravel.log` + nginx error log for repeated 401/403/500. |
 | Weekly | Tail `audit.db` of the KM service for unexpected query patterns. |
 | Quarterly | Rotate `KM_API_KEY` (`/etc/systemd/system/ahg-km.service.d/override.conf`) and update every consumer's `.mcp.json` / `ahg_settings`. |
-| Quarterly | Rotate MySQL root password (script: `/root/rotate-creds.sh` — adapt for ongoing use). |
+| Quarterly | Rotate MySQL root password (script: `/root/rotate-creds.sh` - adapt for ongoing use). |
 | Quarterly | Rotate admin user passwords (`heratio:user:reset-password` artisan command, or via `/admin/users`). |
 | As needed | Reissue letsencrypt certs (cron or `certbot renew` daily). |
 
@@ -115,7 +115,7 @@ git -C /usr/share/nginx/heratio grep -InE "(Merlot@|AtoM@|password\s*[:=]\s*[A-Z
    grep -r "<the secret>" /var/log/nginx /var/log/mysql 2>/dev/null
    ```
 
-2. **Contain**: delete the offending Qdrant point IDs (`POST /collections/<col>/points/delete`); if in committed git history, the credential is **forever burned** — go to step 4.
+2. **Contain**: delete the offending Qdrant point IDs (`POST /collections/<col>/points/delete`); if in committed git history, the credential is **forever burned** - go to step 4.
 
 3. **Assess blast radius**: log into each consumer service and find where the secret was used.
 
@@ -152,7 +152,7 @@ What runs where on a single-host install. Lock down anything not explicitly LAN-
 
 ---
 
-## 6. Known weak spots — patch these before going public
+## 6. Known weak spots - patch these before going public
 
 | Weak spot | Severity | Workaround |
 |---|---|---|
@@ -168,9 +168,9 @@ What runs where on a single-host install. Lock down anything not explicitly LAN-
 
 ## 7. References
 
-- [OWASP Top 10 (2021)](https://owasp.org/www-project-top-ten/) — baseline coverage targets
-- [Laravel security](https://laravel.com/docs/12.x/authentication) — framework-provided protections
-- [`docs/standalone-install-plan.md`](standalone-install-plan.md) — install architecture
-- [`docs/standalone-install-howto.md`](standalone-install-howto.md) — operator install steps
-- `/root/rotate-creds.sh` (operator-only) — credential rotation script template
+- [OWASP Top 10 (2021)](https://owasp.org/www-project-top-ten/) - baseline coverage targets
+- [Laravel security](https://laravel.com/docs/12.x/authentication) - framework-provided protections
+- [`docs/standalone-install-plan.md`](standalone-install-plan.md) - install architecture
+- [`docs/standalone-install-howto.md`](standalone-install-howto.md) - operator install steps
+- `/root/rotate-creds.sh` (operator-only) - credential rotation script template
 - 2026-04-30 incident: 4 credentials leaked via public KM `/api/ask`. Remediated in v1.37.1. See git log + `feedback_km_no_credentials.md` memory entry.

@@ -1,4 +1,4 @@
-# Heratio — Integration API: Events, Audit & Publish
+# Heratio - Integration API: Events, Audit & Publish
 
 ## Overview
 
@@ -78,8 +78,8 @@ All responses follow the standard format:
 ```
 
 ### Response Headers
-- `X-Correlation-Id` — Unique correlation ID for the request
-- `X-Rate-Limit-Remaining` — Remaining rate limit (for API key auth)
+- `X-Correlation-Id` - Unique correlation ID for the request
+- `X-Rate-Limit-Remaining` - Remaining rate limit (for API key auth)
 
 ## Query Parameters
 

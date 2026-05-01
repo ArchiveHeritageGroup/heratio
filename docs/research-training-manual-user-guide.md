@@ -1,4 +1,4 @@
-# Heratio Research Portal — Training Manual
+# Heratio Research Portal - Training Manual
 
 **Plugin:** ahgResearchPlugin v3.1.0
 **Platform:** Heratio (AtoM 2.10 + AHG Framework v2.8.2)
@@ -89,11 +89,11 @@ Navigate to **`/research`** on your Heratio instance (e.g., `https://psis.theahg
 
 ### First-Time Setup
 
-1. **Register** — Click "Register as Researcher" or navigate to `/research/register`
-2. **Complete Profile** — Fill in personal details, institution, research interests
-3. **Wait for Approval** — An admin must approve your registration
-4. **Receive Confirmation** — Once approved, you can access all research features
-5. **Connect ORCID** (optional) — Link your ORCID iD for scholarly identification
+1. **Register** - Click "Register as Researcher" or navigate to `/research/register`
+2. **Complete Profile** - Fill in personal details, institution, research interests
+3. **Wait for Approval** - An admin must approve your registration
+4. **Receive Confirmation** - Once approved, you can access all research features
+5. **Connect ORCID** (optional) - Link your ORCID iD for scholarly identification
 
 ### Navigation Structure
 
@@ -130,15 +130,15 @@ Research Portal (/)
 
 The dashboard is your home base. It displays:
 
-- **Today's Bookings** — Upcoming reading room sessions
-- **Pending Requests** — Material requests awaiting fulfillment
-- **Recent Activity** — Your latest actions (annotations, collections, searches)
-- **Recent Notes** — Last 5 annotations/notes
-- **Recent Journal** — Last 5 journal entries
-- **Search Alerts** — Saved searches with new results
-- **Pending Invitations** — Project/workspace invitations requiring action
-- **Active Projects** — Projects you're contributing to
-- **Unread Notifications** — Count of unread notifications
+- **Today's Bookings** - Upcoming reading room sessions
+- **Pending Requests** - Material requests awaiting fulfillment
+- **Recent Activity** - Your latest actions (annotations, collections, searches)
+- **Recent Notes** - Last 5 annotations/notes
+- **Recent Journal** - Last 5 journal entries
+- **Search Alerts** - Saved searches with new results
+- **Pending Invitations** - Project/workspace invitations requiring action
+- **Active Projects** - Projects you're contributing to
+- **Unread Notifications** - Count of unread notifications
 
 ### Quick Actions from Dashboard
 
@@ -241,7 +241,7 @@ When a researcher's access expires (based on their type's `expiry_months`), they
 3. Select **start time** and **end time** (limited by `max_booking_hours_per_day`)
 4. Specify **purpose** of visit (optional)
 5. Add **notes** (optional)
-6. Submit — booking status becomes "Pending"
+6. Submit - booking status becomes "Pending"
 
 ### Booking Lifecycle
 
@@ -264,8 +264,8 @@ When viewing a booking, you can add material requests:
 
 ### Check-In / Check-Out
 
-- **Check In** (`/research/booking/:id/check-in`) — Marks arrival time
-- **Check Out** (`/research/booking/:id/check-out`) — Marks departure, completes booking
+- **Check In** (`/research/booking/:id/check-in`) - Marks arrival time
+- **Check Out** (`/research/booking/:id/check-out`) - Marks departure, completes booking
 
 ### Walk-In Visitors
 
@@ -282,9 +282,9 @@ For unregistered visitors who walk into the reading room without a booking:
 **URL:** `/research/seats`
 
 Reading rooms can have mapped seats:
-- **Seat Map** (`/research/seats/map`) — Visual layout of the room
-- **Auto-Assign** — System selects the best available seat based on preferences
-- **Manual Assign** — Staff selects a specific seat for a researcher
+- **Seat Map** (`/research/seats/map`) - Visual layout of the room
+- **Auto-Assign** - System selects the best available seat based on preferences
+- **Manual Assign** - Staff selects a specific seat for a researcher
 
 Seat properties: number, label, section, row, position, has_power, has_network, has_lamp, is_accessible, equipment type.
 
@@ -306,20 +306,20 @@ Book equipment alongside your reading room booking.
 
 Staff use this to manage the physical retrieval of materials. The queue is divided into named sub-queues (New, Rush, Retrieval, Transit, Delivery, Curatorial, Return), each with a summary card showing the count of pending requests.
 
-**Queue Summary Cards** — click any card to filter the table below to that queue.
+**Queue Summary Cards** - click any card to filter the table below to that queue.
 
 **Per-Request Actions:**
-- **Print Call Slip** — open a printable call slip for an individual request
-- **Checkout** — available when status is `retrieved` or `delivered`; opens the custody checkout form
-- **Return** — available when status is `in_use`; opens the custody return/check-in form
-- **Custody Chain** — view the full chain-of-custody history for the linked archival object
+- **Print Call Slip** - open a printable call slip for an individual request
+- **Checkout** - available when status is `retrieved` or `delivered`; opens the custody checkout form
+- **Return** - available when status is `in_use`; opens the custody return/check-in form
+- **Custody Chain** - view the full chain-of-custody history for the linked archival object
 
 **Batch Actions (bottom toolbar):**
 1. Select one or more requests using the checkboxes
-2. **Update Status** — move selected requests to a new status (Requested, Retrieved, Delivered, In Use, Returned, Unavailable) with optional notes
-3. **Print Selected** — print call slips for all selected requests
-4. **Batch Checkout** — open the batch checkout form for selected requests
-5. **Batch Return** — open the batch return form for selected requests
+2. **Update Status** - move selected requests to a new status (Requested, Retrieved, Delivered, In Use, Returned, Unavailable) with optional notes
+3. **Print Selected** - print call slips for all selected requests
+4. **Batch Checkout** - open the batch checkout form for selected requests
+5. **Batch Return** - open the batch return form for selected requests
 
 **Status Lifecycle:**
 
@@ -329,7 +329,7 @@ Requested → Retrieved → Delivered → In Use → Returned
                                    Unavailable
 ```
 
-**Location Tracking** — the `Current Location` column updates automatically as requests move through statuses:
+**Location Tracking** - the `Current Location` column updates automatically as requests move through statuses:
 - Requested: original shelf location
 - Retrieved: "In transit"
 - Delivered / In Use: "Reading room"
@@ -362,10 +362,10 @@ Collections are personal groupings of archival items for research purposes.
 ### Adding Items to Collections
 
 There are several ways to add items:
-- **From browse/search results** — Click "Add to Collection" button on any item
-- **From the collection view** — Search and add items
-- **Via AJAX** (`/research/ajax/add-to-collection`) — Used by the browse interface
-- **From clipboard** — Move clipboard items to a collection
+- **From browse/search results** - Click "Add to Collection" button on any item
+- **From the collection view** - Search and add items
+- **Via AJAX** (`/research/ajax/add-to-collection`) - Used by the browse interface
+- **From clipboard** - Move clipboard items to a collection
 
 ### Collection Operations
 
@@ -429,9 +429,9 @@ The saved searches page shows:
 
 Click the **Diff** button (exchange icon) to compare current search results against the last snapshot:
 
-- **Added** — New items matching the query since the last snapshot
-- **Removed** — Items that no longer match
-- **Unchanged** — Items present in both
+- **Added** - New items matching the query since the last snapshot
+- **Removed** - Items that no longer match
+- **Unchanged** - Items present in both
 
 The diff modal shows:
 - Previous count, Current count, Unchanged count
@@ -508,18 +508,18 @@ The Annotation Studio provides a standards-compliant annotation interface implem
 
 The right sidebar contains the "Create Annotation" panel:
 
-1. **Motivation** — Select the purpose:
-   - Commenting — General comments
-   - Describing — Descriptive annotations
-   - Classifying — Classification/categorization
-   - Linking — Linking to related resources
-   - Questioning — Questions about the content
-   - Tagging — Tags/labels
-   - Highlighting — Highlights of interest
+1. **Motivation** - Select the purpose:
+   - Commenting - General comments
+   - Describing - Descriptive annotations
+   - Classifying - Classification/categorization
+   - Linking - Linking to related resources
+   - Questioning - Questions about the content
+   - Tagging - Tags/labels
+   - Highlighting - Highlights of interest
 
-2. **Body Text** — Enter the annotation content
+2. **Body Text** - Enter the annotation content
 
-3. **Visibility** — Private, Shared, or Public
+3. **Visibility** - Private, Shared, or Public
 
 4. Click "Create Annotation"
 
@@ -575,14 +575,14 @@ Each annotation has a "Promote to Assertion" button that converts the annotation
 
 There are multiple ways to add bibliography entries:
 
-**Manual Entry** — Full citation metadata:
+**Manual Entry** - Full citation metadata:
 - Entry type (book, article, chapter, thesis, website, archival, report, other)
 - Title, Authors, Year, Publisher
 - Journal, Volume, Issue, Pages
 - DOI, ISBN, URL
 - Abstract, Notes
 
-**From Archive Items** — Click "Add to Bibliography" while browsing:
+**From Archive Items** - Click "Add to Bibliography" while browsing:
 - Automatically extracts title, dates, creators, repository
 - Links back to the archival record
 
@@ -1064,7 +1064,7 @@ Create AI extraction jobs to process archival items:
 1. Select a project and optionally a collection
 2. Choose the extraction type
 3. Configure parameters (e.g., language, model)
-4. Submit — job runs in the background
+4. Submit - job runs in the background
 
 ### Job Status
 
@@ -1107,15 +1107,15 @@ The validation queue is where human reviewers approve, modify, or reject AI extr
 - Status badge
 
 **Actions:**
-- **Preview** — View the full extracted data as formatted JSON
-- **Accept** — Approve the result
-- **Edit & Accept** — Modify the JSON data, then accept
-- **Reject** — Reject with a reason
+- **Preview** - View the full extracted data as formatted JSON
+- **Accept** - Approve the result
+- **Edit & Accept** - Modify the JSON data, then accept
+- **Reject** - Reject with a reason
 
 **Bulk Operations:**
 - Select multiple items with checkboxes
-- Bulk Accept — Accept all selected
-- Bulk Reject — Reject all selected (with reason)
+- Bulk Accept - Accept all selected
+- Bulk Reject - Reject all selected (with reason)
 
 ---
 
@@ -1135,10 +1135,10 @@ Click "Propose Match" to open the proposal form:
 - Entity A: Type (actor/information_object/repository) and ID
 - Entity B: Type and ID
 - Relationship type:
-  - **sameAs** — Identical entities (default)
-  - **relatedTo** — Associated entities
-  - **partOf** — Hierarchical relationship
-  - **memberOf** — Group membership
+  - **sameAs** - Identical entities (default)
+  - **relatedTo** - Associated entities
+  - **partOf** - Hierarchical relationship
+  - **memberOf** - Group membership
 - Match method: Manual, Name Similarity, Identifier Match, Authority Record
 - Confidence score (0-1)
 - Notes
@@ -1187,7 +1187,7 @@ When a `sameAs` match is accepted:
 
 ### Entity Link Network
 
-Use `getEntityLinks()` to see all accepted resolutions for an entity — its full sameAs/relatedTo network.
+Use `getEntityLinks()` to see all accepted resolutions for an entity - its full sameAs/relatedTo network.
 
 ---
 
@@ -1289,7 +1289,7 @@ Draft → Submitted → Pending Triage → Triage Approved → In Fulfilment →
                                     Needs Information (researcher contacted)
 ```
 
-**Triage** — every incoming request goes through a triage step where staff can approve, deny, or request more information from the researcher before work begins. See [Section 23: Request Lifecycle & SLA](#23-request-lifecycle--sla) for full details.
+**Triage** - every incoming request goes through a triage step where staff can approve, deny, or request more information from the researcher before work begins. See [Section 23: Request Lifecycle & SLA](#23-request-lifecycle--sla) for full details.
 
 ### Pricing
 
@@ -1337,9 +1337,9 @@ The combined requests dashboard shows all material and reproduction requests in 
 Every new request must go through triage before processing begins. Triage captures:
 
 **Triage Decisions:**
-- **Approve** — request is valid and can proceed to fulfilment; SLA timer starts
-- **Deny** — request is rejected with a reason (e.g., restricted material, insufficient justification)
-- **Needs Information** — researcher is contacted for clarification before a decision
+- **Approve** - request is valid and can proceed to fulfilment; SLA timer starts
+- **Deny** - request is rejected with a reason (e.g., restricted material, insufficient justification)
+- **Needs Information** - researcher is contacted for clarification before a decision
 
 **Triage Form Fields:**
 - Decision (approve / deny / needs information)
@@ -1390,7 +1390,7 @@ Close a request when fulfilment is complete or the request is no longer needed.
 SLA policies are managed centrally. The default research request SLA is:
 - **Warning:** 7 days (approaching deadline)
 - **Due:** 10 working days
-- **Escalation:** 14 days (breached — triggers escalation)
+- **Escalation:** 14 days (breached - triggers escalation)
 
 SLA computation starts when a request is triaged as "approved". The SLA status is visible on the requests dashboard and in individual request views.
 
@@ -1418,7 +1418,7 @@ When materials are handed to a researcher:
 
 **Checkout Form Fields:**
 - Condition at handoff (Excellent, Good, Fair, Poor, Critical)
-- Barcode scan (optional — for barcode-enabled collections)
+- Barcode scan (optional - for barcode-enabled collections)
 - Destination (defaults to "Reading Room")
 - Notes
 
@@ -1472,7 +1472,7 @@ Process multiple checkouts at once:
 1. Select requests from the retrieval queue
 2. Set a default condition and destination for all items
 3. Review the list and uncheck any items to exclude
-4. Submit — each item gets an individual custody record
+4. Submit - each item gets an individual custody record
 
 ### Batch Return
 
@@ -1482,7 +1482,7 @@ Process multiple returns at once:
 1. Select requests from the retrieval queue
 2. For each item, set condition-before and condition-after individually
 3. Add per-item notes if needed
-4. Submit — each item gets an individual custody and movement record
+4. Submit - each item gets an individual custody and movement record
 
 ### Custody Chain
 
@@ -1521,11 +1521,11 @@ Every page includes a "Skip to main content" link, visible when focused via keyb
 
 ### Screen Reader Support
 
-**ARIA Live Region** — an invisible region (`aria-live="polite"`) announces dynamic changes (AJAX updates, status changes) to screen readers without requiring a page reload.
+**ARIA Live Region** - an invisible region (`aria-live="polite"`) announces dynamic changes (AJAX updates, status changes) to screen readers without requiring a page reload.
 
 **Helper Functions (JavaScript):**
-- `ahgAnnounce(message, priority)` — announce a message to screen readers
-- `ahgFocusTo(selector)` — programmatically move focus to an element
+- `ahgAnnounce(message, priority)` - announce a message to screen readers
+- `ahgFocusTo(selector)` - programmatically move focus to an element
 
 ### Data Tables
 
@@ -1834,8 +1834,8 @@ Each audit entry contains:
 Admin workflow for managing researchers:
 1. View all pending researchers
 2. Review registration details
-3. Approve — sets status to "approved", creates access request
-4. Reject — archives data, deactivates user, records reason
+3. Approve - sets status to "approved", creates access request
+4. Reject - archives data, deactivates user, records reason
 
 ### Reading Room Management
 
@@ -1884,108 +1884,108 @@ Track ethics approval milestones for projects:
 ### Core Tables (64 tables)
 
 **Researcher Management:**
-- `research_researcher` — Researcher profiles
-- `research_researcher_audit` — Archived/rejected researchers
-- `research_researcher_type` — Configurable researcher types
-- `research_researcher_type_i18n` — Type translations
-- `research_verification` — ID/institutional verification
-- `research_password_reset` — Password reset tokens
+- `research_researcher` - Researcher profiles
+- `research_researcher_audit` - Archived/rejected researchers
+- `research_researcher_type` - Configurable researcher types
+- `research_researcher_type_i18n` - Type translations
+- `research_verification` - ID/institutional verification
+- `research_password_reset` - Password reset tokens
 
 **Reading Room:**
-- `research_reading_room` — Room definitions
-- `research_booking` — Reading room bookings
-- `research_material_request` — Material retrieval requests
-- `research_request_status_history` — Request status tracking
+- `research_reading_room` - Room definitions
+- `research_booking` - Reading room bookings
+- `research_material_request` - Material retrieval requests
+- `research_request_status_history` - Request status tracking
 
 **Collections:**
-- `research_collection` — Researcher collections
-- `research_collection_item` — Items in collections
+- `research_collection` - Researcher collections
+- `research_collection_item` - Items in collections
 
 **Projects:**
-- `research_project` — Research projects
-- `research_project_collaborator` — Project collaborators
-- `research_project_resource` — Project resources
-- `research_project_milestone` — Project milestones
-- `research_clipboard_project` — Clipboard items
+- `research_project` - Research projects
+- `research_project_collaborator` - Project collaborators
+- `research_project_resource` - Project resources
+- `research_project_milestone` - Project milestones
+- `research_clipboard_project` - Clipboard items
 
 **Workspaces:**
-- `research_workspace` — Collaborative workspaces
-- `research_workspace_member` — Workspace members
-- `research_workspace_resource` — Workspace resources
-- `research_discussion` — Discussion threads
+- `research_workspace` - Collaborative workspaces
+- `research_workspace_member` - Workspace members
+- `research_workspace_resource` - Workspace resources
+- `research_discussion` - Discussion threads
 
 **Annotations:**
-- `research_annotation` — Legacy annotations (v1)
-- `research_annotation_v2` — W3C Web Annotations (v2)
-- `research_annotation_target` — Annotation targets/selectors
+- `research_annotation` - Legacy annotations (v1)
+- `research_annotation_v2` - W3C Web Annotations (v2)
+- `research_annotation_target` - Annotation targets/selectors
 
 **Knowledge Graph:**
-- `research_assertion` — Subject-predicate-object triples
-- `research_assertion_evidence` — Evidence for assertions
-- `research_hypothesis` — Research hypotheses
-- `research_hypothesis_evidence` — Evidence for hypotheses
-- `research_source_assessment` — Source quality assessment
-- `research_quality_metric` — Automated quality metrics
+- `research_assertion` - Subject-predicate-object triples
+- `research_assertion_evidence` - Evidence for assertions
+- `research_hypothesis` - Research hypotheses
+- `research_hypothesis_evidence` - Evidence for hypotheses
+- `research_source_assessment` - Source quality assessment
+- `research_quality_metric` - Automated quality metrics
 
 **Extraction:**
-- `research_extraction_job` — AI extraction jobs
-- `research_extraction_result` — Extraction results
-- `research_validation_queue` — Validation queue
+- `research_extraction_job` - AI extraction jobs
+- `research_extraction_result` - Extraction results
+- `research_validation_queue` - Validation queue
 
 **Entity Resolution:**
-- `research_entity_resolution` — Entity matching proposals
+- `research_entity_resolution` - Entity matching proposals
 
 **Visualization:**
-- `research_timeline_event` — Timeline events
-- `research_map_point` — Geographic map points
+- `research_timeline_event` - Timeline events
+- `research_map_point` - Geographic map points
 
 **Bibliography:**
-- `research_bibliography` — Bibliography collections
-- `research_bibliography_entry` — Bibliography entries
+- `research_bibliography` - Bibliography collections
+- `research_bibliography_entry` - Bibliography entries
 
 **Search:**
-- `research_saved_search` — Saved searches with citation IDs
-- `research_search_alert_log` — Alert event log
+- `research_saved_search` - Saved searches with citation IDs
+- `research_search_alert_log` - Alert event log
 
 **Reproductions:**
-- `research_reproduction_request` — Reproduction requests
-- `research_reproduction_item` — Items in requests
-- `research_reproduction_file` — Generated files
+- `research_reproduction_request` - Reproduction requests
+- `research_reproduction_item` - Items in requests
+- `research_reproduction_file` - Generated files
 
 **Reports:**
-- `research_report` — Research reports
-- `research_report_section` — Report sections
-- `research_report_template` — Report templates
-- `research_journal_entry` — Journal entries
+- `research_report` - Research reports
+- `research_report_section` - Report sections
+- `research_report_template` - Report templates
+- `research_journal_entry` - Journal entries
 
 **Collaboration:**
-- `research_comment` — Comments
-- `research_peer_review` — Peer review records
+- `research_comment` - Comments
+- `research_peer_review` - Peer review records
 
 **Notifications:**
-- `research_notification` — User notifications
-- `research_notification_preference` — Notification settings
+- `research_notification` - User notifications
+- `research_notification_preference` - Notification settings
 
 **Institutional:**
-- `research_institution` — External institutions
-- `research_institutional_share` — Project shares
-- `research_external_collaborator` — External collaborators
+- `research_institution` - External institutions
+- `research_institutional_share` - Project shares
+- `research_external_collaborator` - External collaborators
 
 **Rights:**
-- `research_rights_policy` — ODRL policies
-- `research_access_decision` — Access decisions
+- `research_rights_policy` - ODRL policies
+- `research_access_decision` - Access decisions
 
 **API & Analytics:**
-- `research_api_key` — API keys
-- `research_api_log` — API request log
-- `research_activity_log` — Activity tracking
-- `research_citation_log` — Citation usage log
-- `research_statistics_daily` — Daily statistics
-- `research_document_template` — Document templates
-- `research_snapshot` — Immutable snapshots
-- `research_snapshot_item` — Snapshot items
-- `research_request_correspondence` — Staff/researcher correspondence threads on requests
-- `research_custody_handoff` — Chain-of-custody handoff records (checkout, checkin, transfer, return, condition check)
+- `research_api_key` - API keys
+- `research_api_log` - API request log
+- `research_activity_log` - Activity tracking
+- `research_citation_log` - Citation usage log
+- `research_statistics_daily` - Daily statistics
+- `research_document_template` - Document templates
+- `research_snapshot` - Immutable snapshots
+- `research_snapshot_item` - Snapshot items
+- `research_request_correspondence` - Staff/researcher correspondence threads on requests
+- `research_custody_handoff` - Chain-of-custody handoff records (checkout, checkin, transfer, return, condition check)
 
 ---
 

@@ -1,4 +1,4 @@
-# M0: Security Hardening — Technical Documentation
+# M0: Security Hardening - Technical Documentation
 
 **Version:** 1.0.0
 **Date:** 2026-02-28
@@ -12,9 +12,9 @@
 
 Milestone 0 (M0) addresses three critical security vulnerabilities identified during a security audit of the Heratio framework:
 
-1. **Unsafe PHP `unserialize()` calls** — 14 instances across 8 files with no class restriction, enabling potential PHP Object Injection (POI) attacks
-2. **PHP serialization for data storage** — Getty vocabulary cache and semantic search embeddings used `serialize()`/`unserialize()`, exposing stored data to deserialization attacks
-3. **API file upload with no validation** — path traversal via `type` parameter, no MIME validation, no extension allowlist, no file size limits
+1. **Unsafe PHP `unserialize()` calls** - 14 instances across 8 files with no class restriction, enabling potential PHP Object Injection (POI) attacks
+2. **PHP serialization for data storage** - Getty vocabulary cache and semantic search embeddings used `serialize()`/`unserialize()`, exposing stored data to deserialization attacks
+3. **API file upload with no validation** - path traversal via `type` parameter, no MIME validation, no extension allowlist, no file size limits
 
 ## 2. Vulnerability Details
 
@@ -77,7 +77,7 @@ All 14 instances now include `['allowed_classes' => false]`:
 // Before (vulnerable)
 $data = unserialize($input);
 
-// After (safe — only arrays/scalars deserialized, no objects)
+// After (safe - only arrays/scalars deserialized, no objects)
 $data = unserialize($input, ['allowed_classes' => false]);
 ```
 
@@ -108,7 +108,7 @@ This ensures PHP will never instantiate objects during deserialization, eliminat
 // Before
 $type = $request->getParameter('type', 'general');
 
-// After — basename strips directory components, regex strips special chars
+// After - basename strips directory components, regex strips special chars
 $type = basename($request->getParameter('type', 'general'));
 $type = preg_replace('/[^a-zA-Z0-9_-]/', '', $type);
 ```
@@ -158,7 +158,7 @@ All methods are `static` for easy use without instantiation.
 ### atom-framework (1 new file)
 | File | Change |
 |------|--------|
-| `src/Services/FileValidationService.php` | **NEW** — Centralized file validation |
+| `src/Services/FileValidationService.php` | **NEW** - Centralized file validation |
 
 ### atom-ahg-plugins (8 files modified)
 | File | Change |
@@ -190,11 +190,11 @@ php -l <file>  # for each file above
 
 | # | Test | Expected Result |
 |---|------|-----------------|
-| 1 | API upload with `type=../../../etc` | 400 — type sanitized to `etc`, no path traversal |
-| 2 | API upload of `shell.php` | 400 — extension `php` not in allowlist |
-| 3 | API upload of shell script renamed to `.jpg` | 400 — MIME mismatch (`text/x-shellscript` != `image/jpeg`) |
-| 4 | API upload of valid JPEG | 201 — accepted, MIME confirmed `image/jpeg` |
-| 5 | API base64 upload exceeding 100 MB | 400 — size limit exceeded (checked before decode) |
+| 1 | API upload with `type=../../../etc` | 400 - type sanitized to `etc`, no path traversal |
+| 2 | API upload of `shell.php` | 400 - extension `php` not in allowlist |
+| 3 | API upload of shell script renamed to `.jpg` | 400 - MIME mismatch (`text/x-shellscript` != `image/jpeg`) |
+| 4 | API upload of valid JPEG | 201 - accepted, MIME confirmed `image/jpeg` |
+| 5 | API base64 upload exceeding 100 MB | 400 - size limit exceeded (checked before decode) |
 | 6 | Getty cache: read old serialized file | Parsed via fallback, returns correct data |
 | 7 | Getty cache: write new entry | Written as JSON |
 | 8 | Embedding: read old serialized record | Parsed via fallback, returns correct array |
@@ -207,4 +207,4 @@ php -l <file>  # for each file above
 - [CWE-22: Path Traversal](https://cwe.mitre.org/data/definitions/22.html)
 - [CWE-434: Unrestricted Upload of File with Dangerous Type](https://cwe.mitre.org/data/definitions/434.html)
 - [OWASP: Insecure Deserialization](https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/16-Testing_for_HTTP_Incoming_Requests)
-- [PHP Manual: unserialize — allowed_classes](https://www.php.net/manual/en/function.unserialize.php)
+- [PHP Manual: unserialize - allowed_classes](https://www.php.net/manual/en/function.unserialize.php)

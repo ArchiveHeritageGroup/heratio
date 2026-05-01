@@ -245,7 +245,7 @@ if ($page2Info !== false) {
 }
 ```
 
-### Manifest Structure (IIIF 3.0 — Default)
+### Manifest Structure (IIIF 3.0 - Default)
 
 ```json
 {
@@ -631,7 +631,7 @@ Detects content type, selects viewer, builds HTML with container + controls + Ja
 | ahg3DModelPlugin | 3D model detection | `has_3d_model()`, try/catch if absent |
 | ahgPrivacyPlugin | PDF redactions | `get_digital_object_url()`, try/catch if absent |
 
-All integration is guarded with try/catch or `class_exists()` — the plugin degrades gracefully when optional plugins are missing.
+All integration is guarded with try/catch or `class_exists()` - the plugin degrades gracefully when optional plugins are missing.
 
 ---
 
@@ -645,7 +645,7 @@ $nonceAttr = $n ? preg_replace('/^nonce=/', ' nonce="', $n) . '"' : '';
 echo '<script type="module"' . $nonceAttr . '>';
 ```
 
-All viewer libraries are bundled locally — no CDN whitelisting required for IIIF functionality.
+All viewer libraries are bundled locally - no CDN whitelisting required for IIIF functionality.
 External CDN domains are only needed if other plugins load external scripts.
 
 ---
@@ -691,7 +691,7 @@ External CDN domains are only needed if other plugins load external scripts.
 
 ### Bundled Libraries
 
-All viewer libraries are served locally from `web/js/vendor/` — no CDN dependencies at runtime:
+All viewer libraries are served locally from `web/js/vendor/` - no CDN dependencies at runtime:
 
 | Library | Path |
 |---------|------|

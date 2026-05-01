@@ -1,4 +1,4 @@
-# Heratio — Publish Gates & Type-Driven Editor
+# Heratio - Publish Gates & Type-Driven Editor
 
 ## Overview
 
@@ -41,20 +41,20 @@ This feature is part of the Heratio framework v2.8.2 by The Archive and Heritage
 ## Architecture
 
 ### Database Tables
-- `ahg_publish_gate_rule` — Rule definitions with scoping
-- `ahg_publish_gate_result` — Cached evaluation results
+- `ahg_publish_gate_rule` - Rule definitions with scoping
+- `ahg_publish_gate_result` - Cached evaluation results
 
 ### Services
-- `PublishGateService` — Rule evaluation, publish execution, admin CRUD
-- `ChangeSummaryService` — Field diff computation, human-readable summaries
-- `EditorGateBridgeService` — Bridges form templates with gate rules for inline validation
+- `PublishGateService` - Rule evaluation, publish execution, admin CRUD
+- `ChangeSummaryService` - Field diff computation, human-readable summaries
+- `EditorGateBridgeService` - Bridges form templates with gate rules for inline validation
 
 ### Workflow Integration
 Four new workflow event types: `gate_evaluated`, `gate_passed`, `gate_failed`, `gate_overridden`
 
 ### API Integration
-- `GET /api/v2/publish/readiness/:slug` — Check gate status via API
-- `POST /api/v2/publish/execute/:slug` — Publish via API with gate enforcement
+- `GET /api/v2/publish/readiness/:slug` - Check gate status via API
+- `POST /api/v2/publish/execute/:slug` - Publish via API with gate enforcement
 
 ## Access Points
 

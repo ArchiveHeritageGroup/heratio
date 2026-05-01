@@ -1,4 +1,4 @@
-# Heratio — Nginx Security Hardening Guide
+# Heratio - Nginx Security Hardening Guide
 
 **Version:** 1.0
 **Date:** 2026-03-07
@@ -9,7 +9,7 @@
 
 ## 1. Overview
 
-This document provides security hardening instructions for public-facing Heratio deployments. AtoM runs on Symfony 1.x (end-of-life since 2012), which introduces inherent risk. The mitigation strategy is **defense-in-depth at the Nginx layer** — blocking attack vectors before they reach the application.
+This document provides security hardening instructions for public-facing Heratio deployments. AtoM runs on Symfony 1.x (end-of-life since 2012), which introduces inherent risk. The mitigation strategy is **defense-in-depth at the Nginx layer** - blocking attack vectors before they reach the application.
 
 ### Architecture Security Position
 
@@ -60,10 +60,10 @@ Heratio uses a hybrid architecture:
 
 | Mitigation | Effect |
 |------------|--------|
-| PHP 8.3 | Modern PHP handles sessions, crypto, and I/O — not Symfony |
+| PHP 8.3 | Modern PHP handles sessions, crypto, and I/O - not Symfony |
 | Nginx filtering | Exploit patterns blocked before reaching PHP |
 | CSP nonces | XSS mitigated at browser level |
-| Laravel QB | SQL injection mitigated — plugins don't use Propel for queries |
+| Laravel QB | SQL injection mitigated - plugins don't use Propel for queries |
 | `unserialize()` hardened | All instances use `['allowed_classes' => false]` (see M0_SECURITY_HARDENING.md) |
 | File validation | FileValidationService validates MIME, extension, size |
 | CSRF tokens | CsrfService provides per-session tokens |
@@ -94,11 +94,11 @@ add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 Add these to the `server` block in your Nginx site configuration, in the `SECURITY HEADERS` section:
 
 ```nginx
-# HSTS — force HTTPS for 1 year, include subdomains
+# HSTS - force HTTPS for 1 year, include subdomains
 # Only enable after confirming HTTPS works correctly
 add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 
-# Permissions-Policy — restrict browser features
+# Permissions-Policy - restrict browser features
 add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()" always;
 ```
 
@@ -114,22 +114,22 @@ The following endpoints are publicly accessible without authentication:
 
 | Endpoint | Risk |
 |----------|------|
-| `/sparql/` | Full SPARQL query access to RiC-O triplestore — data exfiltration |
-| `/api/ric/` | RiC semantic search API — information disclosure |
-| `/api/provenance/` | Provenance API — information disclosure |
-| `/api/editor/` | RiC editor API — potential data modification |
-| `/ric-dashboard/` | Admin dashboard — information disclosure |
+| `/sparql/` | Full SPARQL query access to RiC-O triplestore - data exfiltration |
+| `/api/ric/` | RiC semantic search API - information disclosure |
+| `/api/provenance/` | Provenance API - information disclosure |
+| `/api/editor/` | RiC editor API - potential data modification |
+| `/ric-dashboard/` | Admin dashboard - information disclosure |
 
 ### 4.2 Fix: Require Authentication
 
-Replace the existing unprotected `location` blocks with authenticated versions. The fix uses the Symfony session cookie — if the user is not logged in, they get a 403.
+Replace the existing unprotected `location` blocks with authenticated versions. The fix uses the Symfony session cookie - if the user is not logged in, they get a 403.
 
 ```nginx
 # ======================================
-# RiC ENDPOINTS — AUTHENTICATED ONLY
+# RiC ENDPOINTS - AUTHENTICATED ONLY
 # ======================================
 
-# SPARQL Proxy — require login
+# SPARQL Proxy - require login
 location ^~ /sparql/ {
     if ($cookie_symfony = "") {
         return 403;
@@ -140,12 +140,12 @@ location ^~ /sparql/ {
     proxy_connect_timeout 30;
     proxy_read_timeout 180;
     proxy_send_timeout 180;
-    # Remove wildcard CORS — only allow same-origin
+    # Remove wildcard CORS - only allow same-origin
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-Content-Type-Options "nosniff" always;
 }
 
-# RiC Semantic Search API — require login
+# RiC Semantic Search API - require login
 location ^~ /api/ric/ {
     if ($cookie_symfony = "") {
         return 403;
@@ -159,7 +159,7 @@ location ^~ /api/ric/ {
     proxy_read_timeout 30;
 }
 
-# RiC Provenance API — require login
+# RiC Provenance API - require login
 location ^~ /api/provenance/ {
     if ($cookie_symfony = "") {
         return 403;
@@ -170,7 +170,7 @@ location ^~ /api/provenance/ {
     proxy_set_header X-Real-IP $remote_addr;
 }
 
-# RiC Editor API — require login
+# RiC Editor API - require login
 location ^~ /api/editor/ {
     if ($cookie_symfony = "") {
         return 403;
@@ -181,7 +181,7 @@ location ^~ /api/editor/ {
     proxy_set_header X-Real-IP $remote_addr;
 }
 
-# RiC Dashboard — require login
+# RiC Dashboard - require login
 location ^~ /ric-dashboard/ {
     if ($cookie_symfony = "") {
         return 403;
@@ -226,7 +226,7 @@ map $request_uri $api_bypass {
 Add a dedicated rate limit zone for login attempts in `/etc/nginx/conf.d/bot-blocker.conf`:
 
 ```nginx
-# Login rate limiting — 1 attempt per second per IP
+# Login rate limiting - 1 attempt per second per IP
 limit_req_zone $binary_remote_addr zone=login_limit:10m rate=1r/s;
 ```
 
@@ -256,7 +256,7 @@ location ~ ^/index\.php/user/login$ {
 
 Create a fail2ban filter for AtoM login failures.
 
-**Filter** — `/etc/fail2ban/filter.d/atom-login.conf`:
+**Filter** - `/etc/fail2ban/filter.d/atom-login.conf`:
 
 ```ini
 [Definition]
@@ -265,7 +265,7 @@ failregex = ^<HOST> .* "POST /index\.php/user/login HTTP/.*" (401|403)
 ignoreregex =
 ```
 
-**Jail** — add to `/etc/fail2ban/jail.local`:
+**Jail** - add to `/etc/fail2ban/jail.local`:
 
 ```ini
 [atom-login]
@@ -312,10 +312,10 @@ location ~ ^/index\.php/.*/digitalobject/ {
 The current `fastcgi_read_timeout 3600` (1 hour) on the main PHP handler is very generous. For public-facing, consider:
 
 ```nginx
-# Main handler — 5 minutes max
+# Main handler - 5 minutes max
 fastcgi_read_timeout 300;
 
-# Import/export jobs — allow longer (only for authenticated admin)
+# Import/export jobs - allow longer (only for authenticated admin)
 location ~ ^/index\.php/(import|export|jobs) {
     if ($cookie_symfony = "") {
         return 403;
@@ -449,8 +449,8 @@ sudo fail2ban-client status atom-login
 
 ## 10. Related Documents
 
-- [SECURITY_MODEL.md](SECURITY_MODEL.md) — Application security architecture
-- [M0_SECURITY_HARDENING.md](M0_SECURITY_HARDENING.md) — PHP deserialization and upload hardening
-- [CSRF_POLICY.md](CSRF_POLICY.md) — Cross-site request forgery protection
-- [OUTBOUND_HTTP_POLICY.md](OUTBOUND_HTTP_POLICY.md) — SSRF prevention
-- [SHELL_EXECUTION_POLICY.md](SHELL_EXECUTION_POLICY.md) — Shell command safety
+- [SECURITY_MODEL.md](SECURITY_MODEL.md) - Application security architecture
+- [M0_SECURITY_HARDENING.md](M0_SECURITY_HARDENING.md) - PHP deserialization and upload hardening
+- [CSRF_POLICY.md](CSRF_POLICY.md) - Cross-site request forgery protection
+- [OUTBOUND_HTTP_POLICY.md](OUTBOUND_HTTP_POLICY.md) - SSRF prevention
+- [SHELL_EXECUTION_POLICY.md](SHELL_EXECUTION_POLICY.md) - Shell command safety

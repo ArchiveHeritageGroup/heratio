@@ -17,7 +17,7 @@ monitoring.
 | `/api/feedback`     | POST   | yes  | Submit thumbs-up / thumbs-down                            |
 | `/api/audit`        | GET    | yes  | Recent Q&A audit rows (admin)                             |
 
-CORS is wide open (`Access-Control-Allow-Origin: *`) — the bearer token is the
+CORS is wide open (`Access-Control-Allow-Origin: *`) - the bearer token is the
 real gate. Allowed methods: `GET, POST, OPTIONS`. Allowed headers:
 `Authorization, Content-Type, Accept`.
 
@@ -33,7 +33,7 @@ Two keys are configured in
 
 Either key works on every protected endpoint. Rotate independently by editing
 the override file and `systemctl restart ahg-km`. Restart is zero-downtime if
-nothing is mid-request — the Flask preload takes ~5 minutes (LLM warmup), so
+nothing is mid-request - the Flask preload takes ~5 minutes (LLM warmup), so
 plan rotations in a maintenance window if you can.
 
 If you prefer, you can also accept multiple web keys per consumer by appending
@@ -45,13 +45,13 @@ extra `Environment=KM_WEB_API_KEY_<n>=…` lines and extending `_KM_KEYS` in
 Three auth styles accepted; pick whichever fits your client:
 
 ```bash
-# 1. Authorization header (preferred — keeps the key out of URLs / access logs)
+# 1. Authorization header (preferred - keeps the key out of URLs / access logs)
 curl -X POST https://km.theahg.co.za/api/ask \
   -H "Authorization: Bearer $KM_WEB_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"question":"What is AtoM 2.10?","stream":false}'
 
-# 2. ?api=<key> query string (URL-only — ideal for chat-paste / quick links)
+# 2. ?api=<key> query string (URL-only - ideal for chat-paste / quick links)
 curl 'https://km.theahg.co.za/api/ask?api='"$KM_WEB_API_KEY"'&q=What+is+AtoM+2.10'
 
 # 3. X-API-Key header (some HTTP clients prefer this)
@@ -100,7 +100,7 @@ Highlights:
 - **No fabricated URLs.** Subdomains under `theahg.co.za` are restricted to
   `psis.theahg.co.za`; the model is not allowed to invent paths.
 - **Refuses secrets.** Any request for credentials, IPs, hostnames, ports, or
-  keys is refused with a fixed message — KM never searches the corpus for
+  keys is refused with a fixed message - KM never searches the corpus for
   them.
 - **Calls out gaps.** If the indexed sources don't cover the question, the
   model says so explicitly instead of guessing.

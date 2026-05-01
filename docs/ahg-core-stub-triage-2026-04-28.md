@@ -3,7 +3,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Group (Pty) Ltd
 -->
 
-# `ahg-core` artisan command stubs — triage
+# `ahg-core` artisan command stubs - triage
 
 **Author:** Johan Pieterse, The Archive and Heritage Group (Pty) Ltd
 **Date:** 2026-04-28
@@ -21,13 +21,13 @@ SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Group (Pt
 
 Estimates are wall-clock. They assume the operator already knows the domain (POPIA, BagIt, OAI-PMH, DataCite, etc.) and isn't trying to learn it on the job.
 
-## Buckets — recommended priority order
+## Buckets - recommended priority order
 
 Order chosen by: business value × portability (AtoM equivalent exists). Highest leverage first.
 
 ### `cleanup` (9 commands, 2 portable)
 
-Operational hygiene — login attempts, uploads, backups, cache, search index. Low complexity, high reliability impact. **Start here.**
+Operational hygiene - login attempts, uploads, backups, cache, search index. Low complexity, high reliability impact. **Start here.**
 
 | Command | Description | AtoM source | Port? |
 |---|---|---|---|
@@ -43,7 +43,7 @@ Operational hygiene — login attempts, uploads, backups, cache, search index. L
 
 ### `preservation` (9 commands, 7 portable)
 
-Digital preservation — fixity / virus scan / format ID / replication / OAIS BagIt. Most have AtoM equivalents in `ahgPreservationPlugin`. Core to GLAM trust.
+Digital preservation - fixity / virus scan / format ID / replication / OAIS BagIt. Most have AtoM equivalents in `ahgPreservationPlugin`. Core to GLAM trust.
 
 | Command | Description | AtoM source | Port? |
 |---|---|---|---|
@@ -59,7 +59,7 @@ Digital preservation — fixity / virus scan / format ID / replication / OAIS Ba
 
 ### `audit` (2 commands, 1 portable)
 
-Audit log retention — POPIA + general housekeeping. Trivial to port.
+Audit log retention - POPIA + general housekeeping. Trivial to port.
 
 | Command | Description | AtoM source | Port? |
 |---|---|---|---|
@@ -68,7 +68,7 @@ Audit log retention — POPIA + general housekeeping. Trivial to port.
 
 ### `authority` (5 commands, 4 portable)
 
-Authority management — dedup, completeness, NER pipeline. All have AtoM equivalents in `ahgAuthorityPlugin`.
+Authority management - dedup, completeness, NER pipeline. All have AtoM equivalents in `ahgAuthorityPlugin`.
 
 | Command | Description | AtoM source | Port? |
 |---|---|---|---|
@@ -94,7 +94,7 @@ DOI minting / verification / tombstone via DataCite. All 7 have AtoM equivalents
 
 ### `library` (7 commands, 6 portable)
 
-Library circulation — overdue / fines / holds / patron expiry / ILL. All have AtoM equivalents in `ahgLibraryPlugin`.
+Library circulation - overdue / fines / holds / patron expiry / ILL. All have AtoM equivalents in `ahgLibraryPlugin`.
 
 | Command | Description | AtoM source | Port? |
 |---|---|---|---|
@@ -148,7 +148,7 @@ Duplicate scanning + merging. Has AtoM equivalent in `ahgDedupePlugin`.
 
 ### `metadata` (6 commands, 3 portable)
 
-Metadata IO — EAD import, finding aids, OAI-PMH harvest, linked data sync, multi-format export. Some Atom equivalents.
+Metadata IO - EAD import, finding aids, OAI-PMH harvest, linked data sync, multi-format export. Some Atom equivalents.
 
 | Command | Description | AtoM source | Port? |
 |---|---|---|---|
@@ -183,7 +183,7 @@ Ingest commit, CSV import, accession intake, digital object load. Has AtoM equiv
 
 ### `portable` (4 commands, 4 portable)
 
-Portable catalogue export/import — used for repository hand-off. Self-contained. Has AtoM equivalents.
+Portable catalogue export/import - used for repository hand-off. Self-contained. Has AtoM equivalents.
 
 | Command | Description | AtoM source | Port? |
 |---|---|---|---|
@@ -239,7 +239,7 @@ Form configuration import/export.
 
 ### `tree` (1 command, 0 portable)
 
-NestedSet rebuild — single command, classic symfony port.
+NestedSet rebuild - single command, classic symfony port.
 
 | Command | Description | AtoM source | Port? |
 |---|---|---|---|
@@ -257,8 +257,8 @@ Catch-all. Inspect individually.
 
 1. **AtoM source = blueprint.** Per CLAUDE.md's Migration Rules: read the symfony 1.x task in `archive/`, port the logic, convert namespace + signature, keep behaviour identical. Most are <300 lines.
 2. **Schedule via `ahg:cron-seed`.** Once a command is implemented, register it in `cron_schedule` so it runs on the configured cadence. The cron framework is already live (CronRun, CronSeed, CronStatus exist).
-3. **Re-scan after each batch.** `python3 /tmp/pkg-outstanding-v2.py` will report which TODOs remain — use the diff as the milestone tracker.
-4. **Some are forward-looking.** Heritage knowledge graph, RiC linked-data sync, ICIP consent expiry are not all ported from AtoM — they're new features for international markets. Those need product input, not just code.
+3. **Re-scan after each batch.** `python3 /tmp/pkg-outstanding-v2.py` will report which TODOs remain - use the diff as the milestone tracker.
+4. **Some are forward-looking.** Heritage knowledge graph, RiC linked-data sync, ICIP consent expiry are not all ported from AtoM - they're new features for international markets. Those need product input, not just code.
 
 ## Output
 

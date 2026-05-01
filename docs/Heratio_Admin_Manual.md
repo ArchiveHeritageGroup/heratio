@@ -1,4 +1,4 @@
-# Heratio — Administrator Manual
+# Heratio - Administrator Manual
 
 **For:** System Administrators, IT Staff, Compliance Officers
 **Product:** Heratio Framework v2.8.2
@@ -19,19 +19,19 @@ This manual covers system administration: settings, backup, security, user manag
 
 ```
 Admin Menu
-├── Plugins                    — Enable/disable AHG plugins
-├── Themes                     — Theme selection
-├── Settings (base AtoM)       — Core AtoM settings
-├── AHG Settings               — 21 sections, 200+ options
-├── Users & Groups             — User accounts, roles, ACL
-├── Menus                      — Navigation menu management
-├── Static pages               — Static page content
-├── Visible elements           — Show/hide interface elements
-├── Backup & Restore           — Backup management
-├── Queue                      — Background job queue
-├── Audit Trail                — Activity logging
-├── Reports                    — Reporting dashboard
-└── Help Center                — Help articles
+├── Plugins                    - Enable/disable AHG plugins
+├── Themes                     - Theme selection
+├── Settings (base AtoM)       - Core AtoM settings
+├── AHG Settings               - 21 sections, 200+ options
+├── Users & Groups             - User accounts, roles, ACL
+├── Menus                      - Navigation menu management
+├── Static pages               - Static page content
+├── Visible elements           - Show/hide interface elements
+├── Backup & Restore           - Backup management
+├── Queue                      - Background job queue
+├── Audit Trail                - Activity logging
+├── Reports                    - Reporting dashboard
+└── Help Center                - Help articles
 ```
 
 ---
@@ -51,7 +51,7 @@ The central configuration hub. Every option is documented below, organized by se
 
 ---
 
-### 2.1 General — Theme Configuration
+### 2.1 General - Theme Configuration
 
 Controls the visual appearance of the site.
 
@@ -74,11 +74,11 @@ Controls the visual appearance of the site.
 
 **Tips:**
 - Use a colour contrast checker to ensure text colours meet WCAG AA (4.5:1 ratio)
-- Custom CSS is injected with a CSP nonce — inline styles in the textarea are safe
+- Custom CSS is injected with a CSP nonce - inline styles in the textarea are safe
 
 ---
 
-### 2.2 Spectrum — Collections Management
+### 2.2 Spectrum - Collections Management
 
 Controls Spectrum 5.1 procedures (UK Collections Trust standard).
 
@@ -95,7 +95,7 @@ Controls Spectrum 5.1 procedures (UK Collections Trust standard).
 
 ---
 
-### 2.3 Media — Media Player
+### 2.3 Media - Media Player
 
 Controls the HTML5 audio/video player behaviour.
 
@@ -110,7 +110,7 @@ Controls the HTML5 audio/video player behaviour.
 
 ---
 
-### 2.4 Photos — Condition Photo Upload
+### 2.4 Photos - Condition Photo Upload
 
 Controls how condition assessment photos are stored and processed.
 
@@ -128,14 +128,14 @@ Controls how condition assessment photos are stored and processed.
 
 ---
 
-### 2.5 Data Protection — Compliance
+### 2.5 Data Protection - Compliance
 
 Controls privacy compliance features.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | Enable Module | Toggle | On | Master switch for data protection features. |
-| Default Regulation | Select | POPIA | Default privacy regulation. Options: POPIA (South Africa), GDPR (EU), PAIA (South Africa — access), CCPA (California). |
+| Default Regulation | Select | POPIA | Default privacy regulation. Options: POPIA (South Africa), GDPR (EU), PAIA (South Africa - access), CCPA (California). |
 | Notify Overdue | Toggle | On | Send email when a data subject request exceeds the response deadline. |
 | Notification Email | Email | (empty) | Recipient for overdue request notifications. |
 | POPIA Request Fee | Number (ZAR) | 50 | Standard fee charged for POPIA information requests. |
@@ -144,7 +144,7 @@ Controls privacy compliance features.
 
 ---
 
-### 2.6 IIIF — Image Viewer
+### 2.6 IIIF - Image Viewer
 
 Controls the high-resolution image viewer.
 
@@ -159,7 +159,7 @@ Controls the high-resolution image viewer.
 
 ---
 
-### 2.7 Jobs — Background Processing
+### 2.7 Jobs - Background Processing
 
 Controls the background job system.
 
@@ -175,7 +175,7 @@ Controls the background job system.
 
 ---
 
-### 2.8 Fuseki — RiC Triplestore
+### 2.8 Fuseki - RiC Triplestore
 
 Controls the Records in Contexts (RiC) RiC (Records in Contexts) linked data integration.
 
@@ -195,7 +195,7 @@ Controls the Records in Contexts (RiC) RiC (Records in Contexts) linked data int
 
 ---
 
-### 2.9 Metadata — Extraction Configuration
+### 2.9 Metadata - Extraction Configuration
 
 Controls automatic metadata extraction from uploaded files.
 
@@ -205,15 +205,15 @@ Controls automatic metadata extraction from uploaded files.
 | Auto-Populate | Toggle | On | Populate AtoM description fields with extracted metadata values. |
 | Images | Toggle | On | Extract from image files (EXIF, IPTC, XMP). |
 | PDF | Toggle | On | Extract from PDF files (author, title, keywords). |
-| Office | Toggle | On | Extract from Office documents (Word, Excel — author, title). |
+| Office | Toggle | On | Extract from Office documents (Word, Excel - author, title). |
 | Video | Toggle | On | Extract from video files (duration, dimensions, codec). |
 | Audio | Toggle | On | Extract from audio files (duration, artist, album). |
 
-**Field Mapping** — configurable per GLAM sector (ISAD, Museum, DAM). Each extracted metadata field can be mapped to a specific AtoM field or set to "none" to skip. Mappable fields: Title, Creator, Keywords, Description, Date Created, Copyright, Technical Data, GPS Location.
+**Field Mapping** - configurable per GLAM sector (ISAD, Museum, DAM). Each extracted metadata field can be mapped to a specific AtoM field or set to "none" to skip. Mappable fields: Title, Creator, Keywords, Description, Date Created, Copyright, Technical Data, GPS Location.
 
 ---
 
-### 2.10 Faces — Face Detection
+### 2.10 Faces - Face Detection
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -222,7 +222,7 @@ Controls automatic metadata extraction from uploaded files.
 
 ---
 
-### 2.11 Ingest — Data Ingest Defaults
+### 2.11 Ingest - Data Ingest Defaults
 
 Default settings for the 6-step data ingest wizard.
 
@@ -274,7 +274,7 @@ A **Service Availability** dashboard shows the status of each backend (installed
 | Include Digital Objects | Toggle | On | Include original digital objects in export. |
 | Include Thumbnails | Toggle | On | Include thumbnail images. |
 | Include References | Toggle | On | Include reference-size images. |
-| Include Masters | Toggle | Off | Include master files (large — significantly increases export size). |
+| Include Masters | Toggle | Off | Include master files (large - significantly increases export size). |
 | Default Mode | Select | read_only | **read_only:** browse-only viewer. **editable:** allows local editing. |
 | Default Language | Select | en | Language for the portable viewer interface. |
 | Max Size (MB) | Number | 2048 | Maximum export file size. Range: 100–10240. |
@@ -322,7 +322,7 @@ A **Service Availability** dashboard shows the status of each backend (installed
 
 ---
 
-### 2.15 Integrity — Verification
+### 2.15 Integrity - Verification
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -341,7 +341,7 @@ A **Service Availability** dashboard shows the status of each backend (installed
 
 ---
 
-### 2.16 Accession — Intake Settings
+### 2.16 Accession - Intake Settings
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -355,7 +355,7 @@ A **Service Availability** dashboard shows the status of each backend (installed
 
 ---
 
-### 2.17 Authority — Authority Records
+### 2.17 Authority - Authority Records
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -375,7 +375,7 @@ A **Service Availability** dashboard shows the status of each backend (installed
 
 ---
 
-### 2.18 Security — Access Control
+### 2.18 Security - Access Control
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -390,11 +390,11 @@ A **Service Availability** dashboard shows the status of each backend (installed
 | Session Timeout | Minutes | 30 | Idle sessions expire after this many minutes. Range: 5–480 (8 hours). |
 | Login Attempt Retention | Hours | 24 | Failed login attempt records are kept for this many hours. Range: 1–720 (30 days). |
 
-**Security Status** — displays active protections: Session Fixation Prevention, CSRF Protection, Security Headers, HttpOnly Cookies, Bell-LaPadula MAC, SSRF Protection, XXE Protection.
+**Security Status** - displays active protections: Session Fixation Prevention, CSRF Protection, Security Headers, HttpOnly Cookies, Bell-LaPadula MAC, SSRF Protection, XXE Protection.
 
 ---
 
-### 2.19 Library — Circulation
+### 2.19 Library - Circulation
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -406,7 +406,7 @@ A **Service Availability** dashboard shows the status of each backend (installed
 
 ---
 
-### 2.20 FTP — File Transfer
+### 2.20 FTP - File Transfer
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -450,9 +450,9 @@ A **Service Availability** dashboard shows the status of each backend (installed
 **Manual:** Click "Create Backup" and select components (database, uploads, plugins, framework).
 
 **Quick Actions:**
-- **Database Only** — fast, database only
-- **Full Backup** — all components
-- **Incremental** — only changes since last full backup
+- **Database Only** - fast, database only
+- **Full Backup** - all components
+- **Incremental** - only changes since last full backup
 
 ### 3.3 Scheduled Backups
 
@@ -485,7 +485,7 @@ Click **+** in the Schedules card:
 
 1. Click **Restore** on any backup in the history table
 2. Select which components to restore
-3. Confirm — system backs up current state first, then restores
+3. Confirm - system backs up current state first, then restores
 
 ### 3.5 Upload Restore
 
@@ -669,4 +669,4 @@ sudo systemctl restart elasticsearch   # Search
 
 ---
 
-*Heratio Framework v2.8.2 — The Archive and Heritage Group (Pty) Ltd*
+*Heratio Framework v2.8.2 - The Archive and Heritage Group (Pty) Ltd*

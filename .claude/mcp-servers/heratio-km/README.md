@@ -51,6 +51,6 @@ node test.js --ask           # also runs a sample km_ask query (slow)
 
 ## Why three tools and not "memory get/put"?
 
-The original brief was a key-value memory store. km.theahg.co.za turned out to be a Q&A interface instead — RAG over a corpus, not a KV store. So the right shape is question/answer rather than get/put. The corpus is updated on the KM side (Heratio docs, AHG plugins, AtoM core code, RiC spec) — Claude reads via `km_ask`, doesn't write.
+The original brief was a key-value memory store. km.theahg.co.za turned out to be a Q&A interface instead - RAG over a corpus, not a KV store. So the right shape is question/answer rather than get/put. The corpus is updated on the KM side (Heratio docs, AHG plugins, AtoM core code, RiC spec) - Claude reads via `km_ask`, doesn't write.
 
 If a true KV memory layer is needed alongside, that's a separate MCP server with `memory_get` / `memory_put` tools backed by a real KV store. The local file-based memory at `/root/.claude/projects/.../memory/` already plays that role per-session.

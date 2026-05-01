@@ -1,4 +1,4 @@
-# Heratio — Integrity Assurance Plugin User Manual
+# Heratio - Integrity Assurance Plugin User Manual
 
 **Version:** 1.2.0
 **Author:** The Archive and Heritage Group (Pty) Ltd
@@ -76,7 +76,7 @@ The installation creates two default schedules:
 If upgrading from an earlier version, the plugin will automatically add new columns (`actor`, `hostname`, `previous_hash` on `integrity_ledger`; `object_format` on `integrity_retention_policy`) on first use. You can also run the migration manually:
 
 ```bash
-# Re-run install.sql (safe — uses CREATE TABLE IF NOT EXISTS)
+# Re-run install.sql (safe - uses CREATE TABLE IF NOT EXISTS)
 mysql -u root archive < atom-ahg-plugins/ahgIntegrityPlugin/database/install.sql
 
 # The ALTER for actor/hostname is handled programmatically
@@ -195,7 +195,7 @@ GRANT SELECT, INSERT ON archive.integrity_ledger TO 'atom_web'@'localhost';
 REVOKE UPDATE, DELETE ON archive.integrity_ledger FROM 'atom_web'@'localhost';
 ```
 
-This ensures that even in the event of a compromised application, the verification audit trail cannot be tampered with. The `previous_hash` column provides an additional layer of chain verification — any gap or inconsistency in the hash chain indicates potential ledger tampering.
+This ensures that even in the event of a compromised application, the verification audit trail cannot be tampered with. The `previous_hash` column provides an additional layer of chain verification - any gap or inconsistency in the hash chain indicates potential ledger tampering.
 
 ### Filtering
 
@@ -281,7 +281,7 @@ php symfony integrity:report --export-csv=/tmp/q1.csv --date-from=2026-01-01 --d
 
 Access: **Admin > Integrity > Policies**
 
-Retention policies define how long records should be kept before becoming eligible for disposition review. This does NOT automatically delete records — it only identifies candidates for human review.
+Retention policies define how long records should be kept before becoming eligible for disposition review. This does NOT automatically delete records - it only identifies candidates for human review.
 
 ### Creating a Policy
 
@@ -358,7 +358,7 @@ eligible → pending_review → approved → disposed
 - Click the X to **reject** disposition
 - Optionally add review notes
 
-**Important**: "Disposed" status only marks the record — it does NOT delete anything. Actual deletion (if required) is a separate manual process outside the plugin.
+**Important**: "Disposed" status only marks the record - it does NOT delete anything. Actual deletion (if required) is a separate manual process outside the plugin.
 
 ### Status Summary
 
@@ -396,7 +396,7 @@ Configure threshold-based alerts to be notified when integrity metrics cross def
 5. Optionally add a webhook secret for HMAC signing
 6. Enable/disable the alert
 
-Alerts are evaluated after each batch verification run. Alert failures are non-fatal — they never break the verification process.
+Alerts are evaluated after each batch verification run. Alert failures are non-fatal - they never break the verification process.
 
 ## CLI Commands
 
@@ -514,10 +514,10 @@ All paginated endpoints return: `{success: true, total: N, limit: N, skip: N, da
 
 | Endpoint | Method | Parameters | Description |
 |----------|--------|-----------|-------------|
-| `/api/integrity/stats` | GET | — | Dashboard statistics |
+| `/api/integrity/stats` | GET | - | Dashboard statistics |
 | `/api/integrity/daily-trend` | GET | `days` (default: 30) | Daily pass/fail counts |
-| `/api/integrity/repo-breakdown` | GET | — | Per-repository verification stats |
-| `/api/integrity/format-breakdown` | GET | — | Per-format verification stats |
+| `/api/integrity/repo-breakdown` | GET | - | Per-repository verification stats |
+| `/api/integrity/format-breakdown` | GET | - | Per-format verification stats |
 | `/api/integrity/throughput` | GET | `days` (default: 7) | Verification throughput |
 | `/api/integrity/storage-growth` | GET | `days` (default: 30) | Storage scanned over time |
 
@@ -526,11 +526,11 @@ All paginated endpoints return: `{success: true, total: N, limit: N, skip: N, da
 | Endpoint | Method | Parameters | Description |
 |----------|--------|-----------|-------------|
 | `/api/integrity/verify` | POST | `object_id` | Verify a single digital object |
-| `/api/integrity/schedule/:id/run` | POST | — | Execute a schedule immediately |
-| `/api/integrity/schedule/:id/toggle` | POST | — | Enable/disable schedule |
+| `/api/integrity/schedule/:id/run` | POST | - | Execute a schedule immediately |
+| `/api/integrity/schedule/:id/toggle` | POST | - | Enable/disable schedule |
 | `/api/integrity/retention/scan` | POST | `policy_id` (optional) | Scan for eligible dispositions |
 | `/api/integrity/hold/place` | POST | `information_object_id`, `reason` | Place a legal hold |
-| `/api/integrity/hold/:id/release` | POST | — | Release a legal hold |
+| `/api/integrity/hold/:id/release` | POST | - | Release a legal hold |
 
 ### Example Usage
 

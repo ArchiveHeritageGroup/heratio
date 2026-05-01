@@ -104,8 +104,8 @@ Key capabilities: MPPT hierarchy extraction, digital object collection with chec
 |                              v                                       |
 |  +---------------------------------------------------------------+  |
 |  |                    Theme Integration                           |  |
-|  |  _actionIcons.php — "Portable Viewer" on description pages    |  |
-|  |  exportSuccess.php — "Portable Catalogue" on clipboard page   |  |
+|  |  _actionIcons.php - "Portable Viewer" on description pages    |  |
+|  |  exportSuccess.php - "Portable Catalogue" on clipboard page   |  |
 |  +---------------------------------------------------------------+  |
 |                                                                      |
 +---------------------------------------------------------------------+
@@ -284,7 +284,7 @@ VALUES
 - Output: `{ATOM_ROOT}/downloads/portable-exports/export-{id}/` + `.zip`
 - On failure: sets status='failed' with error message
 - v1.1: Parses `scope_items` JSON and passes item IDs to CatalogueExtractor
-- v1.1: Calls `notifyCompletion()` on success — inserts into `audit_trail` if available
+- v1.1: Calls `notifyCompletion()` on success - inserts into `audit_trail` if available
 
 ### CatalogueExtractor
 - Entry point: `extract(scopeType, scopeSlug, repositoryId, ?itemIds)`
@@ -292,7 +292,7 @@ VALUES
 - Access points: subjects (taxonomy 35), places (taxonomy 42), genres (taxonomy 78)
 - Creators: from events (type 111) and relations (type 161)
 - Chunked queries (500 IDs per batch) for memory efficiency
-- v1.1: Custom scope with `$itemIds` — queries lft/rgt ranges for each item, includes items AND descendants
+- v1.1: Custom scope with `$itemIds` - queries lft/rgt ranges for each item, includes items AND descendants
 - Output: `{ descriptions: [], hierarchy: [], taxonomies: {}, repositories: {} }`
 
 ### AssetCollector
@@ -362,7 +362,7 @@ Behavior:
 
 ## Theme Integration (v1.1)
 
-### Description Page — _actionIcons.php (ahgThemeB5Plugin)
+### Description Page - _actionIcons.php (ahgThemeB5Plugin)
 
 When `ahgPortableExportPlugin` is enabled, a "Portable Viewer" link appears in the Export section of the information object sidebar. The link:
 1. Posts the description's slug to `/portable-export/api/quick-start`
@@ -370,7 +370,7 @@ When `ahgPortableExportPlugin` is enabled, a "Portable Viewer" link appears in t
 3. Shows spinner while starting, then redirects to `/portable-export`
 4. Visibility controlled by `portable_export_description_button` setting
 
-### Clipboard Page — exportSuccess.php (ahgThemeB5Plugin)
+### Clipboard Page - exportSuccess.php (ahgThemeB5Plugin)
 
 When `ahgPortableExportPlugin` is enabled, a "Portable Catalogue" button appears next to the Export/Cancel buttons. The button:
 1. Reads clipboard slugs from `localStorage['atom-clipboard-informationObject']`

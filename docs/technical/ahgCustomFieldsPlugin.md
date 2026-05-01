@@ -1,4 +1,4 @@
-# ahgCustomFieldsPlugin — Technical Manual
+# ahgCustomFieldsPlugin - Technical Manual
 
 **Version:** 1.0.0
 **Category:** Metadata Management
@@ -16,19 +16,19 @@ The plugin implements an Entity-Attribute-Value (EAV) pattern for extensible met
 ```
 ┌──────────────────────────────────────────────────┐
 │  Admin UI (/admin/customFields)                   │
-│  customFieldAdmin module — CRUD for definitions   │
+│  customFieldAdmin module - CRUD for definitions   │
 ├──────────────────────────────────────────────────┤
 │  Entity UI (edit/view pages)                      │
-│  customField module — save/get values (AJAX)      │
-│  Display panel — _custom_fields_panel.php         │
+│  customField module - save/get values (AJAX)      │
+│  Display panel - _custom_fields_panel.php         │
 ├──────────────────────────────────────────────────┤
 │  Services                                         │
-│  CustomFieldService — business logic              │
-│  CustomFieldRenderService — HTML generation       │
+│  CustomFieldService - business logic              │
+│  CustomFieldRenderService - HTML generation       │
 ├──────────────────────────────────────────────────┤
 │  Repositories                                     │
-│  FieldDefinitionRepository — definition CRUD      │
-│  FieldValueRepository — value CRUD                │
+│  FieldDefinitionRepository - definition CRUD      │
+│  FieldValueRepository - value CRUD                │
 ├──────────────────────────────────────────────────┤
 │  Database                                         │
 │  custom_field_definition + custom_field_value      │

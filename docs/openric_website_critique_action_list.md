@@ -140,10 +140,10 @@ If users do not understand the boundary, they may misclassify OpenRiC as either:
 
 Add a compact comparison panel on the homepage or architecture page:
 
-- **OpenRiC** — the open specification and interoperability contract.
-- **Reference API** — an implementation of the specification.
-- **Viewer / tools** — client applications that consume the specification.
-- **Heratio** — an operational GLAM platform that can publish to and use OpenRiC.
+- **OpenRiC** - the open specification and interoperability contract.
+- **Reference API** - an implementation of the specification.
+- **Viewer / tools** - client applications that consume the specification.
+- **Heratio** - an operational GLAM platform that can publish to and use OpenRiC.
 
 This should be short, visual, and repeated consistently.
 

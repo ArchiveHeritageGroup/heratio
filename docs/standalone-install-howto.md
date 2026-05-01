@@ -1,8 +1,8 @@
-# Heratio — Standalone Install Guide
+# Heratio - Standalone Install Guide
 
 This guide walks an operator through installing **Heratio** on a fresh Linux box. By the end you will have a running archival platform with admin login, an empty GLAM browse, and the option to enable IIIF deep-zoom, semantic search, and remote AI services.
 
-> **Heratio vs OpenRiC:** This guide installs Heratio only. OpenRiC (the standalone RiC SPARQL/SHACL engine) is a separate product with its own install — see the [OpenRiC repo](https://github.com/ArchiveHeritageGroup/openric). Heratio includes the in-app RiC views (RiC Context panel, JSON-LD export, Graph Explorer link) without OpenRiC. Add OpenRiC only if you want a public RiC-O endpoint.
+> **Heratio vs OpenRiC:** This guide installs Heratio only. OpenRiC (the standalone RiC SPARQL/SHACL engine) is a separate product with its own install - see the [OpenRiC repo](https://github.com/ArchiveHeritageGroup/openric). Heratio includes the in-app RiC views (RiC Context panel, JSON-LD export, Graph Explorer link) without OpenRiC. Add OpenRiC only if you want a public RiC-O endpoint.
 
 ---
 
@@ -12,7 +12,7 @@ This guide walks an operator through installing **Heratio** on a fresh Linux box
 |---|---|---|
 | **Git clone** (recommended) | Standard deployments, easy updates | `git pull && sudo bin/install` |
 | **Tarball release** | Air-gapped, no `git` available | Re-download tarball, replace `/usr/share/nginx/heratio`, `sudo bin/install` |
-| Docker | Future — not yet | n/a |
+| Docker | Future - not yet | n/a |
 
 Both methods run the same `bin/install` and produce identical results.
 
@@ -42,7 +42,7 @@ Both methods run the same `bin/install` and produce identical results.
 ## 3. Pre-install checklist
 
 ```bash
-# 1. install OS dependencies (Ubuntu/Debian — adapt for RHEL/Arch)
+# 1. install OS dependencies (Ubuntu/Debian - adapt for RHEL/Arch)
 sudo apt-get update
 sudo apt-get install -y \
   php8.3-cli php8.3-fpm php8.3-mysql php8.3-mbstring php8.3-xml \
@@ -58,13 +58,13 @@ sudo apt-get install -y nodejs
 curl -fsSL https://getcomposer.org/installer | php
 sudo mv composer.phar /usr/local/bin/composer
 
-# 4. install Elasticsearch (8.x example — see Elastic docs for current)
+# 4. install Elasticsearch (8.x example - see Elastic docs for current)
 wget -qO- https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
 sudo apt-get update && sudo apt-get install -y elasticsearch
 sudo systemctl enable --now elasticsearch
 
-# 5. configure MySQL — set root password and allow socket auth
+# 5. configure MySQL - set root password and allow socket auth
 sudo mysql_secure_installation
 ```
 
@@ -72,7 +72,7 @@ sudo mysql_secure_installation
 
 ## 4. Install Heratio
 
-### Method A — Git clone (recommended)
+### Method A - Git clone (recommended)
 
 ```bash
 # choose any path; /usr/share/nginx/heratio matches the existing convention
@@ -86,7 +86,7 @@ sudo git checkout v1.36.0    # or whatever the latest tag is
 sudo bin/install --domain=mysite.example --admin-email=admin@mysite.example
 ```
 
-### Method B — Tarball
+### Method B - Tarball
 
 ```bash
 VERSION=1.36.0
@@ -99,24 +99,24 @@ sudo bin/install --domain=mysite.example --admin-email=admin@mysite.example
 
 ### What `bin/install` does
 
-The installer runs **14 idempotent stages**. Re-running picks up where it left off — safe to interrupt.
+The installer runs **14 idempotent stages**. Re-running picks up where it left off - safe to interrupt.
 
 | # | Stage | Skip flag |
 |---|---|---|
-| 1 | Preflight (PHP 8.3+, MySQL, ES, Node, Composer, git) | — |
-| 2 | `composer install --no-dev` | — |
-| 3 | `npm ci && npm run build` | — |
-| 4 | `.env` from `.env.example` + `php artisan key:generate` | — |
-| 5 | `CREATE DATABASE heratio` | — |
-| 6 | Load `database/core/0[0-3]_*.sql` (370 tables — Qubit + ACL + accession + framework) | — |
-| 7 | `php artisan heratio:install-bootstrap --pass=2` (475 plugin tables) | — |
-| 8 | Load `database/seeds/0[0-7]_*.sql` (50 taxonomies, 344 terms, 67 menus, 187 settings, 7 ACL groups, 3 static pages, eras, report templates) | — |
-| 9 | Create admin user (`object` + `actor` + `actor_i18n` + `user`) | — |
-| 10 | Create storage paths under `${INSTALL_DIR}/uploads` (override with `--storage-path`) | — |
+| 1 | Preflight (PHP 8.3+, MySQL, ES, Node, Composer, git) | - |
+| 2 | `composer install --no-dev` | - |
+| 3 | `npm ci && npm run build` | - |
+| 4 | `.env` from `.env.example` + `php artisan key:generate` | - |
+| 5 | `CREATE DATABASE heratio` | - |
+| 6 | Load `database/core/0[0-3]_*.sql` (370 tables - Qubit + ACL + accession + framework) | - |
+| 7 | `php artisan heratio:install-bootstrap --pass=2` (475 plugin tables) | - |
+| 8 | Load `database/seeds/0[0-7]_*.sql` (50 taxonomies, 344 terms, 67 menus, 187 settings, 7 ACL groups, 3 static pages, eras, report templates) | - |
+| 9 | Create admin user (`object` + `actor` + `actor_i18n` + `user`) | - |
+| 10 | Create storage paths under `${INSTALL_DIR}/uploads` (override with `--storage-path`) | - |
 | 11 | `php artisan ahg:es-reindex --drop` (build empty ES indices) | `--skip-es` |
 | 12 | Render nginx vhost from `config/nginx/heratio.conf.template` and `systemctl reload nginx` | `--skip-nginx` |
-| 13 | Curl smoke test of `/` | — |
-| 14 | Print URL + admin email + one-time password | — |
+| 13 | Curl smoke test of `/` | - |
+| 14 | Print URL + admin email + one-time password | - |
 
 **At the end you'll see:**
 
@@ -134,11 +134,11 @@ The installer runs **14 idempotent stages**. Re-running picks up where it left o
 ═══════════════════════════════════════════════════════════════════════════════
 ```
 
-**Save the admin password immediately** — it is not stored anywhere else and not retrievable from the database (it's bcrypt-hashed on insert).
+**Save the admin password immediately** - it is not stored anywhere else and not retrievable from the database (it's bcrypt-hashed on insert).
 
 ---
 
-## 5. SSL — set up HTTPS
+## 5. SSL - set up HTTPS
 
 The installer renders an HTTP-only vhost; SSL is your concern. Recommended:
 
@@ -151,7 +151,7 @@ This adds `listen 443 ssl` blocks and HTTPS redirects to your vhost automaticall
 
 ---
 
-## 6. Optional — IIIF deep-zoom (Cantaloupe)
+## 6. Optional - IIIF deep-zoom (Cantaloupe)
 
 Required only if you serve TIFF or JP2 master images and want pan-and-zoom. JPEGs and PNGs serve directly via nginx without it.
 
@@ -174,7 +174,7 @@ Reload: `sudo nginx -t && sudo systemctl reload nginx`.
 
 ---
 
-## 7. Optional — Semantic search (Qdrant)
+## 7. Optional - Semantic search (Qdrant)
 
 Required for: semantic search (`/search/semantic`), image-similarity search, NER vector index. Lexical search via Elasticsearch works without it.
 
@@ -196,7 +196,7 @@ php artisan ahg:qdrant-index --collection=archive_records
 
 ---
 
-## 8. Optional — AI services
+## 8. Optional - AI services
 
 > Heratio is an **AI client**, not an AI host. Set up your own Ollama / vLLM / OpenAI-compatible endpoint on a separate GPU box (or use a managed service), then point Heratio at it.
 
@@ -211,11 +211,11 @@ In `/admin/settings`, set:
 
 Or via CLI: `php artisan ahg:settings-set voice_local_llm_url 'http://...'`.
 
-See `docs/ai-host-setup.md` for AI host installation guidance (operator's responsibility — Heratio does not bundle Ollama or any AI runtime).
+See `docs/ai-host-setup.md` for AI host installation guidance (operator's responsibility - Heratio does not bundle Ollama or any AI runtime).
 
 ---
 
-## 9. Optional — OpenRiC (separate product)
+## 9. Optional - OpenRiC (separate product)
 
 If you want a public RiC-O SPARQL endpoint (e.g. `ric.mysite.example`):
 
@@ -242,7 +242,7 @@ OpenRiC has its own database (`openric`), its own web service, and its own insta
 cd /usr/share/nginx/heratio
 sudo git fetch --tags
 sudo git checkout v1.37.0          # or whatever new release
-sudo bin/install                    # idempotent — re-runs migrations + reload
+sudo bin/install                    # idempotent - re-runs migrations + reload
 ```
 
 `bin/install` on an existing install:
@@ -250,7 +250,7 @@ sudo bin/install                    # idempotent — re-runs migrations + reload
 - Leaves `.env` alone
 - Doesn't touch the database (CREATE TABLE IF NOT EXISTS)
 - Re-runs `heratio:install-bootstrap --pass=2` (idempotent)
-- Re-runs seeds (INSERT IGNORE — no row duplication)
+- Re-runs seeds (INSERT IGNORE - no row duplication)
 - Doesn't recreate the admin user
 - Doesn't change nginx vhost
 - Reloads nginx
@@ -266,7 +266,7 @@ The error message names the missing dependency and the apt-get command to fix it
 ### Stage 6 (core schema) fails with FK errors
 
 The four files in `database/core/` are designed to load on an empty MySQL 8 with `utf8mb4_unicode_ci` collation. If you see FK errors:
-1. Check MySQL version: `mysql --version` — must be 8.0+.
+1. Check MySQL version: `mysql --version` - must be 8.0+.
 2. Drop and recreate the database: `mysql -u root -e 'DROP DATABASE heratio; CREATE DATABASE heratio CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci'`.
 3. Re-run `bin/install`.
 
@@ -276,7 +276,7 @@ Check the Laravel log: `tail /usr/share/nginx/heratio/storage/logs/laravel.log`.
 
 ### Stage 8 (seeds) errors with "Unknown column"
 
-Indicates a schema/seed mismatch — usually an out-of-date `database/seeds/` against a newer schema. Re-generate seeds with:
+Indicates a schema/seed mismatch - usually an out-of-date `database/seeds/` against a newer schema. Re-generate seeds with:
 
 ```bash
 cd /usr/share/nginx/heratio
@@ -287,13 +287,13 @@ php database/tools/atom-fixture-to-sql.php \
 
 ### Stage 9 (admin user) fails with FK error on `actor.id`
 
-The `object` table needs to exist before the admin user. This stage ordering is enforced by stages 6-8 — if those skipped or partially failed, the admin insert breaks. Re-run from stage 6 (DROP DATABASE + re-run `bin/install`).
+The `object` table needs to exist before the admin user. This stage ordering is enforced by stages 6-8 - if those skipped or partially failed, the admin insert breaks. Re-run from stage 6 (DROP DATABASE + re-run `bin/install`).
 
-### Stage 11 (Elasticsearch) — `php artisan ahg:es-reindex` returns warnings
+### Stage 11 (Elasticsearch) - `php artisan ahg:es-reindex` returns warnings
 
 ES reindex on an empty DB is fast but emits warnings about missing pre-existing indices. Safe to ignore on first install. Re-run later: `php artisan ahg:es-reindex --drop`.
 
-### Stage 12 (nginx) — `nginx -t` fails
+### Stage 12 (nginx) - `nginx -t` fails
 
 The rendered vhost path may collide with an existing site. Edit `/etc/nginx/sites-available/${DOMAIN}.conf` to fix, or pass `--skip-nginx` to the installer and write the vhost by hand.
 

@@ -1,4 +1,4 @@
-# Heratio — Accessibility Statement
+# Heratio - Accessibility Statement
 
 **Version:** 2.8.2
 **Date:** 16 March 2026
@@ -42,13 +42,13 @@ Heratio aims to conform to the **Web Content Accessibility Guidelines (WCAG) 2.1
 - **Colour contrast** meets AA minimum (4.5:1 for normal text, 3:1 for large text)
 - **Respects `prefers-reduced-motion`** for users sensitive to animation
 - **High contrast mode support** via `forced-colors` media query
-- **Responsive design** — works across desktop, tablet, and mobile
+- **Responsive design** - works across desktop, tablet, and mobile
 
 ### Assistive Technology
-- **Voice commands** (optional) — navigate, search, dictate, and describe images by voice
-- **Text-to-speech** (optional) — hover-read buttons and links
-- **AI image description** (optional) — generate image descriptions via local LLM (LLaVA)
-- **Screen reader compatible** — tested with NVDA and VoiceOver
+- **Voice commands** (optional) - navigate, search, dictate, and describe images by voice
+- **Text-to-speech** (optional) - hover-read buttons and links
+- **AI image description** (optional) - generate image descriptions via local LLM (LLaVA)
+- **Screen reader compatible** - tested with NVDA and VoiceOver
 
 ## Known Limitations
 
@@ -61,7 +61,7 @@ Heratio aims to conform to the **Web Content Accessibility Guidelines (WCAG) 2.1
 
 Accessibility is continuously verified using:
 
-- **axe-core** via Playwright — automated WCAG 2.1 AA checks on key pages
+- **axe-core** via Playwright - automated WCAG 2.1 AA checks on key pages
 - **10 test cases** covering: homepage, browse, search results, admin, facet ARIA, sidebar roles, footer roles, live regions, table scopes, reduced-motion CSS
 - Test suite: `testing/playwright/tests/accessibility.spec.ts`
 

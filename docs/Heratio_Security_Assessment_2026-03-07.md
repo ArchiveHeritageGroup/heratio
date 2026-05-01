@@ -1,8 +1,8 @@
-# Heratio — Security Assessment Report
+# Heratio - Security Assessment Report
 
 **Date:** 2026-03-07
 **Assessor:** The Archive and Heritage Group (Pty) Ltd
-**Scope:** Public-facing Heratio deployment — PSIS instance (psis.theahg.co.za)
+**Scope:** Public-facing Heratio deployment - PSIS instance (psis.theahg.co.za)
 **Framework Version:** 2.8.2
 
 ---
@@ -11,7 +11,7 @@
 
 A security assessment of the Heratio PSIS instance identified **3 critical findings** and **2 medium findings** related to the Nginx configuration and exposed services. The underlying application layer security (CSP, CSRF, file validation, SSRF protection) was found to be well-implemented following the M0 Security Hardening milestone.
 
-The primary risk for public-facing deployments is the use of Symfony 1.x (end-of-life since 2012) as the application router. This risk is mitigated through defense-in-depth at the Nginx layer and modern PHP 8.3 runtime security. A full application rewrite is not recommended — the cost-benefit analysis strongly favors infrastructure-level hardening.
+The primary risk for public-facing deployments is the use of Symfony 1.x (end-of-life since 2012) as the application router. This risk is mitigated through defense-in-depth at the Nginx layer and modern PHP 8.3 runtime security. A full application rewrite is not recommended - the cost-benefit analysis strongly favors infrastructure-level hardening.
 
 ### Risk Summary
 
@@ -52,7 +52,7 @@ During the assessment, the server disk usage was found at **87%** (2.7 TB of 3.3
 ### Finding 1: SPARQL Endpoint Publicly Accessible (CRITICAL)
 
 **Location:** `/sparql/` proxy in Nginx config
-**Risk:** Data exfiltration — anyone on the internet can execute arbitrary SPARQL queries against the RiC-O triplestore
+**Risk:** Data exfiltration - anyone on the internet can execute arbitrary SPARQL queries against the RiC-O triplestore
 
 **Evidence:**
 ```nginx
@@ -90,7 +90,7 @@ location ^~ /api/editor/ {
 
 ### Finding 3: Bot Blocker Exempts Sensitive Endpoints (CRITICAL)
 
-**Location:** `/etc/nginx/conf.d/bot-blocker.conf` — `$api_bypass` map
+**Location:** `/etc/nginx/conf.d/bot-blocker.conf` - `$api_bypass` map
 **Risk:** Bot protection is explicitly disabled for SPARQL and RiC endpoints
 
 **Evidence:**
@@ -110,8 +110,8 @@ map $request_uri $api_bypass {
 
 ### Finding 4: Missing HSTS Header (MEDIUM)
 
-**Location:** Nginx site config — security headers section
-**Risk:** Downgrade attacks — a man-in-the-middle could intercept the initial HTTP request before the 301 redirect to HTTPS
+**Location:** Nginx site config - security headers section
+**Risk:** Downgrade attacks - a man-in-the-middle could intercept the initial HTTP request before the 301 redirect to HTTPS
 
 **Evidence:** No `Strict-Transport-Security` header present in server responses.
 
@@ -121,7 +121,7 @@ map $request_uri $api_bypass {
 
 ### Finding 5: Missing Permissions-Policy Header (MEDIUM)
 
-**Location:** Nginx site config — security headers section
+**Location:** Nginx site config - security headers section
 **Risk:** Browser features (camera, microphone, geolocation) are not restricted, which could be exploited if XSS is achieved
 
 **Evidence:** No `Permissions-Policy` header present in server responses.
@@ -132,7 +132,7 @@ map $request_uri $api_bypass {
 
 ### Finding 6: No Login-Specific Rate Limiting (LOW)
 
-**Location:** Nginx site config — login endpoint
+**Location:** Nginx site config - login endpoint
 **Risk:** Brute force password attacks against the login form
 
 **Current state:** The general rate limit (`zone=slow`, 10r/s with burst=40) applies to all requests, but the login endpoint has no stricter limit. fail2ban has a `nginx-badbots` jail but no login-specific jail.
@@ -144,7 +144,7 @@ map $request_uri $api_bypass {
 ### Finding 7: Server Version Exposed (LOW)
 
 **Location:** Nginx response headers
-**Risk:** Information disclosure — reveals Nginx version to potential attackers
+**Risk:** Information disclosure - reveals Nginx version to potential attackers
 
 **Remediation:** Set `server_tokens off` in nginx.conf. See NGINX_SECURITY_HARDENING.md Section 6.1.
 
@@ -200,9 +200,9 @@ The following security controls were found to be properly implemented:
 
 | Factor | Hybrid | Standalone Heratio |
 |--------|--------|--------------------|
-| Security improvement | Marginal — Nginx layer provides equivalent protection | Removes Symfony 1.4 but introduces new Laravel attack surface |
-| Development cost | Zero — already working | ~4,400 templates to replicate |
-| AtoM upstream compatibility | Full — pull updates directly | Broken — separate codebase |
+| Security improvement | Marginal - Nginx layer provides equivalent protection | Removes Symfony 1.4 but introduces new Laravel attack surface |
+| Development cost | Zero - already working | ~4,400 templates to replicate |
+| AtoM upstream compatibility | Full - pull updates directly | Broken - separate codebase |
 | Time to market | Immediate | 6+ months minimum |
 | Plugin compatibility | All 80 plugins work | All 80 plugins need migration |
 | Current completion | 100% functional | 0.3% done (15 of 4,435 views) |
@@ -234,7 +234,7 @@ The security risk from Symfony 1.4 is **theoretical and mitigated**, not **pract
 Recommended reassessment in **6 months** (September 2026) or after any major infrastructure change.
 
 Items to monitor:
-- Elasticsearch 7.x EOL timeline — plan OpenSearch migration
-- Ubuntu 22.04 LTS support ends April 2027 — plan upgrade path
+- Elasticsearch 7.x EOL timeline - plan OpenSearch migration
+- Ubuntu 22.04 LTS support ends April 2027 - plan upgrade path
 - Any Symfony 1.4 zero-day advisories (monitor CVE databases)
 - Fuseki container resource usage after re-enabling RiC sync

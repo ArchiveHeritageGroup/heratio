@@ -1,4 +1,4 @@
-# OpenRiC Phase 1 closeout — implementation plan
+# OpenRiC Phase 1 closeout - implementation plan
 
 **Date:** 2026-04-17
 **Scope:** Close out Phase 1 of the OpenRiC decoupling plan by producing the three remaining artifacts: JSON Schemas, fixture pack, and validator CLI.
@@ -9,11 +9,11 @@
 
 ## 1. Why now
 
-Phase 0 and the documentation portion of Phase 1 are done. What's missing is the *machine-verifiable* half — without it, conformance claims are vibes. Three artifacts close the gap:
+Phase 0 and the documentation portion of Phase 1 are done. What's missing is the *machine-verifiable* half - without it, conformance claims are vibes. Three artifacts close the gap:
 
-1. **JSON Schemas** — validate the on-the-wire shape of every endpoint response.
-2. **Fixture pack** — 20 canonical input/output pairs so any implementation can self-check.
-3. **`openric-validate` CLI** — a single command an implementer runs against a live server to get a conformance report.
+1. **JSON Schemas** - validate the on-the-wire shape of every endpoint response.
+2. **Fixture pack** - 20 canonical input/output pairs so any implementation can self-check.
+3. **`openric-validate` CLI** - a single command an implementer runs against a live server to get a conformance report.
 
 Until these land, Heratio cannot honestly claim "OpenRiC 0.1.0 L3 conformance" on its README.
 
@@ -48,7 +48,7 @@ openric-spec/
 │       ├── expected.jsonld
 │       ├── expected-graph.json
 │       └── notes.md
-└── validator/                 # Python CLI — publishable separately later
+└── validator/                 # Python CLI - publishable separately later
     ├── pyproject.toml
     ├── README.md
     ├── openric_validate/
@@ -87,8 +87,8 @@ Do not build all 11 schemas + 20 fixtures + full validator then wire them togeth
 
 ### 3.1 Thin slice (Day 1–3)
 
-- **1 schema:** `record.schema.json` — the single-record endpoint response shape
-- **1 fixture:** `fonds-minimal` — fonds with title and creator only
+- **1 schema:** `record.schema.json` - the single-record endpoint response shape
+- **1 fixture:** `fonds-minimal` - fonds with title and creator only
 - **Validator MVP:** takes a URL, fetches `/records/{id}`, checks JSON Schema, checks SHACL `:RecordShape`, prints human-readable report
 
 Acceptance: `openric-validate --record https://ric.theahg.co.za/api/ric/v1/records/<slug>` runs green.
@@ -108,40 +108,40 @@ Acceptance: `openric-validate --record https://ric.theahg.co.za/api/ric/v1/recor
 - A `Makefile` / `pyproject` script target: `openric-validate --all-fixtures` runs the local suite
 - CI job on `openric-spec` repo: `on: pull_request` runs validator against the fixture pack
 
-## 4. Work items — ordered
+## 4. Work items - ordered
 
 Each item is scoped small enough to land as one PR. Items upstream of each other are flagged.
 
-### Week 1 — Thin slice
+### Week 1 - Thin slice
 
 | # | Item | Unblocks |
 |---|---|---|
 | 1 | Scaffold `validator/` directory with `pyproject.toml`, `argparse` CLI, `http_client.py` | 2, 3 |
 | 2 | Write `record.schema.json` with RecordSet / Record / RecordPart polymorphism | 3 |
 | 3 | Write fixture `fonds-minimal/` (input, expected.jsonld, notes.md) | 4 |
-| 4 | `schema_check.py` — validate fetched response against record.schema.json | 5 |
+| 4 | `schema_check.py` - validate fetched response against record.schema.json | 5 |
 | 5 | Port `ric_shacl_shapes.ttl` → `openric.shacl.ttl`, strip SA/GRAP-specific shapes | 6 |
-| 6 | `shape_check.py` — validate response against SHACL via pyshacl | 7 |
-| 7 | `report.py` — human format | end-of-week demo |
-| 8 | End-to-end run against live ric.theahg.co.za, fix whatever breaks | — |
+| 6 | `shape_check.py` - validate response against SHACL via pyshacl | 7 |
+| 7 | `report.py` - human format | end-of-week demo |
+| 8 | End-to-end run against live ric.theahg.co.za, fix whatever breaks | - |
 
 Deliverable: `openric-validate --record <url>` end-to-end, committed, documented.
 
-### Week 2 — Fill out schemas + fixtures
+### Week 2 - Fill out schemas + fixtures
 
 | # | Item |
 |---|---|
 | 9 | Schemas: service-description, vocabulary, error, validation-report (4 files, ~4h) |
-| 10 | Schemas: list-form schemas (record-list, agent-list, repository-list — share a base, 3 files, ~4h) |
+| 10 | Schemas: list-form schemas (record-list, agent-list, repository-list - share a base, 3 files, ~4h) |
 | 11 | Schemas: agent, repository, subgraph (3 files, ~6h) |
 | 12 | Fixtures 2–7 (fonds-with-series, fonds-multilingual, agent-person, agent-corporate, agent-family, agent-with-relations) |
 | 13 | Fixtures 8–13 (repository, function, production event, accumulation event, record+digital-object, record-in-container) |
 | 14 | Fixtures 14–20 (security, personal-data, access-restriction, subgraph depth 1/2/filtered, validation-failure) |
 | 15 | Validator: endpoint walker (`--level=L2` fetches all required endpoints, runs each against its schema) |
-| 16 | Validator: `graph_check.py` — six invariants from graph-primitives.md §6 |
+| 16 | Validator: `graph_check.py` - six invariants from graph-primitives.md §6 |
 | 17 | Validator: graph-isomorphism check for fixture `expected.jsonld` vs fresh Heratio output |
 
-### Week 3 — CI, polish, release
+### Week 3 - CI, polish, release
 
 | # | Item |
 |---|---|
@@ -158,10 +158,10 @@ Deliverable: `openric-validate --record <url>` end-to-end, committed, documented
 
 Hand-writing 20 fixture pairs is tedious and error-prone. Strategy:
 
-1. **Inputs** — extract AtoM-shape JSON from Heratio's existing unit tests (`packages/ahg-ric/tests/Unit/RicSerializationServiceTest.php`). Some need new minimal records created in the DB; cheaper to write a small PHP seeder than hand-craft JSON.
-2. **Expected outputs** — for each input, run it through `RicSerializationService::serializeRecord()` (or the relevant method), capture the JSON-LD, save it as `expected.jsonld`. This is Heratio "certifying itself" which feels circular, but it's the right starting point: the expected outputs are whatever the reference implementation produces, reviewed and accepted, then frozen. Future implementations must match.
-3. **Expected subgraph** — similarly, call the `/graph` endpoint against the fixture input, capture output, review, freeze.
-4. **Normalise JSON-LD** — canonicalise whitespace / key order before committing so diffs stay clean.
+1. **Inputs** - extract AtoM-shape JSON from Heratio's existing unit tests (`packages/ahg-ric/tests/Unit/RicSerializationServiceTest.php`). Some need new minimal records created in the DB; cheaper to write a small PHP seeder than hand-craft JSON.
+2. **Expected outputs** - for each input, run it through `RicSerializationService::serializeRecord()` (or the relevant method), capture the JSON-LD, save it as `expected.jsonld`. This is Heratio "certifying itself" which feels circular, but it's the right starting point: the expected outputs are whatever the reference implementation produces, reviewed and accepted, then frozen. Future implementations must match.
+3. **Expected subgraph** - similarly, call the `/graph` endpoint against the fixture input, capture output, review, freeze.
+4. **Normalise JSON-LD** - canonicalise whitespace / key order before committing so diffs stay clean.
 
 Script: `validator/tools/freeze-fixture.py <case-name>` runs Heratio, fetches outputs, writes files into `fixtures/<case>/`.
 

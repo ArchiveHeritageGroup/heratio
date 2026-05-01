@@ -76,10 +76,10 @@ Heratio implements mandatory access control using the Bell-LaPadula model.
 
 Records can be classified at four levels (lowest to highest):
 
-1. **PUBLIC** — Visible to all users
-2. **CONFIDENTIAL** — Restricted to users with Confidential clearance or higher
-3. **SECRET** — Restricted to users with Secret clearance or higher
-4. **TOP SECRET** — Restricted to users with Top Secret clearance only
+1. **PUBLIC** - Visible to all users
+2. **CONFIDENTIAL** - Restricted to users with Confidential clearance or higher
+3. **SECRET** - Restricted to users with Secret clearance or higher
+4. **TOP SECRET** - Restricted to users with Top Secret clearance only
 
 ### How It Works
 
@@ -98,7 +98,7 @@ Your security clearance is assigned by an administrator. To check your clearance
 Sessions expire after 30 minutes of inactivity (configurable). When your session times out:
 
 - You will be redirected to the login page
-- Any unsaved work may be lost — save frequently
+- Any unsaved work may be lost - save frequently
 
 ### Session Protection
 
@@ -110,11 +110,11 @@ Sessions expire after 30 minutes of inactivity (configurable). When your session
 
 All pages include security headers that protect against common web attacks:
 
-- **HSTS** — Forces secure HTTPS connections
-- **X-Frame-Options** — Prevents the site from being embedded in frames (clickjacking protection)
-- **X-Content-Type-Options** — Prevents browser MIME sniffing
-- **Permissions-Policy** — Restricts browser features
-- **Referrer-Policy** — Controls information in the Referer header
+- **HSTS** - Forces secure HTTPS connections
+- **X-Frame-Options** - Prevents the site from being embedded in frames (clickjacking protection)
+- **X-Content-Type-Options** - Prevents browser MIME sniffing
+- **Permissions-Policy** - Restricts browser features
+- **Referrer-Policy** - Controls information in the Referer header
 
 ## Audit Trail
 
@@ -134,19 +134,19 @@ Administrators can review audit logs at **Admin > Audit Trail**.
 
 Navigate to **Admin > AHG Settings > Security & Access Control** to configure:
 
-- **Password Expiry** — Days before passwords expire (0 to disable)
-- **Password History** — Number of previous passwords to remember
-- **Expiry Warning** — Days before expiry to show warnings
-- **Force Password Change** — Redirect users to change expired passwords
-- **Account Lockout** — Enable/disable and configure thresholds
-- **Session Timeout** — Idle timeout duration
+- **Password Expiry** - Days before passwords expire (0 to disable)
+- **Password History** - Number of previous passwords to remember
+- **Expiry Warning** - Days before expiry to show warnings
+- **Force Password Change** - Redirect users to change expired passwords
+- **Account Lockout** - Enable/disable and configure thresholds
+- **Session Timeout** - Idle timeout duration
 
 ### Recommended Cron Jobs
 
 Set up these cron jobs for ongoing security maintenance:
 
 ```bash
-# Breach notification check (hourly) — POPIA Section 22
+# Breach notification check (hourly) - POPIA Section 22
 0 * * * * cd /usr/share/nginx/archive && php symfony privacy:breach-check --email=dpo@example.com
 
 # Login attempt cleanup (daily)

@@ -74,7 +74,7 @@ The Heratio 3D Model Viewer provides GLAM and DAM institutions with comprehensiv
 | Polygon File | `.ply` | No | Three.js |
 | Gaussian Splat | `.splat`, `.ksplat` | No | GaussianSplats3D |
 
-GLB is the recommended format for web viewing — it provides a single file with embedded textures and optimal loading performance.
+GLB is the recommended format for web viewing - it provides a single file with embedded textures and optimal loading performance.
 
 ---
 
@@ -83,7 +83,7 @@ GLB is the recommended format for web viewing — it provides a single file with
 - **Frontend:** Google model-viewer (WebXR/AR), Three.js (OBJ/STL fallback), GaussianSplats3D
 - **Backend:** Laravel Query Builder, Symfony 1.x plugin architecture
 - **Database:** 8 tables (models, translations, hotspots, textures, settings, manifests, audit log)
-- **All libraries served locally** — no external CDN dependencies
+- **All libraries served locally** - no external CDN dependencies
 - **HTTPS required** for AR features
 
 ---
@@ -151,10 +151,10 @@ All actions are logged to a dedicated audit table:
 
 ## Standards Compliance
 
-- **IIIF Presentation API 3.0** — 3D manifest generation with Scene type
-- **IIIF 3D Extension** — Draft specification for 3D content
-- **WebXR** — Immersive AR standard
-- **Spectrum 5.1** — Condition documentation via damage hotspots
+- **IIIF Presentation API 3.0** - 3D manifest generation with Scene type
+- **IIIF 3D Extension** - Draft specification for 3D content
+- **WebXR** - Immersive AR standard
+- **Spectrum 5.1** - Condition documentation via damage hotspots
 
 ---
 

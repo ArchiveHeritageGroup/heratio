@@ -1,4 +1,4 @@
-# Heratio — CSRF Protection Policy
+# Heratio - CSRF Protection Policy
 
 **Version:** 1.0
 **Date:** 2026-02-28
@@ -49,7 +49,7 @@ Controller action proceeds
 | `isExempt(): bool` | Check if request is exempt (safe method, Bearer, API key) |
 | `renderHiddenField(): string` | HTML `<input type="hidden" name="_csrf_token" ...>` |
 | `getMetaTag(): string` | HTML `<meta name="csrf-token" content="...">` |
-| `enforce(): bool` | Full enforcement — returns false to block |
+| `enforce(): bool` | Full enforcement - returns false to block |
 | `getEnforcementMode(): string` | Returns `'log'`, `'enforce'`, or `'off'` |
 
 ---
@@ -112,9 +112,9 @@ Include `csrf.js` in the page layout. It reads the meta tag and auto-injects the
 ```
 
 `csrf.js` intercepts:
-- `fetch()` — adds `X-CSRF-TOKEN` header on POST/PUT/DELETE/PATCH
-- `jQuery.ajax()` — adds header via `ajaxSend` event
-- `XMLHttpRequest` — adds header on `send()`
+- `fetch()` - adds `X-CSRF-TOKEN` header on POST/PUT/DELETE/PATCH
+- `jQuery.ajax()` - adds header via `ajaxSend` event
+- `XMLHttpRequest` - adds header on `send()`
 
 ### Manual AJAX Token
 
@@ -180,7 +180,7 @@ UPDATE ahg_settings SET setting_value = 'enforce' WHERE setting_key = 'csrf_enfo
 1. Add `<?php echo csrf_field() ?>` to all unlocked plugin POST forms
 2. Add `csrf_meta()` to theme layout `<head>`
 3. Include `csrf.js` for AJAX protection
-4. Re-check logs — violations should drop to zero
+4. Re-check logs - violations should drop to zero
 
 ### Phase 3: Enforce
 1. Set `csrf_enforcement = 'enforce'`

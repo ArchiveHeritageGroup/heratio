@@ -1,4 +1,4 @@
-# Parity Audit Gap Report — 48-hour Window
+# Parity Audit Gap Report - 48-hour Window
 
 Generated: 2026-04-12
 Scope: All files touched in the last 48 hours (278 files)
@@ -11,7 +11,7 @@ The view layer is at PSIS parity. **The data layer is not.**
 - **69 missing service methods** across 9 packages (55 in ahg-marketplace alone)
 - **10 unregistered routes** referenced in views without `Route::has()` guard (will throw `RouteNotFoundException` when rendered)
 - **11 form POST actions** pointing at unregistered routes (will 404 on submit)
-- **0 AJAX endpoint gaps** — all 15 endpoints referenced from ported JS blocks resolve
+- **0 AJAX endpoint gaps** - all 15 endpoints referenced from ported JS blocks resolve
 
 ## ⚠️ X.1.R Second-layer gap (added 2026-04-12)
 
@@ -38,7 +38,7 @@ Phases X.1.1–X.1.5 added 41 service methods to MarketplaceService. Live-invoke
 
 **See X.1.R sub-phases in `heratio-vs-psis-outstanding-plan.md` for the close-the-gap plan.**
 
-Everything below is a punch-list to bring the last 48 hours of work to genuine 100% functional parity with PSIS. Nothing below is about *new* code or *new* features — it's closing gaps in existing/touched files only.
+Everything below is a punch-list to bring the last 48 hours of work to genuine 100% functional parity with PSIS. Nothing below is about *new* code or *new* features - it's closing gaps in existing/touched files only.
 
 ---
 
@@ -48,7 +48,7 @@ Everything below is a punch-list to bring the last 48 hours of work to genuine 1
 
 `MarketplaceController.php` calls 55 methods that do not exist in `MarketplaceService.php`. Every admin list page, seller profile, offer/review/collection flow will HTTP 500 as soon as the admin middleware passes.
 
-**Required backfill — add these methods to `MarketplaceService`:**
+**Required backfill - add these methods to `MarketplaceService`:**
 
 **Admin browse (list pages that currently 500 for admins):**
 - `adminBrowseListings(array $filters, int $limit, int $offset): array`
@@ -159,13 +159,13 @@ Routes referenced in ported views that don't exist in `routes/web.php`. Unguarde
 | `ahgprivacy.ropa-approve` | `ropa-view.blade.php` action | Add POST route + method |
 | `ahgprivacy.ropa-reject` | `ropa-view.blade.php` action | Add POST route + method |
 | `ahgprivacy.ropa-submit` | `ropa-view.blade.php` action | Add POST route + method |
-| `ingest.` | (empty route name — typo) | Fix the broken `route('ingest.')` reference to a real route |
+| `ingest.` | (empty route name - typo) | Fix the broken `route('ingest.')` reference to a real route |
 | `tiffpdfmerge.index` | dashboard sidebar | Register route or update sidebar to use URL |
 | `ric.dashboard` | dashboard sidebar | Register route or fix dashboard reference |
 
 ## 3. Guarded-but-missing routes (5)
 
-These are referenced in views but the code wraps them in `Route::has()`, so they won't crash — the buttons just silently hide until the route exists. Still need to be added for full functional parity.
+These are referenced in views but the code wraps them in `Route::has()`, so they won't crash - the buttons just silently hide until the route exists. Still need to be added for full functional parity.
 
 | Route | View |
 |---|---|
@@ -177,11 +177,11 @@ These are referenced in views but the code wraps them in `Route::has()`, so they
 
 ## 4. Form action gaps (11)
 
-11 `<form action="...">` tags point at unregistered routes. Subset of section 2 — listed here for completeness because these fail on submit, not on render.
+11 `<form action="...">` tags point at unregistered routes. Subset of section 2 - listed here for completeness because these fail on submit, not on render.
 
 Same list as sections 2+3 filtered by forms.
 
-## 5. AJAX endpoints — CLEAN ✓
+## 5. AJAX endpoints - CLEAN ✓
 
 All 15 AJAX endpoints referenced in JS blocks resolve via `php artisan route:list`:
 
@@ -192,7 +192,7 @@ All 15 AJAX endpoints referenced in JS blocks resolve via `php artisan route:lis
 - `/marketplace/api/{id}/favourite`
 - `/research/bulk-validate`, `/research/entity-resolution/{id}/resolve`, `/research/search-diff/{id}`, `/research/search-snapshot`, `/research/validate/{id}`
 
-## 6. DB table / schema verification — NOT AUDITED
+## 6. DB table / schema verification - NOT AUDITED
 
 Not yet audited. The ported views SELECT from tables like:
 - `research_citation_log`, `research_activity_log`, `research_booking`
@@ -203,21 +203,21 @@ Not yet audited. The ported views SELECT from tables like:
 
 **To close:** run `mysql -u root heratio -e "SHOW TABLES LIKE 'research_%'"` (etc.) and compare against required tables. Missing tables need `CREATE TABLE` statements from the `database/install.sql` file in each package's `database/` directory.
 
-## 7. Validation rules — NOT AUDITED
+## 7. Validation rules - NOT AUDITED
 
 No Laravel FormRequest classes were created for any of the ported forms. PSIS has server-side validation in each `executePost($request)` method. **To close:** per ported form, extract PSIS validation rules, create a `FormRequest` class, wire it into the controller POST handler.
 
-## 8. Email / notification side effects — NOT AUDITED
+## 8. Email / notification side effects - NOT AUDITED
 
 PSIS triggers emails on: DSAR submit/reply, breach notification, offer accept/reject, review posted, payout processed. **To close:** per action, port the mail template + queue job.
 
 ---
 
-## Backfill plan — Phase X: 100% previous-work parity
+## Backfill plan - Phase X: 100% previous-work parity
 
 Added to `docs/heratio-vs-psis-outstanding-plan.md` as a new top-priority phase that must complete before resuming Phase C stubs.
 
-### X.1 — MarketplaceService method backfill (55 methods, ~4 batches)
+### X.1 - MarketplaceService method backfill (55 methods, ~4 batches)
 - X.1.1 Admin browse helpers (5 methods): `adminBrowseListings`, `adminBrowsePayouts`, `adminBrowseReviews`, `adminBrowseSellers`, `adminBrowseTransactions`
 - X.1.2 Admin dashboard aggregators (7): stats / recent / top-sellers / top-items / sector-breakdown
 - X.1.3 Listing + auction helpers (9): `getListingById`, `getAuctionForListing`, `getBidHistory`, `getRelatedListings`, image upload
@@ -229,36 +229,36 @@ Added to `docs/heratio-vs-psis-outstanding-plan.md` as a new top-priority phase 
 
 Each method ported from PSIS `MarketplaceService` in `/usr/share/nginx/archive/plugins/ahgMarketplacePlugin/lib/`.
 
-### X.2 — Privacy POST handlers + controller methods (6 routes)
+### X.2 - Privacy POST handlers + controller methods (6 routes)
 - `breach-update`, `consent-withdraw`, `dsar-update`, `ropa-approve`, `ropa-reject`, `ropa-submit`
 - Each needs: POST route registration + `PrivacyController::xxxPost()` method + PSIS-equivalent business logic
 
-### X.3 — Marketplace POST handlers + routes (5 routes)
+### X.3 - Marketplace POST handlers + routes (5 routes)
 - `admin-payouts-batch`, `buy`, `follow`, `seller-listing-publish`, `seller-listing-withdraw`
 - Each needs: route registration + controller method
 
-### X.4 — AI service method backfill (4 methods)
+### X.4 - AI service method backfill (4 methods)
 - `buildPrompt`, `gatherContext`, `generateSuggestion`, `getTemplateForObject` in `AhgAiServices\Services\*` (pick correct class)
 
-### X.5 — Other small-package service gaps (10 methods total)
+### X.5 - Other small-package service gaps (10 methods total)
 - ahg-semantic-search (3), ahg-custom-fields (3), ahg-nmmz (3), ahg-access-request (1), ahg-statistics (1), ahg-ingest (1), ahg-multi-tenant (1), ahg-ipsas (1)
 - One batch per package
 
-### X.6 — Fix the typo / broken refs
-- `ingest.` empty route name — find the blade that uses it and point at a real route
-- `ric.dashboard`, `tiffpdfmerge.index`, `iiif.collections` — register routes OR repoint the dashboard sidebar
+### X.6 - Fix the typo / broken refs
+- `ingest.` empty route name - find the blade that uses it and point at a real route
+- `ric.dashboard`, `tiffpdfmerge.index`, `iiif.collections` - register routes OR repoint the dashboard sidebar
 
-### X.7 — DB table verification pass
+### X.7 - DB table verification pass
 - Run `SHOW TABLES` against heratio DB, compare against required-tables list compiled from ported views
 - For each missing table: run the package's `database/install.sql` or add the table
 
-### X.8 — Validation rule backfill
+### X.8 - Validation rule backfill
 - Per ported form (62 forms across marketplace + privacy): extract PSIS server-side validation, create FormRequest class, wire into controller POST handler
 
-### X.9 — Email/notification backfill
+### X.9 - Email/notification backfill
 - Per user-action (DSAR submit, breach notify, offer respond, review post, payout process): port mail template + queue job
 
-### X.10 — Final functional smoke test
+### X.10 - Final functional smoke test
 - Log in as admin
 - Click every button on every ported page
 - File a bug per non-working interaction
@@ -277,22 +277,22 @@ Each method ported from PSIS `MarketplaceService` in `/usr/share/nginx/archive/p
 | X.7 DB table verification | ~40 tables | 1 (audit only) |
 | X.8 Validation rule backfill | ~62 forms | 13 |
 | X.9 Email backfill | ~15 actions | 3 |
-| X.10 Final functional smoke | — | manual |
+| X.10 Final functional smoke | - | manual |
 | **Total** | **~200 items** | **~35 batches** |
 
 At 5 items per batch, **~35 batches of 5** to close all gaps in existing 48-hour work before touching any new Phase C stubs.
 
 ## Ordering
 
-Must be done **before** resuming Phase C (ahg-registry + smaller packages). Rationale: every new stub ported risks opening more gaps, and the gap pattern is already identified — closing them first prevents compounding debt.
+Must be done **before** resuming Phase C (ahg-registry + smaller packages). Rationale: every new stub ported risks opening more gaps, and the gap pattern is already identified - closing them first prevents compounding debt.
 
 **Execution order:**
-1. X.1 (biggest impact — makes marketplace admin actually work)
+1. X.1 (biggest impact - makes marketplace admin actually work)
 2. X.2 + X.3 (closes all form-submit gaps)
 3. X.4 + X.5 (unblocks AI + small packages)
-4. X.6 (typo/broken ref fixes — quick)
-5. X.7 (DB audit — blocking)
-6. X.8 (validation — needed for prod safety)
-7. X.9 (email — needed for user-facing correctness)
+4. X.6 (typo/broken ref fixes - quick)
+5. X.7 (DB audit - blocking)
+6. X.8 (validation - needed for prod safety)
+7. X.9 (email - needed for user-facing correctness)
 8. X.10 (manual smoke)
 9. **Then** resume Phase C from C-3 ahg-registry

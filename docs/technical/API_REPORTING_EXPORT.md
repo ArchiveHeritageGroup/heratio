@@ -1,4 +1,4 @@
-# Heratio — API, Reporting & Export Technical Manual
+# Heratio - API, Reporting & Export Technical Manual
 
 **Framework Version:** 2.8.2
 **Document Date:** 2026-03-04
@@ -122,7 +122,7 @@ This document catalogs all API endpoints, reporting systems, export functionalit
 
 **Security:** HMAC-SHA256 signature in `X-Webhook-Signature` header. Exponential backoff for failed deliveries.
 
-**CLI:** `php symfony api:webhook-process-retries` — process failed webhook deliveries
+**CLI:** `php symfony api:webhook-process-retries` - process failed webhook deliveries
 
 ### 1.11 Legacy API Endpoints
 
@@ -134,7 +134,7 @@ This document catalogs all API endpoints, reporting systems, export functionalit
 
 ### 1.12 Base AtoM REST API (arRestApiPlugin)
 
-**Location:** `/plugins/arRestApiPlugin/` (base AtoM — read-only)
+**Location:** `/plugins/arRestApiPlugin/` (base AtoM - read-only)
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
@@ -170,15 +170,15 @@ This document catalogs all API endpoints, reporting systems, export functionalit
 **Custom Scalars:** Date, DateTime, JSON
 
 **Queries:**
-- `item(slug: String!)` — single description
-- `items(filter: ItemFilter, first: Int, after: String)` — paginated descriptions
-- `actor(slug: String!)` — single authority
-- `actors(filter: ActorFilter, first: Int, after: String)` — paginated authorities
-- `repositories(first: Int, after: String)` — paginated repositories
-- `taxonomy(id: ID!)` — single taxonomy with terms
-- `taxonomies` — all taxonomies
-- `search(query: String!, first: Int, after: String)` — full-text search
-- `me` — current authenticated user
+- `item(slug: String!)` - single description
+- `items(filter: ItemFilter, first: Int, after: String)` - paginated descriptions
+- `actor(slug: String!)` - single authority
+- `actors(filter: ActorFilter, first: Int, after: String)` - paginated authorities
+- `repositories(first: Int, after: String)` - paginated repositories
+- `taxonomy(id: ID!)` - single taxonomy with terms
+- `taxonomies` - all taxonomies
+- `search(query: String!, first: Int, after: String)` - full-text search
+- `me` - current authenticated user
 
 ### 2.3 Security
 
@@ -231,9 +231,9 @@ This document catalogs all API endpoints, reporting systems, export functionalit
 **Custom OAI Set:** `heritage:federation` (federation-eligible records)
 
 **Database Tables:**
-- `federation_peer` — peer OAI-PMH endpoints (base_url, auth, harvest_interval_hours, last_harvest_status)
-- `federation_harvest_log` — per-record harvest audit (source_oai_identifier, metadata_format, action)
-- `federation_harvest_session` — session-level harvest tracking
+- `federation_peer` - peer OAI-PMH endpoints (base_url, auth, harvest_interval_hours, last_harvest_status)
+- `federation_harvest_log` - per-record harvest audit (source_oai_identifier, metadata_format, action)
+- `federation_harvest_session` - session-level harvest tracking
 
 ---
 
@@ -275,7 +275,7 @@ This document catalogs all API endpoints, reporting systems, export functionalit
 
 ### 4.3 Auto-Mint
 
-Hooks `QubitInformationObject.postSave` — if `shouldAutoMint($record)` is true, queues for background minting without blocking save.
+Hooks `QubitInformationObject.postSave` - if `shouldAutoMint($record)` is true, queues for background minting without blocking save.
 
 ### 4.4 CLI Commands
 
@@ -610,10 +610,10 @@ Denormalized SQL views for Power BI, Tableau, Metabase, and other BI tools:
 | CSV | clipboard/export | `.csv` |
 
 **Export Access Points:**
-1. **Clipboard Export** — Select records → Export
-2. **Individual Record** — View page → Export sidebar
-3. **Admin Bulk Export** — Admin → Import/Export
-4. **CLI Export** — `php bin/atom export:bulk`
+1. **Clipboard Export** - Select records → Export
+2. **Individual Record** - View page → Export sidebar
+3. **Admin Bulk Export** - Admin → Import/Export
+4. **CLI Export** - `php bin/atom export:bulk`
 
 ### 8.2 AHG Export UI (ahgExportPlugin)
 
@@ -1054,9 +1054,9 @@ Admin → Report Builder (requires authenticated user with appropriate ACL permi
 ### 12.4 Export Permissions
 
 Controlled via AtoM ACL:
-- `read` — View records
-- `export` — Export functionality (implied by read)
-- `admin` — Bulk export, regenerate finding aids
+- `read` - View records
+- `export` - Export functionality (implied by read)
+- `admin` - Bulk export, regenerate finding aids
 
 ### 12.5 Webhook Configuration
 

@@ -8,19 +8,19 @@ After yesterday's "175/175 destination pages cloned" sweep (which only fixed CSS
 
 | Phase | Status | Broken links remaining | Notes |
 |-------|--------|------------------------|-------|
-| **Before** (yesterday's "complete") | — | **90 / 122** broken | Wrong URL prefixes + missing routes |
-| **Phase A — URL prefix fixes** | DONE 2026-04-12 | **16 / 122** (real) | Re-pointed dashboard links to existing `/admin/...` routes |
-| **Phase B Batch 1 — Rights Management (9 pages)** | DONE 2026-04-12 | **16 / 122** | New `/admin/rights/*` route group + controller methods |
-| **Phase B Batch 2 — Mixed singletons (6 pages)** | DONE 2026-04-12 | **10 / 122** | Condition, Backup restore, DAM, Library, Document Templates, ODRL Policies |
-| **Phase B Batch 3 — Research admin (4 pages)** | DONE 2026-04-12 | **6 / 122** | Researchers, Bookings, Statistics (with mostViewed/mostCited PSIS port), Entity Resolution |
-| **Phase B Batch 4 — Build outstanding (5 pages)** | DONE 2026-04-12 | **2 / 122** | Approvers, Condition Risk (new build), GRAP National Treasury (real query), Museum Exhibitions, DAM Dashboard parity port |
-| **Phase B FINAL** | DONE 2026-04-12 | **0 / 122** broken | Only 2 parameterized-route false positives remain — both work |
+| **Before** (yesterday's "complete") | - | **90 / 122** broken | Wrong URL prefixes + missing routes |
+| **Phase A - URL prefix fixes** | DONE 2026-04-12 | **16 / 122** (real) | Re-pointed dashboard links to existing `/admin/...` routes |
+| **Phase B Batch 1 - Rights Management (9 pages)** | DONE 2026-04-12 | **16 / 122** | New `/admin/rights/*` route group + controller methods |
+| **Phase B Batch 2 - Mixed singletons (6 pages)** | DONE 2026-04-12 | **10 / 122** | Condition, Backup restore, DAM, Library, Document Templates, ODRL Policies |
+| **Phase B Batch 3 - Research admin (4 pages)** | DONE 2026-04-12 | **6 / 122** | Researchers, Bookings, Statistics (with mostViewed/mostCited PSIS port), Entity Resolution |
+| **Phase B Batch 4 - Build outstanding (5 pages)** | DONE 2026-04-12 | **2 / 122** | Approvers, Condition Risk (new build), GRAP National Treasury (real query), Museum Exhibitions, DAM Dashboard parity port |
+| **Phase B FINAL** | DONE 2026-04-12 | **0 / 122** broken | Only 2 parameterized-route false positives remain - both work |
 
 > Note: After Batch 1, a fresh `php artisan route:list` snapshot via the actual Laravel router (not awk parsing of `route:list` output) showed several routes I'd flagged as missing were in fact already registered. Real Phase A outstanding count was **16**, not 40.
 
-### Phase A — URL prefix fixes (DONE)
+### Phase A - URL prefix fixes (DONE)
 
-Single edit to `packages/ahg-reports/resources/views/dashboard.blade.php`. No new routes, no controllers — only the dashboard's `url('/...')` calls were corrected to point at the actual registered routes. 50 links restored.
+Single edit to `packages/ahg-reports/resources/views/dashboard.blade.php`. No new routes, no controllers - only the dashboard's `url('/...')` calls were corrected to point at the actual registered routes. 50 links restored.
 
 | Card / Section | Old (broken) | New (fixed) |
 |----------------|--------------|-------------|
@@ -43,24 +43,24 @@ Single edit to `packages/ahg-reports/resources/views/dashboard.blade.php`. No ne
 | NAZ (34) | `/naz`, `/naz/{closures,permits,transfers}` | `/admin/naz`, `/admin/naz/{closures,permits,transfers}` |
 | Knowledge Platform (7) | `/research/saved-searches`, `/validation-queue` | `/research/savedSearches`, `/validationQueue` |
 
-### Phase B — Pages to clone from PSIS (OUTSTANDING)
+### Phase B - Pages to clone from PSIS (OUTSTANDING)
 
-These are dashboard links that point at routes which **do not exist anywhere in the heratio routing table**. Per project rule "we clone from PSIS where it is missing" — each row needs an AtoM action+template ported into a new heratio controller method, view, and route registration.
+These are dashboard links that point at routes which **do not exist anywhere in the heratio routing table**. Per project rule "we clone from PSIS where it is missing" - each row needs an AtoM action+template ported into a new heratio controller method, view, and route registration.
 
 For each row below, "Controls before" = current count of form fields / table columns / action buttons in the heratio target view (zero if no view exists). "Controls after" = the count once the AtoM source is fully cloned. The After column will be filled in when the page is actually cloned in a batch.
 
-#### Block 7 — Knowledge Platform (research)
+#### Block 7 - Knowledge Platform (research)
 
 | # | Link | URL | AtoM source | Controls before | Controls after | Status |
 |---|------|-----|-------------|----------------:|---------------:|--------|
-| 1 | Annotation Studio | `/research/annotations` | (already routed) | — | — | OK (matches existing route) |
-| 2 | Saved Searches | `/research/savedSearches` | (Phase A fix) | — | — | OK |
-| 3 | Validation Queue | `/research/validationQueue` | (Phase A fix) | — | — | OK |
+| 1 | Annotation Studio | `/research/annotations` | (already routed) | - | - | OK (matches existing route) |
+| 2 | Saved Searches | `/research/savedSearches` | (Phase A fix) | - | - | OK |
+| 3 | Validation Queue | `/research/validationQueue` | (Phase A fix) | - | - | OK |
 | 4 | Entity Resolution | `/research/entity-resolution` | psis: `entityResolution/index` | 0 | TBD | TODO |
 | 5 | ODRL Policies | `/research/odrl-policies` | psis: `odrlPolicy/index` | 0 | TBD | TODO |
 | 6 | Document Templates | `/research/document-templates` | psis: `documentTemplate/index` | 0 | TBD | TODO |
 
-#### Block 6 — Research Services (research)
+#### Block 6 - Research Services (research)
 
 | # | Link | URL | AtoM source | Controls before | Controls after | Status |
 |---|------|-----|-------------|----------------:|---------------:|--------|
@@ -69,7 +69,7 @@ For each row below, "Controls before" = current count of form fields / table col
 | 3 | Bibliographies | `/research/bibliographies` | psis: `bibliography/index` | 0 | TBD | TODO |
 | 4 | Research Journal (list) | `/research/journal` | psis: `journal/index` | 0 | TBD | TODO |
 
-#### Block 8 — Research Admin (research)
+#### Block 8 - Research Admin (research)
 
 | # | Link | URL | AtoM source | Controls before | Controls after | Status |
 |---|------|-----|-------------|----------------:|---------------:|--------|
@@ -78,20 +78,20 @@ For each row below, "Controls before" = current count of form fields / table col
 | 3 | Reproduction Requests | `/research/reproductions` | psis: `reproduction/index` | 0 | TBD | TODO |
 | 4 | Statistics | `/research/admin/statistics` | psis: `research/adminStatistics` | 0 | TBD | TODO |
 
-#### Block 9 — Access Requests (acl)
+#### Block 9 - Access Requests (acl)
 
 | # | Link | URL | AtoM source | Controls before | Controls after | Status |
 |---|------|-----|-------------|----------------:|---------------:|--------|
 | 1 | Approvers | `/admin/approvers` | psis: `acl/approvers` | 0 | TBD | TODO |
 
-#### Block 12 — Condition (condition)
+#### Block 12 - Condition (condition)
 
 | # | Link | URL | AtoM source | Controls before | Controls after | Status |
 |---|------|-----|-------------|----------------:|---------------:|--------|
 | 1 | Condition Dashboard | `/admin/condition` | psis: `condition/admin` | 0 | TBD | TODO |
 | 2 | Risk Assessment | `/admin/condition/risk` | psis: `condition/risk` | 0 | TBD | TODO |
 
-#### Block 13 — AI Condition (ai-services)
+#### Block 13 - AI Condition (ai-services)
 
 | # | Link | URL | AtoM source | Controls before | Controls after | Status |
 |---|------|-----|-------------|----------------:|---------------:|--------|
@@ -99,47 +99,47 @@ For each row below, "Controls before" = current count of form fields / table col
 | 2 | Bulk Scan | `/admin/ai/condition/bulk` | psis: `aiCondition/bulk` | 0 | TBD | TODO |
 | 3 | Model Training | `/admin/ai/condition/training` | psis: `aiCondition/training` | 0 | TBD | TODO |
 
-#### Block 14–16 — Rights Management (extended-rights) — DONE 2026-04-12
+#### Block 14–16 - Rights Management (extended-rights) - DONE 2026-04-12
 
-Batch 1 work: added 12 new routes under `/admin/rights/*`, added 6 new controller methods (`batch`, `batchStore`, `browse`, `export`, `exportCsv`, `exportJsonld`, `expiringEmbargoes`), and registered the named routes the existing views already referenced (`ext-rights-admin.batch-store`, `ext-rights-admin.browse`, `ext-rights-admin.export-csv`, `ext-rights-admin.export-jsonld`, `ext-rights-admin.expiring`). All 9 dashboard links now resolve to live controller methods. Smoke-tested via `Kernel::handle()` — all 4 primary routes return HTTP 403 (admin middleware engaging correctly), no 500s.
+Batch 1 work: added 12 new routes under `/admin/rights/*`, added 6 new controller methods (`batch`, `batchStore`, `browse`, `export`, `exportCsv`, `exportJsonld`, `expiringEmbargoes`), and registered the named routes the existing views already referenced (`ext-rights-admin.batch-store`, `ext-rights-admin.browse`, `ext-rights-admin.export-csv`, `ext-rights-admin.export-jsonld`, `ext-rights-admin.expiring`). All 9 dashboard links now resolve to live controller methods. Smoke-tested via `Kernel::handle()` - all 4 primary routes return HTTP 403 (admin middleware engaging correctly), no 500s.
 
 Control count = `<input> + <select> + <textarea> + <th> + <button> + form `<a>` action links` in the destination Blade view.
 
 | # | Link | URL | Controls before (heratio) | Controls in PSIS source | Controls after | Status |
 |---|------|-----|--------------------------:|------------------------:|---------------:|--------|
-| 1 | Rights Dashboard | `/admin/rights` | 14 (already populated, no route) | 10 | 14 | DONE — wired (heratio is superset of PSIS) |
-| 2 | Batch Rights Assignment | `/admin/rights/batch` | 9 (no route, no method) | 15 | 9 | DONE — wired; **parity gap: 6 fields** vs PSIS (TomSelect object picker, donor select, copyright notice, TK label checkbox grid, overwrite checkbox, action radios). Heratio uses single operation-select dropdown instead. Functional but visually simpler. |
-| 3 | Browse Rights | `/admin/rights/browse` | 10 (no route, no method) | 3 | 10 | DONE — wired (heratio is superset; adds repository filter, search box, type filter, action column). |
-| 4 | Export Rights Report | `/admin/rights/export` | 5 (no route, no method) | 9 | 5 | DONE — wired; **parity gap: 4 fields** vs PSIS (object-id picker for single-record export, format toggle row, embargo-only filter, date-range filter). Heratio currently exposes CSV and JSON-LD download forms. |
-| 5 | Active Embargoes | `/admin/rights/embargo` | n/a (existed at `/ext-rights-admin/embargoes`) | n/a | n/a | DONE — alias added |
-| 6 | Expiring Soon | `/admin/rights/expiring` | view existed, no method | n/a | — | DONE — added `expiringEmbargoes()` method + route |
-| 7 | Rights Statements | `/admin/rights/statements` | n/a (existed) | n/a | n/a | DONE — alias added |
-| 8 | Creative Commons | `/admin/rights/creative-commons` | n/a — single page shares with statements | n/a | n/a | DONE — alias to statements page (CC + Rights Statements rendered together) |
-| 9 | TK Labels | `/admin/rights/tk-labels` | n/a (existed) | n/a | n/a | DONE — alias added |
+| 1 | Rights Dashboard | `/admin/rights` | 14 (already populated, no route) | 10 | 14 | DONE - wired (heratio is superset of PSIS) |
+| 2 | Batch Rights Assignment | `/admin/rights/batch` | 9 (no route, no method) | 15 | 9 | DONE - wired; **parity gap: 6 fields** vs PSIS (TomSelect object picker, donor select, copyright notice, TK label checkbox grid, overwrite checkbox, action radios). Heratio uses single operation-select dropdown instead. Functional but visually simpler. |
+| 3 | Browse Rights | `/admin/rights/browse` | 10 (no route, no method) | 3 | 10 | DONE - wired (heratio is superset; adds repository filter, search box, type filter, action column). |
+| 4 | Export Rights Report | `/admin/rights/export` | 5 (no route, no method) | 9 | 5 | DONE - wired; **parity gap: 4 fields** vs PSIS (object-id picker for single-record export, format toggle row, embargo-only filter, date-range filter). Heratio currently exposes CSV and JSON-LD download forms. |
+| 5 | Active Embargoes | `/admin/rights/embargo` | n/a (existed at `/ext-rights-admin/embargoes`) | n/a | n/a | DONE - alias added |
+| 6 | Expiring Soon | `/admin/rights/expiring` | view existed, no method | n/a | - | DONE - added `expiringEmbargoes()` method + route |
+| 7 | Rights Statements | `/admin/rights/statements` | n/a (existed) | n/a | n/a | DONE - alias added |
+| 8 | Creative Commons | `/admin/rights/creative-commons` | n/a - single page shares with statements | n/a | n/a | DONE - alias to statements page (CC + Rights Statements rendered together) |
+| 9 | TK Labels | `/admin/rights/tk-labels` | n/a (existed) | n/a | n/a | DONE - alias added |
 
-**Batch 1 totals:** 9 dashboard links wired. 0 routes existed before, 12 routes after. 5 new controller methods added. 2 pages have a parity gap vs PSIS (batch: -6, export: -4) — flagged for a follow-up content port pass.
+**Batch 1 totals:** 9 dashboard links wired. 0 routes existed before, 12 routes after. 5 new controller methods added. 2 pages have a parity gap vs PSIS (batch: -6, export: -4) - flagged for a follow-up content port pass.
 
-#### Phase B Batch 2 — Mixed singletons (6 pages) — DONE 2026-04-12
+#### Phase B Batch 2 - Mixed singletons (6 pages) - DONE 2026-04-12
 
 | # | Link | URL | Controls before (heratio) | Controls in PSIS source | Controls after | Notes | Status |
 |---|------|-----|--------------------------:|------------------------:|---------------:|-------|--------|
-| 1 | Condition Dashboard | `/admin/condition` | 1 (heratio stub) | 8 | **12** | Ported PSIS `condition/templates/adminSuccess.php` to heratio `admin.blade.php` (3 stat cards, condition breakdown, recent-checks table with 6 cols, photo links). Added route alias. | DONE — full clone, heratio is now superset (+4) |
-| 2 | Backup Restore | `/admin/backup/restore` | 14 (existed at `/admin/restore`, no `/admin/backup/restore`) | 9 | 14 | Added route alias. View was already a superset of PSIS. | DONE — wired |
-| 3 | DAM Dashboard | `/dam/dashboard` | 20 (existed at `/dam`) | 25 | 20 | Added `/dam/dashboard` route alias. **Parity gap: −5** vs PSIS. | DONE — wired; parity gap noted |
-| 4 | Library Browse | `/library/browse` | 21 (existed at `/library`) | 15 | 21 | Added `/library/browse` route alias + tightened slug regex on catch-all. | DONE — wired (heratio superset) |
-| 5 | Document Templates | `/research/document-templates` | 20 (existed at `/research/documentTemplates`) | 5 | 20 | Added kebab-case route alias. | DONE — wired (heratio superset) |
-| 6 | ODRL Policies (bonus) | `/research/odrl-policies` | 47 (existed at `/research/odrlPolicies`) | 43 | 47 | Bonus — added kebab-case alias in same edit. | DONE — wired (heratio superset) |
+| 1 | Condition Dashboard | `/admin/condition` | 1 (heratio stub) | 8 | **12** | Ported PSIS `condition/templates/adminSuccess.php` to heratio `admin.blade.php` (3 stat cards, condition breakdown, recent-checks table with 6 cols, photo links). Added route alias. | DONE - full clone, heratio is now superset (+4) |
+| 2 | Backup Restore | `/admin/backup/restore` | 14 (existed at `/admin/restore`, no `/admin/backup/restore`) | 9 | 14 | Added route alias. View was already a superset of PSIS. | DONE - wired |
+| 3 | DAM Dashboard | `/dam/dashboard` | 20 (existed at `/dam`) | 25 | 20 | Added `/dam/dashboard` route alias. **Parity gap: −5** vs PSIS. | DONE - wired; parity gap noted |
+| 4 | Library Browse | `/library/browse` | 21 (existed at `/library`) | 15 | 21 | Added `/library/browse` route alias + tightened slug regex on catch-all. | DONE - wired (heratio superset) |
+| 5 | Document Templates | `/research/document-templates` | 20 (existed at `/research/documentTemplates`) | 5 | 20 | Added kebab-case route alias. | DONE - wired (heratio superset) |
+| 6 | ODRL Policies (bonus) | `/research/odrl-policies` | 47 (existed at `/research/odrlPolicies`) | 43 | 47 | Bonus - added kebab-case alias in same edit. | DONE - wired (heratio superset) |
 
-**Batch 2 totals:** 6 dashboard links wired (1 full content clone + 5 route aliases). New routes added: 7. New controller methods added: 0 (all targets already had methods). New views written: 1 (condition admin.blade.php — full PSIS port). Parity gaps: 1 page (DAM dashboard −5).
+**Batch 2 totals:** 6 dashboard links wired (1 full content clone + 5 route aliases). New routes added: 7. New controller methods added: 0 (all targets already had methods). New views written: 1 (condition admin.blade.php - full PSIS port). Parity gaps: 1 page (DAM dashboard −5).
 
 **Skipped this batch (per clone-only rule):** `/admin/condition/risk` (no PSIS `riskAction`).
 
-#### Phase B Batch 2 — Smoke test results (Kernel::handle)
+#### Phase B Batch 2 - Smoke test results (Kernel::handle)
 
 | URL | HTTP | Notes |
 |-----|------|-------|
 | `/admin/condition` | 302 | Redirect to login (auth middleware) |
-| `/admin/backup/restore` | 403 | Admin middleware engaging — route works |
+| `/admin/backup/restore` | 403 | Admin middleware engaging - route works |
 | `/dam/dashboard` | 200 | Full render, 66.7 KB |
 | `/library/browse` | 200 | Full render, 74.3 KB |
 | `/research/document-templates` | 302 | Redirect to login |
@@ -147,62 +147,62 @@ Control count = `<input> + <select> + <textarea> + <th> + <button> + form `<a>` 
 
 All routes resolve, no 500s.
 
-#### Phase B Batch 3 — Research admin (4 pages) — DONE 2026-04-12
+#### Phase B Batch 3 - Research admin (4 pages) - DONE 2026-04-12
 
 > Note: control counts in the previous batches used a buggy `grep -c` (counted matching lines, not occurrences). The Batch 3 numbers below use proper `grep -oE | wc -l` so they are higher than earlier rows but accurate.
 
 | # | Link | URL | Controls before (heratio) | Controls in PSIS source | Controls after | Notes | Status |
 |---|------|-----|--------------------------:|------------------------:|---------------:|-------|--------|
-| 1 | Manage Researchers | `/research/admin/researchers` | 31 (existed at `/research/researchers`) | 18 | 31 | Added `/research/admin/researchers` route alias. Heratio is PSIS-superset (+13). | DONE — wired |
-| 2 | Manage Bookings | `/research/admin/bookings` | 41 (existed at `/research/bookings`) | 29 | 41 | Added `/research/admin/bookings` route alias. Heratio is PSIS-superset (+12). | DONE — wired |
-| 3 | Statistics | `/research/admin/statistics` | 21 (existed at `/research/adminStatistics`, missing 2 PSIS sections) | 28 | **27** | **Real port:** added `mostViewed` + `mostCited` queries to controller, added "Most Active Items" + "Most Cited Items" cards to view, added Views + Citations columns to active researchers table. Added route alias. **Parity: -1** (PSIS has one extra Submit button outside the form scope). | DONE — full clone |
-| 4 | Entity Resolution | `/research/entity-resolution` | 61 (existed at `/research/entityResolution`) | 65 | 61 | Added kebab-case route alias. **Parity: -4** (4 inputs/selects in PSIS not yet ported — flagged for follow-up). | DONE — wired |
+| 1 | Manage Researchers | `/research/admin/researchers` | 31 (existed at `/research/researchers`) | 18 | 31 | Added `/research/admin/researchers` route alias. Heratio is PSIS-superset (+13). | DONE - wired |
+| 2 | Manage Bookings | `/research/admin/bookings` | 41 (existed at `/research/bookings`) | 29 | 41 | Added `/research/admin/bookings` route alias. Heratio is PSIS-superset (+12). | DONE - wired |
+| 3 | Statistics | `/research/admin/statistics` | 21 (existed at `/research/adminStatistics`, missing 2 PSIS sections) | 28 | **27** | **Real port:** added `mostViewed` + `mostCited` queries to controller, added "Most Active Items" + "Most Cited Items" cards to view, added Views + Citations columns to active researchers table. Added route alias. **Parity: -1** (PSIS has one extra Submit button outside the form scope). | DONE - full clone |
+| 4 | Entity Resolution | `/research/entity-resolution` | 61 (existed at `/research/entityResolution`) | 65 | 61 | Added kebab-case route alias. **Parity: -4** (4 inputs/selects in PSIS not yet ported - flagged for follow-up). | DONE - wired |
 
-**Batch 3 totals:** 4 dashboard links wired. New routes added: 4 (3 admin/* aliases + 1 kebab-case alias). Controller methods modified: 1 (`adminStatistics` extended with mostViewed/mostCited/active researcher view+citation counts). View files modified: 1 (`admin-statistics.blade.php` — 2 new cards + 2 new columns). Parity gaps: 1 page (entity-resolution -4, flagged).
+**Batch 3 totals:** 4 dashboard links wired. New routes added: 4 (3 admin/* aliases + 1 kebab-case alias). Controller methods modified: 1 (`adminStatistics` extended with mostViewed/mostCited/active researcher view+citation counts). View files modified: 1 (`admin-statistics.blade.php` - 2 new cards + 2 new columns). Parity gaps: 1 page (entity-resolution -4, flagged).
 
-#### Phase B Batch 3 — Smoke test results (Kernel::handle)
+#### Phase B Batch 3 - Smoke test results (Kernel::handle)
 
 | URL | HTTP | Notes |
 |-----|------|-------|
 | `/research/admin/researchers` | 403 | Admin middleware engaging |
 | `/research/admin/bookings` | 403 | Admin middleware engaging |
 | `/research/admin/statistics` | 403 | Admin middleware engaging |
-| `/research/entity-resolution` | 302 | Auth redirect — route works |
+| `/research/entity-resolution` | 302 | Auth redirect - route works |
 
 All routes resolve, no 500s.
 
-#### Phase B — state after Batch 3
+#### Phase B - state after Batch 3
 
 **0 real clone targets remaining.** All dashboard URLs that had a verifiable PSIS source action have been wired up.
 
-#### Phase B Batch 4 — Build outstanding (5 pages) — DONE 2026-04-12
+#### Phase B Batch 4 - Build outstanding (5 pages) - DONE 2026-04-12
 
 User authorised building the 4 dashboard links that lacked a PSIS source ("no removal of links. build what is outstanding"). Plus 1 parity-gap port for the DAM dashboard.
 
 | # | Link | URL | Heratio code present? | Controls before | Controls after | Build action | Status |
 |---|------|-----|---------------------- |---------------:|---------------:|--------------|--------|
-| 1 | Approvers | `/admin/approvers` | YES — `AclController::approvers()` + `approvers.blade.php` already at `/admin/acl/approvers` | 29 | 29 | Added route alias `/admin/approvers` (+ `/add` POST + `/{id}/remove` POST) | DONE — wired |
-| 2 | Risk Assessment | `/admin/condition/risk` | NO — view did not exist | 0 (no view) | **20** | **New build:** added `risk()` method to `ConditionController` (queries `spectrum_condition_check` for poor/critical), created `risk.blade.php` (3 stat cards, level filter, 7-col at-risk table). Route added under `/admin/condition/risk`. | DONE — new page |
-| 3 | GRAP National Treasury Report | `/grap/national-treasury-report` | YES — view existed but `nationalTreasuryReport()` returned empty stats/items | 9 (stub) | **16** | **Real query build:** rewrote `nationalTreasuryReport()` in `GrapComplianceController` to query `heritage_asset` joined with `heritage_asset_class` + `heritage_accounting_standard` + `information_object_i18n`, return stats (total/capitalised/non-capitalised/total_value_zar) and 8-column item table with status/standard filters. Added `/grap/national-treasury-report` alias to existing `/heritage/grap/...` route. View rebuilt with 4 stat cards, filter form, and full GRAP-103 column set. | DONE — built backend + route |
-| 4 | Museum Exhibitions | `/museum/exhibitions` | YES — `ExhibitionController::index()` + `index.blade.php` at `/exhibition` | 7 | 7 | Added route alias `/museum/exhibitions` → `ExhibitionController::index` | DONE — wired |
-| 5 | DAM Dashboard parity | `/dam/dashboard` | YES (Batch 2 wired the URL) — but heratio view had only 2 of 3 PSIS quick-action buttons | 33 | **45** | **Parity port:** added 4 missing quick-action buttons (Bulk Upload, Browse All, With Digital Files filter, DAM Reports) per PSIS dashboardSuccess, replaced `atom-btn-*` classes with standard Bootstrap. | DONE — parity exceeds PSIS (45 vs PSIS 39) |
+| 1 | Approvers | `/admin/approvers` | YES - `AclController::approvers()` + `approvers.blade.php` already at `/admin/acl/approvers` | 29 | 29 | Added route alias `/admin/approvers` (+ `/add` POST + `/{id}/remove` POST) | DONE - wired |
+| 2 | Risk Assessment | `/admin/condition/risk` | NO - view did not exist | 0 (no view) | **20** | **New build:** added `risk()` method to `ConditionController` (queries `spectrum_condition_check` for poor/critical), created `risk.blade.php` (3 stat cards, level filter, 7-col at-risk table). Route added under `/admin/condition/risk`. | DONE - new page |
+| 3 | GRAP National Treasury Report | `/grap/national-treasury-report` | YES - view existed but `nationalTreasuryReport()` returned empty stats/items | 9 (stub) | **16** | **Real query build:** rewrote `nationalTreasuryReport()` in `GrapComplianceController` to query `heritage_asset` joined with `heritage_asset_class` + `heritage_accounting_standard` + `information_object_i18n`, return stats (total/capitalised/non-capitalised/total_value_zar) and 8-column item table with status/standard filters. Added `/grap/national-treasury-report` alias to existing `/heritage/grap/...` route. View rebuilt with 4 stat cards, filter form, and full GRAP-103 column set. | DONE - built backend + route |
+| 4 | Museum Exhibitions | `/museum/exhibitions` | YES - `ExhibitionController::index()` + `index.blade.php` at `/exhibition` | 7 | 7 | Added route alias `/museum/exhibitions` → `ExhibitionController::index` | DONE - wired |
+| 5 | DAM Dashboard parity | `/dam/dashboard` | YES (Batch 2 wired the URL) - but heratio view had only 2 of 3 PSIS quick-action buttons | 33 | **45** | **Parity port:** added 4 missing quick-action buttons (Bulk Upload, Browse All, With Digital Files filter, DAM Reports) per PSIS dashboardSuccess, replaced `atom-btn-*` classes with standard Bootstrap. | DONE - parity exceeds PSIS (45 vs PSIS 39) |
 
 **Batch 4 totals:**
 - 5 dashboard links resolved (4 outstanding + 1 parity gap)
-- 1 brand-new page (`/admin/condition/risk` — controller method + blade view)
+- 1 brand-new page (`/admin/condition/risk` - controller method + blade view)
 - 1 brand-new query backend (`nationalTreasuryReport()` real implementation against `heritage_asset` table)
 - 4 new routes (1 alias + 1 sub-route + 1 grap alias + 1 museum alias) + condition risk route
 - View files modified: 2 (DAM dashboard, GRAP national treasury report)
 - View files created: 1 (`condition/risk.blade.php`)
 
-#### Phase B Batch 4 — Smoke test results (Kernel::handle)
+#### Phase B Batch 4 - Smoke test results (Kernel::handle)
 
 | URL | HTTP | Notes |
 |-----|------|-------|
 | `/admin/approvers` | 403 | Admin middleware engaging |
-| `/admin/condition/risk` | 302 | Auth redirect — route works |
+| `/admin/condition/risk` | 302 | Auth redirect - route works |
 | `/grap/national-treasury-report` | 403 | Admin middleware engaging |
-| `/museum/exhibitions` | 302 | Auth redirect — route works |
+| `/museum/exhibitions` | 302 | Auth redirect - route works |
 | `/dam/dashboard` | 200 | Full render, 67.2 KB (was 66.7 KB before parity port) |
 
 All routes resolve, no 500s.
@@ -222,7 +222,7 @@ All routes resolve, no 500s.
 
 All dashboard links now resolve to live controller methods with real DB queries. No invented data, no stub returns.
 
-#### Phase B Batch 5 — Parity port pass (3 pages) — DONE 2026-04-12
+#### Phase B Batch 5 - Parity port pass (3 pages) - DONE 2026-04-12
 
 User authorised closing the remaining parity gaps from Batches 1 and 3.
 
@@ -230,11 +230,11 @@ User authorised closing the remaining parity gaps from Batches 1 and 3.
 |---|------|-----|----------------:|-----------------:|---------------:|-------|
 | 1 | Rights Batch Assignment | `/admin/rights/batch` | 9 (single op-select dropdown) | 18 | **24** | **Full PSIS port:** rebuilt view with PSIS 3-step structure (Action radios → Object Selection → Rights Details). Added: 3 batch_action radios, overwrite checkbox, rights_holder_id (Donor) select, copyright_notice text, TK Labels checkbox grid, conditional embargo card, JS toggle. Controller's `batch()` extended to query donors from `actor`. Heratio now PSIS-superset (+6) |
 | 2 | Rights Export | `/admin/rights/export` | 5 | 14 | **15** | **Full PSIS port:** added "Export Single Object" card with object picker + format radio (CSV/JSON-LD), kept existing bulk export card. Controller's `export()` extended to query top-level information_objects. `exportCsv()` extended to honor `object_id` and delegate to `exportJsonld()` when `format=json-ld`. Heratio now PSIS-superset (+1) |
-| 3 | Entity Resolution | `/research/entity-resolution` | 61 | 65 | **62** | **Functional port:** added missing `evidence` textarea to propose-match modal (one line per evidence item: type \| id \| description). Remaining gap of 3 controls (PSIS framework-specific Symfony hidden inputs `module`/`action` + TomSelect raw search elements that have no Laravel equivalent — heratio uses number inputs for entity IDs which is functionally equivalent). **Functional parity achieved.** |
+| 3 | Entity Resolution | `/research/entity-resolution` | 61 | 65 | **62** | **Functional port:** added missing `evidence` textarea to propose-match modal (one line per evidence item: type \| id \| description). Remaining gap of 3 controls (PSIS framework-specific Symfony hidden inputs `module`/`action` + TomSelect raw search elements that have no Laravel equivalent - heratio uses number inputs for entity IDs which is functionally equivalent). **Functional parity achieved.** |
 
 **Batch 5 totals:**
 - 3 view files modified (batch.blade.php, export.blade.php, entity-resolution.blade.php)
-- 1 controller modified (`RightsAdminController` — extended `batch()` and `export()` queries, updated `exportCsv()`)
+- 1 controller modified (`RightsAdminController` - extended `batch()` and `export()` queries, updated `exportCsv()`)
 - 0 new routes (all 3 pages already wired in earlier batches)
 - All 3 routes still resolve cleanly (smoke test passed: batch=403, export=403, entity-resolution=302)
 
@@ -252,11 +252,11 @@ All dashboard pages resolve AND all parity gaps with PSIS are functionally close
 
 All 122 dashboard links resolve. All real parity gaps closed.
 
-**4 dashboard links with no PSIS source — flagged for design decision (do not invent):**
+**4 dashboard links with no PSIS source - flagged for design decision (do not invent):**
 
 | # | Link | URL | Reason |
 |---|------|-----|--------|
-| 1 | Approvers | `/admin/approvers` | qbAclPlugin only has `aclGroup` module — no approver action exists in PSIS |
+| 1 | Approvers | `/admin/approvers` | qbAclPlugin only has `aclGroup` module - no approver action exists in PSIS |
 | 2 | Risk Assessment | `/admin/condition/risk` | No `riskAction` in `ahgConditionPlugin` |
 | 3 | GRAP National Treasury Report | `/grap/national-treasury-report` | No `nationalTreasuryReport` action in `ahgHeritageAccountingPlugin` (only `dashboardSuccess`, `assetRegisterSuccess`) |
 | 4 | Museum Exhibitions | `/museum/exhibitions` | No `exhibitions` action in `ahgMuseumPlugin/modules/museum` |
@@ -267,38 +267,38 @@ All 122 dashboard links resolve. All real parity gaps closed.
 
 | # | Link | URL | Resolves to |
 |---|------|-----|-------------|
-| 1 | New Ingest | `/ingest/configure` | `ingest/configure/{id?}` (works — optional id) |
-| 2 | CSV Template | `/ingest/template/archive` | `ingest/template/{sector?}` (works — `archive` is the sector param) |
+| 1 | New Ingest | `/ingest/configure` | `ingest/configure/{id?}` (works - optional id) |
+| 2 | CSV Template | `/ingest/template/archive` | `ingest/template/{sector?}` (works - `archive` is the sector param) |
 
-These are NOT broken — the previous detection script used literal grep that couldn't see parameterized matches.
+These are NOT broken - the previous detection script used literal grep that couldn't see parameterized matches.
 
-#### Block 22 — Form Templates (forms)
+#### Block 22 - Form Templates (forms)
 
 | # | Link | URL | AtoM source | Controls before | Controls after | Status |
 |---|------|-----|-------------|----------------:|---------------:|--------|
 | 1 | Create Template | `/admin/formTemplates/create` | psis: `formTemplate/create` | 0 | TBD | TODO |
 
-#### Block 25 — Data Migration (data-migration)
+#### Block 25 - Data Migration (data-migration)
 
 | # | Link | URL | AtoM source | Controls before | Controls after | Status |
 |---|------|-----|-------------|----------------:|---------------:|--------|
 | 1 | Import Data (Upload) | `/admin/data-migration/upload` | psis: `dataMigration/upload` | 0 | TBD | TODO |
 
-#### Block 26 — Data Ingest (ingest)
+#### Block 26 - Data Ingest (ingest)
 
 | # | Link | URL | AtoM source | Controls before | Controls after | Status |
 |---|------|-----|-------------|----------------:|---------------:|--------|
 | 1 | Ingest Dashboard | `/ingest` | psis: `ingest/index` | 0 | TBD | TODO |
 | 2 | New Ingest (Configure) | `/ingest/configure` | psis: `ingest/configure` | 0 | TBD | TODO |
-| 3 | CSV Template | `/ingest/template/archive` | matches `ingest/template/{sector?}` | OK (parameterized) | — | OK |
+| 3 | CSV Template | `/ingest/template/archive` | matches `ingest/template/{sector?}` | OK (parameterized) | - | OK |
 
-#### Block 27 — Backup & Maintenance (backup)
+#### Block 27 - Backup & Maintenance (backup)
 
 | # | Link | URL | AtoM source | Controls before | Controls after | Status |
 |---|------|-----|-------------|----------------:|---------------:|--------|
 | 1 | Restore | `/admin/backup/restore` | psis: `backup/restore` | 0 | TBD | TODO |
 
-#### Block 14 (audit) — Export
+#### Block 14 (audit) - Export
 
 | # | Link | URL | AtoM source | Controls before | Controls after | Status |
 |---|------|-----|-------------|----------------:|---------------:|--------|
@@ -319,7 +319,7 @@ These are NOT broken — the previous detection script used literal grep that co
 |---|------|-----|-------------|----------------:|---------------:|--------|
 | 1 | Workflow Dashboard | `/workflow` | psis: `workflow/index` | 0 | TBD | TODO |
 
-#### Jurisdiction Compliance — root index pages
+#### Jurisdiction Compliance - root index pages
 
 | # | Link | URL | AtoM source | Controls before | Controls after | Status |
 |---|------|-----|-------------|----------------:|---------------:|--------|
@@ -338,36 +338,36 @@ These are NOT broken — the previous detection script used literal grep that co
 |---------|------|---------|---------|
 | Title | "Central Dashboard" | "Central Dashboard" | YES |
 | Layout | 2col (sidebar + content) | 2col (sidebar + content) | YES |
-| Sidebar | Quick Links (Report Builder) + Settings (AHG Settings, Levels) | Same — trimmed to match | YES |
+| Sidebar | Quick Links (Report Builder) + Settings (AHG Settings, Levels) | Same - trimmed to match | YES |
 | Top stats | 4 cards (Descriptions, Authorities, Digital Objects, Updated 7d) | Same 4 cards | YES |
 | Login gate | Alert for unauthenticated | Auth middleware on route | YES |
 
-## Dashboard Blocks — Links & Colours
+## Dashboard Blocks - Links & Colours
 
 | # | Block | AtoM Colour | Heratio Colour | Links Match? | Cloned? |
 |---|-------|------------|---------------|-------------|---------|
 | 1 | Reports | `bg-primary` | `bg-primary` | YES (superset) | YES |
-| 2 | Sector Dashboards | `bg-info` | `bg-info` | YES — reordered to match | YES |
+| 2 | Sector Dashboards | `bg-info` | `bg-info` | YES - reordered to match | YES |
 | 3 | Export | `bg-success` | `bg-success` | YES (superset) | YES |
-| 4 | Approval Workflow | `#6610f2` | `#6610f2` | YES — added Publish Gates | YES |
+| 4 | Approval Workflow | `#6610f2` | `#6610f2` | YES - added Publish Gates | YES |
 | 5 | Spectrum Workflow | `#0d6efd` | `#0d6efd` | YES (superset) | YES |
-| 6 | Research Services | `#0d6efd` | `#0d6efd` | YES — cloned 6 AtoM links | YES |
-| 7 | Knowledge Platform | `#6610f2` | `#6610f2` | YES — cloned 6 AtoM links | YES |
-| 8 | Research Admin | `#198754` | `#198754` | YES — cloned 5 AtoM links | YES |
+| 6 | Research Services | `#0d6efd` | `#0d6efd` | YES - cloned 6 AtoM links | YES |
+| 7 | Knowledge Platform | `#6610f2` | `#6610f2` | YES - cloned 6 AtoM links | YES |
+| 8 | Research Admin | `#198754` | `#198754` | YES - cloned 5 AtoM links | YES |
 | 9 | Access Requests | `#0d6efd` | `#0d6efd` | YES (3 links) | YES |
-| 10 | Security & Compliance | `bg-danger` | `bg-danger` | YES — added Audit Statistics | YES |
+| 10 | Security & Compliance | `bg-danger` | `bg-danger` | YES - added Audit Statistics | YES |
 | 11 | Privacy & Data Protection | `bg-warning` | `bg-warning` | YES (7 links) | YES |
 | 12 | Condition (Spectrum 5.1) | `bg-secondary` | `bg-secondary` | YES (3 links) | YES |
-| 13 | AI Condition Assessment | `bg-success` | `bg-success` | YES — 7 links matching AtoM | YES |
-| — | Assessment Statistics | — | `bg-success` | Heratio extra (kept) | — |
-| — | Grade Distribution | — | `bg-success` | Heratio extra (kept) | — |
+| 13 | AI Condition Assessment | `bg-success` | `bg-success` | YES - 7 links matching AtoM | YES |
+| - | Assessment Statistics | - | `bg-success` | Heratio extra (kept) | - |
+| - | Grade Distribution | - | `bg-success` | Heratio extra (kept) | - |
 | 14 | Rights & Licensing | `#6f42c1` | `#6f42c1` | YES (4 links) | YES |
 | 15 | Embargo Management | `#e83e8c` | `#e83e8c` | YES (3 links) | YES |
 | 16 | Rights Vocabularies | `#20c997` | `#20c997` | YES (4 links) | YES |
-| 17 | Vendor Management | `#fd7e14` | `#fd7e14` | YES — matched 5 AtoM links | YES |
-| 18 | Donor Management | `#198754` | `#198754` | YES — matched 2 AtoM links | YES |
-| 19 | Marketplace | `#7c3aed` | `#7c3aed` | YES — sellers merged in, 5 links | YES |
-| 20 | Sales & Payouts | `#059669` | `#059669` | YES — added Revenue Reports | YES |
+| 17 | Vendor Management | `#fd7e14` | `#fd7e14` | YES - matched 5 AtoM links | YES |
+| 18 | Donor Management | `#198754` | `#198754` | YES - matched 2 AtoM links | YES |
+| 19 | Marketplace | `#7c3aed` | `#7c3aed` | YES - sellers merged in, 5 links | YES |
+| 20 | Sales & Payouts | `#059669` | `#059669` | YES - added Revenue Reports | YES |
 | 21 | E-Commerce | `#059669` | `#059669` | YES (2 links) | YES |
 | 22 | Form Templates | `#198754` | `#198754` | YES (4 links) | YES |
 | 23 | DOI Management | `#0dcaf0` | `#0dcaf0` | YES (4 links) | YES |
@@ -377,7 +377,7 @@ These are NOT broken — the previous detection script used literal grep that co
 | 27 | Backup & Maintenance | `bg-dark` | `bg-dark` | YES (3 links) | YES |
 | 28 | Heritage Management | `#6c757d` | `#6c757d` | YES (3 links) | YES |
 | 29 | Duplicate Detection | `#dc3545` | `#dc3545` | YES (4 links) | YES |
-| — | TIFF to PDF Merge | — | `#20c997` | Heratio extra (kept) | — |
+| - | TIFF to PDF Merge | - | `#20c997` | Heratio extra (kept) | - |
 | 30 | Digital Preservation | `#17a2b8` | `#17a2b8` | YES (4 links) | YES |
 | 31 | Format Registry | `#6610f2` | `#6610f2` | YES (3 links) | YES |
 | 32 | Checksums & Integrity | `#28a745` | `#28a745` | YES (3 links + Failed) | YES |
@@ -388,7 +388,7 @@ These are NOT broken — the previous detection script used literal grep that co
 
 ## Page-by-Page Clone Status (destination pages behind each link)
 
-### Block 1: Reports — Sector Report Pages
+### Block 1: Reports - Sector Report Pages
 
 | # | Page | AtoM | Heratio | Cloned? |
 |---|------|------|---------|---------|
@@ -404,7 +404,7 @@ These are NOT broken — the previous detection script used literal grep that co
 
 | # | Page | AtoM | Heratio | Cloned? |
 |---|------|------|---------|---------|
-| 8 | Gallery Index | 2col, sidebar, 3 stat rows (Exhibitions/Artists+Loans/Valuations) | Same — sidebar, stats, colour-matched | YES |
+| 8 | Gallery Index | 2col, sidebar, 3 stat rows (Exhibitions/Artists+Loans/Valuations) | Same - sidebar, stats, colour-matched | YES |
 | 8a | Exhibitions | 7 columns, sidebar filters, status badges | 7 columns, sidebar, badges | YES |
 | 8b | Loans | 8 columns with insurance/days | 8 columns with formatting | YES |
 | 8c | Valuations | 7 columns with currency | 7 columns with R currency | YES |
@@ -415,7 +415,7 @@ These are NOT broken — the previous detection script used literal grep that co
 
 | # | Page | AtoM | Heratio | Cloned? |
 |---|------|------|---------|---------|
-| 9 | Library Index | 2col, sidebar, 4 stat cards + By Type + Quick Stats | Same — sidebar, stats, type list | YES |
+| 9 | Library Index | 2col, sidebar, 4 stat cards + By Type + Quick Stats | Same - sidebar, stats, type list | YES |
 | 9a | Catalogue | 7 columns (Title/Author/Type/Call#/ISBN/Publisher/Status) | 7 columns, sidebar, table-dark | YES |
 | 9b | Creators | Name + Items count | Same, sidebar, badge | YES |
 | 9c | Subjects | Subject + Items count | Same, sidebar, badge | YES |
@@ -426,7 +426,7 @@ These are NOT broken — the previous detection script used literal grep that co
 
 | # | Page | AtoM | Heratio | Cloned? |
 |---|------|------|---------|---------|
-| 10 | DAM Index | 2col, sidebar, 4 stats + By Type + Metadata Coverage | Same — sidebar, stats | YES |
+| 10 | DAM Index | 2col, sidebar, 4 stats + By Type + Metadata Coverage | Same - sidebar, stats | YES |
 | 10a | Assets | 4 columns (Filename/Record/Type/Size) | 4 columns, sidebar | YES |
 | 10b | Metadata | 4 columns (File/Type/Size/Created) | 4 columns, sidebar | YES |
 | 10c | IPTC Data | 3 columns (File/Property/Value) | 3 columns, sidebar | YES |
@@ -436,7 +436,7 @@ These are NOT broken — the previous detection script used literal grep that co
 
 | # | Page | AtoM | Heratio | Cloned? |
 |---|------|------|---------|---------|
-| 11 | Museum Index | 2col, sidebar, 3 stats + Work Type + Condition lists | Same — sidebar, stats, lists | YES |
+| 11 | Museum Index | 2col, sidebar, 3 stats + Work Type + Condition lists | Same - sidebar, stats, lists | YES |
 | 11a | Objects | 5 columns with condition badge | 5 columns, badge | YES |
 | 11b | Creators | 5 columns with badge count | 5 columns, badge | YES |
 | 11c | Condition | 5 columns with badge | 5 columns, badge | YES |
@@ -458,7 +458,7 @@ These are NOT broken — the previous detection script used literal grep that co
 
 | # | Page | AtoM | Heratio | Cloned? |
 |---|------|------|---------|---------|
-| 13 | Spectrum Index | 2col, sidebar, 4 stats + Procedure Summary + Recent Activity | Same — dashboard with stats, summary, activity | YES |
+| 13 | Spectrum Index | 2col, sidebar, 4 stats + Procedure Summary + Recent Activity | Same - dashboard with stats, summary, activity | YES |
 | 13a | Object Entry | 5 columns (Object/Entry Date/Entry Number/Depositor/Reason) | 5 columns, 2col, table-dark | YES |
 | 13b | Acquisitions | 4 columns (Object/Date/Method/Source) | 4 columns, 2col, table-dark | YES |
 | 13c | Loans | 2 tables (Loans In + Loans Out), 5 columns each | 2 tables, 5 columns each, status badges | YES |
@@ -481,248 +481,248 @@ These are NOT broken — the previous detection script used literal grep that co
 #### Block 6: Research Services (6 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Research Dashboard | `/research/dashboard` | YES — fixed 8 inline styles, added bg-warning |
-| 2 | Projects | `/research/projects` | YES — already migrated |
-| 3 | Evidence Sets | `/research/collections` | YES — already migrated |
-| 4 | Research Journal | `/research/journal` | YES — added breadcrumb, Export dropdown, fixed buttons |
-| 5 | Research Reports | `/research/reports` | YES — already migrated |
-| 6 | Bibliographies | `/research/bibliographies` | YES — added breadcrumb, fixed title/buttons |
+| 1 | Research Dashboard | `/research/dashboard` | YES - fixed 8 inline styles, added bg-warning |
+| 2 | Projects | `/research/projects` | YES - already migrated |
+| 3 | Evidence Sets | `/research/collections` | YES - already migrated |
+| 4 | Research Journal | `/research/journal` | YES - added breadcrumb, Export dropdown, fixed buttons |
+| 5 | Research Reports | `/research/reports` | YES - already migrated |
+| 6 | Bibliographies | `/research/bibliographies` | YES - added breadcrumb, fixed title/buttons |
 
 #### Block 7: Knowledge Platform (6 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Annotation Studio | `/research/annotations` | YES — already migrated |
-| 2 | Saved Searches | `/research/saved-searches` | YES — fixed 2 atom-btn styles |
-| 3 | Validation Queue | `/research/validation-queue` | YES — fixed 9 atom-btn styles |
-| 4 | Entity Resolution | `/research/entity-resolution` | YES — fixed 8 atom-btn styles |
-| 5 | ODRL Policies | `/research/odrl-policies` | YES — fixed 7 atom-btn styles |
-| 6 | Document Templates | `/research/document-templates` | YES — fixed 6 atom-btn styles |
+| 1 | Annotation Studio | `/research/annotations` | YES - already migrated |
+| 2 | Saved Searches | `/research/saved-searches` | YES - fixed 2 atom-btn styles |
+| 3 | Validation Queue | `/research/validation-queue` | YES - fixed 9 atom-btn styles |
+| 4 | Entity Resolution | `/research/entity-resolution` | YES - fixed 8 atom-btn styles |
+| 5 | ODRL Policies | `/research/odrl-policies` | YES - fixed 7 atom-btn styles |
+| 6 | Document Templates | `/research/document-templates` | YES - fixed 6 atom-btn styles |
 
 #### Block 8: Research Admin (5 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Manage Researchers | `/research/admin/researchers` | YES — already migrated, 0 issues |
-| 2 | Manage Bookings | `/research/admin/bookings` | YES — already migrated, 0 issues |
-| 3 | Reading Rooms | `/research/rooms` | YES — already migrated, 0 issues |
-| 4 | Reproduction Requests | `/research/reproductions` | YES — already migrated, 0 issues |
-| 5 | Statistics | `/research/admin/statistics` | YES — already migrated, 0 issues |
+| 1 | Manage Researchers | `/research/admin/researchers` | YES - already migrated, 0 issues |
+| 2 | Manage Bookings | `/research/admin/bookings` | YES - already migrated, 0 issues |
+| 3 | Reading Rooms | `/research/rooms` | YES - already migrated, 0 issues |
+| 4 | Reproduction Requests | `/research/reproductions` | YES - already migrated, 0 issues |
+| 5 | Statistics | `/research/admin/statistics` | YES - already migrated, 0 issues |
 
 #### Block 9: Access Requests (2 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Pending Requests | `/access-request/pending` | YES — fixed 2 atom-btn styles |
-| 2 | Approvers | `/access-request/approvers` | YES — fixed inline style + atom-btn |
+| 1 | Pending Requests | `/access-request/pending` | YES - fixed 2 atom-btn styles |
+| 2 | Approvers | `/access-request/approvers` | YES - fixed inline style + atom-btn |
 
 #### Block 10: Security & Compliance (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Security Dashboard | `/admin/acl/clearances` | YES — fixed 4 atom-btn styles |
-| 2 | Audit Statistics | `/admin/audit/statistics` | YES — fixed 6 issues (inline styles + atom-btn) |
-| 3 | Audit Log | `/admin/audit` | YES — fixed 1 atom-btn |
-| 4 | Export Audit Log | `/admin/audit/export` | YES — fixed 2 atom-btn |
+| 1 | Security Dashboard | `/admin/acl/clearances` | YES - fixed 4 atom-btn styles |
+| 2 | Audit Statistics | `/admin/audit/statistics` | YES - fixed 6 issues (inline styles + atom-btn) |
+| 3 | Audit Log | `/admin/audit` | YES - fixed 1 atom-btn |
+| 4 | Export Audit Log | `/admin/audit/export` | YES - fixed 2 atom-btn |
 
 #### Block 11: Privacy & Data Protection (7 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Privacy Dashboard | `/admin/privacy/dashboard` | YES — already clean |
-| 2 | ROPA | `/admin/privacy/ropa-list` | YES — already clean |
-| 3 | DSAR Requests | `/admin/privacy/dsar-list` | YES — fixed 2 atom-btn |
-| 4 | Breach Register | `/admin/privacy/breach-list` | YES — already clean |
-| 5 | PAIA Requests | `/admin/privacy/paia-list` | YES — already clean |
-| 6 | Privacy Officers | `/admin/privacy/officer-list` | YES — fixed 1 inline style |
-| 7 | Template Library | `/admin/privacy/config` | YES — fixed 2 atom-btn |
+| 1 | Privacy Dashboard | `/admin/privacy/dashboard` | YES - already clean |
+| 2 | ROPA | `/admin/privacy/ropa-list` | YES - already clean |
+| 3 | DSAR Requests | `/admin/privacy/dsar-list` | YES - fixed 2 atom-btn |
+| 4 | Breach Register | `/admin/privacy/breach-list` | YES - already clean |
+| 5 | PAIA Requests | `/admin/privacy/paia-list` | YES - already clean |
+| 6 | Privacy Officers | `/admin/privacy/officer-list` | YES - fixed 1 inline style |
+| 7 | Template Library | `/admin/privacy/config` | YES - fixed 2 atom-btn |
 
 #### Block 12: Condition (3 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Condition Dashboard | `/admin/spectrum/dashboard` | YES — already clean |
-| 2 | Risk Assessment | `/admin/spectrum/condition-risk` | YES — already clean |
-| 3 | Condition Templates | `/condition/templates` | YES — fixed 1 inline style |
+| 1 | Condition Dashboard | `/admin/spectrum/dashboard` | YES - already clean |
+| 2 | Risk Assessment | `/admin/spectrum/condition-risk` | YES - already clean |
+| 3 | Condition Templates | `/condition/templates` | YES - fixed 1 inline style |
 
 #### Block 13: AI Condition (6 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Dashboard | `/ai-condition/dashboard` | YES — fixed atom-btn |
-| 2 | New AI Assessment | `/ai-condition/assess` | YES — fixed atom-btn |
-| 3 | Manual Assessment | `/ai-condition/manual` | YES — fixed atom-btn |
-| 4 | Bulk Scan | `/ai-condition/bulk` | YES — fixed atom-btn |
-| 5 | Browse Assessments | `/ai-condition/browse` | YES — fixed atom-btn |
-| 6 | Model Training | `/ai-condition/training` | YES — fixed atom-btn |
+| 1 | Dashboard | `/ai-condition/dashboard` | YES - fixed atom-btn |
+| 2 | New AI Assessment | `/ai-condition/assess` | YES - fixed atom-btn |
+| 3 | Manual Assessment | `/ai-condition/manual` | YES - fixed atom-btn |
+| 4 | Bulk Scan | `/ai-condition/bulk` | YES - fixed atom-btn |
+| 5 | Browse Assessments | `/ai-condition/browse` | YES - fixed atom-btn |
+| 6 | Model Training | `/ai-condition/training` | YES - fixed atom-btn |
 
 #### Block 14: Rights & Licensing (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Rights Dashboard | `/ext-rights-admin` | YES — fixed 3 inline card-header styles |
-| 2 | Batch Rights | `/ext-rights-admin/batch` | YES — already clean |
-| 3 | Browse Rights | `/ext-rights-admin/browse` | YES — already clean |
-| 4 | Export Rights | `/ext-rights-admin/export` | YES — already clean |
+| 1 | Rights Dashboard | `/ext-rights-admin` | YES - fixed 3 inline card-header styles |
+| 2 | Batch Rights | `/ext-rights-admin/batch` | YES - already clean |
+| 3 | Browse Rights | `/ext-rights-admin/browse` | YES - already clean |
+| 4 | Export Rights | `/ext-rights-admin/export` | YES - already clean |
 
 #### Block 15: Embargo Management (3 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Active Embargoes | `/ext-rights-admin/embargoes` | YES — already clean |
-| 2 | Apply Embargo | `/ext-rights-admin/embargoes/new` | YES — (same page, tab) |
-| 3 | Expiring Soon | `/ext-rights-admin/expiring-embargoes` | YES — already clean |
+| 1 | Active Embargoes | `/ext-rights-admin/embargoes` | YES - already clean |
+| 2 | Apply Embargo | `/ext-rights-admin/embargoes/new` | YES - (same page, tab) |
+| 3 | Expiring Soon | `/ext-rights-admin/expiring-embargoes` | YES - already clean |
 
 #### Block 16: Rights Vocabularies (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Rights Statements | `/ext-rights-admin/statements` | YES — fixed 3 inline styles |
-| 2 | Creative Commons | `/ext-rights-admin/statements#cc` | YES — (same page, section) |
-| 3 | TK Labels | `/ext-rights-admin/tk-labels` | YES — fixed 2 inline styles |
-| 4 | Rights Holders | `/rightsholder/browse` | YES — fixed 3 atom-btn styles |
+| 1 | Rights Statements | `/ext-rights-admin/statements` | YES - fixed 3 inline styles |
+| 2 | Creative Commons | `/ext-rights-admin/statements#cc` | YES - (same page, section) |
+| 3 | TK Labels | `/ext-rights-admin/tk-labels` | YES - fixed 2 inline styles |
+| 4 | Rights Holders | `/rightsholder/browse` | YES - fixed 3 atom-btn styles |
 
 #### Block 17: Vendor Management (5 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Vendor Dashboard | `/admin/vendor` | YES — already clean |
-| 2 | Browse Vendors | `/admin/vendor/list` | YES — fixed 2 atom-btn styles |
-| 3 | Add Vendor | `/admin/vendor/add` | YES — fixed 2 atom-btn styles |
-| 4 | Transactions | `/admin/vendor/transactions/browse` | YES — fixed 2 atom-btn styles |
-| 5 | Service Types | `/admin/vendor/service-types` | YES — fixed 2 atom-btn styles |
+| 1 | Vendor Dashboard | `/admin/vendor` | YES - already clean |
+| 2 | Browse Vendors | `/admin/vendor/list` | YES - fixed 2 atom-btn styles |
+| 3 | Add Vendor | `/admin/vendor/add` | YES - fixed 2 atom-btn styles |
+| 4 | Transactions | `/admin/vendor/transactions/browse` | YES - fixed 2 atom-btn styles |
+| 5 | Service Types | `/admin/vendor/service-types` | YES - fixed 2 atom-btn styles |
 
 #### Block 18: Donor Management (2 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Donor Dashboard | `/donor/browse` | YES — fixed 2 atom-btn styles |
-| 2 | Donor Agreements | `/donor/agreements` | YES — already clean |
+| 1 | Donor Dashboard | `/donor/browse` | YES - fixed 2 atom-btn styles |
+| 2 | Donor Agreements | `/donor/agreements` | YES - already clean |
 
 #### Block 19: Marketplace (5 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Admin Dashboard | `/admin/marketplace/dashboard` | YES — already clean |
-| 2 | All Listings | `/admin/marketplace/listings` | YES — fixed 2 atom-btn styles |
-| 3 | Browse Marketplace | `/marketplace/browse` | YES — fixed 2 atom-btn styles |
-| 4 | Manage Sellers | `/admin/marketplace/sellers` | YES — already clean |
-| 5 | Active Auctions | `/marketplace/auction-browse` | YES — fixed inline var(--ahg-primary) style |
+| 1 | Admin Dashboard | `/admin/marketplace/dashboard` | YES - already clean |
+| 2 | All Listings | `/admin/marketplace/listings` | YES - fixed 2 atom-btn styles |
+| 3 | Browse Marketplace | `/marketplace/browse` | YES - fixed 2 atom-btn styles |
+| 4 | Manage Sellers | `/admin/marketplace/sellers` | YES - already clean |
+| 5 | Active Auctions | `/marketplace/auction-browse` | YES - fixed inline var(--ahg-primary) style |
 
 #### Block 20: Sales & Payouts (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | All Transactions | `/admin/marketplace/transactions` | YES — fixed 2 atom-btn styles |
-| 2 | Pending Payouts | `/admin/marketplace/payouts` | YES — fixed 2 atom-btn styles |
-| 3 | Revenue Reports | `/admin/marketplace/reports` | YES — already clean |
-| 4 | Shop Orders | `/admin/orders` | YES — already clean |
+| 1 | All Transactions | `/admin/marketplace/transactions` | YES - fixed 2 atom-btn styles |
+| 2 | Pending Payouts | `/admin/marketplace/payouts` | YES - fixed 2 atom-btn styles |
+| 3 | Revenue Reports | `/admin/marketplace/reports` | YES - already clean |
+| 4 | Shop Orders | `/admin/orders` | YES - already clean |
 
 #### Block 21: E-Commerce (2 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Shop Settings | `/admin/ahgSettings/ecommerce` | YES — already cloned |
-| 2 | Orders | `/cart/orders` | YES — fixed 1 atom-btn style |
+| 1 | Shop Settings | `/admin/ahgSettings/ecommerce` | YES - already cloned |
+| 2 | Orders | `/cart/orders` | YES - fixed 1 atom-btn style |
 
 #### Block 22: Form Templates (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Forms Dashboard | `/admin/formTemplates` | YES — already clean (BS5 native) |
-| 2 | Browse Templates | `/admin/formTemplates/browse` | YES — fixed 2 atom-btn styles |
-| 3 | Create Template | `/admin/formTemplates/create` | YES — fixed 2 atom-btn styles |
-| 4 | Assignments | `/admin/formTemplates/assignments` | YES — already clean |
+| 1 | Forms Dashboard | `/admin/formTemplates` | YES - already clean (BS5 native) |
+| 2 | Browse Templates | `/admin/formTemplates/browse` | YES - fixed 2 atom-btn styles |
+| 3 | Create Template | `/admin/formTemplates/create` | YES - fixed 2 atom-btn styles |
+| 4 | Assignments | `/admin/formTemplates/assignments` | YES - already clean |
 
 #### Block 23: DOI Management (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | DOI Dashboard | `/doi` | YES — fixed 7 atom-btn styles |
-| 2 | Browse DOIs | `/doi/browse` | YES — fixed 10 atom-btn styles |
-| 3 | Minting Queue | `/doi/queue` | YES — fixed 8 atom-btn styles |
-| 4 | DOI Configuration | `/doi/config` | YES — fixed 2 atom-btn + 4 inline var(--ahg-primary) styles |
+| 1 | DOI Dashboard | `/doi` | YES - fixed 7 atom-btn styles |
+| 2 | Browse DOIs | `/doi/browse` | YES - fixed 10 atom-btn styles |
+| 3 | Minting Queue | `/doi/queue` | YES - fixed 8 atom-btn styles |
+| 4 | DOI Configuration | `/doi/config` | YES - fixed 2 atom-btn + 4 inline var(--ahg-primary) styles |
 
 #### Block 24: RiC (2 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | RiC Dashboard | `/ric` | YES — fixed 7 inline var(--ahg-primary) card-header styles |
-| 2 | Sync Status | `/ric/sync-status` | YES — fixed 2 atom-btn styles |
+| 1 | RiC Dashboard | `/ric` | YES - fixed 7 inline var(--ahg-primary) card-header styles |
+| 2 | Sync Status | `/ric/sync-status` | YES - fixed 2 atom-btn styles |
 
 #### Block 25: Data Migration (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Migration Dashboard | `/data-migration` | YES — fixed 9 atom-btn + 2 inline var(--ahg-primary) styles |
-| 2 | Import Data | `/data-migration/upload` | YES — fixed 2 atom-btn + 1 inline style |
-| 3 | Export Data | `/data-migration/batch-export` | YES — fixed 1 atom-btn + 2 inline styles |
-| 4 | Migration History | `/data-migration/jobs` | YES — fixed 2 atom-btn styles |
+| 1 | Migration Dashboard | `/data-migration` | YES - fixed 9 atom-btn + 2 inline var(--ahg-primary) styles |
+| 2 | Import Data | `/data-migration/upload` | YES - fixed 2 atom-btn + 1 inline style |
+| 3 | Export Data | `/data-migration/batch-export` | YES - fixed 1 atom-btn + 2 inline styles |
+| 4 | Migration History | `/data-migration/jobs` | YES - fixed 2 atom-btn styles |
 
 #### Block 26: Data Ingest (3 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Ingest Dashboard | `/ingest` | YES — fixed 2 atom-btn styles |
-| 2 | New Ingest | `/ingest/configure` | YES — already clean (BS5 native) |
-| 3 | CSV Template | `/ingest/template/archive` | YES — download endpoint, no view |
+| 1 | Ingest Dashboard | `/ingest` | YES - fixed 2 atom-btn styles |
+| 2 | New Ingest | `/ingest/configure` | YES - already clean (BS5 native) |
+| 3 | CSV Template | `/ingest/template/archive` | YES - download endpoint, no view |
 
 #### Block 27: Backup & Maintenance (3 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Backup Dashboard | `/backup` | YES — fixed 6 inline var(--ahg-primary) card-header styles |
-| 2 | Restore | `/backup/restore` | YES — fixed 2 atom-btn + 1 inline style |
-| 3 | Background Jobs | `/jobs` | YES — already clean (BS5 native) |
+| 1 | Backup Dashboard | `/backup` | YES - fixed 6 inline var(--ahg-primary) card-header styles |
+| 2 | Restore | `/backup/restore` | YES - fixed 2 atom-btn + 1 inline style |
+| 3 | Background Jobs | `/jobs` | YES - already clean (BS5 native) |
 
 #### Block 28: Heritage Management (3 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Admin Dashboard | `/heritage/admin` | YES — fixed 1 inline var(--ahg-primary) style |
-| 2 | Analytics | `/heritage/analytics` | YES — fixed 6 atom-btn styles |
-| 3 | Custodian | `/heritage/custodian` | YES — fixed 3 atom-btn + 4 inline styles |
+| 1 | Admin Dashboard | `/heritage/admin` | YES - fixed 1 inline var(--ahg-primary) style |
+| 2 | Analytics | `/heritage/analytics` | YES - fixed 6 atom-btn styles |
+| 3 | Custodian | `/heritage/custodian` | YES - fixed 3 atom-btn + 4 inline styles |
 
 #### Block 29: Duplicate Detection (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Dedupe Dashboard | `/dedupe` | YES — fixed 7 atom-btn + 4 inline var(--ahg-primary) styles |
-| 2 | Browse Duplicates | `/dedupe/browse` | YES — fixed 1 atom-btn style |
-| 3 | Report | `/dedupe/report` | YES — fixed 1 atom-btn style |
-| 4 | Detection Rules | `/dedupe/rules` | YES — fixed 3 atom-btn styles |
+| 1 | Dedupe Dashboard | `/dedupe` | YES - fixed 7 atom-btn + 4 inline var(--ahg-primary) styles |
+| 2 | Browse Duplicates | `/dedupe/browse` | YES - fixed 1 atom-btn style |
+| 3 | Report | `/dedupe/report` | YES - fixed 1 atom-btn style |
+| 4 | Detection Rules | `/dedupe/rules` | YES - fixed 3 atom-btn styles |
 
 #### Block 30: Digital Preservation (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Preservation Dashboard | `/preservation` | YES — fixed 12 atom-btn + 3 inline styles |
-| 2 | Fixity Verification | `/preservation/fixity-log` | YES — fixed 3 atom-btn styles |
-| 3 | PREMIS Events | `/preservation/events` | YES — fixed 1 atom-btn style |
-| 4 | Preservation Reports | `/preservation/reports` | YES — already clean |
+| 1 | Preservation Dashboard | `/preservation` | YES - fixed 12 atom-btn + 3 inline styles |
+| 2 | Fixity Verification | `/preservation/fixity-log` | YES - fixed 3 atom-btn styles |
+| 3 | PREMIS Events | `/preservation/events` | YES - fixed 1 atom-btn style |
+| 4 | Preservation Reports | `/preservation/reports` | YES - already clean |
 
 #### Block 31: Format Registry (3 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Browse Formats | `/preservation/formats` | YES — already clean |
-| 2 | At-Risk Formats | `/preservation/formats?risk=high` | YES — same page, query param |
-| 3 | Preservation Policies | `/preservation/policies` | YES — already clean |
+| 1 | Browse Formats | `/preservation/formats` | YES - already clean |
+| 2 | At-Risk Formats | `/preservation/formats?risk=high` | YES - same page, query param |
+| 3 | Preservation Policies | `/preservation/policies` | YES - already clean |
 
 #### Block 32: Checksums & Integrity (3 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | Missing Checksums | `/preservation/reports?type=missing` | YES — same reports page, query param |
-| 2 | Stale Verification | `/preservation/reports?type=stale` | YES — same reports page, query param |
-| 3 | Failed Checks | `/preservation/fixity-log?status=failed` | YES — same fixity-log page, query param |
+| 1 | Missing Checksums | `/preservation/reports?type=missing` | YES - same reports page, query param |
+| 2 | Stale Verification | `/preservation/reports?type=stale` | YES - same reports page, query param |
+| 3 | Failed Checks | `/preservation/fixity-log?status=failed` | YES - same fixity-log page, query param |
 
 #### Block 33: CDPA (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | CDPA Dashboard | `/cdpa` | YES — already clean |
-| 2 | POTRAZ License | `/cdpa/license` | YES — fixed 1 inline var(--ahg-primary) style |
-| 3 | Data Subject Requests | `/cdpa/requests` | YES — already clean |
-| 4 | Breach Register | `/cdpa/breaches` | YES — already clean |
+| 1 | CDPA Dashboard | `/cdpa` | YES - already clean |
+| 2 | POTRAZ License | `/cdpa/license` | YES - fixed 1 inline var(--ahg-primary) style |
+| 3 | Data Subject Requests | `/cdpa/requests` | YES - already clean |
+| 4 | Breach Register | `/cdpa/breaches` | YES - already clean |
 
 #### Block 34: NAZ (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | NAZ Dashboard | `/naz` | YES — fixed 1 inline var(--ahg-primary) style |
-| 2 | Closure Periods | `/naz/closures` | YES — already clean |
-| 3 | Research Permits | `/naz/permits` | YES — already clean |
-| 4 | Records Transfers | `/naz/transfers` | YES — already clean |
+| 1 | NAZ Dashboard | `/naz` | YES - fixed 1 inline var(--ahg-primary) style |
+| 2 | Closure Periods | `/naz/closures` | YES - already clean |
+| 3 | Research Permits | `/naz/permits` | YES - already clean |
+| 4 | Records Transfers | `/naz/transfers` | YES - already clean |
 
 #### Block 35: IPSAS (4 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | IPSAS Dashboard | `/ipsas` | YES — fixed 1 inline var(--ahg-primary) style |
-| 2 | Asset Register | `/ipsas/assets` | YES — fixed 2 atom-btn styles |
-| 3 | Valuations | `/ipsas/valuations` | YES — fixed 2 atom-btn styles |
-| 4 | Insurance | `/ipsas/insurance` | YES — fixed 2 atom-btn styles |
+| 1 | IPSAS Dashboard | `/ipsas` | YES - fixed 1 inline var(--ahg-primary) style |
+| 2 | Asset Register | `/ipsas/assets` | YES - fixed 2 atom-btn styles |
+| 3 | Valuations | `/ipsas/valuations` | YES - fixed 2 atom-btn styles |
+| 4 | Insurance | `/ipsas/insurance` | YES - fixed 2 atom-btn styles |
 
 #### Block 36: NMMZ (5 pages)
 | # | Page | URL | Cloned? |
 |---|------|-----|---------|
-| 1 | NMMZ Dashboard | `/nmmz` | YES — fixed 1 inline var(--ahg-primary) style |
-| 2 | National Monuments | `/nmmz/monuments` | YES — fixed 2 atom-btn styles |
-| 3 | Antiquities Register | `/nmmz/antiquities` | YES — fixed 2 atom-btn styles |
-| 4 | Export Permits | `/nmmz/permits` | YES — fixed 2 atom-btn styles |
-| 5 | Archaeological Sites | `/nmmz/sites` | YES — fixed 2 atom-btn styles |
+| 1 | NMMZ Dashboard | `/nmmz` | YES - fixed 1 inline var(--ahg-primary) style |
+| 2 | National Monuments | `/nmmz/monuments` | YES - fixed 2 atom-btn styles |
+| 3 | Antiquities Register | `/nmmz/antiquities` | YES - fixed 2 atom-btn styles |
+| 4 | Export Permits | `/nmmz/permits` | YES - fixed 2 atom-btn styles |
+| 5 | Archaeological Sites | `/nmmz/sites` | YES - fixed 2 atom-btn styles |
 
 ## Status
 

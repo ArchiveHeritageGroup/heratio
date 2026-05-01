@@ -1,4 +1,4 @@
-# Heratio — Documentation Standard
+# Heratio - Documentation Standard
 
 **Version:** 1.0
 **Date:** 2026-02-28
@@ -105,7 +105,7 @@ pandoc input.md -o output.docx \
 ### 5.1 User Guide Template
 
 ```markdown
-# {Feature Name} — User Guide
+# {Feature Name} - User Guide
 
 **Version:** X.Y
 **Date:** YYYY-MM-DD
@@ -148,7 +148,7 @@ Links to related guides and technical docs.
 ### 5.2 Feature Overview Template
 
 ```markdown
-# Heratio — {Component Name}
+# Heratio - {Component Name}
 
 **Feature Overview**
 
@@ -180,7 +180,7 @@ Standard boilerplate about the platform.
 ### 5.3 Technical Manual Template
 
 ```markdown
-# {PluginName} — Technical Manual
+# {PluginName} - Technical Manual
 
 **Version:** X.Y
 **Date:** YYYY-MM-DD

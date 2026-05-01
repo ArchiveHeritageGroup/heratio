@@ -1,4 +1,4 @@
-# Heratio — LLaVA Conservation Fine-Tuning Technical Guide
+# Heratio - LLaVA Conservation Fine-Tuning Technical Guide
 
 **For:** ML Engineers, Model Trainers, DevOps
 **Date:** 16 March 2026
@@ -13,8 +13,8 @@
 | Server | Role | GPU | VRAM | CPU | RAM | Disk Free |
 |--------|------|-----|------|-----|-----|-----------|
 | 115 | Training + inference | NVIDIA RTX 3080 | 10GB | AMD Ryzen | 32GB | 58GB |
-| 112 | Web/app (no GPU) | — | — | Intel Xeon | 64GB | ~30GB |
-| 92 | Future inference (pending) | NVIDIA RTX 3060 | 12GB | — | — | — |
+| 112 | Web/app (no GPU) | - | - | Intel Xeon | 64GB | ~30GB |
+| 92 | Future inference (pending) | NVIDIA RTX 3060 | 12GB | - | - | - |
 
 ### Software Stack (Server 115)
 
@@ -30,12 +30,12 @@ Python venv:  /opt/ahg-ai/.venv/ (transformers 5.x, PyTorch, spaCy, CTranslate2)
 
 | Model | Size | Purpose | VRAM (loaded) |
 |-------|------|---------|---------------|
-| llava:7b | 4.7GB disk | Vision — condition assessment + image description | 5.4GB |
+| llava:7b | 4.7GB disk | Vision - condition assessment + image description | 5.4GB |
 | mistral-nemo:12b | 7.1GB disk | Text generation | 8GB |
 | gemma2:9b | 5.4GB disk | Text generation | 6GB |
 | mistral:7b | 4.4GB disk | Text generation | 5GB |
 
-Ollama auto-unloads after 5min idle — only one model in VRAM at a time.
+Ollama auto-unloads after 5min idle - only one model in VRAM at a time.
 
 ### Current AI Services on 115
 
@@ -49,7 +49,7 @@ Ollama auto-unloads after 5min idle — only one model in VRAM at a time.
 
 ---
 
-## 2. The Model — LLaVA
+## 2. The Model - LLaVA
 
 ### What It Is
 
@@ -72,11 +72,11 @@ LLaVA (Large Language and Vision Assistant) = LLaMA text model + CLIP vision enc
 
 | Component | License | Commercial Use |
 |-----------|---------|---------------|
-| LLaVA | Apache 2.0 | Yes — fully free |
-| LLaMA (base) | Meta LLaMA 2 Community License | Yes — free under 700M MAU |
-| CLIP (vision) | MIT (OpenAI) | Yes — fully free |
-| Ollama (runtime) | MIT | Yes — fully free |
-| LoRA fine-tuning (PEFT) | Apache 2.0 | Yes — fully free |
+| LLaVA | Apache 2.0 | Yes - fully free |
+| LLaMA (base) | Meta LLaMA 2 Community License | Yes - free under 700M MAU |
+| CLIP (vision) | MIT (OpenAI) | Yes - fully free |
+| Ollama (runtime) | MIT | Yes - fully free |
+| LoRA fine-tuning (PEFT) | Apache 2.0 | Yes - fully free |
 
 **No recurring costs. No API fees. No data leaves your servers.**
 
@@ -88,8 +88,8 @@ Vision encoder: openai/clip-vit-large-patch14-336
 Language model: meta-llama/Llama-2-7b-chat-hf
 Image input:    336x336 pixels (CLIP preprocessing)
 Parameters:     7B total (6.7B language + 0.3B vision adapter)
-Quantization:   Q4_0 (4-bit, via Ollama — 4.7GB on disk)
-Full precision: ~14GB (FP16) — needed for training
+Quantization:   Q4_0 (4-bit, via Ollama - 4.7GB on disk)
+Full precision: ~14GB (FP16) - needed for training
 ```
 
 ---
@@ -186,7 +186,7 @@ deformation, dust
 ```
 /usr/share/nginx/archive/uploads/condition_photos/     (condition photos)
 /usr/share/nginx/archive/uploads/r/                    (digital object masters)
-/mnt/nas/heratio/archive/                              (NAS — symlinked from uploads/r)
+/mnt/nas/heratio/archive/                              (NAS - symlinked from uploads/r)
 ```
 
 ---
@@ -249,7 +249,7 @@ training_args = {
 
     # Training hyperparameters
     "num_train_epochs": 3,           # 3-5 epochs for 500 images
-    "per_device_train_batch_size": 1, # RTX 3080 10GB — batch size 1 with gradient accumulation
+    "per_device_train_batch_size": 1, # RTX 3080 10GB - batch size 1 with gradient accumulation
     "gradient_accumulation_steps": 8, # Effective batch size = 8
     "learning_rate": 2e-5,
     "warmup_ratio": 0.03,
@@ -350,9 +350,9 @@ $this->model = $this->getSetting('condition_ai_model', 'condition-llava');
 
 | Phase | VRAM Usage | Notes |
 |-------|-----------|-------|
-| Inference (Q4_0) | 5.4GB | Current — llava:7b quantized |
-| Training (FP16 + LoRA) | ~9.5GB | Tight on 10GB — gradient checkpointing required |
-| Training (QLoRA 4-bit) | ~6GB | Safer option — uses bitsandbytes quantized base |
+| Inference (Q4_0) | 5.4GB | Current - llava:7b quantized |
+| Training (FP16 + LoRA) | ~9.5GB | Tight on 10GB - gradient checkpointing required |
+| Training (QLoRA 4-bit) | ~6GB | Safer option - uses bitsandbytes quantized base |
 
 **Recommendation:** Use QLoRA (4-bit quantized base + LoRA adapters) for training on the RTX 3080. This keeps VRAM under 7GB during training.
 
@@ -471,4 +471,4 @@ def evaluate(predictions_file, ground_truth_file):
 
 ---
 
-*Heratio Framework v2.8.2 — The Archive and Heritage Group (Pty) Ltd*
+*Heratio Framework v2.8.2 - The Archive and Heritage Group (Pty) Ltd*

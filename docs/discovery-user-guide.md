@@ -2,7 +2,7 @@
 
 ## Overview
 
-Discovery Search lets you search across your entire archive using natural language — plain English questions instead of exact keywords. It understands dates, place names, people, organizations, and automatically expands your search with synonyms and related terms.
+Discovery Search lets you search across your entire archive using natural language - plain English questions instead of exact keywords. It understands dates, place names, people, organizations, and automatically expands your search with synonyms and related terms.
 
 **Example:** Searching for *"ANC education policy 1960s"* will find records about ANC education policy from 1960–1969, even if the exact phrase doesn't appear in any single record.
 
@@ -35,12 +35,12 @@ https://your-site.com/discovery
 │  ┌─────────────────────────────────────────────────────────────────┐  │
 │  │ 📦 PSIS Collection                                    12 results │  │
 │  ├─────────────────────────────────────────────────────────────────┤  │
-│  │  Cape Town Harbour — Series · 1958–1972                         │  │
+│  │  Cape Town Harbour - Series · 1958–1972                         │  │
 │  │  Photographs of shipping and dock activities...                  │  │
 │  │  [Cape Town] [harbour] [shipping]                               │  │
 │  │  keyword · Cape Town                                            │  │
 │  ├─────────────────────────────────────────────────────────────────┤  │
-│  │  District Six Relocation — File · 1966                          │  │
+│  │  District Six Relocation - File · 1966                          │  │
 │  │  Documentation of forced removals in District Six area...       │  │
 │  │  [District Six] [relocation] [Group Areas Act]                  │  │
 │  │  keyword · District Six · sibling                               │  │
@@ -89,8 +89,8 @@ Discovery automatically detects dates in your query:
 
 Discovery identifies multi-word names and proper nouns:
 
-- **Quoted phrases**: `"District Six"` — searches as an exact phrase
-- **Capitalized names**: `Nelson Mandela`, `Group Areas Act` — detected as entity names automatically
+- **Quoted phrases**: `"District Six"` - searches as an exact phrase
+- **Capitalized names**: `Nelson Mandela`, `Group Areas Act` - detected as entity names automatically
 
 ### Synonym Expansion
 
@@ -123,8 +123,8 @@ Each result shows:
 |-------|---------|
 | `keyword` | Matched via full-text keyword search |
 | `Nelson Mandela` (green) | Matched via NER entity |
-| `sibling` | Related record — same parent as a direct match |
-| `child` | Related record — child of a matching collection/series |
+| `sibling` | Related record - same parent as a direct match |
+| `child` | Related record - child of a matching collection/series |
 
 ### Entity Tag Colours
 
@@ -140,14 +140,14 @@ Each result shows:
 
 Toggle between two display modes using the buttons in the top-right:
 
-- **Grouped** (default) — Results organized under their root fonds/collection, with a count badge. Collapse or expand each group.
-- **Flat** — All results in a single ranked list ordered by relevance score.
+- **Grouped** (default) - Results organized under their root fonds/collection, with a count badge. Collapse or expand each group.
+- **Flat** - All results in a single ranked list ordered by relevance score.
 
 ---
 
 ## Popular Searches
 
-When you first open Discovery (before searching), you'll see **Popular searches** — topics frequently searched by other users in the last 30 days. Click any topic to run that search instantly.
+When you first open Discovery (before searching), you'll see **Popular searches** - topics frequently searched by other users in the last 30 days. Click any topic to run that search instantly.
 
 ---
 
@@ -157,13 +157,13 @@ When you first open Discovery (before searching), you'll see **Popular searches*
 2. **Use quotes for exact phrases**: `"Group Areas Act"` ensures those words appear together
 3. **Include dates**: `photographs 1960s` narrows results to that decade
 4. **Use proper names**: Capitalized names like `Nelson Mandela` or `Cape Town` are detected as entities and matched against NER data
-5. **Try different angles**: If `photographs` finds nothing, try `pictures` or `images` — synonym expansion may help
+5. **Try different angles**: If `photographs` finds nothing, try `pictures` or `images` - synonym expansion may help
 
 ---
 
 ## Related Content (Sidebar)
 
-On individual record view pages, Discovery can show a **Related Content** sidebar — records that share the same NER entities (people, places, organizations) as the record you're viewing. This helps you explore related materials across different collections.
+On individual record view pages, Discovery can show a **Related Content** sidebar - records that share the same NER entities (people, places, organizations) as the record you're viewing. This helps you explore related materials across different collections.
 
 > **Note:** Related content requires the ahgAIPlugin to have run NER extraction on your records.
 
@@ -188,5 +188,5 @@ On individual record view pages, Discovery can show a **Related Content** sideba
 | No results but no errors | Run `php symfony search:populate` to rebuild the search index |
 | Entity tags never appear | Run `php symfony ai:ner-extract` to extract NER entities |
 | Synonyms not expanding | Populate the thesaurus in ahgSemanticSearchPlugin |
-| Search is slow | Results are cached for 1 hour — first search may be slower |
+| Search is slow | Results are cached for 1 hour - first search may be slower |
 | Popular searches empty | Needs at least 2 searches for the same query in the last 30 days |

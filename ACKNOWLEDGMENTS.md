@@ -6,7 +6,7 @@ debt explicitly.
 
 ---
 
-## AtoM (Access to Memory) — Artefactual Systems Inc. and the AtoM community
+## AtoM (Access to Memory) - Artefactual Systems Inc. and the AtoM community
 
 **https://www.accesstomemory.org/  ·  https://github.com/artefactual/atom**
 
@@ -17,13 +17,13 @@ on a different stack (Laravel 12 instead of Symfony 1) and ports many
 patterns directly. Specifically, Heratio incorporates work from AtoM in
 the following areas:
 
-- **Database schema** — the `*_i18n` translation tables, `slug`,
+- **Database schema** - the `*_i18n` translation tables, `slug`,
   `information_object`, `actor`, `repository`, `digital_object`,
   `event`, `relation`, MPTT `lft`/`rgt` hierarchy traversal, and 30+
   related core tables. Inherited as the source-of-truth for archival data.
-- **Description standards rendering** — ISAD(G), ISAAR(CPF), ISDIAH,
+- **Description standards rendering** - ISAD(G), ISAAR(CPF), ISDIAH,
   ISDF section structure and field labelling.
-- **UI string translations** — the bulk of `lang/*.json` translations
+- **UI string translations** - the bulk of `lang/*.json` translations
   (excluding South African languages, which are authored by The AHG)
   derive from XLIFF files at `apps/qubit/i18n/{lang}/messages.xml` in the
   AtoM source tree. **49 locales × thousands of strings imported** during
@@ -32,13 +32,13 @@ the following areas:
   These translations were contributed to AtoM by hundreds of community
   translators via Artefactual's Transifex / Weblate workflow. We are
   grateful to every one of them. The collective list is too long to
-  reproduce here — the canonical record is at
+  reproduce here - the canonical record is at
   https://www.transifex.com/artefactual/atom/
 
   **Per-locale contributor attributions** are preserved in the original
   XLIFF `<note>` elements; consult those for individual credit.
 
-- **Plugin patterns** — `ahgMuseumPlugin`, `ahgUiOverridesPlugin`, and
+- **Plugin patterns** - `ahgMuseumPlugin`, `ahgUiOverridesPlugin`, and
   several other plugins in `atom-ahg-plugins/` informed the structure of
   Heratio's `packages/ahg-museum`, `packages/ahg-translation`, and
   related modules. The ICA Records in Contexts (RiC) tooling on the
@@ -52,7 +52,7 @@ addition to The AHG's own contributions which are also AGPL.
 
 ---
 
-## International Council on Archives — Records in Contexts (RiC)
+## International Council on Archives - Records in Contexts (RiC)
 
 **https://www.ica.org/  ·  https://www.ica.org/standards/RiC**
 
@@ -74,7 +74,7 @@ Ltd** as part of Heratio's commitment to multilingual heritage
 preservation in southern Africa.
 
 Where a key also appears in AtoM's XLIFF data, the AHG-authored value
-takes precedence — this is recorded in `lang/_meta.json` with the
+takes precedence - this is recorded in `lang/_meta.json` with the
 `source: "ahg"` flag and is preserved across re-imports of AtoM XLIFF
 data via the `--mode=prefer-source` flag's hand-edit detection.
 
@@ -84,21 +84,21 @@ data via the `--mode=prefer-source` flag's hand-edit detection.
 
 Heratio bundles or depends on:
 
-- **Laravel** (Taylor Otwell + community) — application framework
-- **Bootstrap 5** + **Font Awesome** — UI framework + iconography
-- **OpenSeadragon** (CrossRef + contributors) — IIIF deep-zoom viewer
-- **Mirador** (Stanford Libraries + Harvard + JISC + other partners) —
+- **Laravel** (Taylor Otwell + community) - application framework
+- **Bootstrap 5** + **Font Awesome** - UI framework + iconography
+- **OpenSeadragon** (CrossRef + contributors) - IIIF deep-zoom viewer
+- **Mirador** (Stanford Libraries + Harvard + JISC + other partners) -
   IIIF presentation viewer
-- **Cantaloupe** (Alex Dolski + contributors) — IIIF Image Server
-- **D3.js** (Mike Bostock + community) — visualisation library
-- **Three.js** (Ricardo Cabello + community) — WebGL 3D rendering
-- **spatie/laravel-csp** (Spatie + contributors) — Content Security
+- **Cantaloupe** (Alex Dolski + contributors) - IIIF Image Server
+- **D3.js** (Mike Bostock + community) - visualisation library
+- **Three.js** (Ricardo Cabello + community) - WebGL 3D rendering
+- **spatie/laravel-csp** (Spatie + contributors) - Content Security
   Policy middleware
-- **Elasticsearch** (Elastic NV + contributors) — search index
-- **Ollama** (Ollama Inc. + community) — local LLM runtime for the AI
+- **Elasticsearch** (Elastic NV + contributors) - search index
+- **Ollama** (Ollama Inc. + community) - local LLM runtime for the AI
   pipeline
 - **OpenAI/llava/mistral** model weights (respective providers under
-  their published terms) — for the AI-services package
+  their published terms) - for the AI-services package
 
 Each is used under the terms of its own licence. See `composer.json`,
 `package.json`, and the relevant `vendor/` LICENCE files for details.
@@ -108,7 +108,7 @@ Each is used under the terms of its own licence. See `composer.json`,
 ## How to add a new acknowledgment
 
 If Heratio incorporates code, content, or data from a new upstream
-source — even a small snippet — add an entry here in the next commit
+source - even a small snippet - add an entry here in the next commit
 that lands the code, citing:
 
 1. The project name and primary URL

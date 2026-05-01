@@ -1,4 +1,4 @@
-# Heratio — Accession Management V2: User Manual
+# Heratio - Accession Management V2: User Manual
 
 **Version:** 2.0.0
 **Date:** February 2026

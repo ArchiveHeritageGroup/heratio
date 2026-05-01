@@ -1,4 +1,4 @@
-# Magic-number term IDs — refactor audit
+# Magic-number term IDs - refactor audit
 
 The Heratio codebase has many literal integers passed to `relation.type_id`,
 `status.type_id`, `event.type_id`, `note.type_id` and `actor.entity_type_id`
@@ -42,7 +42,7 @@ and were returning wrong/empty data. Verified against AtoM source code in
 | File | Bug → Fix |
 |---|---|
 | `AccessionService::getDonors` | was `relation.object_id=accession, type=167` → now `subject=accession, object=donor, type=RELATION_DONOR` |
-| `AccessionService::getCreators` | was `type=168` → now `type=RELATION_CREATION` (111). Per AtoM `addInformationObjectAction.class.php` accession creators ARE relation rows (subject=actor, object=accession, type=CREATION_ID=111) — same term ID as event creation, different context. |
+| `AccessionService::getCreators` | was `type=168` → now `type=RELATION_CREATION` (111). Per AtoM `addInformationObjectAction.class.php` accession creators ARE relation rows (subject=actor, object=accession, type=CREATION_ID=111) - same term ID as event creation, different context. |
 | `AccessionService::getInformationObjects` | was `type=174` (NOTE_LANGUAGE) → now `type=RELATION_ACCESSION` (167) per AtoM `addInformationObjectAction` |
 | `AccessionService::getPhysicalObjects` | was `subject=physical_object, type=179` (AIP_ARTWORK_COMPONENT) → now `object=accession, type=RELATION_HAS_PHYSICAL_OBJECT` (subject=physical_object stays the same) |
 | `AccessionService::getAccruals` / `getAccrualTo` | was `type=173` (RIGHT_BASIS_POLICY) → now `type=RELATION_ACCRUAL` (175) |
@@ -51,7 +51,7 @@ and were returning wrong/empty data. Verified against AtoM source code in
 
 ## Not yet touched (lower priority)
 
-Many other call sites still use literals — `note.type_id`, `term.taxonomy_id`,
+Many other call sites still use literals - `note.type_id`, `term.taxonomy_id`,
 event/notes/term flow controllers in `ahg-dacs-manage`, `ahg-ai-services`,
 `ahg-ric/src/Controllers/RicController.php`, `ahg-information-object-manage/src/Controllers/InformationObjectController.php`,
 etc. These can be migrated incrementally; each one needs the same audit step
@@ -60,5 +60,5 @@ constant).
 
 Taxonomy IDs (`taxonomy_id` columns: 35 subject, 42 place, 60 publication
 status, 78 occupation/genre, etc.) are a separate namespace and are not yet
-covered by `TermId` — that would warrant a sibling `AhgCore\Constants\TaxonomyId`
+covered by `TermId` - that would warrant a sibling `AhgCore\Constants\TaxonomyId`
 class.

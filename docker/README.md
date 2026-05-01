@@ -1,4 +1,4 @@
-# Heratio — Docker test stack
+# Heratio - Docker test stack
 
 A self-contained way to bring up Heratio for testing, on any host with
 Docker installed. Three services come up via Compose:
@@ -9,7 +9,7 @@ Docker installed. Three services come up via Compose:
 | `mysql`   | `mysql:8.0` | persistent MySQL 8, utf8mb4, native auth |
 | `elasticsearch` | `elasticsearch:8.13.4` | single-node, security off |
 
-Cantaloupe (IIIF) and Ollama (AI) are intentionally **not** included — those
+Cantaloupe (IIIF) and Ollama (AI) are intentionally **not** included - those
 are remote-only on production, and not needed to test the app itself.
 
 ## Quick start
@@ -17,7 +17,7 @@ are remote-only on production, and not needed to test the app itself.
 ```bash
 cd /usr/share/nginx/heratio
 cp docker/.env.docker.example docker/.env.docker
-# edit docker/.env.docker — set ADMIN_PASSWORD at minimum
+# edit docker/.env.docker - set ADMIN_PASSWORD at minimum
 
 docker compose -f docker/docker-compose.yml --env-file docker/.env.docker up -d --build
 docker compose -f docker/docker-compose.yml logs -f heratio
@@ -32,7 +32,7 @@ First boot runs `docker/init.sh` which:
 6. Drops + recreates the `heratio_*` Elasticsearch indices
 
 A marker at `storage/.heratio-installed` makes subsequent boots skip the
-schema/seed work — they only re-run pass-2 (idempotent) and verify ES is up.
+schema/seed work - they only re-run pass-2 (idempotent) and verify ES is up.
 
 Once healthy, point your browser at `http://<host>:8088/` and log in with the
 admin credentials from `.env.docker`.
@@ -43,7 +43,7 @@ admin credentials from `.env.docker`.
 docker compose -f docker/docker-compose.yml down -v
 ```
 
-`-v` drops the volumes — MySQL, ES, uploads, backups all wiped. Next `up`
+`-v` drops the volumes - MySQL, ES, uploads, backups all wiped. Next `up`
 starts from scratch.
 
 ## Inspect a running container
@@ -74,9 +74,9 @@ See `bin/heratio-vm.sh` for the cloud-init / virt-install plumbing.
 These stay external on purpose:
 
 - **Cantaloupe** (IIIF deep-zoom for TIFF/JP2). Heratio's `ahg-iiif-viewer.js`
-  auto-detects TIFF/JP2 and routes to a Cantaloupe instance — point it via
+  auto-detects TIFF/JP2 and routes to a Cantaloupe instance - point it via
   the `iiif_base_url` setting in the Dropdown Manager.
-- **Ollama / vLLM** (AI services — HTR, NER, condition scan). Per project
+- **Ollama / vLLM** (AI services - HTR, NER, condition scan). Per project
   policy, AI is remote-only. Set `voice_local_llm_url` to your GPU host.
 - **Cron / queue worker.** Add a `queue-worker` service to compose if you
   need background jobs. The supervisor config has a stub.
@@ -91,4 +91,4 @@ These stay external on purpose:
 - ES 8 requires `vm.max_map_count >= 262144` on the host kernel. If ES
   refuses to start, run: `sudo sysctl -w vm.max_map_count=262144` (and add
   to `/etc/sysctl.conf` for persistence).
-- First boot takes a while — ~3 min for the schema + seed pass.
+- First boot takes a while - ~3 min for the schema + seed pass.

@@ -1,4 +1,4 @@
-# Heratio — Project Briefing
+# Heratio - Project Briefing
 
 **Version:** Framework 2.11.7 / Plugins 3.21.17
 **Date:** 16 March 2026
@@ -9,9 +9,9 @@
 
 ## What Is Heratio?
 
-Heratio is a comprehensive modernization of **Access to Memory (AtoM) 2.10** — the world's leading open-source archival management system used by thousands of institutions globally. Heratio transforms AtoM from a single-purpose archival tool into an enterprise-grade **GLAM platform** (Galleries, Libraries, Archives, Museums) and **Digital Asset Management** system.
+Heratio is a comprehensive modernization of **Access to Memory (AtoM) 2.10** - the world's leading open-source archival management system used by thousands of institutions globally. Heratio transforms AtoM from a single-purpose archival tool into an enterprise-grade **GLAM platform** (Galleries, Libraries, Archives, Museums) and **Digital Asset Management** system.
 
-It adds approximately **300% more functionality** through 80 modular plugins — without modifying a single core AtoM file. All customizations sit in two layers on top of base AtoM, maintaining full backward compatibility and upgrade paths.
+It adds approximately **300% more functionality** through 80 modular plugins - without modifying a single core AtoM file. All customizations sit in two layers on top of base AtoM, maintaining full backward compatibility and upgrade paths.
 
 ### Target Market
 
@@ -110,7 +110,7 @@ GLAM and DAM institutions internationally:
 | 112 | 192.168.0.112 | Web/App (AtoM instances) | None |
 | 115 | 192.168.0.115 | AI/GPU Workhorse | NVIDIA RTX 3080 10GB |
 | 92 | 192.168.0.92 | Future inference | NVIDIA RTX 3060 12GB |
-| TrueNAS | /mnt/nas/heratio/ | Digital object storage | — |
+| TrueNAS | /mnt/nas/heratio/ | Digital object storage | - |
 
 ---
 
@@ -293,15 +293,15 @@ GLAM and DAM institutions internationally:
 - Enable/disable toggle, continuous listening, hover-read TTS
 - Right-click type input for manual command entry
 
-### AI Services (Local — No Cloud Required)
-- **NER** — Named entity extraction (spaCy, server 115)
-- **Translation** — Offline via Argos Translate (10 languages)
-- **Summarization** — BART-based seq2seq (server 115)
-- **Spellcheck** — aspell CLI
-- **Image Description** — LLaVA:7b via Ollama (server 115 GPU, 0.2s/image)
-- **Condition Assessment** — AI damage detection with Spectrum 5.1 vocabulary (15 damage types)
-- **LLM Suggestions** — Description generation via Ollama/Anthropic Claude
-- **Face Detection** — OpenCV local, AWS/Azure cloud options
+### AI Services (Local - No Cloud Required)
+- **NER** - Named entity extraction (spaCy, server 115)
+- **Translation** - Offline via Argos Translate (10 languages)
+- **Summarization** - BART-based seq2seq (server 115)
+- **Spellcheck** - aspell CLI
+- **Image Description** - LLaVA:7b via Ollama (server 115 GPU, 0.2s/image)
+- **Condition Assessment** - AI damage detection with Spectrum 5.1 vocabulary (15 damage types)
+- **LLM Suggestions** - Description generation via Ollama/Anthropic Claude
+- **Face Detection** - OpenCV local, AWS/Azure cloud options
 
 ### Smart Media Handling
 - PDF detection with OCR transcript reading
@@ -404,10 +404,10 @@ GLAM and DAM institutions internationally:
 |----------|-----|----------|---------|
 | PSIS | https://psis.theahg.co.za | archive | Primary development/demo |
 | ANC | https://atom.theahg.co.za | atom | African National Congress archives |
-| KM | https://km.theahg.co.za | — | AI Knowledge Management Q&A |
-| Registry | https://registry.theahg.co.za | — | Plugin registry site |
-| Docs | https://docs.theahg.co.za | — | MkDocs documentation |
-| AI Gateway | https://ai.theahg.co.za | — | AI service admin |
+| KM | https://km.theahg.co.za | - | AI Knowledge Management Q&A |
+| Registry | https://registry.theahg.co.za | - | Plugin registry site |
+| Docs | https://docs.theahg.co.za | - | MkDocs documentation |
+| AI Gateway | https://ai.theahg.co.za | - | AI service admin |
 
 ---
 
@@ -421,5 +421,5 @@ GLAM and DAM institutions internationally:
 
 ---
 
-*The Archive and Heritage Group (Pty) Ltd — Johan Pieterse*
+*The Archive and Heritage Group (Pty) Ltd - Johan Pieterse*
 *Heratio Framework v2.11.7 / Plugins v3.21.17*

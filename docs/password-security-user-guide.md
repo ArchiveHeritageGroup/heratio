@@ -1,4 +1,4 @@
-# Password & Login Security — User Guide
+# Password & Login Security - User Guide
 
 **Framework:** Heratio >= 2.8.0
 **Services:** PasswordPolicyService, LoginSecurityService, AuthMiddleware
@@ -127,7 +127,7 @@ The security features require three tables (created during framework installatio
 | `login_attempt` | Records login attempts (email, IP, success/failure, timestamp) |
 | `user_totp_secret` | Stores TOTP secrets for two-factor authentication (future) |
 
-These tables are created automatically by the framework installer. If they are missing, the security features gracefully degrade — login and password changes work normally without enforcement.
+These tables are created automatically by the framework installer. If they are missing, the security features gracefully degrade - login and password changes work normally without enforcement.
 
 ---
 

@@ -1,4 +1,4 @@
-# X.7.B — PSIS install.sql Work List
+# X.7.B - PSIS install.sql Work List
 
 Generated 2026-04-12. Drop-in CREATE TABLE DDL for each Cat-B table that Heratio code references but no PSIS plugin provisions.
 
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `ahg_ai_prompt_template` (
 **Add to:** `atom-ahg-plugins/ahgAiConditionPlugin/database/install.sql`
 
 ```sql
--- ahg_ai_condition_client — API clients permitted to call the AI condition service.
+-- ahg_ai_condition_client - API clients permitted to call the AI condition service.
 -- Columns derived from `ai-condition.blade.php`:
 --   name, organization, tier, api_key, monthly_limit, scans_used, is_active, can_contribute_training
 CREATE TABLE IF NOT EXISTS `ahg_ai_condition_client` (
@@ -543,7 +543,7 @@ CREATE TABLE IF NOT EXISTS `heritage_standard` (
 **Add to:** `atom-ahg-plugins/ahgIntegrityPlugin/database/install.sql`
 
 ```sql
--- integrity_alert — integrity-check alerts (critical / warning / info)
+-- integrity_alert - integrity-check alerts (critical / warning / info)
 -- Columns derived from `integrity/alerts.blade.php`:
 --   severity, created_at, message, object_id, status
 CREATE TABLE IF NOT EXISTS `integrity_alert` (
@@ -564,11 +564,11 @@ CREATE TABLE IF NOT EXISTS `integrity_alert` (
   KEY `idx_object_id` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- integrity_disposition: REMOVED — was a typo in IntegrityController, now
+-- integrity_disposition: REMOVED - was a typo in IntegrityController, now
 -- repointed to the canonical `integrity_disposition_queue` which already
 -- exists. No new table needed.
 
--- integrity_policy — configurable integrity check policies (daily/weekly/monthly)
+-- integrity_policy - configurable integrity check policies (daily/weekly/monthly)
 -- Columns derived from `integrity/policy-edit.blade.php` form:
 --   name, description, frequency, is_active
 CREATE TABLE IF NOT EXISTS `integrity_policy` (
@@ -681,7 +681,7 @@ CREATE TABLE IF NOT EXISTS `museum_object` (
 **Add to:** `atom-ahg-plugins/ahgPortableExportPlugin/database/install.sql`
 
 ```sql
--- portable_export_share_token — time-limited share tokens for portable exports
+-- portable_export_share_token - time-limited share tokens for portable exports
 -- Columns derived from `PortableExportController.php:251` insert:
 --   export_id, token, expires_at, max_downloads, download_count
 CREATE TABLE IF NOT EXISTS `portable_export_share_token` (
@@ -871,7 +871,7 @@ CREATE TABLE IF NOT EXISTS `ahg_report_snapshot` (
   KEY `idx_report_id` (`report_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ahg_report_template — saved report templates (report-builder feature)
+-- ahg_report_template - saved report templates (report-builder feature)
 -- Columns derived from `ReportBuilderController::apiTemplateSave` insert:
 --   name, description, template_data (JSON), category, created_by
 CREATE TABLE IF NOT EXISTS `ahg_report_template` (

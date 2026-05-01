@@ -1,4 +1,4 @@
-# Heratio — Security Feature Overview
+# Heratio - Security Feature Overview
 
 **Version:** 2.8.2
 **Date:** March 2026
@@ -55,11 +55,11 @@ Heratio provides enterprise-grade security for GLAM and DAM institutions, aligne
 ### Security Headers
 
 All responses include security headers:
-- **HSTS** — forces HTTPS connections
-- **X-Frame-Options** — prevents clickjacking
-- **X-Content-Type-Options** — prevents MIME sniffing
-- **Permissions-Policy** — restricts browser features (camera, microphone, geolocation)
-- **Referrer-Policy** — controls referrer information leakage
+- **HSTS** - forces HTTPS connections
+- **X-Frame-Options** - prevents clickjacking
+- **X-Content-Type-Options** - prevents MIME sniffing
+- **Permissions-Policy** - restricts browser features (camera, microphone, geolocation)
+- **Referrer-Policy** - controls referrer information leakage
 
 ### SSRF Protection
 

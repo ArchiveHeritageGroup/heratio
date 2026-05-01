@@ -6,12 +6,12 @@ A plain-language guide to understanding the online marketplace built into your H
 
 ## What Is the Marketplace?
 
-Think of it as an **online art gallery + auction house + shop**, all built into your Heratio archival system. Instead of just cataloguing and preserving items, your institution can now **sell** them too — or let independent artists and collectors sell through your platform.
+Think of it as an **online art gallery + auction house + shop**, all built into your Heratio archival system. Instead of just cataloguing and preserving items, your institution can now **sell** them too - or let independent artists and collectors sell through your platform.
 
 **Three ways to sell:**
-- **Fixed Price** — Set a price, buyer pays it. Simple as a shop.
-- **Auction** — Buyers compete by bidding. Highest bid wins. Like Sotheby's, but online.
-- **Make an Offer** — Buyer proposes a price. Seller can accept, reject, or counter. Like haggling at a market.
+- **Fixed Price** - Set a price, buyer pays it. Simple as a shop.
+- **Auction** - Buyers compete by bidding. Highest bid wins. Like Sotheby's, but online.
+- **Make an Offer** - Buyer proposes a price. Seller can accept, reject, or counter. Like haggling at a market.
 
 **Works for all GLAM sectors:**
 
@@ -77,7 +77,7 @@ You can browse by sector (Gallery, Museum, etc.), use filters to narrow down res
 
 ### 2. Buying at a Fixed Price
 
-This is the simplest way — like shopping online.
+This is the simplest way - like shopping online.
 
 ```
   See an item you want
@@ -122,7 +122,7 @@ Like a traditional auction, but online with some clever features.
          │
          ├── Optional: Set a "maximum bid"
          │   (The system will automatically bid for you
-         │    up to your maximum — called "proxy bidding")
+         │    up to your maximum - called "proxy bidding")
          │
          ▼
   Wait for the auction to end
@@ -142,10 +142,10 @@ Like a traditional auction, but online with some clever features.
 
 **Key auction concepts in plain language:**
 
-- **Reserve Price** — A secret minimum the seller will accept. If no bid reaches it, the item doesn't sell. Think of it as a safety net for the seller.
-- **Proxy Bidding** — You tell the system "I'll pay up to R5,000" and it bids on your behalf, only going as high as needed to stay in the lead. You might win for much less than your maximum.
-- **Anti-Sniping** — If someone places a bid in the last 5 minutes, the clock adds more time. This prevents people from winning by bidding at the very last second.
-- **Buy Now** — Some auctions let you skip the bidding and buy immediately at a set price.
+- **Reserve Price** - A secret minimum the seller will accept. If no bid reaches it, the item doesn't sell. Think of it as a safety net for the seller.
+- **Proxy Bidding** - You tell the system "I'll pay up to R5,000" and it bids on your behalf, only going as high as needed to stay in the lead. You might win for much less than your maximum.
+- **Anti-Sniping** - If someone places a bid in the last 5 minutes, the clock adds more time. This prevents people from winning by bidding at the very last second.
+- **Buy Now** - Some auctions let you skip the bidding and buy immediately at a set price.
 
 ### 4. Making an Offer
 
@@ -187,7 +187,7 @@ For "Price on Request" items, or if you just have a question:
 - Click "Send Enquiry" on any listing
 - Write your question
 - The seller receives it and can reply directly
-- No commitment — it's just a conversation
+- No commitment - it's just a conversation
 
 ### 6. Your Account Pages
 
@@ -196,9 +196,9 @@ Once you've been active on the marketplace, you have these personal pages:
 | Page | What It Shows |
 |------|---------------|
 | **My Purchases** | Everything you've bought, with shipping tracking and receipt confirmation |
-| **My Bids** | Your active auction bids — are you winning or outbid? |
-| **My Offers** | Offers you've sent — pending, accepted, countered, or expired |
-| **Following** | Sellers you follow — get notified when they list new items |
+| **My Bids** | Your active auction bids - are you winning or outbid? |
+| **My Offers** | Offers you've sent - pending, accepted, countered, or expired |
+| **Following** | Sellers you follow - get notified when they list new items |
 | **Reviews** | Rate sellers 1-5 stars after a completed purchase |
 
 ---
@@ -256,9 +256,9 @@ Once you've been active on the marketplace, you have these personal pages:
   │  - Provenance (ownership history)                        │
   ├──────────────────────────────────────────────────────────┤
   │  STEP 3: Choose How to Sell                              │
-  │  ○ Fixed Price — set your price                          │
-  │  ○ Auction — set starting bid, reserve, dates            │
-  │  ○ Offer Only — let buyers propose prices                │
+  │  ○ Fixed Price - set your price                          │
+  │  ○ Auction - set starting bid, reserve, dates            │
+  │  ○ Offer Only - let buyers propose prices                │
   ├──────────────────────────────────────────────────────────┤
   │  STEP 4: Upload Photos                                   │
   │  - Up to 20 images per listing                           │
@@ -376,8 +376,8 @@ Your dashboard shows you everything at a glance:
 | Section | What You See |
 |---------|-------------|
 | **Dashboard** | Sales stats, revenue, pending offers, recent orders |
-| **Listings** | All your items — draft, active, sold, expired |
-| **Offers** | Incoming offers from buyers — accept, reject, or counter |
+| **Listings** | All your items - draft, active, sold, expired |
+| **Offers** | Incoming offers from buyers - accept, reject, or counter |
 | **Sales** | Completed transactions with shipping and payment status |
 | **Payouts** | Money owed to you and payment history |
 | **Reviews** | What buyers have said about you |
@@ -410,16 +410,16 @@ Your dashboard shows you everything at a glance:
 
 ### Daily Tasks
 
-1. **Check for pending listings** — Review new listings, approve or reject them
-2. **Verify new sellers** — Check their identity documents and approve
-3. **Process payouts** — Send money to sellers for completed sales
+1. **Check for pending listings** - Review new listings, approve or reject them
+2. **Verify new sellers** - Check their identity documents and approve
+3. **Process payouts** - Send money to sellers for completed sales
 
 ### Monthly Tasks
 
-1. **Review revenue reports** — Total sales, commission earned, top sellers
-2. **Update exchange rates** — Keep currency conversions current
-3. **Manage categories** — Add or reorganise item categories per sector
-4. **Check flagged reviews** — Handle any disputed or inappropriate reviews
+1. **Review revenue reports** - Total sales, commission earned, top sellers
+2. **Update exchange rates** - Keep currency conversions current
+3. **Manage categories** - Add or reorganise item categories per sector
+4. **Check flagged reviews** - Handle any disputed or inappropriate reviews
 
 ### Settings You Control
 
@@ -462,12 +462,12 @@ Verified sellers get a checkmark badge next to their name, so buyers know they'r
 
 ## Curated Collections
 
-Sellers can group their listings into themed collections — like creating a virtual exhibition:
+Sellers can group their listings into themed collections - like creating a virtual exhibition:
 
-- "Abstract Landscapes" — a gallery's themed showcase
-- "19th Century Photographs" — an archive's curated selection
-- "Holiday Gift Ideas" — a seasonal promotion
-- "New Acquisitions" — fresh items just listed
+- "Abstract Landscapes" - a gallery's themed showcase
+- "19th Century Photographs" - an archive's curated selection
+- "Holiday Gift Ideas" - a seasonal promotion
+- "New Acquisitions" - fresh items just listed
 
 Collections can be featured on the marketplace homepage by administrators.
 

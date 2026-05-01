@@ -1,4 +1,4 @@
-# Phase 4.3 cutover runbook — Heratio → openric-service
+# Phase 4.3 cutover runbook - Heratio → openric-service
 
 > **Status:** ✅ **EXECUTED 2026-04-18.** Heratio is live against `https://ric.theahg.co.za/api/ric/v1`, `ric:verify-split` 15/15 passing, admin pages smoke-tested green. This doc stays as the reference playbook; step-by-step annotations below mark what landed.
 
@@ -57,14 +57,14 @@ curl -sI https://ric.theahg.co.za/api/ric/v1/health
 
 ## 4. Mint the service API key  (~2 min)
 
-Pick a user ID to own the key — any admin is fine:
+Pick a user ID to own the key - any admin is fine:
 
 ```bash
 mysql heratio -sNe "SELECT id,username FROM user WHERE username='johanpiet'"
 # e.g. 900148
 ```
 
-Run the artisan command (prints the raw key once — save it now):
+Run the artisan command (prints the raw key once - save it now):
 
 ```bash
 cd /usr/share/nginx/openric-service
@@ -115,14 +115,14 @@ Any FAIL here = stop; don't let users hit broken pages.
 
 Log in to `https://heratio.theahg.co.za` as admin, then visit each:
 
-- `/ric-capture` — tiles show correct counts, search works
-- `/admin/ric/entities/places/create` — create a test Place, submit, should redirect to show page and be visible at `https://ric.theahg.co.za/api/ric/v1/places/<slug>`
-- Open any IO show page, look at the "RiC Context" panel — tabs load, relations render
-- Hover/click interactions on the graph viewer at `https://viewer.openric.org` pointing at `https://ric.theahg.co.za/api/ric/v1` — should be identical to before
+- `/ric-capture` - tiles show correct counts, search works
+- `/admin/ric/entities/places/create` - create a test Place, submit, should redirect to show page and be visible at `https://ric.theahg.co.za/api/ric/v1/places/<slug>`
+- Open any IO show page, look at the "RiC Context" panel - tabs load, relations render
+- Hover/click interactions on the graph viewer at `https://viewer.openric.org` pointing at `https://ric.theahg.co.za/api/ric/v1` - should be identical to before
 
 ## 8. Monitor  (~30 min observational)
 
-Watch for `[callRicApi]` warnings in Heratio's logs — these indicate fallback to in-process:
+Watch for `[callRicApi]` warnings in Heratio's logs - these indicate fallback to in-process:
 
 ```bash
 sudo tail -f /usr/share/nginx/heratio/storage/logs/laravel-$(date +%Y-%m-%d).log | grep -i callRicApi
@@ -151,14 +151,14 @@ Heratio reverts to in-process RiC. The `openric-service` on `ric.theahg.co.za` c
 | 401 on every write | Service key not minted, or wrong key in `.env` | Re-mint; re-paste |
 | 403 on every write | Key missing `write` scope | `UPDATE ahg_api_key SET scopes='["read","write","delete"]' WHERE id=<row>` |
 | `[callRicApi]` warnings flood logs | DNS / certificate / service down | Verify curl from Heratio host → ric.theahg.co.za |
-| Embedded panels say "Loading…" forever | Blade JS fetching old `/api/ric/v1` (relative) — browser cached HTML | Hard-refresh + `php artisan view:clear` |
+| Embedded panels say "Loading…" forever | Blade JS fetching old `/api/ric/v1` (relative) - browser cached HTML | Hard-refresh + `php artisan view:clear` |
 | CORS error in browser console | Missing `api.cors` middleware on service | Confirm `/api/ric/v1` route group in service's `routes/api.php` includes `api.cors` |
 
 ---
 
 ## Done
 
-When all 15 `ric:verify-split` tests pass, zero `[callRicApi]` warnings for 24 h, and no support issues raised — the split is live. Phase 4.4 (collapse) can begin whenever you're ready.
+When all 15 `ric:verify-split` tests pass, zero `[callRicApi]` warnings for 24 h, and no support issues raised - the split is live. Phase 4.4 (collapse) can begin whenever you're ready.
 
 ---
 
@@ -166,13 +166,13 @@ When all 15 `ric:verify-split` tests pass, zero `[callRicApi]` warnings for 24 h
 
 What actually happened, in the order it happened, for the record:
 
-- **DNS** — `ric.theahg.co.za` was already a CNAME to `theahg.ddns.net` from earlier infrastructure; no DNS work needed.
-- **nginx** — an existing `ric.theahg.co.za.conf` vhost was already provisioning a `/app` slot for a Laravel app (the previous OpenRiC monorepo had been consolidated into Heratio; the slot was left empty). Rather than a fresh vhost, the scaffolded service was slotted in under `/usr/share/nginx/OpenRiC/public` and the vhost was rewritten to drop the dead `/app` prefix. `ric.theahg.co.za/api/ric/v1/*` became the canonical URL.
-- **TLS** — reused the existing `/etc/letsencrypt/live/theahg.co.za/` certificate (already covers `ric.theahg.co.za` via SAN). No certbot run needed.
-- **Service key mint** — `php artisan ric:mint-service-key --owner=900148 --name="heratio → openric-service"` — key copied into `/usr/share/nginx/heratio/.env` as `RIC_SERVICE_API_KEY=…`.
-- **Config gotcha** — Heratio already had a `config/ric.php` file (Fuseki / Qdrant / Elasticsearch settings). The Phase 4.3 keys (`api_url`, `service_key`, `http_timeout`) were merged in rather than replacing. First `verify-split` reported `api_url=(null)` and mode `in-process` because the expected keys weren't yet in the config. Fixed by editing the existing file, not replacing.
-- **Smoke test** — `ric:verify-split` returned **15 of 15 PASS**, including the POST/PATCH/DELETE cycle against a throwaway Place.
-- **Browser smoke test** — `/ric-capture`, admin entity create/show/edit/browse pages, IO show-page RiC panels — all rendered and interacted correctly through the external service.
+- **DNS** - `ric.theahg.co.za` was already a CNAME to `theahg.ddns.net` from earlier infrastructure; no DNS work needed.
+- **nginx** - an existing `ric.theahg.co.za.conf` vhost was already provisioning a `/app` slot for a Laravel app (the previous OpenRiC monorepo had been consolidated into Heratio; the slot was left empty). Rather than a fresh vhost, the scaffolded service was slotted in under `/usr/share/nginx/OpenRiC/public` and the vhost was rewritten to drop the dead `/app` prefix. `ric.theahg.co.za/api/ric/v1/*` became the canonical URL.
+- **TLS** - reused the existing `/etc/letsencrypt/live/theahg.co.za/` certificate (already covers `ric.theahg.co.za` via SAN). No certbot run needed.
+- **Service key mint** - `php artisan ric:mint-service-key --owner=900148 --name="heratio → openric-service"` - key copied into `/usr/share/nginx/heratio/.env` as `RIC_SERVICE_API_KEY=…`.
+- **Config gotcha** - Heratio already had a `config/ric.php` file (Fuseki / Qdrant / Elasticsearch settings). The Phase 4.3 keys (`api_url`, `service_key`, `http_timeout`) were merged in rather than replacing. First `verify-split` reported `api_url=(null)` and mode `in-process` because the expected keys weren't yet in the config. Fixed by editing the existing file, not replacing.
+- **Smoke test** - `ric:verify-split` returned **15 of 15 PASS**, including the POST/PATCH/DELETE cycle against a throwaway Place.
+- **Browser smoke test** - `/ric-capture`, admin entity create/show/edit/browse pages, IO show-page RiC panels - all rendered and interacted correctly through the external service.
 
 Phase 4.4 (collapse) began immediately after: `routes/api.php` load gated on `RIC_API_URL`, Blade JS routed through `window.RIC_API_BASE`, `/ric-capture` 302 → `capture.openric.org`. See `ric-split-collapse-plan.md`.
 

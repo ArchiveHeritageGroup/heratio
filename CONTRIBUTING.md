@@ -1,6 +1,6 @@
 # Contributing to Heratio
 
-Thank you for your interest in contributing to **Heratio** — the operational GLAM, archival, DAM, and records management platform with RiC as a first-class capability.
+Thank you for your interest in contributing to **Heratio** - the operational GLAM, archival, DAM, and records management platform with RiC as a first-class capability.
 
 This document describes the conventions a contributor needs to follow to land a PR. It is deliberately concrete: it documents how the project actually works today, not how a generic Laravel project might.
 
@@ -62,7 +62,7 @@ The `.env` keys you most often need to set:
 
   `./bin/release` updates `version.json`, tags, pushes, and creates a GitHub release. Do **not** edit `version.json` by hand.
 
-- `bin/release` and `version.json` are not modified by ad-hoc edits — only by the release script itself.
+- `bin/release` and `version.json` are not modified by ad-hoc edits - only by the release script itself.
 
 ---
 
@@ -74,7 +74,7 @@ Every new PHP file (and every non-trivial new JS/Blade/CSS file) gets the AGPL h
 
 ### Database
 
-- Heratio's database is `heratio`. The legacy AtoM database (`archive`) is read-only reference material for migration work — never write to it.
+- Heratio's database is `heratio`. The legacy AtoM database (`archive`) is read-only reference material for migration work - never write to it.
 - AtoM/Qubit base tables (`information_object`, `actor`, `object`, …) are read-only. **No `ALTER`.** New columns and indices live on `ahg_*` sidecar tables. See [`docs/adr/0001-sidecar-pattern.md`](docs/adr/) for the patterns A/B/C and when each applies.
 - Never use MySQL `ENUM` columns. All enumerated values come from `ahg_dropdown` via the Dropdown Manager (`/admin/dropdowns`). Use `VARCHAR(N)` and resolve labels at render time.
 - The DB tables are the source of truth. Run `DESCRIBE table_name` before coding against a column.
@@ -83,12 +83,12 @@ Every new PHP file (and every non-trivial new JS/Blade/CSS file) gets the AGPL h
 ### Multilingual
 
 - All user-facing strings are wrapped in `__('…')` and resolved against `lang/*.json`.
-- DB queries against `*_i18n` tables use the `WithCultureFallback` trait (or its inline equivalent: `LEFT JOIN` current culture, `LEFT JOIN` fallback culture, `COALESCE` the result). **Never hardcode `'en'` as a culture filter.** Use `app()->getLocale()` for current culture and `config('app.fallback_locale', 'en')` for fallback — `'en'` is allowed only as the second argument to that `config()` call.
+- DB queries against `*_i18n` tables use the `WithCultureFallback` trait (or its inline equivalent: `LEFT JOIN` current culture, `LEFT JOIN` fallback culture, `COALESCE` the result). **Never hardcode `'en'` as a culture filter.** Use `app()->getLocale()` for current culture and `config('app.fallback_locale', 'en')` for fallback - `'en'` is allowed only as the second argument to that `config()` call.
 - Controlled vocabularies (ICIP, RiC-O, …) live in `data/vocabularies/*.ttl` and are resolved through `VocabularyResolverService` against the Fuseki store with a MySQL cache.
 
 ### Controllers & services
 
-- Every controller method delegates DB work to an injected `Service` class. Don't grow fat controllers — that's a code-review blocker.
+- Every controller method delegates DB work to an injected `Service` class. Don't grow fat controllers - that's a code-review blocker.
 - Browse pages extend `AhgCore\Services\BrowseService`. Subclasses override `getTable()`, `getI18nTable()`, `getI18nNameColumn()`.
 - The `/{slug}` catch-all in `ahg-information-object-manage` has a regex exclusion list. **When you add a new top-level route prefix, add it to that exclusion list** or your URL will silently route into the IO show page.
 
@@ -96,12 +96,12 @@ Every new PHP file (and every non-trivial new JS/Blade/CSS file) gets the AGPL h
 
 - Render real data from a service. Static HTML in a Blade is a smell.
 - Use the central theme (`ahg-theme-b5`) and its colour tokens. No inline styles unless they're nonced (`csp_nonce()`).
-- Inline `<script>` and `<style>` must carry the CSP nonce — the `InjectCspNonces` middleware handles this for most cases, but check the response headers if you see CSP violations.
-- The clipboard is owned by `ahgThemeB5Plugin.bundle.js`. Don't load standalone `display-mode.js` or `voiceCommands.js` — they're already in the bundle and double-loading triggers `Identifier already declared` errors that take down all JS on the page.
+- Inline `<script>` and `<style>` must carry the CSP nonce - the `InjectCspNonces` middleware handles this for most cases, but check the response headers if you see CSP violations.
+- The clipboard is owned by `ahgThemeB5Plugin.bundle.js`. Don't load standalone `display-mode.js` or `voiceCommands.js` - they're already in the bundle and double-loading triggers `Identifier already declared` errors that take down all JS on the page.
 
 ### Migration (porting from AtoM)
 
-If you're porting a feature from `/usr/share/nginx/archive`, copy the **complete** behaviour across in one pass — every field, every conditional. Compare AtoM source against the Heratio target field-by-field; if AtoM has it, Heratio gets it. The answer to "should I also do X?" is always yes.
+If you're porting a feature from `/usr/share/nginx/archive`, copy the **complete** behaviour across in one pass - every field, every conditional. Compare AtoM source against the Heratio target field-by-field; if AtoM has it, Heratio gets it. The answer to "should I also do X?" is always yes.
 
 ### Branding
 
@@ -120,7 +120,7 @@ find app packages -name "*.php" -not -path '*/vendor/*' -not -path '*/worktree/*
 php artisan test
 ```
 
-CI runs on every push and PR (see `.github/workflows/`). A red CI must be fixed, not bypassed — never push with `--no-verify` or commit hook-skipping flags.
+CI runs on every push and PR (see `.github/workflows/`). A red CI must be fixed, not bypassed - never push with `--no-verify` or commit hook-skipping flags.
 
 ---
 
@@ -128,11 +128,11 @@ CI runs on every push and PR (see `.github/workflows/`). A red CI must be fixed,
 
 1. Fork or branch from `main`.
 2. Run `php artisan test` and the syntax check locally.
-3. Open a PR. Describe the change in terms of *what behaviour is observable* before vs after, not *which files changed* — the diff already shows that.
+3. Open a PR. Describe the change in terms of *what behaviour is observable* before vs after, not *which files changed* - the diff already shows that.
 4. Reference any relevant issue (`Closes #42`) and any ADR you touched.
 5. A maintainer reviews. On merge, they cut a release with `./bin/release`.
 
-For larger architectural changes — new top-level packages, schema rework, anything that crosses the AtoM-base / `ahg_*` sidecar boundary — open an ADR in `docs/adr/` first and link it from the PR.
+For larger architectural changes - new top-level packages, schema rework, anything that crosses the AtoM-base / `ahg_*` sidecar boundary - open an ADR in `docs/adr/` first and link it from the PR.
 
 ---
 
@@ -145,7 +145,7 @@ For larger architectural changes — new top-level packages, schema rework, anyt
 
 ## Code of conduct
 
-Be kind, be specific, and assume the contributor on the other side of the review wants the project to succeed as much as you do. Disagreement about technical direction is welcome — disagreement framed as a personal attack is not.
+Be kind, be specific, and assume the contributor on the other side of the review wants the project to succeed as much as you do. Disagreement about technical direction is welcome - disagreement framed as a personal attack is not.
 
 ---
 

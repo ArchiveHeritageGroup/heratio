@@ -62,7 +62,7 @@ Generated: 2026-04-11
 
 | # | Tile | Source | Wired | Notes |
 |---|---|---|---|---|
-| 1 | ~~Authority~~ | ~~AHG group~~ | — | **BUG: fixed** — duplicate removed (added to skip list) |
+| 1 | ~~Authority~~ | ~~AHG group~~ | - | **BUG: fixed** - duplicate removed (added to skip list) |
 | 2 | Compliance | AHG group | ✓ POST via `buildGroupSettings()` | Regulatory compliance settings |
 | 3 | Data Protection | AHG group | ✓ POST with 7 keys | POPIA / GDPR data handling |
 | 4 | Default page elements | AtoM scope (promoted) | ✓ POST saves to `setting` table | Toggle logo, title, description, etc. |
@@ -267,17 +267,17 @@ Generated: 2026-04-11
 
 ### Row 10: Cron Jobs
 
-AtoM page is a static reference listing CLI commands. Heratio has a fully interactive DB-driven scheduler with toggle, edit, run-now, output view — a complete superset.
+AtoM page is a static reference listing CLI commands. Heratio has a fully interactive DB-driven scheduler with toggle, edit, run-now, output view - a complete superset.
 
 | # | Control | Type | AtoM | Heratio | Wired | Status |
 |---|---------|------|------|---------|-------|--------|
-| 1 | Job toggle (per job) | checkbox | — | Yes | Yes | ✓ Heratio superset |
-| 2 | Cron expression (per job) | text | — | Yes | Yes | ✓ Heratio superset |
-| 3 | Timeout (per job) | number | — | Yes | Yes | ✓ Heratio superset |
-| 4 | Notify on failure (per job) | checkbox | — | Yes | Yes | ✓ Heratio superset |
-| 5 | Notify email (per job) | email | — | Yes | Yes | ✓ Heratio superset |
-| 6 | Run now (per job) | button | — | Yes | Yes | ✓ Heratio superset |
-| 7 | Seed defaults | button | — | Yes | Yes | ✓ Heratio superset |
+| 1 | Job toggle (per job) | checkbox | - | Yes | Yes | ✓ Heratio superset |
+| 2 | Cron expression (per job) | text | - | Yes | Yes | ✓ Heratio superset |
+| 3 | Timeout (per job) | number | - | Yes | Yes | ✓ Heratio superset |
+| 4 | Notify on failure (per job) | checkbox | - | Yes | Yes | ✓ Heratio superset |
+| 5 | Notify email (per job) | email | - | Yes | Yes | ✓ Heratio superset |
+| 6 | Run now (per job) | button | - | Yes | Yes | ✓ Heratio superset |
+| 7 | Seed defaults | button | - | Yes | Yes | ✓ Heratio superset |
 
 **URL:** `/admin/ahgSettings/cronJobs` (was `/admin/settings/cron-jobs`) ✓ Standardised
 
@@ -358,7 +358,7 @@ Both AtoM and Heratio use dynamic DB-driven settings for SMTP, notifications, an
 | 6 | `encryption_field_donor_information` | checkbox | Yes | Yes | Yes | ✓ Match |
 | 7 | `encryption_field_personal_notes` | checkbox | Yes | Yes | Yes | ✓ Match |
 | 8 | `encryption_field_access_restrictions` | checkbox | Yes | Yes | Yes | ✓ Match |
-| 9 | Compliance card | display | — | Yes | n/a | ✓ Heratio extra |
+| 9 | Compliance card | display | - | Yes | n/a | ✓ Heratio extra |
 
 **URL:** `/admin/ahgSettings/encryption` (was `/admin/settings/ahg/encryption`) ✓ Standardised
 
@@ -380,7 +380,7 @@ Both AtoM and Heratio use dynamic DB-driven settings for SMTP, notifications, an
 
 ### Row 16: Fuseki / RIC Triplestore
 
-Heratio is a superset — adds integrity check settings and quick action links beyond AtoM.
+Heratio is a superset - adds integrity check settings and quick action links beyond AtoM.
 
 | # | Control | Type | AtoM | Heratio | Wired | Status |
 |---|---------|------|------|---------|-------|--------|
@@ -394,14 +394,14 @@ Heratio is a superset — adds integrity check settings and quick action links b
 | 8 | `fuseki_sync_on_delete` | checkbox | Yes | Yes | Yes | ✓ Match |
 | 9 | `fuseki_cascade_delete` | checkbox | Yes | Yes | Yes | ✓ Match |
 | 10 | `fuseki_batch_size` | number | Yes | Yes | Yes | ✓ Match |
-| 11 | `fuseki_integrity_schedule` | select | — | Yes | Yes | ✓ Heratio extra |
-| 12 | `fuseki_orphan_retention_days` | number | — | Yes | Yes | ✓ Heratio extra |
+| 11 | `fuseki_integrity_schedule` | select | - | Yes | Yes | ✓ Heratio extra |
+| 12 | `fuseki_orphan_retention_days` | number | - | Yes | Yes | ✓ Heratio extra |
 
 **URL:** `/admin/ahgSettings/fuseki` (was `/admin/settings/ahg/fuseki`) ✓ Standardised
 
 ### Row 17: Heritage Accounting
 
-Heritage Accounting is a standalone admin module — both AtoM and Heratio link to the heritage admin dashboard (standards, rules, regions) rather than a key-value settings form. Not comparable control-by-control.
+Heritage Accounting is a standalone admin module - both AtoM and Heratio link to the heritage admin dashboard (standards, rules, regions) rather than a key-value settings form. Not comparable control-by-control.
 
 **AtoM URL:** `heritageAdmin/index` | **Heratio URL:** `/heritage/admin` (route `heritage.admin`)
 **Status:** ✓ Both link to the same admin dashboard. No URL standardisation needed (not under `/admin/settings/`).
@@ -413,7 +413,7 @@ Heritage Accounting is a standalone admin module — both AtoM and Heratio link 
 | 1 | `enable_public_notices` | checkbox | Yes | Yes | Yes | ✓ Match |
 | 2 | `enable_staff_notices` | checkbox | Yes | Yes | Yes | ✓ Match |
 | 3 | `require_acknowledgement_default` | checkbox | Yes | Yes | Yes | ✓ Match |
-| 4 | `require_community_consent` | checkbox | — | Yes | Yes | ✓ Heratio extra |
+| 4 | `require_community_consent` | checkbox | - | Yes | Yes | ✓ Heratio extra |
 | 5 | `consent_expiry_warning_days` | number | Yes | Yes | Yes | ✓ Added (was missing) |
 | 6 | `default_consultation_follow_up_days` | number | Yes | Yes | Yes | ✓ Added (was missing) |
 | 7 | `local_contexts_hub_enabled` | checkbox | Yes | Yes | Yes | ✓ Added (was missing) |
@@ -439,7 +439,7 @@ Heratio renders all `iiif` group settings dynamically via `buildGroupSettings()`
 
 ### Row 20: Levels of Description
 
-Heratio is a superset — sector tabs, per-sector level assignment with checkboxes, display order management, taxonomy quick links. AtoM has a simpler page.
+Heratio is a superset - sector tabs, per-sector level assignment with checkboxes, display order management, taxonomy quick links. AtoM has a simpler page.
 
 **URL:** `/admin/ahgSettings/levels` (was `/admin/settings/levels`) ✓ Standardised
 
@@ -463,7 +463,7 @@ AtoM has a structured page with 6 cards: Loan Rules (CRUD table), Circulation De
 AtoM has a dynamic DB-driven settings page that renders all marketplace settings grouped by `setting_group`, handling boolean/number/json/text types. Heratio marketplace settings page is a skeleton with an empty accordion body.
 
 **AtoM URL:** `marketplace/adminSettings` | **Heratio URL:** `/admin/marketplace/settings` (route `ahgmarketplace.admin-settings`)
-**Status:** Heratio view is a skeleton — settings controls not yet built. Standalone package, not under `/admin/ahgSettings/`.
+**Status:** Heratio view is a skeleton - settings controls not yet built. Standalone package, not under `/admin/ahgSettings/`.
 
 ### Row 23: Media Player
 
@@ -530,7 +530,7 @@ Both systems list installed plugins with enable/disable toggles. AtoM has catego
 
 ### Row 29: Privacy Compliance
 
-Privacy Compliance is a standalone admin module (POPIA/GDPR/PAIA) — not a key-value settings form. Both systems link to a privacy admin dashboard.
+Privacy Compliance is a standalone admin module (POPIA/GDPR/PAIA) - not a key-value settings form. Both systems link to a privacy admin dashboard.
 
 **AtoM URL:** `privacyAdmin` | **Heratio URL:** `/admin/privacy/dashboard` (route `ahgprivacy.dashboard`)
 **Status:** ✓ Both are standalone admin dashboards. Not under `/admin/ahgSettings/`.
@@ -629,11 +629,11 @@ Dedicated webhooks configuration page.
 
 ## TODO
 
-- [x] Fix duplicate "Authority" tile — DONE (added to skip list)
-- [x] Rename tiles to match AtoM exactly — DONE (Email Settings, FTP / SFTP Upload, Fuseki / RIC Triplestore, Plugin Management, Heritage Accounting)
-- [x] Wire all 6 AI Condition settings — DONE (all 6 controls wired + API Clients + Training Approval)
-- [x] Carousel settings — all 18 controls at full parity (carousel_show_thumbnails and carousel_show_controls present)
-- [x] Build dedicated structured pages for all 18 AHG groups — DONE
+- [x] Fix duplicate "Authority" tile - DONE (added to skip list)
+- [x] Rename tiles to match AtoM exactly - DONE (Email Settings, FTP / SFTP Upload, Fuseki / RIC Triplestore, Plugin Management, Heritage Accounting)
+- [x] Wire all 6 AI Condition settings - DONE (all 6 controls wired + API Clients + Training Approval)
+- [x] Carousel settings - all 18 controls at full parity (carousel_show_thumbnails and carousel_show_controls present)
+- [x] Build dedicated structured pages for all 18 AHG groups - DONE
   - Batch 1 (agent): data_protection, encryption, faces, ftp, fuseki
   - Batch A (agent): spectrum, photos, media, metadata, ingest, integrity, voice_ai
   - Manual: iiif, security, library, multi_tenant, portable_export, compliance

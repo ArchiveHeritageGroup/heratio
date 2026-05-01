@@ -8,7 +8,7 @@ Administrator guide for configuring the RiC → Fuseki triplestore sync runner.
 
 Heratio's RiC (Records in Contexts) module can mirror archival descriptions into an **Apache Jena Fuseki** triplestore as RiC-O RDF. This page documents how to configure that sync, how the safety gates work, and how to troubleshoot.
 
-The sync is **optional**. A Heratio install with no Fuseki configured is fully functional — the RiC *dashboard* and *entity management* features work without Fuseki. Only the **Sync to Fuseki** button on `/admin/ric` requires it.
+The sync is **optional**. A Heratio install with no Fuseki configured is fully functional - the RiC *dashboard* and *entity management* features work without Fuseki. Only the **Sync to Fuseki** button on `/admin/ric` requires it.
 
 ---
 
@@ -16,10 +16,10 @@ The sync is **optional**. A Heratio install with no Fuseki configured is fully f
 
 When you open `/admin/ric`, the dashboard calls `/admin/ric/ajax-sync-readiness` before enabling the **Sync to Fuseki** button. That endpoint checks, in order:
 
-1. **RiC tables installed** — `ric_sync_status`, `ric_sync_queue`, `ric_orphan_tracking`, `ric_sync_log` all exist.
-2. **Sync script present** — `packages/ahg-ric/bin/ric_sync.sh` is a file and executable.
-3. **Config keys set** — `RIC_FUSEKI_URL` and `RIC_FUSEKI_DATASET` are set in `.env`.
-4. **Fuseki reachable** — `GET {RIC_FUSEKI_URL}/$/ping` returns `200` or `401` within one second.
+1. **RiC tables installed** - `ric_sync_status`, `ric_sync_queue`, `ric_orphan_tracking`, `ric_sync_log` all exist.
+2. **Sync script present** - `packages/ahg-ric/bin/ric_sync.sh` is a file and executable.
+3. **Config keys set** - `RIC_FUSEKI_URL` and `RIC_FUSEKI_DATASET` are set in `.env`.
+4. **Fuseki reachable** - `GET {RIC_FUSEKI_URL}/$/ping` returns `200` or `401` within one second.
 
 If any check fails, the button stays **disabled** and the specific blocking reason is shown inline. No shell process is spawned.
 
@@ -44,7 +44,7 @@ RIC_INSTANCE_ID=heratio-prod
 
 # --- Source DB (optional; defaults to the Heratio DB) ---
 # Set these only if you want to extract RiC triples from a DB
-# other than the main Heratio database — e.g. a legacy AtoM install.
+# other than the main Heratio database - e.g. a legacy AtoM install.
 # RIC_SOURCE_DB_HOST=localhost
 # RIC_SOURCE_DB_USER=root
 # RIC_SOURCE_DB_PASSWORD=
@@ -73,7 +73,7 @@ Run `php artisan config:clear` after editing `.env`.
 The Python RiC extractor historically read `ATOM_DB_HOST`, `ATOM_DB_USER`, `ATOM_DB_PASSWORD`, and `ATOM_DB_NAME` env vars. The shell runner now exports both name sets pointing at the same values, so:
 
 - New installs: set `RIC_SOURCE_DB_*` (preferred).
-- Hybrid installs already running on `ATOM_DB_*`: nothing to change — the old names are still honoured as a fallback.
+- Hybrid installs already running on `ATOM_DB_*`: nothing to change - the old names are still honoured as a fallback.
 
 ---
 
@@ -150,5 +150,5 @@ DELETE FROM cron_schedule WHERE slug = 'offending-slug';
 ## Security notes
 
 - `RIC_FUSEKI_PASS` is held in `.env` and passed to the shell runner via the subprocess environment. It is **not** exposed to the browser. Ensure `.env` is not web-readable (standard Laravel convention).
-- The readiness endpoint only reports *whether* sync is configured, not the config values themselves — no secrets leak to the dashboard client.
+- The readiness endpoint only reports *whether* sync is configured, not the config values themselves - no secrets leak to the dashboard client.
 - `shell_exec` invocation uses `escapeshellcmd` on the script path and `escapeshellarg` on all env values to prevent injection.

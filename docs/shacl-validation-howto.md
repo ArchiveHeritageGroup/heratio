@@ -1,4 +1,4 @@
-# SHACL Validation in Heratio — How-To
+# SHACL Validation in Heratio - How-To
 
 Heratio validates RiC-shaped archival data against a curated **SHACL shape set** so editors catch incomplete or invalid records *before* they reach Elasticsearch, OAI-PMH harvest, or the OpenRiC API.
 
@@ -10,13 +10,13 @@ The shape set lives at `packages/ahg-ric/tools/ric_shacl_shapes.ttl` and is alig
 
 Two layers run on every "Validate" click:
 
-1. **Mandatory-fields check (pure PHP, always runs)** — covers the ISAD/ISAAR/ISDIAH/ISDF mandatory fields per entity type:
-   - `Agent` / `Person` / `CorporateBody` / `Family` → `rico:name` (ISAAR 5.1.2 — authorized form of name)
+1. **Mandatory-fields check (pure PHP, always runs)** - covers the ISAD/ISAAR/ISDIAH/ISDF mandatory fields per entity type:
+   - `Agent` / `Person` / `CorporateBody` / `Family` → `rico:name` (ISAAR 5.1.2 - authorized form of name)
    - `Function` → `rico:name` (ISDF 5.1.2)
    - `Record` / `RecordSet` → `rico:identifier` (ISAD 3.1.1)
    - `Repository` → `rico:name` (ISDIAH 5.1.2)
 
-2. **SHACL graph-shape evaluation (optional, requires Python)** — runs the [pyshacl](https://github.com/RDFLib/pySHACL) engine against the full shape set. Constraint types in current use:
+2. **SHACL graph-shape evaluation (optional, requires Python)** - runs the [pyshacl](https://github.com/RDFLib/pySHACL) engine against the full shape set. Constraint types in current use:
 
    | SHACL constraint | What it catches |
    | --- | --- |
@@ -82,7 +82,7 @@ The shape set is plain Turtle. To add a new constraint (e.g. require `rico:begin
     ] .
 ```
 
-Edit `packages/ahg-ric/tools/ric_shacl_shapes.ttl`, save, and re-run the Validate link — no service restart needed (the file is read on each request).
+Edit `packages/ahg-ric/tools/ric_shacl_shapes.ttl`, save, and re-run the Validate link - no service restart needed (the file is read on each request).
 
 ---
 
@@ -120,8 +120,8 @@ Supported entity types in `ShaclValidationService::validateBeforeSave($entity, $
 
 ## Related
 
-- [`packages/ahg-ric/src/Services/ShaclValidationService.php`](../packages/ahg-ric/src/Services/ShaclValidationService.php) — the service
-- [`packages/ahg-ric/tools/ric_shacl_shapes.ttl`](../packages/ahg-ric/tools/ric_shacl_shapes.ttl) — the shape set
-- [`packages/ahg-ric/tools/ric_shacl_validator.py`](../packages/ahg-ric/tools/ric_shacl_validator.py) — the Python validator wrapper
-- [OpenRiC mapping](https://openric.org/spec/mapping.html) — canonical RiC-CM / RiC-O mapping the shapes encode
-- [W3C SHACL recommendation](https://www.w3.org/TR/shacl/) — the standard
+- [`packages/ahg-ric/src/Services/ShaclValidationService.php`](../packages/ahg-ric/src/Services/ShaclValidationService.php) - the service
+- [`packages/ahg-ric/tools/ric_shacl_shapes.ttl`](../packages/ahg-ric/tools/ric_shacl_shapes.ttl) - the shape set
+- [`packages/ahg-ric/tools/ric_shacl_validator.py`](../packages/ahg-ric/tools/ric_shacl_validator.py) - the Python validator wrapper
+- [OpenRiC mapping](https://openric.org/spec/mapping.html) - canonical RiC-CM / RiC-O mapping the shapes encode
+- [W3C SHACL recommendation](https://www.w3.org/TR/shacl/) - the standard

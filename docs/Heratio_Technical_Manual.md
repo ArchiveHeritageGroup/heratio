@@ -1,4 +1,4 @@
-# Heratio — Technical Manual
+# Heratio - Technical Manual
 
 **For:** Developers, DevOps Engineers, System Integrators
 **Product:** Heratio Framework v2.8.2
@@ -160,11 +160,11 @@ class MyRepository
 ### 2.4 Template Rules
 
 ```php
-// CORRECT — always use this
+// CORRECT - always use this
 <?php echo url_for(['module' => 'myModule', 'action' => 'show', 'slug' => $item->slug]) ?>
 <?php echo $resource->title ?? $resource->slug ?>
 
-// WRONG — never use
+// WRONG - never use
 <?php echo url_for([$resource, 'module' => 'myModule']) ?>
 <?php echo render_title($resource) ?>
 <?php echo $resource->__toString() ?>
@@ -441,7 +441,7 @@ sudo systemctl restart cantaloupe
 | Plugin enabled but not working | Check symlink: `ls -la plugins/ahgMyPlugin` |
 | `in_array` error | Add `?: []` fallback: `unserialize($value) ?: []` |
 | Namespaced class not found | Use `\` prefix: `\sfConfig`, `\QubitActor` |
-| `name="action"` form bug | Rename to `name="form_action"` — Symfony reserves `action` |
+| `name="action"` form bug | Rename to `name="form_action"` - Symfony reserves `action` |
 | IIIF viewer broken | Restart Cantaloupe: `sudo systemctl restart cantaloupe` |
 | Elasticsearch empty | Rebuild index: `php symfony search:populate` |
 | Cache stale after changes | `rm -rf cache/* && php symfony cc && sudo systemctl restart php8.3-fpm` |
@@ -457,7 +457,7 @@ Configured in `config/app.yml` under `all.csp`. Nonce generated per request via 
 **Rules:**
 - All `<script>` and `<style>` tags must have CSP nonce
 - External CDN domains must be whitelisted in `app.yml`
-- Never use `'unsafe-inline'` — use nonces
+- Never use `'unsafe-inline'` - use nonces
 
 ### 8.2 CSRF Protection
 
@@ -465,8 +465,8 @@ All POST forms include `_csrf_token` hidden field. Validated by Symfony's CSRF f
 
 ### 8.3 Bell-LaPadula MAC
 
-Security classification enforced at query level — users cannot read records above their clearance.
+Security classification enforced at query level - users cannot read records above their clearance.
 
 ---
 
-*Heratio Framework v2.8.2 — The Archive and Heritage Group (Pty) Ltd*
+*Heratio Framework v2.8.2 - The Archive and Heritage Group (Pty) Ltd*

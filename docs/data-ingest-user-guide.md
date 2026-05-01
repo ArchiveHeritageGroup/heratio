@@ -4,7 +4,7 @@
 
 OAIS-aligned multi-stage ingestion pipeline for batch import of archival records and digital objects. A 6-step wizard that sits between AtoM's basic CSV import and Archivematica's full OAIS pipeline: Configure, Upload, Map & Enrich, Validate, Preview, Commit.
 
-**Scanner / watched-folder capture** uses this same engine through a different entry point. For continuous capture from scanning stations — where files arrive one at a time instead of in one big batch — see the [Scanner / Capture user guide](scanner-capture-user-guide.md). The scanner reuses the ingest session, derivatives, virus scan, OCR, and SIP/AIP/DIP packaging you configure here — you do not need to re-learn anything.
+**Scanner / watched-folder capture** uses this same engine through a different entry point. For continuous capture from scanning stations - where files arrive one at a time instead of in one big batch - see the [Scanner / Capture user guide](scanner-capture-user-guide.md). The scanner reuses the ingest session, derivatives, virus scan, OCR, and SIP/AIP/DIP packaging you configure here - you do not need to re-learn anything.
 
 ## Commit runner (delivered 2026-04-24)
 
@@ -13,9 +13,9 @@ The wizard's **Commit** step now runs a real commit: `IngestCommitRunner` walks 
 Invocation paths:
 
 - **Web UI**: the "Start Commit" button on the commit page posts to `/ingest/{id}/commit` which triggers the runner synchronously.
-- **CLI**: `php artisan ahg:ingest-commit <session_id>` — useful for long batches or scripted workflows.
+- **CLI**: `php artisan ahg:ingest-commit <session_id>` - useful for long batches or scripted workflows.
 
-For very large batches, the web commit path **automatically dispatches to the Laravel queue worker** when the session's valid-row count is at or above `heratio.ingest.queue_threshold` (default 500, configurable via `HERATIO_INGEST_QUEUE_THRESHOLD`). The commit view polls the seeded `ingest_job` row for progress — the UI behaves identically whether the run is sync or queued. If your deployment doesn't run a queue worker, set the threshold very high (or to 0 — which disables the queue path entirely) to force sync, and use `php artisan ahg:ingest-commit <session_id>` on the CLI for long-running batches.
+For very large batches, the web commit path **automatically dispatches to the Laravel queue worker** when the session's valid-row count is at or above `heratio.ingest.queue_threshold` (default 500, configurable via `HERATIO_INGEST_QUEUE_THRESHOLD`). The commit view polls the seeded `ingest_job` row for progress - the UI behaves identically whether the run is sync or queued. If your deployment doesn't run a queue worker, set the threshold very high (or to 0 - which disables the queue path entirely) to force sync, and use `php artisan ahg:ingest-commit <session_id>` on the CLI for long-running batches.
 
 ---
 

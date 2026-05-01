@@ -1,4 +1,4 @@
-# Marketplace — Bidding & Auctions
+# Marketplace - Bidding & Auctions
 
 How auctions run on the Heratio Marketplace, from a seller starting one to a buyer winning and paying.
 
@@ -8,11 +8,11 @@ How auctions run on the Heratio Marketplace, from a seller starting one to a buy
 
 When a seller chooses **Auction** as the sale type, the listing carries:
 
-- **Starting bid** — the minimum first bid.
-- **Reserve price** *(optional)* — if the highest bid at close is below the reserve, the lot does not sell.
-- **Bid increment** — defaults to a sliding scale (e.g. R10 below R100, R50 below R1 000, etc.); operators can override per category in admin settings.
-- **Start / end timestamps** — the listing is biddable only between these.
-- **Anti-snipe window** *(optional)* — if a bid lands in the final N minutes, the close time extends by N more minutes, repeatedly.
+- **Starting bid** - the minimum first bid.
+- **Reserve price** *(optional)* - if the highest bid at close is below the reserve, the lot does not sell.
+- **Bid increment** - defaults to a sliding scale (e.g. R10 below R100, R50 below R1 000, etc.); operators can override per category in admin settings.
+- **Start / end timestamps** - the listing is biddable only between these.
+- **Anti-snipe window** *(optional)* - if a bid lands in the final N minutes, the close time extends by N more minutes, repeatedly.
 
 The browse page exposes auction-only filters at **`/marketplace/auction-browse`**.
 
@@ -25,7 +25,7 @@ The browse page exposes auction-only filters at **`/marketplace/auction-browse`*
 1. Open the listing.
 2. Click **Place bid** → opens `/marketplace/bid-form`.
 3. Enter your max bid (or a single increment).
-4. Submit — the system places the bid at the lowest amount needed to outbid the current leader, up to your max.
+4. Submit - the system places the bid at the lowest amount needed to outbid the current leader, up to your max.
 
 ### Track your bids
 
@@ -34,7 +34,7 @@ The browse page exposes auction-only filters at **`/marketplace/auction-browse`*
 | State | Meaning |
 | --- | --- |
 | **Leading** | You're currently the high bidder |
-| **Outbid** | Someone has out-bid you — re-bid or walk away |
+| **Outbid** | Someone has out-bid you - re-bid or walk away |
 | **Won** | Auction has closed and you are the winner |
 | **Lost** | Auction has closed and someone else won |
 | **Cancelled** | Listing was withdrawn by the seller before close |
@@ -63,7 +63,7 @@ In `/marketplace/seller/listing-create`, set **Sale type = Auction**, then:
 
 - Set **Start date/time** and **End date/time**.
 - Set **Starting bid**.
-- Optionally set **Reserve price** — only the seller and operator see whether reserve was met.
+- Optionally set **Reserve price** - only the seller and operator see whether reserve was met.
 - Save → upload images → publish.
 
 While the auction is live, the listing page shows a live countdown (`_auction-timer.blade.php`) and a public bid history (bidder usernames or anonymised handles, configurable).
@@ -80,9 +80,9 @@ From `/marketplace/seller/listings`, auction listings show:
 
 At end-time the auction enters one of three terminal states:
 
-1. **Sold** — winner is set, transaction created in `pending_payment`. Buyer is emailed a "complete payment" link.
-2. **Reserve not met** — no winner; you may relist or accept the highest bid manually as a *Make an Offer* outcome.
-3. **No bids** — listing returns to `draft` for you to re-publish.
+1. **Sold** - winner is set, transaction created in `pending_payment`. Buyer is emailed a "complete payment" link.
+2. **Reserve not met** - no winner; you may relist or accept the highest bid manually as a *Make an Offer* outcome.
+3. **No bids** - listing returns to `draft` for you to re-publish.
 
 ---
 
@@ -103,7 +103,7 @@ Sellers who need different rules for a single lot must request a per-listing ove
 
 ## See also
 
-- *Marketplace — Buyer Quick Start*
-- *Marketplace — Make an Offer*
-- *Marketplace — Payments & Payouts*
-- *Marketplace — Admin Operations*
+- *Marketplace - Buyer Quick Start*
+- *Marketplace - Make an Offer*
+- *Marketplace - Payments & Payouts*
+- *Marketplace - Admin Operations*

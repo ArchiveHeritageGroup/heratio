@@ -1,4 +1,4 @@
-# ahgFtpPlugin — User Guide
+# ahgFtpPlugin - User Guide
 
 The **ahgFtpPlugin** (FTP / SFTP Upload) is the in-browser bridge between an FTP/SFTP server and Heratio's ingest pipeline. It is the recommended way to land **batches** of digital objects (PDFs, TIFFs, audio, video) when:
 
@@ -12,12 +12,12 @@ The **ahgFtpPlugin** (FTP / SFTP Upload) is the in-browser bridge between an FTP
 
 A logged-in user with `acl:create` permission can:
 
-1. **Browse** the configured remote drop zone (`/sftp/ftpuser/uploads/` by default — operator-configurable).
+1. **Browse** the configured remote drop zone (`/sftp/ftpuser/uploads/` by default - operator-configurable).
 2. **Upload** files into that drop zone directly from the browser. Files >100 MB are chunk-uploaded so unstable connections can resume.
 3. **List & delete** what's already there.
 4. **Hand off** the staged files to the CSV ingest wizard (`/ingest`) which links them to information objects via the `digitalObjectPath` column.
 
-It does **not** create archival descriptions itself — its job ends at "files are now on the server". Use `/ingest` (CSV-driven) or `/informationobject/import/csv` next.
+It does **not** create archival descriptions itself - its job ends at "files are now on the server". Use `/ingest` (CSV-driven) or `/informationobject/import/csv` next.
 
 ---
 
@@ -49,7 +49,7 @@ These map directly to the `ahg_settings` keys:
 | `ftp_password` | Login password (stored encrypted at rest) | (set) |
 | `ftp_remote_path` | Subdirectory on the server where uploaded files land | `/uploads` |
 | `ftp_disk_path` | Local filesystem path that mirrors the remote (when SFTP server is on the same box) | `/sftp/ftpuser/uploads` |
-| `ftp_passive_mode` | Plain-FTP only — leaves data-channel negotiation to the client. Ignored for SFTP. | `1` |
+| `ftp_passive_mode` | Plain-FTP only - leaves data-channel negotiation to the client. Ignored for SFTP. | `1` |
 
 Save the form, then test connectivity with the **Test connection** button on the same page. Failure modes:
 
@@ -70,16 +70,16 @@ Save the form, then test connectivity with the **Test connection** button on the
 
 ## Operational notes
 
-- The plugin uses Laravel's `Storage` driver behind a thin wrapper. SSH keys are not yet supported via the UI — password auth only. To use keys, configure them server-side and leave `ftp_password` blank.
+- The plugin uses Laravel's `Storage` driver behind a thin wrapper. SSH keys are not yet supported via the UI - password auth only. To use keys, configure them server-side and leave `ftp_password` blank.
 - Chunked uploads write to `<ftp_remote_path>/.uploads-tmp/<upload-id>/` while in-flight, then atomically rename on completion. Aborted uploads leave orphan chunk files; clean up with `find <remote>/.uploads-tmp -mtime +7 -delete` in cron.
 - All upload and delete actions are recorded in `ahg_audit_log` (when `ahgAuditTrailPlugin` is enabled).
-- File size limits are enforced **server-side** — set `client_max_body_size` in nginx high enough for your chunk size (default chunk = 5 MB).
+- File size limits are enforced **server-side** - set `client_max_body_size` in nginx high enough for your chunk size (default chunk = 5 MB).
 
 ---
 
 ## Related
 
-- **CSV ingest wizard** — `/ingest` (the consumer of the staged files)
-- **Watched folders** — `/admin/scan` (alternative for files dropped on the local filesystem; no browser upload)
-- **Audit trail** — `/admin/audit` (review who uploaded what)
-- **Storage configuration** — `/admin/ahgSettings/storage` (where the destination disk lives)
+- **CSV ingest wizard** - `/ingest` (the consumer of the staged files)
+- **Watched folders** - `/admin/scan` (alternative for files dropped on the local filesystem; no browser upload)
+- **Audit trail** - `/admin/audit` (review who uploaded what)
+- **Storage configuration** - `/admin/ahgSettings/storage` (where the destination disk lives)

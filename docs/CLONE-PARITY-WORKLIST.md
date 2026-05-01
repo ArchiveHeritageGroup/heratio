@@ -1,4 +1,4 @@
-# Clone Parity Worklist — Heratio vs AtoM
+# Clone Parity Worklist - Heratio vs AtoM
 
 Generated: 2026-03-22
 Source: `docs/FULL-CONTROL-AUDIT.txt` + `bin/audit-controls.php`
@@ -10,7 +10,7 @@ Source: `docs/FULL-CONTROL-AUDIT.txt` + `bin/audit-controls.php`
 
 ---
 
-## 1. FIELD BADGES — COMPLETE
+## 1. FIELD BADGES - COMPLETE
 
 **1,164 badges added across 148 files** via `bin/fix-badges-and-buttons.php` + `bin/fix-badges-pass2.php`.
 
@@ -36,7 +36,7 @@ Remaining PARTIAL counts in the audit are `form-check-label` (checkbox labels) w
 
 ### ahg-audit-trail
 - [x] browse (5 labels → 5 badges)
-- [x] settings (9 labels — all form-check-label, correctly excluded)
+- [x] settings (9 labels - all form-check-label, correctly excluded)
 
 ### ahg-backup
 - [x] index (was partial → complete)
@@ -257,15 +257,15 @@ Remaining PARTIAL counts in the audit are `form-check-label` (checkbox labels) w
 
 ---
 
-## 2. BAD BUTTON CLASSES — COMPLETE
+## 2. BAD BUTTON CLASSES - COMPLETE
 
-- [x] ahg-help/index — `btn-light` → `atom-btn-white`
-- [x] ahg-library/edit — `btn-light` x2 → `atom-btn-white`
-- [x] ahg-research/view-booking — `btn-dark` → `atom-btn-white`
+- [x] ahg-help/index - `btn-light` → `atom-btn-white`
+- [x] ahg-library/edit - `btn-light` x2 → `atom-btn-white`
+- [x] ahg-research/view-booking - `btn-dark` → `atom-btn-white`
 
 ---
 
-## 3. THEAD HEADER ROWS — COMPLETE (done before this worklist)
+## 3. THEAD HEADER ROWS - COMPLETE (done before this worklist)
 
 10 tables had empty `<thead>` tags. All fixed with styled header rows:
 
@@ -282,7 +282,7 @@ Remaining PARTIAL counts in the audit are `form-check-label` (checkbox labels) w
 
 ---
 
-## 4. STORAGE MANAGE — FULL CLONE COMPLETE
+## 4. STORAGE MANAGE - FULL CLONE COMPLETE
 
 - [x] edit.blade.php: 4→28 fields, 1col→2col, 7 card sections, all badges
 - [x] show.blade.php: full rewrite with extended data, capacity bars, status sidebar
@@ -294,15 +294,15 @@ Remaining PARTIAL counts in the audit are `form-check-label` (checkbox labels) w
 ## 5. REMAINING WORK (not yet started)
 
 ### Missing extended fields (views with fewer controls than AtoM)
-- [ ] ahg-actor-manage/edit — compare full field list with AtoM AHG theme
-- [ ] ahg-information-object-manage/edit — compare with AtoM AHG theme
-- [ ] ahg-information-object-manage/create — compare with AtoM AHG theme
-- [ ] ahg-repository-manage/edit — compare with AtoM AHG theme
-- [ ] ahg-accession-manage/edit — compare with AtoM AHG theme
-- [ ] ahg-donor-manage/edit — compare with AtoM AHG theme
-- [ ] ahg-function-manage/edit — compare with AtoM AHG theme
-- [ ] ahg-user-manage/edit — compare with AtoM AHG theme
-- [ ] ahg-term-taxonomy/edit — compare with AtoM AHG theme
+- [ ] ahg-actor-manage/edit - compare full field list with AtoM AHG theme
+- [ ] ahg-information-object-manage/edit - compare with AtoM AHG theme
+- [ ] ahg-information-object-manage/create - compare with AtoM AHG theme
+- [ ] ahg-repository-manage/edit - compare with AtoM AHG theme
+- [ ] ahg-accession-manage/edit - compare with AtoM AHG theme
+- [ ] ahg-donor-manage/edit - compare with AtoM AHG theme
+- [ ] ahg-function-manage/edit - compare with AtoM AHG theme
+- [ ] ahg-user-manage/edit - compare with AtoM AHG theme
+- [ ] ahg-term-taxonomy/edit - compare with AtoM AHG theme
 
 ### Layout/sidebar mismatches
 - [ ] Verify all show pages use correct col layout vs AtoM

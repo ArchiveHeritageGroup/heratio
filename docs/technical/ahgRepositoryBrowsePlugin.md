@@ -85,7 +85,7 @@ ahgRepositoryBrowsePlugin/
 │   └── routing.yml
 ├── extension.json
 ├── database/
-│   └── install.sql                      (empty — no custom tables)
+│   └── install.sql                      (empty - no custom tables)
 ├── modules/
 │   └── repositoryBrowse/
 │       ├── actions/
@@ -93,7 +93,7 @@ ahgRepositoryBrowsePlugin/
 │       ├── config/
 │       │   └── module.yml
 │       └── templates/
-│           ├── browseSuccess.php        (main layout — 2-col)
+│           ├── browseSuccess.php        (main layout - 2-col)
 │           ├── _browseCardView.php      (card/grid view partial)
 │           ├── _browseTableView.php     (table view partial)
 │           └── _advancedFilters.php     (advanced filter form)
@@ -113,7 +113,7 @@ ahgRepositoryBrowsePlugin/
 
 | Method | Purpose | Returns |
 |--------|---------|---------|
-| `browse(array $params)` | Main search orchestrator — ES query + aggregations | `{hits, total, aggs, page, limit, filters}` |
+| `browse(array $params)` | Main search orchestrator - ES query + aggregations | `{hits, total, aggs, page, limit, filters}` |
 | `getAdvancedFilterTerms()` | Load dropdown data for advanced filters | `{thematicAreas, repositoryTypes, regions}` |
 | `getTermsByTaxonomy(int $taxonomyId)` | Get terms for a taxonomy via Laravel QB | `[id => name]` |
 | `getUniqueRegions()` | Get distinct regions from contact info | `string[]` |
@@ -283,7 +283,7 @@ No custom tables. Uses existing AtoM tables (read-only via Laravel QB):
 
 | Test | Expected |
 |------|----------|
-| `/repository/browse` | 200 — card or table view with results |
+| `/repository/browse` | 200 - card or table view with results |
 | Sort: `?sort=alphabetic` | Alphabetical ordering |
 | Sort: `?sort=nameUp` | Name ascending (table view) |
 | Search: `?subquery=archive` | Filtered results |

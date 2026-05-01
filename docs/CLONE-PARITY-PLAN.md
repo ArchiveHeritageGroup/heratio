@@ -20,9 +20,9 @@ Every page fix/clone operation MUST follow ALL 12 rules. No exceptions.
 | 6 | **Text = controls** | Headings, labels, static text, help text, section titles all count |
 | 7 | **All field badges** | Required (bg-danger), Recommended (bg-warning), Optional (bg-secondary) on every form label |
 | 8 | **Report again after fixes** | Regenerate comparison table to confirm 0 deltas |
-| 9 | **Layout template** | 1col vs 2col vs 3col — must match AtoM |
-| 10 | **Sidebar** | Right or left — must match AtoM |
-| 11 | **Page width/structure** | container vs container-fluid, column ratios — must match AtoM |
+| 9 | **Layout template** | 1col vs 2col vs 3col - must match AtoM |
+| 10 | **Sidebar** | Right or left - must match AtoM |
+| 11 | **Page width/structure** | container vs container-fluid, column ratios - must match AtoM |
 | 12 | **Button/link URLs** | Every href must route to correct Heratio equivalent of AtoM URL |
 
 **Workflow per page:** BEFORE (read AtoM + Heratio, generate table) → FIX (clone all 12 dimensions) → AFTER (regenerate table, confirm 0 delta)
@@ -31,7 +31,7 @@ Every page fix/clone operation MUST follow ALL 12 rules. No exceptions.
 
 ## PHASE 1: Fix Audit Script AtoM Mapping (unblocks everything)
 
-**Problem:** `bin/audit-controls.php` uses wrong path `plugins/atom-ahg-plugins/modules/` — real path is `atom-ahg-plugins/<Plugin>/modules/<module>/templates/`.
+**Problem:** `bin/audit-controls.php` uses wrong path `plugins/atom-ahg-plugins/modules/` - real path is `atom-ahg-plugins/<Plugin>/modules/<module>/templates/`.
 
 **Task:** Rewrite the `$mapping` array (lines 130–243) with correct paths for all 51 Heratio packages. Each package maps to 2–4 AtoM source directories.
 
@@ -46,9 +46,9 @@ Every page fix/clone operation MUST follow ALL 12 rules. No exceptions.
 | ahg-settings | `ahgSettingsPlugin/modules/ahgSettings` (110 files), `ahgCorePlugin/modules/settings` (27 files) |
 | ahg-donor-manage | `ahgDonorManagePlugin/modules/donorManage`, `ahgDonorManagePlugin/modules/donor` |
 | ahg-rights-holder-manage | `ahgRightsHolderManagePlugin/modules/rightsHolderManage`, `ahgThemeB5Plugin/modules/rightsholder`, `ahgExtendedRightsPlugin/modules/extendedRights` |
-| *(+ all remaining 44 packages — full table in agent output)* | |
+| *(+ all remaining 44 packages - full table in agent output)* | |
 
-**Also:** Improve view name matching — normalize camelCase→kebab-case, handle `_` prefix partials, subdirectory awareness.
+**Also:** Improve view name matching - normalize camelCase→kebab-case, handle `_` prefix partials, subdirectory awareness.
 
 **Files:** `bin/audit-controls.php` (1 file)
 **Deliverable:** Re-run produces accurate delta report with ~250–300 matched views (up from 43).
@@ -74,7 +74,7 @@ Every page fix/clone operation MUST follow ALL 12 rules. No exceptions.
 | 9 | Loan tables (20) | ahg-loan | loans, objects, conditions, shipments, costs | 5 |
 | 10 | Security tables (16) | ahg-acl | classifications, clearances, compartments, audit | 5 |
 
-**Script:** Create `bin/wire-extended-data.php` — for each `*_extended` table, checks if Service queries it and if View renders the fields. Outputs missing wiring report.
+**Script:** Create `bin/wire-extended-data.php` - for each `*_extended` table, checks if Service queries it and if View renders the fields. Outputs missing wiring report.
 
 **Estimated files:** ~80
 
@@ -84,7 +84,7 @@ Every page fix/clone operation MUST follow ALL 12 rules. No exceptions.
 
 For each edit/create/show form, compare field-by-field against AtoM and close the delta.
 
-**Script:** Create `bin/parity-check.php` — extracts `name=` attributes from both AtoM template and Heratio blade, outputs fields present in AtoM but missing in Heratio.
+**Script:** Create `bin/parity-check.php` - extracts `name=` attributes from both AtoM template and Heratio blade, outputs fields present in AtoM but missing in Heratio.
 
 **Priority order:**
 
@@ -101,7 +101,7 @@ For each edit/create/show form, compare field-by-field against AtoM and close th
 
 ---
 
-## PHASE 4: Missing Views — Full Template Coverage
+## PHASE 4: Missing Views - Full Template Coverage
 
 After Phase 3, AtoM plugins with no Heratio equivalent remain:
 
@@ -130,7 +130,7 @@ After Phase 3, AtoM plugins with no Heratio equivalent remain:
 
 Every show page must replicate AtoM sections, field order, sidebar, action buttons.
 
-**Script:** Create `bin/show-parity.php` — section-by-section comparison.
+**Script:** Create `bin/show-parity.php` - section-by-section comparison.
 
 **Priority:** IO show → Actor show → Repository show → Accession show → all others.
 
@@ -142,7 +142,7 @@ Every show page must replicate AtoM sections, field order, sidebar, action butto
 
 Every browse page: same columns, sort options, facets, card/table views, pagination.
 
-**Script:** Create `bin/browse-parity.php` — column/sort/facet comparison.
+**Script:** Create `bin/browse-parity.php` - column/sort/facet comparison.
 
 **Estimated:** ~30 files modified
 

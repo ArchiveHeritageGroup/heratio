@@ -1,16 +1,16 @@
 ---
-title: ADR-0001 — AtoM base schema is read-only; performance work uses AHG sidecar tables
+title: ADR-0001 - AtoM base schema is read-only; performance work uses AHG sidecar tables
 status: Accepted
 date: 2026-04-28
 author: Johan Pieterse / The Archive and Heritage Group (Pty) Ltd
 license: AGPL-3.0-or-later
 ---
 
-# ADR-0001 — AtoM base schema is read-only; performance work uses AHG sidecar tables
+# ADR-0001 - AtoM base schema is read-only; performance work uses AHG sidecar tables
 
 ## Status
 
-Accepted — 2026-04-28. Supersedes any ad-hoc decision to alter `information_object`,
+Accepted - 2026-04-28. Supersedes any ad-hoc decision to alter `information_object`,
 `actor`, `term`, `object_term_relation`, or any other Qubit table for performance
 reasons.
 
@@ -18,8 +18,8 @@ reasons.
 
 Heratio inherits the AtoM (Qubit) relational schema for archival description. At
 production scale (atom DB: 444k information objects, 5.0M `object_term_relation`
-rows, 556k terms) several built-in queries — most visibly the GLAM browse subject
-facet — exceed acceptable response times and have repeatedly caused MySQL CPU
+rows, 556k terms) several built-in queries - most visibly the GLAM browse subject
+facet - exceed acceptable response times and have repeatedly caused MySQL CPU
 saturation incidents (most recently 2026-04-28, 12 stuck COUNT(DISTINCT) queries
 running for >25h, server load 47+).
 
@@ -61,7 +61,7 @@ package, with their own install SQL and service provider.
 Three sidecar patterns are sanctioned, in order of increasing cost and
 specificity. Pick the lightest one that solves your problem.
 
-### Pattern A — Eventually-consistent facet/aggregate cache
+### Pattern A - Eventually-consistent facet/aggregate cache
 
 Use when: the read is an aggregate (count, distinct, group-by) over a base
 table, and a few minutes of staleness is acceptable.
@@ -83,7 +83,7 @@ Tradeoff: facet counts lag reality by up to one refresh cycle. Acceptable for
 browse facets; not acceptable for "how many records am I about to bulk-edit?"
 style precise counts.
 
-### Pattern B — Per-repository chunked refresh of Pattern A
+### Pattern B - Per-repository chunked refresh of Pattern A
 
 Use when: Pattern A's full-corpus refresh exceeds MySQL `max_execution_time`
 (currently 300s server-wide) or runs long enough to overlap the next cron tick.
@@ -101,11 +101,11 @@ Shape:
 Tradeoff: more moving parts (queue / chunked iterator) but isolates blast
 radius per repository and removes the single 5M-row scan entirely.
 
-### Pattern C — Sidecar denormalisation table for one hot collection
+### Pattern C - Sidecar denormalisation table for one hot collection
 
 Use when: a single repository or collection is so large that even cached
 aggregates aren't fast enough to compute, **or** the read needed is per-record
-(not aggregate) — e.g. "give me every IO's subject term IDs in one query
+(not aggregate) - e.g. "give me every IO's subject term IDs in one query
 without joining `object_term_relation`."
 
 Shape:
@@ -118,7 +118,7 @@ Shape:
 - Reads check the sidecar first, fall through to the base-table join if the
   row is absent. This is the only pattern where fall-through is permitted,
   because absence is meaningful (this repo isn't enrolled).
-- Refresh strategy is documented in the package's technical manual — either
+- Refresh strategy is documented in the package's technical manual - either
   on-save event handler, nightly rebuild scoped to the enrolled repository
   IDs, or both.
 
@@ -154,7 +154,7 @@ query-shape problem on the AHG side, not a base-schema problem. Fix it there.
 
 Positive:
 
-- Base AtoM schema stays diff-free against the reference instance — migrations,
+- Base AtoM schema stays diff-free against the reference instance - migrations,
   exports, audits, and CSV templates remain interchangeable.
 - Sidecar tables are versioned, owned, and shipped per-package with
   `database/install.sql`, so a fresh install is reproducible.
@@ -165,37 +165,37 @@ Positive:
 
 Negative:
 
-- Two writes for hot data — one to the Qubit table, one to the sidecar. Must
+- Two writes for hot data - one to the Qubit table, one to the sidecar. Must
   be reasoned about for consistency.
 - Sidecar staleness is now a category of bug. Every sidecar needs a documented
   refresh path and a way to force-rebuild from authoritative base tables.
 - Reads sometimes need a small fall-through layer (Pattern C) which adds code
   complexity vs. a single SELECT.
 
-## Worked example — GLAM browse subject facet (2026-04-28)
+## Worked example - GLAM browse subject facet (2026-04-28)
 
 - Symptom: 12 concurrent `COUNT(DISTINCT io.id) … JOIN object_term_relation`
   queries on `atom`, each running for hours, server load 47+.
 - Root cause: live aggregation over a 5M-row join, no cache enforcement on
   the read path, cron refresh covered only the `archive` DB.
 - Wrong fix (rejected): add a denormalised `subject_ids` column to
-  `information_object` — modifies AtoM base schema.
+  `information_object` - modifies AtoM base schema.
 - Applied fix: Pattern A enforced (browse reads only from
   `display_facet_cache`) plus Pattern B (per-repository, flock-guarded
   refresh via `ahg:refresh-facet-cache --repository=N`, extended to all four
   application DBs in `/etc/cron.d/ahg-facet-cache`).
-- Reserved: Pattern C — `ahg_io_facet_denorm` scoped to the largest single
-  repository — kept on the shelf for when measurement shows Patterns A+B are
+- Reserved: Pattern C - `ahg_io_facet_denorm` scoped to the largest single
+  repository - kept on the shelf for when measurement shows Patterns A+B are
   insufficient for that one collection.
 
 ## References
 
-- `packages/ahg-display/` — owns `display_facet_cache` and the GLAM browse.
-- `packages/ahg-core/src/Commands/DisplayReindexCommand.php` —
+- `packages/ahg-display/` - owns `display_facet_cache` and the GLAM browse.
+- `packages/ahg-core/src/Commands/DisplayReindexCommand.php` -
   full-rebuild path; per-facet rebuilders.
-- `packages/ahg-core/src/Commands/RefreshFacetCacheCommand.php` —
+- `packages/ahg-core/src/Commands/RefreshFacetCacheCommand.php` -
   per-database, per-repository refresh command.
-- `/etc/cron.d/ahg-facet-cache` — outer flock + multi-DB iteration.
-- `/etc/mysql/mysql.conf.d/heratio-overrides.cnf` —
+- `/etc/cron.d/ahg-facet-cache` - outer flock + multi-DB iteration.
+- `/etc/mysql/mysql.conf.d/heratio-overrides.cnf` -
   `max_execution_time = 300000` server-wide ceiling.
 - AtoM reference instance: `/usr/share/nginx/archive`.

@@ -283,7 +283,7 @@ Manage Open Digital Rights Language policies for your research outputs. Define h
 
 ---
 
-## Project View — Analysis Tools
+## Project View - Analysis Tools
 
 When viewing a project, the right sidebar contains three tool cards:
 

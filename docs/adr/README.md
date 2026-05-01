@@ -7,7 +7,7 @@ license: AGPL-3.0-or-later
 
 This directory holds the durable architectural decisions that bind future
 implementation work in Heratio. Each ADR captures **why** a decision was made,
-not just what was done — so that future contributors can tell whether the
+not just what was done - so that future contributors can tell whether the
 constraint that produced the decision still applies, or has changed and the
 ADR should be revisited.
 

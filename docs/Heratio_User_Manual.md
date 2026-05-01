@@ -1,4 +1,4 @@
-# Heratio — User Manual
+# Heratio - User Manual
 
 **For:** Archivists, Librarians, Museum Curators, Gallery Managers, Researchers
 **Product:** Heratio Framework v2.8.2
@@ -51,10 +51,10 @@ If your password has expired, you will be prompted to change it.
 
 The homepage displays:
 
-- **Carousel** — featured collections with images
-- **Browse by GLAM type** — clickable cards for Archive, Library, Museum, Gallery, DAM
-- **Browse by creator** — top creators with item counts
-- **Recent additions** — latest records added
+- **Carousel** - featured collections with images
+- **Browse by GLAM type** - clickable cards for Archive, Library, Museum, Gallery, DAM
+- **Browse by creator** - top creators with item counts
+- **Recent additions** - latest records added
 
 ---
 
@@ -90,10 +90,10 @@ The homepage displays:
 
 | Mode | Best For |
 |------|----------|
-| **Card** (default) | General browsing — shows thumbnail, title, description excerpt |
-| **Grid** | Visual browsing — compact thumbnail grid |
-| **Table** | Data review — sortable columns, resizable headers |
-| **Full width** | Detailed review — large images with full metadata |
+| **Card** (default) | General browsing - shows thumbnail, title, description excerpt |
+| **Grid** | Visual browsing - compact thumbnail grid |
+| **Table** | Data review - sortable columns, resizable headers |
+| **Full width** | Detailed review - large images with full metadata |
 
 **Filtering:**
 - Click a facet value to filter (e.g., click "Archive" under GLAM Type)
@@ -149,23 +149,23 @@ The clipboard lets you collect records for batch actions:
 
 Click any record title to view it. The record page shows:
 
-- **Title and identification area** — reference code, title, dates, level
-- **Digital object** — image viewer, video/audio player, PDF viewer, or 3D viewer
-- **Description fields** — organized by ISAD(G)/DACS/DC/MODS/RAD sections
-- **Access points** — linked subjects, places, names, genres
-- **Action bar** — Edit, Delete, Move, Copy, Export, Print label
-- **Children** — sub-records in a hierarchical tree
+- **Title and identification area** - reference code, title, dates, level
+- **Digital object** - image viewer, video/audio player, PDF viewer, or 3D viewer
+- **Description fields** - organized by ISAD(G)/DACS/DC/MODS/RAD sections
+- **Access points** - linked subjects, places, names, genres
+- **Action bar** - Edit, Delete, Move, Copy, Export, Print label
+- **Children** - sub-records in a hierarchical tree
 
 ### 3.2 Creating a Record
 
 **How to get there:** Add > Archival description
 
-1. **Select standard** — ISAD(G), DACS, Dublin Core, MODS, or RAD
-2. **Fill in fields** — at minimum, Title is required
-3. **Add access points** — click "Add new" under Subjects, Places, Names
-4. **Set parent** — place in hierarchy (optional)
-5. **Attach digital object** — Upload tab or Link tab
-6. **Set publication status** — Draft (internal) or Published (public)
+1. **Select standard** - ISAD(G), DACS, Dublin Core, MODS, or RAD
+2. **Fill in fields** - at minimum, Title is required
+3. **Add access points** - click "Add new" under Subjects, Places, Names
+4. **Set parent** - place in hierarchy (optional)
+5. **Attach digital object** - Upload tab or Link tab
+6. **Set publication status** - Draft (internal) or Published (public)
 7. **Save**
 
 ### 3.3 Editing a Record
@@ -192,13 +192,13 @@ On the record edit page, scroll to "Digital object":
 
 Your administrator may have defined custom fields for your records. These appear as an additional panel on view and edit pages. Custom fields can be:
 
-- **Text** — short text input
-- **Textarea** — multi-line text
-- **Date** — date picker
-- **Number** — numeric input
-- **Boolean** — yes/no toggle
-- **Dropdown** — predefined choices
-- **URL** — clickable link
+- **Text** - short text input
+- **Textarea** - multi-line text
+- **Date** - date picker
+- **Number** - numeric input
+- **Boolean** - yes/no toggle
+- **Dropdown** - predefined choices
+- **URL** - clickable link
 
 ---
 
@@ -229,45 +229,45 @@ Standard archival descriptions following ISAD(G):
 ![wireframe](./images/wireframes/wireframe_0aa5ecae.png)
 ```
 
-Other supported standards: **DACS**, **Dublin Core**, **MODS**, **RAD** — each with their own field sets accessible via the standard selector.
+Other supported standards: **DACS**, **Dublin Core**, **MODS**, **RAD** - each with their own field sets accessible via the standard selector.
 
 ### 4.2 Library
 
 MARC-inspired cataloguing with integrated library system:
 
-- **Cataloguing** — bibliographic records
-- **ISBN Lookup** — type an ISBN, click lookup, metadata auto-populates
-- **Circulation** — issue books, process returns, manage renewals
-- **Fines** — automatic overdue fines with configurable grace periods
-- **Patron management** — registered borrowers with loan history
-- **Cover images** — automatic retrieval from Open Library
+- **Cataloguing** - bibliographic records
+- **ISBN Lookup** - type an ISBN, click lookup, metadata auto-populates
+- **Circulation** - issue books, process returns, manage renewals
+- **Fines** - automatic overdue fines with configurable grace periods
+- **Patron management** - registered borrowers with loan history
+- **Cover images** - automatic retrieval from Open Library
 
 ### 4.3 Museum
 
 CCO (Cataloguing Cultural Objects) standard:
 
-- **Object identification** — name, classification, materials, techniques, dimensions
-- **Getty AAT** — linked vocabulary from the Art & Architecture Thesaurus
-- **Condition assessment** — scoring with photo documentation
-- **Spectrum 5.1** — UK Collections Trust procedures for acquisition, loans, movement, condition
-- **Exhibition linking** — connect objects to exhibitions
+- **Object identification** - name, classification, materials, techniques, dimensions
+- **Getty AAT** - linked vocabulary from the Art & Architecture Thesaurus
+- **Condition assessment** - scoring with photo documentation
+- **Spectrum 5.1** - UK Collections Trust procedures for acquisition, loans, movement, condition
+- **Exhibition linking** - connect objects to exhibitions
 
 ### 4.4 Gallery
 
 Exhibition and artwork management:
 
-- **Artist records** — biographical data with exhibition history
-- **Exhibitions** — planning, layout, timeline, media, loans
-- **Artwork tracking** — provenance, valuation, insurance
-- **VRA Core** — Visual Resources Association metadata
+- **Artist records** - biographical data with exhibition history
+- **Exhibitions** - planning, layout, timeline, media, loans
+- **Artwork tracking** - provenance, valuation, insurance
+- **VRA Core** - Visual Resources Association metadata
 
 ### 4.5 Digital Asset Management (DAM)
 
 Photo and media management:
 
-- **IPTC metadata** — automatic extraction from images (caption, keywords, creator, location)
-- **Watermarking** — configurable watermarks applied to downloads
-- **Batch operations** — bulk metadata editing across selections
+- **IPTC metadata** - automatic extraction from images (caption, keywords, creator, location)
+- **Watermarking** - configurable watermarks applied to downloads
+- **Batch operations** - bulk metadata editing across selections
 
 ---
 
@@ -279,10 +279,10 @@ Photo and media management:
 
 ISAAR(CPF) compliant records for persons, corporate bodies, and families:
 
-- **Identity** — authorized form of name, type (person/corporate/family), dates
-- **Description** — history, places, functions, mandates
-- **Relationships** — links to other authorities, resources, functions
-- **Control** — authority record identifier, maintenance dates
+- **Identity** - authorized form of name, type (person/corporate/family), dates
+- **Description** - history, places, functions, mandates
+- **Relationships** - links to other authorities, resources, functions
+- **Control** - authority record identifier, maintenance dates
 
 ### 5.2 Donors
 
@@ -410,8 +410,8 @@ Click the **microphone button** (navbar or floating bottom-right) and speak:
 **Right-click** the mic button to type a command instead of speaking.
 
 **Keyboard shortcuts:**
-- **Ctrl+Shift+V** — toggle voice on/off
-- **Ctrl+Shift+H** — show voice help
+- **Ctrl+Shift+V** - toggle voice on/off
+- **Ctrl+Shift+H** - show voice help
 
 ### 7.2 AI Features on Records
 
@@ -425,7 +425,7 @@ When viewing a record, you may see AI action buttons:
 | **Spellcheck** | Checks spelling and grammar |
 | **AI Suggest** | Generates a full description using LLM |
 
-These features process text locally — no data is sent to external services (unless cloud LLM is configured by your administrator).
+These features process text locally - no data is sent to external services (unless cloud LLM is configured by your administrator).
 
 ---
 
@@ -444,17 +444,17 @@ These features process text locally — no data is sent to external services (un
 ![wireframe](./images/wireframes/wireframe_cc617174.png)
 ```
 
-**Step 1 — Configure:** Choose sector (archive/library/museum/gallery/DAM), standard, repository, parent record, and which AI processing to apply.
+**Step 1 - Configure:** Choose sector (archive/library/museum/gallery/DAM), standard, repository, parent record, and which AI processing to apply.
 
-**Step 2 — Upload:** Upload a CSV file, ZIP archive, EAD XML, or point to a server directory.
+**Step 2 - Upload:** Upload a CSV file, ZIP archive, EAD XML, or point to a server directory.
 
-**Step 3 — Map & Enrich:** Map your CSV columns to AtoM fields. Use auto-map for common column names. Save mapping profiles for reuse.
+**Step 3 - Map & Enrich:** Map your CSV columns to AtoM fields. Use auto-map for common column names. Save mapping profiles for reuse.
 
-**Step 4 — Validate:** System checks for required fields, invalid dates, hierarchy issues, duplicates. Fix or exclude problem rows.
+**Step 4 - Validate:** System checks for required fields, invalid dates, hierarchy issues, duplicates. Fix or exclude problem rows.
 
-**Step 5 — Preview:** Review the hierarchical tree of records that will be created. Approve or exclude individual records.
+**Step 5 - Preview:** Review the hierarchical tree of records that will be created. Approve or exclude individual records.
 
-**Step 6 — Commit:** Records are created in the background. A progress bar shows status. Download a completion report when done.
+**Step 6 - Commit:** Records are created in the background. A progress bar shows status. Download a completion report when done.
 
 ### 8.2 CSV Import
 
@@ -486,10 +486,10 @@ From any browse results or record view:
 
 **How to get there:** Research menu
 
-- **Register as researcher** — complete registration form
-- **Book a reading room** — select date, time, and materials
-- **Request access** — submit access requests for restricted materials
-- **Workspace** — view your active requests and bookings
+- **Register as researcher** - complete registration form
+- **Book a reading room** - select date, time, and materials
+- **Request access** - submit access requests for restricted materials
+- **Workspace** - view your active requests and bookings
 
 ### 9.2 Access Requests
 
@@ -501,8 +501,8 @@ Submit requests for restricted materials. Requests go through a triage workflow:
 
 ### 9.3 Cart & Favorites
 
-- **Cart** (cart icon) — collect items for reproduction requests
-- **Favorites** (heart icon) — bookmark records for later reference
+- **Cart** (cart icon) - collect items for reproduction requests
+- **Favorites** (heart icon) - bookmark records for later reference
 
 ---
 
@@ -545,4 +545,4 @@ If you handle records containing personal information, be aware of privacy compl
 
 ---
 
-*Heratio Framework v2.8.2 — The Archive and Heritage Group (Pty) Ltd*
+*Heratio Framework v2.8.2 - The Archive and Heritage Group (Pty) Ltd*

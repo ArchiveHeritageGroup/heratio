@@ -1,4 +1,4 @@
-# Marketplace — Buyer Quick Start
+# Marketplace - Buyer Quick Start
 
 A short walk-through of the buyer side of the Heratio Marketplace: registering, finding items, and the three ways to acquire something.
 
@@ -6,7 +6,7 @@ A short walk-through of the buyer side of the Heratio Marketplace: registering, 
 
 ## 1. Get an account
 
-Anyone with a Heratio account is automatically a buyer — no separate registration is required. New users can sign up at **`/marketplace/register`** (chooses between buyer-only and seller signup).
+Anyone with a Heratio account is automatically a buyer - no separate registration is required. New users can sign up at **`/marketplace/register`** (chooses between buyer-only and seller signup).
 
 > Authenticated convenience entry: **`/marketplace/buyer/start`** lands logged-in users on the Browse page with a confirmation flash.
 
@@ -29,7 +29,7 @@ Each listing has a **price block** showing one of three sale types: **Buy Now** 
 
 ---
 
-## 3. Acquire the item — three paths
+## 3. Acquire the item - three paths
 
 ### a. Buy Now (fixed price)
 
@@ -43,7 +43,7 @@ Each listing has a **price block** showing one of three sale types: **Buy Now** 
 ### b. Auction
 
 1. Open the auction listing or browse `/marketplace/auction-browse`.
-2. Click **Place bid** — the bid form opens (`/marketplace/bid-form`).
+2. Click **Place bid** - the bid form opens (`/marketplace/bid-form`).
 3. Track your bids at **My Bids** (`/marketplace/my-bids`). Outbid → re-bid; winning bid at close → checkout.
 4. When the auction closes and you're the winner, complete payment via `POST /marketplace/checkout/win/{auctionId}`.
 
@@ -56,7 +56,7 @@ Each listing has a **price block** showing one of three sale types: **Buy Now** 
 
 ---
 
-## 4. Hold an item — Reservations
+## 4. Hold an item - Reservations
 
 Spotted something you want to think about? Use **Reserve** on a fixed-price listing:
 
@@ -91,7 +91,7 @@ Spotted something you want to think about? Use **Reserve** on a fixed-price list
 
 ## See also
 
-- *Marketplace — Seller Quick Start*
-- *Marketplace — Bidding & Auctions*
-- *Marketplace — Make an Offer*
-- *Marketplace — Reservations & Holds*
+- *Marketplace - Seller Quick Start*
+- *Marketplace - Bidding & Auctions*
+- *Marketplace - Make an Offer*
+- *Marketplace - Reservations & Holds*

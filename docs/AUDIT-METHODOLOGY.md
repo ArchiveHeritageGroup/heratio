@@ -8,15 +8,15 @@
 
 The audit is a multi-layer process that answers these questions:
 
-1. **Route parity** — Does Heratio have every URL/route that AtoM has?
-2. **HTTP parity** — Do both systems return the same status codes and DOM structure for each route?
-3. **Control parity** — Does every Heratio page have the same number of buttons, links, fields, headings, badges, tables, etc. as the AtoM equivalent?
-4. **Field parity** — Does every Heratio edit/create form have the same `name=` fields as AtoM?
-5. **URL/link parity** — Does every link on every page point to the correct Heratio equivalent of the AtoM URL?
-6. **View parity** — Does every AtoM template have a Heratio blade equivalent?
-7. **API parity** — Does Heratio expose the same REST/OAI-PMH endpoints as AtoM?
-8. **Media processing parity** — Does Heratio handle the same media types and operations as AtoM?
-9. **Menu parity** — Does Heratio's navigation match AtoM's menu structure?
+1. **Route parity** - Does Heratio have every URL/route that AtoM has?
+2. **HTTP parity** - Do both systems return the same status codes and DOM structure for each route?
+3. **Control parity** - Does every Heratio page have the same number of buttons, links, fields, headings, badges, tables, etc. as the AtoM equivalent?
+4. **Field parity** - Does every Heratio edit/create form have the same `name=` fields as AtoM?
+5. **URL/link parity** - Does every link on every page point to the correct Heratio equivalent of the AtoM URL?
+6. **View parity** - Does every AtoM template have a Heratio blade equivalent?
+7. **API parity** - Does Heratio expose the same REST/OAI-PMH endpoints as AtoM?
+8. **Media processing parity** - Does Heratio handle the same media types and operations as AtoM?
+9. **Menu parity** - Does Heratio's navigation match AtoM's menu structure?
 
 ---
 
@@ -24,7 +24,7 @@ The audit is a multi-layer process that answers these questions:
 
 - **Heratio instance** at a known URL (e.g., `http://localhost`)
 - **AtoM instance** at a known URL (e.g., `http://psis.theahg.co.za`)
-- **AtoM source code** on disk (e.g., `/usr/share/nginx/archive`) — needed for template-level comparison
+- **AtoM source code** on disk (e.g., `/usr/share/nginx/archive`) - needed for template-level comparison
 - **PHP 8.3+** with CLI
 - **Laravel artisan** accessible (`php artisan route:list --json`)
 - **curl**, **python3** (for the bash parity-check script)
@@ -33,7 +33,7 @@ The audit is a multi-layer process that answers these questions:
 
 ## Step-by-Step Audit Process
 
-### Step 1: Route Parity — `bin/parity-routes.php`
+### Step 1: Route Parity - `bin/parity-routes.php`
 
 **What it does:** Reads all AtoM `routing.yml` files (base Symfony + every AHG plugin) and compares against Heratio's `artisan route:list`.
 
@@ -53,7 +53,7 @@ php bin/parity-routes.php --json                     # JSON output
 
 ---
 
-### Step 2: HTTP Parity — `bin/parity-check` (bash)
+### Step 2: HTTP Parity - `bin/parity-check` (bash)
 
 **What it does:** For every GET route in Heratio, fetches the page from both Heratio and AtoM, compares HTTP status codes and DOM element counts (inputs, selects, textareas, table rows, headings, links, buttons).
 
@@ -74,7 +74,7 @@ bin/parity-check --output /tmp/parity-report.html               # HTML report
 
 ---
 
-### Step 3: Control Parity — `bin/audit-controls.php`
+### Step 3: Control Parity - `bin/audit-controls.php`
 
 **What it does:** Reads every Heratio blade view and its mapped AtoM template. Counts every UI element: buttons, links, inputs, selects, textareas, checkboxes, radios, headings (h1-h6), badges, tables, labels, icons, images, forms. Computes delta per package.
 
@@ -86,7 +86,7 @@ php bin/audit-controls.php > docs/FULL-CONTROL-AUDIT.txt
 
 **Key configuration:** The `$mapping` array (lines ~130–243) maps each Heratio package to its AtoM source directories. This must be correct for accurate results.
 
-**Output:** `docs/FULL-CONTROL-AUDIT.txt` — per-package breakdown:
+**Output:** `docs/FULL-CONTROL-AUDIT.txt` - per-package breakdown:
 - H-Ctrl (Heratio controls), A-Ctrl (AtoM controls), Delta
 - Layout type (1col/2col/3col), sidebar presence
 - AtoM mapping percentage
@@ -95,7 +95,7 @@ php bin/audit-controls.php > docs/FULL-CONTROL-AUDIT.txt
 
 ---
 
-### Step 4: Field Parity — `bin/parity-check.php`
+### Step 4: Field Parity - `bin/parity-check.php`
 
 **What it does:** For each edit/create form, extracts `name=` attributes from both AtoM templates and Heratio blade views. Reports fields present in AtoM but missing in Heratio.
 
@@ -105,7 +105,7 @@ cd /usr/share/nginx/heratio
 php bin/parity-check.php > docs/FIELD-PARITY-REPORT.txt
 ```
 
-**Output:** `docs/FIELD-PARITY-REPORT.txt` — per-form breakdown:
+**Output:** `docs/FIELD-PARITY-REPORT.txt` - per-form breakdown:
 - H-Fld (Heratio fields), A-Fld (AtoM fields), Miss (missing), Extra
 - List of missing field names per form
 
@@ -113,9 +113,9 @@ php bin/parity-check.php > docs/FIELD-PARITY-REPORT.txt
 
 ---
 
-### Step 5: URL/Link Parity — Three levels
+### Step 5: URL/Link Parity - Three levels
 
-#### 5a. All route() calls — `bin/audit-all-urls.php`
+#### 5a. All route() calls - `bin/audit-all-urls.php`
 Validates every `route('name')` call in blade files against `artisan route:list`.
 
 ```bash
@@ -124,14 +124,14 @@ php bin/audit-all-urls.php > docs/URL-AUDIT-ALL.txt
 
 **Result:** 1,270 route() calls found, 110 broken (pointing to non-existent routes).
 
-#### 5b. Scoped URL audit — `bin/audit-urls.php`
+#### 5b. Scoped URL audit - `bin/audit-urls.php`
 Checks that links on show/edit pages are record-scoped (contain `$slug`, `$id`, etc.) rather than generic.
 
 ```bash
 php bin/audit-urls.php
 ```
 
-#### 5c. Page-by-page link comparison — `bin/audit-urls-v2.php`
+#### 5c. Page-by-page link comparison - `bin/audit-urls-v2.php`
 Extracts every `<a href>` from each Heratio blade and its AtoM equivalent, pairs by link text, flags MISSING/EXTRA/MISMATCH.
 
 ```bash
@@ -140,7 +140,7 @@ php bin/audit-urls-v2.php > docs/URL-AUDIT-V2.txt
 
 ---
 
-### Step 6: View Parity — `bin/missing-views.php`
+### Step 6: View Parity - `bin/missing-views.php`
 
 **What it does:** Scans all AtoM templates across all plugins and checks if a corresponding Heratio blade exists.
 
@@ -183,8 +183,8 @@ After auditing, these scripts automate common fixes:
 | Script | Purpose |
 |--------|---------|
 | `bin/fix-badges-and-buttons.php` | Add Required/Recommended/Optional badges to form labels |
-| `bin/fix-badges-pass2.php` | Second pass — edge cases |
-| `bin/fix-badges-pass3.php` | Third pass — final refinements |
+| `bin/fix-badges-pass2.php` | Second pass - edge cases |
+| `bin/fix-badges-pass3.php` | Third pass - final refinements |
 | `bin/fix-broken-routes.php` | Generate stub routes for broken `route()` calls |
 | `bin/create-missing-packages.php` | Scaffold Heratio packages for missing AtoM plugins |
 
@@ -198,12 +198,12 @@ Every page fix must follow ALL 12 rules:
 |---|------|
 | 1 | Apply central CSS theme (`var(--ahg-primary)`, `atom-btn-*` classes) |
 | 2 | Count controls, report in comparison table (AtoM vs Heratio vs delta) |
-| 3 | Clone exactly — same controls, same look, same text, same CSS |
-| 4 | No asking permission — just fix it |
-| 5 | No "future enhancements" — everything done in one pass |
-| 6 | Text = controls — headings, labels, static text, help text all count |
-| 7 | Field badges — Required (bg-danger), Recommended (bg-warning), Optional (bg-secondary) |
-| 8 | Report again after fixes — confirm 0 deltas |
+| 3 | Clone exactly - same controls, same look, same text, same CSS |
+| 4 | No asking permission - just fix it |
+| 5 | No "future enhancements" - everything done in one pass |
+| 6 | Text = controls - headings, labels, static text, help text all count |
+| 7 | Field badges - Required (bg-danger), Recommended (bg-warning), Optional (bg-secondary) |
+| 8 | Report again after fixes - confirm 0 deltas |
 | 9 | Layout template must match AtoM (1col/2col/3col) |
 | 10 | Sidebar position must match AtoM (left/right) |
 | 11 | Page width/structure must match (container vs container-fluid, column ratios) |
@@ -292,8 +292,8 @@ To run this audit on a new AtoM → Heratio migration:
 
 Beyond the PHP audit scripts, the parity process uses two additional testing layers:
 
-1. **AI-assisted visual QA** — Claude reads live pages from both AtoM and Heratio, compares DOM structure, identifies discrepancies, and generates fixes
-2. **Playwright E2E tests** — Automated browser tests that navigate every page, validate DOM elements, take screenshots, and run regression checks
+1. **AI-assisted visual QA** - Claude reads live pages from both AtoM and Heratio, compares DOM structure, identifies discrepancies, and generates fixes
+2. **Playwright E2E tests** - Automated browser tests that navigate every page, validate DOM elements, take screenshots, and run regression checks
 
 ---
 
@@ -303,12 +303,12 @@ Beyond the PHP audit scripts, the parity process uses two additional testing lay
 
 Claude (the AI) acts as a visual QA tester by:
 
-1. **Reading the AtoM source template** — the original Symfony PHP template from `/usr/share/nginx/archive/`
-2. **Reading the Heratio blade view** — the Laravel equivalent from `/usr/share/nginx/heratio/packages/`
-3. **Comparing element-by-element** — headings, links, buttons, form fields, sections, badges, sidebar, layout
-4. **Generating a comparison table** — AtoM count vs Heratio count vs delta per control type
-5. **Writing the fix** — modifying the Heratio blade to close the delta to zero
-6. **Verifying after fix** — re-reading both files and confirming 0 delta
+1. **Reading the AtoM source template** - the original Symfony PHP template from `/usr/share/nginx/archive/`
+2. **Reading the Heratio blade view** - the Laravel equivalent from `/usr/share/nginx/heratio/packages/`
+3. **Comparing element-by-element** - headings, links, buttons, form fields, sections, badges, sidebar, layout
+4. **Generating a comparison table** - AtoM count vs Heratio count vs delta per control type
+5. **Writing the fix** - modifying the Heratio blade to close the delta to zero
+6. **Verifying after fix** - re-reading both files and confirming 0 delta
 
 #### The `bin/visual-qa.php` script
 
@@ -364,10 +364,10 @@ This process is repeated for every view in every package, prioritized by gap siz
 #### Purpose
 
 Playwright provides automated browser-level testing that the PHP scripts cannot:
-- **Real rendering** — tests what the user actually sees (CSS applied, JS executed)
-- **Screenshots** — visual regression detection via screenshot comparison
-- **Interactive testing** — form submissions, navigation flows, authentication
-- **Cross-browser** — Chrome, Firefox, Safari
+- **Real rendering** - tests what the user actually sees (CSS applied, JS executed)
+- **Screenshots** - visual regression detection via screenshot comparison
+- **Interactive testing** - form submissions, navigation flows, authentication
+- **Cross-browser** - Chrome, Firefox, Safari
 
 #### Setup
 
@@ -390,7 +390,7 @@ Add to `package.json`:
 }
 ```
 
-#### Configuration — `playwright.config.ts`
+#### Configuration - `playwright.config.ts`
 
 ```typescript
 import { defineConfig } from '@playwright/test';

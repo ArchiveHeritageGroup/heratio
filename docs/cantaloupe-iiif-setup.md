@@ -1,4 +1,4 @@
-# Cantaloupe IIIF Image Server — Setup Guide
+# Cantaloupe IIIF Image Server - Setup Guide
 
 ## Overview
 

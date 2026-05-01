@@ -31,9 +31,9 @@ Both commands accept the same options and CSV format. Use whichever matches your
 
 | CSV Column | Use Case |
 |---|---|
-| `digitalObjectURI` | External URL — AtoM downloads the file from a remote server |
+| `digitalObjectURI` | External URL - AtoM downloads the file from a remote server |
 | `digitalObjectPath` | Local file path on the **server** filesystem |
-| `digitalObjectChecksum` | Optional — SHA256/MD5 checksum to skip unchanged files on re-import |
+| `digitalObjectChecksum` | Optional - SHA256/MD5 checksum to skip unchanged files on re-import |
 
 **Important:** Only **one digital object per row** can be imported via CSV. If both `digitalObjectURI` and `digitalObjectPath` are provided for the same row, `digitalObjectURI` takes priority.
 
@@ -41,7 +41,7 @@ Both commands accept the same options and CSV format. Use whichever matches your
 
 ### External URLs (`digitalObjectURI`)
 
-Digital objects can be hosted on any publicly accessible web server. AtoM will download the file automatically (with up to 3 retry attempts). If the download fails, the archival description is still created — just without the digital object.
+Digital objects can be hosted on any publicly accessible web server. AtoM will download the file automatically (with up to 3 retry attempts). If the download fails, the archival description is still created - just without the digital object.
 
 ### Local Paths (`digitalObjectPath`)
 
@@ -63,13 +63,13 @@ sudo chown www-data:www-data /usr/share/nginx/archive/uploads/imports
 Since `digitalObjectPath` requires server-side files, you need to upload them first. Common methods:
 
 ```bash
-# SCP — simple copy from local machine to server
+# SCP - simple copy from local machine to server
 scp -r /local/path/to/images/ user@server:/usr/share/nginx/archive/uploads/imports/
 
-# Rsync — preferred for large batches (resumable, shows progress)
+# Rsync - preferred for large batches (resumable, shows progress)
 rsync -avz --progress /local/path/to/images/ user@server:/usr/share/nginx/archive/uploads/imports/
 
-# SFTP — interactive session
+# SFTP - interactive session
 sftp user@server
 put -r /local/path/to/images/ /usr/share/nginx/archive/uploads/imports/
 ```
@@ -81,7 +81,7 @@ sudo chown -R www-data:www-data /usr/share/nginx/archive/uploads/imports/
 sudo chmod -R 644 /usr/share/nginx/archive/uploads/imports/*
 ```
 
-## Sample CSV — External URLs
+## Sample CSV - External URLs
 
 ```csv
 legacyId,identifier,title,levelOfDescription,digitalObjectURI,publicationStatus
@@ -90,7 +90,7 @@ legacyId,identifier,title,levelOfDescription,digitalObjectURI,publicationStatus
 3,ACC-003,"Interview Recording",Item,https://media.example.com/audio/interview.mp3,Published
 ```
 
-## Sample CSV — Local Server Paths
+## Sample CSV - Local Server Paths
 
 ```csv
 legacyId,identifier,title,levelOfDescription,digitalObjectPath,publicationStatus
@@ -130,7 +130,7 @@ This reports:
 # 1. Upload files to server (from your local machine)
 rsync -avz --progress ./images/ user@server:/usr/share/nginx/archive/uploads/imports/
 
-# 2. On the server — set correct permissions
+# 2. On the server - set correct permissions
 sudo chown -R www-data:www-data /usr/share/nginx/archive/uploads/imports/
 
 # 3. Validate paths match the CSV
@@ -148,9 +148,9 @@ php bin/atom search:populate
 
 ## Key Notes
 
-- Only **one digital object per row** — CSV cannot attach multiple files to a single description
+- Only **one digital object per row** - CSV cannot attach multiple files to a single description
 - External URLs are downloaded by AtoM with automatic retry (up to 3 attempts)
-- If a URL download fails, the description record is still created — just without the digital object attached
+- If a URL download fails, the description record is still created - just without the digital object attached
 - The optional `digitalObjectChecksum` column lets AtoM skip re-importing unchanged files during update imports
 - Supported file types include images (JPEG, TIFF, PNG), PDFs, audio (MP3, WAV), video (MP4), and 3D models
 - After importing, run `php bin/atom search:populate` to ensure new records appear in search results

@@ -1,4 +1,4 @@
-# AHG Plugins Menu — Page-by-Page Comparison (AtoM vs Heratio)
+# AHG Plugins Menu - Page-by-Page Comparison (AtoM vs Heratio)
 
 Generated: 2026-03-17
 
@@ -52,7 +52,7 @@ Generated: 2026-03-17
 | Edit: add term modal | ✓ | ✗ | ✗ |
 | 20+ predefined section categories | ✓ | ✗ | ✗ |
 
-**Status: NOT IMPLEMENTED — no route, controller, or views exist**
+**Status: NOT IMPLEMENTED - no route, controller, or views exist**
 
 **AtoM source:** `atom-ahg-plugins/ahgSettingsPlugin/modules/ahgDropdown/`
 
@@ -258,7 +258,7 @@ No `ahg-researcher-manage` package exists.
 
 | Feature | AtoM | Heratio | Status |
 |---------|------|---------|--------|
-| Route | `/admin/auditSettings` | — | DEAD LINK |
+| Route | `/admin/auditSettings` | - | DEAD LINK |
 | Enable audit logging toggle | ✓ | ✗ | ✗ |
 | Log types (views, searches, downloads, API, auth, classified) | ✓ | ✗ | ✗ |
 | Privacy settings (mask data, anonymize IPs) | ✓ | ✗ | ✗ |
@@ -275,7 +275,7 @@ No `ahg-researcher-manage` package exists.
 | Error table with details | ✓ | ✓ (in view) | ⚠ |
 | Resolve/Reopen/Delete actions | ✓ | ✓ (in view) | ⚠ |
 | Collapsible stack trace | ✓ | ✓ (in view) | ⚠ |
-| **Laravel controller + route** | — | ✗ **VIEW EXISTS BUT NO ROUTE** | ⚠ |
+| **Laravel controller + route** | - | ✗ **VIEW EXISTS BUT NO ROUTE** | ⚠ |
 
 **View exists at `packages/ahg-settings/resources/views/errorLog.blade.php` but no controller or route wires it up.**
 
@@ -287,7 +287,7 @@ No `ahg-researcher-manage` package exists.
 
 | Feature | AtoM | Heratio | Status |
 |---------|------|---------|--------|
-| Route | `/ricDashboard/index` | — | DEAD LINK |
+| Route | `/ricDashboard/index` | - | DEAD LINK |
 | Fuseki status card | ✓ | ✗ | ✗ |
 | Queue count card | ✓ | ✗ | ✗ |
 | Orphaned triples card | ✓ | ✗ | ✗ |
@@ -298,7 +298,7 @@ No `ahg-researcher-manage` package exists.
 | Quick actions (Sync, Integrity Check, Cleanup) | ✓ | ✗ | ✗ |
 | Sub-pages: Queue, Orphans, Logs, Config | ✓ | ✗ | ✗ |
 
-**NOT IMPLEMENTED — no package exists**
+**NOT IMPLEMENTED - no package exists**
 
 **AtoM source:** `atom-ahg-plugins/ahgRicExplorerPlugin/`
 **DB tables:** `ric_sync_status`, `ric_sync_queue`, `ric_orphan_tracking`, `ric_sync_log`
@@ -335,7 +335,7 @@ No `ahg-researcher-manage` package exists.
 
 | Feature | AtoM | Heratio | Status |
 |---------|------|---------|--------|
-| Route | `/admin/dedupe` | — | DEAD LINK |
+| Route | `/admin/dedupe` | - | DEAD LINK |
 | Dashboard (6 stat cards) | ✓ | ✗ | ✗ |
 | Browse duplicates with filters | ✓ | ✗ | ✗ |
 | Side-by-side comparison view | ✓ | ✗ | ✗ |
@@ -346,7 +346,7 @@ No `ahg-researcher-manage` package exists.
 | Reports (monthly stats, clusters, efficiency) | ✓ | ✗ | ✗ |
 | API: realtime duplicate check | ✓ | ✗ | ✗ |
 
-**NOT IMPLEMENTED — no package exists**
+**NOT IMPLEMENTED - no package exists**
 
 **AtoM source:** `atom-ahg-plugins/ahgDedupePlugin/`
 **DB tables:** `ahg_duplicate_detection`, `ahg_duplicate_rule`, `ahg_dedupe_scan`
@@ -359,9 +359,9 @@ No `ahg-researcher-manage` package exists.
 
 | Feature | AtoM | Heratio | Status |
 |---------|------|---------|--------|
-| Route | `/admin/formTemplates` | — | DEAD LINK |
+| Route | `/admin/formTemplates` | - | DEAD LINK |
 
-**NOT IMPLEMENTED — no dedicated plugin found in AtoM either. Likely a placeholder/future feature.**
+**NOT IMPLEMENTED - no dedicated plugin found in AtoM either. Likely a placeholder/future feature.**
 
 ---
 
@@ -375,7 +375,7 @@ No `ahg-doi-manage` package exists.
 
 | Feature | AtoM | Heratio | Status |
 |---------|------|---------|--------|
-| Route | `/admin/doi` | — | DEAD LINK |
+| Route | `/admin/doi` | - | DEAD LINK |
 | Statistics cards | ✓ | ✗ | ✗ |
 | Recent DOIs table | ✓ | ✗ | ✗ |
 | Quick links | ✓ | ✗ | ✗ |
@@ -384,7 +384,7 @@ No `ahg-doi-manage` package exists.
 
 | Feature | AtoM | Heratio | Status |
 |---------|------|---------|--------|
-| Route | `/admin/doi/queue` | — | DEAD LINK |
+| Route | `/admin/doi/queue` | - | DEAD LINK |
 | Queue status summary | ✓ | ✗ | ✗ |
 | Queue items table | ✓ | ✗ | ✗ |
 | Retry failed items | ✓ | ✗ | ✗ |
@@ -410,7 +410,7 @@ No `ahg-heritage-manage` package exists.
 
 | Feature | AtoM | Heratio | Status |
 |---------|------|---------|--------|
-| Route | `/heritage/admin` | — | DEAD LINK |
+| Route | `/heritage/admin` | - | DEAD LINK |
 | Admin dashboard with stats + sidebar | ✓ | ✗ | ✗ |
 | Landing page config | ✓ | ✗ | ✗ |
 | Feature toggles | ✓ | ✗ | ✗ |
@@ -426,7 +426,7 @@ No `ahg-heritage-manage` package exists.
 
 | Feature | AtoM | Heratio | Status |
 |---------|------|---------|--------|
-| Route | `/heritage/analytics` | — | DEAD LINK |
+| Route | `/heritage/analytics` | - | DEAD LINK |
 | Analytics dashboard (7/30/90 day selector) | ✓ | ✗ | ✗ |
 | Page views, searches, downloads, visitors stats | ✓ | ✗ | ✗ |
 | Search performance (avg results, zero-result rate, CTR) | ✓ | ✗ | ✗ |
@@ -436,7 +436,7 @@ No `ahg-heritage-manage` package exists.
 
 | Feature | AtoM | Heratio | Status |
 |---------|------|---------|--------|
-| Route | `/heritage/custodian` | — | DEAD LINK |
+| Route | `/heritage/custodian` | - | DEAD LINK |
 | Custodian dashboard (batch stats, activity, top contributors) | ✓ | ✗ | ✗ |
 | Single item custodian view | ✓ | ✗ | ✗ |
 | Batch operations interface | ✓ | ✗ | ✗ |
@@ -469,7 +469,7 @@ No `ahg-heritage-manage` package exists.
 
 | Feature | AtoM | Heratio | Status |
 |---------|------|---------|--------|
-| Route | `/admin/restore` | — | DEAD LINK |
+| Route | `/admin/restore` | - | DEAD LINK |
 | Restore from local backup | ✓ | ✗ | ✗ |
 | Restore from uploaded backup | ✓ | ✗ | ✗ |
 | Component selection | ✓ | ✗ | ✗ |

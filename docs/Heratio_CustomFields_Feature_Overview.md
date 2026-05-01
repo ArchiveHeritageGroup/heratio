@@ -1,4 +1,4 @@
-# Heratio — Custom Fields Framework
+# Heratio - Custom Fields Framework
 
 ## Feature Overview
 
@@ -10,7 +10,7 @@
 
 ## Overview
 
-The Custom Fields Framework enables institutions to define unlimited custom metadata fields on any entity type — without writing code. Administrators configure fields through an intuitive web interface, and the system automatically renders them on entity edit and view pages.
+The Custom Fields Framework enables institutions to define unlimited custom metadata fields on any entity type - without writing code. Administrators configure fields through an intuitive web interface, and the system automatically renders them on entity edit and view pages.
 
 This eliminates the need for developer involvement when institutions require additional metadata fields beyond the standard archival description fields (ISAD(G), DACS, Dublin Core, RAD, MODS).
 
@@ -36,12 +36,12 @@ This eliminates the need for developer involvement when institutions require add
 
 ### Entity Type Support
 Custom fields can be attached to any of the following entity types:
-- **Information Object** — Archival descriptions
-- **Actor** — Authority records (persons, organizations, families)
-- **Accession** — Accession records
-- **Repository** — Archival institutions
-- **Donor** — Donor records
-- **Function** — ISDF function descriptions
+- **Information Object** - Archival descriptions
+- **Actor** - Authority records (persons, organizations, families)
+- **Accession** - Accession records
+- **Repository** - Archival institutions
+- **Donor** - Donor records
+- **Function** - ISDF function descriptions
 
 ### Repeatable Fields
 A single field definition can accept multiple values. For example, a "Barcode" field can store multiple barcode values for a single record.
@@ -56,8 +56,8 @@ Related fields can be organized under section headings (e.g., "Legacy Data", "Tr
 
 ### Visibility Control
 Each field offers independent visibility settings:
-- **Public View** — Show or hide on the public-facing record page
-- **Edit Form** — Show or hide on the staff edit form
+- **Public View** - Show or hide on the public-facing record page
+- **Edit Form** - Show or hide on the staff edit form
 
 ### Searchable Fields
 Fields can be flagged as searchable for future integration with the search index.

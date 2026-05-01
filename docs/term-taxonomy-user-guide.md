@@ -1,6 +1,6 @@
-# ahgTermTaxonomyPlugin — Terms, Taxonomies & SKOS
+# ahgTermTaxonomyPlugin - Terms, Taxonomies & SKOS
 
-The **ahgTermTaxonomyPlugin** is Heratio's controlled-vocabulary surface. Subjects, places, genres, levels of description, media types, accession statuses, condition grades — anything an archivist would otherwise type as free text — lives here as a **term** within a **taxonomy**.
+The **ahgTermTaxonomyPlugin** is Heratio's controlled-vocabulary surface. Subjects, places, genres, levels of description, media types, accession statuses, condition grades - anything an archivist would otherwise type as free text - lives here as a **term** within a **taxonomy**.
 
 Controlled vocabularies make the catalogue searchable, faceted, and machine-readable. They are exported as **SKOS** (Simple Knowledge Organization System) for cross-institutional interoperability.
 
@@ -78,7 +78,7 @@ Two terms drift in (e.g. "World War II" and "Second World War"):
 1. `/admin/term/merge`.
 2. Pick **survivor** + **doomed** terms.
 3. Review every IO link, every relation, every i18n row.
-4. Confirm — doomed term references are repointed to the survivor; doomed term row is deleted.
+4. Confirm - doomed term references are repointed to the survivor; doomed term row is deleted.
 
 > Audit-logged when `ahgAuditTrailPlugin` is enabled.
 
@@ -97,7 +97,7 @@ There are two enumerated-value systems in Heratio. Use the right one:
 | | **Term Taxonomy** | **Dropdown Manager** |
 | --- | --- | --- |
 | Where | `term`/`taxonomy` table | `ahg_dropdown` table |
-| Use for | **Descriptive vocabulary** with hierarchy, multilingual, SKOS-export — places, subjects, genres, actor types | **Configuration enums** — internal codes, statuses, simple flat lists with no need for SKOS |
+| Use for | **Descriptive vocabulary** with hierarchy, multilingual, SKOS-export - places, subjects, genres, actor types | **Configuration enums** - internal codes, statuses, simple flat lists with no need for SKOS |
 | UI | `/taxonomy/list`, `/term/<slug>` | `/admin/dropdowns` |
 | Hierarchy? | Yes (MPTT) | Flat |
 | Multilingual? | Yes (`term_i18n`) | Single-locale labels |
@@ -112,10 +112,10 @@ Rule of thumb: **if a researcher might want to search/browse by it, it's a taxon
 The plugin has no top-level settings page; behaviour is configured per taxonomy:
 
 - **Taxonomy edit form** (`/taxonomy/<slug>/edit`):
-  - **Use as facet on browse** — adds the taxonomy to the GLAM browse facet sidebar.
-  - **Allow multiple values per record** — single vs many on the IO edit form.
-  - **Source authority** — VIAF / Getty TGN / Library of Congress — drives external lookup buttons on term add.
-- **Site-wide settings:** none — but `/admin/settings/ahg/authority` controls the merge auto-pre-select threshold (string similarity) used by the term merge tool too.
+  - **Use as facet on browse** - adds the taxonomy to the GLAM browse facet sidebar.
+  - **Allow multiple values per record** - single vs many on the IO edit form.
+  - **Source authority** - VIAF / Getty TGN / Library of Congress - drives external lookup buttons on term add.
+- **Site-wide settings:** none - but `/admin/settings/ahg/authority` controls the merge auto-pre-select threshold (string similarity) used by the term merge tool too.
 
 ---
 
@@ -130,7 +130,7 @@ The plugin has no top-level settings page; behaviour is configured per taxonomy:
 | Merge terms | Admin |
 | Delete term | Admin (and refused if the term is in use) |
 | Import SKOS | Admin |
-| Edit a built-in taxonomy's name/id | Admin (and discouraged — code references the id) |
+| Edit a built-in taxonomy's name/id | Admin (and discouraged - code references the id) |
 
 ---
 
@@ -152,18 +152,18 @@ Useful for handing the institution's controlled vocabulary to a partner or to a 
 ## Common gotchas
 
 - **Don't delete a term that is in use.** The delete refuses if any object_term link or term_relation references it. Reassign first.
-- **Slug stability.** Renaming a term's preferred label does *not* rename its slug. Use **Rename slug** explicitly if you need the URL to change — and remember the old URL will 404 unless an admin adds a redirect.
-- **Built-in taxonomy IDs are referenced from code.** `taxonomy.id = 35` is `Subject`. Don't reassign or delete the row — code paths break.
+- **Slug stability.** Renaming a term's preferred label does *not* rename its slug. Use **Rename slug** explicitly if you need the URL to change - and remember the old URL will 404 unless an admin adds a redirect.
+- **Built-in taxonomy IDs are referenced from code.** `taxonomy.id = 35` is `Subject`. Don't reassign or delete the row - code paths break.
 - **Source culture.** A term's `source_culture` is the language it was originally created in. If no translation exists, the show page falls back to the source-culture label.
-- **MPTT integrity.** Manual SQL `DELETE`/`UPDATE` on the `term` table will corrupt the lft/rgt range — go through the controller, or run `php artisan ahg:nested-set-rebuild --table=term` after.
-- **Facet counts cache.** Adding a term or moving one in a faceted taxonomy doesn't immediately update the GLAM browse facet counts — they're cached. Run `php artisan ahg:display-reindex --facets-only` (or wait for the nightly rebuild).
+- **MPTT integrity.** Manual SQL `DELETE`/`UPDATE` on the `term` table will corrupt the lft/rgt range - go through the controller, or run `php artisan ahg:nested-set-rebuild --table=term` after.
+- **Facet counts cache.** Adding a term or moving one in a faceted taxonomy doesn't immediately update the GLAM browse facet counts - they're cached. Run `php artisan ahg:display-reindex --facets-only` (or wait for the nightly rebuild).
 
 ---
 
 ## Related
 
-- **`ahgInformationObjectManagePlugin`** — the records that get tagged with these terms.
-- **`ahgActorManagePlugin`** — uses entity-type and occupation taxonomies.
-- **`ahgRicExplorerPlugin`** — RiC graph view of concept relationships.
-- **`ahgAIPlugin`** — NER pipeline that suggests new subject terms from IO content.
-- **Help articles**: *Multilingual Cataloguing*, *AHG Authority Records — User Guide*
+- **`ahgInformationObjectManagePlugin`** - the records that get tagged with these terms.
+- **`ahgActorManagePlugin`** - uses entity-type and occupation taxonomies.
+- **`ahgRicExplorerPlugin`** - RiC graph view of concept relationships.
+- **`ahgAIPlugin`** - NER pipeline that suggests new subject terms from IO content.
+- **Help articles**: *Multilingual Cataloguing*, *AHG Authority Records - User Guide*

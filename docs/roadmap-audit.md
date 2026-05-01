@@ -1,4 +1,4 @@
-# Heratio RM/DM Roadmap — Audit Results
+# Heratio RM/DM Roadmap - Audit Results
 
 ## Roadmap vs Reality
 
@@ -6,26 +6,26 @@
 
 | Claim in Roadmap | Actual Status | Correction |
 |---|---|---|
-| Workflow & approvals = "Not built" | **WRONG** — ahg-workflow has 29 routes, 23 views, dashboard, gates, steps, admin | Already built with full workflow engine |
-| Email capture = "Not built" | Correct — no email capture package exists |
-| Legal holds = "Not built" | Partially correct — package dir exists but no routes/views |
+| Workflow & approvals = "Not built" | **WRONG** - ahg-workflow has 29 routes, 23 views, dashboard, gates, steps, admin | Already built with full workflow engine |
+| Email capture = "Not built" | Correct - no email capture package exists |
+| Legal holds = "Not built" | Partially correct - package dir exists but no routes/views |
 | Vital records flagging = "Not built" | Correct |
 | Record declaration = "Not built" | Correct |
-| Retention schedule = "Not built" | Correct — basic only, no standalone module |
-| Disposal execution = "Partial" | Correct — basic delete exists but no formal disposal workflow |
+| Retention schedule = "Not built" | Correct - basic only, no standalone module |
+| Disposal execution = "Partial" | Correct - basic delete exists but no formal disposal workflow |
 | Destruction certificates = "Not built" | Correct |
 | Review triggers = "Not built" | Correct |
 | Format identification PRONOM = "Not built" | Correct |
-| Fixity checking = "Not built" | Partially wrong — preservation plugin has checksum generation route |
+| Fixity checking = "Not built" | Partially wrong - preservation plugin has checksum generation route |
 | BagIt export = "Not built" | Correct |
-| TrueNAS NFS = "Done" | **Correct** — /mnt/nas/heratio/ exists and mounted |
-| OAIS SIP/AIP/DIP = "Partial" | Correct — preservation plugin has 31 routes but pipeline incomplete |
-| Fuseki "17,358+ triples" | **WRONG** — actually **17,912,054 triples** (17.9M not 17K) |
-| Spectrum 5.0 = "~60%" | **Higher** — spectrum plugin has 28 routes, full condition/provenance/risk/workflow |
-| ICIP = "Not built" | **WRONG** — ahg-icip has 24 routes, communities, consent, restrictions, protocols |
-| WCAG 2.1 Level AA = "Done" | Cannot verify — no automated WCAG audit run |
-| Natural language discovery = "On horizon" | Partially done — semantic search via Qdrant on ric.theahg.co.za |
-| Vector similarity Qdrant = "On horizon" | **WRONG** — already running, 693 records indexed, semantic search working |
+| TrueNAS NFS = "Done" | **Correct** - /mnt/nas/heratio/ exists and mounted |
+| OAIS SIP/AIP/DIP = "Partial" | Correct - preservation plugin has 31 routes but pipeline incomplete |
+| Fuseki "17,358+ triples" | **WRONG** - actually **17,912,054 triples** (17.9M not 17K) |
+| Spectrum 5.0 = "~60%" | **Higher** - spectrum plugin has 28 routes, full condition/provenance/risk/workflow |
+| ICIP = "Not built" | **WRONG** - ahg-icip has 24 routes, communities, consent, restrictions, protocols |
+| WCAG 2.1 Level AA = "Done" | Cannot verify - no automated WCAG audit run |
+| Natural language discovery = "On horizon" | Partially done - semantic search via Qdrant on ric.theahg.co.za |
+| Vector similarity Qdrant = "On horizon" | **WRONG** - already running, 693 records indexed, semantic search working |
 
 ### Summary of Corrections
 
@@ -36,17 +36,17 @@
 | Capabilities marked "Not built" | 13 | **10** (3 were already built) |
 | Fuseki triples | 17,358 | **17,912,054** |
 
-### Standards Compliance — Corrected
+### Standards Compliance - Corrected
 
 | Standard | Roadmap Says | Corrected |
 |---|---|---|
-| ISO 15489-1:2016 | ~50% | ~55% — workflow exists |
-| MoReq2010 | ~35% | ~40% — workflow + audit already there |
-| DoD 5015.2 | ~25% | ~30% — audit trail + security covers more |
-| Spectrum 5.0 | ~60% | ~75% — full condition/provenance/risk/workflow |
-| ICIP | "Not built" | **~40%** — communities, consent, restrictions exist |
+| ISO 15489-1:2016 | ~50% | ~55% - workflow exists |
+| MoReq2010 | ~35% | ~40% - workflow + audit already there |
+| DoD 5015.2 | ~25% | ~30% - audit trail + security covers more |
+| Spectrum 5.0 | ~60% | ~75% - full condition/provenance/risk/workflow |
+| ICIP | "Not built" | **~40%** - communities, consent, restrictions exist |
 
-### Competitive Position Table — Verified
+### Competitive Position Table - Verified
 
 The competitive position table is accurate. Heratio IS the only open-source platform covering RM + GLAM + RiC-O.
 
@@ -54,25 +54,25 @@ The competitive position table is accurate. Heratio IS the only open-source plat
 
 ## What's Actually Not Built (true gaps)
 
-1. **Email capture connector** — no package
-2. **Formal record declaration** — no declaration workflow
-3. **Vital records registry** — no flagging mechanism
-4. **Legal hold enforcement** — package shell exists, no implementation
-5. **Retention schedule authority records** — no standalone management
-6. **Event-based review triggers** — no trigger engine
-7. **Disposal execution workflow** — no formal destruction process
-8. **Destruction certificates** — no PDF generation
-9. **Format identification (PRONOM)** — no file format registry
-10. **BagIt packaging** — no export format
-11. **Archivematica integration** — not connected
-12. **Hash chaining** — no blockchain/chain integrity
+1. **Email capture connector** - no package
+2. **Formal record declaration** - no declaration workflow
+3. **Vital records registry** - no flagging mechanism
+4. **Legal hold enforcement** - package shell exists, no implementation
+5. **Retention schedule authority records** - no standalone management
+6. **Event-based review triggers** - no trigger engine
+7. **Disposal execution workflow** - no formal destruction process
+8. **Destruction certificates** - no PDF generation
+9. **Format identification (PRONOM)** - no file format registry
+10. **BagIt packaging** - no export format
+11. **Archivematica integration** - not connected
+12. **Hash chaining** - no blockchain/chain integrity
 
 ---
 
 ## GitHub Issue Text
 
 ```
-## Heratio RM/DM Roadmap — Full Lifecycle Platform
+## Heratio RM/DM Roadmap - Full Lifecycle Platform
 
 ### Overview
 
@@ -109,7 +109,7 @@ No other open-source platform covers both RM and GLAM description with RiC-O RiC
 - ICIP indigenous cultural material (ahg-icip, 24 routes)
 - Spectrum 5.0 museum objects (ahg-spectrum, 28 routes)
 
-### P1 — Harden Existing (4-6 weeks)
+### P1 - Harden Existing (4-6 weeks)
 
 - [ ] Legal hold flag (table column + UI) on information objects
 - [ ] Hash chaining + fixity checksums (extend ahgAuditTrailPlugin)
@@ -118,7 +118,7 @@ No other open-source platform covers both RM and GLAM description with RiC-O RiC
 - [ ] Formal record declaration workflow (status change)
 - [ ] Vital records flagging (metadata field + browse filter)
 
-### P2 — Records Management Plugin (10-14 weeks)
+### P2 - Records Management Plugin (10-14 weeks)
 
 - [ ] Retention schedule authority records (MoReq2010 Chapter 3)
 - [ ] Disposal classes linked to retention schedule
@@ -131,7 +131,7 @@ No other open-source platform covers both RM and GLAM description with RiC-O RiC
 - [ ] Vital records registry
 - [ ] ISO 15489 / MoReq2010 / DoD 5015.2 compliance reporting
 
-### P3 — Preservation Plugin (8-10 weeks)
+### P3 - Preservation Plugin (8-10 weeks)
 
 - [ ] BagIt packaging for transfer
 - [ ] PRONOM format identification
