@@ -1,12 +1,13 @@
 @extends('theme::layouts.1col')
 
-@section('title', __('Plugin Grants') . ' — ' . $target->username)
+@php $displayName = $target->username ?? $target->email ?? $slug; @endphp
+@section('title', __('Plugin Grants') . ' — ' . $displayName)
 @section('body-class', 'view admin-plugin-grants')
 
 @section('content')
   <h1>
     {{ __('Plugin grants') }}
-    <small class="text-muted">— {{ $target->username }} ({{ $target->email }})</small>
+    <small class="text-muted">— {{ $displayName }}{{ $target->email ? " ({$target->email})" : '' }}</small>
   </h1>
   <p class="text-muted">
     {{ __('Per-user CAPABILITY layer. This grants or denies plugin access for this user. The user themselves can additionally HIDE plugins from their own nav at') }}
@@ -22,7 +23,7 @@
     <div class="alert alert-success">{{ session('status') }}</div>
   @endif
 
-  <form method="POST" action="{{ route('user.plugin-grants.save', $target->username) }}">
+  <form method="POST" action="{{ route('user.plugin-grants.save', $slug) }}">
     @csrf
     @php
       $byCategory = collect($plugins)->groupBy(fn($p) => $p->category ?: 'general');
@@ -80,6 +81,6 @@
     @endforeach
 
     <button type="submit" class="btn btn-primary">{{ __('Save plugin grants') }}</button>
-    <a href="{{ route('user.show', $target->username) }}" class="btn btn-link">{{ __('Cancel') }}</a>
+    <a href="{{ route('user.show', $slug) }}" class="btn btn-link">{{ __('Cancel') }}</a>
   </form>
 @endsection

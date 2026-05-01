@@ -957,8 +957,10 @@ class UserController extends Controller
     /** GET  /user/{slug}/plugins — admin grants/denies plugins per user. */
     public function pluginGrants(string $slug)
     {
-        $target = \Illuminate\Support\Facades\DB::table('user')
-            ->where('username', $slug)->orWhere('email', $slug)->first();
+        // Resolve via the same service used by user.show / user.edit so URL
+        // slugs from the slug table (e.g. b3pp-2ggp-tmez) work, not just
+        // username/email lookups.
+        $target = $this->service->getBySlug($slug);
         if (!$target) abort(404);
 
         $allEnabled = \Illuminate\Support\Facades\DB::table('atom_plugin')
@@ -972,16 +974,16 @@ class UserController extends Controller
 
         return view('ahg-user-manage::plugin-grants', [
             'target'  => $target,
+            'slug'    => $slug,    // pass the URL slug back so the form posts cleanly
             'plugins' => $allEnabled,
-            'grants'  => $grants,    // [plugin_name => 'allow'|'deny']
+            'grants'  => $grants,
         ]);
     }
 
     /** POST /user/{slug}/plugins — apply admin grants. */
     public function savePluginGrants(Request $request, string $slug)
     {
-        $target = \Illuminate\Support\Facades\DB::table('user')
-            ->where('username', $slug)->orWhere('email', $slug)->first();
+        $target = $this->service->getBySlug($slug);
         if (!$target) abort(404);
 
         $validated = $request->validate([
@@ -1019,7 +1021,7 @@ class UserController extends Controller
         }
 
         return redirect()->route('user.plugin-grants', $slug)
-            ->with('status', "Plugin grants updated for {$target->username}.");
+            ->with('status', "Plugin grants updated for " . ($target->username ?? $target->email ?? $slug) . ".");
     }
 
     /**

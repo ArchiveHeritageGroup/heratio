@@ -128,15 +128,20 @@ class MenuService
     /**
      * Get the list of plugins visible in the user's nav (issue #40 c5).
      *
-     * Layered model:
-     *   1. globally enabled  (atom_plugin.is_enabled = 1)             [admin]
-     *   2. NOT denied to this user (user_plugin_grant.mode = 'deny')  [admin]
-     *   3. NOT hidden by user (user_plugin_preference.is_hidden = 1)  [user]
+     * Resolution model — DENY-BY-DEFAULT FOR NON-ADMINS:
      *
-     * Plus: user_plugin_grant.mode = 'allow' can OPT IN to a plugin that's
-     * globally disabled (e.g. beta plugin opened to specific testers).
+     *   - Anonymous (no user)  → globally enabled set (atom_plugin.is_enabled = 1)
+     *   - Admin user           → globally enabled set, minus admin's own DENY
+     *                            grants (admins can opt themselves out of a
+     *                            plugin), minus their own user-hide preferences
+     *   - Non-admin user       → ONLY plugins explicitly granted with
+     *                            mode='allow' for this user. Default = nothing.
+     *                            Their own user-hide preferences still subtract.
      *
-     * @param int|null $userId  When null, returns globally enabled plugins only.
+     * `mode='allow'` for a non-admin: explicit opt-in by an admin (or for a
+     * globally-disabled plugin — beta-tester case).
+     * `mode='deny'`  for an admin: lets the admin remove a plugin from THEIR
+     * own nav (rare, but symmetrical).
      */
     public static function getEnabledPlugins(?int $userId = null): array
     {
@@ -162,25 +167,34 @@ class MenuService
             return $perUserCache[$userId];
         }
 
-        $global = self::getEnabledPlugins(null);
+        $global  = self::getEnabledPlugins(null);
+        $isAdmin = self::userIsAdmin($userId);
 
-        // Layer 1: admin grants/denies
+        // Pull this user's per-grant rows once
         try {
-            $grants = DB::table('user_plugin_grant')
+            $grants  = DB::table('user_plugin_grant')
                 ->where('user_id', $userId)
                 ->whereIn('mode', ['allow', 'deny'])
                 ->get(['plugin_name', 'mode']);
             $denied  = $grants->where('mode', 'deny')->pluck('plugin_name')->toArray();
             $allowed = $grants->where('mode', 'allow')->pluck('plugin_name')->toArray();
+        } catch (\Exception $e) {
+            $denied = $allowed = [];
+        }
+
+        if ($isAdmin) {
+            // Admin: full global set minus their own denies, plus any globally-
+            // disabled plugins the admin explicitly opted into.
             $effective = array_values(array_unique(array_merge(
                 array_diff($global, $denied),
                 $allowed,
             )));
-        } catch (\Exception $e) {
-            $effective = $global;
+        } else {
+            // Non-admin: ONLY explicitly allowed plugins. Default = nothing.
+            $effective = $allowed;
         }
 
-        // Layer 2: user-level visibility (clutter reduction)
+        // User-level visibility (clutter reduction) — applies to both admin + user
         try {
             $hidden = DB::table('user_plugin_preference')
                 ->where('user_id', $userId)
@@ -197,30 +211,62 @@ class MenuService
     }
 
     /**
-     * Capability check — has admin granted this user access to the plugin?
-     * (Ignores the user's own visibility preference — that's nav clutter.)
-     * Used by middleware to 403 a request hitting a denied-plugin URL.
+     * Capability check — can this user reach a plugin's URL?
+     *   - Anonymous          → uses global enabled state only
+     *   - Admin              → has all globally enabled plus their own allows
+     *                          minus their own denies
+     *   - Non-admin          → only plugins explicitly mode='allow' for them
+     *
+     * Used by `PluginAccessMiddleware` — 403s requests to plugin URLs the
+     * user has no capability for, regardless of their visibility preference.
      */
     public static function isPluginAccessible(string $name, ?int $userId = null): bool
     {
         if (null === $userId && function_exists('auth')) {
             try { $userId = auth()->user()?->id; } catch (\Throwable $e) {}
         }
-        $global = in_array($name, self::getEnabledPlugins(null), true);
+
         if ($userId === null) {
-            return $global;
+            // Anonymous request → fall back to global enable
+            return in_array($name, self::getEnabledPlugins(null), true);
         }
+
+        // Read this user's grant for the plugin (if any)
         try {
             $grant = DB::table('user_plugin_grant')
                 ->where('user_id', $userId)
                 ->where('plugin_name', $name)
                 ->value('mode');
-            if ($grant === 'deny')  return false;
-            if ($grant === 'allow') return true;
         } catch (\Exception $e) {
-            // table missing → fall back to global
+            $grant = null;
         }
-        return $global;
+
+        if ($grant === 'allow') return true;
+        if ($grant === 'deny')  return false;
+
+        // No explicit grant → admin gets the global state, non-admin gets nothing.
+        if (self::userIsAdmin($userId)) {
+            return in_array($name, self::getEnabledPlugins(null), true);
+        }
+        return false;
+    }
+
+    /**
+     * Is this user an admin per AclService::canAdmin? Cached per-request.
+     * Non-blocking: if AclService isn't loadable (CLI / boot context), returns
+     * false (deny-by-default).
+     */
+    private static function userIsAdmin(int $userId): bool
+    {
+        static $adminCache = [];
+        if (isset($adminCache[$userId])) return $adminCache[$userId];
+
+        try {
+            $is = \AhgCore\Services\AclService::canAdmin($userId);
+        } catch (\Throwable $e) {
+            $is = false;
+        }
+        return $adminCache[$userId] = (bool) $is;
     }
 
     /**
