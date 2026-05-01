@@ -309,12 +309,17 @@
 @section('after-content')
   @auth
     <ul class="actions mb-3 nav gap-2">
-      <li><a href="{{ route('user.edit', $user->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
+      <li><a href="{{ route('user.edit', $user->slug) }}" class="btn atom-btn-outline-light">{{ __('Edit') }}</a></li>
+      <li>
+        <a href="{{ route('user.plugin-grants', $user->slug) }}" class="btn atom-btn-outline-light">
+          <i class="fas fa-puzzle-piece me-1"></i>{{ __('Plugin grants') }}
+        </a>
+      </li>
       @if(auth()->user()->id !== $user->id)
-        <li><a href="{{ route('user.confirmDelete', $user->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+        <li><a href="{{ route('user.confirmDelete', $user->slug) }}" class="btn atom-btn-outline-danger">{{ __('Delete') }}</a></li>
       @endif
-      <li><a href="{{ route('user.add') }}" class="btn atom-btn-outline-light">Add new</a></li>
-      <li><a href="{{ route('user.browse') }}" class="btn atom-btn-outline-light">Return to user list</a></li>
+      <li><a href="{{ route('user.add') }}" class="btn atom-btn-outline-light">{{ __('Add new') }}</a></li>
+      <li><a href="{{ route('user.browse') }}" class="btn atom-btn-outline-light">{{ __('Return to user list') }}</a></li>
     </ul>
   @endauth
 @endsection
