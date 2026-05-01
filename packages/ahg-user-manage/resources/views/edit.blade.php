@@ -309,11 +309,16 @@
 
     <ul class="actions mb-3 nav gap-2">
       @if($user)
-        <li><a href="{{ route('user.show', $user->slug) }}" class="btn atom-btn-white">Cancel</a></li>
-        <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+        <li><a href="{{ route('user.show', $user->slug) }}" class="btn atom-btn-white">{{ __('Cancel') }}</a></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Save') }}"></li>
+        <li class="ms-auto">
+          <a href="{{ route('user.plugin-grants', $user->slug) }}" class="btn atom-btn-outline-light">
+            <i class="fas fa-puzzle-piece me-1"></i>{{ __('Plugin grants') }}
+          </a>
+        </li>
       @else
-        <li><a href="{{ route('user.browse') }}" class="btn atom-btn-white">Cancel</a></li>
-        <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
+        <li><a href="{{ route('user.browse') }}" class="btn atom-btn-white">{{ __('Cancel') }}</a></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Create') }}"></li>
       @endif
     </ul>
   </form>
