@@ -65,6 +65,12 @@ jobs:
           extensions: pdo, pdo_mysql, mbstring, xml, gd, zip, intl, bcmath
           coverage: none
 
+      - name: Prepare .env.testing (copy template, blank placeholders)
+        run: |
+          cp .env.testing.example .env.testing
+          sed -i "s|<<set in your local .env.testing>>||g" .env.testing
+          sed -i "s|^DB_SOCKET=.*|DB_SOCKET=|" .env.testing
+
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
 
@@ -73,7 +79,7 @@ jobs:
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
 
       - name: Run Laravel tests
-        run: php artisan test --parallel
+        run: php artisan test
 
       - name: Upload test results
         if: always()
@@ -159,8 +165,11 @@ jobs:
           name: playwright-cache
           path: ~/.cache/ms-playwright
 
+      - name: Restore exec bits on Playwright cache
+        run: chmod -R +x ~/.cache/ms-playwright 2>/dev/null || true
+
       - name: Install Playwright browsers
-        run: npx playwright install chromium
+        run: npx playwright install --with-deps
 
       - name: Run PSIS Discovery
         # PSIS is an external reference host; tolerate failures so a PSIS
@@ -213,8 +222,11 @@ jobs:
           name: playwright-cache
           path: ~/.cache/ms-playwright
 
+      - name: Restore exec bits on Playwright cache
+        run: chmod -R +x ~/.cache/ms-playwright 2>/dev/null || true
+
       - name: Install Playwright browsers
-        run: npx playwright install chromium
+        run: npx playwright install --with-deps
 
       - name: Run Access & Navigation Tests
         run: npx playwright test tests/e2e/03-workflows/access-navigation.spec.ts --reporter=list

@@ -60,7 +60,7 @@
   @auth
 
     {{-- Collections Management (only if collections management controllers are available) --}}
-    @if(class_exists(\AhgInformationObjectManage\Controllers\ProvenanceController::class))
+    @if(class_exists(\AhgInformationObjectManage\Controllers\ProvenanceController::class) && auth()->user()->is_admin)
     {{-- Collections Management --}}
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
@@ -206,6 +206,7 @@
 
     {{-- Rights (matching library style) --}}
     @auth
+    @if(auth()->user()->is_admin)
     @php
       $hasExtRights = \Illuminate\Support\Facades\Schema::hasTable('extended_rights')
           && \Illuminate\Support\Facades\DB::table('extended_rights')->where('object_id', $io->id)->exists();
@@ -241,6 +242,7 @@
         @endif
       </div>
     </div>
+    @endif {{-- end Rights admin-only --}}
     @endauth
 
     {{-- Research Tools (only if research controller is available) --}}
@@ -2173,12 +2175,10 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
   @auth
   @php $isAdmin = auth()->user()->is_admin; @endphp
   <ul class="actions mb-3 nav gap-2">
-    {{-- Edit button: any authenticated user can edit --}}
+    @if($isAdmin)
     <li>
       <a href="{{ route('informationobject.edit', $io->slug) }}" class="btn atom-btn-outline-light">Edit</a>
     </li>
-    {{-- Delete button: admin only --}}
-    @if($isAdmin)
     <li>
       <form action="{{ route('informationobject.destroy', $io->slug) }}" method="POST"
             onsubmit="return confirm('Are you sure you want to delete this archival description?');">
@@ -2187,20 +2187,15 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
         <button type="submit" class="btn atom-btn-outline-danger">{{ __('Delete') }}</button>
       </form>
     </li>
-    @endif
-    {{-- Add new: any authenticated user --}}
     <li>
       <a href="{{ route('informationobject.create', ['parent_id' => $io->id]) }}" class="btn atom-btn-outline-light">Add new</a>
     </li>
     <li>
       <a href="{{ route('informationobject.create', ['parent_id' => $io->id, 'copy_from' => $io->id]) }}" class="btn atom-btn-outline-light">Duplicate</a>
     </li>
-    {{-- Move button: admin only --}}
-    @if($isAdmin)
     <li>
       <a href="{{ url('/' . $io->slug . '/default/move') }}" class="btn atom-btn-outline-light">Move</a>
     </li>
-    @endif
     <li>
       <div class="dropup">
         <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -2276,6 +2271,7 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
         </ul>
       </div>
     </li>
+    @endif {{-- end admin-only Actions group --}}
     <li>
       <a href="{{ route('informationobject.print', $io->slug) }}" class="btn atom-btn-outline-light" target="_blank">
         <i class="fas fa-print me-1"></i>{{ __('Print') }}

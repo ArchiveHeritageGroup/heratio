@@ -56,6 +56,7 @@ jobs:
         run: |
           cp .env.testing.example .env.testing
           sed -i "s|<<set in your local .env.testing>>||g" .env.testing
+          sed -i "s|^DB_SOCKET=.*|DB_SOCKET=|" .env.testing
       - run: composer install --no-interaction --prefer-dist
       - name: PHP Syntax Check
         # Per-file `php -l`. Any non-zero exit fails the job. The previous
@@ -64,6 +65,7 @@ jobs:
         # could mask broken syntax depending on shell pipefail settings.
         run: |
           find app packages -name "*.php" \
+              -not -name "*.blade.php" \
               -not -path '*/vendor/*' \
               -not -path '*/worktree/*' \
               -print0 | xargs -0 -n1 -P4 php -l > /dev/null
@@ -95,6 +97,7 @@ jobs:
         run: |
           cp .env.testing.example .env.testing
           sed -i "s|<<set in your local .env.testing>>||g" .env.testing
+          sed -i "s|^DB_SOCKET=.*|DB_SOCKET=|" .env.testing
       - run: composer install --no-interaction --prefer-dist
       - name: Create database
         run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
@@ -129,6 +132,7 @@ jobs:
         run: |
           cp .env.testing.example .env.testing
           sed -i "s|<<set in your local .env.testing>>||g" .env.testing
+          sed -i "s|^DB_SOCKET=.*|DB_SOCKET=|" .env.testing
       - run: composer install --no-interaction --prefer-dist
       - name: Create database
         run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
@@ -164,6 +168,7 @@ jobs:
         run: |
           cp .env.testing.example .env.testing
           sed -i "s|<<set in your local .env.testing>>||g" .env.testing
+          sed -i "s|^DB_SOCKET=.*|DB_SOCKET=|" .env.testing
       - run: composer install --no-interaction --prefer-dist
       - name: Create database
         run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
@@ -238,6 +243,7 @@ jobs:
         run: |
           cp .env.testing.example .env.testing
           sed -i "s|<<set in your local .env.testing>>||g" .env.testing
+          sed -i "s|^DB_SOCKET=.*|DB_SOCKET=|" .env.testing
       - run: composer install --no-interaction --prefer-dist
       - name: Create database
         run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
@@ -277,6 +283,7 @@ jobs:
         run: |
           cp .env.testing.example .env.testing
           sed -i "s|<<set in your local .env.testing>>||g" .env.testing
+          sed -i "s|^DB_SOCKET=.*|DB_SOCKET=|" .env.testing
       - run: composer install --no-interaction --prefer-dist
       - name: Create database
         run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"

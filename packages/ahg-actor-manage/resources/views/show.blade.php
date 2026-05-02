@@ -636,12 +636,11 @@
   {{-- Action buttons (bottom bar) — shown in both views --}}
   @auth
   @php $isAdmin = \AhgCore\Services\AclService::canAdmin(auth()->id()); @endphp
+  @if($isAdmin)
   <section class="actions">
     <ul class="nav gap-2">
       <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}">Edit</a></li>
-      @if($isAdmin)
       <li><a class="btn atom-btn-outline-danger" href="{{ route('actor.confirmDelete', $actor->slug) }}">Delete</a></li>
-      @endif
       <li><a class="btn atom-btn-outline-light" href="{{ route('actor.add') }}">Add new</a></li>
       <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}?rename=1"><i class="fas fa-i-cursor me-1"></i>{{ __('Rename') }}</a></li>
       <li>
@@ -660,6 +659,7 @@
       </li>
     </ul>
   </section>
+  @endif
   @endauth
 
   {{-- RiC Context Sidebar --}}

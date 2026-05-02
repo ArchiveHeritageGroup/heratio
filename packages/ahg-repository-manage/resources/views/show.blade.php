@@ -428,17 +428,17 @@
   {{-- Action buttons (bottom bar, matching AtoM) — shown in both views --}}
   @auth
   @php $isAdmin = \AhgCore\Services\AclService::canAdmin(auth()->id()); @endphp
+  @if($isAdmin)
   <section class="actions">
     <ul class="nav gap-2">
       <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}">Edit</a></li>
-      @if($isAdmin)
       <li><a class="btn atom-btn-outline-danger" href="{{ route('repository.confirmDelete', $repository->slug) }}">Delete</a></li>
-      @endif
       <li><a class="btn atom-btn-outline-light" href="{{ route('repository.create') }}">Add new</a></li>
       <li><a class="btn atom-btn-outline-light" href="{{ route('informationobject.create', ['repository' => $repository->id]) }}">Add description</a></li>
       <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}?theme=1">Edit theme</a></li>
     </ul>
   </section>
+  @endif
   @endauth
 
   {{-- RiC Context Sidebar --}}
