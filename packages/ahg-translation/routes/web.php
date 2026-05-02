@@ -28,4 +28,8 @@ Route::prefix('admin/translation')->middleware(['web', 'auth', 'admin'])->group(
     Route::get('/health', [\AhgTranslation\Controllers\TranslationController::class, 'health'])->name('ahgtranslation.health');
     Route::get('/languages', [\AhgTranslation\Controllers\TranslationController::class, 'languages'])->name('ahgtranslation.languages');
     Route::post('/languages', [\AhgTranslation\Controllers\TranslationController::class, 'addLanguage'])->name('ahgtranslation.addLanguage');
+
+    // UI-string editor (issue #54 MVP) — admin-only, edits lang/{locale}.json directly
+    Route::get('/strings',       [\AhgTranslation\Controllers\TranslationController::class, 'stringsIndex'])->name('ahgtranslation.strings');
+    Route::post('/strings/save', [\AhgTranslation\Controllers\TranslationController::class, 'stringsSave'])->name('ahgtranslation.strings.save');
 });

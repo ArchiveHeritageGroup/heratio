@@ -974,4 +974,61 @@ class TranslationController extends Controller
         }
         return back()->with('success', "Batch {$action}: {$ok} ok, {$fail} failed.");
     }
+
+    // ─── UI string editor (issue #54 MVP) ──────────────────────────────────
+
+    /**
+     * GET /admin/translation/strings — list every key in lang/en.json with
+     * a column per enabled locale, plus search / missing-locale filters.
+     */
+    public function stringsIndex(Request $request)
+    {
+        $svc = app(\AhgTranslation\Services\UiStringService::class);
+
+        $locale   = $request->input('locale');
+        $missing  = $request->input('missing');
+        $contains = $request->input('contains');
+        $page     = max(1, (int) $request->input('page', 1));
+        $limit    = 100;
+        $offset   = ($page - 1) * $limit;
+
+        $matrix = $svc->matrix($locale ?: null, $missing ?: null, $contains ?: null, $limit, $offset);
+        $allLocales = $svc->enabledLocales();
+
+        return view('ahg-translation::strings', [
+            'matrix'      => $matrix,
+            'allLocales'  => $allLocales,
+            'locale'      => $locale,
+            'missing'     => $missing,
+            'contains'    => $contains,
+            'page'        => $page,
+            'limit'       => $limit,
+            'totalPages'  => (int) ceil(($matrix['total'] ?? 0) / max(1, $limit)),
+        ]);
+    }
+
+    /**
+     * POST /admin/translation/strings/save — save a single key+value into
+     * lang/{locale}.json. JSON-only response so the editor can save inline.
+     */
+    public function stringsSave(Request $request)
+    {
+        $request->validate([
+            'locale' => 'required|string|max:16',
+            'key'    => 'required|string',
+            'value'  => 'nullable|string',
+        ]);
+
+        $svc = app(\AhgTranslation\Services\UiStringService::class);
+        try {
+            $svc->setKey(
+                $request->input('locale'),
+                $request->input('key'),
+                $request->input('value')
+            );
+        } catch (\Throwable $e) {
+            return response()->json(['ok' => false, 'error' => $e->getMessage()], 400);
+        }
+        return response()->json(['ok' => true]);
+    }
 }

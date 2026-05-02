@@ -66,6 +66,7 @@
       @endif
     </a></li>
     <li><a class="dropdown-item" href="{{ route('ahgtranslation.languages') }}"><i class="fas fa-globe me-2"></i>{{ __('Languages') }}</a></li>
+    <li><a class="dropdown-item" href="{{ route('ahgtranslation.strings') }}"><i class="fas fa-pen-fancy me-2"></i>{{ __('UI strings') }}</a></li>
     <li><a class="dropdown-item" href="{{ route('ahgtranslation.settings') }}"><i class="fas fa-cog me-2"></i>{{ __('Translation settings') }}</a></li>
 
     {{-- Security --}}
