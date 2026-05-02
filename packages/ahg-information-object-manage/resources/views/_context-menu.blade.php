@@ -90,9 +90,11 @@
       <a href="{{ route('informationobject.findingaid.generate', $slug) }}" class="list-group-item list-group-item-action small">
         <i class="fas fa-file-alt me-1"></i> {{ __('Generate finding aid') }}
       </a>
+      @if(\AhgCore\Services\AclService::canAdmin(auth()->id()))
       <a href="{{ route('informationobject.findingaid.upload.form', $slug) }}" class="list-group-item list-group-item-action small">
         <i class="fas fa-upload me-1"></i> {{ __('Upload finding aid') }}
       </a>
+      @endif
       @if(isset($findingAid) && $findingAid)
         <a href="{{ route('informationobject.findingaid.download', $slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-download me-1"></i> {{ __('Download finding aid') }}

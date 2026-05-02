@@ -10,6 +10,7 @@
 @if($recordId)
 @php
     $recordType = $recordType ?? 'record';
+    $ricIsAdmin = auth()->check() && \AhgCore\Services\AclService::canAdmin(auth()->id());
 @endphp
 <section class="mt-4" id="ric-entities-panel">
     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -18,10 +19,13 @@
             <a href="https://openric.org" target="_blank" rel="noopener" class="ms-2 small text-decoration-none" title="{{ __('Open RiC contract — see openric.org') }}">
                 <i class="fas fa-external-link-alt"></i> <span class="small">OpenRiC</span>
             </a>
+            @if($ricIsAdmin)
             <a href="{{ url('/admin/ric/validate/' . $recordType . '/' . $recordId) }}" class="ms-2 small text-decoration-none" title="{{ __('Run SHACL validation against the OpenRiC shape set') }}">
                 <i class="fas fa-check-double"></i> <span class="small">{{ __('Validate') }}</span>
             </a>
+            @endif
         </h2>
+        @if($ricIsAdmin)
         <div class="btn-group btn-group-sm">
             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ricEntityModal" onclick="ricSetEntityType('activity')">
                 <i class="fas fa-running"></i> {{ __('Add Activity') }}
@@ -36,7 +40,9 @@
                 <i class="fas fa-file-alt"></i> {{ __('Add Instantiation') }}
             </button>
         </div>
+        @endif
     </div>
+    <script>window.RIC_IS_ADMIN = @json($ricIsAdmin);</script>
 
     {{-- Tabs --}}
     <ul class="nav nav-tabs nav-tabs-sm" id="ricEntitiesTab" role="tablist">
@@ -144,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <td><span class="badge bg-info">${a.type_id || ''}</span></td>
             <td>${a.date_display || [a.start_date, a.end_date].filter(Boolean).join(' - ') || ''}</td>
             <td><code>${a.rico_predicate || ''}</code></td>
-            <td><button class="btn btn-sm btn-outline-danger" onclick="ricDeleteEntity(${a.id})"><i class="fas fa-trash"></i></button></td>
+            <td>${window.RIC_IS_ADMIN ? `<button class="btn btn-sm btn-outline-danger" onclick="ricDeleteEntity(${a.id})"><i class="fas fa-trash"></i></button>` : ''}</td>
         </tr>`).join('');
     }
 
@@ -156,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <td><span class="badge bg-secondary">${i.carrier_type || ''}</span></td>
             <td><code>${i.mime_type || ''}</code></td>
             <td>${i.extent_value ? Math.round(i.extent_value / 1024) + ' KB' : ''}</td>
-            <td><button class="btn btn-sm btn-outline-danger" onclick="ricDeleteEntity(${i.id})"><i class="fas fa-trash"></i></button></td>
+            <td>${window.RIC_IS_ADMIN ? `<button class="btn btn-sm btn-outline-danger" onclick="ricDeleteEntity(${i.id})"><i class="fas fa-trash"></i></button>` : ''}</td>
         </tr>`).join('');
     }
 
@@ -167,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>${p.slug ? `<a href="/admin/ric/entities/places/${p.slug}">${p.name || 'Unnamed'}</a>` : (p.name || 'Unnamed')}</td>
             <td><span class="badge bg-success">${p.type_id || ''}</span></td>
             <td>${p.latitude && p.longitude ? p.latitude + ', ' + p.longitude : ''}</td>
-            <td><button class="btn btn-sm btn-outline-danger" onclick="ricDeleteEntity(${p.id})"><i class="fas fa-trash"></i></button></td>
+            <td>${window.RIC_IS_ADMIN ? `<button class="btn btn-sm btn-outline-danger" onclick="ricDeleteEntity(${p.id})"><i class="fas fa-trash"></i></button>` : ''}</td>
         </tr>`).join('');
     }
 
@@ -178,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>${r.slug ? `<a href="/admin/ric/entities/rules/${r.slug}">${r.title || 'Unnamed'}</a>` : (r.title || 'Unnamed')}</td>
             <td><span class="badge bg-warning text-dark">${r.type_id || ''}</span></td>
             <td>${r.jurisdiction || ''}</td>
-            <td><button class="btn btn-sm btn-outline-danger" onclick="ricDeleteEntity(${r.id})"><i class="fas fa-trash"></i></button></td>
+            <td>${window.RIC_IS_ADMIN ? `<button class="btn btn-sm btn-outline-danger" onclick="ricDeleteEntity(${r.id})"><i class="fas fa-trash"></i></button>` : ''}</td>
         </tr>`).join('');
     }
 
