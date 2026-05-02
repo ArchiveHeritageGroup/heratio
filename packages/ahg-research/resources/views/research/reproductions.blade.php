@@ -22,7 +22,7 @@
 <div class="row mb-3">
     <div class="col-md-4">
         <form method="get">
-            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+            <select name="status" class="form-select form-select-sm" data-csp-auto-submit>
                 <option value="">{{ __('All Statuses') }}</option>
                 @foreach(['draft', 'submitted', 'quoted', 'approved', 'processing', 'in_production', 'completed', 'cancelled'] as $s)
                     <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>{{ ucfirst(str_replace('_', ' ', $s)) }}</option>

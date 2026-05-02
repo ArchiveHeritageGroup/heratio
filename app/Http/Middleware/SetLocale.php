@@ -29,7 +29,47 @@ class SetLocale
             }
         }
 
+        // Hydrate ui_label overrides AFTER the locale is set so config('app.ui_label_*')
+        // and __('Archival description') etc. flip per-culture. This runs every
+        // request because App::setLocale changes the locale dynamically — the
+        // booted-once hydrator in AhgCoreServiceProvider can't see the request culture.
+        $this->hydrateUiLabels(App::getLocale());
+
         return $next($request);
+    }
+
+    /** Mirrors the boot-time hydrator in AhgCoreServiceProvider but is keyed
+     *  on the just-resolved request culture. Cheap (one query per request). */
+    protected function hydrateUiLabels(string $culture): void
+    {
+        try {
+            if (!Schema::hasTable('setting') || !Schema::hasTable('setting_i18n')) {
+                return;
+            }
+            $fallback = config('app.fallback_locale', 'en');
+            $rows = DB::table('setting as s')
+                ->leftJoin('setting_i18n as si',    function ($j) use ($culture)  { $j->on('s.id', '=', 'si.id')->where('si.culture', '=', $culture); })
+                ->leftJoin('setting_i18n as si_fb', function ($j) use ($fallback) { $j->on('s.id', '=', 'si_fb.id')->where('si_fb.culture', '=', $fallback); })
+                ->where('s.scope', 'ui_label')
+                ->select('s.name', 'si.value as cur', 'si_fb.value as fb')
+                ->get();
+            $translatorOverrides = [];
+            foreach ($rows as $r) {
+                $val = ($r->cur !== null && $r->cur !== '') ? $r->cur : $r->fb;
+                $val = $val !== null ? strtr((string) $val, ['&nbsp;' => ' ']) : '';
+                if ($val === '') continue;
+                config(["app.ui_label_{$r->name}" => $val]);
+                $en = $r->fb !== null ? strtr((string) $r->fb, ['&nbsp;' => ' ']) : '';
+                if ($en !== '' && $val !== $en) {
+                    $translatorOverrides[$en] = $val;
+                }
+            }
+            if (!empty($translatorOverrides)) {
+                app('translator')->addLines($translatorOverrides, $culture, '*');
+            }
+        } catch (\Throwable $e) {
+            // Swallow — boot-time hydrator already covered the default locale.
+        }
     }
 
     protected function isValidCulture(string $culture): bool

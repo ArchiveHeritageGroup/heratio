@@ -79,7 +79,7 @@ $layout = $params['layout'] ?? 'card';
                     </div>
 
                     <!-- Sort -->
-                    <select class="form-select form-select-sm" style="width: auto;" onchange="location=this.value">
+                    <select class="form-select form-select-sm" style="width: auto;" data-csp-go>
                         <option value="?{{ http_build_query(array_merge($requestParams, ['sort' => '_score'])) }}" {{ $params['sort'] === '_score' ? 'selected' : '' }}>Relevance</option>
                         <option value="?{{ http_build_query(array_merge($requestParams, ['sort' => 'title_asc'])) }}" {{ $params['sort'] === 'title_asc' ? 'selected' : '' }}>Title A-Z</option>
                         <option value="?{{ http_build_query(array_merge($requestParams, ['sort' => 'title_desc'])) }}" {{ $params['sort'] === 'title_desc' ? 'selected' : '' }}>Title Z-A</option>

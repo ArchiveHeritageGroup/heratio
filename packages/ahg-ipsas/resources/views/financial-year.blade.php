@@ -34,7 +34,7 @@
         </div>
         <div class="col-auto">
             <form method="get" class="d-flex gap-2">
-                <select name="year" class="form-select" onchange="this.form.submit()">
+                <select name="year" class="form-select" data-csp-auto-submit>
                     @for($y = (int) date('Y'); $y >= (int) date('Y') - 10; $y--)
                         <option value="{{ $y }}" {{ (int) $year === $y ? 'selected' : '' }}>{{ $y }}</option>
                     @endfor

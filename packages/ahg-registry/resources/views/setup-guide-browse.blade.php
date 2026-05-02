@@ -71,7 +71,7 @@
           <form method="get">
             <div class="mb-3">
               <label class="form-label small text-muted">{{ __('Category') }}</label>
-              <select name="category" class="form-select form-select-sm" onchange="this.form.submit()">
+              <select name="category" class="form-select form-select-sm" data-csp-auto-submit>
                 @foreach(['' => __('All Categories'), 'security' => __('Security'), 'deployment' => __('Deployment'), 'configuration' => __('Configuration'), 'optimization' => __('Optimization'), 'troubleshooting' => __('Troubleshooting'), 'integration' => __('Integration')] as $v => $l)
                   <option value="{{ $v }}" {{ $catF === $v ? 'selected' : '' }}>{{ $l }}</option>
                 @endforeach

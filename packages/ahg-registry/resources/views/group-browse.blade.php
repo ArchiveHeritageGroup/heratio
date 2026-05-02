@@ -65,7 +65,7 @@
             <input type="hidden" name="q" value="{{ e($q) }}">
             <div class="mb-3">
               <label class="form-label small text-muted">{{ __('Group Type') }}</label>
-              <select name="type" class="form-select form-select-sm" onchange="this.form.submit()">
+              <select name="type" class="form-select form-select-sm" data-csp-auto-submit>
                 @foreach(['' => __('All Types'), 'regional' => __('Regional'), 'topic' => __('Topic-Based'), 'software' => __('Software'), 'institutional' => __('Institutional'), 'other' => __('Other')] as $v => $l)
                   <option value="{{ $v }}" {{ $typeF === $v ? 'selected' : '' }}>{{ $l }}</option>
                 @endforeach
@@ -73,7 +73,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label small text-muted">{{ __('Format') }}</label>
-              <select name="virtual" class="form-select form-select-sm" onchange="this.form.submit()">
+              <select name="virtual" class="form-select form-select-sm" data-csp-auto-submit>
                 @foreach(['' => __('All'), '1' => __('Virtual'), '0' => __('In-Person/Hybrid')] as $v => $l)
                   <option value="{{ $v }}" {{ (string) $virtualF === (string) $v ? 'selected' : '' }}>{{ $l }}</option>
                 @endforeach

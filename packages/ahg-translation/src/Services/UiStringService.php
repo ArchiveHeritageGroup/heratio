@@ -225,6 +225,89 @@ class UiStringService
         ];
     }
 
+    /**
+     * Insert a pending change row (editor save, or admin opt-in to review).
+     * Does NOT touch the JSON file — applyApproved() does that.
+     */
+    public function submitChange(int $userId, string $locale, string $key, ?string $value): int
+    {
+        $this->guardLocale($locale);
+        $current = $this->localeMap($locale);
+        $old = $current[$key] ?? null;
+        return DB::table('ui_string_change')->insertGetId([
+            'locale'                => $locale,
+            'key_text'              => $key,
+            'old_value'             => $old,
+            'new_value'             => $value,
+            'status'                => 'pending',
+            'submitted_by_user_id'  => $userId,
+            'submitted_at'          => now(),
+        ]);
+    }
+
+    /**
+     * Apply an approved change to the JSON file + write the audit row.
+     * Use this for the immediate-approve path (admin without ?review=1)
+     * AND for the approve-pending path (admin clicking Approve in the queue).
+     */
+    public function applyApproved(int $userId, string $locale, string $key, ?string $value, ?int $pendingId = null, ?string $note = null): int
+    {
+        $current = $this->localeMap($locale);
+        $old = $current[$key] ?? null;
+        $this->setKey($locale, $key, $value);
+
+        if ($pendingId) {
+            DB::table('ui_string_change')->where('id', $pendingId)->update([
+                'status'              => 'approved',
+                'reviewed_by_user_id' => $userId,
+                'reviewed_at'         => now(),
+                'review_note'         => $note,
+            ]);
+            return (int) $pendingId;
+        }
+
+        return DB::table('ui_string_change')->insertGetId([
+            'locale'                => $locale,
+            'key_text'              => $key,
+            'old_value'             => $old,
+            'new_value'             => $value,
+            'status'                => 'approved',
+            'submitted_by_user_id'  => $userId,
+            'submitted_at'          => now(),
+            'reviewed_by_user_id'   => $userId,
+            'reviewed_at'           => now(),
+            'review_note'           => $note,
+        ]);
+    }
+
+    public function rejectPending(int $userId, int $pendingId, ?string $note = null): bool
+    {
+        return DB::table('ui_string_change')
+            ->where('id', $pendingId)->where('status', 'pending')
+            ->update([
+                'status'              => 'rejected',
+                'reviewed_by_user_id' => $userId,
+                'reviewed_at'         => now(),
+                'review_note'         => $note,
+            ]) > 0;
+    }
+
+    public function pendingChanges(?string $locale = null): \Illuminate\Support\Collection
+    {
+        $q = DB::table('ui_string_change as c')
+            ->leftJoin('user as u', 'u.id', '=', 'c.submitted_by_user_id')
+            ->leftJoin('actor_i18n as ai', function ($j) {
+                $j->on('ai.id', '=', 'u.id')->where('ai.culture', '=', 'en');
+            })
+            ->where('c.status', 'pending')
+            ->select('c.*', 'u.username', 'u.email', 'ai.authorized_form_of_name as submitted_by_name')
+            ->orderByDesc('c.submitted_at');
+        if ($locale) {
+            $q->where('c.locale', $locale);
+        }
+        return $q->get();
+    }
+
     private function localePath(string $locale): string
     {
         $this->guardLocale($locale);

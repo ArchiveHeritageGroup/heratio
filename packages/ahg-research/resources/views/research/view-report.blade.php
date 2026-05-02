@@ -37,7 +37,7 @@
                     <input type="hidden" name="form_action" value="update_status">
                     <div class="flex-grow-1">
                         <label class="form-label small text-muted mb-0">{{ __('Status') }}</label>
-                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <select name="status" class="form-select form-select-sm" data-csp-auto-submit>
                             @foreach(['draft' => 'Draft', 'in_progress' => 'In Progress', 'review' => 'Review', 'completed' => 'Completed'] as $sKey => $sLabel)
                                 <option value="{{ $sKey }}" {{ ($report->status ?? 'draft') === $sKey ? 'selected' : '' }}>{{ $sLabel }}</option>
                             @endforeach

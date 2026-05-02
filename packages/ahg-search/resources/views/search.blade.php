@@ -107,7 +107,7 @@
                   'lastUpdated'   => 'Last updated',
               ];
             @endphp
-            <select class="form-select form-select-sm" onchange="window.location.href=this.value" aria-label="{{ __('Sort results') }}">
+            <select class="form-select form-select-sm" data-csp-go aria-label="{{ __('Sort results') }}">
               @foreach($sortOptions as $val => $label)
                 @php $sortUrl = request()->fullUrlWithQuery(['sort' => $val, 'page' => null]); @endphp
                 <option value="{{ $sortUrl }}" {{ $sort === $val ? 'selected' : '' }}>{{ $label }}</option>

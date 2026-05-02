@@ -45,7 +45,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
   <form method="get" action="{{ route('integrity.holds') }}" class="d-flex align-items-center gap-2">
-    <select name="repository_id" class="form-select form-select-sm" style="width:auto;" onchange="this.form.submit()">
+    <select name="repository_id" class="form-select form-select-sm" style="width:auto;" data-csp-auto-submit>
       <option value="">{{ __('All repositories') }}</option>
       @foreach($repositories as $repo)
         <option value="{{ $repo->id }}" {{ ($repositoryId ?? '') == $repo->id ? 'selected' : '' }}>{{ $repo->name }}</option>

@@ -11,7 +11,7 @@
   <form method="GET" class="mb-3">
     <div class="row">
       <div class="col-md-3">
-        <select name="days" class="form-select" onchange="this.form.submit()">
+        <select name="days" class="form-select" data-csp-auto-submit>
           <option value="7" {{ ($days ?? 30) == 7 ? 'selected' : '' }}>{{ __('Next 7 days') }}</option>
           <option value="30" {{ ($days ?? 30) == 30 ? 'selected' : '' }}>{{ __('Next 30 days') }}</option>
           <option value="60" {{ ($days ?? 30) == 60 ? 'selected' : '' }}>{{ __('Next 60 days') }}</option>

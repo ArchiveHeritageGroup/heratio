@@ -69,7 +69,7 @@
   <div class="row g-2 align-items-end">
     <div class="col-md-3">
       <label class="form-label small">{{ __('Status') }}</label>
-      <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+      <select name="status" class="form-select form-select-sm" data-csp-auto-submit>
         <option value="">{{ __('All') }}</option>
         <option value="pending" {{ ($statusFilter ?? '') === 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
         <option value="processing" {{ ($statusFilter ?? '') === 'processing' ? 'selected' : '' }}>{{ __('Processing') }}</option>

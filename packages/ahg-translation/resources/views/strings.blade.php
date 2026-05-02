@@ -21,10 +21,37 @@
         {{ __('Edit lang/{locale}.json files inline. Changes apply immediately on next request — no view-cache rebuild needed.') }}
       </p>
     </div>
-    <a href="{{ route('ahgtranslation.languages') }}" class="btn btn-outline-secondary">
-      <i class="fas fa-arrow-left me-1"></i>{{ __('Back to languages') }}
-    </a>
+    <div class="d-flex gap-2">
+      @if($isAdmin)
+        <a href="{{ route('ahgtranslation.strings.pending') }}" class="btn btn-outline-warning position-relative">
+          <i class="fas fa-clipboard-check me-1"></i>{{ __('Review queue') }}
+          @if(($pendingCount ?? 0) > 0)
+            <span class="badge bg-warning text-dark position-absolute top-0 start-100 translate-middle rounded-pill">{{ $pendingCount }}</span>
+          @endif
+        </a>
+      @endif
+      <a href="{{ route('ahgtranslation.languages') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back to languages') }}
+      </a>
+    </div>
   </div>
+
+  @if($isAdmin)
+    <div class="alert alert-info py-2 small mb-3">
+      <div class="form-check form-check-inline mb-0">
+        <input class="form-check-input" type="checkbox" id="ui-strings-request-review">
+        <label class="form-check-label" for="ui-strings-request-review">
+          <i class="fas fa-user-check me-1"></i>{{ __('Request second review') }} —
+          <span class="text-muted">{{ __('queue my changes for another admin to approve instead of applying immediately.') }}</span>
+        </label>
+      </div>
+    </div>
+  @else
+    <div class="alert alert-info py-2 small mb-3">
+      <i class="fas fa-info-circle me-1"></i>
+      {{ __('You are saving as Editor — your changes will be queued for an Administrator to review and apply. They will not appear on the live site until approved.') }}
+    </div>
+  @endif
 
   {{-- Filter bar --}}
   <form method="GET" class="card mb-3">
@@ -90,12 +117,17 @@
             </td>
             @foreach($matrix['locales'] as $code)
               @php $cell = $row['translations'][$code] ?? ['value' => null, 'missing' => true]; @endphp
-              <td class="ui-string-cell" data-key="{{ $row['key'] }}" data-locale="{{ $code }}">
-                <textarea
-                  class="form-control form-control-sm ui-string-input {{ $cell['missing'] ? 'border-warning' : '' }}"
-                  rows="1"
-                  placeholder="{{ __('(missing)') }}"
-                  data-original="{{ $cell['value'] ?? '' }}">{{ $cell['value'] ?? '' }}</textarea>
+              <td class="ui-string-cell" data-key="{{ $row['key'] }}" data-locale="{{ $code }}" data-source="{{ $row['en'] }}">
+                <div class="d-flex gap-1 align-items-start">
+                  <textarea
+                    class="form-control form-control-sm ui-string-input {{ $cell['missing'] ? 'border-warning' : '' }}"
+                    rows="1"
+                    placeholder="{{ __('(missing)') }}"
+                    data-original="{{ $cell['value'] ?? '' }}">{{ $cell['value'] ?? '' }}</textarea>
+                  <button type="button" class="btn btn-sm btn-outline-primary ui-string-mt-btn" title="{{ __('Suggest translation (MT)') }}">
+                    <i class="fas fa-magic"></i>
+                  </button>
+                </div>
                 <div class="ui-string-status small mt-1" style="min-height:1em;"></div>
               </td>
             @endforeach
@@ -143,7 +175,10 @@
 (function () {
   function ready(fn){ document.readyState !== 'loading' ? fn() : document.addEventListener('DOMContentLoaded', fn); }
   ready(function () {
-    var saveUrl = "{{ route('ahgtranslation.strings.save') }}";
+    var saveUrl     = "{{ route('ahgtranslation.strings.save') }}";
+    var mtUrl       = "{{ route('ahgtranslation.strings.mt-suggest') }}";
+    var isAdmin     = {{ $isAdmin ? 'true' : 'false' }};
+    var reviewCheckbox = document.getElementById('ui-strings-request-review');
     var csrf = (document.querySelector('meta[name="csrf-token"]') || {}).getAttribute && document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     function debounce(fn, ms) {
@@ -171,6 +206,9 @@
         fd.append('locale', cell.getAttribute('data-locale'));
         fd.append('key',    cell.getAttribute('data-key'));
         fd.append('value',  value);
+        if (isAdmin && reviewCheckbox && reviewCheckbox.checked) {
+          fd.append('review', '1');
+        }
 
         fetch(saveUrl, {
           method: 'POST', credentials: 'same-origin',
@@ -182,10 +220,18 @@
           cell.classList.remove('is-saving');
           if (d && d.ok) {
             cell.classList.add('is-saved');
-            status.textContent = '✓ saved';
-            input.setAttribute('data-original', value);
-            input.classList.remove('border-warning');
-            setTimeout(function () { cell.classList.remove('is-saved'); status.textContent = ''; }, 2500);
+            if (d.state === 'pending') {
+              status.textContent = '⏱ submitted for review';
+              cell.classList.add('is-pending');
+            } else {
+              status.textContent = '✓ approved';
+              input.classList.remove('border-warning');
+              input.setAttribute('data-original', value);
+            }
+            setTimeout(function () {
+              cell.classList.remove('is-saved', 'is-pending');
+              status.textContent = '';
+            }, 3500);
           } else {
             cell.classList.add('is-error');
             status.textContent = '✗ ' + ((d && d.error) || 'save failed');
@@ -201,6 +247,33 @@
       // Save on blur OR after 600ms idle while typing.
       input.addEventListener('blur', commit);
       input.addEventListener('input', commit);
+
+      // MT suggest button
+      var mtBtn = cell.querySelector('.ui-string-mt-btn');
+      if (mtBtn) {
+        mtBtn.addEventListener('click', function () {
+          var src = cell.getAttribute('data-source') || cell.getAttribute('data-key');
+          var loc = cell.getAttribute('data-locale');
+          mtBtn.disabled = true;
+          var origIcon = mtBtn.innerHTML;
+          mtBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+          status.textContent = 'fetching MT suggestion...';
+          var u = mtUrl + '?locale=' + encodeURIComponent(loc) + '&text=' + encodeURIComponent(src);
+          fetch(u, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              if (d && d.ok && d.translated) {
+                input.value = d.translated;
+                status.textContent = 'MT suggestion — review then save';
+                input.dispatchEvent(new Event('input', { bubbles: true })); // trigger debounced save
+              } else {
+                status.textContent = '✗ MT failed: ' + ((d && d.error) || 'unknown');
+              }
+            })
+            .catch(function (e) { status.textContent = '✗ MT error: ' + e.message; })
+            .finally(function () { mtBtn.disabled = false; mtBtn.innerHTML = origIcon; });
+        });
+      }
     });
   });
 })();

@@ -62,7 +62,7 @@
             <input type="hidden" name="q" value="{{ e($q) }}">
             <div class="mb-3">
               <label class="form-label small text-muted">{{ __('Category') }}</label>
-              <select name="category" class="form-select form-select-sm" onchange="this.form.submit()">
+              <select name="category" class="form-select form-select-sm" data-csp-auto-submit>
                 @foreach(['' => __('All Categories'), 'descriptive' => __('Descriptive'), 'preservation' => __('Preservation'), 'rights' => __('Rights'), 'accounting' => __('Accounting'), 'compliance' => __('Compliance'), 'metadata' => __('Metadata'), 'interchange' => __('Interchange'), 'sector' => __('Sector')] as $v => $l)
                   <option value="{{ $v }}" {{ $catF === $v ? 'selected' : '' }}>{{ $l }}</option>
                 @endforeach
@@ -70,7 +70,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label small text-muted">{{ __('GLAM Sector') }}</label>
-              <select name="sector" class="form-select form-select-sm" onchange="this.form.submit()">
+              <select name="sector" class="form-select form-select-sm" data-csp-auto-submit>
                 @foreach(['' => __('All Sectors'), 'archive' => __('Archive'), 'library' => __('Library'), 'museum' => __('Museum'), 'gallery' => __('Gallery'), 'dam' => __('DAM')] as $v => $l)
                   <option value="{{ $v }}" {{ $sectorF === $v ? 'selected' : '' }}>{{ $l }}</option>
                 @endforeach

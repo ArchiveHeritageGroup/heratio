@@ -63,7 +63,7 @@
             <input type="hidden" name="q" value="{{ e($q) }}">
             <div class="mb-3">
               <label class="form-label small text-muted">{{ __('Vendor Type') }}</label>
-              <select name="type" class="form-select form-select-sm" onchange="this.form.submit()">
+              <select name="type" class="form-select form-select-sm" data-csp-auto-submit>
                 @foreach(['' => __('All Types'), 'developer' => __('Developer'), 'integrator' => __('Integrator'), 'consultant' => __('Consultant'), 'service_provider' => __('Service Provider'), 'hosting' => __('Hosting'), 'digitization' => __('Digitization'), 'training' => __('Training'), 'other' => __('Other')] as $v => $l)
                   <option value="{{ $v }}" {{ $typeF === $v ? 'selected' : '' }}>{{ $l }}</option>
                 @endforeach
@@ -71,7 +71,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label small text-muted">{{ __('Specialization') }}</label>
-              <select name="specialization" class="form-select form-select-sm" onchange="this.form.submit()">
+              <select name="specialization" class="form-select form-select-sm" data-csp-auto-submit>
                 @foreach(['' => __('All'), 'archives' => __('Archives'), 'libraries' => __('Libraries'), 'museums' => __('Museums'), 'galleries' => __('Galleries'), 'dam' => __('Digital Asset Management'), 'preservation' => __('Digital Preservation')] as $v => $l)
                   <option value="{{ $v }}" {{ $specF === $v ? 'selected' : '' }}>{{ $l }}</option>
                 @endforeach

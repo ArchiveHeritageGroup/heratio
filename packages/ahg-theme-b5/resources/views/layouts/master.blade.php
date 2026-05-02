@@ -1,4 +1,9 @@
-@php $cspNonce = csp_nonce(); @endphp
+@php
+  // spatie/laravel-csp ships csp_nonce(); on forks where the package isn't
+  // installed (e.g. legacy atom v1.0.5) we still want the layout to render
+  // — fall back to an empty string and skip nonce-tagging.
+  $cspNonce = function_exists('csp_nonce') ? csp_nonce() : '';
+@endphp
 <!DOCTYPE html>
 <html lang="{{ $themeData['culture'] ?? 'en' }}" dir="ltr">
   <head>
@@ -20,7 +25,7 @@
          injected <style> blocks with it. Without this, browsers ignore
          'unsafe-inline' (because a nonce is present in style-src) and the
          library renders unstyled. --}}
-    <meta property="csp-nonce" content="{{ csp_nonce() }}">
+    <meta property="csp-nonce" content="{{ $cspNonce }}">
 
     {{-- Google Tag Manager (script) --}}
     @include('theme::partials.tag-manager', ['slot' => 'script'])
@@ -167,6 +172,26 @@
     <link rel="stylesheet" href="{{ asset('vendor/ahg-theme-b5/css/voiceCommands.css') }}">
 
     @stack('js')
+
+    {{-- CSP-safe replacements for inline onchange="this.form.submit()" / onchange="location=this.value".
+         Tag a select with data-csp-auto-submit (auto-submits its enclosing form) or
+         data-csp-go (navigates to the option value, blank to ignore). --}}
+    <script nonce="{{ $cspNonce }}">
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('[data-csp-auto-submit]').forEach(function (el) {
+        el.addEventListener('change', function () { if (el.form) el.form.submit(); });
+      });
+      document.querySelectorAll('[data-csp-go]').forEach(function (el) {
+        el.addEventListener('change', function () { if (el.value) window.location.href = el.value; });
+      });
+      document.querySelectorAll('[data-csp-go-prefix]').forEach(function (el) {
+        el.addEventListener('change', function () {
+          var p = el.getAttribute('data-csp-go-prefix') || '';
+          window.location.href = p + el.value;
+        });
+      });
+    });
+    </script>
 
     {{-- Auto-open first accordion block on every page --}}
     {{-- Auto-open first accordion block on every page (skip accordions marked data-default-closed) --}}

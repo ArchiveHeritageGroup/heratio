@@ -15,7 +15,7 @@
   <form method="GET" class="mb-3">
     <div class="row">
       <div class="col-md-3">
-        <select name="period" class="form-select" onchange="this.form.submit()">
+        <select name="period" class="form-select" data-csp-auto-submit>
           <option value="7 days" {{ ($period ?? '') === '7 days' ? 'selected' : '' }}>{{ __('Last 7 days') }}</option>
           <option value="30 days" {{ ($period ?? '') === '30 days' ? 'selected' : '' }}>{{ __('Last 30 days') }}</option>
           <option value="90 days" {{ ($period ?? '') === '90 days' ? 'selected' : '' }}>{{ __('Last 90 days') }}</option>

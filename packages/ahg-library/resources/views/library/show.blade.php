@@ -1724,10 +1724,20 @@
           @endif
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="{{ url('/label/' . $item->slug) }}"><i class="fas fa-tag me-2"></i>{{ __('Generate label') }}</a></li>
+          @if(\Illuminate\Support\Facades\Route::has('ahgtranslation.translate')
+              && \AhgCore\Services\AclService::check($item, 'translate'))
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateSbsModal-{{ $item->id }}"><i class="fas fa-columns me-2"></i>{{ __('Translate (side-by-side)') }}</a></li>
+          @endif
         </ul>
       </div>
     </li>
   </section>
+
+  {{-- Side-by-side per-field translator --}}
+  @if(view()->exists('ahg-translation::_translate-sbs') && \AhgCore\Services\AclService::check($item, 'translate'))
+    @include('ahg-translation::_translate-sbs', ['objectId' => $item->id])
+  @endif
   @endauth
 
   {{-- NER Modal --}}

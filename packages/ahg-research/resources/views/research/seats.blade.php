@@ -18,7 +18,7 @@
 <div class="row mb-4">
     <div class="col-md-4">
         <label class="form-label">{{ __('Select Reading Room') }}</label>
-        <select class="form-select" onchange="window.location.href='?room_id=' + this.value">
+        <select class="form-select" data-csp-go-prefix="?room_id=">
             <option value="">-- Select Room --</option>
             @foreach($rooms as $r)
                 <option value="{{ $r->id }}" {{ ($roomId ?? '') == $r->id ? 'selected' : '' }}>{{ e($r->name) }} (Capacity: {{ $r->capacity ?? '?' }})</option>

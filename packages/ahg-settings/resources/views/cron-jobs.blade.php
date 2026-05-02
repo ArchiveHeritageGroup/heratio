@@ -107,7 +107,7 @@
                     <form action="{{ route('settings.cron-toggle', $job->id) }}" method="POST">
                       @csrf
                       <div class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" onchange="this.form.submit()" {{ $job->is_enabled ? 'checked' : '' }}>
+                        <input class="form-check-input" type="checkbox" data-csp-auto-submit {{ $job->is_enabled ? 'checked' : '' }}>
                       </div>
                     </form>
                   </td>

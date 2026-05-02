@@ -62,7 +62,7 @@
       <div class="row align-items-center">
         <div class="col-md-6">
           <form method="get" action="{{ route('research.researchers') }}" class="d-flex gap-2">
-            <select name="filter" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+            <select name="filter" class="form-select form-select-sm" style="width: auto;" data-csp-auto-submit>
               <option value="all">{{ __('All Status') }}</option>
               <option value="pending" {{ $cs === 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
               <option value="approved" {{ $cs === 'approved' ? 'selected' : '' }}>{{ __('Approved') }}</option>

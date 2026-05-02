@@ -68,7 +68,7 @@
             <input type="hidden" name="q" value="{{ e($q) }}">
             <div class="mb-3">
               <label class="form-label small text-muted">{{ __('Type') }}</label>
-              <select name="type" class="form-select form-select-sm" onchange="this.form.submit()">
+              <select name="type" class="form-select form-select-sm" data-csp-auto-submit>
                 @foreach(['' => __('All Types'), 'archive' => __('Archive'), 'library' => __('Library'), 'museum' => __('Museum'), 'gallery' => __('Gallery'), 'dam' => __('Digital Asset Management'), 'heritage_site' => __('Heritage Site'), 'research_centre' => __('Research Centre'), 'government' => __('Government'), 'university' => __('University'), 'other' => __('Other')] as $v => $l)
                   <option value="{{ $v }}" {{ $typeF === $v ? 'selected' : '' }}>{{ $l }}</option>
                 @endforeach
@@ -76,7 +76,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label small text-muted">{{ __('Size') }}</label>
-              <select name="size" class="form-select form-select-sm" onchange="this.form.submit()">
+              <select name="size" class="form-select form-select-sm" data-csp-auto-submit>
                 @foreach(['' => __('All Sizes'), 'small' => __('Small'), 'medium' => __('Medium'), 'large' => __('Large'), 'national' => __('National')] as $v => $l)
                   <option value="{{ $v }}" {{ $sizeF === $v ? 'selected' : '' }}>{{ $l }}</option>
                 @endforeach
@@ -84,7 +84,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label small text-muted">{{ __('Governance') }}</label>
-              <select name="governance" class="form-select form-select-sm" onchange="this.form.submit()">
+              <select name="governance" class="form-select form-select-sm" data-csp-auto-submit>
                 @foreach(['' => __('All'), 'public' => __('Public'), 'private' => __('Private'), 'ngo' => __('NGO'), 'academic' => __('Academic'), 'government' => __('Government'), 'tribal' => __('Tribal'), 'community' => __('Community')] as $v => $l)
                   <option value="{{ $v }}" {{ $govF === $v ? 'selected' : '' }}>{{ $l }}</option>
                 @endforeach

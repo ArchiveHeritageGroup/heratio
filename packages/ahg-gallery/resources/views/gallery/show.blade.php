@@ -92,10 +92,21 @@
         <a href="{{ url('/' . $artwork->slug . '/right/edit') }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-gavel me-1"></i> {{ __('Edit rights') }}
         </a>
+        @if(\Illuminate\Support\Facades\Route::has('ahgtranslation.translate')
+            && \AhgCore\Services\AclService::check($artwork, 'translate'))
+          <a class="list-group-item list-group-item-action small" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateSbsModal-{{ $artwork->id }}">
+            <i class="fas fa-columns me-1"></i>{{ __('Translate (side-by-side)') }}
+          </a>
+        @endif
         @endif
       </div>
     </div>
     @endif {{-- end $canUpdate || $canDelete management card --}}
+
+    {{-- Translate modal — side-by-side per-field translator --}}
+    @if(view()->exists('ahg-translation::_translate-sbs') && \AhgCore\Services\AclService::check($artwork, 'translate'))
+      @include('ahg-translation::_translate-sbs', ['objectId' => $artwork->id])
+    @endif
 
     {{-- Marketplace (admin) --}}
     <div class="card mb-3">

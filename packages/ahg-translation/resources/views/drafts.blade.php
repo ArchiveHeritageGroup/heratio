@@ -4,10 +4,19 @@
 
 @section('content')
   <div class="container-fluid py-3">
-    <h1 class="h3 mb-3">
-      <i class="fas fa-language me-2"></i>{{ __('Translation drafts') }}
-      <small class="text-muted ms-2">{{ number_format($total) }} {{ __('total') }}</small>
-    </h1>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <h1 class="h3 mb-0">
+        <i class="fas fa-language me-2"></i>{{ __('Translation drafts') }}
+        <small class="text-muted ms-2">{{ number_format($total) }} {{ __('total') }}</small>
+      </h1>
+      <form method="POST" action="{{ route('ahgtranslation.draft-cleanup-orphans') }}"
+            onsubmit="return confirm('{{ __('Mark every pending draft whose record has been deleted as rejected?') }}');">
+        @csrf
+        <button type="submit" class="btn btn-sm btn-outline-warning">
+          <i class="fas fa-broom me-1"></i>{{ __('Cleanup orphaned drafts') }}
+        </button>
+      </form>
+    </div>
 
     @if(session('success'))
       <div class="alert alert-success">{{ session('success') }}</div>
@@ -25,7 +34,7 @@
         <div class="row g-2 align-items-end">
           <div class="col-md-3">
             <label class="form-label small mb-1">{{ __('Status') }}</label>
-            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+            <select name="status" class="form-select form-select-sm" data-csp-auto-submit>
               <option value="draft"    {{ $status === 'draft' ? 'selected' : '' }}>{{ __('Pending') }}</option>
               <option value="applied"  {{ $status === 'applied' ? 'selected' : '' }}>{{ __('Applied') }}</option>
               <option value="rejected" {{ $status === 'rejected' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
@@ -34,7 +43,7 @@
           </div>
           <div class="col-md-3">
             <label class="form-label small mb-1">{{ __('Target culture') }}</label>
-            <select name="target_culture" class="form-select form-select-sm" onchange="this.form.submit()">
+            <select name="target_culture" class="form-select form-select-sm" data-csp-auto-submit>
               <option value="">{{ __('All') }}</option>
               @foreach($cultures as $c)
                 <option value="{{ $c }}" {{ $cultureFilter === $c ? 'selected' : '' }}>{{ $c }}</option>
@@ -47,7 +56,7 @@
           </div>
           <div class="col-md-2">
             <label class="form-label small mb-1">{{ __('Per page') }}</label>
-            <select name="per_page" class="form-select form-select-sm" onchange="this.form.submit()">
+            <select name="per_page" class="form-select form-select-sm" data-csp-auto-submit>
               @foreach([20, 50, 100, 200] as $n)
                 <option value="{{ $n }}" {{ $perPage == $n ? 'selected' : '' }}>{{ $n }}</option>
               @endforeach
@@ -115,15 +124,11 @@
                     <i class="fas fa-arrow-right small text-muted"></i>
                     <span class="badge bg-primary">{{ $d->target_culture }}</span>
                   </td>
-                  <td style="max-width:240px;">
-                    <div class="text-muted small" style="overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">
-                      {{ $d->source_text }}
-                    </div>
+                  <td style="max-width:280px;">
+                    <div class="ahg-trans-clamp text-muted small" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical; white-space:pre-wrap; cursor:pointer;" title="{{ __('Click to expand / collapse') }}">{{ $d->source_text }}</div>
                   </td>
-                  <td style="max-width:240px;">
-                    <div style="overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">
-                      {{ $d->translated_text }}
-                    </div>
+                  <td style="max-width:280px;">
+                    <div class="ahg-trans-clamp" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical; white-space:pre-wrap; cursor:pointer;" title="{{ __('Click to expand / collapse') }}">{{ $d->translated_text }}</div>
                   </td>
                   <td>
                     @if($d->status === 'draft')
@@ -173,6 +178,21 @@
         });
       }
       rows.forEach(cb => cb.addEventListener('change', update));
+
+      // Click-to-expand on Source / Translation columns. Toggling adds the
+      // .ahg-trans-expanded class which removes the line-clamp.
+      document.querySelectorAll('.ahg-trans-clamp').forEach(function (el) {
+        el.addEventListener('click', function () {
+          var expanded = el.classList.toggle('ahg-trans-expanded');
+          if (expanded) {
+            el.style.webkitLineClamp = 'unset';
+            el.style.display = 'block';
+          } else {
+            el.style.webkitLineClamp = '3';
+            el.style.display = '-webkit-box';
+          }
+        });
+      });
     })();
   </script>
 @endsection

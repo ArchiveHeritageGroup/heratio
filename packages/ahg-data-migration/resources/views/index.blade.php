@@ -115,7 +115,7 @@
               @csrf
               <input type="file" id="importMappingFile" name="mapping_file"
                      accept=".json" class="d-none"
-                     onchange="this.form.submit()">
+                     data-csp-auto-submit>
             </form>
           </div>
         @endif

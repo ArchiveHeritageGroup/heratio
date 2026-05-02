@@ -1554,11 +1554,12 @@
           </li>
           @endif
           @auth
-            @if(\Illuminate\Support\Facades\Route::has('ahgtranslation.translate'))
+            @if(\Illuminate\Support\Facades\Route::has('ahgtranslation.translate')
+                && \AhgCore\Services\AclService::check($museum, 'translate'))
               <li><hr class="dropdown-divider"></li>
               <li>
-                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateModal-{{ $museum->id }}">
-                  <i class="fas fa-language me-2"></i>{{ __('Translate this record') }}
+                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateSbsModal-{{ $museum->id }}">
+                  <i class="fas fa-columns me-2"></i>{{ __('Translate (side-by-side)') }}
                 </a>
               </li>
             @endif
@@ -1581,8 +1582,9 @@
   @include('ahg-core::partials._ner-modal', ['objectId' => $museum->id, 'objectTitle' => $museum->title])
 
   @auth
-    @if(view()->exists('ahg-translation::_translate-modal'))
-      @include('ahg-translation::_translate-modal', ['objectId' => $museum->id])
+    @if(view()->exists('ahg-translation::_translate-sbs')
+        && \AhgCore\Services\AclService::check($museum, 'translate'))
+      @include('ahg-translation::_translate-sbs', ['objectId' => $museum->id])
     @endif
   @endauth
 @endsection

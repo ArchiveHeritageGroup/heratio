@@ -33,21 +33,45 @@ class AhgCoreServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Hydrate UI labels from the AtoM setting table so that
-        // config('app.ui_label_*') returns admin-customised values.
+        // config('app.ui_label_*') returns admin-customised values, per current
+        // request culture, with fallback to en when the target culture has no
+        // setting_i18n row yet. The keys are pulled live from setting WHERE
+        // scope='ui_label' so newly-added rows are picked up automatically.
         $this->app->booted(function () {
-            $labels = [
-                'ui_label_repository',
-                'ui_label_actor',
-                'ui_label_informationobject',
-                'ui_label_physicalobject',
-                'ui_label_accession',
-            ];
+            $culture = app()->getLocale();
+            $fallback = config('app.fallback_locale', 'en');
+            try {
+                $rows = \Illuminate\Support\Facades\DB::table('setting as s')
+                    ->leftJoin('setting_i18n as si',    function ($j) use ($culture)  { $j->on('s.id', '=', 'si.id')->where('si.culture', '=', $culture); })
+                    ->leftJoin('setting_i18n as si_fb', function ($j) use ($fallback) { $j->on('s.id', '=', 'si_fb.id')->where('si_fb.culture', '=', $fallback); })
+                    ->where('s.scope', 'ui_label')
+                    ->select('s.name', 'si.value as cur', 'si_fb.value as fb')
+                    ->get();
+                $translatorOverrides = [];
+                foreach ($rows as $r) {
+                    $val = ($r->cur !== null && $r->cur !== '') ? $r->cur : $r->fb;
+                    $val = $val !== null ? strtr((string) $val, ['&nbsp;' => ' ']) : '';
+                    if ($val === '') continue;
 
-            foreach ($labels as $key) {
-                $dbValue = SettingHelper::get($key);
-                if ($dbValue !== '') {
-                    config(["app.{$key}" => $dbValue]);
+                    // a) config('app.ui_label_*') — used wherever code calls config()
+                    config(["app.ui_label_{$r->name}" => $val]);
+
+                    // b) translator override — so __('Archival description') in any
+                    // blade also flips to the admin-configured label for the current
+                    // culture without changing every call site to use config().
+                    // The en value is the source key __() looks up; map it to the
+                    // selected-culture value.
+                    $en = $r->fb !== null ? strtr((string) $r->fb, ['&nbsp;' => ' ']) : '';
+                    if ($en !== '' && $val !== $en) {
+                        $translatorOverrides[$en] = $val;
+                    }
                 }
+                if (!empty($translatorOverrides)) {
+                    app('translator')->addLines($translatorOverrides, app()->getLocale(), '*');
+                }
+            } catch (\Throwable $e) {
+                // Settings table missing (fresh install / misconfigured DB) — leave
+                // the ui_label_* config defaults from config/app.php in place.
             }
 
             // Load element visibility settings into config('atom.element_visibility.*')

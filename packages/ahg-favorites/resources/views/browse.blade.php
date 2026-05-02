@@ -169,7 +169,7 @@
         </div>
       </div>
       <div class="col-md-4">
-        <select name="sort" class="form-select form-select-sm" onchange="this.form.submit();">
+        <select name="sort" class="form-select form-select-sm" data-csp-auto-submit>
           @foreach(['created_at' => 'Date Added (Newest)', 'title' => 'Title (A-Z)', 'reference_code' => 'Reference Code (A-Z)'] as $val => $label)
             <option value="{{ $val }}" {{ ($params['sort'] ?? 'created_at') === $val ? 'selected' : '' }}>{{ $label }}</option>
           @endforeach

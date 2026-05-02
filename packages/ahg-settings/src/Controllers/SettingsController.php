@@ -387,31 +387,56 @@ class SettingsController extends Controller
 
     public function interfaceLabels(Request $request)
     {
-        $culture = app()->getLocale();
         $menu = $this->buildMenu('interface-labels');
+
+        // Per-culture editor: ?culture=af edits af labels regardless of which
+        // locale the admin's own UI is set to. Default = current request locale.
+        $culture = (string) $request->input('culture', app()->getLocale());
+
+        // Enabled UI cultures (so the dropdown stays consistent with what the
+        // public switcher exposes). Fallback to ['en'] if the table is missing.
+        try {
+            $cultures = DB::table('setting')
+                ->where('scope', 'i18n_languages')
+                ->where('editable', 1)
+                ->orderBy('name')
+                ->pluck('name')
+                ->toArray();
+        } catch (\Throwable $e) { $cultures = ['en']; }
+        if (empty($cultures)) $cultures = ['en'];
+        if (!in_array($culture, $cultures, true)) $culture = 'en';
 
         if ($request->isMethod('post')) {
             foreach ($request->input('settings', []) as $id => $value) {
                 DB::table('setting_i18n')->updateOrInsert(
-                    ['id' => $id, 'culture' => $culture],
-                    ['value' => $value]
+                    ['id' => (int) $id, 'culture' => $culture],
+                    ['value' => (string) $value]
                 );
             }
-            return redirect()->route('settings.interface-labels')->with('success', 'Interface labels saved.');
+            // Bust SettingHelper's static cache + the booted-config snapshot
+            // so the new label is visible on the next request.
+            \AhgCore\Services\SettingHelper::flush();
+            return redirect()->route('settings.interface-labels', ['culture' => $culture])
+                ->with('success', "Interface labels saved for {$culture}.");
         }
 
-        $settings = DB::table('setting')
-            ->leftJoin('setting_i18n', function ($join) use ($culture) {
-                $join->on('setting.id', '=', 'setting_i18n.id')
-                    ->where('setting_i18n.culture', '=', $culture);
+        // For each ui_label setting row, return:
+        //   - source value (the en row, always — so editor sees the canonical)
+        //   - target value (the row for the selected culture, or NULL if not yet translated)
+        $settings = DB::table('setting as s')
+            ->leftJoin('setting_i18n as si_en',  function ($j) {
+                $j->on('s.id', '=', 'si_en.id')->where('si_en.culture', '=', 'en');
             })
-            ->where('setting.scope', 'ui_label')
-            ->where('setting.editable', 1)
-            ->select('setting.id', 'setting.name', 'setting_i18n.value')
-            ->orderBy('setting.name')
+            ->leftJoin('setting_i18n as si_cur', function ($j) use ($culture) {
+                $j->on('s.id', '=', 'si_cur.id')->where('si_cur.culture', '=', $culture);
+            })
+            ->where('s.scope', 'ui_label')
+            ->where('s.editable', 1)
+            ->select('s.id', 's.name', 'si_en.value as source_value', 'si_cur.value as value')
+            ->orderBy('s.name')
             ->get();
 
-        return view('ahg-settings::interface-labels', compact('settings', 'menu'));
+        return view('ahg-settings::interface-labels', compact('settings', 'menu', 'culture', 'cultures'));
     }
 
     public function visibleElements(Request $request)

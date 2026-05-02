@@ -208,7 +208,7 @@
                             @csrf
                             <input type="hidden" name="form_action" value="change_role">
                             <input type="hidden" name="member_id" value="{{ (int) $member->id }}">
-                            <select name="role" class="form-select form-select-sm d-inline-block" style="width:auto;" onchange="this.form.submit();">
+                            <select name="role" class="form-select form-select-sm d-inline-block" style="width:auto;" data-csp-auto-submit>
                                 @foreach(['viewer', 'member', 'editor', 'admin'] as $r)
                                 <option value="{{ $r }}" {{ ($member->role === $r) ? 'selected' : '' }}>{{ ucfirst($r) }}</option>
                                 @endforeach

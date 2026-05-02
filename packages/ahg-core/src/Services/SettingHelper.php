@@ -31,6 +31,12 @@ class SettingHelper
 {
     private static array $cache = [];
 
+    /** Reset the static request-lifetime cache (used after settings writes). */
+    public static function flush(): void
+    {
+        self::$cache = [];
+    }
+
     /**
      * Get a global AtoM setting value from the setting + setting_i18n tables.
      */

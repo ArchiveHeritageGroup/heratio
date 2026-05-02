@@ -21,7 +21,7 @@
   {{-- Filters --}}
   <form method="GET" action="{{ route('ric.sync-status') }}" class="row g-2 mb-3">
     <div class="col-auto">
-      <select name="entity_type" class="form-select form-select-sm" onchange="this.form.submit()">
+      <select name="entity_type" class="form-select form-select-sm" data-csp-auto-submit>
         <option value="">{{ __('All Entity Types') }}</option>
         @foreach($entityTypes as $et)
           <option value="{{ $et }}" {{ $entityType === $et ? 'selected' : '' }}>
@@ -31,7 +31,7 @@
       </select>
     </div>
     <div class="col-auto">
-      <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+      <select name="status" class="form-select form-select-sm" data-csp-auto-submit>
         <option value="">{{ __('All Statuses') }}</option>
         @foreach($statuses as $s)
           <option value="{{ $s }}" {{ $status === $s ? 'selected' : '' }}>

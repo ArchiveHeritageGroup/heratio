@@ -66,7 +66,7 @@
             <input type="hidden" name="q" value="{{ e($q) }}">
             <div class="mb-3">
               <label class="form-label small text-muted">{{ __('Category') }}</label>
-              <select name="category" class="form-select form-select-sm" onchange="this.form.submit()">
+              <select name="category" class="form-select form-select-sm" data-csp-auto-submit>
                 @foreach(['' => __('All Categories'), 'ams' => __('AMS (Archival Management System)'), 'ims' => __('IMS (Information Management)'), 'dam' => __('DAM (Digital Asset Management)'), 'dams' => __('DAMS'), 'cms' => __('CMS'), 'preservation' => __('Digital Preservation'), 'digitization' => __('Digitization'), 'discovery' => __('Discovery'), 'utility' => __('Utility'), 'plugin' => __('Plugin/Extension'), 'theme' => __('Theme'), 'integration' => __('Integration'), 'other' => __('Other')] as $v => $l)
                   <option value="{{ $v }}" {{ $catF === $v ? 'selected' : '' }}>{{ $l }}</option>
                 @endforeach
@@ -74,7 +74,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label small text-muted">{{ __('License') }}</label>
-              <select name="license" class="form-select form-select-sm" onchange="this.form.submit()">
+              <select name="license" class="form-select form-select-sm" data-csp-auto-submit>
                 @foreach(['' => __('All Licenses'), 'GPL-3.0' => 'GPL-3.0', 'GPL-2.0' => 'GPL-2.0', 'MIT' => 'MIT', 'Apache-2.0' => 'Apache 2.0', 'BSD-3-Clause' => 'BSD 3-Clause', 'AGPL-3.0' => 'AGPL-3.0', 'proprietary' => __('Proprietary')] as $v => $l)
                   <option value="{{ $v }}" {{ $licF === $v ? 'selected' : '' }}>{{ $l }}</option>
                 @endforeach
@@ -82,7 +82,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label small text-muted">{{ __('Pricing') }}</label>
-              <select name="pricing" class="form-select form-select-sm" onchange="this.form.submit()">
+              <select name="pricing" class="form-select form-select-sm" data-csp-auto-submit>
                 @foreach(['' => __('All'), 'free' => __('Free'), 'open_source' => __('Open Source'), 'freemium' => __('Freemium'), 'subscription' => __('Subscription'), 'one_time' => __('One-Time License'), 'contact' => __('Contact for Pricing')] as $v => $l)
                   <option value="{{ $v }}" {{ $priceF === $v ? 'selected' : '' }}>{{ $l }}</option>
                 @endforeach
@@ -90,7 +90,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label small text-muted">{{ __('GLAM Sector') }}</label>
-              <select name="sector" class="form-select form-select-sm" onchange="this.form.submit()">
+              <select name="sector" class="form-select form-select-sm" data-csp-auto-submit>
                 @foreach(['' => __('All Sectors'), 'archive' => __('Archive'), 'library' => __('Library'), 'museum' => __('Museum'), 'gallery' => __('Gallery'), 'dam' => __('DAM')] as $v => $l)
                   <option value="{{ $v }}" {{ $sectorF === $v ? 'selected' : '' }}>{{ $l }}</option>
                 @endforeach

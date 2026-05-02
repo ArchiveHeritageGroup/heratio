@@ -232,8 +232,19 @@
             <i class="fas fa-download me-1"></i> {{ __('Export rights (JSON-LD)') }}
           </a>
         @endif
+        @if(\Illuminate\Support\Facades\Route::has('ahgtranslation.translate')
+            && \AhgCore\Services\AclService::check($asset, 'translate'))
+          <a class="list-group-item list-group-item-action small" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateSbsModal-{{ $asset->id }}">
+            <i class="fas fa-columns me-1"></i>{{ __('Translate (side-by-side)') }}
+          </a>
+        @endif
       </div>
     </div>
+
+    {{-- Side-by-side per-field translator --}}
+    @if(view()->exists('ahg-translation::_translate-sbs') && \AhgCore\Services\AclService::check($asset, 'translate'))
+      @include('ahg-translation::_translate-sbs', ['objectId' => $asset->id])
+    @endif
 
     {{-- Marketplace (Buy/Sell, gated on marketplace_enabled setting) --}}
     @includeIf('marketplace::partials._add-to-marketplace', ['ioId' => $asset->id])

@@ -289,21 +289,31 @@ class DisplayController extends Controller
 
         $totalPages = (int) ceil($total / $limit);
 
-        // Build main query
+        // Build main query — culture-fallback to lang/{fallback_locale} so a
+        // record that only has English doesn't render as "[Untitled]" when
+        // browsed in af/zu/etc. Pattern mirrors AhgCore\Traits\WithCultureFallback.
+        $fallback = config('app.fallback_locale', 'en');
         $query = DB::table('information_object as io')
             ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
                 $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
             })
+            ->leftJoin('information_object_i18n as i18n_fb', function ($j) use ($fallback) {
+                $j->on('io.id', '=', 'i18n_fb.id')->where('i18n_fb.culture', '=', $fallback);
+            })
             ->leftJoin('term_i18n as level', function ($j) use ($culture) {
                 $j->on('io.level_of_description_id', '=', 'level.id')->where('level.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as level_fb', function ($j) use ($fallback) {
+                $j->on('io.level_of_description_id', '=', 'level_fb.id')->where('level_fb.culture', '=', $fallback);
             })
             ->leftJoin('display_object_config as doc', 'io.id', '=', 'doc.object_id')
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.id', '>', 1)
             ->select(
                 'io.id', 'io.identifier', 'io.parent_id',
-                'i18n.title', 'i18n.scope_and_content',
-                'level.name as level_name',
+                DB::raw("COALESCE(NULLIF(i18n.title, ''), i18n_fb.title) AS title"),
+                DB::raw("COALESCE(NULLIF(i18n.scope_and_content, ''), i18n_fb.scope_and_content) AS scope_and_content"),
+                DB::raw("COALESCE(NULLIF(level.name, ''), level_fb.name) AS level_name"),
                 'doc.object_type', 'slug.slug'
             );
 

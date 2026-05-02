@@ -390,6 +390,7 @@ class TranslationController extends Controller
         $field     = trim((string) $request->input('field'));
         $value     = (string) $request->input('value', '');
         $confirmed = (bool) $request->input('confirmed', false);
+        $reqReview = (bool) $request->input('review', false);
 
         if ($objectId <= 0 || $culture === '' || $field === '') {
             return response()->json([
@@ -420,6 +421,53 @@ class TranslationController extends Controller
                 'ok' => false,
                 'error' => "Field '{$field}' is not translatable for {$className}",
             ], 422);
+        }
+
+        // ── Workflow split (issue #54-style, applied to per-record translation) ──
+        // Admin (default)         → write directly to *_i18n
+        // Admin with ?review=1    → queue as ahg_translation_draft for second reviewer
+        // Editor / translator     → always queue as ahg_translation_draft
+        // Anyone else             → 403 (the acl:translate middleware should already
+        //                            block; this is defence-in-depth)
+        $isAdmin   = \AhgCore\Services\AclService::isAdministrator();
+        $canTranslate = \AhgCore\Services\AclService::check(null, 'translate')
+            || $isAdmin
+            || \AhgCore\Services\AclService::isEditor()
+            || \AhgCore\Services\AclService::isTranslator();
+        if (!$canTranslate) {
+            return response()->json(['ok' => false, 'error' => 'forbidden'], 403);
+        }
+        $autoApprove = $isAdmin && !$reqReview;
+
+        if (!$autoApprove) {
+            // Read source for the draft row context (best-effort — old value goes
+            // in source_text so the reviewer can compare).
+            $oldValue = DB::table($i18nTable)
+                ->where('id', $objectId)
+                ->where('culture', $culture)
+                ->value($field);
+            $draftId = DB::table('ahg_translation_draft')->insertGetId([
+                'object_id'           => $objectId,
+                'field_name'          => $field,
+                'source_culture'      => $culture,
+                'target_culture'      => $culture,
+                'source_text'         => (string) ($oldValue ?? ''),
+                'translated_text'     => $value,
+                'status'              => 'draft',
+                'created_by_user_id'  => auth()->id(),
+                'created_at'          => now(),
+                'updated_at'          => now(),
+            ]);
+            return response()->json([
+                'ok'         => true,
+                'state'      => 'pending',
+                'draft_id'   => $draftId,
+                'class'      => $className,
+                'object_id'  => $objectId,
+                'culture'    => $culture,
+                'field'      => $field,
+                'message'    => 'Submitted for review.',
+            ]);
         }
 
         // Upsert the i18n row for the requested culture.
@@ -465,6 +513,7 @@ class TranslationController extends Controller
 
         return response()->json([
             'ok'        => true,
+            'state'     => 'approved',
             'object_id' => $objectId,
             'culture'   => $culture,
             'field'     => $field,
@@ -911,6 +960,22 @@ class TranslationController extends Controller
             return back()->with('notice', 'Draft already applied');
         }
 
+        // Orphan check — the underlying object may have been deleted between
+        // draft submission and approval. Saving would fail with "Object not
+        // found" (or trip the FK on information_object_i18n.id). Mark the
+        // draft as rejected with a clear note so it stops cluttering the queue.
+        $stillExists = DB::table('object')->where('id', $draft->object_id)->exists();
+        if (!$stillExists) {
+            DB::table('ahg_translation_draft')
+                ->where('id', $id)
+                ->update([
+                    'status'     => 'rejected',
+                    'updated_at' => now(),
+                ]);
+            return back()->with('notice',
+                "Draft #{$id} discarded — original record (object #{$draft->object_id}) was deleted before approval.");
+        }
+
         // Re-use save() logic by invoking it with the draft's payload.
         $req = new Request([
             'object_id' => $draft->object_id,
@@ -929,6 +994,29 @@ class TranslationController extends Controller
             return back()->with('success', "Draft #{$id} applied to {$draft->target_culture}.");
         }
         return back()->with('error', 'Apply failed: ' . ($payload['error'] ?? 'unknown'));
+    }
+
+    /**
+     * POST /admin/translation/drafts/cleanup-orphans — bulk-mark every pending
+     * draft whose underlying object has been deleted as 'rejected'.
+     */
+    public function draftCleanupOrphans(Request $request)
+    {
+        if (!\AhgCore\Services\AclService::isAdministrator()) {
+            return back()->with('error', 'Admin only');
+        }
+        $orphanIds = DB::table('ahg_translation_draft as d')
+            ->leftJoin('object as o', 'o.id', '=', 'd.object_id')
+            ->whereNull('o.id')
+            ->where('d.status', 'draft')
+            ->pluck('d.id')
+            ->all();
+        if (empty($orphanIds)) {
+            return back()->with('notice', 'No orphaned drafts to clean up.');
+        }
+        DB::table('ahg_translation_draft')->whereIn('id', $orphanIds)
+            ->update(['status' => 'rejected', 'updated_at' => now()]);
+        return back()->with('success', count($orphanIds) . ' orphaned draft(s) discarded.');
     }
 
     /**
@@ -983,6 +1071,12 @@ class TranslationController extends Controller
      */
     public function stringsIndex(Request $request)
     {
+        // Editor or Administrator only — translators / contributors don't get
+        // to edit UI strings even via the workflow.
+        if (!\AhgCore\Services\AclService::isAdministrator() && !\AhgCore\Services\AclService::isEditor()) {
+            abort(403, 'Insufficient permissions');
+        }
+
         $svc = app(\AhgTranslation\Services\UiStringService::class);
 
         $locale   = $request->input('locale');
@@ -995,21 +1089,31 @@ class TranslationController extends Controller
         $matrix = $svc->matrix($locale ?: null, $missing ?: null, $contains ?: null, $limit, $offset);
         $allLocales = $svc->enabledLocales();
 
+        // Pending count for the badge in the header link to the review queue.
+        $pendingCount = (int) DB::table('ui_string_change')->where('status', 'pending')->count();
+
         return view('ahg-translation::strings', [
-            'matrix'      => $matrix,
-            'allLocales'  => $allLocales,
-            'locale'      => $locale,
-            'missing'     => $missing,
-            'contains'    => $contains,
-            'page'        => $page,
-            'limit'       => $limit,
-            'totalPages'  => (int) ceil(($matrix['total'] ?? 0) / max(1, $limit)),
+            'matrix'        => $matrix,
+            'allLocales'    => $allLocales,
+            'locale'        => $locale,
+            'missing'       => $missing,
+            'contains'      => $contains,
+            'page'          => $page,
+            'limit'         => $limit,
+            'totalPages'    => (int) ceil(($matrix['total'] ?? 0) / max(1, $limit)),
+            'isAdmin'       => \AhgCore\Services\AclService::isAdministrator(),
+            'pendingCount'  => $pendingCount,
         ]);
     }
 
     /**
-     * POST /admin/translation/strings/save — save a single key+value into
-     * lang/{locale}.json. JSON-only response so the editor can save inline.
+     * POST /admin/translation/strings/save — save a single key+value.
+     *
+     * Workflow:
+     *  - Admin (default)            → applyApproved (writes JSON immediately, audit row)
+     *  - Admin with ?review=1       → submitChange (queues for second reviewer)
+     *  - Editor                     → submitChange (queues; needs admin approval)
+     *  - Anyone else                → 403
      */
     public function stringsSave(Request $request)
     {
@@ -1017,18 +1121,103 @@ class TranslationController extends Controller
             'locale' => 'required|string|max:16',
             'key'    => 'required|string',
             'value'  => 'nullable|string',
+            'review' => 'nullable|boolean',
         ]);
 
+        $userId   = (int) (auth()->id() ?? 0);
+        $isAdmin  = \AhgCore\Services\AclService::isAdministrator();
+        $isEditor = \AhgCore\Services\AclService::isEditor();
+        if (!$userId || (!$isAdmin && !$isEditor)) {
+            return response()->json(['ok' => false, 'error' => 'forbidden'], 403);
+        }
+
+        $svc       = app(\AhgTranslation\Services\UiStringService::class);
+        $reqReview = (bool) $request->input('review');
+        $autoApprove = $isAdmin && !$reqReview;
+
+        try {
+            if ($autoApprove) {
+                $svc->applyApproved($userId, $request->input('locale'), $request->input('key'), $request->input('value'));
+                return response()->json(['ok' => true, 'state' => 'approved']);
+            }
+            $pendingId = $svc->submitChange($userId, $request->input('locale'), $request->input('key'), $request->input('value'));
+            return response()->json(['ok' => true, 'state' => 'pending', 'pending_id' => $pendingId]);
+        } catch (\Throwable $e) {
+            return response()->json(['ok' => false, 'error' => $e->getMessage()], 400);
+        }
+    }
+
+    /**
+     * GET /admin/translation/strings/pending — review queue for translation
+     * changes submitted by editors (or by admins who opted in to review).
+     * Admin-only.
+     */
+    public function stringsPending(Request $request)
+    {
+        $svc = app(\AhgTranslation\Services\UiStringService::class);
+        $locale  = $request->input('locale');
+        $changes = $svc->pendingChanges($locale ?: null);
+        return view('ahg-translation::strings-pending', [
+            'changes'    => $changes,
+            'locale'     => $locale,
+            'allLocales' => $svc->enabledLocales(),
+        ]);
+    }
+
+    /**
+     * POST /admin/translation/strings/{id}/approve — admin approves a pending
+     * change. Applies it to lang/{locale}.json and stamps the audit row.
+     */
+    public function stringsApprove(Request $request, int $id)
+    {
+        if (!\AhgCore\Services\AclService::isAdministrator()) {
+            return response()->json(['ok' => false, 'error' => 'admin required'], 403);
+        }
+        $row = \DB::table('ui_string_change')->where('id', $id)->where('status', 'pending')->first();
+        if (!$row) {
+            return response()->json(['ok' => false, 'error' => 'not found or already reviewed'], 404);
+        }
         $svc = app(\AhgTranslation\Services\UiStringService::class);
         try {
-            $svc->setKey(
-                $request->input('locale'),
-                $request->input('key'),
-                $request->input('value')
-            );
+            $svc->applyApproved((int) auth()->id(), $row->locale, $row->key_text, $row->new_value, $id, $request->input('note'));
         } catch (\Throwable $e) {
             return response()->json(['ok' => false, 'error' => $e->getMessage()], 400);
         }
         return response()->json(['ok' => true]);
+    }
+
+    /**
+     * POST /admin/translation/strings/{id}/reject — admin rejects a pending change.
+     */
+    public function stringsReject(Request $request, int $id)
+    {
+        if (!\AhgCore\Services\AclService::isAdministrator()) {
+            return response()->json(['ok' => false, 'error' => 'admin required'], 403);
+        }
+        $svc = app(\AhgTranslation\Services\UiStringService::class);
+        $ok = $svc->rejectPending((int) auth()->id(), $id, $request->input('note'));
+        return response()->json(['ok' => $ok]);
+    }
+
+    /**
+     * GET /admin/translation/strings/mt-suggest — returns a machine-translated
+     * suggestion for a single key. Reuses the existing translateText() backend
+     * (Ollama / Server 78 GPU per #45).
+     */
+    public function stringsMtSuggest(Request $request)
+    {
+        $request->validate([
+            'locale' => 'required|string|max:16',
+            'text'   => 'required|string',
+        ]);
+        try {
+            $r = $this->translateText($request->input('text'), 'en', $request->input('locale'));
+            if (!empty($r['ok']) && !empty($r['translated'])) {
+                return response()->json(['ok' => true, 'translated' => $r['translated']]);
+            }
+            return response()->json(['ok' => false, 'error' => $r['error'] ?? 'MT backend returned empty'], 502);
+        } catch (\Throwable $e) {
+            return response()->json(['ok' => false, 'error' => $e->getMessage()], 502);
+        }
     }
 }

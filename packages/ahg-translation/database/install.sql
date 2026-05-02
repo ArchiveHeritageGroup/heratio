@@ -76,4 +76,26 @@ INSERT IGNORE INTO `ahg_translation_settings` (`setting_key`, `setting_value`)
   SELECT 'mt.target_culture', 'en'
   WHERE NOT EXISTS (SELECT 1 FROM `ahg_translation_settings` WHERE `setting_key`='mt.target_culture');
 
+-- ui_string_change — pending/approved/rejected workflow for /admin/translation/strings
+-- (issue #54 second-pass — admin auto-approves, editor goes to queue, admin
+-- can opt-in to second-review). Also serves as the audit log: every change
+-- (immediate-approve OR queued-then-approved) writes a row.
+CREATE TABLE IF NOT EXISTS `ui_string_change` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `locale` VARCHAR(16) NOT NULL,
+  `key_text` TEXT NOT NULL,
+  `old_value` LONGTEXT,
+  `new_value` LONGTEXT,
+  `status` VARCHAR(20) NOT NULL DEFAULT 'pending',
+  `submitted_by_user_id` INT NOT NULL,
+  `submitted_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `reviewed_by_user_id` INT,
+  `reviewed_at` DATETIME,
+  `review_note` TEXT,
+  PRIMARY KEY (`id`),
+  KEY `idx_status_submitted` (`status`, `submitted_at`),
+  KEY `idx_locale_status` (`locale`, `status`),
+  KEY `idx_submitter` (`submitted_by_user_id`, `submitted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 1;

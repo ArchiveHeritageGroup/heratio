@@ -124,7 +124,7 @@
           <i class="fas fa-file-alt me-1"></i> {{ __('Generate Summary') }}
         </a>
         <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#translateModal">
-          <i class="fas fa-language me-1"></i> {{ __('Translate') }}
+          <i class="fas fa-language me-1"></i> {{ __('AI Translate (MT wizard)') }}
         </a>
         <a href="{{ route('io.ai.review') }}?object_id={{ $io->id }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-list-check me-1"></i> {{ __('NER Review') }}
@@ -2269,16 +2269,15 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
             </a>
           </li>
           @endif
-          @auth
-            @if(\Illuminate\Support\Facades\Route::has('ahgtranslation.translate'))
-              <li><hr class="dropdown-divider"></li>
-              <li>
-                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#translateModal">
-                  <i class="fas fa-language me-2"></i>{{ __('Translate this record') }}
-                </a>
-              </li>
-            @endif
-          @endauth
+          @if(\Illuminate\Support\Facades\Route::has('ahgtranslation.translate')
+              && \AhgCore\Services\AclService::check($io, 'translate'))
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateSbsModal-{{ $io->id }}">
+                <i class="fas fa-language me-2"></i>{{ __('Translate') }}
+              </a>
+            </li>
+          @endif
         </ul>
       </div>
     </li>
@@ -2312,6 +2311,13 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
         'revision_history'=>'Revision History',
     ];
   @endphp
+
+  {{-- Side-by-side translator (manual) — separate from the multi-step MT wizard #translateModal below. --}}
+  @if(\Illuminate\Support\Facades\Route::has('ahgtranslation.translate')
+      && \AhgCore\Services\AclService::check($io, 'translate'))
+    @include('ahg-translation::_translate-sbs', ['objectId' => $io->id])
+  @endif
+
   <div class="modal fade" id="translateModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
