@@ -32,14 +32,23 @@
     <p class="text-muted mb-0">{{ __(':count listings available', ['count' => number_format($total ?? 0)]) }}</p>
   </div>
   @auth
-  <div class="col-auto">
-    <a href="{{ route('ahgmarketplace.my-favourites') }}" class="btn btn-outline-danger me-1" title="{{ __('My favourites') }}">
-      <i class="fas fa-heart me-1"></i>{{ __('My Favourites') }}
-    </a>
-    <a href="{{ route('ahgmarketplace.dashboard') }}" class="btn btn-primary">
-      <i class="fas fa-store me-1"></i> {{ __('Sell') }}
-    </a>
-  </div>
+    @php
+      $cartCount = app(\AhgCart\Services\CartService::class)->getCartCount((int) auth()->id(), null);
+    @endphp
+    <div class="col-auto">
+      <a href="{{ route('cart.browse') }}" class="btn btn-outline-success me-1 position-relative" id="marketplace-cart-link" title="{{ __('Cart') }}">
+        <i class="fas fa-shopping-cart me-1"></i>{{ __('Cart') }}
+        <span class="badge bg-success position-absolute top-0 start-100 translate-middle rounded-pill" id="marketplace-cart-count" style="{{ $cartCount > 0 ? '' : 'display:none;' }}">
+          {{ $cartCount }}
+        </span>
+      </a>
+      <a href="{{ route('ahgmarketplace.my-favourites') }}" class="btn btn-outline-danger me-1" title="{{ __('My favourites') }}">
+        <i class="fas fa-heart me-1"></i>{{ __('My Favourites') }}
+      </a>
+      <a href="{{ route('ahgmarketplace.dashboard') }}" class="btn btn-primary">
+        <i class="fas fa-store me-1"></i> {{ __('Sell') }}
+      </a>
+    </div>
   @endauth
 </div>
 
@@ -181,11 +190,11 @@
             @auth
               @php $favOn = in_array((int) $listing->id, $favouritedIds ?? [], true); @endphp
               <button type="button"
-                      class="btn btn-light position-absolute top-0 end-0 m-2 rounded-circle shadow-sm fav-toggle"
+                      class="btn btn-light position-absolute top-0 end-0 m-2 rounded-circle shadow-sm fav-toggle{{ $favOn ? ' is-on' : '' }}"
                       style="z-index:2;width:36px;height:36px;padding:0;"
                       data-listing-id="{{ (int) $listing->id }}"
                       title="{{ $favOn ? __('Remove from favourites') : __('Add to favourites') }}">
-                <i class="{{ $favOn ? 'fas' : 'far' }} fa-heart text-danger"></i>
+                <i class="fas fa-heart {{ $favOn ? 'text-danger' : 'text-secondary' }}"></i>
               </button>
             @endauth
             <a href="{{ route('ahgmarketplace.listing', ['slug' => $listing->slug ?? '']) }}" class="text-decoration-none">
@@ -215,13 +224,25 @@
                 @endif
               </div>
               @auth
+                @php $inCart = in_array((int) $listing->id, $cartListingIds ?? [], true); @endphp
                 @if(($listing->listing_type ?? '') === 'fixed_price' && empty($listing->price_on_request))
-                  <form action="{{ route('cart.listing-add', ['listingId' => (int) $listing->id]) }}" method="POST" class="d-grid">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-success">
-                      <i class="fas fa-cart-plus me-1"></i>{{ __('Add to cart') }}
-                    </button>
-                  </form>
+                  <div class="cart-action-slot d-grid" data-listing-id="{{ (int) $listing->id }}">
+                    @if($inCart)
+                      <form action="{{ route('cart.listing-remove', ['listingId' => (int) $listing->id]) }}" method="POST" class="d-grid remove-from-cart-form">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                          <i class="fas fa-cart-arrow-down me-1"></i>{{ __('Remove from cart') }}
+                        </button>
+                      </form>
+                    @else
+                      <form action="{{ route('cart.listing-add', ['listingId' => (int) $listing->id]) }}" method="POST" class="d-grid add-to-cart-form">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-success">
+                          <i class="fas fa-cart-plus me-1"></i>{{ __('Add to cart') }}
+                        </button>
+                      </form>
+                    @endif
+                  </div>
                 @elseif(($listing->listing_type ?? '') === 'auction')
                   <a href="{{ route('ahgmarketplace.listing', ['slug' => $listing->slug ?? '']) }}" class="btn btn-sm btn-outline-warning d-block">
                     <i class="fas fa-gavel me-1"></i>{{ __('Place bid') }}
@@ -268,6 +289,15 @@
   </div>
 </div>
 
+@push('css')
+<style>
+  .fav-toggle i.fa-heart { color: #adb5bd; transition: color 120ms ease, transform 120ms ease; }
+  .fav-toggle:hover i.fa-heart { color: #dc3545; }
+  .fav-toggle.is-on i.fa-heart { color: #dc3545; }
+  .fav-toggle:active i.fa-heart { transform: scale(1.2); }
+</style>
+@endpush
+
 @push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -296,7 +326,121 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Heart toggle (fav) — shared on browse / sector / listing pages
+  // Cart counter badge in header + floating left-edge cart tab.
+  function bumpCartCount(n) {
+    var current;
+    var badge = document.getElementById('marketplace-cart-count');
+    if (badge) {
+      current = parseInt(badge.textContent, 10) || 0;
+    } else {
+      current = 0;
+    }
+    var next = (typeof n === 'number') ? n : (current + 1);
+    if (badge) {
+      badge.textContent = next;
+      badge.style.display = next > 0 ? '' : 'none';
+    }
+    // Floating left-edge tab (#cart-tab-btn) — set data-count so the CSS
+    // hide/show kicks in, update the inner badge text, refresh the title.
+    var tab = document.getElementById('cart-tab-btn');
+    if (tab) {
+      tab.setAttribute('data-count', String(next));
+      var tabBadge = tab.querySelector('.cart-tab-badge');
+      if (tabBadge) tabBadge.textContent = next;
+      tab.title = 'View Cart (' + next + (next === 1 ? ' item' : ' items') + ')';
+    }
+  }
+
+  // Swap an Add-to-cart slot in-place to a Remove-from-cart form (or back).
+  // The slot wrapper carries data-listing-id so we don't need to re-resolve.
+  function swapCartSlot(slot, mode) {
+    var listingId = slot.getAttribute('data-listing-id');
+    if (!listingId) return;
+    var addUrl    = '/cart/listing/add/' + listingId;
+    var removeUrl = '/cart/listing/remove/' + listingId;
+    var csrfTok = (document.querySelector('meta[name="csrf-token"]') || {}).getAttribute && document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    if (mode === 'in') {
+      slot.innerHTML =
+        '<form action="' + removeUrl + '" method="POST" class="d-grid remove-from-cart-form">' +
+          '<input type="hidden" name="_token" value="' + (csrfTok || '') + '">' +
+          '<button type="submit" class="btn btn-sm btn-outline-danger">' +
+            '<i class="fas fa-cart-arrow-down me-1"></i>Remove from cart' +
+          '</button>' +
+        '</form>';
+    } else {
+      slot.innerHTML =
+        '<form action="' + addUrl + '" method="POST" class="d-grid add-to-cart-form">' +
+          '<input type="hidden" name="_token" value="' + (csrfTok || '') + '">' +
+          '<button type="submit" class="btn btn-sm btn-success">' +
+            '<i class="fas fa-cart-plus me-1"></i>Add to cart' +
+          '</button>' +
+        '</form>';
+    }
+    bindCartFormHandlers(slot);
+  }
+
+  function bindCartFormHandlers(scope) {
+    var root = scope || document;
+    root.querySelectorAll('.add-to-cart-form').forEach(function (form) {
+      if (form.__bound) return; form.__bound = true;
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var btn = form.querySelector('button[type="submit"]');
+        if (!btn || btn.disabled) return;
+        btn.disabled = true;
+        var origHtml = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Adding...';
+        var fd = new FormData(form);
+        fetch(form.action, {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+          body: fd,
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d && d.ok) {
+            bumpCartCount(d.cart_count);
+            swapCartSlot(form.closest('.cart-action-slot'), 'in');
+          } else {
+            btn.innerHTML = origHtml; btn.disabled = false;
+          }
+        })
+        .catch(function () { btn.innerHTML = origHtml; btn.disabled = false; });
+      });
+    });
+    root.querySelectorAll('.remove-from-cart-form').forEach(function (form) {
+      if (form.__bound) return; form.__bound = true;
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var btn = form.querySelector('button[type="submit"]');
+        if (!btn || btn.disabled) return;
+        btn.disabled = true;
+        var origHtml = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Removing...';
+        var fd = new FormData(form);
+        fetch(form.action, {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+          body: fd,
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d && d.ok) {
+            bumpCartCount(d.cart_count);
+            swapCartSlot(form.closest('.cart-action-slot'), 'out');
+          } else {
+            btn.innerHTML = origHtml; btn.disabled = false;
+          }
+        })
+        .catch(function () { btn.innerHTML = origHtml; btn.disabled = false; });
+      });
+    });
+  }
+  bindCartFormHandlers(document);
+
+  // Heart toggle — Bootstrap text-danger / text-secondary on the <i> drives the
+  // visual state, with .is-on as a backup hook for the optional CSS layer.
+  // We don't rely on Font Awesome `far` (regular) at all.
   var csrf = document.querySelector('meta[name="csrf-token"]');
   document.querySelectorAll('.fav-toggle').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
@@ -318,11 +462,13 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (d && d.favourited) {
-          icon.classList.remove('far'); icon.classList.add('fas');
+          btn.classList.add('is-on');
           btn.title = 'Remove from favourites';
+          if (icon) { icon.classList.remove('text-secondary'); icon.classList.add('text-danger'); }
         } else {
-          icon.classList.remove('fas'); icon.classList.add('far');
+          btn.classList.remove('is-on');
           btn.title = 'Add to favourites';
+          if (icon) { icon.classList.remove('text-danger'); icon.classList.add('text-secondary'); }
         }
       })
       .catch(function () { /* ignore */ })

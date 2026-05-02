@@ -599,8 +599,12 @@ class MarketplaceController extends Controller
         $results = $this->service->getListings($filters, $page, $limit);
         $facets = $this->service->getFacetCounts($filters);
 
+        $listingIdsOnPage = array_map(fn($l) => (int) $l->id, $results['items']);
         $favouritedIds = Auth::id()
-            ? $this->service->getFavouritedListingIds((int) Auth::id(), array_map(fn($l) => (int) $l->id, $results['items']))
+            ? $this->service->getFavouritedListingIds((int) Auth::id(), $listingIdsOnPage)
+            : [];
+        $cartListingIds = Auth::id()
+            ? app(\AhgCart\Services\CartService::class)->getCartListingIds((int) Auth::id(), $listingIdsOnPage)
             : [];
 
         $sectorFilter = !empty($filters['sector']) ? $filters['sector'] : null;
@@ -619,6 +623,7 @@ class MarketplaceController extends Controller
             'sectors' => $sectors,
             'categories' => $categories,
             'favouritedIds' => $favouritedIds,
+            'cartListingIds' => $cartListingIds,
             'favouritesOnly' => $favouritesOnly,
         ]);
     }

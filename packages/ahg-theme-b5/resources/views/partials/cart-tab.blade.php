@@ -1,4 +1,6 @@
-{{-- Floating Cart Tab — left edge, only visible when cart has items --}}
+{{-- Floating Cart Tab — left edge. Always rendered so the AJAX handlers
+     on /marketplace/browse can show/hide + update the badge live without
+     a full page reload. CSS keeps the tab hidden when [data-count="0"]. --}}
 @php
   $cartCount = 0;
   try {
@@ -12,8 +14,7 @@
   } catch (\Exception $e) {}
 @endphp
 
-@if($cartCount > 0)
-<a href="{{ route('cart.browse') }}" id="cart-tab-btn" title="View Cart ({{ $cartCount }} {{ $cartCount === 1 ? 'item' : 'items' }})">
+<a href="{{ route('cart.browse') }}" id="cart-tab-btn" data-count="{{ $cartCount }}" title="View Cart ({{ $cartCount }} {{ $cartCount === 1 ? 'item' : 'items' }})">
   <i class="fas fa-shopping-cart me-1"></i>Cart
   <span class="cart-tab-badge">{{ $cartCount }}</span>
 </a>
@@ -62,6 +63,8 @@
     line-height: 1;
     padding: 0 4px;
   }
+  /* Hide tab when empty so the chrome doesn't appear on first page load
+     before anything is in the cart. JS re-shows on count > 0. */
+  #cart-tab-btn[data-count="0"] { display: none; }
   @media print { #cart-tab-btn { display: none !important; } }
 </style>
-@endif

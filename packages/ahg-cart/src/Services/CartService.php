@@ -167,6 +167,37 @@ class CartService
             ->delete() > 0;
     }
 
+    /**
+     * Remove a marketplace listing from the user's cart by listing_id.
+     * Used by the in-place "Remove from cart" affordance on the browse grid
+     * where the page only knows the listing id, not the cart row id.
+     */
+    public function removeListingFromCart(int $userId, int $listingId): bool
+    {
+        return DB::table('cart')
+            ->where('user_id', $userId)
+            ->where('kind', 'marketplace')
+            ->where('listing_id', $listingId)
+            ->whereNull('completed_at')
+            ->delete() > 0;
+    }
+
+    /**
+     * Listing IDs currently in the user's marketplace cart, optionally
+     * scoped to a candidate set so the browse page can mark cards.
+     */
+    public function getCartListingIds(int $userId, array $listingIds = []): array
+    {
+        $q = DB::table('cart')
+            ->where('user_id', $userId)
+            ->where('kind', 'marketplace')
+            ->whereNull('completed_at');
+        if (!empty($listingIds)) {
+            $q->whereIn('listing_id', $listingIds);
+        }
+        return $q->pluck('listing_id')->map(fn ($v) => (int) $v)->all();
+    }
+
     public function clearAll(?int $userId, ?string $sessionId): int
     {
         return DB::table('cart')

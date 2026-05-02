@@ -73,11 +73,24 @@ class CartController extends Controller
     {
         $userId = Auth::id();
         if (!$userId) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['ok' => false, 'reason' => 'unauthenticated'], 401);
+            }
             return redirect()->route('login');
         }
-        $sessionId = $request->session()->getId();
 
         $added = $this->cartService->addListingToCart($userId, null, $listingId);
+        $count = $this->cartService->getCartCount($userId, null);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'ok'         => true,
+                'added'      => $added,
+                'already'    => !$added,
+                'cart_count' => $count,
+                'message'    => $added ? 'Listing added to your cart.' : 'Already in your cart (or no longer active).',
+            ]);
+        }
 
         if ($added) {
             return redirect()->route('cart.browse')->with('success', 'Listing added to your cart.');
@@ -335,6 +348,33 @@ class CartController extends Controller
     {
         $this->cartService->removeItem($id, Auth::id());
         return redirect()->route('cart.browse')->with('success', 'Item removed from cart.');
+    }
+
+    /**
+     * POST /cart/listing/remove/{listingId} — remove a marketplace listing
+     * from the cart by listing_id. AJAX-friendly counterpart of `remove(id)`.
+     */
+    public function removeListing(Request $request, int $listingId)
+    {
+        $userId = Auth::id();
+        if (!$userId) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['ok' => false, 'reason' => 'unauthenticated'], 401);
+            }
+            return redirect()->route('login');
+        }
+
+        $removed = $this->cartService->removeListingFromCart($userId, $listingId);
+        $count   = $this->cartService->getCartCount($userId, null);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'ok'         => true,
+                'removed'    => $removed,
+                'cart_count' => $count,
+            ]);
+        }
+        return redirect()->route('cart.browse')->with('success', 'Listing removed from cart.');
     }
 
     public function clear(Request $request)

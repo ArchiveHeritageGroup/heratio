@@ -49,11 +49,11 @@
       <div class="card h-100 position-relative">
         @php $favOn = in_array((int) $listing->id, $favouritedIds ?? [], true); @endphp
         <button type="button"
-                class="btn btn-light position-absolute top-0 end-0 m-2 rounded-circle shadow-sm fav-toggle"
+                class="btn btn-light position-absolute top-0 end-0 m-2 rounded-circle shadow-sm fav-toggle{{ $favOn ? ' is-on' : '' }}"
                 style="z-index:2;width:36px;height:36px;padding:0;"
                 data-listing-id="{{ (int) $listing->id }}"
                 title="{{ $favOn ? __('Remove from favourites') : __('Add to favourites') }}">
-          <i class="{{ $favOn ? 'fas' : 'far' }} fa-heart text-danger"></i>
+          <i class="fas fa-heart {{ $favOn ? 'text-danger' : 'text-secondary' }}"></i>
         </button>
         <a href="{{ route('ahgmarketplace.listing', ['slug' => $listing->slug ?? '']) }}" class="text-decoration-none">
           @if(!empty($listing->featured_image_path))
@@ -130,6 +130,15 @@
     </ul>
   </nav>
 @endif
+
+@push('css')
+<style>
+  .fav-toggle i.fa-heart { color: #adb5bd; transition: color 120ms ease, transform 120ms ease; }
+  .fav-toggle:hover i.fa-heart { color: #dc3545; }
+  .fav-toggle.is-on i.fa-heart { color: #dc3545; }
+  .fav-toggle:active i.fa-heart { transform: scale(1.2); }
+</style>
+@endpush
 
 @push('js')
 <script>

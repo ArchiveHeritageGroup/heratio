@@ -15,6 +15,10 @@ Route::post('/cart/listing/add/{listingId}', [CartController::class, 'addListing
     ->where('listingId', '[0-9]+')
     ->name('cart.listing-add')
     ->middleware('auth');
+Route::post('/cart/listing/remove/{listingId}', [CartController::class, 'removeListing'])
+    ->where('listingId', '[0-9]+')
+    ->name('cart.listing-remove')
+    ->middleware('auth');
 Route::post('/cart/marketplace/checkout', [CartController::class, 'marketplaceCheckout'])
     ->name('cart.marketplace-checkout')
     ->middleware('auth');
