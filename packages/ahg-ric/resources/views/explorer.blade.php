@@ -398,7 +398,9 @@
     }
   });
 
-  // Auto-load entity from URL parameter ?id=X
+  // Auto-load entity from URL parameter ?id=X — or fall back to the global
+  // overview graph if no id is supplied. Without this fallback, the page just
+  // shows a "click Overview" placeholder and looks empty by default.
   var urlParams = new URLSearchParams(window.location.search);
   var initialId = urlParams.get('id');
   if (initialId) {
@@ -411,6 +413,8 @@
         backBtn.style.display = '';
       @endif
     @endif
+  } else {
+    loadGraphData('overview');
   }
 })();
 

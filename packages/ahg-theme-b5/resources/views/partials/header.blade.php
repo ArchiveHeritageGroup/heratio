@@ -121,8 +121,10 @@
           @endif
         </ul>
 
-        {{-- Culture switcher --}}
-        @include('theme::partials.menus.culture-switcher')
+        {{-- Culture switcher REMOVED — duplicates the globe-icon language-menu
+             included above (line 113). Keeping the original AtoM-style
+             fa-globe-europe selector; this POST-based switcher was a parallel
+             port that ended up in the same nav. --}}
 
         {{-- User menu --}}
         @include('theme::partials.menus.user-menu')
