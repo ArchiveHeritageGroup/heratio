@@ -172,8 +172,10 @@
   @include('ahg-core::components.pager', ['pager' => $pager])
 
   @auth
+    @if(\AhgCore\Services\AclService::check(null, 'create'))
     <section class="actions mb-3">
       <a href="{{ route('term.create', ['taxonomy' => $taxonomyId]) }}" class="btn atom-btn-outline-light">Add new</a>
     </section>
+    @endif
   @endauth
 @endsection

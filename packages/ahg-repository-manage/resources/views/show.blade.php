@@ -427,7 +427,7 @@
 
   {{-- Action buttons (bottom bar, matching AtoM) — shown in both views --}}
   @auth
-  @php $isAdmin = \AhgCore\Services\AclService::canAdmin(auth()->id()); @endphp
+  @php $isAdmin = \AhgCore\Services\AclService::check($repository, 'update'); @endphp
   @if($isAdmin)
   <section class="actions">
     <ul class="nav gap-2">

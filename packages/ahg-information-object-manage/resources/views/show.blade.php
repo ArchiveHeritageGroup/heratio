@@ -60,7 +60,7 @@
   @auth
 
     {{-- Collections Management (only if collections management controllers are available) --}}
-    @if(class_exists(\AhgInformationObjectManage\Controllers\ProvenanceController::class) && auth()->user()->is_admin)
+    @if(class_exists(\AhgInformationObjectManage\Controllers\ProvenanceController::class) && \AhgCore\Services\AclService::check($io, 'update'))
     {{-- Collections Management --}}
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
@@ -206,7 +206,7 @@
 
     {{-- Rights (matching library style) --}}
     @auth
-    @if(auth()->user()->is_admin)
+    @if(\AhgCore\Services\AclService::check($io, 'update'))
     @php
       $hasExtRights = \Illuminate\Support\Facades\Schema::hasTable('extended_rights')
           && \Illuminate\Support\Facades\DB::table('extended_rights')->where('object_id', $io->id)->exists();
@@ -2173,7 +2173,7 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
 
 @section('after-content')
   @auth
-  @php $isAdmin = auth()->user()->is_admin; @endphp
+  @php $isAdmin = \AhgCore\Services\AclService::check($io, 'update'); @endphp
   <ul class="actions mb-3 nav gap-2">
     @if($isAdmin)
     <li>

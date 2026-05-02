@@ -27,7 +27,7 @@
               id="acl-autocomplete-{{ $entityType }}"
               class="form-control form-autocomplete mb-1">
             </select>
-            <input class="list" type="hidden" value="{{ route($entityType . '.autocomplete', ['showOnlyActors' => ('actor' == $entityType)]) }}"/>
+            <input class="list" type="hidden" value="{{ \Illuminate\Support\Facades\Route::has($entityType . '.autocomplete') ? route($entityType . '.autocomplete', ['showOnlyActors' => ('actor' == $entityType)]) : '' }}"/>
           </div>
         </form>
       </div>

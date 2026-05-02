@@ -61,51 +61,214 @@ class AclController extends Controller
      * GET: Show group with members and permissions.
      * POST: Update permissions for the group.
      */
+    /**
+     * Profile tab — name / description / translate flag, plus member CRUD.
+     * (Issue #50 Phase 1: replaces the previous flat add/delete-permission
+     * form. The four per-entity tabs handle scoped permissions.)
+     */
     public function editGroup(Request $request, int $id)
     {
         if ($request->isMethod('post')) {
-            $action = $request->input('_action');
-
-            if ($action === 'add_permission') {
-                $request->validate([
-                    'action'     => 'required|string|max:255',
-                    'grant_deny' => 'required|in:0,1',
-                ]);
-
-                $this->service->savePermission([
-                    'group_id'   => $id,
-                    'action'     => $request->input('action'),
-                    'object_id'  => $request->input('object_id') ?: null,
-                    'grant_deny' => (int) $request->input('grant_deny'),
-                ]);
-
-                return redirect()->route('acl.edit-group', ['id' => $id])
-                    ->with('success', 'Permission added successfully.');
-            }
-
-            if ($action === 'delete_permission') {
-                $request->validate([
-                    'permission_id' => 'required|integer',
-                ]);
-
-                $this->service->deletePermission((int) $request->input('permission_id'));
-
-                return redirect()->route('acl.edit-group', ['id' => $id])
-                    ->with('success', 'Permission removed successfully.');
-            }
-
-            return redirect()->route('acl.edit-group', ['id' => $id]);
+            $request->validate([
+                'name'        => 'nullable|string|max:255',
+                'description' => 'nullable|string',
+                'translate'   => 'nullable|boolean',
+            ]);
+            $this->service->saveGroupProfile($id, [
+                'name'        => $request->input('name'),
+                'description' => $request->input('description'),
+                'translate'   => (bool) $request->input('translate'),
+            ]);
+            return redirect()->route('acl.edit-group', ['id' => $id])
+                ->with('success', __('Profile saved.'));
         }
 
         $group = $this->service->getGroup($id);
-
         if (!$group) {
             abort(404, 'Group not found.');
         }
+        $allUsers       = $this->service->getAllUsers();
+        $translateFlag  = $this->service->getGroupTranslateFlag($id);
+        $groupsMenu     = $this->service->getGroupTabsMenu($id);
 
-        $allUsers = $this->service->getAllUsers();
+        return view('ahg-acl::edit-group-profile', compact(
+            'group', 'allUsers', 'translateFlag', 'groupsMenu'
+        ));
+    }
 
-        return view('ahg-acl::edit-group', compact('group', 'allUsers'));
+    /**
+     * Archival Description ACL editor (Phase 3).
+     */
+    public function editInformationObjectAcl(Request $request, int $id)
+    {
+        if ($request->isMethod('post')) {
+            $this->service->applyAclForm(
+                $id,
+                (array) $request->input('acl', []),
+                AclService::IO_ACTIONS,
+                'QubitInformationObject'
+            );
+            return redirect()->route('acl.editInformationObjectAcl', ['id' => $id])
+                ->with('success', __('Archival description permissions saved.'));
+        }
+        return $this->renderEntityAclTab(
+            $id,
+            'QubitInformationObject',
+            AclService::IO_ACTIONS,
+            'ahg-acl::edit-information-object-acl',
+            __('Archival description'),
+            'informationobject'
+        );
+    }
+
+    /**
+     * Authority Record ACL editor (Phase 4).
+     */
+    public function editActorAcl(Request $request, int $id)
+    {
+        if ($request->isMethod('post')) {
+            $this->service->applyAclForm(
+                $id,
+                (array) $request->input('acl', []),
+                AclService::ACTOR_ACTIONS,
+                'QubitActor'
+            );
+            return redirect()->route('acl.editActorAcl', ['id' => $id])
+                ->with('success', __('Authority record permissions saved.'));
+        }
+        return $this->renderEntityAclTab(
+            $id,
+            'QubitActor',
+            AclService::ACTOR_ACTIONS,
+            'ahg-acl::edit-actor-acl',
+            __('Authority record'),
+            'actor'
+        );
+    }
+
+    /**
+     * Archival Institution (repository) ACL editor (Phase 5).
+     */
+    public function editRepositoryAcl(Request $request, int $id)
+    {
+        if ($request->isMethod('post')) {
+            $this->service->applyAclForm(
+                $id,
+                (array) $request->input('acl', []),
+                AclService::REPOSITORY_ACTIONS,
+                'QubitRepository'
+            );
+            return redirect()->route('acl.editRepositoryAcl', ['id' => $id])
+                ->with('success', __('Archival institution permissions saved.'));
+        }
+        return $this->renderEntityAclTab(
+            $id,
+            'QubitRepository',
+            AclService::REPOSITORY_ACTIONS,
+            'ahg-acl::edit-repository-acl',
+            __('Archival institution'),
+            'repository'
+        );
+    }
+
+    /**
+     * Taxonomy ACL editor (Phase 6).
+     */
+    public function editTermAcl(Request $request, int $id)
+    {
+        if ($request->isMethod('post')) {
+            $this->service->applyAclForm(
+                $id,
+                (array) $request->input('acl', []),
+                AclService::TERM_ACTIONS,
+                'QubitTerm'
+            );
+            return redirect()->route('acl.editTermAcl', ['id' => $id])
+                ->with('success', __('Taxonomy permissions saved.'));
+        }
+        return $this->renderEntityAclTab(
+            $id,
+            'QubitTerm',
+            AclService::TERM_ACTIONS,
+            'ahg-acl::edit-term-acl',
+            __('Taxonomy'),
+            'term'
+        );
+    }
+
+    /**
+     * Shared GET path for all 4 entity tabs.
+     * Builds the data shape `_acl-information-object` / `_acl-actor` /
+     * `_acl-repository` partials expect: $root + scope buckets + $resource
+     * + $basicActions + $rootInformationObject (a fake root entity).
+     */
+    private function renderEntityAclTab(
+        int $id,
+        string $className,
+        array $actions,
+        string $view,
+        string $entityLabel,
+        string $entitySlug
+    ) {
+        $resource = $this->service->getGroup($id);
+        if (!$resource) {
+            abort(404, 'Group not found.');
+        }
+
+        $perms      = $this->service->getGroupPermissionsByClass($id, $className);
+        $bucketed   = $this->service->bucketIoPermissions($perms);
+        $rootEntity = (object) [
+            'id'                       => 0,
+            'slug'                     => 'root',
+            'is_root'                  => true,
+            'authorized_form_of_name'  => null,
+            'title'                    => null,
+        ];
+
+        // Hydrate per-scope captions for the partials
+        $repositoryObjects         = $this->service->hydrateRepositoryEntities(array_keys($bucketed['repositories']));
+        $informationObjectEntities = [];
+        $actorEntities             = [];
+        $repositoryEntitiesById    = [];
+        $taxonomyEntities          = [];
+        $perObjectIds = array_keys($bucketed['objects']);
+        if ($className === 'QubitInformationObject') {
+            $informationObjectEntities = $this->service->hydrateInformationObjectEntities($perObjectIds);
+        } elseif ($className === 'QubitActor') {
+            $actorEntities = $this->service->hydrateActorEntities($perObjectIds);
+        } elseif ($className === 'QubitRepository') {
+            $repositoryEntitiesById = $this->service->hydrateRepositoryEntities([]);
+            // For the Repository ACL, scope-by-record uses object_id, so hydrate by id
+            if (!empty($perObjectIds)) {
+                $repositoryEntitiesById = DB::table('repository as r')
+                    ->leftJoin('actor_i18n as ai', function ($j) { $j->on('ai.id', '=', 'r.id')->where('ai.culture', '=', 'en'); })
+                    ->whereIn('r.id', $perObjectIds)
+                    ->select('r.id', 'ai.authorized_form_of_name')
+                    ->get()->keyBy('id')->all();
+            }
+        } elseif ($className === 'QubitTerm') {
+            $taxonomyEntities = $this->service->hydrateTaxonomyEntities($perObjectIds);
+        }
+
+        return view($view, [
+            'resource'                  => $resource,
+            'basicActions'              => $actions,
+            'root'                      => $bucketed['root'],
+            'repositories'              => $bucketed['repositories'],          // IO-ACL per-repo (constants.repository)
+            'repositoryObjects'         => $repositoryObjects,                 // hydrated for IO-ACL per-repo scope
+            'informationObjects'        => $bucketed['objects'],
+            'informationObjectEntities' => $informationObjectEntities,
+            'actors'                    => $bucketed['objects'],
+            'actorEntities'             => $actorEntities,
+            'taxonomies'                => $bucketed['objects'],
+            'taxonomyEntities'          => $taxonomyEntities,
+            'repositoriesById'          => $bucketed['objects'],               // Repository-ACL per-record
+            'repositoryEntitiesById'    => $repositoryEntitiesById,
+            'rootInformationObject'     => $rootEntity,
+            'entityLabel'               => $entityLabel,
+            'entitySlug'                => $entitySlug,
+            'groupsMenu'                => $this->service->getGroupTabsMenu($id),
+        ]);
     }
 
     /**

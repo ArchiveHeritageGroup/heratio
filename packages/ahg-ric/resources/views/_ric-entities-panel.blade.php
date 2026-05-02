@@ -10,7 +10,7 @@
 @if($recordId)
 @php
     $recordType = $recordType ?? 'record';
-    $ricIsAdmin = auth()->check() && \AhgCore\Services\AclService::canAdmin(auth()->id());
+    $ricIsAdmin = \AhgCore\Services\AclService::check($record ?? null, 'update');
 @endphp
 <section class="mt-4" id="ric-entities-panel">
     <div class="d-flex justify-content-between align-items-center mb-2">

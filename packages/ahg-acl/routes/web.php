@@ -6,6 +6,11 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('admin')->group(function () {
     Route::get('/admin/acl', [AclController::class, 'groups'])->name('acl.groups');
     Route::match(['get', 'post'], '/admin/acl/group/{id}', [AclController::class, 'editGroup'])->name('acl.edit-group')->where('id', '[0-9]+');
+    // Per-entity ACL editor tabs (issue #50)
+    Route::match(['get', 'post'], '/admin/acl/group/{id}/information-object-acl', [AclController::class, 'editInformationObjectAcl'])->name('acl.editInformationObjectAcl')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/admin/acl/group/{id}/actor-acl',              [AclController::class, 'editActorAcl'])->name('acl.editActorAcl')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/admin/acl/group/{id}/repository-acl',         [AclController::class, 'editRepositoryAcl'])->name('acl.editRepositoryAcl')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/admin/acl/group/{id}/term-acl',               [AclController::class, 'editTermAcl'])->name('acl.editTermAcl')->where('id', '[0-9]+');
     Route::post('/admin/acl/group/{groupId}/add-member', [AclController::class, 'addMember'])->name('acl.add-member')->where('groupId', '[0-9]+');
     Route::post('/admin/acl/group/{groupId}/remove-member/{userId}', [AclController::class, 'removeMember'])->name('acl.remove-member')->where(['groupId' => '[0-9]+', 'userId' => '[0-9]+']);
     Route::get('/admin/acl/classifications', [AclController::class, 'classifications'])->name('acl.classifications');
@@ -30,6 +35,11 @@ Route::middleware('admin')->group(function () {
     Route::get('/aclGroup',         [AclController::class, 'groups']);
     Route::get('/aclGroup/browse',  [AclController::class, 'groups']);
     Route::get('/aclGroup/list',    [AclController::class, 'groups']);   // ← was 200/empty
+    Route::get('/aclGroup/index/id/{id}',                    [AclController::class, 'editGroup'])->where('id', '[0-9]+');
+    Route::get('/aclGroup/editInformationObjectAcl/id/{id}', [AclController::class, 'editInformationObjectAcl'])->where('id', '[0-9]+');
+    Route::get('/aclGroup/editActorAcl/id/{id}',             [AclController::class, 'editActorAcl'])->where('id', '[0-9]+');
+    Route::get('/aclGroup/editRepositoryAcl/id/{id}',        [AclController::class, 'editRepositoryAcl'])->where('id', '[0-9]+');
+    Route::get('/aclGroup/editTermAcl/id/{id}',              [AclController::class, 'editTermAcl'])->where('id', '[0-9]+');
 
     // Security audit routes
     Route::get('/admin/acl/security-audit', [AclController::class, 'securityAuditIndex'])->name('acl.security-audit');

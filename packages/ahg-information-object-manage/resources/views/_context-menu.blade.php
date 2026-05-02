@@ -90,7 +90,7 @@
       <a href="{{ route('informationobject.findingaid.generate', $slug) }}" class="list-group-item list-group-item-action small">
         <i class="fas fa-file-alt me-1"></i> {{ __('Generate finding aid') }}
       </a>
-      @if(\AhgCore\Services\AclService::canAdmin(auth()->id()))
+      @if(\AhgCore\Services\AclService::check($io ?? null, 'update'))
       <a href="{{ route('informationobject.findingaid.upload.form', $slug) }}" class="list-group-item list-group-item-action small">
         <i class="fas fa-upload me-1"></i> {{ __('Upload finding aid') }}
       </a>
@@ -127,8 +127,9 @@
 @endauth
 
 
-{{-- ===== Tasks (auth only) ===== --}}
+{{-- ===== Tasks (admin only) ===== --}}
 @auth
+  @if(\AhgCore\Services\AclService::check($io ?? null, 'update'))
   <div class="card mb-3">
     <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
       <i class="fas fa-tasks me-1"></i> {{ __('Tasks') }}
@@ -142,4 +143,5 @@
       </form>
     </div>
   </div>
+  @endif
 @endauth

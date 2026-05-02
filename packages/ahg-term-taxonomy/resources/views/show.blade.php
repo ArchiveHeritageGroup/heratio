@@ -11,16 +11,16 @@
 
     {{-- Action buttons for RiC view --}}
     @auth
-    @php $isAdmin = \AhgCore\Services\AclService::canAdmin(auth()->id()); @endphp
+    @php $isAdmin = \AhgCore\Services\AclService::check($term, 'update'); @endphp
+    @if($isAdmin)
     <section class="actions mt-3">
       <ul class="nav gap-2">
         <li><a href="{{ route('term.edit', $term->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
-        @if($isAdmin)
         <li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
-        @endif
         <li><a href="{{ route('term.create', ['taxonomy' => $term->taxonomy_id, 'parent' => $term->slug]) }}" class="btn atom-btn-outline-light">Add new</a></li>
       </ul>
     </section>
+    @endif
     @endauth
   @else
 
@@ -202,7 +202,9 @@
           <div class="d-flex p-3 border-bottom text-primary">
             Elements area
             @auth
+              @if(\AhgCore\Services\AclService::check($term, 'update'))
               <a href="{{ route('term.edit', $term->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
+              @endif
             @endauth
           </div>
         </h2>
@@ -297,16 +299,16 @@
 
       {{-- Action buttons — between term details and related results --}}
       @auth
-      @php $isAdmin = \AhgCore\Services\AclService::canAdmin(auth()->id()); @endphp
+      @php $isAdmin = \AhgCore\Services\AclService::check($term, 'update'); @endphp
+      @if($isAdmin)
       <section class="actions mt-3 mb-3">
         <ul class="nav gap-2">
           <li><a href="{{ route('term.edit', $term->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
-          @if($isAdmin)
           <li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
-          @endif
           <li><a href="{{ route('term.create', ['taxonomy' => $term->taxonomy_id, 'parent' => $term->slug]) }}" class="btn atom-btn-outline-light">Add new</a></li>
         </ul>
       </section>
+      @endif
       @endauth
 
       {{-- ===== Related archival descriptions ===== --}}

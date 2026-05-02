@@ -176,7 +176,7 @@
             <a href="{{ route('informationobject.findingaid.generate', $slug) }}" class="list-group-item list-group-item-action small">
               <i class="fas fa-file-alt me-1"></i> {{ __('Generate') }}
             </a>
-            @if(\Illuminate\Support\Facades\Route::has('informationobject.findingaid.upload.form') && \AhgCore\Services\AclService::canAdmin(auth()->id()))
+            @if(\Illuminate\Support\Facades\Route::has('informationobject.findingaid.upload.form') && \AhgCore\Services\AclService::check($record ?? null, 'update'))
               <a href="{{ route('informationobject.findingaid.upload.form', $slug) }}" class="list-group-item list-group-item-action small">
                 <i class="fas fa-upload me-1"></i> {{ __('Upload') }}
               </a>
@@ -189,7 +189,7 @@
 
   {{-- Tasks --}}
   @auth
-    @if(\Illuminate\Support\Facades\Route::has('informationobject.calculateDates'))
+    @if(\Illuminate\Support\Facades\Route::has('informationobject.calculateDates') && \AhgCore\Services\AclService::check($record ?? null, 'update'))
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-tasks me-1"></i> {{ __('Tasks') }}

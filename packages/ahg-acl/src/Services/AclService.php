@@ -170,6 +170,299 @@ class AclService
         return DB::table('acl_permission')->where('id', $id)->delete() > 0;
     }
 
+    // ─── Per-entity ACL editor support (issue #50) ──────────────────────────
+
+    public const IO_ACTIONS = [
+        'read'           => 'Read',
+        'create'         => 'Create',
+        'update'         => 'Update',
+        'delete'         => 'Delete',
+        'viewDraft'      => 'View draft',
+        'publish'        => 'Publish',
+        'readMaster'     => 'Access master',
+        'readReference'  => 'Access reference',
+        'readThumbnail'  => 'Access thumbnail',
+    ];
+
+    public const ACTOR_ACTIONS = self::IO_ACTIONS;
+
+    public const REPOSITORY_ACTIONS = [
+        'read'   => 'Read',
+        'create' => 'Create',
+        'update' => 'Update',
+        'delete' => 'Delete',
+    ];
+
+    public const TERM_ACTIONS = [
+        'create' => 'Create',
+        'update' => 'Update',
+        'delete' => 'Delete',
+    ];
+
+    /**
+     * Save Profile tab: name, description, translate flag.
+     * Translate is stored as a single grant row on action='translate' with
+     * object_id NULL — matches AtoM's QubitAclGroup model.
+     */
+    public function saveGroupProfile(int $groupId, array $data): void
+    {
+        $now = now()->toDateTimeString();
+
+        $existing = DB::table('acl_group_i18n')->where('id', $groupId)->where('culture', 'en')->first();
+        if ($existing) {
+            DB::table('acl_group_i18n')->where('id', $groupId)->where('culture', 'en')->update([
+                'name'        => $data['name'] ?? null,
+                'description' => $data['description'] ?? null,
+            ]);
+        } else {
+            DB::table('acl_group_i18n')->insert([
+                'id'          => $groupId,
+                'culture'     => 'en',
+                'name'        => $data['name'] ?? null,
+                'description' => $data['description'] ?? null,
+                'serial_number' => 0,
+            ]);
+        }
+        DB::table('acl_group')->where('id', $groupId)->update(['updated_at' => $now]);
+
+        $translate = !empty($data['translate']);
+        $translateRow = DB::table('acl_permission')
+            ->where('group_id', $groupId)
+            ->where('action', 'translate')
+            ->whereNull('object_id')
+            ->first();
+
+        if ($translate && !$translateRow) {
+            DB::table('acl_permission')->insert([
+                'group_id'      => $groupId,
+                'action'        => 'translate',
+                'grant_deny'    => 1,
+                'created_at'    => $now,
+                'updated_at'    => $now,
+                'serial_number' => 0,
+            ]);
+        } elseif (!$translate && $translateRow) {
+            DB::table('acl_permission')->where('id', $translateRow->id)->delete();
+        }
+    }
+
+    /**
+     * Whether the group's Profile-tab translate flag is on.
+     */
+    public function getGroupTranslateFlag(int $groupId): bool
+    {
+        return DB::table('acl_permission')
+            ->where('group_id', $groupId)
+            ->where('action', 'translate')
+            ->whereNull('object_id')
+            ->where('grant_deny', 1)
+            ->exists();
+    }
+
+    /**
+     * Tabs menu shape consumed by `_tabs.blade.php`.
+     */
+    public function getGroupTabsMenu(int $groupId): array
+    {
+        return [
+            ['label' => __('Profile'),               'url' => route('acl.edit-group',                 ['id' => $groupId])],
+            ['label' => __('Archival Description'),  'url' => route('acl.editInformationObjectAcl',   ['id' => $groupId])],
+            ['label' => __('Authority Record'),      'url' => route('acl.editActorAcl',               ['id' => $groupId])],
+            ['label' => __('Archival Institution'),  'url' => route('acl.editRepositoryAcl',          ['id' => $groupId])],
+            ['label' => __('Taxonomy'),              'url' => route('acl.editTermAcl',                ['id' => $groupId])],
+        ];
+    }
+
+    /**
+     * Permissions for a group filtered by qubit class_name.
+     * Joined to `object` so root rows (object_id NULL) and class-scoped rows
+     * come through together. The partial expects `->grantDeny` (camelCase).
+     */
+    public function getGroupPermissionsByClass(int $groupId, string $className): \Illuminate\Support\Collection
+    {
+        return DB::table('acl_permission as p')
+            ->leftJoin('object as o', 'o.id', '=', 'p.object_id')
+            ->where('p.group_id', $groupId)
+            ->where(function ($q) use ($className) {
+                $q->whereNull('p.object_id')
+                  ->orWhere('o.class_name', $className);
+            })
+            ->select('p.id', 'p.object_id', 'p.action', 'p.grant_deny as grantDeny', 'p.constants', 'o.class_name')
+            ->orderBy('p.object_id')
+            ->orderBy('p.action')
+            ->get();
+    }
+
+    /**
+     * Group an ACL permission collection by scope: 'root', per-repo, per-object.
+     * Returns ['root'=>[action=>perm], 'repositories'=>[slug=>[action=>perm]], 'objects'=>[id=>[action=>perm]]]
+     */
+    public function bucketIoPermissions(\Illuminate\Support\Collection $perms): array
+    {
+        $root = []; $repos = []; $objs = [];
+        foreach ($perms as $p) {
+            $repoSlug = null;
+            if (!empty($p->constants)) {
+                $c = json_decode($p->constants, true) ?: [];
+                $repoSlug = $c['repository'] ?? null;
+            }
+            if ($p->object_id === null && $repoSlug === null) {
+                $root[$p->action] = $p;
+            } elseif ($repoSlug !== null) {
+                $repos[$repoSlug][$p->action] = $p;
+            } else {
+                $objs[$p->object_id][$p->action] = $p;
+            }
+        }
+        return ['root' => $root, 'repositories' => $repos, 'objects' => $objs];
+    }
+
+    /**
+     * Apply form data shaped as `acl[<perm_id|key>] = grant|deny|inherit`
+     * to the group's permissions for one $action set + class scope.
+     *
+     * - existing perm + grant/deny  → update grant_deny
+     * - existing perm + inherit     → delete
+     * - new key (no perm yet) + grant/deny → insert with action+object_id+constants
+     * - new key + inherit           → noop
+     */
+    public function applyAclForm(int $groupId, array $form, array $allowedActions, string $className): void
+    {
+        $now = now()->toDateTimeString();
+
+        $existing = $this->getGroupPermissionsByClass($groupId, $className)
+            ->keyBy('id');
+
+        foreach ($form as $key => $value) {
+            $value = (int) $value;
+            // Existing-perm rows: numeric integer key → DB id
+            if (ctype_digit((string) $key)) {
+                $permId = (int) $key;
+                if (!$existing->has($permId)) {
+                    continue;
+                }
+                if ($value === self::INHERIT) {
+                    DB::table('acl_permission')->where('id', $permId)->delete();
+                } elseif (in_array($value, [self::GRANT, self::DENY], true)) {
+                    DB::table('acl_permission')->where('id', $permId)->update([
+                        'grant_deny' => $value,
+                        'updated_at' => $now,
+                    ]);
+                }
+                continue;
+            }
+            // New-perm rows: <action>_<scopeKey>
+            if (!preg_match('/^([a-zA-Z]+)_(.+)$/', $key, $m)) {
+                continue;
+            }
+            [$_full, $action, $scopeKey] = $m;
+            if (!isset($allowedActions[$action])) {
+                continue;
+            }
+            if ($value !== self::GRANT && $value !== self::DENY) {
+                continue;
+            }
+            // Resolve scopeKey: 'root' or '<class-prefix>:<slug-or-id>'
+            $objectId = null;
+            $constants = null;
+            if ($scopeKey === 'root') {
+                // Whole-class scope (root) — object_id NULL, no constants
+            } elseif (str_starts_with($scopeKey, 'repo:')) {
+                // Per-repository scope inside IO ACL → constants={"repository":"<slug>"}
+                $constants = json_encode(['repository' => substr($scopeKey, 5)]);
+            } else {
+                // Per-object scope: scopeKey is a slug → resolve to object.id
+                $obj = DB::table('slug')->where('slug', $scopeKey)->first();
+                if (!$obj) {
+                    continue;
+                }
+                $objectId = $obj->object_id;
+            }
+            DB::table('acl_permission')->insert([
+                'group_id'      => $groupId,
+                'object_id'     => $objectId,
+                'action'        => $action,
+                'grant_deny'    => $value,
+                'constants'     => $constants,
+                'created_at'    => $now,
+                'updated_at'    => $now,
+                'serial_number' => 0,
+            ]);
+        }
+    }
+
+    /**
+     * Hydrate per-repository / per-IO entity rows referenced by permission scopes
+     * so `_acl-table.blade.php` can render captions with names.
+     */
+    public function hydrateRepositoryEntities(array $repoSlugs): array
+    {
+        if (empty($repoSlugs)) return [];
+        return DB::table('repository as r')
+            ->join('slug as s', 's.object_id', '=', 'r.id')
+            ->leftJoin('actor_i18n as ai', function ($j) {
+                $j->on('ai.id', '=', 'r.id')->where('ai.culture', '=', 'en');
+            })
+            ->whereIn('s.slug', $repoSlugs)
+            ->select('s.slug', 'r.id', 'ai.authorized_form_of_name')
+            ->get()
+            ->keyBy('slug')
+            ->all();
+    }
+
+    public function hydrateInformationObjectEntities(array $ids): array
+    {
+        if (empty($ids)) return [];
+        return DB::table('information_object as io')
+            ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
+            ->leftJoin('information_object_i18n as ii', function ($j) {
+                $j->on('ii.id', '=', 'io.id')->where('ii.culture', '=', 'en');
+            })
+            ->whereIn('io.id', $ids)
+            ->select('io.id', 's.slug', 'ii.title')
+            ->get()
+            ->keyBy('id')
+            ->all();
+    }
+
+    public function hydrateActorEntities(array $ids): array
+    {
+        if (empty($ids)) return [];
+        return DB::table('actor as a')
+            ->leftJoin('slug as s', 's.object_id', '=', 'a.id')
+            ->leftJoin('actor_i18n as ai', function ($j) {
+                $j->on('ai.id', '=', 'a.id')->where('ai.culture', '=', 'en');
+            })
+            ->whereIn('a.id', $ids)
+            ->select('a.id', 's.slug', 'ai.authorized_form_of_name')
+            ->get()
+            ->keyBy('id')
+            ->all();
+    }
+
+    public function hydrateTaxonomyEntities(array $ids): array
+    {
+        if (empty($ids)) return [];
+        return DB::table('taxonomy as t')
+            ->leftJoin('slug as s', 's.object_id', '=', 't.id')
+            ->leftJoin('term_i18n as ti', function ($j) {
+                $j->on('ti.id', '=', 't.id')->where('ti.culture', '=', 'en');
+            })
+            ->whereIn('t.id', $ids)
+            ->select('t.id', 's.slug', 'ti.name')
+            ->get()
+            ->keyBy('id')
+            ->all();
+    }
+
+    /**
+     * AclService::GRANT|DENY|INHERIT mirror so the per-entity package can
+     * reference local constants without depending on ahg-core.
+     */
+    public const GRANT   = 1;
+    public const DENY    = 0;
+    public const INHERIT = -1;
+
     /**
      * Get groups for a specific user.
      */
