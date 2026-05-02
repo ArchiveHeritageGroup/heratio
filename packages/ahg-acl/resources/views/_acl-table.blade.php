@@ -5,8 +5,8 @@
         @if(isset($object->is_root) && $object->is_root)
           <em>
             {{ __(
-                'All %1%',
-                ['%1%' => lcfirst($moduleLabel ?? __($module))]
+                'All :module',
+                ['module' => lcfirst($moduleLabel ?? __($module))]
             ) }}
           </em>
         @else

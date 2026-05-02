@@ -67,6 +67,7 @@ Route::prefix('marketplace')->middleware(['web', 'auth'])->group(function () use
     // My pages
     Route::get('/my-bids', [$controller, 'myBids'])->name('ahgmarketplace.my-bids');
     Route::get('/my-following', [$controller, 'myFollowing'])->name('ahgmarketplace.my-following');
+    Route::get('/my-favourites', [$controller, 'myFavourites'])->name('ahgmarketplace.my-favourites');
 
     Route::get('/my-offers', [$controller, 'myOffers'])->name('ahgmarketplace.my-offers');
     Route::post('/my-offers', [$controller, 'myOffersPost'])->name('ahgmarketplace.my-offers.post')->middleware('acl:update');

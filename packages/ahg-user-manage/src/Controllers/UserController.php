@@ -932,6 +932,10 @@ class UserController extends Controller
         if (!$user) {
             return redirect()->route('login');
         }
+        // Admin or Editor only — non-privileged users can't manage their own nav.
+        if (!\AhgCore\Services\AclService::isAdministrator() && !\AhgCore\Services\AclService::isEditor()) {
+            abort(403, 'Insufficient permissions');
+        }
 
         $allEnabled = \Illuminate\Support\Facades\DB::table('atom_plugin')
             ->where('is_enabled', 1)
@@ -1033,6 +1037,9 @@ class UserController extends Controller
         $user = auth()->user();
         if (!$user) {
             return redirect()->route('login');
+        }
+        if (!\AhgCore\Services\AclService::isAdministrator() && !\AhgCore\Services\AclService::isEditor()) {
+            abort(403, 'Insufficient permissions');
         }
 
         $validated = $request->validate([

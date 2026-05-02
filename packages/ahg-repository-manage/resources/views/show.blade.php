@@ -427,15 +427,28 @@
 
   {{-- Action buttons (bottom bar, matching AtoM) — shown in both views --}}
   @auth
-  @php $isAdmin = \AhgCore\Services\AclService::check($repository, 'update'); @endphp
-  @if($isAdmin)
+  @php
+    $canUpdate = \AhgCore\Services\AclService::check($repository, 'update');
+    $canDelete = \AhgCore\Services\AclService::check($repository, 'delete');
+    $canCreate = \AhgCore\Services\AclService::check($repository, 'create');
+    $isAdmin   = $canUpdate;
+  @endphp
+  @if($canUpdate || $canDelete || $canCreate)
   <section class="actions">
     <ul class="nav gap-2">
-      <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}">Edit</a></li>
-      <li><a class="btn atom-btn-outline-danger" href="{{ route('repository.confirmDelete', $repository->slug) }}">Delete</a></li>
-      <li><a class="btn atom-btn-outline-light" href="{{ route('repository.create') }}">Add new</a></li>
-      <li><a class="btn atom-btn-outline-light" href="{{ route('informationobject.create', ['repository' => $repository->id]) }}">Add description</a></li>
-      <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}?theme=1">Edit theme</a></li>
+      @if($canUpdate)
+        <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}">Edit</a></li>
+      @endif
+      @if($canDelete)
+        <li><a class="btn atom-btn-outline-danger" href="{{ route('repository.confirmDelete', $repository->slug) }}">Delete</a></li>
+      @endif
+      @if($canCreate)
+        <li><a class="btn atom-btn-outline-light" href="{{ route('repository.create') }}">Add new</a></li>
+        <li><a class="btn atom-btn-outline-light" href="{{ route('informationobject.create', ['repository' => $repository->id]) }}">Add description</a></li>
+      @endif
+      @if($canUpdate)
+        <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}?theme=1">Edit theme</a></li>
+      @endif
     </ul>
   </section>
   @endif

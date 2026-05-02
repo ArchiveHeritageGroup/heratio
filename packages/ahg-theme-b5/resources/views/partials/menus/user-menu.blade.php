@@ -55,11 +55,13 @@
         <i class="fas fa-key me-2"></i>{{ __('Change Password') }}
       </a>
     </li>
+    @if(\AhgCore\Services\AclService::isAdministrator() || \AhgCore\Services\AclService::isEditor())
     <li>
       <a class="dropdown-item" href="{{ route('user.plugin-preferences') }}">
         <i class="fas fa-puzzle-piece me-2"></i>{{ __('My Plugins') }}
       </a>
     </li>
+    @endif
 
     {{-- Spectrum Tasks Section --}}
     <li><hr class="dropdown-divider"></li>

@@ -11,13 +11,18 @@
 
     {{-- Action buttons for RiC view --}}
     @auth
-    @php $isAdmin = \AhgCore\Services\AclService::check($term, 'update'); @endphp
-    @if($isAdmin)
+    @php
+      $canUpdate = \AhgCore\Services\AclService::check($term, 'update');
+      $canDelete = \AhgCore\Services\AclService::check($term, 'delete');
+      $canCreate = \AhgCore\Services\AclService::check($term, 'create');
+      $isAdmin   = $canUpdate;
+    @endphp
+    @if($canUpdate || $canDelete || $canCreate)
     <section class="actions mt-3">
       <ul class="nav gap-2">
-        <li><a href="{{ route('term.edit', $term->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
-        <li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
-        <li><a href="{{ route('term.create', ['taxonomy' => $term->taxonomy_id, 'parent' => $term->slug]) }}" class="btn atom-btn-outline-light">Add new</a></li>
+        @if($canUpdate)<li><a href="{{ route('term.edit', $term->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>@endif
+        @if($canDelete)<li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>@endif
+        @if($canCreate)<li><a href="{{ route('term.create', ['taxonomy' => $term->taxonomy_id, 'parent' => $term->slug]) }}" class="btn atom-btn-outline-light">Add new</a></li>@endif
       </ul>
     </section>
     @endif

@@ -1,7 +1,7 @@
 <h1>
-  {{ __('Edit %1% permissions of %2%', [
-      '%1%' => lcfirst(__('Term')),
-      '%2%' => $resource->authorized_form_of_name ?? $resource->title ?? $resource->name ?? '',
+  {{ __('Edit :module permissions of :group', [
+      'module' => lcfirst(__('Term')),
+      'group'  => $resource->authorized_form_of_name ?? $resource->name ?? $resource->title ?? '',
   ]) }}
 </h1>
 
@@ -26,21 +26,21 @@
     <div class="accordion-item">
       <h2 class="accordion-header" id="all-heading">
         <button
-          class="accordion-button collapsed"
+          class="accordion-button"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#all-collapse"
-          aria-expanded="false"
+          aria-expanded="true"
           aria-controls="all-collapse">
           {{ __(
-              'Permissions for all %1%',
-              ['%1%' => lcfirst(__('Term'))]
+              'Permissions for all :module',
+              ['module' => lcfirst(__('Term'))]
           ) }}
         </button>
       </h2>
       <div
         id="all-collapse"
-        class="accordion-collapse collapse"
+        class="accordion-collapse collapse show"
         aria-labelledby="all-heading">
         <div class="accordion-body">
           @include('ahg-acl::_acl-table', [
@@ -56,18 +56,18 @@
     <div class="accordion-item">
       <h2 class="accordion-header" id="taxonomy-heading">
         <button
-          class="accordion-button collapsed"
+          class="accordion-button"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#taxonomy-collapse"
-          aria-expanded="false"
+          aria-expanded="true"
           aria-controls="taxonomy-collapse">
           {{ __('Permissions by taxonomy') }}
         </button>
       </h2>
       <div
         id="taxonomy-collapse"
-        class="accordion-collapse collapse"
+        class="accordion-collapse collapse show"
         aria-labelledby="taxonomy-heading">
         <div class="accordion-body">
           @foreach($taxonomyPermissions as $key => $item)

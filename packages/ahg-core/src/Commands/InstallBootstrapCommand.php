@@ -46,7 +46,12 @@ class InstallBootstrapCommand extends Command
             $result = PackageInstaller::installAll($packagesRoot);
             $this->line("    ran={$result['ran']}  skipped={$result['skipped']}");
 
-            if ($this->getOutput()->isVerbose()) {
+            // Always show per-package status if NOTHING ran — that is always
+            // a CI-blocking signal (e.g. a DB connection error in the bootstrap
+            // phase that is otherwise invisible because PackageInstaller logs
+            // warnings to storage/logs/laravel.log only).
+            $printAll = $result['ran'] === 0 || $this->getOutput()->isVerbose();
+            if ($printAll) {
                 foreach ($result['files'] as $pkg => $status) {
                     $this->line(sprintf('      %-32s %s', $pkg, $status));
                 }

@@ -49,15 +49,23 @@
   @endif
 
   @auth
+    @php
+      $canUpdate = \AhgCore\Services\AclService::check($artwork, 'update');
+      $canDelete = \AhgCore\Services\AclService::check($artwork, 'delete');
+    @endphp
+    @if($canUpdate || $canDelete)
     {{-- Management --}}
     <div class="card mb-3">
       <div class="card-header fw-bold">
         <i class="fas fa-cog me-1"></i> Actions
 
       <div class="list-group list-group-flush">
+        @if($canUpdate)
         <a href="{{ route('gallery.edit', $artwork->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-pencil-alt me-1"></i> {{ __('Edit') }}
         </a>
+        @endif
+        @if($canDelete)
         <form action="{{ route('gallery.destroy', $artwork->slug) }}" method="POST"
               onsubmit="return confirm('Are you sure you want to delete this artwork?');">
           @csrf
@@ -65,13 +73,17 @@
             <i class="fas fa-trash me-1"></i> {{ __('Delete') }}
           </button>
         </form>
+        @endif
+        @if($canUpdate)
         @if(!empty($digitalObjects['reference']) || !empty($digitalObjects['thumbnail']))
           <a href="{{ url('/' . $artwork->slug . '/digitalobject/edit') }}" class="list-group-item list-group-item-action small">
             <i class="fas fa-edit me-1"></i> {{ __('Edit digital object') }}
           </a>
+          @if($canDelete)
           <a href="{{ url('/' . $artwork->slug . '/digitalobject/delete') }}" class="list-group-item list-group-item-action small text-danger">
             <i class="fas fa-times-circle me-1"></i> {{ __('Delete digital object') }}
           </a>
+          @endif
         @else
           <a href="{{ route('io.digitalobject.add', $artwork->slug) }}" class="list-group-item list-group-item-action small">
             <i class="fas fa-link me-1"></i> {{ __('Link digital object') }}
@@ -80,8 +92,10 @@
         <a href="{{ url('/' . $artwork->slug . '/right/edit') }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-gavel me-1"></i> {{ __('Edit rights') }}
         </a>
-
-
+        @endif
+      </div>
+    </div>
+    @endif {{-- end $canUpdate || $canDelete management card --}}
 
     {{-- Marketplace (admin) --}}
     <div class="card mb-3">

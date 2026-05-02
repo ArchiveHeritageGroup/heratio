@@ -576,6 +576,9 @@ class MarketplaceController extends Controller
 
     public function browse(Request $request)
     {
+        // ?favourites=1 restricts the grid to listings the current user has hearted.
+        // Anonymous + flag absent both fall through to a normal browse.
+        $favouritesOnly = $request->boolean('favourites') && Auth::check();
         $filters = $this->service->buildSearchFilters([
             'sector' => $request->input('sector'),
             'category_id' => $request->input('category_id'),
@@ -587,6 +590,7 @@ class MarketplaceController extends Controller
             'country' => $request->input('country'),
             'is_digital' => $request->input('is_digital'),
             'sort' => $request->input('sort'),
+            'favourites_only_user_id' => $favouritesOnly ? (int) Auth::id() : null,
         ]);
 
         $page = max(1, (int) $request->input('page', 1));
@@ -614,6 +618,39 @@ class MarketplaceController extends Controller
             'limit' => $limit,
             'sectors' => $sectors,
             'categories' => $categories,
+            'favouritedIds' => $favouritedIds,
+            'favouritesOnly' => $favouritesOnly,
+        ]);
+    }
+
+    /**
+     * GET /marketplace/my-favourites — dedicated page for the user's hearted
+     * listings. Equivalent to /marketplace/browse?favourites=1 but with its
+     * own breadcrumb / title / empty-state, mirroring my-bids / my-following.
+     */
+    public function myFavourites(Request $request)
+    {
+        $userId = (int) Auth::id();
+        if (!$userId) {
+            return redirect()->route('login');
+        }
+
+        $page  = max(1, (int) $request->input('page', 1));
+        $limit = 24;
+
+        $filters = $this->service->buildSearchFilters([
+            'sort' => $request->input('sort'),
+            'favourites_only_user_id' => $userId,
+        ]);
+
+        $results       = $this->service->getListings($filters, $page, $limit);
+        $favouritedIds = $this->service->getFavouritedListingIds($userId, array_map(fn($l) => (int) $l->id, $results['items']));
+
+        return view('marketplace::my-favourites', [
+            'listings'      => $results['items'],
+            'total'         => $results['total'],
+            'page'          => $page,
+            'limit'         => $limit,
             'favouritedIds' => $favouritedIds,
         ]);
     }

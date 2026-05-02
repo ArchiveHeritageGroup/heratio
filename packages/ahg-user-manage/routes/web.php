@@ -3,8 +3,10 @@
 use AhgUserManage\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-// Per-user plugin preferences (issue #40) — any authenticated user can
-// manage their OWN nav clutter; no admin role required.
+// Per-user plugin preferences — admin + editor only. Authenticated-only
+// users (Contributor / Translator / Authenticated) don't get to manage
+// their own plugin nav clutter; admins still override at
+// /user/{slug}/plugins (capability layer, separate route below).
 Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/user/profile/plugins',  [UserController::class, 'pluginPreferences'])
         ->name('user.plugin-preferences');
@@ -13,6 +15,7 @@ Route::middleware(['web', 'auth'])->group(function () {
 });
 
 Route::middleware('admin')->group(function () {
+
     // Per-user plugin GRANTS (capability — admin sets, not user)
     Route::get( '/user/{slug}/plugins', [UserController::class, 'pluginGrants'])
         ->name('user.plugin-grants');

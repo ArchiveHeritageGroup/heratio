@@ -33,6 +33,9 @@
   </div>
   @auth
   <div class="col-auto">
+    <a href="{{ route('ahgmarketplace.my-favourites') }}" class="btn btn-outline-danger me-1" title="{{ __('My favourites') }}">
+      <i class="fas fa-heart me-1"></i>{{ __('My Favourites') }}
+    </a>
     <a href="{{ route('ahgmarketplace.dashboard') }}" class="btn btn-primary">
       <i class="fas fa-store me-1"></i> {{ __('Sell') }}
     </a>
@@ -50,6 +53,18 @@
     </div>
     <div class="collapse d-lg-block" id="filterSidebar">
       <form method="GET" id="marketplace-filter-form">
+        @auth
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="favourites" value="1" id="favourites-only" {{ !empty($favouritesOnly) ? 'checked' : '' }}>
+              <label class="form-check-label fw-semibold" for="favourites-only">
+                <i class="fas fa-heart text-danger me-1"></i>{{ __('My favourites only') }}
+              </label>
+            </div>
+          </div>
+        </div>
+        @endauth
         <div class="card mb-3">
           <div class="card-header fw-semibold">{{ __('Sector') }}</div>
           <div class="card-body">
@@ -186,7 +201,7 @@
               <h6 class="card-title">
                 <a href="{{ route('ahgmarketplace.listing', ['slug' => $listing->slug ?? '']) }}" class="text-decoration-none">{{ \Illuminate\Support\Str::limit($listing->title ?? 'Untitled', 50) }}</a>
               </h6>
-              <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="fw-bold">
                   @if(!empty($listing->price_on_request))
                     <span class="text-muted">{{ __('POR') }}</span>
@@ -199,6 +214,24 @@
                   <span class="badge bg-dark ms-1" title="{{ __('3D model available') }}"><i class="fas fa-cube me-1"></i>3D</span>
                 @endif
               </div>
+              @auth
+                @if(($listing->listing_type ?? '') === 'fixed_price' && empty($listing->price_on_request))
+                  <form action="{{ route('cart.listing-add', ['listingId' => (int) $listing->id]) }}" method="POST" class="d-grid">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-success">
+                      <i class="fas fa-cart-plus me-1"></i>{{ __('Add to cart') }}
+                    </button>
+                  </form>
+                @elseif(($listing->listing_type ?? '') === 'auction')
+                  <a href="{{ route('ahgmarketplace.listing', ['slug' => $listing->slug ?? '']) }}" class="btn btn-sm btn-outline-warning d-block">
+                    <i class="fas fa-gavel me-1"></i>{{ __('Place bid') }}
+                  </a>
+                @elseif(($listing->listing_type ?? '') === 'offer_only')
+                  <a href="{{ route('ahgmarketplace.listing', ['slug' => $listing->slug ?? '']) }}" class="btn btn-sm btn-outline-primary d-block">
+                    <i class="fas fa-handshake me-1"></i>{{ __('Make offer') }}
+                  </a>
+                @endif
+              @endauth
             </div>
           </div>
         </div>

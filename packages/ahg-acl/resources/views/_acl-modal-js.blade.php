@@ -83,12 +83,24 @@
     var scope = (entityType === 'repository' && hasIoModal) ? ('repo:' + slug) : slug;
     clone.innerHTML = clone.innerHTML.replace(/\{objectId\}/g, scope);
 
+    // The template ships with Inherit pre-checked. A user adding a new scope
+    // almost always wants Grant (otherwise why open the modal). Flip defaults
+    // to Grant so a Save right after Submit actually writes rows; users can
+    // still pick Deny / Inherit per-action.
+    clone.querySelectorAll('input[type="radio"][value="-1"]').forEach(function (r) { r.checked = false; });
+    clone.querySelectorAll('input[type="radio"][value="1"]').forEach(function (r) { r.checked = true; });
+
     var caption = clone.querySelector('caption span');
-    if (caption) caption.textContent = name;
+    if (caption) caption.textContent = name + ' (newly added — review and Save)';
+
+    // Visual highlight so the user notices the new section
+    clone.style.outline = '2px solid var(--ahg-primary, #005837)';
+    clone.style.outlineOffset = '2px';
 
     var triggerBtn = document.getElementById('acl-add-' + entityType);
     if (triggerBtn && triggerBtn.parentNode) {
       triggerBtn.parentNode.insertBefore(clone, triggerBtn);
+      clone.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
 })();

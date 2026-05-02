@@ -1,7 +1,7 @@
 <h1>
-  {{ __('Edit %1% permissions of %2%', [
-      '%1%' => lcfirst(__('Archival description')),
-      '%2%' => $resource->authorized_form_of_name ?? $resource->title ?? '',
+  {{ __('Edit :module permissions of :group', [
+      'module' => lcfirst(__('Archival description')),
+      'group'  => $resource->authorized_form_of_name ?? $resource->name ?? $resource->title ?? '',
   ]) }}
 </h1>
 
@@ -32,21 +32,21 @@
     <div class="accordion-item">
       <h2 class="accordion-header" id="all-heading">
         <button
-          class="accordion-button collapsed"
+          class="accordion-button"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#all-collapse"
-          aria-expanded="false"
+          aria-expanded="true"
           aria-controls="all-collapse">
           {{ __(
-              'Permissions for all %1%',
-              ['%1%' => lcfirst(__('Archival description'))]
+              'Permissions for all :module',
+              ['module' => lcfirst(__('Archival description'))]
           ) }}
         </button>
       </h2>
       <div
         id="all-collapse"
-        class="accordion-collapse collapse"
+        class="accordion-collapse collapse show"
         aria-labelledby="all-heading">
         <div class="accordion-body">
           @include('ahg-acl::_acl-table', [
@@ -62,19 +62,19 @@
     <div class="accordion-item">
       <h2 class="accordion-header" id="io-heading">
         <button
-          class="accordion-button collapsed"
+          class="accordion-button"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#io-collapse"
-          aria-expanded="false"
+          aria-expanded="true"
           aria-controls="io-collapse">
           {{ __(
-              'Permissions by %1%',
-              ['%1%' => lcfirst(__('Archival description'))]
+              'Permissions by :module',
+              ['module' => lcfirst(__('Archival description'))]
           ) }}
         </button>
       </h2>
-      <div id="io-collapse" class="accordion-collapse collapse" aria-labelledby="io-heading">
+      <div id="io-collapse" class="accordion-collapse collapse show" aria-labelledby="io-heading">
         <div class="accordion-body">
           @if(count($informationObjects) > 0)
             @foreach($informationObjects as $informationObjectId => $permissions)
@@ -96,8 +96,8 @@
             data-bs-target="#acl-modal-container-informationobject">
             <i class="fas fa-plus me-1" aria-hidden="true"></i>
             {{ __(
-                'Add permissions by %1%',
-                ['%1%' => lcfirst(__('Archival description'))]
+                'Add permissions by :module',
+                ['module' => lcfirst(__('Archival description'))]
             ) }}
           </button>
         </div>
@@ -106,21 +106,21 @@
     <div class="accordion-item">
       <h2 class="accordion-header" id="repo-heading">
         <button
-          class="accordion-button collapsed"
+          class="accordion-button"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#repo-collapse"
-          aria-expanded="false"
+          aria-expanded="true"
           aria-controls="repo-collapse">
           {{ __(
-              'Permissions by %1%',
-              ['%1%' => lcfirst(__('Repository'))]
+              'Permissions by :module',
+              ['module' => lcfirst(__('Repository'))]
           ) }}
         </button>
       </h2>
       <div
         id="repo-collapse"
-        class="accordion-collapse collapse"
+        class="accordion-collapse collapse show"
         aria-labelledby="repo-heading">
         <div class="accordion-body">
           @if(count($repositories) > 0)
@@ -143,8 +143,8 @@
             data-bs-target="#acl-modal-container-repository">
             <i class="fas fa-plus me-1" aria-hidden="true"></i>
             {{ __(
-                'Add permissions by %1%',
-                ['%1%' => lcfirst(__('Repository'))]
+                'Add permissions by :module',
+                ['module' => lcfirst(__('Repository'))]
             ) }}
           </button>
         </div>

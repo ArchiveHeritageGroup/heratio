@@ -2588,6 +2588,11 @@ class MarketplaceService
         if (!empty($params['sort'])) {
             $filters['sort'] = $params['sort'];
         }
+        // favourites_only=1 + the user_id come from the controller; the service
+        // only acts on it when both are present, so anonymous browse stays safe.
+        if (!empty($params['favourites_only_user_id'])) {
+            $filters['favourites_only_user_id'] = (int) $params['favourites_only_user_id'];
+        }
 
         return $filters;
     }
@@ -3278,6 +3283,17 @@ class MarketplaceService
         }
         if (!empty($filters['search'])) {
             $query->whereRaw("MATCH(l.title, l.description, l.artist_name, l.medium) AGAINST(? IN BOOLEAN MODE)", [$filters['search']]);
+        }
+        // Favourites-only filter — restrict to listings the given user_id has
+        // hearted. Joining keeps the existing l.* projection intact.
+        if (!empty($filters['favourites_only_user_id'])) {
+            $query->join(
+                $this->favouriteTable . ' as fav',
+                function ($j) use ($filters) {
+                    $j->on('fav.listing_id', '=', 'l.id')
+                      ->where('fav.user_id', '=', (int) $filters['favourites_only_user_id']);
+                }
+            );
         }
     }
 

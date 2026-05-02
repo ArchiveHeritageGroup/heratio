@@ -1,7 +1,7 @@
 <h1>
-  {{ __('Edit %1% permissions of %2%', [
-      '%1%' => lcfirst(__('Authority record')),
-      '%2%' => $resource->authorized_form_of_name ?? $resource->title ?? '',
+  {{ __('Edit :module permissions of :group', [
+      'module' => lcfirst(__('Authority record')),
+      'group'  => $resource->authorized_form_of_name ?? $resource->name ?? $resource->title ?? '',
   ]) }}
 </h1>
 
@@ -26,21 +26,21 @@
     <div class="accordion-item">
       <h2 class="accordion-header" id="all-heading">
         <button
-          class="accordion-button collapsed"
+          class="accordion-button"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#all-collapse"
-          aria-expanded="false"
+          aria-expanded="true"
           aria-controls="all-collapse">
           {{ __(
-              'Permissions for all %1%',
-              ['%1%' => lcfirst(__('Authority record'))]
+              'Permissions for all :module',
+              ['module' => lcfirst(__('Authority record'))]
           ) }}
         </button>
       </h2>
       <div
         id="all-collapse"
-        class="accordion-collapse collapse"
+        class="accordion-collapse collapse show"
         aria-labelledby="all-heading">
         <div class="accordion-body">
           @include('ahg-acl::_acl-table', [
@@ -56,21 +56,21 @@
     <div class="accordion-item">
       <h2 class="accordion-header" id="actor-heading">
         <button
-          class="accordion-button collapsed"
+          class="accordion-button"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#actor-collapse"
-          aria-expanded="false"
+          aria-expanded="true"
           aria-controls="actor-collapse">
           {{ __(
-              'Permissions by %1%',
-              ['%1%' => lcfirst(__('Authority record'))]
+              'Permissions by :module',
+              ['module' => lcfirst(__('Authority record'))]
           ) }}
         </button>
       </h2>
       <div
         id="actor-collapse"
-        class="accordion-collapse collapse"
+        class="accordion-collapse collapse show"
         aria-labelledby="actor-heading">
         <div class="accordion-body">
           @foreach($actors as $key => $item)
@@ -93,8 +93,8 @@
             data-bs-target="#acl-modal-container-actor">
             <i class="fas fa-plus me-1" aria-hidden="true"></i>
             {{ __(
-                'Add permissions by %1%',
-                ['%1%' => lcfirst(__('Authority record'))]
+                'Add permissions by :module',
+                ['module' => lcfirst(__('Authority record'))]
             ) }}
           </button>
         </div>

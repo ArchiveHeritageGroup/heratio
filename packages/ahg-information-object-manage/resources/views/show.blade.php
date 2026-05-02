@@ -2173,12 +2173,19 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
 
 @section('after-content')
   @auth
-  @php $isAdmin = \AhgCore\Services\AclService::check($io, 'update'); @endphp
+  @php
+    $canUpdate = \AhgCore\Services\AclService::check($io, 'update');
+    $canDelete = \AhgCore\Services\AclService::check($io, 'delete');
+    $canCreate = \AhgCore\Services\AclService::check($io, 'create');
+    $isAdmin   = $canUpdate; // back-compat for legacy refs further down the file
+  @endphp
   <ul class="actions mb-3 nav gap-2">
-    @if($isAdmin)
+    @if($canUpdate)
     <li>
       <a href="{{ route('informationobject.edit', $io->slug) }}" class="btn atom-btn-outline-light">Edit</a>
     </li>
+    @endif
+    @if($canDelete)
     <li>
       <form action="{{ route('informationobject.destroy', $io->slug) }}" method="POST"
             onsubmit="return confirm('Are you sure you want to delete this archival description?');">
@@ -2187,12 +2194,16 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
         <button type="submit" class="btn atom-btn-outline-danger">{{ __('Delete') }}</button>
       </form>
     </li>
+    @endif
+    @if($canCreate)
     <li>
       <a href="{{ route('informationobject.create', ['parent_id' => $io->id]) }}" class="btn atom-btn-outline-light">Add new</a>
     </li>
     <li>
       <a href="{{ route('informationobject.create', ['parent_id' => $io->id, 'copy_from' => $io->id]) }}" class="btn atom-btn-outline-light">Duplicate</a>
     </li>
+    @endif
+    @if($canUpdate)
     <li>
       <a href="{{ url('/' . $io->slug . '/default/move') }}" class="btn atom-btn-outline-light">Move</a>
     </li>
@@ -2271,7 +2282,7 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
         </ul>
       </div>
     </li>
-    @endif {{-- end admin-only Actions group --}}
+    @endif {{-- end $canUpdate Move/More --}}
     <li>
       <a href="{{ route('informationobject.print', $io->slug) }}" class="btn atom-btn-outline-light" target="_blank">
         <i class="fas fa-print me-1"></i>{{ __('Print') }}

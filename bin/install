@@ -186,6 +186,17 @@ fi
 # 4. .env
 # ============================================================================
 say "Stage 4/14 — .env"
+# Always bust Laravel's cached config / routes / views before this stage. A
+# stale bootstrap/cache/config.php from a previous install (or from a CI
+# vendor-cache layer) holds DB credentials that no longer match the .env we
+# are about to render, and Laravel's PDO would connect with the wrong
+# password — silently breaking Stage 7 (heratio:install-bootstrap) where
+# every package install.sql throws on DB::unprepared and the bootstrap step
+# adds 0 tables. Idempotent: clear is safe whether the cache exists or not.
+# Tracked under heratio issue #53.
+php artisan config:clear --ansi 2>/dev/null || true
+php artisan route:clear  --ansi 2>/dev/null || true
+php artisan view:clear   --ansi 2>/dev/null || true
 if [[ -f .env ]]; then
     ok ".env present — leaving alone"
 else

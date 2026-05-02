@@ -52,30 +52,39 @@ class PackageInstaller
      *
      * @return bool true if the SQL ran, false if skipped
      */
+    /** Last error message recorded by autoInstall, if any. Reset per call. */
+    public static string $lastError = '';
+
     public static function autoInstall(string $packageRoot, bool $force = false): bool
     {
+        self::$lastError = '';
         $sqlFile = rtrim($packageRoot, '/') . '/database/install.sql';
         if (!is_readable($sqlFile)) {
+            self::$lastError = "not readable: {$sqlFile}";
             return false;
         }
 
         if (!$force) {
             $sentinel = self::firstTableName($sqlFile);
             if ($sentinel === null) {
+                self::$lastError = "no CREATE TABLE found (sentinel)";
                 return false;
             }
 
             try {
                 if (Schema::hasTable($sentinel)) {
+                    self::$lastError = "sentinel table {$sentinel} exists";
                     return false;
                 }
             } catch (\Throwable $e) {
+                self::$lastError = "Schema::hasTable threw: " . $e->getMessage();
                 return false;
             }
         }
 
         $sql = file_get_contents($sqlFile);
         if ($sql === false || $sql === '') {
+            self::$lastError = "empty or unreadable file";
             return false;
         }
 
@@ -84,6 +93,7 @@ class PackageInstaller
             Log::info("PackageInstaller: ran {$sqlFile} (force=" . ($force ? 'true' : 'false') . ')');
             return true;
         } catch (\Throwable $e) {
+            self::$lastError = "DB::unprepared threw: " . $e->getMessage();
             Log::warning("PackageInstaller: run of {$sqlFile} failed: " . $e->getMessage());
             return false;
         }
@@ -110,7 +120,11 @@ class PackageInstaller
             $packageRoot = dirname(dirname($sqlFile));
             $packageName = basename($packageRoot);
             $didRun = self::autoInstall($packageRoot, $force);
-            $files[$packageName] = $didRun ? 'installed' : 'skipped';
+            // Stash the per-package error string when we skipped — surfaces in
+            // the verbose listing of `heratio:install-bootstrap` so CI can see
+            // why a package didn't install (otherwise the warning is hidden in
+            // storage/logs/laravel.log which CI doesn't expose).
+            $files[$packageName] = $didRun ? 'installed' : ('skipped — ' . self::$lastError);
             $didRun ? $ran++ : $skipped++;
         }
 

@@ -10,7 +10,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="acl-modal-heading-{{ $entityType }}">
-          {{ __('Add %1%', ['%1%' => lcfirst($label)]) }}
+          {{ __('Add :label', ['label' => lcfirst($label)]) }}
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal">
           <span class="visually-hidden">{{ __('Close') }}</span>
@@ -20,7 +20,7 @@
         <form>
           <div>
             <label for="acl-autocomplete-{{ $entityType }}" class="form-label">
-              {{ __('%1% name', ['%1%' => $label]) }}
+              {{ __(':label name', ['label' => $label]) }}
              <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select
               name="acl-autocomplete-{{ $entityType }}"
