@@ -948,4 +948,32 @@ class TermController extends Controller
 
         return response()->json($results);
     }
+
+    /**
+     * Autocomplete over the taxonomies themselves (used by the ACL editor's
+     * Taxonomy tab to add per-taxonomy permission scopes).
+     * Shape matches actor/repository/IO autocomplete: [{id, name, slug}].
+     */
+    public function taxonomyAutocomplete(Request $request)
+    {
+        $term = $request->get('term', $request->get('query', ''));
+        $culture = app()->getLocale();
+        $limit = (int) $request->get('limit', 20);
+
+        $rows = DB::table('taxonomy as t')
+            ->leftJoin('taxonomy_i18n as ti', function ($j) use ($culture) {
+                $j->on('ti.id', '=', 't.id')->where('ti.culture', '=', $culture);
+            })
+            ->leftJoin('slug as s', 's.object_id', '=', 't.id')
+            ->when($term !== '', function ($q) use ($term) {
+                $q->where('ti.name', 'LIKE', '%' . $term . '%');
+            })
+            ->whereNotNull('ti.name')
+            ->select('t.id', 'ti.name', 's.slug')
+            ->orderBy('ti.name')
+            ->limit($limit)
+            ->get();
+
+        return response()->json($rows);
+    }
 }

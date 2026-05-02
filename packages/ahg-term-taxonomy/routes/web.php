@@ -24,6 +24,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/term/autocomplete', [TermController::class, 'autocomplete'])->name('term.autocomplete');
+Route::get('/taxonomy/autocomplete', [TermController::class, 'taxonomyAutocomplete'])->name('taxonomy.autocomplete');
 
 // SKOS import/export — must be registered BEFORE the {slug} catch-all
 Route::middleware('auth')->group(function () {

@@ -30,5 +30,6 @@
       'rootPermissions' => $root,
       'rootTerm' => $rootInformationObject,
   ])
+  @include('ahg-acl::_acl-modal-js')
 </div>
 @endsection

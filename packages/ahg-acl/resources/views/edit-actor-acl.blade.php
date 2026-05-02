@@ -35,5 +35,6 @@
       'rootActor' => $rootActor,
       'actorObjects' => $actorEntities ?? [],
   ])
+  @include('ahg-acl::_acl-modal-js')
 </div>
 @endsection

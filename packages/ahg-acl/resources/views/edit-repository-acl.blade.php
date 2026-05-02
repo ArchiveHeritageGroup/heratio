@@ -35,5 +35,6 @@
       'repositoryObjects' => $repositoryEntitiesById,
       'rootRepository' => $rootRepository,
   ])
+  @include('ahg-acl::_acl-modal-js')
 </div>
 @endsection

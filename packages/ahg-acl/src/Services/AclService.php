@@ -445,7 +445,7 @@ class AclService
         if (empty($ids)) return [];
         return DB::table('taxonomy as t')
             ->leftJoin('slug as s', 's.object_id', '=', 't.id')
-            ->leftJoin('term_i18n as ti', function ($j) {
+            ->leftJoin('taxonomy_i18n as ti', function ($j) {
                 $j->on('ti.id', '=', 't.id')->where('ti.culture', '=', 'en');
             })
             ->whereIn('t.id', $ids)
