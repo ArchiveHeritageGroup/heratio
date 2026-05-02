@@ -1079,15 +1079,30 @@ class TranslationController extends Controller
 
         $svc = app(\AhgTranslation\Services\UiStringService::class);
 
-        $locale   = $request->input('locale');
         $missing  = $request->input('missing');
         $contains = $request->input('contains');
         $page     = max(1, (int) $request->input('page', 1));
         $limit    = 100;
         $offset   = ($page - 1) * $limit;
 
-        $matrix = $svc->matrix($locale ?: null, $missing ?: null, $contains ?: null, $limit, $offset);
         $allLocales = $svc->enabledLocales();
+
+        // Default the column to the current request culture so the table is
+        // always en + one target (no "all enabled" firehose). If the request
+        // culture is en, pick the first non-en enabled locale as the default.
+        $locale = $request->input('locale');
+        if (!$locale || !in_array($locale, $allLocales, true) || $locale === 'en') {
+            $current = app()->getLocale();
+            if ($current !== 'en' && in_array($current, $allLocales, true)) {
+                $locale = $current;
+            } else {
+                foreach ($allLocales as $code) {
+                    if ($code !== 'en') { $locale = $code; break; }
+                }
+            }
+        }
+
+        $matrix = $svc->matrix($locale ?: null, $missing ?: null, $contains ?: null, $limit, $offset);
 
         // Pending count for the badge in the header link to the review queue.
         $pendingCount = (int) DB::table('ui_string_change')->where('status', 'pending')->count();

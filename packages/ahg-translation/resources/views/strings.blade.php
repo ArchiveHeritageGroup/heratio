@@ -58,14 +58,14 @@
     <div class="card-body py-2">
       <div class="row g-2 align-items-end">
         <div class="col-md-3">
-          <label class="form-label form-label-sm mb-0">{{ __('Locale (column)') }}</label>
-          <select name="locale" class="form-select form-select-sm">
-            <option value="">{{ __('All enabled') }}</option>
+          <label class="form-label form-label-sm mb-0">{{ __('Translate to') }}</label>
+          <select name="locale" class="form-select form-select-sm" data-csp-auto-submit>
             @foreach($allLocales as $code)
               @if($code === 'en') @continue @endif
               <option value="{{ $code }}" {{ ($locale ?? '') === $code ? 'selected' : '' }}>{{ $code }}</option>
             @endforeach
           </select>
+          <span class="form-text small">{{ __('Only en + this locale shown.') }}</span>
         </div>
         <div class="col-md-3">
           <label class="form-label form-label-sm mb-0">{{ __('Missing in') }}</label>
