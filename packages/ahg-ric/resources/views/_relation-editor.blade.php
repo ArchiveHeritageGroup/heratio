@@ -13,8 +13,10 @@
 <div id="ric-relation-editor">
     <p class="small text-muted mb-2">
         <i class="fas fa-link me-1"></i>
-        Predicate vocabulary follows the <a href="https://openric.org/spec/mapping.html" target="_blank" rel="noopener">OpenRiC</a> mapping —
-        each relation written here also serialises as canonical <code>rico:*</code> in the RDF/JSON-LD/Turtle exports.
+        {!! __('Predicate vocabulary follows the :openric mapping — each relation written here also serialises as canonical :rico in the RDF/JSON-LD/Turtle exports.', [
+            'openric' => '<a href="https://openric.org/spec/mapping.html" target="_blank" rel="noopener">OpenRiC</a>',
+            'rico'    => '<code>rico:*</code>',
+        ]) !!}
     </p>
     <table class="table table-sm table-striped mb-2">
         <thead>
@@ -28,7 +30,7 @@
                 <th></th>
             </tr>
         </thead>
-        <tbody id="ric-relations-body"><tr><td colspan="7" class="text-muted">Loading...</td></tr></tbody>
+        <tbody id="ric-relations-body"><tr><td colspan="7" class="text-muted">{{ __('Loading...') }}</td></tr></tbody>
     </table>
 
     <div class="card card-body bg-light p-2 mt-2">
@@ -43,7 +45,7 @@
             <div class="col-md-3">
                 <label class="form-label form-label-sm">{{ __('Relation Type') }}</label>
                 <select id="ric-rel-type" class="form-select form-select-sm">
-                    <option value="">-- Select --</option>
+                    <option value="">{{ __('-- Select --') }}</option>
                     @foreach($ricRelationTypes as $rt)
                     <option value="{{ $rt->code }}">{{ $rt->label }}</option>
                     @endforeach
@@ -65,7 +67,7 @@
             <div class="col-md-3">
                 <label class="form-label form-label-sm">{{ __('Certainty') }}</label>
                 <select id="ric-rel-certainty" class="form-select form-select-sm">
-                    <option value="">-- Unspecified --</option>
+                    <option value="">{{ __('-- Unspecified --') }}</option>
                     @foreach($ricCertaintyLevels as $cl)
                     <option value="{{ $cl->code }}">{{ $cl->label }}</option>
                     @endforeach

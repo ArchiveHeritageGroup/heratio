@@ -103,6 +103,12 @@
     'Activities', 'Instantiations', 'Places', 'Rules', 'Relations',
     // RiC Entities Panel — table column headings (Title/Type/Dates already in list)
     'Name', 'Predicate', 'Carrier', 'MIME Type', 'Size', 'Coordinates', 'Jurisdiction',
+    // RiC Relations tab — _relation-editor partial (intro paragraph + table headings + add-form labels + placeholders)
+    'Predicate vocabulary follows the :openric mapping — each relation written here also serialises as canonical :rico in the RDF/JSON-LD/Turtle exports.',
+    'Direction', 'Related Entity', 'Relation Type', 'Certainty', 'Evidence',
+    'Add Relation', 'Edit Relation', 'Target Entity', 'Search entities...',
+    '-- Select --', '-- Unspecified --', 'Loading...', 'No relations',
+    'Source citation, record identifier, or note supporting this relation', 'Cancel edit',
     // Tasks sidebar block (header + Calculate dates row + Last run line)
     'Tasks', 'Calculate dates', 'Last run:', 'Never',
     // Finding aid sidebar block + actions + status labels
