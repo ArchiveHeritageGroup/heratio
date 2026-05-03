@@ -94,6 +94,8 @@
     'Add to clipboard', 'Remove from clipboard', 'Clipboard',
     // RiC sidebar block (header + items)
     'RiC', 'Graph Explorer', 'JSON-LD Export', 'Timeline',
+    // Tasks sidebar block (header + Calculate dates row + Last run line)
+    'Tasks', 'Calculate dates', 'Last run:', 'Never',
     // Top nav / global menu
     'Search', 'Browse', 'Login', 'Logout', 'Sign in', 'Sign out',
     'My Profile', 'Change Password', 'My Plugins', 'My Tasks',

@@ -204,7 +204,7 @@
             </button>
           </form>
           <span class="list-group-item small text-muted">
-            <i class="fas fa-clock me-1"></i> Last run: {{ ($record->updated_at ?? null) ? \Carbon\Carbon::parse($record->updated_at)->diffForHumans() : 'Never' }}
+            <i class="fas fa-clock me-1"></i> {{ __('Last run:') }} {{ ($record->updated_at ?? null) ? \Carbon\Carbon::parse($record->updated_at)->diffForHumans() : __('Never') }}
           </span>
         </div>
       </div>
