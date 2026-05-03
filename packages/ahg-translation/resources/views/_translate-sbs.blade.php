@@ -112,6 +112,8 @@
     'Merge to PDF', 'Open full size',
     // Marketplace card on show pages
     'Add to marketplace', 'Add to marketplace & set price',
+    // Digital-object / preservation row labels (rendered on actor/IO/museum show)
+    'Checksum',
     // Top nav / global menu
     'Search', 'Browse', 'Login', 'Logout', 'Sign in', 'Sign out',
     'My Profile', 'Change Password', 'My Plugins', 'My Tasks',
@@ -145,7 +147,7 @@
     'Measurements', 'Dimensions', 'Orientation', 'Shape',
     'Style/Period', 'Style', 'Period', 'Cultural context', 'Cultural group', 'Movement', 'School', 'Dynasty',
     'Indexing type', 'Subject display', 'Subject extent', 'Historical context', 'Architectural context', 'Archaeological context',
-    'Condition', 'Condition description', 'Condition agent', 'Condition notes', 'Treatment type', 'Treatment agent', 'Treatment description',
+    'Condition', 'Condition date', 'Condition description', 'Condition agent', 'Condition notes', 'Treatment type', 'Treatment date', 'Treatment agent', 'Treatment description',
     'Inscription', 'Inscriptions', 'Transcription', 'Inscription type', 'Inscription location', 'Inscription language', 'Translation', 'Mark type', 'Mark description', 'Mark location',
     'Edition description', 'Edition number', 'Edition size', 'State description', 'State identification',
     'Current location', 'Repository', 'Geography', 'Reference number', 'Creation place', 'Creation place type', 'Discovery place', 'Discovery place type',
