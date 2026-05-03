@@ -23,7 +23,7 @@
                 <div class="mb-3">
                     <label class="form-label">{{ __('Relation to this record') }}</label>
                     <select class="form-select form-select-sm" id="ricLinkRelationType">
-                        <option value="">-- No link --</option>
+                        <option value="">{{ __('-- No link --') }}</option>
                         @foreach($ricDropdowns['ric_relation_type'] as $rt)
                         <option value="{{ $rt->code }}">{{ $rt->label }}</option>
                         @endforeach
@@ -34,13 +34,13 @@
                 <div id="ricFields-activity">
                     <div class="row mb-3">
                         <div class="col-md-8">
-                            <label class="form-label">Activity Name <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Activity Name') }} <span class="text-danger">*</span></label>
                             <input type="text" id="ric-f-activity-name" class="form-control">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">{{ __('Activity Type') }}</label>
                             <select id="ric-f-activity-type" class="form-select">
-                                <option value="">-- Select --</option>
+                                <option value="">{{ __('-- Select --') }}</option>
                                 @foreach($ricDropdowns['ric_activity_type'] as $d)<option value="{{ $d->code }}" {{ $d->is_default ? 'selected' : '' }}>{{ $d->label }}</option>@endforeach
                             </select>
                         </div>
@@ -57,13 +57,13 @@
                 <div id="ricFields-place" style="display:none">
                     <div class="row mb-3">
                         <div class="col-md-8">
-                            <label class="form-label">Place Name <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Place Name') }} <span class="text-danger">*</span></label>
                             <input type="text" id="ric-f-place-name" class="form-control">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">{{ __('Place Type') }}</label>
                             <select id="ric-f-place-type" class="form-select">
-                                <option value="">-- Select --</option>
+                                <option value="">{{ __('-- Select --') }}</option>
                                 @foreach($ricDropdowns['ric_place_type'] as $d)<option value="{{ $d->code }}" {{ $d->is_default ? 'selected' : '' }}>{{ $d->label }}</option>@endforeach
                             </select>
                         </div>
@@ -81,13 +81,13 @@
                 <div id="ricFields-rule" style="display:none">
                     <div class="row mb-3">
                         <div class="col-md-8">
-                            <label class="form-label">Rule Title <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Rule Title') }} <span class="text-danger">*</span></label>
                             <input type="text" id="ric-f-rule-title" class="form-control">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">{{ __('Rule Type') }}</label>
                             <select id="ric-f-rule-type" class="form-select">
-                                <option value="">-- Select --</option>
+                                <option value="">{{ __('-- Select --') }}</option>
                                 @foreach($ricDropdowns['ric_rule_type'] as $d)<option value="{{ $d->code }}" {{ $d->is_default ? 'selected' : '' }}>{{ $d->label }}</option>@endforeach
                             </select>
                         </div>
@@ -105,13 +105,13 @@
                 <div id="ricFields-instantiation" style="display:none">
                     <div class="row mb-3">
                         <div class="col-md-8">
-                            <label class="form-label">Title <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
                             <input type="text" id="ric-f-inst-title" class="form-control">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">{{ __('Carrier Type') }}</label>
                             <select id="ric-f-inst-carrier" class="form-select">
-                                <option value="">-- Select --</option>
+                                <option value="">{{ __('-- Select --') }}</option>
                                 @foreach($ricDropdowns['ric_carrier_type'] as $d)<option value="{{ $d->code }}" {{ $d->is_default ? 'selected' : '' }}>{{ $d->label }}</option>@endforeach
                             </select>
                         </div>

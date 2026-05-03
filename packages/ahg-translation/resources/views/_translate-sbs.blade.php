@@ -109,6 +109,12 @@
     'Add Relation', 'Edit Relation', 'Target Entity', 'Search entities...',
     '-- Select --', '-- Unspecified --', 'Loading...', 'No relations',
     'Source citation, record identifier, or note supporting this relation', 'Cancel edit',
+    // RiC Entity creation modal (_ric-entity-modal — Activity / Place / Rule / Instantiation forms)
+    'Create RiC Entity', 'Relation to this record', '-- No link --',
+    'Activity Name', 'Activity Type', 'Place Name', 'Place Type', 'Rule Title', 'Rule Type', 'Carrier Type',
+    'Start Date', 'End Date', 'Date Display', 'e.g. ca. 1920',
+    'Description', 'Address', 'Latitude', 'Longitude', 'Authority URI', 'https://www.geonames.org/...',
+    'Legislation', 'Extent', 'Unit', 'Technical Characteristics', 'e.g. image/tiff', 'Create',
     // Tasks sidebar block (header + Calculate dates row + Last run line)
     'Tasks', 'Calculate dates', 'Last run:', 'Never',
     // Finding aid sidebar block + actions + status labels
