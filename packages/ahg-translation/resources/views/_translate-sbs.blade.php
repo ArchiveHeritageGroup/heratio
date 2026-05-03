@@ -96,6 +96,12 @@
     'RiC', 'Graph Explorer', 'JSON-LD Export', 'Timeline',
     // Tasks sidebar block (header + Calculate dates row + Last run line)
     'Tasks', 'Calculate dates', 'Last run:', 'Never',
+    // Finding aid sidebar block + actions
+    'Finding aid', 'Download', 'Regenerate',
+    // Rights actions (museum/dam/IO show + rights edit page)
+    'Add rights', 'Edit rights',
+    // AI tools block (header + items)
+    'AI Tools', 'AI Translate (MT wizard)',
     // Top nav / global menu
     'Search', 'Browse', 'Login', 'Logout', 'Sign in', 'Sign out',
     'My Profile', 'Change Password', 'My Plugins', 'My Tasks',

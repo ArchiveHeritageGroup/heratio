@@ -6,7 +6,7 @@
 @section('title-block')
   <div class="multiline-header d-flex flex-column mb-3">
     <h1 class="mb-0">{{ $resource->title ?? $resource->slug }}</h1>
-    <span class="small">{{ $isNew ? 'Add rights' : 'Edit rights' }}</span>
+    <span class="small">{{ $isNew ? __('Add rights') : __('Edit rights') }}</span>
   </div>
 @endsection
 
