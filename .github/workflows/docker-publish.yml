@@ -50,6 +50,9 @@ jobs:
       - name: Compute tags (vX.Y.Z + X.Y + latest)
         id: tags
         run: |
+          # GHCR repo names must be lowercase; org slug is mixed-case
+          OWNER="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          echo "owner=${OWNER}" >> "$GITHUB_OUTPUT"
           REF="${{ github.ref }}"
           if [[ "$REF" == refs/tags/v* ]]; then
               VER="${REF#refs/tags/}"          # vX.Y.Z
@@ -57,15 +60,15 @@ jobs:
               MM="${BARE%.*}"                  # X.Y
               {
                   echo "tags<<EOF"
-                  echo "ghcr.io/${{ github.repository_owner }}/heratio:${VER}"
-                  echo "ghcr.io/${{ github.repository_owner }}/heratio:${MM}"
-                  echo "ghcr.io/${{ github.repository_owner }}/heratio:latest"
+                  echo "ghcr.io/${OWNER}/heratio:${VER}"
+                  echo "ghcr.io/${OWNER}/heratio:${MM}"
+                  echo "ghcr.io/${OWNER}/heratio:latest"
                   echo "EOF"
               } >> "$GITHUB_OUTPUT"
           else
               # Manual workflow-dispatch on a branch - tag with the branch name only
               BR="${{ github.event.inputs.ref || 'main' }}"
-              echo "tags=ghcr.io/${{ github.repository_owner }}/heratio:branch-${BR}" >> "$GITHUB_OUTPUT"
+              echo "tags=ghcr.io/${OWNER}/heratio:branch-${BR}" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Build + push (amd64 + arm64)
@@ -93,5 +96,5 @@ jobs:
         # The Dockerfile already asserts this at build time, but we re-check
         # the published manifest here so a regression is loud.
         run: |
-          IMG="ghcr.io/${{ github.repository_owner }}/heratio:${GITHUB_REF#refs/tags/}"
+          IMG="ghcr.io/${{ steps.tags.outputs.owner }}/heratio:${GITHUB_REF#refs/tags/}"
           docker buildx imagetools inspect "$IMG" --format '{{json .Manifest}}' | head -200

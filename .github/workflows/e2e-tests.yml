@@ -25,7 +25,12 @@ env:
   HERATIO_URL: https://heratio.theahg.co.za
   PSIS_URL: https://psis.theahg.co.za
   DB_CONNECTION: mysql
+  DB_HOST: 127.0.0.1
+  DB_PORT: 3306
   DB_DATABASE: heratio_test
+  DB_USERNAME: root
+  DB_PASSWORD: root
+  DB_SOCKET: ""
   CACHE_DRIVER: array
   SESSION_DRIVER: array
   QUEUE_CONNECTION: sync
@@ -70,6 +75,13 @@ jobs:
           cp .env.testing.example .env.testing
           sed -i "s|<<set in your local .env.testing>>||g" .env.testing
           sed -i "s|^DB_SOCKET=.*|DB_SOCKET=|" .env.testing
+          # PDO MySQL treats DB_HOST=localhost as "use the unix socket" even
+          # when DB_SOCKET is blank, falling back to the missing default
+          # /var/run/mysqld/mysqld.sock on the runner. Force TCP via 127.0.0.1.
+          sed -i "s|^DB_HOST=.*|DB_HOST=127.0.0.1|" .env.testing
+          sed -i "s|^DB_CONNECTION=.*|DB_CONNECTION=mysql|" .env.testing
+          sed -i "s|^DB_DATABASE=.*|DB_DATABASE=heratio_test|" .env.testing
+          sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
