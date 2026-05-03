@@ -17,14 +17,14 @@
         @csrf
         <input type="hidden" name="mode" value="heratio">
         <button type="submit" class="btn {{ $viewMode === 'heratio' ? 'btn-primary' : 'btn-outline-secondary' }}">
-          <i class="fas fa-list-alt me-1"></i>{{ $flatLabel }}
+          <i class="fas fa-list-alt me-1"></i>{{ __($flatLabel) }}
         </button>
       </form>
       <form method="POST" action="{{ route('ric.set-view-mode') }}" style="display:inline;">
         @csrf
         <input type="hidden" name="mode" value="ric">
         <button type="submit" class="btn {{ $viewMode === 'ric' ? 'btn-success' : 'btn-outline-secondary' }}">
-          <i class="fas fa-project-diagram me-1"></i>RiC
+          <i class="fas fa-project-diagram me-1"></i>{{ __('RiC') }}
         </button>
       </form>
     </div>

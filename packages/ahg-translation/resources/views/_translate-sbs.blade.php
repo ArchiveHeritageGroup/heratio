@@ -95,6 +95,8 @@
     // RiC sidebar block (header + items + dashboard / explorer button labels)
     'RiC', 'Graph Explorer', 'JSON-LD Export', 'Timeline',
     'RiC Explorer', 'RiC Dashboard', 'RiC-O JSON-LD',
+    // RiC view-mode toggle (flat-view button label is the description standard)
+    'View:', 'View mode', 'ISAD(G)', 'ISAAR(CPF)', 'Record',
     // Tasks sidebar block (header + Calculate dates row + Last run line)
     'Tasks', 'Calculate dates', 'Last run:', 'Never',
     // Finding aid sidebar block + actions + status labels

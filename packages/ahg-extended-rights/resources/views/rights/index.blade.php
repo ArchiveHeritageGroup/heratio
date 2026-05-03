@@ -14,7 +14,7 @@
   @auth
   <div class="mb-3">
     <a href="{{ route('ext-rights.add', $resource->slug) }}" class="btn btn-primary">
-      <i class="fas fa-plus me-1"></i>{{ __('Add Rights') }}
+      <i class="fas fa-plus me-1"></i>{{ __('Add rights') }}
     </a>
     <a href="{{ route('ext-rights.edit-embargo', $resource->slug) }}" class="btn btn-outline-warning">
       <i class="fas fa-clock me-1"></i>{{ __('Add Embargo') }}
