@@ -4,10 +4,9 @@
 
 @section('content')
 @php
-    $equipmentTypes = \Illuminate\Support\Facades\DB::table('ahg_dropdown')
-        ->where('taxonomy', 'equipment_type')->where('is_active', 1)->orderBy('sort_order')->pluck('label', 'code')->toArray();
-    $equipmentConditions = \Illuminate\Support\Facades\DB::table('ahg_dropdown')
-        ->where('taxonomy', 'equipment_condition')->where('is_active', 1)->orderBy('sort_order')->pluck('label', 'code')->toArray();
+    // Issue #59 Tier 2 — culture-aware dropdowns via the COALESCE helper.
+    $equipmentTypes      = \AhgCore\Services\AhgSettingsService::getDropdownChoices('equipment_type', false);
+    $equipmentConditions = \AhgCore\Services\AhgSettingsService::getDropdownChoices('equipment_condition', false);
 @endphp
 
 @if(session('success'))

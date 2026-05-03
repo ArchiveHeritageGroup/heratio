@@ -3,12 +3,13 @@
 @endonce
 {{-- RiC Entity Creation Modal --}}
 @php
+    // Issue #59 Tier 2 — culture-aware dropdowns via the COALESCE helper.
     $ricDropdowns = [
-        'ric_activity_type' => \Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'ric_activity_type')->where('is_active', 1)->orderBy('sort_order')->get(),
-        'ric_place_type' => \Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'ric_place_type')->where('is_active', 1)->orderBy('sort_order')->get(),
-        'ric_rule_type' => \Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'ric_rule_type')->where('is_active', 1)->orderBy('sort_order')->get(),
-        'ric_carrier_type' => \Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'ric_carrier_type')->where('is_active', 1)->orderBy('sort_order')->get(),
-        'ric_relation_type' => \Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'ric_relation_type')->where('is_active', 1)->orderBy('sort_order')->get(),
+        'ric_activity_type' => \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('ric_activity_type'),
+        'ric_place_type'    => \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('ric_place_type'),
+        'ric_rule_type'     => \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('ric_rule_type'),
+        'ric_carrier_type'  => \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('ric_carrier_type'),
+        'ric_relation_type' => \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('ric_relation_type'),
     ];
 @endphp
 <div class="modal fade" id="ricEntityModal" tabindex="-1" aria-hidden="true">

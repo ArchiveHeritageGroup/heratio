@@ -103,7 +103,8 @@
                             <label class="form-label">ID Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select name="id_type" class="form-select">
                                 <option value="">-- Select --</option>
-                                @foreach(\Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'id_type')->where('is_active', 1)->orderBy('sort_order')->get() as $idType)
+                                {{-- Issue #59 Tier 2 — culture-aware dropdown via the COALESCE helper. --}}
+                                @foreach(\AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('id_type') as $idType)
                                     <option value="{{ $idType->code }}">{{ $idType->label }}</option>
                                 @endforeach
                             </select>

@@ -4,10 +4,9 @@
 {{-- RiC Relation Editor Widget --}}
 @php
     $recordId = $recordId ?? null;
-    $ricRelationTypes = \Illuminate\Support\Facades\DB::table('ahg_dropdown')
-        ->where('taxonomy', 'ric_relation_type')->where('is_active', 1)->orderBy('sort_order')->get();
-    $ricCertaintyLevels = \Illuminate\Support\Facades\DB::table('ahg_dropdown')
-        ->where('taxonomy', 'certainty_level')->where('is_active', 1)->orderBy('sort_order')->get();
+    // Issue #59 Tier 2 — culture-aware dropdowns via the COALESCE helper.
+    $ricRelationTypes   = \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('ric_relation_type');
+    $ricCertaintyLevels = \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('certainty_level');
 @endphp
 
 <div id="ric-relation-editor">

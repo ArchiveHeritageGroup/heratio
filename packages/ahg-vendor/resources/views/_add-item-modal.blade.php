@@ -23,13 +23,8 @@
     $currencyCode = $transactionRaw->currency ?? 'ZAR';
     $nonce = csp_nonce() ?? '';
 
-    $conditionGrades = Schema::hasTable('ahg_dropdown')
-        ? DB::table('ahg_dropdown')
-            ->where('taxonomy', 'condition_grade')
-            ->where('is_active', 1)
-            ->orderBy('sort_order')
-            ->get(['code', 'label'])
-        : collect();
+    // Issue #59 Tier 2 — culture-aware dropdown via the COALESCE helper.
+    $conditionGrades = \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('condition_grade');
 @endphp
 <div class="modal fade" id="addItemModal" tabindex="-1">
     <div class="modal-dialog modal-lg">

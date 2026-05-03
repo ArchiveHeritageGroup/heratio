@@ -119,7 +119,8 @@
             @if($themeData['isAdmin'] ?? false)
               <select name="id_type" class="form-select">
                 <option value="">-- Select --</option>
-                @foreach(\Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'id_type')->where('is_active', 1)->orderBy('sort_order')->get() as $idt)
+                {{-- Issue #59 Tier 2 — culture-aware dropdown via the COALESCE helper. --}}
+                @foreach(\AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('id_type') as $idt)
                   <option value="{{ $idt->code }}" {{ ($researcher->id_type ?? '') === $idt->code ? 'selected' : '' }}>{{ $idt->label }}</option>
                 @endforeach
               </select>

@@ -24,13 +24,9 @@
     $isNew = $isNew ?? empty($contract->id ?? null);
     $action = $action ?? url()->current();
 
+    // Issue #59 Tier 2 — closure delegates to the culture-aware COALESCE helper.
     $dd = function (string $taxonomy): \Illuminate\Support\Collection {
-        if (! Schema::hasTable('ahg_dropdown')) return collect();
-        return DB::table('ahg_dropdown')
-            ->where('taxonomy', $taxonomy)
-            ->where('is_active', 1)
-            ->orderBy('sort_order')
-            ->get(['code', 'label']);
+        return \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes($taxonomy);
     };
 
     $statuses = $dd('contract_status');

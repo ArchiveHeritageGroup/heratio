@@ -376,21 +376,20 @@ class AhgSettingsService
      * getDropdownChoices(). All other columns (code, color, icon, sort_order,
      * is_default, metadata) come from the parent ahg_dropdown row unchanged.
      */
-    public static function getDropdownChoicesWithAttributes(string $taxonomy): array
+    public static function getDropdownChoicesWithAttributes(string $taxonomy): \Illuminate\Support\Collection
     {
         try {
             return self::dropdownQueryWithI18n([
-                'd.id', 'd.code', 'd.color', 'd.icon', 'd.sort_order', 'd.is_default', 'd.metadata',
+                'd.id', 'd.color', 'd.icon', 'd.sort_order', 'd.is_default', 'd.metadata',
             ])
                 ->where('d.taxonomy', $taxonomy)
                 ->where('d.is_active', 1)
                 ->orderBy('d.sort_order')
                 ->orderBy('d.label')
                 ->get()
-                ->keyBy('code')
-                ->all();
+                ->keyBy('code');
         } catch (\Exception $e) {
-            return [];
+            return collect();
         }
     }
 

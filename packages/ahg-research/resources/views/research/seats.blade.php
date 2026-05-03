@@ -4,9 +4,8 @@
 
 @section('content')
 @php
-    $seatTypes = \Illuminate\Support\Facades\DB::table('ahg_dropdown')
-        ->where('taxonomy', 'seat_type')->where('is_active', 1)
-        ->orderBy('sort_order')->get();
+    // Issue #59 Tier 2 — culture-aware dropdown via the COALESCE helper.
+    $seatTypes = \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('seat_type');
 @endphp
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show">{!! session('success') !!}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
