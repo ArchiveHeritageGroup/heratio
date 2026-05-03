@@ -72,6 +72,37 @@ class TranslationController extends Controller
                 'revision_history',
             ],
         ],
+        // Museum metadata (CCO) is a synthetic class — there's no `object` row
+        // with class_name='QubitMuseumMetadata'. The save flow gets the IO
+        // object_id, resolves museum_metadata.id WHERE object_id=?, then writes
+        // to museum_metadata_i18n keyed on (museum_metadata.id, culture).
+        // Caller must pass class_name=QubitMuseumMetadata explicitly.
+        'QubitMuseumMetadata' => [
+            'table'   => 'museum_metadata_i18n',
+            'id_via'  => 'museum_metadata.id WHERE object_id = :object_id',
+            'columns' => [
+                'work_type', 'object_type', 'classification', 'materials', 'techniques',
+                'measurements', 'dimensions', 'inscription', 'inscriptions', 'condition_notes',
+                'provenance', 'style_period', 'cultural_context', 'current_location',
+                'edition_description', 'state_description', 'state_identification',
+                'facture_description', 'technique_cco', 'technique_qualifier', 'orientation',
+                'physical_appearance', 'color', 'shape', 'condition_term', 'condition_description',
+                'condition_agent', 'treatment_type', 'treatment_agent', 'treatment_description',
+                'inscription_transcription', 'inscription_type', 'inscription_location',
+                'inscription_language', 'inscription_translation', 'mark_type', 'mark_description',
+                'mark_location', 'related_work_type', 'related_work_relationship', 'related_work_label',
+                'current_location_repository', 'current_location_geography', 'current_location_ref_number',
+                'creation_place', 'creation_place_type', 'discovery_place', 'discovery_place_type',
+                'provenance_text', 'ownership_history', 'legal_status', 'rights_type', 'rights_holder',
+                'rights_date', 'rights_remarks', 'cataloger_name', 'cataloging_institution',
+                'cataloging_remarks', 'record_type', 'record_level', 'creator_identity', 'creator_role',
+                'creator_extent', 'creator_qualifier', 'creator_attribution', 'creation_date_display',
+                'creation_date_qualifier', 'style', 'period', 'cultural_group', 'movement', 'school',
+                'dynasty', 'subject_indexing_type', 'subject_display', 'subject_extent',
+                'historical_context', 'architectural_context', 'archaeological_context',
+                'object_class', 'object_category', 'object_sub_category', 'edition_number', 'edition_size',
+            ],
+        ],
     ];
 
     /**
@@ -399,10 +430,17 @@ class TranslationController extends Controller
             ], 422);
         }
 
-        // Look up the class_name to know which *_i18n table to write to.
-        $className = DB::table('object')->where('id', $objectId)->value('class_name');
-        if (!$className) {
-            return response()->json(['ok' => false, 'error' => 'Object not found'], 404);
+        // Caller may pass class_name explicitly (e.g. QubitMuseumMetadata, which
+        // is a synthetic class — there's no `object` row with that class_name).
+        // Otherwise fall back to looking up object.class_name.
+        $explicitClass = trim((string) $request->input('class_name'));
+        if ($explicitClass !== '' && isset(self::I18N_TABLE_BY_CLASS[$explicitClass])) {
+            $className = $explicitClass;
+        } else {
+            $className = DB::table('object')->where('id', $objectId)->value('class_name');
+            if (!$className) {
+                return response()->json(['ok' => false, 'error' => 'Object not found'], 404);
+            }
         }
 
         if (!isset(self::I18N_TABLE_BY_CLASS[$className])) {
@@ -421,6 +459,21 @@ class TranslationController extends Controller
                 'ok' => false,
                 'error' => "Field '{$field}' is not translatable for {$className}",
             ], 422);
+        }
+
+        // Resolve the i18n row id. For most classes this equals object_id.
+        // QubitMuseumMetadata maps the IO object_id to museum_metadata.id.
+        $i18nRowId = $objectId;
+        if ($className === 'QubitMuseumMetadata') {
+            $i18nRowId = (int) DB::table('museum_metadata')
+                ->where('object_id', $objectId)
+                ->value('id');
+            if ($i18nRowId <= 0) {
+                return response()->json([
+                    'ok' => false,
+                    'error' => 'No museum_metadata row exists for this object — create one before translating.',
+                ], 404);
+            }
         }
 
         // ── Workflow split (issue #54-style, applied to per-record translation) ──
@@ -443,11 +496,13 @@ class TranslationController extends Controller
             // Read source for the draft row context (best-effort — old value goes
             // in source_text so the reviewer can compare).
             $oldValue = DB::table($i18nTable)
-                ->where('id', $objectId)
+                ->where('id', $i18nRowId)
                 ->where('culture', $culture)
                 ->value($field);
+            $entityType = $className === 'QubitMuseumMetadata' ? 'museum_metadata' : 'information_object';
             $draftId = DB::table('ahg_translation_draft')->insertGetId([
-                'object_id'           => $objectId,
+                'object_id'           => $objectId,        // IO id; draftApprove resolves the i18n row again
+                'entity_type'         => $entityType,
                 'field_name'          => $field,
                 'source_culture'      => $culture,
                 'target_culture'      => $culture,
@@ -472,18 +527,18 @@ class TranslationController extends Controller
 
         // Upsert the i18n row for the requested culture.
         $exists = DB::table($i18nTable)
-            ->where('id', $objectId)
+            ->where('id', $i18nRowId)
             ->where('culture', $culture)
             ->exists();
 
         if ($exists) {
             DB::table($i18nTable)
-                ->where('id', $objectId)
+                ->where('id', $i18nRowId)
                 ->where('culture', $culture)
                 ->update([$field => $value]);
         } else {
             DB::table($i18nTable)->insert([
-                'id'      => $objectId,
+                'id'      => $i18nRowId,
                 'culture' => $culture,
                 $field    => $value,
             ]);
@@ -976,14 +1031,20 @@ class TranslationController extends Controller
                 "Draft #{$id} discarded — original record (object #{$draft->object_id}) was deleted before approval.");
         }
 
-        // Re-use save() logic by invoking it with the draft's payload.
-        $req = new Request([
+        // Re-use save() logic by invoking it with the draft's payload. For
+        // museum_metadata drafts pass class_name explicitly so save() resolves
+        // museum_metadata.id from the IO object_id.
+        $reqPayload = [
             'object_id' => $draft->object_id,
             'culture'   => $draft->target_culture,
             'field'     => $draft->field_name,
             'value'     => $draft->translated_text,
             'confirmed' => 1,
-        ]);
+        ];
+        if (($draft->entity_type ?? null) === 'museum_metadata') {
+            $reqPayload['class_name'] = 'QubitMuseumMetadata';
+        }
+        $req = new Request($reqPayload);
         $resp = $this->save($req);
         $payload = $resp instanceof \Illuminate\Http\JsonResponse ? $resp->getData(true) : [];
 
@@ -1151,14 +1212,57 @@ class TranslationController extends Controller
         $autoApprove = $isAdmin && !$reqReview;
 
         try {
+            $locale = $request->input('locale');
+            $key    = $request->input('key');
+            $value  = $request->input('value');
             if ($autoApprove) {
-                $svc->applyApproved($userId, $request->input('locale'), $request->input('key'), $request->input('value'));
+                $svc->applyApproved($userId, $locale, $key, $value);
+                // Mirror into setting_i18n if this key matches a ui_label setting
+                // (issue #57 part A — keep both surfaces in sync until B lands).
+                $this->mirrorStringToSettingI18n($locale, $key, $value);
                 return response()->json(['ok' => true, 'state' => 'approved']);
             }
-            $pendingId = $svc->submitChange($userId, $request->input('locale'), $request->input('key'), $request->input('value'));
+            $pendingId = $svc->submitChange($userId, $locale, $key, $value);
             return response()->json(['ok' => true, 'state' => 'pending', 'pending_id' => $pendingId]);
         } catch (\Throwable $e) {
             return response()->json(['ok' => false, 'error' => $e->getMessage()], 400);
+        }
+    }
+
+    /**
+     * Mirror a UI-string write into setting_i18n for any setting whose en value
+     * (with &nbsp; normalised) matches this key. Best-effort — never throws.
+     *
+     * Why: setting_i18n is hydrated AFTER lang/*.json by SetLocale middleware,
+     * so without this mirror the strings editor's write would be invisible at
+     * render time for the 27 ui_label keys that also live as settings.
+     *
+     * AtoM base table compatibility: this only writes to setting_i18n rows
+     * whose parent setting has scope='ui_label'. Other setting scopes
+     * (atom_features, advanced_search, etc.) are untouched.
+     */
+    protected function mirrorStringToSettingI18n(string $culture, string $key, ?string $value): void
+    {
+        if ($key === '' || $culture === '' || $culture === 'en') return;
+        try {
+            $matches = DB::table('setting as s')
+                ->join('setting_i18n as si_en', function ($j) {
+                    $j->on('s.id', '=', 'si_en.id')->where('si_en.culture', '=', 'en');
+                })
+                ->where('s.scope', 'ui_label')
+                ->whereRaw("REPLACE(si_en.value, '&nbsp;', ' ') = ?", [$key])
+                ->pluck('s.id');
+            foreach ($matches as $settingId) {
+                DB::table('setting_i18n')->updateOrInsert(
+                    ['id' => (int) $settingId, 'culture' => $culture],
+                    ['value' => (string) ($value ?? '')]
+                );
+            }
+            if (count($matches) > 0) {
+                \AhgCore\Services\SettingHelper::flush();
+            }
+        } catch (\Throwable $e) {
+            // best-effort — never block the primary save
         }
     }
 
@@ -1195,6 +1299,8 @@ class TranslationController extends Controller
         $svc = app(\AhgTranslation\Services\UiStringService::class);
         try {
             $svc->applyApproved((int) auth()->id(), $row->locale, $row->key_text, $row->new_value, $id, $request->input('note'));
+            // Mirror into setting_i18n for ui_label scope (#57 part A).
+            $this->mirrorStringToSettingI18n($row->locale, $row->key_text, $row->new_value);
         } catch (\Throwable $e) {
             return response()->json(['ok' => false, 'error' => $e->getMessage()], 400);
         }

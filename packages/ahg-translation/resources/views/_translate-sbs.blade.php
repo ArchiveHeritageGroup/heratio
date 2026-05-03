@@ -96,7 +96,28 @@
   // Saves go through ahgtranslation.strings.save (same workflow split as
   // record-content saves: admin auto-applies, editor queues).
   $labelTranslations = [];
-  $allUiKeys = array_unique(array_merge(array_values($allFieldsForIo), $commonButtons));
+  // CCO field labels also live as UI strings — include them so the per-record
+  // SBS modal can edit the label translations alongside the IO field labels.
+  $ccoLabelStrings = [];
+  // Defined below in $museumGroups; flattened here for the labels pre-load.
+  // Mirror of the museumGroups arrays — kept in sync manually.
+  $ccoLabelStrings = [
+    'Work type', 'Object type', 'Classification', 'Object class', 'Object category', 'Object sub-category', 'Record type', 'Record level',
+    'Creator', 'Role', 'Extent', 'Qualifier', 'Attribution',
+    'Date display', 'Date qualifier',
+    'Materials', 'Techniques', 'Technique (CCO)', 'Technique qualifier', 'Facture', 'Color', 'Physical appearance',
+    'Measurements', 'Dimensions', 'Orientation', 'Shape',
+    'Style/Period', 'Style', 'Period', 'Cultural context', 'Cultural group', 'Movement', 'School', 'Dynasty',
+    'Indexing type', 'Subject display', 'Subject extent', 'Historical context', 'Architectural context', 'Archaeological context',
+    'Condition', 'Condition description', 'Condition agent', 'Condition notes', 'Treatment type', 'Treatment agent', 'Treatment description',
+    'Inscription', 'Inscriptions', 'Transcription', 'Inscription type', 'Inscription location', 'Inscription language', 'Translation', 'Mark type', 'Mark description', 'Mark location',
+    'Edition description', 'Edition number', 'Edition size', 'State description', 'State identification',
+    'Current location', 'Repository', 'Geography', 'Reference number', 'Creation place', 'Creation place type', 'Discovery place', 'Discovery place type',
+    'Relationship type', 'Relationship', 'Label',
+    'Provenance', 'Provenance text', 'Ownership history', 'Legal status', 'Rights type', 'Rights holder', 'Rights date', 'Rights remarks',
+    'Cataloger', 'Institution', 'Remarks',
+  ];
+  $allUiKeys = array_unique(array_merge(array_values($allFieldsForIo), $commonButtons, $ccoLabelStrings));
   foreach ($enabledLocales as $loc) {
       $p = base_path('lang/' . preg_replace('/[^a-z0-9_-]/i', '', $loc) . '.json');
       if (is_readable($p)) {
@@ -106,6 +127,49 @@
               $labelTranslations[$loc] = array_intersect_key($j, array_flip($allUiKeys));
           }
       }
+  }
+
+  // ── CCO / Museum metadata (issue #56) ──
+  // Only renders if this IO has a museum_metadata row. Pre-load every culture
+  // already in museum_metadata_i18n so the modal switches client-side without
+  // a round trip, mirroring $i18nByCulture.
+  $museumByCulture = [];
+  $museumRowId = null;
+  $museumGroups = [];
+  try {
+      $mmRow = \Illuminate\Support\Facades\DB::table('museum_metadata')
+          ->where('object_id', $objectId)
+          ->first();
+      if ($mmRow) {
+          $museumRowId = (int) $mmRow->id;
+          // Section grouping mirrors the show view (so the editor sees the
+          // same blocks the public sees, in the same order).
+          $museumGroups = [
+              'Object / Work'                => ['work_type' => 'Work type', 'object_type' => 'Object type', 'classification' => 'Classification', 'object_class' => 'Object class', 'object_category' => 'Object category', 'object_sub_category' => 'Object sub-category', 'record_type' => 'Record type', 'record_level' => 'Record level'],
+              'Creator'                      => ['creator_identity' => 'Creator', 'creator_role' => 'Role', 'creator_extent' => 'Extent', 'creator_qualifier' => 'Qualifier', 'creator_attribution' => 'Attribution'],
+              'Dates (display only)'         => ['creation_date_display' => 'Date display', 'creation_date_qualifier' => 'Date qualifier'],
+              'Materials & technique'        => ['materials' => 'Materials', 'techniques' => 'Techniques', 'technique_cco' => 'Technique (CCO)', 'technique_qualifier' => 'Technique qualifier', 'facture_description' => 'Facture', 'color' => 'Color', 'physical_appearance' => 'Physical appearance'],
+              'Measurements'                 => ['measurements' => 'Measurements', 'dimensions' => 'Dimensions', 'orientation' => 'Orientation', 'shape' => 'Shape'],
+              'Style / Period / Context'     => ['style_period' => 'Style/Period', 'style' => 'Style', 'period' => 'Period', 'cultural_context' => 'Cultural context', 'cultural_group' => 'Cultural group', 'movement' => 'Movement', 'school' => 'School', 'dynasty' => 'Dynasty'],
+              'Subject'                      => ['subject_indexing_type' => 'Indexing type', 'subject_display' => 'Subject display', 'subject_extent' => 'Subject extent', 'historical_context' => 'Historical context', 'architectural_context' => 'Architectural context', 'archaeological_context' => 'Archaeological context'],
+              'Condition & treatment'        => ['condition_term' => 'Condition', 'condition_description' => 'Condition description', 'condition_agent' => 'Condition agent', 'condition_notes' => 'Condition notes', 'treatment_type' => 'Treatment type', 'treatment_agent' => 'Treatment agent', 'treatment_description' => 'Treatment description'],
+              'Inscriptions & marks'         => ['inscription' => 'Inscription', 'inscriptions' => 'Inscriptions', 'inscription_transcription' => 'Transcription', 'inscription_type' => 'Inscription type', 'inscription_location' => 'Inscription location', 'inscription_language' => 'Inscription language', 'inscription_translation' => 'Translation', 'mark_type' => 'Mark type', 'mark_description' => 'Mark description', 'mark_location' => 'Mark location'],
+              'Edition / State'              => ['edition_description' => 'Edition description', 'edition_number' => 'Edition number', 'edition_size' => 'Edition size', 'state_description' => 'State description', 'state_identification' => 'State identification'],
+              'Location / Geography'         => ['current_location' => 'Current location', 'current_location_repository' => 'Repository', 'current_location_geography' => 'Geography', 'current_location_ref_number' => 'Reference number', 'creation_place' => 'Creation place', 'creation_place_type' => 'Creation place type', 'discovery_place' => 'Discovery place', 'discovery_place_type' => 'Discovery place type'],
+              'Related works'                => ['related_work_type' => 'Relationship type', 'related_work_relationship' => 'Relationship', 'related_work_label' => 'Label'],
+              'Provenance & rights'          => ['provenance' => 'Provenance', 'provenance_text' => 'Provenance text', 'ownership_history' => 'Ownership history', 'legal_status' => 'Legal status', 'rights_type' => 'Rights type', 'rights_holder' => 'Rights holder', 'rights_date' => 'Rights date', 'rights_remarks' => 'Rights remarks'],
+              'Cataloguing'                  => ['cataloger_name' => 'Cataloger', 'cataloging_institution' => 'Institution', 'cataloging_remarks' => 'Remarks'],
+          ];
+          // Pre-fetch all museum_metadata_i18n rows for this record. The parent
+          // (museum_metadata) row stands in as the source-culture cache (en).
+          foreach (\Illuminate\Support\Facades\DB::table('museum_metadata_i18n')
+              ->where('id', $museumRowId)->get() as $mi18n) {
+              $museumByCulture[$mi18n->culture] = (array) $mi18n;
+          }
+      }
+  } catch (\Throwable $e) {
+      // museum_metadata / museum_metadata_i18n missing — skip CCO section.
+      $museumRowId = null;
   }
 @endphp
 
@@ -187,6 +251,48 @@
           </table>
         </div>
 
+        @if($museumRowId && !empty($museumGroups))
+        {{-- ── CCO field LABELS (UI strings — saved to lang/{locale}.json + mirrored to setting_i18n) ── --}}
+        <div class="alert alert-success small mt-3 mb-2 py-2">
+          <strong><i class="fas fa-tag me-1"></i>{{ __('Use this section to translate FIELD LABELS (the field names themselves).') }}</strong>
+          {{ __('e.g. "Edition description" → "Uitgawe beskrywing". Saves to lang/{locale}.json and mirrors to setting_i18n. Same place as /admin/translation/strings.') }}
+        </div>
+        <h6 class="text-uppercase small fw-bold text-success mb-2"><i class="fas fa-landmark me-1"></i>{{ __('CCO / Museum field LABELS') }} <span class="text-success">({{ __('field names — saved into lang/{locale}.json') }})</span></h6>
+        @foreach($museumGroups as $groupTitle => $groupFields)
+          <div class="card mb-2 border-secondary-subtle">
+            <div class="card-header py-1 small fw-semibold" style="background:#f5f5f5">{{ __($groupTitle) }}</div>
+            <div class="card-body p-0">
+              <table class="table table-sm table-bordered align-top mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th style="width:18%;">{{ __('Field key') }}</th>
+                    <th style="width:38%;"><span class="badge bg-light text-dark">en</span> {{ __('Label (English source)') }}</th>
+                    <th style="width:38%;"><span class="badge bg-light text-dark sbs-tgt-label-lbl" data-object-id="{{ $objectId }}">{{ $defaultTarget }}</span> {{ __('Label (target — edit here)') }}</th>
+                    <th style="width:6%;"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach($groupFields as $fieldKey => $fieldLabel)
+                    <tr class="sbs-lbl-row" data-object-id="{{ $objectId }}" data-source-label="{{ $fieldLabel }}">
+                      <td><code class="small">{{ $fieldKey }}</code></td>
+                      <td><div class="small">{{ $fieldLabel }}</div></td>
+                      <td>
+                        <input type="text" class="form-control form-control-sm sbs-lbl-tgt">
+                        <div class="sbs-lbl-status small mt-1" style="min-height:1em;"></div>
+                      </td>
+                      <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-outline-primary mb-1 sbs-lbl-mt-btn w-100" title="{{ __('AI suggest') }}"><i class="fas fa-magic"></i></button>
+                        <button type="button" class="btn btn-sm btn-success sbs-lbl-save-btn w-100" title="{{ __('Save label') }}"><i class="fas fa-save"></i></button>
+                      </td>
+                    </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
+          </div>
+        @endforeach
+        @endif
+
         {{-- ── Common link / button labels (UI strings) ── --}}
         <h6 class="text-uppercase small fw-bold text-muted mt-3 mb-2"><i class="fas fa-mouse-pointer me-1"></i>{{ __('Common buttons & links') }} <span class="text-muted">({{ __('UI strings that appear all over the app — saved into lang/{locale}.json') }})</span></h6>
         <div class="table-responsive mb-4">
@@ -266,6 +372,57 @@
           </table>
         </div>
 
+        @if($museumRowId)
+        <div id="sbs-section-museum-{{ $objectId }}"></div>
+        {{-- ── CCO / Museum metadata field VALUES (per-record content, saved into museum_metadata_i18n) ── --}}
+        <div class="alert alert-danger small mt-4 mb-2 py-2">
+          <strong><i class="fas fa-exclamation-triangle me-1"></i>{{ __('STOP — this section is for per-record content, NOT field labels.') }}</strong><br>
+          {{ __('Use this only when you want to translate THIS record\'s actual content (e.g. the value "Painting (digital reproduction)" → "Skildery (digitale reproduksie)"). To translate the label "Edition description" → "Uitgawe beskrywing" use the CCO field LABELS section above. Each row\'s "Source" column shows the value currently on this record — if it shows the field name back at you, you\'re probably in the wrong section.') }}
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+          <h6 class="text-uppercase small fw-bold text-danger mb-0"><i class="fas fa-landmark me-1"></i>{{ __('CCO / Museum field VALUES') }} <span class="text-danger">({{ __("this record's content — saved into museum_metadata_i18n") }})</span></h6>
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input sbs-mm-filter-empty" type="checkbox" id="sbs-mm-filter-empty-{{ $objectId }}" data-object-id="{{ $objectId }}">
+            <label class="form-check-label small" for="sbs-mm-filter-empty-{{ $objectId }}">
+              <i class="fas fa-filter me-1"></i>{{ __('Only show empty target fields') }}
+            </label>
+          </div>
+        </div>
+        @foreach($museumGroups as $groupTitle => $groupFields)
+          <div class="card mb-2 border-secondary-subtle">
+            <div class="card-header py-1 small fw-semibold" style="background:#f5f5f5">{{ __($groupTitle) }}</div>
+            <div class="card-body p-0">
+              <table class="table table-sm table-bordered align-top mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th style="width:18%;">{{ __('Field') }}</th>
+                    <th style="width:38%;"><span class="badge bg-light text-dark sbs-src-label" data-object-id="{{ $objectId }}">{{ $defaultSource }}</span> {{ __('Source') }}</th>
+                    <th style="width:38%;"><span class="badge bg-light text-dark sbs-tgt-label" data-object-id="{{ $objectId }}">{{ $defaultTarget }}</span> {{ __('Target — edit here') }}</th>
+                    <th style="width:6%;"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach($groupFields as $fieldKey => $fieldLabel)
+                    <tr class="sbs-mm-row" data-object-id="{{ $objectId }}" data-field="{{ $fieldKey }}">
+                      <td><span class="small fw-semibold">{{ __($fieldLabel) }}</span><br><code class="small text-muted">{{ $fieldKey }}</code></td>
+                      <td><div class="sbs-mm-src small text-muted" style="white-space:pre-wrap;"></div></td>
+                      <td>
+                        <textarea class="form-control form-control-sm sbs-mm-tgt" rows="2"></textarea>
+                        <div class="sbs-mm-status small mt-1" style="min-height:1em;"></div>
+                      </td>
+                      <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-outline-primary mb-1 sbs-mm-mt-btn w-100" title="{{ __('AI suggest from source') }}"><i class="fas fa-magic"></i></button>
+                        <button type="button" class="btn btn-sm btn-success sbs-mm-save-btn w-100" title="{{ __('Save row') }}"><i class="fas fa-save"></i></button>
+                      </td>
+                    </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
+          </div>
+        @endforeach
+        @endif
+
       </div>
       <div class="modal-footer flex-wrap gap-2">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
@@ -294,6 +451,14 @@
   window.__sbsLabels = window.__sbsLabels || {};
   window.__sbsLabels[{{ $objectId }}] = @json($labelTranslations);
 
+  // Pre-loaded museum_metadata_i18n rows + the parent (en cache) row, keyed
+  // by culture. Allows the CCO section to switch source/target without
+  // round-tripping. Empty for IOs without a museum_metadata row.
+  window.__sbsMuseum = window.__sbsMuseum || {};
+  window.__sbsMuseum[{{ $objectId }}] = @json($museumByCulture);
+  window.__sbsMuseumRowId = window.__sbsMuseumRowId || {};
+  window.__sbsMuseumRowId[{{ $objectId }}] = {!! (int) ($museumRowId ?? 0) !!};
+
   function applySource(objectId) {
     var src = document.querySelector('.sbs-source[data-object-id="' + objectId + '"]').value;
     document.querySelectorAll('.sbs-src-label[data-object-id="' + objectId + '"]').forEach(function (e) { e.textContent = src; });
@@ -302,6 +467,14 @@
       var field = row.getAttribute('data-field');
       var srcEl = row.querySelector('.sbs-src');
       srcEl.textContent = (data[field] || '').toString();
+    });
+    // CCO/Museum source values — fall back to en when the chosen source
+    // culture has no museum_metadata_i18n row.
+    var mmAll = window.__sbsMuseum[objectId] || {};
+    var mm = mmAll[src] || mmAll['en'] || {};
+    document.querySelectorAll('.sbs-mm-row[data-object-id="' + objectId + '"]').forEach(function (row) {
+      var field = row.getAttribute('data-field');
+      row.querySelector('.sbs-mm-src').textContent = (mm[field] || '').toString();
     });
   }
 
@@ -313,6 +486,12 @@
     document.querySelectorAll('.sbs-row[data-object-id="' + objectId + '"]').forEach(function (row) {
       var field = row.getAttribute('data-field');
       row.querySelector('.sbs-tgt').value = (data[field] || '').toString();
+    });
+    // CCO/Museum target values
+    var mm = (window.__sbsMuseum[objectId] || {})[tgt] || {};
+    document.querySelectorAll('.sbs-mm-row[data-object-id="' + objectId + '"]').forEach(function (row) {
+      var field = row.getAttribute('data-field');
+      row.querySelector('.sbs-mm-tgt').value = (mm[field] || '').toString();
     });
   }
 
@@ -489,6 +668,91 @@
         .finally(function () { btn.disabled = false; });
       });
     });
+
+    // ─── CCO/Museum metadata rows (saved into museum_metadata_i18n via
+    // route('ahgtranslation.save') with class_name=QubitMuseumMetadata) ───
+    function applyMmEmptyFilter() {
+      var on = (modal.querySelector('.sbs-mm-filter-empty[data-object-id="' + objectId + '"]') || {}).checked;
+      modal.querySelectorAll('.sbs-mm-row[data-object-id="' + objectId + '"]').forEach(function (row) {
+        if (!on) { row.style.display = ''; return; }
+        var v = (row.querySelector('.sbs-mm-tgt') || {}).value || '';
+        row.style.display = v.trim() === '' ? '' : 'none';
+      });
+    }
+    var mmEmptyToggle = modal.querySelector('.sbs-mm-filter-empty[data-object-id="' + objectId + '"]');
+    if (mmEmptyToggle) mmEmptyToggle.addEventListener('change', applyMmEmptyFilter);
+    var prevApplyTargetForMm = applyTargetLabel;
+    applyTargetLabel = function (objId) { prevApplyTargetForMm(objId); applyMmEmptyFilter(); };
+
+    modal.querySelectorAll('.sbs-mm-save-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var row = btn.closest('.sbs-mm-row');
+        var field  = row.getAttribute('data-field');
+        var status = row.querySelector('.sbs-mm-status');
+        var value  = row.querySelector('.sbs-mm-tgt').value;
+        var target = tgtSel.value;
+        var review = (modal.querySelector('.sbs-review-toggle') || {}).checked ? '1' : '0';
+
+        btn.disabled = true; status.textContent = '...';
+        var fd = new FormData();
+        fd.append('_token', csrf);
+        fd.append('object_id',  objectId);
+        fd.append('class_name', 'QubitMuseumMetadata');
+        fd.append('culture',    target);
+        fd.append('field',      field);
+        fd.append('value',      value);
+        fd.append('confirmed',  '1');
+        fd.append('review',     review);
+        fetch(saveUrl, {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+          body: fd,
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d && d.ok) {
+            if (d.state === 'pending') {
+              status.innerHTML = '<span class="text-warning">⏱ submitted for review</span>';
+            } else {
+              status.innerHTML = '<span class="text-success">✓ approved</span>';
+              window.__sbsMuseum[objectId] = window.__sbsMuseum[objectId] || {};
+              window.__sbsMuseum[objectId][target] = window.__sbsMuseum[objectId][target] || {};
+              window.__sbsMuseum[objectId][target][field] = value;
+            }
+          } else {
+            status.innerHTML = '<span class="text-danger">✗ ' + ((d && d.error) || 'save failed') + '</span>';
+          }
+        })
+        .catch(function (e) { status.innerHTML = '<span class="text-danger">✗ ' + e.message + '</span>'; })
+        .finally(function () { btn.disabled = false; });
+      });
+    });
+
+    modal.querySelectorAll('.sbs-mm-mt-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var row = btn.closest('.sbs-mm-row');
+        var srcText = (row.querySelector('.sbs-mm-src').textContent || '').trim();
+        var status  = row.querySelector('.sbs-mm-status');
+        var tgtArea = row.querySelector('.sbs-mm-tgt');
+        var target  = tgtSel.value;
+        if (!srcText) { status.innerHTML = '<span class="text-muted">no source text</span>'; return; }
+        btn.disabled = true; status.textContent = 'fetching MT suggestion...';
+        var u = mtUrl + '?locale=' + encodeURIComponent(target) + '&text=' + encodeURIComponent(srcText);
+        fetch(u, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (d && d.ok && d.translated) {
+              tgtArea.value = d.translated;
+              status.innerHTML = '<span class="text-info">MT suggestion — review then save</span>';
+            } else {
+              status.innerHTML = '<span class="text-danger">✗ MT failed: ' + ((d && d.error) || 'unknown') + '</span>';
+            }
+          })
+          .catch(function (e) { status.innerHTML = '<span class="text-danger">✗ MT error: ' + e.message + '</span>'; })
+          .finally(function () { btn.disabled = false; });
+      });
+    });
+    // ─── End CCO/Museum rows ───
 
     // Per-row AI suggest — reuses /admin/translation/strings/mt-suggest
     // (returns translated text from the Ollama backend per #45). Source text

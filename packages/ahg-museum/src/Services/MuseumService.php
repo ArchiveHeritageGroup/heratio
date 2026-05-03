@@ -185,6 +185,20 @@ class MuseumService
             ])
             ->first();
 
+        // Overlay culture-aware CCO field values from museum_metadata_i18n.
+        // The base select above pulls source-culture (parent) values; this
+        // overrides each translatable field with COALESCE(current, en, parent).
+        if ($record && isset($record->museum_metadata_id)) {
+            $translated = self::fetchTranslated((int) $record->id, $this->culture);
+            if (!empty($translated)) {
+                foreach (self::MM_TRANSLATABLE_FIELDS as $f) {
+                    if (array_key_exists($f, $translated)) {
+                        $record->{$f} = $translated[$f];
+                    }
+                }
+            }
+        }
+
         return $record;
     }
 
@@ -818,15 +832,76 @@ class MuseumService
      */
     public function getMuseumMetadata(int $objectId): array
     {
-        $row = DB::table('museum_metadata')
-            ->where('object_id', $objectId)
-            ->first();
+        return self::fetchTranslated($objectId, $this->culture);
+    }
 
-        if (!$row) {
-            return [];
+    /**
+     * Translatable text columns on museum_metadata. Fields NOT in this list
+     * (id, object_id, dates, timestamps, coordinates, related_work_id) stay on
+     * the parent only and are read verbatim.
+     */
+    public const MM_TRANSLATABLE_FIELDS = [
+        'work_type', 'object_type', 'classification', 'materials', 'techniques',
+        'measurements', 'dimensions', 'inscription', 'inscriptions', 'condition_notes',
+        'provenance', 'style_period', 'cultural_context', 'current_location',
+        'edition_description', 'state_description', 'state_identification',
+        'facture_description', 'technique_cco', 'technique_qualifier', 'orientation',
+        'physical_appearance', 'color', 'shape', 'condition_term', 'condition_description',
+        'condition_agent', 'treatment_type', 'treatment_agent', 'treatment_description',
+        'inscription_transcription', 'inscription_type', 'inscription_location',
+        'inscription_language', 'inscription_translation', 'mark_type', 'mark_description',
+        'mark_location', 'related_work_type', 'related_work_relationship', 'related_work_label',
+        'current_location_repository', 'current_location_geography', 'current_location_ref_number',
+        'creation_place', 'creation_place_type', 'discovery_place', 'discovery_place_type',
+        'provenance_text', 'ownership_history', 'legal_status', 'rights_type', 'rights_holder',
+        'rights_date', 'rights_remarks', 'cataloger_name', 'cataloging_institution',
+        'cataloging_remarks', 'record_type', 'record_level', 'creator_identity', 'creator_role',
+        'creator_extent', 'creator_qualifier', 'creator_attribution', 'creation_date_display',
+        'creation_date_qualifier', 'style', 'period', 'cultural_group', 'movement', 'school',
+        'dynasty', 'subject_indexing_type', 'subject_display', 'subject_extent',
+        'historical_context', 'architectural_context', 'archaeological_context',
+        'object_class', 'object_category', 'object_sub_category', 'edition_number', 'edition_size',
+    ];
+
+    /**
+     * Culture-aware fetch with COALESCE(current culture i18n, en fallback i18n,
+     * parent value). Used by every show page that renders the CCO block.
+     *
+     * If museum_metadata_i18n doesn't exist (pre-upgrade install), gracefully
+     * falls back to reading the parent only.
+     */
+    public static function fetchTranslated(int $objectId, string $culture, string $fallback = 'en'): array
+    {
+        try {
+            $hasI18n = \Illuminate\Support\Facades\Schema::hasTable('museum_metadata_i18n');
+        } catch (\Throwable $e) {
+            $hasI18n = false;
         }
 
-        return (array) $row;
+        if (!$hasI18n) {
+            $row = DB::table('museum_metadata')->where('object_id', $objectId)->first();
+            return $row ? (array) $row : [];
+        }
+
+        $select = [
+            'mm.id', 'mm.object_id',
+            'mm.creation_date_earliest', 'mm.creation_date_latest',
+            'mm.condition_date', 'mm.treatment_date', 'mm.cataloging_date',
+            'mm.created_at', 'mm.updated_at',
+            'mm.current_location_coordinates', 'mm.related_work_id',
+        ];
+        foreach (self::MM_TRANSLATABLE_FIELDS as $f) {
+            $select[] = DB::raw("COALESCE(NULLIF(mi.`{$f}`, ''), NULLIF(mi_fb.`{$f}`, ''), mm.`{$f}`) AS `{$f}`");
+        }
+
+        $row = DB::table('museum_metadata as mm')
+            ->leftJoin('museum_metadata_i18n as mi',    function ($j) use ($culture)  { $j->on('mi.id', '=', 'mm.id')->where('mi.culture', '=', $culture); })
+            ->leftJoin('museum_metadata_i18n as mi_fb', function ($j) use ($fallback) { $j->on('mi_fb.id', '=', 'mm.id')->where('mi_fb.culture', '=', $fallback); })
+            ->where('mm.object_id', $objectId)
+            ->select($select)
+            ->first();
+
+        return $row ? (array) $row : [];
     }
 
     /**

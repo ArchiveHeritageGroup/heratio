@@ -719,15 +719,11 @@ class InformationObjectController extends Controller
             ->get();
         $relatedMaterialDescriptions = $relatedBySubject->merge($relatedByObject)->unique('id');
 
-        // Museum metadata (CCO fields) — present when this IO has a museum_metadata row
+        // Museum metadata (CCO fields) — present when this IO has a museum_metadata row.
+        // Culture-aware: per-culture overrides in museum_metadata_i18n with en fallback.
         $museumMetadata = [];
         try {
-            $mmRow = DB::table('museum_metadata')
-                ->where('object_id', $io->id)
-                ->first();
-            if ($mmRow) {
-                $museumMetadata = (array) $mmRow;
-            }
+            $museumMetadata = \AhgMuseum\Services\MuseumService::fetchTranslated((int) $io->id, app()->getLocale());
         } catch (\Exception $e) {
             // museum_metadata table may not exist in all installs
         }

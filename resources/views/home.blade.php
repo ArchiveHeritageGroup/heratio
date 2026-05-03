@@ -21,14 +21,15 @@
     </section>
   @endif
 
-  {{-- Browse by --}}
+  {{-- Browse by — labels go through __() so lang/{locale}.json + setting_i18n
+       overrides apply (no per-locale menu_i18n inserts needed). --}}
   @if($browseItems->isNotEmpty())
     <section class="card mb-3">
-      <h2 class="h5 p-3 mb-0">Browse by</h2>
+      <h2 class="h5 p-3 mb-0">{{ __('Browse by') }}</h2>
       <div class="list-group list-group-flush">
         @foreach($browseItems as $item)
           <a class="list-group-item list-group-item-action" href="{{ url($item->path) }}">
-            {{ $item->label }}
+            {{ $item->label ? __($item->label) : '' }}
           </a>
         @endforeach
       </div>

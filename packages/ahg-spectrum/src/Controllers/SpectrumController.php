@@ -419,12 +419,9 @@ class SpectrumController extends Controller
                 abort(404);
             }
 
-            // Museum metadata
+            // Museum metadata (culture-aware via museum_metadata_i18n with en fallback)
             if (Schema::hasTable('museum_metadata')) {
-                $mm = DB::table('museum_metadata')->where('object_id', $resource->id)->first();
-                if ($mm) {
-                    $museumData = (array) $mm;
-                }
+                $museumData = \AhgMuseum\Services\MuseumService::fetchTranslated((int) $resource->id, app()->getLocale());
             }
 
             // GRAP data

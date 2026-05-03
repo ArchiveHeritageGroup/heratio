@@ -116,7 +116,7 @@
       @if($item->name !== 'addInformationObject')
         <li>
           <a class="dropdown-item" href="{{ MenuService::resolvePath($item->path) }}">
-            <i class="{{ $iconMap[$item->name] ?? 'fas fa-plus' }} me-2"></i>{{ $item->label }}
+            <i class="{{ $iconMap[$item->name] ?? 'fas fa-plus' }} me-2"></i>{{ ($item->label ? __($item->label) : $item->name) }}
           </a>
         </li>
       @endif
@@ -143,7 +143,7 @@
       @endif
       <li>
         <a class="dropdown-item" href="{{ MenuService::resolvePath($item->path) }}">
-          <i class="{{ $iconMap[$item->name] ?? 'fas fa-list' }} me-2"></i>{{ $item->label }}
+          <i class="{{ $iconMap[$item->name] ?? 'fas fa-list' }} me-2"></i>{{ ($item->label ? __($item->label) : $item->name) }}
         </a>
       </li>
     @endforeach
@@ -173,7 +173,7 @@
     @foreach($importItems as $item)
       <li>
         <a class="dropdown-item" href="{{ MenuService::resolvePath($item->path) }}">
-          <i class="{{ $iconMap[$item->name] ?? 'fas fa-download' }} me-2"></i>{{ $item->label }}
+          <i class="{{ $iconMap[$item->name] ?? 'fas fa-download' }} me-2"></i>{{ ($item->label ? __($item->label) : $item->name) }}
         </a>
       </li>
     @endforeach
@@ -196,7 +196,7 @@
     @foreach($adminItems as $item)
       <li>
         <a class="dropdown-item" href="{{ MenuService::resolvePath($item->path) }}">
-          <i class="{{ $iconMap[$item->name] ?? 'fas fa-cog' }} me-2"></i>{{ $item->label }}
+          <i class="{{ $iconMap[$item->name] ?? 'fas fa-cog' }} me-2"></i>{{ ($item->label ? __($item->label) : $item->name) }}
         </a>
       </li>
     @endforeach

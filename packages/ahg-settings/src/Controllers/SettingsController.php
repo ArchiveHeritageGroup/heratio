@@ -407,11 +407,33 @@ class SettingsController extends Controller
         if (!in_array($culture, $cultures, true)) $culture = 'en';
 
         if ($request->isMethod('post')) {
+            // Look up the en value for each setting so we can mirror writes
+            // to lang/{culture}.json — keeps /admin/translation/strings in sync
+            // with /admin/settings/interface-labels (issue #57 part A).
+            $ids = array_keys($request->input('settings', []));
+            $enValues = empty($ids) ? collect() : DB::table('setting as s')
+                ->leftJoin('setting_i18n as si_en', function ($j) {
+                    $j->on('s.id', '=', 'si_en.id')->where('si_en.culture', '=', 'en');
+                })
+                ->whereIn('s.id', array_map('intval', $ids))
+                ->pluck('si_en.value', 's.id');
+            $uiSvc = app(\AhgTranslation\Services\UiStringService::class);
             foreach ($request->input('settings', []) as $id => $value) {
                 DB::table('setting_i18n')->updateOrInsert(
                     ['id' => (int) $id, 'culture' => $culture],
                     ['value' => (string) $value]
                 );
+                // Mirror into lang/{culture}.json. Skip if no en source value
+                // (no key to use) or if culture is en (lang/en.json is the
+                // canonical key store, not the value store).
+                $enKey = $enValues[$id] ?? null;
+                if ($enKey !== null && $enKey !== '' && $culture !== 'en') {
+                    try {
+                        $uiSvc->setKey($culture, (string) strtr($enKey, ['&nbsp;' => ' ']), (string) $value);
+                    } catch (\Throwable $e) {
+                        // best-effort mirror — never block the primary save
+                    }
+                }
             }
             // Bust SettingHelper's static cache + the booted-config snapshot
             // so the new label is visible on the next request.

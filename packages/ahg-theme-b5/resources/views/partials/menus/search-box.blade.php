@@ -28,13 +28,13 @@
             checked
             value>
           <label class="form-check-label" for="search-realm-global">
-            Global search
+            {{ __('Global search') }}
           </label>
         </div>
       </div>
       <div class="dropdown-divider"></div>
       <a class="dropdown-item" href="{{ route('search.advanced') }}">
-        Advanced search
+        {{ __('Advanced search') }}
       </a>
       <div class="dropdown-divider"></div>
       <a class="dropdown-item" href="#" id="semantic-search-dropdown-link" onclick="event.preventDefault(); var btn = document.getElementById('openSemanticSearchBtn'); if (btn) { btn.click(); } else if (typeof openSemanticModal === 'function') { openSemanticModal(); }">
@@ -52,7 +52,7 @@
             value="1"
             {{ request('semantic') == '1' ? 'checked' : '' }}>
           <label class="form-check-label" for="semantic-search-toggle">
-            Expand search with synonyms
+            {{ __('Expand search with synonyms') }}
           </label>
         </div>
       </div>

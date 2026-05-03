@@ -16,7 +16,10 @@
       <div class="list-group list-group-flush">
         @foreach($browseMenu->getChildren() as $item)
           <a class="list-group-item list-group-item-action" href="{{ $item->getPath(['getUrl' => true, 'resolveAlias' => true]) }}">
-            {{ e($item->getLabel(['cultureFallback' => true])) }}
+            {{-- en label through __() so lang/{locale}.json + setting_i18n
+                 overrides apply, instead of inserting per-locale menu_i18n. --}}
+            @php $lbl = $item->getLabel(['cultureFallback' => true]); @endphp
+            {{ $lbl ? __($lbl) : $item->name }}
           </a>
         @endforeach
       </div>

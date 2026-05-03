@@ -365,12 +365,12 @@ class DisplayController extends Controller
             case 'startdate':
                 $query->leftJoin('event as evt_sort', 'io.id', '=', 'evt_sort.object_id');
                 $query->orderByRaw("MIN(evt_sort.start_date) $safeSortDir");
-                $query->groupBy('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'level.name', 'doc.object_type', 'slug.slug');
+                $query->groupBy('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'i18n_fb.title', 'i18n_fb.scope_and_content', 'level.name', 'level_fb.name', 'doc.object_type', 'slug.slug');
                 break;
             case 'enddate':
                 $query->leftJoin('event as evt_sort', 'io.id', '=', 'evt_sort.object_id');
                 $query->orderByRaw("MAX(evt_sort.end_date) $safeSortDir");
-                $query->groupBy('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'level.name', 'doc.object_type', 'slug.slug');
+                $query->groupBy('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'i18n_fb.title', 'i18n_fb.scope_and_content', 'level.name', 'level_fb.name', 'doc.object_type', 'slug.slug');
                 break;
             default:
                 $query->orderBy('i18n.title', $safeSortDir);
@@ -579,12 +579,12 @@ class DisplayController extends Controller
             case 'startdate':
                 $query->leftJoin('event as evt_sort', 'io.id', '=', 'evt_sort.object_id');
                 $query->orderByRaw("MIN(evt_sort.start_date) $safeSortDir");
-                $query->groupBy('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'level.name', 'doc.object_type', 'slug.slug');
+                $query->groupBy('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'i18n_fb.title', 'i18n_fb.scope_and_content', 'level.name', 'level_fb.name', 'doc.object_type', 'slug.slug');
                 break;
             case 'enddate':
                 $query->leftJoin('event as evt_sort', 'io.id', '=', 'evt_sort.object_id');
                 $query->orderByRaw("MAX(evt_sort.end_date) $safeSortDir");
-                $query->groupBy('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'level.name', 'doc.object_type', 'slug.slug');
+                $query->groupBy('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'i18n_fb.title', 'i18n_fb.scope_and_content', 'level.name', 'level_fb.name', 'doc.object_type', 'slug.slug');
                 break;
             default:
                 $query->orderBy('i18n.title', $safeSortDir);

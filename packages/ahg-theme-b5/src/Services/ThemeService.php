@@ -44,7 +44,10 @@ class ThemeService
     public function getLayoutData(): array
     {
         $user = Auth::user();
-        $culture = 'en';
+        // Use the request's resolved locale so menus flip per culture. Was
+        // hard-coded to 'en' which kept the BROWSE / mainMenu / quickLinks in
+        // English regardless of the user's language pick.
+        $culture = (string) app()->getLocale();
         $enabledPlugins = MenuService::getEnabledPlugins();
 
         return [

@@ -126,6 +126,20 @@ class GalleryService
             ])
             ->first();
 
+        // Overlay culture-aware CCO field values from museum_metadata_i18n.
+        // The base SELECT pulls source-culture (parent) values; this overrides
+        // each translatable field with COALESCE(current, en, parent).
+        if ($artwork && isset($artwork->metadata_id)) {
+            $translated = \AhgMuseum\Services\MuseumService::fetchTranslated((int) $artwork->id, $culture);
+            if (!empty($translated)) {
+                foreach (\AhgMuseum\Services\MuseumService::MM_TRANSLATABLE_FIELDS as $f) {
+                    if (array_key_exists($f, $translated) && property_exists($artwork, $f)) {
+                        $artwork->{$f} = $translated[$f];
+                    }
+                }
+            }
+        }
+
         return $artwork;
     }
 

@@ -67,7 +67,7 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::get('/summarize/{id}', [AiController::class, 'summarizeObject'])->name('admin.ai.summarize.object')->whereNumber('id');
 
     // ─── LLM Description Suggestion ────────────────────────────────
-    Route::get('/suggest/{id}', [AiController::class, 'suggest'])->name('admin.ai.suggest')->whereNumber('id');
+    Route::get('/suggest/{id}', [AiController::class, 'suggest'])->name('admin.ai.suggest.object-form')->whereNumber('id');
     Route::get('/suggest/{id}/preview', [AiController::class, 'suggestPreview'])->name('admin.ai.suggest.preview')->whereNumber('id');
     Route::get('/suggest/{id}/view', [AiController::class, 'suggestView'])->name('admin.ai.suggest.view')->whereNumber('id');
     Route::post('/suggest/{id}/decision', [AiController::class, 'suggestDecision'])->name('admin.ai.suggest.decision')->whereNumber('id');

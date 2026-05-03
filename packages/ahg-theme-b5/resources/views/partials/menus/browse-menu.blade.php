@@ -11,7 +11,9 @@
     @foreach($browseItems as $item)
       <li id="node_{{ $item->name }}">
         <a class="dropdown-item" href="{{ \AhgCore\Services\MenuService::resolvePath($item->path) }}">
-          {{ $item->label }}
+          {{-- Run the en label through __() so it picks up lang/{locale}.json
+               and the setting_i18n hydrator (no duplicate menu_i18n rows). --}}
+          {{ $item->label ? __($item->label) : $item->name }}
         </a>
       </li>
     @endforeach

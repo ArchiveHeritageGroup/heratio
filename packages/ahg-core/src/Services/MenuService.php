@@ -53,24 +53,31 @@ class MenuService
         }
 
         try {
-            $rows = DB::table('menu')
-                ->leftJoin('menu_i18n', function ($join) use ($culture) {
-                    $join->on('menu.id', '=', 'menu_i18n.id')
-                        ->where('menu_i18n.culture', '=', $culture);
+            // Two-join culture fallback: requested culture wins, then 'en' fills
+            // gaps. Prevents blank labels (e.g. BROWSE > Archival descriptions)
+            // when the requested culture has no menu_i18n row yet. Same pattern
+            // as WithCultureFallback used elsewhere in the codebase.
+            $fallback = (string) config('app.fallback_locale', 'en');
+            $query = DB::table('menu')
+                ->leftJoin('menu_i18n as mi_cur', function ($j) use ($culture) {
+                    $j->on('menu.id', '=', 'mi_cur.id')->where('mi_cur.culture', '=', $culture);
                 })
-                ->orderBy('menu.lft')
-                ->select([
-                    'menu.id',
-                    'menu.parent_id',
-                    'menu.name',
-                    'menu.path',
-                    'menu.lft',
-                    'menu.rgt',
-                    'menu_i18n.label',
-                    'menu_i18n.description',
-                ])
-                ->get()
-                ->toArray();
+                ->orderBy('menu.lft');
+            if ($culture !== $fallback) {
+                $query->leftJoin('menu_i18n as mi_fb', function ($j) use ($fallback) {
+                    $j->on('menu.id', '=', 'mi_fb.id')->where('mi_fb.culture', '=', $fallback);
+                })->select([
+                    'menu.id', 'menu.parent_id', 'menu.name', 'menu.path', 'menu.lft', 'menu.rgt',
+                    DB::raw("COALESCE(NULLIF(mi_cur.label, ''), mi_fb.label) AS label"),
+                    DB::raw("COALESCE(NULLIF(mi_cur.description, ''), mi_fb.description) AS description"),
+                ]);
+            } else {
+                $query->select([
+                    'menu.id', 'menu.parent_id', 'menu.name', 'menu.path', 'menu.lft', 'menu.rgt',
+                    'mi_cur.label', 'mi_cur.description',
+                ]);
+            }
+            $rows = $query->get()->toArray();
         } catch (\Exception $e) {
             return [];
         }
