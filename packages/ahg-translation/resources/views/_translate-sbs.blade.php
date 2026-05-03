@@ -90,6 +90,10 @@
     // Cart / marketplace
     'Add to cart', 'Remove from cart', 'Place bid', 'Make offer',
     'Add to favourites', 'Remove from favourites', 'My Favourites', 'Cart',
+    // Clipboard
+    'Add to clipboard', 'Remove from clipboard', 'Clipboard',
+    // RiC sidebar block (header + items)
+    'RiC', 'Graph Explorer', 'JSON-LD Export', 'Timeline',
     // Top nav / global menu
     'Search', 'Browse', 'Login', 'Logout', 'Sign in', 'Sign out',
     'My Profile', 'Change Password', 'My Plugins', 'My Tasks',
@@ -195,20 +199,6 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-
-        {{-- Mirror the show-page action bar so the translator can edit / add /
-             duplicate / move / clipboard / print without closing the modal.
-             Only renders for IO context (the partial lives in the IO package
-             and reads $io); other entities that include this modal will skip
-             this section gracefully. --}}
-        @if(isset($io) && \Illuminate\Support\Facades\View::exists('ahg-information-object-manage::_actions-bar'))
-          <div class="border rounded p-2 mb-3 bg-light">
-            <div class="small text-muted fw-semibold mb-1">
-              <i class="fas fa-tools me-1"></i>{{ __('Record actions') }}
-            </div>
-            @include('ahg-information-object-manage::_actions-bar')
-          </div>
-        @endif
 
         <div class="row g-2 align-items-end mb-3">
           <div class="col-md-4">
