@@ -105,6 +105,7 @@
     // Image viewer toolbar (IO/DAM/Library digital-object viewer)
     'Deep Zoom', 'Mirador', 'Image',
     'OpenSeadragon Deep Zoom', 'Mirador IIIF Viewer', 'Simple image',
+    'Merge to PDF',
     // Top nav / global menu
     'Search', 'Browse', 'Login', 'Logout', 'Sign in', 'Sign out',
     'My Profile', 'Change Password', 'My Plugins', 'My Tasks',
