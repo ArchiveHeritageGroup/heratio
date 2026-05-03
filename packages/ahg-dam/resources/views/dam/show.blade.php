@@ -94,6 +94,8 @@
 
   @auth
 
+    {{-- Actions moved to bottom bar in @section('after-content') (matches IO show page). --}}
+
     {{-- Collections Management --}}
     @if(class_exists(\AhgInformationObjectManage\Controllers\ProvenanceController::class))
     <div class="card mb-3">
@@ -241,13 +243,15 @@
       </div>
     </div>
 
-    {{-- Side-by-side per-field translator --}}
+    {{-- Side-by-side per-field translator (labels) + dedicated CCO values modal --}}
     @if(view()->exists('ahg-translation::_translate-sbs') && \AhgCore\Services\AclService::check($asset, 'translate'))
       @include('ahg-translation::_translate-sbs', ['objectId' => $asset->id])
+      @include('ahg-translation::_translate-cco-values', ['objectId' => $asset->id])
     @endif
 
-    {{-- Marketplace (Buy/Sell, gated on marketplace_enabled setting) --}}
-    @includeIf('marketplace::partials._add-to-marketplace', ['ioId' => $asset->id])
+    {{-- Marketplace card removed from left sidebar per user request 2026-05-03.
+         Marketplace functionality remains available via the cart / marketplace
+         pages. To restore: copy the Gallery Marketplace card block. --}}
 
     {{-- Research Tools --}}
     @if(class_exists(\AhgInformationObjectManage\Controllers\ResearchController::class))
@@ -274,35 +278,42 @@
 
   @endauth
 
-  {{-- Access points (subject / name / place) — sidebar mode --}}
-  @include('ahg-core::_subject-access-points', ['resource' => $asset, 'sidebar' => true])
-  @include('ahg-core::_place-access-points', ['resource' => $asset, 'sidebar' => true])
-  @include('ahg-core::_name-access-points', ['resource' => $asset, 'sidebar' => true])
+  {{-- Access points (subject / place / name) moved to @section('right') per user
+       request 2026-05-03. Group with Related-* cards on the right. --}}
 
 @endsection
 
 @section('right')
-  @include('ahg-core::components.digital-object', ['digitalObjects' => $digitalObjects])
-
-  <div class="d-flex gap-1 mb-3">
-    <button class="btn btn-sm atom-btn-white" onclick="window.print()" title="{{ __('Print') }}">
-      <i class="fas fa-print"></i>
-    </button>
-  </div>
+  {{-- Digital-object viewer relocated to top of @section('content') per user request 2026-05-03. --}}
+  {{-- Top-right Print button removed; Print is in the bottom Actions bar (after-content). --}}
 
   @include('ahg-io-manage::partials._right-blocks', [
     'record'           => $asset,
     'slug'             => $asset->slug,
     'type'             => 'informationObject',
-    'skipExport'       => true,
+    'skipExport'       => false,
     'skipActiveLoans'  => true,
   ])
 
-  @include('ahg-core::partials._record-sidebar-extras', ['objectId' => $asset->id, 'slug' => $asset->slug, 'title' => $asset->title, 'hideNer' => true, 'hideRights' => true])
+  @include('ahg-core::partials._record-sidebar-extras', ['objectId' => $asset->id, 'slug' => $asset->slug, 'title' => $asset->title, 'hideNer' => true, 'hideRights' => true, 'hideProvenance' => true, 'hideExport' => true])
+
+  {{-- Place / Subject / Name access points — moved to bottom of right block per user request 2026-05-03 --}}
+  @include('ahg-core::_place-access-points', ['resource' => $asset, 'sidebar' => true])
+  @include('ahg-core::_subject-access-points', ['resource' => $asset, 'sidebar' => true])
+  @include('ahg-core::_name-access-points', ['resource' => $asset, 'sidebar' => true])
+
+  {{-- RiC Context panel relocated to @section('content') (sits just above the Actions bar). --}}
 
 @endsection
 
 @section('content')
+
+  {{-- Full IIIF / Mirador / OpenSeadragon viewer — same partial that the IO
+       show page uses. Auto-detects TIFF/JP2 (Cantaloupe IIIF), IIIF manifests
+       (Mirador), audio/video, PDF, and plain raster. Partial expects $io —
+       pass $asset under that name since DAM/Gallery/IO all share the IO row
+       shape underneath. --}}
+  @include('ahg-information-object-manage::partials._digital-object-viewer', ['io' => $asset, 'digitalObjects' => $digitalObjects])
 
   @include('ahg-ric::_view-switch', ['standard' => 'Dublin Core'])
   @if(session('ric_view_mode') === 'ric')
@@ -554,46 +565,8 @@
     @endif
   </section>
 
-  {{-- Actions bar --}}
-  @auth
-    <ul class="actions mb-3 nav gap-2">
-      <li>
-        <a class="btn atom-btn-outline-light" href="{{ route('dam.edit', $asset->slug) }}">
-          <i class="fas fa-pencil-alt me-1"></i>{{ __('Edit') }}
-        </a>
-      </li>
-      <li>
-        <form method="POST" action="{{ route('dam.destroy', $asset->slug) }}" class="d-inline"
-              onsubmit="return confirm('Are you sure you want to delete this DAM asset?');">
-          @csrf
-          <button type="submit" class="btn atom-btn-outline-light">
-            <i class="fas fa-trash me-1"></i>{{ __('Delete') }}
-          </button>
-        </form>
-      </li>
-      <li>
-        <a class="btn atom-btn-outline-success" href="{{ route('dam.create') }}">
-          <i class="fas fa-plus me-1"></i>{{ __('Add new') }}
-        </a>
-      </li>
-      <li>
-        @if(isset($digitalObjects) && ($digitalObjects['master'] ?? null))
-          <a class="btn atom-btn-outline-light" href="{{ route('io.digitalobject.show', $digitalObjects['master']->id) }}">
-            <i class="fas fa-photo-video me-1"></i>{{ __('Edit digital object') }}
-          </a>
-        @else
-          <a class="btn atom-btn-outline-light" href="{{ route('io.digitalobject.add', $asset->slug) }}">
-            <i class="fas fa-link me-1"></i>{{ __('Link digital object') }}
-          </a>
-        @endif
-      </li>
-      <li>
-        <a class="btn atom-btn-outline-light" href="{{ route('ahgmarketplace.seller-listing-create', ['io' => $asset->id]) }}">
-          <i class="fas fa-store me-1"></i>{{ __('Add to marketplace') }}
-        </a>
-      </li>
-    </ul>
-  @endauth
+  {{-- RiC Context panel — sits just above the bottom Actions bar (which lives
+       in @section('after-content')). Per user request 2026-05-03. --}}
   @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
     @include('ahg-ric::_ric-entities-panel', ['record' => $asset, 'recordType' => 'instantiation'])
   @endif
@@ -601,5 +574,138 @@
 @endsection
 
 @section('after-content')
+  @auth
+  @php
+    $canUpdate = \AhgCore\Services\AclService::check($asset, 'update');
+    $canDelete = \AhgCore\Services\AclService::check($asset, 'delete');
+    $canCreate = \AhgCore\Services\AclService::check($asset, 'create');
+    $canTranslate = \AhgCore\Services\AclService::check($asset, 'translate');
+    $hasMm = \Illuminate\Support\Facades\Schema::hasTable('museum_metadata')
+      && \Illuminate\Support\Facades\DB::table('museum_metadata')->where('object_id', $asset->id)->exists();
+    $hasChildren = \Illuminate\Support\Facades\DB::table('information_object')
+      ->where('parent_id', $asset->id)->exists();
+    $auditLogEnabled = \AhgCore\Services\SettingHelper::isAuditLogEnabled();
+  @endphp
+  <ul class="actions mb-3 nav gap-2">
+    @if($canUpdate)
+    <li>
+      <a href="{{ route('dam.edit', $asset->slug) }}" class="btn atom-btn-outline-light">{{ __('Edit') }}</a>
+    </li>
+    @endif
+    @if($canDelete)
+    <li>
+      <form action="{{ route('dam.destroy', $asset->slug) }}" method="POST"
+            onsubmit="return confirm('{{ __('Are you sure you want to delete this asset?') }}');">
+        @csrf
+        <button type="submit" class="btn atom-btn-outline-danger">{{ __('Delete') }}</button>
+      </form>
+    </li>
+    @endif
+    @if($canCreate)
+    <li>
+      <a href="{{ route('dam.create') }}" class="btn atom-btn-outline-light">{{ __('Add new') }}</a>
+    </li>
+    <li>
+      <a href="{{ route('informationobject.create', ['parent_id' => $asset->id, 'copy_from' => $asset->id]) }}" class="btn atom-btn-outline-light">{{ __('Duplicate') }}</a>
+    </li>
+    @endif
+    @if($canUpdate)
+    <li>
+      <a href="{{ url('/' . $asset->slug . '/default/move') }}" class="btn atom-btn-outline-light">{{ __('Move') }}</a>
+    </li>
+    <li>
+      <div class="dropup">
+        <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          {{ __('More') }}
+        </button>
+        <ul class="dropdown-menu mb-2">
+          <li>
+            <a class="dropdown-item" href="{{ route('informationobject.rename', $asset->slug) }}">
+              <i class="fas fa-i-cursor me-2"></i>{{ __('Rename') }}
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item" href="{{ route('informationobject.edit', ['slug' => $asset->slug, 'storage' => 1]) }}">
+              <i class="fas fa-box me-2"></i>{{ __('Link physical storage') }}
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          @if(isset($digitalObjects) && ($digitalObjects['master'] ?? null))
+            <li>
+              <a class="dropdown-item" href="{{ route('io.digitalobject.show', $digitalObjects['master']->id) }}">
+                <i class="fas fa-photo-video me-2"></i>{{ __('Edit digital object') }}
+              </a>
+            </li>
+            @if($canDelete)
+              <li>
+                <a class="dropdown-item text-danger" href="{{ url('/' . $asset->slug . '/digitalobject/delete') }}">
+                  <i class="fas fa-times-circle me-2"></i>{{ __('Delete digital object') }}
+                </a>
+              </li>
+            @endif
+          @else
+            <li>
+              <a class="dropdown-item" href="{{ route('io.digitalobject.add', $asset->slug) }}">
+                <i class="fas fa-link me-2"></i>{{ __('Link digital object') }}
+              </a>
+            </li>
+          @endif
+          <li>
+            <a class="dropdown-item" href="{{ route('io.multiFileUpload', $asset->slug) }}">
+              <i class="fas fa-file-import me-2"></i>{{ __('Import digital objects') }}
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ url('/' . $asset->slug . '/right/edit') }}">
+              <i class="fas fa-balance-scale me-2"></i>{{ __('Create new rights') }}
+            </a>
+          </li>
+          @if($hasChildren)
+            <li>
+              <a class="dropdown-item" href="{{ url('/' . $asset->slug . '/right/manage') }}">
+                <i class="fas fa-sitemap me-2"></i>{{ __('Manage rights inheritance') }}
+              </a>
+            </li>
+          @endif
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item" href="{{ route('io.showUpdateStatus', $asset->slug) }}">
+              <i class="fas fa-eye me-2"></i>{{ __('Update publication status') }}
+            </a>
+          </li>
+          @if($auditLogEnabled)
+          <li>
+            <a class="dropdown-item" href="{{ route('audit.browse', ['type' => 'QubitInformationObject', 'id' => $asset->id]) }}">
+              <i class="fas fa-history me-2"></i>{{ __('Modification history') }}
+            </a>
+          </li>
+          @endif
+          @if($canTranslate && \Illuminate\Support\Facades\Route::has('ahgtranslation.translate'))
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateSbsModal-{{ $asset->id }}">
+                <i class="fas fa-language me-2"></i>{{ __('Translate (labels — side-by-side)') }}
+              </a>
+            </li>
+            @if($hasMm)
+              <li>
+                <a class="dropdown-item text-warning" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateCcoValuesModal-{{ $asset->id }}">
+                  <i class="fas fa-landmark me-2"></i>{{ __('Translate field data values (CCO)') }}
+                </a>
+              </li>
+            @endif
+          @endif
+        </ul>
+      </div>
+    </li>
+    @endif
+    <li>
+      <a href="{{ route('informationobject.print', $asset->slug) }}" class="btn atom-btn-outline-light" target="_blank">
+        <i class="fas fa-print me-1"></i>{{ __('Print') }}
+      </a>
+    </li>
+  </ul>
+  @endauth
   @include('ahg-core::partials._ner-modal', ['objectId' => $asset->id, 'objectTitle' => $asset->title])
 @endsection

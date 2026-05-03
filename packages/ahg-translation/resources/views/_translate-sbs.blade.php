@@ -79,6 +79,14 @@
     'Filter', 'Sort', 'Print', 'Export', 'Import', 'Translate',
     'Approve', 'Reject', 'Show', 'Hide', 'View', 'Download',
     'Upload', 'Confirm', 'Duplicate', 'Move', 'Rename', 'Refresh',
+    // Edit-form action buttons (shown across IO/actor/repository edit pages)
+    'Add', 'Add alternative identifier', 'Add child level', 'Add date',
+    'Add language', 'Add note', 'Add publication note', 'Add script',
+    'Generate', 'Remove',
+    // Form badges and status
+    'Optional', 'Required', 'Recommended', 'Draft', 'Published',
+    'Start', 'End', 'Date', 'Type', 'Value', 'Label', 'Title', 'Identifier', 'Level',
+    'This is a mandatory element.',
     // Cart / marketplace
     'Add to cart', 'Remove from cart', 'Place bid', 'Make offer',
     'Add to favourites', 'Remove from favourites', 'My Favourites', 'Cart',
@@ -102,6 +110,12 @@
   // Defined below in $museumGroups; flattened here for the labels pre-load.
   // Mirror of the museumGroups arrays — kept in sync manually.
   $ccoLabelStrings = [
+    // Section / group headers (rendered as card headers on the show view)
+    'CCO / Museum metadata',
+    'Object / Work', 'Creator', 'Dates', 'Dates (display only)', 'Materials & technique', 'Measurements',
+    'Style / Period / Context', 'Subject', 'Condition & treatment', 'Inscriptions & marks',
+    'Edition / State', 'Location / Geography', 'Related works', 'Provenance & rights', 'Cataloguing',
+    // Field labels
     'Work type', 'Object type', 'Classification', 'Object class', 'Object category', 'Object sub-category', 'Record type', 'Record level',
     'Creator', 'Role', 'Extent', 'Qualifier', 'Attribution',
     'Date display', 'Date qualifier',
@@ -272,6 +286,19 @@
                   </tr>
                 </thead>
                 <tbody>
+                  {{-- Group HEADER itself as an editable row (so admins can translate the section title too). --}}
+                  <tr class="sbs-lbl-row table-info" data-object-id="{{ $objectId }}" data-source-label="{{ $groupTitle }}">
+                    <td><code class="small">group_header</code></td>
+                    <td><div class="small fw-bold">{{ $groupTitle }}</div></td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm sbs-lbl-tgt">
+                      <div class="sbs-lbl-status small mt-1" style="min-height:1em;"></div>
+                    </td>
+                    <td class="text-end">
+                      <button type="button" class="btn btn-sm btn-outline-primary mb-1 sbs-lbl-mt-btn w-100" title="{{ __('AI suggest') }}"><i class="fas fa-magic"></i></button>
+                      <button type="button" class="btn btn-sm btn-success sbs-lbl-save-btn w-100" title="{{ __('Save label') }}"><i class="fas fa-save"></i></button>
+                    </td>
+                  </tr>
                   @foreach($groupFields as $fieldKey => $fieldLabel)
                     <tr class="sbs-lbl-row" data-object-id="{{ $objectId }}" data-source-label="{{ $fieldLabel }}">
                       <td><code class="small">{{ $fieldKey }}</code></td>
@@ -372,56 +399,10 @@
           </table>
         </div>
 
-        @if($museumRowId)
-        <div id="sbs-section-museum-{{ $objectId }}"></div>
-        {{-- ── CCO / Museum metadata field VALUES (per-record content, saved into museum_metadata_i18n) ── --}}
-        <div class="alert alert-danger small mt-4 mb-2 py-2">
-          <strong><i class="fas fa-exclamation-triangle me-1"></i>{{ __('STOP — this section is for per-record content, NOT field labels.') }}</strong><br>
-          {{ __('Use this only when you want to translate THIS record\'s actual content (e.g. the value "Painting (digital reproduction)" → "Skildery (digitale reproduksie)"). To translate the label "Edition description" → "Uitgawe beskrywing" use the CCO field LABELS section above. Each row\'s "Source" column shows the value currently on this record — if it shows the field name back at you, you\'re probably in the wrong section.') }}
-        </div>
-        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-          <h6 class="text-uppercase small fw-bold text-danger mb-0"><i class="fas fa-landmark me-1"></i>{{ __('CCO / Museum field VALUES') }} <span class="text-danger">({{ __("this record's content — saved into museum_metadata_i18n") }})</span></h6>
-          <div class="form-check form-switch mb-0">
-            <input class="form-check-input sbs-mm-filter-empty" type="checkbox" id="sbs-mm-filter-empty-{{ $objectId }}" data-object-id="{{ $objectId }}">
-            <label class="form-check-label small" for="sbs-mm-filter-empty-{{ $objectId }}">
-              <i class="fas fa-filter me-1"></i>{{ __('Only show empty target fields') }}
-            </label>
-          </div>
-        </div>
-        @foreach($museumGroups as $groupTitle => $groupFields)
-          <div class="card mb-2 border-secondary-subtle">
-            <div class="card-header py-1 small fw-semibold" style="background:#f5f5f5">{{ __($groupTitle) }}</div>
-            <div class="card-body p-0">
-              <table class="table table-sm table-bordered align-top mb-0">
-                <thead class="table-light">
-                  <tr>
-                    <th style="width:18%;">{{ __('Field') }}</th>
-                    <th style="width:38%;"><span class="badge bg-light text-dark sbs-src-label" data-object-id="{{ $objectId }}">{{ $defaultSource }}</span> {{ __('Source') }}</th>
-                    <th style="width:38%;"><span class="badge bg-light text-dark sbs-tgt-label" data-object-id="{{ $objectId }}">{{ $defaultTarget }}</span> {{ __('Target — edit here') }}</th>
-                    <th style="width:6%;"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @foreach($groupFields as $fieldKey => $fieldLabel)
-                    <tr class="sbs-mm-row" data-object-id="{{ $objectId }}" data-field="{{ $fieldKey }}">
-                      <td><span class="small fw-semibold">{{ __($fieldLabel) }}</span><br><code class="small text-muted">{{ $fieldKey }}</code></td>
-                      <td><div class="sbs-mm-src small text-muted" style="white-space:pre-wrap;"></div></td>
-                      <td>
-                        <textarea class="form-control form-control-sm sbs-mm-tgt" rows="2"></textarea>
-                        <div class="sbs-mm-status small mt-1" style="min-height:1em;"></div>
-                      </td>
-                      <td class="text-end">
-                        <button type="button" class="btn btn-sm btn-outline-primary mb-1 sbs-mm-mt-btn w-100" title="{{ __('AI suggest from source') }}"><i class="fas fa-magic"></i></button>
-                        <button type="button" class="btn btn-sm btn-success sbs-mm-save-btn w-100" title="{{ __('Save row') }}"><i class="fas fa-save"></i></button>
-                      </td>
-                    </tr>
-                  @endforeach
-                </tbody>
-              </table>
-            </div>
-          </div>
-        @endforeach
-        @endif
+        {{-- CCO field VALUES section moved to its own modal (_translate-cco-values.blade.php).
+             Triggered separately from the More menu → "Translate field data values".
+             Keeps this modal LABELS-only so admins can't accidentally type label
+             text into a value cell. --}}
 
       </div>
       <div class="modal-footer flex-wrap gap-2">
@@ -451,13 +432,7 @@
   window.__sbsLabels = window.__sbsLabels || {};
   window.__sbsLabels[{{ $objectId }}] = @json($labelTranslations);
 
-  // Pre-loaded museum_metadata_i18n rows + the parent (en cache) row, keyed
-  // by culture. Allows the CCO section to switch source/target without
-  // round-tripping. Empty for IOs without a museum_metadata row.
-  window.__sbsMuseum = window.__sbsMuseum || {};
-  window.__sbsMuseum[{{ $objectId }}] = @json($museumByCulture);
-  window.__sbsMuseumRowId = window.__sbsMuseumRowId || {};
-  window.__sbsMuseumRowId[{{ $objectId }}] = {!! (int) ($museumRowId ?? 0) !!};
+  {{-- CCO values preload moved to _translate-cco-values.blade.php (own modal). --}}
 
   function applySource(objectId) {
     var src = document.querySelector('.sbs-source[data-object-id="' + objectId + '"]').value;
@@ -467,14 +442,6 @@
       var field = row.getAttribute('data-field');
       var srcEl = row.querySelector('.sbs-src');
       srcEl.textContent = (data[field] || '').toString();
-    });
-    // CCO/Museum source values — fall back to en when the chosen source
-    // culture has no museum_metadata_i18n row.
-    var mmAll = window.__sbsMuseum[objectId] || {};
-    var mm = mmAll[src] || mmAll['en'] || {};
-    document.querySelectorAll('.sbs-mm-row[data-object-id="' + objectId + '"]').forEach(function (row) {
-      var field = row.getAttribute('data-field');
-      row.querySelector('.sbs-mm-src').textContent = (mm[field] || '').toString();
     });
   }
 
@@ -486,12 +453,6 @@
     document.querySelectorAll('.sbs-row[data-object-id="' + objectId + '"]').forEach(function (row) {
       var field = row.getAttribute('data-field');
       row.querySelector('.sbs-tgt').value = (data[field] || '').toString();
-    });
-    // CCO/Museum target values
-    var mm = (window.__sbsMuseum[objectId] || {})[tgt] || {};
-    document.querySelectorAll('.sbs-mm-row[data-object-id="' + objectId + '"]').forEach(function (row) {
-      var field = row.getAttribute('data-field');
-      row.querySelector('.sbs-mm-tgt').value = (mm[field] || '').toString();
     });
   }
 
@@ -669,90 +630,7 @@
       });
     });
 
-    // ─── CCO/Museum metadata rows (saved into museum_metadata_i18n via
-    // route('ahgtranslation.save') with class_name=QubitMuseumMetadata) ───
-    function applyMmEmptyFilter() {
-      var on = (modal.querySelector('.sbs-mm-filter-empty[data-object-id="' + objectId + '"]') || {}).checked;
-      modal.querySelectorAll('.sbs-mm-row[data-object-id="' + objectId + '"]').forEach(function (row) {
-        if (!on) { row.style.display = ''; return; }
-        var v = (row.querySelector('.sbs-mm-tgt') || {}).value || '';
-        row.style.display = v.trim() === '' ? '' : 'none';
-      });
-    }
-    var mmEmptyToggle = modal.querySelector('.sbs-mm-filter-empty[data-object-id="' + objectId + '"]');
-    if (mmEmptyToggle) mmEmptyToggle.addEventListener('change', applyMmEmptyFilter);
-    var prevApplyTargetForMm = applyTargetLabel;
-    applyTargetLabel = function (objId) { prevApplyTargetForMm(objId); applyMmEmptyFilter(); };
-
-    modal.querySelectorAll('.sbs-mm-save-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var row = btn.closest('.sbs-mm-row');
-        var field  = row.getAttribute('data-field');
-        var status = row.querySelector('.sbs-mm-status');
-        var value  = row.querySelector('.sbs-mm-tgt').value;
-        var target = tgtSel.value;
-        var review = (modal.querySelector('.sbs-review-toggle') || {}).checked ? '1' : '0';
-
-        btn.disabled = true; status.textContent = '...';
-        var fd = new FormData();
-        fd.append('_token', csrf);
-        fd.append('object_id',  objectId);
-        fd.append('class_name', 'QubitMuseumMetadata');
-        fd.append('culture',    target);
-        fd.append('field',      field);
-        fd.append('value',      value);
-        fd.append('confirmed',  '1');
-        fd.append('review',     review);
-        fetch(saveUrl, {
-          method: 'POST', credentials: 'same-origin',
-          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-          body: fd,
-        })
-        .then(function (r) { return r.json(); })
-        .then(function (d) {
-          if (d && d.ok) {
-            if (d.state === 'pending') {
-              status.innerHTML = '<span class="text-warning">⏱ submitted for review</span>';
-            } else {
-              status.innerHTML = '<span class="text-success">✓ approved</span>';
-              window.__sbsMuseum[objectId] = window.__sbsMuseum[objectId] || {};
-              window.__sbsMuseum[objectId][target] = window.__sbsMuseum[objectId][target] || {};
-              window.__sbsMuseum[objectId][target][field] = value;
-            }
-          } else {
-            status.innerHTML = '<span class="text-danger">✗ ' + ((d && d.error) || 'save failed') + '</span>';
-          }
-        })
-        .catch(function (e) { status.innerHTML = '<span class="text-danger">✗ ' + e.message + '</span>'; })
-        .finally(function () { btn.disabled = false; });
-      });
-    });
-
-    modal.querySelectorAll('.sbs-mm-mt-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var row = btn.closest('.sbs-mm-row');
-        var srcText = (row.querySelector('.sbs-mm-src').textContent || '').trim();
-        var status  = row.querySelector('.sbs-mm-status');
-        var tgtArea = row.querySelector('.sbs-mm-tgt');
-        var target  = tgtSel.value;
-        if (!srcText) { status.innerHTML = '<span class="text-muted">no source text</span>'; return; }
-        btn.disabled = true; status.textContent = 'fetching MT suggestion...';
-        var u = mtUrl + '?locale=' + encodeURIComponent(target) + '&text=' + encodeURIComponent(srcText);
-        fetch(u, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
-          .then(function (r) { return r.json(); })
-          .then(function (d) {
-            if (d && d.ok && d.translated) {
-              tgtArea.value = d.translated;
-              status.innerHTML = '<span class="text-info">MT suggestion — review then save</span>';
-            } else {
-              status.innerHTML = '<span class="text-danger">✗ MT failed: ' + ((d && d.error) || 'unknown') + '</span>';
-            }
-          })
-          .catch(function (e) { status.innerHTML = '<span class="text-danger">✗ MT error: ' + e.message + '</span>'; })
-          .finally(function () { btn.disabled = false; });
-      });
-    });
-    // ─── End CCO/Museum rows ───
+    {{-- CCO values handlers moved to _translate-cco-values.blade.php (own modal). --}}
 
     // Per-row AI suggest — reuses /admin/translation/strings/mt-suggest
     // (returns translated text from the Ollama backend per #45). Source text
@@ -772,7 +650,9 @@
           .then(function (r) { return r.json(); })
           .then(function (d) {
             if (d && d.ok && d.translated) {
-              tgtArea.value = d.translated;
+              // Prefix with [AI] so admins can spot machine-translated values at
+              // a glance and decide whether to confirm or edit before saving.
+              tgtArea.value = (d.translated.indexOf('[AI]') === 0 ? d.translated : '[AI] ' + d.translated);
               status.innerHTML = '<span class="text-info">MT suggestion — review then save</span>';
             } else {
               status.innerHTML = '<span class="text-danger">✗ MT failed: ' + ((d && d.error) || 'unknown') + '</span>';

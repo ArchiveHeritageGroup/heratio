@@ -80,6 +80,42 @@
     @endif
   @endauth
 
+  {{-- Export — moved here directly under Import per user request 2026-05-03 --}}
+  @unless($skipExport)
+  <div class="card mb-3">
+    <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+      <i class="fas fa-file-export me-1"></i> {{ __('Export') }}
+    </div>
+    <div class="list-group list-group-flush">
+      <a href="{{ route('informationobject.export.dc', $slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-code me-1"></i> {{ __('Dublin Core 1.1 XML') }}
+      </a>
+      <a href="{{ route('informationobject.export.ead', $slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-code me-1"></i> {{ __('EAD 2002 XML') }}
+      </a>
+      <a href="{{ route('informationobject.export.ead3', $slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-code me-1"></i> {{ __('EAD3 1.1 XML') }}
+      </a>
+      <a href="{{ route('informationobject.export.ead4', $slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-code me-1"></i> {{ __('EAD 4 XML') }}
+      </a>
+      <a href="{{ route('informationobject.export.mods', $slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-code me-1"></i> {{ __('MODS 3.5 XML') }}
+      </a>
+      <a href="{{ route('informationobject.export.rico', $slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-code me-1"></i> {{ __('RiC-O JSON-LD') }}
+      </a>
+      @auth
+        @if(\Illuminate\Support\Facades\Route::has('informationobject.export.csv'))
+          <a href="{{ route('informationobject.export.csv', $slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-file-csv me-1"></i> {{ __('Export CSV') }}
+          </a>
+        @endif
+      @endauth
+    </div>
+  </div>
+  @endunless
+
   {{-- Marketplace (auth + marketplace_enabled gate via shared partial) --}}
   @includeIf('marketplace::partials._add-to-marketplace', ['ioId' => $record->id])
 
@@ -115,41 +151,7 @@
     @endif
   @endif
 
-  {{-- Export --}}
-  @unless($skipExport)
-  <div class="card mb-3">
-    <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-      <i class="fas fa-file-export me-1"></i> {{ __('Export') }}
-    </div>
-    <div class="list-group list-group-flush">
-      <a href="{{ route('informationobject.export.dc', $slug) }}" class="list-group-item list-group-item-action small">
-        <i class="fas fa-code me-1"></i> {{ __('Dublin Core 1.1 XML') }}
-      </a>
-      <a href="{{ route('informationobject.export.ead', $slug) }}" class="list-group-item list-group-item-action small">
-        <i class="fas fa-code me-1"></i> {{ __('EAD 2002 XML') }}
-      </a>
-      <a href="{{ route('informationobject.export.ead3', $slug) }}" class="list-group-item list-group-item-action small">
-        <i class="fas fa-code me-1"></i> {{ __('EAD3 1.1 XML') }}
-      </a>
-      <a href="{{ route('informationobject.export.ead4', $slug) }}" class="list-group-item list-group-item-action small">
-        <i class="fas fa-code me-1"></i> {{ __('EAD 4 XML') }}
-      </a>
-      <a href="{{ route('informationobject.export.mods', $slug) }}" class="list-group-item list-group-item-action small">
-        <i class="fas fa-code me-1"></i> {{ __('MODS 3.5 XML') }}
-      </a>
-      <a href="{{ route('informationobject.export.rico', $slug) }}" class="list-group-item list-group-item-action small">
-        <i class="fas fa-code me-1"></i> {{ __('RiC-O JSON-LD') }}
-      </a>
-      @auth
-        @if(\Illuminate\Support\Facades\Route::has('informationobject.export.csv'))
-          <a href="{{ route('informationobject.export.csv', $slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-file-csv me-1"></i> {{ __('Export CSV') }}
-          </a>
-        @endif
-      @endauth
-    </div>
-  </div>
-  @endunless
+  {{-- Export block relocated above (under Import). --}}
 
   {{-- Finding aid --}}
   @auth

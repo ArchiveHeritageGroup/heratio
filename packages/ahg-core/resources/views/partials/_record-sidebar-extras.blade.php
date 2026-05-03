@@ -42,8 +42,10 @@
 @endif
 @endif
 
-{{-- Provenance --}}
-@if(\Illuminate\Support\Facades\Route::has('provenance.view') && $__slug)
+{{-- Provenance — suppressed when the parent show page already renders a
+     Provenance entry in the left sidebar (e.g. DAM Collections Management
+     card). Pass `hideProvenance => true` from those views. --}}
+@if(empty($hideProvenance) && \Illuminate\Support\Facades\Route::has('provenance.view') && $__slug)
 @php
   $__provRecord = \Illuminate\Support\Facades\Schema::hasTable('provenance_record')
     ? \Illuminate\Support\Facades\DB::table('provenance_record')->where('information_object_id', $__objId)->first()
@@ -129,8 +131,9 @@
 @endif
 @endauth
 
-{{-- Export --}}
-@if($__slug)
+{{-- Export — suppressed when the parent show page already renders an Export
+     card via _right-blocks. Pass `hideExport => true` from those views. --}}
+@if(empty($hideExport) && $__slug)
   <div class="card mb-3">
     <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
       <i class="fas fa-file-export me-1"></i> {{ __('Export') }}
