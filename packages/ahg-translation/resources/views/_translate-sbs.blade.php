@@ -102,6 +102,9 @@
     'Add rights', 'Edit rights',
     // AI tools block (header + items)
     'AI Tools', 'AI Translate (MT wizard)',
+    // Image viewer toolbar (IO/DAM/Library digital-object viewer)
+    'Deep Zoom', 'Mirador', 'Image',
+    'OpenSeadragon Deep Zoom', 'Mirador IIIF Viewer',
     // Top nav / global menu
     'Search', 'Browse', 'Login', 'Logout', 'Sign in', 'Sign out',
     'My Profile', 'Change Password', 'My Plugins', 'My Tasks',
