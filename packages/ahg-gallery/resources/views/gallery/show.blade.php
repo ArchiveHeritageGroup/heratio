@@ -97,15 +97,23 @@
           <a class="list-group-item list-group-item-action small" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateSbsModal-{{ $artwork->id }}">
             <i class="fas fa-columns me-1"></i>{{ __('Translate (side-by-side)') }}
           </a>
+          @if(\Illuminate\Support\Facades\Schema::hasTable('museum_metadata') && \Illuminate\Support\Facades\DB::table('museum_metadata')->where('object_id', $artwork->id)->exists())
+            <a class="list-group-item list-group-item-action small text-warning" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateCcoValuesModal-{{ $artwork->id }}">
+              <i class="fas fa-landmark me-1"></i>{{ __('Translate field data values (CCO)') }}
+            </a>
+          @endif
         @endif
         @endif
       </div>
     </div>
     @endif {{-- end $canUpdate || $canDelete management card --}}
 
-    {{-- Translate modal — side-by-side per-field translator --}}
+    {{-- Translate modal — side-by-side per-field translator + CCO values --}}
     @if(view()->exists('ahg-translation::_translate-sbs') && \AhgCore\Services\AclService::check($artwork, 'translate'))
       @include('ahg-translation::_translate-sbs', ['objectId' => $artwork->id])
+      @if(\Illuminate\Support\Facades\Schema::hasTable('museum_metadata') && \Illuminate\Support\Facades\DB::table('museum_metadata')->where('object_id', $artwork->id)->exists())
+        @include('ahg-translation::_translate-cco-values', ['objectId' => $artwork->id])
+      @endif
     @endif
 
     {{-- Marketplace (admin) --}}

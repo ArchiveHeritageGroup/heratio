@@ -239,6 +239,11 @@
           <a class="list-group-item list-group-item-action small" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateSbsModal-{{ $asset->id }}">
             <i class="fas fa-columns me-1"></i>{{ __('Translate (side-by-side)') }}
           </a>
+          @if(\Illuminate\Support\Facades\Schema::hasTable('museum_metadata') && \Illuminate\Support\Facades\DB::table('museum_metadata')->where('object_id', $asset->id)->exists())
+            <a class="list-group-item list-group-item-action small text-warning" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateCcoValuesModal-{{ $asset->id }}">
+              <i class="fas fa-landmark me-1"></i>{{ __('Translate field data values (CCO)') }}
+            </a>
+          @endif
         @endif
       </div>
     </div>

@@ -1728,15 +1728,21 @@
               && \AhgCore\Services\AclService::check($item, 'translate'))
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateSbsModal-{{ $item->id }}"><i class="fas fa-columns me-2"></i>{{ __('Translate (side-by-side)') }}</a></li>
+            @if(\Illuminate\Support\Facades\Schema::hasTable('museum_metadata') && \Illuminate\Support\Facades\DB::table('museum_metadata')->where('object_id', $item->id)->exists())
+              <li><a class="dropdown-item text-warning" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateCcoValuesModal-{{ $item->id }}"><i class="fas fa-landmark me-2"></i>{{ __('Translate field data values (CCO)') }}</a></li>
+            @endif
           @endif
         </ul>
       </div>
     </li>
   </section>
 
-  {{-- Side-by-side per-field translator --}}
+  {{-- Side-by-side per-field translator + dedicated CCO values modal --}}
   @if(view()->exists('ahg-translation::_translate-sbs') && \AhgCore\Services\AclService::check($item, 'translate'))
     @include('ahg-translation::_translate-sbs', ['objectId' => $item->id])
+    @if(\Illuminate\Support\Facades\Schema::hasTable('museum_metadata') && \Illuminate\Support\Facades\DB::table('museum_metadata')->where('object_id', $item->id)->exists())
+      @include('ahg-translation::_translate-cco-values', ['objectId' => $item->id])
+    @endif
   @endif
   @endauth
 
