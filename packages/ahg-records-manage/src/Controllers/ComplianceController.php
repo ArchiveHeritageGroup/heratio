@@ -28,9 +28,8 @@ class ComplianceController extends Controller
             'status'    => $request->query('status'),
         ];
         $rows       = $this->compliance->listAssessments($filters);
-        $frameworks = DB::table('ahg_dropdown')
-            ->where('taxonomy', 'rm_compliance_framework')->where('is_active', 1)
-            ->orderBy('sort_order')->get();
+        // Issue #59 Tier 3 - culture-aware via the COALESCE helper.
+        $frameworks = \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('rm_compliance_framework');
 
         return view('ahg-records::compliance.index', [
             'rows'       => $rows,
@@ -42,9 +41,8 @@ class ComplianceController extends Controller
     /** GET /admin/records/compliance/create */
     public function create()
     {
-        $frameworks = DB::table('ahg_dropdown')
-            ->where('taxonomy', 'rm_compliance_framework')->where('is_active', 1)
-            ->orderBy('sort_order')->get();
+        // Issue #59 Tier 3 - culture-aware via the COALESCE helper.
+        $frameworks = \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('rm_compliance_framework');
         return view('ahg-records::compliance.create', ['frameworks' => $frameworks]);
     }
 

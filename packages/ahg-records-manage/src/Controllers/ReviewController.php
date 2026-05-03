@@ -37,9 +37,8 @@ class ReviewController extends Controller
 
         $page    = $this->reviews->listQueue($filters);
         $counts  = $this->reviews->counts();
-        $decisions = DB::table('ahg_dropdown')
-            ->where('taxonomy', 'rm_review_decision')->where('is_active', 1)
-            ->orderBy('sort_order')->get();
+        // Issue #59 Tier 3 - culture-aware via the COALESCE helper.
+        $decisions = \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('rm_review_decision');
 
         return view('ahg-records::reviews.index', [
             'rows'      => $page['rows'],
@@ -61,9 +60,8 @@ class ReviewController extends Controller
             abort(404, 'Review not found');
         }
 
-        $decisions = DB::table('ahg_dropdown')
-            ->where('taxonomy', 'rm_review_decision')->where('is_active', 1)
-            ->orderBy('sort_order')->get();
+        // Issue #59 Tier 3 - culture-aware via the COALESCE helper.
+        $decisions = \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('rm_review_decision');
 
         return view('ahg-records::reviews.show', [
             'review'    => $review,

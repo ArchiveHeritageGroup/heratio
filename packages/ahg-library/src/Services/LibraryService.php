@@ -551,13 +551,8 @@ class LibraryService
             'Other' => 'Other',
         ]);
 
-        // Creator roles from ahg_dropdown
-        $creatorRoles = DB::table('ahg_dropdown')
-            ->where('taxonomy', 'creator_role')
-            ->where('is_active', 1)
-            ->orderBy('sort_order')
-            ->pluck('label', 'code')
-            ->toArray();
+        // Creator roles - Issue #59 Tier 3 culture-aware via the COALESCE helper.
+        $creatorRoles = \AhgCore\Services\AhgSettingsService::getDropdownChoices('creator_role', false);
 
         // Languages (ISO 639-1 subset commonly used)
         $languages = [

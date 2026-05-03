@@ -167,11 +167,8 @@ class ClassificationController extends Controller
 
     private function ruleTypeOptions()
     {
-        return DB::table('ahg_dropdown')
-            ->where('taxonomy', 'rm_classification_rule_type')
-            ->where('is_active', 1)
-            ->orderBy('sort_order')
-            ->get();
+        // Issue #59 Tier 3 - culture-aware via the COALESCE helper.
+        return \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('rm_classification_rule_type');
     }
 
     private function fileplanOptions()

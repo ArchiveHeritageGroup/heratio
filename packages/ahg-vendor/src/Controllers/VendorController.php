@@ -1336,18 +1336,7 @@ class VendorController extends Controller
      */
     private function loadDropdown(string $taxonomy): array
     {
-        $rows = DB::table('ahg_dropdown')
-            ->where('taxonomy', $taxonomy)
-            ->where('is_active', 1)
-            ->orderBy('sort_order')
-            ->orderBy('label')
-            ->get(['code', 'label']);
-
-        $result = [];
-        foreach ($rows as $row) {
-            $result[$row->code] = $row->label;
-        }
-
-        return $result;
+        // Issue #59 Tier 3 - culture-aware via the COALESCE helper.
+        return \AhgCore\Services\AhgSettingsService::getDropdownChoices($taxonomy, false);
     }
 }
