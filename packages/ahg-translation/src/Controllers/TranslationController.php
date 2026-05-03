@@ -511,7 +511,6 @@ class TranslationController extends Controller
                 'status'              => 'draft',
                 'created_by_user_id'  => auth()->id(),
                 'created_at'          => now(),
-                'updated_at'          => now(),
             ]);
             return response()->json([
                 'ok'         => true,
@@ -1023,10 +1022,7 @@ class TranslationController extends Controller
         if (!$stillExists) {
             DB::table('ahg_translation_draft')
                 ->where('id', $id)
-                ->update([
-                    'status'     => 'rejected',
-                    'updated_at' => now(),
-                ]);
+                ->update(['status' => 'rejected']);
             return back()->with('notice',
                 "Draft #{$id} discarded — original record (object #{$draft->object_id}) was deleted before approval.");
         }
@@ -1076,7 +1072,7 @@ class TranslationController extends Controller
             return back()->with('notice', 'No orphaned drafts to clean up.');
         }
         DB::table('ahg_translation_draft')->whereIn('id', $orphanIds)
-            ->update(['status' => 'rejected', 'updated_at' => now()]);
+            ->update(['status' => 'rejected']);
         return back()->with('success', count($orphanIds) . ' orphaned draft(s) discarded.');
     }
 

@@ -196,6 +196,20 @@
       </div>
       <div class="modal-body">
 
+        {{-- Mirror the show-page action bar so the translator can edit / add /
+             duplicate / move / clipboard / print without closing the modal.
+             Only renders for IO context (the partial lives in the IO package
+             and reads $io); other entities that include this modal will skip
+             this section gracefully. --}}
+        @if(isset($io) && \Illuminate\Support\Facades\View::exists('ahg-information-object-manage::_actions-bar'))
+          <div class="border rounded p-2 mb-3 bg-light">
+            <div class="small text-muted fw-semibold mb-1">
+              <i class="fas fa-tools me-1"></i>{{ __('Record actions') }}
+            </div>
+            @include('ahg-information-object-manage::_actions-bar')
+          </div>
+        @endif
+
         <div class="row g-2 align-items-end mb-3">
           <div class="col-md-4">
             <label class="form-label small mb-0 fw-semibold">{{ __('Source language') }}</label>

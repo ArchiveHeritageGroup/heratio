@@ -2163,127 +2163,15 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
 @section('after-content')
   @auth
   @php
+    // Kept for legacy refs further down the file that still read these locals.
+    // The actions bar itself reads ACL via the partial, so adding/removing
+    // buttons there does not require touching this file.
     $canUpdate = \AhgCore\Services\AclService::check($io, 'update');
     $canDelete = \AhgCore\Services\AclService::check($io, 'delete');
     $canCreate = \AhgCore\Services\AclService::check($io, 'create');
-    $isAdmin   = $canUpdate; // back-compat for legacy refs further down the file
+    $isAdmin   = $canUpdate;
   @endphp
-  <ul class="actions mb-3 nav gap-2">
-    @if($canUpdate)
-    <li>
-      <a href="{{ route('informationobject.edit', $io->slug) }}" class="btn atom-btn-outline-light">Edit</a>
-    </li>
-    @endif
-    @if($canDelete)
-    <li>
-      <form action="{{ route('informationobject.destroy', $io->slug) }}" method="POST"
-            onsubmit="return confirm('Are you sure you want to delete this archival description?');">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="btn atom-btn-outline-danger">{{ __('Delete') }}</button>
-      </form>
-    </li>
-    @endif
-    @if($canCreate)
-    <li>
-      <a href="{{ route('informationobject.create', ['parent_id' => $io->id]) }}" class="btn atom-btn-outline-light">Add new</a>
-    </li>
-    <li>
-      <a href="{{ route('informationobject.create', ['parent_id' => $io->id, 'copy_from' => $io->id]) }}" class="btn atom-btn-outline-light">Duplicate</a>
-    </li>
-    @endif
-    @if($canUpdate)
-    <li>
-      <a href="{{ url('/' . $io->slug . '/default/move') }}" class="btn atom-btn-outline-light">Move</a>
-    </li>
-    <li>
-      <div class="dropup">
-        <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          {{ __('More') }}
-        </button>
-        <ul class="dropdown-menu mb-2">
-          <li>
-            <a class="dropdown-item" href="{{ route('informationobject.rename', $io->slug) }}">
-              <i class="fas fa-i-cursor me-2"></i>{{ __('Rename') }}
-            </a>
-          </li>
-          <li><hr class="dropdown-divider"></li>
-          <li>
-            <a class="dropdown-item" href="{{ route('informationobject.edit', ['slug' => $io->slug, 'storage' => 1]) }}">
-              <i class="fas fa-box me-2"></i>{{ __('Link physical storage') }}
-            </a>
-          </li>
-          <li><hr class="dropdown-divider"></li>
-          @if(isset($digitalObjects) && $digitalObjects['master'])
-            <li>
-              <a class="dropdown-item" href="{{ route('io.digitalobject.show', $digitalObjects['master']->id) }}">
-                <i class="fas fa-photo-video me-2"></i>{{ __('Edit digital object') }}
-              </a>
-            </li>
-          @else
-            <li>
-              <a class="dropdown-item" href="{{ route('io.digitalobject.add', $io->slug) }}">
-                <i class="fas fa-link me-2"></i>{{ __('Link digital object') }}
-              </a>
-            </li>
-          @endif
-          <li>
-            <a class="dropdown-item" href="{{ route('io.multiFileUpload', $io->slug) }}">
-              <i class="fas fa-file-import me-2"></i>{{ __('Import digital objects') }}
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="{{ url('/' . $io->slug . '/right/edit') }}">
-              <i class="fas fa-balance-scale me-2"></i>{{ __('Create new rights') }}
-            </a>
-          </li>
-          @if(isset($hasChildren) && $hasChildren)
-            <li>
-              <a class="dropdown-item" href="{{ url('/' . $io->slug . '/right/manage') }}">
-                <i class="fas fa-sitemap me-2"></i>{{ __('Manage rights inheritance') }}
-              </a>
-            </li>
-          @endif
-          <li><hr class="dropdown-divider"></li>
-          <li>
-            <a class="dropdown-item" href="{{ route('io.showUpdateStatus', $io->slug ?? '') }}">
-              <i class="fas fa-eye me-2"></i>{{ __('Update publication status') }}
-            </a>
-          </li>
-          {{-- Modification history: only show if audit logging is enabled --}}
-          @if(isset($auditLogEnabled) && $auditLogEnabled)
-          <li>
-            <a class="dropdown-item" href="{{ route('audit.browse', ['type' => 'QubitInformationObject', 'id' => $io->id ?? '']) }}">
-              <i class="fas fa-history me-2"></i>{{ __('Modification history') }}
-            </a>
-          </li>
-          @endif
-          @if(\Illuminate\Support\Facades\Route::has('ahgtranslation.translate')
-              && \AhgCore\Services\AclService::check($io, 'translate'))
-            <li><hr class="dropdown-divider"></li>
-            <li>
-              <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateSbsModal-{{ $io->id }}">
-                <i class="fas fa-language me-2"></i>{{ __('Translate (labels — side-by-side)') }}
-              </a>
-            </li>
-            @if(\Illuminate\Support\Facades\Schema::hasTable('museum_metadata') && \Illuminate\Support\Facades\DB::table('museum_metadata')->where('object_id', $io->id)->exists())
-              <li>
-                <a class="dropdown-item text-warning" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateCcoValuesModal-{{ $io->id }}">
-                  <i class="fas fa-landmark me-2"></i>{{ __('Translate field data values (CCO)') }}
-                </a>
-              </li>
-            @endif
-          @endif
-        </ul>
-      </div>
-    </li>
-    @endif {{-- end $canUpdate Move/More --}}
-    <li>
-      <a href="{{ route('informationobject.print', $io->slug) }}" class="btn atom-btn-outline-light" target="_blank">
-        <i class="fas fa-print me-1"></i>{{ __('Print') }}
-      </a>
-    </li>
-  </ul>
+  @include('ahg-information-object-manage::_actions-bar')
   @endauth
   <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-transcription.js') }}"></script>
 
