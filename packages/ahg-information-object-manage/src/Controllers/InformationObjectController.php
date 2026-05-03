@@ -1436,12 +1436,18 @@ class InformationObjectController extends Controller
     {
         $culture = app()->getLocale();
 
+        // LEFT JOIN i18n on (id, culture) so the edit form still renders when
+        // the target culture has no row yet — translator sees empty fields and
+        // can populate them. INNER JOIN here would 404 on every untranslated
+        // record opened with ?sf_culture=<new-locale>.
         $io = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                $j->on('information_object.id', '=', 'information_object_i18n.id')
+                  ->where('information_object_i18n.culture', '=', $culture);
+            })
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
-            ->where('information_object_i18n.culture', $culture)
             ->select([
                 'information_object.id',
                 'information_object.identifier',
