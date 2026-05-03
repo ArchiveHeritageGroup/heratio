@@ -86,9 +86,17 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
 
-      - name: Create testing database
+      - name: Create testing database + load core schema
+        # bin/install Stage 6 loads database/core/0[0-3]_*.sql against a fresh
+        # database. Tests need the same ~995 tables (object, information_object,
+        # actor, term, slug, ...) — without this load, php artisan test
+        # explodes with "Table 'heratio_test.object' doesn't exist".
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+          for f in database/core/0*.sql; do
+            echo "Loading $f"
+            mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
+          done
 
       - name: Run Laravel tests
         run: php artisan test

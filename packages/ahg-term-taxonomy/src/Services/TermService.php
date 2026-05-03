@@ -39,42 +39,48 @@ class TermService
 
     /**
      * Get a term by its slug, joining term + term_i18n + object + slug.
+     *
+     * LEFT JOIN i18n in the requested culture with an en fallback so the term
+     * still resolves (and `name` stays populated) when no row exists in the
+     * target culture. INNER JOIN here would 404 every term opened with
+     * ?sf_culture=<X> before that culture is translated.
      */
     public function getBySlug(string $slug, string $culture): ?object
     {
-        return DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
-            ->join('slug', 'term.id', '=', 'slug.object_id')
-            ->join('object', 'term.id', '=', 'object.id')
+        return $this->baseTermQuery($culture)
             ->where('slug.slug', $slug)
-            ->where('term_i18n.culture', $culture)
-            ->select([
-                'term.id',
-                'term.taxonomy_id',
-                'term.code',
-                'term.parent_id',
-                'term.lft',
-                'term.rgt',
-                'term.source_culture',
-                'term_i18n.name',
-                'object.created_at',
-                'object.updated_at',
-                'slug.slug',
-            ])
             ->first();
     }
 
     /**
      * Get a term by its id, joining term + term_i18n + object + slug.
+     *
+     * Same fallback semantics as getBySlug — see that method for rationale.
      */
     public function getById(int $id, string $culture): ?object
     {
+        return $this->baseTermQuery($culture)
+            ->where('term.id', $id)
+            ->first();
+    }
+
+    /**
+     * Shared query builder for getBySlug / getById. LEFT JOINs term_i18n in
+     * the current culture and again as an en fallback, then COALESCEs name.
+     */
+    private function baseTermQuery(string $culture): \Illuminate\Database\Query\Builder
+    {
         return DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->leftJoin('term_i18n as ti_cur', function ($j) use ($culture) {
+                $j->on('term.id', '=', 'ti_cur.id')
+                  ->where('ti_cur.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as ti_fb', function ($j) {
+                $j->on('term.id', '=', 'ti_fb.id')
+                  ->where('ti_fb.culture', '=', 'en');
+            })
             ->join('slug', 'term.id', '=', 'slug.object_id')
             ->join('object', 'term.id', '=', 'object.id')
-            ->where('term.id', $id)
-            ->where('term_i18n.culture', $culture)
             ->select([
                 'term.id',
                 'term.taxonomy_id',
@@ -83,12 +89,11 @@ class TermService
                 'term.lft',
                 'term.rgt',
                 'term.source_culture',
-                'term_i18n.name',
+                DB::raw('COALESCE(NULLIF(ti_cur.name, ""), ti_fb.name) AS name'),
                 'object.created_at',
                 'object.updated_at',
                 'slug.slug',
-            ])
-            ->first();
+            ]);
     }
 
     /**

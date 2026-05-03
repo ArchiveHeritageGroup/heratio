@@ -116,8 +116,17 @@ jobs:
           sed -i "s|^DB_DATABASE=.*|DB_DATABASE=heratio_test|" .env.testing
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
-      - name: Create database
-        run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+      - name: Create database + load core schema
+        # bin/install Stage 6 loads database/core/0[0-3]_*.sql against a fresh
+        # database. Tests need the same ~995 tables (object, information_object,
+        # actor, term, slug, ...) — without this load, Feature/Package tests
+        # explode with "Table 'heratio_test.object' doesn't exist".
+        run: |
+          mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+          for f in database/core/0*.sql; do
+            echo "Loading $f"
+            mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
+          done
       - name: Run Unit Tests
         run: |
           php -d pcov.enabled=1 ./vendor/bin/phpunit --testsuite=Unit --colors=always --testdox
@@ -158,8 +167,17 @@ jobs:
           sed -i "s|^DB_DATABASE=.*|DB_DATABASE=heratio_test|" .env.testing
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
-      - name: Create database
-        run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+      - name: Create database + load core schema
+        # bin/install Stage 6 loads database/core/0[0-3]_*.sql against a fresh
+        # database. Tests need the same ~995 tables (object, information_object,
+        # actor, term, slug, ...) — without this load, Feature/Package tests
+        # explode with "Table 'heratio_test.object' doesn't exist".
+        run: |
+          mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+          for f in database/core/0*.sql; do
+            echo "Loading $f"
+            mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
+          done
       - name: Run Feature Tests
         run: |
           php -d pcov.enabled=1 ./vendor/bin/phpunit --testsuite=Feature --colors=always --testdox
@@ -201,8 +219,17 @@ jobs:
           sed -i "s|^DB_DATABASE=.*|DB_DATABASE=heratio_test|" .env.testing
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
-      - name: Create database
-        run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+      - name: Create database + load core schema
+        # bin/install Stage 6 loads database/core/0[0-3]_*.sql against a fresh
+        # database. Tests need the same ~995 tables (object, information_object,
+        # actor, term, slug, ...) — without this load, Feature/Package tests
+        # explode with "Table 'heratio_test.object' doesn't exist".
+        run: |
+          mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+          for f in database/core/0*.sql; do
+            echo "Loading $f"
+            mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
+          done
       - name: Run Tests with Coverage
         run: |
           php -d pcov.enabled=1 ./vendor/bin/phpunit \
@@ -283,8 +310,17 @@ jobs:
           sed -i "s|^DB_DATABASE=.*|DB_DATABASE=heratio_test|" .env.testing
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
-      - name: Create database
-        run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+      - name: Create database + load core schema
+        # bin/install Stage 6 loads database/core/0[0-3]_*.sql against a fresh
+        # database. Tests need the same ~995 tables (object, information_object,
+        # actor, term, slug, ...) — without this load, Feature/Package tests
+        # explode with "Table 'heratio_test.object' doesn't exist".
+        run: |
+          mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+          for f in database/core/0*.sql; do
+            echo "Loading $f"
+            mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
+          done
       - name: Check CriticalPath Tests
         run: |
           if [ -d tests/CriticalPath ] && [ "$(ls -A tests/CriticalPath/*.php 2>/dev/null)" ]; then
@@ -330,8 +366,17 @@ jobs:
           sed -i "s|^DB_DATABASE=.*|DB_DATABASE=heratio_test|" .env.testing
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
-      - name: Create database
-        run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+      - name: Create database + load core schema
+        # bin/install Stage 6 loads database/core/0[0-3]_*.sql against a fresh
+        # database. Tests need the same ~995 tables (object, information_object,
+        # actor, term, slug, ...) — without this load, Feature/Package tests
+        # explode with "Table 'heratio_test.object' doesn't exist".
+        run: |
+          mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+          for f in database/core/0*.sql; do
+            echo "Loading $f"
+            mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
+          done
       - name: Discover Package Tests
         run: |
           for dir in packages/*/tests; do
