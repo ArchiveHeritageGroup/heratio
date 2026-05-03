@@ -102,8 +102,8 @@
     // Finding aid sidebar block + actions + status labels
     'Finding aid', 'Download', 'Regenerate',
     'Generated finding aid', 'Uploaded finding aid',
-    // Rights actions (museum/dam/IO show + rights edit page)
-    'Add rights', 'Edit rights',
+    // Rights actions (museum/dam/IO show + rights edit page + rights-holder view)
+    'Add rights', 'Edit rights', 'Add Rights Information',
     // AI tools block (header + items)
     'AI Tools', 'AI Translate (MT wizard)',
     // Image viewer toolbar (IO/DAM/Library digital-object viewer)

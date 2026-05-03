@@ -799,6 +799,7 @@
     "Check for updates": "Kyk vir opdaterings",
     "Check the %1% page to determine present status. You can keep moving nodes if you don't reload the page. Once the page is reloaded, if a move job hasn't ended, your recent change(s) may not yet be displayed and new changes may fail. After the move job ends and the page is reloaded, the treeview will be back to a stable status.": "Gaan die %1%-bladsy na om huidige status te bepaal. Jy kan aanhou om nodusse te beweeg as jy nie die bladsy herlaai nie. Sodra die bladsy herlaai is, as 'n skuiftaak nie geëindig het nie, kan jou onlangse verandering(s) dalk nog nie vertoon word nie en kan nuwe veranderinge misluk. Nadat die skuiftaak beëindig is en die bladsy herlaai is, sal die boomaansig terug wees na 'n stabiele status.",
     "Checked By": "Gekontroleer deur",
+    "Checksum": "Kontrolesom",
     "Checksums & Integrity": "Somkodes & Integriteit",
     "Children inheriting rights from record:": "Kinders wat regte van rekord erf:",
     "Choose Licence to sell rights to use the work (digital deliverable, no shipping).": "Kies Lisensie om regte te verkoop om die werk te gebruik (digitale aflewerbaar, geen versending).",
