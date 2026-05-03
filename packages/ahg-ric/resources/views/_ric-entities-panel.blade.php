@@ -78,28 +78,28 @@
         <div class="tab-pane fade show active" id="ric-activities" role="tabpanel">
             <table class="table table-sm table-striped mb-0">
                 <thead><tr><th>{{ __('Name') }}</th><th>{{ __('Type') }}</th><th>{{ __('Dates') }}</th><th>{{ __('Predicate') }}</th><th></th></tr></thead>
-                <tbody id="ric-activities-body"><tr><td colspan="5" class="text-muted">Loading...</td></tr></tbody>
+                <tbody id="ric-activities-body"><tr><td colspan="5" class="text-muted">{{ __('Loading...') }}</td></tr></tbody>
             </table>
         </div>
         {{-- Instantiations tab --}}
         <div class="tab-pane fade" id="ric-instantiations" role="tabpanel">
             <table class="table table-sm table-striped mb-0">
                 <thead><tr><th>{{ __('Title') }}</th><th>{{ __('Carrier') }}</th><th>{{ __('MIME Type') }}</th><th>{{ __('Size') }}</th><th></th></tr></thead>
-                <tbody id="ric-instantiations-body"><tr><td colspan="5" class="text-muted">Loading...</td></tr></tbody>
+                <tbody id="ric-instantiations-body"><tr><td colspan="5" class="text-muted">{{ __('Loading...') }}</td></tr></tbody>
             </table>
         </div>
         {{-- Places tab --}}
         <div class="tab-pane fade" id="ric-places" role="tabpanel">
             <table class="table table-sm table-striped mb-0">
                 <thead><tr><th>{{ __('Name') }}</th><th>{{ __('Type') }}</th><th>{{ __('Coordinates') }}</th><th></th></tr></thead>
-                <tbody id="ric-places-body"><tr><td colspan="4" class="text-muted">Loading...</td></tr></tbody>
+                <tbody id="ric-places-body"><tr><td colspan="4" class="text-muted">{{ __('Loading...') }}</td></tr></tbody>
             </table>
         </div>
         {{-- Rules tab --}}
         <div class="tab-pane fade" id="ric-rules" role="tabpanel">
             <table class="table table-sm table-striped mb-0">
                 <thead><tr><th>{{ __('Title') }}</th><th>{{ __('Type') }}</th><th>{{ __('Jurisdiction') }}</th><th></th></tr></thead>
-                <tbody id="ric-rules-body"><tr><td colspan="4" class="text-muted">Loading...</td></tr></tbody>
+                <tbody id="ric-rules-body"><tr><td colspan="4" class="text-muted">{{ __('Loading...') }}</td></tr></tbody>
             </table>
         </div>
         {{-- Relations tab --}}

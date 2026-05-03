@@ -323,6 +323,11 @@
   @include('ahg-ric::_view-switch', ['standard' => 'Dublin Core'])
   @if(session('ric_view_mode') === 'ric')
     @include('ahg-ric::_ric-view-dam', ['asset' => $asset])
+    {{-- RiC Entities Panel — only renders when RiC view-mode toggle is on,
+         matching the Archive (IO) show-page behaviour. --}}
+    @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
+      @include('ahg-ric::_ric-entities-panel', ['record' => $asset, 'recordType' => 'instantiation'])
+    @endif
   @else
 
   <h1>{{ $asset->title ?: $asset->identifier ?: '[Untitled]' }}
@@ -570,11 +575,6 @@
     @endif
   </section>
 
-  {{-- RiC Context panel — sits just above the bottom Actions bar (which lives
-       in @section('after-content')). Per user request 2026-05-03. --}}
-  @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
-    @include('ahg-ric::_ric-entities-panel', ['record' => $asset, 'recordType' => 'instantiation'])
-  @endif
   @endif {{-- end ric_view_mode toggle --}}
 @endsection
 
