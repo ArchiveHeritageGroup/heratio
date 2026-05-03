@@ -97,8 +97,9 @@
     'RiC Explorer', 'RiC Dashboard', 'RiC-O JSON-LD',
     // Tasks sidebar block (header + Calculate dates row + Last run line)
     'Tasks', 'Calculate dates', 'Last run:', 'Never',
-    // Finding aid sidebar block + actions
+    // Finding aid sidebar block + actions + status labels
     'Finding aid', 'Download', 'Regenerate',
+    'Generated finding aid', 'Uploaded finding aid',
     // Rights actions (museum/dam/IO show + rights edit page)
     'Add rights', 'Edit rights',
     // AI tools block (header + items)

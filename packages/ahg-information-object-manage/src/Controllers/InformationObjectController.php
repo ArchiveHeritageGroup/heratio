@@ -676,7 +676,7 @@ class InformationObjectController extends Controller
             $faStatus = (int) $findingAidStatusValue;
             $findingAid = (object) [
                 'status' => $faStatus,
-                'label' => $faStatus === 2 ? 'Uploaded finding aid' : ($faStatus === 1 ? 'Generated finding aid' : 'Finding aid'),
+                'label' => $faStatus === 2 ? __('Uploaded finding aid') : ($faStatus === 1 ? __('Generated finding aid') : __('Finding aid')),
                 'slug' => $collectionRootSlug,
             ];
         }
@@ -687,7 +687,7 @@ class InformationObjectController extends Controller
                 if (file_exists($downloadsDir . '/finding-aid-' . $collectionRootId . '.' . $ext)) {
                     $findingAid = (object) [
                         'status' => 1,
-                        'label' => 'Generated finding aid',
+                        'label' => __('Generated finding aid'),
                         'slug' => $collectionRootSlug,
                     ];
                     break;
