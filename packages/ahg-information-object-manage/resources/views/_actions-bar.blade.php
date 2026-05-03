@@ -149,6 +149,35 @@
     </div>
   </li>
   @endif {{-- end $_canUpdate More --}}
+  {{-- RiC links: Graph Explorer / JSON-LD Export / Timeline. Same gates as
+       the sidebar RiC card in partials/_right-blocks.blade.php so the action
+       bar and the sidebar appear/disappear together. --}}
+  @if(class_exists(\AhgRic\Controllers\RicEntityController::class) && \AhgCore\Services\MenuService::isPluginEnabled('ahgRicExplorerPlugin'))
+    <li>
+      <div class="dropup">
+        <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="fas fa-project-diagram me-1"></i>{{ __('RiC') }}
+        </button>
+        <ul class="dropdown-menu mb-2">
+          <li>
+            <a class="dropdown-item" href="{{ route('ric.explorer') }}?id={{ $io->id }}">
+              <i class="fas fa-project-diagram me-2"></i>{{ __('Graph Explorer') }}
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ route('ric.export-jsonld') }}?id={{ $io->id }}" target="_blank">
+              <i class="fas fa-code me-2"></i>{{ __('JSON-LD Export') }}
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ route('ric.explorer') }}?id={{ $io->id }}&view=timeline">
+              <i class="fas fa-clock me-2"></i>{{ __('Timeline') }}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
+  @endif
   <li>
     <a href="{{ route('informationobject.print', $io->slug) }}" class="btn atom-btn-outline-light" target="_blank">
       <i class="fas fa-print me-1"></i>{{ __('Print') }}
