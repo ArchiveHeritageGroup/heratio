@@ -127,8 +127,28 @@
                   <td style="max-width:280px;">
                     <div class="ahg-trans-clamp text-muted small" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical; white-space:pre-wrap; cursor:pointer;" title="{{ __('Click to expand / collapse') }}">{{ $d->source_text }}</div>
                   </td>
-                  <td style="max-width:280px;">
-                    <div class="ahg-trans-clamp" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical; white-space:pre-wrap; cursor:pointer;" title="{{ __('Click to expand / collapse') }}">{{ $d->translated_text }}</div>
+                  <td style="max-width:320px;">
+                    @if($d->status === 'draft')
+                      <textarea
+                        class="form-control form-control-sm ahg-trans-edit"
+                        data-draft-id="{{ $d->id }}"
+                        data-original="{{ $d->translated_text }}"
+                        rows="3"
+                        style="font-size:0.875rem; white-space:pre-wrap;"
+                      >{{ $d->translated_text }}</textarea>
+                      <div class="d-flex justify-content-between align-items-center mt-1">
+                        <small class="ahg-trans-status text-muted" data-draft-id="{{ $d->id }}"></small>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-primary ahg-trans-save"
+                                data-draft-id="{{ $d->id }}"
+                                title="{{ __('Save edited translation') }}"
+                                disabled>
+                          <i class="fas fa-save me-1"></i>{{ __('Save') }}
+                        </button>
+                      </div>
+                    @else
+                      <div class="ahg-trans-clamp" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical; white-space:pre-wrap; cursor:pointer;" title="{{ __('Click to expand / collapse') }}">{{ $d->translated_text }}</div>
+                    @endif
                   </td>
                   <td>
                     @if($d->status === 'draft')
@@ -191,6 +211,54 @@
             el.style.webkitLineClamp = '3';
             el.style.display = '-webkit-box';
           }
+        });
+      });
+
+      // Inline edit of the Translation column. Save button enables when text
+      // diverges from the original; clicking POSTs to draft-update-text and
+      // resets `data-original` on success so re-edits track from the new value.
+      var csrf = document.querySelector('meta[name="csrf-token"]');
+      var csrfToken = csrf ? csrf.getAttribute('content') : '';
+
+      document.querySelectorAll('.ahg-trans-edit').forEach(function (ta) {
+        var draftId = ta.getAttribute('data-draft-id');
+        var btn = document.querySelector('.ahg-trans-save[data-draft-id="' + draftId + '"]');
+        var status = document.querySelector('.ahg-trans-status[data-draft-id="' + draftId + '"]');
+        if (!btn) return;
+
+        ta.addEventListener('input', function () {
+          var dirty = ta.value !== ta.getAttribute('data-original');
+          btn.disabled = !dirty;
+          if (status) { status.textContent = dirty ? '{{ __('Unsaved changes') }}' : ''; status.className = 'ahg-trans-status text-warning small'; }
+        });
+
+        btn.addEventListener('click', function () {
+          btn.disabled = true;
+          if (status) { status.textContent = '{{ __('Saving...') }}'; status.className = 'ahg-trans-status text-muted small'; }
+          var fd = new FormData();
+          fd.append('translated_text', ta.value);
+          fd.append('_token', csrfToken);
+          fetch('{{ url('/admin/translation/drafts') }}/' + draftId + '/edit-text', {
+            method: 'POST',
+            body: fd,
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+            credentials: 'same-origin'
+          })
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+          .then(function (resp) {
+            if (resp.ok && resp.body && resp.body.ok) {
+              ta.setAttribute('data-original', ta.value);
+              if (status) { status.textContent = '{{ __('Saved') }}'; status.className = 'ahg-trans-status text-success small'; }
+              setTimeout(function () { if (status && status.textContent === '{{ __('Saved') }}') status.textContent = ''; }, 2500);
+            } else {
+              btn.disabled = false;
+              if (status) { status.textContent = (resp.body && resp.body.error) ? resp.body.error : '{{ __('Save failed') }}'; status.className = 'ahg-trans-status text-danger small'; }
+            }
+          })
+          .catch(function (err) {
+            btn.disabled = false;
+            if (status) { status.textContent = '{{ __('Network error') }}: ' + err.message; status.className = 'ahg-trans-status text-danger small'; }
+          });
         });
       });
     })();

@@ -16,6 +16,7 @@ Route::prefix('admin/translation')->middleware(['web', 'auth', 'acl:translate'])
     Route::get('/drafts', [\AhgTranslation\Controllers\TranslationController::class, 'drafts'])->name('ahgtranslation.drafts');
     Route::post('/drafts/{id}/approve', [\AhgTranslation\Controllers\TranslationController::class, 'draftApprove'])->name('ahgtranslation.draft-approve');
     Route::post('/drafts/{id}/reject', [\AhgTranslation\Controllers\TranslationController::class, 'draftReject'])->name('ahgtranslation.draft-reject');
+    Route::post('/drafts/{id}/edit-text', [\AhgTranslation\Controllers\TranslationController::class, 'draftUpdateText'])->name('ahgtranslation.draft-update-text');
     Route::post('/drafts/batch', [\AhgTranslation\Controllers\TranslationController::class, 'draftBatch'])->name('ahgtranslation.draft-batch');
     Route::post('/drafts/cleanup-orphans', [\AhgTranslation\Controllers\TranslationController::class, 'draftCleanupOrphans'])->name('ahgtranslation.draft-cleanup-orphans');
 });

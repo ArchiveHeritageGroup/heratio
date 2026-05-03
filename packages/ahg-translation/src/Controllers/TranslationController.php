@@ -1077,6 +1077,31 @@ class TranslationController extends Controller
     }
 
     /**
+     * POST /admin/translation/drafts/{id}/edit-text — admin inline edit of
+     * the queued translation. Only mutates pending ('draft') rows; applied /
+     * rejected rows are locked (their text is already on the entity or out of
+     * the queue). Returns JSON for the inline save flow on the drafts table.
+     */
+    public function draftUpdateText(Request $request, int $id)
+    {
+        if (!\AhgCore\Services\AclService::isAdministrator()) {
+            return response()->json(['ok' => false, 'error' => 'Admin only'], 403);
+        }
+        $text = (string) $request->input('translated_text', '');
+        $updated = DB::table('ahg_translation_draft')
+            ->where('id', $id)
+            ->where('status', 'draft')
+            ->update(['translated_text' => $text]);
+        if (!$updated) {
+            return response()->json([
+                'ok' => false,
+                'error' => 'Draft not found, already applied, or already rejected.',
+            ], 404);
+        }
+        return response()->json(['ok' => true, 'id' => $id, 'translated_text' => $text]);
+    }
+
+    /**
      * POST /admin/translation/drafts/{id}/reject — mark draft as rejected (does not apply).
      */
     public function draftReject(Request $request, int $id)
