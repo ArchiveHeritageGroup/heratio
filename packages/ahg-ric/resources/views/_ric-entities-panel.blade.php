@@ -15,9 +15,9 @@
 <section class="mt-4" id="ric-entities-panel">
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h2 class="h5 mb-0">
-            <i class="fas fa-project-diagram me-1"></i> RiC Context
+            <i class="fas fa-project-diagram me-1"></i> {{ __('RiC Context') }}
             <a href="https://openric.org" target="_blank" rel="noopener" class="ms-2 small text-decoration-none" title="{{ __('Open RiC contract — see openric.org') }}">
-                <i class="fas fa-external-link-alt"></i> <span class="small">OpenRiC</span>
+                <i class="fas fa-external-link-alt"></i> <span class="small">{{ __('OpenRiC') }}</span>
             </a>
             @if($ricIsAdmin)
             <a href="{{ url('/admin/ric/validate/' . $recordType . '/' . $recordId) }}" class="ms-2 small text-decoration-none" title="{{ __('Run SHACL validation against the OpenRiC shape set') }}">
@@ -48,27 +48,27 @@
     <ul class="nav nav-tabs nav-tabs-sm" id="ricEntitiesTab" role="tablist">
         <li class="nav-item">
             <a class="nav-link active" id="ric-activities-tab" data-bs-toggle="tab" href="#ric-activities" role="tab">
-                <i class="fas fa-running"></i> Activities <span class="badge bg-secondary ric-count-activities">0</span>
+                <i class="fas fa-running"></i> {{ __('Activities') }} <span class="badge bg-secondary ric-count-activities">0</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" id="ric-instantiations-tab" data-bs-toggle="tab" href="#ric-instantiations" role="tab">
-                <i class="fas fa-file-alt"></i> Instantiations <span class="badge bg-secondary ric-count-instantiations">0</span>
+                <i class="fas fa-file-alt"></i> {{ __('Instantiations') }} <span class="badge bg-secondary ric-count-instantiations">0</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" id="ric-places-tab" data-bs-toggle="tab" href="#ric-places" role="tab">
-                <i class="fas fa-map-marker-alt"></i> Places <span class="badge bg-secondary ric-count-places">0</span>
+                <i class="fas fa-map-marker-alt"></i> {{ __('Places') }} <span class="badge bg-secondary ric-count-places">0</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" id="ric-rules-tab" data-bs-toggle="tab" href="#ric-rules" role="tab">
-                <i class="fas fa-gavel"></i> Rules <span class="badge bg-secondary ric-count-rules">0</span>
+                <i class="fas fa-gavel"></i> {{ __('Rules') }} <span class="badge bg-secondary ric-count-rules">0</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" id="ric-relations-tab" data-bs-toggle="tab" href="#ric-relations" role="tab">
-                <i class="fas fa-link"></i> Relations <span class="badge bg-secondary ric-count-relations">0</span>
+                <i class="fas fa-link"></i> {{ __('Relations') }} <span class="badge bg-secondary ric-count-relations">0</span>
             </a>
         </li>
     </ul>

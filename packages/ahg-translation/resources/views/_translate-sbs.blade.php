@@ -97,6 +97,10 @@
     'RiC Explorer', 'RiC Dashboard', 'RiC-O JSON-LD',
     // RiC view-mode toggle (flat-view button label is the description standard)
     'View:', 'View mode', 'ISAD(G)', 'ISAAR(CPF)', 'Record',
+    // RiC Entities Panel (DAM/IO/Actor show pages — header, OpenRiC link, action buttons, tabs)
+    'RiC Context', 'OpenRiC', 'Open RiC contract — see openric.org', 'Validate',
+    'Add Activity', 'Add Place', 'Add Rule', 'Add Instantiation',
+    'Activities', 'Instantiations', 'Places', 'Rules', 'Relations',
     // Tasks sidebar block (header + Calculate dates row + Last run line)
     'Tasks', 'Calculate dates', 'Last run:', 'Never',
     // Finding aid sidebar block + actions + status labels
