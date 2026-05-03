@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -13,13 +14,17 @@ class SetLocale
     public function handle(Request $request, Closure $next)
     {
         // Resolution order (matches AtoM): URL param > session > cookie.
-        // The cookie is written by the POST /set-locale route so the choice
-        // survives logout and cookie-only visits.
+        // Both URL-param switches (?sf_culture=) and the POST /set-locale route
+        // queue a year-long cookie so the choice survives logout / new sessions.
         $culture = $request->query('sf_culture');
 
         if ($culture && $this->isValidCulture($culture)) {
             App::setLocale($culture);
             session(['locale' => $culture]);
+            // Year-long cookie so URL-driven switches persist across sessions
+            // (the POST /set-locale route does the same; without this, language
+            // switches via the nav-bar menu only last as long as the session).
+            Cookie::queue('locale', $culture, 60 * 24 * 365, '/', null, true, false, false, 'lax');
         } elseif ($sessionLocale = session('locale')) {
             App::setLocale($sessionLocale);
         } elseif ($cookieLocale = $request->cookie('locale')) {

@@ -102,8 +102,10 @@
     // Finding aid sidebar block + actions + status labels
     'Finding aid', 'Download', 'Regenerate',
     'Generated finding aid', 'Uploaded finding aid',
-    // Rights actions (museum/dam/IO show + rights edit page + rights-holder view)
+    // Rights actions + sidebar Rights card (museum/dam/IO show + rights edit + holder view)
     'Add rights', 'Edit rights', 'Add Rights Information',
+    'Rights', 'No extended rights or embargo', 'Extended rights applied', 'Under embargo',
+    'Export rights (JSON-LD)', 'Access Restricted',
     // AI tools block (header + items)
     'AI Tools', 'AI Translate (MT wizard)',
     // Image viewer toolbar (IO/DAM/Library digital-object viewer)
@@ -190,7 +192,7 @@
               'Measurements'                 => ['measurements' => 'Measurements', 'dimensions' => 'Dimensions', 'orientation' => 'Orientation', 'shape' => 'Shape'],
               'Style / Period / Context'     => ['style_period' => 'Style/Period', 'style' => 'Style', 'period' => 'Period', 'cultural_context' => 'Cultural context', 'cultural_group' => 'Cultural group', 'movement' => 'Movement', 'school' => 'School', 'dynasty' => 'Dynasty'],
               'Subject'                      => ['subject_indexing_type' => 'Indexing type', 'subject_display' => 'Subject display', 'subject_extent' => 'Subject extent', 'historical_context' => 'Historical context', 'architectural_context' => 'Architectural context', 'archaeological_context' => 'Archaeological context'],
-              'Condition & treatment'        => ['condition_term' => 'Condition', 'condition_description' => 'Condition description', 'condition_agent' => 'Condition agent', 'condition_notes' => 'Condition notes', 'treatment_type' => 'Treatment type', 'treatment_agent' => 'Treatment agent', 'treatment_description' => 'Treatment description'],
+              'Condition & treatment'        => ['condition_term' => 'Condition', 'condition_date' => 'Condition date', 'condition_description' => 'Condition description', 'condition_agent' => 'Condition agent', 'condition_notes' => 'Condition notes', 'treatment_type' => 'Treatment type', 'treatment_date' => 'Treatment date', 'treatment_agent' => 'Treatment agent', 'treatment_description' => 'Treatment description'],
               'Inscriptions & marks'         => ['inscription' => 'Inscription', 'inscriptions' => 'Inscriptions', 'inscription_transcription' => 'Transcription', 'inscription_type' => 'Inscription type', 'inscription_location' => 'Inscription location', 'inscription_language' => 'Inscription language', 'inscription_translation' => 'Translation', 'mark_type' => 'Mark type', 'mark_description' => 'Mark description', 'mark_location' => 'Mark location'],
               'Edition / State'              => ['edition_description' => 'Edition description', 'edition_number' => 'Edition number', 'edition_size' => 'Edition size', 'state_description' => 'State description', 'state_identification' => 'State identification'],
               'Location / Geography'         => ['current_location' => 'Current location', 'current_location_repository' => 'Repository', 'current_location_geography' => 'Geography', 'current_location_ref_number' => 'Reference number', 'creation_place' => 'Creation place', 'creation_place_type' => 'Creation place type', 'discovery_place' => 'Discovery place', 'discovery_place_type' => 'Discovery place type'],

@@ -232,7 +232,7 @@
       <div class="list-group list-group-flush">
         @if(\Illuminate\Support\Facades\Route::has('io.rights.manage'))
           <a href="{{ route('io.rights.manage', $io->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-copyright me-1"></i> {{ ($hasExtRights || $activeEmbargoSidebar) ? 'Edit' : 'Add' }} rights
+            <i class="fas fa-copyright me-1"></i> {{ ($hasExtRights || $activeEmbargoSidebar) ? __('Edit rights') : __('Add rights') }}
           </a>
         @endif
         @if(\Illuminate\Support\Facades\Route::has('io.rights.export'))
