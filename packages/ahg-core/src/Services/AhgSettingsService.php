@@ -28,6 +28,7 @@
 namespace AhgCore\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * AHG Settings & Dropdown service.
@@ -340,18 +341,22 @@ class AhgSettingsService
 
     /**
      * Get dropdown choices as [code => label] for a taxonomy.
+     *
+     * Issue #59 Tier 1 — labels come from ahg_dropdown_i18n (current culture)
+     * with an en fallback and a parent-table fallback, all via COALESCE. If
+     * ahg_dropdown_i18n is missing (fresh install), the COALESCE collapses to
+     * the parent ahg_dropdown.label so callers see no behaviour change.
      */
     public static function getDropdownChoices(string $taxonomy, bool $includeEmpty = true): array
     {
         $choices = $includeEmpty ? ['' => ''] : [];
 
         try {
-            $terms = DB::table('ahg_dropdown')
-                ->where('taxonomy', $taxonomy)
-                ->where('is_active', 1)
-                ->orderBy('sort_order')
-                ->orderBy('label')
-                ->select(['code', 'label'])
+            $terms = self::dropdownQueryWithI18n()
+                ->where('d.taxonomy', $taxonomy)
+                ->where('d.is_active', 1)
+                ->orderBy('d.sort_order')
+                ->orderBy('d.label')
                 ->get();
 
             foreach ($terms as $term) {
@@ -366,22 +371,66 @@ class AhgSettingsService
 
     /**
      * Get dropdown choices with full attributes (code, label, color, icon, etc.).
+     *
+     * Issue #59 Tier 1 — culture-aware label via the same COALESCE pattern as
+     * getDropdownChoices(). All other columns (code, color, icon, sort_order,
+     * is_default, metadata) come from the parent ahg_dropdown row unchanged.
      */
     public static function getDropdownChoicesWithAttributes(string $taxonomy): array
     {
         try {
-            return DB::table('ahg_dropdown')
-                ->where('taxonomy', $taxonomy)
-                ->where('is_active', 1)
-                ->orderBy('sort_order')
-                ->orderBy('label')
-                ->select(['id', 'code', 'label', 'color', 'icon', 'sort_order', 'is_default', 'metadata'])
+            return self::dropdownQueryWithI18n([
+                'd.id', 'd.code', 'd.color', 'd.icon', 'd.sort_order', 'd.is_default', 'd.metadata',
+            ])
+                ->where('d.taxonomy', $taxonomy)
+                ->where('d.is_active', 1)
+                ->orderBy('d.sort_order')
+                ->orderBy('d.label')
                 ->get()
                 ->keyBy('code')
                 ->all();
         } catch (\Exception $e) {
             return [];
         }
+    }
+
+    /**
+     * Issue #59 Tier 1 — shared culture-aware base query for ahg_dropdown.
+     *
+     * LEFT JOINs ahg_dropdown_i18n in the current locale + 'en' fallback, then
+     * SELECTs `code` plus a COALESCE'd `label` field that resolves to:
+     *   1. i18n[current_culture].label   (if present + non-empty)
+     *   2. i18n['en'].label               (if present + non-empty)
+     *   3. ahg_dropdown.label             (parent / source-culture cache)
+     *
+     * Schema::hasTable() guards the JOIN so callers on installs without the
+     * i18n table still get the parent label — no exception, no behaviour change.
+     *
+     * Pass extra columns via $extraSelect to round out the SELECT list. The
+     * `code` column is always included; `label` is the COALESCE'd alias.
+     */
+    protected static function dropdownQueryWithI18n(array $extraSelect = []): \Illuminate\Database\Query\Builder
+    {
+        $culture = (string) app()->getLocale();
+        $hasI18n = Schema::hasTable('ahg_dropdown_i18n');
+
+        $select = array_merge(['d.code'], $extraSelect);
+
+        $q = DB::table('ahg_dropdown as d');
+
+        if ($hasI18n) {
+            $q->leftJoin('ahg_dropdown_i18n as di_cur', function ($j) use ($culture) {
+                $j->on('di_cur.id', '=', 'd.id')->where('di_cur.culture', '=', $culture);
+            });
+            $q->leftJoin('ahg_dropdown_i18n as di_fb', function ($j) {
+                $j->on('di_fb.id', '=', 'd.id')->where('di_fb.culture', '=', 'en');
+            });
+            $select[] = DB::raw("COALESCE(NULLIF(di_cur.label, ''), NULLIF(di_fb.label, ''), d.label) AS label");
+        } else {
+            $select[] = 'd.label';
+        }
+
+        return $q->select($select);
     }
 
     /**
@@ -410,13 +459,16 @@ class AhgSettingsService
             return null;
         }
 
+        // Issue #59 Tier 1 — culture-aware label via the same COALESCE base
+        // query as getDropdownChoices(). Returns the parent label when no i18n
+        // row exists (or when ahg_dropdown_i18n hasn't been installed yet).
         try {
-            $label = DB::table('ahg_dropdown')
-                ->where('taxonomy', $taxonomy)
-                ->where('code', $code)
-                ->value('label');
+            $row = self::dropdownQueryWithI18n()
+                ->where('d.taxonomy', $taxonomy)
+                ->where('d.code', $code)
+                ->first();
 
-            return $label ?? $code;
+            return ($row && $row->label !== null && $row->label !== '') ? $row->label : $code;
         } catch (\Exception $e) {
             return $code;
         }
