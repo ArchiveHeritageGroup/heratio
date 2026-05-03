@@ -330,7 +330,7 @@
   @if(class_exists(\AhgRic\Controllers\RicEntityController::class) && \AhgCore\Services\MenuService::isPluginEnabled('ahgRicExplorerPlugin'))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-project-diagram me-1"></i> RiC
+        <i class="fas fa-project-diagram me-1"></i> {{ __('RiC') }}
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('ric.explorer') }}?id={{ $record->id }}" class="list-group-item list-group-item-action small">

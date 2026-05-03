@@ -92,8 +92,9 @@
     'Add to favourites', 'Remove from favourites', 'My Favourites', 'Cart',
     // Clipboard
     'Add to clipboard', 'Remove from clipboard', 'Clipboard',
-    // RiC sidebar block (header + items)
+    // RiC sidebar block (header + items + dashboard / explorer button labels)
     'RiC', 'Graph Explorer', 'JSON-LD Export', 'Timeline',
+    'RiC Explorer', 'RiC Dashboard', 'RiC-O JSON-LD',
     // Tasks sidebar block (header + Calculate dates row + Last run line)
     'Tasks', 'Calculate dates', 'Last run:', 'Never',
     // Finding aid sidebar block + actions
@@ -105,7 +106,9 @@
     // Image viewer toolbar (IO/DAM/Library digital-object viewer)
     'Deep Zoom', 'Mirador', 'Image',
     'OpenSeadragon Deep Zoom', 'Mirador IIIF Viewer', 'Simple image',
-    'Merge to PDF',
+    'Merge to PDF', 'Open full size',
+    // Marketplace card on show pages
+    'Add to marketplace', 'Add to marketplace & set price',
     // Top nav / global menu
     'Search', 'Browse', 'Login', 'Logout', 'Sign in', 'Sign out',
     'My Profile', 'Change Password', 'My Plugins', 'My Tasks',
