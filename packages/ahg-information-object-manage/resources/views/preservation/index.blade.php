@@ -204,8 +204,14 @@
             <dt class="col-sm-3">{{ __('Created') }}</dt>         <dd class="col-sm-9">{{ $detailPkg->created_at }}</dd>
           </dl>
           @auth
-          <div class="d-flex gap-2 mb-3">
+          <div class="d-flex gap-2 mb-3 flex-wrap">
             <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id, 'edit' => $detailPkg->id]) }}" class="btn atom-btn-outline-primary"><i class="fas fa-pencil-alt me-1"></i>{{ __('Edit') }}</a>
+            @if(($detailPkg->status ?? 'draft') !== 'exported' || empty($detailPkg->export_path))
+              <form method="POST" action="{{ route('io.preservation.export', ['slug' => $io->slug ?? $io->id, 'id' => $detailPkg->id]) }}" class="d-inline" onsubmit="return confirm('Build a BagIt zip for this package now? This may take a while for large packages.');">
+                @csrf
+                <button type="submit" class="btn atom-btn-outline-warning"><i class="fas fa-file-archive me-1"></i>{{ __('Build BagIt zip (export)') }}</button>
+              </form>
+            @endif
             <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id, 'download' => $detailPkg->id]) }}" class="btn atom-btn-outline-success"><i class="fas fa-download me-1"></i>{{ __('Download') }}</a>
           </div>
           @endauth
@@ -245,7 +251,9 @@
             @foreach($packageEvents as $ev)
               <li class="border-start border-3 ps-2 mb-2">
                 <span class="badge bg-{{ ($ev->event_outcome ?? 'success') === 'success' ? 'success' : 'warning' }}">{{ ucfirst($ev->event_type ?? '?') }}</span>
-                <span class="text-muted">{{ $ev->created_at }}</span><br>
+                <span class="text-muted">{{ $ev->event_datetime ?? $ev->created_at ?? '' }}</span>
+                @if(!empty($ev->agent_value))<span class="text-muted small">&middot; {{ $ev->agent_type ?? 'agent' }}: {{ $ev->agent_value }}</span>@endif
+                <br>
                 {{ $ev->event_detail ?? '' }}
               </li>
             @endforeach

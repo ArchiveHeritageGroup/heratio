@@ -29,6 +29,7 @@ namespace AhgInformationObjectManage\Services;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Preservation Service
@@ -156,7 +157,7 @@ class PreservationService
         try {
             return DB::table('preservation_package_event')
                 ->where('package_id', $packageId)
-                ->orderByDesc('created_at')
+                ->orderByDesc('event_datetime')
                 ->orderByDesc('id')
                 ->get();
         } catch (\Illuminate\Database\QueryException $e) {
@@ -186,6 +187,183 @@ class PreservationService
         } catch (\Illuminate\Database\QueryException $e) {
             return false;
         }
+    }
+
+    /**
+     * BagIt-export an existing preservation_package row.
+     *
+     * Reads the linked preservation_package_object rows + their digital_object
+     * source files, copies them into a BagIt 1.0 layout under
+     *   storage_path('app/preservation/<uuid>/')
+     * with bagit.txt + bag-info.txt + manifest-sha256.txt + tagmanifest-sha256.txt,
+     * zips the bag to .../<uuid>.zip, then updates the package row's status to
+     * 'exported' and stamps export_path + package_checksum + exported_at.
+     *
+     * Self-contained (does not depend on ahg-ingest's OaisPackagerService) so
+     * the existing package row is exported in place rather than rebuilt.
+     *
+     * @return array{ok:bool, message:string, export_path?:string, checksum?:string}
+     */
+    public function exportPackage(int $packageId): array
+    {
+        $pkg = $this->getPackage($packageId);
+        if (!$pkg) {
+            return ['ok' => false, 'message' => 'Package not found.'];
+        }
+        if (($pkg->status ?? '') === 'exported' && !empty($pkg->export_path) && is_file($pkg->export_path)) {
+            return ['ok' => true, 'message' => 'Already exported.', 'export_path' => $pkg->export_path];
+        }
+
+        $files = $this->getPackageFiles($packageId);
+        if ($files->isEmpty()) {
+            return ['ok' => false, 'message' => 'Package has no linked files to export.'];
+        }
+
+        $exportRoot = storage_path('app/preservation');
+        if (!is_dir($exportRoot)) @mkdir($exportRoot, 0775, true);
+
+        $workDir = $exportRoot . '/' . $pkg->uuid;
+        $dataDir = $workDir . '/data';
+        if (is_dir($workDir)) {
+            $this->rmTree($workDir);
+        }
+        if (!@mkdir($dataDir, 0775, true)) {
+            return ['ok' => false, 'message' => 'Cannot create work directory: ' . $workDir];
+        }
+
+        $manifestLines = [];
+        $totalSize = 0;
+        foreach ($files as $f) {
+            $src = $this->resolveSourcePath($f);
+            if (!$src || !is_file($src)) {
+                Log::warning('[preservation] missing source file for package export', [
+                    'package_id' => $packageId, 'file' => $f->relative_path,
+                ]);
+                continue;
+            }
+            $rel = ltrim((string) ($f->relative_path ?? $f->file_name), '/');
+            // Force every file under data/ inside the bag.
+            if (!str_starts_with($rel, 'data/')) {
+                $rel = 'data/' . $rel;
+            }
+            $dest = $workDir . '/' . $rel;
+            $destDir = dirname($dest);
+            if (!is_dir($destDir)) @mkdir($destDir, 0775, true);
+            if (!@copy($src, $dest)) {
+                continue;
+            }
+            $sha = hash_file('sha256', $dest) ?: '';
+            $manifestLines[] = $sha . '  ' . $rel;
+            $totalSize += filesize($dest) ?: 0;
+        }
+
+        if (empty($manifestLines)) {
+            $this->rmTree($workDir);
+            return ['ok' => false, 'message' => 'No source files could be located on disk for this package.'];
+        }
+
+        // BagIt declaration + bag-info + payload manifest + tag manifest.
+        file_put_contents($workDir . '/bagit.txt',
+            "BagIt-Version: 1.0\nTag-File-Character-Encoding: UTF-8\n");
+        $bagInfo  = "Source-Organization: Heratio\n";
+        $bagInfo .= "Bagging-Date: " . now()->toDateString() . "\n";
+        $bagInfo .= "External-Identifier: " . $pkg->uuid . "\n";
+        $bagInfo .= "External-Description: " . str_replace(["\r", "\n"], ' ', (string) $pkg->name) . "\n";
+        $bagInfo .= "Package-Type: " . strtoupper((string) $pkg->package_type) . "\n";
+        $bagInfo .= "Bag-Size: " . $totalSize . " bytes\n";
+        $bagInfo .= "Payload-Oxum: {$totalSize}." . count($manifestLines) . "\n";
+        file_put_contents($workDir . '/bag-info.txt', $bagInfo);
+
+        file_put_contents($workDir . '/manifest-sha256.txt', implode("\n", $manifestLines) . "\n");
+        $tagManifest = [];
+        foreach (['bagit.txt', 'bag-info.txt', 'manifest-sha256.txt'] as $tag) {
+            $tagPath = $workDir . '/' . $tag;
+            if (is_file($tagPath)) {
+                $tagManifest[] = hash_file('sha256', $tagPath) . '  ' . $tag;
+            }
+        }
+        file_put_contents($workDir . '/tagmanifest-sha256.txt', implode("\n", $tagManifest) . "\n");
+
+        $exportPath = $exportRoot . '/' . $pkg->uuid . '.zip';
+        if (file_exists($exportPath)) @unlink($exportPath);
+        $zip = new \ZipArchive();
+        if ($zip->open($exportPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            return ['ok' => false, 'message' => 'Cannot open zip for writing: ' . $exportPath];
+        }
+        $rii = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($workDir, \RecursiveDirectoryIterator::SKIP_DOTS));
+        foreach ($rii as $item) {
+            if ($item->isDir()) continue;
+            $absolute = $item->getPathname();
+            $relativeInZip = $pkg->uuid . '/' . substr($absolute, strlen($workDir) + 1);
+            $zip->addFile($absolute, $relativeInZip);
+        }
+        $zip->close();
+        $checksum = hash_file('sha256', $exportPath) ?: '';
+
+        DB::table('preservation_package')->where('id', $packageId)->update([
+            'status'           => 'exported',
+            'export_path'      => $exportPath,
+            'source_path'      => $workDir,
+            'package_checksum' => $checksum,
+            'object_count'     => count($manifestLines),
+            'total_size'       => $totalSize,
+            'updated_at'       => now(),
+        ]);
+
+        try {
+            DB::table('preservation_package_event')->insert([
+                'package_id'     => $packageId,
+                'event_type'     => 'export',
+                'event_outcome'  => 'success',
+                'event_detail'   => 'BagIt export written to ' . $exportPath . ' (' . count($manifestLines) . ' files, ' . $totalSize . ' bytes, sha256 ' . substr($checksum, 0, 12) . '...).',
+                'event_datetime' => now(),
+                'agent_type'     => 'system',
+                'agent_value'    => 'PreservationService::exportPackage',
+            ]);
+        } catch (\Throwable $e) { /* event table optional */ }
+
+        return [
+            'ok'           => true,
+            'message'      => 'Exported ' . count($manifestLines) . ' file(s) into ' . basename($exportPath) . '.',
+            'export_path'  => $exportPath,
+            'checksum'     => $checksum,
+        ];
+    }
+
+    /**
+     * Resolve a preservation_package_object row's source file on disk.
+     * Tries the linked digital_object's path first, falls back to the
+     * heratio uploads root when path is relative.
+     */
+    private function resolveSourcePath(object $row): ?string
+    {
+        if (!empty($row->do_path) && !empty($row->file_name)) {
+            $candidate = rtrim((string) $row->do_path, '/') . '/' . $row->file_name;
+            if (is_file($candidate)) return $candidate;
+        }
+        // Fallback: search the configured uploads path for the file_name.
+        try {
+            $uploads = config('heratio.uploads_path', config('heratio.storage_path'));
+            if (is_string($uploads) && $uploads !== '' && !empty($row->file_name)) {
+                $globbed = glob($uploads . '/**/' . $row->file_name);
+                if (!empty($globbed) && is_file($globbed[0])) return $globbed[0];
+            }
+        } catch (\Throwable $e) {}
+        return null;
+    }
+
+    private function rmTree(string $dir): void
+    {
+        if (!is_dir($dir)) return;
+        $rii = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($rii as $item) {
+            if ($item->isDir()) @rmdir($item->getPathname());
+            else @unlink($item->getPathname());
+        }
+        @rmdir($dir);
     }
 
     /**

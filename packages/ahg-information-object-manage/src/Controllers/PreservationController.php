@@ -138,11 +138,13 @@ class PreservationController extends Controller
         if ($ok) {
             try {
                 DB::table('preservation_package_event')->insert([
-                    'package_id'    => $id,
-                    'event_type'    => 'update',
-                    'event_outcome' => 'success',
-                    'event_detail'  => 'Package metadata updated via /preservation/' . $slug . ' edit form.',
-                    'created_at'    => now(),
+                    'package_id'     => $id,
+                    'event_type'     => 'update',
+                    'event_outcome'  => 'success',
+                    'event_detail'   => 'Package metadata updated via /preservation/' . $slug . ' edit form.',
+                    'event_datetime' => now(),
+                    'agent_type'     => 'user',
+                    'agent_value'    => (string) (auth()->id() ?? 'anonymous'),
                 ]);
             } catch (\Throwable $e) { /* table may not exist on minimal installs */ }
         }
@@ -224,11 +226,13 @@ class PreservationController extends Controller
         // gains a preservation channel; for now we log a single create event.
         try {
             DB::table('preservation_package_event')->insert([
-                'package_id'   => $packageId,
-                'event_type'   => 'creation',
-                'event_outcome'=> 'success',
-                'event_detail' => 'Package created via /preservation/' . $slug . ' modal form.',
-                'created_at'   => $now,
+                'package_id'     => $packageId,
+                'event_type'     => 'creation',
+                'event_outcome'  => 'success',
+                'event_detail'   => 'Package created via /preservation/' . $slug . ' modal form.',
+                'event_datetime' => $now,
+                'agent_type'     => 'user',
+                'agent_value'    => (string) (auth()->id() ?? 'anonymous'),
             ]);
         } catch (\Throwable $e) {
             // preservation_package_event may not exist on minimal installs; non-fatal.
@@ -237,6 +241,34 @@ class PreservationController extends Controller
         return redirect()
             ->route('io.preservation', ['slug' => $slug])
             ->with('success', strtoupper($type) . ' package "' . $name . '" created with ' . $count . ' object' . ($count === 1 ? '' : 's') . '.');
+    }
+
+    /**
+     * POST /preservation/{slug}/{id}/export — BagIt-export an existing
+     * preservation_package row. Reuses the linked preservation_package_object
+     * rows + their digital_object source files; writes a BagIt 1.0 zip to
+     * storage/app/preservation/<uuid>.zip and stamps export_path + status.
+     *
+     * Belongs-to-this-IO check prevents cross-record export.
+     */
+    public function exportPackage(Request $request, string $slug, int $id)
+    {
+        $io = $this->getIO($slug);
+        if (!$io) abort(404);
+
+        $belongs = DB::table('preservation_package_object as ppo')
+            ->join('digital_object as do', 'do.id', '=', 'ppo.digital_object_id')
+            ->where('ppo.package_id', $id)
+            ->where('do.object_id', $io->id)
+            ->exists();
+        if (!$belongs) {
+            return back()->with('error', 'Package #' . $id . ' is not linked to this record.');
+        }
+
+        $result = $this->service->exportPackage($id);
+        return redirect()
+            ->route('io.preservation', ['slug' => $slug, 'view' => $id])
+            ->with($result['ok'] ? 'success' : 'error', $result['message']);
     }
 
     /**

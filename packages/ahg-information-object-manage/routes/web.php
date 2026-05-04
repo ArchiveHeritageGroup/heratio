@@ -138,6 +138,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/preservation/{slug}', [PreservationController::class, 'index'])->name('io.preservation');
     Route::post('/preservation/{slug}', [PreservationController::class, 'createPackage'])->name('io.preservation.create');
     Route::post('/preservation/{slug}/{id}/update', [PreservationController::class, 'updatePackage'])->name('io.preservation.update')->where('id', '[0-9]+');
+    Route::post('/preservation/{slug}/{id}/export', [PreservationController::class, 'exportPackage'])->name('io.preservation.export')->where('id', '[0-9]+');
 
     // AI Tools
     Route::get('/ai/ner/extract/{id}', [AiController::class, 'extract'])->name('io.ai.extract')->where('id', '[0-9]+');
