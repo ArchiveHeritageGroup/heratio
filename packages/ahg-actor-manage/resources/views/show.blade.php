@@ -670,6 +670,14 @@
           </div>
         </li>
       @endif
+      @if(\Illuminate\Support\Facades\Route::has('ahgtranslation.translate')
+          && \AhgCore\Services\AclService::check($actor, 'translate'))
+        <li>
+          <a class="btn atom-btn-outline-light" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateSbsModal-{{ $actor->id }}">
+            <i class="fas fa-columns me-1"></i>{{ __('Translate (side-by-side)') }}
+          </a>
+        </li>
+      @endif
     </ul>
   </section>
   @endif
@@ -686,4 +694,34 @@
       @include('ahg-ric::_ric-entities-panel', ['record' => $actor, 'recordType' => 'actor'])
     @endif
   @endif
+
+  {{-- Side-by-side translator. Actor uses actor_i18n only (Repository's
+       repository_i18n is the only sub-class with a secondary table). The
+       controller's I18N_TABLE_BY_CLASS['QubitActor'] already whitelists
+       these 13 columns, so no controller change is needed. --}}
+  @auth
+    @if(view()->exists('ahg-translation::_translate-sbs')
+        && \AhgCore\Services\AclService::check($actor, 'translate'))
+      @include('ahg-translation::_translate-sbs', [
+        'objectId'      => $actor->id,
+        'sbsEntityType' => 'actor',
+        'sbsI18nTable'  => 'actor_i18n',
+        'sbsFields'     => [
+            'authorized_form_of_name'            => 'Authorized form of name',
+            'dates_of_existence'                 => 'Dates of existence',
+            'history'                            => 'History',
+            'places'                             => 'Places',
+            'legal_status'                       => 'Legal status',
+            'functions'                          => 'Functions',
+            'mandates'                           => 'Mandates',
+            'internal_structures'                => 'Internal structures',
+            'general_context'                    => 'General context',
+            'institution_responsible_identifier' => 'Institution responsible identifier',
+            'rules'                              => 'Rules',
+            'sources'                            => 'Sources',
+            'revision_history'                   => 'Revision history',
+        ],
+      ])
+    @endif
+  @endauth
 @endsection
