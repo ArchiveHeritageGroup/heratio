@@ -448,6 +448,120 @@
              Keeps this modal LABELS-only so admins can't accidentally type label
              text into a value cell. --}}
 
+        {{-- ── Issue #59 Phase 5 — Dropdown values used on this record ── --}}
+        @php
+          // Introspect the record to find dropdown-backed columns. Each entry
+          // describes one source-of-truth dropdown row that can be translated
+          // via the Phase 3 /admin/dropdowns/{source}/{id}/i18n endpoint.
+          $sbsDropdowns = [];
+          try {
+              // Term-FK columns on information_object - all point at term.id
+              // and are translated via term_i18n. Source = 'term', id = term.id.
+              $ioRow = \Illuminate\Support\Facades\DB::table('information_object')
+                  ->where('id', $objectId)
+                  ->select('level_of_description_id', 'description_status_id', 'description_detail_id', 'collection_type_id', 'display_standard_id')
+                  ->first();
+              if ($ioRow) {
+                  $termCols = [
+                      'level_of_description_id' => 'Level of description',
+                      'description_status_id'   => 'Description status',
+                      'description_detail_id'   => 'Description detail',
+                      'collection_type_id'      => 'Collection type',
+                      'display_standard_id'     => 'Display standard',
+                  ];
+                  foreach ($termCols as $col => $fieldLabel) {
+                      $termId = (int) ($ioRow->{$col} ?? 0);
+                      if ($termId <= 0) continue;
+                      $en = \Illuminate\Support\Facades\DB::table('term_i18n')
+                          ->where('id', $termId)->where('culture', 'en')->value('name');
+                      if (!$en) continue;
+                      $sbsDropdowns[] = [
+                          'source' => 'term',
+                          'id'     => $termId,
+                          'field'  => $fieldLabel,
+                          'code'   => $col,
+                          'en'     => (string) $en,
+                      ];
+                  }
+              }
+
+              // ahg_dropdown-backed columns on museum_metadata. Each cell
+              // stores the dropdown CODE (not id), so we resolve the id by
+              // looking up ahg_dropdown WHERE taxonomy=col AND code=cell.
+              if (\Illuminate\Support\Facades\Schema::hasTable('museum_metadata')) {
+                  $mmRow = \Illuminate\Support\Facades\DB::table('museum_metadata')
+                      ->where('object_id', $objectId)
+                      ->select('work_type', 'classification', 'condition_term', 'treatment_type')
+                      ->first();
+                  if ($mmRow) {
+                      $ahgCols = [
+                          'work_type'      => 'Work type',
+                          'classification' => 'Classification',
+                          'condition_term' => 'Condition',
+                          'treatment_type' => 'Treatment type',
+                      ];
+                      foreach ($ahgCols as $col => $fieldLabel) {
+                          $code = (string) ($mmRow->{$col} ?? '');
+                          if ($code === '') continue;
+                          $row = \Illuminate\Support\Facades\DB::table('ahg_dropdown')
+                              ->where('taxonomy', $col)->where('code', $code)
+                              ->select('id', 'label')->first();
+                          if (!$row) continue;
+                          $sbsDropdowns[] = [
+                              'source' => 'ahg_dropdown',
+                              'id'     => (int) $row->id,
+                              'field'  => $fieldLabel,
+                              'code'   => $code,
+                              'en'     => (string) ($row->label ?? $code),
+                          ];
+                      }
+                  }
+              }
+          } catch (\Throwable $e) {
+              // Defensive — never break the SBS modal because of an introspection error.
+              $sbsDropdowns = [];
+          }
+        @endphp
+        @if(!empty($sbsDropdowns))
+          <div id="sbs-section-dropdowns-{{ $objectId }}"></div>
+          <h6 class="text-uppercase small fw-bold text-muted mt-2 mb-2">
+            <i class="fas fa-list me-1"></i>{{ __('Dropdown values used on this record') }}
+            <span class="text-muted">({{ __('translates the source-of-truth dropdown row — appears anywhere this code is used') }})</span>
+          </h6>
+          <div class="table-responsive mb-4" id="sbs-dropdowns-{{ $objectId }}"
+               data-csrf="{{ csrf_token() }}">
+            <table class="table table-sm table-bordered align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width:18%;">{{ __('Field') }}</th>
+                  <th style="width:14%;">{{ __('Source') }}</th>
+                  <th style="width:24%;"><span class="badge bg-light text-dark">en</span> {{ __('Source label') }}</th>
+                  <th style="width:32%;"><span class="badge bg-light text-dark sbs-dd-target-badge">{{ $defaultTarget }}</span> {{ __('Target — edit here') }}</th>
+                  <th style="width:12%;"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach($sbsDropdowns as $dd)
+                  <tr class="sbs-dd-row" data-source="{{ $dd['source'] }}" data-id="{{ $dd['id'] }}" data-save-url="{{ url('/admin/dropdowns/' . $dd['source'] . '/' . $dd['id'] . '/i18n') }}">
+                    <td><span class="small fw-semibold">{{ __($dd['field']) }}</span><br><code class="small text-muted">{{ $dd['code'] }}</code></td>
+                    <td><span class="badge bg-secondary">{{ $dd['source'] }}</span></td>
+                    <td><div class="small">{{ $dd['en'] }}</div></td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm sbs-dd-target">
+                      <div class="sbs-dd-status small mt-1" style="min-height:1em;"></div>
+                    </td>
+                    <td class="text-end">
+                      <button type="button" class="btn btn-sm btn-success sbs-dd-save w-100" title="{{ __('Save translation') }}">
+                        <i class="fas fa-save"></i>
+                      </button>
+                    </td>
+                  </tr>
+                @endforeach
+              </tbody>
+            </table>
+          </div>
+        @endif
+
       </div>
       <div class="modal-footer flex-wrap gap-2">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
@@ -706,6 +820,74 @@
           .finally(function () { btn.disabled = false; });
       });
     });
+
+    // Issue #59 Phase 5 — dropdown rows save handler. Each row carries
+    // data-source + data-id + data-save-url; the URL is the Phase 3 endpoint
+    // /admin/dropdowns/{source}/{id}/i18n. Admin auto-applies; editor queues
+    // a draft into ahg_translation_draft. Same target-culture as the rest of
+    // the SBS modal (driven by tgtSel).
+    var ddTbl = modal.querySelector('#sbs-dropdowns-' + objectId);
+    if (ddTbl) {
+      var csrf = ddTbl.getAttribute('data-csrf');
+      var ddTgtBadge = modal.querySelector('.sbs-dd-target-badge');
+
+      // Keep the dropdown-section target badge in sync with the global tgtSel.
+      if (tgtSel && ddTgtBadge) {
+        tgtSel.addEventListener('change', function () { ddTgtBadge.textContent = tgtSel.value; });
+      }
+
+      ddTbl.querySelectorAll('.sbs-dd-row').forEach(function (row) {
+        var btn    = row.querySelector('.sbs-dd-save');
+        var input  = row.querySelector('.sbs-dd-target');
+        var status = row.querySelector('.sbs-dd-status');
+        var url    = row.getAttribute('data-save-url');
+        if (!btn || !input || !url) return;
+
+        btn.addEventListener('click', function () {
+          var culture = tgtSel ? tgtSel.value : '';
+          var label   = input.value.trim();
+          if (!culture || !label) {
+            status.textContent = 'Pick a target culture and enter a label.';
+            status.className = 'sbs-dd-status text-warning small mt-1';
+            return;
+          }
+          btn.disabled = true;
+          status.textContent = 'Saving...';
+          status.className = 'sbs-dd-status text-muted small mt-1';
+          var fd = new FormData();
+          fd.append('_token', csrf);
+          fd.append('culture', culture);
+          fd.append('label', label);
+          fetch(url, {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body: fd,
+          })
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+          .then(function (resp) {
+            btn.disabled = false;
+            if (resp.ok && resp.body && resp.body.ok) {
+              if (resp.body.state === 'pending') {
+                status.innerHTML = '<i class="fas fa-clock me-1"></i>queued for review (draft #' + resp.body.draft_id + ')';
+                status.className = 'sbs-dd-status text-warning small mt-1';
+              } else {
+                status.innerHTML = '<i class="fas fa-check me-1"></i>saved';
+                status.className = 'sbs-dd-status text-success small mt-1';
+                setTimeout(function () { if (status.textContent === 'saved') status.textContent = ''; }, 2500);
+              }
+            } else {
+              status.textContent = (resp.body && resp.body.error) ? resp.body.error : 'Save failed';
+              status.className = 'sbs-dd-status text-danger small mt-1';
+            }
+          })
+          .catch(function (err) {
+            btn.disabled = false;
+            status.textContent = 'Network error: ' + err.message;
+            status.className = 'sbs-dd-status text-danger small mt-1';
+          });
+        });
+      });
+    }
   }
 
   document.addEventListener('DOMContentLoaded', function () { init({{ $objectId }}); });
