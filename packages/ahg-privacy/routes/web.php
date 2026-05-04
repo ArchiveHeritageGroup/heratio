@@ -13,6 +13,7 @@ Route::prefix('admin/privacy')->middleware(['web', 'auth'])->group(function () {
     Route::get('/dashboard', [PrivacyController::class, 'dashboard'])->name('ahgprivacy.dashboard');
     Route::get('/dsar-confirmation', [PrivacyController::class, 'dsarConfirmation'])->name('ahgprivacy.dsar-confirmation');
     Route::get('/dsar-request', [PrivacyController::class, 'dsarRequest'])->name('ahgprivacy.dsar-request');
+    Route::post('/dsar-request', [PrivacyController::class, 'dsarRequestStore'])->name('ahgprivacy.dsar-request.store');
     Route::get('/dsar-status', [PrivacyController::class, 'dsarStatus'])->name('ahgprivacy.dsar-status');
     Route::get('/index', [PrivacyController::class, 'index'])->name('ahgprivacy.index');
     Route::get('/breach-add', [PrivacyController::class, 'breachAdd'])->name('ahgprivacy.breach-add');
@@ -29,6 +30,7 @@ Route::prefix('admin/privacy')->middleware(['web', 'auth'])->group(function () {
     Route::get('/consent-list', [PrivacyController::class, 'consentList'])->name('ahgprivacy.consent-list');
     Route::get('/consent-view', [PrivacyController::class, 'consentView'])->name('ahgprivacy.consent-view');
     Route::get('/dsar-add', [PrivacyController::class, 'dsarAdd'])->name('ahgprivacy.dsar-add');
+    Route::post('/dsar-add', [PrivacyController::class, 'dsarAddStore'])->name('ahgprivacy.dsar-add.store');
     Route::get('/dsar-edit', [PrivacyController::class, 'dsarEdit'])->name('ahgprivacy.dsar-edit');
     Route::get('/dsar-list', [PrivacyController::class, 'dsarList'])->name('ahgprivacy.dsar-list');
     Route::get('/dsar-view', [PrivacyController::class, 'dsarView'])->name('ahgprivacy.dsar-view');

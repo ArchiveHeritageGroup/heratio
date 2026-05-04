@@ -17,7 +17,8 @@
 
     <div class="card">
         <div class="card-body">
-            <form method="post" action="{{ route('ahgprivacy.dsar-request') }}">
+            <form method="post" action="{{ route('ahgprivacy.dsar-request.store') }}">
+                @csrf
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">{{ __('Request Type') }} <span class="text-danger">*</span></label>

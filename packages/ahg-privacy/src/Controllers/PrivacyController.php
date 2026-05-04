@@ -194,7 +194,41 @@ class PrivacyController extends Controller
 
     public function dsarConfirmation() { return view('privacy::dsar-confirmation'); }
 
-    public function dsarRequest() { return view('privacy::dsar-request'); }
+    public function dsarRequest()
+    {
+        // Public-facing DSAR request form (data subject submits a request).
+        // Falls back to popia for the request-type list — the form has no
+        // jurisdiction selector at this surface; the data protection officer
+        // routes the request server-side once received.
+        $requestTypes = PrivacyService::getRequestTypes('popia');
+        return view('privacy::dsar-request', compact('requestTypes'));
+    }
+
+    /**
+     * POST handler for the public dsar-request form. Persists a row to
+     * privacy_dsar (and i18n + log) with status='received', emits the
+     * reference number to the confirmation page.
+     */
+    public function dsarRequestStore(Request $request)
+    {
+        $jurisdiction = (string) $request->input('jurisdiction', 'popia');
+        $validated = $request->validate([
+            'request_type'        => 'required|string|max:89',
+            'requestor_name'      => 'required|string|max:255',
+            'requestor_email'     => 'nullable|email|max:255',
+            'requestor_phone'     => 'nullable|string|max:50',
+            'requestor_id_type'   => 'nullable|string|max:50',
+            'requestor_id_number' => 'nullable|string|max:100',
+            'description'         => 'nullable|string',
+        ]);
+
+        $dsarId = $this->createDsarRecord($jurisdiction, $validated, 'public-form');
+
+        return redirect()
+            ->route('ahgprivacy.dsar-confirmation')
+            ->with('reference_number', $this->fetchReferenceNumber($dsarId))
+            ->with('success', 'Your request has been received. Please save the reference number for tracking.');
+    }
 
     public function dsarStatus() { return view('privacy::dsar-status'); }
 
@@ -328,7 +362,175 @@ class PrivacyController extends Controller
 
     public function consentView() { return view('privacy::consent-view'); }
 
-    public function dsarAdd() { return view('privacy::dsar-add'); }
+    public function dsarAdd()
+    {
+        // Admin-facing DSAR-creation form. Loads jurisdictions, request types,
+        // id-type taxonomy, and a user list for the Assigned-To dropdown.
+        $jurisdictions = $this->loadJurisdictions();
+        $defaultJurisdiction = array_key_first($jurisdictions);
+        $requestTypes = PrivacyService::getRequestTypes($defaultJurisdiction);
+
+        $idTypes = [];
+        try {
+            $rows = DB::table('ahg_dropdown')->where('taxonomy', 'id_type')->orderBy('sort_order')->orderBy('label')->get(['code', 'label']);
+            foreach ($rows as $r) $idTypes[$r->code] = $r->label;
+        } catch (\Throwable $e) { /* table optional */ }
+
+        $users = collect();
+        if (Schema::hasTable('user')) {
+            $users = DB::table('user')->select('id', 'username', 'email')->orderBy('username')->get();
+        }
+
+        return view('privacy::dsar-add', compact('jurisdictions', 'defaultJurisdiction', 'requestTypes', 'idTypes', 'users'));
+    }
+
+    /**
+     * POST handler for the admin dsar-add form. Same persistence shape as
+     * the public dsarRequestStore, but also accepts admin-only fields:
+     * jurisdiction, priority, received_date, assigned_to.
+     */
+    public function dsarAddStore(Request $request)
+    {
+        $jurisdiction = (string) $request->input('jurisdiction', 'popia');
+        $validated = $request->validate([
+            'jurisdiction'        => 'nullable|string|max:30',
+            'request_type'        => 'required|string|max:89',
+            'priority'            => 'nullable|in:low,normal,high,urgent',
+            'received_date'       => 'nullable|date',
+            'assigned_to'         => 'nullable|integer',
+            'requestor_name'      => 'required|string|max:255',
+            'requestor_email'     => 'nullable|email|max:255',
+            'requestor_phone'     => 'nullable|string|max:50',
+            'requestor_id_type'   => 'nullable|string|max:50',
+            'requestor_id_number' => 'nullable|string|max:100',
+            'description'         => 'nullable|string',
+        ]);
+
+        $dsarId = $this->createDsarRecord(
+            $jurisdiction,
+            $validated,
+            'admin-' . (string) (auth()->id() ?? 'unknown'),
+            [
+                'priority'      => $validated['priority']      ?? 'normal',
+                'received_date' => $validated['received_date'] ?? null,
+                'assigned_to'   => $validated['assigned_to']   ?? null,
+            ]
+        );
+
+        return redirect()
+            ->route('ahgprivacy.dsar-list')
+            ->with('success', 'DSAR ' . $this->fetchReferenceNumber($dsarId) . ' created.');
+    }
+
+    /**
+     * Shared INSERT helper for the public + admin DSAR-create paths.
+     * Generates the reference number, computes due_date from jurisdiction
+     * dsar_days, writes privacy_dsar + privacy_dsar_i18n + privacy_dsar_log
+     * inside a transaction so partial inserts don't leave orphans.
+     *
+     * Returns the new DSAR id.
+     */
+    private function createDsarRecord(string $jurisdiction, array $data, string $source, array $adminFields = []): int
+    {
+        $juris = $this->loadJurisdictions();
+        if (!isset($juris[$jurisdiction])) {
+            $jurisdiction = array_key_first($juris) ?: 'popia';
+        }
+        $dsarDays = (int) ($juris[$jurisdiction]['dsar_days'] ?? 30);
+
+        $receivedDate = $adminFields['received_date'] ?? now()->toDateString();
+        $dueDate      = \Carbon\Carbon::parse($receivedDate)->addDays($dsarDays)->toDateString();
+        $reference    = 'DSAR-' . now()->format('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(6));
+
+        return DB::transaction(function () use ($data, $jurisdiction, $receivedDate, $dueDate, $reference, $source, $adminFields) {
+            $dsarId = DB::table('privacy_dsar')->insertGetId([
+                'reference_number'    => $reference,
+                'jurisdiction'        => $jurisdiction,
+                'request_type'        => $data['request_type'],
+                'requestor_name'      => $data['requestor_name'],
+                'requestor_email'     => $data['requestor_email']     ?? null,
+                'requestor_phone'     => $data['requestor_phone']     ?? null,
+                'requestor_id_type'   => $data['requestor_id_type']   ?? null,
+                'requestor_id_number' => $data['requestor_id_number'] ?? null,
+                'status'              => 'received',
+                'priority'            => $adminFields['priority']     ?? 'normal',
+                'received_date'       => $receivedDate,
+                'due_date'            => $dueDate,
+                'assigned_to'         => $adminFields['assigned_to']  ?? null,
+                'created_at'          => now(),
+                'updated_at'          => now(),
+            ]);
+
+            if (!empty($data['description'])) {
+                $culture = app()->getLocale() ?: 'en';
+                DB::table('privacy_dsar_i18n')->insert([
+                    'id'          => $dsarId,
+                    'culture'     => $culture,
+                    'description' => $data['description'],
+                ]);
+            }
+
+            try {
+                DB::table('privacy_dsar_log')->insert([
+                    'dsar_id'    => $dsarId,
+                    'action'     => 'created',
+                    'details'    => 'DSAR ' . $reference . ' created via ' . $source . '.',
+                    'user_id'    => auth()->id(),
+                    'ip_address' => request()->ip(),
+                    'created_at' => now(),
+                ]);
+            } catch (\Throwable $e) { /* log table optional */ }
+
+            return $dsarId;
+        });
+    }
+
+    /**
+     * Look up a DSAR's reference_number by id (used by the success-flash
+     * redirect after dsarRequestStore / dsarAddStore).
+     */
+    private function fetchReferenceNumber(int $dsarId): ?string
+    {
+        try {
+            return (string) DB::table('privacy_dsar')->where('id', $dsarId)->value('reference_number') ?: null;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Shared loader for the privacy_jurisdiction table → keyed array shape
+     * the dsar/breach/complaint/consent forms expect. Falls back to a
+     * minimal popia + gdpr seed when the table is empty so the page never
+     * renders with no choices.
+     */
+    private function loadJurisdictions(): array
+    {
+        $jurisdictions = [];
+        if (Schema::hasTable('privacy_jurisdiction')) {
+            foreach (DB::table('privacy_jurisdiction')->where('is_active', 1)->orderBy('sort_order')->get() as $j) {
+                $jurisdictions[$j->code] = [
+                    'name'           => $j->name,
+                    'full_name'      => $j->full_name,
+                    'country'        => $j->country,
+                    'region'         => $j->region,
+                    'regulator'      => $j->regulator,
+                    'regulator_url'  => $j->regulator_url,
+                    'dsar_days'      => (int) ($j->dsar_days ?? 30),
+                    'breach_hours'   => (int) ($j->breach_hours ?? 72),
+                    'effective_date' => $j->effective_date,
+                    'icon'           => $j->icon ?: 'un',
+                ];
+            }
+        }
+        if (empty($jurisdictions)) {
+            $jurisdictions = [
+                'popia' => ['name' => 'POPIA', 'full_name' => 'Protection of Personal Information Act',     'country' => 'South Africa',   'region' => 'Africa', 'regulator' => 'Information Regulator',           'regulator_url' => 'https://inforegulator.org.za', 'dsar_days' => 30, 'breach_hours' => 72, 'effective_date' => '2021-07-01', 'icon' => 'za'],
+                'gdpr'  => ['name' => 'GDPR',  'full_name' => 'General Data Protection Regulation',         'country' => 'European Union', 'region' => 'Europe', 'regulator' => 'European Data Protection Board', 'regulator_url' => 'https://edpb.europa.eu',       'dsar_days' => 30, 'breach_hours' => 72, 'effective_date' => '2018-05-25', 'icon' => 'eu'],
+            ];
+        }
+        return $jurisdictions;
+    }
 
     public function dsarEdit() { return view('privacy::dsar-edit'); }
 

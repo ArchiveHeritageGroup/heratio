@@ -9,7 +9,8 @@
         <h1 class="h2 mb-0"><i class="fas fa-file-alt me-2"></i>{{ __('New DSAR') }}</h1>
     </div>
 
-    <form method="post" action="{{ route('ahgprivacy.dsar-add') }}">
+    <form method="post" action="{{ route('ahgprivacy.dsar-add.store') }}">
+        @csrf
         <div class="row">
             <div class="col-lg-8">
                 <div class="card mb-4">
@@ -58,10 +59,7 @@
                                 <label class="form-label">{{ __('Assigned To') }}</label>
                                 <select name="assigned_to" class="form-select">
                                     <option value="">{{ __('-- Unassigned --') }}</option>
-                                    @php
-$users = \Illuminate\Database\Capsule\Manager::table('user')->select('id', 'username', 'email')->get();
-                                    foreach ($users as $user):
-@endphp
+                                    @foreach($users as $user)
                                     <option value="{{ $user->id }}">{{ $user->username }} ({{ $user->email }})</option>
                                     @endforeach
                                 </select>
