@@ -1771,33 +1771,42 @@ class InformationObjectController extends Controller
             ->where('id', $ioId)
             ->update($ioUpdate);
 
+        // Issue #61 Phase 3c: snapshot the existing i18n field values so
+        // OverrideService can detect AI-overridden fields after the save.
+        // Cheap (one row, narrow column set); the cost is justified by the
+        // provenance discipline payoff (see ADR-0002 sec 2).
+        $i18nFieldKeys = [
+            'title', 'alternate_title', 'edition', 'extent_and_medium',
+            'archival_history', 'acquisition', 'scope_and_content',
+            'appraisal', 'accruals', 'arrangement', 'access_conditions',
+            'reproduction_conditions', 'physical_characteristics',
+            'finding_aids', 'location_of_originals', 'location_of_copies',
+            'related_units_of_description', 'institution_responsible_identifier',
+            'rules', 'sources', 'revision_history',
+        ];
+        $beforeSnapshot = (array) (DB::table('information_object_i18n')
+            ->where('id', $ioId)
+            ->where('culture', $culture)
+            ->first($i18nFieldKeys) ?? []);
+
         // Update information_object_i18n table
+        $i18nUpdate = [];
+        foreach ($i18nFieldKeys as $k) {
+            $i18nUpdate[$k] = $request->input($k);
+        }
         DB::table('information_object_i18n')
             ->where('id', $ioId)
             ->where('culture', $culture)
-            ->update([
-                'title' => $request->input('title'),
-                'alternate_title' => $request->input('alternate_title'),
-                'edition' => $request->input('edition'),
-                'extent_and_medium' => $request->input('extent_and_medium'),
-                'archival_history' => $request->input('archival_history'),
-                'acquisition' => $request->input('acquisition'),
-                'scope_and_content' => $request->input('scope_and_content'),
-                'appraisal' => $request->input('appraisal'),
-                'accruals' => $request->input('accruals'),
-                'arrangement' => $request->input('arrangement'),
-                'access_conditions' => $request->input('access_conditions'),
-                'reproduction_conditions' => $request->input('reproduction_conditions'),
-                'physical_characteristics' => $request->input('physical_characteristics'),
-                'finding_aids' => $request->input('finding_aids'),
-                'location_of_originals' => $request->input('location_of_originals'),
-                'location_of_copies' => $request->input('location_of_copies'),
-                'related_units_of_description' => $request->input('related_units_of_description'),
-                'institution_responsible_identifier' => $request->input('institution_responsible_identifier'),
-                'rules' => $request->input('rules'),
-                'sources' => $request->input('sources'),
-                'revision_history' => $request->input('revision_history'),
-            ]);
+            ->update($i18nUpdate);
+
+        // Detect AI-inference overrides on whichever of the i18n fields just
+        // changed. No-op when no field has a prior inference recorded.
+        try {
+            app(\AhgProvenanceAi\Services\OverrideService::class)
+                ->detectOverridesFromForm('information_object', (int) $ioId, $beforeSnapshot, $i18nUpdate, (int) (auth()->id() ?? 0));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('IO update: override detection failed: ' . $e->getMessage());
+        }
 
         // Save museum_metadata if this IO has CCO fields submitted
         try {

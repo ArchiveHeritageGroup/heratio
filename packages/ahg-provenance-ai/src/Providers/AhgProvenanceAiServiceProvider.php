@@ -26,6 +26,7 @@
 namespace AhgProvenanceAi\Providers;
 
 use AhgProvenanceAi\Services\InferenceService;
+use AhgProvenanceAi\Services\OverrideService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -44,6 +45,9 @@ class AhgProvenanceAiServiceProvider extends ServiceProvider
     {
         $this->app->singleton(InferenceService::class, function ($app) {
             return new InferenceService();
+        });
+        $this->app->singleton(OverrideService::class, function ($app) {
+            return new OverrideService();
         });
     }
 

@@ -82,11 +82,98 @@ class InferenceService
             'updated_at'          => $now,
         ]);
 
-        // Phase 1c hook-point: enqueue the Fuseki RDF-Star insert.
-        // Implementation lands when SparqlUpdateService is wired; see ADR-0002 sec 7.
+        // Phase 3a: write the canonical RDF-Star annotation to Fuseki.
         $this->writeRdfStarAnnotation($id, $uuid, $r);
 
+        // Phase 3d: if confidence is below the per-service threshold,
+        // enqueue a workflow review task. No-op when threshold is unset
+        // (NULL confidence cannot be compared) or workflow not configured.
+        $this->maybeEnqueueReview($id, $r);
+
         return ['id' => $id, 'uuid' => $uuid];
+    }
+
+    /**
+     * If the inference's confidence is below the configured threshold for
+     * its service, queue a workflow task for human review (ADR-0002 sec 5).
+     *
+     * Threshold lookup: `ahg_settings.setting_key = ai_provenance.<service>.confidence_review_threshold`,
+     * service name lowercased. Missing setting = no auto-review (rely on
+     * ad-hoc reviewer browsing instead).
+     *
+     * Workflow + step ids: `ahg_settings.setting_key = ai_provenance.review_workflow_id`
+     * and `ai_provenance.review_step_id`. When unset, we log + skip (the
+     * deployment can configure these later without breaking AI writes).
+     */
+    protected function maybeEnqueueReview(int $inferenceId, InferenceRecord $r): void
+    {
+        if ($r->confidence === null) {
+            return; // can't compare without a score
+        }
+
+        $threshold = $this->setting('ai_provenance.' . strtolower($r->serviceName) . '.confidence_review_threshold');
+        if ($threshold === null) {
+            return; // not configured; deployment opts in by setting the key
+        }
+        $threshold = (float) $threshold;
+        if ($r->confidence >= $threshold) {
+            return; // above threshold = auto-applies, no review needed
+        }
+
+        $workflowId = $this->setting('ai_provenance.review_workflow_id');
+        $stepId     = $this->setting('ai_provenance.review_step_id');
+        if ($workflowId === null || $stepId === null) {
+            Log::info('[ahg-provenance-ai] inference below threshold but no review workflow configured', [
+                'inference_id' => $inferenceId,
+                'service' => $r->serviceName,
+                'confidence' => $r->confidence,
+                'threshold' => $threshold,
+            ]);
+            return;
+        }
+
+        try {
+            DB::table('ahg_workflow_task')->insert([
+                'workflow_id'      => (int) $workflowId,
+                'workflow_step_id' => (int) $stepId,
+                'object_id'        => $r->targetEntityId,
+                'object_type'      => $r->targetEntityType,
+                'status'           => 'pending',
+                'priority'         => 'normal',
+                'submitted_by'     => $r->userId ?? 0,
+                'metadata'         => json_encode([
+                    'kind'            => 'ai_inference_review',
+                    'inference_id'    => $inferenceId,
+                    'service'         => $r->serviceName,
+                    'model'           => $r->modelName,
+                    'model_version'   => $r->modelVersion,
+                    'confidence'      => $r->confidence,
+                    'threshold'       => $threshold,
+                    'standard'        => $r->standard,
+                    'target_field'    => $r->targetField,
+                    'output_excerpt'  => $r->outputExcerpt,
+                ], JSON_UNESCAPED_UNICODE),
+                'created_at'       => now(),
+                'updated_at'       => now(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-provenance-ai] failed to enqueue review task: ' . $e->getMessage(), [
+                'inference_id' => $inferenceId,
+            ]);
+        }
+    }
+
+    /**
+     * Read an ahg_settings value or return null if absent / empty.
+     */
+    private function setting(string $key)
+    {
+        try {
+            $v = DB::table('ahg_settings')->where('setting_key', $key)->value('setting_value');
+            return ($v !== null && $v !== '') ? $v : null;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     /**
@@ -115,28 +202,120 @@ class InferenceService
     }
 
     /**
-     * Phase 1 stub for the Fuseki write half of the contract.
+     * Phase 3a: build the RDF-Star annotation for an inference and write it
+     * to Fuseki via SparqlUpdateService.
      *
-     * Once SparqlUpdateService lands in ahg-ric, this method will:
-     *   - build the RDF-Star turtle for the inference (per ADR-0002 sec 2)
-     *   - call SparqlUpdateService::insertRdfStar($graph, $turtle)
-     *   - on success, UPDATE ahg_ai_inference SET fuseki_graph_uri = $graph
+     * Turtle shape (per ADR-0002 sec 2 — RDF-Star meta-assertion on the
+     * generated triple):
      *
-     * For Phase 1, this is a no-op so the SQL half ships standalone and
-     * the AI services can start logging today. The replay job (separate
-     * Phase 1.5 task) will back-fill Fuseki once the update endpoint is wired.
+     *   <<:target :field "<output-hash>">> prov:wasGeneratedBy :inference ;
+     *                                       prov:generatedAtTime "..."^^xsd:dateTime ;
+     *                                       ex:confidence "..."^^xsd:decimal ;
+     *                                       ex:model "spaCy en_core_web_sm 3.8.0" ;
+     *                                       ex:standard "ICIP-name-access-points" .
+     *
+     * On success: UPDATE ahg_ai_inference SET fuseki_graph_uri = <graph-uri>.
+     * On failure: log warning, leave fuseki_graph_uri NULL so the future
+     * replay job picks the row up (per ADR-0002 sec 1, dual-store with
+     * SQL-first then Fuseki-replay).
      */
     protected function writeRdfStarAnnotation(int $inferenceId, string $uuid, InferenceRecord $r): void
     {
-        // Intentionally empty in Phase 1. Implemented in Phase 1c follow-up.
-        // Logging at debug level so ops can confirm the call site fires.
-        if (config('app.debug')) {
-            Log::debug('[ahg-provenance-ai] inference recorded (Fuseki write deferred)', [
+        try {
+            $graphUri = 'urn:ahg:provenance-ai:inference:' . $uuid;
+            $turtle   = $this->buildInferenceTurtle($uuid, $r);
+
+            $upd    = app(\AhgRic\Services\SparqlUpdateService::class);
+            $result = $upd->insertRdfStar($graphUri, $turtle);
+
+            if (!empty($result['ok'])) {
+                DB::table('ahg_ai_inference')->where('id', $inferenceId)
+                    ->update(['fuseki_graph_uri' => $graphUri]);
+            } else {
+                Log::warning('[ahg-provenance-ai] Fuseki RDF-Star write deferred for replay', [
+                    'inference_id' => $inferenceId,
+                    'uuid'         => $uuid,
+                    'http_status'  => $result['status']  ?? null,
+                    'error'        => $result['error']   ?? null,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // The SQL row is already committed; Fuseki failure must never
+            // poison the AI service's caller. Replay job will retry.
+            Log::warning('[ahg-provenance-ai] Fuseki write threw, queued for replay: ' . $e->getMessage(), [
                 'inference_id' => $inferenceId,
-                'uuid'         => $uuid,
-                'service'      => $r->serviceName,
-                'target'       => "{$r->targetEntityType}/{$r->targetEntityId}/{$r->targetField}",
             ]);
         }
+    }
+
+    /**
+     * Build the turtle-star body for one inference. Pure-string output
+     * (no SPARQL wrapping); SparqlUpdateService::insertRdfStar handles
+     * the INSERT DATA + GRAPH wrapping.
+     *
+     * Prefixes are declared inline so the body is portable to other
+     * SPARQL endpoints if the deployment ever splits the store.
+     */
+    protected function buildInferenceTurtle(string $uuid, InferenceRecord $r): string
+    {
+        $prefixes = "@prefix prov: <http://www.w3.org/ns/prov#> .\n"
+                  . "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n"
+                  . "@prefix ex: <https://heratio.theahg.co.za/ns/provenance-ai#> .\n"
+                  . "@prefix ric: <https://www.ica.org/standards/RiC/ontology#> .\n";
+
+        $inference = "<urn:ahg:provenance-ai:inference:{$uuid}>";
+        $target    = $this->targetUri($r);
+
+        // The "thing being asserted" - we anchor the meta-assertion on the
+        // generated triple <target ex:hasGenerated <output-hash>> so the
+        // RDF-Star annotation is well-formed even before the AI write
+        // commits. The output_hash sentinel makes the meta-assertion
+        // round-trippable to the original output via ahg_ai_inference.output_hash.
+        $outputNode = "<urn:ahg:provenance-ai:output:{$r->outputHash}>";
+
+        $generatedAt = now()->toIso8601ZuluString();
+        $body = $prefixes
+              . "{$inference} a prov:Activity ;\n"
+              . "    prov:atTime \"{$generatedAt}\"^^xsd:dateTime ;\n"
+              . "    ex:service \"" . $this->esc($r->serviceName) . "\" ;\n"
+              . "    ex:model \"" . $this->esc($r->modelName) . "\" ;\n"
+              . "    ex:modelVersion \"" . $this->esc($r->modelVersion) . "\" ;\n"
+              . "    ex:inputHash \"" . $this->esc($r->inputHash) . "\" ;\n"
+              . "    ex:outputHash \"" . $this->esc($r->outputHash) . "\" ;\n"
+              . ($r->confidence !== null ? "    ex:confidence \"{$r->confidence}\"^^xsd:decimal ;\n" : '')
+              . ($r->standard   !== null ? "    ex:standard \"" . $this->esc($r->standard) . "\" ;\n" : '')
+              . ($r->endpoint   !== null ? "    ex:endpoint \"" . $this->esc($r->endpoint) . "\" ;\n" : '')
+              . "    prov:generated {$outputNode} .\n\n"
+              // RDF-Star meta-assertion: the generated triple itself carries
+              // a back-pointer to the inference activity that produced it.
+              . "<<{$target} ex:hasGenerated {$outputNode}>> prov:wasGeneratedBy {$inference} .\n";
+
+        return $body;
+    }
+
+    /**
+     * Compose a stable URI for the inference's target. Field is encoded so
+     * museum_metadata fields and translation @culture suffixes survive.
+     */
+    protected function targetUri(InferenceRecord $r): string
+    {
+        $type  = rawurlencode($r->targetEntityType);
+        $id    = (int) $r->targetEntityId;
+        $field = rawurlencode($r->targetField);
+        return "<urn:ahg:entity:{$type}:{$id}:{$field}>";
+    }
+
+    /**
+     * Escape a string for inclusion in a turtle string literal.
+     * sanitises the four characters that change meaning inside `"..."`.
+     */
+    protected function esc(string $s): string
+    {
+        return strtr($s, [
+            '\\' => '\\\\',
+            '"'  => '\\"',
+            "\n" => '\\n',
+            "\r" => '\\r',
+        ]);
     }
 }

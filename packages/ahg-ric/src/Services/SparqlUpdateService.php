@@ -25,6 +25,7 @@
 
 namespace AhgRic\Services;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -50,13 +51,37 @@ class SparqlUpdateService
 
     public function __construct()
     {
-        $this->updateEndpoint = config(
-            'heratio.fuseki_update_endpoint',
-            rtrim(config('heratio.fuseki_endpoint', 'http://localhost:3030/heratio'), '/') . '/update'
+        // Resolution order, most specific to least: ahg_settings (DB-driven,
+        // edited via /admin/settings), then ahg-ric config, then localhost
+        // default. The DB-first order matches SparqlQueryService and the
+        // rest of the Heratio Fuseki integration so credentials surface in
+        // one place.
+        $base = rtrim(
+            $this->setting('fuseki_endpoint',
+                config('ahg-ric.fuseki_endpoint',
+                    config('heratio.fuseki_endpoint', 'http://localhost:3030/heratio')
+                )
+            ),
+            '/'
         );
-        $this->username       = config('heratio.fuseki_update_username');
-        $this->password       = config('heratio.fuseki_update_password');
-        $this->timeoutSeconds = (int) config('heratio.fuseki_update_timeout', 30);
+
+        $this->updateEndpoint = $this->setting(
+            'fuseki_update_endpoint',
+            config('heratio.fuseki_update_endpoint', $base . '/update')
+        );
+        $this->username = $this->setting('fuseki_username', config('heratio.fuseki_update_username'));
+        $this->password = $this->setting('fuseki_password', config('heratio.fuseki_update_password'));
+        $this->timeoutSeconds = (int) $this->setting('fuseki_update_timeout', config('heratio.fuseki_update_timeout', 30));
+    }
+
+    private function setting(string $key, $default = null)
+    {
+        try {
+            $row = DB::table('ahg_settings')->where('setting_key', $key)->value('setting_value');
+            return ($row !== null && $row !== '') ? $row : $default;
+        } catch (\Throwable $e) {
+            return $default;
+        }
     }
 
     /**

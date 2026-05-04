@@ -70,7 +70,6 @@
   <div class="col-md-8">
   <form action="{{ route('research.profile.update') }}" method="POST">
     @csrf
-    @method('PUT')
 
     {{-- Personal Information --}}
     <div class="card mb-4">
