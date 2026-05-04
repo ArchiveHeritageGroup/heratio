@@ -109,6 +109,10 @@ class FtpUploadController extends Controller
         $totalChunks = (int) $request->input('totalChunks', 0);
         $fileName = $request->input('fileName', '');
         $fileSize = (int) $request->input('fileSize', 0);
+        // Folder-upload: client sends the file's path relative to the dropped
+        // folder (e.g. 'session-2026/scans/page-001.tiff'). Empty or absent
+        // for plain root-level file uploads, which keep their original behaviour.
+        $relativePath = (string) $request->input('relativePath', '');
 
         if (empty($uploadId) || $chunkIndex < 0 || $totalChunks < 1 || empty($fileName)) {
             return response()->json(['success' => false, 'message' => 'Missing chunk metadata']);
@@ -153,7 +157,7 @@ class FtpUploadController extends Controller
         }
 
         // All chunks received — reassemble and upload
-        return $this->assembleAndUpload($uploadId, $uploadDir, $fileName, $totalChunks);
+        return $this->assembleAndUpload($uploadId, $uploadDir, $fileName, $totalChunks, $relativePath);
     }
 
     /**
@@ -211,8 +215,14 @@ class FtpUploadController extends Controller
 
     /**
      * Reassemble chunks into a single file and upload via FTP/SFTP.
+     *
+     * $relativePath, when present, is the client-side relative path of the
+     * file inside the dropped folder (e.g. 'session-2026/scans/page-001.tiff').
+     * The basename becomes the remote filename, the dirname becomes the
+     * relative folder which FtpService::upload mkdir-p's on demand. Empty
+     * means a flat root-level upload (legacy behaviour).
      */
-    protected function assembleAndUpload(string $uploadId, string $uploadDir, string $fileName, int $totalChunks)
+    protected function assembleAndUpload(string $uploadId, string $uploadDir, string $fileName, int $totalChunks, string $relativePath = '')
     {
         $assembledPath = self::CHUNK_DIR . '/' . $uploadId . '_assembled';
 
@@ -247,9 +257,23 @@ class FtpUploadController extends Controller
 
             fclose($out);
 
+            // Split the relative path into dir + filename. Filename always wins
+            // over fileName from the form (defence in depth — the form field
+            // could be inconsistent with the actual relative-path basename).
+            $remoteFilename = $fileName;
+            $relativeDir = '';
+            if ($relativePath !== '') {
+                $relativeFilename = basename($relativePath);
+                if ($relativeFilename !== '') {
+                    $remoteFilename = $relativeFilename;
+                }
+                $dir = trim((string) dirname($relativePath), '/.');
+                $relativeDir = $dir;
+            }
+
             // Upload assembled file via FTP/SFTP
             $svc = FtpService::fromSettings();
-            $result = $svc->upload($assembledPath, $fileName);
+            $result = $svc->upload($assembledPath, $remoteFilename, $relativeDir);
 
             // Cleanup
             $this->cleanupChunks($uploadDir, $assembledPath);

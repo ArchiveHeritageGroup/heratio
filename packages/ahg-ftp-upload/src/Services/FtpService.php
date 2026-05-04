@@ -106,21 +106,57 @@ class FtpService
 
     /**
      * Upload a local file to the remote server.
+     *
+     * $relativeDir, when non-empty, is a sanitised path relative to
+     * $this->remotePath (no leading slash, no '..', no empty/hidden segments).
+     * Used by the folder-upload path so dragged folder hierarchies survive
+     * onto the FTP/SFTP target. Intermediate directories are created on demand.
      */
-    public function upload(string $localPath, string $remoteFilename): array
+    public function upload(string $localPath, string $remoteFilename, string $relativeDir = ''): array
     {
         $remoteFilename = $this->sanitizeFilename($remoteFilename);
         if ($remoteFilename === '') {
             return ['success' => false, 'message' => 'Invalid filename'];
         }
 
-        $remoteFull = $this->remotePath . '/' . $remoteFilename;
+        $remoteDir = $this->remotePath;
+        if ($relativeDir !== '') {
+            $relativeDir = $this->sanitizeRelativePath($relativeDir);
+            if ($relativeDir === '') {
+                return ['success' => false, 'message' => 'Invalid folder path'];
+            }
+            $remoteDir = $this->remotePath . '/' . $relativeDir;
+            $mk = $this->ensureRemoteDir($remoteDir);
+            if (!$mk['success']) {
+                return $mk;
+            }
+        }
+
+        $remoteFull = $remoteDir . '/' . $remoteFilename;
 
         if ($this->protocol === 'sftp') {
             return $this->sftpUpload($localPath, $remoteFull);
         }
 
         return $this->ftpUpload($localPath, $remoteFull);
+    }
+
+    /**
+     * Ensure a remote directory exists (mkdir -p semantics).
+     *
+     * SFTP: runs a single `ssh ... mkdir -p` invocation.
+     * FTP:  walks each segment, attempting ftp_mkdir, ignoring "already exists".
+     *
+     * $remoteAbs must be the full absolute path (already prefixed with
+     * $this->remotePath by the caller).
+     */
+    protected function ensureRemoteDir(string $remoteAbs): array
+    {
+        if ($this->protocol === 'sftp') {
+            return $this->sftpEnsureDir($remoteAbs);
+        }
+
+        return $this->ftpEnsureDir($remoteAbs);
     }
 
     /**
@@ -297,6 +333,44 @@ class FtpService
         return ['success' => true, 'message' => 'File deleted successfully'];
     }
 
+    /**
+     * FTP mkdir-p — walks each segment of the relative path beneath
+     * $this->remotePath and creates it if missing. Ignores already-exists.
+     */
+    protected function ftpEnsureDir(string $remoteAbs): array
+    {
+        $result = $this->connectFtp();
+        if (!$result['success']) {
+            return $result;
+        }
+
+        $base = rtrim($this->remotePath, '/');
+        $rel = ltrim(substr($remoteAbs, strlen($base)), '/');
+        $segments = explode('/', $rel);
+        $cursor = $base;
+        foreach ($segments as $seg) {
+            if ($seg === '') {
+                continue;
+            }
+            $cursor .= '/' . $seg;
+            // If the dir already exists, ftp_chdir will succeed silently.
+            if (@ftp_chdir($this->ftpConn, $cursor)) {
+                continue;
+            }
+            // Otherwise create it. ftp_mkdir returns false on "already exists" too,
+            // so we re-test with chdir afterwards.
+            @ftp_mkdir($this->ftpConn, $cursor);
+            if (!@ftp_chdir($this->ftpConn, $cursor)) {
+                $this->disconnect();
+
+                return ['success' => false, 'message' => "Cannot create remote folder: {$cursor}"];
+            }
+        }
+        $this->disconnect();
+
+        return ['success' => true, 'message' => 'Folders ready'];
+    }
+
     // =========================================================================
     // SFTP methods (sshpass + sftp/scp commands)
     // =========================================================================
@@ -404,6 +478,36 @@ SFTPEOF";
         return ['success' => true, 'files' => $files];
     }
 
+    /**
+     * SFTP mkdir-p — runs `ssh ... mkdir -p <abs path>` once.
+     * Quoting: the path is wrapped in single quotes (escapeshellarg) before
+     * being concatenated into the remote shell command, so spaces / shell
+     * metacharacters in folder names survive.
+     */
+    protected function sftpEnsureDir(string $remoteAbs): array
+    {
+        $prefix = $this->sshpassPrefix();
+        $opts = $this->sshOpts();
+        $port = (int) $this->port;
+        $userHost = escapeshellarg($this->username . '@' . $this->host);
+        $remoteEsc = escapeshellarg($remoteAbs);
+
+        $cmd = "{$prefix} ssh -p {$port} {$opts} {$userHost} mkdir -p {$remoteEsc} 2>&1";
+
+        $output = [];
+        $exitCode = 0;
+        exec($cmd, $output, $exitCode);
+
+        if ($exitCode !== 0) {
+            return [
+                'success' => false,
+                'message' => 'Cannot create remote folder: ' . implode(' ', $output),
+            ];
+        }
+
+        return ['success' => true, 'message' => 'Folders ready'];
+    }
+
     protected function sftpDelete(string $remoteFull): array
     {
         $prefix = $this->sshpassPrefix();
@@ -444,6 +548,34 @@ SFTPEOF";
         }
 
         return $filename;
+    }
+
+    /**
+     * Sanitise a folder-upload relative path. Allows internal slashes (used
+     * to express hierarchy) but rejects any segment that is empty, '.',
+     * '..', hidden ('.foo'), contains NUL, or contains a backslash.
+     * Returns the canonical 'a/b/c' form or '' if any segment fails.
+     */
+    protected function sanitizeRelativePath(string $path): string
+    {
+        $path = trim($path);
+        if ($path === '' || str_contains($path, "\0") || str_contains($path, '\\')) {
+            return '';
+        }
+        $path = trim($path, '/');
+        $segments = explode('/', $path);
+        $clean = [];
+        foreach ($segments as $seg) {
+            if ($seg === '' || $seg === '.' || $seg === '..' || str_starts_with($seg, '.')) {
+                return '';
+            }
+            $clean[] = $seg;
+        }
+        if (empty($clean)) {
+            return '';
+        }
+
+        return implode('/', $clean);
     }
 
     /**

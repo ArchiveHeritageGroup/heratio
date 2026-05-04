@@ -40,16 +40,25 @@
     <!-- Upload Zone -->
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fa fa-cloud-upload-alt me-2"></i>Upload Files
+        <h5 class="mb-0"><i class="fa fa-cloud-upload-alt me-2"></i>Upload Files or Folders
           <small class="ms-2 opacity-75">(supports files up to 2 GB — chunked upload with resume)</small>
         </h5>
       </div>
       <div class="card-body">
-        <div id="drop-zone" class="border border-2 border-dashed rounded p-5 text-center mb-3" style="cursor:pointer; border-color:#0d6efd!important;">
+        <div id="drop-zone" class="border border-2 border-dashed rounded p-5 text-center mb-3" style="border-color:#0d6efd!important;">
           <i class="fa fa-cloud-upload-alt fa-3x text-muted mb-3 d-block"></i>
-          <p class="lead mb-1">Drag and drop files here</p>
-          <p class="text-muted">or click to browse</p>
+          <p class="lead mb-1">{{ __('Drag and drop files or folders here') }}</p>
+          <p class="text-muted mb-3">{{ __('or use the buttons below') }}</p>
+          <div class="d-flex justify-content-center gap-2 flex-wrap">
+            <button type="button" id="pick-files-btn" class="btn atom-btn-white">
+              <i class="fa fa-file me-1"></i>{{ __('Browse files') }}
+            </button>
+            <button type="button" id="pick-folder-btn" class="btn atom-btn-white">
+              <i class="fa fa-folder-open me-1"></i>{{ __('Browse folder') }}
+            </button>
+          </div>
           <input type="file" id="file-input" multiple class="d-none">
+          <input type="file" id="folder-input" webkitdirectory directory class="d-none">
         </div>
         <div class="row">
           <div class="col-md-4">
@@ -82,6 +91,9 @@
             <i class="fa fa-exclamation-circle me-2"></i>{{ $listError }}
           </div>
         @endif
+        <p class="small text-muted mb-2">
+          <i class="fa fa-info-circle me-1"></i>{{ __('Showing root-level files only. Files inside uploaded folders are placed on the remote server under their original folder structure (mkdir -p) but are not listed here yet.') }}
+        </p>
         <div class="table-responsive">
           <table class="table table-bordered table-striped table-hover mb-0" id="files-table">
             <thead>
@@ -147,23 +159,133 @@
 
       var dropZone = document.getElementById('drop-zone');
       var fileInput = document.getElementById('file-input');
+      var folderInput = document.getElementById('folder-input');
+      var pickFilesBtn = document.getElementById('pick-files-btn');
+      var pickFolderBtn = document.getElementById('pick-folder-btn');
       var progressContainer = document.getElementById('upload-progress');
 
       if (!dropZone || !fileInput) return;
 
-      dropZone.addEventListener('click', function() { fileInput.click(); });
+      // Pick-files button → standard multi-file picker (root-level).
+      if (pickFilesBtn) pickFilesBtn.addEventListener('click', function(e) {
+          e.preventDefault(); e.stopPropagation();
+          fileInput.click();
+      });
       fileInput.addEventListener('change', function() {
-          if (this.files.length > 0) startUploads(this.files);
+          if (this.files.length > 0) startUploads(toArrayWithoutPaths(this.files));
           this.value = '';
       });
+
+      // Pick-folder button → webkitdirectory picker. Each File gets a
+      // .webkitRelativePath like 'session-2026/scans/page-001.tiff'.
+      if (pickFolderBtn && folderInput) {
+          pickFolderBtn.addEventListener('click', function(e) {
+              e.preventDefault(); e.stopPropagation();
+              folderInput.click();
+          });
+          folderInput.addEventListener('change', function() {
+              if (this.files.length > 0) {
+                  var arr = [];
+                  for (var i = 0; i < this.files.length; i++) {
+                      var f = this.files[i];
+                      // Tag each file with the path the server should preserve.
+                      f._ahgRelPath = f.webkitRelativePath || f.name;
+                      arr.push(f);
+                  }
+                  startUploads(arr);
+              }
+              this.value = '';
+          });
+      }
 
       dropZone.addEventListener('dragover', function(e) { e.preventDefault(); e.stopPropagation(); this.classList.add('bg-light'); });
       dropZone.addEventListener('dragleave', function(e) { e.preventDefault(); e.stopPropagation(); this.classList.remove('bg-light'); });
       dropZone.addEventListener('drop', function(e) {
           e.preventDefault(); e.stopPropagation();
-          this.classList.remove('bg-light');
-          if (e.dataTransfer.files.length > 0) startUploads(e.dataTransfer.files);
+          dropZone.classList.remove('bg-light');
+
+          var dt = e.dataTransfer;
+          var items = dt && dt.items ? dt.items : null;
+          // webkitGetAsEntry is the only cross-browser way to detect that the
+          // user dropped a folder (FileList alone collapses folders to nothing).
+          var hasEntryAPI = items && items.length && typeof items[0].webkitGetAsEntry === 'function';
+
+          if (hasEntryAPI) {
+              var files = [];
+              var pending = items.length;
+              var done = function() {
+                  pending--;
+                  if (pending === 0) {
+                      if (files.length === 0) return;
+                      startUploads(files);
+                  }
+              };
+              for (var i = 0; i < items.length; i++) {
+                  var entry = items[i].webkitGetAsEntry();
+                  if (entry) {
+                      walkFsEntry(entry, '', files, done);
+                  } else {
+                      done();
+                  }
+              }
+          } else {
+              // Old browser → only flat file lists work
+              if (dt && dt.files && dt.files.length > 0) startUploads(toArrayWithoutPaths(dt.files));
+          }
       });
+
+      // Recursively walk a FileSystemEntry tree, tagging each File with
+      // _ahgRelPath = full path inside the dropped tree (e.g. 'foo/bar/baz.tif').
+      // 'parentPath' is the path accumulated above this entry.
+      function walkFsEntry(entry, parentPath, out, done) {
+          if (entry.isFile) {
+              entry.file(function(file) {
+                  var rel = parentPath ? (parentPath + '/' + entry.name) : entry.name;
+                  file._ahgRelPath = rel;
+                  out.push(file);
+                  done();
+              }, done);
+              return;
+          }
+          if (entry.isDirectory) {
+              var reader = entry.createReader();
+              var collected = [];
+              var thisPath = parentPath ? (parentPath + '/' + entry.name) : entry.name;
+              // readEntries returns at most ~100 per call; loop until empty.
+              var readBatch = function() {
+                  reader.readEntries(function(batch) {
+                      if (batch.length === 0) {
+                          if (collected.length === 0) { done(); return; }
+                          var pending = collected.length;
+                          collected.forEach(function(child) {
+                              walkFsEntry(child, thisPath, out, function() {
+                                  pending--;
+                                  if (pending === 0) done();
+                              });
+                          });
+                          return;
+                      }
+                      collected = collected.concat(Array.from(batch));
+                      readBatch();
+                  }, done);
+              };
+              readBatch();
+              return;
+          }
+          done();
+      }
+
+      // For root-level pickers (pick-files / legacy drop), wrap a FileList into
+      // an array and ensure no _ahgRelPath leaks from a previous round.
+      function toArrayWithoutPaths(fileList) {
+          var arr = [];
+          for (var i = 0; i < fileList.length; i++) {
+              var f = fileList[i];
+              f._ahgRelPath = '';  // explicit: root-level upload
+              arr.push(f);
+          }
+          return arr;
+      }
 
       function startUploads(files) {
           progressContainer.classList.remove('d-none');
@@ -180,10 +302,15 @@
           var uploadId = generateId();
           var totalChunks = Math.ceil(file.size / CHUNK_SIZE) || 1;
           var domId = 'progress-' + uploadId;
+          // Folder-upload: when set, this file came from a dropped folder or
+          // webkitdirectory picker. Display the full relative path so the user
+          // can see WHICH 'page-001.tiff' is uploading (out of dozens).
+          var displayName = file._ahgRelPath ? file._ahgRelPath : file.name;
+          var iconClass = file._ahgRelPath && file._ahgRelPath.indexOf('/') >= 0 ? 'fa-folder-open' : 'fa-file';
 
           var html = '<div id="' + domId + '" class="mb-3 border rounded p-3">' +
               '<div class="d-flex justify-content-between align-items-center mb-1">' +
-                  '<span class="text-truncate fw-semibold" style="max-width:50%"><i class="fa fa-file me-1"></i>' + escapeHtml(file.name) + '</span>' +
+                  '<span class="text-truncate fw-semibold" style="max-width:50%"><i class="fa ' + iconClass + ' me-1"></i>' + escapeHtml(displayName) + '</span>' +
                   '<span class="text-muted small">' + formatBytes(file.size) + ' &middot; ' + totalChunks + ' chunk' + (totalChunks > 1 ? 's' : '') + '</span>' +
                   '<span class="upload-status badge bg-primary">0%</span>' +
               '</div>' +
@@ -265,6 +392,9 @@
               formData.append('totalChunks', totalChunks);
               formData.append('fileName', file.name);
               formData.append('fileSize', file.size);
+              // Empty for root-level uploads, 'subdir/file.tiff' for folder uploads.
+              // Server uses dirname() for mkdir-p, basename() for the remote filename.
+              formData.append('relativePath', file._ahgRelPath || '');
               formData.append('_token', CSRF_TOKEN);
 
               var xhr = new XMLHttpRequest();
