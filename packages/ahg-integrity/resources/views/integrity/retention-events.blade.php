@@ -62,7 +62,7 @@
               <td>{{ $p->name }}</td>
               <td>{{ $p->retention_period_days }} days</td>
               <td><span class="badge bg-info">{{ $p->trigger_type }}</span></td>
-              <td>{!! $p->is_enabled ? '<span class="badge bg-success">{{ __('Yes') }}</span>' : '<span class="badge bg-secondary">No</span>' !!}</td>
+              <td>{!! $p->is_enabled ? '<span class="badge bg-success">' . e(__('Yes')) . '</span>' : '<span class="badge bg-secondary">' . e(__('No')) . '</span>' !!}</td>
             </tr>
             @endforeach
           </tbody>

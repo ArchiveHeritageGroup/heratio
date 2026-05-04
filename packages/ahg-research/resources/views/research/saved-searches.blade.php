@@ -57,7 +57,7 @@
                             <small class="text-muted">{{ __('No snapshot') }}</small>
                         @endif
                     </td>
-                    <td>{!! ($s->alert_enabled ?? 0) ? '<span class="badge bg-success">On</span>' : '<span class="badge bg-secondary">{{ __('Off') }}</span>' !!}</td>
+                    <td>{!! ($s->alert_enabled ?? 0) ? '<span class="badge bg-success">' . e(__('On')) . '</span>' : '<span class="badge bg-secondary">' . e(__('Off')) . '</span>' !!}</td>
                     <td><small>{{ date('Y-m-d', strtotime($s->created_at)) }}</small></td>
                     <td>
                         <div class="btn-group btn-group-sm">

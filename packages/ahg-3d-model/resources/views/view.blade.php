@@ -183,7 +183,7 @@
             @endif
             <tr>
               <th>{{ __('AR Enabled') }}</th>
-              <td>{!! !empty($model->ar_enabled) ? '<span class="text-success">{{ __('Yes') }}</span>' : '<span class="text-muted">No</span>' !!}</td>
+              <td>{!! !empty($model->ar_enabled) ? '<span class="text-success">' . e(__('Yes')) . '</span>' : '<span class="text-muted">' . e(__('No')) . '</span>' !!}</td>
             </tr>
             <tr><th>{{ __('Uploaded') }}</th><td>{{ !empty($model->created_at) ? \Carbon\Carbon::parse($model->created_at)->format('M j, Y') : '-' }}</td></tr>
           </table>

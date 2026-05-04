@@ -83,7 +83,7 @@
           <td>{{ ucfirst(str_replace('_', ' ', $class->retention_trigger)) }}</td>
           <td>{{ ucfirst(str_replace('_', ' ', $class->disposal_action)) }}</td>
           <td>{{ $class->record_count ?? 0 }}</td>
-          <td>{!! $class->is_active ? '<span class="badge bg-success">{{ __('Yes') }}</span>' : '<span class="badge bg-secondary">No</span>' !!}</td>
+          <td>{!! $class->is_active ? '<span class="badge bg-success">' . e(__('Yes')) . '</span>' : '<span class="badge bg-secondary">' . e(__('No')) . '</span>' !!}</td>
           <td>
             <a href="{{ route('records.classes.edit', [$schedule->id, $class->id]) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Edit') }}"><i class="fas fa-edit"></i></a>
             @if(($class->record_count ?? 0) === 0)

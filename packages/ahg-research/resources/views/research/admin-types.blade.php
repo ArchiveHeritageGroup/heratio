@@ -45,8 +45,8 @@
                     <td>{{ $type->max_booking_days_advance ?? 14 }} days</td>
                     <td>{{ $type->max_booking_hours_per_day ?? 4 }} hrs</td>
                     <td>{{ $type->max_materials_per_booking ?? 10 }}</td>
-                    <td>{!! ($type->auto_approve ?? 0) ? '<span class="badge bg-success">{{ __('Yes') }}</span>' : '<span class="badge bg-secondary">No</span>' !!}</td>
-                    <td>{!! ($type->is_active ?? 1) ? '<span class="badge bg-success">{{ __('Active') }}</span>' : '<span class="badge bg-danger">{{ __('Inactive') }}</span>' !!}</td>
+                    <td>{!! ($type->auto_approve ?? 0) ? '<span class="badge bg-success">' . e(__('Yes')) . '</span>' : '<span class="badge bg-secondary">' . e(__('No')) . '</span>' !!}</td>
+                    <td>{!! ($type->is_active ?? 1) ? '<span class="badge bg-success">' . e(__('Active')) . '</span>' : '<span class="badge bg-danger">' . e(__('Inactive')) . '</span>' !!}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary edit-type-btn"
                             data-type='{!! json_encode($type, JSON_HEX_APOS | JSON_HEX_QUOT) !!}'

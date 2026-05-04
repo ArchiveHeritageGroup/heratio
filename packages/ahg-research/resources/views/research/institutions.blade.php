@@ -43,7 +43,7 @@
                         <span class="text-muted">-</span>
                     @endif
                 </td>
-                <td>{!! ($inst->is_active ?? 1) ? '<span class="badge bg-success">{{ __('Active') }}</span>' : '<span class="badge bg-secondary">{{ __('Inactive') }}</span>' !!}</td>
+                <td>{!! ($inst->is_active ?? 1) ? '<span class="badge bg-success">' . e(__('Active')) . '</span>' : '<span class="badge bg-secondary">' . e(__('Inactive')) . '</span>' !!}</td>
                 <td class="text-end">
                     <button class="btn btn-sm btn-outline-primary edit-inst-btn" data-inst='{!! json_encode($inst, JSON_HEX_APOS | JSON_HEX_QUOT) !!}' title="{{ __('Edit') }}"><i class="fas fa-edit"></i></button>
                     <form method="POST" class="d-inline" onsubmit="return confirm('Delete this institution?')">

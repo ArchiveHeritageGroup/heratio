@@ -69,7 +69,7 @@
                                     @php $cc = ['excellent'=>'success','good'=>'primary','fair'=>'warning','needs_repair'=>'danger','out_of_service'=>'dark']; @endphp
                                     <span class="badge bg-{{ $cc[$item->condition_status ?? ''] ?? 'secondary' }}">{{ $equipmentConditions[$item->condition_status ?? ''] ?? ucfirst(str_replace('_', ' ', $item->condition_status ?? 'unknown')) }}</span>
                                 </td>
-                                <td>{!! ($item->is_available ?? 1) ? '<span class="badge bg-success">{{ __('Available') }}</span>' : '<span class="badge bg-danger">{{ __('Unavailable') }}</span>' !!}</td>
+                                <td>{!! ($item->is_available ?? 1) ? '<span class="badge bg-success">' . e(__('Available')) . '</span>' : '<span class="badge bg-danger">' . e(__('Unavailable')) . '</span>' !!}</td>
                                 <td>
                                     <button type="button" class="btn btn-sm btn-outline-primary" onclick='editEquipment(@json($item))' title="{{ __('Edit') }}"><i class="fas fa-edit"></i></button>
                                     <button type="button" class="btn btn-sm btn-outline-info" onclick="logMaintenance({{ $item->id }})" title="{{ __('Log Maintenance') }}"><i class="fas fa-wrench"></i></button>
