@@ -66,10 +66,12 @@ class FtpUploadController extends Controller
         }
 
         $diskPath = $settings['ftp_disk_path'] ?? $remotePath;
+        $folders = [];
 
         if ($configured) {
             $listResult = $svc->listFiles();
-            $files = $listResult['success'] ? $listResult['files'] : [];
+            $files = $listResult['success'] ? ($listResult['files'] ?? []) : [];
+            $folders = $listResult['success'] ? ($listResult['folders'] ?? []) : [];
             $listError = $listResult['success'] ? null : ($listResult['message'] ?? 'Connection failed');
         }
 
@@ -79,6 +81,7 @@ class FtpUploadController extends Controller
             'remotePath' => $remotePath,
             'diskPath' => $diskPath,
             'files' => $files,
+            'folders' => $folders,
             'listError' => $listError,
             'protocol' => $settings['ftp_protocol'] ?? 'sftp',
             'chunkSize' => self::CHUNK_SIZE,
@@ -183,17 +186,26 @@ class FtpUploadController extends Controller
     }
 
     /**
-     * AJAX: list remote files.
+     * AJAX: list remote files in a given subdirectory of the FTP root.
+     *
+     * `?dir=` (or absent) lists the configured remote root.
+     * `?dir=foo/bar` lists files inside that subfolder. Sanitisation is
+     * delegated to FtpService::sanitizeRelativePath (.. / hidden / NUL
+     * / quotes / heredoc-expansion chars all rejected).
      */
-    public function listFiles()
+    public function listFiles(Request $request)
     {
         $svc = FtpService::fromSettings();
+        $dir = (string) $request->input('dir', '');
 
-        return response()->json($svc->listFiles());
+        return response()->json($svc->listFiles($dir));
     }
 
     /**
-     * AJAX: delete a remote file.
+     * AJAX: delete a remote file (optionally inside a subdirectory).
+     *
+     * Accepts `dir` alongside `filename` so the listing's per-row delete
+     * button works regardless of how deep the user has navigated.
      */
     public function deleteFile(Request $request)
     {
@@ -201,8 +213,9 @@ class FtpUploadController extends Controller
             return response()->json(['success' => false, 'message' => 'POST required']);
         }
 
-        $data = $request->json()->all();
+        $data = $request->json()->all() ?: [];
         $filename = $data['filename'] ?? $request->input('filename', '');
+        $dir      = $data['dir']      ?? $request->input('dir', '');
 
         if (empty($filename)) {
             return response()->json(['success' => false, 'message' => 'No filename specified']);
@@ -210,7 +223,7 @@ class FtpUploadController extends Controller
 
         $svc = FtpService::fromSettings();
 
-        return response()->json($svc->deleteFile($filename));
+        return response()->json($svc->deleteFile($filename, (string) $dir));
     }
 
     /**

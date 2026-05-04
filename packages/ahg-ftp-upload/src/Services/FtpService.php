@@ -161,31 +161,58 @@ class FtpService
 
     /**
      * List files in the remote directory.
+     *
+     * $relativeDir = '' lists the configured remote root.
+     * Non-empty values let the UI navigate into uploaded subfolders without
+     * a recursive walk. Returns 'folders' separately from 'files' so the
+     * client can render them with different affordances (click-to-open vs
+     * delete).
      */
-    public function listFiles(): array
+    public function listFiles(string $relativeDir = ''): array
     {
         if (empty($this->host)) {
-            return ['success' => false, 'message' => 'Host is not configured', 'files' => []];
+            return ['success' => false, 'message' => 'Host is not configured', 'files' => [], 'folders' => [], 'dir' => ''];
+        }
+
+        $sanitised = '';
+        if ($relativeDir !== '') {
+            $sanitised = $this->sanitizeRelativePath($relativeDir);
+            if ($sanitised === '') {
+                return ['success' => false, 'message' => 'Invalid folder path', 'files' => [], 'folders' => [], 'dir' => ''];
+            }
         }
 
         if ($this->protocol === 'sftp') {
-            return $this->sftpListFiles();
+            return $this->sftpListFiles($sanitised);
         }
 
-        return $this->ftpListFiles();
+        return $this->ftpListFiles($sanitised);
     }
 
     /**
      * Delete a file from the remote server.
+     *
+     * $relativeDir = '' deletes from the remote root (legacy behaviour).
+     * Non-empty values resolve the file inside that subdir so the file
+     * listing's per-row delete button can target nested files.
      */
-    public function deleteFile(string $filename): array
+    public function deleteFile(string $filename, string $relativeDir = ''): array
     {
         $filename = $this->sanitizeFilename($filename);
         if ($filename === '') {
             return ['success' => false, 'message' => 'Invalid filename'];
         }
 
-        $remoteFull = $this->remotePath . '/' . $filename;
+        $remoteDir = $this->remotePath;
+        if ($relativeDir !== '') {
+            $sanitised = $this->sanitizeRelativePath($relativeDir);
+            if ($sanitised === '') {
+                return ['success' => false, 'message' => 'Invalid folder path'];
+            }
+            $remoteDir = $this->remotePath . '/' . $sanitised;
+        }
+
+        $remoteFull = $remoteDir . '/' . $filename;
 
         if ($this->protocol === 'sftp') {
             return $this->sftpDelete($remoteFull);
@@ -281,39 +308,45 @@ class FtpService
         return ['success' => true, 'message' => 'File uploaded successfully'];
     }
 
-    protected function ftpListFiles(): array
+    protected function ftpListFiles(string $relativeDir = ''): array
     {
         $result = $this->connectFtp();
         if (!$result['success']) {
-            return ['success' => false, 'message' => $result['message'], 'files' => []];
+            return ['success' => false, 'message' => $result['message'], 'files' => [], 'folders' => [], 'dir' => $relativeDir];
         }
 
-        $rawList = @ftp_rawlist($this->ftpConn, $this->remotePath);
+        $listPath = $this->remotePath . ($relativeDir !== '' ? '/' . $relativeDir : '');
+        $rawList = @ftp_rawlist($this->ftpConn, $listPath);
         $this->disconnect();
 
         if ($rawList === false) {
-            return ['success' => false, 'message' => 'Cannot list remote directory', 'files' => []];
+            return ['success' => false, 'message' => 'Cannot list remote directory', 'files' => [], 'folders' => [], 'dir' => $relativeDir];
         }
 
         $files = [];
+        $folders = [];
         foreach ($rawList as $line) {
-            if (str_starts_with($line, 'd')) {
-                continue;
-            }
-            if (preg_match('/^\S+\s+\d+\s+\S+\s+\S+\s+(\d+)\s+(\w+\s+\d+\s+[\d:]+)\s+(.+)$/', $line, $m)) {
-                $name = trim($m[3]);
+            // Capture leading mode marker (d=dir, -=file) so we can split
+            // the listing into folders vs files.
+            if (preg_match('/^([d-])\S+\s+\d+\s+\S+\s+\S+\s+(\d+)\s+(\w+\s+\d+\s+[\d:]+)\s+(.+)$/', $line, $m)) {
+                $name = trim($m[4]);
                 if ($name === '.' || $name === '..') {
                     continue;
                 }
-                $files[] = [
+                $entry = [
                     'name' => $name,
-                    'size' => (int) $m[1],
-                    'modified' => $m[2],
+                    'size' => (int) $m[2],
+                    'modified' => $m[3],
                 ];
+                if ($m[1] === 'd') {
+                    $folders[] = $entry;
+                } else {
+                    $files[] = $entry;
+                }
             }
         }
 
-        return ['success' => true, 'files' => $files];
+        return ['success' => true, 'folders' => $folders, 'files' => $files, 'dir' => $relativeDir];
     }
 
     protected function ftpDelete(string $remoteFull): array
@@ -439,43 +472,55 @@ SFTPEOF";
         return ['success' => true, 'message' => 'File uploaded successfully'];
     }
 
-    protected function sftpListFiles(): array
+    protected function sftpListFiles(string $relativeDir = ''): array
     {
         $prefix = $this->sshpassPrefix();
         $opts = $this->sshOpts();
         $port = (int) $this->port;
         $userHost = escapeshellarg($this->username . '@' . $this->host);
 
-        $cmd = "{$prefix} sftp -P {$port} {$opts} {$userHost} 2>/dev/null <<SFTPEOF\nls -l {$this->remotePath}\nbye\nSFTPEOF";
+        $listPath = $this->remotePath . ($relativeDir !== '' ? '/' . $relativeDir : '');
+        // Wrap the listing path in double-quotes so spaces survive (the
+        // sanitiser already blocks " \ \0 \r \n $ ` so this is safe).
+        $cmd = "{$prefix} sftp -P {$port} {$opts} {$userHost} 2>/dev/null <<SFTPEOF\nls -l \"{$listPath}\"\nbye\nSFTPEOF";
 
         $output = [];
         $exitCode = 0;
         exec($cmd, $output, $exitCode);
 
         if ($exitCode !== 0) {
-            return ['success' => false, 'message' => 'Cannot list remote directory', 'files' => []];
+            return ['success' => false, 'message' => 'Cannot list remote directory', 'files' => [], 'folders' => [], 'dir' => $relativeDir];
         }
 
         $files = [];
+        $folders = [];
         foreach ($output as $line) {
             $line = trim($line);
-            if (empty($line) || str_starts_with($line, 'sftp>') || str_starts_with($line, 'd')) {
+            if (empty($line) || str_starts_with($line, 'sftp>')) {
                 continue;
             }
-            if (preg_match('/^-\S+\s+\S+\s+\S+\s+\S+\s+(\d+)\s+(\w+\s+\d+\s+[\d:]+)\s+(.+)$/', $line, $m)) {
-                $name = basename(trim($m[3]));
+            // Capture leading mode marker (d=dir, -=file). Filename in $m[3]
+            // can contain spaces; basename strips any path prefix sftp may
+            // emit when listing an absolute path.
+            if (preg_match('/^([d-])\S+\s+\S+\s+\S+\s+\S+\s+(\d+)\s+(\w+\s+\d+\s+[\d:]+)\s+(.+)$/', $line, $m)) {
+                $name = basename(trim($m[4]));
                 if ($name === '.' || $name === '..') {
                     continue;
                 }
-                $files[] = [
+                $entry = [
                     'name' => $name,
-                    'size' => (int) $m[1],
-                    'modified' => $m[2],
+                    'size' => (int) $m[2],
+                    'modified' => $m[3],
                 ];
+                if ($m[1] === 'd') {
+                    $folders[] = $entry;
+                } else {
+                    $files[] = $entry;
+                }
             }
         }
 
-        return ['success' => true, 'files' => $files];
+        return ['success' => true, 'folders' => $folders, 'files' => $files, 'dir' => $relativeDir];
     }
 
     /**
@@ -496,10 +541,15 @@ SFTPEOF";
      *   -mkdir <path>   →  mkdir but IGNORE failure (leading dash).
      *                     Per-segment, so already-existing parents don't
      *                     abort. Trailing `bye` ensures clean exit.
-     *
-     * We don't run a final `ls` here — the existing sftpUpload (scp) that
-     * follows will fail loudly if the destination dir doesn't exist, and
-     * that error reaches the user with the right context.
+     *   ls <path>       →  final verification on the deepest segment.
+     *                     If every -mkdir was a no-op because the dir
+     *                     already existed, ls succeeds. If a real error
+     *                     stopped the dir from existing, ls fails and we
+     *                     surface that. We don't parse mkdir stdout for
+     *                     errors — SSH_FX_FAILURE is too generic
+     *                     (emitted both for "already exists" and for
+     *                     real errors), so trust the dash semantic and
+     *                     reach final state via ls instead.
      *
      * Quoting: paths are wrapped in double-quotes inside the SFTP commands.
      * The PHP heredoc terminator is unquoted so {$cumulative} interpolates,
@@ -528,6 +578,11 @@ SFTPEOF";
             $cumulative .= '/' . $seg;
             $lines[] = '-mkdir "' . $cumulative . '"';
         }
+        // Final verification — `cd` into the deepest path. sftp's `cd` is
+        // silent on success and prints `Couldn't change directory to ...`
+        // on failure (with no leading dash, so we DO want to know about
+        // failure here). This works for empty dirs too, unlike `ls`.
+        $lines[] = 'cd "' . $cumulative . '"';
         $lines[] = 'bye';
         $body = implode("\n", $lines);
 
@@ -554,9 +609,8 @@ SFTPEOF";
             return false;
         };
 
-        // sftp interactive returns 0 even when -mkdir lines fail (the dash
-        // suppresses errors). What we DO want to catch is connection-level
-        // failure. Detect by checking exit code AND the absence of "Connected".
+        // Detect connection-level failure first — if we never reached the
+        // remote prompt, no mkdir / ls happened.
         $connected = false;
         foreach ($output as $line) {
             if (stripos(trim($line), 'Connected to ') === 0) {
@@ -572,26 +626,25 @@ SFTPEOF";
             ];
         }
 
-        // For per-segment mkdir failures (e.g. permission denied creating a
-        // brand-new dir), sftp prints "Couldn't create directory: ..." but
-        // the dash form swallows the exit code. Surface those if seen — but
-        // ignore "already exists" / "File exists" since that's the happy path.
-        $errorLines = [];
+        // We don't parse mkdir errors at all — SSH_FX_FAILURE ("Failure")
+        // is emitted for both "already exists" (the happy path under the
+        // dash semantic) and for genuine errors, which made the previous
+        // parser surface false positives every time a folder was retried.
+        // Instead, the trailing `cd` is the source of truth: silent on
+        // success, "Couldn't change directory to ..." on failure.
         foreach ($output as $line) {
             $l = trim($line);
             if ($informational($l)) continue;
-            if (stripos($l, 'File exists') !== false) continue;
-            if (stripos($l, 'already exists') !== false) continue;
-            if (stripos($l, "Couldn't") !== false || stripos($l, 'Permission denied') !== false ||
-                stripos($l, 'remote mkdir') !== false || stripos($l, 'Failure') !== false) {
-                $errorLines[] = $l;
+            if (str_contains($l, 'remote mkdir')) continue; // dash-suppressed
+            // The cd verification failed → the dir really doesn't exist.
+            if (stripos($l, "Couldn't change directory") !== false ||
+                stripos($l, "Couldn't canonicalize") !== false ||
+                stripos($l, 'No such file') !== false) {
+                return [
+                    'success' => false,
+                    'message' => 'Cannot create remote folder: ' . $l,
+                ];
             }
-        }
-        if (!empty($errorLines)) {
-            return [
-                'success' => false,
-                'message' => 'Cannot create remote folder: ' . implode(' ', $errorLines),
-            ];
         }
 
         return ['success' => true, 'message' => 'Folders ready'];

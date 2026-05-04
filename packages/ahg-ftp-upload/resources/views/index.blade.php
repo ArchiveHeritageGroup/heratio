@@ -91,9 +91,23 @@
             <i class="fa fa-exclamation-circle me-2"></i>{{ $listError }}
           </div>
         @endif
-        <p class="small text-muted mb-2">
-          <i class="fa fa-info-circle me-1"></i>{{ __('Showing root-level files only. Files inside uploaded folders are placed on the remote server under their original folder structure (mkdir -p) but are not listed here yet.') }}
-        </p>
+
+        {{-- Breadcrumb + Up button. Populated client-side as the user navigates;
+             initial render is the root. --}}
+        <div class="d-flex align-items-center mb-2 flex-wrap gap-2">
+          <button type="button" class="btn btn-sm atom-btn-white" id="up-btn" disabled title="{{ __('Up one level') }}">
+            <i class="fa fa-level-up-alt"></i>
+          </button>
+          <nav aria-label="folder breadcrumb" class="flex-grow-1">
+            <ol class="breadcrumb mb-0" id="folder-breadcrumb">
+              <li class="breadcrumb-item active" aria-current="page" data-dir="">
+                <i class="fa fa-folder me-1"></i>{{ __('Root') }}
+              </li>
+            </ol>
+          </nav>
+          <small class="text-muted">{{ __('Click a folder row to open it. Uploads land in the currently-shown folder.') }}</small>
+        </div>
+
         <div class="table-responsive">
           <table class="table table-bordered table-striped table-hover mb-0" id="files-table">
             <thead>
@@ -105,9 +119,17 @@
               </tr>
             </thead>
             <tbody id="files-tbody">
-              @if(empty($files))
-                <tr id="empty-row"><td colspan="4" class="text-center text-muted py-4">No files found</td></tr>
+              @if(empty($folders) && empty($files))
+                <tr id="empty-row"><td colspan="4" class="text-center text-muted py-4">{{ __('No files found') }}</td></tr>
               @else
+                @foreach($folders as $folder)
+                  <tr class="folder-row" data-foldername="{{ $folder['name'] }}" style="cursor:pointer">
+                    <td><i class="fa fa-folder me-2 text-warning"></i><span class="fw-semibold">{{ $folder['name'] }}</span></td>
+                    <td class="text-end text-muted">—</td>
+                    <td>{{ $folder['modified'] }}</td>
+                    <td class="text-center"><span class="text-muted small">{{ __('Open') }}</span></td>
+                  </tr>
+                @endforeach
                 @foreach($files as $file)
                   <tr>
                     <td><i class="fa fa-file me-2 text-muted"></i>{{ $file['name'] }}</td>
@@ -142,6 +164,11 @@
       var CSRF_TOKEN = '{{ csrf_token() }}';
 
       var uploads = {};
+      // The folder the user is currently viewing in the Remote Files panel.
+      // '' = root. Used by both the listing refresh and the upload pipeline
+      // (uploads always land inside the currently-shown folder so the UX
+      // matches every desktop file manager).
+      var currentDir = '';
 
       // Copy path prefix
       var copyBtn = document.getElementById('copy-path-btn');
@@ -392,9 +419,15 @@
               formData.append('totalChunks', totalChunks);
               formData.append('fileName', file.name);
               formData.append('fileSize', file.size);
-              // Empty for root-level uploads, 'subdir/file.tiff' for folder uploads.
-              // Server uses dirname() for mkdir-p, basename() for the remote filename.
-              formData.append('relativePath', file._ahgRelPath || '');
+              // Empty for root-level uploads in the root listing, otherwise the
+              // file's path *relative to the FTP root* — which is the current
+              // viewing folder + (for folder-uploads) the within-tree path.
+              // Server uses dirname() for mkdir-p, basename() for the filename.
+              var rel = file._ahgRelPath || '';
+              if (currentDir) {
+                  rel = rel ? (currentDir + '/' + rel) : (currentDir + '/' + file.name);
+              }
+              formData.append('relativePath', rel);
               formData.append('_token', CSRF_TOKEN);
 
               var xhr = new XMLHttpRequest();
@@ -510,22 +543,43 @@
 
       // === File list refresh ===
       var refreshBtn = document.getElementById('refresh-btn');
-      if (refreshBtn) refreshBtn.addEventListener('click', refreshFileList);
+      if (refreshBtn) refreshBtn.addEventListener('click', function() { refreshFileList(); });
 
       function refreshFileList() {
-          fetch(LIST_URL)
+          var url = LIST_URL + (currentDir ? ('?dir=' + encodeURIComponent(currentDir)) : '');
+          fetch(url)
               .then(function(r) { return r.json(); })
               .then(function(data) {
                   var tbody = document.getElementById('files-tbody');
                   if (!tbody) return;
                   tbody.innerHTML = '';
 
-                  if (!data.success || !data.files || data.files.length === 0) {
+                  if (!data.success) {
+                      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger py-4"><i class="fa fa-exclamation-circle me-2"></i>' + escapeHtml(data.message || 'Cannot list directory') + '</td></tr>';
+                      return;
+                  }
+
+                  var folders = data.folders || [];
+                  var files = data.files || [];
+
+                  if (folders.length === 0 && files.length === 0) {
                       tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">No files found</td></tr>';
                       return;
                   }
 
-                  data.files.forEach(function(f) {
+                  // Folders first (open-on-click rows)
+                  folders.forEach(function(f) {
+                      var row = '<tr class="folder-row" data-foldername="' + escapeHtml(f.name) + '" style="cursor:pointer">' +
+                          '<td><i class="fa fa-folder me-2 text-warning"></i><span class="fw-semibold">' + escapeHtml(f.name) + '</span></td>' +
+                          '<td class="text-end text-muted">&mdash;</td>' +
+                          '<td>' + escapeHtml(f.modified) + '</td>' +
+                          '<td class="text-center"><span class="text-muted small">Open</span></td>' +
+                          '</tr>';
+                      tbody.insertAdjacentHTML('beforeend', row);
+                  });
+
+                  // Files (delete-button rows)
+                  files.forEach(function(f) {
                       var row = '<tr>' +
                           '<td><i class="fa fa-file me-2 text-muted"></i>' + escapeHtml(f.name) + '</td>' +
                           '<td class="text-end">' + formatBytes(f.size) + '</td>' +
@@ -535,9 +589,77 @@
                       tbody.insertAdjacentHTML('beforeend', row);
                   });
 
+                  bindFolderRows();
                   bindDeleteButtons();
               })
               .catch(function() {});
+      }
+
+      // === Folder navigation ===
+      function navigateTo(newDir) {
+          // newDir is full relative-to-root path. '' = root.
+          currentDir = newDir;
+          renderBreadcrumb();
+          updateUpButton();
+          refreshFileList();
+      }
+
+      function renderBreadcrumb() {
+          var nav = document.getElementById('folder-breadcrumb');
+          if (!nav) return;
+          // Root crumb is always the first link.
+          var html = '<li class="breadcrumb-item' + (currentDir === '' ? ' active' : '') + '" data-dir="">' +
+              (currentDir === ''
+                  ? '<i class="fa fa-folder me-1"></i>Root'
+                  : '<a href="#" class="bc-link"><i class="fa fa-folder me-1"></i>Root</a>'
+              ) + '</li>';
+          if (currentDir !== '') {
+              var parts = currentDir.split('/');
+              var accum = '';
+              for (var i = 0; i < parts.length; i++) {
+                  accum = accum ? (accum + '/' + parts[i]) : parts[i];
+                  var isLast = (i === parts.length - 1);
+                  html += '<li class="breadcrumb-item' + (isLast ? ' active' : '') + '" data-dir="' + escapeHtml(accum) + '">' +
+                      (isLast
+                          ? escapeHtml(parts[i])
+                          : '<a href="#" class="bc-link">' + escapeHtml(parts[i]) + '</a>'
+                      ) + '</li>';
+              }
+          }
+          nav.innerHTML = html;
+          // Bind crumb clicks
+          nav.querySelectorAll('a.bc-link').forEach(function(a) {
+              a.addEventListener('click', function(e) {
+                  e.preventDefault();
+                  var li = a.closest('li');
+                  if (li) navigateTo(li.getAttribute('data-dir') || '');
+              });
+          });
+      }
+
+      function updateUpButton() {
+          var btn = document.getElementById('up-btn');
+          if (!btn) return;
+          btn.disabled = (currentDir === '');
+          if (!btn.__bound) {
+              btn.__bound = true;
+              btn.addEventListener('click', function() {
+                  if (currentDir === '') return;
+                  var idx = currentDir.lastIndexOf('/');
+                  navigateTo(idx === -1 ? '' : currentDir.substring(0, idx));
+              });
+          }
+      }
+
+      function bindFolderRows() {
+          document.querySelectorAll('.folder-row').forEach(function(tr) {
+              tr.addEventListener('click', function(e) {
+                  if (e.target.closest('button, a')) return; // don't capture clicks on inner controls
+                  var name = tr.getAttribute('data-foldername');
+                  if (!name) return;
+                  navigateTo(currentDir ? (currentDir + '/' + name) : name);
+              });
+          });
       }
 
       // === Delete file ===
@@ -557,7 +679,7 @@
                           'Content-Type': 'application/json',
                           'X-CSRF-TOKEN': CSRF_TOKEN
                       },
-                      body: JSON.stringify({filename: filename})
+                      body: JSON.stringify({filename: filename, dir: currentDir})
                   })
                   .then(function(r) { return r.json(); })
                   .then(function(data) {
@@ -576,6 +698,8 @@
               });
           });
       }
+      // Initial bindings against the server-rendered table
+      bindFolderRows();
       bindDeleteButtons();
 
       // === Helpers ===

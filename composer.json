@@ -89,6 +89,7 @@
         "ahg/preservation": "@dev",
         "ahg/privacy": "@dev",
         "ahg/provenance": "@dev",
+        "ahg/provenance-ai": "@dev",
         "ahg/rad-manage": "@dev",
         "ahg/records-manage": "@dev",
         "ahg/registry": "@dev",

@@ -1,0 +1,21 @@
+{
+    "name": "ahg/provenance-ai",
+    "description": "AI inference provenance discipline for Heratio - MySQL+Fuseki dual-store, override-as-record-event, one-query defensibility (issue #61, ADR-0002)",
+    "type": "library",
+    "license": "AGPL-3.0-or-later",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgProvenanceAi\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgProvenanceAi\\Providers\\AhgProvenanceAiServiceProvider"
+            ]
+        }
+    }
+}
