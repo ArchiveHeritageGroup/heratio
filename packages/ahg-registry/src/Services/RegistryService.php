@@ -423,17 +423,38 @@ class RegistryService
             return ['items' => collect(), 'total' => 0, 'page' => $page];
         }
         // Real schema uses dropdown_group + value (not taxonomy + code).
-        $query = DB::table('registry_dropdown');
+        // Issue #59 - culture-aware label via LEFT JOIN registry_dropdown_i18n
+        // in the current locale + en fallback. COALESCE returns the parent
+        // label when no i18n row exists. Schema::hasTable guard means installs
+        // without the i18n table degrade to parent label unchanged.
+        $culture = (string) app()->getLocale();
+        $hasI18n = \Schema::hasTable('registry_dropdown_i18n');
+        $query   = DB::table('registry_dropdown as d');
+        if ($hasI18n) {
+            $query->leftJoin('registry_dropdown_i18n as di_cur', function ($j) use ($culture) {
+                $j->on('di_cur.id', '=', 'd.id')->where('di_cur.culture', '=', $culture);
+            });
+            $query->leftJoin('registry_dropdown_i18n as di_fb', function ($j) {
+                $j->on('di_fb.id', '=', 'd.id')->where('di_fb.culture', '=', 'en');
+            });
+            $query->select(
+                'd.id', 'd.dropdown_group', 'd.value', 'd.badge_color',
+                'd.sort_order', 'd.is_active', 'd.created_at',
+                DB::raw("COALESCE(NULLIF(di_cur.label, ''), NULLIF(di_fb.label, ''), d.label) AS label")
+            );
+        } else {
+            $query->select('d.*');
+        }
         if ($q) {
             $query->where(function ($w) use ($q) {
-                $w->where('dropdown_group', 'like', "%{$q}%")
-                  ->orWhere('label', 'like', "%{$q}%")
-                  ->orWhere('value', 'like', "%{$q}%");
+                $w->where('d.dropdown_group', 'like', "%{$q}%")
+                  ->orWhere('d.label', 'like', "%{$q}%")
+                  ->orWhere('d.value', 'like', "%{$q}%");
             });
         }
         $total = (int) (clone $query)->count();
-        $items = $query->orderBy('dropdown_group')
-            ->orderBy('sort_order')
+        $items = $query->orderBy('d.dropdown_group')
+            ->orderBy('d.sort_order')
             ->offset(($page - 1) * $limit)
             ->limit($limit)
             ->get();
@@ -471,9 +492,25 @@ class RegistryService
 
     public function getDropdown(int $id): ?object
     {
-        return \Schema::hasTable('registry_dropdown')
-            ? DB::table('registry_dropdown')->where('id', $id)->first()
-            : null;
+        if (!\Schema::hasTable('registry_dropdown')) {
+            return null;
+        }
+        // Issue #59 - culture-aware single-row lookup. Same COALESCE pattern as
+        // adminBrowseDropdowns above. Returns the parent label when no i18n row
+        // exists or when registry_dropdown_i18n hasn't been installed yet.
+        $culture = (string) app()->getLocale();
+        $hasI18n = \Schema::hasTable('registry_dropdown_i18n');
+        $q = DB::table('registry_dropdown as d');
+        if ($hasI18n) {
+            $q->leftJoin('registry_dropdown_i18n as di_cur', function ($j) use ($culture) {
+                $j->on('di_cur.id', '=', 'd.id')->where('di_cur.culture', '=', $culture);
+            });
+            $q->leftJoin('registry_dropdown_i18n as di_fb', function ($j) {
+                $j->on('di_fb.id', '=', 'd.id')->where('di_fb.culture', '=', 'en');
+            });
+            $q->select('d.*', DB::raw("COALESCE(NULLIF(di_cur.label, ''), NULLIF(di_fb.label, ''), d.label) AS label"));
+        }
+        return $q->where('d.id', $id)->first();
     }
 
     public function getNewsletter(?int $id): ?object
