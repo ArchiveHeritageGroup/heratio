@@ -100,8 +100,8 @@
                   // Status badge
                   $statusVal = $row['status'] ?? 'pending';
                   $statusBadge = $statusVal === 'completed'
-                      ? '<span class="badge bg-success">{{ __('Completed') }}</span>'
-                      : '<span class="badge bg-warning text-dark">{{ __('Pending') }}</span>';
+                      ? '<span class="badge bg-success">' . e(__('Completed')) . '</span>'
+                      : '<span class="badge bg-warning text-dark">' . e(__('Pending')) . '</span>';
                 @endphp
                 <tr>
                   <td class="text-muted">{{ $rowNum }}</td>
