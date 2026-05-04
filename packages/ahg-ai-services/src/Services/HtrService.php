@@ -70,6 +70,62 @@ class HtrService
         }
     }
 
+    /**
+     * Extract handwriting AND record the inference.
+     *
+     * Issue #61 / ADR-0002 Phase 2e: canonical entry point for HTR callers
+     * that have a target IO id (currently ahg-scan/Jobs/ProcessScanFile).
+     * Logs one inference per page transcribed: input_hash = sha256 of the
+     * image bytes, output_hash = sha256 of the response json, confidence =
+     * 1 - CER when exposed (CER is error rate; flip to "higher is better"
+     * to match the contract).
+     */
+    public function extractAndRecord(string $filePath, int $informationObjectId, string $docType = 'auto', string $format = 'all', ?int $userId = null): ?array
+    {
+        $t0 = microtime(true);
+        $imageBytes = @file_get_contents($filePath);
+        $result = $this->extract($filePath, $docType, $format);
+        $elapsedMs = (int) round((microtime(true) - $t0) * 1000);
+
+        try {
+            $svc = app(\AhgProvenanceAi\Services\InferenceService::class);
+            $inputHash  = is_string($imageBytes) ? hash('sha256', $imageBytes) : str_repeat('0', 64);
+            $outputJson = is_array($result) ? (string) json_encode($result, JSON_UNESCAPED_UNICODE) : '';
+            [$outHash, $outExc] = \AhgProvenanceAi\DTO\InferenceRecord::hashAndExcerpt($outputJson);
+
+            // CER (character error rate) is sometimes exposed as 'cer' in the
+            // result; convert to "higher is better" confidence by 1 - CER.
+            $confidence = null;
+            if (is_array($result) && isset($result['cer']) && is_numeric($result['cer'])) {
+                $confidence = max(0.0, min(1.0, 1.0 - (float) $result['cer']));
+            } elseif (is_array($result) && isset($result['confidence']) && is_numeric($result['confidence'])) {
+                $confidence = max(0.0, min(1.0, (float) $result['confidence']));
+            }
+
+            $svc->record(new \AhgProvenanceAi\DTO\InferenceRecord(
+                serviceName:      'HTR',
+                modelName:        (string) ($result['model'] ?? 'unknown'),
+                modelVersion:     (string) ($result['model_version'] ?? 'unknown'),
+                inputHash:        $inputHash,
+                outputHash:       $outHash,
+                targetEntityType: 'information_object',
+                targetEntityId:   $informationObjectId,
+                targetField:      'physical_characteristics',
+                confidence:       $confidence,
+                standard:         'ISAD(G)-physical_characteristics',
+                endpoint:         $this->baseUrl . '/extract',
+                inputExcerpt:     'image:' . basename($filePath),
+                outputExcerpt:    $outExc,
+                elapsedMs:        $elapsedMs,
+                userId:           $userId,
+            ));
+        } catch (\Throwable $e) {
+            Log::warning('HtrService::extractAndRecord: provenance write failed: ' . $e->getMessage());
+        }
+
+        return $result;
+    }
+
     public function batch(array $filePaths, string $format = 'csv'): ?array
     {
         try {

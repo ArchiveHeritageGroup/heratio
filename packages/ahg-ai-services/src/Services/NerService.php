@@ -55,6 +55,15 @@ class NerService
     private string $apiKey;
     private int $timeout;
 
+    /**
+     * Cached AI API health response (model name + version) so we can stamp every
+     * recorded inference without hitting /health on every call. Refreshed
+     * lazily by resolveModelIdentity().
+     *
+     * @var array{model:string,version:string}|null
+     */
+    private ?array $modelIdentity = null;
+
     public function __construct(LlmService $llmService)
     {
         $this->llmService = $llmService;
@@ -122,6 +131,94 @@ class NerService
         }
 
         return $default;
+    }
+
+    /**
+     * Extract named entities AND record the inference.
+     *
+     * Issue #61 / ADR-0002: this is the canonical entry point for any caller
+     * that has a target information_object id. Logs one inference per call
+     * (input = text, output = entities json) tagged with model + version
+     * via getApiHealth(), confidence = NULL (the current API does not expose
+     * per-entity scores; once the upstream API returns scores, we will
+     * record per-entity instead).
+     *
+     * Returns the same shape as extract() so callers swap one for the other.
+     */
+    public function extractAndRecord(string $text, int $informationObjectId, ?int $userId = null): array
+    {
+        $t0 = microtime(true);
+        $entities = $this->extract($text);
+        $elapsedMs = (int) round((microtime(true) - $t0) * 1000);
+
+        try {
+            $svc = app(\AhgProvenanceAi\Services\InferenceService::class);
+            [$inHash, $inExc]   = \AhgProvenanceAi\DTO\InferenceRecord::hashAndExcerpt($text);
+            $outputJson         = json_encode($entities, JSON_UNESCAPED_UNICODE);
+            [$outHash, $outExc] = \AhgProvenanceAi\DTO\InferenceRecord::hashAndExcerpt((string) $outputJson);
+            [$model, $version]  = $this->resolveModelIdentity();
+
+            $svc->record(new \AhgProvenanceAi\DTO\InferenceRecord(
+                serviceName:      'NER',
+                modelName:        $model,
+                modelVersion:     $version,
+                inputHash:        $inHash,
+                outputHash:       $outHash,
+                targetEntityType: 'information_object',
+                targetEntityId:   $informationObjectId,
+                targetField:      'access_points',
+                confidence:       null,
+                standard:         'ICIP-name-access-points',
+                endpoint:         $this->apiUrl . '/ner/extract',
+                inputExcerpt:     $inExc,
+                outputExcerpt:    $outExc,
+                elapsedMs:        $elapsedMs,
+                userId:           $userId,
+            ));
+        } catch (\Throwable $e) {
+            // Defence in depth: provenance failure must never break the
+            // user-visible NER flow. Log + continue with the entities.
+            Log::warning('NerService::extractAndRecord provenance write failed: ' . $e->getMessage());
+        }
+
+        return $entities;
+    }
+
+    /**
+     * Resolve the upstream model name + version, cached for the life of this
+     * service instance. Falls back to ('unknown', 'unknown') if /health does
+     * not respond or the response shape is unexpected.
+     *
+     * @return array{0:string,1:string} [model, version]
+     */
+    protected function resolveModelIdentity(): array
+    {
+        if ($this->modelIdentity !== null) {
+            return [$this->modelIdentity['model'], $this->modelIdentity['version']];
+        }
+
+        $model   = 'unknown';
+        $version = 'unknown';
+        try {
+            $health = $this->getApiHealth();
+            // The local NER adapter exposes {"model":"qwen3:8b", "model_loaded":true, ...}
+            // Future spaCy-based deployments may expose {"model":"en_core_web_sm","version":"3.8.0",...}
+            if (is_array($health)) {
+                if (!empty($health['model'])) {
+                    $model = (string) $health['model'];
+                }
+                if (!empty($health['version'])) {
+                    $version = (string) $health['version'];
+                } elseif (!empty($health['model_version'])) {
+                    $version = (string) $health['model_version'];
+                }
+            }
+        } catch (\Throwable $e) {
+            // Health probe must never break the inference path.
+        }
+
+        $this->modelIdentity = ['model' => $model, 'version' => $version];
+        return [$model, $version];
     }
 
     /**

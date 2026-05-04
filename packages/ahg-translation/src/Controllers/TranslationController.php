@@ -339,6 +339,36 @@ class TranslationController extends Controller
         $translated = $result['translation'];
         $userId = auth()->id();
 
+        // Issue #61 Phase 2b: record the AI inference. The auto-translate path
+        // is a write event - the model produced $translated for ($objectId,
+        // $targetColumn, $target) and that output ends up in a draft + later
+        // potentially in *_i18n. Log it as an inference; the override pattern
+        // (Phase 3) catches reviewer corrections.
+        try {
+            $svc = app(\AhgProvenanceAi\Services\InferenceService::class);
+            [$inH, $inE]   = \AhgProvenanceAi\DTO\InferenceRecord::hashAndExcerpt((string) $sourceText);
+            [$outH, $outE] = \AhgProvenanceAi\DTO\InferenceRecord::hashAndExcerpt((string) $translated);
+            $svc->record(new \AhgProvenanceAi\DTO\InferenceRecord(
+                serviceName:      'TRANSLATION',
+                modelName:        (string) ($result['model'] ?? 'unknown'),
+                modelVersion:     'unknown',
+                inputHash:        $inH,
+                outputHash:       $outH,
+                targetEntityType: 'information_object',
+                targetEntityId:   (int) $objectId,
+                targetField:      $targetColumn . '@' . $target,
+                confidence:       null,
+                standard:         'Heratio-i18n-MT',
+                endpoint:         (string) ($result['endpoint'] ?? ''),
+                inputExcerpt:     $inE,
+                outputExcerpt:    $outE,
+                elapsedMs:        isset($result['elapsed_ms']) ? (int) $result['elapsed_ms'] : null,
+                userId:           $userId,
+            ));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('TranslationController: inference write failed: ' . $e->getMessage());
+        }
+
         // Create draft
         $draft = $this->createDraft($objectId, $targetFieldKey, $source, $target, $sourceText, $translated, $userId);
         if (empty($draft['ok'])) {

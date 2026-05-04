@@ -335,7 +335,15 @@ class AiController extends Controller
         $objectId = $request->input('object_id');
 
         $startTime = microtime(true);
-        $entities  = $this->nerService->extract($text);
+        // Issue #61 Phase 2a: route through extractAndRecord when we have a
+        // target IO so the inference is logged with full provenance. Without
+        // an objectId the call is ad-hoc (e.g. preview) and stays on the
+        // primitive path.
+        if ($objectId) {
+            $entities = $this->nerService->extractAndRecord($text, (int) $objectId, auth()->id());
+        } else {
+            $entities = $this->nerService->extract($text);
+        }
         $elapsed   = round((microtime(true) - $startTime) * 1000);
 
         $entityCount = count($entities['persons'])

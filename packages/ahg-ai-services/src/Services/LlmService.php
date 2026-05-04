@@ -417,6 +417,36 @@ class LlmService
             'updated_at'     => now(),
         ]);
 
+        // Issue #61 Phase 2c: record the LLM inference. Input = built user
+        // prompt (the canonical thing the model actually saw), output = the
+        // generated text. Standard tag depends on the prompt template's
+        // intent; we use RiC-O-scope_and_content as the default since
+        // generateSuggestion targets that field today.
+        try {
+            $svc = app(\AhgProvenanceAi\Services\InferenceService::class);
+            [$inH, $inE]   = \AhgProvenanceAi\DTO\InferenceRecord::hashAndExcerpt((string) ($prompts['user'] ?? ''));
+            [$outH, $outE] = \AhgProvenanceAi\DTO\InferenceRecord::hashAndExcerpt((string) ($result['text'] ?? ''));
+            $svc->record(new \AhgProvenanceAi\DTO\InferenceRecord(
+                serviceName:      'LLM',
+                modelName:        (string) ($result['model'] ?? 'unknown'),
+                modelVersion:     'unknown',
+                inputHash:        $inH,
+                outputHash:       $outH,
+                targetEntityType: 'information_object',
+                targetEntityId:   (int) $objectId,
+                targetField:      'scope_and_content',
+                confidence:       null,
+                standard:         'RiC-O-scope_and_content',
+                endpoint:         (string) ($result['endpoint'] ?? ''),
+                inputExcerpt:     $inE,
+                outputExcerpt:    $outE,
+                elapsedMs:        isset($result['generation_time_ms']) ? (int) $result['generation_time_ms'] : null,
+                userId:           $userId,
+            ));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('LlmService::generateSuggestion: inference write failed: ' . $e->getMessage());
+        }
+
         return [
             'success'           => true,
             'suggestion_id'     => (int) $suggestionId,

@@ -614,7 +614,13 @@ class ProcessScanFile implements ShouldQueue
 
         try {
             $htr = app(\AhgAiServices\Services\HtrService::class);
-            $result = $htr->extract($masterPath, 'auto', 'all');
+            // Issue #61 Phase 2e: route through extractAndRecord so the
+            // HTR inference is logged with the resolved IO id from the scan
+            // pipeline. Falls back to extract() only if the IO is not yet
+            // resolved (e.g. orphaned scan files).
+            $result = ((int) ($file->resolved_io_id ?? 0)) > 0
+                ? $htr->extractAndRecord($masterPath, (int) $file->resolved_io_id, 'auto', 'all', null)
+                : $htr->extract($masterPath, 'auto', 'all');
             $textLen = is_array($result) ? strlen(json_encode($result)) : 0;
             \AhgScan\Services\PremisEventService::emit(
                 (int) $file->resolved_io_id,
