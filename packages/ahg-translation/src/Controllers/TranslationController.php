@@ -500,13 +500,15 @@ class TranslationController extends Controller
                 ->where('culture', $culture)
                 ->value($field);
             $entityType = $className === 'QubitMuseumMetadata' ? 'museum_metadata' : 'information_object';
+            $sourceText = (string) ($oldValue ?? '');
             $draftId = DB::table('ahg_translation_draft')->insertGetId([
                 'object_id'           => $objectId,        // IO id; draftApprove resolves the i18n row again
                 'entity_type'         => $entityType,
                 'field_name'          => $field,
                 'source_culture'      => $culture,
                 'target_culture'      => $culture,
-                'source_text'         => (string) ($oldValue ?? ''),
+                'source_hash'         => hash('sha256', $sourceText),
+                'source_text'         => $sourceText,
                 'translated_text'     => $value,
                 'status'              => 'draft',
                 'created_by_user_id'  => auth()->id(),

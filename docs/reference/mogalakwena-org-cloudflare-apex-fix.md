@@ -170,6 +170,24 @@ The full operator-side detail (which IPs are which, where ddclient runs, NAS lay
 
 The user kept the old A record alive at the previous DNS host *and* added the apex CNAME at Cloudflare *before* changing nameservers. The actual cutover (NS change) is the only point where some resolvers see one set of authoritative nameservers and others see the other; during that window, a resolver might serve either the stale A or the fresh CNAME. Both pointed to a working address by the time the NS change went in (the stale A was tolerated, the CNAME was correct), so end-users saw at worst a brief HTTP-only / wrong-IP blip. After the NS propagation completed (well under an hour for most resolvers), the apex was permanently on the CNAME path.
 
+## Origin app audit - confirms DNS-only is the correct stance (2026-05-04)
+
+A grep audit was run against the Mogalakwena Drupal workbench (`/var/www/mogalakwena`) and the origin host's `/etc` to check whether the origin had any Cloudflare-specific integration that would constrain DNS-only vs. Proxied mode. Findings:
+
+- **No `cloudflared` binary, service, or config** anywhere on the origin. The site is not running a Cloudflare Tunnel. All inbound traffic comes in via the public IP -> nginx on the origin box, exactly as it did before the DNS migration.
+- **No Origin Certificate** installed. The TLS cert in nginx is the existing Let's Encrypt cert for `mogalakwena.org` + `www.mogalakwena.org`. There is no Cloudflare-issued cert anywhere in the trust chain.
+- **No nginx `real_ip` / `set_real_ip_from` / `CF-Connecting-IP` / `True-Client-IP` configuration.** The origin trusts the source IP on the TCP connection as the real client IP. That is correct *because* Cloudflare is grey-cloud (DNS only) - traffic does not transit Cloudflare's edge, so there's no proxy IP to unwrap.
+- **`cdnjs.cloudflare.com` references in the codebase are unrelated.** They appear in `mogalakwena-admin/bower_components/*` and `sites/all/themes/corporate/templates/html.tpl.php` - these are public-CDN links to third-party JS/CSS (jQuery, Bootstrap, etc.) hosted *on* Cloudflare's CDN. They have nothing to do with the `mogalakwena.org` zone being on Cloudflare DNS, and would be present even if the domain were on any other DNS host.
+- **`/etc/systemd/resolved.conf`** has a commented-out `1.1.1.1` example. Not active. Resolver behaviour on the origin box is unchanged.
+
+**Implication for the migration:** the origin is fully DDNS-tracked-IP -> nginx -> origin cert today, and that path stays intact under the current Cloudflare-as-DNS-only configuration. **Switching any record to Proxied (orange cloud) in the future would require all four of:**
+1. Issuing and installing a Cloudflare Origin Certificate in nginx (or keeping the LE cert and using Full SSL mode - less secure than Full Strict).
+2. Setting Cloudflare SSL/TLS mode to **Full (Strict)** for the zone.
+3. Adding `set_real_ip_from <Cloudflare IP ranges>;` and `real_ip_header CF-Connecting-IP;` to nginx so logs / rate-limits / Drupal sees the actual client IP rather than Cloudflare's edge IP.
+4. Optionally locking the origin firewall to only accept :443 from Cloudflare IP ranges (otherwise the proxy is bypassable by anyone who learns the origin IP).
+
+That's a real chunk of work and a separate decision. The current grey-cloud stance is correct precisely because none of (1)-(4) is in place.
+
 ## Optional follow-up tasks (deliberately deferred)
 
 1. **Re-enable DNSSEC** via Cloudflare's DNS panel. Cloudflare publishes a DS record on its end; the matching DS value must be copied into the registrar control panel manually. Until that's done, the domain is unsigned (functionally fine, just no DNSSEC validation).
