@@ -1,0 +1,25 @@
+# Coverage by AI service.
+#
+# Returns one row per service with the count of inferences and the average
+# recorded confidence. Useful for spotting services that are alive but
+# failing to log provenance ("we ran NER 1000 times but only 50 inferences
+# landed - where did the other 950 go?").
+#
+# Interpretation:
+#   - low count + recent activity in the AI service logs = wiring gap
+#   - average confidence near 0 or NULL = model degradation
+#   - service entirely absent = either disabled or never wired (compare to
+#     ADR-0002 Phase 2 wiring map)
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX ex:   <https://heratio.theahg.co.za/ns/provenance-ai#>
+
+SELECT ?service (COUNT(?inference) AS ?count)
+                (AVG(xsd:decimal(?confidence)) AS ?avgConfidence)
+WHERE {
+  ?inference a prov:Activity ;
+             ex:service ?service .
+  OPTIONAL { ?inference ex:confidence ?confidence }
+}
+GROUP BY ?service
+ORDER BY ?service

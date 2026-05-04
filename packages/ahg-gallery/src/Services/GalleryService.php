@@ -484,31 +484,25 @@ class GalleryService
                 ->update($ioUpdate);
 
             // Update information_object_i18n
+            // Issue #61 Phase 3c: snapshot before, run update, detect overrides.
+            $i18nKeys = ['title','alternate_title','extent_and_medium','scope_and_content',
+                'archival_history','acquisition','access_conditions','reproduction_conditions',
+                'physical_characteristics','arrangement','appraisal','accruals','finding_aids',
+                'location_of_originals','location_of_copies','related_units_of_description',
+                'rules','sources','revision_history','institution_responsible_identifier'];
+            $beforeI18n = (array) (DB::table('information_object_i18n')
+                ->where('id', $ioId)->where('culture', $culture)
+                ->first($i18nKeys) ?? []);
+            $i18nUpdate = [];
+            foreach ($i18nKeys as $k) { $i18nUpdate[$k] = $data[$k] ?? null; }
             DB::table('information_object_i18n')
                 ->where('id', $ioId)
                 ->where('culture', $culture)
-                ->update([
-                    'title' => $data['title'],
-                    'alternate_title' => $data['alternate_title'] ?? null,
-                    'extent_and_medium' => $data['extent_and_medium'] ?? null,
-                    'scope_and_content' => $data['scope_and_content'] ?? null,
-                    'archival_history' => $data['archival_history'] ?? null,
-                    'acquisition' => $data['acquisition'] ?? null,
-                    'access_conditions' => $data['access_conditions'] ?? null,
-                    'reproduction_conditions' => $data['reproduction_conditions'] ?? null,
-                    'physical_characteristics' => $data['physical_characteristics'] ?? null,
-                    'arrangement' => $data['arrangement'] ?? null,
-                    'appraisal' => $data['appraisal'] ?? null,
-                    'accruals' => $data['accruals'] ?? null,
-                    'finding_aids' => $data['finding_aids'] ?? null,
-                    'location_of_originals' => $data['location_of_originals'] ?? null,
-                    'location_of_copies' => $data['location_of_copies'] ?? null,
-                    'related_units_of_description' => $data['related_units_of_description'] ?? null,
-                    'rules' => $data['rules'] ?? null,
-                    'sources' => $data['sources'] ?? null,
-                    'revision_history' => $data['revision_history'] ?? null,
-                    'institution_responsible_identifier' => $data['institution_responsible_identifier'] ?? null,
-                ]);
+                ->update($i18nUpdate);
+            try {
+                app(\AhgProvenanceAi\Services\OverrideService::class)
+                    ->detectOverridesFromForm('information_object', (int) $ioId, $beforeI18n, $i18nUpdate, (int) (auth()->id() ?? 0));
+            } catch (\Throwable $e) { \Log::warning('GalleryService update: override detection failed: ' . $e->getMessage()); }
 
             // Update museum_metadata
             $metadataExists = DB::table('museum_metadata')->where('object_id', $ioId)->exists();

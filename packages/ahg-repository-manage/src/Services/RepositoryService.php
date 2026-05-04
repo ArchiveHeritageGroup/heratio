@@ -586,7 +586,15 @@ class RepositoryService
                 }
             }
             if (!empty($actorI18n)) {
+                // Issue #61 Phase 3c: snapshot before, run upsert, detect overrides.
+                $beforeActorI18n = (array) (DB::table('actor_i18n')
+                    ->where('id', $id)->where('culture', $this->culture ?? 'en')
+                    ->first(array_keys($actorI18n)) ?? []);
                 $this->upsertI18n('actor_i18n', $id, $actorI18n);
+                try {
+                    app(\AhgProvenanceAi\Services\OverrideService::class)
+                        ->detectOverridesFromForm('actor', (int) $id, $beforeActorI18n, $actorI18n, (int) (auth()->id() ?? 0));
+                } catch (\Throwable $e) { \Log::warning('RepositoryService update (actor_i18n): override detection failed: ' . $e->getMessage()); }
             }
 
             // 3. Update repository_i18n (ISDIAH fields) — upsert
@@ -603,7 +611,15 @@ class RepositoryService
                 }
             }
             if (!empty($repoI18n)) {
+                // Issue #61 Phase 3c: snapshot before, run upsert, detect overrides.
+                $beforeRepoI18n = (array) (DB::table('repository_i18n')
+                    ->where('id', $id)->where('culture', $this->culture ?? 'en')
+                    ->first(array_keys($repoI18n)) ?? []);
                 $this->upsertI18n('repository_i18n', $id, $repoI18n);
+                try {
+                    app(\AhgProvenanceAi\Services\OverrideService::class)
+                        ->detectOverridesFromForm('repository', (int) $id, $beforeRepoI18n, $repoI18n, (int) (auth()->id() ?? 0));
+                } catch (\Throwable $e) { \Log::warning('RepositoryService update (repository_i18n): override detection failed: ' . $e->getMessage()); }
             }
 
             // 4. Sync parallel name(s) (other_name table, type_id 148)

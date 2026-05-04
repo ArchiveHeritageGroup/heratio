@@ -1,0 +1,42 @@
+# Lineage chain for one record.
+#
+# The FOIA-shape query: given an entity URI, return every inference that
+# touched it + the override chain on each. Equivalent to the JSON returned
+# by GET /api/v1/provenance/{entityType}/{id}/trace, expressed as RDF for
+# downstream PROV-O consumers.
+#
+# Replace the entity URI in the VALUES clause with the target record.
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX ex:   <https://heratio.theahg.co.za/ns/provenance-ai#>
+
+SELECT ?field ?inference ?service ?model ?modelVersion ?confidence ?standard
+       ?inferenceAt ?override ?reviewer ?originalValue ?newValue ?reason ?overrideAt
+WHERE {
+  VALUES ?targetField { <urn:ahg:entity:information_object:12345:subject> }
+
+  # The RDF-Star meta-assertion: the inference activity that produced the
+  # generated triple targeting this field.
+  <<?targetField ex:hasGenerated ?output>> prov:wasGeneratedBy ?inference .
+  ?inference a prov:Activity ;
+             ex:service ?service ;
+             ex:model ?model ;
+             ex:modelVersion ?modelVersion ;
+             prov:atTime ?inferenceAt .
+  OPTIONAL { ?inference ex:confidence ?confidence }
+  OPTIONAL { ?inference ex:standard ?standard }
+
+  BIND(STRAFTER(STR(?targetField), "information_object:") AS ?field)
+
+  # Optional override chain.
+  OPTIONAL {
+    ?override prov:used ?inference ;
+              a prov:Activity ;
+              prov:wasAssociatedWith ?reviewer ;
+              prov:atTime ?overrideAt ;
+              ex:originalValue ?originalValue ;
+              ex:newValue ?newValue .
+    OPTIONAL { ?override ex:reason ?reason }
+  }
+}
+ORDER BY ?inferenceAt ?overrideAt

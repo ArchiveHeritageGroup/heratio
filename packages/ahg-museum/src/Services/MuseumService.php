@@ -561,18 +561,23 @@ class MuseumService
                 ->update($ioUpdate);
 
             // Update information_object_i18n
+            // Issue #61 Phase 3c: snapshot before, run update, detect overrides.
+            $i18nKeys = ['title', 'alternate_title', 'scope_and_content',
+                'extent_and_medium', 'access_conditions',
+                'reproduction_conditions', 'physical_characteristics'];
+            $beforeI18n = (array) (DB::table('information_object_i18n')
+                ->where('id', $ioId)->where('culture', $this->culture)
+                ->first($i18nKeys) ?? []);
+            $i18nUpdate = [];
+            foreach ($i18nKeys as $k) { $i18nUpdate[$k] = $data[$k] ?? null; }
             DB::table('information_object_i18n')
                 ->where('id', $ioId)
                 ->where('culture', $this->culture)
-                ->update([
-                    'title' => $data['title'],
-                    'alternate_title' => $data['alternate_title'] ?? null,
-                    'scope_and_content' => $data['scope_and_content'] ?? null,
-                    'extent_and_medium' => $data['extent_and_medium'] ?? null,
-                    'access_conditions' => $data['access_conditions'] ?? null,
-                    'reproduction_conditions' => $data['reproduction_conditions'] ?? null,
-                    'physical_characteristics' => $data['physical_characteristics'] ?? null,
-                ]);
+                ->update($i18nUpdate);
+            try {
+                app(\AhgProvenanceAi\Services\OverrideService::class)
+                    ->detectOverridesFromForm('information_object', (int) $ioId, $beforeI18n, $i18nUpdate, (int) (auth()->id() ?? 0));
+            } catch (\Throwable $e) { \Log::warning('MuseumService update: override detection failed: ' . $e->getMessage()); }
 
             // Update museum_metadata
             DB::table('museum_metadata')

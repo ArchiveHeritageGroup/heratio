@@ -1,0 +1,33 @@
+# Discipline-gap radar.
+#
+# Heuristic: any literal-valued assertion on a subject/access_point/
+# physical_characteristics predicate that is NOT the object of a
+# `prov:wasGeneratedBy` back-pointer is suspect. Either:
+#   - it was authored manually (legitimate, no provenance needed)
+#   - it was produced by an AI service that bypassed InferenceService::record()
+#     (a discipline gap to fix)
+#
+# This query returns the second category, mixed with the first; an
+# auditor with domain knowledge can tell them apart. Used to plan
+# coverage sub-issues under #61.
+#
+# Note: the predicate filter is deliberately loose. Tighten it for
+# specific-field audits.
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX ex:   <https://heratio.theahg.co.za/ns/provenance-ai#>
+PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+
+SELECT ?s ?p ?o
+WHERE {
+  ?s ?p ?o .
+  FILTER (
+    STRSTARTS(STR(?p), "https://www.ica.org/standards/RiC/ontology#") ||
+    STRSTARTS(STR(?p), "https://heratio.theahg.co.za/ns/")
+  )
+  FILTER (isLiteral(?o))
+  FILTER NOT EXISTS {
+    <<?s ?p ?o>> prov:wasGeneratedBy ?inference .
+  }
+}
+LIMIT 200

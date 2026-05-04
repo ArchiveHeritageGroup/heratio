@@ -1,0 +1,31 @@
+# Confidence distribution per service.
+#
+# Buckets confidence into 10 deciles. Use to compare distributions over
+# time (export weekly, diff to spot drift). Sudden mass shifts to lower
+# confidence buckets suggest model degradation - often the first signal
+# before user-visible quality complaints.
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX ex:   <https://heratio.theahg.co.za/ns/provenance-ai#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?service ?bucket (COUNT(?inference) AS ?count)
+WHERE {
+  ?inference a prov:Activity ;
+             ex:service ?service ;
+             ex:confidence ?confidence .
+  BIND(
+    IF(xsd:decimal(?confidence) >= 0.9, "0.9-1.0",
+    IF(xsd:decimal(?confidence) >= 0.8, "0.8-0.9",
+    IF(xsd:decimal(?confidence) >= 0.7, "0.7-0.8",
+    IF(xsd:decimal(?confidence) >= 0.6, "0.6-0.7",
+    IF(xsd:decimal(?confidence) >= 0.5, "0.5-0.6",
+    IF(xsd:decimal(?confidence) >= 0.4, "0.4-0.5",
+    IF(xsd:decimal(?confidence) >= 0.3, "0.3-0.4",
+    IF(xsd:decimal(?confidence) >= 0.2, "0.2-0.3",
+    IF(xsd:decimal(?confidence) >= 0.1, "0.1-0.2", "0.0-0.1"
+    ))))))))) AS ?bucket
+  )
+}
+GROUP BY ?service ?bucket
+ORDER BY ?service DESC(?bucket)

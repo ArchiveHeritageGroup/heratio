@@ -871,6 +871,10 @@ class ActorService
                 }
             }
             if (!empty($i18nData)) {
+                // Issue #61 Phase 3c: snapshot before, run update, detect overrides.
+                $beforeI18n = (array) (DB::table('actor_i18n')
+                    ->where('id', $id)->where('culture', $this->culture)
+                    ->first(array_keys($i18nData)) ?? []);
                 $exists = DB::table('actor_i18n')
                     ->where('id', $id)
                     ->where('culture', $this->culture)
@@ -887,6 +891,10 @@ class ActorService
                         $i18nData
                     ));
                 }
+                try {
+                    app(\AhgProvenanceAi\Services\OverrideService::class)
+                        ->detectOverridesFromForm('actor', (int) $id, $beforeI18n, $i18nData, (int) (auth()->id() ?? 0));
+                } catch (\Throwable $e) { \Log::warning('ActorService update: override detection failed: ' . $e->getMessage()); }
             }
 
             // 3. Save contacts if provided

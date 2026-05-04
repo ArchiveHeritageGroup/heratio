@@ -397,6 +397,7 @@ class DamService
             }
 
             // 2. Update information_object_i18n
+            // Issue #61 Phase 3c: snapshot before, run update, detect overrides.
             $i18nUpdate = [];
             foreach (['title', 'scope_and_content', 'extent_and_medium'] as $field) {
                 if (array_key_exists($field, $data)) {
@@ -404,6 +405,9 @@ class DamService
                 }
             }
             if (!empty($i18nUpdate)) {
+                $beforeI18n = (array) (DB::table('information_object_i18n')
+                    ->where('id', $objectId)->where('culture', $this->culture)
+                    ->first(array_keys($i18nUpdate)) ?? []);
                 $exists = DB::table('information_object_i18n')
                     ->where('id', $objectId)
                     ->where('culture', $this->culture)
@@ -419,6 +423,10 @@ class DamService
                         $i18nUpdate
                     ));
                 }
+                try {
+                    app(\AhgProvenanceAi\Services\OverrideService::class)
+                        ->detectOverridesFromForm('information_object', (int) $objectId, $beforeI18n, $i18nUpdate, (int) (auth()->id() ?? 0));
+                } catch (\Throwable $e) { \Log::warning('DamService update: override detection failed: ' . $e->getMessage()); }
             }
 
             // 3. Update dam_iptc_metadata

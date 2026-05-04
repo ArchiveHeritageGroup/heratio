@@ -1,0 +1,27 @@
+# Inferences with NO override yet.
+#
+# The "AI suggested, no human has reviewed" backlog. Combined with the
+# confidence-threshold gate, this is what the workflow review queue should
+# match - inferences below threshold that haven't yet been corrected.
+#
+# Replace the date literal in the FILTER below with a window appropriate
+# for the deployment (default 7 days back).
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX ex:   <https://heratio.theahg.co.za/ns/provenance-ai#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?inference ?service ?confidence ?occurredAt
+WHERE {
+  ?inference a prov:Activity ;
+             ex:service ?service ;
+             prov:atTime ?occurredAt .
+  OPTIONAL { ?inference ex:confidence ?confidence }
+  FILTER NOT EXISTS {
+    ?override prov:used ?inference ;
+              a prov:Activity .
+  }
+  FILTER (?occurredAt >= "2026-04-27T00:00:00Z"^^xsd:dateTime)
+}
+ORDER BY DESC(?occurredAt)
+LIMIT 100

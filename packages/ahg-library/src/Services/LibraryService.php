@@ -378,6 +378,7 @@ class LibraryService
             }
 
             // 2. Update information_object_i18n (upsert)
+            // Issue #61 Phase 3c: snapshot before, run update, detect overrides.
             $i18nFields = ['title', 'scope_and_content'];
             $i18nData = [];
             foreach ($i18nFields as $field) {
@@ -386,6 +387,9 @@ class LibraryService
                 }
             }
             if (!empty($i18nData)) {
+                $beforeI18n = (array) (DB::table('information_object_i18n')
+                    ->where('id', $id)->where('culture', $this->culture)
+                    ->first(array_keys($i18nData)) ?? []);
                 $exists = DB::table('information_object_i18n')
                     ->where('id', $id)
                     ->where('culture', $this->culture)
@@ -402,6 +406,10 @@ class LibraryService
                         $i18nData
                     ));
                 }
+                try {
+                    app(\AhgProvenanceAi\Services\OverrideService::class)
+                        ->detectOverridesFromForm('information_object', (int) $id, $beforeI18n, $i18nData, (int) (auth()->id() ?? 0));
+                } catch (\Throwable $e) { \Log::warning('LibraryService update: override detection failed: ' . $e->getMessage()); }
             }
 
             // 3. Update library_item (upsert)
