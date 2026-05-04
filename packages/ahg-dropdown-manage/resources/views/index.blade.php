@@ -95,14 +95,14 @@
                       @foreach ($items as $item)
                         <tr class="taxonomy-row" data-taxonomy="{{ $item->taxonomy }}" data-label="{{ strtolower($item->taxonomy_label) }}">
                           <td>
-                            <a href="{{ route('dropdown.edit', $item->taxonomy) }}">{{ $item->taxonomy_label }}</a>
+                            <a href="{{ route('dropdown.edit', ['source' => 'ahg_dropdown', 'taxonomy' => $item->taxonomy]) }}">{{ $item->taxonomy_label }}</a>
                           </td>
                           <td><code class="small">{{ $item->taxonomy }}</code></td>
                           <td class="text-center">
                             <span class="badge bg-info rounded-pill">{{ $item->term_count }}</span>
                           </td>
                           <td class="text-end">
-                            <a href="{{ route('dropdown.edit', $item->taxonomy) }}" class="btn btn-sm atom-btn-white" title="{{ __('Edit Terms') }}">
+                            <a href="{{ route('dropdown.edit', ['source' => 'ahg_dropdown', 'taxonomy' => $item->taxonomy]) }}" class="btn btn-sm atom-btn-white" title="{{ __('Edit Terms') }}">
                               <i class="fas fa-edit"></i>
                             </a>
                             <button type="button" class="btn btn-sm atom-btn-white btn-rename"

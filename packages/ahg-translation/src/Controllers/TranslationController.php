@@ -1014,6 +1014,16 @@ class TranslationController extends Controller
             return back()->with('notice', 'Draft already applied');
         }
 
+        // Issue #59 Phase 3 - dropdown-source drafts (ahg_dropdown /
+        // registry_dropdown / term / setting) bypass the IO/museum_metadata
+        // orphan check (which targets the `object` table) and apply via
+        // DropdownController::applyI18nSave directly to the source's _i18n
+        // table. Same pattern as museum_metadata's class_name dispatch below.
+        $dropdownSources = ['ahg_dropdown', 'registry_dropdown', 'term', 'setting'];
+        if (in_array($draft->entity_type ?? '', $dropdownSources, true)) {
+            return $this->draftApplyDropdown($draft);
+        }
+
         // Orphan check — the underlying object may have been deleted between
         // draft submission and approval. Saving would fail with "Object not
         // found" (or trip the FK on information_object_i18n.id). Mark the
@@ -1051,6 +1061,59 @@ class TranslationController extends Controller
             return back()->with('success', "Draft #{$id} applied to {$draft->target_culture}.");
         }
         return back()->with('error', 'Apply failed: ' . ($payload['error'] ?? 'unknown'));
+    }
+
+    /**
+     * Issue #59 Phase 3 - apply a queued draft whose entity_type is one of
+     * the 4 dropdown sources. Source-aware orphan check (the parent table
+     * differs per source) then dispatches to DropdownController::applyI18nSave
+     * which does the upsert into the right *_i18n table.
+     */
+    protected function draftApplyDropdown(object $draft)
+    {
+        $source   = (string) $draft->entity_type;
+        $rowId    = (int) $draft->object_id;
+        $culture  = (string) $draft->target_culture;
+        $label    = (string) $draft->translated_text;
+        $parents  = [
+            'ahg_dropdown'      => 'ahg_dropdown',
+            'registry_dropdown' => 'registry_dropdown',
+            'term'              => 'term',
+            'setting'           => 'setting',
+        ];
+        $parentTable = $parents[$source] ?? null;
+        if (!$parentTable) {
+            return back()->with('error', "Unknown dropdown source '{$source}' on draft #{$draft->id}");
+        }
+
+        // Source-aware orphan check - parent row may have been deleted between
+        // draft submission and approval. Reject the draft so it stops
+        // cluttering the queue, same pattern as the IO/museum_metadata branch.
+        try {
+            $stillExists = \Illuminate\Support\Facades\Schema::hasTable($parentTable)
+                && DB::table($parentTable)->where('id', $rowId)->exists();
+        } catch (\Throwable $e) {
+            $stillExists = false;
+        }
+        if (!$stillExists) {
+            DB::table('ahg_translation_draft')
+                ->where('id', $draft->id)
+                ->update(['status' => 'rejected']);
+            return back()->with('notice',
+                "Draft #{$draft->id} discarded - parent {$source} row #{$rowId} was deleted before approval.");
+        }
+
+        try {
+            \AhgDropdownManage\Controllers\DropdownController::applyI18nSave($source, $rowId, $culture, $label);
+        } catch (\Throwable $e) {
+            return back()->with('error', "Apply failed for draft #{$draft->id}: " . $e->getMessage());
+        }
+
+        DB::table('ahg_translation_draft')
+            ->where('id', $draft->id)
+            ->update(['status' => 'applied', 'applied_at' => now()]);
+
+        return back()->with('success', "Draft #{$draft->id} applied to {$source}.{$rowId} ({$culture}).");
     }
 
     /**

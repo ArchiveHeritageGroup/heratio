@@ -31,6 +31,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class DropdownController extends Controller
@@ -133,39 +134,365 @@ class DropdownController extends Controller
     }
 
     /**
-     * Edit: list all terms for a given taxonomy.
+     * Edit: list all terms for a given source + taxonomy.
+     *
+     * Issue #59 Phase 3 - source dispatcher pattern. {source} is one of
+     * 'ahg_dropdown', 'registry_dropdown', 'term', 'setting'. The view receives
+     * a normalised shape regardless of source so the side-by-side editor blade
+     * can iterate rows with $row->id, $row->code, $row->label, $row->sort_order
+     * and post per-row saves to /admin/dropdowns/{source}/{id}/i18n.
      */
-    public function edit(string $taxonomy)
+    public function edit(string $source, string $taxonomy)
     {
-        $terms = DB::table('ahg_dropdown')
-            ->where('taxonomy', $taxonomy)
-            ->orderBy('sort_order')
-            ->orderBy('label')
-            ->get();
+        $payload = match ($source) {
+            'ahg_dropdown'      => $this->loadAhgDropdownTaxonomy($taxonomy),
+            'registry_dropdown' => $this->loadRegistryDropdownTaxonomy($taxonomy),
+            'term'              => $this->loadTermTaxonomy((int) $taxonomy),
+            'setting'           => $this->loadSettingScope($taxonomy),
+            default             => abort(404, 'Unknown dropdown source.'),
+        };
 
-        if ($terms->isEmpty()) {
-            abort(404, 'Taxonomy not found.');
+        if (empty($payload['terms']) || $payload['terms']->isEmpty()) {
+            abort(404, 'Taxonomy not found in source ' . $source);
         }
 
-        $taxonomyLabel   = $terms->first()->taxonomy_label;
-        $taxonomySection = $terms->first()->taxonomy_section;
+        return view('ahg-dropdown-manage::edit', array_merge([
+            'source'          => $source,
+            'taxonomy'        => $taxonomy,
+            'sectionLabels'   => $this->sectionLabels,
+            'sectionIcons'    => $this->sectionIcons,
+            'enabledLocales'  => $this->getEnabledLocales(),
+            'currentLocale'   => (string) app()->getLocale(),
+        ], $payload));
+    }
 
-        // Get column mappings for this taxonomy from ahg_dropdown_column_map
+    /**
+     * Issue #59 Phase 3 - source loader for ahg_dropdown.
+     *
+     * The existing edit page shows ALL terms (active + inactive, behind a
+     * "Show inactive" toggle) and lets admins flip is_active per row. The
+     * Tier 1 helper getDropdownChoicesWithAttributes filters to active-only,
+     * which suits show-page rendering but not this admin editor. So this
+     * loader runs its own query that includes inactive rows + the same i18n
+     * COALESCE chain as the helper.
+     */
+    protected function loadAhgDropdownTaxonomy(string $taxonomy): array
+    {
+        $culture = (string) app()->getLocale();
+        $hasI18n = Schema::hasTable('ahg_dropdown_i18n');
+
+        $q = DB::table('ahg_dropdown as d')->where('d.taxonomy', $taxonomy);
+        if ($hasI18n) {
+            $q->leftJoin('ahg_dropdown_i18n as di_cur', function ($j) use ($culture) {
+                $j->on('di_cur.id', '=', 'd.id')->where('di_cur.culture', '=', $culture);
+            });
+            $q->leftJoin('ahg_dropdown_i18n as di_fb', function ($j) {
+                $j->on('di_fb.id', '=', 'd.id')->where('di_fb.culture', '=', 'en');
+            });
+            $q->select(
+                'd.id', 'd.code', 'd.taxonomy', 'd.taxonomy_label', 'd.taxonomy_section',
+                'd.color', 'd.icon', 'd.sort_order', 'd.is_default', 'd.is_active', 'd.metadata',
+                DB::raw("COALESCE(NULLIF(di_cur.label, ''), NULLIF(di_fb.label, ''), d.label) AS label"),
+                DB::raw("d.label AS source_label")
+            );
+        } else {
+            $q->select('d.*', DB::raw('d.label AS source_label'));
+        }
+        $terms = $q->orderBy('d.sort_order')->orderBy('d.label')->get();
+
+        if ($terms->isEmpty()) {
+            return ['terms' => collect()];
+        }
+
+        $first = $terms->first();
         $columnMappings = DB::table('ahg_dropdown_column_map')
             ->where('taxonomy', $taxonomy)
             ->orderBy('table_name')
             ->orderBy('column_name')
             ->get();
 
-        return view('ahg-dropdown-manage::edit', [
-            'taxonomy'        => $taxonomy,
-            'taxonomyLabel'   => $taxonomyLabel,
-            'taxonomySection' => $taxonomySection,
+        return [
             'terms'           => $terms,
+            'taxonomyLabel'   => $first->taxonomy_label ?? $taxonomy,
+            'taxonomySection' => $first->taxonomy_section ?? null,
             'columnMappings'  => $columnMappings,
-            'sectionLabels'   => $this->sectionLabels,
-            'sectionIcons'    => $this->sectionIcons,
+        ];
+    }
+
+    /**
+     * Issue #59 Phase 3 - source loader for registry_dropdown.
+     * Schema uses `dropdown_group` not `taxonomy`. RegistryService already has
+     * the COALESCE helper - call it through.
+     */
+    protected function loadRegistryDropdownTaxonomy(string $group): array
+    {
+        if (!Schema::hasTable('registry_dropdown')) {
+            return ['terms' => collect()];
+        }
+        $culture = (string) app()->getLocale();
+        $hasI18n = Schema::hasTable('registry_dropdown_i18n');
+        $q = DB::table('registry_dropdown as d')->where('d.dropdown_group', $group);
+        if ($hasI18n) {
+            $q->leftJoin('registry_dropdown_i18n as di_cur', function ($j) use ($culture) {
+                $j->on('di_cur.id', '=', 'd.id')->where('di_cur.culture', '=', $culture);
+            });
+            $q->leftJoin('registry_dropdown_i18n as di_fb', function ($j) {
+                $j->on('di_fb.id', '=', 'd.id')->where('di_fb.culture', '=', 'en');
+            });
+            $q->select(
+                'd.id', 'd.value as code', 'd.dropdown_group', 'd.badge_color',
+                'd.sort_order', 'd.is_active',
+                DB::raw("COALESCE(NULLIF(di_cur.label, ''), NULLIF(di_fb.label, ''), d.label) AS label"),
+                DB::raw('d.label AS source_label')
+            );
+        } else {
+            $q->select('d.id', 'd.value as code', 'd.dropdown_group', 'd.badge_color', 'd.sort_order', 'd.is_active', 'd.label', DB::raw('d.label AS source_label'));
+        }
+        $terms = $q->orderBy('d.sort_order')->get();
+
+        return [
+            'terms'           => $terms,
+            'taxonomyLabel'   => $group,
+            'taxonomySection' => 'registry',
+            'columnMappings'  => collect(),
+        ];
+    }
+
+    /**
+     * Issue #59 Phase 3 - source loader for term + term_i18n (AtoM base).
+     * Read-only in the Dropdown Manager. {taxonomy} is the numeric taxonomy_id.
+     */
+    protected function loadTermTaxonomy(int $taxonomyId): array
+    {
+        if (!Schema::hasTable('term') || !Schema::hasTable('term_i18n')) {
+            return ['terms' => collect()];
+        }
+        $culture = (string) app()->getLocale();
+        $terms = DB::table('term as t')
+            ->where('t.taxonomy_id', $taxonomyId)
+            ->leftJoin('term_i18n as ti_cur', function ($j) use ($culture) {
+                $j->on('ti_cur.id', '=', 't.id')->where('ti_cur.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as ti_fb', function ($j) {
+                $j->on('ti_fb.id', '=', 't.id')->where('ti_fb.culture', '=', 'en');
+            })
+            ->select(
+                't.id', 't.code', 't.source_culture', 't.taxonomy_id',
+                DB::raw("COALESCE(NULLIF(ti_cur.name, ''), NULLIF(ti_fb.name, ''), '') AS label"),
+                DB::raw("COALESCE(ti_fb.name, '') AS source_label")
+            )
+            ->orderBy('t.id')
+            ->get();
+
+        $taxonomyName = DB::table('taxonomy_i18n')
+            ->where('id', $taxonomyId)->where('culture', 'en')
+            ->value('name');
+
+        return [
+            'terms'           => $terms,
+            'taxonomyLabel'   => $taxonomyName ?? ('Taxonomy #' . $taxonomyId),
+            'taxonomySection' => 'atom',
+            'columnMappings'  => collect(),
+        ];
+    }
+
+    /**
+     * Issue #59 Phase 3 - source loader for setting + setting_i18n (AtoM base,
+     * scope='ui_label' or any other named scope).
+     */
+    protected function loadSettingScope(string $scope): array
+    {
+        if (!Schema::hasTable('setting') || !Schema::hasTable('setting_i18n')) {
+            return ['terms' => collect()];
+        }
+        $culture = (string) app()->getLocale();
+        $terms = DB::table('setting as s')
+            ->where('s.scope', $scope)
+            ->leftJoin('setting_i18n as si_cur', function ($j) use ($culture) {
+                $j->on('si_cur.id', '=', 's.id')->where('si_cur.culture', '=', $culture);
+            })
+            ->leftJoin('setting_i18n as si_fb', function ($j) {
+                $j->on('si_fb.id', '=', 's.id')->where('si_fb.culture', '=', 'en');
+            })
+            ->select(
+                's.id', 's.name as code', 's.scope', 's.editable',
+                DB::raw("COALESCE(NULLIF(si_cur.value, ''), NULLIF(si_fb.value, ''), '') AS label"),
+                DB::raw("COALESCE(si_fb.value, '') AS source_label")
+            )
+            ->orderBy('s.name')
+            ->get();
+
+        return [
+            'terms'           => $terms,
+            'taxonomyLabel'   => $scope,
+            'taxonomySection' => 'atom',
+            'columnMappings'  => collect(),
+        ];
+    }
+
+    /**
+     * Issue #59 Phase 3 - list of enabled locales for the Culture filter.
+     * Reads from setting scope='i18n_languages' (set by the Languages admin
+     * page). Falls back to the lang/*.json filenames if the setting table
+     * is empty. Always includes 'en' as the source culture.
+     */
+    protected function getEnabledLocales(): array
+    {
+        $locales = [];
+        try {
+            if (Schema::hasTable('setting')) {
+                $locales = DB::table('setting')
+                    ->where('scope', 'i18n_languages')
+                    ->where('editable', 1)
+                    ->pluck('name')
+                    ->toArray();
+            }
+        } catch (\Throwable $e) {}
+        if (empty($locales)) {
+            $files = glob(base_path('lang/*.json')) ?: [];
+            $locales = array_map(fn ($f) => pathinfo($f, PATHINFO_FILENAME), $files);
+        }
+        if (!in_array('en', $locales, true)) array_unshift($locales, 'en');
+        return array_values(array_unique($locales));
+    }
+
+    /**
+     * Issue #59 Phase 3 - per-row save to the source's _i18n table.
+     *
+     * POST /admin/dropdowns/{source}/{id}/i18n with {culture, label}.
+     * Admin auto-applies; editor (acl:translate) queues a draft into
+     * ahg_translation_draft so a second admin reviews on /admin/translation/drafts.
+     * Returns JSON for the inline-save flow on the editor blade.
+     */
+    public function saveI18n(string $source, int $id, Request $request): JsonResponse
+    {
+        $culture = (string) $request->input('culture', '');
+        $label   = (string) $request->input('label', '');
+        if ($culture === '' || $label === '') {
+            return response()->json(['ok' => false, 'error' => 'culture and label are required'], 422);
+        }
+        if (!in_array($source, ['ahg_dropdown', 'registry_dropdown', 'term', 'setting'], true)) {
+            return response()->json(['ok' => false, 'error' => 'unknown source'], 400);
+        }
+
+        $isAdmin = \AhgCore\Services\AclService::isAdministrator();
+
+        // Editor path - queue a draft. The 4 source values flow through
+        // ahg_translation_draft.entity_type so /admin/translation/drafts can
+        // filter and admin's draftApprove can dispatch back to this saver.
+        // source_hash is NOT NULL with no default (sha256 of source_text);
+        // the source_text for a dropdown label is the en parent value.
+        if (!$isAdmin) {
+            try {
+                $sourceText = $this->lookupSourceLabel($source, $id);
+                $draftId = DB::table('ahg_translation_draft')->insertGetId([
+                    'object_id'           => $id,
+                    'entity_type'         => $source,
+                    'field_name'          => 'label',
+                    'source_culture'      => 'en',
+                    'target_culture'      => $culture,
+                    'source_hash'         => hash('sha256', $sourceText),
+                    'source_text'         => $sourceText,
+                    'translated_text'     => $label,
+                    'status'              => 'draft',
+                    'created_by_user_id'  => auth()->id(),
+                    'created_at'          => now(),
+                ]);
+                return response()->json([
+                    'ok'       => true,
+                    'state'    => 'pending',
+                    'draft_id' => $draftId,
+                    'source'   => $source,
+                    'id'       => $id,
+                    'culture'  => $culture,
+                ]);
+            } catch (\Throwable $e) {
+                return response()->json(['ok' => false, 'error' => $e->getMessage()], 500);
+            }
+        }
+
+        // Admin path - apply directly to the source's _i18n table.
+        try {
+            $this->applyI18nSave($source, $id, $culture, $label);
+        } catch (\Throwable $e) {
+            return response()->json(['ok' => false, 'error' => $e->getMessage()], 500);
+        }
+        return response()->json([
+            'ok'      => true,
+            'state'   => 'applied',
+            'source'  => $source,
+            'id'      => $id,
+            'culture' => $culture,
         ]);
+    }
+
+    /**
+     * Issue #59 Phase 3 - read the en source-of-truth label for a row in any
+     * of the 4 sources. Used to populate ahg_translation_draft.source_text +
+     * source_hash when an editor queues a draft. Returns '' if the row is
+     * gone (orphan); the draft will reject on approval via draftApplyDropdown.
+     */
+    protected function lookupSourceLabel(string $source, int $id): string
+    {
+        try {
+            switch ($source) {
+                case 'ahg_dropdown':
+                    return (string) (DB::table('ahg_dropdown')->where('id', $id)->value('label') ?? '');
+                case 'registry_dropdown':
+                    return (string) (DB::table('registry_dropdown')->where('id', $id)->value('label') ?? '');
+                case 'term':
+                    return (string) (DB::table('term_i18n')->where('id', $id)->where('culture', 'en')->value('name') ?? '');
+                case 'setting':
+                    return (string) (DB::table('setting_i18n')->where('id', $id)->where('culture', 'en')->value('value') ?? '');
+            }
+        } catch (\Throwable $e) {}
+        return '';
+    }
+
+    /**
+     * Issue #59 Phase 3 - upsert helper. Used by saveI18n (admin path) and by
+     * TranslationController::draftApprove when applying a queued draft.
+     * Public so the translation controller can re-use it without re-deriving
+     * the source -> table dispatch.
+     */
+    public static function applyI18nSave(string $source, int $id, string $culture, string $label): void
+    {
+        switch ($source) {
+            case 'ahg_dropdown':
+                if (!Schema::hasTable('ahg_dropdown_i18n')) {
+                    throw new \RuntimeException('ahg_dropdown_i18n table not installed yet');
+                }
+                DB::table('ahg_dropdown_i18n')->updateOrInsert(
+                    ['id' => $id, 'culture' => $culture],
+                    ['label' => $label]
+                );
+                break;
+            case 'registry_dropdown':
+                if (!Schema::hasTable('registry_dropdown_i18n')) {
+                    throw new \RuntimeException('registry_dropdown_i18n table not installed yet');
+                }
+                DB::table('registry_dropdown_i18n')->updateOrInsert(
+                    ['id' => $id, 'culture' => $culture],
+                    ['label' => $label]
+                );
+                break;
+            case 'term':
+                // term_i18n (id, culture, name, ...) - use `name` not `label`.
+                DB::table('term_i18n')->updateOrInsert(
+                    ['id' => $id, 'culture' => $culture],
+                    ['name' => $label]
+                );
+                break;
+            case 'setting':
+                // setting_i18n (id, culture, value) - use `value` not `label`.
+                DB::table('setting_i18n')->updateOrInsert(
+                    ['id' => $id, 'culture' => $culture],
+                    ['value' => $label]
+                );
+                break;
+            default:
+                throw new \RuntimeException('Unknown dropdown source: ' . $source);
+        }
     }
 
     /**
