@@ -289,7 +289,8 @@
 <div class="modal fade" id="createPackageModal" tabindex="-1" aria-labelledby="createPackageModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form action="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}" method="GET">
+      <form action="{{ route('io.preservation.create', ['slug' => $io->slug ?? $io->id]) }}" method="POST">
+        @csrf
         <div class="modal-header">
           <h5 class="modal-title" id="createPackageModalLabel"><i class="fas fa-plus me-2"></i> {{ __('Create Preservation Package') }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>

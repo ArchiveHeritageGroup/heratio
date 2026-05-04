@@ -45,37 +45,65 @@ use Illuminate\Support\Facades\DB;
 class PreservationService
 {
     /**
-     * Get AIPs linked to an information object.
+     * Get preservation packages linked to an information object.
      *
-     * AIP records are linked to information objects via the aip.part_of field
-     * or via the relation table. We check both paths.
+     * Modern AHG packages live in `preservation_package` and link to IOs via
+     * `preservation_package_object` -> `digital_object` -> `information_object`.
+     * Legacy AtoM AIPs live in the `aip` table linked via `aip.part_of` or
+     * `digital_object.id`. We merge both stores so the index view sees all
+     * packages regardless of which pipeline created them. Column shape is
+     * normalised to `{ id, package_type, name, status, total_size, size_on_disk,
+     * created_at }` so the index blade's `package_type` filter works.
      */
     public function getAipsForObject(int $objectId): Collection
     {
+        $combined = collect();
+
+        // Modern AHG packages via preservation_package_object -> digital_object
         try {
-            // AIP table uses part_of to reference the information object
-            // or object_id if available. Check both.
-            $aips = DB::table('aip')
+            $modern = DB::table('preservation_package as p')
+                ->join('preservation_package_object as ppo', 'ppo.package_id', '=', 'p.id')
+                ->join('digital_object as do', 'do.id', '=', 'ppo.digital_object_id')
+                ->where('do.object_id', $objectId)
+                ->select(
+                    'p.id', 'p.uuid', 'p.name', 'p.package_type', 'p.status',
+                    'p.total_size', 'p.created_at', 'p.export_path'
+                )
+                ->distinct()
+                ->orderByDesc('p.created_at')
+                ->get()
+                ->map(function ($r) {
+                    // Normalise package_type to uppercase so the view's
+                    // ->where('package_type', 'DIP') filter is case-insensitive.
+                    $r->package_type = strtoupper((string) $r->package_type);
+                    // Map to size_on_disk for the view's $aips->sum('size_on_disk').
+                    $r->size_on_disk = (int) ($r->total_size ?? 0);
+                    return $r;
+                });
+            $combined = $combined->concat($modern);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // preservation_package may not exist on legacy installs; fall through.
+        }
+
+        // Legacy AtoM AIPs via aip.part_of (and digital_object fallback)
+        try {
+            $legacy = DB::table('aip')
                 ->where('part_of', $objectId)
                 ->orderByDesc('created_at')
-                ->get();
-
-            if ($aips->isEmpty()) {
-                // Fallback: try via digital_object -> information_object linkage
-                $aips = DB::table('aip')
-                    ->join('digital_object as do', function ($j) use ($objectId) {
-                        $j->on('do.id', '=', DB::raw('aip.id'))
-                            ->where('do.object_id', $objectId);
-                    })
-                    ->select('aip.*')
-                    ->orderByDesc('aip.created_at')
-                    ->get();
-            }
-
-            return $aips;
+                ->get()
+                ->map(function ($r) {
+                    // Legacy aip rows are AIPs by definition; tag them so the
+                    // view's package_type filter assigns them to the AIP bucket.
+                    if (!isset($r->package_type)) $r->package_type = 'AIP';
+                    if (!isset($r->size_on_disk) && isset($r->size)) $r->size_on_disk = (int) $r->size;
+                    return $r;
+                });
+            $combined = $combined->concat($legacy);
         } catch (\Illuminate\Database\QueryException $e) {
-            return collect();
+            // aip table not present on Heratio-only installs.
         }
+
+        return $combined->sortByDesc('created_at')->values();
     }
 
     /**

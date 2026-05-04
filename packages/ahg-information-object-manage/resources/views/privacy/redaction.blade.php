@@ -178,12 +178,21 @@
       @if($documentType === '3d')
         This is a 3D model — redaction only works on images and PDFs.
       @elseif(!$documentUrl)
-        No digital object is attached to this record.
+        No digital object is attached to this record. Upload an image or PDF first, then return here to redact it.
       @else
         The file type ({{ $digitalObject->mime_type ?? 'unknown' }}) is not supported for visual redaction.
       @endif
     </div>
-    <a href="{{ route('informationobject.show', $io->slug) }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
+    <div class="d-flex gap-2">
+      <a href="{{ route('informationobject.show', $io->slug) }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
+      @auth
+      @if(!$documentUrl)
+        <a href="{{ url('/' . $io->slug . '/object/addDigitalObject') }}" class="btn btn-primary">
+          <i class="fas fa-upload me-1"></i>{{ __('Upload digital object') }}
+        </a>
+      @endif
+      @endauth
+    </div>
     @php return; @endphp
   @endif
 
