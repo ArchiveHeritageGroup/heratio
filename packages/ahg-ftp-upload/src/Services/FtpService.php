@@ -479,29 +479,118 @@ SFTPEOF";
     }
 
     /**
-     * SFTP mkdir-p — runs `ssh ... mkdir -p <abs path>` once.
-     * Quoting: the path is wrapped in single quotes (escapeshellarg) before
-     * being concatenated into the remote shell command, so spaces / shell
-     * metacharacters in folder names survive.
+     * SFTP mkdir-p via interactive sftp + heredoc.
+     *
+     * Two earlier approaches didn't work:
+     *   1. `ssh ... mkdir -p` — rejected by sftp-only servers
+     *      ("This service allows sftp connections only.")
+     *   2. `sftp -b <batchfile>` — sets BatchMode=yes implicitly which
+     *      forbids password auth (forces pubkey), so sshpass can't feed
+     *      the password and we get "Permission denied (publickey,password)".
+     *
+     * The pattern that DOES work — and that the existing sftpListFiles uses —
+     * is interactive sftp piped via heredoc. sshpass intercepts the password
+     * prompt; sftp processes the commands as if a user typed them.
+     *
+     * SFTP commands used:
+     *   -mkdir <path>   →  mkdir but IGNORE failure (leading dash).
+     *                     Per-segment, so already-existing parents don't
+     *                     abort. Trailing `bye` ensures clean exit.
+     *
+     * We don't run a final `ls` here — the existing sftpUpload (scp) that
+     * follows will fail loudly if the destination dir doesn't exist, and
+     * that error reaches the user with the right context.
+     *
+     * Quoting: paths are wrapped in double-quotes inside the SFTP commands.
+     * The PHP heredoc terminator is unquoted so {$cumulative} interpolates,
+     * but that means bash also expands $VAR and `cmd` in the body — which is
+     * why sanitizeRelativePath blocks $ and ` (defence in depth). The base
+     * $this->remotePath is from settings (trusted) and not user-influenced.
      */
     protected function sftpEnsureDir(string $remoteAbs): array
     {
+        $base = rtrim($this->remotePath, '/');
+        if (!str_starts_with($remoteAbs, $base)) {
+            return ['success' => false, 'message' => 'Path is not under remote root'];
+        }
+        $rel = ltrim(substr($remoteAbs, strlen($base)), '/');
+        if ($rel === '') {
+            return ['success' => true, 'message' => 'Already at root'];
+        }
+
+        $segments = explode('/', $rel);
+        $cumulative = $base;
+        $lines = [];
+        foreach ($segments as $seg) {
+            if ($seg === '') {
+                continue;
+            }
+            $cumulative .= '/' . $seg;
+            $lines[] = '-mkdir "' . $cumulative . '"';
+        }
+        $lines[] = 'bye';
+        $body = implode("\n", $lines);
+
         $prefix = $this->sshpassPrefix();
         $opts = $this->sshOpts();
         $port = (int) $this->port;
         $userHost = escapeshellarg($this->username . '@' . $this->host);
-        $remoteEsc = escapeshellarg($remoteAbs);
 
-        $cmd = "{$prefix} ssh -p {$port} {$opts} {$userHost} mkdir -p {$remoteEsc} 2>&1";
+        $cmd = "{$prefix} sftp -P {$port} {$opts} {$userHost} 2>&1 <<SFTPEOF\n{$body}\nSFTPEOF";
 
         $output = [];
         $exitCode = 0;
         exec($cmd, $output, $exitCode);
 
-        if ($exitCode !== 0) {
+        // Filter informational SSH lines (host-key notices, the sftp prompt
+        // echo) from any user-facing error message.
+        $informational = function (string $line): bool {
+            $l = trim($line);
+            if ($l === '') return true;
+            if (stripos($l, 'Permanently added') !== false) return true;
+            if (stripos($l, 'Warning: ') === 0) return true;
+            if (stripos($l, 'Connected to ') === 0) return true;
+            if (stripos($l, 'sftp>') === 0) return true;
+            return false;
+        };
+
+        // sftp interactive returns 0 even when -mkdir lines fail (the dash
+        // suppresses errors). What we DO want to catch is connection-level
+        // failure. Detect by checking exit code AND the absence of "Connected".
+        $connected = false;
+        foreach ($output as $line) {
+            if (stripos(trim($line), 'Connected to ') === 0) {
+                $connected = true;
+                break;
+            }
+        }
+        if (!$connected) {
+            $real = array_values(array_filter($output, fn ($line) => !$informational($line)));
             return [
                 'success' => false,
-                'message' => 'Cannot create remote folder: ' . implode(' ', $output),
+                'message' => 'Cannot create remote folder: ' . trim(implode(' ', $real ?: $output)),
+            ];
+        }
+
+        // For per-segment mkdir failures (e.g. permission denied creating a
+        // brand-new dir), sftp prints "Couldn't create directory: ..." but
+        // the dash form swallows the exit code. Surface those if seen — but
+        // ignore "already exists" / "File exists" since that's the happy path.
+        $errorLines = [];
+        foreach ($output as $line) {
+            $l = trim($line);
+            if ($informational($l)) continue;
+            if (stripos($l, 'File exists') !== false) continue;
+            if (stripos($l, 'already exists') !== false) continue;
+            if (stripos($l, "Couldn't") !== false || stripos($l, 'Permission denied') !== false ||
+                stripos($l, 'remote mkdir') !== false || stripos($l, 'Failure') !== false) {
+                $errorLines[] = $l;
+            }
+        }
+        if (!empty($errorLines)) {
+            return [
+                'success' => false,
+                'message' => 'Cannot create remote folder: ' . implode(' ', $errorLines),
             ];
         }
 
@@ -559,7 +648,17 @@ SFTPEOF";
     protected function sanitizeRelativePath(string $path): string
     {
         $path = trim($path);
-        if ($path === '' || str_contains($path, "\0") || str_contains($path, '\\')) {
+        if ($path === '') {
+            return '';
+        }
+        // Reject NUL, backslash, double-quote (the SFTP commands wrap paths
+        // in double-quotes; a literal " would close the quote early and
+        // break the batch), CR/LF (could inject extra commands), and $ /
+        // backtick (the unquoted bash heredoc the SFTP commands ride through
+        // would otherwise expand them as parameter / command substitution).
+        if (str_contains($path, "\0") || str_contains($path, '\\') || str_contains($path, '"') ||
+            str_contains($path, "\r") || str_contains($path, "\n") ||
+            str_contains($path, '$')  || str_contains($path, '`')) {
             return '';
         }
         $path = trim($path, '/');
