@@ -12,8 +12,9 @@
 
 <div class="container py-4">
   <div class="d-flex align-items-center mb-3">
-    <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('ahgprivacy.dsar-request') }}"
-       class="btn btn-outline-secondary btn-sm me-3" title="{{ __('Back') }}">
+    {{-- Back to the DSAR record they just created (or the records list if no reference is in scope). --}}
+    <a href="{{ $reference ? route('ahgprivacy.dsar-view', ['ref' => $reference]) : route('ahgprivacy.dsar-list') }}"
+       class="btn btn-outline-secondary btn-sm me-3" title="{{ __('Back to record') }}">
       <i class="fas fa-arrow-left"></i>
     </a>
     <i class="fas fa-check-circle text-success me-2 fa-2x"></i>

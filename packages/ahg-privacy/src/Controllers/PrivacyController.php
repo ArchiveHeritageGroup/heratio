@@ -556,7 +556,81 @@ class PrivacyController extends Controller
         return view('privacy::dsar-list', compact('dsars', 'requestTypes', 'users'));
     }
 
-    public function dsarView() { return view('privacy::dsar-view'); }
+    public function dsarView(Request $request)
+    {
+        // Accepts either ?id=N or ?ref=DSAR-... for deep-linking from
+        // the confirmation page (which has the reference, not the id).
+        $id  = (int) $request->input('id', 0);
+        $ref = (string) $request->input('ref', '');
+
+        $dsar = null;
+        if ($id > 0) {
+            $dsar = DB::table('privacy_dsar')->where('id', $id)->first();
+        } elseif ($ref !== '') {
+            $dsar = DB::table('privacy_dsar')->where('reference_number', $ref)->first();
+        }
+        if (!$dsar) abort(404);
+
+        // Merge i18n columns (description / notes / response_summary) onto
+        // the $dsar row so the view's flat property access works without
+        // touching every reference site.
+        try {
+            $culture = app()->getLocale() ?: 'en';
+            $i18n = DB::table('privacy_dsar_i18n')
+                ->where('id', $dsar->id)
+                ->where('culture', $culture)
+                ->first();
+            if (!$i18n && $culture !== 'en') {
+                $i18n = DB::table('privacy_dsar_i18n')->where('id', $dsar->id)->where('culture', 'en')->first();
+            }
+            $dsar->description      = $i18n->description      ?? null;
+            $dsar->notes            = $i18n->notes            ?? null;
+            $dsar->response_summary = $i18n->response_summary ?? null;
+        } catch (\Throwable $e) {
+            $dsar->description = $dsar->description ?? null;
+            $dsar->notes = $dsar->notes ?? null;
+            $dsar->response_summary = $dsar->response_summary ?? null;
+        }
+
+        $jurisdictions = $this->loadJurisdictions();
+        $jurisdictionInfo = $jurisdictions[$dsar->jurisdiction] ?? null;
+        $requestTypes = PrivacyService::getRequestTypes($dsar->jurisdiction);
+
+        $statusClasses = [
+            'received'   => 'info',
+            'verifying'  => 'primary',
+            'in_review'  => 'primary',
+            'processing' => 'warning',
+            'completed'  => 'success',
+            'rejected'   => 'danger',
+            'withdrawn'  => 'secondary',
+        ];
+
+        $isOverdue = strtotime($dsar->due_date) < time()
+            && !in_array($dsar->status, ['completed', 'rejected', 'withdrawn']);
+
+        $logs = collect();
+        try {
+            $logs = DB::table('privacy_dsar_log as l')
+                ->leftJoin('user as u', 'u.id', '=', 'l.user_id')
+                ->where('l.dsar_id', $dsar->id)
+                ->orderByDesc('l.created_at')->orderByDesc('l.id')
+                ->select('l.*', 'u.username')
+                ->get();
+        } catch (\Throwable $e) { /* log table optional */ }
+
+        // Resolve assigned user's username for the "Assigned To" line.
+        $dsar->assigned_username = null;
+        if (!empty($dsar->assigned_to)) {
+            try {
+                $dsar->assigned_username = DB::table('user')->where('id', $dsar->assigned_to)->value('username');
+            } catch (\Throwable $e) { /* user table optional in fresh installs */ }
+        }
+
+        return view('privacy::dsar-view', compact(
+            'dsar', 'jurisdictionInfo', 'requestTypes', 'statusClasses', 'isOverdue', 'logs'
+        ));
+    }
 
     public function jurisdictionAdd() { return view('privacy::jurisdiction-add'); }
 
