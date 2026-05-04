@@ -352,7 +352,7 @@
           <h5 class="border-bottom pb-2 mb-3 mt-4">{{ __('Insurance') }}</h5>
           <dl class="row">
             <dt class="col-sm-5">{{ __('Insurance Required') }}</dt>
-            <dd class="col-sm-7">{!! ($asset->insurance_required ?? false) ? '<span class="badge bg-success">{{ __('Yes') }}</span>' : '<span class="badge bg-secondary">No</span>' !!}</dd>
+            <dd class="col-sm-7">{!! ($asset->insurance_required ?? false) ? '<span class="badge bg-success">' . e(__('Yes')) . '</span>' : '<span class="badge bg-secondary">' . e(__('No')) . '</span>' !!}</dd>
             <dt class="col-sm-5">{{ __('Insurance Value') }}</dt>
             <dd class="col-sm-7">{{ $asset->insurance_value ? number_format($asset->insurance_value, 2) : '-' }}</dd>
             <dt class="col-sm-5">{{ __('Policy Number') }}</dt>
@@ -388,7 +388,7 @@
       </div>
       @if(count($impairments) > 0)
         <table class="table table-striped"><thead><tr><th>{{ __('Date') }}</th><th>{{ __('Identified') }}</th><th class="text-end">{{ __('Before') }}</th><th class="text-end">{{ __('Loss') }}</th><th class="text-end">{{ __('After') }}</th><th>{{ __('Assessor') }}</th></tr></thead>
-        <tbody>@foreach($impairments as $imp)<tr><td>{{ $imp->assessment_date ?? '-' }}</td><td>{!! ($imp->impairment_identified ?? false) ? '<span class="badge bg-danger">{{ __('Yes') }}</span>' : '<span class="badge bg-success">No</span>' !!}</td><td class="text-end">{{ number_format($imp->carrying_amount_before ?? 0, 2) }}</td><td class="text-end text-danger">{{ $imp->impairment_loss ? number_format($imp->impairment_loss, 2) : '-' }}</td><td class="text-end">{{ $imp->carrying_amount_after ? number_format($imp->carrying_amount_after, 2) : '-' }}</td><td>{{ $imp->assessor_name ?? '-' }}</td></tr>@endforeach</tbody></table>
+        <tbody>@foreach($impairments as $imp)<tr><td>{{ $imp->assessment_date ?? '-' }}</td><td>{!! ($imp->impairment_identified ?? false) ? '<span class="badge bg-danger">' . e(__('Yes')) . '</span>' : '<span class="badge bg-success">' . e(__('No')) . '</span>' !!}</td><td class="text-end">{{ number_format($imp->carrying_amount_before ?? 0, 2) }}</td><td class="text-end text-danger">{{ $imp->impairment_loss ? number_format($imp->impairment_loss, 2) : '-' }}</td><td class="text-end">{{ $imp->carrying_amount_after ? number_format($imp->carrying_amount_after, 2) : '-' }}</td><td>{{ $imp->assessor_name ?? '-' }}</td></tr>@endforeach</tbody></table>
       @else
         <p class="text-muted text-center py-4">{{ __('No impairment assessments recorded.') }}</p>
       @endif
@@ -416,7 +416,7 @@
       </div>
       @if(count($journals) > 0)
         <table class="table table-striped"><thead><tr><th>{{ __('Date') }}</th><th>{{ __('Number') }}</th><th>{{ __('Type') }}</th><th>{{ __('Debit') }}</th><th>{{ __('Credit') }}</th><th class="text-end">{{ __('Amount') }}</th><th>{{ __('Posted') }}</th></tr></thead>
-        <tbody>@foreach($journals as $j)<tr><td>{{ $j->journal_date ?? '-' }}</td><td>{{ $j->journal_number ?? '-' }}</td><td><span class="badge bg-secondary">{{ ucfirst($j->journal_type ?? '-') }}</span></td><td>{{ $j->debit_account ?? '' }}</td><td>{{ $j->credit_account ?? '' }}</td><td class="text-end fw-bold">{{ number_format($j->debit_amount ?? 0, 2) }}</td><td>{!! ($j->posted ?? false) ? '<span class="badge bg-success">{{ __('Yes') }}</span>' : '<span class="badge bg-warning">No</span>' !!}</td></tr>@endforeach</tbody></table>
+        <tbody>@foreach($journals as $j)<tr><td>{{ $j->journal_date ?? '-' }}</td><td>{{ $j->journal_number ?? '-' }}</td><td><span class="badge bg-secondary">{{ ucfirst($j->journal_type ?? '-') }}</span></td><td>{{ $j->debit_account ?? '' }}</td><td>{{ $j->credit_account ?? '' }}</td><td class="text-end fw-bold">{{ number_format($j->debit_amount ?? 0, 2) }}</td><td>{!! ($j->posted ?? false) ? '<span class="badge bg-success">' . e(__('Yes')) . '</span>' : '<span class="badge bg-warning">' . e(__('No')) . '</span>' !!}</td></tr>@endforeach</tbody></table>
       @else
         <p class="text-muted text-center py-4">{{ __('No journal entries recorded.') }}</p>
       @endif
