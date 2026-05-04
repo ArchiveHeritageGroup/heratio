@@ -449,6 +449,14 @@
       @if($canUpdate)
         <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}?theme=1">Edit theme</a></li>
       @endif
+      @if(\Illuminate\Support\Facades\Route::has('ahgtranslation.translate')
+          && \AhgCore\Services\AclService::check($repository, 'translate'))
+        <li>
+          <a class="btn atom-btn-outline-light" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateSbsModal-{{ $repository->id }}">
+            <i class="fas fa-columns me-1"></i>{{ __('Translate (side-by-side)') }}
+          </a>
+        </li>
+      @endif
     </ul>
   </section>
   @endif
@@ -459,4 +467,36 @@
 
   {{-- RiC Explorer Panel --}}
   @include('ahg-ric::_ric-panel', ['resourceId' => $repository->id])
+
+  {{-- Side-by-side translator. Repository has two i18n tables — actor_i18n
+       (covered here, controller-supported via QubitRepository column whitelist)
+       and repository_i18n (geocultural_context / collecting_policies / holdings
+       / opening_times / etc., not yet wired — would need a synthetic class
+       entry in TranslationController::I18N_TABLE_BY_CLASS, similar to
+       QubitMuseumMetadata). --}}
+  @auth
+    @if(view()->exists('ahg-translation::_translate-sbs')
+        && \AhgCore\Services\AclService::check($repository, 'translate'))
+      @include('ahg-translation::_translate-sbs', [
+        'objectId'      => $repository->id,
+        'sbsEntityType' => 'repository',
+        'sbsI18nTable'  => 'actor_i18n',
+        'sbsFields'     => [
+            'authorized_form_of_name'            => 'Authorized form of name',
+            'dates_of_existence'                 => 'Dates of existence',
+            'history'                            => 'History',
+            'places'                             => 'Places',
+            'legal_status'                       => 'Legal status',
+            'functions'                          => 'Functions',
+            'mandates'                           => 'Mandates',
+            'internal_structures'                => 'Internal structures',
+            'general_context'                    => 'General context',
+            'institution_responsible_identifier' => 'Institution responsible identifier',
+            'rules'                              => 'Rules',
+            'sources'                            => 'Sources',
+            'revision_history'                   => 'Revision history',
+        ],
+      ])
+    @endif
+  @endauth
 @endsection

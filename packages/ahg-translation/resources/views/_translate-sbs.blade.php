@@ -16,9 +16,22 @@
 @php
   $objectId = (int) ($objectId ?? 0);
 
-  // Fields per entity class — currently info-object only since all 5 GLAM/DAM
-  // sectors share `information_object_i18n`. Actor / repo / term follow when
-  // their show pages get their own translate include.
+  // ── Entity-type controls (default: information_object) ──────────────────
+  // Non-IO show pages (Repository / Actor / future Term) override these to
+  // retarget the SBS modal at a different *_i18n table. IO callers pass
+  // nothing and fall through to the IO defaults below.
+  //   $sbsEntityType   'information_object' | 'actor' | 'repository' | 'term'
+  //   $sbsI18nTable    table to read source values from + write to
+  //   $sbsFields       field-key => display-label map for the rendered rows
+  // Backend save flow (TranslationController::I18N_TABLE_BY_CLASS) already
+  // knows about QubitRepository / QubitActor; the JS POST relies on
+  // object.class_name lookup so no extra param is needed for those.
+  // ────────────────────────────────────────────────────────────────────────
+  $sbsEntityType = $sbsEntityType ?? 'information_object';
+  $sbsI18nTable  = $sbsI18nTable  ?? 'information_object_i18n';
+
+  // Default IO field map. Repository / Actor show pages pass $sbsFields to
+  // override (Repository -> actor_i18n column whitelist).
   $allFieldsForIo = [
     'title' => 'Title', 'alternate_title' => 'Alternate Title',
     'scope_and_content' => 'Scope and Content', 'archival_history' => 'Archival History',
@@ -31,9 +44,10 @@
     'location_of_copies' => 'Location of Copies', 'extent_and_medium' => 'Extent and Medium',
     'sources' => 'Sources', 'rules' => 'Rules', 'revision_history' => 'Revision History',
   ];
+  $sbsFields = $sbsFields ?? $allFieldsForIo;
 
   // Cultures this record actually has rows in (populates the source dropdown)
-  $availableCultures = \Illuminate\Support\Facades\DB::table('information_object_i18n')
+  $availableCultures = \Illuminate\Support\Facades\DB::table($sbsI18nTable)
       ->where('id', $objectId)
       ->pluck('culture')
       ->toArray();
@@ -41,7 +55,7 @@
   // Pre-fetched i18n rows so the modal can switch source culture client-side
   // without round-tripping. Map: culture => [field => value]
   $i18nByCulture = [];
-  foreach (\Illuminate\Support\Facades\DB::table('information_object_i18n')
+  foreach (\Illuminate\Support\Facades\DB::table($sbsI18nTable)
       ->where('id', $objectId)
       ->get() as $row) {
       $i18nByCulture[$row->culture] = (array) $row;
@@ -175,7 +189,7 @@
     'Provenance', 'Provenance text', 'Ownership history', 'Legal status', 'Rights type', 'Rights holder', 'Rights date', 'Rights remarks',
     'Cataloger', 'Institution', 'Remarks',
   ];
-  $allUiKeys = array_unique(array_merge(array_values($allFieldsForIo), $commonButtons, $ccoLabelStrings));
+  $allUiKeys = array_unique(array_merge(array_values($sbsFields), $commonButtons, $ccoLabelStrings));
   foreach ($enabledLocales as $loc) {
       $p = base_path('lang/' . preg_replace('/[^a-z0-9_-]/i', '', $loc) . '.json');
       if (is_readable($p)) {
@@ -191,9 +205,11 @@
   // Only renders if this IO has a museum_metadata row. Pre-load every culture
   // already in museum_metadata_i18n so the modal switches client-side without
   // a round trip, mirroring $i18nByCulture.
+  // IO-only — repository / actor SBS skips this block entirely.
   $museumByCulture = [];
   $museumRowId = null;
   $museumGroups = [];
+  if ($sbsEntityType === 'information_object') {
   try {
       $mmRow = \Illuminate\Support\Facades\DB::table('museum_metadata')
           ->where('object_id', $objectId)
@@ -229,6 +245,7 @@
       // museum_metadata / museum_metadata_i18n missing — skip CCO section.
       $museumRowId = null;
   }
+  } // end if ($sbsEntityType === 'information_object')
 @endphp
 
 <div class="modal fade" id="ahgTranslateSbsModal-{{ $objectId }}" tabindex="-1" aria-hidden="true">
@@ -291,7 +308,7 @@
               </tr>
             </thead>
             <tbody>
-              @foreach($allFieldsForIo as $fieldKey => $fieldLabel)
+              @foreach($sbsFields as $fieldKey => $fieldLabel)
                 <tr class="sbs-lbl-row" data-object-id="{{ $objectId }}" data-source-label="{{ $fieldLabel }}">
                   <td><code class="small">{{ $fieldKey }}</code></td>
                   <td><div class="small">{{ $fieldLabel }}</div></td>
@@ -406,7 +423,7 @@
         <div id="sbs-section-values-{{ $objectId }}"></div>
         {{-- ── Field VALUE translations (record content in *_i18n) ── --}}
         <div class="d-flex justify-content-between align-items-center mt-2 mb-2 flex-wrap gap-2">
-          <h6 class="text-uppercase small fw-bold text-muted mb-0"><i class="fas fa-database me-1"></i>{{ __('Field values') }} <span class="text-muted">({{ __('the actual record content — saved into information_object_i18n') }})</span></h6>
+          <h6 class="text-uppercase small fw-bold text-muted mb-0"><i class="fas fa-database me-1"></i>{{ __('Field values') }} <span class="text-muted">({{ __('the actual record content — saved into') }} <code>{{ $sbsI18nTable }}</code>)</span></h6>
           <div class="form-check form-switch mb-0">
             <input class="form-check-input sbs-filter-empty" type="checkbox" id="sbs-filter-empty-{{ $objectId }}" data-object-id="{{ $objectId }}">
             <label class="form-check-label small" for="sbs-filter-empty-{{ $objectId }}">
@@ -425,7 +442,7 @@
               </tr>
             </thead>
             <tbody>
-              @foreach($allFieldsForIo as $fieldKey => $fieldLabel)
+              @foreach($sbsFields as $fieldKey => $fieldLabel)
                 <tr class="sbs-row" data-object-id="{{ $objectId }}" data-field="{{ $fieldKey }}">
                   <td><span class="small fw-semibold">{{ $fieldLabel }}</span><br><code class="small text-muted">{{ $fieldKey }}</code></td>
                   <td><div class="sbs-src small text-muted" style="white-space:pre-wrap;"></div></td>
@@ -449,11 +466,14 @@
              text into a value cell. --}}
 
         {{-- ── Issue #59 Phase 5 — Dropdown values used on this record ── --}}
+        {{-- IO-only: the introspection inspects information_object term FKs +
+             museum_metadata cells, neither of which apply to repository / actor. --}}
         @php
           // Introspect the record to find dropdown-backed columns. Each entry
           // describes one source-of-truth dropdown row that can be translated
           // via the Phase 3 /admin/dropdowns/{source}/{id}/i18n endpoint.
           $sbsDropdowns = [];
+          if ($sbsEntityType === 'information_object') {
           try {
               // Term-FK columns on information_object - all point at term.id
               // and are translated via term_i18n. Source = 'term', id = term.id.
@@ -521,6 +541,7 @@
               // Defensive — never break the SBS modal because of an introspection error.
               $sbsDropdowns = [];
           }
+          } // end if ($sbsEntityType === 'information_object')
         @endphp
         @if(!empty($sbsDropdowns))
           <div id="sbs-section-dropdowns-{{ $objectId }}"></div>
