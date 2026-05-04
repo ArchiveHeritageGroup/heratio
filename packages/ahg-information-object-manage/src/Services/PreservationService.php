@@ -222,13 +222,38 @@ class PreservationService
         $exportRoot = storage_path('app/preservation');
         if (!is_dir($exportRoot)) @mkdir($exportRoot, 0775, true);
 
+        // Surface permissions issues with a precise cause so the operator
+        // doesn't have to guess. Common case: the dir was first created by
+        // a CLI run as root and the web user (typically www-data) can't
+        // write into it.
+        clearstatcache(true, $exportRoot);
+        if (!is_writable($exportRoot)) {
+            $owner = function_exists('posix_getpwuid') && file_exists($exportRoot)
+                ? (posix_getpwuid(fileowner($exportRoot))['name'] ?? '?')
+                : '?';
+            $webUser = function_exists('posix_geteuid') && function_exists('posix_getpwuid')
+                ? (posix_getpwuid(posix_geteuid())['name'] ?? '?')
+                : '?';
+            return [
+                'ok' => false,
+                'message' => 'Export root is not writable by the web user: ' . $exportRoot
+                    . ' (owner=' . $owner . ', running as=' . $webUser
+                    . '). Fix: chown -R ' . $webUser . ':' . $webUser . ' ' . $exportRoot,
+            ];
+        }
+
         $workDir = $exportRoot . '/' . $pkg->uuid;
         $dataDir = $workDir . '/data';
         if (is_dir($workDir)) {
             $this->rmTree($workDir);
         }
         if (!@mkdir($dataDir, 0775, true)) {
-            return ['ok' => false, 'message' => 'Cannot create work directory: ' . $workDir];
+            $err = error_get_last();
+            return [
+                'ok' => false,
+                'message' => 'Cannot create work directory: ' . $workDir
+                    . ($err ? ' (' . ($err['message'] ?? '') . ')' : ''),
+            ];
         }
 
         $manifestLines = [];
