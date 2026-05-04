@@ -137,6 +137,124 @@
     </div>
   </div>
 
+  {{-- Flash messages from create / update / download actions --}}
+  @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+  @endif
+  @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+  @endif
+
+  {{-- View / Edit package detail panel (from ?view= or ?edit= query params) --}}
+  @php $detailPkg = $viewPackage ?? $editPackage ?? null; @endphp
+  @if($detailPkg)
+    <div class="card mb-4 border-primary">
+      <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+        <h5 class="mb-0">
+          <i class="fas fa-{{ $editPackage ? 'pencil-alt' : 'eye' }} me-2"></i>
+          {{ $editPackage ? __('Edit package') : __('Package detail') }}: {{ $detailPkg->name }}
+          <span class="badge bg-light text-dark ms-2">{{ $detailPkg->package_type }}</span>
+          <span class="badge bg-secondary">{{ ucfirst($detailPkg->status ?? 'draft') }}</span>
+        </h5>
+        <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}" class="btn btn-sm atom-btn-white" title="{{ __('Close') }}">
+          <i class="fas fa-times"></i>
+        </a>
+      </div>
+      <div class="card-body">
+        @if($editPackage)
+          <form method="POST" action="{{ route('io.preservation.update', ['slug' => $io->slug ?? $io->id, 'id' => $detailPkg->id]) }}">
+            @csrf
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label">{{ __('Name') }}</label>
+                <input type="text" name="name" class="form-control" value="{{ $detailPkg->name }}" maxlength="255" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">{{ __('Status') }}</label>
+                <select name="status" class="form-select">
+                  @foreach(['draft', 'pending', 'processing', 'stored', 'exported', 'failed'] as $st)
+                    <option value="{{ $st }}" {{ ($detailPkg->status ?? 'draft') === $st ? 'selected' : '' }}>{{ ucfirst($st) }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="col-md-3 d-flex align-items-end">
+                <code class="small text-muted">{{ $detailPkg->uuid }}</code>
+              </div>
+              <div class="col-12">
+                <label class="form-label">{{ __('Description') }}</label>
+                <textarea name="description" class="form-control" rows="3">{{ $detailPkg->description }}</textarea>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ __('Save changes') }}</button>
+              <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id, 'view' => $detailPkg->id]) }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
+            </div>
+          </form>
+        @else
+          <dl class="row mb-3 small">
+            <dt class="col-sm-3">{{ __('UUID') }}</dt>          <dd class="col-sm-9"><code>{{ $detailPkg->uuid }}</code></dd>
+            <dt class="col-sm-3">{{ __('Type') }}</dt>           <dd class="col-sm-9">{{ $detailPkg->package_type }}</dd>
+            <dt class="col-sm-3">{{ __('Status') }}</dt>          <dd class="col-sm-9">{{ ucfirst($detailPkg->status ?? 'draft') }}</dd>
+            <dt class="col-sm-3">{{ __('Format') }}</dt>          <dd class="col-sm-9">{{ $detailPkg->package_format ?? 'bagit' }} ({{ $detailPkg->manifest_algorithm ?? 'sha256' }})</dd>
+            <dt class="col-sm-3">{{ __('Object count') }}</dt>    <dd class="col-sm-9">{{ $detailPkg->object_count ?? 0 }}</dd>
+            <dt class="col-sm-3">{{ __('Total size') }}</dt>      <dd class="col-sm-9">{{ formatBytes($detailPkg->total_size ?? 0) }}</dd>
+            @if(!empty($detailPkg->source_path))<dt class="col-sm-3">{{ __('Source path') }}</dt><dd class="col-sm-9"><code>{{ $detailPkg->source_path }}</code></dd>@endif
+            @if(!empty($detailPkg->export_path))<dt class="col-sm-3">{{ __('Export path') }}</dt><dd class="col-sm-9"><code>{{ $detailPkg->export_path }}</code></dd>@endif
+            @if(!empty($detailPkg->description))<dt class="col-sm-3">{{ __('Description') }}</dt><dd class="col-sm-9">{{ $detailPkg->description }}</dd>@endif
+            <dt class="col-sm-3">{{ __('Created') }}</dt>         <dd class="col-sm-9">{{ $detailPkg->created_at }}</dd>
+          </dl>
+          @auth
+          <div class="d-flex gap-2 mb-3">
+            <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id, 'edit' => $detailPkg->id]) }}" class="btn atom-btn-outline-primary"><i class="fas fa-pencil-alt me-1"></i>{{ __('Edit') }}</a>
+            <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id, 'download' => $detailPkg->id]) }}" class="btn atom-btn-outline-success"><i class="fas fa-download me-1"></i>{{ __('Download') }}</a>
+          </div>
+          @endauth
+        @endif
+
+        {{-- Files in this package --}}
+        <h6 class="mt-3"><i class="fas fa-file me-1"></i>{{ __('Files') }} <span class="badge bg-secondary">{{ count($packageFiles ?? []) }}</span></h6>
+        @if(empty($packageFiles) || count($packageFiles) === 0)
+          <p class="text-muted small mb-2">{{ __('No files linked to this package.') }}</p>
+        @else
+          <div class="table-responsive mb-3">
+            <table class="table table-sm table-bordered mb-0">
+              <thead class="table-light">
+                <tr><th>#</th><th>{{ __('Path') }}</th><th>{{ __('MIME') }}</th><th class="text-end">{{ __('Size') }}</th><th>{{ __('Role') }}</th></tr>
+              </thead>
+              <tbody>
+                @foreach($packageFiles as $f)
+                  <tr>
+                    <td>{{ $f->sequence ?? '—' }}</td>
+                    <td><code class="small">{{ $f->relative_path ?? $f->file_name }}</code></td>
+                    <td class="small">{{ $f->mime_type ?? '—' }}</td>
+                    <td class="text-end">{{ isset($f->file_size) ? formatBytes($f->file_size) : '—' }}</td>
+                    <td><span class="badge bg-light text-dark">{{ $f->object_role ?? 'payload' }}</span></td>
+                  </tr>
+                @endforeach
+              </tbody>
+            </table>
+          </div>
+        @endif
+
+        {{-- Audit-trail events --}}
+        <h6 class="mt-2"><i class="fas fa-history me-1"></i>{{ __('Events') }} <span class="badge bg-secondary">{{ count($packageEvents ?? []) }}</span></h6>
+        @if(empty($packageEvents) || count($packageEvents) === 0)
+          <p class="text-muted small mb-0">{{ __('No events recorded.') }}</p>
+        @else
+          <ul class="list-unstyled small mb-0">
+            @foreach($packageEvents as $ev)
+              <li class="border-start border-3 ps-2 mb-2">
+                <span class="badge bg-{{ ($ev->event_outcome ?? 'success') === 'success' ? 'success' : 'warning' }}">{{ ucfirst($ev->event_type ?? '?') }}</span>
+                <span class="text-muted">{{ $ev->created_at }}</span><br>
+                {{ $ev->event_detail ?? '' }}
+              </li>
+            @endforeach
+          </ul>
+        @endif
+      </div>
+    </div>
+  @endif
+
   {{-- Packages table --}}
   @if($aips->isNotEmpty() || $premisObjects->isNotEmpty())
     <div class="card mb-4">

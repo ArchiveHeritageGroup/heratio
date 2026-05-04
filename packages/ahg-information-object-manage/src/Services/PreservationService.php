@@ -107,6 +107,88 @@ class PreservationService
     }
 
     /**
+     * Load a single preservation_package row with normalised columns
+     * (size_on_disk + uppercased package_type) so the view shapes are
+     * consistent with whatever getAipsForObject returns.
+     */
+    public function getPackage(int $packageId): ?object
+    {
+        try {
+            $p = DB::table('preservation_package')->where('id', $packageId)->first();
+            if (!$p) return null;
+            $p->package_type = strtoupper((string) $p->package_type);
+            $p->size_on_disk = (int) ($p->total_size ?? 0);
+            return $p;
+        } catch (\Illuminate\Database\QueryException $e) {
+            return null;
+        }
+    }
+
+    /**
+     * List files in a preservation_package as preservation_package_object
+     * rows joined to digital_object for friendly display data.
+     */
+    public function getPackageFiles(int $packageId): Collection
+    {
+        try {
+            return DB::table('preservation_package_object as ppo')
+                ->leftJoin('digital_object as do', 'do.id', '=', 'ppo.digital_object_id')
+                ->where('ppo.package_id', $packageId)
+                ->select(
+                    'ppo.id', 'ppo.relative_path', 'ppo.file_name', 'ppo.file_size',
+                    'ppo.mime_type', 'ppo.checksum_algorithm', 'ppo.checksum_value',
+                    'ppo.object_role', 'ppo.sequence', 'ppo.added_at',
+                    'do.id as digital_object_id', 'do.path as do_path'
+                )
+                ->orderBy('ppo.sequence')
+                ->orderBy('ppo.id')
+                ->get();
+        } catch (\Illuminate\Database\QueryException $e) {
+            return collect();
+        }
+    }
+
+    /**
+     * Audit-trail events for a preservation_package, newest first.
+     */
+    public function getPackageEvents(int $packageId): Collection
+    {
+        try {
+            return DB::table('preservation_package_event')
+                ->where('package_id', $packageId)
+                ->orderByDesc('created_at')
+                ->orderByDesc('id')
+                ->get();
+        } catch (\Illuminate\Database\QueryException $e) {
+            return collect();
+        }
+    }
+
+    /**
+     * Update mutable fields on a preservation_package. Restricts to a
+     * whitelist (name / description / status) so caller cannot poke at
+     * uuid / package_type / checksum / object_count.
+     */
+    public function updatePackage(int $packageId, array $data): bool
+    {
+        try {
+            $update = [];
+            foreach (['name', 'description', 'status'] as $f) {
+                if (array_key_exists($f, $data)) {
+                    $v = $data[$f];
+                    if (is_string($v)) $v = trim($v);
+                    $update[$f] = $v === '' ? null : $v;
+                }
+            }
+            if (empty($update)) return false;
+            $update['updated_at'] = now();
+            return DB::table('preservation_package')->where('id', $packageId)->update($update) > 0;
+        } catch (\Illuminate\Database\QueryException $e) {
+            return false;
+        }
+    }
+
+    /**
      * Get PREMIS objects for an information object.
      */
     public function getPremisObjects(int $objectId): Collection

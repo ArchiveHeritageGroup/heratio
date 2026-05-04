@@ -46,26 +46,110 @@ class PreservationController extends Controller
     }
 
     /**
-     * Show preservation packages for an IO.
+     * Show preservation packages for an IO. Optionally renders inline detail
+     * panels for ?view={id} (read-only) or ?edit={id} (editable form). The
+     * detail view loads files (preservation_package_object) + audit events
+     * (preservation_package_event) for that package.
+     *
+     * ?download={id} is reserved for the BagIt/zip export flow which is a
+     * separate job (uses the OAIS packager); for now it short-circuits with
+     * an info flash so users see the action acknowledged.
      */
-    public function index(string $slug)
+    public function index(Request $request, string $slug)
     {
         $io = $this->getIO($slug);
         if (!$io) {
             abort(404);
         }
 
-        // Get AIPs linked to this object
         $aips = $this->service->getAipsForObject($io->id);
-
-        // Get PREMIS objects
         $premisObjects = $this->service->getPremisObjects($io->id);
+
+        $viewPackage = null;     // populated when ?view={id}
+        $editPackage = null;     // populated when ?edit={id}
+        $packageFiles = collect();
+        $packageEvents = collect();
+
+        $viewId = (int) $request->query('view', 0);
+        $editId = (int) $request->query('edit', 0);
+        $downloadId = (int) $request->query('download', 0);
+
+        if ($downloadId > 0) {
+            // Real export is the OAIS packager's job - separate sub-issue.
+            // For now surface a clear acknowledgement so the click registers.
+            $pkg = $this->service->getPackage($downloadId);
+            if ($pkg && $pkg->status === 'exported' && !empty($pkg->export_path) && is_file($pkg->export_path)) {
+                return response()->download($pkg->export_path, basename($pkg->export_path));
+            }
+            return redirect()
+                ->route('io.preservation', ['slug' => $slug])
+                ->with('error', 'Package #' . $downloadId . ' has no exported file yet. Run the BagIt export job first.');
+        }
+
+        if ($viewId > 0) {
+            $viewPackage = $this->service->getPackage($viewId);
+            if ($viewPackage) {
+                $packageFiles  = $this->service->getPackageFiles($viewId);
+                $packageEvents = $this->service->getPackageEvents($viewId);
+            }
+        } elseif ($editId > 0) {
+            $editPackage = $this->service->getPackage($editId);
+            if ($editPackage) {
+                $packageFiles  = $this->service->getPackageFiles($editId);
+                $packageEvents = $this->service->getPackageEvents($editId);
+            }
+        }
 
         return view('ahg-io-manage::preservation.index', [
             'io'            => $io,
             'aips'          => $aips,
             'premisObjects' => $premisObjects,
+            'viewPackage'   => $viewPackage,
+            'editPackage'   => $editPackage,
+            'packageFiles'  => $packageFiles,
+            'packageEvents' => $packageEvents,
         ]);
+    }
+
+    /**
+     * POST /preservation/{slug}/{id}/update — saves the edit form for a
+     * single preservation_package row. Whitelisted to name / description /
+     * status so users can't poke at uuid / type / checksums.
+     */
+    public function updatePackage(Request $request, string $slug, int $id)
+    {
+        $io = $this->getIO($slug);
+        if (!$io) abort(404);
+
+        // Sanity: confirm the package is actually linked to this IO so we
+        // don't accept ?edit=999 from any URL slug.
+        $belongs = DB::table('preservation_package_object as ppo')
+            ->join('digital_object as do', 'do.id', '=', 'ppo.digital_object_id')
+            ->where('ppo.package_id', $id)
+            ->where('do.object_id', $io->id)
+            ->exists();
+        if (!$belongs) {
+            return back()->with('error', 'Package #' . $id . ' is not linked to this record.');
+        }
+
+        $ok = $this->service->updatePackage($id, $request->only(['name', 'description', 'status']));
+
+        // Audit-trail event so the change is visible in the package timeline.
+        if ($ok) {
+            try {
+                DB::table('preservation_package_event')->insert([
+                    'package_id'    => $id,
+                    'event_type'    => 'update',
+                    'event_outcome' => 'success',
+                    'event_detail'  => 'Package metadata updated via /preservation/' . $slug . ' edit form.',
+                    'created_at'    => now(),
+                ]);
+            } catch (\Throwable $e) { /* table may not exist on minimal installs */ }
+        }
+
+        return redirect()
+            ->route('io.preservation', ['slug' => $slug, 'view' => $id])
+            ->with($ok ? 'success' : 'error', $ok ? 'Package updated.' : 'Nothing changed (no recognised fields supplied).');
     }
 
     /**
