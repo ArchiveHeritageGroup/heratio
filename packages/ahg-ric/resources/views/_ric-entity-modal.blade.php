@@ -157,6 +157,17 @@ function ricSetEntityType(type) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Wire the four Add buttons in _ric-entities-panel — their inline
+    // onclick= attrs are blocked by CSP (script-src nonce makes browsers
+    // ignore unsafe-inline incl. event handler attributes), so without this
+    // the modal always opens with the default 'activity' fields regardless
+    // of which Add button was clicked.
+    document.querySelectorAll('[data-ric-entity-type]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            ricSetEntityType(btn.dataset.ricEntityType);
+        });
+    });
+
     document.getElementById('ricEntitySaveBtn').addEventListener('click', function() {
         const type = ricCurrentType;
         const recordId = '{{ $recordId ?? '' }}';

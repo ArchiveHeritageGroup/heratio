@@ -27,16 +27,20 @@
         </h2>
         @if($ricIsAdmin)
         <div class="btn-group btn-group-sm">
-            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ricEntityModal" onclick="ricSetEntityType('activity')">
+            {{-- Inline onclick= attrs are blocked by CSP (script-src nonce
+                 makes browsers ignore unsafe-inline incl. event handlers).
+                 Use data attrs and wire listeners in the modal's nonced
+                 <script> block. --}}
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ricEntityModal" data-ric-entity-type="activity">
                 <i class="fas fa-running"></i> {{ __('Add Activity') }}
             </button>
-            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#ricEntityModal" onclick="ricSetEntityType('place')">
+            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#ricEntityModal" data-ric-entity-type="place">
                 <i class="fas fa-map-marker-alt"></i> {{ __('Add Place') }}
             </button>
-            <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#ricEntityModal" onclick="ricSetEntityType('rule')">
+            <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#ricEntityModal" data-ric-entity-type="rule">
                 <i class="fas fa-gavel"></i> {{ __('Add Rule') }}
             </button>
-            <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#ricEntityModal" onclick="ricSetEntityType('instantiation')">
+            <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#ricEntityModal" data-ric-entity-type="instantiation">
                 <i class="fas fa-file-alt"></i> {{ __('Add Instantiation') }}
             </button>
         </div>

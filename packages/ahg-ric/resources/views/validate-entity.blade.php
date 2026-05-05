@@ -12,8 +12,18 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0"><i class="fas fa-check-double me-2"></i> {{ __('SHACL Validation') }}</h1>
-  <a href="javascript:history.back()" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
+  {{-- href="javascript:history.back()" is blocked by CSP (script-src nonce
+       makes browsers treat javascript: URIs like inline scripts and reject
+       them). Wire history.back() via a nonced listener instead. --}}
+  <a href="#" id="ric-validate-back" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
 </div>
+<script nonce="{{ csp_nonce() }}">
+  document.getElementById('ric-validate-back').addEventListener('click', function (e) {
+    e.preventDefault();
+    if (history.length > 1) history.back();
+    else window.location.href = '/';
+  });
+</script>
 
 <p class="text-muted small">
   Validating <strong>{{ $typeLabel }} #{{ $id }}</strong> against the
