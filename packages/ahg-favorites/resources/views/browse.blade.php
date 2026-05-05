@@ -27,6 +27,19 @@
   }
 @endphp
 
+@push('styles')
+<style>
+  /* Sidebar 50% narrower than the previous col-lg-3 (25% → 12.5%) on
+     large screens; main content widens to 87.5% to match. Falls back to
+     the standard col-md-4 / col-md-8 split on smaller screens so the
+     folder list stays readable on tablets / phones. */
+  @media (min-width: 992px) {
+    .favorites-sidebar { flex: 0 0 12.5% !important; max-width: 12.5% !important; }
+    .favorites-main    { flex: 0 0 87.5% !important; max-width: 87.5% !important; }
+  }
+</style>
+@endpush
+
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1><i class="fas fa-heart me-2"></i>Favorites <span class="badge bg-primary">{{ $totalCount }}</span></h1>
@@ -75,7 +88,7 @@
 
 <div class="row">
   {{-- Sidebar: Folders --}}
-  <div class="col-lg-3 col-md-4">
+  <div class="col-lg-3 col-md-4 favorites-sidebar">
     <div class="card mb-3">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <span><i class="fas fa-folder me-1"></i> {{ __('Folders') }}</span>
@@ -152,7 +165,7 @@
   </div>
 
   {{-- Main Content --}}
-  <div class="col-lg-9 col-md-8">
+  <div class="col-lg-9 col-md-8 favorites-main">
     {{-- Search + Sort Bar --}}
     <form method="get" action="{{ route('favorites.browse') }}" class="row g-2 mb-3 align-items-end">
       @if(!empty($params['folder_id']))<input type="hidden" name="folder_id" value="{{ $params['folder_id'] }}">@endif
@@ -282,10 +295,6 @@
             <tr>
               <th style="width:30px"><input type="checkbox" id="selectAll" class="form-check-input" title="{{ __('Select all') }}"></th>
               <th>{{ __('Title') }}</th>
-              <th style="width:140px">{{ __('Reference Code') }}</th>
-              <th class="text-center" style="width:110px">{{ __('Level') }}</th>
-              <th class="text-center col-optional col-dates" style="width:130px">{{ __('Dates') }}</th>
-              <th class="text-center col-optional col-repository" style="width:150px">{{ __('Repository') }}</th>
               <th class="text-center" style="width:50px" title="{{ __('Digital Object') }}"><i class="fas fa-camera"></i></th>
               <th class="text-center" style="width:110px">{{ __('Date Added') }}</th>
               <th class="text-center" style="width:60px">{{ __('Notes') }}</th>
@@ -302,10 +311,6 @@
                     {{ $item->archival_description }}
                   </a>
                 </td>
-                <td class="small text-muted"><code>{{ $item->reference_code ?? '' }}</code></td>
-                <td class="text-center small text-muted">{{ $item->level_of_description ?? '' }}</td>
-                <td class="text-center small text-muted col-optional col-dates">{{ $item->date_range ?? '' }}</td>
-                <td class="text-center small text-muted col-optional col-repository">{{ $item->repository_name ?? '' }}</td>
                 <td class="text-center">
                   @if(!empty($item->has_digital_object))
                     <i class="fas fa-camera text-info" title="{{ __('Has digital object') }}"></i>
@@ -333,7 +338,7 @@
               {{-- Expandable notes row --}}
               <tr class="notes-row" id="notes-row-{{ $item->id }}" style="display: none;">
                 <td></td>
-                <td colspan="9">
+                <td colspan="5">
                   <div class="input-group input-group-sm">
                     <input type="text" class="form-control notes-input" id="notes-input-{{ $item->id }}"
                            placeholder="{{ __('Add a note...') }}" value="{{ e($item->notes ?? '') }}">
@@ -457,27 +462,7 @@
 @endif
 @endif
 
-{{-- Column Config Dropdown --}}
-<div class="dropdown position-fixed" style="bottom: 20px; right: 20px; z-index: 1050;">
-  <button class="btn btn-sm atom-btn-white rounded-circle shadow" type="button" data-bs-toggle="dropdown" title="{{ __('Column Settings') }}" style="width:36px;height:36px;">
-    <i class="fas fa-columns"></i>
-  </button>
-  <ul class="dropdown-menu dropdown-menu-end">
-    <li><h6 class="dropdown-header">{{ __('Optional Columns') }}</h6></li>
-    <li>
-      <label class="dropdown-item">
-        <input type="checkbox" class="form-check-input me-2 col-toggle" data-col="col-dates" checked>
-        Dates
-       <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-    </li>
-    <li>
-      <label class="dropdown-item">
-        <input type="checkbox" class="form-check-input me-2 col-toggle" data-col="col-repository" checked>
-        Repository
-       <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-    </li>
-  </ul>
-</div>
+{{-- Column Config Dropdown removed: Dates and Repository columns dropped per request. --}}
 
 @push('js')
 <script>
