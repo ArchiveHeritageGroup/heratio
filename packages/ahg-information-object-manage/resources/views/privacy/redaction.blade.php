@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function() {
     totalPages: @json($totalPages),
     existingRedactions: @json($existingRedactions),
     csrfToken: @json(csrf_token()),
-    saveUrl: '#',
+    saveUrl: @json(route('io.privacy.redaction.save', ['slug' => $io->slug])),
     applyUrl: '#',
   };
 
@@ -395,39 +395,41 @@ document.addEventListener('DOMContentLoaded', function() {
   // =========================================================================
   // Tool Selection
   // =========================================================================
+  // Using `let` (not function declaration) so the post-init override inside
+  // the OSD `open` handler (formerly at ~line 671) is no longer needed; the
+  // function below already calls updateFabricPointerEvents-equivalent logic
+  // when fabricCanvas + osdViewer are available, eliminating the timing race
+  // that left clicks visibly inert before the image had finished loading.
   const toolSelectBtn = document.getElementById('tool-select');
   const toolDrawBtn = document.getElementById('tool-draw');
   const viewerContainer = document.getElementById('viewer-container');
 
   function setTool(tool) {
     currentTool = tool;
-    // Update button states
-    toolSelectBtn.classList.toggle('active', tool === 'select');
-    toolDrawBtn.classList.toggle('active', tool === 'draw');
-    // Update cursor
-    if (tool === 'draw') {
-      viewerContainer.classList.add('drawing-active');
-      if (fabricCanvas) {
-        fabricCanvas.isDrawingMode = false;
-        fabricCanvas.selection = false;
-        fabricCanvas.defaultCursor = 'crosshair';
-        fabricCanvas.hoverCursor = 'crosshair';
-        fabricCanvas.forEachObject(function(obj) {
-          obj.selectable = false;
-          obj.evented = false;
-        });
+    // Visual state (always works, regardless of viewer init order)
+    if (toolSelectBtn) toolSelectBtn.classList.toggle('active', tool === 'select');
+    if (toolDrawBtn)   toolDrawBtn.classList.toggle('active',   tool === 'draw');
+    if (viewerContainer) {
+      if (tool === 'draw') viewerContainer.classList.add('drawing-active');
+      else                  viewerContainer.classList.remove('drawing-active');
+    }
+    // Fabric state — only when the overlay canvas has been initialised.
+    if (fabricCanvas) {
+      fabricCanvas.isDrawingMode = false;
+      fabricCanvas.selection = (tool === 'select');
+      fabricCanvas.defaultCursor = (tool === 'draw') ? 'crosshair' : 'default';
+      fabricCanvas.hoverCursor   = (tool === 'draw') ? 'crosshair' : 'move';
+      fabricCanvas.forEachObject(function(obj) {
+        obj.selectable = (tool === 'select');
+        obj.evented    = (tool === 'select');
+      });
+      // Pointer-event routing for the OSD-overlay case: in draw mode the
+      // Fabric overlay captures clicks; otherwise OSD pan/zoom does.
+      if (fabricCanvas.upperCanvasEl && fabricCanvas.upperCanvasEl.parentElement) {
+        fabricCanvas.upperCanvasEl.parentElement.style.pointerEvents = (tool === 'draw') ? 'auto' : 'none';
       }
-    } else {
-      viewerContainer.classList.remove('drawing-active');
-      if (fabricCanvas) {
-        fabricCanvas.isDrawingMode = false;
-        fabricCanvas.selection = true;
-        fabricCanvas.defaultCursor = 'default';
-        fabricCanvas.hoverCursor = 'move';
-        fabricCanvas.forEachObject(function(obj) {
-          obj.selectable = true;
-          obj.evented = true;
-        });
+      if (osdViewer && typeof osdViewer.setMouseNavEnabled === 'function') {
+        osdViewer.setMouseNavEnabled(tool !== 'draw');
       }
     }
   }
@@ -654,27 +656,11 @@ document.addEventListener('DOMContentLoaded', function() {
         selection: currentTool === 'select',
       });
 
-      // Enable pointer events on fabric overlay when in draw mode
-      const fabricEl = fabricCanvas.upperCanvasEl.parentElement;
-
-      function updateFabricPointerEvents() {
-        if (currentTool === 'draw') {
-          fabricEl.style.pointerEvents = 'auto';
-          if (osdViewer) osdViewer.setMouseNavEnabled(false);
-        } else {
-          fabricEl.style.pointerEvents = 'none';
-          if (osdViewer) osdViewer.setMouseNavEnabled(true);
-        }
-      }
-
-      // Override setTool to also handle OSD
-      const originalSetTool = setTool;
-      setTool = function(tool) {
-        originalSetTool(tool);
-        updateFabricPointerEvents();
-      };
-
-      updateFabricPointerEvents();
+      // setTool() above already routes pointer events between the Fabric
+      // overlay and OSD whenever fabricCanvas is set; we just need to
+      // re-apply the current tool now that the overlay exists so the
+      // initial state is in sync with whichever button is highlighted.
+      setTool(currentTool || 'select');
       initFabricEvents();
       loadExistingRedactions();
     });

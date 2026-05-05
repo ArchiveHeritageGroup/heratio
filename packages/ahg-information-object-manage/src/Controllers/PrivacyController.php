@@ -197,6 +197,77 @@ class PrivacyController extends Controller
     }
 
     /**
+     * POST /privacy/redaction/{slug}/save — persist the regions drawn by
+     * the user. The client sends the FULL list (no per-region ids), so we
+     * treat it as a replace-all: delete the IO's existing redactions, then
+     * insert the new set. Returns JSON for the AJAX caller.
+     */
+    public function saveRedactions(\Illuminate\Http\Request $request, string $slug)
+    {
+        $io = $this->getIO($slug);
+        if (!$io) {
+            return response()->json(['success' => false, 'message' => 'Record not found'], 404);
+        }
+
+        $payload = $request->json()->all();
+        $regions = $payload['regions'] ?? $request->input('regions', []);
+        if (!is_array($regions)) $regions = [];
+
+        // Resolve the digital_object id (master if available) so the
+        // redactions are stored against the correct file.
+        $digitalObjectId = \DB::table('digital_object')
+            ->where('object_id', $io->id)
+            ->where('usage_id', 140)
+            ->value('id');
+        if (!$digitalObjectId) {
+            $digitalObjectId = \DB::table('digital_object')
+                ->where('object_id', $io->id)
+                ->orderBy('usage_id')
+                ->value('id');
+        }
+
+        try {
+            \DB::transaction(function () use ($io, $digitalObjectId, $regions) {
+                // Replace-all: drop existing redactions for this IO, then insert
+                // the new set. Matches the client payload which has no ids.
+                \DB::table('privacy_visual_redaction')->where('object_id', $io->id)->delete();
+
+                foreach ($regions as $r) {
+                    if (!is_array($r)) continue;
+                    $this->privacyService->saveRedaction([
+                        'object_id'         => $io->id,
+                        'digital_object_id' => $digitalObjectId,
+                        'page_number'       => (int) ($r['page'] ?? 1),
+                        'region_type'       => 'rectangle',
+                        'coordinates'       => [
+                            'left'   => (float) ($r['left']   ?? 0),
+                            'top'    => (float) ($r['top']    ?? 0),
+                            'width'  => (float) ($r['width']  ?? 0),
+                            'height' => (float) ($r['height'] ?? 0),
+                        ],
+                        'normalized'        => 0,
+                        'source'            => 'manual',
+                        'status'            => 'pending',
+                        'created_by'        => auth()->id(),
+                    ]);
+                }
+            });
+        } catch (\Throwable $e) {
+            \Log::warning('saveRedactions failed: ' . $e->getMessage(), ['io_id' => $io->id]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save: ' . $e->getMessage(),
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'count'   => count($regions),
+            'message' => count($regions) . ' redaction region' . (count($regions) === 1 ? '' : 's') . ' saved.',
+        ]);
+    }
+
+    /**
      * Privacy dashboard with DSAR, breach, and processing activity stats.
      */
     public function dashboard()
