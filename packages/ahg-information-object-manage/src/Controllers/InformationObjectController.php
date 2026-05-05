@@ -1034,6 +1034,7 @@ class InformationObjectController extends Controller
                 try {
                     $targetRoute = $sectorRoutes[$sector];
                     if (\Illuminate\Support\Facades\Route::has($targetRoute)) {
+                        session()->reflash();
                         return redirect()->route($targetRoute, $slug);
                     }
                 } catch (\Exception $e) {
