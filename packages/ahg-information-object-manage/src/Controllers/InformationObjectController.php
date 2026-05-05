@@ -1687,6 +1687,23 @@ class InformationObjectController extends Controller
         $io->security_inherit_to_children   = (int) ($sec->security_inherit_to_children ?? 0);
         $io->watermark_type_id              = $sec->watermark_type_id              ?? null;
 
+        // Watermark Settings — uses the canonical PSIS object_watermark_setting
+        // table so global tools (DerivativeWatermarkService etc.) see the same
+        // shape Heratio writes. Custom_watermark feeds the "Or use Custom..."
+        // dropdown (global rows + this object's own rows).
+        $watermarkSetting = null;
+        $customWatermarks = collect();
+        try {
+            $watermarkSetting = DB::table('object_watermark_setting')->where('object_id', $io->id)->first();
+            $customWatermarks = DB::table('custom_watermark')
+                ->where('active', 1)
+                ->where(function ($q) use ($io) {
+                    $q->whereNull('object_id')->orWhere('object_id', $io->id);
+                })
+                ->orderBy('name')
+                ->get();
+        } catch (\Throwable $e) { /* tables missing in some installs */ }
+
         return view('ahg-io-manage::edit', array_merge(
             [
                 'io' => $io,
@@ -1710,6 +1727,8 @@ class InformationObjectController extends Controller
                 'parentTitle' => $parentTitle,
                 'parentSlug' => $parentSlug,
                 'formChoices' => $formChoices,
+                'watermarkSetting' => $watermarkSetting,
+                'customWatermarks' => $customWatermarks,
             ],
             $dropdowns
         ));
@@ -2246,7 +2265,6 @@ class InformationObjectController extends Controller
             'security_declassify_date',
             'security_handling_instructions',
             'security_inherit_to_children',
-            'watermark_type_id',
         ];
         $hasSecurityFields = false;
         foreach ($secKeys as $k) {
@@ -2260,7 +2278,6 @@ class InformationObjectController extends Controller
                 'security_declassify_date'       => $request->input('security_declassify_date') ?: null,
                 'security_handling_instructions' => $request->input('security_handling_instructions') ?: null,
                 'security_inherit_to_children'   => (int) $request->boolean('security_inherit_to_children'),
-                'watermark_type_id'              => $request->filled('watermark_type_id') ? (int) $request->input('watermark_type_id') : null,
                 'updated_at'                     => now(),
             ];
 
@@ -2293,7 +2310,6 @@ class InformationObjectController extends Controller
                             'security_declassify_date'       => $secPayload['security_declassify_date'],
                             'security_handling_instructions' => $secPayload['security_handling_instructions'],
                             'security_inherit_to_children'   => 1,
-                            'watermark_type_id'              => $secPayload['watermark_type_id'],
                             'created_at'                     => now(),
                             'updated_at'                     => now(),
                         ], $chunk);
@@ -2304,10 +2320,75 @@ class InformationObjectController extends Controller
                             ['object_id'],
                             ['security_classification_id', 'security_reason', 'security_review_date',
                              'security_declassify_date', 'security_handling_instructions',
-                             'security_inherit_to_children', 'watermark_type_id', 'updated_at']
+                             'security_inherit_to_children', 'updated_at']
                         );
                     }
                 }
+            }
+        }
+
+        // ---- Watermark Settings (object_watermark_setting + custom_watermark) ----
+        // Mirrors the PSIS / ahgMuseumPlugin saveWatermarkSettings() flow so the
+        // canonical tables stay in sync with the AtoM-side toolchain.
+        if ($request->has('watermark_enabled') || $request->hasFile('new_watermark_file')
+            || $request->has('watermark_type_id') || $request->has('custom_watermark_id')) {
+
+            $watermarkEnabled  = $request->boolean('watermark_enabled') ? 1 : 0;
+            $watermarkTypeId   = $request->filled('watermark_type_id')   ? (int) $request->input('watermark_type_id')   : null;
+            $customWatermarkId = $request->filled('custom_watermark_id') ? (int) $request->input('custom_watermark_id') : null;
+            $position          = (string) $request->input('new_watermark_position', 'center');
+            $opacity           = ((int) $request->input('new_watermark_opacity', 40)) / 100;
+
+            // Optional: upload a new custom watermark file.
+            if ($request->hasFile('new_watermark_file') && $request->file('new_watermark_file')->isValid()) {
+                $uploaded = $request->file('new_watermark_file');
+                $mime = $uploaded->getMimeType();
+                if (in_array($mime, ['image/png', 'image/gif'], true)) {
+                    $ext      = $mime === 'image/gif' ? 'gif' : 'png';
+                    $filename = 'watermark_' . uniqid() . '.' . $ext;
+                    $destDir  = rtrim(config('heratio.uploads_path'), '/') . '/watermarks';
+                    if (!is_dir($destDir)) { @mkdir($destDir, 0755, true); }
+                    $destPath = $destDir . '/' . $filename;
+                    if ($uploaded->move($destDir, $filename)) {
+                        @chmod($destPath, 0644);
+                        $isGlobal = $request->boolean('new_watermark_global');
+                        $newCustomId = DB::table('custom_watermark')->insertGetId([
+                            'object_id'  => $isGlobal ? null : $ioId,
+                            'name'       => $request->input('new_watermark_name') ?: 'Custom Watermark',
+                            'filename'   => $filename,
+                            'file_path'  => $destPath,
+                            'position'   => $position,
+                            'opacity'    => $opacity,
+                            'created_by' => (int) (auth()->id() ?? 0),
+                            'active'     => 1,
+                            'created_at' => now(),
+                        ]);
+                        // Newly uploaded custom takes precedence over a system pick.
+                        $customWatermarkId = $newCustomId;
+                        $watermarkTypeId   = null;
+                    }
+                }
+            }
+
+            DB::table('object_watermark_setting')->updateOrInsert(
+                ['object_id' => $ioId],
+                [
+                    'watermark_enabled'   => $watermarkEnabled,
+                    'watermark_type_id'   => $watermarkTypeId,
+                    'custom_watermark_id' => $customWatermarkId,
+                    'position'            => $position,
+                    'opacity'             => $opacity,
+                    'updated_at'          => now(),
+                ]
+            );
+
+            // The "regenerate derivatives" flag is a heavy job that needs the
+            // queue worker; record the intent for now via Log so a follow-up
+            // command/job can pick it up. Don't block save on this.
+            if ($request->boolean('regenerate_watermark')) {
+                \Illuminate\Support\Facades\Log::info('[ahg-io-manage] regenerate_watermark requested', [
+                    'object_id' => $ioId,
+                ]);
             }
         }
 
