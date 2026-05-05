@@ -272,6 +272,9 @@
   @include('ahg-ric::_view-switch', ['standard' => 'Dublin Core'])
   @if(session('ric_view_mode') === 'ric')
     @include('ahg-ric::_ric-view-library', ['item' => $item])
+    @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
+      @include('ahg-ric::_ric-entities-panel', ['record' => $item, 'recordType' => 'record'])
+    @endif
   @else
 
 <link rel="stylesheet" href="/vendor/ahg-core/css/tts.css">
@@ -972,9 +975,6 @@
 
 </div>{{-- /tts-content-area --}}
 
-  @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
-    @include('ahg-ric::_ric-entities-panel', ['record' => $item, 'recordType' => 'record'])
-  @endif
   @endif {{-- end ric_view_mode toggle --}}
 @endsection
 
