@@ -381,6 +381,60 @@ class AccessionController extends Controller
             ->with('success', 'Accession finalised.');
     }
 
+    /**
+     * Materialise a new InformationObject from this accession. Copies
+     * basic metadata across (title + identifier + scope_and_content),
+     * links the new IO to the accession via the relation table
+     * (RELATION_ACCESSION = 167), and — when the
+     * accession_rights_inheritance_enabled setting is on —
+     * propagates the accession's PREMIS rights down via
+     * inheritRightsToIo(). This is the caller the rights-inheritance
+     * helper was waiting for; with this route in place all seven
+     * accession settings are now enforcing.
+     */
+    public function createInformationObject(Request $request, string $slug)
+    {
+        $accession = $this->service->getBySlug($slug);
+        if (!$accession) {
+            abort(404);
+        }
+
+        $newIoId = \AhgInformationObjectManage\Services\InformationObjectService::create([
+            'title'             => $accession->title ?? $accession->identifier,
+            'identifier'        => $accession->identifier,
+            'scope_and_content' => $accession->scope_and_content ?? null,
+        ]);
+
+        // Link the new IO to the accession (relation: subject=IO, object=accession).
+        // The relation table re-uses the object table's id (Qubit class-table
+        // inheritance) — pre-create a QubitRelation object row and use its id.
+        $relationId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitRelation',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('relation')->insert([
+            'id'             => $relationId,
+            'subject_id'     => $newIoId,
+            'object_id'      => $accession->id,
+            'type_id'        => \AhgCore\Constants\TermId::RELATION_ACCESSION,
+            'source_culture' => app()->getLocale(),
+        ]);
+
+        // Honour accession_rights_inheritance_enabled — inheritRightsToIo
+        // is a no-op when the setting is off.
+        $rightsApplied = $this->service->inheritRightsToIo($accession->id, $newIoId);
+
+        $newSlug = DB::table('slug')->where('object_id', $newIoId)->value('slug');
+        $msg = 'Archival description created from accession.';
+        if ($rightsApplied > 0) {
+            $msg .= " Inherited {$rightsApplied} rights record(s) from this accession.";
+        }
+        return redirect()
+            ->route('informationobject.edit', $newSlug)
+            ->with('success', $msg);
+    }
+
     public function create()
     {
         $formChoices = $this->service->getFormChoices();

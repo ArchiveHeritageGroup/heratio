@@ -17,6 +17,12 @@ Route::middleware('auth')->group(function () {
     // gated on AccessionService::finalisationBlockers() (which honours
     // accession_require_donor_agreement + accession_require_appraisal).
     Route::post('/accession/{slug}/finalise', [AccessionController::class, 'finalise'])->name('accession.finalise')->middleware('acl:update');
+
+    // Create archival description from accession. Materialises a new IO,
+    // links it to the accession via the relation table (RELATION_ACCESSION),
+    // and invokes inheritRightsToIo() so accession_rights_inheritance_enabled
+    // actually fires. The last passive setting becomes enforcing here.
+    Route::post('/accession/{slug}/create-io', [AccessionController::class, 'createInformationObject'])->name('accession.create-io')->middleware('acl:create');
 });
 
 Route::middleware('admin')->group(function () {

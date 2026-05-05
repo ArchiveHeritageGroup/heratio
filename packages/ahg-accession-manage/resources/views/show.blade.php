@@ -115,6 +115,14 @@
           </button>
         </form>
       @endif
+      <form method="POST" action="{{ route('accession.create-io', $accession->slug) }}" class="d-inline">
+        @csrf
+        <button type="submit"
+                class="btn btn-sm btn-outline-primary"
+                onclick="return confirm('{{ __('Create an archival description from this accession? Title, identifier and scope-and-content will be copied across, and any inheritable PREMIS rights on this accession will be applied to the new description if rights inheritance is enabled.') }}')">
+          <i class="fas fa-file-alt me-1"></i>{{ __('Create archival description') }}
+        </button>
+      </form>
     @endauth
   </div>
 

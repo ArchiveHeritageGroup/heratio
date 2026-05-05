@@ -84,3 +84,17 @@ packages/ahg-loan/             # loan.create / loan.index / loan.show
 packages/ahg-storage-manage/   # physicalobject.show / physicalobject.link-to
 packages/ahg-repository-manage/ # repository.show
 packages/ahg-term-taxonomy/    # term.show
+
+# Full GLAM/DAM lock-down (added 2026-05-05). The four sector show pages
+# (DAM / Library / Museum / Gallery) plus the IO show page reach into
+# these via @include partials and named-route links. Lock them in
+# lockstep so a casual edit in any of these packages can't drift the
+# show pages out from under us:
+packages/ahg-accession-manage/ # accession.* routes (linked from IO show
+                               # 'Create from accession' flow + new
+                               # create-IO-from-accession round-trip)
+packages/ahg-actor-manage/     # actor.autocomplete used by IO + rights
+                               # forms; actor.show linked from Creators /
+                               # Repository / Rights Holder
+packages/ahg-menu-manage/      # _static-pages-menu partial @included in
+                               # every sector show's left sidebar
