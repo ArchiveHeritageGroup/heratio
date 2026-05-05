@@ -760,27 +760,53 @@
 document.addEventListener('DOMContentLoaded', function() {
   'use strict';
 
-  // Generate identifier button — pass the form's current repository + level so
-  // per-repository numbering schemes can match. credentials:same-origin keeps
-  // the auth cookie on the fetch so the auth-protected route resolves.
+  // Generate identifier button. Stops event propagation so no other listener
+  // can swallow it, prevents default in case any browser still treats the
+  // button as submit, and uses a relative URL to avoid mixed-content / proxy
+  // surprises. Logs every step to console so any failure mode is visible
+  // via F12 / DevTools without us guessing.
   var genBtn = document.getElementById('generate-identifier');
   if (genBtn) {
-    genBtn.addEventListener('click', function() {
-      var url = this.getAttribute('data-url');
+    genBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var path = '/informationobject/generateIdentifier';
       var qs = [];
       var repoEl  = document.querySelector('[name="repository_id"]');
       var levelEl = document.querySelector('[name="level_of_description_id"]');
       if (repoEl && repoEl.value)  qs.push('repository_id=' + encodeURIComponent(repoEl.value));
       if (levelEl && levelEl.value) qs.push('level_of_description_id=' + encodeURIComponent(levelEl.value));
-      if (qs.length) url += (url.indexOf('?') >= 0 ? '&' : '?') + qs.join('&');
-      fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          if (data && data.identifier) {
-            document.getElementById('identifier').value = data.identifier;
+      if (qs.length) path += '?' + qs.join('&');
+      console.log('[generate-identifier] fetching', path);
+      fetch(path, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+          credentials: 'same-origin'
+        })
+        .then(function (r) {
+          console.log('[generate-identifier] HTTP', r.status, r.headers.get('content-type'));
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.text();
+        })
+        .then(function (raw) {
+          console.log('[generate-identifier] body', raw);
+          var data;
+          try { data = JSON.parse(raw); }
+          catch (parseErr) { throw new Error('non-JSON response'); }
+          if (data && typeof data.identifier === 'string' && data.identifier !== '') {
+            var input = document.getElementById('identifier');
+            input.value = data.identifier;
+            input.dispatchEvent(new Event('input',  { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+            console.log('[generate-identifier] set identifier =', data.identifier);
+          } else {
+            console.warn('[generate-identifier] empty/missing identifier in response', data);
           }
         })
-        .catch(function() { /* swallow; user can type manually */ });
+        .catch(function (err) {
+          console.error('[generate-identifier] failed:', err);
+        });
+      return false;
     });
   }
 
