@@ -790,8 +790,6 @@
         </div>
       </div>
 
-    </div>
-
     {{-- ===== Security Classification ===== --}}
     <div class="accordion-item">
       <h2 class="accordion-header" id="security-heading">
@@ -1042,7 +1040,8 @@
           </div>
 
           <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="updateDescendants" name="updateDescendants" value="1">
+            <input type="checkbox" class="form-check-input" id="updateDescendants" name="updateDescendants" value="1"
+                   @checked(old('updateDescendants', $io->update_descendants_default ?? 0))>
             <label class="form-check-label" for="updateDescendants">Make this the default for existing children <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           </div>
 

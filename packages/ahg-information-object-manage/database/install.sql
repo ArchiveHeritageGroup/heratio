@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS ahg_io_security (
     security_declassify_date        DATE         NULL,
     security_handling_instructions  TEXT         NULL,
     security_inherit_to_children    TINYINT(1)   NOT NULL DEFAULT 0,
+    update_descendants_default      TINYINT(1)   NOT NULL DEFAULT 0,
     watermark_type_id               INT UNSIGNED NULL,
     created_at                      DATETIME     NULL,
     updated_at                      DATETIME     NULL,

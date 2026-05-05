@@ -70,6 +70,14 @@ class AhgInformationObjectManageServiceProvider extends ServiceProvider
                     );
                 } catch (\Throwable $e) { /* FK may already exist; skip */ }
             }
+            // Forward-migrate: persistent "Make this the default for existing
+            // children" flag (sticky version of the form's updateDescendants
+            // checkbox — keeps the box visibly ticked across reloads).
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('ahg_io_security', 'update_descendants_default')) {
+                \Illuminate\Support\Facades\DB::statement(
+                    'ALTER TABLE ahg_io_security ADD COLUMN update_descendants_default TINYINT(1) NOT NULL DEFAULT 0'
+                );
+            }
         } catch (\Throwable $e) {
             // Don't kill app boot on a schema hiccup; surface in the log.
             \Illuminate\Support\Facades\Log::warning('[ahg-io-manage] ensureSecurityTable failed: ' . $e->getMessage());

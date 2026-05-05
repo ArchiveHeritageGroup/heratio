@@ -1793,6 +1793,7 @@ class InformationObjectController extends Controller
         $io->security_declassify_date       = $sec->security_declassify_date       ?? null;
         $io->security_handling_instructions = $sec->security_handling_instructions ?? null;
         $io->security_inherit_to_children   = (int) ($sec->security_inherit_to_children ?? 0);
+        $io->update_descendants_default     = (int) ($sec->update_descendants_default ?? 0);
         $io->watermark_type_id              = $sec->watermark_type_id              ?? null;
 
         // Watermark Settings — uses the canonical PSIS object_watermark_setting
@@ -2385,6 +2386,7 @@ class InformationObjectController extends Controller
             'security_declassify_date',
             'security_handling_instructions',
             'security_inherit_to_children',
+            'updateDescendants',
         ];
         $hasSecurityFields = false;
         foreach ($secKeys as $k) {
@@ -2398,6 +2400,7 @@ class InformationObjectController extends Controller
                 'security_declassify_date'       => $request->input('security_declassify_date') ?: null,
                 'security_handling_instructions' => $request->input('security_handling_instructions') ?: null,
                 'security_inherit_to_children'   => (int) $request->boolean('security_inherit_to_children'),
+                'update_descendants_default'     => (int) $request->boolean('updateDescendants'),
                 'updated_at'                     => now(),
             ];
 
@@ -2430,6 +2433,7 @@ class InformationObjectController extends Controller
                             'security_declassify_date'       => $secPayload['security_declassify_date'],
                             'security_handling_instructions' => $secPayload['security_handling_instructions'],
                             'security_inherit_to_children'   => 1,
+                            'update_descendants_default'     => $secPayload['update_descendants_default'],
                             'created_at'                     => now(),
                             'updated_at'                     => now(),
                         ], $chunk);
@@ -2440,7 +2444,7 @@ class InformationObjectController extends Controller
                             ['object_id'],
                             ['security_classification_id', 'security_reason', 'security_review_date',
                              'security_declassify_date', 'security_handling_instructions',
-                             'security_inherit_to_children', 'updated_at']
+                             'security_inherit_to_children', 'update_descendants_default', 'updated_at']
                         );
                     }
                 }
